@@ -1,0 +1,26 @@
+version: 0.2
+run-as: root
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+      nodejs: 14
+  pre_build:
+    commands:
+      - IP=$(curl http://checkip.amazonaws.com)/32
+      - echo $IP of CodeBuild Instance
+  build:
+    commands:
+      - chmod +x aws_scripts/build.sh
+      - aws_scripts/build.sh
+  post_build:
+    commands:
+      - IP=$(curl http://checkip.amazonaws.com)/32
+      - echo $IP of CodeBuild Instance
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - appspec.yml
+    - aws_scripts/cleanup
+    - front-end-vue/dist/**/*

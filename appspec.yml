@@ -1,0 +1,10 @@
+version: 0.0
+os: linux
+files:
+  - source: /front-end-vue/dist
+    destination: //opt/tomcat/webapps/ROOT
+hooks:
+  BeforeInstall:
+    - location: aws_scripts/cleanup
+      timeout: 300
+      runas: root
