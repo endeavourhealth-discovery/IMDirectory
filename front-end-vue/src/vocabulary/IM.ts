@@ -34,7 +34,7 @@ export class IM {
   public static NATIONALLY_ASSURED_UK = IM.NAMESPACE + "NationallyAssuredUK";
 
   public static QUERY_SET = IM.NAMESPACE + "QuerySet";
-  public static QUERY_TEMPLATE = IM.NAMESPACE + "QueryTemplate";
+  public static QUERY = IM.NAMESPACE + "Query";
   public static CONCEPT_SET = IM.NAMESPACE + "ConceptSet";
   public static VALUE_SET = IM.NAMESPACE + "ValueSet";
   public static HAS_MEMBERS = IM.NAMESPACE + "hasMembers";

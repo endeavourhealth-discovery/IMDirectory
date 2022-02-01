@@ -48,7 +48,7 @@ export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
     return ["fas", "folder"];
   }
 
-  if (isOfTypes(conceptTypes, IM.QUERY_TEMPLATE)) {
+  if (isOfTypes(conceptTypes, IM.QUERY)) {
     return ["fas", "search"];
   }
   return ["far", "lightbulb"];
@@ -75,7 +75,7 @@ export function getColourFromType(conceptTypes: TTIriRef[]): string {
     return bgsFixed[1];
   }
 
-  if (isOfTypes(conceptTypes, IM.QUERY_TEMPLATE)) {
+  if (isOfTypes(conceptTypes, IM.QUERY)) {
     return bgsFixed[3];
   }
 

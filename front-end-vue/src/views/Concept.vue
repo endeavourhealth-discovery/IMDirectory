@@ -167,7 +167,7 @@ export default defineComponent({
     },
 
     isQuery(): boolean {
-      return isOfTypes(this.types, IM.QUERY_TEMPLATE);
+      return isOfTypes(this.types, IM.QUERY);
     },
 
     isRecordModel(): boolean {
