@@ -147,7 +147,7 @@ label {
 }
 
 .p-field {
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 .quick-filters-container {

@@ -1,25 +1,38 @@
 <template>
-  <SideNav />
+  <div class="main-grid">
+    <!-- <TopBar /> -->
+    <Navigator />
+    <DirectoryTable />
+  </div>
+
+  <!-- <SideNav />
   <div class="layout-main">
     <div class="main-grid">
       <SidebarControl />
       <router-view />
     </div>
-  </div>
+  </div> -->
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import SideNav from "@/components/home/SideNav.vue";
+import Navigator from "@/components/home/Navigator.vue";
 import SidebarControl from "@/components/home/SidebarControl.vue";
+import TopBar from "@/components/home/TopBar.vue";
+import NavTree from "@/components/home/NavTree.vue";
+import DirectoryTable from "@/components/home/DirectoryTable.vue";
+
 import { mapState } from "vuex";
 import { IM } from "@/vocabulary/IM";
 
 export default defineComponent({
   name: "Home",
   components: {
-    SideNav,
-    SidebarControl
+    // TopBar,
+    Navigator,
+    DirectoryTable
+    // SideNav,
+    // SidebarControl
   },
   computed: mapState(["sideNavHierarchyFocus"]),
   async mounted() {

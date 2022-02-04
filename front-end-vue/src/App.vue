@@ -1,4 +1,5 @@
 <template>
+  <TopBar />
   <div class="layout-wrapper layout-static">
     <Toast />
     <div v-if="loading" class="p-d-flex p-flex-row p-jc-center p-ai-center loading-container">
@@ -10,11 +11,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import TopBar from "@/components/home/TopBar.vue";
 import ProgressSpinner from "primevue/progressspinner";
 
 export default defineComponent({
   name: "App",
-  components: { ProgressSpinner: ProgressSpinner },
+  components: { ProgressSpinner: ProgressSpinner, TopBar },
   async mounted() {
     // check for user and log them in if found or logout if not
     this.loading = true;
