@@ -1,4 +1,4 @@
-import {isOfTypes, isValueSet, isProperty, getColourFromType, getFAIconFromType} from "@/helpers/ConceptTypeMethods";
+import { isOfTypes, isValueSet, isProperty, getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
 import { IM } from "@/vocabulary/IM";
 
 describe("ConceptTypeMethods", () => {
@@ -9,7 +9,7 @@ describe("ConceptTypeMethods", () => {
     { "@id": "http://www.w3.org/ns/shacl#NodeShape", name: "Node shape" }
   ];
   const testPropertyType = [{ "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", name: "Property" }];
-  const testQueryType = [{ "@id": "http://endhealth.info/im#QueryTemplate", name: "Query template" }];
+  const testQueryType = [{ "@id": "http://endhealth.info/im#Query", name: "Query template" }];
   const testFolder = [{ "@id": "http://endhealth.info/im#Folder", name: "Folder" }];
 
   describe("isOfTypes", () => {

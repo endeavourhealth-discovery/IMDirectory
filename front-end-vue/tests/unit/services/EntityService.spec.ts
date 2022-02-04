@@ -1,6 +1,5 @@
 import { SearchRequest } from "@/models/search/SearchRequest";
 import EntityService from "@/services/EntityService";
-import SetService from "@/services/SetService";
 import axios from "axios";
 
 const api = process.env.VUE_APP_API;
@@ -178,15 +177,6 @@ describe("EntityService.ts ___ axios success", () => {
     expect(result).toBe("axios get return");
   });
 
-  it("can get entity members", async () => {
-    const result = await EntityService.getEntityMembers("testIri", true, true, 1000);
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/members", {
-      params: { iri: "testIri", expandMembers: true, expandSubsets: true, limit: 1000 }
-    });
-    expect(result).toBe("axios get return");
-  });
-
   it("can get entity graph", async () => {
     const result = await EntityService.getEntityGraph("testIri");
     expect(axios.get).toHaveBeenCalledTimes(1);
@@ -222,25 +212,10 @@ describe("EntityService.ts ___ axios success", () => {
     expect(result).toBe("axios get return");
   });
 
-  it("can get data model properties", async () => {
-    const result = await EntityService.getDataModelProperties("testIri");
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/dataModelProperties", { params: { iri: "testIri" } });
-    expect(result).toBe("axios get return");
-  });
-
   it("can get entity summary", async () => {
     const result = await EntityService.getEntitySummary("testIri");
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/summary", { params: { iri: "testIri" } });
-    expect(result).toBe("axios get return");
-  });
-
-  //obsolete, to be deleted on editor branch merge
-  it("can get entity", async () => {
-    const result = await EntityService.getEntity("testIri");
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/public/entity", { params: { iri: "testIri" } });
     expect(result).toBe("axios get return");
   });
 
@@ -350,15 +325,6 @@ describe("EntityService.ts ___ axios fail", () => {
     expect(result).toBe(0);
   });
 
-  it("can get entity members", async () => {
-    const result = await EntityService.getEntityMembers("testIri", true, true, 1000);
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/members", {
-      params: { iri: "testIri", expandMembers: true, expandSubsets: true, limit: 1000 }
-    });
-    expect(result).toStrictEqual({});
-  });
-
   it("can get entity graph", async () => {
     const result = await EntityService.getEntityGraph("testIri");
     expect(axios.get).toHaveBeenCalledTimes(1);
@@ -394,25 +360,10 @@ describe("EntityService.ts ___ axios fail", () => {
     expect(result).toBe("");
   });
 
-  it("can get data model properties", async () => {
-    const result = await EntityService.getDataModelProperties("testIri");
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/dataModelProperties", { params: { iri: "testIri" } });
-    expect(result).toStrictEqual([]);
-  });
-
   it("can get entity summary", async () => {
     const result = await EntityService.getEntitySummary("testIri");
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/summary", { params: { iri: "testIri" } });
-    expect(result).toStrictEqual({});
-  });
-
-  //obsolete, to be deleted on editor branch merge
-  it("can get entity", async () => {
-    const result = await EntityService.getEntity("testIri");
-    expect(axios.get).toHaveBeenCalledTimes(1);
-    expect(axios.get).toHaveBeenCalledWith(api + "api/public/entity", { params: { iri: "testIri" } });
     expect(result).toStrictEqual({});
   });
 

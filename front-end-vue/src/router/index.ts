@@ -1,12 +1,8 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
+import DirectoryTable from "../components/home/DirectoryTable.vue";
 import Dashboard from "../views/Dashboard.vue";
-import Datamodel from "../views/Concept.vue";
-import Workflow from "../views/Workflow.vue";
-import Catalogue from "../views/Catalogue.vue";
-import UPRN from "../views/Uprn.vue";
 import User from "../views/User.vue";
-import Editor from "../views/Editor.vue";
 import Login from "../components/user/Login.vue";
 import Register from "../components/user/Register.vue";
 import UserDetails from "../components/user/UserDetails.vue";
@@ -16,8 +12,6 @@ import ConfirmCode from "../components/user/ConfirmCode.vue";
 import Logout from "../components/user/Logout.vue";
 import ForgotPassword from "../components/user/ForgotPassword.vue";
 import ForgotPasswordSubmit from "../components/user/ForgotPasswordSubmit.vue";
-import CatalogueDashboard from "@/components/catalogue/CatalogueDashboard.vue";
-import InstanceDetails from "@/components/catalogue/InstanceDetails.vue";
 import SnomedLicense from "../views/SnomedLicense.vue";
 import store from "@/store/index";
 import { nextTick } from "vue";
@@ -109,77 +103,14 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: "/concept/:selectedIri",
-        name: "Concept",
-        component: Datamodel,
+        path: "/folder/:selectedIri",
+        name: "Folder",
+        component: DirectoryTable,
         meta: {
           requiresLicense: true
         }
       }
     ]
-  },
-  {
-    path: "/editor",
-    name: "Editor",
-    component: Editor,
-    children: [
-      {
-        path: "/editor",
-        name: "Create",
-        component: Editor
-      },
-      {
-        path: "/editor/:iri",
-        name: "Edit",
-        component: Editor
-      }
-    ],
-    meta: {
-      requiresAuth: true
-    }
-  },
-  {
-    path: "/workflow",
-    name: "Workflow",
-    component: Workflow,
-    meta: {
-      requiresLicense: true
-    }
-  },
-  {
-    path: "/catalogue",
-    name: "Catalogue",
-    component: Catalogue,
-    redirect: { name: "CatalogueDashboard" },
-    meta: {
-      requiresLicense: true
-    },
-    children: [
-      {
-        path: "dashboard",
-        name: "CatalogueDashboard",
-        component: CatalogueDashboard,
-        meta: {
-          requiresLicense: true
-        }
-      },
-      {
-        path: "individual/:selectedIri",
-        name: "Individual",
-        component: InstanceDetails,
-        meta: {
-          requiresLicense: true
-        }
-      }
-    ]
-  },
-  {
-    path: "/uprn",
-    name: "UPRN",
-    component: UPRN,
-    meta: {
-      requiresLicense: true
-    }
   },
   {
     path: "/snomedLicense",

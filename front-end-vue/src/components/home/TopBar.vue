@@ -6,7 +6,6 @@
     <template #end>
       <Button icon="pi pi-th-large" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openAppsOverlay" />
       <OverlayPanel ref="appsO">
-        <!-- <div class="p-fluid app-list-container"> -->
         <div class="p-grid " justify-content-end>
           <div class="p-col-4">
             <i class="pi pi-cog"></i>
@@ -17,7 +16,6 @@
           <div class="p-col-4">4</div>
           <div class="p-col-4">4</div>
         </div>
-        <!-- </div> -->
       </OverlayPanel>
 
       <AutoComplete
@@ -40,7 +38,25 @@
           <Filters :search="search" />
         </div>
       </OverlayPanel>
-      <Button icon="pi pi-user" class="p-button-rounded p-button-text p-button-plain p-button-lg" />
+
+      <Button
+        v-if="!isLoggedIn"
+        icon="pi pi-user"
+        class="p-button-rounded p-button-text p-button-plain p-button-lg"
+        @click="openUserMenu"
+        aria-haspopup="true"
+        aria-controls="overlay_menu"
+      />
+      <Button
+        v-if="isLoggedIn"
+        class="p-button-rounded p-button-text p-button-plain p-button-lg"
+        @click="openUserMenu"
+        aria-haspopup="true"
+        aria-controls="overlay_menu"
+      >
+        <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="width: 1.5rem" />
+      </Button>
+      <Menu ref="userMenu" :model="getItems()" :popup="true" />
     </template>
   </Menubar>
 </template>
@@ -49,22 +65,33 @@
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import { Namespace } from "@/models/Namespace";
-import { ConceptSummary } from "@/models/search/ConceptSummary";
 import { SearchRequest } from "@/models/search/SearchRequest";
 import { SortBy } from "@/models/search/SortBy";
 import { TTIriRef } from "@/models/TripleTree";
 import Filters from "@/components/sidebar/Filters.vue";
-import EntityService from "@/services/EntityService";
 import axios, { CancelToken } from "axios";
 import { defineComponent } from "vue";
-import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
+import { AccountItem, LoginItem, ModuleItem } from "@/models/sideNav/MenuItems";
+import { MODULE_IRIS } from "@/helpers/ModuleIris";
 
 export default defineComponent({
   name: "TopBar",
   components: { Filters },
   watch: {},
-  computed: mapState(["filterOptions", "selectedFilters", "searchResults", "focusHierarchy", "sidebarControlActivePanel"]),
+  computed: mapState([
+    "currentUser",
+    "isLoggedIn",
+    "sideNavHierarchyFocus",
+    "selectedEntityType",
+    "moduleSelectedEntities",
+    "conceptIri",
+    "filterOptions",
+    "selectedFilters",
+    "searchResults",
+    "focusHierarchy",
+    "sidebarControlActivePanel"
+  ]),
   data() {
     return {
       loading: false,
@@ -185,10 +212,104 @@ export default defineComponent({
             ]
           ]
         }
-      ]
+      ],
+      loginItems: [
+        {
+          label: "Login",
+          icon: "fa fa-fw fa-user",
+          to: "/user/login"
+        },
+        {
+          label: "Register",
+          icon: "fa fa-fw fa-user-plus",
+          to: "/user/register"
+        }
+      ] as LoginItem[],
+
+      accountItems: [
+        {
+          label: "My account",
+          icon: "fa fa-fw fa-user",
+          to: "/user/my-account"
+        },
+        {
+          label: "Edit account",
+          icon: "fa fa-fw fa-user-edit",
+          to: "/user/my-account/edit"
+        },
+        {
+          label: "Change password",
+          icon: "fa fa-fw fa-user-lock",
+          to: "/user/my-account/password-edit"
+        },
+        {
+          label: "Logout",
+          icon: "fa fa-fw fa-sign-out-alt",
+          to: "/user/logout"
+        }
+      ] as AccountItem[]
     };
   },
   methods: {
+    isActive(item: string): boolean {
+      return item === this.sideNavHierarchyFocus.name;
+    },
+
+    getItems(): LoginItem[] | AccountItem[] {
+      if (this.isLoggedIn) {
+        return this.accountItems;
+      } else {
+        return this.loginItems;
+      }
+    },
+
+    openUserMenu(event: any): void {
+      (this.$refs.userMenu as any).toggle(event);
+    },
+
+    getUrl(item: string): string {
+      return require("@/assets/avatars/" + item);
+    },
+
+    iconClick(item: ModuleItem): void {
+      this.$store.commit("updateSidebarControlActivePanel", 0);
+      this.handleCenterIconClick(item);
+    },
+
+    handleCenterIconClick(item: ModuleItem): void {
+      let route = item.route;
+      let moduleIri = "";
+      if (item.name === "Ontology" || item.name === "Sets" || item.name === "Queries" || item.name === "DataModel") {
+        this.$store.commit("updateSideNavHierarchyFocus", {
+          name: item.name,
+          fullName: item.fullName,
+          iri: item.iri,
+          route: "Dashboard"
+        });
+        this.$store.commit("updateConceptIri", this.moduleSelectedEntities.get(item.name));
+        this.$store.commit("updateActiveModule", item.name);
+        if (!MODULE_IRIS.includes(this.moduleSelectedEntities.get(item.name))) {
+          route = "Concept";
+          moduleIri = this.moduleSelectedEntities.get(item.name);
+        }
+        this.$store.commit("updateFocusHierarchy", true);
+      } else {
+        this.$store.commit("updateSideNavHierarchyFocus", {
+          name: item.name,
+          fullName: item.fullName,
+          iri: item.iri,
+          route: item.route
+        });
+      }
+      if (moduleIri !== "") {
+        this.$router.push({
+          name: route,
+          params: { selectedIri: moduleIri }
+        });
+      } else {
+        this.$router.push({ name: route });
+      }
+    },
     openAppsOverlay() {
       (this.$refs.appsO as any).toggle(event);
     },
@@ -197,7 +318,7 @@ export default defineComponent({
     },
     navigate(event: any): void {
       this.$router.push({
-        name: "Concept",
+        name: "Folder",
         params: { selectedIri: event.value.iri }
       });
       this.searchText = "";

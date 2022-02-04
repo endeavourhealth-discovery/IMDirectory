@@ -219,7 +219,7 @@ export default defineComponent({
         await this.$router.push({ name: "Dashboard" });
       } else {
         await this.$router.push({
-          name: "Concept",
+          name: "Folder",
           params: { selectedIri: node.data }
         });
         await this.getFirstParent(node);

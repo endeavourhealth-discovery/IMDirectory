@@ -5,9 +5,7 @@ import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import { PartialBundle, SearchResponse } from "@/models/entityServiceTypes/EntityServiceTypes";
 import { EntityDefinitionDto } from "@/models/EntityDefinitionDto";
 import { TTBundle, TTIriRef } from "@/models/TripleTree";
-import { ExportValueSet } from "@/models/members/ExportValueSet";
 import { TermCode } from "@/models/terms/TermCode";
-import { DataModelProperty } from "@/models/properties/DataModelProperty";
 import { ConceptSummary } from "@/models/search/ConceptSummary";
 import { Namespace } from "@/models/Namespace";
 import { FiltersAsIris } from "@/models/FiltersAsIris";
@@ -131,17 +129,6 @@ export default class EntityService {
     };
   }
 
-  //obsolete, to be deleted on editor branch merge
-  public static async getEntity(iri: string): Promise<any> {
-    try {
-      return await axios.get(this.api + "api/public/entity", {
-        params: { iri: iri }
-      });
-    } catch (error) {
-      return {} as any;
-    }
-  }
-
   public static async getEntityDefinitionDto(iri: string): Promise<EntityDefinitionDto> {
     try {
       return await axios.get(this.api + "api/entity/public/definition", {
@@ -199,28 +186,6 @@ export default class EntityService {
     }
   }
 
-  public static async getEntityMembers(
-    iri: string,
-    expandMembers?: boolean,
-    expandSubsets?: boolean,
-    limit?: number,
-    withHyperlinks?: boolean
-  ): Promise<ExportValueSet> {
-    try {
-      return await axios.get(this.api + "api/entity/public/members", {
-        params: {
-          iri: iri,
-          expandMembers: expandMembers,
-          expandSubsets: expandSubsets,
-          limit: limit,
-          withHyperlinks: withHyperlinks
-        }
-      });
-    } catch (error) {
-      return {} as ExportValueSet;
-    }
-  }
-
   public static async getEntityGraph(iri: string): Promise<GraphData> {
     try {
       return await axios.get(this.api + "api/entity/public/graph", { params: { iri: iri } });
@@ -236,16 +201,6 @@ export default class EntityService {
       });
     } catch (error) {
       return {} as TermCode[];
-    }
-  }
-
-  public static async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
-    try {
-      return await axios.get(this.api + "api/entity/public/dataModelProperties", {
-        params: { iri: iri }
-      });
-    } catch (error) {
-      return [] as DataModelProperty[];
     }
   }
 

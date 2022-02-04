@@ -106,17 +106,14 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import EntityChart from "../components/concept/EntityChart.vue";
-import Graph from "../components/concept/graph/Graph.vue";
+
 import Definition from "../components/concept/Definition.vue";
-import UsedIn from "../components/concept/UsedIn.vue";
-import Members from "../components/concept/Members.vue";
+
 import PanelHeader from "../components/concept/PanelHeader.vue";
-import Mappings from "../components/concept/Mappings.vue";
-import EclDefinition from "@/components/concept/EclDefinition.vue";
+
 import { isOfTypes, isValueSet, isProperty } from "@/helpers/ConceptTypeMethods";
 import { mapState } from "vuex";
-import DownloadDialog from "@/components/concept/DownloadDialog.vue";
+
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
 import LoggerService from "@/services/LoggerService";
@@ -126,7 +123,7 @@ import { RDF } from "@/vocabulary/RDF";
 import { RDFS } from "@/vocabulary/RDFS";
 import { MODULE_IRIS } from "@/helpers/ModuleIris";
 import { SHACL } from "@/vocabulary/SHACL";
-import Properties from "@/components/concept/Properties.vue";
+
 import { DefinitionConfig } from "@/models/configs/DefinitionConfig";
 import { TTIriRef } from "@/models/TripleTree";
 import { copyConceptToClipboard, conceptObjectToCopyString } from "@/helpers/CopyConceptToClipboard";
@@ -138,16 +135,10 @@ export default defineComponent({
   name: "Concept",
   components: {
     PanelHeader,
-    EntityChart,
-    Graph,
-    UsedIn,
-    Members,
+
     Definition,
-    DownloadDialog,
-    SecondaryTree,
-    Mappings,
-    Properties,
-    EclDefinition
+
+    SecondaryTree
   },
   computed: {
     isSet(): boolean {
