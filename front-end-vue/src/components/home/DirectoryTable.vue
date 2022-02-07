@@ -27,7 +27,7 @@
             <span :style="color" class="p-mx-1">
               <font-awesome-icon v-if="types && types.length" :icon="icon" />
             </span>
-            {{ header }}
+            <Breadcrumb :home="home" :model="items" />
             <span class="p-buttonset">
               <Button
                 class="p-button-rounded p-button-text p-button-plain"
@@ -40,8 +40,14 @@
             </span>
           </div>
         </template>
-        <Column field="image"></Column>
-        <Column field="name" header="Name"></Column>
+        <Column field="name" header="Name">
+          <template #body="{data}">
+            <span :style="color" class="p-mx-1">
+              <font-awesome-icon v-if="data.type && data.type.length" :icon="data.icon" />
+            </span>
+            {{ data.name }}
+          </template>
+        </Column>
         <Column field="type" header="Type">
           <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
         </Column>
@@ -119,7 +125,7 @@ export default defineComponent({
   data() {
     return {
       visibleRight: false,
-      home: { icon: "pi pi-home", to: "/" },
+      home: { icon: "pi pi-home", to: "/", label: " Home" },
       rClickOptions: [
         {
           label: "Open",
@@ -150,7 +156,7 @@ export default defineComponent({
           command: () => this.showInfo()
         }
       ],
-      items: [{ label: "Computer" }, { label: "Notebook" }, { label: "Accessories" }, { label: "Backpacks" }, { label: "Item" }],
+      items: [] as { label: string; to: string }[],
       children: [] as EntityReferenceNode[],
       loading: false,
       concept: {} as any,
@@ -192,6 +198,7 @@ export default defineComponent({
     },
 
     onRowSelect(event: any) {
+      console.log(this.$router.currentRoute);
       this.selected = event?.data || event;
     },
 
@@ -279,12 +286,31 @@ export default defineComponent({
 
     async init(): Promise<void> {
       this.loading = true;
-      this.children = await EntityService.getEntityChildren(this.conceptIri);
-      await this.getConfig("definition");
-      await this.getConcept(this.conceptIri);
-      await this.getInferred(this.conceptIri);
-      this.conceptAsString = copyConceptToClipboard(this.concept, this.configs, undefined, this.blockedIris);
+      if (this.conceptIri) {
+        await this.getChildren(this.conceptIri);
+        await this.getConfig("definition");
+        await this.getConcept(this.conceptIri);
+        await this.getInferred(this.conceptIri);
+        await this.getPath(this.conceptIri);
+        this.conceptAsString = copyConceptToClipboard(this.concept, this.configs, undefined, this.blockedIris);
+      }
       this.loading = false;
+    },
+
+    async getChildren(iri: string) {
+      this.children = await EntityService.getEntityChildren(iri);
+      this.children.forEach(child => (child.icon = getFAIconFromType(child.type)));
+    },
+
+    async getPath(iri: string) {
+      this.items = (await EntityService.getFolderPath(iri)).map(iriRef => {
+        return { label: iriRef.name, to: iriRef["@id"].replace(/\//gi, "%2F").replace(/#/gi, "%23") };
+      });
+      if (this.items.length) {
+        this.home.to = this.items[0].to;
+        this.home.label = " " + this.items[0].label;
+        this.items.shift();
+      }
     },
 
     setContentHeight(): void {
@@ -367,5 +393,9 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.p-breadcrumb {
+  all: unset;
 }
 </style>

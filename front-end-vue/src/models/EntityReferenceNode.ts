@@ -5,4 +5,5 @@ export interface EntityReferenceNode {
   hasChildren: boolean;
   name: string;
   type: TTIriRef[];
+  icon: string[];
 }

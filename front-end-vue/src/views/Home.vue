@@ -1,14 +1,13 @@
 <template>
   <div class="main-grid">
     <Navigator />
-    <DirectoryTable />
+    <router-view />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import Navigator from "@/components/home/Navigator.vue";
-import DirectoryTable from "@/components/home/DirectoryTable.vue";
 
 import { mapState } from "vuex";
 import { IM } from "@/vocabulary/IM";
@@ -16,8 +15,7 @@ import { IM } from "@/vocabulary/IM";
 export default defineComponent({
   name: "Home",
   components: {
-    Navigator,
-    DirectoryTable
+    Navigator
   },
   computed: mapState(["sideNavHierarchyFocus"]),
   async mounted() {

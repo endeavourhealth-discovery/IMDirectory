@@ -126,14 +126,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const iri = to.params.selectedIri as string;
-  if (iri && store.state.blockedIris.includes(iri)) {
-    return;
-  }
-  if (to.name?.toString() == "Concept") {
+  // if (iri && store.state.blockedIris.includes(iri)) {
+  //   return;
+  // }
+  if (to.matched.some(record => !record.meta.requiresAuth)) {
     store.commit("updateConceptIri", to.params.selectedIri as string);
-  }
-  if (to.name?.toString() == "Individual") {
-    store.commit("updateInstanceIri", to.params.selectedIri as string);
   }
   if (to.matched.some(record => record.meta.requiresAuth)) {
     store.dispatch("authenticateCurrentUser").then(res => {
