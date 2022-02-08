@@ -167,14 +167,17 @@ export default defineComponent({
         } as HistoryItem);
       }
     },
+
     async getConceptAggregate(iri: string): Promise<void> {
       this.loading = true;
-      this.conceptAggregate.concept = await EntityService.getPartialEntity(iri, [RDFS.LABEL, RDFS.COMMENT, RDF.TYPE]);
+      if (iri) {
+        this.conceptAggregate.concept = await EntityService.getPartialEntity(iri, [RDFS.LABEL, RDFS.COMMENT, RDF.TYPE]);
 
-      this.setFilters();
-      this.conceptAggregate.parents = await EntityService.getEntityParents(iri, this.filters);
+        this.setFilters();
+        this.conceptAggregate.parents = await EntityService.getEntityParents(iri, this.filters);
 
-      this.conceptAggregate.children = await EntityService.getEntityChildren(iri, this.filters);
+        this.conceptAggregate.children = await EntityService.getEntityChildren(iri, this.filters);
+      }
       this.loading = false;
     },
 

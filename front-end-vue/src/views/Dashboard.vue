@@ -86,7 +86,7 @@ export default defineComponent({
   column-gap: 7px;
   row-gap: 7px;
   width: 100%;
-  height: calc(100vh - 2rem);
+  height: calc(100vh - 5rem);
   overflow-y: auto;
   overflow-x: hidden;
 }
