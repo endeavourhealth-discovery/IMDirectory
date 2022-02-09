@@ -6,4 +6,5 @@ export interface EntityReferenceNode {
   name: string;
   type: TTIriRef[];
   icon: string[];
+  parents: EntityReferenceNode[];
 }

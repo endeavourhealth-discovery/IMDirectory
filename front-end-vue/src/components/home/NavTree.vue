@@ -4,15 +4,15 @@
       <Tree
         :value="root"
         selectionMode="single"
-        v-model:selectionKeys="selectedKey"
+        v-model:selectionKeys="selected"
         :expandedKeys="expandedKeys"
         @node-select="onNodeSelect"
-        @node-expand="expandChildren"
+        @node-expand="onNodeExpand"
         class="tree-root"
         :loading="loading"
       >
         <template #default="slotProps">
-          <div class="tree-row" @mouseover="showPopup($event, slotProps.node.data)" @mouseleave="hidePopup($event)">
+          <div class="tree-row">
             <span v-if="!slotProps.node.loading">
               <div :style="'color:' + slotProps.node.color">
                 <font-awesome-icon :icon="slotProps.node.typeIcon" class="fa-fw"></font-awesome-icon>
@@ -23,185 +23,77 @@
           </div>
         </template>
       </Tree>
-
-      <OverlayPanel ref="hierarchyTreeOP" id="hierarchy_tree_overlay_panel" style="width: 700px" :breakpoints="{ '960px': '75vw' }">
-        <div v-if="hoveredResult.name" class="p-d-flex p-flex-row p-jc-start result-overlay" style="width: 100%; gap: 7px;">
-          <div class="left-side" style="width: 50%;">
-            <p>
-              <strong>Name: </strong>
-              <span>{{ hoveredResult.name }}</span>
-            </p>
-            <p>
-              <strong>Iri: </strong>
-              <span>{{ hoveredResult.iri }}</span>
-            </p>
-            <p v-if="hoveredResult.code">
-              <strong>Code: </strong>
-              <span>{{ hoveredResult.code }}</span>
-            </p>
-          </div>
-          <div class="right-side" style="width: 50%;">
-            <p v-if="hoveredResult.status">
-              <strong>Status: </strong>
-              <span>{{ hoveredResult.status.name }}</span>
-            </p>
-            <p v-if="hoveredResult.scheme">
-              <strong>Scheme: </strong>
-              <span>{{ hoveredResult.scheme.name }}</span>
-            </p>
-            <p v-if="hoveredResult.entityType">
-              <strong>Type: </strong>
-              <span>{{ getConceptTypes(hoveredResult.entityType) }}</span>
-            </p>
-          </div>
-        </div>
-      </OverlayPanel>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { HistoryItem } from "@/models/HistoryItem";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import EntityService from "@/services/EntityService";
-import { RDFS } from "@/vocabulary/RDFS";
-import { RDF } from "@/vocabulary/RDF";
-import { IM } from "@/vocabulary/IM";
 import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
 import { TreeNode } from "@/models/TreeNode";
-import { MODULE_IRIS } from "@/helpers/ModuleIris";
-import { ConceptAggregate } from "@/models/ConceptAggregate";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import { TTIriRef } from "@/models/TripleTree";
-import { isArrayHasLength, isObject } from "@/helpers/DataTypeCheckers";
-import { Namespace } from "@/models/Namespace";
-import { FiltersAsIris } from "@/models/FiltersAsIris";
-import { ConceptSummary } from "@/models/search/ConceptSummary";
+import EntityService from "@/services/EntityService";
+import { EntityReferenceNode } from "@/models/EntityReferenceNode";
+import { IM } from "@/vocabulary/IM";
+import { RDFS } from "@/vocabulary/RDFS";
+import { RDF } from "@/vocabulary/RDF";
 
 export default defineComponent({
   name: "NavTree",
-  computed: mapState(["conceptIri", "focusTree", "treeLocked", "sideNavHierarchyFocus", "resetTree", "hierarchySelectedFilters"]),
+  computed: mapState(["conceptIri"]),
   watch: {
     async conceptIri(newValue) {
-      await this.getConceptAggregate(newValue);
-      if (!this.treeLocked) {
-        this.selectedKey = {};
-        this.refreshTree();
-      }
-      this.updateHistory();
-    },
-    hierarchySelectedFilters: {
-      async handler() {
-        await this.getConceptAggregate(this.conceptIri);
-        this.selectedKey = {};
-        this.refreshTree();
-        this.updateHistory();
-      },
-      deep: true
-    },
-    async sideNavHierarchyFocus(newValue, oldValue) {
-      if (newValue.iri !== oldValue.iri) {
-        this.selectedKey = {};
-        await this.getConceptAggregate(this.conceptIri);
-        this.refreshTree();
-        this.updateHistory();
-      }
-    },
-    async focusTree(newValue) {
-      if (newValue === true) {
-        await this.getConceptAggregate(this.conceptIri);
-        this.refreshTree();
-        this.$store.commit("updateFocusTree", false);
-      }
-    },
-
-    async treeLocked(newValue) {
-      if (!newValue) {
-        await this.getConceptAggregate(this.conceptIri);
-        this.refreshTree();
-      }
-    },
-    async resetTree(newValue) {
-      if (newValue) {
-        this.selectedKey = {};
-        this.parentLabel = "";
-        this.expandedKeys = {};
-        await this.getConceptAggregate(IM.MODULE_ONTOLOGY);
-        this.refreshTree();
-        this.$store.commit("updateResetTree", false);
-      }
+      console.log(newValue);
+      // this.getTree(newValue);
     }
   },
   data() {
     return {
-      searchResult: "",
-      conceptAggregate: {} as ConceptAggregate,
+      selected: {} as any,
       root: [] as TreeNode[],
-      expandedKeys: {} as any,
-      selectedKey: {} as any,
-      parentLabel: "",
-      filters: {} as FiltersAsIris,
-      hoveredResult: {} as ConceptSummary | any,
-      overlayLocation: {} as any,
-      loading: false
+      loading: false,
+      expandedKeys: {} as any
     };
   },
   async mounted() {
-    await this.getConceptAggregate(this.conceptIri);
-    this.refreshTree();
-    this.updateHistory();
-  },
-  beforeUnmount() {
-    if (isObject(this.overlayLocation) && isArrayHasLength(Object.keys(this.overlayLocation))) {
-      this.hidePopup(this.overlayLocation);
-    }
+    this.getTree(this.conceptIri);
   },
   methods: {
-    updateHistory(): void {
-      if (!MODULE_IRIS.includes(this.conceptIri)) {
-        this.$store.commit("updateHistory", {
-          url: this.$route.fullPath,
-          conceptName: this.conceptAggregate.concept[RDFS.LABEL],
-          view: this.$route.name
-        } as HistoryItem);
-      }
-    },
-
-    async getConceptAggregate(iri: string): Promise<void> {
+    async getTree(iri: string) {
       this.loading = true;
-      if (iri) {
-        this.conceptAggregate.concept = await EntityService.getPartialEntity(iri, [RDFS.LABEL, RDFS.COMMENT, RDF.TYPE]);
-
-        this.setFilters();
-        this.conceptAggregate.parents = await EntityService.getEntityParents(iri, this.filters);
-
-        this.conceptAggregate.children = await EntityService.getEntityChildren(iri, this.filters);
+      if (iri && iri !== IM.NAMESPACE + "InformationModel") {
+        this.root = await this.createTree(iri);
+        await this.expandUntilSelected(iri);
+      } else {
+        const entity = await EntityService.getPartialEntity(IM.NAMESPACE + "InformationModel", [RDFS.LABEL, RDF.TYPE]);
+        this.root.push(this.createTreeNode(entity[RDFS.LABEL], entity["@id"], entity[RDF.TYPE], true));
+        this.expandedKeys[this.root[0].label] = true;
+        this.onNodeExpand(this.root[0]);
       }
       this.loading = false;
     },
 
-    refreshTree(): void {
-      this.loading = true;
-      const concept = this.conceptAggregate.concept;
-      const parentHierarchy = this.conceptAggregate.parents;
-      const children = this.conceptAggregate.children;
-      this.expandedKeys = {};
-      const selectedConcept = this.createTreeNode(concept[RDFS.LABEL], concept[IM.IRI], concept[RDF.TYPE], concept.hasChildren);
+    async createTree(iri: string) {
+      const parentHierarchy = await EntityService.getParentHierarchy(iri);
+      const treeNodes = [] as TreeNode[];
+      this.createTreeRecursive(parentHierarchy, treeNodes);
+      for (let i = treeNodes.length - 1; i > 0; i--) {
+        treeNodes[i - 1].children = [];
+        treeNodes[i - 1].children.push(treeNodes[i]);
+        treeNodes.splice(i);
+      }
+      return treeNodes;
+    },
 
-      children.forEach((child: EntityReferenceNode) => {
-        if (isOfTypes(child.type, IM.FOLDER)) {
-          selectedConcept.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-        }
-      });
-      this.root = [] as TreeNode[];
-
-      this.parentLabel = isArrayHasLength(parentHierarchy) ? parentHierarchy[0].name : "";
-
-      this.root.push(selectedConcept);
-      this.expandedKeys[selectedConcept.key] = true;
-      this.selectedKey[selectedConcept.key] = true;
-      this.loading = false;
+    createTreeRecursive(childRef: EntityReferenceNode, treeNodes: TreeNode[]) {
+      const childNode = this.createTreeNode(childRef.name, childRef["@id"], childRef.type, true);
+      if (childRef.parents.length != 0) {
+        const parentNode = this.createTreeNode(childRef.parents[0].name, childRef.parents[0]["@id"], childRef.parents[0].type, true);
+        parentNode.children.push(childNode);
+        this.createTreeRecursive(childRef.parents[0], treeNodes);
+        treeNodes.push(parentNode);
+      }
     },
 
     createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
@@ -218,140 +110,58 @@ export default defineComponent({
     },
 
     async onNodeSelect(node: TreeNode): Promise<void> {
-      if (MODULE_IRIS.includes(node.data)) {
-        await this.$router.push({ name: "Dashboard" });
-      } else {
-        await this.$router.push({
-          name: "Folder",
-          params: { selectedIri: node.data }
-        });
-        await this.getFirstParent(node);
-      }
+      console.log(this.selected);
+      this.$router.push({
+        name: "Folder",
+        params: { selectedIri: node.data }
+      });
     },
 
-    async expandChildren(node: TreeNode): Promise<void> {
+    async onNodeExpand(node: TreeNode) {
       node.loading = true;
-      this.resetExpandedKeys(node.children);
-      this.expandedKeys = { ...this.expandedKeys };
-      this.expandedKeys[node.key] = true;
-      const children = await EntityService.getEntityChildren(node.data, this.filters);
-      node.children = [];
-      children.forEach((child: EntityReferenceNode) => {
-        if (isOfTypes(child.type, IM.FOLDER)) {
-          node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-        }
+      const children = await EntityService.getEntityChildren(node.data);
+      children.forEach(child => {
+        if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
       });
       node.loading = false;
     },
 
-    resetExpandedKeys(nodes: TreeNode[]) {
-      if (nodes) {
-        nodes.forEach(childNode => {
-          this.expandedKeys[childNode.key] = false;
-          this.resetExpandedKeys(childNode.children);
-        });
+    nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
+      return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
+    },
+
+    findNode(key: string, nodes: TreeNode[]) {
+      const foundNode = nodes.find(node => node.key === key);
+      if (foundNode) {
+        return foundNode;
       }
+      const result = [] as TreeNode[];
+      this.findNodeRecursive(key, nodes, result);
+      return result[0];
     },
 
-    getSelectedNodeRecursively() {
-      const selectedKey = Object.keys(this.selectedKey)[0];
-      let result = [] as TreeNode[];
-      this.recursiveSearchForNode(selectedKey, this.root, result);
-      return result[0] || this.root[0];
-    },
-
-    getNodeToExpand() {
-      const selectedKey = Object.keys(this.selectedKey)[0];
-      return this.root.find(node => node.key === selectedKey) || this.root[0];
-    },
-
-    recursiveSearchForNode(key: string, nodes: TreeNode[], result: TreeNode[]) {
-      if (nodes.length) {
-        const foundNode = nodes.find(child => child.key === key);
-        if (foundNode) {
-          result.push(foundNode);
-          return;
-        }
-
+    findNodeRecursive(key: string, nodes: TreeNode[], result: TreeNode[]) {
+      const foundNode = nodes.find(node => node.key === key);
+      if (foundNode) {
+        result.push(foundNode);
+      } else {
         nodes.forEach(node => {
-          this.recursiveSearchForNode(key, node.children, result);
+          if (node.children.length != 0) {
+            this.findNodeRecursive(key, node.children, result);
+          }
         });
       }
     },
 
-    nodeIsChildOf(child: TreeNode, parent: TreeNode): boolean {
-      let result = [] as TreeNode[];
-      this.recursiveSearchForNode(child.key, parent.children, result);
-      return result[0] ? true : false;
-    },
-
-    async expandParents(): Promise<void> {
-      const selected = this.getSelectedNodeRecursively();
-      const nodeToExpand = this.getNodeToExpand();
-      if (!MODULE_IRIS.includes(nodeToExpand.data)) {
-        const parentsNodes = [] as TreeNode[];
-        const parents = await EntityService.getEntityParents(nodeToExpand.data, this.filters);
-        parents.forEach((parent: EntityReferenceNode) => {
-          parentsNodes.push(this.createTreeNode(parent.name, parent["@id"], parent.type, true));
-        });
-
-        if (selected.key !== nodeToExpand.key && !this.nodeIsChildOf(selected, nodeToExpand)) {
-          nodeToExpand.children.push(selected);
-        }
-
-        this.expandedKeys[nodeToExpand.key] = true;
-        parentsNodes[parentsNodes.length - 1].children.push(nodeToExpand);
-        this.expandedKeys[parentsNodes[parentsNodes.length - 1].key] = true;
-
-        this.root = parentsNodes;
-        await this.getFirstParent(this.root[0]);
-      }
-    },
-
-    async getFirstParent(node: TreeNode): Promise<void> {
-      const parentsReturn = await EntityService.getEntityParents(node.data, this.filters);
-      this.parentLabel = parentsReturn[0] ? parentsReturn[0].name : "";
-    },
-
-    async resetConcept(): Promise<void> {
-      this.selectedKey = {};
-      this.$store.commit("updateConceptIri", this.sideNavHierarchyFocus.iri);
-      await this.getConceptAggregate(this.conceptIri);
-      this.refreshTree();
-      await this.$router.push({ name: "Dashboard" });
-    },
-
-    toggleTreeLocked(value: boolean): void {
-      this.$store.commit("updateTreeLocked", value);
-    },
-
-    setFilters(): void {
-      this.filters = {
-        types: [],
-        status: [],
-        schemes: this.hierarchySelectedFilters.map((scheme: Namespace) => scheme.iri)
-      };
-    },
-
-    async showPopup(event: any, iri: string): Promise<void> {
-      this.overlayLocation = event;
-      const x = this.$refs.hierarchyTreeOP as any;
-      x.show(event);
-      this.hoveredResult = await EntityService.getEntitySummary(iri);
-    },
-
-    hidePopup(event: any): void {
-      const x = this.$refs.hierarchyTreeOP as any;
-      x.hide(event);
-      this.overlayLocation = {} as any;
-    },
-
-    getConceptTypes(types: TTIriRef[]): string {
-      return types
-        .map((type: TTIriRef) => {
-          return type.name;
-        })
-        .join(", ");
+    async expandUntilSelected(iri: string) {
+      const folderPath = await EntityService.getFolderPath(iri);
+      folderPath.forEach(path => {
+        this.expandedKeys[path.name] = true;
+        const nodeToExpand = this.findNode(path.name, this.root);
+        this.onNodeExpand(nodeToExpand);
+      });
+      const selected = folderPath[folderPath.length - 1];
+      this.selected[selected.name] = true;
     }
   }
 });

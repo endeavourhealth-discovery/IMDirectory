@@ -129,13 +129,23 @@ export default class EntityService {
     };
   }
 
-  public static async getFolderPath(iri: string): Promise<any[]> {
+  public static async getFolderPath(iri: string): Promise<TTIriRef[]> {
     try {
       return await axios.get(this.api + "api/entity/public/folderPath", {
         params: { iri: iri }
       });
     } catch (error) {
-      return [] as any[];
+      return [] as TTIriRef[];
+    }
+  }
+
+  public static async getParentHierarchy(iri: string): Promise<EntityReferenceNode> {
+    try {
+      return await axios.get(this.api + "api/entity/public/parentHierarchy", {
+        params: { iri: iri }
+      });
+    } catch (error) {
+      return {} as EntityReferenceNode;
     }
   }
 
