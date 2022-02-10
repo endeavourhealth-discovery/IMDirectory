@@ -13,7 +13,7 @@ import { far } from "@fortawesome/free-regular-svg-icons";
 
 dom.watch();
 
-library.add(fas, far);
+library.add(fas as any, far as any);
 
 import "primevue/resources/themes/saga-blue/theme.css"; //theme
 

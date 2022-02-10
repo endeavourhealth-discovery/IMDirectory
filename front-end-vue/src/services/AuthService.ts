@@ -17,10 +17,10 @@ export default {
       });
       return new CustomAlert(201, "User registered successfully");
     } catch (err) {
-      if (err.code === "UsernameExistsException") {
-        return new CustomAlert(409, "Username already exists", err);
+      if ((err as any).code === "UsernameExistsException") {
+        return new CustomAlert(409, "Username already exists", err as any);
       } else {
-        return new CustomAlert(400, "User registration failed", err);
+        return new CustomAlert(400, "User registration failed", err as any);
       }
     }
   },
@@ -30,7 +30,7 @@ export default {
       await Auth.confirmSignUp(username, code);
       return new CustomAlert(200, "Register confirmation successful");
     } catch (err) {
-      return new CustomAlert(403, "Failed register confirmation", err);
+      return new CustomAlert(403, "Failed register confirmation", err as any);
     }
   },
 
@@ -48,10 +48,10 @@ export default {
       signedInUser.setId(user.attributes.sub);
       return new CustomAlert(200, "Login successful", undefined, signedInUser);
     } catch (err) {
-      if (err.code === "UserNotConfirmedException") {
-        return new CustomAlert(401, err.message, err); //message: "User is not confirmed."
+      if ((err as any).code === "UserNotConfirmedException") {
+        return new CustomAlert(401, (err as any).message, err as any); //message: "User is not confirmed."
       }
-      return new CustomAlert(403, "Login failed. Check username and password are correct", err);
+      return new CustomAlert(403, "Login failed. Check username and password are correct", err as any);
     }
   },
 
@@ -60,7 +60,7 @@ export default {
       await Auth.resendSignUp(username);
       return new CustomAlert(200, "Code resent successfully");
     } catch (err) {
-      return new CustomAlert(400, "Error resending code", err);
+      return new CustomAlert(400, "Error resending code", err as any);
     }
   },
 
@@ -69,7 +69,7 @@ export default {
       await Auth.signOut({ global: true });
       return new CustomAlert(200, "Logged out successfully");
     } catch (err) {
-      return new CustomAlert(400, "Error logging out from auth server", err);
+      return new CustomAlert(400, "Error logging out from auth server", err as any);
     }
   },
 
@@ -104,7 +104,7 @@ export default {
         return new CustomAlert(403, "Authentication error with server");
       }
     } catch (err) {
-      return new CustomAlert(500, "Error authenticating current user", err);
+      return new CustomAlert(500, "Error authenticating current user", err as any);
     }
   },
 
@@ -114,7 +114,7 @@ export default {
       await Auth.changePassword(user, oldPassword, newPassword);
       return new CustomAlert(200, "Password successfully changed");
     } catch (err) {
-      return new CustomAlert(400, err.message, err);
+      return new CustomAlert(400, (err as any).message, err as any);
     }
   },
 
@@ -123,7 +123,7 @@ export default {
       await Auth.forgotPassword(username);
       return new CustomAlert(200, "Password reset request sent to server");
     } catch (err) {
-      return new CustomAlert(400, "Error resetting password from server", err);
+      return new CustomAlert(400, "Error resetting password from server", err as any);
     }
   },
 
@@ -132,10 +132,10 @@ export default {
       await Auth.forgotPasswordSubmit(username, code, newPassword);
       return new CustomAlert(200, "Password reset successfully");
     } catch (err) {
-      if (err.code === "ExpiredCodeException") {
-        return new CustomAlert(403, "Code has expired", err);
+      if ((err as any).code === "ExpiredCodeException") {
+        return new CustomAlert(403, "Code has expired", err as any);
       }
-      return new CustomAlert(400, "Error submitting password-reset credentials", err);
+      return new CustomAlert(400, "Error submitting password-reset credentials", err as any);
     }
   },
 
@@ -144,7 +144,7 @@ export default {
       await Auth.verifyCurrentUserAttribute(email);
       return new CustomAlert(200, "Account recovery code sent");
     } catch (err) {
-      return new CustomAlert(400, "Error submitting email", err);
+      return new CustomAlert(400, "Error submitting email", err as any);
     }
   },
 
@@ -162,7 +162,7 @@ export default {
       authenticatedUser.setId(cognitoUser.attributes.sub);
       return new CustomAlert(200, "User authenticated successfully", undefined, authenticatedUser);
     } catch (err) {
-      return new CustomAlert(403, "Error authenticating current user", err);
+      return new CustomAlert(403, "Error authenticating current user", err as any);
     }
   }
 
