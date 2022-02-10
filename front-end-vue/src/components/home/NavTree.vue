@@ -44,8 +44,7 @@ export default defineComponent({
   computed: mapState(["conceptIri"]),
   watch: {
     async conceptIri(newValue) {
-      console.log(newValue);
-      // this.getTree(newValue);
+      if (newValue) this.focusTree(newValue);
     }
   },
   data() {
@@ -132,24 +131,24 @@ export default defineComponent({
       return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
     },
 
-    findNode(key: string, nodes: TreeNode[]) {
-      const foundNode = nodes.find(node => node.key === key);
+    findNode(data: string, nodes: TreeNode[]) {
+      const foundNode = nodes.find(node => node.data === data);
       if (foundNode) {
         return foundNode;
       }
       const result = [] as TreeNode[];
-      this.findNodeRecursive(key, nodes, result);
+      this.findNodeRecursive(data, nodes, result);
       return result[0];
     },
 
-    findNodeRecursive(key: string, nodes: TreeNode[], result: TreeNode[]) {
-      const foundNode = nodes.find(node => node.key === key);
+    findNodeRecursive(data: string, nodes: TreeNode[], result: TreeNode[]) {
+      const foundNode = nodes.find(node => node.data === data);
       if (foundNode) {
         result.push(foundNode);
       } else {
         nodes.forEach(node => {
           if (node.children.length != 0) {
-            this.findNodeRecursive(key, node.children, result);
+            this.findNodeRecursive(data, node.children, result);
           }
         });
       }
@@ -159,11 +158,28 @@ export default defineComponent({
       const folderPath = await EntityService.getFolderPath(iri);
       folderPath.forEach(path => {
         this.expandedKeys[path.name] = true;
-        const nodeToExpand = this.findNode(path.name, this.root);
+        const nodeToExpand = this.findNode(path["@id"], this.root);
         this.onNodeExpand(nodeToExpand);
       });
       const selected = folderPath[folderPath.length - 1];
-      this.selected[selected.name] = true;
+      this.selectKey(selected.name);
+    },
+
+    selectKey(selectedKey: string) {
+      Object.keys(this.selected).forEach(key => {
+        this.selected[key] = false;
+      });
+      this.selected[selectedKey] = true;
+    },
+
+    async focusTree(iri: string) {
+      const foundNode = this.findNode(iri, this.root);
+      if (foundNode) {
+        this.selectKey(foundNode.key);
+      } else {
+        this.root = await this.createTree(iri);
+        await this.expandUntilSelected(iri);
+      }
     }
   }
 });
