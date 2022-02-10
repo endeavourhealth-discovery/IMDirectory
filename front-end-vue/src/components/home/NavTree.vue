@@ -121,8 +121,10 @@ export default defineComponent({
       node.loading = true;
       const children = await EntityService.getEntityChildren(node.data);
       children.forEach(child => {
-        if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+        if (!this.nodeHasChild(node, child) && isOfTypes(child.type, IM.FOLDER))
+          node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
       });
+
       node.loading = false;
     },
 
