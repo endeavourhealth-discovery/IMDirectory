@@ -109,7 +109,6 @@ export default defineComponent({
     },
 
     async onNodeSelect(node: TreeNode): Promise<void> {
-      console.log(this.selected);
       this.$router.push({
         name: "Folder",
         params: { selectedIri: node.data }

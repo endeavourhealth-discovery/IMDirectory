@@ -27,8 +27,14 @@
         @complete="search"
         @item-select="navigate"
       >
-        <template #item="slotProps">
-          <div class="ml-2">{{ slotProps.item.name }}</div>
+        <template #item="data">
+          <div class="ml-2">
+            <span :style="getColourFromType(data.item.entityType)" class="p-mx-1">
+              <font-awesome-icon v-if="data.item.entityType && data.item.entityType.length" :icon="getFAIconFromType(data.item.entityType)" />
+            </span>
+            {{ data.item.name }}
+          </div>
+          <!-- <div class="ml-2">{{ data.item.name }}</div> -->
         </template>
       </AutoComplete>
 
@@ -74,6 +80,7 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { AccountItem, LoginItem, ModuleItem } from "@/models/sideNav/MenuItems";
 import { MODULE_IRIS } from "@/helpers/ModuleIris";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
 
 export default defineComponent({
   name: "TopBar",
@@ -274,6 +281,14 @@ export default defineComponent({
     iconClick(item: ModuleItem): void {
       this.$store.commit("updateSidebarControlActivePanel", 0);
       this.handleCenterIconClick(item);
+    },
+
+    getFAIconFromType(types: TTIriRef[]) {
+      return getFAIconFromType(types);
+    },
+
+    getColourFromType(types: TTIriRef[]) {
+      return "color: " + getColourFromType(types);
     },
 
     handleCenterIconClick(item: ModuleItem): void {

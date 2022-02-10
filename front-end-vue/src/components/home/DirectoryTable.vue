@@ -37,7 +37,7 @@
         </template>
         <Column field="name" header="Name">
           <template #body="{data}">
-            <span :style="color" class="p-mx-1">
+            <span :style="getColourFromType(data.type)" class="p-mx-1">
               <font-awesome-icon v-if="data.type && data.type.length" :icon="data.icon" />
             </span>
             {{ data.name }}
@@ -223,8 +223,6 @@ export default defineComponent({
         });
     },
 
-    // Previous funcs
-
     onResize(): void {
       this.setContentHeight();
     },
@@ -296,6 +294,10 @@ export default defineComponent({
       this.loading = false;
     },
 
+    getColourFromType(types: TTIriRef[]) {
+      return "color: " + getColourFromType(types);
+    },
+
     async getChildren(iri: string) {
       this.children = await EntityService.getEntityChildren(iri);
       this.children.forEach(child => (child.icon = getFAIconFromType(child.type)));
@@ -328,22 +330,6 @@ export default defineComponent({
         this.contentHeight = "height: " + calcHeight + ";" + "max-height: " + calcHeight + ";";
         this.contentHeightValue = parseInt(calcHeight, 10);
       }
-    },
-
-    isObjectHasKeysWrapper(object: any, keys: string[]) {
-      return isObjectHasKeys(object, keys);
-    },
-
-    async exportConcept(format: any) {
-      this.loading = true;
-      const result = await EntityService.downloadConcept(this.conceptIri, format);
-      this.loading = false;
-      const url = window.URL.createObjectURL(new Blob([result], { type: format === "turtle" ? "text/plain" : "application/javascript" }));
-      const link = document.createElement("a");
-      link.href = url;
-      const ending = format === "turtle" ? ".txt" : ".json";
-      link.download = "Concept" + ending;
-      link.click();
     }
   }
 });
