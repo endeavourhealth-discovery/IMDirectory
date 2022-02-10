@@ -30,12 +30,6 @@
             <Breadcrumb :home="home" :model="pathItems" />
             <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             <span class="p-buttonset">
-              <Button
-                class="p-button-rounded p-button-text p-button-plain"
-                icon="fas fa-sitemap"
-                @click="focusTree"
-                v-tooltip.left="'Focus hierarchy tree to this concept'"
-              />
               <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
               <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
             </span>
