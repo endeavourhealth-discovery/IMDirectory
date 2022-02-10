@@ -125,7 +125,7 @@ export default defineComponent({
   data() {
     return {
       visibleRight: false,
-      home: { icon: "pi pi-home", to: "/", label: " Home" },
+      home: { icon: "pi pi-home", to: "/" },
       rClickOptions: [
         {
           label: "Open",
@@ -306,11 +306,6 @@ export default defineComponent({
       this.items = (await EntityService.getFolderPath(iri)).map(iriRef => {
         return { label: iriRef.name, to: iriRef["@id"].replace(/\//gi, "%2F").replace(/#/gi, "%23") };
       });
-      if (this.items.length) {
-        this.home.to = this.items[0].to;
-        this.home.label = " " + this.items[0].label;
-        this.items.shift();
-      }
     },
 
     setContentHeight(): void {
