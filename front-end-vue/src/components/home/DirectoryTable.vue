@@ -27,7 +27,8 @@
             <span :style="color" class="p-mx-1">
               <font-awesome-icon v-if="types && types.length" :icon="icon" />
             </span>
-            <Breadcrumb :home="home" :model="items" />
+            <Breadcrumb :home="home" :model="pathItems" />
+            <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             <span class="p-buttonset">
               <Button
                 class="p-button-rounded p-button-text p-button-plain"
@@ -124,6 +125,7 @@ export default defineComponent({
 
   data() {
     return {
+      pathOptions: [] as any[],
       visibleRight: false,
       home: { icon: "pi pi-home", to: "/" },
       rClickOptions: [
@@ -156,7 +158,7 @@ export default defineComponent({
           command: () => this.showInfo()
         }
       ],
-      items: [] as { label: string; to: string }[],
+      pathItems: [] as any[],
       children: [] as EntityReferenceNode[],
       loading: false,
       concept: {} as any,
@@ -198,8 +200,11 @@ export default defineComponent({
     },
 
     onRowSelect(event: any) {
-      console.log(this.$router.currentRoute);
       this.selected = event?.data || event;
+    },
+
+    openPathOverlaymenu(event: any) {
+      (this.$refs.pathOverlayMenu as any).toggle(event);
     },
 
     openOverlayMenu(event: any, data: any) {
@@ -303,9 +308,21 @@ export default defineComponent({
     },
 
     async getPath(iri: string) {
-      this.items = (await EntityService.getFolderPath(iri)).map(iriRef => {
+      const folderPath = await EntityService.getFolderPath(iri);
+      this.pathItems = folderPath.map(iriRef => {
         return { label: iriRef.name, to: iriRef["@id"].replace(/\//gi, "%2F").replace(/#/gi, "%23") };
       });
+      if (this.pathItems.length > 2) {
+        const filteredOutPathItems = this.pathItems.splice(1, this.pathItems.length - 2);
+        this.pathItems.splice(this.pathItems.length - 1, 0, {
+          label: "...",
+          to: this.$route.fullPath,
+          command: () => {
+            this.openPathOverlaymenu(event);
+          }
+        });
+        this.pathOptions = filteredOutPathItems;
+      }
     },
 
     setContentHeight(): void {
