@@ -86,7 +86,7 @@ import { byOrder } from "@/helpers/Sorters";
 import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import { RouteRecordName } from "vue-router";
 import InfoSideBar from "./InfoSideBar.vue";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
 
 export default defineComponent({
   name: "DirectoryTable",
@@ -180,6 +180,7 @@ export default defineComponent({
     getNamesFromTypes(typeList: TTIriRef[]) {
       return typeList.map(type => type.name).join(", ");
     },
+
     showInfo() {
       this.visibleRight = true;
     },
@@ -216,11 +217,15 @@ export default defineComponent({
 
     navigate(): void {
       const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (this.selected["@id"])
+      if (isOfTypes(this.selected?.type, IM.FOLDER)) {
         this.$router.push({
           name: currentRoute,
           params: { selectedIri: this.selected["@id"] }
         });
+      } else {
+        const viewAppBase = "https://dev.endhealth.co.uk/#/concept/";
+        window.open(viewAppBase + encodeURIComponent(this.selected["@id"]));
+      }
     },
 
     onResize(): void {

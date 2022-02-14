@@ -21,6 +21,7 @@ export default createStore({
     conceptIri: IM.MODULE_ONTOLOGY,
     history: [] as HistoryItem[],
     searchResults: [] as ConceptSummary[],
+    searchLoading: false,
     currentUser: {} as User,
     registeredUsername: "" as string,
     isLoggedIn: false as boolean,
@@ -65,6 +66,10 @@ export default createStore({
     filterDefaults: {} as FilterDefaultsConfig
   },
   mutations: {
+    updateSearchLoading(state, loading) {
+      state.searchLoading = loading;
+    },
+
     updateBlockedIris(state, blockedIris) {
       state.blockedIris = blockedIris;
     },

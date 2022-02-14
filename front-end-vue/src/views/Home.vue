@@ -9,39 +9,10 @@
 import { defineComponent } from "vue";
 import Navigator from "@/components/home/Navigator.vue";
 
-import { mapState } from "vuex";
-import { IM } from "@/vocabulary/IM";
-
 export default defineComponent({
   name: "Home",
   components: {
     Navigator
-  },
-  computed: mapState(["sideNavHierarchyFocus"]),
-  async mounted() {
-    this.updateRoute();
-  },
-  methods: {
-    updateRoute(): void {
-      if (this.$route.name === "Home" || this.$route.name === "Dashboard") {
-        switch (this.sideNavHierarchyFocus.name) {
-          case "InformationModel":
-            this.$store.commit("updateConceptIri", IM.MODULE_IM);
-            break;
-          case "Ontology":
-            this.$store.commit("updateConceptIri", IM.MODULE_ONTOLOGY);
-            break;
-          case "ValueSets":
-            this.$store.commit("updateConceptIri", IM.MODULE_SETS);
-            break;
-          case "Queries":
-            this.$store.commit("updateConceptIri", IM.MODULE_QUERIES);
-            break;
-        }
-      } else if (this.$route.name === "Concept") {
-        this.$store.commit("updateConceptIri", this.$route.params.selectedIri as string);
-      }
-    }
   }
 });
 </script>

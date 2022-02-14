@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
 import DirectoryTable from "../components/home/DirectoryTable.vue";
 import Dashboard from "../views/Dashboard.vue";
+import SearchResultsTable from "../views/SearchResultsTable.vue";
 import User from "../views/User.vue";
 import Login from "../components/user/Login.vue";
 import Register from "../components/user/Register.vue";
@@ -106,6 +107,14 @@ const routes: Array<RouteRecordRaw> = [
         path: "/folder/:selectedIri",
         name: "Folder",
         component: DirectoryTable,
+        meta: {
+          requiresLicense: true
+        }
+      },
+      {
+        path: "/search",
+        name: "Search",
+        component: SearchResultsTable,
         meta: {
           requiresLicense: true
         }

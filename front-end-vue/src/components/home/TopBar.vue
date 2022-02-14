@@ -1,5 +1,5 @@
 <template>
-  <Menubar :model="items">
+  <Menubar>
     <template #start>
       <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" />
     </template>
@@ -18,7 +18,11 @@
         </div>
       </OverlayPanel>
 
+      <InputText v-if="autocompleteDisplay" v-model="searchText" @input="search" type="text" class="p-inputtext-lg" placeholder="Search" />
+
       <AutoComplete
+        v-else
+        @keydown="directToSearchView"
         class="p-inputtext-lg search-input"
         autoWidth="false"
         v-model="searchText"
@@ -34,7 +38,6 @@
             </span>
             {{ data.item.name }}
           </div>
-          <!-- <div class="ml-2">{{ data.item.name }}</div> -->
         </template>
       </AutoComplete>
 
@@ -80,146 +83,24 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { AccountItem, LoginItem, ModuleItem } from "@/models/sideNav/MenuItems";
 import { MODULE_IRIS } from "@/helpers/ModuleIris";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
+import { ConceptSummary } from "@/models/search/ConceptSummary";
+import { IM } from "@/vocabulary/IM";
 
 export default defineComponent({
   name: "TopBar",
   components: { Filters },
   watch: {},
-  computed: mapState([
-    "currentUser",
-    "isLoggedIn",
-    "sideNavHierarchyFocus",
-    "selectedEntityType",
-    "moduleSelectedEntities",
-    "conceptIri",
-    "filterOptions",
-    "selectedFilters",
-    "searchResults",
-    "focusHierarchy",
-    "sidebarControlActivePanel"
-  ]),
+  computed: {
+    autocompleteDisplay() {
+      return this.$route.name === "Search";
+    },
+    ...mapState(["currentUser", "isLoggedIn", "conceptIri", "filterOptions", "selectedFilters", "searchResults"])
+  },
   data() {
     return {
-      loading: false,
       request: {} as { cancel: any; msg: string },
       searchText: "",
-      items: [
-        {
-          label: "Videos",
-          icon: "pi pi-fw pi-video",
-          items: [
-            [
-              {
-                label: "Video 1",
-                items: [{ label: "Video 1.1" }, { label: "Video 1.2" }]
-              },
-              {
-                label: "Video 2",
-                items: [{ label: "Video 2.1" }, { label: "Video 2.2" }]
-              }
-            ],
-            [
-              {
-                label: "Video 3",
-                items: [{ label: "Video 3.1" }, { label: "Video 3.2" }]
-              },
-              {
-                label: "Video 4",
-                items: [{ label: "Video 4.1" }, { label: "Video 4.2" }]
-              }
-            ]
-          ]
-        },
-        {
-          label: "Users",
-          icon: "pi pi-fw pi-users",
-          items: [
-            [
-              {
-                label: "User 1",
-                items: [{ label: "User 1.1" }, { label: "User 1.2" }]
-              },
-              {
-                label: "User 2",
-                items: [{ label: "User 2.1" }, { label: "User 2.2" }]
-              }
-            ],
-            [
-              {
-                label: "User 3",
-                items: [{ label: "User 3.1" }, { label: "User 3.2" }]
-              },
-              {
-                label: "User 4",
-                items: [{ label: "User 4.1" }, { label: "User 4.2" }]
-              }
-            ],
-            [
-              {
-                label: "User 5",
-                items: [{ label: "User 5.1" }, { label: "User 5.2" }]
-              },
-              {
-                label: "User 6",
-                items: [{ label: "User 6.1" }, { label: "User 6.2" }]
-              }
-            ]
-          ]
-        },
-        {
-          label: "Events",
-          icon: "pi pi-fw pi-calendar",
-          items: [
-            [
-              {
-                label: "Event 1",
-                items: [{ label: "Event 1.1" }, { label: "Event 1.2" }]
-              },
-              {
-                label: "Event 2",
-                items: [{ label: "Event 2.1" }, { label: "Event 2.2" }]
-              }
-            ],
-            [
-              {
-                label: "Event 3",
-                items: [{ label: "Event 3.1" }, { label: "Event 3.2" }]
-              },
-              {
-                label: "Event 4",
-                items: [{ label: "Event 4.1" }, { label: "Event 4.2" }]
-              }
-            ]
-          ]
-        },
-        {
-          label: "Settings",
-          icon: "pi pi-fw pi-cog",
-          items: [
-            [
-              {
-                label: "Setting 1",
-                items: [{ label: "Setting 1.1" }, { label: "Setting 1.2" }]
-              },
-              {
-                label: "Setting 2",
-                items: [{ label: "Setting 2.1" }, { label: "Setting 2.2" }]
-              },
-              {
-                label: "Setting 3",
-                items: [{ label: "Setting 3.1" }, { label: "Setting 3.2" }]
-              }
-            ],
-            [
-              {
-                label: "Setting 4",
-                items: [{ label: "Setting 4.1" }, { label: "Setting 4.2" }]
-              }
-            ]
-          ]
-        }
-      ],
       loginItems: [
         {
           label: "Login",
@@ -258,10 +139,6 @@ export default defineComponent({
     };
   },
   methods: {
-    isActive(item: string): boolean {
-      return item === this.sideNavHierarchyFocus.name;
-    },
-
     getItems(): LoginItem[] | AccountItem[] {
       if (this.isLoggedIn) {
         return this.accountItems;
@@ -278,11 +155,6 @@ export default defineComponent({
       return require("@/assets/avatars/" + item);
     },
 
-    iconClick(item: ModuleItem): void {
-      this.$store.commit("updateSidebarControlActivePanel", 0);
-      this.handleCenterIconClick(item);
-    },
-
     getFAIconFromType(types: TTIriRef[]) {
       return getFAIconFromType(types);
     },
@@ -291,57 +163,36 @@ export default defineComponent({
       return "color: " + getColourFromType(types);
     },
 
-    handleCenterIconClick(item: ModuleItem): void {
-      let route = item.route;
-      let moduleIri = "";
-      if (item.name === "Ontology" || item.name === "Sets" || item.name === "Queries" || item.name === "DataModel") {
-        this.$store.commit("updateSideNavHierarchyFocus", {
-          name: item.name,
-          fullName: item.fullName,
-          iri: item.iri,
-          route: "Dashboard"
-        });
-        this.$store.commit("updateConceptIri", this.moduleSelectedEntities.get(item.name));
-        this.$store.commit("updateActiveModule", item.name);
-        if (!MODULE_IRIS.includes(this.moduleSelectedEntities.get(item.name))) {
-          route = "Concept";
-          moduleIri = this.moduleSelectedEntities.get(item.name);
-        }
-        this.$store.commit("updateFocusHierarchy", true);
-      } else {
-        this.$store.commit("updateSideNavHierarchyFocus", {
-          name: item.name,
-          fullName: item.fullName,
-          iri: item.iri,
-          route: item.route
-        });
-      }
-      if (moduleIri !== "") {
-        this.$router.push({
-          name: route,
-          params: { selectedIri: moduleIri }
-        });
-      } else {
-        this.$router.push({ name: route });
-      }
-    },
     openAppsOverlay() {
       (this.$refs.appsO as any).toggle(event);
     },
     openFiltersOverlay() {
       (this.$refs.filtersO as any).toggle(event);
     },
+
     navigate(event: any): void {
-      this.$router.push({
-        name: "Folder",
-        params: { selectedIri: event.value.iri }
-      });
+      if (isOfTypes(event.value?.entityType, IM.FOLDER)) {
+        this.$router.push({
+          name: "Folder",
+          params: { selectedIri: event.value.iri }
+        });
+      } else {
+        const viewAppBase = "https://dev.endhealth.co.uk/#/concept/";
+        window.open(viewAppBase + encodeURIComponent(event.value.iri));
+      }
       this.searchText = "";
     },
 
+    directToSearchView(event: any) {
+      if (event.code === "Enter") {
+        this.$router.push({
+          name: "Search"
+        });
+      }
+    },
+
     async search(): Promise<void> {
-      this.loading = true;
-      this.$store.commit("updateSidebarControlActivePanel", 1);
+      this.$store.commit("updateSearchLoading", true);
       const searchRequest = new SearchRequest();
       searchRequest.termFilter = this.searchText;
       searchRequest.sortBy = SortBy.Usage;
@@ -367,7 +218,7 @@ export default defineComponent({
         searchRequest: searchRequest,
         cancelToken: axiosSource.token
       });
-      this.loading = false;
+      this.$store.commit("updateSearchLoading", false);
     }
   }
 });
