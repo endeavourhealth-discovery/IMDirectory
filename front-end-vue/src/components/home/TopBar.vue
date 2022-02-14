@@ -32,7 +32,7 @@
         @item-select="navigate"
       >
         <template #item="data">
-          <div class="ml-2">
+          <div class="ml-2" v-tooltip.left="data.item.code">
             <span :style="getColourFromType(data.item.entityType)" class="p-mx-1">
               <font-awesome-icon v-if="data.item.entityType && data.item.entityType.length" :icon="getFAIconFromType(data.item.entityType)" />
             </span>
