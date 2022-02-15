@@ -1,5 +1,5 @@
 <template>
-  <div class="p-d-flex p-flex-row p-jc-center p-ai-center loading -container" v-if="loading">
+  <div class="p-d-flex p-flex-row p-jc-center p-ai-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
   <div v-if="!loading" class="dashboard-container">
@@ -83,24 +83,25 @@ export default defineComponent({
   grid-area: content;
   display: flex;
   flex-flow: row wrap;
-  column-gap: 7px;
-  row-gap: 7px;
   width: 100%;
-  height: calc(100vh - 5rem);
+  height: calc(100vh - 4.1rem);
   overflow-y: auto;
   overflow-x: hidden;
+  border: none;
+  box-shadow: none;
+  border-radius: none;
 }
 
 @media screen and (min-width: 1024px) {
   .dashboard-container ::v-deep(.dashcard-container) {
-    height: calc(50% - 7px);
-    width: calc(50% - 7px);
+    height: calc(50%);
+    width: calc(50%);
   }
 }
 
 @media screen and (max-width: 1023px) {
   .dashboard-container ::v-deep(.dashcard-container) {
-    height: calc(50% - 7px);
+    height: calc(50%);
     width: calc(100%);
   }
 }

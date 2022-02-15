@@ -90,5 +90,7 @@ export default defineComponent({
 .dashcard {
   height: 100%;
   width: 100%;
+  box-shadow: none;
+  border-radius: none;
 }
 </style>
