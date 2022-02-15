@@ -201,6 +201,8 @@ export default defineComponent({
 .tree-root {
   height: 100%;
   overflow: auto;
+  border: none;
+  padding: 0;
 }
 .tree-root ::v-deep(.p-tree-toggler) {
   min-width: 2rem;
