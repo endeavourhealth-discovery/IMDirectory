@@ -2,12 +2,12 @@
   <Menubar>
     <template #start>
       <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" />
-      <InputText v-if="autocompleteDisplay" v-model="searchText" @input="search" type="text" class="p-inputtext-lg" placeholder="Search" />
+      <InputText id="text-input-search" v-if="autocompleteDisplay" v-model="searchText" @input="search" type="text" placeholder="Search" />
 
       <AutoComplete
+        id="autocomplete-search"
         v-else
         @keydown="directToSearchView"
-        class="p-inputtext-lg search-input"
         autoWidth="false"
         v-model="searchText"
         :suggestions="searchResults"
@@ -25,7 +25,7 @@
         </template>
       </AutoComplete>
 
-      <Button icon="pi pi-sliders-h" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openFiltersOverlay" />
+      <Button id="filter-button" icon="pi pi-sliders-h" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openFiltersOverlay" />
       <OverlayPanel ref="filtersO" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
         <div class="p-fluid results-filter-container">
           <Filters :search="search" />
@@ -233,7 +233,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style>
 .im-logo {
   text-align: center;
   color: lightgray;
@@ -248,13 +248,48 @@ export default defineComponent({
 
 @media screen and (max-width: 1439px) {
   .im-logo {
-    width: 3vw;
+    width: 40px;
   }
 }
 
 @media screen and (min-width: 1440px) {
   .im-logo {
-    width: 3vw;
+    width: 40px;
   }
+}
+#filter-button {
+  position: absolute;
+  margin-left: 29rem;
+  height: 40px;
+}
+
+#autocomplete-search {
+  font-size: 1rem;
+  background: #dee2e6;
+  border: none;
+  width: 30rem;
+  margin-left: 2rem;
+  margin-top: -2.7rem;
+  position: absolute;
+  height: 40px;
+}
+
+#text-input-search {
+  font-size: 1rem;
+  background: #dee2e6;
+  border: none;
+  width: 30rem;
+  margin-left: 2rem;
+  margin-top: 0rem;
+  position: absolute;
+  height: 40px;
+}
+
+.p-menubar .p-menubar-button {
+  display: none;
+}
+
+.p-menubar {
+  background: #ffffff;
 }
 </style>
