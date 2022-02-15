@@ -212,7 +212,7 @@ label {
 #search-results-main-container {
   padding-top: 1rem;
   grid-area: content;
-  height: calc(100% - 5rem);
+  height: calc(100% - 4.1rem);
   width: 100%;
   overflow-y: auto;
   background-color: #ffffff;

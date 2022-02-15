@@ -2,22 +2,6 @@
   <Menubar>
     <template #start>
       <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" />
-    </template>
-    <template #end>
-      <Button icon="pi pi-th-large" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openAppsOverlay" />
-      <OverlayPanel ref="appsO">
-        <div class="p-grid " justify-content-end>
-          <div class="p-col-4">
-            <i class="pi pi-cog"></i>
-          </div>
-          <div class="p-col-4">4</div>
-          <div class="p-col-4">4</div>
-          <div class="p-col-4">4</div>
-          <div class="p-col-4">4</div>
-          <div class="p-col-4">4</div>
-        </div>
-      </OverlayPanel>
-
       <InputText v-if="autocompleteDisplay" v-model="searchText" @input="search" type="text" class="p-inputtext-lg" placeholder="Search" />
 
       <AutoComplete
@@ -45,6 +29,31 @@
       <OverlayPanel ref="filtersO" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
         <div class="p-fluid results-filter-container">
           <Filters :search="search" />
+        </div>
+      </OverlayPanel>
+    </template>
+    <template #end>
+      <Button icon="pi pi-th-large" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openAppsOverlay" />
+      <OverlayPanel ref="appsO">
+        <div class="p-grid">
+          <div class="p-col-4">
+            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          </div>
+          <div class="p-col-4">
+            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          </div>
+          <div class="p-col-4">
+            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          </div>
+          <div class="p-col-4">
+            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          </div>
+          <div class="p-col-4">
+            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          </div>
+          <div class="p-col-4">
+            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          </div>
         </div>
       </OverlayPanel>
 

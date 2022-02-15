@@ -24,7 +24,6 @@ export default defineComponent({
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-areas: "sidebar content";
-  column-gap: 7px;
 }
 .header-grow {
   flex-grow: 1;
