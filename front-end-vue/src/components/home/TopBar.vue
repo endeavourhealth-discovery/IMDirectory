@@ -1,7 +1,7 @@
 <template>
   <Menubar>
     <template #start>
-      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" />
+      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLangingPage" />
       <InputText id="text-input-search" v-if="autocompleteDisplay" v-model="searchText" @input="search" type="text" placeholder="Search" />
 
       <AutoComplete
@@ -190,6 +190,12 @@ export default defineComponent({
         window.open(viewAppBase + encodeURIComponent(event.value.iri));
       }
       this.searchText = "";
+    },
+
+    toLangingPage() {
+      this.$router.push({
+        path: "/"
+      });
     },
 
     directToSearchView(event: any) {
