@@ -135,9 +135,6 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const iri = to.params.selectedIri as string;
-  // if (iri && store.state.blockedIris.includes(iri)) {
-  //   return;
-  // }
   if (to.matched.some(record => !record.meta.requiresAuth)) {
     store.commit("updateConceptIri", to.params.selectedIri as string);
   }

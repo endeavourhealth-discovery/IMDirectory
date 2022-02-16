@@ -73,6 +73,7 @@
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import EntityService from "@/services/EntityService";
+import DirectService from "@/services/DirectService";
 import ConfigService from "@/services/ConfigService";
 import LoggerService from "@/services/LoggerService";
 import { IM } from "@/vocabulary/IM";
@@ -223,8 +224,7 @@ export default defineComponent({
           params: { selectedIri: this.selected["@id"] }
         });
       } else {
-        const viewAppBase = "https://dev.endhealth.co.uk/#/concept/";
-        window.open(viewAppBase + encodeURIComponent(this.selected["@id"]));
+        DirectService.directTo(this.selected["@id"], this);
       }
     },
 

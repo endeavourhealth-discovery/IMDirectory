@@ -2,6 +2,7 @@
   <TopBar />
   <div class="layout-wrapper layout-static">
     <Toast />
+    <ConfirmDialog />
     <div v-if="loading" class="p-d-flex p-flex-row p-jc-center p-ai-center loading-container">
       <ProgressSpinner />
     </div>
