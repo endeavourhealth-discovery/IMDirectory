@@ -13,7 +13,6 @@
           :id="'dashCard-' + index"
           labelKey="http://www.w3.org/2000/01/rdf-schema#label"
           dataKey="http://www.w3.org/2002/07/owl#hasValue"
-          style="box-shadow:none;"
         />
       </template>
     </div>
@@ -41,10 +40,9 @@
       </template>
       <template #content>
         <DataTable :value="products" responsiveLayout="scroll" v-model:selection="selected" selectionMode="single" dataKey="code" @row-click="onClick">
-          <Column field="code" header="Code"></Column>
           <Column field="name" header="Name"></Column>
-          <Column field="category" header="Category"></Column>
-          <Column field="quantity" header="Quantity"></Column>
+          <Column field="type" header="Type"></Column>
+          <Column field="latestActivity" header="Latest activity"></Column>
         </DataTable>
       </template>
     </Card>
@@ -82,40 +80,29 @@ export default defineComponent({
 
       products: [
         {
-          id: "1000",
-          code: "f230fh0g3",
-          name: "Bamboo Watch",
-          description: "Product Description",
-          image: "bamboo-watch.jpg",
-          price: 65,
-          category: "Accessories",
-          quantity: 24,
-          inventoryStatus: "INSTOCK",
-          rating: 5
+          name: "Value set - Procedures",
+          type: "Value set",
+          latestActivity: "Edited yesterday"
         },
         {
-          id: "1002",
-          code: "zz21cz3c1",
-          name: "Blue Band",
-          description: "Product Description",
-          image: "blue-band.jpg",
-          price: 79,
-          category: "Fitness",
-          quantity: 2,
-          inventoryStatus: "LOWSTOCK",
-          rating: 3
+          name: "Family history",
+          type: "Value set",
+          latestActivity: "Edited yesterday"
         },
         {
-          id: "1003",
-          code: "244wgerg2",
-          name: "Blue T-Shirt",
-          description: "Product Description",
-          image: "blue-t-shirt.jpg",
-          price: 29,
-          category: "Clothing",
-          quantity: 25,
-          inventoryStatus: "INSTOCK",
-          rating: 5
+          name: "Entry (record type)",
+          type: "Class, Node shape",
+          latestActivity: "Viewed in the past week"
+        },
+        {
+          name: "Encounter (record type)",
+          type: "Class, Node shape",
+          latestActivity: "Created in the past week"
+        },
+        {
+          name: "Provenance activity (record type)",
+          type: "Class, Node shape",
+          latestActivity: "Created a month ago"
         }
       ]
     };
@@ -179,7 +166,7 @@ export default defineComponent({
   display: flex;
   flex-flow: row wrap;
   width: 100%;
-  height: calc(100vh - 23.5rem);
+  height: calc(100vh - 30rem);
   overflow-y: auto;
   overflow-x: hidden;
   border: none;
@@ -189,7 +176,7 @@ export default defineComponent({
 
 @media screen and (min-width: 1024px) {
   .dashboard-container ::v-deep(.dashcard-container) {
-    height: calc(50%);
+    height: calc(100%);
     width: calc(50%);
   }
 }
