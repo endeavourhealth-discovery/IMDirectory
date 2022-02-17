@@ -79,6 +79,7 @@ import AutoComplete from "primevue/autocomplete";
 import Breadcrumb from "primevue/breadcrumb";
 import Sidebar from "primevue/sidebar";
 import Chips from "primevue/chips";
+import DataView from "primevue/dataview";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -150,6 +151,7 @@ const app = createApp(App)
   .component("Breadcrumb", Breadcrumb)
   .component("Sidebar", Sidebar)
   .component("Chips", Chips)
+  .component("DataView", DataView)
   .component("Tag", Tag);
 
 const vm = app.mount("#app");

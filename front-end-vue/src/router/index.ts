@@ -3,6 +3,7 @@ import Home from "../views/Home.vue";
 import DirectoryTable from "../components/home/DirectoryTable.vue";
 import Dashboard from "../views/Dashboard.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
+import LandingPage from "../views/LandingPage.vue";
 import User from "../views/User.vue";
 import Login from "../components/user/Login.vue";
 import Register from "../components/user/Register.vue";
@@ -89,16 +90,16 @@ const routes: Array<RouteRecordRaw> = [
     path: "/",
     name: "Home",
     component: Home,
-    redirect: { name: "Dashboard" },
+    redirect: { name: "LandingPage" },
     meta: {
       requiresLicense: true
     },
     children: [
       {
         path: "",
-        name: "Dashboard",
-        alias: ["/home", "/dashboard"],
-        component: Dashboard,
+        name: "LandingPage",
+        alias: ["/home"],
+        component: LandingPage,
         meta: {
           requiresLicense: true
         }
