@@ -32,4 +32,4 @@ frontend {
     checkScript = 'run test:unit:ci'
 }
 
-project.tasks["sonarqube"].dependsOn "check"
+project.tasks["sonarqube"].dependsOn "build"
