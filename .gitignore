@@ -1,0 +1,15 @@
+out
+.idea
+.metadata
+.gradle
+.vscode
+target
+*.iml
+*.settings
+*.project
+*.classpath
+coverage
+
+# Ignore Gradle build output directory
+build
+.env
