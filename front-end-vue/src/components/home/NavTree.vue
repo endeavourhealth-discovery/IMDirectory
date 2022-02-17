@@ -61,16 +61,41 @@ export default defineComponent({
   methods: {
     async getTree(iri: string) {
       this.loading = true;
-      if (iri && iri !== IM.NAMESPACE + "InformationModel") {
+      this.addParentFoldersToRoot();
+      if (iri && iri !== IM.NAMESPACE + "Favourites") {
         this.root = await this.createTree(iri);
         await this.expandUntilSelected(iri);
-      } else {
-        const entity = await EntityService.getPartialEntity(IM.NAMESPACE + "InformationModel", [RDFS.LABEL, RDF.TYPE]);
-        this.root.push(this.createTreeNode(entity[RDFS.LABEL], entity["@id"], entity[RDF.TYPE], true));
-        this.expandedKeys[this.root[0].label] = true;
-        this.onNodeExpand(this.root[0]);
       }
       this.loading = false;
+    },
+
+    async addParentFoldersToRoot() {
+      const sets = await EntityService.getPartialEntity(IM.NAMESPACE + "Sets", [RDFS.LABEL, RDF.TYPE]);
+      const datamodels = await EntityService.getPartialEntity(IM.NAMESPACE + "DiscoveryCommonDataModel", [RDFS.LABEL, RDF.TYPE]);
+      const ontologies = await EntityService.getPartialEntity(IM.NAMESPACE + "DiscoveryOntology", [RDFS.LABEL, RDF.TYPE]);
+      const queries = await EntityService.getPartialEntity(IM.NAMESPACE + "Q_Queries", [RDFS.LABEL, RDF.TYPE]);
+      [sets, datamodels, queries, ontologies].forEach(parentFolder => {
+        const hasNode = !!this.root.find(node => node.data === parentFolder["@id"]);
+        if (!hasNode) {
+          this.root.push(this.createTreeNode(parentFolder[RDFS.LABEL], parentFolder["@id"], parentFolder[RDF.TYPE], true));
+        }
+      });
+      this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
+      this.addFavouritesFolder();
+    },
+
+    async addFavouritesFolder() {
+      const favourites = await EntityService.getPartialEntity(IM.NAMESPACE + "Favourites", [RDFS.LABEL, RDF.TYPE]);
+      this.root.push({
+        key: favourites[RDFS.LABEL],
+        label: favourites[RDFS.LABEL],
+        typeIcon: ["fas", "star"],
+        color: "#e39a36",
+        data: favourites["@id"],
+        leaf: false,
+        loading: false,
+        children: [] as TreeNode[]
+      });
     },
 
     async createTree(iri: string) {
@@ -91,7 +116,7 @@ export default defineComponent({
         const parentNode = this.createTreeNode(childRef.parents[0].name, childRef.parents[0]["@id"], childRef.parents[0].type, true);
         parentNode.children.push(childNode);
         this.createTreeRecursive(childRef.parents[0], treeNodes);
-        treeNodes.push(parentNode);
+        if (parentNode.data !== IM.NAMESPACE + "InformationModel") treeNodes.push(parentNode);
       }
     },
 
