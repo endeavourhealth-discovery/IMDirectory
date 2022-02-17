@@ -5,7 +5,7 @@
         <div class="p-col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
-              <MultiSelect v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
+              <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
               <label for="status">Select status:</label>
             </span>
           </div>
@@ -13,7 +13,7 @@
         <div class="p-col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
-              <MultiSelect v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
+              <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
               <label for="scheme">Select scheme:</label>
             </span>
           </div>
@@ -21,8 +21,8 @@
         <div class="p-col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
-              <MultiSelect v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
-              <label for="scheme">Select concept type:</label>
+              <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
+              <label for="type">Select concept type:</label>
             </span>
           </div>
         </div>
@@ -73,7 +73,7 @@ import { IM } from "@/vocabulary/IM";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
-import "../../node_modules/primeflex/primeflex.css";
+// import "../../node_modules/primeflex/primeflex.css";
 
 export default defineComponent({
   name: "SearchResultsTable",

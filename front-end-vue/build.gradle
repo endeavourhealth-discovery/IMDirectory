@@ -14,8 +14,8 @@ def sonarLogin= System.getenv('SONAR_LOGIN')
 sonarqube {
     properties {
         property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.projectKey', 'endeavourhealth-discovery_IMViewer'
-        property 'sonar.projectName', 'IMViewer'
+        property 'sonar.projectKey', 'endeavourhealth-discovery_IMDirectory'
+        property 'sonar.projectName', 'IMDirectory'
         property 'sonar.organization', 'endeavourhealth-discovery'
         property 'sonar.login', sonarLogin
         property 'sonar.sources', 'src'

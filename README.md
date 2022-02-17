@@ -1,8 +1,8 @@
-# Information Model Viewer
-![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/version.svg)
-![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/build.svg)
-![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/unit-test.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IMViewer&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IMViewer)
+# Information Model Directory
+![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/version.svg)
+![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/build.svg)
+![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMDirectory/unit-test.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IMDirectory&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IMViewer)
 ## Run Frontend (development)
 
 Checkout from GIT
