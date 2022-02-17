@@ -95,7 +95,7 @@ export default defineComponent({
     InfoSideBar
   },
   computed: {
-    ...mapState(["conceptIri", "blockedIris"])
+    ...mapState(["conceptIri"])
   },
   watch: {
     async conceptIri() {
@@ -294,7 +294,7 @@ export default defineComponent({
         await this.getConcept(this.conceptIri);
         await this.getInferred(this.conceptIri);
         await this.getPath(this.conceptIri);
-        this.conceptAsString = copyConceptToClipboard(this.concept, this.configs, undefined, this.blockedIris);
+        this.conceptAsString = copyConceptToClipboard(this.concept, this.configs, undefined);
       }
       this.loading = false;
     },
