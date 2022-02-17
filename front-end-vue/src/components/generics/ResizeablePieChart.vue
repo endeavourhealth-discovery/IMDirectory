@@ -98,7 +98,7 @@ export default defineComponent({
     },
 
     setLegendOptions(): void {
-      this.chartOptions.plugins.legend.display = true;
+      this.chartOptions.plugins.legend.display = false;
       const width = window.innerWidth;
       if (width > 1750) {
         this.chartOptions.plugins.legend.position = "right";
