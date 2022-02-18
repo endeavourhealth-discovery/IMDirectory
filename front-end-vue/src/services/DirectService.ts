@@ -1,7 +1,7 @@
 import { CreateComponentPublicInstance } from "vue";
 
 export default class DirectService {
-  static VIEWER_APP = "https://dev.endhealth.co.uk/#/concept/";
+  static VIEWER_APP = "/viewer/#/concept/";
   static MESSAGE = "You will be directed to a different application. Are you sure you want to proceed?";
 
   public static directTo(iri: string) {
