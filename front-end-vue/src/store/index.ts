@@ -14,11 +14,14 @@ import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import ConfigService from "@/services/ConfigService";
 import { FilterDefaultsConfig } from "@/models/configs/FilterDefaultsConfig";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { RDFS } from "@/vocabulary/RDFS";
+import { RDF } from "@/vocabulary/RDF";
 
 export default createStore({
   // update stateType.ts when adding new state!
   state: {
     conceptIri: IM.MODULE_ONTOLOGY,
+    favourites: [],
     history: [] as HistoryItem[],
     searchResults: [] as ConceptSummary[],
     searchLoading: false,
@@ -151,9 +154,17 @@ export default createStore({
     },
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
+    },
+    updateFavourites(state, favourites) {
+      state.favourites = favourites;
     }
   },
   actions: {
+    async fetchFavourites({ commit }) {
+      const favourites = await EntityService.getEntityChildren(IM.NAMESPACE + "Favourites");
+      commit("updateFavourites", favourites);
+    },
+
     async fetchBlockedIris({ commit }) {
       const blockedIris = await ConfigService.getXmlSchemaDataTypes();
       commit("updateBlockedIris", blockedIris);
