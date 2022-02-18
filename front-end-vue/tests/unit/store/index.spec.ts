@@ -22,6 +22,7 @@ describe("state", () => {
   it("should start with the correct values", () => {
     expect(Object.keys(store.state)).toStrictEqual([
       "conceptIri",
+      "favourites",
       "history",
       "searchResults",
       "searchLoading",
