@@ -102,7 +102,7 @@ export default defineComponent({
     submitAgree(): void {
       this.$store.commit("updateSnomedLicenseAccepted", "true");
       if (this.$store.state.historyCount === window.history.length) {
-        this.$router.push({ name: "Dashboard" });
+        this.$router.push({ name: "LandingPage" });
       } else {
         this.$router.go(-1);
       }
