@@ -45,7 +45,7 @@ describe("SnomedLicense.vue", () => {
     expect(mockStore.commit).toBeCalledTimes(1);
     expect(mockStore.commit).toBeCalledWith("updateSnomedLicenseAccepted", "true");
     expect(mockRouter.push).toBeCalledTimes(1);
-    expect(mockRouter.push).toBeCalledWith({ name: "Dashboard" });
+    expect(mockRouter.push).toBeCalledWith({ name: "LandingPage" });
   });
 
   it("updates store and reroutes on submitAgree ___ back", async() => {
