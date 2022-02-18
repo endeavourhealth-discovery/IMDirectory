@@ -24,6 +24,7 @@ describe("state", () => {
       "conceptIri",
       "history",
       "searchResults",
+      "searchLoading",
       "currentUser",
       "registeredUsername",
       "isLoggedIn",

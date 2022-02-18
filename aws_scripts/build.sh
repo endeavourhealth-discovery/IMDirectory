@@ -5,7 +5,7 @@ chmod +x ./gradlew
 mkdir badges
 
 # Artifact
-artifact='IMViewer'
+artifact='IMDirectory'
 
 # Version
 version='1.0.0'
@@ -27,7 +27,7 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 
 # Build
 { #try
-    ./gradlew build
+    ./gradlew build &&
     buildresult=0
 } || { #catch
     buildresult=1

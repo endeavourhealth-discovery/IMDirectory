@@ -18,7 +18,7 @@ import SnomedLicense from "../views/SnomedLicense.vue";
 import store from "@/store/index";
 import { nextTick } from "vue";
 
-const APP_TITLE = "Information Model";
+const APP_TITLE = "IM Directory";
 
 const routes: Array<RouteRecordRaw> = [
   {
