@@ -1,1 +1,1 @@
-rm -rf /opt/tomcat/webapps/IMDirectory
+rm -rf /opt/tomcat/webapps/ROOT
