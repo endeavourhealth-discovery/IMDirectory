@@ -34,6 +34,7 @@
         contextMenu
         v-model:contextMenuSelection="selectedResult"
         @rowContextmenu="onRowContextMenu"
+        @row-dblclick="onRowDblClick"
         responsiveLayout="scroll"
         ref="searchTable"
       >
@@ -186,6 +187,11 @@ export default defineComponent({
 
     getNamesFromTypes(typeList: TTIriRef[]) {
       return typeList.map(type => type.name).join(", ");
+    },
+
+    onRowDblClick(event: any) {
+      this.selectedResult = event.data;
+      this.navigate();
     },
 
     navigate(): void {
