@@ -39,7 +39,7 @@
         Suggested
       </template>
       <template #content>
-        <DataTable :value="products" responsiveLayout="scroll" v-model:selection="selected" selectionMode="single" dataKey="code" @row-click="onClick">
+        <DataTable :value="products" responsiveLayout="scroll" v-model:selection="selected" selectionMode="single" dataKey="name" @row-click="onClick">
           <Column field="name" header="Name"></Column>
           <Column field="type" header="Type"></Column>
           <Column field="latestActivity" header="Latest activity"></Column>
