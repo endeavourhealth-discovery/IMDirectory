@@ -18,5 +18,5 @@ export function getContainerElementOptimalHeight(
     if (currentFontSize) height -= currentFontSize * remPaddingQuantity;
   }
   if (additionalPixels) height -= additionalPixels;
-  return height + "px";
+  return height - 120 + "px";
 }

@@ -65,8 +65,8 @@
         </Column>
       </DataTable>
       <ContextMenu ref="menu" :model="rClickOptions" />
-      <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-md">
-        <InfoSideBar :conceptIri="selected['@id']" />
+      <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
+        <InfoSideBar id="info-bar" :conceptIri="selected['@id']" />
       </Sidebar>
     </div>
   </div>
@@ -392,6 +392,10 @@ export default defineComponent({
   flex-flow: column;
   justify-content: center;
   align-items: center;
+}
+
+#info-bar {
+  height: calc(100vh - 6rem);
 }
 
 .table-header {

@@ -20,11 +20,10 @@
                 <SecondaryTree :conceptIri="conceptIri" />
               </div>
             </TabPanel>
-            <TabPanel header="Activity">
-              <div class="concept-panel-content" id="activity-container" :style="contentHeight">
-                <!-- <SecondaryTree :conceptIri="conceptIri" /> -->
-              </div>
-            </TabPanel>
+            <!-- TODO -->
+            <!-- <TabPanel header="Activity">
+              <div class="concept-panel-content" id="activity-container" :style="contentHeight"></div>
+            </TabPanel> -->
           </TabView>
         </div>
       </div>
@@ -153,7 +152,7 @@ export default defineComponent({
     setContentHeight(): void {
       const calcHeight = getContainerElementOptimalHeight("concept-main-container", ["p-panel-header", "p-tabview-nav"], true, 4, 1);
       if (!calcHeight.length) {
-        this.contentHeight = "height: 800px; max-height: 800px;";
+        this.contentHeight = "height: 700px; max-height: 700px;";
         this.contentHeightValue = 800;
       } else {
         this.contentHeight = "height: " + calcHeight + ";" + "max-height: " + calcHeight + ";";
