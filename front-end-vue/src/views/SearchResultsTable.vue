@@ -62,6 +62,9 @@
       </DataTable>
 
       <ContextMenu :model="rClickOptions" ref="cm" />
+      <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
+        <InfoSideBar id="info-bar" :conceptIri="selectedResult.iri" />
+      </Sidebar>
     </div>
   </div>
 </template>
@@ -75,10 +78,13 @@ import { IM } from "@/vocabulary/IM";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
-// import "../../node_modules/primeflex/primeflex.css";
+import InfoSideBar from "../components/home/InfoSideBar.vue";
 
 export default defineComponent({
   name: "SearchResultsTable",
+  components: {
+    InfoSideBar
+  },
   computed: {
     ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults"])
   },
@@ -96,6 +102,7 @@ export default defineComponent({
   },
   data() {
     return {
+      visibleRight: false,
       selectedSchemes: [] as string[],
       selectedStatus: [] as string[],
       selectedTypes: [] as string[],
@@ -156,6 +163,10 @@ export default defineComponent({
         this.selectedTypes = [...new Set(typeOptions)];
         this.selectedStatus = [...new Set(statusOptions)];
       }
+    },
+
+    showInfo() {
+      this.visibleRight = true;
     },
 
     filterResults() {

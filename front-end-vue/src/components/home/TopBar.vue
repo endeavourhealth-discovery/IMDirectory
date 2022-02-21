@@ -95,6 +95,8 @@ import { MODULE_IRIS } from "@/helpers/ModuleIris";
 import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
 import { ConceptSummary } from "@/models/search/ConceptSummary";
 import { IM } from "@/vocabulary/IM";
+import { RouteRecordName } from "vue-router";
+import DirectService from "@/services/DirectService";
 
 export default defineComponent({
   name: "TopBar",
@@ -180,14 +182,14 @@ export default defineComponent({
     },
 
     navigate(event: any): void {
+      const currentRoute = this.$route.name as RouteRecordName | undefined;
       if (isOfTypes(event.value?.entityType, IM.FOLDER)) {
         this.$router.push({
-          name: "Folder",
+          name: currentRoute,
           params: { selectedIri: event.value.iri }
         });
       } else {
-        const viewAppBase = "https://dev.endhealth.co.uk/#/concept/";
-        window.open(viewAppBase + encodeURIComponent(event.value.iri));
+        DirectService.directTo(event.value.iri);
       }
       this.searchText = "";
     },
