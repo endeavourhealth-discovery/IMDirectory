@@ -70,6 +70,7 @@
 import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
 import { ConceptSummary } from "@/models/search/ConceptSummary";
 import { TTIriRef } from "@/models/TripleTree";
+import DirectService from "@/services/DirectService";
 import { IM } from "@/vocabulary/IM";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
@@ -202,8 +203,7 @@ export default defineComponent({
           params: { selectedIri: this.selectedResult.iri }
         });
       } else {
-        const viewAppBase = "https://dev.endhealth.co.uk/#/concept/";
-        window.open(viewAppBase + encodeURIComponent(this.selectedResult?.iri));
+        DirectService.directTo(this.selectedResult.iri);
       }
     }
   }
