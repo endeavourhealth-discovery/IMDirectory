@@ -245,4 +245,8 @@ label {
   justify-content: flex-start;
   height: 100%;
 }
+
+#info-bar {
+  height: calc(100vh - 6rem);
+}
 </style>
