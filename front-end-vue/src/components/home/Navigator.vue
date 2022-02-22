@@ -1,7 +1,7 @@
 <template>
-  <!-- <div id="side-bar"> -->
-  <NavTree />
-  <!-- </div> -->
+  <div id="side-bar">
+    <NavTree />
+  </div>
 </template>
 
 <script lang="ts">
@@ -152,13 +152,8 @@ export default defineComponent({
 
 <style scoped>
 #side-bar {
-  display: flex;
-  flex-flow: column;
-  justify-content: flex-start;
   max-height: calc(100vh - 2rem);
-  grid-area: sidebar;
   height: calc(100vh - 2rem);
-  width: 30vw;
 }
 
 .side-menu {
