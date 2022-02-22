@@ -1,8 +1,12 @@
 <template>
-  <div class="main-grid">
-    <Navigator />
-    <router-view />
-  </div>
+  <Splitter class="main-grid">
+    <SplitterPanel :size="30">
+      <Navigator />
+    </SplitterPanel>
+    <SplitterPanel :size="70">
+      <router-view />
+    </SplitterPanel>
+  </Splitter>
 </template>
 
 <script lang="ts">
@@ -21,9 +25,6 @@ export default defineComponent({
 .main-grid {
   height: 100%;
   width: 100%;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: "sidebar content";
 }
 .header-grow {
   flex-grow: 1;

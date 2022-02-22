@@ -1,30 +1,30 @@
 <template>
-  <div id="side-bar">
-    <div class="p-d-flex p-flex-column p-jc-start" id="hierarchy-tree-bar-container">
-      <Tree
-        :value="root"
-        selectionMode="single"
-        v-model:selectionKeys="selected"
-        :expandedKeys="expandedKeys"
-        @node-select="onNodeSelect"
-        @node-expand="onNodeExpand"
-        class="tree-root"
-        :loading="loading"
-      >
-        <template #default="slotProps">
-          <div class="tree-row">
-            <span v-if="!slotProps.node.loading">
-              <div :style="'color:' + slotProps.node.color">
-                <font-awesome-icon :icon="slotProps.node.typeIcon" class="fa-fw"></font-awesome-icon>
-              </div>
-            </span>
-            <ProgressSpinner v-if="slotProps.node.loading" />
-            <span>{{ slotProps.node.label }}</span>
-          </div>
-        </template>
-      </Tree>
-    </div>
+  <!-- <div id="side-bar"> -->
+  <div class="p-d-flex p-flex-column p-jc-start" id="hierarchy-tree-bar-container">
+    <Tree
+      :value="root"
+      selectionMode="single"
+      v-model:selectionKeys="selected"
+      :expandedKeys="expandedKeys"
+      @node-select="onNodeSelect"
+      @node-expand="onNodeExpand"
+      class="tree-root"
+      :loading="loading"
+    >
+      <template #default="slotProps">
+        <div class="tree-row">
+          <span v-if="!slotProps.node.loading">
+            <div :style="'color:' + slotProps.node.color">
+              <font-awesome-icon :icon="slotProps.node.typeIcon" class="fa-fw"></font-awesome-icon>
+            </div>
+          </span>
+          <ProgressSpinner v-if="slotProps.node.loading" />
+          <span>{{ slotProps.node.label }}</span>
+        </div>
+      </template>
+    </Tree>
   </div>
+  <!-- </div> -->
 </template>
 
 <script lang="ts">

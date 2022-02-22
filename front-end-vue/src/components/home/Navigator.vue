@@ -1,7 +1,7 @@
 <template>
-  <div id="side-bar">
-    <NavTree />
-  </div>
+  <!-- <div id="side-bar"> -->
+  <NavTree />
+  <!-- </div> -->
 </template>
 
 <script lang="ts">
