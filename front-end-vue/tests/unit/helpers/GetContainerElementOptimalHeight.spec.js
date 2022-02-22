@@ -25,25 +25,25 @@ describe("GetContainerElementOptimalHeight", () => {
   it("gets height ___ no class elements", () => {
     mockElement.getElementsByClassName = jest.fn().mockReturnValue([undefined]);
     docSpy.mockReturnValue(mockElement);
-    expect(getContainerElementOptimalHeight("container-id", ["element-1-class", "element-2-class"], false)).toBe("100px");
+    expect(getContainerElementOptimalHeight("container-id", ["element-1-class", "element-2-class"], false)).toBe("-20px");
   });
 
   it("gets height ___ class elements", () => {
     mockElement.getElementsByClassName = jest.fn().mockReturnValue([mockElement]);
     docSpy.mockReturnValue(mockElement);
-    expect(getContainerElementOptimalHeight("container-id", ["element-1-class", "element-2-class"], false)).toBe("-100px");
+    expect(getContainerElementOptimalHeight("container-id", ["element-1-class", "element-2-class"], false)).toBe("-220px");
   });
 
   it("gets height ___ class elements ___ rem and additional pixels", () => {
     mockElement.getElementsByClassName = jest.fn().mockReturnValue([mockElement]);
     docSpy.mockReturnValue(mockElement);
-    expect(getContainerElementOptimalHeight("container-id", ["element-1-class", "element-2-class"], true, 2, 40)).toBe("-172px");
+    expect(getContainerElementOptimalHeight("container-id", ["element-1-class", "element-2-class"], true, 2, 40)).toBe("-292px");
   });
 
   it("gets height ___ class elements ___ rem and additional pixels", () => {
     windowSpy.mockReturnValue({ getPropertyValue: jest.fn().mockReturnValue(undefined) });
     mockElement.getElementsByClassName = jest.fn().mockReturnValue([mockElement]);
     docSpy.mockReturnValue(mockElement);
-    expect(getContainerElementOptimalHeight("container-id", ["element-1-class", "element-2-class"], true, 2, 40)).toBe("-140px");
+    expect(getContainerElementOptimalHeight("container-id", ["element-1-class", "element-2-class"], true, 2, 40)).toBe("-260px");
   });
 });
