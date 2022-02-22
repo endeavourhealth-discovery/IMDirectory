@@ -23,16 +23,15 @@
         </template>
 
         <template #header>
-          <div class="table-header">
-            <span :style="color" class="p-mx-1">
-              <font-awesome-icon v-if="types && types.length" :icon="icon" />
-            </span>
-            <Breadcrumb :home="home" :model="pathItems" />
-            <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
-            <span class="p-buttonset">
+          <div class="p-grid">
+            <div class="p-col-6 table-header">
+              <Breadcrumb :home="home" :model="pathItems" />
+              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
+            </div>
+            <div class="p-col-6 header-button-group p-buttonset">
               <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
               <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
-            </span>
+            </div>
           </div>
         </template>
         <Column field="name" header="Name">
@@ -401,7 +400,13 @@ export default defineComponent({
 .table-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: left;
+}
+
+.header-button-group {
+  display: flex;
+  align-items: center;
+  justify-content: right;
 }
 
 .p-breadcrumb {
