@@ -231,7 +231,7 @@ export default defineComponent({
           params: { selectedIri: this.selected["@id"] }
         });
       } else {
-        DirectService.directTo(this.selected["@id"]);
+        DirectService.directTo(this.selected["@id"], this);
       }
     },
 

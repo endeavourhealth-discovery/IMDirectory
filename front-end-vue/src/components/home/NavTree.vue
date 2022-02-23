@@ -138,7 +138,6 @@ export default defineComponent({
     expandRecursive(iris: Set<string>, nodes: TreeNode[]) {
       if (iris) {
         for (let node of nodes) {
-          console.log(node.data);
           if (iris.has(node.data)) {
             this.expandedKeys[node.key] = true;
             this.onNodeExpand(node);

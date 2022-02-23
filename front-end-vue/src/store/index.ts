@@ -16,6 +16,7 @@ import { FilterDefaultsConfig } from "@/models/configs/FilterDefaultsConfig";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { RDFS } from "@/vocabulary/RDFS";
 import { RDF } from "@/vocabulary/RDF";
+import { RecentActivityItem } from "@/models/RecentActivityItem";
 
 export default createStore({
   // update stateType.ts when adding new state!
@@ -28,6 +29,7 @@ export default createStore({
     currentUser: {} as User,
     registeredUsername: "" as string,
     isLoggedIn: false as boolean,
+    recentLocalActivity: localStorage.getItem("recentLocalActivity") as string,
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     historyCount: 0 as number,
     focusTree: false as boolean,
@@ -72,7 +74,6 @@ export default createStore({
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },
-
     updateBlockedIris(state, blockedIris) {
       state.blockedIris = blockedIris;
     },
@@ -109,6 +110,15 @@ export default createStore({
     updateSnomedLicenseAccepted(state, status: string) {
       state.snomedLicenseAccepted = status;
       localStorage.setItem("snomedLicenseAccepted", status);
+    },
+    updateRecentLocalActivity(state, recentActivityItem: RecentActivityItem) {
+      const activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
+      if (activity.length >= 5) {
+        activity.shift();
+      }
+      activity.push(recentActivityItem);
+      localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
+      state.recentLocalActivity = JSON.stringify(activity);
     },
     updateHistoryCount(state, count) {
       state.historyCount = count;

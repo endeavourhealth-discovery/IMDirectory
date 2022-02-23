@@ -10,6 +10,7 @@ export interface State {
   currentUser: User;
   registeredUsername: string;
   isLoggedIn: boolean;
+  recentLocalActivity: string;
   snomedLicenseAccepted: string;
   historyCount: number;
   focusTree: boolean;

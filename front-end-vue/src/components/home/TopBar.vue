@@ -189,7 +189,7 @@ export default defineComponent({
           params: { selectedIri: event.value.iri }
         });
       } else {
-        DirectService.directTo(event.value.iri);
+        DirectService.directTo(event.value.iri, this);
       }
       this.searchText = "";
     },

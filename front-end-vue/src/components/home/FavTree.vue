@@ -56,8 +56,8 @@ export default defineComponent({
     async addFavouritesFolder() {
       const favourites = await EntityService.getPartialEntity(IM.NAMESPACE + "Favourites", [RDFS.LABEL, RDF.TYPE]);
       this.root.push({
-        key: favourites[RDFS.LABEL],
-        label: favourites[RDFS.LABEL],
+        key: "Favourites",
+        label: "Favourites",
         typeIcon: ["fas", "star"],
         color: "#e39a36",
         data: favourites["@id"],

@@ -214,7 +214,7 @@ export default defineComponent({
           params: { selectedIri: this.selectedResult.iri }
         });
       } else {
-        DirectService.directTo(this.selectedResult.iri);
+        DirectService.directTo(this.selectedResult.iri, this);
       }
     }
   }

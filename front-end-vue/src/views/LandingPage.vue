@@ -39,10 +39,14 @@
         Suggested
       </template>
       <template #content>
-        <DataTable :value="products" responsiveLayout="scroll" v-model:selection="selected" selectionMode="single" dataKey="name" @row-click="onClick">
+        <DataTable :value="activities" responsiveLayout="scroll" v-model:selection="selected" selectionMode="single" dataKey="dateTime" @row-click="onClick">
           <Column field="name" header="Name"></Column>
           <Column field="type" header="Type"></Column>
-          <Column field="latestActivity" header="Latest activity"></Column>
+          <Column field="latestActivity" header="Latest activity">
+            <template #body="{data}">
+              {{ getActivityMessage(data) }}
+            </template>
+          </Column>
         </DataTable>
       </template>
     </Card>
@@ -61,6 +65,11 @@ import { RDFS } from "@/vocabulary/RDFS";
 import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { IriCount } from "@/models/IriCount";
 import { byOrder } from "@/helpers/Sorters";
+import { mapState } from "vuex";
+import { RecentActivityItem } from "@/models/RecentActivityItem";
+import { RDF } from "@/vocabulary/RDF";
+import { TTIriRef } from "@/models/TripleTree";
+import DirectService from "@/services/DirectService";
 
 export default defineComponent({
   name: "LandingPage",
@@ -68,43 +77,24 @@ export default defineComponent({
     ReportTable,
     PieChartDashCard
   },
+  computed: {
+    ...mapState(["recentLocalActivity"])
+  },
+  watch: {
+    async recentLocalActivity() {
+      await this.init();
+    }
+  },
   async mounted() {
     await this.init();
   },
   data() {
     return {
+      activities: [] as RecentActivityItem[],
       selected: {} as any,
       loading: false,
       configs: [] as DashboardLayout[],
-      cardsData: [] as { name: string; description: string; inputData: IriCount; component: string }[],
-
-      products: [
-        {
-          name: "Value set - Procedures",
-          type: "Value set",
-          latestActivity: "Edited yesterday"
-        },
-        {
-          name: "Family history",
-          type: "Value set",
-          latestActivity: "Edited yesterday"
-        },
-        {
-          name: "Entry (record type)",
-          type: "Class, Node shape",
-          latestActivity: "Viewed in the past week"
-        },
-        {
-          name: "Encounter (record type)",
-          type: "Class, Node shape",
-          latestActivity: "Created in the past week"
-        },
-        {
-          name: "Provenance activity (record type)",
-          type: "Class, Node shape",
-          latestActivity: "Created a month ago"
-        }
-      ]
+      cardsData: [] as { name: string; description: string; inputData: IriCount; component: string }[]
     };
   },
   methods: {
@@ -112,7 +102,18 @@ export default defineComponent({
       this.loading = true;
       await this.getConfigs();
       await this.getCardsData();
+      await this.getRecentActivityDetails();
       this.loading = false;
+    },
+
+    async getRecentActivityDetails() {
+      const storedActivity: RecentActivityItem[] = JSON.parse(this.recentLocalActivity || "[]");
+      for (let activity of storedActivity) {
+        const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
+        activity.name = result[RDFS.LABEL];
+        activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      }
+      this.activities = storedActivity.reverse();
     },
 
     async getConfigs(): Promise<void> {
@@ -122,8 +123,23 @@ export default defineComponent({
       }
     },
 
+    getActivityMessage(activity: RecentActivityItem) {
+      let action = "";
+      const dateTime = new Date(activity.dateTime);
+      switch (activity.app) {
+        case "IMViewer":
+          action = "Viewed";
+          break;
+
+        default:
+          break;
+      }
+
+      return [action, "on", dateTime.toDateString(), "at", dateTime.toTimeString().substring(0, 9)].join(" ");
+    },
+
     onClick(event: any) {
-      console.log(event.data);
+      DirectService.directTo(event.data.iri, this);
     },
 
     async getCardsData(): Promise<void> {
@@ -139,8 +155,6 @@ export default defineComponent({
         };
         cards.push(cardData);
       }
-      // cards.pop();
-      // cards.pop();
       this.cardsData = cards;
     }
   }
