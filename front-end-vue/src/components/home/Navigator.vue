@@ -1,7 +1,12 @@
 <template>
-  <div id="side-bar">
-    <NavTree />
-  </div>
+  <Splitter id="side-bar" layout="vertical">
+    <SplitterPanel :size="50">
+      <NavTree />
+    </SplitterPanel>
+    <SplitterPanel :size="50">
+      <FavTree />
+    </SplitterPanel>
+  </Splitter>
 </template>
 
 <script lang="ts">
@@ -20,11 +25,13 @@ import { IM } from "@/vocabulary/IM";
 import { FilterDefaultsConfig } from "@/models/configs/FilterDefaultsConfig";
 import ConfigService from "@/services/ConfigService";
 import NavTree from "@/components/home/NavTree.vue";
+import FavTree from "@/components/home/FavTree.vue";
 
 export default defineComponent({
   name: "Navigator",
   components: {
-    NavTree
+    NavTree,
+    FavTree
   },
   computed: mapState(["filterOptions", "selectedFilters", "searchResults", "focusHierarchy", "sidebarControlActivePanel"]),
   watch: {
@@ -152,62 +159,8 @@ export default defineComponent({
 
 <style scoped>
 #side-bar {
-  max-height: calc(100vh - 2rem);
-  height: calc(100vh - 2rem);
-}
-
-.side-menu {
-  display: flex;
-  flex-flow: column;
-  justify-content: flex-start;
-  flex-grow: 100;
-}
-
-.side-menu ::v-deep(.p-tabview-panels) {
-  flex-grow: 6;
-  overflow-y: auto;
-}
-
-.side-menu ::v-deep(.p-tabview-panel) {
-  height: 100%;
-}
-
-.results-filter-container {
-  display: flex;
-  flex-flow: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
-.hierarchy-filter-container {
-  display: flex;
-  flex-flow: column;
-  justify-content: space-between;
-  height: 100%;
-}
-
-.search-bar {
-  width: 100%;
-}
-
-.search-input {
-  width: 100%;
-}
-
-.icon-header {
-  margin: 0 4px 0 0;
-}
-
-.p-tabview-panel {
-  overflow-x: hidden;
-}
-
-.loading-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
+  max-height: calc(100vh - 4rem);
+  height: calc(100vh - 4rem);
+  overflow: auto;
 }
 </style>

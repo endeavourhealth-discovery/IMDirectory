@@ -39,9 +39,8 @@ import { RDF } from "@/vocabulary/RDF";
 import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
 export default defineComponent({
-  name: "NavTree",
+  name: "FavTree",
   computed: mapState(["conceptIri"]),
-
   data() {
     return {
       selected: {} as any,
@@ -51,20 +50,21 @@ export default defineComponent({
     };
   },
   async mounted() {
-    this.addParentFoldersToRoot();
-    if (this.conceptIri) this.focusTree(this.conceptIri);
+    this.addFavouritesFolder();
   },
   methods: {
-    async addParentFoldersToRoot() {
-      const rootFolders = [IM.NAMESPACE + "Sets", IM.NAMESPACE + "DiscoveryCommonDataModel", IM.NAMESPACE + "DiscoveryOntology", IM.NAMESPACE + "Q_Queries"];
-      for (let rootFolder of rootFolders) {
-        const hasNode = !!this.root.find(node => node.data === rootFolder);
-        if (!hasNode) {
-          const rootEntity = await EntityService.getPartialEntity(rootFolder, [RDFS.LABEL, RDF.TYPE]);
-          this.root.push(this.createTreeNode(rootEntity[RDFS.LABEL], rootEntity["@id"], rootEntity[RDF.TYPE], true));
-        }
-      }
-      this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
+    async addFavouritesFolder() {
+      const favourites = await EntityService.getPartialEntity(IM.NAMESPACE + "Favourites", [RDFS.LABEL, RDF.TYPE]);
+      this.root.push({
+        key: favourites[RDFS.LABEL],
+        label: favourites[RDFS.LABEL],
+        typeIcon: ["fas", "star"],
+        color: "#e39a36",
+        data: favourites["@id"],
+        leaf: false,
+        loading: false,
+        children: [] as TreeNode[]
+      });
     },
 
     createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
@@ -102,67 +102,11 @@ export default defineComponent({
       return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
     },
 
-    findNode(data: string, nodes: TreeNode[]) {
-      const foundNode = nodes.find(node => node.data === data);
-      if (foundNode) {
-        return foundNode;
-      }
-      const result = [] as TreeNode[];
-      this.findNodeRecursive(data, nodes, result);
-      return result[0];
-    },
-
-    findNodeRecursive(data: string, nodes: TreeNode[], result: TreeNode[]) {
-      const foundNode = nodes.find(node => node.data === data);
-      if (foundNode) {
-        result.push(foundNode);
-      } else {
-        nodes.forEach(node => {
-          if (node.children.length === 0) {
-            this.onNodeExpand(node);
-          }
-          this.findNodeRecursive(data, node.children, result);
-        });
-      }
-    },
-
-    async expandUntilSelected(iri: string) {
-      const folderPath = await EntityService.getFolderPath(iri);
-      const iris = new Set(folderPath.map(path => path["@id"]));
-      this.expandRecursive(iris, this.root);
-      this.expandedKeys = { ...this.expandedKeys };
-      const selected = folderPath[folderPath.length - 1];
-      this.selectKey(selected.name);
-    },
-
-    expandRecursive(iris: Set<string>, nodes: TreeNode[]) {
-      if (iris) {
-        for (let node of nodes) {
-          console.log(node.data);
-          if (iris.has(node.data)) {
-            this.expandedKeys[node.key] = true;
-            this.onNodeExpand(node);
-            iris.delete(node.data);
-            this.expandRecursive(iris, node.children);
-          }
-        }
-      }
-    },
-
     selectKey(selectedKey: string) {
       Object.keys(this.selected).forEach(key => {
         this.selected[key] = false;
       });
       this.selected[selectedKey] = true;
-    },
-
-    async focusTree(iri: string) {
-      const foundNode = this.findNode(iri, this.root);
-      if (foundNode) {
-        this.selectKey(foundNode.key);
-      } else {
-        await this.expandUntilSelected(iri);
-      }
     }
   }
 });
