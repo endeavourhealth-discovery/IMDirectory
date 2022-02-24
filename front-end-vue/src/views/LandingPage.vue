@@ -3,37 +3,6 @@
     <div class="p-d-flex p-flex-row p-jc-center p-ai-center loading-container" v-if="loading">
       <ProgressSpinner />
     </div>
-    <div v-if="!loading" class="dashboard-container">
-      <template v-for="(cardData, index) in cardsData" :key="index">
-        <component
-          :is="cardData.component"
-          :inputData="cardData.inputData"
-          :name="cardData.name"
-          :description="cardData.description"
-          :id="'dashCard-' + index"
-          labelKey="http://www.w3.org/2000/01/rdf-schema#label"
-          dataKey="http://www.w3.org/2002/07/owl#hasValue"
-        />
-      </template>
-    </div>
-    <!-- <Card>
-      <template #title>
-        Latest activity
-      </template>
-      <template #content>
-        <DataView :value="products" layout="grid">
-          <template #grid="slotProps">
-            <div style="padding: .5em" class="col-12 md:col-3">
-              <Panel :header="slotProps.data.name" style="text-align: center">
-                <img :src="'demo/images/car/' + slotProps.data.brand + '.png'" :alt="slotProps.data.brand" />
-                <div class="car-detail">{{ slotProps.data.year }} - {{ slotProps.data.color }}</div>
-                <Button label="Continue" class="p-button-outlined" icon="pi pi-arrow-circle-right" iconPos="right" />
-              </Panel>
-            </div>
-          </template>
-        </DataView>
-      </template>
-    </Card> -->
     <Card>
       <template #title>
         Suggested
@@ -53,6 +22,37 @@
         </DataTable>
       </template>
     </Card>
+    <!-- <Card>
+      <template #title>
+        Latest activity
+      </template>
+      <template #content>
+        <DataView :value="products" layout="grid">
+          <template #grid="slotProps">
+            <div style="padding: .5em" class="col-12 md:col-3">
+              <Panel :header="slotProps.data.name" style="text-align: center">
+                <img :src="'demo/images/car/' + slotProps.data.brand + '.png'" :alt="slotProps.data.brand" />
+                <div class="car-detail">{{ slotProps.data.year }} - {{ slotProps.data.color }}</div>
+                <Button label="Continue" class="p-button-outlined" icon="pi pi-arrow-circle-right" iconPos="right" />
+              </Panel>
+            </div>
+          </template>
+        </DataView>
+      </template>
+    </Card> -->
+    <div v-if="!loading" class="dashboard-container">
+      <template v-for="(cardData, index) in cardsData" :key="index">
+        <component
+          :is="cardData.component"
+          :inputData="cardData.inputData"
+          :name="cardData.name"
+          :description="cardData.description"
+          :id="'dashCard-' + index"
+          labelKey="http://www.w3.org/2000/01/rdf-schema#label"
+          dataKey="http://www.w3.org/2002/07/owl#hasValue"
+        />
+      </template>
+    </div>
   </div>
 </template>
 
