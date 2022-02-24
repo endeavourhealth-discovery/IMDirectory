@@ -40,6 +40,9 @@
       </template>
       <template #content>
         <DataTable :value="activities" responsiveLayout="scroll" v-model:selection="selected" selectionMode="single" dataKey="dateTime" @row-click="onClick">
+          <template #empty>
+            No recent activity
+          </template>
           <Column field="name" header="Name"></Column>
           <Column field="type" header="Type"></Column>
           <Column field="latestActivity" header="Latest activity">
