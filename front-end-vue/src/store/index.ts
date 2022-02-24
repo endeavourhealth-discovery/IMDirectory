@@ -22,7 +22,7 @@ export default createStore({
   // update stateType.ts when adding new state!
   state: {
     conceptIri: IM.MODULE_ONTOLOGY,
-    favourites: [],
+    favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
     history: [] as HistoryItem[],
     searchResults: [] as ConceptSummary[],
     searchLoading: false,
@@ -120,6 +120,16 @@ export default createStore({
       localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       state.recentLocalActivity = JSON.stringify(activity);
     },
+    updateFavourites(state, favourite: string) {
+      const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");
+      if (!favourites.includes(favourite)) {
+        favourites.push(favourite);
+      } else {
+        favourites.splice(favourites.indexOf(favourite), 1);
+      }
+      localStorage.setItem("favourites", JSON.stringify(favourites));
+      state.favourites = favourites;
+    },
     updateHistoryCount(state, count) {
       state.historyCount = count;
     },
@@ -164,17 +174,9 @@ export default createStore({
     },
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
-    },
-    updateFavourites(state, favourites) {
-      state.favourites = favourites;
     }
   },
   actions: {
-    async fetchFavourites({ commit }) {
-      const favourites = await EntityService.getEntityChildren(IM.NAMESPACE + "Favourites");
-      commit("updateFavourites", favourites);
-    },
-
     async fetchBlockedIris({ commit }) {
       const blockedIris = await ConfigService.getXmlSchemaDataTypes();
       commit("updateBlockedIris", blockedIris);

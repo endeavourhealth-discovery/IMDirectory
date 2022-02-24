@@ -101,8 +101,8 @@ export default defineComponent({
     ...mapState(["conceptIri", "favourites"])
   },
   watch: {
-    async conceptIri() {
-      await this.init();
+    async conceptIri(newValue) {
+      if (newValue !== IM.NAMESPACE + "Favourites") await this.init();
     },
     types(newValue): void {
       if (newValue.length > 0) {
@@ -153,7 +153,7 @@ export default defineComponent({
         {
           label: "Favourite",
           icon: "pi pi-fw pi-star",
-          command: () => this.showInfo()
+          command: () => this.updateFavourites()
         }
       ],
       pathItems: [] as any[],
@@ -173,6 +173,10 @@ export default defineComponent({
     };
   },
   methods: {
+    updateFavourites() {
+      this.$store.commit("updateFavourites", this.selected["@id"]);
+    },
+
     isFavourite(iri: string) {
       if (!this.favourites.length) return false;
       return !!this.favourites.find((favourite: any) => favourite["@id"] === iri);

@@ -40,7 +40,7 @@ import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 
 export default defineComponent({
   name: "FavTree",
-  computed: mapState(["conceptIri"]),
+  computed: mapState(["conceptIri", "favourites"]),
   data() {
     return {
       selected: {} as any,
@@ -49,22 +49,37 @@ export default defineComponent({
       expandedKeys: {} as any
     };
   },
+  watch: {
+    favourites() {
+      this.addFavouriteChildren();
+    }
+  },
   async mounted() {
     this.addFavouritesFolder();
   },
   methods: {
     async addFavouritesFolder() {
-      const favourites = await EntityService.getPartialEntity(IM.NAMESPACE + "Favourites", [RDFS.LABEL, RDF.TYPE]);
       this.root.push({
         key: "Favourites",
         label: "Favourites",
         typeIcon: ["fas", "star"],
         color: "#e39a36",
-        data: favourites["@id"],
+        data: IM.NAMESPACE + "Favourites",
         leaf: false,
         loading: false,
         children: [] as TreeNode[]
       });
+      this.addFavouriteChildren();
+    },
+
+    async addFavouriteChildren() {
+      this.root[0].loading = true;
+      this.root[0].children = [];
+      for (let favourite of this.favourites) {
+        const entity = await EntityService.getPartialEntity(favourite, [RDF.TYPE, RDFS.LABEL, IM.HAS_CHILDREN]);
+        this.root[0].children.push(this.createTreeNode(entity[RDFS.LABEL], favourite, entity[RDF.TYPE], entity[IM.HAS_CHILDREN]));
+      }
+      this.root[0].loading = false;
     },
 
     createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {

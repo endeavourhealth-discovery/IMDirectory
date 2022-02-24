@@ -24,7 +24,6 @@ export default defineComponent({
     await this.$store.dispatch("authenticateCurrentUser");
     this.$store.commit("updateHistoryCount", window.history.length);
     await this.$store.dispatch("fetchBlockedIris");
-    await this.$store.dispatch("fetchFavourites");
     this.loading = false;
   },
   data() {
