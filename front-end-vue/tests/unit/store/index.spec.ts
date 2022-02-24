@@ -29,6 +29,7 @@ describe("state", () => {
       "currentUser",
       "registeredUsername",
       "isLoggedIn",
+      "recentLocalActivity",
       "snomedLicenseAccepted",
       "historyCount",
       "focusTree",
