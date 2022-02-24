@@ -79,6 +79,7 @@ import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
 import InfoSideBar from "../components/home/InfoSideBar.vue";
+import { AppEnum } from "../models/AppEnum";
 
 export default defineComponent({
   name: "SearchResultsTable",
@@ -214,7 +215,7 @@ export default defineComponent({
           params: { selectedIri: this.selectedResult.iri }
         });
       } else {
-        DirectService.directTo(this.selectedResult.iri, this);
+        DirectService.directTo(AppEnum.VIEWER, this.selectedResult.iri, this);
       }
     }
   }

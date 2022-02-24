@@ -97,6 +97,7 @@ import { ConceptSummary } from "@/models/search/ConceptSummary";
 import { IM } from "@/vocabulary/IM";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
+import { AppEnum } from "@/models/AppEnum";
 
 export default defineComponent({
   name: "TopBar",
@@ -189,7 +190,7 @@ export default defineComponent({
           params: { selectedIri: event.value.iri }
         });
       } else {
-        DirectService.directTo(event.value.iri, this);
+        DirectService.directTo(AppEnum.VIEWER, event.value.iri, this);
       }
       this.searchText = "";
     },

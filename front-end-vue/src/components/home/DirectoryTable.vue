@@ -90,6 +90,7 @@ import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import { RouteRecordName } from "vue-router";
 import InfoSideBar from "./InfoSideBar.vue";
 import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
+import { AppEnum } from "@/models/AppEnum";
 
 export default defineComponent({
   name: "DirectoryTable",
@@ -231,7 +232,7 @@ export default defineComponent({
           params: { selectedIri: this.selected["@id"] }
         });
       } else {
-        DirectService.directTo(this.selected["@id"], this);
+        DirectService.directTo(AppEnum.VIEWER, this.selected["@id"], this);
       }
     },
 

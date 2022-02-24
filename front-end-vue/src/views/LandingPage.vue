@@ -70,6 +70,7 @@ import { RecentActivityItem } from "@/models/RecentActivityItem";
 import { RDF } from "@/vocabulary/RDF";
 import { TTIriRef } from "@/models/TripleTree";
 import DirectService from "@/services/DirectService";
+import { AppEnum } from "@/models/AppEnum";
 
 export default defineComponent({
   name: "LandingPage",
@@ -127,7 +128,7 @@ export default defineComponent({
       let action = "";
       const dateTime = new Date(activity.dateTime);
       switch (activity.app) {
-        case "IMViewer":
+        case AppEnum.VIEWER:
           action = "Viewed";
           break;
 
@@ -139,7 +140,7 @@ export default defineComponent({
     },
 
     onClick(event: any) {
-      DirectService.directTo(event.data.iri, this);
+      DirectService.directTo(event.data.app, event.data.iri, this);
     },
 
     async getCardsData(): Promise<void> {
