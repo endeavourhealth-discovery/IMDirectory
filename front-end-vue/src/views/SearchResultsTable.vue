@@ -44,7 +44,7 @@
               <span :style="getColourFromType(slotProps.data.entityType)" class="p-mx-1">
                 <font-awesome-icon v-if="slotProps.data.entityType && slotProps.data.entityType.length" :icon="getFAIconFromType(slotProps.data.entityType)" />
               </span>
-              {{ slotProps.data.name }}
+              {{ slotProps.data.match }}
             </div>
           </template>
         </Column>
