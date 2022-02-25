@@ -204,7 +204,14 @@ export default defineComponent({
     getColourFromType(types: TTIriRef[]) {
       return "color: " + getColourFromType(types);
     },
+
+    updateRClickOptions() {
+      this.rClickOptions[0].label = isOfTypes(this.selectedResult.entityType, IM.FOLDER) ? "Open" : "View";
+      this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selectedResult.iri) ? "Unfavourite" : "Favourite";
+    },
+
     onRowContextMenu(event: any) {
+      this.updateRClickOptions();
       (this.$refs.cm as any).show(event.originalEvent);
     },
 
@@ -221,7 +228,7 @@ export default defineComponent({
       const currentRoute = this.$route.name as RouteRecordName | undefined;
       if (isOfTypes(this.selectedResult?.entityType, IM.FOLDER)) {
         this.$router.push({
-          name: currentRoute,
+          name: "Folder",
           params: { selectedIri: this.selectedResult.iri }
         });
       } else {

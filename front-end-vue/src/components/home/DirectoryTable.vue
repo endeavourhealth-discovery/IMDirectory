@@ -228,7 +228,13 @@ export default defineComponent({
     },
 
     onRightClick(event: any) {
+      this.updateRClickOptions();
       (this.$refs.menu as any).show(event);
+    },
+
+    updateRClickOptions() {
+      this.rClickOptions[0].label = isOfTypes(this.selected.type, IM.FOLDER) ? "Open" : "View";
+      this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected["@id"]) ? "Unfavourite" : "Favourite";
     },
 
     navigate(): void {
