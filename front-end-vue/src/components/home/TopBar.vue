@@ -249,6 +249,8 @@ export default defineComponent({
   font-weight: bold;
   cursor: pointer;
   margin-bottom: 0rem;
+  position: absolute;
+  z-index: 100;
 }
 
 .app-list-container {
@@ -267,8 +269,6 @@ export default defineComponent({
   }
 }
 #filter-button {
-  position: absolute;
-  margin-left: 29rem;
   height: 40px;
 }
 
@@ -277,9 +277,7 @@ export default defineComponent({
   background: #dee2e6;
   border: none;
   width: 30rem;
-  margin-left: 2rem;
-  margin-top: -2.7rem;
-  position: absolute;
+  margin-left: 3.5rem;
   height: 40px;
 }
 
@@ -288,9 +286,7 @@ export default defineComponent({
   background: #dee2e6;
   border: none;
   width: 30rem;
-  margin-left: 2rem;
-  margin-top: 0rem;
-  position: absolute;
+  margin-left: 3.5rem;
   height: 40px;
 }
 

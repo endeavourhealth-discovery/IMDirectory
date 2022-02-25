@@ -6,7 +6,7 @@
       </template>
       <div id="concept-content-dialogs-container">
         <div id="concept-panel-container">
-          <TabView v-model:activeIndex="active" :lazy="true">
+          <TabView :lazy="true">
             <TabPanel header="Details">
               <div v-if="loading" class="loading-container" :style="contentHeight">
                 <ProgressSpinner />

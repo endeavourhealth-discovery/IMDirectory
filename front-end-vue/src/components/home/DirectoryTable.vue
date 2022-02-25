@@ -30,7 +30,7 @@
                 <i class="fa-solid fa-star"></i>
               </span>
               <span class="p-mx-1">
-                <i id class="clickable pi pi-fw pi-info-circle" @click="showParentInfo"></i>
+                <i class="clickable pi pi-info-circle" @click="showParentInfo"></i>
               </span>
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
