@@ -29,6 +29,9 @@
               <span v-if="isFavourite(conceptIri)" style="color: #e39a36" class="p-mx-1">
                 <i class="fa-solid fa-star"></i>
               </span>
+              <span class="p-mx-1">
+                <i id class="clickable pi pi-fw pi-info-circle" @click="showParentInfo"></i>
+              </span>
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
             <div class="p-col-6 header-button-group p-buttonset">
@@ -176,6 +179,10 @@ export default defineComponent({
     };
   },
   methods: {
+    showParentInfo() {
+      this.selected["@id"] = this.conceptIri;
+      this.showInfo();
+    },
     updateFavourites() {
       this.$store.commit("updateFavourites", this.selected["@id"]);
     },
@@ -425,5 +432,9 @@ export default defineComponent({
 
 .p-breadcrumb {
   all: unset;
+}
+
+.clickable {
+  cursor: pointer;
 }
 </style>
