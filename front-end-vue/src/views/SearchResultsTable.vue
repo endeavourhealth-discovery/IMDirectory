@@ -45,6 +45,9 @@
                 <font-awesome-icon v-if="slotProps.data.entityType && slotProps.data.entityType.length" :icon="getFAIconFromType(slotProps.data.entityType)" />
               </span>
               {{ slotProps.data.match }}
+              <span v-if="isFavourite(slotProps.data.iri)" style="color: #e39a36" class="p-mx-1">
+                <i class="fa-solid fa-star"></i>
+              </span>
             </div>
           </template>
         </Column>
@@ -87,7 +90,7 @@ export default defineComponent({
     InfoSideBar
   },
   computed: {
-    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults"])
+    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
   },
   watch: {
     searchResults() {
@@ -139,12 +142,19 @@ export default defineComponent({
         {
           label: "Favourite",
           icon: "pi pi-fw pi-star",
-          command: () => this.showInfo()
+          command: () => this.updateFavourites()
         }
       ]
     };
   },
   methods: {
+    updateFavourites() {
+      this.$store.commit("updateFavourites", this.selectedResult.iri);
+    },
+    isFavourite(iri: string) {
+      if (!this.favourites.length) return false;
+      return this.favourites.includes(iri);
+    },
     init() {
       this.localSearchResults = this.searchResults;
       const schemeOptions = [] as string[];

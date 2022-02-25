@@ -26,6 +26,9 @@
           <div class="p-grid">
             <div class="p-col-6 table-header">
               <Breadcrumb :home="home" :model="pathItems" />
+              <span v-if="isFavourite(conceptIri)" style="color: #e39a36" class="p-mx-1">
+                <i class="fa-solid fa-star"></i>
+              </span>
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
             <div class="p-col-6 header-button-group p-buttonset">
@@ -179,7 +182,7 @@ export default defineComponent({
 
     isFavourite(iri: string) {
       if (!this.favourites.length) return false;
-      return !!this.favourites.find((favourite: any) => favourite["@id"] === iri);
+      return this.favourites.includes(iri);
     },
 
     goBack() {
