@@ -39,14 +39,14 @@ import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
 import LoggerService from "@/services/LoggerService";
 import SecondaryTree from "../concept/SecondaryTree.vue";
-import { IM } from "@/vocabulary/IM";
-import { RDF } from "@/vocabulary/RDF";
-import { RDFS } from "@/vocabulary/RDFS";
-import { DefinitionConfig } from "@/models/configs/DefinitionConfig";
-import { TTIriRef } from "@/models/TripleTree";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { getContainerElementOptimalHeight } from "@/helpers/GetContainerElementOptimalHeight";
-import { byOrder } from "@/helpers/Sorters";
+import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { Vocabulary, Helpers } from "im-library";
+const { IM, RDF, RDFS } = Vocabulary;
+const {
+  DataTypeCheckers: { isObjectHasKeys },
+  ContainerDimensionGetters: { getContainerElementOptimalHeight },
+  Sorters: { byOrder }
+} = Helpers;
 
 export default defineComponent({
   name: "InfoSideBar",

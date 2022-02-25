@@ -1,8 +1,11 @@
-import { SearchRequest } from "@/models/search/SearchRequest";
+import { Models } from "im-library";
 import EntityService from "@/services/EntityService";
 import axios from "axios";
+const {
+  Search: { SearchRequest }
+} = Models;
 
-const api = process.env.VUE_APP_API;
+const api = import.meta.env.VITE_API;
 const SEARCH_PAYLOAD = {
   size: 100,
   query: {
@@ -243,7 +246,7 @@ describe("EntityService.ts ___ axios success", () => {
 });
 
 describe("EntityService.ts ___ axios fail", () => {
-  const api = process.env.VUE_APP_API;
+  const api = import.meta.env.VITE_API;
 
   beforeEach(() => {
     jest.resetAllMocks();

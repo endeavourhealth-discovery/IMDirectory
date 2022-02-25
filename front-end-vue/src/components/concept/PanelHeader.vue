@@ -9,8 +9,11 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
-import { TTIriRef } from "@/models/TripleTree";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { Helpers } from "im-library";
+const {
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
+} = Helpers;
 
 export default defineComponent({
   name: "PanelHeader",

@@ -1,8 +1,8 @@
 <template>
   <div id="search-results-main-container">
     <div class="card">
-      <div class="p-grid">
-        <div class="p-col-4">
+      <div class="grid">
+        <div class="col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
               <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
@@ -10,7 +10,7 @@
             </span>
           </div>
         </div>
-        <div class="p-col-4">
+        <div class="col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
               <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
@@ -18,7 +18,7 @@
             </span>
           </div>
         </div>
-        <div class="p-col-4">
+        <div class="col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
               <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
@@ -73,16 +73,21 @@
 </template>
 
 <script lang="ts">
-import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
-import { ConceptSummary } from "@/models/search/ConceptSummary";
-import { TTIriRef } from "@/models/TripleTree";
 import DirectService from "@/services/DirectService";
-import { IM } from "@/vocabulary/IM";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
 import InfoSideBar from "../components/home/InfoSideBar.vue";
-import { AppEnum } from "../models/AppEnum";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Helpers, Vocabulary, Models } from "im-library";
+const { IM } = Vocabulary;
+const {
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+} = Helpers;
+const {
+  Search: { ConceptSummary }
+} = Models;
+const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "SearchResultsTable",
@@ -113,8 +118,8 @@ export default defineComponent({
       schemeOptions: [] as string[],
       statusOptions: [] as string[],
       typeOptions: [] as string[],
-      localSearchResults: [] as ConceptSummary[],
-      selectedResult: {} as ConceptSummary,
+      localSearchResults: [] as Models.Search.ConceptSummary[],
+      selectedResult: {} as Models.Search.ConceptSummary,
       rClickOptions: [
         {
           label: "Open",
@@ -161,7 +166,7 @@ export default defineComponent({
       const typeOptions = [] as string[];
       const statusOptions = [] as string[];
       if (this.localSearchResults) {
-        (this.localSearchResults as ConceptSummary[]).forEach(searchResult => {
+        (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
           schemeOptions.push(searchResult.scheme.name);
           searchResult.entityType.forEach(type => typeOptions.push(type.name));
           statusOptions.push(searchResult.status.name);
@@ -181,8 +186,8 @@ export default defineComponent({
     },
 
     filterResults() {
-      const filteredSearchResults = [] as ConceptSummary[];
-      (this.searchResults as ConceptSummary[]).forEach(searchResult => {
+      const filteredSearchResults = [] as Models.Search.ConceptSummary[];
+      (this.searchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
         let isOfTypes = false;
         searchResult.entityType.forEach(type => {
           if (this.selectedTypes.indexOf(type.name) != -1) {

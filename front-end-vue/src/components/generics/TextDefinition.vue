@@ -10,14 +10,14 @@
         @click="setButtonExpanded()"
         v-styleclass="{
           selector: '.tgl-' + label,
-          enterClass: 'p-d-none',
+          enterClass: 'hidden',
           enterActiveClass: 'my-fadein',
           leaveActiveClass: 'my-fadeout',
-          leaveToClass: 'p-d-none'
+          leaveToClass: 'hidden'
         }"
       />
     </div>
-    <div v-html="definition" :class="'p-d-none text-definition tgl-' + label"></div>
+    <div v-html="definition" :class="'hidden text-definition tgl-' + label"></div>
     <div class="loading-container" v-if="loading">
       <ProgressSpinner />
     </div>
@@ -26,12 +26,14 @@
 
 <script lang="ts">
 import { defineComponent } from "@vue/runtime-core";
-import { bundleToText } from "@/helpers/Transforms";
-import { TTBundle } from "@/models/TripleTree";
 import { mapState } from "vuex";
-import { PartialEntity } from "@/models/PartialEntity";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import ConfigService from "@/services/ConfigService";
+import { PartialEntity, TTBundle } from "im-library/dist/types/interfaces/Interfaces";
+import { Helpers } from "im-library";
+const {
+  DataTypeCheckers: { isObjectHasKeys, isArrayHasLength },
+  Transforms: { bundleToText }
+} = Helpers;
 
 export default defineComponent({
   name: "TextDefinition",

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-d-flex p-flex-row p-jc-center p-ai-center loading-container" v-if="loading">
+  <div class="flex flex-row justify-content-center align-items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
   <div v-if="!loading" class="dashboard-container">
@@ -19,16 +19,17 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import ReportTable from "@/components/dashboard/ReportTable.vue";
+import ReportTable from "im-library";
 import PieChartDashCard from "@/components/dashboard/PieChartDashCard.vue";
 import ConfigService from "@/services/ConfigService";
-import { IM } from "@/vocabulary/IM";
-import { DashboardLayout } from "@/models/configs/DashboardLayout";
 import EntityService from "@/services/EntityService";
-import { RDFS } from "@/vocabulary/RDFS";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IriCount } from "@/models/IriCount";
-import { byOrder } from "@/helpers/Sorters";
+import { IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
+import { Helpers, Vocabulary } from "im-library";
+const {
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
+  Sorters: { byOrder }
+} = Helpers;
+const { IM, RDFS } = Vocabulary;
 
 export default defineComponent({
   name: "Dashboard",

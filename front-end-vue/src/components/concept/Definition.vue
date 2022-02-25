@@ -28,9 +28,12 @@ import SectionDivider from "@/components/generics/SectionDivider.vue";
 import TextDefinition from "@/components/generics/TextDefinition.vue";
 import ObjectNameTagWithLabel from "@/components/generics/ObjectNameTagWithLabel.vue";
 import NumberWithLabel from "@/components/generics/NumberWithLabel.vue";
-import { DefinitionConfig } from "@/models/configs/DefinitionConfig";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import ArrayObjectNameTagWithLabel from "@/components/generics/ArrayObjectNameTagWithLabel.vue";
+import { DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
+import { Helpers } from "im-library";
+const {
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys, isObject }
+} = Helpers;
 
 export default defineComponent({
   name: "Definition",

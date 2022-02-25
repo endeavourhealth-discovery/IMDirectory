@@ -11,21 +11,23 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { SearchRequest } from "@/models/search/SearchRequest";
-import { SortBy } from "@/models/search/SortBy";
 import axios from "axios";
 import { mapState } from "vuex";
-import { TTIriRef } from "@/models/TripleTree";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
-import { Namespace } from "@/models/Namespace";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { getContainerElementOptimalHeight } from "@/helpers/GetContainerElementOptimalHeight";
 import EntityService from "@/services/EntityService";
-import { IM } from "@/vocabulary/IM";
-import { FilterDefaultsConfig } from "@/models/configs/FilterDefaultsConfig";
 import ConfigService from "@/services/ConfigService";
 import NavTree from "@/components/home/NavTree.vue";
 import FavTree from "@/components/home/FavTree.vue";
+import { TTIriRef, EntityReferenceNode, Namespace, FilterDefaultsConfig } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Helpers, Vocabulary, Models } from "im-library";
+const {
+  DataTypeCheckers: { isObjectHasKeys },
+  ContainerDimensionGetters: { getContainerElementOptimalHeight }
+} = Helpers;
+const { IM } = Vocabulary;
+const {
+  Search: { SearchRequest }
+} = Models;
+const { SortBy } = Enums;
 
 export default defineComponent({
   name: "Navigator",

@@ -23,8 +23,8 @@
         </template>
 
         <template #header>
-          <div class="p-grid">
-            <div class="p-col-6 table-header">
+          <div class="grid">
+            <div class="col-6 table-header">
               <Breadcrumb :home="home" :model="pathItems" />
               <span v-if="isFavourite(conceptIri)" style="color: #e39a36" class="p-mx-1">
                 <i class="fa-solid fa-star"></i>
@@ -34,7 +34,7 @@
               </span>
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
-            <div class="p-col-6 header-button-group p-buttonset">
+            <div class="col-6 header-button-group p-buttonset">
               <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
               <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
             </div>
@@ -84,19 +84,19 @@ import EntityService from "@/services/EntityService";
 import DirectService from "@/services/DirectService";
 import ConfigService from "@/services/ConfigService";
 import LoggerService from "@/services/LoggerService";
-import { IM } from "@/vocabulary/IM";
-import { RDFS } from "@/vocabulary/RDFS";
-import { DefinitionConfig } from "@/models/configs/DefinitionConfig";
-import { TTIriRef } from "@/models/TripleTree";
-import { copyConceptToClipboard } from "@/helpers/CopyConceptToClipboard";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { getContainerElementOptimalHeight } from "@/helpers/GetContainerElementOptimalHeight";
-import { byOrder } from "@/helpers/Sorters";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import { RouteRecordName } from "vue-router";
 import InfoSideBar from "./InfoSideBar.vue";
-import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
-import { AppEnum } from "@/models/AppEnum";
+import { EntityReferenceNode, TTIriRef, DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Vocabulary, Helpers } from "im-library";
+const { AppEnum } = Enums;
+const { IM, RDFS } = Vocabulary;
+const {
+  DataTypeCheckers: { isObjectHasKeys },
+  CopyConceptToClipboard: { copyConceptToClipboard },
+  ContainerDimensionGetters: { getContainerElementOptimalHeight },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes },
+  Sorters: { byOrder }
+} = Helpers;
 
 export default defineComponent({
   name: "DirectoryTable",

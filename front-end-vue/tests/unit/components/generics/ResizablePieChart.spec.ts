@@ -3,8 +3,8 @@ import ResizeablePieChart from "@/components/generics/ResizeablePieChart.vue";
 import Card from "primevue/card";
 import Chart from "primevue/chart";
 import ProgressSpinner from "primevue/progressspinner";
-
-import { PieChartData } from "@/models/charts/PieChartData";
+import { Models } from "im-library";
+const { PieChartData } = Models;
 
 describe("ResizablePieChart.vue", () => {
   let wrapper: any;
@@ -163,7 +163,7 @@ describe("ResizablePieChart.vue", () => {
         }
       ],
       []
-    ) as PieChartData;
+    ) as Models.PieChartData;
     await wrapper.vm.$nextTick();
     wrapper.vm.setChartData();
     await wrapper.vm.$nextTick();
@@ -199,7 +199,7 @@ describe("ResizablePieChart.vue", () => {
         }
       ],
       []
-    ) as PieChartData;
+    ) as Models.PieChartData;
     const mockRes = [
       {
         iri: "http://www.w3.org/2002/07/owl#Class",

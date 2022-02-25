@@ -1,13 +1,16 @@
-import { User } from "@/models/user/User";
 import store from "@/store/index";
 import EntityService from "@/services/EntityService";
 import { flushPromises } from "@vue/test-utils";
 import LoggerService from "@/services/LoggerService";
-import { SearchRequest } from "@/models/search/SearchRequest";
 import AuthService from "@/services/AuthService";
-import { CustomAlert } from "@/models/user/CustomAlert";
-import { IM } from "@/vocabulary/IM";
 import ConfigService from "@/services/ConfigService";
+import { Models, Vocabulary } from "im-library";
+const { IM } = Vocabulary;
+const {
+  User,
+  Search: { SearchRequest },
+  CustomAlert
+} = Models;
 
 describe("state", () => {
   beforeEach(() => {
@@ -27,7 +30,6 @@ describe("state", () => {
       "searchResults",
       "searchLoading",
       "currentUser",
-      "registeredUsername",
       "isLoggedIn",
       "recentLocalActivity",
       "snomedLicenseAccepted",
@@ -36,18 +38,11 @@ describe("state", () => {
       "treeLocked",
       "resetTree",
       "blockedIris",
-      "sideNavHierarchyFocus",
-      "selectedEntityType",
       "filterOptions",
       "selectedFilters",
       "quickFiltersStatus",
-      "moduleSelectedEntities",
-      "activeModule",
-      "conceptActivePanel",
       "focusHierarchy",
-      "instanceIri",
       "sidebarControlActivePanel",
-      "catalogueSearchResults",
       "hierarchySelectedFilters",
       "filterDefaults"
     ]);
@@ -55,7 +50,6 @@ describe("state", () => {
     expect(store.state.history).toEqual([]);
     expect(store.state.searchResults).toEqual([]);
     expect(store.state.currentUser).toEqual({});
-    expect(store.state.registeredUsername).toBe("");
     expect(store.state.isLoggedIn).toBeFalsy();
     expect(store.state.snomedLicenseAccepted).toBeNull();
     expect(store.state.historyCount).toBe(0);
@@ -63,13 +57,6 @@ describe("state", () => {
     expect(store.state.treeLocked).toBe(true);
     expect(store.state.resetTree).toBe(false);
     expect(store.state.blockedIris).toStrictEqual([]);
-    expect(store.state.sideNavHierarchyFocus).toStrictEqual({
-      name: "Ontology",
-      fullName: "Ontologies",
-      iri: "http://endhealth.info/im#DiscoveryOntology",
-      route: "Dashboard"
-    });
-    expect(store.state.selectedEntityType).toBe("");
     expect(store.state.selectedFilters).toEqual({
       status: [],
       schemes: [],
@@ -77,20 +64,7 @@ describe("state", () => {
     });
     expect(store.state.filterOptions).toStrictEqual({ status: [], schemes: [], types: [] });
     expect(store.state.quickFiltersStatus).toEqual(new Map<string, boolean>());
-    expect(store.state.moduleSelectedEntities).toStrictEqual(
-      new Map([
-        ["Ontology", IM.MODULE_ONTOLOGY],
-        ["Sets", IM.MODULE_SETS],
-        ["DataModel", IM.MODULE_DATA_MODEL],
-        ["Catalogue", IM.MODULE_CATALOGUE],
-        ["Queries", IM.MODULE_QUERIES]
-      ])
-    );
-    expect(store.state.activeModule).toBe("default");
-    expect(store.state.conceptActivePanel).toBe(0);
     expect(store.state.focusHierarchy).toBe(false);
-    expect(store.state.catalogueSearchResults).toStrictEqual([]);
-    expect(store.state.instanceIri).toBe("");
     expect(store.state.hierarchySelectedFilters).toStrictEqual([]);
     expect(store.state.filterDefaults).toStrictEqual({});
   });
@@ -141,12 +115,6 @@ describe("mutations", () => {
     const testUser = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/003-man.png");
     store.commit("updateCurrentUser", testUser);
     expect(store.state.currentUser).toEqual(testUser);
-  });
-
-  it("can updateRegisteredUsername", () => {
-    const testUsername = "devTest";
-    store.commit("updateRegisteredUsername", "devTest");
-    expect(store.state.registeredUsername).toBe(testUsername);
   });
 
   it("can updateIsLoggedIn", () => {
@@ -218,52 +186,9 @@ describe("mutations", () => {
     expect(store.state.filterOptions).toEqual(testFilter);
   });
 
-  it("can updateSideNavHierarchyFocus", () => {
-    store.commit("updateSideNavHierarchyFocus", true);
-    expect(store.state.sideNavHierarchyFocus).toBe(true);
-  });
-
-  it("can updateSelectedEntityType", () => {
-    store.commit("updateSelectedEntityType", "class");
-    expect(store.state.selectedEntityType).toBe("class");
-  });
-
-  it("can updateModuleSelectedEntities", () => {
-    store.commit("updateModuleSelectedEntities", { module: "DataModel", iri: "testIri" });
-    expect(store.state.moduleSelectedEntities).toStrictEqual(
-      new Map([
-        ["Ontology", IM.MODULE_ONTOLOGY],
-        ["Sets", IM.MODULE_SETS],
-        ["DataModel", "testIri"],
-        ["Catalogue", IM.MODULE_CATALOGUE],
-        ["Queries", IM.MODULE_QUERIES]
-      ])
-    );
-  });
-
-  it("can updateConceptActivePanel", () => {
-    store.commit("updateConceptActivePanel", 3);
-    expect(store.state.conceptActivePanel).toBe(3);
-  });
-
-  it("can updateActiveModule", () => {
-    store.commit("updateActiveModule", "sets");
-    expect(store.state.activeModule).toBe("sets");
-  });
-
   it("can updateFocusHierarchy", () => {
     store.commit("updateFocusHierarchy", true);
     expect(store.state.focusHierarchy).toBe(true);
-  });
-
-  it("can updateCatalogueSearchResults", () => {
-    store.commit("updateCatalogueSearchResults", ["testTermString"]);
-    expect(store.state.catalogueSearchResults).toStrictEqual(["testTermString"]);
-  });
-
-  it("can updateInstanceIri", () => {
-    store.commit("updateInstanceIri", "testIriString");
-    expect(store.state.instanceIri).toBe("testIriString");
   });
 
   it("can updateSidebarControlActivePanel", () => {

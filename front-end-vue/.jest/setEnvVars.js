@@ -1,1 +1,1 @@
-process.env.VUE_APP_API = "/test/"
+import.meta.env.VITE_API = "/test/";

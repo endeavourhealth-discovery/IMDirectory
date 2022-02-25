@@ -2,7 +2,7 @@ import ConfigService from "@/services/ConfigService";
 import axios from "axios";
 
 describe("ConfigService.ts ___ axios success", () => {
-  const api = process.env.VUE_APP_API;
+  const api = import.meta.env.VITE_API;
 
   beforeEach(() => {
     axios.get = jest.fn().mockResolvedValue(["test config"]);
@@ -45,7 +45,7 @@ describe("ConfigService.ts ___ axios success", () => {
 });
 
 describe("ConfigService.ts ___ axios fail", () => {
-  const api = process.env.VUE_APP_API;
+  const api = import.meta.env.VITE_API;
 
   beforeEach(() => {
     axios.get = jest.fn().mockRejectedValue(false);

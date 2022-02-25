@@ -8,8 +8,11 @@
 </template>
 
 <script lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import { defineComponent, PropType } from "vue";
+import { Helpers } from "im-library";
+const {
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
+} = Helpers;
 
 export default defineComponent({
   name: "ArrayObjectNamesToStringWithLabel",
