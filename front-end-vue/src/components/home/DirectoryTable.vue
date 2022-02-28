@@ -26,12 +26,14 @@
           <div class="p-grid">
             <div class="p-col-6 table-header">
               <Breadcrumb :home="home" :model="pathItems" />
-              <span v-if="isFavourite(conceptIri)" style="color: #e39a36" class="p-mx-1">
-                <i class="fa-solid fa-star"></i>
-              </span>
-              <span class="p-mx-1">
-                <i class="clickable pi pi-info-circle" @click="showParentInfo"></i>
-              </span>
+              <Button
+                v-if="isFavourite(conceptIri)"
+                icon="fa-solid fa-star"
+                style="color: #e39a36"
+                class="p-button-rounded p-button-text p-button-plain"
+                @click="updateParentFavourite"
+              />
+              <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
             <div class="p-col-6 header-button-group p-buttonset">
@@ -179,10 +181,16 @@ export default defineComponent({
     };
   },
   methods: {
+    updateParentFavourite() {
+      this.selected["@id"] = this.conceptIri;
+      this.updateFavourites();
+    },
+
     showParentInfo() {
       this.selected["@id"] = this.conceptIri;
       this.showInfo();
     },
+
     updateFavourites() {
       this.$store.commit("updateFavourites", this.selected["@id"]);
     },
@@ -433,9 +441,5 @@ export default defineComponent({
 
 .p-breadcrumb {
   all: unset;
-}
-
-.clickable {
-  cursor: pointer;
 }
 </style>
