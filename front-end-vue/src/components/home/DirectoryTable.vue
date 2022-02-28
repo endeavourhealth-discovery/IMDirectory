@@ -227,6 +227,7 @@ export default defineComponent({
 
     openOverlayMenu(event: any, data: any) {
       this.onRowSelect(data);
+      this.updateRClickOptions();
       (this.$refs.overlayMenu as any).toggle(event);
     },
 
