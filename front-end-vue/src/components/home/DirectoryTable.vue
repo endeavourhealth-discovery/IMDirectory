@@ -24,7 +24,7 @@
 
         <template #header>
           <div class="p-grid">
-            <div class="p-col-6 table-header">
+            <div class="p-col-10 table-header">
               <Breadcrumb :home="home" :model="pathItems" />
               <Button
                 v-if="isFavourite(conceptIri)"
@@ -33,10 +33,11 @@
                 class="p-button-rounded p-button-text p-button-plain"
                 @click="updateParentFavourite"
               />
+              <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
               <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
-            <div class="p-col-6 header-button-group p-buttonset">
+            <div class="p-col-2 header-button-group p-buttonset">
               <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
               <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
             </div>
@@ -396,33 +397,6 @@ export default defineComponent({
   height: 100%;
 }
 
-.concept-panel-content {
-  overflow: auto;
-  background-color: #ffffff;
-}
-
-.copy-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.icons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-}
-
-.loading-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-}
-
 #info-bar {
   height: calc(100vh - 6rem);
 }
@@ -441,5 +415,9 @@ export default defineComponent({
 
 .p-breadcrumb {
   all: unset;
+}
+
+.card {
+  padding: 0;
 }
 </style>
