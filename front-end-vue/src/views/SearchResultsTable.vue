@@ -129,7 +129,7 @@ export default defineComponent({
         {
           label: "Edit",
           icon: "pi pi-fw pi-pencil",
-          command: () => this.showInfo()
+          command: () => this.navigateToEditor()
         },
         {
           label: "Move to",
@@ -218,6 +218,10 @@ export default defineComponent({
 
     getNamesFromTypes(typeList: TTIriRef[]) {
       return typeList.map(type => type.name).join(", ");
+    },
+
+    navigateToEditor(): void {
+      DirectService.directTo(AppEnum.EDITOR, this.selectedResult.iri, this);
     },
 
     onRowDblClick(event: any) {

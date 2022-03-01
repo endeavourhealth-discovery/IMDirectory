@@ -149,7 +149,7 @@ export default defineComponent({
         {
           label: "Edit",
           icon: "pi pi-fw pi-pencil",
-          command: () => this.showInfo()
+          command: () => this.navigateToEditor()
         },
         {
           label: "Move to",
@@ -253,6 +253,10 @@ export default defineComponent({
       this.rClickOptions[0].icon = isOfTypes(this.selected.type, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
       this.rClickOptions[0].label = isOfTypes(this.selected.type, IM.FOLDER) ? "Open" : "View";
       this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected["@id"]) ? "Unfavourite" : "Favourite";
+    },
+
+    navigateToEditor(): void {
+      DirectService.directTo(AppEnum.EDITOR, this.selected["@id"], this);
     },
 
     navigate(): void {

@@ -1,4 +1,4 @@
 export enum AppEnum {
   VIEWER = "/viewer/#/concept/",
-  EDITOR = "/editor/#/"
+  EDITOR = "/editor/#/editor/"
 }
