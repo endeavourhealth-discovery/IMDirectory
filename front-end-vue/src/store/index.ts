@@ -112,11 +112,14 @@ export default createStore({
       localStorage.setItem("snomedLicenseAccepted", status);
     },
     updateRecentLocalActivity(state, recentActivityItem: RecentActivityItem) {
-      const activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
-      if (activity.length >= 5) {
+      let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
+      activity = activity.filter(stored => {
+        return stored.iri !== recentActivityItem.iri;
+      });
+      activity.push(recentActivityItem);
+      if (activity.length > 5) {
         activity.shift();
       }
-      activity.push(recentActivityItem);
       localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       state.recentLocalActivity = JSON.stringify(activity);
     },
