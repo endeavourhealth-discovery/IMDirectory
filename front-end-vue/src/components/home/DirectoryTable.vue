@@ -250,6 +250,7 @@ export default defineComponent({
     },
 
     updateRClickOptions() {
+      this.rClickOptions[0].icon = isOfTypes(this.selected.type, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
       this.rClickOptions[0].label = isOfTypes(this.selected.type, IM.FOLDER) ? "Open" : "View";
       this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected["@id"]) ? "Unfavourite" : "Favourite";
     },
