@@ -71,63 +71,64 @@ describe("router", () => {
   });
 
   // currently has no secure routes to test against
-  // describe("router ___ no auth", () => {
-  //   let wrapper;
+  describe.skip("router ___ no auth", () => {
+    let wrapper;
 
-  //   beforeEach(async () => {
-  //     vi.resetAllMocks();
-  //     window.sessionStorage.clear();
-  //     store.state.snomedLicenseAccepted = "true";
-  //     store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
-  //     router.push("/");
-  //     await router.isReady();
+    beforeEach(async () => {
+      vi.resetAllMocks();
+      window.sessionStorage.clear();
+      store.state.snomedLicenseAccepted = "true";
+      store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
+      router.push("/");
+      await router.isReady();
 
-  //     wrapper = shallowMount(App, {
-  //       global: {
-  //         components: { Toast, ConfirmDialog },
-  //         plugins: [router, store]
-  //       }
-  //     });
+      wrapper = shallowMount(App, {
+        global: {
+          components: { Toast, ConfirmDialog },
+          plugins: [router, store]
+        }
+      });
 
-  //     await flushPromises();
-  //     await wrapper.vm.$nextTick();
-  //     vi.clearAllMocks();
-  //   });
+      await flushPromises();
+      await wrapper.vm.$nextTick();
+      vi.clearAllMocks();
+    });
 
-  //   it("routes to login if false", async () => {
-  //     router.push({ name: "UserEdit" });
-  //     await flushPromises();
-  //     expect(wrapper.vm.$route.path).toBe("/user/login");
-  //   });
-  // });
+    it("routes to login if false", async () => {
+      router.push({ name: "UserEdit" });
+      await flushPromises();
+      expect(wrapper.vm.$route.path).toBe("/user/login");
+    });
+  });
 
-  // describe("router ___ auth", () => {
-  //   let wrapper;
+  // currently has no secure routes to test against
+  describe.skip("router ___ auth", () => {
+    let wrapper;
 
-  //   beforeEach(async () => {
-  //     vi.resetAllMocks();
-  //     window.sessionStorage.clear();
-  //     store.state.snomedLicenseAccepted = "true";
-  //     store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
-  //     router.push("/");
-  //     await router.isReady();
+    beforeEach(async () => {
+      vi.resetAllMocks();
+      window.sessionStorage.clear();
+      store.state.snomedLicenseAccepted = "true";
+      store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
+      router.push("/");
+      await router.isReady();
 
-  //     wrapper = shallowMount(App, {
-  //       global: {
-  //         components: { Toast, ConfirmDialog },
-  //         plugins: [router, store]
-  //       }
-  //     });
+      wrapper = shallowMount(App, {
+        global: {
+          components: { Toast, ConfirmDialog },
+          plugins: [router, store]
+        }
+      });
 
-  //     await flushPromises();
-  //     await wrapper.vm.$nextTick();
-  //     vi.clearAllMocks();
-  //   });
+      await flushPromises();
+      await wrapper.vm.$nextTick();
+      vi.clearAllMocks();
+    });
 
-  //   it("routes to login if false", async () => {
-  //     router.push({ name: "UserEdit" });
-  //     await flushPromises();
-  //     expect(wrapper.vm.$route.path).toBe("/user/my-account/edit");
-  //   });
-  // });
+    it("routes to login if false", async () => {
+      router.push({ name: "UserEdit" });
+      await flushPromises();
+      expect(wrapper.vm.$route.path).toBe("/user/my-account/edit");
+    });
+  });
 });
