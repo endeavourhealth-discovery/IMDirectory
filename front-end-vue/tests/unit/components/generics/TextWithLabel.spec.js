@@ -2,10 +2,10 @@ import { shallowMount } from "@vue/test-utils";
 import TextWithLabel from "@/components/generics/TextWithLabel.vue";
 
 describe("TextWithLabel.vue", () => {
-  let wrapper: any;
+  let wrapper;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     wrapper = shallowMount(TextWithLabel, {
       props: { label: "Name", data: "Scoliosis", size: "50%" }

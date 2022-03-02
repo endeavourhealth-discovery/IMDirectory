@@ -9,19 +9,14 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
-<<<<<<< HEAD:front-end-vue/src/components/concept/PanelHeader.vue
+import { mapState } from "vuex";
+import DirectService from "@/services/DirectService";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers } from "im-library";
+import { Enums, Helpers } from "im-library";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
-=======
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
-import { TTIriRef } from "@/models/TripleTree";
-import DirectService from "../../services/DirectService";
-import { AppEnum } from "../../models/AppEnum";
-import { mapState } from "vuex";
->>>>>>> dev:front-end-vue/src/components/infobar/PanelHeader.vue
+const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "PanelHeader",

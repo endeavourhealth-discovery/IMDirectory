@@ -6,7 +6,7 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 
 describe("TermsTable.vue", () => {
-  let wrapper: any;
+  let wrapper;
 
   beforeEach(() => {
     wrapper = shallowMount(TermsTable, {

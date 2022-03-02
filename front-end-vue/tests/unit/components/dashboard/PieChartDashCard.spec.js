@@ -4,10 +4,10 @@ import Card from "primevue/card";
 import LoggerService from "@/services/LoggerService";
 
 describe("PieChartDashCard.vue", () => {
-  let wrapper: any;
-  let docSpyId: any;
-  let docSpyClass: any;
-  let windowSpy: any;
+  let wrapper;
+  let docSpyId;
+  let docSpyClass;
+  let windowSpy;
   let inputData = [
     { "http://www.w3.org/2002/07/owl#hasValue": 1030354, "http://www.w3.org/2000/01/rdf-schema#label": "Class" },
     { "http://www.w3.org/2002/07/owl#hasValue": 93282, "http://www.w3.org/2000/01/rdf-schema#label": "Legacy concept" },
@@ -28,19 +28,19 @@ describe("PieChartDashCard.vue", () => {
   ];
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
-    docSpyId = jest.spyOn(document, "getElementById");
+    docSpyId = vi.spyOn(document, "getElementById");
     docSpyId.mockReturnValue(undefined);
 
-    docSpyClass = jest.spyOn(document, "getElementsByClassName");
+    docSpyClass = vi.spyOn(document, "getElementsByClassName");
     docSpyClass.mockReturnValue([undefined]);
 
-    windowSpy = jest.spyOn(window, "getComputedStyle");
-    windowSpy.mockReturnValue({ getPropertyValue: jest.fn().mockReturnValue("16px") });
+    windowSpy = vi.spyOn(window, "getComputedStyle");
+    windowSpy.mockReturnValue({ getPropertyValue: vi.fn().mockReturnValue("16px") });
 
     const err = console.error;
-    console.error = jest.fn();
+    console.error = vi.fn();
 
     wrapper = shallowMount(PieChartDashCard, {
       props: {
@@ -62,21 +62,21 @@ describe("PieChartDashCard.vue", () => {
   });
 
   it("can remove eventListener", () => {
-    console.error = jest.fn();
-    const spy = jest.spyOn(global, "removeEventListener");
+    console.error = vi.fn();
+    const spy = vi.spyOn(window, "removeEventListener");
     wrapper.unmount();
     expect(spy).toHaveBeenCalled();
     spy.mockReset();
   });
 
   it("calls setChartSize onResize", () => {
-    wrapper.vm.setChartSize = jest.fn();
+    wrapper.vm.setChartSize = vi.fn();
     wrapper.vm.onResize();
     expect(wrapper.vm.setChartSize).toHaveBeenCalled();
   });
 
   it("can setChartSize ___ no container", () => {
-    LoggerService.error = jest.fn();
+    LoggerService.error = vi.fn();
     wrapper.vm.setChartSize();
     expect(LoggerService.error).toHaveBeenCalledTimes(1);
     expect(LoggerService.error).toHaveBeenCalledWith(undefined, "Failed to set chart size for element id: Chart1");
@@ -84,8 +84,8 @@ describe("PieChartDashCard.vue", () => {
 
   it("can setChartSize ___ resize elements", async () => {
     const mockElement = document.createElement("div");
-    mockElement.getBoundingClientRect = jest.fn().mockReturnValue({ height: 100 });
-    mockElement.getElementsByClassName = jest.fn().mockReturnValue([mockElement]);
+    mockElement.getBoundingClientRect = vi.fn().mockReturnValue({ height: 100 });
+    mockElement.getElementsByClassName = vi.fn().mockReturnValue([mockElement]);
     docSpyId.mockReturnValue(mockElement);
     docSpyClass.mockReturnValue(mockElement);
     wrapper.vm.setChartSize();
@@ -95,11 +95,11 @@ describe("PieChartDashCard.vue", () => {
 
   it("can setChartSize ___ no class elements", async () => {
     const mockElement = document.createElement("div");
-    mockElement.getBoundingClientRect = jest.fn().mockReturnValue({ height: 100 });
-    mockElement.getElementsByClassName = jest.fn().mockReturnValue([null]);
+    mockElement.getBoundingClientRect = vi.fn().mockReturnValue({ height: 100 });
+    mockElement.getElementsByClassName = vi.fn().mockReturnValue([null]);
     docSpyId.mockReturnValue(mockElement);
     docSpyClass.mockReturnValue(undefined);
-    windowSpy.mockReturnValue({ getPropertyValue: jest.fn().mockReturnValue(undefined) });
+    windowSpy.mockReturnValue({ getPropertyValue: vi.fn().mockReturnValue(undefined) });
     wrapper.vm.setChartSize();
     await wrapper.vm.$nextTick();
     expect(mockElement.style.height).toBe("");

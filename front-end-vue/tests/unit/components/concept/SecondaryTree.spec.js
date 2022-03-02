@@ -8,11 +8,11 @@ import EntityService from "@/services/EntityService";
 import Tooltip from "primevue/tooltip";
 
 describe("SecondaryTree.vue", () => {
-  let wrapper: any;
-  let mockToast: any;
-  let mockRoute: any;
-  let mockRouter: any;
-  let mockRef: any;
+  let wrapper;
+  let mockToast;
+  let mockRoute;
+  let mockRouter;
+  let mockRef;
 
   const CONCEPT = {
     "@id": "http://snomed.info/sct#298382003",
@@ -76,18 +76,18 @@ describe("SecondaryTree.vue", () => {
   };
 
   beforeEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     mockToast = {
-      add: jest.fn()
+      add: vi.fn()
     };
-    mockRef = { render: () => {}, methods: { show: jest.fn(), hide: jest.fn() } };
+    mockRef = { render: () => {}, methods: { show: vi.fn(), hide: vi.fn() } };
     mockRoute = { name: "Concept" };
-    mockRouter = { push: jest.fn() };
+    mockRouter = { push: vi.fn() };
 
-    EntityService.getPartialEntity = jest.fn().mockResolvedValue(CONCEPT);
-    EntityService.getEntityParents = jest.fn().mockResolvedValue(PARENTS);
-    EntityService.getEntityChildren = jest.fn().mockResolvedValue(CHILDREN);
-    EntityService.getEntitySummary = jest.fn().mockResolvedValue(SUMMARY);
+    EntityService.getPartialEntity = vi.fn().mockResolvedValue(CONCEPT);
+    EntityService.getEntityParents = vi.fn().mockResolvedValue(PARENTS);
+    EntityService.getEntityChildren = vi.fn().mockResolvedValue(CHILDREN);
+    EntityService.getEntitySummary = vi.fn().mockResolvedValue(SUMMARY);
 
     wrapper = shallowMount(SecondaryTree, {
       global: {
@@ -102,7 +102,7 @@ describe("SecondaryTree.vue", () => {
     await flushPromises();
     await wrapper.vm.$nextTick();
     await flushPromises();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("mounts", () => {
@@ -166,7 +166,7 @@ describe("SecondaryTree.vue", () => {
   });
 
   it("hidesPopup on unMount", () => {
-    wrapper.vm.hidePopup = jest.fn();
+    wrapper.vm.hidePopup = vi.fn();
     wrapper.vm.overlayLocation = { 1: 1, 2: 2, 3: 3 };
     wrapper.unmount();
     expect(wrapper.vm.hidePopup).toHaveBeenCalledTimes(1);
@@ -174,15 +174,15 @@ describe("SecondaryTree.vue", () => {
   });
 
   it("hidesPopup on unMount ___ no keys", () => {
-    wrapper.vm.hidePopup = jest.fn();
+    wrapper.vm.hidePopup = vi.fn();
     wrapper.vm.overlayLocation = {};
     wrapper.unmount();
     expect(wrapper.vm.hidePopup).not.toHaveBeenCalled();
   });
 
   it("updates on conceptIri watch change", async () => {
-    wrapper.vm.getConceptAggregate = jest.fn();
-    wrapper.vm.createTree = jest.fn();
+    wrapper.vm.getConceptAggregate = vi.fn();
+    wrapper.vm.createTree = vi.fn();
     wrapper.vm.$options.watch.conceptIri.call(wrapper.vm, "http://snomed.info/sct#298382003");
     expect(wrapper.vm.selectedKey).toStrictEqual({});
     expect(wrapper.vm.alternateParents).toStrictEqual([]);
@@ -215,7 +215,7 @@ describe("SecondaryTree.vue", () => {
   });
 
   it("can createTree ___  !selected in expanded", async () => {
-    wrapper.vm.setParents = jest.fn();
+    wrapper.vm.setParents = vi.fn();
     wrapper.vm.root = [];
     wrapper.vm.expandedKeys = {};
     wrapper.vm.selectedKey = {};
@@ -269,7 +269,7 @@ describe("SecondaryTree.vue", () => {
   });
 
   it("can createTree ___  selected in expanded", async () => {
-    wrapper.vm.setParents = jest.fn();
+    wrapper.vm.setParents = vi.fn();
     wrapper.vm.root = [];
     wrapper.vm.expandedKeys = { "Scoliosis deformity of spine (disorder)": true };
     wrapper.vm.selectedKey = {};
@@ -414,7 +414,7 @@ describe("SecondaryTree.vue", () => {
   });
 
   it("can expandChildren ___ !key ___ resolved service", async () => {
-    EntityService.getEntityChildren = jest.fn().mockResolvedValue([
+    EntityService.getEntityChildren = vi.fn().mockResolvedValue([
       {
         name: "Acquired kyphoscoliosis (disorder)",
         hasChildren: true,
@@ -543,7 +543,7 @@ describe("SecondaryTree.vue", () => {
   });
 
   it("can expandChildren ___ key ___ resolved service ___ dup children", async () => {
-    EntityService.getEntityChildren = jest.fn().mockResolvedValue([
+    EntityService.getEntityChildren = vi.fn().mockResolvedValue([
       {
         name: "Acquired kyphoscoliosis (disorder)",
         hasChildren: true,
@@ -758,7 +758,7 @@ describe("SecondaryTree.vue", () => {
 
   it("can expandParents ___ no key", async () => {
     wrapper.vm.expandedKeys = {};
-    wrapper.vm.createExpandedParentTree = jest.fn().mockReturnValue({
+    wrapper.vm.createExpandedParentTree = vi.fn().mockReturnValue({
       data: {
         key: "Curvature of spine (disorder)",
         label: "Curvature of spine (disorder)",
@@ -792,7 +792,7 @@ describe("SecondaryTree.vue", () => {
         ]
       }
     });
-    wrapper.vm.setExpandedParentParents = jest.fn();
+    wrapper.vm.setExpandedParentParents = vi.fn();
     wrapper.vm.expandParents(0);
     await flushPromises();
     await wrapper.vm.$nextTick();
@@ -840,7 +840,7 @@ describe("SecondaryTree.vue", () => {
 
   it("can expandParents ___ key", async () => {
     wrapper.vm.expandedKeys = { "Scoliosis deformity of spine (disorder)": true };
-    wrapper.vm.createExpandedParentTree = jest.fn().mockReturnValue({
+    wrapper.vm.createExpandedParentTree = vi.fn().mockReturnValue({
       data: {
         key: "Curvature of spine (disorder)",
         label: "Curvature of spine (disorder)",
@@ -874,7 +874,7 @@ describe("SecondaryTree.vue", () => {
         ]
       }
     });
-    wrapper.vm.setExpandedParentParents = jest.fn();
+    wrapper.vm.setExpandedParentParents = vi.fn();
     wrapper.vm.expandParents(0);
     await flushPromises();
     await wrapper.vm.$nextTick();
@@ -922,7 +922,7 @@ describe("SecondaryTree.vue", () => {
 
   it("can expandParents ___ no root", async () => {
     wrapper.vm.root = undefined;
-    EntityService.getEntityParents = jest.fn().mockRejectedValue(false);
+    EntityService.getEntityParents = vi.fn().mockRejectedValue(false);
     wrapper.vm.expandParents(0);
     await flushPromises();
     await wrapper.vm.$nextTick();
@@ -1084,7 +1084,7 @@ describe("SecondaryTree.vue", () => {
       { iri: "http://snomed.info/sct#928000", listPosition: 1, name: "Disorder of musculoskeletal system (disorder)" },
       { iri: "http://snomed.info/sct#699699005", listPosition: 2, name: "Disorder of vertebral column (disorder)" }
     ]);
-    EntityService.getEntityParents = jest.fn().mockResolvedValue([]);
+    EntityService.getEntityParents = vi.fn().mockResolvedValue([]);
     wrapper.vm.setExpandedParentParents();
     await flushPromises();
     expect(EntityService.getEntityParents).toHaveBeenCalledTimes(1);
@@ -1099,7 +1099,7 @@ describe("SecondaryTree.vue", () => {
       { iri: "http://snomed.info/sct#928000", listPosition: 1, name: "Disorder of musculoskeletal system (disorder)" },
       { iri: "http://snomed.info/sct#699699005", listPosition: 2, name: "Disorder of vertebral column (disorder)" }
     ]);
-    EntityService.getEntityParents = jest.fn().mockResolvedValue([
+    EntityService.getEntityParents = vi.fn().mockResolvedValue([
       {
         "@id": "http://endhealth.info/im#InformationModel",
         hasChildren: false,
@@ -1121,7 +1121,7 @@ describe("SecondaryTree.vue", () => {
       { iri: "http://snomed.info/sct#928000", listPosition: 1, name: "Disorder of musculoskeletal system (disorder)" },
       { iri: "http://snomed.info/sct#699699005", listPosition: 2, name: "Disorder of vertebral column (disorder)" }
     ]);
-    EntityService.getEntityParents = jest.fn().mockResolvedValue([
+    EntityService.getEntityParents = vi.fn().mockResolvedValue([
       {
         name: "Curvature of spine (disorder)",
         hasChildren: false,

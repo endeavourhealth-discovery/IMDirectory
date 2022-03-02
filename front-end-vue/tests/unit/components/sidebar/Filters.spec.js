@@ -6,9 +6,9 @@ import Tooltip from "primevue/tooltip";
 import Button from "primevue/button";
 
 describe("Filters.vue ___ empty store", () => {
-  let wrapper: any;
-  let mockStore: any;
-  let mockToast: any;
+  let wrapper;
+  let mockStore;
+  let mockToast;
 
   const CONFIG = {
     schemeOptions: ["http://endhealth.info/im#", "http://snomed.info/sct#"],
@@ -173,16 +173,16 @@ describe("Filters.vue ___ empty store", () => {
         },
         filterDefaults: CONFIG
       },
-      commit: jest.fn()
+      commit: vi.fn()
     };
 
-    mockToast = { add: jest.fn() };
+    mockToast = { add: vi.fn() };
 
     const warn = console.warn;
-    console.warn = jest.fn();
+    console.warn = vi.fn();
 
     wrapper = shallowMount(Filters, {
-      props: { search: jest.fn() },
+      props: { search: vi.fn() },
       global: {
         components: { MultiSelect, InputSwitch, Button },
         directives: { Tooltip: Tooltip },
@@ -194,7 +194,7 @@ describe("Filters.vue ___ empty store", () => {
 
     await flushPromises();
     await wrapper.vm.$nextTick();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
   it("sets data on mount", () => {
     expect(wrapper.vm.selectedStatus).toStrictEqual([
@@ -325,26 +325,26 @@ describe("Filters.vue ___ empty store", () => {
   });
 
   it("calls setLegacy on includeLegacy change", () => {
-    wrapper.vm.setLegacy = jest.fn();
+    wrapper.vm.setLegacy = vi.fn();
     wrapper.vm.$options.watch.includeLegacy.call(wrapper.vm, true);
     expect(wrapper.vm.setLegacy).toHaveBeenCalledTimes(1);
     expect(wrapper.vm.setLegacy).toHaveBeenCalledWith(true);
   });
 
   it("calls updateStoreSelectedFilters on selectedStatus change", () => {
-    wrapper.vm.updateStoreSelectedFilters = jest.fn();
+    wrapper.vm.updateStoreSelectedFilters = vi.fn();
     wrapper.vm.$options.watch.selectedStatus.call(wrapper.vm, [true]);
     expect(wrapper.vm.updateStoreSelectedFilters).toHaveBeenCalledTimes(1);
   });
 
   it("calls updateStoreSelectedFilters on selectedSchemes change", () => {
-    wrapper.vm.updateStoreSelectedFilters = jest.fn();
+    wrapper.vm.updateStoreSelectedFilters = vi.fn();
     wrapper.vm.$options.watch.selectedSchemes.call(wrapper.vm, [true]);
     expect(wrapper.vm.updateStoreSelectedFilters).toHaveBeenCalledTimes(1);
   });
 
   it("calls updateStoreSelectedFilters on selectedTypes change", () => {
-    wrapper.vm.updateStoreSelectedFilters = jest.fn();
+    wrapper.vm.updateStoreSelectedFilters = vi.fn();
     wrapper.vm.$options.watch.selectedTypes.call(wrapper.vm, [true]);
     expect(wrapper.vm.updateStoreSelectedFilters).toHaveBeenCalledTimes(1);
   });
@@ -719,9 +719,9 @@ describe("Filters.vue ___ empty store", () => {
 });
 
 describe("Filters.vue ___ full store", () => {
-  let wrapper: any;
-  let mockStore: any;
-  let mockToast: any;
+  let wrapper;
+  let mockStore;
+  let mockToast;
 
   const CONFIG = {
     schemeOptions: ["Discovery namespace", "Snomed-CT namespace"],
@@ -840,16 +840,16 @@ describe("Filters.vue ___ full store", () => {
         quickFiltersStatus: { includeLegacy: true },
         filterDefaults: CONFIG
       },
-      commit: jest.fn()
+      commit: vi.fn()
     };
 
-    mockToast = { add: jest.fn() };
+    mockToast = { add: vi.fn() };
 
     const warn = console.warn;
-    console.warn = jest.fn();
+    console.warn = vi.fn();
 
     wrapper = shallowMount(Filters, {
-      props: { search: jest.fn() },
+      props: { search: vi.fn() },
       global: {
         components: { MultiSelect, InputSwitch, Button },
         directives: { Tooltip: Tooltip },
@@ -861,7 +861,7 @@ describe("Filters.vue ___ full store", () => {
 
     await flushPromises();
     await wrapper.vm.$nextTick();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("can set defaults ___ existing filters", async () => {
@@ -872,7 +872,7 @@ describe("Filters.vue ___ full store", () => {
         prefix: "im"
       }
     ];
-    wrapper.vm.setLegacy = jest.fn();
+    wrapper.vm.setLegacy = vi.fn();
     wrapper.vm.selectedStatus = [];
     wrapper.vm.selectedSchemes = [];
     wrapper.vm.selectedTypes = [];
@@ -917,9 +917,9 @@ describe("Filters.vue ___ full store", () => {
 });
 
 describe("Filters.vue ___ no emis in options", () => {
-  let wrapper: any;
-  let mockStore: any;
-  let mockToast: any;
+  let wrapper;
+  let mockStore;
+  let mockToast;
 
   const CONFIG = {
     schemeOptions: ["Discovery namespace", "Snomed-CT namespace"],
@@ -1037,16 +1037,16 @@ describe("Filters.vue ___ no emis in options", () => {
         quickFiltersStatus: { includeLegacy: true },
         filterDefaults: CONFIG
       },
-      commit: jest.fn()
+      commit: vi.fn()
     };
 
-    mockToast = { add: jest.fn() };
+    mockToast = { add: vi.fn() };
 
     const warn = console.warn;
-    console.warn = jest.fn();
+    console.warn = vi.fn();
 
     wrapper = shallowMount(Filters, {
-      props: { search: jest.fn() },
+      props: { search: vi.fn() },
       global: {
         components: { MultiSelect, InputSwitch, Button },
         directives: { Tooltip: Tooltip },
@@ -1058,7 +1058,7 @@ describe("Filters.vue ___ no emis in options", () => {
 
     await flushPromises();
     await wrapper.vm.$nextTick();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("can setLegacy ___ true ___ no emis ___ not found", () => {

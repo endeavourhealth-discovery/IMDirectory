@@ -165,7 +165,7 @@ describe("Definition.vue ___ no headers", () => {
   ];
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     wrapper = shallowMount(Definition, {
       global: {
@@ -231,7 +231,7 @@ describe("Definition.vue ___ no headers", () => {
 
   it("sets hasData ___ unknown ___ false", () => {
     const log = console.log;
-    console.log = jest.fn();
+    console.log = vi.fn();
     wrapper.vm.hasData(function testFunction() {
       return true;
     });
@@ -370,7 +370,7 @@ describe("Definition.vue ___ with headers", () => {
   ];
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     wrapper = shallowMount(Definition, {
       global: {

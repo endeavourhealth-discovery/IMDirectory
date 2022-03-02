@@ -2,7 +2,7 @@ import { flushPromises, mount } from "@vue/test-utils";
 import SnomedLicense from "@/views/SnomedLicense.vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
-import PrimeVue from 'primevue/config';
+import PrimeVue from "primevue/config";
 
 describe("SnomedLicense.vue", () => {
   let wrapper;
@@ -12,34 +12,34 @@ describe("SnomedLicense.vue", () => {
   beforeEach(() => {
     mockStore = {
       state: { snomedLicenseAccepted: "false", historyCount: 1 },
-      commit: jest.fn()
+      commit: vi.fn()
     };
     mockRouter = {
-      push: jest.fn(),
-      go: jest.fn()
+      push: vi.fn(),
+      go: vi.fn()
     };
     wrapper = mount(SnomedLicense, {
       global: {
-          plugins: [PrimeVue],
-          components: { Dialog, Button },
-        mocks: { $store: mockStore, $router: mockRouter },
+        plugins: [PrimeVue],
+        components: { Dialog, Button },
+        mocks: { $store: mockStore, $router: mockRouter }
       }
     });
   });
 
-  it("updates showDialog from store snomedLicenseAccepted ___ true", async() => {
+  it("updates showDialog from store snomedLicenseAccepted ___ true", async () => {
     wrapper.vm.$options.watch.snomedLicenseAccepted.call(wrapper.vm, "false");
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.showDialog).toBe(true);
   });
 
-  it("updates showDialog from store snomedLicenseAccepted __ false", async() => {
+  it("updates showDialog from store snomedLicenseAccepted __ false", async () => {
     wrapper.vm.$options.watch.snomedLicenseAccepted.call(wrapper.vm, "true");
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.showDialog).toBe(false);
   });
 
-  it("updates store and reroutes on submitAgree ___ dashboard", async() => {
+  it("updates store and reroutes on submitAgree ___ dashboard", async () => {
     wrapper.vm.submitAgree();
     await wrapper.vm.$nextTick();
     expect(mockStore.commit).toBeCalledTimes(1);
@@ -48,7 +48,7 @@ describe("SnomedLicense.vue", () => {
     expect(mockRouter.push).toBeCalledWith({ name: "LandingPage" });
   });
 
-  it("updates store and reroutes on submitAgree ___ back", async() => {
+  it("updates store and reroutes on submitAgree ___ back", async () => {
     wrapper.vm.$store.state.historyCount = 0;
     wrapper.vm.submitAgree();
     await wrapper.vm.$nextTick();
@@ -72,17 +72,17 @@ describe("SnomedLicense.vue ___ mock window location", () => {
     };
     mockStore = {
       state: { snomedLicenseAccepted: "false", historyCount: 1 },
-      commit: jest.fn()
+      commit: vi.fn()
     };
     mockRouter = {
-      push: jest.fn(),
-      go: jest.fn()
+      push: vi.fn(),
+      go: vi.fn()
     };
     wrapper = mount(SnomedLicense, {
       global: {
-          plugins: [PrimeVue],
-          components: { Dialog, Button },
-        mocks: { $store: mockStore, $router: mockRouter },
+        plugins: [PrimeVue],
+        components: { Dialog, Button },
+        mocks: { $store: mockStore, $router: mockRouter }
       }
     });
   });
@@ -91,10 +91,10 @@ describe("SnomedLicense.vue ___ mock window location", () => {
     window.location = location;
   });
 
-  it("reroutes on submitDecline", async() => {
+  it("reroutes on submitDecline", async () => {
     wrapper.vm.$store.state.historyCount = 0;
     wrapper.vm.submitDecline();
     await wrapper.vm.$nextTick();
     expect(window.location.href).toBe("https://www.snomed.org/");
   });
-})
+});

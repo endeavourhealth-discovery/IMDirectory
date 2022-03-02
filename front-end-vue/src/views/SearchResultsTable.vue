@@ -77,8 +77,7 @@ import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
-<<<<<<< HEAD
-import InfoSideBar from "../components/home/InfoSideBar.vue";
+import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
@@ -89,10 +88,6 @@ const {
   Search: { ConceptSummary }
 } = Models;
 const { AppEnum } = Enums;
-=======
-import InfoSideBar from "../components/infobar/InfoSideBar.vue";
-import { AppEnum } from "../models/AppEnum";
->>>>>>> dev
 
 export default defineComponent({
   name: "SearchResultsTable",

@@ -88,7 +88,7 @@ import DirectService from "@/services/DirectService";
 import ConfigService from "@/services/ConfigService";
 import LoggerService from "@/services/LoggerService";
 import { RouteRecordName } from "vue-router";
-import InfoSideBar from "./InfoSideBar.vue";
+import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { EntityReferenceNode, TTIriRef, DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Vocabulary, Helpers } from "im-library";
 const { AppEnum } = Enums;

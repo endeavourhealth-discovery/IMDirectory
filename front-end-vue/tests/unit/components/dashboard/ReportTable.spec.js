@@ -14,7 +14,7 @@ describe("ReportTable.vue ___ label + hasValue input", () => {
   ];
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     wrapper = shallowMount(ReportTable, {
       props: { inputData: reportData, description: "A brief overview of the concepts stored in the Ontology", name: "Ontology overview", id: "reportTable1" },
       global: {
@@ -23,7 +23,7 @@ describe("ReportTable.vue ___ label + hasValue input", () => {
     });
 
     await wrapper.vm.$nextTick();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("mounts", () => {
@@ -69,7 +69,7 @@ describe("ReportTable.vue ___ label + count input", () => {
   ];
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     wrapper = shallowMount(ReportTable, {
       props: { inputData: reportData, description: "A brief overview of the concepts stored in the Ontology", name: "Ontology overview", id: "reportTable1" },
       global: {
@@ -78,7 +78,7 @@ describe("ReportTable.vue ___ label + count input", () => {
     });
 
     await wrapper.vm.$nextTick();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("can getReportTableData ___ label + count", () => {
@@ -101,7 +101,7 @@ describe("ReportTable.vue ___ bad input", () => {
   ];
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     wrapper = shallowMount(ReportTable, {
       props: { inputData: reportData, description: "A brief overview of the concepts stored in the Ontology", name: "Ontology overview", id: "reportTable1" },
       global: {
@@ -110,7 +110,7 @@ describe("ReportTable.vue ___ bad input", () => {
     });
 
     await wrapper.vm.$nextTick();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("can getReportTableData ___ label + count", () => {

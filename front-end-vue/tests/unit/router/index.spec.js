@@ -7,20 +7,20 @@ import { flushPromises, shallowMount } from "@vue/test-utils";
 
 describe("router", () => {
   beforeEach(() => {
-    console.log = jest.fn();
+    console.log = vi.fn();
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
   describe("router ___ no snomed", () => {
     let wrapper;
 
     beforeEach(async () => {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
       window.sessionStorage.clear();
       store.commit("updateSnomedLicenseAccepted", "false");
-      store.dispatch = jest.fn().mockResolvedValue({ authenticated: false });
+      store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
       router.push("/");
       await router.isReady();
 
@@ -33,7 +33,7 @@ describe("router", () => {
 
       await flushPromises();
       await wrapper.vm.$nextTick();
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it("routes to snomedLicense if snomedAccepted ___ false", () => {
@@ -46,10 +46,10 @@ describe("router", () => {
     let wrapper;
 
     beforeEach(async () => {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
       window.sessionStorage.clear();
       store.commit("updateSnomedLicenseAccepted", "true");
-      store.dispatch = jest.fn().mockResolvedValue({ authenticated: false });
+      store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
       router.push("/");
       await router.isReady();
 
@@ -62,7 +62,7 @@ describe("router", () => {
 
       await flushPromises();
       await wrapper.vm.$nextTick();
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it("routes to home if snomedAccepted ___ true", () => {
@@ -70,66 +70,64 @@ describe("router", () => {
     });
   });
 
-  describe("router ___ no auth", () => {
-    let wrapper;
+  // currently has no secure routes to test against
+  // describe("router ___ no auth", () => {
+  //   let wrapper;
 
-    beforeEach(async () => {
-      jest.resetAllMocks();
-      window.sessionStorage.clear();
-      store.state.snomedLicenseAccepted = "true";
-      store.dispatch = jest.fn().mockResolvedValue({ authenticated: false });
-      router.push("/");
-      await router.isReady();
+  //   beforeEach(async () => {
+  //     vi.resetAllMocks();
+  //     window.sessionStorage.clear();
+  //     store.state.snomedLicenseAccepted = "true";
+  //     store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
+  //     router.push("/");
+  //     await router.isReady();
 
-      wrapper = shallowMount(App, {
-        global: {
-          components: { Toast, ConfirmDialog },
-          plugins: [router, store]
-        }
-      });
+  //     wrapper = shallowMount(App, {
+  //       global: {
+  //         components: { Toast, ConfirmDialog },
+  //         plugins: [router, store]
+  //       }
+  //     });
 
-      await flushPromises();
-      await wrapper.vm.$nextTick();
-      jest.clearAllMocks();
-    });
+  //     await flushPromises();
+  //     await wrapper.vm.$nextTick();
+  //     vi.clearAllMocks();
+  //   });
 
-    it("routes to login if false", async () => {
-      router.push({ name: "UserEdit" });
-      await flushPromises();
-      expect(wrapper.vm.$route.path).toBe("/user/login");
-    });
-  });
+  //   it("routes to login if false", async () => {
+  //     router.push({ name: "UserEdit" });
+  //     await flushPromises();
+  //     expect(wrapper.vm.$route.path).toBe("/user/login");
+  //   });
+  // });
 
-  describe("router ___ auth", () => {
-    let wrapper;
+  // describe("router ___ auth", () => {
+  //   let wrapper;
 
-    beforeEach(async () => {
-      jest.resetAllMocks();
-      window.sessionStorage.clear();
-      store.state.snomedLicenseAccepted = "true";
-      store.dispatch = jest.fn().mockResolvedValue({ authenticated: true });
-      router.push("/");
-      await router.isReady();
+  //   beforeEach(async () => {
+  //     vi.resetAllMocks();
+  //     window.sessionStorage.clear();
+  //     store.state.snomedLicenseAccepted = "true";
+  //     store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
+  //     router.push("/");
+  //     await router.isReady();
 
-      wrapper = shallowMount(App, {
-        global: {
-          components: { Toast, ConfirmDialog },
-          plugins: [router, store]
-        }
-      });
+  //     wrapper = shallowMount(App, {
+  //       global: {
+  //         components: { Toast, ConfirmDialog },
+  //         plugins: [router, store]
+  //       }
+  //     });
 
-      await flushPromises();
-      await wrapper.vm.$nextTick();
-      jest.clearAllMocks();
-    });
+  //     await flushPromises();
+  //     await wrapper.vm.$nextTick();
+  //     vi.clearAllMocks();
+  //   });
 
-    it("routes to login if false", async () => {
-      router.push({ name: "UserEdit" });
-      await flushPromises();
-      expect(wrapper.vm.$route.path).toBe("/user/my-account/edit");
-    });
-  });
-
-
-
+  //   it("routes to login if false", async () => {
+  //     router.push({ name: "UserEdit" });
+  //     await flushPromises();
+  //     expect(wrapper.vm.$route.path).toBe("/user/my-account/edit");
+  //   });
+  // });
 });

@@ -80,17 +80,7 @@
 </template>
 
 <script lang="ts">
-<<<<<<< HEAD:front-end-vue/src/components/home/TopBar.vue
-import Filters from "@/components/sidebar/Filters.vue";
-=======
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
-import { Namespace } from "@/models/Namespace";
-import { SearchRequest } from "@/models/search/SearchRequest";
-import { SortBy } from "@/models/search/SortBy";
-import { TTIriRef } from "@/models/TripleTree";
 import Filters from "@/components/topbar/Filters.vue";
->>>>>>> dev:front-end-vue/src/components/topbar/TopBar.vue
 import axios, { CancelToken } from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";

@@ -14,7 +14,7 @@ const {
 
 describe("state", () => {
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     window.sessionStorage.clear();
   });
 
@@ -26,6 +26,7 @@ describe("state", () => {
     expect(Object.keys(store.state)).toStrictEqual([
       "conceptIri",
       "favourites",
+      "history",
       "searchResults",
       "searchLoading",
       "currentUser",
@@ -36,13 +37,8 @@ describe("state", () => {
       "filterOptions",
       "selectedFilters",
       "quickFiltersStatus",
-<<<<<<< HEAD
       "focusHierarchy",
       "sidebarControlActivePanel",
-=======
-      "instanceIri",
-      "catalogueSearchResults",
->>>>>>> dev
       "hierarchySelectedFilters",
       "filterDefaults"
     ]);
@@ -54,24 +50,14 @@ describe("state", () => {
     expect(store.state.snomedLicenseAccepted).toBeNull();
 
     expect(store.state.blockedIris).toStrictEqual([]);
-<<<<<<< HEAD
-=======
-
->>>>>>> dev
     expect(store.state.selectedFilters).toEqual({
       status: [],
       schemes: [],
       types: []
     });
     expect(store.state.filterOptions).toStrictEqual({ status: [], schemes: [], types: [] });
-    expect(store.state.quickFiltersStatus).toEqual(new Map<string, boolean>());
-<<<<<<< HEAD
+    expect(store.state.quickFiltersStatus).toEqual(new Map());
     expect(store.state.focusHierarchy).toBe(false);
-=======
-
-    expect(store.state.catalogueSearchResults).toStrictEqual([]);
-    expect(store.state.instanceIri).toBe("");
->>>>>>> dev
     expect(store.state.hierarchySelectedFilters).toStrictEqual([]);
     expect(store.state.filterDefaults).toStrictEqual({});
   });
@@ -140,7 +126,7 @@ describe("mutations", () => {
   });
 
   it("can updateQuickFiltersStatus", () => {
-    const testfilters = new Map<string, boolean>();
+    const testfilters = new Map();
     testfilters.set("legacy", true);
     store.commit("updateQuickFiltersStatus", { key: "legacy", value: true });
     expect(store.state.quickFiltersStatus).toEqual(testfilters);
@@ -156,7 +142,6 @@ describe("mutations", () => {
     expect(store.state.filterOptions).toEqual(testFilter);
   });
 
-<<<<<<< HEAD
   it("can updateFocusHierarchy", () => {
     store.commit("updateFocusHierarchy", true);
     expect(store.state.focusHierarchy).toBe(true);
@@ -165,16 +150,6 @@ describe("mutations", () => {
   it("can updateSidebarControlActivePanel", () => {
     store.commit("updateSidebarControlActivePanel", 4);
     expect(store.state.sidebarControlActivePanel).toBe(4);
-=======
-  it("can updateCatalogueSearchResults", () => {
-    store.commit("updateCatalogueSearchResults", ["testTermString"]);
-    expect(store.state.catalogueSearchResults).toStrictEqual(["testTermString"]);
-  });
-
-  it("can updateInstanceIri", () => {
-    store.commit("updateInstanceIri", "testIriString");
-    expect(store.state.instanceIri).toBe("testIriString");
->>>>>>> dev
   });
 
   it("can update hierarchySelectedFilters", () => {
@@ -189,7 +164,7 @@ describe("mutations", () => {
 
   it("can fetchBlockedIris", async () => {
     const iris = ["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"];
-    ConfigService.getXmlSchemaDataTypes = jest.fn().mockResolvedValue(iris);
+    ConfigService.getXmlSchemaDataTypes = vi.fn().mockResolvedValue(iris);
     store.dispatch("fetchBlockedIris");
     await flushPromises();
     expect(ConfigService.getXmlSchemaDataTypes).toHaveBeenCalledTimes(1);
@@ -197,8 +172,8 @@ describe("mutations", () => {
   });
 
   it("can fetchSearchResults ___ pass", async () => {
-    EntityService.advancedSearch = jest.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
-    LoggerService.info = jest.fn();
+    EntityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
+    LoggerService.info = vi.fn();
     const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
@@ -209,8 +184,8 @@ describe("mutations", () => {
   });
 
   it("can fetchSearchResults ___ failed", async () => {
-    EntityService.advancedSearch = jest.fn().mockResolvedValue({ status: 400, message: "test fail" });
-    LoggerService.error = jest.fn();
+    EntityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
+    LoggerService.error = vi.fn();
     const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
@@ -221,8 +196,8 @@ describe("mutations", () => {
   });
 
   it("can logoutCurrentUser ___ 200", async () => {
-    AuthService.signOut = jest.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
-    LoggerService.error = jest.fn();
+    AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
+    LoggerService.error = vi.fn();
     let result = false;
     await store.dispatch("logoutCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -234,8 +209,8 @@ describe("mutations", () => {
   });
 
   it("can logoutCurrentUser ___ 400", async () => {
-    AuthService.signOut = jest.fn().mockResolvedValue(new CustomAlert(400, "logout failed 400"));
-    LoggerService.error = jest.fn();
+    AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed 400"));
+    LoggerService.error = vi.fn();
     let result = false;
     await store.dispatch("logoutCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -247,7 +222,7 @@ describe("mutations", () => {
   it("can authenticateCurrentUser___ 200 ___ avatar", async () => {
     let testUser = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/003-man.png");
     testUser.setId("8901-test");
-    AuthService.getCurrentAuthenticatedUser = jest.fn().mockResolvedValue(new CustomAlert(200, "user authenticated", undefined, testUser));
+    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(200, "user authenticated", undefined, testUser));
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -261,7 +236,7 @@ describe("mutations", () => {
   it("can authenticateCurrentUser___ 200 ___ no avatar", async () => {
     let testUser = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", "http://testimage.jpg");
     testUser.setId("8901-test");
-    AuthService.getCurrentAuthenticatedUser = jest.fn().mockResolvedValue(new CustomAlert(200, "user authenticated", undefined, testUser));
+    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(200, "user authenticated", undefined, testUser));
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -274,9 +249,9 @@ describe("mutations", () => {
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
-    AuthService.getCurrentAuthenticatedUser = jest.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
-    AuthService.signOut = jest.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
-    LoggerService.info = jest.fn();
+    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
+    AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
+    LoggerService.info = vi.fn();
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -292,9 +267,9 @@ describe("mutations", () => {
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
-    AuthService.getCurrentAuthenticatedUser = jest.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
-    AuthService.signOut = jest.fn().mockResolvedValue(new CustomAlert(400, "logout failed"));
-    LoggerService.error = jest.fn();
+    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
+    AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed"));
+    LoggerService.error = vi.fn();
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();

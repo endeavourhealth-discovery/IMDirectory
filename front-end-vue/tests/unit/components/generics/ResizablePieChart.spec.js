@@ -7,11 +7,11 @@ import { Models } from "im-library";
 const { PieChartData } = Models;
 
 describe("ResizablePieChart.vue", () => {
-  let wrapper: any;
-  let docSpyId: any;
-  let docSpyClass: any;
-  let windowSpy: any;
-  let mockEvent: any;
+  let wrapper;
+  let docSpyId;
+  let docSpyClass;
+  let windowSpy;
+  let mockEvent;
 
   let inputData = [
     { "http://www.w3.org/2002/07/owl#hasValue": 1030354, "http://www.w3.org/2000/01/rdf-schema#label": "Class" },
@@ -33,16 +33,16 @@ describe("ResizablePieChart.vue", () => {
   ];
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
-    docSpyId = jest.spyOn(document, "getElementById");
+    docSpyId = vi.spyOn(document, "getElementById");
     docSpyId.mockReturnValue(undefined);
 
-    docSpyClass = jest.spyOn(document, "getElementsByClassName");
+    docSpyClass = vi.spyOn(document, "getElementsByClassName");
     docSpyClass.mockReturnValue([undefined]);
 
-    windowSpy = jest.spyOn(window, "getComputedStyle");
-    windowSpy.mockReturnValue({ getPropertyValue: jest.fn().mockReturnValue("16px") });
+    windowSpy = vi.spyOn(window, "getComputedStyle");
+    windowSpy.mockReturnValue({ getPropertyValue: vi.fn().mockReturnValue("16px") });
 
     wrapper = shallowMount(ResizeablePieChart, {
       props: {
@@ -59,15 +59,15 @@ describe("ResizablePieChart.vue", () => {
   });
 
   it("can remove eventListener", () => {
-    console.error = jest.fn();
-    const spy = jest.spyOn(global, "removeEventListener");
+    console.error = vi.fn();
+    const spy = vi.spyOn(window, "removeEventListener");
     wrapper.unmount();
     expect(spy).toHaveBeenCalled();
     spy.mockReset();
   });
 
   it("can watch inputData", () => {
-    wrapper.vm.setChartData = jest.fn();
+    wrapper.vm.setChartData = vi.fn();
     wrapper.vm.$options.watch.inputData.handler.call(wrapper.vm, []);
     expect(wrapper.vm.setChartData).toHaveBeenCalledTimes(1);
   });
@@ -152,7 +152,7 @@ describe("ResizablePieChart.vue", () => {
         "Query template"
       ]
     };
-    wrapper.vm.realData = [] as number[];
+    wrapper.vm.realData = [];
     wrapper.vm.chartConceptTypes = new PieChartData(
       [
         {
@@ -163,7 +163,7 @@ describe("ResizablePieChart.vue", () => {
         }
       ],
       []
-    ) as Models.PieChartData;
+    );
     await wrapper.vm.$nextTick();
     wrapper.vm.setChartData();
     await wrapper.vm.$nextTick();
@@ -199,7 +199,7 @@ describe("ResizablePieChart.vue", () => {
         }
       ],
       []
-    ) as Models.PieChartData;
+    );
     const mockRes = [
       {
         iri: "http://www.w3.org/2002/07/owl#Class",
@@ -318,12 +318,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 40,
           fontSize: 12
         },
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "default";
         }
       }
@@ -342,12 +342,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 20,
           fontSize: 10
         },
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "default";
         }
       }
@@ -366,12 +366,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 10,
           fontSize: 8
         },
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "default";
         }
       }
@@ -390,12 +390,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 40,
           fontSize: 8
         },
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "default";
         }
       }
@@ -414,12 +414,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 20,
           fontSize: 6
         },
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "default";
         }
       }
@@ -438,12 +438,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 10,
           fontSize: 4
         },
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e: any) {
+        onHover: function(e) {
           e.target.style.cursor = "default";
         }
       }
