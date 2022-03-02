@@ -12,7 +12,18 @@ export default defineConfig({
   },
   resolve: {
     dedupe: ["vue"],
-    alias: { "@": path.resolve(__dirname, "./src") }
+    alias: { "@": path.resolve(__dirname, "./src"), "./runtimeConfig": "./runtimeConfig.browser" }
   },
-  define: { global: {} }
+  test: {
+    globals: true,
+    environment: "jsdom",
+    environmentOptions: {
+      jsdom: {
+        url: "http://localhost"
+      }
+    },
+    coverage: {
+      reporter: ["text", "json", "html"]
+    }
+  }
 });
