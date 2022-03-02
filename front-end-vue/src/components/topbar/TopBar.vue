@@ -86,7 +86,7 @@ import { Namespace } from "@/models/Namespace";
 import { SearchRequest } from "@/models/search/SearchRequest";
 import { SortBy } from "@/models/search/SortBy";
 import { TTIriRef } from "@/models/TripleTree";
-import Filters from "@/components/sidebar/Filters.vue";
+import Filters from "@/components/topbar/Filters.vue";
 import axios, { CancelToken } from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";

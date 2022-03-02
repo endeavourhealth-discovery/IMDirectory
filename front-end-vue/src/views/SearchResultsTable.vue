@@ -81,7 +81,7 @@ import { IM } from "@/vocabulary/IM";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
-import InfoSideBar from "../components/home/InfoSideBar.vue";
+import InfoSideBar from "../components/infobar/InfoSideBar.vue";
 import { AppEnum } from "../models/AppEnum";
 
 export default defineComponent({

@@ -1,7 +1,6 @@
 import { SearchRequest } from "./../models/search/SearchRequest";
 import { createStore } from "vuex";
 import EntityService from "../services/EntityService";
-import { HistoryItem } from "../models/HistoryItem";
 import { User } from "../models/user/User";
 import AuthService from "@/services/AuthService";
 import { avatars } from "@/models/user/Avatars";
@@ -13,9 +12,7 @@ import { Namespace } from "@/models/Namespace";
 import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import ConfigService from "@/services/ConfigService";
 import { FilterDefaultsConfig } from "@/models/configs/FilterDefaultsConfig";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { RDFS } from "@/vocabulary/RDFS";
-import { RDF } from "@/vocabulary/RDF";
+import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
 import { RecentActivityItem } from "@/models/RecentActivityItem";
 
 export default createStore({
@@ -23,7 +20,6 @@ export default createStore({
   state: {
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
-    history: [] as HistoryItem[],
     searchResults: [] as ConceptSummary[],
     searchLoading: false,
     currentUser: {} as User,
@@ -31,18 +27,7 @@ export default createStore({
     isLoggedIn: false as boolean,
     recentLocalActivity: localStorage.getItem("recentLocalActivity") as string,
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
-    historyCount: 0 as number,
-    focusTree: false as boolean,
-    treeLocked: true as boolean,
-    resetTree: false as boolean,
     blockedIris: [] as string[],
-    sideNavHierarchyFocus: {
-      name: "Ontology",
-      fullName: "Ontologies",
-      iri: IM.MODULE_ONTOLOGY,
-      route: "Dashboard"
-    } as { name: string; iri: string; fullName: string; route: string },
-    selectedEntityType: "",
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
@@ -54,18 +39,7 @@ export default createStore({
       types: [] as EntityReferenceNode[]
     },
     quickFiltersStatus: new Map<string, boolean>(),
-    moduleSelectedEntities: new Map([
-      ["Ontology", IM.MODULE_ONTOLOGY],
-      ["Sets", IM.MODULE_SETS],
-      ["DataModel", IM.MODULE_DATA_MODEL],
-      ["Catalogue", IM.MODULE_CATALOGUE],
-      ["Queries", IM.MODULE_QUERIES]
-    ]),
-    activeModule: "default",
-    conceptActivePanel: 0,
-    focusHierarchy: false,
     instanceIri: "",
-    sidebarControlActivePanel: 0,
     catalogueSearchResults: [] as string[],
     hierarchySelectedFilters: [] as Namespace[],
     filterDefaults: {} as FilterDefaultsConfig
@@ -80,12 +54,7 @@ export default createStore({
     updateConceptIri(state, conceptIri) {
       state.conceptIri = conceptIri;
     },
-    updateHistory(state, historyItem) {
-      state.history = state.history.filter(function(el) {
-        return el.conceptName !== historyItem.conceptName;
-      });
-      state.history.splice(0, 0, historyItem);
-    },
+
     updateSearchResults(state, searchResults) {
       state.searchResults = searchResults;
     },
@@ -133,44 +102,11 @@ export default createStore({
       localStorage.setItem("favourites", JSON.stringify(favourites));
       state.favourites = favourites;
     },
-    updateHistoryCount(state, count) {
-      state.historyCount = count;
-    },
-    updateFocusTree(state, bool) {
-      state.focusTree = bool;
-    },
-    updateTreeLocked(state, bool) {
-      state.treeLocked = bool;
-    },
-    updateResetTree(state, bool) {
-      state.resetTree = bool;
-    },
-    updateSideNavHierarchyFocus(state, focus) {
-      state.sideNavHierarchyFocus = focus;
-    },
-    updateSelectedEntityType(state, type) {
-      state.selectedEntityType = type;
-    },
-    updateModuleSelectedEntities(state, data) {
-      state.moduleSelectedEntities.set(data.module, data.iri);
-    },
-    updateConceptActivePanel(state, number) {
-      state.conceptActivePanel = number;
-    },
-    updateActiveModule(state, module) {
-      state.activeModule = module;
-    },
-    updateFocusHierarchy(state, bool) {
-      state.focusHierarchy = bool;
-    },
     updateInstanceIri(state, instanceIri) {
       state.instanceIri = instanceIri;
     },
     updateCatalogueSearchResults(state, results) {
       state.catalogueSearchResults = results;
-    },
-    updateSidebarControlActivePanel(state, number) {
-      state.sidebarControlActivePanel = number;
     },
     updateHierarchySelectedFilters(state, filters) {
       state.hierarchySelectedFilters = filters;

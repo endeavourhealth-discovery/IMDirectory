@@ -97,7 +97,7 @@ import { getContainerElementOptimalHeight } from "@/helpers/GetContainerElementO
 import { byOrder } from "@/helpers/Sorters";
 import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import { RouteRecordName } from "vue-router";
-import InfoSideBar from "./InfoSideBar.vue";
+import InfoSideBar from "../infobar/InfoSideBar.vue";
 import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
 import { AppEnum } from "@/models/AppEnum";
 

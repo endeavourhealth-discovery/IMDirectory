@@ -103,19 +103,6 @@ describe("mutations", () => {
     expect(store.state.conceptIri).toEqual(testConceptIri);
   });
 
-  it("can updateHistory", () => {
-    const testHistory = { url: "testUrl", conceptName: "testName", view: "testVuew" };
-    store.commit("updateHistory", testHistory);
-    expect(store.state.history).toEqual([testHistory]);
-  });
-
-  it("can updateHistory ___ duplicate", () => {
-    const testHistory = { url: "testUrl", conceptName: "testName", view: "testVuew" };
-    store.commit("updateHistory", testHistory);
-    store.commit("updateHistory", testHistory);
-    expect(store.state.history).toEqual([testHistory]);
-  });
-
   it("can updateSearchResults", () => {
     const testResult = {
       name: "testConcept",
@@ -159,12 +146,6 @@ describe("mutations", () => {
     const testBool = "true";
     store.commit("updateSnomedLicenseAccepted", testBool);
     expect(store.state.snomedLicenseAccepted).toBe("true");
-  });
-
-  it("can updateHistoryCount", () => {
-    const testCount = 5;
-    store.commit("updateHistoryCount", testCount);
-    expect(store.state.historyCount).toBe(5);
   });
 
   it("can update focusTree", () => {
