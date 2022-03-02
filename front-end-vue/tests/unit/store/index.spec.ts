@@ -26,37 +26,38 @@ describe("state", () => {
     expect(Object.keys(store.state)).toStrictEqual([
       "conceptIri",
       "favourites",
-      "history",
       "searchResults",
       "searchLoading",
       "currentUser",
       "isLoggedIn",
       "recentLocalActivity",
       "snomedLicenseAccepted",
-      "historyCount",
-      "focusTree",
-      "treeLocked",
-      "resetTree",
       "blockedIris",
       "filterOptions",
       "selectedFilters",
       "quickFiltersStatus",
+<<<<<<< HEAD
       "focusHierarchy",
       "sidebarControlActivePanel",
+=======
+      "instanceIri",
+      "catalogueSearchResults",
+>>>>>>> dev
       "hierarchySelectedFilters",
       "filterDefaults"
     ]);
     expect(store.state.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
-    expect(store.state.history).toEqual([]);
+
     expect(store.state.searchResults).toEqual([]);
     expect(store.state.currentUser).toEqual({});
     expect(store.state.isLoggedIn).toBeFalsy();
     expect(store.state.snomedLicenseAccepted).toBeNull();
-    expect(store.state.historyCount).toBe(0);
-    expect(store.state.focusTree).toBe(false);
-    expect(store.state.treeLocked).toBe(true);
-    expect(store.state.resetTree).toBe(false);
+
     expect(store.state.blockedIris).toStrictEqual([]);
+<<<<<<< HEAD
+=======
+
+>>>>>>> dev
     expect(store.state.selectedFilters).toEqual({
       status: [],
       schemes: [],
@@ -64,7 +65,13 @@ describe("state", () => {
     });
     expect(store.state.filterOptions).toStrictEqual({ status: [], schemes: [], types: [] });
     expect(store.state.quickFiltersStatus).toEqual(new Map<string, boolean>());
+<<<<<<< HEAD
     expect(store.state.focusHierarchy).toBe(false);
+=======
+
+    expect(store.state.catalogueSearchResults).toStrictEqual([]);
+    expect(store.state.instanceIri).toBe("");
+>>>>>>> dev
     expect(store.state.hierarchySelectedFilters).toStrictEqual([]);
     expect(store.state.filterDefaults).toStrictEqual({});
   });
@@ -75,19 +82,6 @@ describe("mutations", () => {
     const testConceptIri = "http://www.endhealth.info/im#test";
     store.commit("updateConceptIri", testConceptIri);
     expect(store.state.conceptIri).toEqual(testConceptIri);
-  });
-
-  it("can updateHistory", () => {
-    const testHistory = { url: "testUrl", conceptName: "testName", view: "testVuew" };
-    store.commit("updateHistory", testHistory);
-    expect(store.state.history).toEqual([testHistory]);
-  });
-
-  it("can updateHistory ___ duplicate", () => {
-    const testHistory = { url: "testUrl", conceptName: "testName", view: "testVuew" };
-    store.commit("updateHistory", testHistory);
-    store.commit("updateHistory", testHistory);
-    expect(store.state.history).toEqual([testHistory]);
   });
 
   it("can updateSearchResults", () => {
@@ -129,30 +123,6 @@ describe("mutations", () => {
     expect(store.state.snomedLicenseAccepted).toBe("true");
   });
 
-  it("can updateHistoryCount", () => {
-    const testCount = 5;
-    store.commit("updateHistoryCount", testCount);
-    expect(store.state.historyCount).toBe(5);
-  });
-
-  it("can update focusTree", () => {
-    const testBool = true;
-    store.commit("updateFocusTree", testBool);
-    expect(store.state.focusTree).toBe(true);
-  });
-
-  it("can update treeLocked", () => {
-    const testBool = false;
-    store.commit("updateTreeLocked", testBool);
-    expect(store.state.treeLocked).toBe(false);
-  });
-
-  it("can update resetTree", () => {
-    const testBool = true;
-    store.commit("updateResetTree", testBool);
-    expect(store.state.resetTree).toBe(true);
-  });
-
   it("can update blockedIris", () => {
     const testIris = ["iri1", "iri2", "iri3"];
     store.commit("updateBlockedIris", testIris);
@@ -186,6 +156,7 @@ describe("mutations", () => {
     expect(store.state.filterOptions).toEqual(testFilter);
   });
 
+<<<<<<< HEAD
   it("can updateFocusHierarchy", () => {
     store.commit("updateFocusHierarchy", true);
     expect(store.state.focusHierarchy).toBe(true);
@@ -194,6 +165,16 @@ describe("mutations", () => {
   it("can updateSidebarControlActivePanel", () => {
     store.commit("updateSidebarControlActivePanel", 4);
     expect(store.state.sidebarControlActivePanel).toBe(4);
+=======
+  it("can updateCatalogueSearchResults", () => {
+    store.commit("updateCatalogueSearchResults", ["testTermString"]);
+    expect(store.state.catalogueSearchResults).toStrictEqual(["testTermString"]);
+  });
+
+  it("can updateInstanceIri", () => {
+    store.commit("updateInstanceIri", "testIriString");
+    expect(store.state.instanceIri).toBe("testIriString");
+>>>>>>> dev
   });
 
   it("can update hierarchySelectedFilters", () => {

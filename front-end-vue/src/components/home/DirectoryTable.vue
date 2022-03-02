@@ -24,17 +24,20 @@
 
         <template #header>
           <div class="grid">
-            <div class="col-6 table-header">
+            <div class="col-10 table-header">
               <Breadcrumb :home="home" :model="pathItems" />
-              <span v-if="isFavourite(conceptIri)" style="color: #e39a36" class="p-mx-1">
-                <i class="fa-solid fa-star"></i>
-              </span>
-              <span class="p-mx-1">
-                <i id class="clickable pi pi-fw pi-info-circle" @click="showParentInfo"></i>
-              </span>
+              <Button
+                v-if="isFavourite(conceptIri)"
+                icon="fa-solid fa-star"
+                style="color: #e39a36"
+                class="p-button-rounded p-button-text p-button-plain"
+                @click="updateParentFavourite"
+              />
+              <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
+              <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
-            <div class="col-6 header-button-group p-buttonset">
+            <div class="col-2 header-button-group p-buttonset">
               <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
               <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
             </div>
@@ -146,7 +149,7 @@ export default defineComponent({
         {
           label: "Edit",
           icon: "pi pi-fw pi-pencil",
-          command: () => this.showInfo()
+          command: () => this.navigateToEditor()
         },
         {
           label: "Move to",
@@ -179,10 +182,16 @@ export default defineComponent({
     };
   },
   methods: {
+    updateParentFavourite() {
+      this.selected["@id"] = this.conceptIri;
+      this.updateFavourites();
+    },
+
     showParentInfo() {
       this.selected["@id"] = this.conceptIri;
       this.showInfo();
     },
+
     updateFavourites() {
       this.$store.commit("updateFavourites", this.selected["@id"]);
     },
@@ -227,6 +236,7 @@ export default defineComponent({
 
     openOverlayMenu(event: any, data: any) {
       this.onRowSelect(data);
+      this.updateRClickOptions();
       (this.$refs.overlayMenu as any).toggle(event);
     },
 
@@ -240,8 +250,13 @@ export default defineComponent({
     },
 
     updateRClickOptions() {
+      this.rClickOptions[0].icon = isOfTypes(this.selected.type, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
       this.rClickOptions[0].label = isOfTypes(this.selected.type, IM.FOLDER) ? "Open" : "View";
       this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected["@id"]) ? "Unfavourite" : "Favourite";
+    },
+
+    navigateToEditor(): void {
+      DirectService.directTo(AppEnum.EDITOR, this.selected["@id"], this);
     },
 
     navigate(): void {
@@ -387,33 +402,6 @@ export default defineComponent({
   height: 100%;
 }
 
-.concept-panel-content {
-  overflow: auto;
-  background-color: #ffffff;
-}
-
-.copy-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.icons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-}
-
-.loading-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-}
-
 #info-bar {
   height: calc(100vh - 6rem);
 }
@@ -434,7 +422,7 @@ export default defineComponent({
   all: unset;
 }
 
-.clickable {
-  cursor: pointer;
+.card {
+  padding: 0;
 }
 </style>

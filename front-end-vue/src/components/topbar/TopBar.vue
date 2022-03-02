@@ -80,7 +80,17 @@
 </template>
 
 <script lang="ts">
+<<<<<<< HEAD:front-end-vue/src/components/home/TopBar.vue
 import Filters from "@/components/sidebar/Filters.vue";
+=======
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { EntityReferenceNode } from "@/models/EntityReferenceNode";
+import { Namespace } from "@/models/Namespace";
+import { SearchRequest } from "@/models/search/SearchRequest";
+import { SortBy } from "@/models/search/SortBy";
+import { TTIriRef } from "@/models/TripleTree";
+import Filters from "@/components/topbar/Filters.vue";
+>>>>>>> dev:front-end-vue/src/components/topbar/TopBar.vue
 import axios, { CancelToken } from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
@@ -249,6 +259,8 @@ export default defineComponent({
   font-weight: bold;
   cursor: pointer;
   margin-bottom: 0rem;
+  position: absolute;
+  z-index: 100;
 }
 
 .app-list-container {
@@ -267,8 +279,6 @@ export default defineComponent({
   }
 }
 #filter-button {
-  position: absolute;
-  margin-left: 29rem;
   height: 40px;
 }
 
@@ -277,9 +287,7 @@ export default defineComponent({
   background: #dee2e6;
   border: none;
   width: 30rem;
-  margin-left: 2rem;
-  margin-top: -2.7rem;
-  position: absolute;
+  margin-left: 3.5rem;
   height: 40px;
 }
 
@@ -288,9 +296,7 @@ export default defineComponent({
   background: #dee2e6;
   border: none;
   width: 30rem;
-  margin-left: 2rem;
-  margin-top: 0rem;
-  position: absolute;
+  margin-left: 3.5rem;
   height: 40px;
 }
 

@@ -77,6 +77,7 @@ import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
+<<<<<<< HEAD
 import InfoSideBar from "../components/home/InfoSideBar.vue";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
@@ -88,6 +89,10 @@ const {
   Search: { ConceptSummary }
 } = Models;
 const { AppEnum } = Enums;
+=======
+import InfoSideBar from "../components/infobar/InfoSideBar.vue";
+import { AppEnum } from "../models/AppEnum";
+>>>>>>> dev
 
 export default defineComponent({
   name: "SearchResultsTable",
@@ -134,7 +139,7 @@ export default defineComponent({
         {
           label: "Edit",
           icon: "pi pi-fw pi-pencil",
-          command: () => this.showInfo()
+          command: () => this.navigateToEditor()
         },
         {
           label: "Move to",
@@ -211,6 +216,7 @@ export default defineComponent({
     },
 
     updateRClickOptions() {
+      this.rClickOptions[0].icon = isOfTypes(this.selectedResult.entityType, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
       this.rClickOptions[0].label = isOfTypes(this.selectedResult.entityType, IM.FOLDER) ? "Open" : "View";
       this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selectedResult.iri) ? "Unfavourite" : "Favourite";
     },
@@ -222,6 +228,10 @@ export default defineComponent({
 
     getNamesFromTypes(typeList: TTIriRef[]) {
       return typeList.map(type => type.name).join(", ");
+    },
+
+    navigateToEditor(): void {
+      DirectService.directTo(AppEnum.EDITOR, this.selectedResult.iri, this);
     },
 
     onRowDblClick(event: any) {

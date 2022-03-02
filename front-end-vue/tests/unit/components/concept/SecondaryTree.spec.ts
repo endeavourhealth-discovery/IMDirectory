@@ -1,5 +1,5 @@
 import { flushPromises, shallowMount } from "@vue/test-utils";
-import SecondaryTree from "@/components/concept/SecondaryTree.vue";
+import SecondaryTree from "@/components/infobar/SecondaryTree.vue";
 import Button from "primevue/button";
 import Tree from "primevue/tree";
 import ProgressSpinner from "primevue/progressspinner";

@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import TopBar from "@/components/home/TopBar.vue";
+import TopBar from "@/components/topbar/TopBar.vue";
 import ProgressSpinner from "primevue/progressspinner";
 
 export default defineComponent({
@@ -22,7 +22,6 @@ export default defineComponent({
     // check for user and log them in if found or logout if not
     this.loading = true;
     await this.$store.dispatch("authenticateCurrentUser");
-    this.$store.commit("updateHistoryCount", window.history.length);
     await this.$store.dispatch("fetchBlockedIris");
     this.loading = false;
   },

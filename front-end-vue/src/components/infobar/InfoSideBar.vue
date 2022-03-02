@@ -6,7 +6,7 @@
       </template>
       <div id="concept-content-dialogs-container">
         <div id="concept-panel-container">
-          <TabView v-model:activeIndex="active" :lazy="true">
+          <TabView :lazy="true">
             <TabPanel header="Details">
               <div v-if="loading" class="loading-container" :style="contentHeight">
                 <ProgressSpinner />
@@ -33,11 +33,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Definition from "../concept/Definition.vue";
-import PanelHeader from "../concept/PanelHeader.vue";
+import Definition from "../infobar/Definition.vue";
+import PanelHeader from "../infobar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
 import LoggerService from "@/services/LoggerService";
+<<<<<<< HEAD:front-end-vue/src/components/home/InfoSideBar.vue
 import SecondaryTree from "../concept/SecondaryTree.vue";
 import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers } from "im-library";
@@ -47,6 +48,17 @@ const {
   ContainerDimensionGetters: { getContainerElementOptimalHeight },
   Sorters: { byOrder }
 } = Helpers;
+=======
+import SecondaryTree from "../infobar/SecondaryTree.vue";
+import { IM } from "@/vocabulary/IM";
+import { RDF } from "@/vocabulary/RDF";
+import { RDFS } from "@/vocabulary/RDFS";
+import { DefinitionConfig } from "@/models/configs/DefinitionConfig";
+import { TTIriRef } from "@/models/TripleTree";
+import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { getContainerElementOptimalHeight } from "@/helpers/GetContainerElementOptimalHeight";
+import { byOrder } from "@/helpers/Sorters";
+>>>>>>> dev:front-end-vue/src/components/infobar/InfoSideBar.vue
 
 export default defineComponent({
   name: "InfoSideBar",

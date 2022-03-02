@@ -28,10 +28,6 @@ export default createStore({
     isLoggedIn: false as boolean,
     recentLocalActivity: localStorage.getItem("recentLocalActivity") as string,
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
-    historyCount: 0 as number,
-    focusTree: false as boolean,
-    treeLocked: true as boolean,
-    resetTree: false as boolean,
     blockedIris: [] as string[],
     filterOptions: {
       status: [] as EntityReferenceNode[],
@@ -59,12 +55,7 @@ export default createStore({
     updateConceptIri(state, conceptIri) {
       state.conceptIri = conceptIri;
     },
-    updateHistory(state, historyItem) {
-      state.history = state.history.filter(function(el) {
-        return el.conceptName !== historyItem.conceptName;
-      });
-      state.history.splice(0, 0, historyItem);
-    },
+
     updateSearchResults(state, searchResults) {
       state.searchResults = searchResults;
     },
@@ -88,11 +79,14 @@ export default createStore({
       localStorage.setItem("snomedLicenseAccepted", status);
     },
     updateRecentLocalActivity(state, recentActivityItem: RecentActivityItem) {
-      const activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
-      if (activity.length >= 5) {
+      let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
+      activity = activity.filter(stored => {
+        return stored.iri !== recentActivityItem.iri;
+      });
+      activity.push(recentActivityItem);
+      if (activity.length > 5) {
         activity.shift();
       }
-      activity.push(recentActivityItem);
       localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       state.recentLocalActivity = JSON.stringify(activity);
     },
@@ -105,18 +99,6 @@ export default createStore({
       }
       localStorage.setItem("favourites", JSON.stringify(favourites));
       state.favourites = favourites;
-    },
-    updateHistoryCount(state, count) {
-      state.historyCount = count;
-    },
-    updateFocusTree(state, bool) {
-      state.focusTree = bool;
-    },
-    updateTreeLocked(state, bool) {
-      state.treeLocked = bool;
-    },
-    updateResetTree(state, bool) {
-      state.resetTree = bool;
     },
     updateFocusHierarchy(state, bool) {
       state.focusHierarchy = bool;
