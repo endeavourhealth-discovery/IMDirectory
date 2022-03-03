@@ -95,7 +95,7 @@ export default defineComponent({
     InfoSideBar
   },
   computed: {
-    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
+    ...mapState(["highLevelTypes", "searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
   },
   watch: {
     searchResults() {
@@ -168,7 +168,9 @@ export default defineComponent({
       if (this.localSearchResults) {
         (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
           schemeOptions.push(searchResult.scheme.name);
-          searchResult.entityType.forEach(type => typeOptions.push(type.name));
+          searchResult.entityType.forEach(type => {
+            if (this.highLevelTypes.includes(type["@id"])) typeOptions.push(type.name);
+          });
           statusOptions.push(searchResult.status.name);
         });
         this.schemeOptions = [...new Set(schemeOptions)];

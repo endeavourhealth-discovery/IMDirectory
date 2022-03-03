@@ -23,7 +23,7 @@ const {
   DataTypeCheckers: { isObjectHasKeys },
   ContainerDimensionGetters: { getContainerElementOptimalHeight }
 } = Helpers;
-const { IM } = Vocabulary;
+const { IM, RDFS } = Vocabulary;
 const {
   Search: { SearchRequest }
 } = Models;
@@ -35,7 +35,7 @@ export default defineComponent({
     NavTree,
     FavTree
   },
-  computed: mapState(["filterOptions", "selectedFilters", "searchResults", "focusHierarchy", "sidebarControlActivePanel"]),
+  computed: mapState(["highLevelTypes", "filterOptions", "selectedFilters", "searchResults", "focusHierarchy", "sidebarControlActivePanel"]),
   watch: {
     focusHierarchy(newValue) {
       if (newValue) {
@@ -90,7 +90,8 @@ export default defineComponent({
     async setFilterOptions(): Promise<void> {
       const schemeOptions = await EntityService.getNamespaces();
       const statusOptions = await EntityService.getEntityChildren(IM.STATUS);
-      const typeOptions = await EntityService.getEntityChildren(IM.MODELLING_ENTITY_TYPE);
+      // const typeOptions = await EntityService.getEntityChildren(IM.MODELLING_ENTITY_TYPE);
+      const typeOptions = await EntityService.getPartialEntities(this.highLevelTypes, [RDFS.LABEL]);
 
       this.$store.commit("updateFilterOptions", {
         status: statusOptions,
@@ -102,12 +103,12 @@ export default defineComponent({
     setFilterDefaults() {
       const selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.configs.statusOptions.includes(item["@id"]));
       const selectedSchemes = this.filterOptions.schemes.filter((item: Namespace) => this.configs.schemeOptions.includes(item.iri));
-      const selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.configs.typeOptions.includes(item["@id"]));
+      // const selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.configs.typeOptions.includes(item["@id"]));
 
       this.$store.commit("updateSelectedFilters", {
         status: selectedStatus,
         schemes: selectedSchemes,
-        types: selectedTypes
+        types: this.filterOptions.types
       });
       this.$store.commit("updateHierarchySelectedFilters", selectedSchemes);
     },

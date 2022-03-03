@@ -29,6 +29,7 @@ export default createStore({
     recentLocalActivity: localStorage.getItem("recentLocalActivity") as string,
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     blockedIris: [] as string[],
+    highLevelTypes: [IM.CONCEPT, IM.VALUESET, IM.CONCEPT_SET, IM.DATAMODEL_ENTITY, IM.DATAMODEL_PROPERTY, IM.QUERY, IM.FOLDER],
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],

@@ -10,7 +10,8 @@ import {
   FiltersAsIris,
   GraphData
 } from "im-library/dist/types/interfaces/Interfaces";
-import { Models } from "im-library";
+import { Models, Vocabulary } from "im-library";
+const { RDFS, RDF } = Vocabulary;
 const {
   Search: { ConceptSummary, SearchRequest, SearchResponse }
 } = Models;
@@ -252,6 +253,20 @@ export default class EntityService {
       return await axios.post(this.api + "api/entity/public/ecl", bundle);
     } catch (error) {
       return "";
+    }
+  }
+
+  public static async getPartialEntities(typeIris: string[], predicates: string[]) {
+    const promises: Promise<any>[] = [];
+    typeIris.forEach(iri => {
+      promises.push(this.getPartialEntity(iri, predicates));
+    });
+    try {
+      return (await Promise.all(promises)).map(type => {
+        return { iri: type[RDF.TYPE], name: type[RDFS.LABEL] };
+      });
+    } catch (error) {
+      return [];
     }
   }
 }
