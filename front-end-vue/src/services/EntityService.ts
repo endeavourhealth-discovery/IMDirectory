@@ -262,9 +262,7 @@ export default class EntityService {
       promises.push(this.getPartialEntity(iri, predicates));
     });
     try {
-      return (await Promise.all(promises)).map(type => {
-        return { iri: type[RDF.TYPE], name: type[RDFS.LABEL] };
-      });
+      return await Promise.all(promises);
     } catch (error) {
       return [];
     }
