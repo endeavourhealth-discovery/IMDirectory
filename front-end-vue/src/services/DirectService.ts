@@ -8,8 +8,12 @@ export default class DirectService {
   static MESSAGE = "You will be directed to a different application. Are you sure you want to proceed?";
 
   public static directTo(app: Enums.AppEnum, iri: string, component: CreateComponentPublicInstance<any>) {
-    window.open(app + encodeURIComponent(iri));
-    store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), app: app });
+    if (iri) {
+      window.open(app + encodeURIComponent(iri));
+      store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), app: app });
+    } else {
+      window.open(app);
+    }
   }
 
   public static directWithConfirmation(app: Enums.AppEnum, iri: string, component: CreateComponentPublicInstance<any>) {

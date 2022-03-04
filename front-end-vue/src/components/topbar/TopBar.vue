@@ -36,23 +36,11 @@
       <Button icon="pi pi-th-large" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openAppsOverlay" />
       <OverlayPanel ref="appsO">
         <div class="grid">
-          <div class="col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          <div class="col-6">
+            <Button icon="far fa-edit" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
           </div>
-          <div class="col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
-          </div>
-          <div class="col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
-          </div>
-          <div class="col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
-          </div>
-          <div class="col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
-          </div>
-          <div class="col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          <div class="col-6">
+            <Button icon="far fa-map" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
           </div>
         </div>
       </OverlayPanel>
@@ -151,6 +139,9 @@ export default defineComponent({
     };
   },
   methods: {
+    navigateToEditor(): void {
+      DirectService.directTo(AppEnum.EDITOR, "", this);
+    },
     getItems(): LoginItem[] | AccountItem[] {
       if (this.isLoggedIn) {
         return this.accountItems;
@@ -296,5 +287,9 @@ export default defineComponent({
 
 .p-menubar {
   background: #ffffff;
+}
+
+.clickable {
+  cursor: pointer;
 }
 </style>
