@@ -195,6 +195,7 @@ export default defineComponent({
     },
 
     showParentInfo() {
+      this.selected = {};
       this.selected["@id"] = this.conceptIri;
       this.showInfo();
     },
