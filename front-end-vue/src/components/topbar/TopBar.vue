@@ -37,10 +37,10 @@
       <OverlayPanel ref="appsO">
         <div class="grid">
           <div class="col-6">
-            <Button icon="far fa-edit" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
+            <Button v-tooltip.bottom="'Editor'" icon="far fa-edit" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
           </div>
           <div class="col-6">
-            <Button icon="far fa-map" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
+            <Button v-tooltip.bottom="'UPRN'" icon="far fa-map" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
           </div>
         </div>
       </OverlayPanel>
