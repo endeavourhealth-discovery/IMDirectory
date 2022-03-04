@@ -29,14 +29,20 @@
       </div>
 
       <DataTable
-        :loading="searchLoading"
         :value="localSearchResults"
-        contextMenu
-        v-model:contextMenuSelection="selectedResult"
+        class="p-datatable-sm"
+        v-model:selection="selected"
+        selectionMode="single"
+        @rowUnselect="onRowUnselect"
+        @rowSelect="onRowSelect"
         @rowContextmenu="onRowContextMenu"
+        @contextmenu="onRightClick"
         @row-dblclick="onRowDblClick"
         responsiveLayout="scroll"
+        :loading="searchLoading"
+        v-model:contextMenuSelection="selected"
         ref="searchTable"
+        dataKey="iri"
       >
         <Column field="name" header="Name">
           <template #body="slotProps">
@@ -65,9 +71,6 @@
       </DataTable>
 
       <ContextMenu :model="rClickOptions" ref="cm" />
-      <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
-        <InfoSideBar id="info-bar" :conceptIri="selectedResult.iri" />
-      </Sidebar>
     </div>
   </div>
 </template>
@@ -111,7 +114,6 @@ export default defineComponent({
   },
   data() {
     return {
-      visibleRight: false,
       selectedSchemes: [] as string[],
       selectedStatus: [] as string[],
       selectedTypes: [] as string[],
@@ -119,7 +121,7 @@ export default defineComponent({
       statusOptions: [] as string[],
       typeOptions: [] as string[],
       localSearchResults: [] as Models.Search.ConceptSummary[],
-      selectedResult: {} as Models.Search.ConceptSummary,
+      selected: {} as Models.Search.ConceptSummary,
       rClickOptions: [
         {
           label: "Open",
@@ -154,7 +156,7 @@ export default defineComponent({
   },
   methods: {
     updateFavourites() {
-      this.$store.commit("updateFavourites", this.selectedResult.iri);
+      this.$store.commit("updateFavourites", this.selected.iri);
     },
     isFavourite(iri: string) {
       if (!this.favourites.length) return false;
@@ -184,7 +186,8 @@ export default defineComponent({
     },
 
     showInfo() {
-      this.visibleRight = true;
+      this.$emit("updateSelected", this.selected.iri);
+      this.$emit("openBar");
     },
 
     filterResults() {
@@ -204,6 +207,10 @@ export default defineComponent({
       this.localSearchResults = filteredSearchResults;
     },
 
+    onRowSelect(row: any) {
+      this.$emit("updateSelected", row.data.iri);
+    },
+
     getFAIconFromType(types: TTIriRef[]) {
       return getFAIconFromType(types);
     },
@@ -213,9 +220,9 @@ export default defineComponent({
     },
 
     updateRClickOptions() {
-      this.rClickOptions[0].icon = isOfTypes(this.selectedResult.entityType, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
-      this.rClickOptions[0].label = isOfTypes(this.selectedResult.entityType, IM.FOLDER) ? "Open" : "View";
-      this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selectedResult.iri) ? "Unfavourite" : "Favourite";
+      this.rClickOptions[0].icon = isOfTypes(this.selected.entityType, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
+      this.rClickOptions[0].label = isOfTypes(this.selected.entityType, IM.FOLDER) ? "Open" : "View";
+      this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected.iri) ? "Unfavourite" : "Favourite";
     },
 
     onRowContextMenu(event: any) {
@@ -223,28 +230,37 @@ export default defineComponent({
       (this.$refs.cm as any).show(event.originalEvent);
     },
 
+    onRowUnselect() {
+      this.selected = {} as Models.Search.ConceptSummary;
+    },
+
     getNamesFromTypes(typeList: TTIriRef[]) {
       return typeList.map(type => type.name).join(", ");
     },
 
     navigateToEditor(): void {
-      DirectService.directTo(AppEnum.EDITOR, this.selectedResult.iri, this);
+      DirectService.directTo(AppEnum.EDITOR, this.selected.iri, this);
+    },
+
+    onRightClick(event: any) {
+      this.updateRClickOptions();
+      (this.$refs.menu as any).show(event);
     },
 
     onRowDblClick(event: any) {
-      this.selectedResult = event.data;
+      this.selected = event.data;
       this.navigate();
     },
 
     navigate(): void {
       const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isOfTypes(this.selectedResult?.entityType, IM.FOLDER)) {
+      if (isOfTypes(this.selected?.entityType, IM.FOLDER)) {
         this.$router.push({
           name: "Folder",
-          params: { selectedIri: this.selectedResult.iri }
+          params: { selectedIri: this.selected.iri }
         });
       } else {
-        DirectService.directTo(AppEnum.VIEWER, this.selectedResult.iri, this);
+        DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
       }
     }
   }
@@ -258,25 +274,8 @@ label {
 
 #search-results-main-container {
   padding-top: 1rem;
-  grid-area: content;
-  height: calc(100% - 4.1rem);
-  width: 100%;
-  overflow-y: auto;
+  height: calc(100vh - 4.1rem);
+  overflow-y: hidden;
   background-color: #ffffff;
-}
-
-.p-tabview-panel {
-  min-height: 100%;
-}
-
-.p-datatable {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  height: 100%;
-}
-
-#info-bar {
-  height: calc(100vh - 6rem);
 }
 </style>

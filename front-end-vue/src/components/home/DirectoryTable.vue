@@ -1,88 +1,81 @@
 <template>
   <div id="concept-main-container">
-    <div class="grid grid-nogutter">
-      <div class="col">
-        <div class="card">
-          <DataTable
-            :value="children"
-            class="concept-data-table p-datatable-sm"
-            v-model:selection="selected"
-            selectionMode="single"
-            dataKey="@id"
-            @rowUnselect="onRowUnselect"
-            @rowSelect="onRowSelect"
-            @row-contextmenu="onRowRightClick"
-            @contextmenu="onRightClick"
-            @row-dblclick="onRowDblClick"
-            responsiveLayout="scroll"
-            :loading="loading"
-          >
-            <template #loading>
-              Loading customers data. Please wait.
-            </template>
-            <template #empty>
-              No records found.
-            </template>
+    <div class="card">
+      <DataTable
+        :value="children"
+        class="concept-data-table p-datatable-sm"
+        v-model:selection="selected"
+        selectionMode="single"
+        dataKey="@id"
+        @rowUnselect="onRowUnselect"
+        @rowSelect="onRowSelect"
+        @row-contextmenu="onRowRightClick"
+        @contextmenu="onRightClick"
+        @row-dblclick="onRowDblClick"
+        responsiveLayout="scroll"
+        :loading="loading"
+      >
+        <template #loading>
+          Loading customers data. Please wait.
+        </template>
+        <template #empty>
+          No records found.
+        </template>
 
-            <template #header>
-              <div class="grid">
-                <div class="col-10 table-header">
-                  <Breadcrumb :home="home" :model="pathItems" />
-                  <Button
-                    v-if="isFavourite(conceptIri)"
-                    icon="fa-solid fa-star"
-                    style="color: #e39a36"
-                    class="p-button-rounded p-button-text p-button-plain"
-                    @click="updateParentFavourite"
-                  />
-                  <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
-                  <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
-                  <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
-                </div>
-                <div class="col-2 header-button-group p-buttonset">
-                  <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
-                  <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
-                </div>
-              </div>
-            </template>
-            <Column field="name" header="Name">
-              <template #body="{data}">
-                <span :style="getColourFromType(data.type)" class="p-mx-1">
-                  <font-awesome-icon v-if="data.type && data.type.length" :icon="data.icon" />
-                </span>
-                {{ data.name }}
-                <span v-if="isFavourite(data['@id'])" style="color: #e39a36" class="p-mx-1">
-                  <i class="fa-solid fa-star"></i>
-                </span>
-              </template>
-            </Column>
-            <Column field="type" header="Type">
-              <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
-            </Column>
-            <Column field="lastModified" header="Last Modified"></Column>
-            <Column headerStyle="width: 4rem; text-align: center" bodyStyle="text-align: center; overflow: visible">
-              <template #body="{data}">
-                <Button
-                  @click="openOverlayMenu($event, data)"
-                  aria-haspopup="true"
-                  aria-controls="overlay_menu"
-                  type="button"
-                  class="p-button-rounded p-button-text p-button-plain"
-                  icon="pi pi-ellipsis-v"
-                />
-                <Menu id="overlay_menu" ref="overlayMenu" :model="rClickOptions" :popup="true" />
-              </template>
-            </Column>
-          </DataTable>
-          <ContextMenu ref="menu" :model="rClickOptions" />
-          <!-- <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
+        <template #header>
+          <div class="grid">
+            <div class="col-10 table-header">
+              <Breadcrumb :home="home" :model="pathItems" />
+              <Button
+                v-if="isFavourite(conceptIri)"
+                icon="fa-solid fa-star"
+                style="color: #e39a36"
+                class="p-button-rounded p-button-text p-button-plain"
+                @click="updateParentFavourite"
+              />
+              <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
+              <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
+              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
+            </div>
+            <div class="col-2 header-button-group p-buttonset">
+              <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
+              <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
+            </div>
+          </div>
+        </template>
+        <Column field="name" header="Name">
+          <template #body="{data}">
+            <span :style="getColourFromType(data.type)" class="p-mx-1">
+              <font-awesome-icon v-if="data.type && data.type.length" :icon="data.icon" />
+            </span>
+            {{ data.name }}
+            <span v-if="isFavourite(data['@id'])" style="color: #e39a36" class="p-mx-1">
+              <i class="fa-solid fa-star"></i>
+            </span>
+          </template>
+        </Column>
+        <Column field="type" header="Type">
+          <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
+        </Column>
+        <Column field="lastModified" header="Last Modified"></Column>
+        <Column headerStyle="width: 4rem; text-align: center" bodyStyle="text-align: center; overflow: visible">
+          <template #body="{data}">
+            <Button
+              @click="openOverlayMenu($event, data)"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              type="button"
+              class="p-button-rounded p-button-text p-button-plain"
+              icon="pi pi-ellipsis-v"
+            />
+            <Menu id="overlay_menu" ref="overlayMenu" :model="rClickOptions" :popup="true" />
+          </template>
+        </Column>
+      </DataTable>
+      <ContextMenu ref="menu" :model="rClickOptions" />
+      <!-- <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
             <InfoSideBar id="info-bar" :conceptIri="selected['@id']" />
           </Sidebar> -->
-        </div>
-      </div>
-      <div id="info-side-bar-wrapper" class="col-5 sidebar" v-if="visibleRight">
-        <InfoSideBar id="info-bar" :selectedIri="selected['@id']" @closeBar="visibleRight = false" />
-      </div>
     </div>
   </div>
 </template>
@@ -140,7 +133,6 @@ export default defineComponent({
   data() {
     return {
       pathOptions: [] as any[],
-      visibleRight: false,
       home: { icon: "pi pi-home", to: "/" },
       rClickOptions: [
         {
@@ -197,6 +189,7 @@ export default defineComponent({
     showParentInfo() {
       this.selected = {};
       this.selected["@id"] = this.conceptIri;
+      this.$emit("updateSelected", this.selected["@id"]);
       this.showInfo();
     },
 
@@ -222,7 +215,11 @@ export default defineComponent({
     },
 
     showInfo() {
-      this.visibleRight = true;
+      this.$emit("openBar");
+    },
+
+    closeBar() {
+      this.$emit("closeBar");
     },
 
     onRowDblClick(event: any) {
@@ -236,6 +233,7 @@ export default defineComponent({
 
     onRowSelect(event: any) {
       this.selected = event?.data || event;
+      this.$emit("updateSelected", this.selected["@id"]);
     },
 
     openPathOverlaymenu(event: any) {
@@ -432,11 +430,5 @@ export default defineComponent({
 
 .card {
   padding: 0;
-}
-
-.sidebar {
-  height: 100%;
-  overflow-x: hidden;
-  transition: 0.5s;
 }
 </style>
