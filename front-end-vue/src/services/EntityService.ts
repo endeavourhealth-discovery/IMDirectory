@@ -1,17 +1,23 @@
-import { SearchRequest } from "@/models/search/SearchRequest";
 import axios, { CancelToken } from "axios";
-import GraphData from "@/models/GraphData";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
-import { PartialBundle, SearchResponse } from "@/models/entityServiceTypes/EntityServiceTypes";
-import { EntityDefinitionDto } from "@/models/EntityDefinitionDto";
-import { TTBundle, TTIriRef } from "@/models/TripleTree";
-import { TermCode } from "@/models/terms/TermCode";
-import { ConceptSummary } from "@/models/search/ConceptSummary";
-import { Namespace } from "@/models/Namespace";
-import { FiltersAsIris } from "@/models/FiltersAsIris";
+import {
+  EntityReferenceNode,
+  PartialBundle,
+  EntityDefinitionDto,
+  TTBundle,
+  TTIriRef,
+  TermCode,
+  Namespace,
+  FiltersAsIris,
+  GraphData
+} from "im-library/dist/types/interfaces/Interfaces";
+import { Models, Vocabulary } from "im-library";
+const { RDFS, RDF } = Vocabulary;
+const {
+  Search: { ConceptSummary, SearchRequest, SearchResponse }
+} = Models;
 
 export default class EntityService {
-  static api = process.env.VUE_APP_API;
+  static api = import.meta.env.VITE_API;
 
   public static async downloadConcept(iri: string, format: string): Promise<any> {
     try {
@@ -29,7 +35,7 @@ export default class EntityService {
 
   public static async getFullExportSet(iri: string): Promise<any> {
     const client = axios.create({
-      baseURL: process.env.VUE_APP_API,
+      baseURL: import.meta.env.VITE_API as string,
       timeout: 0
     });
 
@@ -103,13 +109,13 @@ export default class EntityService {
     }
   }
 
-  public static async advancedSearch(request: SearchRequest, cancelToken: CancelToken): Promise<ConceptSummary[]> {
+  public static async advancedSearch(request: Models.Search.SearchRequest, cancelToken: CancelToken): Promise<Models.Search.ConceptSummary[]> {
     try {
       return await axios.post(this.api + "api/entity/public/search", request, {
         cancelToken: cancelToken
       });
     } catch (error) {
-      return [] as ConceptSummary[];
+      return [] as Models.Search.ConceptSummary[];
     }
   }
 
@@ -224,13 +230,13 @@ export default class EntityService {
     }
   }
 
-  public static async getEntitySummary(iri: string): Promise<ConceptSummary> {
+  public static async getEntitySummary(iri: string): Promise<Models.Search.ConceptSummary> {
     try {
       return await axios.get(this.api + "api/entity/public/summary", {
         params: { iri: iri }
       });
     } catch (error) {
-      return {} as ConceptSummary;
+      return {} as Models.Search.ConceptSummary;
     }
   }
 
@@ -247,6 +253,18 @@ export default class EntityService {
       return await axios.post(this.api + "api/entity/public/ecl", bundle);
     } catch (error) {
       return "";
+    }
+  }
+
+  public static async getPartialEntities(typeIris: string[], predicates: string[]) {
+    const promises: Promise<any>[] = [];
+    typeIris.forEach(iri => {
+      promises.push(this.getPartialEntity(iri, predicates));
+    });
+    try {
+      return await Promise.all(promises);
+    } catch (error) {
+      return [];
     }
   }
 }

@@ -25,9 +25,11 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { RDFS } from "@/vocabulary/RDFS";
-import { OWL } from "@/vocabulary/OWL";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { Helpers, Vocabulary } from "im-library";
+const { RDFS, OWL } = Vocabulary;
+const {
+  DataTypeCheckers: { isObjectHasKeys }
+} = Helpers;
 
 export default defineComponent({
   name: "ReportTable",
@@ -83,12 +85,10 @@ export default defineComponent({
   height: 100%;
   width: 100%;
 }
-
 .dashcard {
   height: 100%;
   width: 100%;
 }
-
 .loading-container {
   width: 100%;
   height: 100%;

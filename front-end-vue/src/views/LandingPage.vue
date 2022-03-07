@@ -1,6 +1,6 @@
 <template>
   <div id="landing-page-container">
-    <div class="p-d-flex p-flex-row p-jc-center p-ai-center loading-container" v-if="loading">
+    <div class="flex flex-row justify-content-center align-items-center loading-container" v-if="loading">
       <ProgressSpinner />
     </div>
     <Card>
@@ -61,19 +61,17 @@ import { defineComponent } from "vue";
 import ReportTable from "@/components/dashboard/ReportTable.vue";
 import PieChartDashCard from "@/components/dashboard/PieChartDashCard.vue";
 import ConfigService from "@/services/ConfigService";
-import { IM } from "@/vocabulary/IM";
-import { DashboardLayout } from "@/models/configs/DashboardLayout";
 import EntityService from "@/services/EntityService";
-import { RDFS } from "@/vocabulary/RDFS";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { IriCount } from "@/models/IriCount";
-import { byOrder } from "@/helpers/Sorters";
 import { mapState } from "vuex";
-import { RecentActivityItem } from "@/models/RecentActivityItem";
-import { RDF } from "@/vocabulary/RDF";
-import { TTIriRef } from "@/models/TripleTree";
 import DirectService from "@/services/DirectService";
-import { AppEnum } from "@/models/AppEnum";
+import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Vocabulary, Helpers } from "im-library";
+const { AppEnum } = Enums;
+const { IM, RDF, RDFS } = Vocabulary;
+const {
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
+  Sorters: { byOrder }
+} = Helpers;
 
 export default defineComponent({
   name: "LandingPage",

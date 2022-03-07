@@ -30,7 +30,7 @@
     <div class="p-inputgroup">
       <span class="p-float-label">
         <MultiSelect id="conceptType" v-model="selectedTypes" @change="checkForSearch" :options="filterOptions.types" optionLabel="name" display="chip" />
-        <label for="scheme">Select concept type:</label>
+        <label for="conceptType">Select concept type:</label>
         <Button icon="pi pi-undo" class="p-button-secondary" @click="resetTypes" v-tooltip="'Reset type filters'" />
       </span>
     </div>
@@ -40,10 +40,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { Namespace } from "@/models/Namespace";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { NAMESPACES } from "@/vocabulary/NAMESPACES";
+import { Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
+import { Helpers } from "im-library";
+const {
+  DataTypeCheckers: { isArrayHasLength }
+} = Helpers;
 
 export default defineComponent({
   name: "Filters",
@@ -121,10 +122,10 @@ export default defineComponent({
     },
 
     setLegacy(include: boolean): void {
-      const emisScheme = this.selectedSchemes.findIndex(scheme => scheme.iri === NAMESPACES.EMIS);
+      const emisScheme = this.selectedSchemes.findIndex(scheme => scheme.iri === "http://endhealth.info/emis#");
       if (include) {
         if (emisScheme === -1) {
-          const found = this.filterOptions.schemes.find((scheme: Namespace) => scheme.iri === NAMESPACES.EMIS);
+          const found = this.filterOptions.schemes.find((scheme: Namespace) => scheme.iri === "http://endhealth.info/emis#");
           if (found) this.selectedSchemes.push(found);
         }
       } else {

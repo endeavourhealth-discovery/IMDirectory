@@ -7,10 +7,13 @@
 </template>
 
 <script lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { TTIriRef } from "@/models/TripleTree";
 import LoggerService from "@/services/LoggerService";
 import { defineComponent, PropType } from "vue";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { Helpers } from "im-library";
+const {
+  DataTypeCheckers: { isObjectHasKeys }
+} = Helpers;
 
 export default defineComponent({
   name: "ObjectNameTagWithLabel",

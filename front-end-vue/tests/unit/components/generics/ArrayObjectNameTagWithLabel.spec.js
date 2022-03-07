@@ -7,7 +7,7 @@ describe("ArraObjectNameTagWithLabel.vue", () => {
   let wrapper;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     wrapper = shallowMount(ArrayObjectNameTagWithLabel, {
       global: { components: { Tag } },
@@ -42,14 +42,14 @@ describe("ArraObjectNameTagWithLabel.vue", () => {
   });
 
   it("can getSeverity ___ none", () => {
-    LoggerService.warn = jest.fn();
+    LoggerService.warn = vi.fn();
     expect(wrapper.vm.getSeverity({ "@id": "http://endhealth.info/im#Obsolete", name: "Obsolete" })).toBe("info");
     expect(LoggerService.warn).toHaveBeenCalledTimes(1);
     expect(LoggerService.warn).toHaveBeenCalledWith("TagWithLabel missing case for severity");
   });
 
   it("can getSeverity ___ no name", () => {
-    LoggerService.warn = jest.fn();
+    LoggerService.warn = vi.fn();
     expect(wrapper.vm.getSeverity({ "@id": "http://endhealth.info/im#Obsolete" })).toBe("info");
   });
 });

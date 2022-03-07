@@ -11,21 +11,23 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { SearchRequest } from "@/models/search/SearchRequest";
-import { SortBy } from "@/models/search/SortBy";
 import axios from "axios";
 import { mapState } from "vuex";
-import { TTIriRef } from "@/models/TripleTree";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
-import { Namespace } from "@/models/Namespace";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { getContainerElementOptimalHeight } from "@/helpers/GetContainerElementOptimalHeight";
 import EntityService from "@/services/EntityService";
-import { IM } from "@/vocabulary/IM";
-import { FilterDefaultsConfig } from "@/models/configs/FilterDefaultsConfig";
 import ConfigService from "@/services/ConfigService";
 import NavTree from "@/components/home/NavTree.vue";
 import FavTree from "@/components/home/FavTree.vue";
+import { TTIriRef, EntityReferenceNode, Namespace, FilterDefaultsConfig } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Helpers, Vocabulary, Models } from "im-library";
+const {
+  DataTypeCheckers: { isObjectHasKeys },
+  ContainerDimensionGetters: { getContainerElementOptimalHeight }
+} = Helpers;
+const { IM, RDFS } = Vocabulary;
+const {
+  Search: { SearchRequest }
+} = Models;
+const { SortBy } = Enums;
 
 export default defineComponent({
   name: "Navigator",
@@ -33,7 +35,7 @@ export default defineComponent({
     NavTree,
     FavTree
   },
-  computed: mapState(["filterOptions", "selectedFilters", "searchResults", "focusHierarchy", "sidebarControlActivePanel"]),
+  computed: mapState(["highLevelTypes", "filterOptions", "selectedFilters", "searchResults", "focusHierarchy", "sidebarControlActivePanel"]),
   watch: {
     focusHierarchy(newValue) {
       if (newValue) {
@@ -82,13 +84,16 @@ export default defineComponent({
 
     async getConfigs(): Promise<void> {
       this.configs = await ConfigService.getFilterDefaults();
+      this.configs.typeOptions = this.highLevelTypes;
       this.$store.commit("updateFilterDefaults", this.configs);
     },
 
     async setFilterOptions(): Promise<void> {
       const schemeOptions = await EntityService.getNamespaces();
       const statusOptions = await EntityService.getEntityChildren(IM.STATUS);
-      const typeOptions = await EntityService.getEntityChildren(IM.MODELLING_ENTITY_TYPE);
+      const typeOptions = (await EntityService.getPartialEntities(this.highLevelTypes, [RDFS.LABEL])).map(typeOption => {
+        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
+      });
 
       this.$store.commit("updateFilterOptions", {
         status: statusOptions,
@@ -100,12 +105,12 @@ export default defineComponent({
     setFilterDefaults() {
       const selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.configs.statusOptions.includes(item["@id"]));
       const selectedSchemes = this.filterOptions.schemes.filter((item: Namespace) => this.configs.schemeOptions.includes(item.iri));
-      const selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.configs.typeOptions.includes(item["@id"]));
+      // const selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.configs.typeOptions.includes(item["@id"]));
 
       this.$store.commit("updateSelectedFilters", {
         status: selectedStatus,
         schemes: selectedSchemes,
-        types: selectedTypes
+        types: this.filterOptions.types
       });
       this.$store.commit("updateHierarchySelectedFilters", selectedSchemes);
     },

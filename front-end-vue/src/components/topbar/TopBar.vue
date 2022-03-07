@@ -35,24 +35,12 @@
     <template #end>
       <Button icon="pi pi-th-large" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openAppsOverlay" />
       <OverlayPanel ref="appsO">
-        <div class="p-grid">
-          <div class="p-col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+        <div class="grid">
+          <div class="col-6">
+            <Button v-tooltip.bottom="'Editor'" icon="far fa-edit" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
           </div>
-          <div class="p-col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
-          </div>
-          <div class="p-col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
-          </div>
-          <div class="p-col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
-          </div>
-          <div class="p-col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
-          </div>
-          <div class="p-col-4">
-            <div class="p-text-center"><i class="pi pi-cog"></i></div>
+          <div class="col-6">
+            <Button v-tooltip.bottom="'UPRN'" icon="far fa-map" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
           </div>
         </div>
       </OverlayPanel>
@@ -80,24 +68,24 @@
 </template>
 
 <script lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
-import { Namespace } from "@/models/Namespace";
-import { SearchRequest } from "@/models/search/SearchRequest";
-import { SortBy } from "@/models/search/SortBy";
-import { TTIriRef } from "@/models/TripleTree";
 import Filters from "@/components/topbar/Filters.vue";
 import axios, { CancelToken } from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { AccountItem, LoginItem, ModuleItem } from "@/models/sideNav/MenuItems";
-import { MODULE_IRIS } from "@/helpers/ModuleIris";
-import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
-import { ConceptSummary } from "@/models/search/ConceptSummary";
-import { IM } from "@/vocabulary/IM";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
-import { AppEnum } from "@/models/AppEnum";
+import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem, ModuleItem } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Models, Helpers, Vocabulary } from "im-library";
+const { AppEnum, SortBy } = Enums;
+const {
+  DataTypeCheckers: { isObjectHasKeys },
+  ModuleIris: { MODULE_IRIS },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+} = Helpers;
+const { IM } = Vocabulary;
+const {
+  Search: { ConceptSummary, SearchRequest }
+} = Models;
 
 export default defineComponent({
   name: "TopBar",
@@ -117,7 +105,7 @@ export default defineComponent({
         {
           label: "Login",
           icon: "fa fa-fw fa-user",
-          to: "/user/login"
+          url: "/user/login"
         },
         {
           label: "Register",
@@ -130,7 +118,7 @@ export default defineComponent({
         {
           label: "My account",
           icon: "fa fa-fw fa-user",
-          to: "/user/my-account"
+          url: "/user/my-account"
         },
         {
           label: "Edit account",
@@ -151,6 +139,9 @@ export default defineComponent({
     };
   },
   methods: {
+    navigateToEditor(): void {
+      DirectService.directTo(AppEnum.EDITOR, "", this);
+    },
     getItems(): LoginItem[] | AccountItem[] {
       if (this.isLoggedIn) {
         return this.accountItems;
@@ -296,5 +287,9 @@ export default defineComponent({
 
 .p-menubar {
   background: #ffffff;
+}
+
+.clickable {
+  cursor: pointer;
 }
 </style>

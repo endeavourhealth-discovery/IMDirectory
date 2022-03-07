@@ -9,9 +9,12 @@
 </template>
 
 <script lang="ts">
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
 import LoggerService from "@/services/LoggerService";
 import { defineComponent } from "vue";
+import { Helpers } from "im-library";
+const {
+  DataTypeCheckers: { isObjectHasKeys }
+} = Helpers;
 
 export default defineComponent({
   name: "TextWithLabel",

@@ -1,19 +1,8 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
 import DirectoryTable from "../components/home/DirectoryTable.vue";
-import Dashboard from "../views/Dashboard.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
-import User from "../views/User.vue";
-import Login from "../components/user/Login.vue";
-import Register from "../components/user/Register.vue";
-import UserDetails from "../components/user/UserDetails.vue";
-import UserEdit from "../components/user/UserEdit.vue";
-import PasswordEdit from "../components/user/PasswordEdit.vue";
-import ConfirmCode from "../components/user/ConfirmCode.vue";
-import Logout from "../components/user/Logout.vue";
-import ForgotPassword from "../components/user/ForgotPassword.vue";
-import ForgotPasswordSubmit from "../components/user/ForgotPasswordSubmit.vue";
 import SnomedLicense from "../views/SnomedLicense.vue";
 import store from "@/store/index";
 import { nextTick } from "vue";
@@ -21,71 +10,6 @@ import { nextTick } from "vue";
 const APP_TITLE = "IM Directory";
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: "/concept/http%3A%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Thing",
-    redirect: "/"
-  },
-  {
-    path: "/user",
-    name: "User",
-    component: User,
-    children: [
-      {
-        path: "login",
-        name: "Login",
-        component: Login
-      },
-      {
-        path: "confirm-code",
-        name: "ConfirmCode",
-        component: ConfirmCode
-      },
-      {
-        path: "register",
-        name: "Register",
-        component: Register
-      },
-      {
-        path: "my-account",
-        name: "UserDetails",
-        component: UserDetails,
-        meta: {
-          requiresAuth: true
-        }
-      },
-      {
-        path: "my-account/edit",
-        name: "UserEdit",
-        component: UserEdit,
-        meta: {
-          requiresAuth: true
-        }
-      },
-      {
-        path: "my-account/password-edit",
-        name: "PasswordEdit",
-        component: PasswordEdit,
-        meta: {
-          requiresAuth: true
-        }
-      },
-      {
-        path: "logout",
-        name: "Logout",
-        component: Logout
-      },
-      {
-        path: "password-recovery",
-        name: "ForgotPassword",
-        component: ForgotPassword
-      },
-      {
-        path: "password-recovery/submit",
-        name: "ForgotPasswordSubmit",
-        component: ForgotPasswordSubmit
-      }
-    ]
-  },
   {
     path: "/",
     name: "Home",

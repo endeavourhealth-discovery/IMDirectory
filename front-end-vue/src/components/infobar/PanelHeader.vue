@@ -1,19 +1,22 @@
 <template>
   <div id="entity-panel-header-text" :key="icon">
-    <span :style="color" class="p-mx-1">
+    <span :style="color" class="p-mx-2">
       <font-awesome-icon v-if="types && types.length" :icon="icon" />
     </span>
-    <a v-tooltip.right="'See in viewer app'" class="clickable" @click="navigate">{{ header }}</a>
+    <a v-tooltip.right="'See in viewer app'" class="info-bar-title" @click="navigate">{{ header }}</a>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
-import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
-import { TTIriRef } from "@/models/TripleTree";
-import DirectService from "../../services/DirectService";
-import { AppEnum } from "../../models/AppEnum";
 import { mapState } from "vuex";
+import DirectService from "@/services/DirectService";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Helpers } from "im-library";
+const {
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
+} = Helpers;
+const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "PanelHeader",
@@ -45,7 +48,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.clickable {
+.info-bar-title {
   cursor: pointer;
+  padding-left: 3px;
 }
 </style>

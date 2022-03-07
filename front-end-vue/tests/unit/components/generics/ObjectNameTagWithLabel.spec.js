@@ -7,7 +7,7 @@ describe("ObjectNameTagWithLabel.vue", () => {
   let wrapper;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     wrapper = shallowMount(ObjectNameTagWithLabel, {
       global: { components: { Tag } },
@@ -43,7 +43,7 @@ describe("ObjectNameTagWithLabel.vue", () => {
     });
 
     it("returns correct severity ___ unknown name", () => {
-      LoggerService.warn = jest.fn();
+      LoggerService.warn = vi.fn();
       expect(ObjectNameTagWithLabel.computed.getSeverity.call({ data: { name: "Discontinued" } })).toBe("info");
       expect(LoggerService.warn).toHaveBeenCalledTimes(1);
       expect(LoggerService.warn).toHaveBeenCalledWith("TagWithLabel missing case for severity");

@@ -5,7 +5,7 @@ describe("ArrayObjectNameToStringWithLabel.vue", () => {
   let wrapper;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     wrapper = shallowMount(ArrayObjectNamesToStringWithLabel, {
       props: {
@@ -56,7 +56,7 @@ describe("ArrayObjectNameToStringWithLabel.vue ___ missing data prop", () => {
   let wrapper;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     wrapper = shallowMount(ArrayObjectNamesToStringWithLabel, {
       props: { label: "Types", size: "50%", data: undefined }

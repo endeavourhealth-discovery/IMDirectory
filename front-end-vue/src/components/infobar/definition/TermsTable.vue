@@ -9,14 +9,14 @@
         @click="setButtonExpanded"
         v-styleclass="{
           selector: '#term-codes-table',
-          enterClass: 'p-d-none',
+          enterClass: 'hidden',
           enterActiveClass: 'my-fadein',
           leaveActiveClass: 'my-fadeout',
-          leaveToClass: 'p-d-none'
+          leaveToClass: 'hidden'
         }"
       />
     </div>
-    <DataTable :value="data" :paginator="data.length > 5 ? true : false" :rows="5" id="term-codes-table" class="p-d-none">
+    <DataTable :value="data" :paginator="data.length > 5 ? true : false" :rows="5" id="term-codes-table" class="hidden">
       <template #empty>
         No records found
       </template>
@@ -40,8 +40,11 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import { TermCode } from "@/models/terms/TermCode";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
+import { TermCode } from "im-library/dist/types/interfaces/Interfaces";
+import { Helpers } from "im-library";
+const {
+  DataTypeCheckers: { isArrayHasLength }
+} = Helpers;
 
 export default defineComponent({
   name: "TermsTable",
@@ -53,7 +56,7 @@ export default defineComponent({
   },
   computed: {
     hasData(): boolean {
-      return isArrayHasLength(this.data)
+      return isArrayHasLength(this.data);
     }
   },
   data() {

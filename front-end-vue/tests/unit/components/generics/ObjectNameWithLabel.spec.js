@@ -6,7 +6,7 @@ describe("ObjectNameWithLabel.vue", () => {
   let wrapper;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     wrapper = shallowMount(ObjectNameWithLabel, {
       props: { label: "Status", data: { name: "Active" }, size: "50%" }
     });
@@ -24,19 +24,19 @@ describe("ObjectNameWithLabel.vue", () => {
   });
 
   it("can check isObjectWithname ___ false no name", () => {
-    LoggerService.error = jest.fn();
+    LoggerService.error = vi.fn();
     expect(ObjectNameWithLabel.computed.isObjectWithName.call({ data: { statusname: "Active", "@id": "http://endhealth.info/im#Active" } })).toBe(false);
     expect(LoggerService.error).toHaveBeenCalledTimes(1);
   });
 
   it("can check isObjectWithname ___ false no data", () => {
-    LoggerService.error = jest.fn();
+    LoggerService.error = vi.fn();
     expect(ObjectNameWithLabel.computed.isObjectWithName.call({ data: undefined })).toBe(false);
     expect(LoggerService.error).toHaveBeenCalledTimes(1);
   });
 
   it("can check isObjectWithname ___ false no Object", () => {
-    LoggerService.error = jest.fn();
+    LoggerService.error = vi.fn();
     expect(ObjectNameWithLabel.computed.isObjectWithName.call({ data: [] })).toBe(false);
     expect(LoggerService.error).toHaveBeenCalledTimes(1);
   });

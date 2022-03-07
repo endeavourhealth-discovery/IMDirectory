@@ -1,8 +1,8 @@
 <template>
   <div id="search-results-main-container">
     <div class="card">
-      <div class="p-grid">
-        <div class="p-col-4">
+      <div class="grid">
+        <div class="col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
               <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
@@ -10,7 +10,7 @@
             </span>
           </div>
         </div>
-        <div class="p-col-4">
+        <div class="col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
               <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
@@ -18,7 +18,7 @@
             </span>
           </div>
         </div>
-        <div class="p-col-4">
+        <div class="col-4">
           <div class="p-inputgroup">
             <span class="p-float-label">
               <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
@@ -29,14 +29,20 @@
       </div>
 
       <DataTable
-        :loading="searchLoading"
         :value="localSearchResults"
-        contextMenu
-        v-model:contextMenuSelection="selectedResult"
+        class="p-datatable-sm"
+        v-model:selection="selected"
+        selectionMode="single"
+        @rowUnselect="onRowUnselect"
+        @rowSelect="onRowSelect"
         @rowContextmenu="onRowContextMenu"
+        @contextmenu="onRightClick"
         @row-dblclick="onRowDblClick"
         responsiveLayout="scroll"
+        :loading="searchLoading"
+        v-model:contextMenuSelection="selected"
         ref="searchTable"
+        dataKey="iri"
       >
         <Column field="name" header="Name">
           <template #body="slotProps">
@@ -65,24 +71,26 @@
       </DataTable>
 
       <ContextMenu :model="rClickOptions" ref="cm" />
-      <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
-        <InfoSideBar id="info-bar" :conceptIri="selectedResult.iri" />
-      </Sidebar>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
-import { ConceptSummary } from "@/models/search/ConceptSummary";
-import { TTIriRef } from "@/models/TripleTree";
 import DirectService from "@/services/DirectService";
-import { IM } from "@/vocabulary/IM";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
-import InfoSideBar from "../components/infobar/InfoSideBar.vue";
-import { AppEnum } from "../models/AppEnum";
+import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Helpers, Vocabulary, Models } from "im-library";
+const { IM } = Vocabulary;
+const {
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+} = Helpers;
+const {
+  Search: { ConceptSummary }
+} = Models;
+const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "SearchResultsTable",
@@ -90,7 +98,7 @@ export default defineComponent({
     InfoSideBar
   },
   computed: {
-    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
+    ...mapState(["highLevelTypes", "searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
   },
   watch: {
     searchResults() {
@@ -106,15 +114,14 @@ export default defineComponent({
   },
   data() {
     return {
-      visibleRight: false,
       selectedSchemes: [] as string[],
       selectedStatus: [] as string[],
       selectedTypes: [] as string[],
       schemeOptions: [] as string[],
       statusOptions: [] as string[],
       typeOptions: [] as string[],
-      localSearchResults: [] as ConceptSummary[],
-      selectedResult: {} as ConceptSummary,
+      localSearchResults: [] as Models.Search.ConceptSummary[],
+      selected: {} as Models.Search.ConceptSummary,
       rClickOptions: [
         {
           label: "Open",
@@ -149,7 +156,7 @@ export default defineComponent({
   },
   methods: {
     updateFavourites() {
-      this.$store.commit("updateFavourites", this.selectedResult.iri);
+      this.$store.commit("updateFavourites", this.selected.iri);
     },
     isFavourite(iri: string) {
       if (!this.favourites.length) return false;
@@ -161,9 +168,11 @@ export default defineComponent({
       const typeOptions = [] as string[];
       const statusOptions = [] as string[];
       if (this.localSearchResults) {
-        (this.localSearchResults as ConceptSummary[]).forEach(searchResult => {
+        (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
           schemeOptions.push(searchResult.scheme.name);
-          searchResult.entityType.forEach(type => typeOptions.push(type.name));
+          searchResult.entityType.forEach(type => {
+            if (this.highLevelTypes.includes(type["@id"])) typeOptions.push(type.name);
+          });
           statusOptions.push(searchResult.status.name);
         });
         this.schemeOptions = [...new Set(schemeOptions)];
@@ -177,12 +186,13 @@ export default defineComponent({
     },
 
     showInfo() {
-      this.visibleRight = true;
+      this.$emit("updateSelected", this.selected.iri);
+      this.$emit("openBar");
     },
 
     filterResults() {
-      const filteredSearchResults = [] as ConceptSummary[];
-      (this.searchResults as ConceptSummary[]).forEach(searchResult => {
+      const filteredSearchResults = [] as Models.Search.ConceptSummary[];
+      (this.searchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
         let isOfTypes = false;
         searchResult.entityType.forEach(type => {
           if (this.selectedTypes.indexOf(type.name) != -1) {
@@ -197,6 +207,10 @@ export default defineComponent({
       this.localSearchResults = filteredSearchResults;
     },
 
+    onRowSelect(row: any) {
+      this.$emit("updateSelected", row.data.iri);
+    },
+
     getFAIconFromType(types: TTIriRef[]) {
       return getFAIconFromType(types);
     },
@@ -206,9 +220,9 @@ export default defineComponent({
     },
 
     updateRClickOptions() {
-      this.rClickOptions[0].icon = isOfTypes(this.selectedResult.entityType, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
-      this.rClickOptions[0].label = isOfTypes(this.selectedResult.entityType, IM.FOLDER) ? "Open" : "View";
-      this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selectedResult.iri) ? "Unfavourite" : "Favourite";
+      this.rClickOptions[0].icon = isOfTypes(this.selected.entityType, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
+      this.rClickOptions[0].label = isOfTypes(this.selected.entityType, IM.FOLDER) ? "Open" : "View";
+      this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected.iri) ? "Unfavourite" : "Favourite";
     },
 
     onRowContextMenu(event: any) {
@@ -216,28 +230,37 @@ export default defineComponent({
       (this.$refs.cm as any).show(event.originalEvent);
     },
 
+    onRowUnselect() {
+      this.selected = {} as Models.Search.ConceptSummary;
+    },
+
     getNamesFromTypes(typeList: TTIriRef[]) {
       return typeList.map(type => type.name).join(", ");
     },
 
     navigateToEditor(): void {
-      DirectService.directTo(AppEnum.EDITOR, this.selectedResult.iri, this);
+      DirectService.directTo(AppEnum.EDITOR, this.selected.iri, this);
+    },
+
+    onRightClick(event: any) {
+      this.updateRClickOptions();
+      (this.$refs.menu as any).show(event);
     },
 
     onRowDblClick(event: any) {
-      this.selectedResult = event.data;
+      this.selected = event.data;
       this.navigate();
     },
 
     navigate(): void {
       const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isOfTypes(this.selectedResult?.entityType, IM.FOLDER)) {
+      if (isOfTypes(this.selected?.entityType, IM.FOLDER)) {
         this.$router.push({
           name: "Folder",
-          params: { selectedIri: this.selectedResult.iri }
+          params: { selectedIri: this.selected.iri }
         });
       } else {
-        DirectService.directTo(AppEnum.VIEWER, this.selectedResult.iri, this);
+        DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
       }
     }
   }
@@ -251,25 +274,8 @@ label {
 
 #search-results-main-container {
   padding-top: 1rem;
-  grid-area: content;
-  height: calc(100% - 4.1rem);
-  width: 100%;
+  height: calc(100vh - 4.1rem);
   overflow-y: auto;
   background-color: #ffffff;
-}
-
-.p-tabview-panel {
-  min-height: 100%;
-}
-
-.p-datatable {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  height: 100%;
-}
-
-#info-bar {
-  height: calc(100vh - 6rem);
 }
 </style>

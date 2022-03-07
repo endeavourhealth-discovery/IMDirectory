@@ -10,10 +10,10 @@
         @click="setButtonExpanded"
         v-styleclass="{
           selector: '#' + id,
-          enterClass: 'p-d-none',
+          enterClass: 'hidden',
           enterActiveClass: 'my-fadein',
           leaveActiveClass: 'my-fadeout',
-          leaveToClass: 'p-d-none'
+          leaveToClass: 'hidden'
         }"
       />
     </div>
@@ -24,7 +24,7 @@
       @change="navigate(selected['@id'])"
       emptyMessage="None"
       :id="id"
-      class="array-listbox p-d-none"
+      class="array-listbox hidden"
     >
       <template #option="slotProps">
         <div class="data-name">
@@ -40,7 +40,10 @@ import { defineComponent, PropType } from "vue";
 import { RouteRecordName } from "node_modules/vue-router/dist/vue-router";
 import LoggerService from "@/services/LoggerService";
 import { mapState } from "vuex";
-import { isArrayHasLength, isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { Helpers } from "im-library";
+const {
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
+} = Helpers;
 
 export default defineComponent({
   name: "ArrayObjectNameListboxWithLabel",

@@ -13,10 +13,10 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ ontology", () => {
   let mockButton;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     mockRoute = { name: "Concept" };
-    mockRouter = { push: jest.fn() };
+    mockRouter = { push: vi.fn() };
     mockStore = {
       state: {
         selectedEntityType: "Ontology"
@@ -24,10 +24,10 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ ontology", () => {
     };
 
     mockButton = {
-      click: jest.fn()
+      click: vi.fn()
     };
 
-    docSpy = jest.spyOn(document, "getElementById");
+    docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(mockButton);
 
     wrapper = mount(ArrayObjectNameListboxWithLabel, {
@@ -46,7 +46,7 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ ontology", () => {
       }
     });
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders mounted data", () => {
@@ -80,7 +80,7 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ ontology", () => {
 
   it("can check isArrayObjectWithName ___ false ___ undefined", () => {
     const warn = console.warn;
-    console.warn = jest.fn();
+    console.warn = vi.fn();
     expect(ArrayObjectNameListboxWithLabel.computed.isArrayObjectWithName.call({ data: undefined })).toBe(false);
     expect(console.warn).not.toHaveBeenCalled();
     console.warn = warn;
@@ -88,7 +88,7 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ ontology", () => {
 
   it("can check isArrayObjectWithName ___ false ___ bad data", () => {
     const warn = console.warn;
-    console.warn = jest.fn();
+    console.warn = vi.fn();
     expect(
       ArrayObjectNameListboxWithLabel.computed.isArrayObjectWithName.call({
         data: [{ "@id": "http://snomed.info/sct#64217002", statusname: "Curvature of spine (disorder)" }]
@@ -144,10 +144,10 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ sets", () => {
   let mockButton;
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     mockRoute = { name: "Concept" };
-    mockRouter = { push: jest.fn() };
+    mockRouter = { push: vi.fn() };
     mockStore = {
       state: {
         selectedEntityType: "Sets"
@@ -155,10 +155,10 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ sets", () => {
     };
 
     mockButton = {
-      click: jest.fn()
+      click: vi.fn()
     };
 
-    docSpy = jest.spyOn(document, "getElementById");
+    docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(mockButton);
 
     wrapper = mount(ArrayObjectNameListboxWithLabel, {
@@ -177,7 +177,7 @@ describe("ArrayObjectNameListboxWithLabel.vue ___ sets", () => {
       }
     });
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("expandAtStartup ___ false", () => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-d-flex p-flex-column p-jc-start" id="hierarchy-tree-bar-container">
+  <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
     <Tree
       :value="root"
       selectionMode="single"
@@ -28,15 +28,14 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { getColourFromType, getFAIconFromType, isOfTypes } from "@/helpers/ConceptTypeMethods";
-import { TreeNode } from "@/models/TreeNode";
-import { TTIriRef } from "@/models/TripleTree";
 import EntityService from "@/services/EntityService";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
-import { IM } from "@/vocabulary/IM";
-import { RDFS } from "@/vocabulary/RDFS";
-import { RDF } from "@/vocabulary/RDF";
-import { isObjectHasKeys } from "@/helpers/DataTypeCheckers";
+import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
+import { Vocabulary, Helpers } from "im-library";
+const { IM, RDF, RDFS } = Vocabulary;
+const {
+  DataTypeCheckers: { isObjectHasKeys },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+} = Helpers;
 
 export default defineComponent({
   name: "NavTree",

@@ -1,33 +1,35 @@
-import { SearchRequest } from "./../models/search/SearchRequest";
 import { createStore } from "vuex";
 import EntityService from "../services/EntityService";
-import { User } from "../models/user/User";
 import AuthService from "@/services/AuthService";
-import { avatars } from "@/models/user/Avatars";
 import LoggerService from "@/services/LoggerService";
-import { CustomAlert } from "@/models/user/CustomAlert";
-import { ConceptSummary } from "@/models/search/ConceptSummary";
-import { IM } from "@/vocabulary/IM";
-import { Namespace } from "@/models/Namespace";
-import { EntityReferenceNode } from "@/models/EntityReferenceNode";
 import ConfigService from "@/services/ConfigService";
-import { FilterDefaultsConfig } from "@/models/configs/FilterDefaultsConfig";
-import { isArrayHasLength } from "@/helpers/DataTypeCheckers";
-import { RecentActivityItem } from "@/models/RecentActivityItem";
+import { FilterDefaultsConfig, EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
+import { Models, Constants, Vocabulary, Helpers } from "im-library";
+const { IM, RDF, RDFS } = Vocabulary;
+const { Avatars } = Constants;
+const {
+  User,
+  Search: { SearchRequest, ConceptSummary },
+  CustomAlert
+} = Models;
+const {
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
+} = Helpers;
 
 export default createStore({
   // update stateType.ts when adding new state!
   state: {
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
-    searchResults: [] as ConceptSummary[],
+    history: [] as HistoryItem[],
+    searchResults: [] as Models.Search.ConceptSummary[],
     searchLoading: false,
-    currentUser: {} as User,
-    registeredUsername: "" as string,
+    currentUser: {} as Models.User,
     isLoggedIn: false as boolean,
     recentLocalActivity: localStorage.getItem("recentLocalActivity") as string,
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     blockedIris: [] as string[],
+    highLevelTypes: [IM.CONCEPT, IM.VALUESET, IM.CONCEPT_SET, IM.DATAMODEL_ENTITY, IM.DATAMODEL_PROPERTY, IM.QUERY, IM.FOLDER],
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
@@ -39,8 +41,8 @@ export default createStore({
       types: [] as EntityReferenceNode[]
     },
     quickFiltersStatus: new Map<string, boolean>(),
-    instanceIri: "",
-    catalogueSearchResults: [] as string[],
+    focusHierarchy: false,
+    sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
     filterDefaults: {} as FilterDefaultsConfig
   },
@@ -69,9 +71,6 @@ export default createStore({
     },
     updateCurrentUser(state, user) {
       state.currentUser = user;
-    },
-    updateRegisteredUsername(state, username) {
-      state.registeredUsername = username;
     },
     updateIsLoggedIn(state, status) {
       state.isLoggedIn = status;
@@ -102,11 +101,11 @@ export default createStore({
       localStorage.setItem("favourites", JSON.stringify(favourites));
       state.favourites = favourites;
     },
-    updateInstanceIri(state, instanceIri) {
-      state.instanceIri = instanceIri;
+    updateFocusHierarchy(state, bool) {
+      state.focusHierarchy = bool;
     },
-    updateCatalogueSearchResults(state, results) {
-      state.catalogueSearchResults = results;
+    updateSidebarControlActivePanel(state, number) {
+      state.sidebarControlActivePanel = number;
     },
     updateHierarchySelectedFilters(state, filters) {
       state.hierarchySelectedFilters = filters;
@@ -120,7 +119,7 @@ export default createStore({
       const blockedIris = await ConfigService.getXmlSchemaDataTypes();
       commit("updateBlockedIris", blockedIris);
     },
-    async fetchSearchResults({ commit }, data: { searchRequest: SearchRequest; cancelToken: any }) {
+    async fetchSearchResults({ commit }, data: { searchRequest: Models.Search.SearchRequest; cancelToken: any }) {
       const result = await EntityService.advancedSearch(data.searchRequest, data.cancelToken);
       if (result && isArrayHasLength(result)) {
         commit("updateSearchResults", result);
@@ -147,9 +146,9 @@ export default createStore({
         if (res.status === 200 && res.user) {
           commit("updateIsLoggedIn", true);
           const loggedInUser = res.user;
-          const foundAvatar = avatars.find(avatar => avatar === loggedInUser.avatar);
+          const foundAvatar = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
           if (!foundAvatar) {
-            loggedInUser.avatar = avatars[0];
+            loggedInUser.avatar = Avatars[0];
           }
           commit("updateCurrentUser", loggedInUser);
           result.authenticated = true;
