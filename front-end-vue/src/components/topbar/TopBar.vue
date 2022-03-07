@@ -292,4 +292,9 @@ export default defineComponent({
 .clickable {
   cursor: pointer;
 }
+
+.p-menubar-root-list,
+.p-menubar-button {
+  visibility: hidden;
+}
 </style>
