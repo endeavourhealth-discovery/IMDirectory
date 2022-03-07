@@ -27,7 +27,7 @@ sonarqube {
 }
 
 frontend {
-    nodeVersion = '14.16.0'
+    nodeVersion = '14.18.0'
     assembleScript = 'run build'
     checkScript = 'run test:coverage'
 }
