@@ -54,8 +54,7 @@ describe("SnomedLicense.vue", () => {
     await wrapper.vm.$nextTick();
     expect(mockStore.commit).toBeCalledTimes(1);
     expect(mockStore.commit).toBeCalledWith("updateSnomedLicenseAccepted", "true");
-    expect(mockRouter.go).toBeCalledTimes(1);
-    expect(mockRouter.go).toBeCalledWith(-1);
+
   });
 });
 

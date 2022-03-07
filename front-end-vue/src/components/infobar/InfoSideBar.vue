@@ -66,7 +66,7 @@ export default defineComponent({
   },
   watch: {
     async selectedIri() {
-      await this.init();
+      if (this.selectedIri) await this.init();
     }
   },
   async mounted() {

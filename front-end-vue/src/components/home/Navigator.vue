@@ -84,6 +84,7 @@ export default defineComponent({
 
     async getConfigs(): Promise<void> {
       this.configs = await ConfigService.getFilterDefaults();
+      this.configs.typeOptions = this.highLevelTypes;
       this.$store.commit("updateFilterDefaults", this.configs);
     },
 
