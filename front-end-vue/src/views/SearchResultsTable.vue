@@ -275,7 +275,7 @@ label {
 #search-results-main-container {
   padding-top: 1rem;
   height: calc(100vh - 4.1rem);
-  overflow-y: hidden;
+  overflow-y: auto;
   background-color: #ffffff;
 }
 </style>

@@ -184,6 +184,7 @@ export default defineComponent({
 }
 
 .concept-panel-content {
+  height: calc(100vh - 12rem) !important;
   overflow: auto;
   background-color: #ffffff;
 }
