@@ -29,7 +29,7 @@ sonarqube {
 frontend {
     nodeVersion = '14.16.0'
     assembleScript = 'run build'
-    checkScript = 'run test:unit:ci'
+    checkScript = 'run test:coverage'
 }
 
 project.tasks["sonarqube"].dependsOn "build"
