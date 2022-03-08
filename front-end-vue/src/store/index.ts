@@ -29,7 +29,7 @@ export default createStore({
     recentLocalActivity: localStorage.getItem("recentLocalActivity") as string,
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     blockedIris: [] as string[],
-    highLevelTypes: [IM.CONCEPT, IM.VALUESET, IM.CONCEPT_SET, IM.DATAMODEL_ENTITY, IM.DATAMODEL_PROPERTY, IM.QUERY, IM.FOLDER],
+    highLevelTypes: [] as string[],
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
@@ -112,9 +112,16 @@ export default createStore({
     },
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
+    },
+    updateHighLevelTypes(state, highLevelTypes) {
+      state.highLevelTypes = highLevelTypes;
     }
   },
   actions: {
+    async fetchHighLevelTypes({ commit }) {
+      const configs = await ConfigService.getFilterDefaults();
+      commit("updateHighLevelTypes", configs.typeOptions);
+    },
     async fetchBlockedIris({ commit }) {
       const blockedIris = await ConfigService.getXmlSchemaDataTypes();
       commit("updateBlockedIris", blockedIris);

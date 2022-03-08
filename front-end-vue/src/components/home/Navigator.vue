@@ -84,7 +84,6 @@ export default defineComponent({
 
     async getConfigs(): Promise<void> {
       this.configs = await ConfigService.getFilterDefaults();
-      this.configs.typeOptions = this.highLevelTypes;
       this.$store.commit("updateFilterDefaults", this.configs);
     },
 
@@ -94,7 +93,6 @@ export default defineComponent({
       const typeOptions = (await EntityService.getPartialEntities(this.highLevelTypes, [RDFS.LABEL])).map(typeOption => {
         return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
       });
-
       this.$store.commit("updateFilterOptions", {
         status: statusOptions,
         schemes: schemeOptions,
@@ -105,12 +103,12 @@ export default defineComponent({
     setFilterDefaults() {
       const selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.configs.statusOptions.includes(item["@id"]));
       const selectedSchemes = this.filterOptions.schemes.filter((item: Namespace) => this.configs.schemeOptions.includes(item.iri));
-      // const selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.configs.typeOptions.includes(item["@id"]));
+      const selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.configs.typeOptions.includes(item["@id"]));
 
       this.$store.commit("updateSelectedFilters", {
         status: selectedStatus,
         schemes: selectedSchemes,
-        types: this.filterOptions.types
+        types: selectedTypes
       });
       this.$store.commit("updateHierarchySelectedFilters", selectedSchemes);
     },
