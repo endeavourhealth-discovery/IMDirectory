@@ -20,7 +20,7 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       store.commit("updateSnomedLicenseAccepted", "false");
-      store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
+      store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
       router.push("/");
       await router.isReady();
 

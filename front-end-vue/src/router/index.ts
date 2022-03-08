@@ -87,6 +87,15 @@ router.beforeEach((to, from, next) => {
         }
       }
     });
+  } else if (to.matched.some(record => record.meta.requiresLicense)) {
+    console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
+    if (store.state.snomedLicenseAccepted !== "true") {
+      next({
+        path: "/snomedLicense"
+      });
+    } else {
+      next();
+    }
   } else {
     next();
   }
