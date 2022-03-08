@@ -81,13 +81,18 @@ export default createStore({
     },
     updateRecentLocalActivity(state, recentActivityItem: RecentActivityItem) {
       let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
-      activity = activity.filter(stored => {
-        return stored.iri !== recentActivityItem.iri;
+      activity.forEach(activityItem => {
+        activityItem.dateTime = new Date(activityItem.dateTime);
       });
-      activity.push(recentActivityItem);
-      if (activity.length > 5) {
-        activity.shift();
+      const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.app === recentActivityItem.app);
+      if (foundIndex !== -1) {
+        activity[foundIndex].dateTime = recentActivityItem.dateTime;
+        activity.sort((a, b) => (a.dateTime.getTime() > b.dateTime.getTime() ? 1 : b.dateTime.getTime() > a.dateTime.getTime() ? -1 : 0));
+      } else {
+        if (activity.length > 5) activity.shift();
+        activity.push(recentActivityItem);
       }
+
       localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       state.recentLocalActivity = JSON.stringify(activity);
     },

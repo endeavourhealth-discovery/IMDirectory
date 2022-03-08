@@ -16,7 +16,7 @@
           <Column field="type" header="Type"></Column>
           <Column field="latestActivity" header="Latest activity">
             <template #body="{data}">
-              {{ getActivityMessage(data) }}
+              <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
             </template>
           </Column>
         </DataTable>
@@ -125,6 +125,11 @@ export default defineComponent({
       }
     },
 
+    getActivityTooltipMessage(activity: RecentActivityItem) {
+      const dateTime = new Date(activity.dateTime);
+      return ["on", dateTime.toDateString(), "at", dateTime.toTimeString().substring(0, 9)].join(" ");
+    },
+
     getActivityMessage(activity: RecentActivityItem) {
       let action = "";
       const dateTime = new Date(activity.dateTime);
@@ -132,12 +137,25 @@ export default defineComponent({
         case AppEnum.VIEWER:
           action = "Viewed";
           break;
+        case AppEnum.EDITOR:
+          action = "Edited";
+          break;
 
         default:
           break;
       }
 
-      return [action, "on", dateTime.toDateString(), "at", dateTime.toTimeString().substring(0, 9)].join(" ");
+      return action + " " + this.getDayDisplay(dateTime);
+    },
+
+    getDayDisplay(dateTime: Date) {
+      const now = new Date();
+      dateTime.getDay() === now.getDay();
+      if (dateTime.getDay() === now.getDay()) return "today";
+      if (dateTime.getDay() - now.getDay() === 1) return "yesterday";
+      if (dateTime.getDay() - now.getDay() > 6) return "this week";
+      if (dateTime.getMonth() === now.getMonth()) return "this month";
+      if (dateTime.getFullYear() === now.getFullYear()) return "this year";
     },
 
     onClick(event: any) {
