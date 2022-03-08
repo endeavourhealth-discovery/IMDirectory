@@ -31,6 +31,7 @@ export default createStore({
     snomedReturnUrl: "",
     authReturnUrl: "",
     blockedIris: [] as string[],
+    highLevelTypes: [] as string[],
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
@@ -119,9 +120,16 @@ export default createStore({
     },
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
+    },
+    updateHighLevelTypes(state, highLevelTypes) {
+      state.highLevelTypes = highLevelTypes;
     }
   },
   actions: {
+    async fetchHighLevelTypes({ commit }) {
+      const configs = await ConfigService.getFilterDefaults();
+      commit("updateHighLevelTypes", configs.typeOptions);
+    },
     async fetchBlockedIris({ commit }) {
       const blockedIris = await ConfigService.getXmlSchemaDataTypes();
       commit("updateBlockedIris", blockedIris);

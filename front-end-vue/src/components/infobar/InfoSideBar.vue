@@ -1,6 +1,11 @@
 <template>
   <div id="concept-main-container">
     <Panel>
+      <template #icons>
+        <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
+          <span class="pi pi-times"></span>
+        </button>
+      </template>
       <template #header>
         <PanelHeader :types="types" :header="header" />
       </template>
@@ -17,7 +22,7 @@
             </TabPanel>
             <TabPanel header="Hierarchy position">
               <div class="concept-panel-content" id="secondary-tree-container" :style="contentHeight">
-                <SecondaryTree :conceptIri="conceptIri" />
+                <SecondaryTree :conceptIri="selectedIri" />
               </div>
             </TabPanel>
             <!-- TODO -->
@@ -51,8 +56,9 @@ const {
 export default defineComponent({
   name: "InfoSideBar",
   props: {
-    conceptIri: { type: String, required: true }
+    selectedIri: { type: String, required: true }
   },
+
   components: {
     PanelHeader,
     Definition,
@@ -60,7 +66,7 @@ export default defineComponent({
   },
   watch: {
     async selectedIri() {
-      await this.init();
+      if (this.selectedIri) await this.init();
     }
   },
   async mounted() {
@@ -86,6 +92,9 @@ export default defineComponent({
     };
   },
   methods: {
+    closeBar() {
+      this.$emit("closeBar");
+    },
     onResize(): void {
       this.setContentHeight();
     },
@@ -142,8 +151,8 @@ export default defineComponent({
     async init(): Promise<void> {
       this.loading = true;
       await this.getConfig("definition");
-      await this.getConcept(this.conceptIri);
-      await this.getInferred(this.conceptIri);
+      await this.getConcept(this.selectedIri);
+      await this.getInferred(this.selectedIri);
       this.types = isObjectHasKeys(this.concept, [RDF.TYPE]) ? this.concept[RDF.TYPE] : ([] as TTIriRef[]);
       this.header = this.concept[RDFS.LABEL];
       this.loading = false;
@@ -163,14 +172,6 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-#concept-main-container {
-  grid-area: content;
-  height: calc(100vh);
-  width: 100%;
-  overflow-y: auto;
-  background-color: #ffffff;
-}
-
 .p-tabview-panel {
   min-height: 100%;
 }
@@ -183,6 +184,7 @@ export default defineComponent({
 }
 
 .concept-panel-content {
+  height: calc(100vh - 12rem) !important;
   overflow: auto;
   background-color: #ffffff;
 }

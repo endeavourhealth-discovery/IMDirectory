@@ -30,7 +30,7 @@
     <div class="p-inputgroup">
       <span class="p-float-label">
         <MultiSelect id="conceptType" v-model="selectedTypes" @change="checkForSearch" :options="filterOptions.types" optionLabel="name" display="chip" />
-        <label for="scheme">Select concept type:</label>
+        <label for="conceptType">Select concept type:</label>
         <Button icon="pi pi-undo" class="p-button-secondary" @click="resetTypes" v-tooltip="'Reset type filters'" />
       </span>
     </div>

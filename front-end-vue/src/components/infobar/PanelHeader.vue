@@ -1,9 +1,9 @@
 <template>
   <div id="entity-panel-header-text" :key="icon">
-    <span :style="color" class="p-mx-1">
+    <span :style="color" class="p-mx-2">
       <font-awesome-icon v-if="types && types.length" :icon="icon" />
     </span>
-    <a v-tooltip.right="'See in viewer app'" class="clickable" @click="navigate">{{ header }}</a>
+    <a v-tooltip.right="'See in viewer app'" class="info-bar-title" @click="navigate">{{ header }}</a>
   </div>
 </template>
 
@@ -48,7 +48,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.clickable {
+.info-bar-title {
   cursor: pointer;
+  padding-left: 3px;
 }
 </style>

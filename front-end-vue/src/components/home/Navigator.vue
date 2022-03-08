@@ -23,7 +23,7 @@ const {
   DataTypeCheckers: { isObjectHasKeys },
   ContainerDimensionGetters: { getContainerElementOptimalHeight }
 } = Helpers;
-const { IM } = Vocabulary;
+const { IM, RDFS } = Vocabulary;
 const {
   Search: { SearchRequest }
 } = Models;
@@ -35,7 +35,7 @@ export default defineComponent({
     NavTree,
     FavTree
   },
-  computed: mapState(["filterOptions", "selectedFilters", "searchResults", "focusHierarchy", "sidebarControlActivePanel"]),
+  computed: mapState(["highLevelTypes", "filterOptions", "selectedFilters", "searchResults", "focusHierarchy", "sidebarControlActivePanel"]),
   watch: {
     focusHierarchy(newValue) {
       if (newValue) {
@@ -90,8 +90,9 @@ export default defineComponent({
     async setFilterOptions(): Promise<void> {
       const schemeOptions = await EntityService.getNamespaces();
       const statusOptions = await EntityService.getEntityChildren(IM.STATUS);
-      const typeOptions = await EntityService.getEntityChildren(IM.MODELLING_ENTITY_TYPE);
-
+      const typeOptions = (await EntityService.getPartialEntities(this.highLevelTypes, [RDFS.LABEL])).map(typeOption => {
+        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
+      });
       this.$store.commit("updateFilterOptions", {
         status: statusOptions,
         schemes: schemeOptions,

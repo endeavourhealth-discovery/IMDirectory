@@ -34,6 +34,7 @@ describe("state", () => {
       "recentLocalActivity",
       "snomedLicenseAccepted",
       "blockedIris",
+      "highLevelTypes",
       "filterOptions",
       "selectedFilters",
       "quickFiltersStatus",

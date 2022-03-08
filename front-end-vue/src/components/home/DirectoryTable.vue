@@ -3,7 +3,7 @@
     <div class="card">
       <DataTable
         :value="children"
-        class="p-datatable-sm"
+        class="concept-data-table p-datatable-sm"
         v-model:selection="selected"
         selectionMode="single"
         dataKey="@id"
@@ -73,9 +73,9 @@
         </Column>
       </DataTable>
       <ContextMenu ref="menu" :model="rClickOptions" />
-      <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
-        <InfoSideBar id="info-bar" :conceptIri="selected['@id']" />
-      </Sidebar>
+      <!-- <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
+            <InfoSideBar id="info-bar" :conceptIri="selected['@id']" />
+          </Sidebar> -->
     </div>
   </div>
 </template>
@@ -133,7 +133,6 @@ export default defineComponent({
   data() {
     return {
       pathOptions: [] as any[],
-      visibleRight: false,
       home: { icon: "pi pi-home", to: "/" },
       rClickOptions: [
         {
@@ -188,7 +187,9 @@ export default defineComponent({
     },
 
     showParentInfo() {
+      this.selected = {};
       this.selected["@id"] = this.conceptIri;
+      this.$emit("updateSelected", this.selected["@id"]);
       this.showInfo();
     },
 
@@ -214,7 +215,11 @@ export default defineComponent({
     },
 
     showInfo() {
-      this.visibleRight = true;
+      this.$emit("openBar");
+    },
+
+    closeBar() {
+      this.$emit("closeBar");
     },
 
     onRowDblClick(event: any) {
@@ -228,6 +233,7 @@ export default defineComponent({
 
     onRowSelect(event: any) {
       this.selected = event?.data || event;
+      this.$emit("updateSelected", this.selected["@id"]);
     },
 
     openPathOverlaymenu(event: any) {
@@ -348,7 +354,7 @@ export default defineComponent({
 
     async getChildren(iri: string) {
       this.children = await EntityService.getEntityChildren(iri);
-      this.children.forEach(child => (child.icon = getFAIconFromType(child.type)));
+      this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
     },
 
     async getPath(iri: string) {
@@ -385,7 +391,7 @@ export default defineComponent({
 <style scoped>
 #concept-main-container {
   grid-area: content;
-  height: calc(100% - 4.1rem);
+  height: calc(100vh - 4.1rem);
   width: 100%;
   overflow-y: auto;
   background-color: #ffffff;
@@ -402,8 +408,8 @@ export default defineComponent({
   height: 100%;
 }
 
-#info-bar {
-  height: calc(100vh - 6rem);
+.concept-data-table {
+  height: calc(100vh - 5.2rem);
 }
 
 .table-header {
