@@ -55,13 +55,10 @@ export default defineComponent({
   },
   methods: {
     async addParentFoldersToRoot() {
-      const rootFolders = [IM.NAMESPACE + "Sets", IM.NAMESPACE + "DiscoveryCommonDataModel", IM.NAMESPACE + "DiscoveryOntology", IM.NAMESPACE + "Q_Queries"];
-      for (let rootFolder of rootFolders) {
-        const hasNode = !!this.root.find(node => node.data === rootFolder);
-        if (!hasNode) {
-          const rootEntity = await EntityService.getPartialEntity(rootFolder, [RDFS.LABEL, RDF.TYPE]);
-          this.root.push(this.createTreeNode(rootEntity[RDFS.LABEL], rootEntity["@id"], rootEntity[RDF.TYPE], true));
-        }
+      const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+      for (let IMchild of IMChildren) {
+        const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
+        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, true));
       }
       this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
     },
