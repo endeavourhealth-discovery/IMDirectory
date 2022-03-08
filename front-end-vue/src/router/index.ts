@@ -3,7 +3,7 @@ import Home from "../views/Home.vue";
 import DirectoryTable from "../components/home/DirectoryTable.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
-import SnomedLicense from "../views/SnomedLicense.vue";
+import { SnomedLicense } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
 
@@ -60,6 +60,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const iri = to.params.selectedIri as string;
+  const currentUrl = import.meta.env.VITE_DIRECTORY_URL + "/#" + to.path;
+  if (to.path !== "/snomedLicense") {
+    store.commit("updateSnomedReturnUrl", currentUrl);
+    store.commit("updateAuthReturnUrl", currentUrl);
+  }
   if (to.matched.some(record => !record.meta.requiresAuth)) {
     store.commit("updateConceptIri", to.params.selectedIri as string);
   }
@@ -68,22 +73,20 @@ router.beforeEach((to, from, next) => {
       console.log("auth guard user authenticated:" + res.authenticated);
       if (!res.authenticated) {
         console.log("redirecting to login");
-        next({
-          path: "/user/login"
-        });
+        window.location.href = import.meta.env.VITE_AUTH_URL + "login?returnUrl=" + currentUrl;
       } else {
-        next();
+        if (to.matched.some(record => record.meta.requiresLicense)) {
+          console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
+          if (store.state.snomedLicenseAccepted !== "true") {
+            next({
+              path: "/snomedLicense"
+            });
+          } else {
+            next();
+          }
+        }
       }
     });
-  } else if (to.matched.some(record => record.meta.requiresLicense)) {
-    console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
-    if (store.state.snomedLicenseAccepted !== "true") {
-      next({
-        path: "/snomedLicense"
-      });
-    } else {
-      next();
-    }
   } else {
     next();
   }
