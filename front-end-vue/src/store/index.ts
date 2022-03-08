@@ -28,6 +28,8 @@ export default createStore({
     isLoggedIn: false as boolean,
     recentLocalActivity: localStorage.getItem("recentLocalActivity") as string,
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
+    snomedReturnUrl: "",
+    authReturnUrl: "",
     blockedIris: [] as string[],
     highLevelTypes: [] as string[],
     filterOptions: {
@@ -78,6 +80,12 @@ export default createStore({
     updateSnomedLicenseAccepted(state, status: string) {
       state.snomedLicenseAccepted = status;
       localStorage.setItem("snomedLicenseAccepted", status);
+    },
+    updateSnomedReturnUrl(state, url) {
+      state.snomedReturnUrl = url;
+    },
+    updateAuthReturnUrl(state, url) {
+      state.authReturnUrl = url;
     },
     updateRecentLocalActivity(state, recentActivityItem: RecentActivityItem) {
       let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");

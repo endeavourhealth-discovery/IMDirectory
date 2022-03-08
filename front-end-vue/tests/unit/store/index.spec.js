@@ -33,6 +33,8 @@ describe("state", () => {
       "isLoggedIn",
       "recentLocalActivity",
       "snomedLicenseAccepted",
+      "snomedReturnUrl",
+      "authReturnUrl",
       "blockedIris",
       "highLevelTypes",
       "filterOptions",
