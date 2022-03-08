@@ -89,7 +89,7 @@ export default createStore({
         activity[foundIndex].dateTime = recentActivityItem.dateTime;
         activity.sort((a, b) => (a.dateTime.getTime() > b.dateTime.getTime() ? 1 : b.dateTime.getTime() > a.dateTime.getTime() ? -1 : 0));
       } else {
-        if (activity.length > 5) activity.shift();
+        if (activity.length > 4) activity.shift();
         activity.push(recentActivityItem);
       }
 
