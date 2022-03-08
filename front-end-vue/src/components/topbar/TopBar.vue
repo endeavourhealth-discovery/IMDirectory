@@ -105,12 +105,12 @@ export default defineComponent({
         {
           label: "Login",
           icon: "fa fa-fw fa-user",
-          url: "/user/login"
+          url: "/auth/#/login"
         },
         {
           label: "Register",
           icon: "fa fa-fw fa-user-plus",
-          to: "/user/register"
+          to: "/auth/#/register"
         }
       ] as LoginItem[],
 
