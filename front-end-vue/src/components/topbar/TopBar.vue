@@ -1,7 +1,7 @@
 <template>
   <Menubar>
     <template #start>
-      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLangingPage" />
+      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
       <InputText id="text-input-search" v-if="autocompleteDisplay" v-model="searchText" @input="search" type="text" placeholder="Search" />
 
       <AutoComplete
@@ -186,7 +186,7 @@ export default defineComponent({
       this.searchText = "";
     },
 
-    toLangingPage() {
+    toLandingPage() {
       this.$router.push({
         path: "/"
       });
@@ -279,18 +279,6 @@ export default defineComponent({
   width: 30rem;
   margin-left: 3.5rem;
   height: 40px;
-}
-
-.p-menubar .p-menubar-button {
-  display: none;
-}
-
-.p-menubar {
-  background: #ffffff;
-}
-
-.clickable {
-  cursor: pointer;
 }
 
 .p-menubar-root-list,
