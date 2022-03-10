@@ -48,10 +48,10 @@ curl -s "https://img.shields.io/badge/Build-$badge_status-$badge_colour.svg" > b
 echo "https://img.shields.io/badge/Version-$version-$badge_colour.svg"
 curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badges/version.svg
 
-cat front-end-vue/testResult.txt
+cat testResult.txt
 
 # Unit tests
-if grep -q FAIL front-end-vue/testResult.txt ; then
+if grep -q FAIL testResult.txt ; then
         badge_status=failing
         badge_colour=red
         returncode=1
