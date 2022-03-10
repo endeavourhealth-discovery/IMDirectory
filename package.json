@@ -1,5 +1,5 @@
 {
-  "name": "front-end-vue",
+  "name": "im-directory",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -24,7 +24,7 @@
     "chart.js": "^3.7.0",
     "core-js": "^3.21.0",
     "google-palette": "^1.1.0",
-    "im-library": "https://github.com/endeavourhealth-discovery/IMLibrary/blob/main/im-library-1.0.1.tgz?raw=true",
+    "im-library": "https://github.com/endeavourhealth-discovery/IMLibrary/blob/main/im-library-1.0.0.tgz?raw=true",
     "path": "^0.12.7",
     "primeflex": "^3.1.2",
     "primeicons": "^5.0.0",

@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: /front-end-vue/dist
+  - source: /dist
     destination: //opt/tomcat/webapps/ROOT
 hooks:
   BeforeInstall:
