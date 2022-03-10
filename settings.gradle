@@ -17,4 +17,4 @@ pluginManagement {
 
 rootProject.name = 'IMDirectory'
 
-include 'front-end-vue'
+include 'im-directory'
