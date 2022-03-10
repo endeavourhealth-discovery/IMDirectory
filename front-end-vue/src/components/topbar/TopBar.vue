@@ -90,52 +90,21 @@ const {
 export default defineComponent({
   name: "TopBar",
   components: { Filters },
-  watch: {},
+  mounted() {
+    this.setUserMenuItems();
+  },
   computed: {
     autocompleteDisplay() {
       return this.$route.name === "Search";
     },
-    ...mapState(["currentUser", "isLoggedIn", "conceptIri", "filterOptions", "selectedFilters", "searchResults"])
+    ...mapState(["currentUser", "isLoggedIn", "conceptIri", "filterOptions", "selectedFilters", "searchResults", "authReturnUrl"])
   },
   data() {
     return {
       request: {} as { cancel: any; msg: string },
       searchText: "",
-      loginItems: [
-        {
-          label: "Login",
-          icon: "fa fa-fw fa-user",
-          url: "/auth/#/login"
-        },
-        {
-          label: "Register",
-          icon: "fa fa-fw fa-user-plus",
-          to: "/auth/#/register"
-        }
-      ] as LoginItem[],
-
-      accountItems: [
-        {
-          label: "My account",
-          icon: "fa fa-fw fa-user",
-          url: "/user/my-account"
-        },
-        {
-          label: "Edit account",
-          icon: "fa fa-fw fa-user-edit",
-          to: "/user/my-account/edit"
-        },
-        {
-          label: "Change password",
-          icon: "fa fa-fw fa-user-lock",
-          to: "/user/my-account/password-edit"
-        },
-        {
-          label: "Logout",
-          icon: "fa fa-fw fa-sign-out-alt",
-          to: "/user/logout"
-        }
-      ] as AccountItem[]
+      loginItems: [] as LoginItem[],
+      accountItems: [] as AccountItem[]
     };
   },
   methods: {
@@ -229,6 +198,42 @@ export default defineComponent({
         cancelToken: axiosSource.token
       });
       this.$store.commit("updateSearchLoading", false);
+    },
+    setUserMenuItems(): void {
+      this.loginItems = [
+        {
+          label: "Login",
+          icon: "fa fa-fw fa-user",
+          url: import.meta.env.VITE_AUTH_URL + "login?returnUrl=" + this.authReturnUrl
+        },
+        {
+          label: "Register",
+          icon: "fa fa-fw fa-user-plus",
+          url: import.meta.env.VITE_AUTH_URL + "register?returnUrl=" + this.authReturnUrl
+        }
+      ];
+      this.accountItems = [
+        {
+          label: "My account",
+          icon: "fa fa-fw fa-user",
+          url: import.meta.env.VITE_AUTH_URL + "my-account?returnUrl=" + this.authReturnUrl
+        },
+        {
+          label: "Edit account",
+          icon: "fa fa-fw fa-user-edit",
+          url: import.meta.env.VITE_AUTH_URL + "my-account/edit?returnUrl=" + this.authReturnUrl
+        },
+        {
+          label: "Change password",
+          icon: "fa fa-fw fa-user-lock",
+          url: import.meta.env.VITE_AUTH_URL + "my-account/password-edit?returnUrl=" + this.authReturnUrl
+        },
+        {
+          label: "Logout",
+          icon: "fa fa-fw fa-sign-out-alt",
+          url: import.meta.env.VITE_AUTH_URL + "logout?returnUrl=" + this.authReturnUrl
+        }
+      ];
     }
   }
 });
