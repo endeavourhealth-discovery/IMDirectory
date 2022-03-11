@@ -256,17 +256,17 @@ export default defineComponent({
 
 @media screen and (max-width: 1439px) {
   .im-logo {
-    width: 3vw;
+    width: 2.25vw;
   }
 }
 
 @media screen and (min-width: 1440px) {
   .im-logo {
-    width: 3vw;
+    width: 2.25vw;
   }
 }
 #filter-button {
-  height: 3vw;
+  height: 2.25vw;
 }
 
 #autocomplete-search {
@@ -275,7 +275,7 @@ export default defineComponent({
   border: none;
   width: 30rem;
   margin-left: 3.5rem;
-  height: 3vw;
+  height: 2.25vw;
 }
 
 #text-input-search {
@@ -284,7 +284,7 @@ export default defineComponent({
   border: none;
   width: 30rem;
   margin-left: 3.5rem;
-  height: 3vw;
+  height: 2.25vw;
 }
 
 .p-menubar-root-list,
