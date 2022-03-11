@@ -8,7 +8,10 @@ export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]
-    }
+    },
+    exclude: [
+      'im-library',
+    ]
   },
   resolve: {
     dedupe: ["vue"],

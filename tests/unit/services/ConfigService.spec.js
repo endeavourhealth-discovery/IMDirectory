@@ -1,8 +1,9 @@
 import ConfigService from "@/services/ConfigService";
 import axios from "axios";
+import Env from "@/services/Env";
 
 describe("ConfigService.ts ___ axios success", () => {
-  const api = import.meta.env.VITE_API;
+  const api = Env.api;
 
   beforeEach(() => {
     axios.get = vi.fn().mockResolvedValue(["test config"]);
@@ -45,7 +46,7 @@ describe("ConfigService.ts ___ axios success", () => {
 });
 
 describe("ConfigService.ts ___ axios fail", () => {
-  const api = import.meta.env.VITE_API;
+  const api = Env.api;
 
   beforeEach(() => {
     axios.get = vi.fn().mockRejectedValue(false);
