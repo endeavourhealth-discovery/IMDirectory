@@ -86,7 +86,7 @@ export default defineComponent({
     async getDefinition(): Promise<void> {
       if (!this.hasData) return;
       const defaults = await ConfigService.getDefaultPredicateNames();
-      this.definition = bundleToText(this.data as TTBundle, defaults, 0, true, this.blockedIris);
+      this.definition = bundleToText("", this.data as TTBundle, defaults, 0, true, this.blockedIris);
     },
 
     getCount(): number {
