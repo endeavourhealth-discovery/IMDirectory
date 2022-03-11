@@ -54,6 +54,7 @@ target
 *.project
 *.classpath
 coverage
+package-lock.json
 
 # Ignore Gradle build output directory
 build
