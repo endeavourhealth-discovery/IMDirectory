@@ -1,5 +1,9 @@
 <template>
-  <TopBar />
+  <TopBar>
+    <template #content>
+      <Search/>
+    </template>
+  </TopBar>
   <div class="layout-wrapper layout-static">
     <Toast />
     <ConfirmDialog />
@@ -12,12 +16,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import TopBar from "@/components/topbar/TopBar.vue";
+import Search from "@/components/topbar/Search.vue";
 import ProgressSpinner from "primevue/progressspinner";
 
 export default defineComponent({
   name: "App",
-  components: { ProgressSpinner: ProgressSpinner, TopBar },
+  components: { ProgressSpinner: ProgressSpinner, Search },
   async mounted() {
     // check for user and log them in if found or logout if not
     this.loading = true;
@@ -90,57 +94,6 @@ body {
   margin: 2px;
   border-right: 1px solid #ced4da !important;
 }
-
-/* Settings specifically for dealing with 300% scaling */
-/* @media (-webkit-device-pixel-ratio: 3) {
-  .p-component {
-    font-size: 0.7rem !important;
-  }
-  .p-tree .p-tree-container .p-treenode .p-treenode-content .p-tree-toggler {
-    width: 1rem !important;
-    height: 1rem !important;
-  }
-
-  .p-button {
-    font-size: 0.7rem !important;
-  }
-
-  .p-tabview .p-tabview-nav li .p-tabview-nav-link {
-    padding: 0.5rem !important;
-  }
-
-  .p-panel.p-panel-toggleable .p-panel-header {
-    padding: 0rem 1rem !important;
-  }
-
-  .monaco-editor {
-    font-size: 0.7rem !important;
-  }
-
-  .im-logo {
-    font-size: 2em !important;
-  }
-
-  .user-icon {
-    font-size: 2em !important;
-  }
-
-  .settings-icon {
-    font-size: 2em !important;
-  }
-
-  @media screen and (max-width: 1439px) {
-    .layout-menu-container {
-      width: 8vw;
-    }
-  }
-
-  @media screen and (min-width: 1440px) {
-    .layout-menu-container {
-      width: 115px;
-    }
-  }
-} */
 
 .swal2-container .swal2-popup .swal2-actions {
   justify-content: flex-end;

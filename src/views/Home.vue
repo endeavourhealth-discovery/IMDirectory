@@ -50,17 +50,6 @@ export default defineComponent({
   height: 100%;
   width: 100%;
 }
-.header-grow {
-  flex-grow: 1;
-}
-.user-menu {
-  height: 100%;
-  margin-left: 5px;
-  width: 12.5rem;
-}
-.p-menubar {
-  height: 100%;
-}
 
 #info-side-bar-wrapper {
   overflow-x: none;

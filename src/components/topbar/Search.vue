@@ -1,12 +1,7 @@
 <template>
-  <Menubar>
-    <template #start>
-      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
-      <InputText id="text-input-search" v-if="autocompleteDisplay" v-model="searchText" @input="search" type="text" placeholder="Search" />
-
+  <div>
       <AutoComplete
         id="autocomplete-search"
-        v-else
         @keydown="directToSearchView"
         autoWidth="false"
         v-model="searchText"
@@ -31,40 +26,7 @@
           <Filters :search="search" />
         </div>
       </OverlayPanel>
-    </template>
-    <template #end>
-      <Button icon="pi pi-th-large" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openAppsOverlay" />
-      <OverlayPanel ref="appsO">
-        <div class="grid">
-          <div class="col-6">
-            <Button v-tooltip.bottom="'Editor'" icon="far fa-edit" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
-          </div>
-          <div class="col-6">
-            <Button v-tooltip.bottom="'UPRN'" icon="far fa-map" class="p-button-rounded p-button-text p-button-plain" @click="navigateToEditor" />
-          </div>
-        </div>
-      </OverlayPanel>
-
-      <Button
-        v-if="!isLoggedIn"
-        icon="pi pi-user"
-        class="p-button-rounded p-button-text p-button-plain p-button-lg"
-        @click="openUserMenu"
-        aria-haspopup="true"
-        aria-controls="overlay_menu"
-      />
-      <Button
-        v-if="isLoggedIn"
-        class="p-button-rounded p-button-text p-button-plain p-button-lg"
-        @click="openUserMenu"
-        aria-haspopup="true"
-        aria-controls="overlay_menu"
-      >
-        <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="width: 1.5rem" />
-      </Button>
-      <Menu ref="userMenu" :model="getItems()" :popup="true" />
-    </template>
-  </Menubar>
+  </div>
 </template>
 
 <script lang="ts">
@@ -88,7 +50,7 @@ const {
 } = Models;
 
 export default defineComponent({
-  name: "TopBar",
+  name: "Search",
   components: { Filters },
   mounted() {
     this.setUserMenuItems();
@@ -240,31 +202,6 @@ export default defineComponent({
 </script>
 
 <style>
-.im-logo {
-  text-align: center;
-  color: lightgray;
-  font-weight: bold;
-  cursor: pointer;
-  margin-bottom: 0rem;
-  position: absolute;
-  z-index: 100;
-}
-
-.app-list-container {
-  justify-content: center;
-}
-
-@media screen and (max-width: 1439px) {
-  .im-logo {
-    width: 2.25vw;
-  }
-}
-
-@media screen and (min-width: 1440px) {
-  .im-logo {
-    width: 2.25vw;
-  }
-}
 #filter-button {
   height: 2.25vw;
 }
@@ -274,21 +211,6 @@ export default defineComponent({
   background: #dee2e6;
   border: none;
   width: 30rem;
-  margin-left: 3.5rem;
   height: 2.25vw;
-}
-
-#text-input-search {
-  font-size: 1rem;
-  background: #dee2e6;
-  border: none;
-  width: 30rem;
-  margin-left: 3.5rem;
-  height: 2.25vw;
-}
-
-.p-menubar-root-list,
-.p-menubar-button {
-  visibility: hidden;
 }
 </style>
