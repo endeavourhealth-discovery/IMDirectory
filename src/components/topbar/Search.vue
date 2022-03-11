@@ -203,7 +203,7 @@ export default defineComponent({
 
 <style>
 #filter-button {
-  height: 2.25vw;
+  height: 2.25rem;
 }
 
 #autocomplete-search {
@@ -211,6 +211,6 @@ export default defineComponent({
   background: #dee2e6;
   border: none;
   width: 30rem;
-  height: 2.25vw;
+  height: 2.25rem;
 }
 </style>
