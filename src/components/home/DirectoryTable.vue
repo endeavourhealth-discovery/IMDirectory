@@ -57,7 +57,7 @@
         <Column field="type" header="Type">
           <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
         </Column>
-        <Column field="lastModified" header="Last Modified"></Column>
+        <!-- <Column field="lastModified" header="Last Modified"></Column> -->
         <Column headerStyle="width: 4rem; text-align: center" bodyStyle="text-align: center; overflow: visible">
           <template #body="{data}">
             <Button
@@ -92,7 +92,7 @@ import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { EntityReferenceNode, TTIriRef, DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Vocabulary, Helpers } from "im-library";
 const { AppEnum } = Enums;
-const { IM, RDFS } = Vocabulary;
+const { IM, RDFS, RDF } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys },
   CopyConceptToClipboard: { copyConceptToClipboard },
@@ -114,7 +114,7 @@ export default defineComponent({
       if (newValue !== IM.NAMESPACE + "Favourites") await this.init();
     },
     types(newValue): void {
-      if (newValue.length > 0) {
+      if (newValue && newValue.length > 0) {
         this.color = "color: " + getColourFromType(newValue);
         this.icon = getFAIconFromType(newValue);
       }
@@ -297,17 +297,7 @@ export default defineComponent({
     },
 
     async getConcept(iri: string): Promise<void> {
-      const predicates = this.configs
-        .filter((c: DefinitionConfig) => c.type !== "Divider")
-        .filter((c: DefinitionConfig) => c.predicate !== "subtypes")
-        .filter((c: DefinitionConfig) => c.predicate !== "inferred")
-        .filter((c: DefinitionConfig) => c.predicate !== "termCodes")
-        .filter((c: DefinitionConfig) => c.predicate !== "@id")
-        .filter((c: DefinitionConfig) => c.predicate !== "None")
-        .filter((c: DefinitionConfig) => c.predicate !== undefined)
-        .map((c: DefinitionConfig) => c.predicate);
-
-      this.concept = await EntityService.getPartialEntity(iri, predicates);
+      this.concept = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
 
       this.concept["@id"] = iri;
       this.types = this.concept["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"];
@@ -326,24 +316,13 @@ export default defineComponent({
       this.concept["inferred"] = result;
     },
 
-    async getConfig(name: string): Promise<void> {
-      this.configs = await ConfigService.getComponentLayout(name);
-      if (this.configs.every(config => isObjectHasKeys(config, ["order"]))) {
-        this.configs.sort(byOrder);
-      } else {
-        LoggerService.error(undefined, "Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
-      }
-    },
-
     async init(): Promise<void> {
       this.loading = true;
       if (this.conceptIri) {
         await this.getChildren(this.conceptIri);
-        await this.getConfig("definition");
         await this.getConcept(this.conceptIri);
         await this.getInferred(this.conceptIri);
         await this.getPath(this.conceptIri);
-        this.conceptAsString = copyConceptToClipboard(this.concept, this.configs, undefined);
       }
       this.loading = false;
     },

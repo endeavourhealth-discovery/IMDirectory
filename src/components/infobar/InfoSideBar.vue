@@ -139,8 +139,11 @@ export default defineComponent({
       this.concept["inferred"] = result;
     },
 
-    async getConfig(name: string): Promise<void> {
-      this.configs = await ConfigService.getComponentLayout(name);
+    async getConfig(): Promise<void> {
+      const definitionConfig = await ConfigService.getComponentLayout("definition");
+      const summaryConfig = await ConfigService.getComponentLayout("summary");
+      this.configs = definitionConfig.concat(summaryConfig);
+
       if (this.configs.every(config => isObjectHasKeys(config, ["order"]))) {
         this.configs.sort(byOrder);
       } else {
@@ -150,7 +153,7 @@ export default defineComponent({
 
     async init(): Promise<void> {
       this.loading = true;
-      await this.getConfig("definition");
+      await this.getConfig();
       await this.getConcept(this.selectedIri);
       await this.getInferred(this.selectedIri);
       this.types = isObjectHasKeys(this.concept, [RDF.TYPE]) ? this.concept[RDF.TYPE] : ([] as TTIriRef[]);
