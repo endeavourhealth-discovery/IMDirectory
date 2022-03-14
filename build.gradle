@@ -26,10 +26,16 @@ sonarqube {
     }
 }
 
+clean.doLast {
+    file('coverage').deleteDir()
+    file('dist').deleteDir()
+}
+
+
 frontend {
     nodeVersion = '14.18.0'
     assembleScript = 'run build'
     checkScript = 'run test:coverage'
 }
 
-project.tasks["sonarqube"].dependsOn "build"
+check.finalizedBy 'sonarqube'

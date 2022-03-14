@@ -24,9 +24,6 @@ export default defineConfig({
       jsdom: {
         url: "http://localhost"
       }
-    },
-    coverage: {
-      reporter: ["text", "json", "html"]
     }
   }
 });

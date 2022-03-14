@@ -7,7 +7,7 @@
     "serve": "vite preview --port 8082",
     "build": "vite build",
     "test:unit": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage && c8 --reporter=lcov report",
     "test:unit:ci": "vue-cli-service test:unit > testResult.txt 2>&1",
     "test:e2e": "cross-env VITE_API=http://localhost:8080/ vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
