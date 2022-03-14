@@ -145,16 +145,16 @@ export default defineComponent({
           icon: "pi pi-fw pi-info-circle",
           command: () => this.showInfo()
         },
-        {
-          label: "Edit",
-          icon: "pi pi-fw pi-pencil",
-          command: () => this.navigateToEditor()
-        },
-        {
-          label: "Move to",
-          icon: "pi pi-fw pi-arrow-circle-right",
-          command: () => this.showInfo()
-        },
+        // {
+        //   label: "Edit",
+        //   icon: "pi pi-fw pi-pencil",
+        //   command: () => this.navigateToEditor()
+        // },
+        // {
+        //   label: "Move to",
+        //   icon: "pi pi-fw pi-arrow-circle-right",
+        //   command: () => this.showInfo()
+        // },
         {
           separator: true
         },
