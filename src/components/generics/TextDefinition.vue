@@ -120,7 +120,7 @@ export default defineComponent({
   padding: 0.5rem;
   margin: 0.5rem 0 0 0;
   overflow: auto;
-  white-space: pre;
+  white-space: break-spaces;
 }
 
 .head-container {
