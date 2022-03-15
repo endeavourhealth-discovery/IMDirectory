@@ -94,7 +94,7 @@ export default defineComponent({
       contentHeightValue: 0,
       configs: [] as DefinitionConfig[],
       conceptAsString: "",
-      terms: {} as any
+      terms: [] as any[]
     };
   },
   methods: {
