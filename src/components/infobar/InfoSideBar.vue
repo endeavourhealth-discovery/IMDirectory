@@ -20,6 +20,11 @@
                 <Definition :concept="concept" :configs="configs" />
               </div>
             </TabPanel>
+            <TabPanel v-if="terms" header="Terms">
+              <div class="concept-panel-content" id="term-table-container" :style="contentHeight">
+                <TermCodeTable :terms="terms" />
+              </div>
+            </TabPanel>
             <TabPanel header="Hierarchy position">
               <div class="concept-panel-content" id="secondary-tree-container" :style="contentHeight">
                 <SecondaryTree :conceptIri="selectedIri" />
@@ -88,7 +93,8 @@ export default defineComponent({
       contentHeight: "",
       contentHeightValue: 0,
       configs: [] as DefinitionConfig[],
-      conceptAsString: ""
+      conceptAsString: "",
+      terms: {} as any
     };
   },
   methods: {
@@ -158,9 +164,19 @@ export default defineComponent({
       await this.getConfig();
       await this.getConcept(this.selectedIri);
       await this.getInferred(this.selectedIri);
+      await this.getTerms(this.selectedIri);
       this.types = isObjectHasKeys(this.concept, [RDF.TYPE]) ? this.concept[RDF.TYPE] : ([] as TTIriRef[]);
       this.header = this.concept[RDFS.LABEL];
       this.loading = false;
+    },
+
+    async getTerms(iri: string) {
+      const entity = await EntityService.getPartialEntity(iri, [IM.HAS_TERM_CODE]);
+      this.terms = isObjectHasKeys(entity, [IM.HAS_TERM_CODE])
+        ? (entity[IM.HAS_TERM_CODE] as []).map(term => {
+            return { name: term[RDFS.LABEL], code: term[IM.CODE] };
+          })
+        : undefined;
     },
 
     setContentHeight(): void {
