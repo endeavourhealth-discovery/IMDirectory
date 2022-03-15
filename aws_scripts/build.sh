@@ -5,7 +5,7 @@ chmod +x ./gradlew
 mkdir badges
 
 # Artifact
-artifact='IMViewer'
+artifact='IMDirectory'
 
 # Version
 version='1.0.0'
@@ -27,7 +27,7 @@ aws s3 cp badges s3://endeavour-codebuild-output/badges/${artifact}/ --recursive
 
 # Build
 { #try
-    ./gradlew build
+    ./gradlew build &&
     buildresult=0
 } || { #catch
     buildresult=1
@@ -48,10 +48,10 @@ curl -s "https://img.shields.io/badge/Build-$badge_status-$badge_colour.svg" > b
 echo "https://img.shields.io/badge/Version-$version-$badge_colour.svg"
 curl -s "https://img.shields.io/badge/Version-$version-$badge_colour.svg" > badges/version.svg
 
-cat front-end-vue/testResult.txt
+cat testResult.txt
 
 # Unit tests
-if grep -q FAIL front-end-vue/testResult.txt ; then
+if grep -q FAIL testResult.txt ; then
         badge_status=failing
         badge_colour=red
         returncode=1

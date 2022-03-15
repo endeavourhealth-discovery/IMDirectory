@@ -23,4 +23,4 @@ artifacts:
   files:
     - appspec.yml
     - aws_scripts/cleanup
-    - front-end-vue/dist/**/*
+    - dist/**/*
