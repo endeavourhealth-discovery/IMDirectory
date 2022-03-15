@@ -43,7 +43,8 @@ describe("state", () => {
       "focusHierarchy",
       "sidebarControlActivePanel",
       "hierarchySelectedFilters",
-      "filterDefaults"
+      "filterDefaults",
+      "defaultPredicateNames"
     ]);
     expect(store.state.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
 
@@ -63,6 +64,7 @@ describe("state", () => {
     expect(store.state.focusHierarchy).toBe(false);
     expect(store.state.hierarchySelectedFilters).toStrictEqual([]);
     expect(store.state.filterDefaults).toStrictEqual({});
+    expect(store.state.defaultPredicateNames).toStrictEqual({});
   });
 });
 

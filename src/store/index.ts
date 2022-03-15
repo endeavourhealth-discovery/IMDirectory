@@ -46,7 +46,8 @@ export default createStore({
     focusHierarchy: false,
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
-    filterDefaults: {} as FilterDefaultsConfig
+    filterDefaults: {} as FilterDefaultsConfig,
+    defaultPredicateNames:{} as any
   },
   mutations: {
     updateSearchLoading(state, loading) {
@@ -128,6 +129,9 @@ export default createStore({
     },
     updateHighLevelTypes(state, highLevelTypes) {
       state.highLevelTypes = highLevelTypes;
+    },
+    updateDefaultPredicateNames(state, names) {
+      state.defaultPredicateNames = names;
     }
   },
   actions: {

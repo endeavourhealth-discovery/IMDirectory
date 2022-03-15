@@ -140,6 +140,8 @@ export default defineComponent({
     },
 
     async getConfig(): Promise<void> {
+      const defaultPredicateNames = await ConfigService.getDefaultPredicateNames();
+      this.$store.commit("updateDefaultPredicateNames", defaultPredicateNames);
       const definitionConfig = await ConfigService.getComponentLayout("definition");
       const summaryConfig = await ConfigService.getComponentLayout("summary");
       this.configs = definitionConfig.concat(summaryConfig);

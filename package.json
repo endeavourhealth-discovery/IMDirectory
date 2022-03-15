@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite --port 8082",
+    "dev": "npm link im-library && vite --port 8082",
     "serve": "vite preview --port 8082",
     "build": "vite build",
     "test:unit": "vitest",
