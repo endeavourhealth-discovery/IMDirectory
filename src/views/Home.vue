@@ -6,15 +6,15 @@
     <SplitterPanel :size="70">
       <div v-if="visibleRight" class="grid grid-nogutter">
         <div class="col-7">
-          <router-view @updateSelected="updateSelected" @openBar="visibleRight = true" />
+          <router-view @openBar="visibleRight = true" />
         </div>
         <div id="info-side-bar-wrapper" v-if="visibleRight" class="col-5">
-          <InfoSideBar :selectedIri="selectedIri" @closeBar="visibleRight = false" />
+          <InfoSideBar @closeBar="visibleRight = false" />
         </div>
       </div>
 
       <div v-else>
-        <router-view @updateSelected="updateSelected" @openBar="visibleRight = true" />
+        <router-view @openBar="visibleRight = true" />
       </div>
     </SplitterPanel>
   </Splitter>
@@ -36,11 +36,6 @@ export default defineComponent({
       visibleRight: false,
       selectedIri: ""
     };
-  },
-  methods: {
-    updateSelected(iri: string) {
-      this.selectedIri = iri;
-    }
   }
 });
 </script>

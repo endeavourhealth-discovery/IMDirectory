@@ -39,8 +39,14 @@ const {
 
 export default defineComponent({
   name: "NavTree",
-  computed: mapState(["conceptIri"]),
-
+  computed: mapState(["conceptIri", "selectedOnNavTree"]),
+  watch: {
+    selectedOnNavTree() {
+      if (!this.selectedOnNavTree) {
+        this.selected = {};
+      }
+    }
+  },
   data() {
     return {
       selected: {} as any,
@@ -81,6 +87,8 @@ export default defineComponent({
         name: "Folder",
         params: { selectedIri: node.data }
       });
+      this.$store.commit("updateSelectedConceptIri", node.data);
+      this.$store.commit("updateSelectedOnNavTree", true);
     },
 
     async onNodeExpand(node: TreeNode) {

@@ -18,6 +18,8 @@ const {
 export default createStore({
   // update stateType.ts when adding new state!
   state: {
+    selectedConceptIri: "",
+    selectedOnNavTree: {},
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
     history: [] as HistoryItem[],
@@ -46,14 +48,20 @@ export default createStore({
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
     filterDefaults: {} as FilterDefaultsConfig,
-    defaultPredicateNames:{} as any
+    defaultPredicateNames: {} as any
   },
   mutations: {
+    updateSelectedOnNavTree(state, selectedOnNavTree) {
+      state.selectedOnNavTree = selectedOnNavTree;
+    },
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },
     updateBlockedIris(state, blockedIris) {
       state.blockedIris = blockedIris;
+    },
+    updateSelectedConceptIri(state, selectedConceptIri) {
+      state.selectedConceptIri = selectedConceptIri;
     },
     updateConceptIri(state, conceptIri) {
       state.conceptIri = conceptIri;
