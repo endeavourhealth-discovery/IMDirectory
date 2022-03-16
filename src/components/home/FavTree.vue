@@ -39,7 +39,7 @@ const { IM, RDF, RDFS } = Vocabulary;
 
 export default defineComponent({
   name: "FavTree",
-  computed: mapState(["conceptIri", "favourites"]),
+  computed: mapState(["conceptIri", "favourites", "selectedOnNavTree"]),
   data() {
     return {
       selected: {} as any,
@@ -49,6 +49,11 @@ export default defineComponent({
     };
   },
   watch: {
+    selectedOnNavTree() {
+      if (this.selectedOnNavTree) {
+        this.selected = {};
+      }
+    },
     favourites() {
       this.addFavouriteChildren();
     }
@@ -100,6 +105,7 @@ export default defineComponent({
         params: { selectedIri: node.data }
       });
       this.$store.commit("updateSelectedConceptIri", node.data);
+      this.$store.commit("updateSelectedOnNavTree", false);
     },
 
     async onNodeExpand(node: TreeNode) {
