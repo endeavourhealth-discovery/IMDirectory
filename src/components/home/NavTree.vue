@@ -81,6 +81,7 @@ export default defineComponent({
         name: "Folder",
         params: { selectedIri: node.data }
       });
+      this.$store.commit("updateSelectedConceptIri", node.data);
     },
 
     async onNodeExpand(node: TreeNode) {

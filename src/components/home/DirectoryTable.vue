@@ -73,9 +73,6 @@
         </Column>
       </DataTable>
       <ContextMenu ref="menu" :model="rClickOptions" />
-      <!-- <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
-            <InfoSideBar id="info-bar" :conceptIri="selected['@id']" />
-          </Sidebar> -->
     </div>
   </div>
 </template>
@@ -88,7 +85,6 @@ import DirectService from "@/services/DirectService";
 import ConfigService from "@/services/ConfigService";
 import LoggerService from "@/services/LoggerService";
 import { RouteRecordName } from "vue-router";
-import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { EntityReferenceNode, TTIriRef, DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Vocabulary, Helpers } from "im-library";
 const { AppEnum } = Enums;
@@ -103,9 +99,6 @@ const {
 
 export default defineComponent({
   name: "DirectoryTable",
-  components: {
-    InfoSideBar
-  },
   computed: {
     ...mapState(["conceptIri", "favourites"])
   },
@@ -189,7 +182,7 @@ export default defineComponent({
     showParentInfo() {
       this.selected = {};
       this.selected["@id"] = this.conceptIri;
-      this.$emit("updateSelected", this.selected["@id"]);
+      this.$store.commit("updateSelectedConceptIri", this.selected["@id"]);
       this.showInfo();
     },
 
@@ -233,7 +226,7 @@ export default defineComponent({
 
     onRowSelect(event: any) {
       this.selected = event?.data || event;
-      this.$emit("updateSelected", this.selected["@id"]);
+      this.$store.commit("updateSelectedConceptIri", this.selected["@id"]);
     },
 
     openPathOverlaymenu(event: any) {

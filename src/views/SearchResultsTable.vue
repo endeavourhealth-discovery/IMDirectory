@@ -80,7 +80,6 @@ import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
-import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
@@ -94,9 +93,6 @@ const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "SearchResultsTable",
-  components: {
-    InfoSideBar
-  },
   computed: {
     ...mapState(["highLevelTypes", "searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
   },
@@ -186,7 +182,7 @@ export default defineComponent({
     },
 
     showInfo() {
-      this.$emit("updateSelected", this.selected.iri);
+      this.$store.commit("updateSelectedConceptIri", this.selected.iri);
       this.$emit("openBar");
     },
 
@@ -208,7 +204,7 @@ export default defineComponent({
     },
 
     onRowSelect(row: any) {
-      this.$emit("updateSelected", row.data.iri);
+      this.$store.commit("updateSelectedConceptIri", row.data.iri);
     },
 
     getFAIconFromType(types: TTIriRef[]) {
