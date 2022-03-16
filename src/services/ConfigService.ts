@@ -1,6 +1,6 @@
 import axios from "axios";
 import { FilterDefaultsConfig, DefinitionConfig, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
-import Env from '@/services/Env';
+import {Env} from 'im-library';
 
 export default class ConfigService {
   public static async getComponentLayout(name: string): Promise<DefinitionConfig[]> {

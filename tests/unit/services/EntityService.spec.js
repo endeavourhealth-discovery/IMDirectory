@@ -1,7 +1,6 @@
-import { Models } from "im-library";
+import { Models, Env } from "im-library";
 import EntityService from "@/services/EntityService";
 import axios from "axios";
-import Env from "@/services/Env";
 const {
   Search: { SearchRequest }
 } = Models;

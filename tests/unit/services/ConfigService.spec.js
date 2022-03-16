@@ -1,6 +1,6 @@
 import ConfigService from "@/services/ConfigService";
 import axios from "axios";
-import Env from "@/services/Env";
+import {Env} from "im-library";
 
 describe("ConfigService.ts ___ axios success", () => {
   const api = Env.api;

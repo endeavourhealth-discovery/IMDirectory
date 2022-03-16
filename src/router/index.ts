@@ -3,7 +3,7 @@ import Home from "../views/Home.vue";
 import DirectoryTable from "../components/home/DirectoryTable.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
-import { SnomedLicense } from "im-library";
+import { SnomedLicense, Env } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
 
@@ -60,7 +60,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const iri = to.params.selectedIri as string;
-  const currentUrl = "/#" + to.path;
+  const currentUrl = Env.directoryUrl + "/#" + to.path;
   if (to.path !== "/snomedLicense") {
     store.commit("updateSnomedReturnUrl", currentUrl);
     store.commit("updateAuthReturnUrl", currentUrl);
@@ -73,7 +73,7 @@ router.beforeEach((to, from, next) => {
       console.log("auth guard user authenticated:" + res.authenticated);
       if (!res.authenticated) {
         console.log("redirecting to login");
-        window.location.href = import.meta.env.VITE_AUTH_URL + "login?returnUrl=" + currentUrl;
+        window.location.href = Env.authUrl + "login?returnUrl=" + currentUrl;
       } else {
         if (to.matched.some(record => record.meta.requiresLicense)) {
           console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
