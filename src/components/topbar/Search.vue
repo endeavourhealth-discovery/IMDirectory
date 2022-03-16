@@ -37,7 +37,7 @@ import { mapState } from "vuex";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
 import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem, ModuleItem } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Models, Helpers, Vocabulary } from "im-library";
+import { Enums, Env, Models, Helpers, Vocabulary } from "im-library";
 const { AppEnum, SortBy } = Enums;
 const {
   DataTypeCheckers: { isObjectHasKeys },
@@ -166,34 +166,34 @@ export default defineComponent({
         {
           label: "Login",
           icon: "fa fa-fw fa-user",
-          url: import.meta.env.VITE_AUTH_URL + "login?returnUrl=" + this.authReturnUrl
+          url: Env.authUrl + "login?returnUrl=" + this.authReturnUrl
         },
         {
           label: "Register",
           icon: "fa fa-fw fa-user-plus",
-          url: import.meta.env.VITE_AUTH_URL + "register?returnUrl=" + this.authReturnUrl
+          url: Env.authUrl + "register?returnUrl=" + this.authReturnUrl
         }
       ];
       this.accountItems = [
         {
           label: "My account",
           icon: "fa fa-fw fa-user",
-          url: import.meta.env.VITE_AUTH_URL + "my-account?returnUrl=" + this.authReturnUrl
+          url: Env.authUrl + "my-account?returnUrl=" + this.authReturnUrl
         },
         {
           label: "Edit account",
           icon: "fa fa-fw fa-user-edit",
-          url: import.meta.env.VITE_AUTH_URL + "my-account/edit?returnUrl=" + this.authReturnUrl
+          url: Env.authUrl + "my-account/edit?returnUrl=" + this.authReturnUrl
         },
         {
           label: "Change password",
           icon: "fa fa-fw fa-user-lock",
-          url: import.meta.env.VITE_AUTH_URL + "my-account/password-edit?returnUrl=" + this.authReturnUrl
+          url: Env.authUrl + "my-account/password-edit?returnUrl=" + this.authReturnUrl
         },
         {
           label: "Logout",
           icon: "fa fa-fw fa-sign-out-alt",
-          url: import.meta.env.VITE_AUTH_URL + "logout?returnUrl=" + this.authReturnUrl
+          url: Env.authUrl + "logout?returnUrl=" + this.authReturnUrl
         }
       ];
     }

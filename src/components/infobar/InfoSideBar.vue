@@ -42,7 +42,7 @@ import Definition from "../infobar/Definition.vue";
 import PanelHeader from "../infobar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
-import LoggerService from "@/services/LoggerService";
+import {LoggerService} from "im-library";
 import SecondaryTree from "@/components/infobar/SecondaryTree.vue";
 import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers } from "im-library";
