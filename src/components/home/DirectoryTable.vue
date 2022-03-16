@@ -85,8 +85,6 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import EntityService from "@/services/EntityService";
 import DirectService from "@/services/DirectService";
-import ConfigService from "@/services/ConfigService";
-import {LoggerService} from "im-library";
 import { RouteRecordName } from "vue-router";
 import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { EntityReferenceNode, TTIriRef, DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";

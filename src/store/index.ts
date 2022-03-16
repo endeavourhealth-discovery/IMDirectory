@@ -1,10 +1,9 @@
 import { createStore } from "vuex";
 import EntityService from "../services/EntityService";
 import AuthService from "@/services/AuthService";
-import {LoggerService} from "im-library";
 import ConfigService from "@/services/ConfigService";
 import { FilterDefaultsConfig, EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
-import { Models, Constants, Vocabulary, Helpers } from "im-library";
+import { Models, Constants, Vocabulary, Helpers, LoggerService } from "im-library";
 const { IM, RDF, RDFS } = Vocabulary;
 const { Avatars } = Constants;
 const {
