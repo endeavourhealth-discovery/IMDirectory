@@ -27,7 +27,7 @@
             </TabPanel>
             <TabPanel header="Hierarchy position">
               <div class="concept-panel-content" id="secondary-tree-container" :style="contentHeight">
-                <SecondaryTree :conceptIri="selectedIri" />
+                <SecondaryTree :conceptIri="selectedConceptIri" />
               </div>
             </TabPanel>
             <!-- TODO -->
