@@ -61,7 +61,7 @@ const {
 export default defineComponent({
   name: "InfoSideBar",
   computed: {
-    ...mapState(["selectedConceptIri"])
+    ...mapState(["conceptIri", "selectedConceptIri"])
   },
   components: {
     PanelHeader,
@@ -70,6 +70,10 @@ export default defineComponent({
   },
 
   watch: {
+    async conceptIri() {
+      if (this.conceptIri) this.$store.commit("updateSelectedConceptIri", this.conceptIri);
+      else this.closeBar();
+    },
     async selectedConceptIri() {
       if (this.selectedConceptIri) await this.init();
     }
