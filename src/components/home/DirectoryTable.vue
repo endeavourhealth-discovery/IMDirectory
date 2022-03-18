@@ -38,8 +38,8 @@
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
             <div class="col-2 header-button-group p-buttonset">
-              <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
-              <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
+              <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
+              <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
             </div>
           </div>
         </template>
@@ -123,6 +123,8 @@ export default defineComponent({
 
   data() {
     return {
+      canGoForward: false,
+      canGoBack: false,
       pathOptions: [] as any[],
       home: { icon: "pi pi-home", to: "/" },
       rClickOptions: [
@@ -194,11 +196,11 @@ export default defineComponent({
     },
 
     goBack() {
-      this.$router.back();
+      if (window.history.length > 0) this.$router.back();
     },
 
     goForward() {
-      this.$router.forward();
+      if (window.history.length > window.history.state.position + 1) this.$router.forward();
     },
 
     getNamesFromTypes(typeList: TTIriRef[]) {
@@ -315,11 +317,17 @@ export default defineComponent({
         await this.getInferred(this.conceptIri);
         await this.getPath(this.conceptIri);
       }
+      this.setBackForwardDisables();
       this.loading = false;
     },
 
     getColourFromType(types: TTIriRef[]) {
       return "color: " + getColourFromType(types);
+    },
+
+    setBackForwardDisables() {
+      this.canGoForward = window.history.length === window.history.state.position + 1;
+      this.canGoBack = window.history.state.position === 0;
     },
 
     async getChildren(iri: string) {
@@ -400,5 +408,15 @@ export default defineComponent({
 
 .card {
   padding: 0;
+}
+
+.p-button:disabled {
+  all: unset !important;
+}
+
+.go-forward:disabled,
+.go-back:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
 }
 </style>
