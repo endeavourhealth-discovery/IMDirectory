@@ -60,7 +60,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const iri = to.params.selectedIri as string;
-  const currentUrl = Env.directoryUrl + "/#" + to.path;
+  const currentUrl = Env.directoryUrl + "#" + to.path;
   if (to.path !== "/snomedLicense") {
     store.commit("updateSnomedReturnUrl", currentUrl);
     store.commit("updateAuthReturnUrl", currentUrl);
