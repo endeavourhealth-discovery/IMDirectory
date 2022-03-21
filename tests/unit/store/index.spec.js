@@ -1,10 +1,9 @@
 import store from "@/store/index";
 import EntityService from "@/services/EntityService";
 import { flushPromises } from "@vue/test-utils";
-import LoggerService from "@/services/LoggerService";
 import AuthService from "@/services/AuthService";
 import ConfigService from "@/services/ConfigService";
-import { Models, Vocabulary } from "im-library";
+import { Models, Vocabulary, LoggerService } from "im-library";
 const { IM } = Vocabulary;
 const {
   User,
@@ -24,6 +23,8 @@ describe("state", () => {
 
   it("should start with the correct values", () => {
     expect(Object.keys(store.state)).toStrictEqual([
+      "selectedConceptIri",
+      "selectedOnNavTree",
       "conceptIri",
       "favourites",
       "history",

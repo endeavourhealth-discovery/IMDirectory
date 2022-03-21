@@ -80,7 +80,6 @@ import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
 import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
-import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
@@ -94,9 +93,6 @@ const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "SearchResultsTable",
-  components: {
-    InfoSideBar
-  },
   computed: {
     ...mapState(["highLevelTypes", "searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
   },
@@ -126,7 +122,12 @@ export default defineComponent({
         {
           label: "Open",
           icon: "pi pi-fw pi-folder-open",
-          command: () => this.navigate()
+          command: () => this.open()
+        },
+        {
+          label: "View",
+          icon: "pi pi-fw pi-eye",
+          command: () => this.view()
         },
         {
           label: "Info",
@@ -186,7 +187,7 @@ export default defineComponent({
     },
 
     showInfo() {
-      this.$emit("updateSelected", this.selected.iri);
+      this.$store.commit("updateSelectedConceptIri", this.selected.iri);
       this.$emit("openBar");
     },
 
@@ -208,7 +209,7 @@ export default defineComponent({
     },
 
     onRowSelect(row: any) {
-      this.$emit("updateSelected", row.data.iri);
+      this.$store.commit("updateSelectedConceptIri", row.data.iri);
     },
 
     getFAIconFromType(types: TTIriRef[]) {
@@ -220,8 +221,6 @@ export default defineComponent({
     },
 
     updateRClickOptions() {
-      this.rClickOptions[0].icon = isOfTypes(this.selected.entityType, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
-      this.rClickOptions[0].label = isOfTypes(this.selected.entityType, IM.FOLDER) ? "Open" : "View";
       this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected.iri) ? "Unfavourite" : "Favourite";
     },
 
@@ -249,19 +248,19 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.selected = event.data;
-      this.navigate();
+      if (isOfTypes(this.selected?.entityType, IM.FOLDER)) this.open();
+      else this.view();
     },
 
-    navigate(): void {
-      const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isOfTypes(this.selected?.entityType, IM.FOLDER)) {
-        this.$router.push({
-          name: "Folder",
-          params: { selectedIri: this.selected.iri }
-        });
-      } else {
-        DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
-      }
+    open() {
+      this.$router.push({
+        name: "Folder",
+        params: { selectedIri: this.selected.iri }
+      });
+    },
+
+    view() {
+      DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
     }
   }
 });

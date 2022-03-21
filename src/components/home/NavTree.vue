@@ -39,8 +39,14 @@ const {
 
 export default defineComponent({
   name: "NavTree",
-  computed: mapState(["conceptIri"]),
-
+  computed: mapState(["conceptIri", "selectedOnNavTree"]),
+  watch: {
+    selectedOnNavTree() {
+      if (!this.selectedOnNavTree) {
+        this.selected = {};
+      }
+    }
+  },
   data() {
     return {
       selected: {} as any,
@@ -58,7 +64,7 @@ export default defineComponent({
       const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
-        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, true));
+        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasChildren));
       }
       this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
     },
@@ -81,6 +87,8 @@ export default defineComponent({
         name: "Folder",
         params: { selectedIri: node.data }
       });
+      this.$store.commit("updateSelectedConceptIri", node.data);
+      this.$store.commit("updateSelectedOnNavTree", true);
     },
 
     async onNodeExpand(node: TreeNode) {
@@ -88,7 +96,8 @@ export default defineComponent({
         node.loading = true;
         const children = await EntityService.getEntityChildren(node.data);
         children.forEach(child => {
-          if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+          if (!this.nodeHasChild(node, child) && child.hasChildren)
+            node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
         });
         node.loading = false;
       }

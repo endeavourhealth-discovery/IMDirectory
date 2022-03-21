@@ -88,8 +88,7 @@ import axios from "axios";
 // IMLibrary imports
 import IMLibrary from "im-library";
 import "im-library/dist/style.css";
-import { Helpers } from "im-library";
-import Env from '@/services/Env';
+import { Helpers, Env } from "im-library";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
@@ -166,7 +165,7 @@ const app = createApp(App)
 const vm = app.mount("#app");
 
 axios.interceptors.request.use(async request => {
-  if (store.state.isLoggedIn && Env.api && request.url?.startsWith(Env.api as string)) {
+  if (store.state.isLoggedIn && Env.api && request.url?.startsWith(Env.api)) {
     request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
   }
   return request;

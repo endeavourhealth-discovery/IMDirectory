@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "preinstall": "copy package-lock.json.clean package-lock.json || cp package-lock.json.clean package-lock.json",
     "dev": "npm link im-library && vite --port 8082",
     "serve": "vite preview --port 8082",
     "build": "vite build",
@@ -24,7 +25,7 @@
     "chart.js": "^3.7.0",
     "core-js": "^3.21.0",
     "google-palette": "^1.1.0",
-    "im-library": "https://github.com/endeavourhealth-discovery/IMLibrary/blob/main/im-library-1.0.0.tgz?raw=true",
+    "im-library": "https://endeavour-codebuild-output.s3.eu-west-2.amazonaws.com/im-library-1.0.0.tgz",
     "path": "^0.12.7",
     "primeflex": "^3.1.2",
     "primeicons": "^5.0.0",

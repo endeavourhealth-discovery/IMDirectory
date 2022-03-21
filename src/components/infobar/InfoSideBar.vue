@@ -27,7 +27,7 @@
             </TabPanel>
             <TabPanel header="Hierarchy position">
               <div class="concept-panel-content" id="secondary-tree-container" :style="contentHeight">
-                <SecondaryTree :conceptIri="selectedIri" />
+                <SecondaryTree :conceptIri="selectedConceptIri" />
               </div>
             </TabPanel>
             <!-- TODO -->
@@ -47,10 +47,10 @@ import Definition from "../infobar/Definition.vue";
 import PanelHeader from "../infobar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
-import LoggerService from "@/services/LoggerService";
 import SecondaryTree from "@/components/infobar/SecondaryTree.vue";
 import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers } from "im-library";
+import { Vocabulary, Helpers, LoggerService } from "im-library";
+import { mapState } from "vuex";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys },
@@ -60,18 +60,22 @@ const {
 
 export default defineComponent({
   name: "InfoSideBar",
-  props: {
-    selectedIri: { type: String, required: true }
+  computed: {
+    ...mapState(["conceptIri", "selectedConceptIri"])
   },
-
   components: {
     PanelHeader,
     Definition,
     SecondaryTree
   },
+
   watch: {
-    async selectedIri() {
-      if (this.selectedIri) await this.init();
+    async conceptIri() {
+      if (this.conceptIri) this.$store.commit("updateSelectedConceptIri", this.conceptIri);
+      else this.closeBar();
+    },
+    async selectedConceptIri() {
+      if (this.selectedConceptIri) await this.init();
     }
   },
   async mounted() {
@@ -94,7 +98,7 @@ export default defineComponent({
       contentHeightValue: 0,
       configs: [] as DefinitionConfig[],
       conceptAsString: "",
-      terms: [] as any[]
+      terms: [] as any[] | undefined
     };
   },
   methods: {
@@ -162,9 +166,9 @@ export default defineComponent({
     async init(): Promise<void> {
       this.loading = true;
       await this.getConfig();
-      await this.getConcept(this.selectedIri);
-      await this.getInferred(this.selectedIri);
-      await this.getTerms(this.selectedIri);
+      await this.getConcept(this.selectedConceptIri);
+      await this.getInferred(this.selectedConceptIri);
+      await this.getTerms(this.selectedConceptIri);
       this.types = isObjectHasKeys(this.concept, [RDF.TYPE]) ? this.concept[RDF.TYPE] : ([] as TTIriRef[]);
       this.header = this.concept[RDFS.LABEL];
       this.loading = false;

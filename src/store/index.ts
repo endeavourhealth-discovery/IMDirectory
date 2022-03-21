@@ -1,10 +1,9 @@
 import { createStore } from "vuex";
 import EntityService from "../services/EntityService";
 import AuthService from "@/services/AuthService";
-import LoggerService from "@/services/LoggerService";
 import ConfigService from "@/services/ConfigService";
 import { FilterDefaultsConfig, EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
-import { Models, Constants, Vocabulary, Helpers } from "im-library";
+import { Models, Constants, Vocabulary, Helpers, LoggerService } from "im-library";
 const { IM, RDF, RDFS } = Vocabulary;
 const { Avatars } = Constants;
 const {
@@ -19,6 +18,8 @@ const {
 export default createStore({
   // update stateType.ts when adding new state!
   state: {
+    selectedConceptIri: "",
+    selectedOnNavTree: {},
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
     history: [] as HistoryItem[],
@@ -47,14 +48,20 @@ export default createStore({
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
     filterDefaults: {} as FilterDefaultsConfig,
-    defaultPredicateNames:{} as any
+    defaultPredicateNames: {} as any
   },
   mutations: {
+    updateSelectedOnNavTree(state, selectedOnNavTree) {
+      state.selectedOnNavTree = selectedOnNavTree;
+    },
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },
     updateBlockedIris(state, blockedIris) {
       state.blockedIris = blockedIris;
+    },
+    updateSelectedConceptIri(state, selectedConceptIri) {
+      state.selectedConceptIri = selectedConceptIri;
     },
     updateConceptIri(state, conceptIri) {
       state.conceptIri = conceptIri;

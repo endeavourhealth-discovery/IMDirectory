@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import LoggerService from "@/services/LoggerService";
+import {LoggerService} from "im-library";
 import ResizeablePieChart from "@/components/generics/ResizeablePieChart.vue";
 
 export default defineComponent({

@@ -38,8 +38,8 @@
               <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
             <div class="col-2 header-button-group p-buttonset">
-              <Button icon="pi pi-angle-left" class="p-button-rounded p-button-text p-button-plain" @click="goBack" />
-              <Button icon="pi pi-angle-right" class="p-button-rounded p-button-text p-button-plain" @click="goForward" />
+              <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
+              <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
             </div>
           </div>
         </template>
@@ -73,9 +73,6 @@
         </Column>
       </DataTable>
       <ContextMenu ref="menu" :model="rClickOptions" />
-      <!-- <Sidebar v-model:visible="visibleRight" :baseZIndex="1000" position="right" class="p-sidebar-lg">
-            <InfoSideBar id="info-bar" :conceptIri="selected['@id']" />
-          </Sidebar> -->
     </div>
   </div>
 </template>
@@ -85,10 +82,7 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import EntityService from "@/services/EntityService";
 import DirectService from "@/services/DirectService";
-import ConfigService from "@/services/ConfigService";
-import LoggerService from "@/services/LoggerService";
 import { RouteRecordName } from "vue-router";
-import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { EntityReferenceNode, TTIriRef, DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Vocabulary, Helpers } from "im-library";
 const { AppEnum } = Enums;
@@ -103,9 +97,6 @@ const {
 
 export default defineComponent({
   name: "DirectoryTable",
-  components: {
-    InfoSideBar
-  },
   computed: {
     ...mapState(["conceptIri", "favourites"])
   },
@@ -132,13 +123,20 @@ export default defineComponent({
 
   data() {
     return {
+      canGoForward: false,
+      canGoBack: false,
       pathOptions: [] as any[],
       home: { icon: "pi pi-home", to: "/" },
       rClickOptions: [
         {
           label: "Open",
           icon: "pi pi-fw pi-folder-open",
-          command: () => this.navigate()
+          command: () => this.open()
+        },
+        {
+          label: "View",
+          icon: "pi pi-fw pi-eye",
+          command: () => this.view()
         },
         {
           label: "Info",
@@ -189,7 +187,7 @@ export default defineComponent({
     showParentInfo() {
       this.selected = {};
       this.selected["@id"] = this.conceptIri;
-      this.$emit("updateSelected", this.selected["@id"]);
+      this.$store.commit("updateSelectedConceptIri", this.selected["@id"]);
       this.showInfo();
     },
 
@@ -203,11 +201,11 @@ export default defineComponent({
     },
 
     goBack() {
-      this.$router.back();
+      if (window.history.length > 0) this.$router.back();
     },
 
     goForward() {
-      this.$router.forward();
+      if (window.history.length > window.history.state.position + 1) this.$router.forward();
     },
 
     getNamesFromTypes(typeList: TTIriRef[]) {
@@ -224,7 +222,8 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.onRowSelect(event);
-      this.navigate();
+      if (isOfTypes(this.selected?.type, IM.FOLDER)) this.open();
+      else this.view();
     },
 
     onRowUnselect() {
@@ -233,7 +232,7 @@ export default defineComponent({
 
     onRowSelect(event: any) {
       this.selected = event?.data || event;
-      this.$emit("updateSelected", this.selected["@id"]);
+      this.$store.commit("updateSelectedConceptIri", this.selected["@id"]);
     },
 
     openPathOverlaymenu(event: any) {
@@ -256,8 +255,6 @@ export default defineComponent({
     },
 
     updateRClickOptions() {
-      this.rClickOptions[0].icon = isOfTypes(this.selected.type, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
-      this.rClickOptions[0].label = isOfTypes(this.selected.type, IM.FOLDER) ? "Open" : "View";
       this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected["@id"]) ? "Unfavourite" : "Favourite";
     },
 
@@ -265,16 +262,16 @@ export default defineComponent({
       DirectService.directTo(AppEnum.EDITOR, this.selected["@id"], this);
     },
 
-    navigate(): void {
+    open() {
       const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isOfTypes(this.selected?.type, IM.FOLDER)) {
-        this.$router.push({
-          name: currentRoute,
-          params: { selectedIri: this.selected["@id"] }
-        });
-      } else {
-        DirectService.directTo(AppEnum.VIEWER, this.selected["@id"], this);
-      }
+      this.$router.push({
+        name: currentRoute,
+        params: { selectedIri: this.selected["@id"] }
+      });
+    },
+
+    view() {
+      DirectService.directTo(AppEnum.VIEWER, this.selected["@id"], this);
     },
 
     onResize(): void {
@@ -324,11 +321,17 @@ export default defineComponent({
         await this.getInferred(this.conceptIri);
         await this.getPath(this.conceptIri);
       }
+      this.setBackForwardDisables();
       this.loading = false;
     },
 
     getColourFromType(types: TTIriRef[]) {
       return "color: " + getColourFromType(types);
+    },
+
+    setBackForwardDisables() {
+      this.canGoForward = window.history.length === window.history.state.position + 1;
+      this.canGoBack = window.history.state.position === 0;
     },
 
     async getChildren(iri: string) {
@@ -409,5 +412,15 @@ export default defineComponent({
 
 .card {
   padding: 0;
+}
+
+.p-button:disabled {
+  all: unset !important;
+}
+
+.go-forward:disabled,
+.go-back:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
 }
 </style>

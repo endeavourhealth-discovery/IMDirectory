@@ -11,7 +11,7 @@ import {
   GraphData
 } from "im-library/dist/types/interfaces/Interfaces";
 import { Models, Vocabulary } from "im-library";
-import Env from '@/services/Env';
+import {Env} from 'im-library';
 const { RDFS, RDF } = Vocabulary;
 const {
   Search: { ConceptSummary, SearchRequest, SearchResponse }
