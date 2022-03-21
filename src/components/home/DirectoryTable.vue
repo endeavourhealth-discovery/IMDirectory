@@ -131,7 +131,12 @@ export default defineComponent({
         {
           label: "Open",
           icon: "pi pi-fw pi-folder-open",
-          command: () => this.navigate()
+          command: () => this.open()
+        },
+        {
+          label: "View",
+          icon: "pi pi-fw pi-eye",
+          command: () => this.view()
         },
         {
           label: "Info",
@@ -217,7 +222,8 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.onRowSelect(event);
-      this.navigate();
+      if (isOfTypes(this.selected?.type, IM.FOLDER)) this.open();
+      else this.view();
     },
 
     onRowUnselect() {
@@ -249,8 +255,6 @@ export default defineComponent({
     },
 
     updateRClickOptions() {
-      this.rClickOptions[0].icon = isOfTypes(this.selected.type, IM.FOLDER) ? "pi pi-fw pi-folder-open" : "pi pi-fw pi-eye";
-      this.rClickOptions[0].label = isOfTypes(this.selected.type, IM.FOLDER) ? "Open" : "View";
       this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected["@id"]) ? "Unfavourite" : "Favourite";
     },
 
@@ -258,16 +262,16 @@ export default defineComponent({
       DirectService.directTo(AppEnum.EDITOR, this.selected["@id"], this);
     },
 
-    navigate(): void {
+    open() {
       const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isOfTypes(this.selected?.type, IM.FOLDER)) {
-        this.$router.push({
-          name: currentRoute,
-          params: { selectedIri: this.selected["@id"] }
-        });
-      } else {
-        DirectService.directTo(AppEnum.VIEWER, this.selected["@id"], this);
-      }
+      this.$router.push({
+        name: currentRoute,
+        params: { selectedIri: this.selected["@id"] }
+      });
+    },
+
+    view() {
+      DirectService.directTo(AppEnum.VIEWER, this.selected["@id"], this);
     },
 
     onResize(): void {
