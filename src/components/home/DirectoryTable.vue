@@ -16,7 +16,7 @@
         :loading="loading"
       >
         <template #loading>
-          Loading customers data. Please wait.
+          Loading data. Please wait.
         </template>
         <template #empty>
           No records found.
