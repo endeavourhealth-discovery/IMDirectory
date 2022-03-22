@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import {LoggerService} from "im-library";
+import { LoggerService } from "im-library";
 import ResizeablePieChart from "@/components/generics/ResizeablePieChart.vue";
 
 export default defineComponent({
@@ -78,17 +78,14 @@ export default defineComponent({
 
 <style scoped>
 .dashcard-container {
-  height: 100%;
-  width: 100%;
+  width: 50%;
 }
 
 .dashcard-container ::v-deep(.p-card-body) {
-  height: 100%;
   width: 100%;
 }
 
 .dashcard {
-  height: 100%;
   width: 100%;
   box-shadow: none;
   border-radius: none;
