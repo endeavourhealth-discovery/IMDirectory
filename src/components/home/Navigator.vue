@@ -1,9 +1,9 @@
 <template>
-  <Splitter id="side-bar" layout="vertical">
-    <SplitterPanel :size="50">
+  <Splitter id="side-bar" layout="vertical" stateKey="directoryMainSplitterVertical" stateStorage="local">
+    <SplitterPanel :size="50" style="overflow: auto;">
       <NavTree />
     </SplitterPanel>
-    <SplitterPanel :size="50">
+    <SplitterPanel :size="50" style="overflow: auto;">
       <FavTree />
     </SplitterPanel>
   </Splitter>
@@ -162,8 +162,7 @@ export default defineComponent({
 
 <style scoped>
 #side-bar {
-  max-height: calc(100vh - 4rem);
-  height: calc(100vh - 4rem);
+  height: 100%;
   overflow: auto;
 }
 </style>
