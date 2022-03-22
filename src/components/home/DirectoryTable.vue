@@ -49,9 +49,6 @@
               <font-awesome-icon v-if="data.type && data.type.length" :icon="data.icon" />
             </span>
             {{ data.name }}
-            <span v-if="isFavourite(data['@id'])" style="color: #e39a36" class="p-mx-1">
-              <i class="fa-solid fa-star"></i>
-            </span>
           </template>
         </Column>
         <Column field="type" header="Type">
