@@ -1,6 +1,10 @@
 <template>
   <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
+    </div>
     <Tree
+      v-else
       :value="root"
       selectionMode="single"
       v-model:selectionKeys="selected"
@@ -51,13 +55,15 @@ export default defineComponent({
     return {
       selected: {} as any,
       root: [] as TreeNode[],
-      loading: false,
+      loading: true,
       expandedKeys: {} as any
     };
   },
   async mounted() {
-    this.addParentFoldersToRoot();
+    this.loading = true;
+    await this.addParentFoldersToRoot();
     if (this.conceptIri) this.focusTree(this.conceptIri);
+    this.loading = false;
   },
   methods: {
     async addParentFoldersToRoot() {
@@ -177,6 +183,15 @@ export default defineComponent({
   height: calc(100%);
 }
 
+.loading-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+}
+
 .p-tree .p-tree-container .p-treenode .p-treenode-content {
   padding: 0rem !important;
   transition: box-shadow 3600s 3600s !important;
@@ -196,7 +211,7 @@ export default defineComponent({
   min-width: 2rem;
 }
 
-.p-progress-spinner {
+.tree-row .p-progress-spinner {
   width: 1.25em !important;
   height: 1.25em !important;
 }
