@@ -197,6 +197,11 @@ export default defineComponent({
 });
 </script>
 <style scoped>
+#concept-main-container {
+  height: 100%;
+  width: 100%;
+}
+
 .p-tabview-panel {
   min-height: 100%;
 }
