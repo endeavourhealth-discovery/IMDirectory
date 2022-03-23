@@ -74,10 +74,14 @@ export default defineComponent({
 #info-side-bar-wrapper {
   overflow-x: none;
   transition: 0.5s;
+  width: 40%;
 }
 
 .splitter-right {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: auto;
 }
 </style>
