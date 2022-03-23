@@ -74,6 +74,7 @@ export default defineComponent({
 #info-side-bar-wrapper {
   overflow-x: none;
   transition: 0.5s;
+  width: 40%;
 }
 
 .splitter-right {

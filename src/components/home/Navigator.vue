@@ -53,17 +53,12 @@ export default defineComponent({
       active: 0,
       debounce: 0,
       request: {} as { cancel: any; msg: string },
-      sideMenuHeight: "",
       configs: {} as FilterDefaultsConfig,
       filtersLoaded: false
     };
   },
   async mounted() {
-    window.addEventListener("resize", this.onResize);
     await this.init();
-  },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.onResize);
   },
   methods: {
     async init() {
@@ -71,15 +66,10 @@ export default defineComponent({
       await this.setFilterOptions();
       this.setFilterDefaults();
       this.filtersLoaded = true;
-      this.setContainerHeights();
     },
 
     tabChange(event: any): void {
       this.$store.commit("updateSidebarControlActivePanel", event.index);
-    },
-
-    onResize(): void {
-      this.setContainerHeights();
     },
 
     async getConfigs(): Promise<void> {
@@ -151,10 +141,6 @@ export default defineComponent({
       this.debounce = window.setTimeout(() => {
         this.search();
       }, 600);
-    },
-
-    setContainerHeights(): void {
-      this.sideMenuHeight = getContainerElementOptimalHeight("side-bar", ["search-bar"], false);
     }
   }
 });

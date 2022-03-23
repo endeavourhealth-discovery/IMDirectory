@@ -184,7 +184,7 @@ export default defineComponent({
     },
 
     setContentHeight(): void {
-      const calcHeight = getContainerElementOptimalHeight("concept-main-container", ["p-panel-header", "p-tabview-nav"], true, 4, 1);
+      const calcHeight = getContainerElementOptimalHeight("concept-main-container", ["p-panel-header", "p-tabview-nav-container"], true, 4, 1);
       if (!calcHeight.length) {
         this.contentHeight = "height: 700px; max-height: 700px;";
         this.contentHeightValue = 800;
@@ -214,7 +214,7 @@ export default defineComponent({
 }
 
 .concept-panel-content {
-  height: calc(100vh - 12rem) !important;
+  height: 100%;
   overflow: auto;
   background-color: #ffffff;
 }
