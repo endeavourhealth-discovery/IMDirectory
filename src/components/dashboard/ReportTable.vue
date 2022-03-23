@@ -82,15 +82,14 @@ export default defineComponent({
 
 <style scoped>
 .dashcard-container {
-  height: 100%;
-  width: 100%;
+  width: 50%;
 }
 .dashcard {
-  height: 100%;
   width: 100%;
+  box-shadow: none;
+  border-radius: none;
 }
 .loading-container {
   width: 100%;
-  height: 100%;
 }
 </style>

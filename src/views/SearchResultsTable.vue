@@ -1,30 +1,24 @@
 <template>
   <div id="search-results-main-container">
     <div class="card">
-      <div class="grid">
-        <div class="col-4">
-          <div class="p-inputgroup">
-            <span class="p-float-label">
-              <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
-              <label for="status">Select status:</label>
-            </span>
-          </div>
+      <div class="filters-container">
+        <div class="p-inputgroup">
+          <span class="p-float-label">
+            <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
+            <label for="status">Select status:</label>
+          </span>
         </div>
-        <div class="col-4">
-          <div class="p-inputgroup">
-            <span class="p-float-label">
-              <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
-              <label for="scheme">Select scheme:</label>
-            </span>
-          </div>
+        <div class="p-inputgroup">
+          <span class="p-float-label">
+            <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
+            <label for="scheme">Select scheme:</label>
+          </span>
         </div>
-        <div class="col-4">
-          <div class="p-inputgroup">
-            <span class="p-float-label">
-              <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
-              <label for="type">Select concept type:</label>
-            </span>
-          </div>
+        <div class="p-inputgroup">
+          <span class="p-float-label">
+            <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
+            <label for="type">Select concept type:</label>
+          </span>
         </div>
       </div>
 
@@ -38,7 +32,8 @@
         @rowContextmenu="onRowContextMenu"
         @contextmenu="onRightClick"
         @row-dblclick="onRowDblClick"
-        responsiveLayout="scroll"
+        :scrollable="true"
+        scrollHeight="flex"
         :loading="searchLoading"
         v-model:contextMenuSelection="selected"
         ref="searchTable"
@@ -267,14 +262,36 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.card {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+}
+
 label {
   font-size: 1rem !important;
 }
 
 #search-results-main-container {
   padding-top: 1rem;
-  height: calc(100vh - 4.1rem);
-  overflow-y: auto;
+  height: 100%;
   background-color: #ffffff;
+}
+
+.filters-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+}
+
+.p-inputgroup {
+  width: 33.3%;
+  padding: 0.5rem;
+}
+
+.p-datatable {
+  height: calc(100% - 3.5rem) !important;
 }
 </style>

@@ -3,26 +3,35 @@
     <div class="flex flex-row justify-content-center align-items-center loading-container" v-if="loading">
       <ProgressSpinner />
     </div>
-    <Card>
-      <template #title>
-        Suggested
-      </template>
-      <template #content>
-        <DataTable :value="activities" responsiveLayout="scroll" v-model:selection="selected" selectionMode="single" dataKey="dateTime" @row-click="onClick">
-          <template #empty>
-            No recent activity
-          </template>
-          <Column field="name" header="Name"></Column>
-          <Column field="type" header="Type"></Column>
-          <Column field="latestActivity" header="Latest activity">
-            <template #body="{data}">
-              <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
+    <div id="landing-content" v-else>
+      <Card>
+        <template #title>
+          Suggested
+        </template>
+        <template #content>
+          <DataTable
+            :value="activities"
+            v-model:selection="selected"
+            selectionMode="single"
+            dataKey="dateTime"
+            @row-click="onClick"
+            :scrollable="true"
+            scrollHeight="flex"
+          >
+            <template #empty>
+              No recent activity
             </template>
-          </Column>
-        </DataTable>
-      </template>
-    </Card>
-    <!-- <Card>
+            <Column field="name" header="Name"></Column>
+            <Column field="type" header="Type"></Column>
+            <Column field="latestActivity" header="Latest activity">
+              <template #body="{data}">
+                <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
+              </template>
+            </Column>
+          </DataTable>
+        </template>
+      </Card>
+      <!-- <Card>
       <template #title>
         Latest activity
       </template>
@@ -40,18 +49,19 @@
         </DataView>
       </template>
     </Card> -->
-    <div v-if="!loading" class="dashboard-container">
-      <template v-for="(cardData, index) in cardsData" :key="index">
-        <component
-          :is="cardData.component"
-          :inputData="cardData.inputData"
-          :name="cardData.name"
-          :description="cardData.description"
-          :id="'dashCard-' + index"
-          labelKey="http://www.w3.org/2000/01/rdf-schema#label"
-          dataKey="http://www.w3.org/2002/07/owl#hasValue"
-        />
-      </template>
+      <div id="dashboard-container">
+        <template v-for="(cardData, index) in cardsData" :key="index">
+          <component
+            :is="cardData.component"
+            :inputData="cardData.inputData"
+            :name="cardData.name"
+            :description="cardData.description"
+            :id="'dashCard-' + index"
+            labelKey="http://www.w3.org/2000/01/rdf-schema#label"
+            dataKey="http://www.w3.org/2002/07/owl#hasValue"
+          />
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -186,42 +196,36 @@ export default defineComponent({
 
 <style scoped>
 #landing-page-container {
-  grid-area: content;
-  height: calc(100% - 4.1rem);
+  height: 100%;
   width: 100%;
-  overflow-y: auto;
-  background-color: #ffffff;
+  overflow: auto;
+}
+
+.loading-container {
+  width: 100%;
+  height: 100%;
+}
+
+#landing-content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  overflow: auto;
 }
 
 .p-card {
   box-shadow: none;
 }
 
-.dashboard-container {
-  padding-top: none;
-  grid-area: content;
+#dashboard-container {
   display: flex;
   flex-flow: row wrap;
   width: 100%;
-  height: calc(100vh - 30rem);
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: auto;
   border: none;
   box-shadow: none;
   border-radius: none;
-}
-
-@media screen and (min-width: 1024px) {
-  .dashboard-container ::v-deep(.dashcard-container) {
-    height: calc(100%);
-    width: calc(50%);
-  }
-}
-
-@media screen and (max-width: 1023px) {
-  .dashboard-container ::v-deep(.dashcard-container) {
-    height: calc(50%);
-    width: calc(100%);
-  }
 }
 </style>

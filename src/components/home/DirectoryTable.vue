@@ -1,5 +1,5 @@
 <template>
-  <div id="concept-main-container">
+  <div id="directory-table-container">
     <div class="card">
       <DataTable
         :value="children"
@@ -12,11 +12,13 @@
         @row-contextmenu="onRowRightClick"
         @contextmenu="onRightClick"
         @row-dblclick="onRowDblClick"
+        :scrollable="true"
+        scrollHeight="flex"
         responsiveLayout="scroll"
         :loading="loading"
       >
         <template #loading>
-          Loading customers data. Please wait.
+          Loading data. Please wait.
         </template>
         <template #empty>
           No records found.
@@ -48,27 +50,36 @@
             <span :style="getColourFromType(data.type)" class="p-mx-1">
               <font-awesome-icon v-if="data.type && data.type.length" :icon="data.icon" />
             </span>
-            {{ data.name }}
-            <span v-if="isFavourite(data['@id'])" style="color: #e39a36" class="p-mx-1">
-              <i class="fa-solid fa-star"></i>
-            </span>
+            <span class="text-name">{{ data.name }}</span>
           </template>
         </Column>
         <Column field="type" header="Type">
           <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
         </Column>
         <!-- <Column field="lastModified" header="Last Modified"></Column> -->
-        <Column headerStyle="width: 4rem; text-align: center" bodyStyle="text-align: center; overflow: visible">
+        <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
           <template #body="{data}">
             <Button
-              @click="openOverlayMenu($event, data)"
+              v-if="data.hasChildren"
+              @click="open(data)"
               aria-haspopup="true"
               aria-controls="overlay_menu"
               type="button"
               class="p-button-rounded p-button-text p-button-plain"
-              icon="pi pi-ellipsis-v"
+              icon="pi pi-folder-open"
             />
-            <Menu id="overlay_menu" ref="overlayMenu" :model="rClickOptions" :popup="true" />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
+
+            <Button
+              v-if="isFavourite(data['@id'])"
+              style="color: #e39a36"
+              icon="pi pi-fw pi-star-fill"
+              class="p-button-rounded p-button-text "
+              @click="updateFavourites(data)"
+            />
+
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(data)" />
           </template>
         </Column>
       </DataTable>
@@ -112,15 +123,8 @@ export default defineComponent({
     }
   },
   async mounted() {
-    this.setContentHeight();
-    window.addEventListener("resize", this.onResize);
     await this.init();
-    this.setContentHeight();
   },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.onResize);
-  },
-
   data() {
     return {
       canGoForward: false,
@@ -167,8 +171,6 @@ export default defineComponent({
       loading: false,
       concept: {} as any,
       definitionText: "",
-      contentHeight: "",
-      contentHeightValue: 0,
       configs: [] as DefinitionConfig[],
       conceptAsString: "",
       selected: {} as any,
@@ -191,7 +193,8 @@ export default defineComponent({
       this.showInfo();
     },
 
-    updateFavourites() {
+    updateFavourites(data?: any) {
+      if (data) this.onRowSelect(data);
       this.$store.commit("updateFavourites", this.selected["@id"]);
     },
 
@@ -212,7 +215,8 @@ export default defineComponent({
       return typeList.map(type => type.name).join(", ");
     },
 
-    showInfo() {
+    showInfo(data?: any) {
+      if (data) this.onRowSelect(data);
       this.$emit("openBar");
     },
 
@@ -222,7 +226,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.onRowSelect(event);
-      if (isOfTypes(this.selected?.type, IM.FOLDER)) this.open();
+      if (isOfTypes(event.data.type, IM.FOLDER)) this.open(event.data);
       else this.view();
     },
 
@@ -262,7 +266,8 @@ export default defineComponent({
       DirectService.directTo(AppEnum.EDITOR, this.selected["@id"], this);
     },
 
-    open() {
+    open(data?: any) {
+      if (data) this.onRowSelect(data);
       const currentRoute = this.$route.name as RouteRecordName | undefined;
       this.$router.push({
         name: currentRoute,
@@ -270,12 +275,9 @@ export default defineComponent({
       });
     },
 
-    view() {
+    view(data?: any) {
+      if (data) this.onRowSelect(data);
       DirectService.directTo(AppEnum.VIEWER, this.selected["@id"], this);
-    },
-
-    onResize(): void {
-      this.setContentHeight();
     },
 
     focusTree(): void {
@@ -293,32 +295,10 @@ export default defineComponent({
       this.$router.push({ name: "Create" });
     },
 
-    async getConcept(iri: string): Promise<void> {
-      this.concept = await EntityService.getPartialEntity(iri, [RDF.TYPE, RDFS.LABEL]);
-
-      this.concept["@id"] = iri;
-      this.types = this.concept["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"];
-      this.header = this.concept["http://www.w3.org/2000/01/rdf-schema#label"];
-      this.concept["subtypes"] = await EntityService.getEntityChildren(iri);
-      this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
-    },
-
-    async getInferred(iri: string): Promise<void> {
-      const result = await EntityService.getDefinitionBundle(iri);
-      if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
-        const roleGroup = result.entity[IM.ROLE_GROUP];
-        delete result.entity[IM.ROLE_GROUP];
-        result.entity[RDFS.SUBCLASS_OF].push({ "http://endhealth.info/im#roleGroup": roleGroup });
-      }
-      this.concept["inferred"] = result;
-    },
-
     async init(): Promise<void> {
       this.loading = true;
       if (this.conceptIri) {
         await this.getChildren(this.conceptIri);
-        await this.getConcept(this.conceptIri);
-        await this.getInferred(this.conceptIri);
         await this.getPath(this.conceptIri);
       }
       this.setBackForwardDisables();
@@ -355,28 +335,14 @@ export default defineComponent({
         });
         this.pathOptions = filteredOutPathItems;
       }
-    },
-
-    setContentHeight(): void {
-      const calcHeight = getContainerElementOptimalHeight("concept-main-container", ["p-panel-header", "p-tabview-nav"], true, 4, 1);
-      if (!calcHeight.length) {
-        this.contentHeight = "height: 800px; max-height: 800px;";
-        this.contentHeightValue = 800;
-      } else {
-        this.contentHeight = "height: " + calcHeight + ";" + "max-height: " + calcHeight + ";";
-        this.contentHeightValue = parseInt(calcHeight, 10);
-      }
     }
   }
 });
 </script>
 <style scoped>
-#concept-main-container {
-  grid-area: content;
-  height: calc(100vh - 4.1rem);
+#directory-table-container {
+  height: 100%;
   width: 100%;
-  overflow-y: auto;
-  background-color: #ffffff;
 }
 
 .p-tabview-panel {
@@ -388,10 +354,6 @@ export default defineComponent({
   flex-flow: column nowrap;
   justify-content: flex-start;
   height: 100%;
-}
-
-.concept-data-table {
-  height: calc(100vh - 5.2rem);
 }
 
 .table-header {
@@ -411,7 +373,9 @@ export default defineComponent({
 }
 
 .card {
+  height: 100%;
   padding: 0;
+  margin-bottom: 0;
 }
 
 .p-button:disabled {
