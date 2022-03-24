@@ -4,6 +4,7 @@ import Toast from "primevue/toast";
 import ProgressSpinner from "primevue/progressspinner";
 import ConfirmDialog from "primevue/confirmdialog";
 import TopBar from "im-library";
+import { expect } from "vitest";
 
 describe("App.vue", () => {
   let wrapper;
@@ -27,8 +28,9 @@ describe("App.vue", () => {
 
   it("should check auth and update store history count on mount", async () => {
     await flushPromises();
-    expect(mockStore.dispatch).toHaveBeenCalledTimes(2);
+    expect(mockStore.dispatch).toHaveBeenCalledTimes(3);
     expect(mockStore.dispatch).toHaveBeenCalledWith("authenticateCurrentUser");
     expect(mockStore.dispatch).toHaveBeenCalledWith("fetchBlockedIris");
+    expect(mockStore.dispatch).toHaveBeenCalledWith("fetchFilterSettings");
   });
 });

@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import PieChartDashCard from "@/components/dashboard/PieChartDashCard.vue";
 import Card from "primevue/card";
-import {LoggerService} from "im-library";
+import { LoggerService } from "im-library";
 
 describe("PieChartDashCard.vue", () => {
   let wrapper;
@@ -87,7 +87,7 @@ describe("PieChartDashCard.vue", () => {
     mockElement.getBoundingClientRect = vi.fn().mockReturnValue({ height: 100 });
     mockElement.getElementsByClassName = vi.fn().mockReturnValue([mockElement]);
     docSpyId.mockReturnValue(mockElement);
-    docSpyClass.mockReturnValue(mockElement);
+    docSpyClass.mockReturnValue([mockElement]);
     wrapper.vm.setChartSize();
     await wrapper.vm.$nextTick();
     expect(mockElement.style.height).not.toBe("");
@@ -98,7 +98,7 @@ describe("PieChartDashCard.vue", () => {
     mockElement.getBoundingClientRect = vi.fn().mockReturnValue({ height: 100 });
     mockElement.getElementsByClassName = vi.fn().mockReturnValue([null]);
     docSpyId.mockReturnValue(mockElement);
-    docSpyClass.mockReturnValue(undefined);
+    docSpyClass.mockReturnValueOnce([mockElement]).mockReturnValue(undefined);
     windowSpy.mockReturnValue({ getPropertyValue: vi.fn().mockReturnValue(undefined) });
     wrapper.vm.setChartSize();
     await wrapper.vm.$nextTick();
