@@ -14,7 +14,7 @@
             v-model:selection="selected"
             selectionMode="single"
             dataKey="dateTime"
-            @row-click="onClick"
+            @row-dblclick="onDoubleClick"
             :scrollable="true"
             scrollHeight="flex"
           >
@@ -171,7 +171,7 @@ export default defineComponent({
       if (dateTime.getFullYear() === now.getFullYear()) return "this year";
     },
 
-    onClick(event: any) {
+    onDoubleClick(event: any) {
       DirectService.directTo(event.data.app, event.data.iri, this);
     },
 

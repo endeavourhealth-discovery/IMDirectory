@@ -18,7 +18,7 @@
         :loading="loading"
       >
         <template #loading>
-          Loading customers data. Please wait.
+          Loading data. Please wait.
         </template>
         <template #empty>
           No records found.
@@ -51,26 +51,35 @@
               <font-awesome-icon v-if="data.type && data.type.length" :icon="data.icon" />
             </span>
             <span class="text-name">{{ data.name }}</span>
-            <span v-if="isFavourite(data['@id'])" style="color: #e39a36" class="p-mx-1">
-              <i class="fa-solid fa-star"></i>
-            </span>
           </template>
         </Column>
         <Column field="type" header="Type">
           <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
         </Column>
         <!-- <Column field="lastModified" header="Last Modified"></Column> -->
-        <Column bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+        <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
           <template #body="{data}">
             <Button
-              @click="openOverlayMenu($event, data)"
+              v-if="data.hasChildren"
+              @click="open(data)"
               aria-haspopup="true"
               aria-controls="overlay_menu"
               type="button"
               class="p-button-rounded p-button-text p-button-plain"
-              icon="pi pi-ellipsis-v"
+              icon="pi pi-folder-open"
             />
-            <Menu id="overlay_menu" ref="overlayMenu" :model="rClickOptions" :popup="true" />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
+
+            <Button
+              v-if="isFavourite(data['@id'])"
+              style="color: #e39a36"
+              icon="pi pi-fw pi-star-fill"
+              class="p-button-rounded p-button-text "
+              @click="updateFavourites(data)"
+            />
+
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(data)" />
           </template>
         </Column>
       </DataTable>
@@ -184,7 +193,8 @@ export default defineComponent({
       this.showInfo();
     },
 
-    updateFavourites() {
+    updateFavourites(data?: any) {
+      if (data) this.onRowSelect(data);
       this.$store.commit("updateFavourites", this.selected["@id"]);
     },
 
@@ -205,7 +215,8 @@ export default defineComponent({
       return typeList.map(type => type.name).join(", ");
     },
 
-    showInfo() {
+    showInfo(data?: any) {
+      if (data) this.onRowSelect(data);
       this.$emit("openBar");
     },
 
@@ -215,7 +226,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.onRowSelect(event);
-      if (isOfTypes(this.selected?.type, IM.FOLDER)) this.open();
+      if (isOfTypes(event.data.type, IM.FOLDER)) this.open(event.data);
       else this.view();
     },
 
@@ -255,7 +266,8 @@ export default defineComponent({
       DirectService.directTo(AppEnum.EDITOR, this.selected["@id"], this);
     },
 
-    open() {
+    open(data?: any) {
+      if (data) this.onRowSelect(data);
       const currentRoute = this.$route.name as RouteRecordName | undefined;
       this.$router.push({
         name: currentRoute,
@@ -263,7 +275,8 @@ export default defineComponent({
       });
     },
 
-    view() {
+    view(data?: any) {
+      if (data) this.onRowSelect(data);
       DirectService.directTo(AppEnum.VIEWER, this.selected["@id"], this);
     },
 
