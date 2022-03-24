@@ -47,7 +47,7 @@
         </template>
         <Column field="name" header="Name">
           <template #body="{data}">
-            <span :style="getColourFromType(data.type)" class="p-mx-1">
+            <span :style="getColourFromType(data.type)" class="p-mx-1 type-icon">
               <font-awesome-icon v-if="data.type && data.type.length" :icon="data.icon" />
             </span>
             <span class="text-name">{{ data.name }}</span>
@@ -386,5 +386,9 @@ export default defineComponent({
 .go-back:disabled {
   cursor: not-allowed !important;
   opacity: 0.6 !important;
+}
+
+.type-icon {
+  padding-right: 0.5rem;
 }
 </style>
