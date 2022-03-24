@@ -40,7 +40,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { Namespace, EntityReferenceNode, FilterDefaultsConfig } from "im-library/dist/types/interfaces/Interfaces";
+import { Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Helpers } from "im-library";
 const {
   DataTypeCheckers: { isArrayHasLength }
@@ -64,20 +64,19 @@ export default defineComponent({
       this.updateStoreSelectedFilters();
     }
   },
-  async mounted() {
-    await this.init();
+  mounted() {
+    this.init();
   },
   data() {
     return {
       selectedStatus: [] as EntityReferenceNode[],
       selectedSchemes: [] as Namespace[],
       selectedTypes: [] as EntityReferenceNode[],
-      includeLegacy: false,
-      configs: {} as FilterDefaultsConfig
+      includeLegacy: false
     };
   },
   methods: {
-    async init() {
+    init() {
       this.setDefaults();
     },
     resetStatus() {
