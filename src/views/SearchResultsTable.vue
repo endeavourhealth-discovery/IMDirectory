@@ -63,23 +63,23 @@
         <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
           <template #body="slotProps">
             <Button
-                v-if="slotProps.data.hasChildren"
-                @click="open(slotProps)"
-                aria-haspopup="true"
-                aria-controls="overlay_menu"
-                type="button"
-                class="p-button-rounded p-button-text p-button-plain"
-                icon="pi pi-folder-open"
+              v-if="slotProps.data.hasChildren"
+              @click="open(slotProps)"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              type="button"
+              class="p-button-rounded p-button-text p-button-plain"
+              icon="pi pi-folder-open"
             />
             <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(slotProps)" />
             <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(slotProps)" />
 
             <Button
-                v-if="isFavourite(slotProps.data.iri)"
-                style="color: #e39a36"
-                icon="pi pi-fw pi-star-fill"
-                class="p-button-rounded p-button-text "
-                @click="updateFavourites(slotProps)"
+              v-if="isFavourite(slotProps.data.iri)"
+              style="color: #e39a36"
+              icon="pi pi-fw pi-star-fill"
+              class="p-button-rounded p-button-text "
+              @click="updateFavourites(slotProps)"
             />
 
             <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(slotProps)" />
@@ -172,9 +172,8 @@ export default defineComponent({
     };
   },
   methods: {
-    updateFavourites(row? : any) {
-      if (row)
-        this.selected = row.data;
+    updateFavourites(row?: any) {
+      if (row) this.selected = row.data;
 
       this.$store.commit("updateFavourites", this.selected.iri);
     },
@@ -183,6 +182,8 @@ export default defineComponent({
       return this.favourites.includes(iri);
     },
     init() {
+      console.log(this.filterOptions);
+      console.log(this.filterDefaults);
       this.localSearchResults = this.searchResults;
       const schemeOptions = [] as string[];
       const typeOptions = [] as string[];
@@ -202,12 +203,18 @@ export default defineComponent({
         this.selectedSchemes = [...new Set(schemeOptions)];
         this.selectedTypes = [...new Set(typeOptions)];
         this.selectedStatus = [...new Set(statusOptions)];
+      } else {
+        this.schemeOptions = this.filterOptions.schemes;
+        this.typeOptions = this.filterOptions.types;
+        this.statusOptions = this.filterOptions.status;
+        this.selectedSchemes = this.filterDefaults.schemeOptions;
+        this.selectedStatus = this.filterDefaults.statusOptions;
+        this.selectedTypes = this.filterDefaults.typeOptions;
       }
     },
 
-    showInfo(row? : any) {
-      if (row)
-        this.selected = row.data;
+    showInfo(row?: any) {
+      if (row) this.selected = row.data;
 
       this.$store.commit("updateSelectedConceptIri", this.selected.iri);
       this.$emit("openBar");
@@ -231,7 +238,6 @@ export default defineComponent({
     },
 
     onRowSelect(row: any) {
-
       this.$store.commit("updateSelectedConceptIri", row.data.iri);
     },
 
@@ -282,9 +288,8 @@ export default defineComponent({
       });
     },
 
-    view(row? : any) {
-      if (row)
-        this.selected = row.data;
+    view(row?: any) {
+      if (row) this.selected = row.data;
 
       DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
     }

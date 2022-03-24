@@ -30,6 +30,7 @@ export default defineComponent({
     this.loading = true;
     await this.$store.dispatch("authenticateCurrentUser");
     await this.$store.dispatch("fetchBlockedIris");
+    await this.$store.dispatch("fetchFilterSettings");
     this.loading = false;
   },
   data() {

@@ -29,7 +29,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: "/folder/:selectedIri",
+        path: "folder/:selectedIri",
         name: "Folder",
         component: DirectoryTable,
         meta: {
@@ -37,7 +37,7 @@ const routes: Array<RouteRecordRaw> = [
         }
       },
       {
-        path: "/search",
+        path: "search",
         name: "Search",
         component: SearchResultsTable,
         meta: {
