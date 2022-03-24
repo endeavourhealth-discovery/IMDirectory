@@ -58,7 +58,7 @@ export default defineComponent({
       const title = container.getElementsByClassName("p-card-title")[0] as HTMLElement;
       const subTitle = container.getElementsByClassName("p-card-subtitle")[0] as HTMLElement;
       const content = container.getElementsByClassName("p-card-content")[0] as HTMLElement;
-      let height = reportTable.getBoundingClientRect().height;
+      let height = reportTable?.getBoundingClientRect().height;
       if (currentFontSize) {
         height -= currentFontSize * 3;
       }
