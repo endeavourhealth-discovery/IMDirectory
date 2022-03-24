@@ -47,6 +47,7 @@ export default defineComponent({
     },
 
     setChartSize(): void {
+      const reportTable = document.getElementsByClassName("report-table")[0] as HTMLElement;
       const container = document.getElementById(this.id) as HTMLElement;
       if (!container) {
         LoggerService.error(undefined, `Failed to set chart size for element id: ${this.id}`);
@@ -57,9 +58,9 @@ export default defineComponent({
       const title = container.getElementsByClassName("p-card-title")[0] as HTMLElement;
       const subTitle = container.getElementsByClassName("p-card-subtitle")[0] as HTMLElement;
       const content = container.getElementsByClassName("p-card-content")[0] as HTMLElement;
-      let height = container.getBoundingClientRect().height;
+      let height = reportTable.getBoundingClientRect().height;
       if (currentFontSize) {
-        height -= currentFontSize * 2;
+        height -= currentFontSize * 3;
       }
       if (title) {
         height -= title.getBoundingClientRect().height;

@@ -142,6 +142,31 @@ export default createStore({
       const blockedIris = await ConfigService.getXmlSchemaDataTypes();
       commit("updateBlockedIris", blockedIris);
     },
+    async fetchFilterSettings({ commit, state }) {
+      const configs = await ConfigService.getFilterDefaults();
+      commit("updateFilterDefaults", configs);
+
+      const schemeOptions = await EntityService.getNamespaces();
+      const statusOptions = await EntityService.getEntityChildren(IM.STATUS);
+      const typeOptions = (await EntityService.getPartialEntities(state.filterDefaults.typeOptions, [RDFS.LABEL])).map(typeOption => {
+        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
+      });
+      commit("updateFilterOptions", {
+        status: statusOptions,
+        schemes: schemeOptions,
+        types: typeOptions
+      });
+
+      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => configs.statusOptions.includes(item["@id"]));
+      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => configs.schemeOptions.includes(item.iri));
+      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => configs.typeOptions.includes(item["@id"]));
+      commit("updateSelectedFilters", {
+        status: selectedStatus,
+        schemes: selectedSchemes,
+        types: selectedTypes
+      });
+      commit("updateHierarchySelectedFilters", selectedSchemes);
+    },
     async fetchSearchResults({ commit }, data: { searchRequest: Models.Search.SearchRequest; cancelToken: any }) {
       const result = await EntityService.advancedSearch(data.searchRequest, data.cancelToken);
       if (result && isArrayHasLength(result)) {

@@ -22,15 +22,11 @@
 import { defineComponent } from "vue";
 import Navigator from "@/components/home/Navigator.vue";
 import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
-import { Helpers, Vocabulary } from "im-library";
-import { EntityReferenceNode, FilterDefaultsConfig, Namespace } from "im-library/dist/types/interfaces/Interfaces";
-import ConfigService from "@/services/ConfigService";
-import EntityService from "@/services/EntityService";
+import { Helpers } from "im-library";
 import { mapState } from "vuex";
 const {
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
-const { IM, RDFS } = Vocabulary;
 
 export default defineComponent({
   name: "Home",
@@ -39,18 +35,14 @@ export default defineComponent({
     InfoSideBar
   },
   computed: mapState(["filterOptions", "filterDefaults"]),
-  async mounted() {
-    await this.getConfigs();
-    await this.setFilterOptions();
-    this.setFilterDefaults();
+  mounted() {
     this.setSplitterContainerHoriz({ sizes: localStorage.getItem("directoryMainSplitterHorizontal") });
   },
   data() {
     return {
       visibleRight: false,
       selectedIri: "",
-      splitterContentWidth: "",
-      configs: {} as FilterDefaultsConfig
+      splitterContentWidth: ""
     };
   },
   methods: {
@@ -70,36 +62,6 @@ export default defineComponent({
       }
       const calcWidth = 100 - leftWidth;
       this.splitterContentWidth = "width: calc(" + calcWidth + "vw - 0.5rem);" + "max-width: calc(" + calcWidth + "vw - 0.5rem);";
-    },
-
-    async getConfigs(): Promise<void> {
-      this.configs = await ConfigService.getFilterDefaults();
-      this.$store.commit("updateFilterDefaults", this.configs);
-    },
-
-    async setFilterOptions(): Promise<void> {
-      const schemeOptions = await EntityService.getNamespaces();
-      const statusOptions = await EntityService.getEntityChildren(IM.STATUS);
-      const typeOptions = (await EntityService.getPartialEntities(this.filterDefaults.typeOptions, [RDFS.LABEL])).map(typeOption => {
-        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
-      });
-      this.$store.commit("updateFilterOptions", {
-        status: statusOptions,
-        schemes: schemeOptions,
-        types: typeOptions
-      });
-    },
-
-    setFilterDefaults() {
-      const selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.configs.statusOptions.includes(item["@id"]));
-      const selectedSchemes = this.filterOptions.schemes.filter((item: Namespace) => this.configs.schemeOptions.includes(item.iri));
-      const selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.configs.typeOptions.includes(item["@id"]));
-      this.$store.commit("updateSelectedFilters", {
-        status: selectedStatus,
-        schemes: selectedSchemes,
-        types: selectedTypes
-      });
-      this.$store.commit("updateHierarchySelectedFilters", selectedSchemes);
     }
   }
 });
