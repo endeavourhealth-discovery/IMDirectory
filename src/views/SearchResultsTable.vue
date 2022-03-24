@@ -46,9 +46,6 @@
                 <font-awesome-icon v-if="slotProps.data.entityType && slotProps.data.entityType.length" :icon="getFAIconFromType(slotProps.data.entityType)" />
               </span>
               {{ slotProps.data.match }}
-              <span v-if="isFavourite(slotProps.data.iri)" style="color: #e39a36" class="p-mx-1">
-                <i class="fa-solid fa-star"></i>
-              </span>
             </div>
           </template>
         </Column>
@@ -63,8 +60,32 @@
           </template>
         </Column>
         <Column field="code" header="Code"></Column>
-      </DataTable>
+        <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+          <template #body="slotProps">
+            <Button
+                v-if="slotProps.data.hasChildren"
+                @click="open(slotProps)"
+                aria-haspopup="true"
+                aria-controls="overlay_menu"
+                type="button"
+                class="p-button-rounded p-button-text p-button-plain"
+                icon="pi pi-folder-open"
+            />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(slotProps)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(slotProps)" />
 
+            <Button
+                v-if="isFavourite(slotProps.data.iri)"
+                style="color: #e39a36"
+                icon="pi pi-fw pi-star-fill"
+                class="p-button-rounded p-button-text "
+                @click="updateFavourites(slotProps)"
+            />
+
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(slotProps)" />
+          </template>
+        </Column>
+      </DataTable>
       <ContextMenu :model="rClickOptions" ref="cm" />
     </div>
   </div>
@@ -151,7 +172,10 @@ export default defineComponent({
     };
   },
   methods: {
-    updateFavourites() {
+    updateFavourites(row? : any) {
+      if (row)
+        this.selected = row.data;
+
       this.$store.commit("updateFavourites", this.selected.iri);
     },
     isFavourite(iri: string) {
@@ -167,7 +191,7 @@ export default defineComponent({
         (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
           schemeOptions.push(searchResult.scheme?.name);
           searchResult.entityType.forEach(type => {
-            if (this.filterDefaults.includes(type["@id"])) typeOptions.push(type.name);
+            if (this.filterDefaults.typeOptions.includes(type["@id"])) typeOptions.push(type.name);
           });
           statusOptions.push(searchResult.status?.name);
         });
@@ -181,7 +205,10 @@ export default defineComponent({
       }
     },
 
-    showInfo() {
+    showInfo(row? : any) {
+      if (row)
+        this.selected = row.data;
+
       this.$store.commit("updateSelectedConceptIri", this.selected.iri);
       this.$emit("openBar");
     },
@@ -204,6 +231,7 @@ export default defineComponent({
     },
 
     onRowSelect(row: any) {
+
       this.$store.commit("updateSelectedConceptIri", row.data.iri);
     },
 
@@ -254,7 +282,10 @@ export default defineComponent({
       });
     },
 
-    view() {
+    view(row? : any) {
+      if (row)
+        this.selected = row.data;
+
       DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
     }
   }
@@ -276,6 +307,7 @@ label {
 #search-results-main-container {
   padding-top: 1rem;
   height: 100%;
+  width: 100%;
   background-color: #ffffff;
 }
 
