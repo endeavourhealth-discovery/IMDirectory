@@ -40,7 +40,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
+import { Namespace, EntityReferenceNode, FilterDefaultsConfig } from "im-library/dist/types/interfaces/Interfaces";
 import { Helpers } from "im-library";
 const {
   DataTypeCheckers: { isArrayHasLength }
@@ -64,19 +64,20 @@ export default defineComponent({
       this.updateStoreSelectedFilters();
     }
   },
-  mounted() {
-    this.init();
+  async mounted() {
+    await this.init();
   },
   data() {
     return {
       selectedStatus: [] as EntityReferenceNode[],
       selectedSchemes: [] as Namespace[],
       selectedTypes: [] as EntityReferenceNode[],
-      includeLegacy: false
+      includeLegacy: false,
+      configs: {} as FilterDefaultsConfig
     };
   },
   methods: {
-    init() {
+    async init() {
       this.setDefaults();
     },
     resetStatus() {
@@ -96,6 +97,14 @@ export default defineComponent({
       this.search();
     },
 
+    updateStoreSelectedFilters(): void {
+      this.$store.commit("updateSelectedFilters", {
+        status: this.selectedStatus,
+        schemes: this.selectedSchemes,
+        types: this.selectedTypes
+      });
+    },
+
     setDefaults(): void {
       if (!isArrayHasLength(this.selectedFilters.status) && !isArrayHasLength(this.selectedFilters.schemes) && !isArrayHasLength(this.selectedFilters.types)) {
         this.selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.filterDefaults.statusOptions.includes(item["@id"]));
@@ -111,14 +120,6 @@ export default defineComponent({
       if (this.quickFiltersStatus.includeLegacy) {
         this.includeLegacy = this.quickFiltersStatus.includeLegacy;
       }
-    },
-
-    updateStoreSelectedFilters(): void {
-      this.$store.commit("updateSelectedFilters", {
-        status: this.selectedStatus,
-        schemes: this.selectedSchemes,
-        types: this.selectedTypes
-      });
     },
 
     setLegacy(include: boolean): void {
