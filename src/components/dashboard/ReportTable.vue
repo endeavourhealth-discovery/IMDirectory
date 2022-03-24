@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" class="dashcard-container">
+  <div :id="id" class="dashcard-container report-table">
     <Card class="dashcard dash-table">
       <template #title>
         <span v-if="name">{{ name }}</span>
@@ -82,6 +82,7 @@ export default defineComponent({
 
 <style scoped>
 .dashcard-container {
+  height: fit-content;
   width: 50%;
 }
 .dashcard {

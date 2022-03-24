@@ -39,6 +39,9 @@
         ref="searchTable"
         dataKey="iri"
       >
+        <template #empty>
+          None
+        </template>
         <Column field="name" header="Name">
           <template #body="slotProps">
             <div class="ml-2">
@@ -46,9 +49,6 @@
                 <font-awesome-icon v-if="slotProps.data.entityType && slotProps.data.entityType.length" :icon="getFAIconFromType(slotProps.data.entityType)" />
               </span>
               {{ slotProps.data.match }}
-              <span v-if="isFavourite(slotProps.data.iri)" style="color: #e39a36" class="p-mx-1">
-                <i class="fa-solid fa-star"></i>
-              </span>
             </div>
           </template>
         </Column>
@@ -59,12 +59,37 @@
         </Column>
         <Column field="status" header="Status">
           <template #body="slotProps">
-            {{ slotProps.data.status.name }}
+            {{ slotProps.data.status?.name }}
           </template>
         </Column>
         <Column field="code" header="Code"></Column>
-      </DataTable>
+        <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+          <template #body="slotProps">
+            <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain" @click="locate(slotProps)" />
+            <Button
+              v-if="slotProps.data.hasChildren"
+              @click="open(slotProps)"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              type="button"
+              class="p-button-rounded p-button-text p-button-plain"
+              icon="pi pi-folder-open"
+            />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(slotProps)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(slotProps)" />
 
+            <Button
+              v-if="isFavourite(slotProps.data.iri)"
+              style="color: #e39a36"
+              icon="pi pi-fw pi-star-fill"
+              class="p-button-rounded p-button-text "
+              @click="updateFavourites(slotProps)"
+            />
+
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(slotProps)" />
+          </template>
+        </Column>
+      </DataTable>
       <ContextMenu :model="rClickOptions" ref="cm" />
     </div>
   </div>
@@ -79,7 +104,8 @@ import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
 const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes },
+  DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
 const {
   Search: { ConceptSummary }
@@ -89,7 +115,7 @@ const { AppEnum } = Enums;
 export default defineComponent({
   name: "SearchResultsTable",
   computed: {
-    ...mapState(["highLevelTypes", "searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
+    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites", "filterDefaults"])
   },
   watch: {
     searchResults() {
@@ -151,7 +177,9 @@ export default defineComponent({
     };
   },
   methods: {
-    updateFavourites() {
+    updateFavourites(row?: any) {
+      if (row) this.selected = row.data;
+
       this.$store.commit("updateFavourites", this.selected.iri);
     },
     isFavourite(iri: string) {
@@ -160,28 +188,51 @@ export default defineComponent({
     },
     init() {
       this.localSearchResults = this.searchResults;
-      const schemeOptions = [] as string[];
-      const typeOptions = [] as string[];
-      const statusOptions = [] as string[];
-      if (this.localSearchResults) {
-        (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
-          schemeOptions.push(searchResult.scheme.name);
-          searchResult.entityType.forEach(type => {
-            if (this.highLevelTypes.includes(type["@id"])) typeOptions.push(type.name);
-          });
-          statusOptions.push(searchResult.status.name);
-        });
-        this.schemeOptions = [...new Set(schemeOptions)];
-        this.typeOptions = [...new Set(typeOptions)];
-        this.statusOptions = [...new Set(statusOptions)];
-
-        this.selectedSchemes = [...new Set(schemeOptions)];
-        this.selectedTypes = [...new Set(typeOptions)];
-        this.selectedStatus = [...new Set(statusOptions)];
+      if (isArrayHasLength(this.localSearchResults)) {
+        this.setFiltersFromSearchResults();
+      } else {
+        this.setFilterDefaults();
       }
     },
 
-    showInfo() {
+    setFilterDefaults() {
+      this.schemeOptions = this.filterOptions.schemes.map((scheme: any) => scheme.name);
+      this.typeOptions = this.filterOptions.types.map((type: any) => type.name);
+      this.statusOptions = this.filterOptions.status.map((item: any) => item.name);
+      this.selectedSchemes = this.filterOptions.schemes
+        .filter((option: any) => this.filterDefaults.schemeOptions.includes(option.iri))
+        .map((scheme: any) => scheme.name);
+      this.selectedStatus = this.filterOptions.status
+        .filter((option: any) => this.filterDefaults.statusOptions.includes(option["@id"]))
+        .map((status: any) => status.name);
+      this.selectedTypes = this.filterOptions.types
+        .filter((option: any) => this.filterDefaults.typeOptions.includes(option["@id"]))
+        .map((type: any) => type.name);
+    },
+
+    setFiltersFromSearchResults() {
+      const schemeOptions = [] as string[];
+      const typeOptions = [] as string[];
+      const statusOptions = [] as string[];
+      (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
+        schemeOptions.push(searchResult.scheme?.name);
+        searchResult.entityType.forEach(type => {
+          if (this.filterDefaults.typeOptions.includes(type["@id"])) typeOptions.push(type.name);
+        });
+        statusOptions.push(searchResult.status?.name);
+      });
+      this.schemeOptions = [...new Set(schemeOptions)];
+      this.typeOptions = [...new Set(typeOptions)];
+      this.statusOptions = [...new Set(statusOptions)];
+
+      this.selectedSchemes = [...new Set(schemeOptions)];
+      this.selectedTypes = [...new Set(typeOptions)];
+      this.selectedStatus = [...new Set(statusOptions)];
+    },
+
+    showInfo(row?: any) {
+      if (row) this.selected = row.data;
+
       this.$store.commit("updateSelectedConceptIri", this.selected.iri);
       this.$emit("openBar");
     },
@@ -254,8 +305,16 @@ export default defineComponent({
       });
     },
 
-    view() {
+    view(row?: any) {
+      if (row) this.selected = row.data;
+
       DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
+    },
+
+    locate(row: any) {
+      if (row) {
+        this.$store.commit("updateLocateOnNavTreeIri", row.data.iri);
+      }
     }
   }
 });
@@ -276,6 +335,7 @@ label {
 #search-results-main-container {
   padding-top: 1rem;
   height: 100%;
+  width: 100%;
   background-color: #ffffff;
 }
 

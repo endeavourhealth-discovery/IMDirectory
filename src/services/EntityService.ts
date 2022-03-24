@@ -266,4 +266,14 @@ export default class EntityService {
       return [];
     }
   }
+
+  public static async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
+    try {
+      return await axios.get(Env.api + "api/entity/public/pathBetweenNodes", {
+        params: {descendant: descendant, ancestor: ancestor}
+      });
+    } catch (error) {
+      return [];
+    }
+  }
 }

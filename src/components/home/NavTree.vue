@@ -43,12 +43,15 @@ const {
 
 export default defineComponent({
   name: "NavTree",
-  computed: mapState(["conceptIri", "selectedOnNavTree"]),
+  computed: mapState(["conceptIri", "selectedOnNavTree", "locateOnNavTreeIri"]),
   watch: {
     selectedOnNavTree() {
       if (!this.selectedOnNavTree) {
         this.selected = {};
       }
+    },
+    locateOnNavTreeIri() {
+      this.findPathToNode(this.locateOnNavTreeIri);
     }
   },
   data() {
@@ -172,6 +175,39 @@ export default defineComponent({
         this.selectKey(foundNode.key);
       } else {
         await this.expandUntilSelected(iri);
+      }
+    },
+
+    async findPathToNode(iri: string) {
+      const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
+
+
+      // Recursively expand
+      let n = this.root.find(c => path.find(p => p['@id'] === c.data));
+      let i = 0;
+      if (n) {
+        this.expandedKeys = {};
+        while (n && n.data != path[0]['@id'] && i++ < 50) {
+          this.selectKey(n.key);
+          // Expand node if necessary
+          if (!n.children || n.children.length == 0) {
+            await this.onNodeExpand(n);
+          }
+          this.expandedKeys[n.key] = true;
+
+          // Find relevant child
+          n = n.children.find(c => path.find(p => p['@id'] === c.data));
+        }
+
+        if (n && n.data === path[0]['@id']) {
+          await this.onNodeSelect(n);
+        } else {
+          this.$toast.add({
+            severity: "warn",
+            summary: "Unable to locate",
+            detail: "Unable to locate concept in the current hierarchy"
+          });
+        }
       }
     }
   }

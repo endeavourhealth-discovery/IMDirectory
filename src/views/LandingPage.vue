@@ -13,8 +13,9 @@
             :value="activities"
             v-model:selection="selected"
             selectionMode="single"
+            @rowSelect="onRowSelect"
             dataKey="dateTime"
-            @row-click="onClick"
+            @row-dblclick="onDoubleClick"
             :scrollable="true"
             scrollHeight="flex"
           >
@@ -26,6 +27,12 @@
             <Column field="latestActivity" header="Latest activity">
               <template #body="{data}">
                 <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
+              </template>
+            </Column>
+            <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+              <template #body="{data}">
+                <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
+                <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
               </template>
             </Column>
           </DataTable>
@@ -164,14 +171,13 @@ export default defineComponent({
       const now = new Date();
       dateTime.getDay() === now.getDay();
       if (dateTime.getDay() === now.getDay()) return "today";
-      console.log(dateTime.getDay(), now.getDay());
       if (now.getDay() - dateTime.getDay() === 1) return "yesterday";
       if (now.getDay() - dateTime.getDay() < 7) return "this week";
       if (dateTime.getMonth() === now.getMonth()) return "this month";
       if (dateTime.getFullYear() === now.getFullYear()) return "this year";
     },
 
-    onClick(event: any) {
+    onDoubleClick(event: any) {
       DirectService.directTo(event.data.app, event.data.iri, this);
     },
 
@@ -189,6 +195,21 @@ export default defineComponent({
         cards.push(cardData);
       }
       this.cardsData = cards;
+    },
+
+    view(data?: any) {
+      if (data) this.onRowSelect(data);
+      DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
+    },
+
+    showInfo(data?: any) {
+      if (data) this.onRowSelect(data);
+      this.$emit("openBar");
+    },
+
+    onRowSelect(event: any) {
+      this.selected = event?.data || event;
+      this.$store.commit("updateSelectedConceptIri", this.selected.iri);
     }
   }
 });

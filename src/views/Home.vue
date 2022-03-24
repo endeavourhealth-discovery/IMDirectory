@@ -23,6 +23,7 @@ import { defineComponent } from "vue";
 import Navigator from "@/components/home/Navigator.vue";
 import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
 import { Helpers } from "im-library";
+import { mapState } from "vuex";
 const {
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
@@ -33,6 +34,7 @@ export default defineComponent({
     Navigator,
     InfoSideBar
   },
+  computed: mapState(["filterOptions", "filterDefaults"]),
   mounted() {
     this.setSplitterContainerHoriz({ sizes: localStorage.getItem("directoryMainSplitterHorizontal") });
   },
