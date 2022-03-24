@@ -11,11 +11,11 @@
       @item-select="navigate"
     >
       <template #item="data">
-        <div class="ml-2" v-tooltip.left="data.item.code">
-          <span :style="getColourFromType(data.item.entityType)" class="p-mx-1">
+        <div class="ml-2 autocomplete-row" v-tooltip.left="data.item.code">
+          <span :style="getColourFromType(data.item.entityType)" class="p-mx-1 fa-icon">
             <font-awesome-icon v-if="data.item.entityType && data.item.entityType.length" :icon="getFAIconFromType(data.item.entityType)" />
           </span>
-          {{ data.item.name }}
+          <span class="autocomplete-row-name">{{ data.item.name }}</span>
         </div>
       </template>
     </AutoComplete>
@@ -195,5 +195,27 @@ export default defineComponent({
   border: none;
   width: 30rem;
   height: 2.25rem;
+}
+
+.p-autocomplete-panel {
+  width: 30rem;
+}
+
+.autocomplete-row {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+}
+
+.autocomplete-row-name {
+  max-width: calc(100% - 0.5rem);
+  height: fit-content;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.fa-icon {
+  padding-right: 0.25rem;
 }
 </style>
