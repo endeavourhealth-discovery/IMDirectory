@@ -96,6 +96,14 @@ export default defineComponent({
       this.search();
     },
 
+    updateStoreSelectedFilters(): void {
+      this.$store.commit("updateSelectedFilters", {
+        status: this.selectedStatus,
+        schemes: this.selectedSchemes,
+        types: this.selectedTypes
+      });
+    },
+
     setDefaults(): void {
       if (!isArrayHasLength(this.selectedFilters.status) && !isArrayHasLength(this.selectedFilters.schemes) && !isArrayHasLength(this.selectedFilters.types)) {
         this.selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.filterDefaults.statusOptions.includes(item["@id"]));
@@ -111,14 +119,6 @@ export default defineComponent({
       if (this.quickFiltersStatus.includeLegacy) {
         this.includeLegacy = this.quickFiltersStatus.includeLegacy;
       }
-    },
-
-    updateStoreSelectedFilters(): void {
-      this.$store.commit("updateSelectedFilters", {
-        status: this.selectedStatus,
-        schemes: this.selectedSchemes,
-        types: this.selectedTypes
-      });
     },
 
     setLegacy(include: boolean): void {

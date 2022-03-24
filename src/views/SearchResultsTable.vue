@@ -89,7 +89,7 @@ const { AppEnum } = Enums;
 export default defineComponent({
   name: "SearchResultsTable",
   computed: {
-    ...mapState(["highLevelTypes", "searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites"])
+    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites", "filterDefaults"])
   },
   watch: {
     searchResults() {
@@ -167,7 +167,7 @@ export default defineComponent({
         (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
           schemeOptions.push(searchResult.scheme?.name);
           searchResult.entityType.forEach(type => {
-            if (this.highLevelTypes.includes(type["@id"])) typeOptions.push(type.name);
+            if (this.filterDefaults.includes(type["@id"])) typeOptions.push(type.name);
           });
           statusOptions.push(searchResult.status?.name);
         });

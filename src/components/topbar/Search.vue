@@ -1,31 +1,31 @@
 <template>
   <div>
-      <AutoComplete
-        id="autocomplete-search"
-        @keydown="directToSearchView"
-        autoWidth="false"
-        v-model="searchText"
-        :suggestions="searchResults"
-        placeholder="Search"
-        @complete="search"
-        @item-select="navigate"
-      >
-        <template #item="data">
-          <div class="ml-2" v-tooltip.left="data.item.code">
-            <span :style="getColourFromType(data.item.entityType)" class="p-mx-1">
-              <font-awesome-icon v-if="data.item.entityType && data.item.entityType.length" :icon="getFAIconFromType(data.item.entityType)" />
-            </span>
-            {{ data.item.name }}
-          </div>
-        </template>
-      </AutoComplete>
-
-      <Button id="filter-button" icon="pi pi-sliders-h" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openFiltersOverlay" />
-      <OverlayPanel ref="filtersO" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-        <div class="p-fluid results-filter-container">
-          <Filters :search="search" />
+    <AutoComplete
+      id="autocomplete-search"
+      @keydown="directToSearchView"
+      autoWidth="false"
+      v-model="searchText"
+      :suggestions="searchResults"
+      placeholder="Search"
+      @complete="search"
+      @item-select="navigate"
+    >
+      <template #item="data">
+        <div class="ml-2" v-tooltip.left="data.item.code">
+          <span :style="getColourFromType(data.item.entityType)" class="p-mx-1">
+            <font-awesome-icon v-if="data.item.entityType && data.item.entityType.length" :icon="getFAIconFromType(data.item.entityType)" />
+          </span>
+          {{ data.item.name }}
         </div>
-      </OverlayPanel>
+      </template>
+    </AutoComplete>
+
+    <Button id="filter-button" icon="pi pi-sliders-h" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openFiltersOverlay" />
+    <OverlayPanel ref="filtersO" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
+      <div class="p-fluid results-filter-container">
+        <Filters :search="search" />
+      </div>
+    </OverlayPanel>
   </div>
 </template>
 
@@ -36,12 +36,11 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
-import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem, ModuleItem } from "im-library/dist/types/interfaces/Interfaces";
+import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Env, Models, Helpers, Vocabulary } from "im-library";
 const { AppEnum, SortBy } = Enums;
 const {
   DataTypeCheckers: { isObjectHasKeys },
-  ModuleIris: { MODULE_IRIS },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
 } = Helpers;
 const { IM } = Vocabulary;
@@ -59,7 +58,7 @@ export default defineComponent({
     autocompleteDisplay() {
       return this.$route.name === "Search";
     },
-    ...mapState(["currentUser", "isLoggedIn", "conceptIri", "filterOptions", "selectedFilters", "searchResults", "authReturnUrl"])
+    ...mapState(["conceptIri", "filterOptions", "selectedFilters", "searchResults", "authReturnUrl"])
   },
   data() {
     return {
@@ -72,22 +71,6 @@ export default defineComponent({
   methods: {
     navigateToEditor(): void {
       DirectService.directTo(AppEnum.EDITOR, "", this);
-    },
-    getItems(): LoginItem[] | AccountItem[] {
-      if (this.isLoggedIn) {
-        return this.accountItems;
-      } else {
-        return this.loginItems;
-      }
-    },
-
-    openUserMenu(event: any): void {
-      (this.$refs.userMenu as any).toggle(event);
-    },
-
-    getUrl(item: string): string {
-      const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
-      return url.href;
     },
 
     getFAIconFromType(types: TTIriRef[]) {
