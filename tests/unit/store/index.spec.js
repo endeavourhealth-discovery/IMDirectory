@@ -37,7 +37,6 @@ describe("state", () => {
       "snomedReturnUrl",
       "authReturnUrl",
       "blockedIris",
-      "highLevelTypes",
       "filterOptions",
       "selectedFilters",
       "quickFiltersStatus",
