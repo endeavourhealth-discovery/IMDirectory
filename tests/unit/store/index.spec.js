@@ -25,6 +25,7 @@ describe("state", () => {
     expect(Object.keys(store.state)).toStrictEqual([
       "selectedConceptIri",
       "selectedOnNavTree",
+      "locateOnNavTreeIri",
       "conceptIri",
       "favourites",
       "history",

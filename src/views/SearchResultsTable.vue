@@ -65,6 +65,7 @@
         <Column field="code" header="Code"></Column>
         <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
           <template #body="slotProps">
+            <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain" @click="locate(slotProps)" />
             <Button
               v-if="slotProps.data.hasChildren"
               @click="open(slotProps)"
@@ -308,6 +309,12 @@ export default defineComponent({
       if (row) this.selected = row.data;
 
       DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
+    },
+
+    locate(row: any) {
+      if (row) {
+        this.$store.commit("updateLocateOnNavTreeIri", row.data.iri);
+      }
     }
   }
 });

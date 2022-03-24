@@ -20,6 +20,7 @@ export default createStore({
   state: {
     selectedConceptIri: "",
     selectedOnNavTree: {},
+    locateOnNavTreeIri: "",
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
     history: [] as HistoryItem[],
@@ -135,6 +136,9 @@ export default createStore({
     },
     updateDefaultPredicateNames(state, names) {
       state.defaultPredicateNames = names;
+    },
+    updateLocateOnNavTreeIri(state, iri) {
+      state.locateOnNavTreeIri = iri;
     }
   },
   actions: {
