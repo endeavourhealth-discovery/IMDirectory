@@ -59,7 +59,7 @@
         </Column>
         <Column field="status" header="Status">
           <template #body="slotProps">
-            {{ slotProps.data.status.name }}
+            {{ slotProps.data.status?.name }}
           </template>
         </Column>
         <Column field="code" header="Code"></Column>
@@ -165,11 +165,11 @@ export default defineComponent({
       const statusOptions = [] as string[];
       if (this.localSearchResults) {
         (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
-          schemeOptions.push(searchResult.scheme.name);
+          schemeOptions.push(searchResult.scheme?.name);
           searchResult.entityType.forEach(type => {
             if (this.highLevelTypes.includes(type["@id"])) typeOptions.push(type.name);
           });
-          statusOptions.push(searchResult.status.name);
+          statusOptions.push(searchResult.status?.name);
         });
         this.schemeOptions = [...new Set(schemeOptions)];
         this.typeOptions = [...new Set(typeOptions)];
