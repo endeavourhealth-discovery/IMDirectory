@@ -1,12 +1,8 @@
 <template>
-  <Splitter id="side-bar" layout="vertical" stateKey="directoryMainSplitterVertical" stateStorage="local">
-    <SplitterPanel :size="50" style="overflow: auto;">
-      <NavTree />
-    </SplitterPanel>
-    <SplitterPanel :size="50" style="overflow: auto;">
-      <FavTree />
-    </SplitterPanel>
-  </Splitter>
+  <div id="side-bar">
+    <NavTree />
+    <FavTree />
+  </div>
 </template>
 
 <script lang="ts">
@@ -32,6 +28,9 @@ export default defineComponent({
 <style scoped>
 #side-bar {
   height: 100%;
-  overflow: auto;
+  /* overflow: auto; */
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
 }
 </style>

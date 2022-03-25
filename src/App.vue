@@ -35,7 +35,7 @@ export default defineComponent({
   },
   data() {
     return {
-      loading: false
+      loading: true
     };
   }
 });

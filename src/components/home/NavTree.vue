@@ -180,7 +180,8 @@ export default defineComponent({
 
 <style scoped>
 #hierarchy-tree-bar-container {
-  height: calc(100%);
+  flex: 0 5 auto;
+  overflow: auto;
 }
 
 .loading-container {

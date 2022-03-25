@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
+  <div class="flex flex-column justify-content-start" id="favourites-tree-bar-container">
     <Tree
       :value="root"
       selectionMode="single"
@@ -134,8 +134,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
-#hierarchy-tree-bar-container {
-  height: calc(100%);
+#favourites-tree-bar-container {
+  height: fit-content;
+  max-height: 15rem;
+  overflow: auto;
+  border-top: solid #dee2e6 1px;
 }
 
 .p-tree .p-tree-container .p-treenode .p-treenode-content {
@@ -153,6 +156,11 @@ export default defineComponent({
   border: none;
   padding: 0;
 }
+
+.p-tree-wrapper {
+  height: 100%;
+}
+
 .tree-root ::v-deep(.p-tree-toggler) {
   min-width: 2rem;
 }
