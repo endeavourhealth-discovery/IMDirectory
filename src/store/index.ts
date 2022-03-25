@@ -28,7 +28,7 @@ export default createStore({
     searchLoading: false,
     currentUser: {} as Models.User,
     isLoggedIn: false as boolean,
-    recentLocalActivity: localStorage.getItem("recentLocalActivity") as string,
+    recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     snomedReturnUrl: "",
     authReturnUrl: "",
@@ -110,7 +110,7 @@ export default createStore({
       }
 
       localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
-      state.recentLocalActivity = JSON.stringify(activity);
+      state.recentLocalActivity = activity;
     },
     updateFavourites(state, favourite: string) {
       const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");

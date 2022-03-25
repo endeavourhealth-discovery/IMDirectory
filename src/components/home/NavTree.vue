@@ -232,14 +232,15 @@ export default defineComponent({
 
 <style scoped>
 #hierarchy-tree-bar-container {
-  height: calc(100%);
+  flex: 1;
+  overflow: auto;
 }
 
 .loading-container {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
   justify-content: center;
   align-items: center;
 }

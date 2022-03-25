@@ -126,7 +126,7 @@ export default defineComponent({
     },
 
     async getRecentActivityDetails() {
-      const storedActivity: RecentActivityItem[] = JSON.parse(this.recentLocalActivity || "[]");
+      const storedActivity: RecentActivityItem[] = this.recentLocalActivity;
       for (let activity of storedActivity) {
         const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
         activity.name = result[RDFS.LABEL];
