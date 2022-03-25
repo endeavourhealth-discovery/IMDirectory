@@ -180,7 +180,7 @@ export default defineComponent({
 
 <style scoped>
 #hierarchy-tree-bar-container {
-  flex: 0 5 auto;
+  flex: 1;
   overflow: auto;
 }
 
@@ -188,7 +188,7 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
   justify-content: center;
   align-items: center;
 }

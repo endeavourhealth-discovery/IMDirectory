@@ -119,7 +119,7 @@ export default defineComponent({
     },
 
     async getRecentActivityDetails() {
-      const storedActivity: RecentActivityItem[] = JSON.parse(this.recentLocalActivity || "[]");
+      const storedActivity: RecentActivityItem[] = this.recentLocalActivity;
       for (let activity of storedActivity) {
         const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
         activity.name = result[RDFS.LABEL];
@@ -164,7 +164,6 @@ export default defineComponent({
       const now = new Date();
       dateTime.getDay() === now.getDay();
       if (dateTime.getDay() === now.getDay()) return "today";
-      console.log(dateTime.getDay(), now.getDay());
       if (now.getDay() - dateTime.getDay() === 1) return "yesterday";
       if (now.getDay() - dateTime.getDay() < 7) return "this week";
       if (dateTime.getMonth() === now.getMonth()) return "this month";

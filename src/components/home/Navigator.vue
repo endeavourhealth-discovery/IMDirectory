@@ -28,9 +28,7 @@ export default defineComponent({
 <style scoped>
 #side-bar {
   height: 100%;
-  /* overflow: auto; */
   display: flex;
   flex-flow: column nowrap;
-  justify-content: space-between;
 }
 </style>

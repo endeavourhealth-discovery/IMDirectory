@@ -44,8 +44,8 @@ export default defineComponent({
     return {
       selected: {} as any,
       root: [] as TreeNode[],
-      loading: false,
-      expandedKeys: {} as any
+      loading: true,
+      expandedKeys: { Favourites: true } as any
     };
   },
   watch: {
@@ -59,7 +59,9 @@ export default defineComponent({
     }
   },
   async mounted() {
-    this.addFavouritesFolder();
+    this.loading = true;
+    await this.addFavouritesFolder();
+    this.loading = false;
   },
   methods: {
     async addFavouritesFolder() {
@@ -73,7 +75,7 @@ export default defineComponent({
         loading: false,
         children: [] as TreeNode[]
       });
-      this.addFavouriteChildren();
+      await this.addFavouriteChildren();
     },
 
     async addFavouriteChildren() {
@@ -135,10 +137,11 @@ export default defineComponent({
 
 <style scoped>
 #favourites-tree-bar-container {
-  height: fit-content;
+  /* height: fit-content; */
   max-height: 15rem;
   overflow: auto;
   border-top: solid #dee2e6 1px;
+  flex: 0 0 auto;
 }
 
 .p-tree .p-tree-container .p-treenode .p-treenode-content {
