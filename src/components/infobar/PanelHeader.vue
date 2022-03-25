@@ -20,7 +20,7 @@ const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "PanelHeader",
-  computed: { ...mapState(["conceptIri"]) },
+  computed: { ...mapState(["selectedConceptIri"]) },
   props: {
     types: { type: Array as PropType<Array<TTIriRef>>, required: true },
     header: { type: String, required: true }
@@ -41,7 +41,7 @@ export default defineComponent({
   },
   methods: {
     navigate() {
-      DirectService.directTo(AppEnum.VIEWER, this.conceptIri, this);
+      DirectService.directTo(AppEnum.VIEWER, this.selectedConceptIri, this);
     }
   }
 });
