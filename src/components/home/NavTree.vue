@@ -52,11 +52,26 @@ export default defineComponent({
     },
     locateOnNavTreeIri() {
       this.findPathToNode(this.locateOnNavTreeIri);
+    },
+    async conceptIri() {
+      if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
+        if (!this.selectedNode.children || this.selectedNode.children.length === 0) {
+          await this.onNodeExpand(this.selectedNode);
+          this.expandedKeys[this.selectedNode.key] = true;
+        }
+        const child = this.selectedNode.children.find(c => c.data === this.conceptIri);
+        if (child) {
+          this.selected = {};
+          this.selected[child.key] = true;
+          await this.onNodeSelect(child);
+        }
+      }
     }
   },
   data() {
     return {
       selected: {} as any,
+      selectedNode: {} as TreeNode,
       root: [] as TreeNode[],
       loading: true,
       expandedKeys: {} as any
@@ -92,6 +107,7 @@ export default defineComponent({
     },
 
     async onNodeSelect(node: TreeNode): Promise<void> {
+      this.selectedNode = node;
       this.$router.push({
         name: "Folder",
         params: { selectedIri: node.data }
@@ -174,7 +190,7 @@ export default defineComponent({
       if (foundNode) {
         this.selectKey(foundNode.key);
       } else {
-        await this.expandUntilSelected(iri);
+          await this.expandUntilSelected(iri);
       }
     },
 
