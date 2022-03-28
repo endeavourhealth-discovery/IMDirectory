@@ -120,9 +120,15 @@ export default defineComponent({
       if (isObjectHasKeys(node)) {
         node.loading = true;
         const children = await EntityService.getEntityChildren(node.data);
+        for (const child of children) {
+          if (child.hasChildren) {
+            const grandChildren = await EntityService.getEntityChildren(child["@id"]);
+            (child as any).hasExpandableChildren = grandChildren.findIndex(grandChild => grandChild.hasChildren) !== -1;
+          }
+        }
         children.forEach(child => {
           if (!this.nodeHasChild(node, child) && child.hasChildren)
-            node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+            node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren && (child as any).hasExpandableChildren));
         });
         node.loading = false;
       }
@@ -190,20 +196,19 @@ export default defineComponent({
       if (foundNode) {
         this.selectKey(foundNode.key);
       } else {
-          await this.expandUntilSelected(iri);
+        await this.expandUntilSelected(iri);
       }
     },
 
     async findPathToNode(iri: string) {
       const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
-
       // Recursively expand
-      let n = this.root.find(c => path.find(p => p['@id'] === c.data));
+      let n = this.root.find(c => path.find(p => p["@id"] === c.data));
       let i = 0;
       if (n) {
         this.expandedKeys = {};
-        while (n && n.data != path[0]['@id'] && i++ < 50) {
+        while (n && n.data != path[0]["@id"] && i++ < 50) {
           this.selectKey(n.key);
           // Expand node if necessary
           if (!n.children || n.children.length == 0) {
@@ -212,10 +217,10 @@ export default defineComponent({
           this.expandedKeys[n.key] = true;
 
           // Find relevant child
-          n = n.children.find(c => path.find(p => p['@id'] === c.data));
+          n = n.children.find(c => path.find(p => p["@id"] === c.data));
         }
 
-        if (n && n.data === path[0]['@id']) {
+        if (n && n.data === path[0]["@id"]) {
           await this.onNodeSelect(n);
         } else {
           this.$toast.add({
