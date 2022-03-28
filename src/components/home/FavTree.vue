@@ -18,7 +18,15 @@
             </div>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
-          <span>{{ slotProps.node.label }}</span>
+          {{ slotProps.node.label }}
+          <div style="color:#EF4444">
+            <font-awesome-icon
+              v-if="slotProps.node.label !== 'Favourites'"
+              :icon="['fas', 'times-circle']"
+              class="fa-fw"
+              @click="updateFavourites(slotProps.node)"
+            />
+          </div>
         </div>
       </template>
     </Tree>
@@ -108,6 +116,10 @@ export default defineComponent({
       });
       this.$store.commit("updateSelectedConceptIri", node.data);
       this.$store.commit("updateSelectedOnNavTree", false);
+    },
+
+    updateFavourites(node: any) {
+      this.$store.commit("updateFavourites", node.data);
     },
 
     async onNodeExpand(node: TreeNode) {
