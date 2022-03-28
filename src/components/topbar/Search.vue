@@ -2,23 +2,13 @@
   <div>
     <AutoComplete
       id="autocomplete-search"
-      @keydown="directToSearchView"
       autoWidth="false"
       v-model="searchText"
-      :suggestions="searchResults"
       placeholder="Search"
+      :suggestions="searchResults"
       @complete="search"
       @item-select="navigate"
-    >
-      <template #item="data">
-        <div class="ml-2 autocomplete-row" v-tooltip.left="data.item.code">
-          <span :style="getColourFromType(data.item.entityType)" class="p-mx-1 fa-icon">
-            <font-awesome-icon v-if="data.item.entityType && data.item.entityType.length" :icon="getFAIconFromType(data.item.entityType)" />
-          </span>
-          <span class="autocomplete-row-name">{{ data.item.name }}</span>
-        </div>
-      </template>
-    </AutoComplete>
+    />
 
     <Button id="filter-button" icon="pi pi-sliders-h" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openFiltersOverlay" />
     <OverlayPanel ref="filtersO" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
@@ -55,10 +45,7 @@ export default defineComponent({
     this.setUserMenuItems();
   },
   computed: {
-    autocompleteDisplay() {
-      return this.$route.name === "Search";
-    },
-    ...mapState(["conceptIri", "filterOptions", "selectedFilters", "searchResults", "authReturnUrl"])
+    ...mapState(["conceptIri", "filterOptions", "searchResults", "selectedFilters", "authReturnUrl"])
   },
   data() {
     return {
@@ -84,6 +71,7 @@ export default defineComponent({
     openAppsOverlay() {
       (this.$refs.appsO as any).toggle(event);
     },
+
     openFiltersOverlay() {
       (this.$refs.filtersO as any).toggle(event);
     },
@@ -101,21 +89,10 @@ export default defineComponent({
       this.searchText = "";
     },
 
-    toLandingPage() {
-      this.$router.push({
-        path: "/"
-      });
-    },
-
-    directToSearchView(event: any) {
-      if (event.code === "Enter") {
-        this.$router.push({
-          name: "Search"
-        });
-      }
-    },
-
     async search(): Promise<void> {
+      this.$router.push({
+        name: "Search"
+      });
       this.$store.commit("updateSearchLoading", true);
       const searchRequest = new SearchRequest();
       searchRequest.termFilter = this.searchText;
@@ -217,5 +194,9 @@ export default defineComponent({
 
 .fa-icon {
   padding-right: 0.25rem;
+}
+
+.p-autocomplete-items {
+  display: none;
 }
 </style>
