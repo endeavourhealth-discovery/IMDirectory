@@ -18,6 +18,7 @@
             @row-dblclick="onDoubleClick"
             :scrollable="true"
             scrollHeight="flex"
+            class="p-datatable-sm"
           >
             <template #empty>
               No recent activity
