@@ -245,6 +245,7 @@ export default defineComponent({
   display: flex;
   flex-flow: row wrap;
   width: 100%;
+  height: 100%;
   overflow: auto;
   border: none;
   box-shadow: none;
