@@ -125,6 +125,9 @@ export default defineComponent({
         this.color = "color: " + getColourFromType(newValue);
         this.icon = getFAIconFromType(newValue);
       }
+    },
+    async favourites() {
+      if (this.onFavouriteView) await this.init(this.conceptIri);
     }
   },
   async mounted() {
