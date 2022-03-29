@@ -19,7 +19,6 @@ export default createStore({
   // update stateType.ts when adding new state!
   state: {
     selectedConceptIri: "",
-    selectedOnNavTree: {},
     locateOnNavTreeIri: "",
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
@@ -51,9 +50,6 @@ export default createStore({
     defaultPredicateNames: {} as any
   },
   mutations: {
-    updateSelectedOnNavTree(state, selectedOnNavTree) {
-      state.selectedOnNavTree = selectedOnNavTree;
-    },
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },

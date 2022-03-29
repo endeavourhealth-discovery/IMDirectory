@@ -43,12 +43,10 @@ const {
 
 export default defineComponent({
   name: "NavTree",
-  computed: mapState(["conceptIri", "selectedOnNavTree", "locateOnNavTreeIri"]),
+  computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
-    selectedOnNavTree() {
-      if (!this.selectedOnNavTree) {
-        this.selected = {};
-      }
+    async favourites() {
+      this.updateFavourites();
     },
     locateOnNavTreeIri() {
       this.findPathToNode(this.locateOnNavTreeIri);
@@ -84,6 +82,17 @@ export default defineComponent({
     this.loading = false;
   },
   methods: {
+    async updateFavourites() {
+      const favNode = this.findNode(IM.NAMESPACE + "Favourites", this.root);
+
+      favNode.loading = true;
+      favNode.children = [];
+      for (let favourite of this.favourites) {
+        const entity = await EntityService.getPartialEntity(favourite, [RDF.TYPE, RDFS.LABEL, IM.HAS_CHILDREN]);
+        favNode.children.push(this.createTreeNode(entity[RDFS.LABEL], favourite, entity[RDF.TYPE], false));
+      }
+      favNode.loading = false;
+    },
     async addParentFoldersToRoot() {
       const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
@@ -91,6 +100,17 @@ export default defineComponent({
         if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasChildren));
       }
       this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
+      this.root.push({
+        key: "Favourites",
+        label: "Favourites",
+        typeIcon: ["fas", "star"],
+        color: "#e39a36",
+        data: IM.NAMESPACE + "Favourites",
+        leaf: false,
+        loading: false,
+        children: [] as TreeNode[]
+      });
+      this.updateFavourites();
     },
 
     createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
@@ -113,7 +133,6 @@ export default defineComponent({
         params: { selectedIri: node.data }
       });
       this.$store.commit("updateSelectedConceptIri", node.data);
-      this.$store.commit("updateSelectedOnNavTree", true);
     },
 
     async onNodeExpand(node: TreeNode) {
