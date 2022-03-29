@@ -28,16 +28,18 @@
           <div class="grid">
             <div class="col-10 table-header">
               <Breadcrumb :home="home" :model="pathItems" />
-              <Button
-                v-if="isFavourite(conceptIri)"
-                icon="fa-solid fa-star"
-                style="color: #e39a36"
-                class="p-button-rounded p-button-text p-button-plain"
-                @click="updateParentFavourite"
-              />
-              <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
-              <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
-              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
+              <div v-if="!onFavouriteView">
+                <Button
+                  v-if="isFavourite(conceptIri)"
+                  icon="fa-solid fa-star"
+                  style="color: #e39a36"
+                  class="p-button-rounded p-button-text p-button-plain"
+                  @click="updateParentFavourite"
+                />
+                <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
+                <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
+                <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
+              </div>
             </div>
             <div class="col-2 header-button-group p-buttonset">
               <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
@@ -109,11 +111,14 @@ const {
 export default defineComponent({
   name: "DirectoryTable",
   computed: {
+    onFavouriteView() {
+      return this.$route.params.selectedIri === IM.NAMESPACE + "Favourites";
+    },
     ...mapState(["conceptIri", "favourites"])
   },
   watch: {
     async conceptIri(newValue) {
-      if (newValue !== IM.NAMESPACE + "Favourites") await this.init();
+      if (newValue) await this.init(newValue);
     },
     types(newValue): void {
       if (newValue && newValue.length > 0) {
@@ -123,7 +128,7 @@ export default defineComponent({
     }
   },
   async mounted() {
-    await this.init();
+    if (this.conceptIri) await this.init(this.conceptIri);
   },
   data() {
     return {
@@ -295,11 +300,18 @@ export default defineComponent({
       this.$router.push({ name: "Create" });
     },
 
-    async init(): Promise<void> {
+    async init(iri: string): Promise<void> {
       this.loading = true;
-      if (this.conceptIri) {
-        await this.getChildren(this.conceptIri);
-        await this.getPath(this.conceptIri);
+      if (iri === IM.NAMESPACE + "Favourites") {
+        const children = await EntityService.getPartialEntities(this.favourites, []);
+        (this.children as any) = children.map(child => {
+          return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
+        });
+        this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
+        this.pathItems = [{ label: "Favourites", to: iri.replace(/\//gi, "%2F").replace(/#/gi, "%23") }];
+      } else {
+        await this.getChildren(iri);
+        await this.getPath(iri);
       }
       this.setBackForwardDisables();
       this.loading = false;
