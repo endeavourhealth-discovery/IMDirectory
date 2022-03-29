@@ -55,8 +55,10 @@ export default defineComponent({
       if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
         if (!this.selectedNode.children || this.selectedNode.children.length === 0) {
           await this.onNodeExpand(this.selectedNode);
-          this.expandedKeys[this.selectedNode.key] = true;
         }
+        this.expandedKeys[this.selectedNode.key] = true;
+        this.expandedKeys = { ...this.expandedKeys };
+
         const child = this.selectedNode.children.find(c => c.data === this.conceptIri);
         if (child) {
           this.selected = {};
