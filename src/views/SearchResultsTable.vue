@@ -23,6 +23,8 @@
       </div>
 
       <DataTable
+        :paginator="true"
+        :rows="20"
         :value="localSearchResults"
         class="p-datatable-sm"
         v-model:selection="selected"
