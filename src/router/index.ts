@@ -68,6 +68,9 @@ router.beforeEach(async (to, from, next) => {
     store.commit("updateSnomedReturnUrl", currentUrl);
     store.commit("updateAuthReturnUrl", currentUrl);
   }
+  if (to.params.selectedIri) {
+    store.commit("updateConceptIri", to.params.selectedIri as string);
+  }
   hasCalledNext = await checkAuth(to, currentUrl, store, hasCalledNext, "Auth");
   hasCalledNext = checkLicense(to, next, store, hasCalledNext);
   if (!hasCalledNext) next();
