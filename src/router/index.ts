@@ -5,7 +5,7 @@ import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
 import { SnomedLicense, Env, Helpers } from "im-library";
 const {
-  RouterCheckers: { checkAuth, checkLicense }
+  RouterGuards: { checkAuth, checkLicense }
 } = Helpers;
 import store from "@/store/index";
 import { nextTick } from "vue";
@@ -62,14 +62,15 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  let hasCalledNext = false;
   const currentUrl = Env.directoryUrl + "#" + to.path;
   if (to.path !== "/snomedLicense") {
     store.commit("updateSnomedReturnUrl", currentUrl);
     store.commit("updateAuthReturnUrl", currentUrl);
   }
   await checkAuth(to, currentUrl, store);
-  checkLicense(to, next, store);
-  next();
+  hasCalledNext = checkLicense(to, next, store, hasCalledNext);
+  if (!hasCalledNext) next();
 });
 
 router.afterEach(to => {
