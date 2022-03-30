@@ -85,7 +85,7 @@ export default defineComponent({
       const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
-        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasChildren));
+        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren));
       }
       this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
       const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
@@ -120,15 +120,9 @@ export default defineComponent({
       if (isObjectHasKeys(node)) {
         node.loading = true;
         const children = await EntityService.getEntityChildren(node.data);
-        for (const child of children) {
-          if (child.hasChildren) {
-            const grandChildren = await EntityService.getEntityChildren(child["@id"]);
-            (child as any).hasExpandableChildren = grandChildren.findIndex(grandChild => grandChild.hasChildren) !== -1;
-          }
-        }
         children.forEach(child => {
           if (!this.nodeHasChild(node, child) && child.hasChildren)
-            node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren && (child as any).hasExpandableChildren));
+            node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasGrandChildren));
         });
         node.loading = false;
       }
