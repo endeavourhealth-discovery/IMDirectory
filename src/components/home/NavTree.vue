@@ -87,11 +87,15 @@ export default defineComponent({
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
         if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren));
       }
-      this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
+      this.root.sort(this.byKey);
       const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
       favNode.typeIcon = ["fas", "star"];
       favNode.color = "#e39a36";
       this.root.push(favNode);
+    },
+
+    byKey(a: any, b: any): number {
+      return a.key > b.key ? 1 : b.key > a.key ? -1 : 0;
     },
 
     createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
