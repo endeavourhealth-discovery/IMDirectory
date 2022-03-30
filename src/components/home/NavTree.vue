@@ -95,7 +95,13 @@ export default defineComponent({
     },
 
     byKey(a: any, b: any): number {
-      return a.key > b.key ? 1 : b.key > a.key ? -1 : 0;
+      if (a.key > b.key) {
+        return 1;
+      } else if (b.key > a.key) {
+        return -1;
+      } else {
+        return 0;
+      }
     },
 
     createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {

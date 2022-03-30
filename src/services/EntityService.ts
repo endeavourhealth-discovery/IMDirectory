@@ -10,12 +10,8 @@ import {
   FiltersAsIris,
   GraphData
 } from "im-library/dist/types/interfaces/Interfaces";
-import { Models, Vocabulary } from "im-library";
-import {Env} from 'im-library';
-const { RDFS, RDF } = Vocabulary;
-const {
-  Search: { ConceptSummary, SearchRequest, SearchResponse }
-} = Models;
+import { Models } from "im-library";
+import { Env } from "im-library";
 
 export default class EntityService {
   public static async downloadConcept(iri: string, format: string): Promise<any> {
@@ -270,7 +266,7 @@ export default class EntityService {
   public static async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
     try {
       return await axios.get(Env.api + "api/entity/public/pathBetweenNodes", {
-        params: {descendant: descendant, ancestor: ancestor}
+        params: { descendant: descendant, ancestor: ancestor }
       });
     } catch (error) {
       return [];

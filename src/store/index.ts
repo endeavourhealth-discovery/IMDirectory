@@ -99,7 +99,15 @@ export default createStore({
       const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.app === recentActivityItem.app);
       if (foundIndex !== -1) {
         activity[foundIndex].dateTime = recentActivityItem.dateTime;
-        activity.sort((a, b) => (a.dateTime.getTime() > b.dateTime.getTime() ? 1 : b.dateTime.getTime() > a.dateTime.getTime() ? -1 : 0));
+        activity.sort((a, b) => {
+          if (a.dateTime.getTime() > b.dateTime.getTime()) {
+            return 1;
+          } else if (b.dateTime.getTime() > a.dateTime.getTime()) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
       } else {
         while (activity.length > 4) activity.shift();
         activity.push(recentActivityItem);

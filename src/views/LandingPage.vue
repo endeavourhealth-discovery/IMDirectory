@@ -39,24 +39,6 @@
           </DataTable>
         </template>
       </Card>
-      <!-- <Card>
-      <template #title>
-        Latest activity
-      </template>
-      <template #content>
-        <DataView :value="products" layout="grid">
-          <template #grid="slotProps">
-            <div style="padding: .5em" class="col-12 md:col-3">
-              <Panel :header="slotProps.data.name" style="text-align: center">
-                <img :src="'demo/images/car/' + slotProps.data.brand + '.png'" :alt="slotProps.data.brand" />
-                <div class="car-detail">{{ slotProps.data.year }} - {{ slotProps.data.color }}</div>
-                <Button label="Continue" class="p-button-outlined" icon="pi pi-arrow-circle-right" iconPos="right" />
-              </Panel>
-            </div>
-          </template>
-        </DataView>
-      </template>
-    </Card> -->
       <div id="dashboard-container">
         <template v-for="(cardData, index) in cardsData" :key="index">
           <component
@@ -135,7 +117,8 @@ export default defineComponent({
           activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
         }
       }
-      this.activities = storedActivity.reverse();
+      storedActivity.reverse();
+      this.activities = storedActivity;
     },
 
     async getConfigs(): Promise<void> {
