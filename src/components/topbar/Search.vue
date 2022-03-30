@@ -90,37 +90,38 @@ export default defineComponent({
     },
 
     async search(): Promise<void> {
-      if (this.searchText)
+      if (this.searchText) {
         this.$router.push({
           name: "Search"
         });
-      this.$store.commit("updateSearchLoading", true);
-      const searchRequest = new SearchRequest();
-      searchRequest.termFilter = this.searchText;
-      searchRequest.sortBy = SortBy.Usage;
-      searchRequest.page = 1;
-      searchRequest.size = 100;
-      searchRequest.schemeFilter = this.selectedFilters.schemes.map((scheme: Namespace) => scheme.iri);
+        this.$store.commit("updateSearchLoading", true);
+        const searchRequest = new SearchRequest();
+        searchRequest.termFilter = this.searchText;
+        searchRequest.sortBy = SortBy.Usage;
+        searchRequest.page = 1;
+        searchRequest.size = 100;
+        searchRequest.schemeFilter = this.selectedFilters.schemes.map((scheme: Namespace) => scheme.iri);
 
-      searchRequest.statusFilter = [];
-      this.selectedFilters.status.forEach((status: EntityReferenceNode) => {
-        searchRequest.statusFilter.push(status["@id"]);
-      });
+        searchRequest.statusFilter = [];
+        this.selectedFilters.status.forEach((status: EntityReferenceNode) => {
+          searchRequest.statusFilter.push(status["@id"]);
+        });
 
-      searchRequest.typeFilter = [];
-      this.selectedFilters.types.forEach((type: TTIriRef) => {
-        searchRequest.typeFilter.push(type["@id"]);
-      });
-      if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
-        await this.request.cancel({ status: 499, message: "Search cancelled by user" });
+        searchRequest.typeFilter = [];
+        this.selectedFilters.types.forEach((type: TTIriRef) => {
+          searchRequest.typeFilter.push(type["@id"]);
+        });
+        if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
+          await this.request.cancel({ status: 499, message: "Search cancelled by user" });
+        }
+        const axiosSource = axios.CancelToken.source();
+        this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
+        await this.$store.dispatch("fetchSearchResults", {
+          searchRequest: searchRequest,
+          cancelToken: axiosSource.token
+        });
+        this.$store.commit("updateSearchLoading", false);
       }
-      const axiosSource = axios.CancelToken.source();
-      this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
-      await this.$store.dispatch("fetchSearchResults", {
-        searchRequest: searchRequest,
-        cancelToken: axiosSource.token
-      });
-      this.$store.commit("updateSearchLoading", false);
     },
     setUserMenuItems(): void {
       this.loginItems = [
