@@ -6,7 +6,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { mapState } from "vuex";
 import NavTree from "@/components/home/NavTree.vue";
 
 export default defineComponent({

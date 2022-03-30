@@ -101,7 +101,7 @@ export default defineComponent({
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
         if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasChildren));
       }
-      this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
+      this.root.sort(this.byKey);
       this.root.push({
         key: "Favourites",
         label: "Favourites",
@@ -113,6 +113,10 @@ export default defineComponent({
         children: [] as TreeNode[]
       });
       this.updateFavourites();
+    },
+
+    byKey(a: any, b: any): number {
+      return a.key > b.key ? 1 : b.key > a.key ? -1 : 0;
     },
 
     createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {

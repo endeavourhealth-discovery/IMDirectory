@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import Filters from "@/components/topbar/Filters.vue";
-import axios, { CancelToken } from "axios";
+import axios from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { RouteRecordName } from "vue-router";
@@ -35,7 +35,7 @@ const {
 } = Helpers;
 const { IM } = Vocabulary;
 const {
-  Search: { ConceptSummary, SearchRequest }
+  Search: { SearchRequest }
 } = Models;
 
 export default defineComponent({
@@ -68,11 +68,7 @@ export default defineComponent({
       return "color: " + getColourFromType(types);
     },
 
-    openAppsOverlay() {
-      (this.$refs.appsO as any).toggle(event);
-    },
-
-    openFiltersOverlay() {
+    openFiltersOverlay(event: any) {
       (this.$refs.filtersO as any).toggle(event);
     },
 

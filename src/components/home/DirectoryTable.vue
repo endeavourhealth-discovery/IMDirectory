@@ -58,7 +58,6 @@
         <Column field="type" header="Type">
           <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
         </Column>
-        <!-- <Column field="lastModified" header="Last Modified"></Column> -->
         <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
           <template #body="{data}">
             <Button
