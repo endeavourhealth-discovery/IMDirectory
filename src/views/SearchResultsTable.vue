@@ -100,7 +100,6 @@
 <script lang="ts">
 import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
-import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
@@ -109,9 +108,6 @@ const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes },
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
-const {
-  Search: { ConceptSummary }
-} = Models;
 const { AppEnum } = Enums;
 
 export default defineComponent({
@@ -242,14 +238,14 @@ export default defineComponent({
     filterResults() {
       const filteredSearchResults = [] as Models.Search.ConceptSummary[];
       (this.searchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
-        let isOfTypes = false;
+        let isSelectedType = false;
         searchResult.entityType.forEach(type => {
           if (this.selectedTypes.indexOf(type.name) != -1) {
-            isOfTypes = true;
+            isSelectedType = true;
           }
         });
 
-        if (this.selectedSchemes.indexOf(searchResult.scheme.name) != -1 && isOfTypes && this.selectedStatus.indexOf(searchResult.status.name) != -1) {
+        if (this.selectedSchemes.indexOf(searchResult.scheme.name) != -1 && isSelectedType && this.selectedStatus.indexOf(searchResult.status.name) != -1) {
           filteredSearchResults.push(searchResult);
         }
       });
