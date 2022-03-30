@@ -90,9 +90,10 @@ export default defineComponent({
     },
 
     async search(): Promise<void> {
-      this.$router.push({
-        name: "Search"
-      });
+      if (this.searchText)
+        this.$router.push({
+          name: "Search"
+        });
       this.$store.commit("updateSearchLoading", true);
       const searchRequest = new SearchRequest();
       searchRequest.termFilter = this.searchText;
