@@ -4,6 +4,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
@@ -135,7 +136,7 @@ describe("LandingPage.vue", () => {
     ]);
 
     wrapper = shallowMount(LandingPage, {
-      global: { components: { ProgressSpinner, Card, DataTable, Column }, mocks: { $store: mockStore }, directives: { Tooltip: Tooltip } }
+      global: { components: { ProgressSpinner, Card, DataTable, Column, Button }, mocks: { $store: mockStore }, directives: { Tooltip: Tooltip } }
     });
   });
 
