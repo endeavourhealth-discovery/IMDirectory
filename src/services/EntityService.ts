@@ -10,8 +10,7 @@ import {
   FiltersAsIris,
   GraphData
 } from "im-library/dist/types/interfaces/Interfaces";
-import { Models } from "im-library";
-import { Env } from "im-library";
+import { Env, Models } from "im-library";
 
 export default class EntityService {
   public static async downloadConcept(iri: string, format: string): Promise<any> {
@@ -30,7 +29,7 @@ export default class EntityService {
 
   public static async getFullExportSet(iri: string): Promise<any> {
     const client = axios.create({
-      baseURL: Env.api as string,
+      baseURL: Env.api,
       timeout: 0
     });
 
