@@ -21,7 +21,7 @@ sonarqube {
         property 'sonar.sources', 'src'
         property 'sonar.exclusions', '**/node_modules/**,**/environments/**/*,**/*.service.ts'
         property 'sonar.tests', 'tests'
-        property 'sonar.test.inclusions', '**/*.spec.ts,*/*.ts'
+        property 'sonar.test.inclusions', '**/*.spec.ts,**/*.ts,**/*.spec.js,**/*.js'
         property 'sonar.javascript.lcov.reportPaths', 'coverage/lcov.info'
     }
 }
