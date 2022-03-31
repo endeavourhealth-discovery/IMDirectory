@@ -105,7 +105,7 @@ import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
 const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
 const { AppEnum } = Enums;
@@ -207,7 +207,7 @@ export default defineComponent({
         if (isObjectHasKeys(result, ["entityType"])) {
           result.icon = getFAIconFromType(result.entityType);
           result.colour = getColourFromType(result.entityType);
-          result.typeNames = this.getNamesFromTypes(result.entityType);
+          result.typeNames = getNamesAsStringFromTypes(result.entityType);
           result.favourite = this.isFavourite(result.iri);
         }
       }
@@ -269,19 +269,12 @@ export default defineComponent({
           filteredSearchResults.push(searchResult);
         }
       });
-      this.localSearchResults = filteredSearchResults;
+      this.localSearchResults = [...filteredSearchResults];
+      this.processSearchResults();
     },
 
     onRowSelect(row: any) {
       this.$store.commit("updateSelectedConceptIri", row.data.iri);
-    },
-
-    getFAIconFromType(types: TTIriRef[]) {
-      return getFAIconFromType(types);
-    },
-
-    getColourFromType(types: TTIriRef[]) {
-      return "color: " + getColourFromType(types);
     },
 
     updateRClickOptions() {
@@ -295,10 +288,6 @@ export default defineComponent({
 
     onRowUnselect() {
       this.selected = {} as Models.Search.ConceptSummary;
-    },
-
-    getNamesFromTypes(typeList: TTIriRef[]) {
-      return typeList.map(type => type.name).join(", ");
     },
 
     navigateToEditor(): void {
@@ -325,7 +314,6 @@ export default defineComponent({
 
     view(row?: any) {
       if (row) this.selected = row.data;
-
       DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
     },
 
