@@ -36,7 +36,7 @@
         @row-dblclick="onRowDblClick"
         :scrollable="true"
         scrollHeight="flex"
-        :loading="searchLoading"
+        :loading="isLoading"
         v-model:contextMenuSelection="selected"
         ref="searchTable"
         dataKey="iri"
@@ -47,8 +47,8 @@
         <Column field="name" header="Name">
           <template #body="slotProps">
             <div class="ml-2">
-              <span :style="getColourFromType(slotProps.data.entityType)" class="p-mx-1">
-                <font-awesome-icon v-if="slotProps.data.entityType && slotProps.data.entityType.length" :icon="getFAIconFromType(slotProps.data.entityType)" />
+              <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
+                <font-awesome-icon v-if="slotProps.data.icon" :icon="slotProps.data.icon" />
               </span>
               {{ slotProps.data.match }}
             </div>
@@ -56,7 +56,7 @@
         </Column>
         <Column field="entityType" header="Types">
           <template #body="slotProps">
-            {{ getNamesFromTypes(slotProps.data.entityType) }}
+            {{ slotProps.data.typeNames }}
           </template>
         </Column>
         <Column field="status" header="Status">
@@ -81,7 +81,7 @@
             <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(slotProps)" />
 
             <Button
-              v-if="isFavourite(slotProps.data.iri)"
+              v-if="slotProps.data.favourite"
               style="color: #e39a36"
               icon="pi pi-fw pi-star-fill"
               class="p-button-rounded p-button-text "
@@ -106,14 +106,19 @@ import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes },
-  DataTypeCheckers: { isArrayHasLength }
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
 const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "SearchResultsTable",
   computed: {
-    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites", "filterDefaults"])
+    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites", "filterDefaults"]),
+
+    isLoading() {
+      if (this.loading || this.searchLoading) return true;
+      else return false;
+    }
   },
   watch: {
     searchResults() {
@@ -123,7 +128,6 @@ export default defineComponent({
       this.filterResults();
     }
   },
-
   mounted() {
     this.init();
   },
@@ -135,8 +139,9 @@ export default defineComponent({
       schemeOptions: [] as string[],
       statusOptions: [] as string[],
       typeOptions: [] as string[],
-      localSearchResults: [] as Models.Search.ConceptSummary[],
-      selected: {} as Models.Search.ConceptSummary,
+      localSearchResults: [] as any[],
+      loading: true,
+      selected: {} as any,
       rClickOptions: [
         {
           label: "Open",
@@ -177,19 +182,34 @@ export default defineComponent({
   methods: {
     updateFavourites(row?: any) {
       if (row) this.selected = row.data;
-
       this.$store.commit("updateFavourites", this.selected.iri);
     },
+
     isFavourite(iri: string) {
       if (!this.favourites.length) return false;
       return this.favourites.includes(iri);
     },
+
     init() {
-      this.localSearchResults = this.searchResults;
+      this.loading = true;
+      this.localSearchResults = [...this.searchResults];
+      this.processSearchResults();
       if (isArrayHasLength(this.localSearchResults)) {
         this.setFiltersFromSearchResults();
       } else {
         this.setFilterDefaults();
+      }
+      this.loading = false;
+    },
+
+    processSearchResults() {
+      for (const result of this.localSearchResults) {
+        if (isObjectHasKeys(result, ["entityType"])) {
+          result.icon = getFAIconFromType(result.entityType);
+          result.colour = getColourFromType(result.entityType);
+          result.typeNames = this.getNamesFromTypes(result.entityType);
+          result.favourite = this.isFavourite(result.iri);
+        }
       }
     },
 
