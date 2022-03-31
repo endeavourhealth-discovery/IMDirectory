@@ -9,9 +9,7 @@ export default defineConfig({
     esbuildOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]
     },
-    exclude: [
-      'im-library',
-    ]
+    exclude: ["im-library"]
   },
   resolve: {
     dedupe: ["vue"],
@@ -24,6 +22,9 @@ export default defineConfig({
       jsdom: {
         url: "http://localhost"
       }
+    },
+    coverage: {
+      reporter: ["text", "lcov"]
     }
   }
 });
