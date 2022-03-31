@@ -20,8 +20,7 @@ sonarqube {
         property 'sonar.login', sonarLogin
         property 'sonar.sources', 'src'
         property 'sonar.exclusions', '**/node_modules/**,**/environments/**/*,**/*.service.ts'
-        property 'sonar.tests', 'tests'
-        property 'sonar.test.inclusions', '**/*.spec.ts,**/*.spec.js'
+        property 'sonar.tests', 'tests/unit'
         property 'sonar.javascript.lcov.reportPaths', 'coverage/lcov.info'
     }
 }
