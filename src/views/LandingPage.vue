@@ -153,7 +153,6 @@ export default defineComponent({
 
     getDayDisplay(dateTime: Date) {
       const now = new Date();
-      dateTime.getDay() === now.getDay();
       if (dateTime.getDay() === now.getDay()) return "today";
       if (now.getDay() - dateTime.getDay() === 1) return "yesterday";
       if (now.getDay() - dateTime.getDay() < 7) return "this week";
