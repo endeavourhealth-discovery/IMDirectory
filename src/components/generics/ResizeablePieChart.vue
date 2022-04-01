@@ -57,7 +57,7 @@ export default defineComponent({
             }
           }
         },
-        maintainAspectRatio: false
+        maintainAspectRatio: true
       } as ChartOptions,
       realData: [] as number[],
       chartConceptTypes: new PieChartData(
@@ -140,9 +140,10 @@ export default defineComponent({
 
 <style scoped>
 .chart-container {
-  position: relative;
-  height: 100%;
-  width: 100%;
+  position:relative;
+  margin-left: 20%;
+  height: 50%;
+  width: 50%;
 }
 
 .p-chart {

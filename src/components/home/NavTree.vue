@@ -35,21 +35,16 @@ import { mapState } from "vuex";
 import EntityService from "@/services/EntityService";
 import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers } from "im-library";
-const { IM, RDF, RDFS } = Vocabulary;
+const { IM } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
 
 export default defineComponent({
   name: "NavTree",
-  computed: mapState(["conceptIri", "selectedOnNavTree", "locateOnNavTreeIri"]),
+  computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
-    selectedOnNavTree() {
-      if (!this.selectedOnNavTree) {
-        this.selected = {};
-      }
-    },
     locateOnNavTreeIri() {
       this.findPathToNode(this.locateOnNavTreeIri);
     },
@@ -57,8 +52,10 @@ export default defineComponent({
       if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
         if (!this.selectedNode.children || this.selectedNode.children.length === 0) {
           await this.onNodeExpand(this.selectedNode);
-          this.expandedKeys[this.selectedNode.key] = true;
         }
+        this.expandedKeys[this.selectedNode.key] = true;
+        this.expandedKeys = { ...this.expandedKeys };
+
         const child = this.selectedNode.children.find(c => c.data === this.conceptIri);
         if (child) {
           this.selected = {};
@@ -88,9 +85,23 @@ export default defineComponent({
       const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
-        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasChildren));
+        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren));
       }
-      this.root.sort((a, b) => (a.key > b.key ? 1 : b.key > a.key ? -1 : 0));
+      this.root.sort(this.byKey);
+      const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
+      favNode.typeIcon = ["fas", "star"];
+      favNode.color = "#e39a36";
+      this.root.push(favNode);
+    },
+
+    byKey(a: any, b: any): number {
+      if (a.key > b.key) {
+        return 1;
+      } else if (b.key > a.key) {
+        return -1;
+      } else {
+        return 0;
+      }
     },
 
     createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
@@ -113,7 +124,6 @@ export default defineComponent({
         params: { selectedIri: node.data }
       });
       this.$store.commit("updateSelectedConceptIri", node.data);
-      this.$store.commit("updateSelectedOnNavTree", true);
     },
 
     async onNodeExpand(node: TreeNode) {
@@ -122,7 +132,7 @@ export default defineComponent({
         const children = await EntityService.getEntityChildren(node.data);
         children.forEach(child => {
           if (!this.nodeHasChild(node, child) && child.hasChildren)
-            node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+            node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasGrandChildren));
         });
         node.loading = false;
       }
@@ -190,20 +200,19 @@ export default defineComponent({
       if (foundNode) {
         this.selectKey(foundNode.key);
       } else {
-          await this.expandUntilSelected(iri);
+        await this.expandUntilSelected(iri);
       }
     },
 
     async findPathToNode(iri: string) {
       const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
-
       // Recursively expand
-      let n = this.root.find(c => path.find(p => p['@id'] === c.data));
+      let n = this.root.find(c => path.find(p => p["@id"] === c.data));
       let i = 0;
       if (n) {
         this.expandedKeys = {};
-        while (n && n.data != path[0]['@id'] && i++ < 50) {
+        while (n && n.data != path[0]["@id"] && i++ < 50) {
           this.selectKey(n.key);
           // Expand node if necessary
           if (!n.children || n.children.length == 0) {
@@ -212,10 +221,10 @@ export default defineComponent({
           this.expandedKeys[n.key] = true;
 
           // Find relevant child
-          n = n.children.find(c => path.find(p => p['@id'] === c.data));
+          n = n.children.find(c => path.find(p => p["@id"] === c.data));
         }
 
-        if (n && n.data === path[0]['@id']) {
+        if (n && n.data === path[0]["@id"]) {
           await this.onNodeSelect(n);
         } else {
           this.$toast.add({
@@ -232,14 +241,15 @@ export default defineComponent({
 
 <style scoped>
 #hierarchy-tree-bar-container {
-  height: calc(100%);
+  flex: 1;
+  overflow: auto;
 }
 
 .loading-container {
   width: 100%;
   height: 100%;
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
   justify-content: center;
   align-items: center;
 }

@@ -23,6 +23,8 @@
       </div>
 
       <DataTable
+        :paginator="true"
+        :rows="20"
         :value="localSearchResults"
         class="p-datatable-sm"
         v-model:selection="selected"
@@ -34,7 +36,7 @@
         @row-dblclick="onRowDblClick"
         :scrollable="true"
         scrollHeight="flex"
-        :loading="searchLoading"
+        :loading="isLoading"
         v-model:contextMenuSelection="selected"
         ref="searchTable"
         dataKey="iri"
@@ -45,8 +47,8 @@
         <Column field="name" header="Name">
           <template #body="slotProps">
             <div class="ml-2">
-              <span :style="getColourFromType(slotProps.data.entityType)" class="p-mx-1">
-                <font-awesome-icon v-if="slotProps.data.entityType && slotProps.data.entityType.length" :icon="getFAIconFromType(slotProps.data.entityType)" />
+              <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
+                <font-awesome-icon v-if="slotProps.data.icon" :icon="slotProps.data.icon" />
               </span>
               {{ slotProps.data.match }}
             </div>
@@ -54,7 +56,7 @@
         </Column>
         <Column field="entityType" header="Types">
           <template #body="slotProps">
-            {{ getNamesFromTypes(slotProps.data.entityType) }}
+            {{ slotProps.data.typeNames }}
           </template>
         </Column>
         <Column field="status" header="Status">
@@ -98,24 +100,24 @@
 <script lang="ts">
 import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
-import { RouteRecordName } from "vue-router";
 import { mapState } from "vuex";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
 const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes },
-  DataTypeCheckers: { isArrayHasLength }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
-const {
-  Search: { ConceptSummary }
-} = Models;
 const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "SearchResultsTable",
   computed: {
-    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites", "filterDefaults"])
+    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites", "filterDefaults"]),
+
+    isLoading() {
+      if (this.loading || this.searchLoading) return true;
+      else return false;
+    }
   },
   watch: {
     searchResults() {
@@ -125,7 +127,6 @@ export default defineComponent({
       this.filterResults();
     }
   },
-
   mounted() {
     this.init();
   },
@@ -137,8 +138,9 @@ export default defineComponent({
       schemeOptions: [] as string[],
       statusOptions: [] as string[],
       typeOptions: [] as string[],
-      localSearchResults: [] as Models.Search.ConceptSummary[],
-      selected: {} as Models.Search.ConceptSummary,
+      localSearchResults: [] as any[],
+      loading: true,
+      selected: {} as any,
       rClickOptions: [
         {
           label: "Open",
@@ -179,19 +181,34 @@ export default defineComponent({
   methods: {
     updateFavourites(row?: any) {
       if (row) this.selected = row.data;
-
       this.$store.commit("updateFavourites", this.selected.iri);
     },
+
     isFavourite(iri: string) {
       if (!this.favourites.length) return false;
       return this.favourites.includes(iri);
     },
+
     init() {
-      this.localSearchResults = this.searchResults;
+      this.loading = true;
+      this.localSearchResults = [...this.searchResults];
+      this.processSearchResults();
       if (isArrayHasLength(this.localSearchResults)) {
         this.setFiltersFromSearchResults();
       } else {
         this.setFilterDefaults();
+      }
+      this.loading = false;
+    },
+
+    processSearchResults() {
+      for (const result of this.localSearchResults) {
+        if (isObjectHasKeys(result, ["entityType"])) {
+          result.icon = getFAIconFromType(result.entityType);
+          result.colour = getColourFromType(result.entityType);
+          result.typeNames = getNamesAsStringFromTypes(result.entityType);
+          result.favourite = this.isFavourite(result.iri);
+        }
       }
     },
 
@@ -240,30 +257,23 @@ export default defineComponent({
     filterResults() {
       const filteredSearchResults = [] as Models.Search.ConceptSummary[];
       (this.searchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
-        let isOfTypes = false;
+        let isSelectedType = false;
         searchResult.entityType.forEach(type => {
           if (this.selectedTypes.indexOf(type.name) != -1) {
-            isOfTypes = true;
+            isSelectedType = true;
           }
         });
 
-        if (this.selectedSchemes.indexOf(searchResult.scheme.name) != -1 && isOfTypes && this.selectedStatus.indexOf(searchResult.status.name) != -1) {
+        if (this.selectedSchemes.indexOf(searchResult.scheme.name) != -1 && isSelectedType && this.selectedStatus.indexOf(searchResult.status.name) != -1) {
           filteredSearchResults.push(searchResult);
         }
       });
-      this.localSearchResults = filteredSearchResults;
+      this.localSearchResults = [...filteredSearchResults];
+      this.processSearchResults();
     },
 
     onRowSelect(row: any) {
       this.$store.commit("updateSelectedConceptIri", row.data.iri);
-    },
-
-    getFAIconFromType(types: TTIriRef[]) {
-      return getFAIconFromType(types);
-    },
-
-    getColourFromType(types: TTIriRef[]) {
-      return "color: " + getColourFromType(types);
     },
 
     updateRClickOptions() {
@@ -279,10 +289,6 @@ export default defineComponent({
       this.selected = {} as Models.Search.ConceptSummary;
     },
 
-    getNamesFromTypes(typeList: TTIriRef[]) {
-      return typeList.map(type => type.name).join(", ");
-    },
-
     navigateToEditor(): void {
       DirectService.directTo(AppEnum.EDITOR, this.selected.iri, this);
     },
@@ -294,7 +300,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.selected = event.data;
-      if (isOfTypes(this.selected?.entityType, IM.FOLDER)) this.open();
+      if (isFolder(this.selected?.entityType, IM.FOLDER)) this.open();
       else this.view();
     },
 
@@ -307,7 +313,6 @@ export default defineComponent({
 
     view(row?: any) {
       if (row) this.selected = row.data;
-
       DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
     },
 

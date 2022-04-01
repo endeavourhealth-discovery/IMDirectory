@@ -2,23 +2,13 @@
   <div>
     <AutoComplete
       id="autocomplete-search"
-      @keydown="directToSearchView"
       autoWidth="false"
       v-model="searchText"
-      :suggestions="searchResults"
       placeholder="Search"
+      :suggestions="searchResults"
       @complete="search"
       @item-select="navigate"
-    >
-      <template #item="data">
-        <div class="ml-2 autocomplete-row" v-tooltip.left="data.item.code">
-          <span :style="getColourFromType(data.item.entityType)" class="p-mx-1 fa-icon">
-            <font-awesome-icon v-if="data.item.entityType && data.item.entityType.length" :icon="getFAIconFromType(data.item.entityType)" />
-          </span>
-          <span class="autocomplete-row-name">{{ data.item.name }}</span>
-        </div>
-      </template>
-    </AutoComplete>
+    />
 
     <Button id="filter-button" icon="pi pi-sliders-h" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openFiltersOverlay" />
     <OverlayPanel ref="filtersO" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
@@ -31,7 +21,7 @@
 
 <script lang="ts">
 import Filters from "@/components/topbar/Filters.vue";
-import axios, { CancelToken } from "axios";
+import axios from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { RouteRecordName } from "vue-router";
@@ -41,11 +31,11 @@ import { Enums, Env, Models, Helpers, Vocabulary } from "im-library";
 const { AppEnum, SortBy } = Enums;
 const {
   DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder }
 } = Helpers;
 const { IM } = Vocabulary;
 const {
-  Search: { ConceptSummary, SearchRequest }
+  Search: { SearchRequest }
 } = Models;
 
 export default defineComponent({
@@ -55,10 +45,7 @@ export default defineComponent({
     this.setUserMenuItems();
   },
   computed: {
-    autocompleteDisplay() {
-      return this.$route.name === "Search";
-    },
-    ...mapState(["conceptIri", "filterOptions", "selectedFilters", "searchResults", "authReturnUrl"])
+    ...mapState(["conceptIri", "filterOptions", "searchResults", "selectedFilters", "authReturnUrl"])
   },
   data() {
     return {
@@ -81,16 +68,13 @@ export default defineComponent({
       return "color: " + getColourFromType(types);
     },
 
-    openAppsOverlay() {
-      (this.$refs.appsO as any).toggle(event);
-    },
-    openFiltersOverlay() {
+    openFiltersOverlay(event: any) {
       (this.$refs.filtersO as any).toggle(event);
     },
 
     navigate(event: any): void {
       const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isOfTypes(event.value?.entityType, IM.FOLDER)) {
+      if (isFolder(event.value?.entityType)) {
         this.$router.push({
           name: currentRoute,
           params: { selectedIri: event.value.iri }
@@ -101,48 +85,39 @@ export default defineComponent({
       this.searchText = "";
     },
 
-    toLandingPage() {
-      this.$router.push({
-        path: "/"
-      });
-    },
-
-    directToSearchView(event: any) {
-      if (event.code === "Enter") {
+    async search(): Promise<void> {
+      if (this.searchText) {
         this.$router.push({
           name: "Search"
         });
+        this.$store.commit("updateSearchLoading", true);
+        const searchRequest = new SearchRequest();
+        searchRequest.termFilter = this.searchText;
+        searchRequest.sortBy = SortBy.Usage;
+        searchRequest.page = 1;
+        searchRequest.size = 100;
+        searchRequest.schemeFilter = this.selectedFilters.schemes.map((scheme: Namespace) => scheme.iri);
+
+        searchRequest.statusFilter = [];
+        this.selectedFilters.status.forEach((status: EntityReferenceNode) => {
+          searchRequest.statusFilter.push(status["@id"]);
+        });
+
+        searchRequest.typeFilter = [];
+        this.selectedFilters.types.forEach((type: TTIriRef) => {
+          searchRequest.typeFilter.push(type["@id"]);
+        });
+        if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
+          await this.request.cancel({ status: 499, message: "Search cancelled by user" });
+        }
+        const axiosSource = axios.CancelToken.source();
+        this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
+        await this.$store.dispatch("fetchSearchResults", {
+          searchRequest: searchRequest,
+          cancelToken: axiosSource.token
+        });
+        this.$store.commit("updateSearchLoading", false);
       }
-    },
-
-    async search(): Promise<void> {
-      this.$store.commit("updateSearchLoading", true);
-      const searchRequest = new SearchRequest();
-      searchRequest.termFilter = this.searchText;
-      searchRequest.sortBy = SortBy.Usage;
-      searchRequest.page = 1;
-      searchRequest.size = 100;
-      searchRequest.schemeFilter = this.selectedFilters.schemes.map((scheme: Namespace) => scheme.iri);
-
-      searchRequest.statusFilter = [];
-      this.selectedFilters.status.forEach((status: EntityReferenceNode) => {
-        searchRequest.statusFilter.push(status["@id"]);
-      });
-
-      searchRequest.typeFilter = [];
-      this.selectedFilters.types.forEach((type: TTIriRef) => {
-        searchRequest.typeFilter.push(type["@id"]);
-      });
-      if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
-        await this.request.cancel({ status: 499, message: "Search cancelled by user" });
-      }
-      const axiosSource = axios.CancelToken.source();
-      this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
-      await this.$store.dispatch("fetchSearchResults", {
-        searchRequest: searchRequest,
-        cancelToken: axiosSource.token
-      });
-      this.$store.commit("updateSearchLoading", false);
     },
     setUserMenuItems(): void {
       this.loginItems = [
@@ -217,5 +192,9 @@ export default defineComponent({
 
 .fa-icon {
   padding-right: 0.25rem;
+}
+
+.p-autocomplete-items {
+  display: none;
 }
 </style>

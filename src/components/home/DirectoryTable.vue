@@ -28,16 +28,18 @@
           <div class="grid">
             <div class="col-10 table-header">
               <Breadcrumb :home="home" :model="pathItems" />
-              <Button
-                v-if="isFavourite(conceptIri)"
-                icon="fa-solid fa-star"
-                style="color: #e39a36"
-                class="p-button-rounded p-button-text p-button-plain"
-                @click="updateParentFavourite"
-              />
-              <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
-              <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
-              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
+              <div v-if="!onFavouriteView">
+                <Button
+                  v-if="isFavourite(conceptIri)"
+                  icon="fa-solid fa-star"
+                  style="color: #e39a36"
+                  class="p-button-rounded p-button-text p-button-plain"
+                  @click="updateParentFavourite"
+                />
+                <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
+                <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
+                <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
+              </div>
             </div>
             <div class="col-2 header-button-group p-buttonset">
               <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
@@ -54,9 +56,8 @@
           </template>
         </Column>
         <Column field="type" header="Type">
-          <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
+          <template #body="{data}"> {{ getNamesAsStringFromTypes(data.type) }}</template>
         </Column>
-        <!-- <Column field="lastModified" header="Last Modified"></Column> -->
         <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
           <template #body="{data}">
             <Button
@@ -99,31 +100,33 @@ import { Enums, Vocabulary, Helpers } from "im-library";
 const { AppEnum } = Enums;
 const { IM, RDFS, RDF } = Vocabulary;
 const {
-  DataTypeCheckers: { isObjectHasKeys },
-  CopyConceptToClipboard: { copyConceptToClipboard },
-  ContainerDimensionGetters: { getContainerElementOptimalHeight },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes },
-  Sorters: { byOrder }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes }
 } = Helpers;
 
 export default defineComponent({
   name: "DirectoryTable",
   computed: {
+    onFavouriteView() {
+      return this.$route.params.selectedIri === IM.NAMESPACE + "Favourites";
+    },
     ...mapState(["conceptIri", "favourites"])
   },
   watch: {
     async conceptIri(newValue) {
-      if (newValue !== IM.NAMESPACE + "Favourites") await this.init();
+      if (newValue) await this.init(newValue);
     },
     types(newValue): void {
       if (newValue && newValue.length > 0) {
         this.color = "color: " + getColourFromType(newValue);
         this.icon = getFAIconFromType(newValue);
       }
+    },
+    async favourites() {
+      if (this.onFavouriteView) await this.init(this.conceptIri);
     }
   },
   async mounted() {
-    await this.init();
+    if (this.conceptIri) await this.init(this.conceptIri);
   },
   data() {
     return {
@@ -211,10 +214,6 @@ export default defineComponent({
       if (window.history.length > window.history.state.position + 1) this.$router.forward();
     },
 
-    getNamesFromTypes(typeList: TTIriRef[]) {
-      return typeList.map(type => type.name).join(", ");
-    },
-
     showInfo(data?: any) {
       if (data) this.onRowSelect(data);
       this.$emit("openBar");
@@ -226,7 +225,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.onRowSelect(event);
-      if (isOfTypes(event.data.type, IM.FOLDER)) this.open(event.data);
+      if (isFolder(event.data.type, IM.FOLDER)) this.open(event.data);
       else this.view();
     },
 
@@ -295,11 +294,18 @@ export default defineComponent({
       this.$router.push({ name: "Create" });
     },
 
-    async init(): Promise<void> {
+    async init(iri: string): Promise<void> {
       this.loading = true;
-      if (this.conceptIri) {
-        await this.getChildren(this.conceptIri);
-        await this.getPath(this.conceptIri);
+      if (iri === IM.NAMESPACE + "Favourites") {
+        const children = await EntityService.getPartialEntities(this.favourites, []);
+        (this.children as any) = children.map(child => {
+          return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
+        });
+        this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
+        this.pathItems = [{ label: "Favourites", to: iri.replace(/\//gi, "%2F").replace(/#/gi, "%23") }];
+      } else {
+        await this.getChildren(iri);
+        await this.getPath(iri);
       }
       this.setBackForwardDisables();
       this.loading = false;
@@ -307,6 +313,10 @@ export default defineComponent({
 
     getColourFromType(types: TTIriRef[]) {
       return "color: " + getColourFromType(types);
+    },
+
+    getNamesAsStringFromTypes(types: TTIriRef[]): string {
+      return getNamesAsStringFromTypes(types);
     },
 
     setBackForwardDisables() {
@@ -320,7 +330,8 @@ export default defineComponent({
     },
 
     async getPath(iri: string) {
-      const folderPath = await EntityService.getFolderPath(iri);
+      let folderPath = (await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM)).reverse();
+      if (!folderPath.length) folderPath = await EntityService.getFolderPath(iri);
       this.pathItems = folderPath.map(iriRef => {
         return { label: iriRef.name, to: iriRef["@id"].replace(/\//gi, "%2F").replace(/#/gi, "%23") };
       });

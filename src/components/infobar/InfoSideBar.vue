@@ -30,10 +30,6 @@
                 <SecondaryTree :conceptIri="selectedConceptIri" />
               </div>
             </TabPanel>
-            <!-- TODO -->
-            <!-- <TabPanel header="Activity">
-              <div class="concept-panel-content" id="activity-container" :style="contentHeight"></div>
-            </TabPanel> -->
           </TabView>
         </div>
       </div>
