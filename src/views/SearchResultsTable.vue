@@ -104,7 +104,7 @@ import { mapState } from "vuex";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
 const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes, getNamesAsStringFromTypes },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
 const { AppEnum } = Enums;
@@ -300,7 +300,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.selected = event.data;
-      if (isOfTypes(this.selected?.entityType, IM.FOLDER)) this.open();
+      if (isFolder(this.selected?.entityType, IM.FOLDER)) this.open();
       else this.view();
     },
 
