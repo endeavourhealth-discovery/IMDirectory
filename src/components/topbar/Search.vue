@@ -31,7 +31,7 @@ import { Enums, Env, Models, Helpers, Vocabulary } from "im-library";
 const { AppEnum, SortBy } = Enums;
 const {
   DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder }
 } = Helpers;
 const { IM } = Vocabulary;
 const {
@@ -74,7 +74,7 @@ export default defineComponent({
 
     navigate(event: any): void {
       const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isOfTypes(event.value?.entityType, IM.FOLDER)) {
+      if (isFolder(event.value?.entityType)) {
         this.$router.push({
           name: currentRoute,
           params: { selectedIri: event.value.iri }

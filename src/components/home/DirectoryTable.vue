@@ -56,7 +56,7 @@
           </template>
         </Column>
         <Column field="type" header="Type">
-          <template #body="{data}"> {{ getNamesFromTypes(data.type) }}</template>
+          <template #body="{data}"> {{ getNamesAsStringFromTypes(data.type) }}</template>
         </Column>
         <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
           <template #body="{data}">
@@ -100,11 +100,7 @@ import { Enums, Vocabulary, Helpers } from "im-library";
 const { AppEnum } = Enums;
 const { IM, RDFS, RDF } = Vocabulary;
 const {
-  DataTypeCheckers: { isObjectHasKeys },
-  CopyConceptToClipboard: { copyConceptToClipboard },
-  ContainerDimensionGetters: { getContainerElementOptimalHeight },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes },
-  Sorters: { byOrder }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes }
 } = Helpers;
 
 export default defineComponent({
@@ -218,10 +214,6 @@ export default defineComponent({
       if (window.history.length > window.history.state.position + 1) this.$router.forward();
     },
 
-    getNamesFromTypes(typeList: TTIriRef[]) {
-      return typeList.map(type => type.name).join(", ");
-    },
-
     showInfo(data?: any) {
       if (data) this.onRowSelect(data);
       this.$emit("openBar");
@@ -233,7 +225,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.onRowSelect(event);
-      if (isOfTypes(event.data.type, IM.FOLDER)) this.open(event.data);
+      if (isFolder(event.data.type, IM.FOLDER)) this.open(event.data);
       else this.view();
     },
 
@@ -321,6 +313,10 @@ export default defineComponent({
 
     getColourFromType(types: TTIriRef[]) {
       return "color: " + getColourFromType(types);
+    },
+
+    getNamesAsStringFromTypes(types: TTIriRef[]): string {
+      return getNamesAsStringFromTypes(types);
     },
 
     setBackForwardDisables() {

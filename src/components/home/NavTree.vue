@@ -35,10 +35,10 @@ import { mapState } from "vuex";
 import EntityService from "@/services/EntityService";
 import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers } from "im-library";
-const { IM, RDF, RDFS } = Vocabulary;
+const { IM } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isOfTypes }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
 
 export default defineComponent({
