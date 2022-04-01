@@ -101,7 +101,6 @@
 import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Helpers, Vocabulary, Models } from "im-library";
 const { IM } = Vocabulary;
 const {
