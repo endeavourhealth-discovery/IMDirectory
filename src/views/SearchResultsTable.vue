@@ -81,7 +81,7 @@
             <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(slotProps)" />
 
             <Button
-              v-if="slotProps.data.favourite"
+              v-if="isFavourite(slotProps.data.iri)"
               style="color: #e39a36"
               icon="pi pi-fw pi-star-fill"
               class="p-button-rounded p-button-text "
