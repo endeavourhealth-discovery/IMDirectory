@@ -61,7 +61,7 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   let hasCalledNext = false;
   const currentUrl = Env.directoryUrl + "#" + to.path;
   if (to.path !== "/snomedLicense") {
