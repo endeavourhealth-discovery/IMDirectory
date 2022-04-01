@@ -334,7 +334,7 @@ export default defineComponent({
     },
 
     async getPath(iri: string) {
-      const folderPath = await EntityService.getFolderPath(iri);
+      const folderPath = (await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM)).reverse();
       this.pathItems = folderPath.map(iriRef => {
         return { label: iriRef.name, to: iriRef["@id"].replace(/\//gi, "%2F").replace(/#/gi, "%23") };
       });
