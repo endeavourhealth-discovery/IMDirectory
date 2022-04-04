@@ -39,11 +39,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Definition from "../infobar/Definition.vue";
-import PanelHeader from "../infobar/PanelHeader.vue";
+import Definition from "./infoSideBar/Definition.vue";
+import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
-import SecondaryTree from "@/components/infobar/SecondaryTree.vue";
+import SecondaryTree from "./infoSideBar/SecondaryTree.vue";
 import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, LoggerService } from "im-library";
 import { mapState } from "vuex";

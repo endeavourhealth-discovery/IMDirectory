@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import Definition from "@/components/infobar/Definition.vue";
+import Definition from "@/components/home/infoSideBar/Definition.vue";
 import Divider from "primevue/divider";
 import ArrayObjectNamesToStringWithLabel from "im-library";
 import TextHTMLWithLabel from "im-library";

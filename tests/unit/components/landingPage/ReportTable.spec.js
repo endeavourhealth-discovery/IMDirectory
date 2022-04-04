@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import ReportTable from "@/components/dashboard/ReportTable.vue";
+import ReportTable from "@/components/landingPage/ReportTable.vue";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";

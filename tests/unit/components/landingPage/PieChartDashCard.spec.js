@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import PieChartDashCard from "@/components/dashboard/PieChartDashCard.vue";
+import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
 import Card from "primevue/card";
 import { LoggerService } from "im-library";
 

@@ -52,66 +52,69 @@
         </div>
       </div>
     </div>
-    <DataTable
-      :value="children"
-      class="concept-data-table p-datatable-sm"
-      v-model:selection="selected"
-      selectionMode="single"
-      dataKey="@id"
-      @rowUnselect="onRowUnselect"
-      @rowSelect="onRowSelect"
-      @row-contextmenu="onRowRightClick"
-      @contextmenu="onRightClick"
-      @row-dblclick="onRowDblClick"
-      :scrollable="true"
-      scrollHeight="flex"
-      :loading="loading"
-    >
-      <template #loading>
-        Loading data. Please wait.
-      </template>
-      <template #empty>
-        No records found.
-      </template>
-
-      <template #header>Contains</template>
-      <Column field="name" header="Name">
-        <template #body="{data}">
-          <span :style="getColourFromType(data.type)" class="p-mx-1 type-icon">
-            <font-awesome-icon :icon="data.icon" />
-          </span>
-          <span class="text-name">{{ data.name }}</span>
+    <div class="datatable-container">
+      <DataTable
+        :value="children"
+        class="concept-data-table p-datatable-sm"
+        v-model:selection="selected"
+        selectionMode="single"
+        dataKey="@id"
+        @rowUnselect="onRowUnselect"
+        @rowSelect="onRowSelect"
+        @row-contextmenu="onRowRightClick"
+        @contextmenu="onRightClick"
+        @row-dblclick="onRowDblClick"
+        :scrollable="true"
+        scrollHeight="flex"
+        :loading="loading"
+      >
+        <template #loading>
+          Loading data. Please wait.
         </template>
-      </Column>
-      <Column field="type" header="Type">
-        <template #body="{data}"> {{ getNamesAsStringFromTypes(data.type) }}</template>
-      </Column>
-      <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
-        <template #body="{data}">
-          <Button
-            v-if="data.hasChildren"
-            @click="open(data)"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
-            type="button"
-            class="p-button-rounded p-button-text p-button-plain"
-            icon="pi pi-folder-open"
-          />
-          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
-          <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
-
-          <Button
-            v-if="isFavourite(data['@id'])"
-            style="color: #e39a36"
-            icon="pi pi-fw pi-star-fill"
-            class="p-button-rounded p-button-text "
-            @click="updateFavourites(data)"
-          />
-
-          <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(data)" />
+        <template #empty>
+          No records found.
         </template>
-      </Column>
-    </DataTable>
+
+        <template #header>Contains</template>
+        <Column field="name" header="Name">
+          <template #body="{data}">
+            <span :style="getColourFromType(data.type)" class="p-mx-1 type-icon">
+              <font-awesome-icon :icon="data.icon" />
+            </span>
+            <span class="text-name">{{ data.name }}</span>
+          </template>
+        </Column>
+        <Column field="type" header="Type">
+          <template #body="{data}"> {{ getNamesAsStringFromTypes(data.type) }}</template>
+        </Column>
+        <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+          <template #body="{data}">
+            <Button
+              v-if="data.hasChildren"
+              @click="open(data)"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              type="button"
+              class="p-button-rounded p-button-text p-button-plain"
+              icon="pi pi-folder-open"
+            />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
+
+            <Button
+              v-if="isFavourite(data['@id'])"
+              style="color: #e39a36"
+              icon="pi pi-fw pi-star-fill"
+              class="p-button-rounded p-button-text "
+              @click="updateFavourites(data)"
+            />
+
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(data)" />
+          </template>
+        </Column>
+      </DataTable>
+    </div>
+
     <ContextMenu ref="menu" :model="rClickOptions" />
   </div>
 </template>
@@ -139,6 +142,7 @@ export default defineComponent({
     },
     ...mapState(["conceptIri", "favourites"])
   },
+  emits: ["openBar", "closeBar"],
   watch: {
     async conceptIri(newValue) {
       if (newValue) await this.init(newValue);
@@ -282,7 +286,7 @@ export default defineComponent({
     },
 
     open(data?: any) {
-      if (data) this.onRowSelect(data);
+      if (data) this.onRowSelect({ data: data });
       const currentRoute = this.$route.name as RouteRecordName | undefined;
       this.$router.push({
         name: currentRoute,
@@ -330,7 +334,6 @@ export default defineComponent({
           name: result[RDFS.LABEL],
           type: result[RDF.TYPE]
         };
-        this.selected = this.concept;
         await this.getChildren(iri);
         await this.getPath(iri);
       }
@@ -385,6 +388,12 @@ export default defineComponent({
   flex-flow: column nowrap;
 }
 
+.datatable-container {
+  flex: 0 2 auto;
+  overflow: auto;
+  padding: 0.5rem;
+}
+
 .header-container {
   display: flex;
   flex-flow: column nowrap;
@@ -430,13 +439,6 @@ export default defineComponent({
 
 .p-tabview-panel {
   min-height: 100%;
-}
-
-.p-datatable {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  height: calc(100% - 7.5rem);
 }
 
 .table-header {

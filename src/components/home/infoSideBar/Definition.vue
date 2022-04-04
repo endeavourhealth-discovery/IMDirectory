@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import TermsTable from "@/components/infobar/definition/TermsTable.vue";
+import TermsTable from "@/components/home/infoSideBar/TermsTable.vue";
 import { DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
 import { Helpers } from "im-library";
 const {
@@ -27,7 +27,7 @@ const {
 export default defineComponent({
   name: "Definition",
   components: {
-    TermsTable,
+    TermsTable
   },
   props: {
     concept: { type: Object, required: true },

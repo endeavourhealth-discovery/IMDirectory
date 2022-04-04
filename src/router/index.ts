@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
-import DirectoryTable from "../components/home/DirectoryTable.vue";
+import DirectoryTable from "../views/DirectoryTable.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
 import { SnomedLicense, Env } from "im-library";

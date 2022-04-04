@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import TermsTable from "@/components/infobar/definition/TermsTable.vue";
+import TermsTable from "@/components/home/infoSideBar/TermsTable.vue";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";
 import DataTable from "primevue/datatable";
