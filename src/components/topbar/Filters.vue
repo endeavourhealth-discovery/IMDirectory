@@ -41,10 +41,11 @@
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers } from "im-library";
+import {Helpers, Vocabulary} from 'im-library';
 const {
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
+const { IM, RDF, RDFS } = Vocabulary;
 
 export default defineComponent({
   name: "Filters",
@@ -122,10 +123,10 @@ export default defineComponent({
     },
 
     setLegacy(include: boolean): void {
-      const emisScheme = this.selectedSchemes.findIndex(scheme => scheme.iri === "http://endhealth.info/emis#");
+      const emisScheme = this.selectedSchemes.findIndex(scheme => scheme.iri === IM.GRAPH_EMIS);
       if (include) {
         if (emisScheme === -1) {
-          const found = this.filterOptions.schemes.find((scheme: Namespace) => scheme.iri === "http://endhealth.info/emis#");
+          const found = this.filterOptions.schemes.find((scheme: Namespace) => scheme.iri === IM.GRAPH_EMIS);
           if (found) this.selectedSchemes.push(found);
         }
       } else {

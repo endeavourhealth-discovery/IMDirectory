@@ -140,7 +140,9 @@ export default defineComponent({
       if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
         const roleGroup = result.entity[IM.ROLE_GROUP];
         delete result.entity[IM.ROLE_GROUP];
-        result.entity[RDFS.SUBCLASS_OF].push({ "http://endhealth.info/im#roleGroup": roleGroup });
+        const newRoleGroup : any = {};
+        newRoleGroup[IM.ROLE_GROUP] = roleGroup;
+        result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
       }
       this.concept["inferred"] = result;
     },
