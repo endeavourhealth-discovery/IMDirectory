@@ -28,18 +28,7 @@
           <div class="grid">
             <div class="col-10 table-header">
               <Breadcrumb :home="home" :model="pathItems" />
-              <div v-if="!onFavouriteView">
-                <Button
-                  v-if="isFavourite(conceptIri)"
-                  icon="fa-solid fa-star"
-                  style="color: #e39a36"
-                  class="p-button-rounded p-button-text p-button-plain"
-                  @click="updateParentFavourite"
-                />
-                <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
-                <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
-                <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
-              </div>
+              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
             <div class="col-2 header-button-group p-buttonset">
               <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
@@ -306,6 +295,16 @@ export default defineComponent({
       } else {
         await this.getChildren(iri);
         await this.getPath(iri);
+        console.log(this.children);
+        const parent = await EntityService.getPartialEntity(iri, []);
+        this.children.unshift({
+          "@id": parent["@id"],
+          hasChildren: false,
+          hasGrandChildren: false,
+          icon: ["fa", "box-open"],
+          name: parent[RDFS.LABEL],
+          type: parent[RDF.TYPE]
+        } as any);
       }
       this.setBackForwardDisables();
       this.loading = false;
