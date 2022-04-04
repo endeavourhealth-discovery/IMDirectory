@@ -1,120 +1,118 @@
 <template>
   <div id="directory-table-container">
-    <div class="card">
-      <div class="header-container">
-        <div class="breadcrumb-container">
-          <div class="padding-container grid">
-            <div class="col-10 table-header">
-              <Breadcrumb :home="home" :model="pathItems" />
-              <div v-if="!onFavouriteView">
-                <Button
-                  v-if="isFavourite(conceptIri)"
-                  icon="fa-solid fa-star"
-                  style="color: #e39a36"
-                  class="p-button-rounded p-button-text p-button-plain"
-                  @click="updateParentFavourite"
-                />
-                <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
-                <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
-                <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
-              </div>
-            </div>
-            <div class="col-2 header-button-group p-buttonset">
-              <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
-              <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
+    <div class="header-container">
+      <div class="breadcrumb-container">
+        <div class="padding-container grid">
+          <div class="col-10 table-header">
+            <Breadcrumb :home="home" :model="pathItems" />
+            <div v-if="!onFavouriteView">
+              <i v-if="isFavourite(conceptIri)" style="color: #e39a36" class="fa-solid fa-star fav-icon" />
+              <i v-else class="fa-regular fa-star fav-icon" />
+              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
             </div>
           </div>
-        </div>
-        <div class="title-buttons-container grid">
-          <div class="col-12 title-container">
-            <h4 class="title">{{ concept.label }}</h4>
-          </div>
-          <div class="col-12 concept-buttons-container">
-            <Button
-              v-if="concept.hasChildren"
-              @click="open(concept)"
-              aria-haspopup="true"
-              aria-controls="overlay_menu"
-              type="button"
-              class="p-button-secondary concept-button"
-              icon="pi pi-folder-open"
-            />
-            <Button icon="pi pi-fw pi-eye" label="View" class="p-button-secondary concept-button" @click="view(concept)" />
-            <Button icon="pi pi-fw pi-info-circle" class="p-button-secondary concept-button" @click="showInfo(concept)" />
-            <Button
-              v-if="isFavourite(concept['@id'])"
-              style="color: #e39a36"
-              icon="pi pi-fw pi-star-fill"
-              class="p-button-secondary concept-button"
-              @click="updateFavourites(concept)"
-            />
-            <Button v-else icon="pi pi-fw pi-star" class="p-button-secondary concept-button" @click="updateFavourites(concept)" />
+          <div class="col-2 header-button-group p-buttonset">
+            <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
+            <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
           </div>
         </div>
       </div>
-      <DataTable
-        :value="children"
-        class="concept-data-table p-datatable-sm"
-        v-model:selection="selected"
-        selectionMode="single"
-        dataKey="@id"
-        @rowUnselect="onRowUnselect"
-        @rowSelect="onRowSelect"
-        @row-contextmenu="onRowRightClick"
-        @contextmenu="onRightClick"
-        @row-dblclick="onRowDblClick"
-        :scrollable="true"
-        scrollHeight="flex"
-        responsiveLayout="scroll"
-        :loading="loading"
-      >
-        <template #loading>
-          Loading data. Please wait.
-        </template>
-        <template #empty>
-          No records found.
-        </template>
-
-        <template #header>Contains</template>
-        <Column field="name" header="Name">
-          <template #body="{data}">
-            <span :style="getColourFromType(data.type)" class="p-mx-1 type-icon">
-              <font-awesome-icon :icon="data.icon" />
+      <div v-if="concept.name" class="title-buttons-container">
+        <div class="title-container">
+          <h4 class="title">
+            <span :style="getColourFromType(concept.type)" class="p-mx-1 type-icon">
+              <font-awesome-icon :icon="concept.icon" />
             </span>
-            <span class="text-name">{{ data.name }}</span>
-          </template>
-        </Column>
-        <Column field="type" header="Type">
-          <template #body="{data}"> {{ getNamesAsStringFromTypes(data.type) }}</template>
-        </Column>
-        <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
-          <template #body="{data}">
-            <Button
-              v-if="data.hasChildren"
-              @click="open(data)"
-              aria-haspopup="true"
-              aria-controls="overlay_menu"
-              type="button"
-              class="p-button-rounded p-button-text p-button-plain"
-              icon="pi pi-folder-open"
-            />
-            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
-            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
-
-            <Button
-              v-if="isFavourite(data['@id'])"
-              style="color: #e39a36"
-              icon="pi pi-fw pi-star-fill"
-              class="p-button-rounded p-button-text "
-              @click="updateFavourites(data)"
-            />
-
-            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(data)" />
-          </template>
-        </Column>
-      </DataTable>
-      <ContextMenu ref="menu" :model="rClickOptions" />
+            {{ concept.name }}
+          </h4>
+        </div>
+        <div class="concept-buttons-container">
+          <Button icon="pi pi-fw pi-eye" class="p-button-secondary p-button-outlined concept-button" @click="view(concept)" v-tooltip="'Open in Viewer'" />
+          <Button
+            icon="pi pi-fw pi-info-circle"
+            class="p-button-secondary p-button-outlined concept-button"
+            @click="showInfo(concept)"
+            v-tooltip="'Show summary panel'"
+          />
+          <Button
+            v-if="isFavourite(concept['@id'])"
+            style="color: #e39a36"
+            icon="pi pi-fw pi-star-fill"
+            class="p-button-secondary p-button-outlined concept-button"
+            @click="updateFavourites(concept)"
+            v-tooltip="'Unfavourite'"
+          />
+          <Button
+            v-else
+            icon="pi pi-fw pi-star"
+            class="p-button-secondary p-button-outlined concept-button"
+            @click="updateFavourites(concept)"
+            v-tooltip="'Favourite'"
+          />
+        </div>
+      </div>
     </div>
+    <DataTable
+      :value="children"
+      class="concept-data-table p-datatable-sm"
+      v-model:selection="selected"
+      selectionMode="single"
+      dataKey="@id"
+      @rowUnselect="onRowUnselect"
+      @rowSelect="onRowSelect"
+      @row-contextmenu="onRowRightClick"
+      @contextmenu="onRightClick"
+      @row-dblclick="onRowDblClick"
+      :scrollable="true"
+      scrollHeight="flex"
+      :loading="loading"
+    >
+      <template #loading>
+        Loading data. Please wait.
+      </template>
+      <template #empty>
+        No records found.
+      </template>
+
+      <template #header>Contains</template>
+      <Column field="name" header="Name">
+        <template #body="{data}">
+          <span :style="getColourFromType(data.type)" class="p-mx-1 type-icon">
+            <font-awesome-icon :icon="data.icon" />
+          </span>
+          <span class="text-name">{{ data.name }}</span>
+        </template>
+      </Column>
+      <Column field="type" header="Type">
+        <template #body="{data}"> {{ getNamesAsStringFromTypes(data.type) }}</template>
+      </Column>
+      <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+        <template #body="{data}">
+          <Button
+            v-if="data.hasChildren"
+            @click="open(data)"
+            aria-haspopup="true"
+            aria-controls="overlay_menu"
+            type="button"
+            class="p-button-rounded p-button-text p-button-plain"
+            icon="pi pi-folder-open"
+          />
+          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
+          <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
+
+          <Button
+            v-if="isFavourite(data['@id'])"
+            style="color: #e39a36"
+            icon="pi pi-fw pi-star-fill"
+            class="p-button-rounded p-button-text "
+            @click="updateFavourites(data)"
+          />
+
+          <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(data)" />
+        </template>
+      </Column>
+    </DataTable>
+    <ContextMenu ref="menu" :model="rClickOptions" />
   </div>
 </template>
 
@@ -255,7 +253,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.onRowSelect(event);
-      if (isFolder(event.data.type, IM.FOLDER)) this.open(event.data);
+      if (isFolder(event.data.type)) this.open(event.data);
       else this.view();
     },
 
@@ -335,7 +333,16 @@ export default defineComponent({
         this.pathItems = [{ label: "Favourites", to: iri.replace(/\//gi, "%2F").replace(/#/gi, "%23") }];
         this.concept = { "@id": iri, label: "Favourites", hasChildren: isArrayHasLength };
       } else {
-        this.concept = await EntityService.getPartialEntity(this.conceptIri, [RDFS.LABEL]);
+        const result = await EntityService.getPartialEntity(this.conceptIri, []);
+        this.concept = {
+          "@id": result["@id"],
+          hasChildren: false,
+          hasGrandChildren: false,
+          icon: getFAIconFromType(result[RDF.TYPE]),
+          name: result[RDFS.LABEL],
+          type: result[RDF.TYPE]
+        };
+        this.selected = this.concept;
         await this.getChildren(iri);
         await this.getPath(iri);
       }
@@ -386,6 +393,8 @@ export default defineComponent({
 #directory-table-container {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .header-container {
@@ -395,7 +404,6 @@ export default defineComponent({
 
 .breadcrumb-container {
   padding: 1rem 1rem 0 1rem;
-  background-color: #f8f9fa;
 }
 
 .padding-container {
@@ -406,13 +414,18 @@ export default defineComponent({
 }
 
 .title-buttons-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
   margin: 0;
-  background-color: #f8f9fa;
   width: 100%;
+  padding: 0.5rem;
 }
 
 .title-container {
-  padding: 0.5rem 0.5rem 0 0.5rem;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
 }
 
 .title {
@@ -423,11 +436,8 @@ export default defineComponent({
 .concept-buttons-container {
   display: flex;
   flex-flow: row;
-  justify-content: flex-start;
-}
-
-.concept-button {
-  padding-left: 1rem;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .p-tabview-panel {
@@ -438,7 +448,7 @@ export default defineComponent({
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
-  height: 100%;
+  height: calc(100% - 7.5rem);
 }
 
 .table-header {
@@ -475,5 +485,9 @@ export default defineComponent({
 
 .type-icon {
   padding-right: 0.5rem;
+}
+
+.fav-icon {
+  margin-left: 0.5rem;
 }
 </style>
