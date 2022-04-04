@@ -212,18 +212,6 @@ export default defineComponent({
     };
   },
   methods: {
-    updateParentFavourite() {
-      this.selected["@id"] = this.conceptIri;
-      this.updateFavourites();
-    },
-
-    showParentInfo() {
-      this.selected = {};
-      this.selected["@id"] = this.conceptIri;
-      this.$store.commit("updateSelectedConceptIri", this.selected["@id"]);
-      this.showInfo();
-    },
-
     updateFavourites(data?: any) {
       if (data) this.onRowSelect(data);
       this.$store.commit("updateFavourites", this.selected["@id"]);
