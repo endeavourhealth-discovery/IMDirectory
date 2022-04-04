@@ -1,6 +1,57 @@
 <template>
   <div id="directory-table-container">
     <div class="card">
+      <div class="header-container">
+        <div class="breadcrumb-container">
+          <div class="padding-container grid">
+            <div class="col-10 table-header">
+              <Breadcrumb :home="home" :model="pathItems" />
+              <div v-if="!onFavouriteView">
+                <Button
+                  v-if="isFavourite(conceptIri)"
+                  icon="fa-solid fa-star"
+                  style="color: #e39a36"
+                  class="p-button-rounded p-button-text p-button-plain"
+                  @click="updateParentFavourite"
+                />
+                <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
+                <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
+                <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
+              </div>
+            </div>
+            <div class="col-2 header-button-group p-buttonset">
+              <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
+              <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
+            </div>
+          </div>
+        </div>
+        <div class="title-buttons-container grid">
+          <div class="col-12 title-container">
+            <h4 class="title">{{ concept.label }}</h4>
+          </div>
+          <div class="col-12 concept-buttons-container">
+            <Button
+              v-if="concept.hasChildren"
+              @click="open(concept)"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              type="button"
+              class="p-button-secondary concept-button"
+              icon="pi pi-folder-open"
+            />
+            <Button icon="pi pi-fw pi-eye" label="View" class="p-button-secondary concept-button" @click="view(concept)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-secondary concept-button" @click="showInfo(concept)" />
+            <Button
+              v-if="isFavourite(concept['@id'])"
+              style="color: #e39a36"
+              icon="pi pi-fw pi-star-fill"
+              class="p-button-secondary concept-button"
+              @click="updateFavourites(concept)"
+            />
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-secondary concept-button" @click="updateFavourites(concept)" />
+          </div>
+        </div>
+      </div>
       <DataTable
         :value="children"
         class="concept-data-table p-datatable-sm"
@@ -24,29 +75,7 @@
           No records found.
         </template>
 
-        <template #header>
-          <div class="grid">
-            <div class="col-10 table-header">
-              <Breadcrumb :home="home" :model="pathItems" />
-              <div v-if="!onFavouriteView">
-                <Button
-                  v-if="isFavourite(conceptIri)"
-                  icon="fa-solid fa-star"
-                  style="color: #e39a36"
-                  class="p-button-rounded p-button-text p-button-plain"
-                  @click="updateParentFavourite"
-                />
-                <Button v-else icon="fa-regular fa-star" class="p-button-rounded p-button-text p-button-plain" @click="updateParentFavourite" />
-                <Button icon="fa fa-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showParentInfo" />
-                <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
-              </div>
-            </div>
-            <div class="col-2 header-button-group p-buttonset">
-              <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
-              <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
-            </div>
-          </div>
-        </template>
+        <template #header>Contains</template>
         <Column field="name" header="Name">
           <template #body="{data}">
             <span :style="getColourFromType(data.type)" class="p-mx-1 type-icon">
@@ -100,7 +129,8 @@ import { Enums, Vocabulary, Helpers } from "im-library";
 const { AppEnum } = Enums;
 const { IM, RDFS, RDF } = Vocabulary;
 const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
+  DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
 
 export default defineComponent({
@@ -303,7 +333,9 @@ export default defineComponent({
         });
         this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
         this.pathItems = [{ label: "Favourites", to: iri.replace(/\//gi, "%2F").replace(/#/gi, "%23") }];
+        this.concept = { "@id": iri, label: "Favourites", hasChildren: isArrayHasLength };
       } else {
+        this.concept = await EntityService.getPartialEntity(this.conceptIri, [RDFS.LABEL]);
         await this.getChildren(iri);
         await this.getPath(iri);
       }
@@ -356,6 +388,48 @@ export default defineComponent({
   width: 100%;
 }
 
+.header-container {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.breadcrumb-container {
+  padding: 1rem 1rem 0 1rem;
+  background-color: #f8f9fa;
+}
+
+.padding-container {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  overflow: auto;
+}
+
+.title-buttons-container {
+  margin: 0;
+  background-color: #f8f9fa;
+  width: 100%;
+}
+
+.title-container {
+  padding: 0.5rem 0.5rem 0 0.5rem;
+}
+
+.title {
+  padding: 0;
+  margin: 0;
+}
+
+.concept-buttons-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
+}
+
+.concept-button {
+  padding-left: 1rem;
+}
+
 .p-tabview-panel {
   min-height: 100%;
 }
@@ -375,22 +449,22 @@ export default defineComponent({
 
 .header-button-group {
   display: flex;
+  flex-flow: row nowrap;
   align-items: center;
   justify-content: right;
 }
 
 .p-breadcrumb {
-  all: unset;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background-color: #f8f9fa;
 }
 
 .card {
   height: 100%;
   padding: 0;
   margin-bottom: 0;
-}
-
-.p-button:disabled {
-  all: unset !important;
 }
 
 .go-forward:disabled,
