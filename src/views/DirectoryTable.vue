@@ -1,6 +1,58 @@
 <template>
   <div id="directory-table-container">
-    <div class="card">
+    <div class="header-container">
+      <div class="breadcrumb-container">
+        <div class="padding-container grid">
+          <div class="col-10 table-header">
+            <Breadcrumb :home="home" :model="pathItems" />
+            <div v-if="!onFavouriteView">
+              <i v-if="isFavourite(conceptIri)" style="color: #e39a36" class="fa-solid fa-star fav-icon" />
+              <i v-else class="fa-regular fa-star fav-icon" />
+              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
+            </div>
+          </div>
+          <div class="col-2 header-button-group p-buttonset">
+            <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
+            <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
+          </div>
+        </div>
+      </div>
+      <div v-if="concept.name" class="title-buttons-container">
+        <div class="title-container">
+          <h4 class="title">
+            <span :style="getColourFromType(concept.type)" class="p-mx-1 type-icon">
+              <font-awesome-icon :icon="concept.icon" />
+            </span>
+            {{ concept.name }}
+          </h4>
+        </div>
+        <div class="concept-buttons-container">
+          <Button icon="pi pi-fw pi-eye" class="p-button-secondary p-button-outlined concept-button" @click="view(concept)" v-tooltip="'Open in Viewer'" />
+          <Button
+            icon="pi pi-fw pi-info-circle"
+            class="p-button-secondary p-button-outlined concept-button"
+            @click="showInfo(concept)"
+            v-tooltip="'Show summary panel'"
+          />
+          <Button
+            v-if="isFavourite(concept['@id'])"
+            style="color: #e39a36"
+            icon="pi pi-fw pi-star-fill"
+            class="p-button-secondary p-button-outlined concept-button"
+            @click="updateFavourites(concept)"
+            v-tooltip="'Unfavourite'"
+          />
+          <Button
+            v-else
+            icon="pi pi-fw pi-star"
+            class="p-button-secondary p-button-outlined concept-button"
+            @click="updateFavourites(concept)"
+            v-tooltip="'Favourite'"
+          />
+        </div>
+      </div>
+    </div>
+    <div class="datatable-container">
       <DataTable
         :value="children"
         class="concept-data-table p-datatable-sm"
@@ -14,7 +66,6 @@
         @row-dblclick="onRowDblClick"
         :scrollable="true"
         scrollHeight="flex"
-        responsiveLayout="scroll"
         :loading="loading"
       >
         <template #loading>
@@ -24,18 +75,7 @@
           No records found.
         </template>
 
-        <template #header>
-          <div class="grid">
-            <div class="col-10 table-header">
-              <Breadcrumb :home="home" :model="pathItems" />
-              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
-            </div>
-            <div class="col-2 header-button-group p-buttonset">
-              <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
-              <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
-            </div>
-          </div>
-        </template>
+        <template #header>Contains</template>
         <Column field="name" header="Name">
           <template #body="{data}">
             <span :style="getColourFromType(data.type)" class="p-mx-1 type-icon">
@@ -73,8 +113,9 @@
           </template>
         </Column>
       </DataTable>
-      <ContextMenu ref="menu" :model="rClickOptions" />
     </div>
+
+    <ContextMenu ref="menu" :model="rClickOptions" />
   </div>
 </template>
 
@@ -89,7 +130,8 @@ import { Enums, Vocabulary, Helpers } from "im-library";
 const { AppEnum } = Enums;
 const { IM, RDFS, RDF } = Vocabulary;
 const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
+  DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
 
 export default defineComponent({
@@ -100,6 +142,7 @@ export default defineComponent({
     },
     ...mapState(["conceptIri", "favourites"])
   },
+  emits: ["openBar", "closeBar"],
   watch: {
     async conceptIri(newValue) {
       if (newValue) await this.init(newValue);
@@ -173,18 +216,6 @@ export default defineComponent({
     };
   },
   methods: {
-    updateParentFavourite() {
-      this.selected["@id"] = this.conceptIri;
-      this.updateFavourites();
-    },
-
-    showParentInfo() {
-      this.selected = {};
-      this.selected["@id"] = this.conceptIri;
-      this.$store.commit("updateSelectedConceptIri", this.selected["@id"]);
-      this.showInfo();
-    },
-
     updateFavourites(data?: any) {
       if (data) this.onRowSelect(data);
       this.$store.commit("updateFavourites", this.selected["@id"]);
@@ -214,7 +245,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.onRowSelect(event);
-      if (isFolder(event.data.type, IM.FOLDER)) this.open(event.data);
+      if (isFolder(event.data.type)) this.open(event.data);
       else this.view();
     },
 
@@ -255,7 +286,7 @@ export default defineComponent({
     },
 
     open(data?: any) {
-      if (data) this.onRowSelect(data);
+      if (data) this.onRowSelect({ data: data });
       const currentRoute = this.$route.name as RouteRecordName | undefined;
       this.$router.push({
         name: currentRoute,
@@ -292,19 +323,19 @@ export default defineComponent({
         });
         this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
         this.pathItems = [{ label: "Favourites", to: iri.replace(/\//gi, "%2F").replace(/#/gi, "%23") }];
+        this.concept = { "@id": iri, label: "Favourites", hasChildren: isArrayHasLength };
       } else {
-        await this.getChildren(iri);
-        await this.getPath(iri);
-        console.log(this.children);
-        const parent = await EntityService.getPartialEntity(iri, []);
-        this.children.unshift({
-          "@id": parent["@id"],
+        const result = await EntityService.getPartialEntity(this.conceptIri, []);
+        this.concept = {
+          "@id": result["@id"],
           hasChildren: false,
           hasGrandChildren: false,
-          icon: ["fa", "box-open"],
-          name: parent[RDFS.LABEL],
-          type: parent[RDF.TYPE]
-        } as any);
+          icon: getFAIconFromType(result[RDF.TYPE]),
+          name: result[RDFS.LABEL],
+          type: result[RDF.TYPE]
+        };
+        await this.getChildren(iri);
+        await this.getPath(iri);
       }
       this.setBackForwardDisables();
       this.loading = false;
@@ -353,17 +384,61 @@ export default defineComponent({
 #directory-table-container {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.datatable-container {
+  flex: 0 2 auto;
+  overflow: auto;
+  padding: 0.5rem;
+}
+
+.header-container {
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.breadcrumb-container {
+  padding: 1rem 1rem 0 1rem;
+}
+
+.padding-container {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  overflow: auto;
+}
+
+.title-buttons-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  margin: 0;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.title-container {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}
+
+.title {
+  padding: 0;
+  margin: 0;
+}
+
+.concept-buttons-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .p-tabview-panel {
   min-height: 100%;
-}
-
-.p-datatable {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  height: 100%;
 }
 
 .table-header {
@@ -374,22 +449,22 @@ export default defineComponent({
 
 .header-button-group {
   display: flex;
+  flex-flow: row nowrap;
   align-items: center;
   justify-content: right;
 }
 
 .p-breadcrumb {
-  all: unset;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background-color: #f8f9fa;
 }
 
 .card {
   height: 100%;
   padding: 0;
   margin-bottom: 0;
-}
-
-.p-button:disabled {
-  all: unset !important;
 }
 
 .go-forward:disabled,
@@ -400,5 +475,9 @@ export default defineComponent({
 
 .type-icon {
   padding-right: 0.5rem;
+}
+
+.fav-icon {
+  margin-left: 0.5rem;
 }
 </style>

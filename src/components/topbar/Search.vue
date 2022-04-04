@@ -20,20 +20,19 @@
 </template>
 
 <script lang="ts">
-import Filters from "@/components/topbar/Filters.vue";
+import Filters from "@/components/topbar/search/Filters.vue";
 import axios from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
 import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Env, Models, Helpers, Vocabulary } from "im-library";
+import { Enums, Env, Models, Helpers } from "im-library";
 const { AppEnum, SortBy } = Enums;
 const {
   DataTypeCheckers: { isObjectHasKeys },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder }
 } = Helpers;
-const { IM } = Vocabulary;
 const {
   Search: { SearchRequest }
 } = Models;

@@ -1,12 +1,9 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
-import DirectoryTable from "../components/home/DirectoryTable.vue";
+import DirectoryTable from "../views/DirectoryTable.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
-import { SnomedLicense, Env, Helpers } from "im-library";
-const {
-  RouterGuards: { checkAuth, checkLicense }
-} = Helpers;
+import { SnomedLicense, Env } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
 
@@ -18,14 +15,10 @@ const routes: Array<RouteRecordRaw> = [
     name: "Home",
     component: Home,
     redirect: { name: "LandingPage" },
-    meta: {
-      requiresLicense: true
-    },
     children: [
       {
         path: "",
         name: "LandingPage",
-        alias: ["/home"],
         component: LandingPage,
         meta: {
           requiresLicense: true
@@ -61,8 +54,7 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach(async (to, _from, next) => {
-  let hasCalledNext = false;
+router.beforeEach(async (to, from) => {
   const currentUrl = Env.directoryUrl + "#" + to.path;
   if (to.path !== "/snomedLicense") {
     store.commit("updateSnomedReturnUrl", currentUrl);
@@ -71,9 +63,22 @@ router.beforeEach(async (to, _from, next) => {
   if (to.params.selectedIri) {
     store.commit("updateConceptIri", to.params.selectedIri as string);
   }
-  hasCalledNext = await checkAuth(to, next, store, hasCalledNext, currentUrl);
-  hasCalledNext = checkLicense(to, next, store, hasCalledNext);
-  if (!hasCalledNext) next();
+  if (to.matched.some((record: any) => record.meta.requiresAuth)) {
+    const res = await store.dispatch("authenticateCurrentUser");
+    console.log("auth guard user authenticated: " + res.authenticated);
+    if (!res.authenticated) {
+      console.log("redirecting to login");
+      window.location.href = Env.authUrl + "login?returnUrl=" + currentUrl;
+    }
+  }
+  if (to.matched.some((record: any) => record.meta.requiresLicense)) {
+    console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
+    if (store.state.snomedLicenseAccepted !== "true") {
+      return {
+        path: "/snomedLicense"
+      };
+    }
+  }
 });
 
 router.afterEach(to => {

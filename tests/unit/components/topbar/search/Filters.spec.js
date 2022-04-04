@@ -1,5 +1,5 @@
 import { flushPromises, shallowMount } from "@vue/test-utils";
-import Filters from "@/components/topbar/Filters.vue";
+import Filters from "@/components/topbar/search/Filters.vue";
 import MultiSelect from "primevue/multiselect";
 import InputSwitch from "primevue/inputswitch";
 import Tooltip from "primevue/tooltip";

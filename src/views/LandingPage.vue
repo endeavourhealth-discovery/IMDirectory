@@ -58,8 +58,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import ReportTable from "@/components/dashboard/ReportTable.vue";
-import PieChartDashCard from "@/components/dashboard/PieChartDashCard.vue";
+import ReportTable from "@/components/landingPage/ReportTable.vue";
+import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
 import ConfigService from "@/services/ConfigService";
 import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";

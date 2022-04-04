@@ -37,7 +37,7 @@ import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/i
 import { Vocabulary, Helpers } from "im-library";
 const { IM } = Vocabulary;
 const {
-  DataTypeCheckers: { isObjectHasKeys },
+  DataTypeCheckers: { isObjectHasKeys, isArrayHasLength },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
 
@@ -49,18 +49,20 @@ export default defineComponent({
       this.findPathToNode(this.locateOnNavTreeIri);
     },
     async conceptIri() {
-      if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
-        if (!this.selectedNode.children || this.selectedNode.children.length === 0) {
+      if (isObjectHasKeys(this.selectedNode, ["data"]) != this.conceptIri) {
+        if (!isObjectHasKeys(this.selectedNode, ["children"]) || !isArrayHasLength(this.selectedNode.children)) {
           await this.onNodeExpand(this.selectedNode);
         }
         this.expandedKeys[this.selectedNode.key] = true;
         this.expandedKeys = { ...this.expandedKeys };
 
-        const child = this.selectedNode.children.find(c => c.data === this.conceptIri);
-        if (child) {
-          this.selected = {};
-          this.selected[child.key] = true;
-          await this.onNodeSelect(child);
+        if (isObjectHasKeys(this.selectedNode, ["children"])) {
+          const child = this.selectedNode.children.find(c => c.data === this.conceptIri);
+          if (child) {
+            this.selected = {};
+            this.selected[child.key] = true;
+            await this.onNodeSelect(child);
+          }
         }
       }
     }
@@ -241,8 +243,9 @@ export default defineComponent({
 
 <style scoped>
 #hierarchy-tree-bar-container {
-  flex: 1;
-  overflow: auto;
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .loading-container {

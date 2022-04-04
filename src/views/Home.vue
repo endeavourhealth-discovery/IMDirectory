@@ -1,7 +1,7 @@
 <template>
   <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="setSplitterContainerHoriz">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto;">
-      <Navigator />
+      <NavTree />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto;">
       <div class="splitter-right" v-if="visibleRight" :style="splitterContentWidth">
@@ -12,7 +12,7 @@
       </div>
 
       <div class="splitter-right" v-else>
-        <router-view @openBar="visibleRight = true" />
+        <router-view @openBar="visibleRight = true" @closeBar="visibleRight = false" />
       </div>
     </SplitterPanel>
   </Splitter>
@@ -20,8 +20,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Navigator from "@/components/home/Navigator.vue";
-import InfoSideBar from "@/components/infobar/InfoSideBar.vue";
+import NavTree from "@/components/home/NavTree.vue";
+import InfoSideBar from "@/components/home/InfoSideBar.vue";
 import { Helpers } from "im-library";
 import { mapState } from "vuex";
 const {
@@ -31,7 +31,7 @@ const {
 export default defineComponent({
   name: "Home",
   components: {
-    Navigator,
+    NavTree,
     InfoSideBar
   },
   computed: mapState(["filterOptions", "filterDefaults"]),
