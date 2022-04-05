@@ -205,8 +205,6 @@ export default defineComponent({
     },
 
     isFavourite(iri: string) {
-      console.log(iri);
-      console.log(this.favourites);
       if (isArrayHasLength(this.favourites)) {
         return this.favourites.includes(iri);
       } else return false;
