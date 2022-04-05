@@ -67,28 +67,28 @@
         <Column field="code" header="Code"></Column>
         <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
           <template #body="slotProps">
-            <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain" @click="locate(slotProps)" />
+            <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" />
             <Button
               v-if="slotProps.data.hasChildren"
               @click="open(slotProps)"
               aria-haspopup="true"
               aria-controls="overlay_menu"
               type="button"
-              class="p-button-rounded p-button-text p-button-plain"
+              class="p-button-rounded p-button-text p-button-plain row-button"
               icon="pi pi-folder-open"
             />
-            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(slotProps)" />
-            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(slotProps)" />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(slotProps)" />
 
             <Button
               v-if="isFavourite(slotProps.data.iri)"
               style="color: #e39a36"
               icon="pi pi-fw pi-star-fill"
-              class="p-button-rounded p-button-text "
+              class="p-button-rounded p-button-text row-button-fav"
               @click="updateFavourites(slotProps)"
             />
 
-            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(slotProps)" />
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(slotProps)" />
           </template>
         </Column>
       </DataTable>
@@ -359,5 +359,15 @@ label {
 
 .p-datatable {
   height: calc(100% - 3.5rem) !important;
+}
+
+.row-button:hover {
+  background-color: #6c757d !important;
+  color: #ffffff !important;
+}
+
+.row-button-fav:hover {
+  background-color: #e39a36 !important;
+  color: #ffffff !important;
 }
 </style>
