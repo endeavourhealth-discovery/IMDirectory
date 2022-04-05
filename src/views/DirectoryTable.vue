@@ -91,21 +91,21 @@
               aria-haspopup="true"
               aria-controls="overlay_menu"
               type="button"
-              class="p-button-rounded p-button-text p-button-plain"
+              class="p-button-rounded p-button-text p-button-plain row-button"
               icon="pi pi-folder-open"
             />
-            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
-            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(data)" />
 
             <Button
               v-if="isFavourite(data['@id'])"
               style="color: #e39a36"
               icon="pi pi-fw pi-star-fill"
-              class="p-button-rounded p-button-text "
+              class="p-button-rounded p-button-text row-button-fav"
               @click="updateFavourites(data)"
             />
 
-            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(data)" />
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(data)" />
           </template>
         </Column>
       </DataTable>
@@ -464,5 +464,15 @@ export default defineComponent({
 
 .fav-icon {
   margin-left: 0.5rem;
+}
+
+.row-button:hover {
+  background-color: #6c757d !important;
+  color: #ffffff !important;
+}
+
+.row-button-fav:hover {
+  background-color: #e39a36 !important;
+  color: #ffffff !important;
 }
 </style>
