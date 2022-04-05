@@ -37,7 +37,7 @@ import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/i
 import { Vocabulary, Helpers } from "im-library";
 const { IM } = Vocabulary;
 const {
-  DataTypeCheckers: { isObjectHasKeys, isArrayHasLength },
+  DataTypeCheckers: { isObjectHasKeys },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
 
@@ -49,8 +49,8 @@ export default defineComponent({
       this.findPathToNode(this.locateOnNavTreeIri);
     },
     async conceptIri() {
-      if (isObjectHasKeys(this.selectedNode, ["data"]) != this.conceptIri) {
-        if (!isObjectHasKeys(this.selectedNode, ["children"]) || !isArrayHasLength(this.selectedNode.children)) {
+      if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
+        if (!this.selectedNode.children || this.selectedNode.children.length === 0) {
           await this.onNodeExpand(this.selectedNode);
         }
         this.expandedKeys[this.selectedNode.key] = true;
@@ -79,7 +79,7 @@ export default defineComponent({
   async mounted() {
     this.loading = true;
     await this.addParentFoldersToRoot();
-    if (this.conceptIri) this.focusTree(this.conceptIri);
+    if (this.conceptIri) await this.focusTree(this.conceptIri);
     this.loading = false;
   },
   methods: {

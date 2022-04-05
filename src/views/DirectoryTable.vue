@@ -146,15 +146,6 @@ export default defineComponent({
   watch: {
     async conceptIri(newValue) {
       if (newValue) await this.init(newValue);
-    },
-    types(newValue): void {
-      if (newValue && newValue.length > 0) {
-        this.color = "color: " + getColourFromType(newValue);
-        this.icon = getFAIconFromType(newValue);
-      }
-    },
-    async favourites() {
-      if (this.onFavouriteView) await this.init(this.conceptIri);
     }
   },
   async mounted() {
@@ -205,11 +196,7 @@ export default defineComponent({
       children: [] as EntityReferenceNode[],
       loading: false,
       concept: {} as any,
-      definitionText: "",
-      configs: [] as DefinitionConfig[],
-      conceptAsString: "",
       selected: {} as any,
-      types: [],
       header: "",
       color: "",
       icon: [] as string[]
@@ -222,8 +209,9 @@ export default defineComponent({
     },
 
     isFavourite(iri: string) {
-      if (!this.favourites.length) return false;
-      return this.favourites.includes(iri);
+      if (isArrayHasLength(this.favourites)) {
+        return this.favourites.includes(iri);
+      } else return false;
     },
 
     goBack() {
@@ -332,7 +320,8 @@ export default defineComponent({
           hasGrandChildren: false,
           icon: getFAIconFromType(result[RDF.TYPE]),
           name: result[RDFS.LABEL],
-          type: result[RDF.TYPE]
+          type: result[RDF.TYPE],
+          parents: []
         };
         await this.getChildren(iri);
         await this.getPath(iri);
