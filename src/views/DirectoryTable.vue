@@ -23,12 +23,12 @@
           </h4>
         </div>
         <div class="concept-buttons-container">
-          <Button icon="pi pi-fw pi-eye" class="p-button-secondary p-button-outlined concept-button" @click="view(concept)" v-tooltip="'Open in Viewer'" />
+          <Button icon="pi pi-fw pi-eye" class="p-button-secondary p-button-outlined concept-button" @click="view(concept)" v-tooltip.left="'Open in Viewer'" />
           <Button
             icon="pi pi-fw pi-info-circle"
             class="p-button-secondary p-button-outlined concept-button"
             @click="showInfo(concept)"
-            v-tooltip="'Show summary panel'"
+            v-tooltip.left="'Show summary'"
           />
           <Button
             v-if="isFavourite(concept['@id'])"
@@ -36,14 +36,14 @@
             icon="pi pi-fw pi-star-fill"
             class="p-button-secondary p-button-outlined concept-button"
             @click="updateFavourites(concept)"
-            v-tooltip="'Unfavourite'"
+            v-tooltip.left="'Unfavourite'"
           />
           <Button
             v-else
             icon="pi pi-fw pi-star"
             class="p-button-secondary p-button-outlined concept-button"
             @click="updateFavourites(concept)"
-            v-tooltip="'Favourite'"
+            v-tooltip.left="'Favourite'"
           />
         </div>
       </div>
