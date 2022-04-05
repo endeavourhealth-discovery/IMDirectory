@@ -2,6 +2,7 @@ import router from "@/router/index";
 import App from "@/App.vue";
 import Toast from "primevue/toast";
 import ConfirmDialog from "primevue/confirmdialog";
+import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
 import store from "@/store/index";
 import { flushPromises, shallowMount } from "@vue/test-utils";
@@ -28,7 +29,7 @@ describe("router", () => {
 
       wrapper = shallowMount(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button },
           plugins: [router, store]
         }
       });
@@ -57,7 +58,7 @@ describe("router", () => {
 
       wrapper = shallowMount(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button },
           plugins: [router, store]
         }
       });
@@ -86,7 +87,7 @@ describe("router", () => {
 
       wrapper = shallowMount(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button },
           plugins: [router, store]
         }
       });
@@ -117,7 +118,7 @@ describe("router", () => {
 
       wrapper = shallowMount(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button },
           plugins: [router, store]
         }
       });

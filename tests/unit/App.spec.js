@@ -3,6 +3,7 @@ import App from "@/App.vue";
 import Toast from "primevue/toast";
 import ProgressSpinner from "primevue/progressspinner";
 import ConfirmDialog from "primevue/confirmdialog";
+import Button from "primevue/button";
 import TopBar from "im-library";
 import { expect, vi } from "vitest";
 
@@ -19,7 +20,7 @@ describe("App.vue", () => {
     };
     wrapper = shallowMount(App, {
       global: {
-        components: { Toast, ProgressSpinner, ConfirmDialog, TopBar },
+        components: { Toast, ProgressSpinner, ConfirmDialog, TopBar, Button },
         stubs: ["router-link", "router-view"],
         mocks: { $store: mockStore }
       }

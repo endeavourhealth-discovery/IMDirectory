@@ -34,14 +34,12 @@
 import { defineComponent } from "vue";
 import Builder from "@/components/eclSearch/Builder.vue";
 import SearchResults from "@/components/eclSearch/SearchResults.vue";
-import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
 import axios from "axios";
 import SetService from "@/services/SetService";
 import { Helpers, LoggerService, Models } from "im-library";
 const {
-  DataTypeCheckers: { isObjectHasKeys },
-  ContainerDimensionGetters: { getContainerElementOptimalHeight }
+  DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
 
 export default defineComponent({
@@ -55,17 +53,7 @@ export default defineComponent({
   watch: {
     queryString() {
       this.eclError = false;
-    },
-    sidebarControlActivePanel(newValue) {
-      if (newValue === 3) this.setResultsHeight();
     }
-  },
-  async mounted() {
-    window.addEventListener("resize", this.onResize);
-    await this.onResize();
-  },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.onResize);
   },
   data() {
     return {
@@ -75,16 +63,10 @@ export default defineComponent({
       totalCount: 0,
       eclError: false,
       loading: false,
-      resultsHeight: "",
       request: {} as { cancel: any; msg: string }
     };
   },
   methods: {
-    async onResize(): Promise<void> {
-      await this.$nextTick();
-      this.setResultsHeight();
-    },
-
     updateECL(data: string): void {
       this.queryString = data;
       this.showDialog = false;
@@ -125,14 +107,6 @@ export default defineComponent({
 
     onCopyError(): void {
       this.$toast.add(LoggerService.error("Failed to copy value to clipboard"));
-    },
-
-    setResultsHeight(): void {
-      this.resultsHeight = getContainerElementOptimalHeight(
-        "query-search-container",
-        ["title", "info", "text-copy-container", "button-container", "p-paginator"],
-        false
-      );
     }
   }
 });
