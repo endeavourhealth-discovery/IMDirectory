@@ -34,7 +34,7 @@
             v-if="isFavourite(concept['@id'])"
             style="color: #e39a36"
             icon="pi pi-fw pi-star-fill"
-            class="p-button-secondary p-button-outlined concept-button"
+            class="p-button-secondary p-button-outlined concept-button-fav"
             @click="updateFavourites(concept)"
             v-tooltip.left="'Unfavourite'"
           />
@@ -419,6 +419,7 @@ export default defineComponent({
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
+  align-items: center;
   gap: 0.5rem;
 }
 
@@ -466,12 +467,19 @@ export default defineComponent({
   margin-left: 0.5rem;
 }
 
-.row-button:hover {
+.concept-button,
+.concept-button-fav {
+  height: fit-content;
+}
+
+.row-button:hover,
+.concept-button:hover {
   background-color: #6c757d !important;
   color: #ffffff !important;
 }
 
-.row-button-fav:hover {
+.row-button-fav:hover,
+.concept-button-fav:hover {
   background-color: #e39a36 !important;
   color: #ffffff !important;
 }
