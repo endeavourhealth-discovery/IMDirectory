@@ -5,11 +5,7 @@
         <div class="padding-container grid">
           <div class="col-10 table-header">
             <Breadcrumb :home="home" :model="pathItems" />
-            <div v-if="!onFavouriteView">
-              <i v-if="isFavourite(conceptIri)" style="color: #e39a36" class="fa-solid fa-star fav-icon" />
-              <i v-else class="fa-regular fa-star fav-icon" />
-              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
-            </div>
+            <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
           </div>
           <div class="col-2 header-button-group p-buttonset">
             <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
@@ -209,6 +205,8 @@ export default defineComponent({
     },
 
     isFavourite(iri: string) {
+      console.log(iri);
+      console.log(this.favourites);
       if (isArrayHasLength(this.favourites)) {
         return this.favourites.includes(iri);
       } else return false;
