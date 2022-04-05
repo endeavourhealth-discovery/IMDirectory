@@ -5,11 +5,7 @@
         <div class="padding-container grid">
           <div class="col-10 table-header">
             <Breadcrumb :home="home" :model="pathItems" />
-            <div v-if="!onFavouriteView">
-              <i v-if="isFavourite(conceptIri)" style="color: #e39a36" class="fa-solid fa-star fav-icon" />
-              <i v-else class="fa-regular fa-star fav-icon" />
-              <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
-            </div>
+            <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
           </div>
           <div class="col-2 header-button-group p-buttonset">
             <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
@@ -27,27 +23,27 @@
           </h4>
         </div>
         <div class="concept-buttons-container">
-          <Button icon="pi pi-fw pi-eye" class="p-button-secondary p-button-outlined concept-button" @click="view(concept)" v-tooltip="'Open in Viewer'" />
+          <Button icon="pi pi-fw pi-eye" class="p-button-secondary p-button-outlined concept-button" @click="view(concept)" v-tooltip.left="'Open in Viewer'" />
           <Button
             icon="pi pi-fw pi-info-circle"
             class="p-button-secondary p-button-outlined concept-button"
             @click="showInfo(concept)"
-            v-tooltip="'Show summary panel'"
+            v-tooltip.left="'Show summary'"
           />
           <Button
             v-if="isFavourite(concept['@id'])"
             style="color: #e39a36"
             icon="pi pi-fw pi-star-fill"
-            class="p-button-secondary p-button-outlined concept-button"
+            class="p-button-secondary p-button-outlined concept-button-fav"
             @click="updateFavourites(concept)"
-            v-tooltip="'Unfavourite'"
+            v-tooltip.left="'Unfavourite'"
           />
           <Button
             v-else
             icon="pi pi-fw pi-star"
             class="p-button-secondary p-button-outlined concept-button"
             @click="updateFavourites(concept)"
-            v-tooltip="'Favourite'"
+            v-tooltip.left="'Favourite'"
           />
         </div>
       </div>
@@ -95,21 +91,21 @@
               aria-haspopup="true"
               aria-controls="overlay_menu"
               type="button"
-              class="p-button-rounded p-button-text p-button-plain"
+              class="p-button-rounded p-button-text p-button-plain row-button"
               icon="pi pi-folder-open"
             />
-            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
-            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data)" />
+            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(data)" />
 
             <Button
               v-if="isFavourite(data['@id'])"
               style="color: #e39a36"
               icon="pi pi-fw pi-star-fill"
-              class="p-button-rounded p-button-text "
+              class="p-button-rounded p-button-text row-button-fav"
               @click="updateFavourites(data)"
             />
 
-            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain" @click="updateFavourites(data)" />
+            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(data)" />
           </template>
         </Column>
       </DataTable>
@@ -146,15 +142,6 @@ export default defineComponent({
   watch: {
     async conceptIri(newValue) {
       if (newValue) await this.init(newValue);
-    },
-    types(newValue): void {
-      if (newValue && newValue.length > 0) {
-        this.color = "color: " + getColourFromType(newValue);
-        this.icon = getFAIconFromType(newValue);
-      }
-    },
-    async favourites() {
-      if (this.onFavouriteView) await this.init(this.conceptIri);
     }
   },
   async mounted() {
@@ -205,11 +192,7 @@ export default defineComponent({
       children: [] as EntityReferenceNode[],
       loading: false,
       concept: {} as any,
-      definitionText: "",
-      configs: [] as DefinitionConfig[],
-      conceptAsString: "",
       selected: {} as any,
-      types: [],
       header: "",
       color: "",
       icon: [] as string[]
@@ -222,8 +205,9 @@ export default defineComponent({
     },
 
     isFavourite(iri: string) {
-      if (!this.favourites.length) return false;
-      return this.favourites.includes(iri);
+      if (isArrayHasLength(this.favourites)) {
+        return this.favourites.includes(iri);
+      } else return false;
     },
 
     goBack() {
@@ -332,7 +316,8 @@ export default defineComponent({
           hasGrandChildren: false,
           icon: getFAIconFromType(result[RDF.TYPE]),
           name: result[RDFS.LABEL],
-          type: result[RDF.TYPE]
+          type: result[RDF.TYPE],
+          parents: []
         };
         await this.getChildren(iri);
         await this.getPath(iri);
@@ -434,6 +419,7 @@ export default defineComponent({
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
+  align-items: center;
   gap: 0.5rem;
 }
 
@@ -479,5 +465,22 @@ export default defineComponent({
 
 .fav-icon {
   margin-left: 0.5rem;
+}
+
+.concept-button,
+.concept-button-fav {
+  height: fit-content;
+}
+
+.row-button:hover,
+.concept-button:hover {
+  background-color: #6c757d !important;
+  color: #ffffff !important;
+}
+
+.row-button-fav:hover,
+.concept-button-fav:hover {
+  background-color: #e39a36 !important;
+  color: #ffffff !important;
 }
 </style>
