@@ -1,8 +1,5 @@
 <template>
   <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
-    <!-- <div v-if="loading" class="loading-container">
-      <ProgressSpinner />
-    </div> -->
     <Tree
       :value="root"
       selectionMode="single"
