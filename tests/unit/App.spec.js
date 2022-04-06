@@ -3,14 +3,15 @@ import App from "@/App.vue";
 import Toast from "primevue/toast";
 import ProgressSpinner from "primevue/progressspinner";
 import ConfirmDialog from "primevue/confirmdialog";
+import Button from "primevue/button";
 import TopBar from "im-library";
-import { expect } from "vitest";
+import { expect, vi } from "vitest";
 
 describe("App.vue", () => {
   let wrapper;
   let mockStore;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.resetAllMocks();
     mockStore = {
       state: { historyCount: 1 },
@@ -19,7 +20,7 @@ describe("App.vue", () => {
     };
     wrapper = shallowMount(App, {
       global: {
-        components: { Toast, ProgressSpinner, ConfirmDialog, TopBar },
+        components: { Toast, ProgressSpinner, ConfirmDialog, TopBar, Button },
         stubs: ["router-link", "router-view"],
         mocks: { $store: mockStore }
       }
@@ -27,10 +28,10 @@ describe("App.vue", () => {
   });
 
   it("should check auth and update store history count on mount", async () => {
-    await flushPromises();
     expect(mockStore.dispatch).toHaveBeenCalledTimes(3);
     expect(mockStore.dispatch).toHaveBeenCalledWith("authenticateCurrentUser");
     expect(mockStore.dispatch).toHaveBeenCalledWith("fetchBlockedIris");
     expect(mockStore.dispatch).toHaveBeenCalledWith("fetchFilterSettings");
+    expect(wrapper.vm.loading).toBe(false);
   });
 });

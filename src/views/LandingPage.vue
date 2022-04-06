@@ -18,6 +18,7 @@
             @row-dblclick="onDoubleClick"
             :scrollable="true"
             scrollHeight="flex"
+            class="p-datatable-sm"
           >
             <template #empty>
               No recent activity
@@ -38,24 +39,6 @@
           </DataTable>
         </template>
       </Card>
-      <!-- <Card>
-      <template #title>
-        Latest activity
-      </template>
-      <template #content>
-        <DataView :value="products" layout="grid">
-          <template #grid="slotProps">
-            <div style="padding: .5em" class="col-12 md:col-3">
-              <Panel :header="slotProps.data.name" style="text-align: center">
-                <img :src="'demo/images/car/' + slotProps.data.brand + '.png'" :alt="slotProps.data.brand" />
-                <div class="car-detail">{{ slotProps.data.year }} - {{ slotProps.data.color }}</div>
-                <Button label="Continue" class="p-button-outlined" icon="pi pi-arrow-circle-right" iconPos="right" />
-              </Panel>
-            </div>
-          </template>
-        </DataView>
-      </template>
-    </Card> -->
       <div id="dashboard-container">
         <template v-for="(cardData, index) in cardsData" :key="index">
           <component
@@ -75,8 +58,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import ReportTable from "@/components/dashboard/ReportTable.vue";
-import PieChartDashCard from "@/components/dashboard/PieChartDashCard.vue";
+import ReportTable from "@/components/landingPage/ReportTable.vue";
+import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
 import ConfigService from "@/services/ConfigService";
 import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
@@ -126,7 +109,7 @@ export default defineComponent({
     },
 
     async getRecentActivityDetails() {
-      const storedActivity: RecentActivityItem[] = JSON.parse(this.recentLocalActivity || "[]");
+      const storedActivity: RecentActivityItem[] = this.recentLocalActivity;
       for (let activity of storedActivity) {
         const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
         activity.name = result[RDFS.LABEL];
@@ -134,7 +117,8 @@ export default defineComponent({
           activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
         }
       }
-      this.activities = storedActivity.reverse();
+      storedActivity.reverse();
+      this.activities = storedActivity;
     },
 
     async getConfigs(): Promise<void> {
@@ -169,7 +153,6 @@ export default defineComponent({
 
     getDayDisplay(dateTime: Date) {
       const now = new Date();
-      dateTime.getDay() === now.getDay();
       if (dateTime.getDay() === now.getDay()) return "today";
       if (now.getDay() - dateTime.getDay() === 1) return "yesterday";
       if (now.getDay() - dateTime.getDay() < 7) return "this week";
@@ -244,6 +227,7 @@ export default defineComponent({
   display: flex;
   flex-flow: row wrap;
   width: 100%;
+  height: 100%;
   overflow: auto;
   border: none;
   box-shadow: none;
