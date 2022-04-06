@@ -7,7 +7,7 @@
         <template #content>
           <div id="topbar-content-container">
             <Search />
-            <Button label="Ecl Search" @click="toEclSearch" />
+            <Button class="ecl-search-button" label="Ecl Search" @click="toEclSearch" />
           </div>
         </template>
       </TopBar>
@@ -61,9 +61,15 @@ export default defineComponent({
 }
 
 #topbar-content-container {
+  height: 100%;
   display: flex;
   flex-flow: row;
   justify-content: flex-start;
+  align-items: center;
+}
+
+.ecl-search-button {
+  height: fit-content;
 }
 
 body {
