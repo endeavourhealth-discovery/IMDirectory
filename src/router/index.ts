@@ -3,6 +3,7 @@ import Home from "../views/Home.vue";
 import Directory from "../views/Directory.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
+import EclSearch from "../views/EclSearch.vue";
 import { SnomedLicense, Env } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
@@ -36,6 +37,14 @@ const routes: Array<RouteRecordRaw> = [
         path: "search",
         name: "Search",
         component: SearchResultsTable,
+        meta: {
+          requiresLicense: true
+        }
+      },
+      {
+        path: "eclSearch",
+        name: "EclSearch",
+        component: EclSearch,
         meta: {
           requiresLicense: true
         }

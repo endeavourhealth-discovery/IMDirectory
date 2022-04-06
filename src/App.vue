@@ -2,10 +2,13 @@
   <div class="layout-wrapper layout-static">
     <Toast />
     <ConfirmDialog />
-    <div id="topbar-content-container">
+    <div id="main-container">
       <TopBar>
         <template #content>
-          <Search />
+          <div id="topbar-content-container">
+            <Search />
+            <Button label="Ecl Search" @click="toEclSearch" />
+          </div>
         </template>
       </TopBar>
       <div id="app-content-container">
@@ -37,12 +40,17 @@ export default defineComponent({
     return {
       loading: true
     };
+  },
+  methods: {
+    toEclSearch() {
+      this.$router.push({ name: "EclSearch" });
+    }
   }
 });
 </script>
 
 <style>
-#topbar-content-container {
+#main-container {
   width: 100vw;
   height: 100vh;
   max-height: 100vh;
@@ -50,6 +58,12 @@ export default defineComponent({
   flex-flow: column nowrap;
   justify-content: flex-start;
   overflow: auto;
+}
+
+#topbar-content-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
 }
 
 body {
