@@ -45,8 +45,8 @@ export default defineComponent({
   name: "NavTree",
   computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
-    locateOnNavTreeIri() {
-      this.findPathToNode(this.locateOnNavTreeIri);
+    async locateOnNavTreeIri() {
+      await this.findPathToNode(this.locateOnNavTreeIri);
     },
     async conceptIri() {
       if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
@@ -61,7 +61,7 @@ export default defineComponent({
           if (child) {
             this.selected = {};
             this.selected[child.key] = true;
-            await this.onNodeSelect(child);
+            this.onNodeSelect(child);
           }
         }
       }
@@ -119,7 +119,7 @@ export default defineComponent({
       };
     },
 
-    async onNodeSelect(node: TreeNode): Promise<void> {
+    onNodeSelect(node: TreeNode): void {
       this.selectedNode = node;
       this.$router.push({
         name: "Folder",
@@ -154,37 +154,37 @@ export default defineComponent({
       return result[0];
     },
 
-    findNodeRecursive(data: string, nodes: TreeNode[], result: TreeNode[]) {
+    async findNodeRecursive(data: string, nodes: TreeNode[], result: TreeNode[]) {
       const foundNode = nodes.find(node => node.data === data);
       if (foundNode) {
         result.push(foundNode);
       } else {
-        nodes.forEach(node => {
+        for (const node of nodes) {
           if (node.children.length === 0) {
-            this.onNodeExpand(node);
+            await this.onNodeExpand(node);
           }
-          this.findNodeRecursive(data, node.children, result);
-        });
+          await this.findNodeRecursive(data, node.children, result);
+        }
       }
     },
 
     async expandUntilSelected(iri: string) {
       const folderPath = await EntityService.getFolderPath(iri);
       const iris = new Set(folderPath.map(path => path["@id"]));
-      this.expandRecursive(iris, this.root);
+      await this.expandRecursive(iris, this.root);
       this.expandedKeys = { ...this.expandedKeys };
       const selected = folderPath[folderPath.length - 1];
       this.selectKey(selected.name);
     },
 
-    expandRecursive(iris: Set<string>, nodes: TreeNode[]) {
+    async expandRecursive(iris: Set<string>, nodes: TreeNode[]) {
       if (iris) {
-        for (let node of nodes) {
+        for (const node of nodes) {
           if (iris.has(node.data)) {
             this.expandedKeys[node.key] = true;
-            this.onNodeExpand(node);
+            await this.onNodeExpand(node);
             iris.delete(node.data);
-            this.expandRecursive(iris, node.children);
+            await this.expandRecursive(iris, node.children);
           }
         }
       }
@@ -227,7 +227,7 @@ export default defineComponent({
         }
 
         if (n && n.data === path[0]["@id"]) {
-          await this.onNodeSelect(n);
+          this.onNodeSelect(n);
         } else {
           this.$toast.add({
             severity: "warn",
