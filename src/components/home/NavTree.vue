@@ -1,10 +1,6 @@
 <template>
   <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
-    <div v-if="loading" class="loading-container">
-      <ProgressSpinner />
-    </div>
     <Tree
-      v-else
       :value="root"
       selectionMode="single"
       v-model:selectionKeys="selected"
@@ -45,26 +41,15 @@ export default defineComponent({
   name: "NavTree",
   computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
-    locateOnNavTreeIri() {
-      this.findPathToNode(this.locateOnNavTreeIri);
+    async locateOnNavTreeIri() {
+      this.$router.push({
+        name: "Folder",
+        params: { selectedIri: this.locateOnNavTreeIri }
+      });
+      await this.findPathToNode(this.locateOnNavTreeIri);
     },
     async conceptIri() {
-      if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
-        if (!this.selectedNode.children || this.selectedNode.children.length === 0) {
-          await this.onNodeExpand(this.selectedNode);
-        }
-        this.expandedKeys[this.selectedNode.key] = true;
-        this.expandedKeys = { ...this.expandedKeys };
-
-        if (isObjectHasKeys(this.selectedNode, ["children"])) {
-          const child = this.selectedNode.children.find(c => c.data === this.conceptIri);
-          if (child) {
-            this.selected = {};
-            this.selected[child.key] = true;
-            await this.onNodeSelect(child);
-          }
-        }
-      }
+      await this.findPathToNode(this.conceptIri);
     }
   },
   data() {
@@ -79,7 +64,7 @@ export default defineComponent({
   async mounted() {
     this.loading = true;
     await this.addParentFoldersToRoot();
-    if (this.conceptIri) await this.focusTree(this.conceptIri);
+    if (this.conceptIri) await this.findPathToNode(this.conceptIri);
     this.loading = false;
   },
   methods: {
@@ -119,7 +104,7 @@ export default defineComponent({
       };
     },
 
-    async onNodeSelect(node: TreeNode): Promise<void> {
+    onNodeSelect(node: TreeNode): void {
       this.selectedNode = node;
       this.$router.push({
         name: "Folder",
@@ -144,52 +129,6 @@ export default defineComponent({
       return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
     },
 
-    findNode(data: string, nodes: TreeNode[]) {
-      const foundNode = nodes.find(node => node.data === data);
-      if (foundNode) {
-        return foundNode;
-      }
-      const result = [] as TreeNode[];
-      this.findNodeRecursive(data, nodes, result);
-      return result[0];
-    },
-
-    findNodeRecursive(data: string, nodes: TreeNode[], result: TreeNode[]) {
-      const foundNode = nodes.find(node => node.data === data);
-      if (foundNode) {
-        result.push(foundNode);
-      } else {
-        nodes.forEach(node => {
-          if (node.children.length === 0) {
-            this.onNodeExpand(node);
-          }
-          this.findNodeRecursive(data, node.children, result);
-        });
-      }
-    },
-
-    async expandUntilSelected(iri: string) {
-      const folderPath = await EntityService.getFolderPath(iri);
-      const iris = new Set(folderPath.map(path => path["@id"]));
-      this.expandRecursive(iris, this.root);
-      this.expandedKeys = { ...this.expandedKeys };
-      const selected = folderPath[folderPath.length - 1];
-      this.selectKey(selected.name);
-    },
-
-    expandRecursive(iris: Set<string>, nodes: TreeNode[]) {
-      if (iris) {
-        for (let node of nodes) {
-          if (iris.has(node.data)) {
-            this.expandedKeys[node.key] = true;
-            this.onNodeExpand(node);
-            iris.delete(node.data);
-            this.expandRecursive(iris, node.children);
-          }
-        }
-      }
-    },
-
     selectKey(selectedKey: string) {
       Object.keys(this.selected).forEach(key => {
         this.selected[key] = false;
@@ -197,16 +136,8 @@ export default defineComponent({
       this.selected[selectedKey] = true;
     },
 
-    async focusTree(iri: string) {
-      const foundNode = this.findNode(iri, this.root);
-      if (foundNode) {
-        this.selectKey(foundNode.key);
-      } else {
-        await this.expandUntilSelected(iri);
-      }
-    },
-
     async findPathToNode(iri: string) {
+      this.loading = true;
       const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
       // Recursively expand
@@ -227,7 +158,19 @@ export default defineComponent({
         }
 
         if (n && n.data === path[0]["@id"]) {
-          await this.onNodeSelect(n);
+          this.selectKey(n.key);
+          // Expand node if necessary
+          if (!n.children || n.children.length == 0) {
+            await this.onNodeExpand(n);
+          }
+          for (const gc of n.children) {
+            if (gc.data === iri) {
+              this.selectKey(gc.key);
+            }
+          }
+          this.expandedKeys[n.key] = true;
+          this.selectedNode = n;
+          this.$store.commit("updateSelectedConceptIri", n.data);
         } else {
           this.$toast.add({
             severity: "warn",
@@ -235,7 +178,11 @@ export default defineComponent({
             detail: "Unable to locate concept in the current hierarchy"
           });
         }
+        const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
+        const highlighted = container.getElementsByClassName("p-highlight")[0];
+        if (highlighted) highlighted.scrollIntoView();
       }
+      this.loading = false;
     }
   }
 });
