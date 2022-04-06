@@ -165,8 +165,13 @@ export default defineComponent({
       return isArrayHasLength(this.favourites) && this.favourites.includes(iri);
     },
 
+    updateRClickOptions() {
+      this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected["@id"]) ? "Unfavourite" : "Favourite";
+    },
+
     onRowContextMenu(data: any) {
       this.selected = data.data;
+      this.updateRClickOptions();
       (this.$refs.menu as any).show(event);
     },
 
