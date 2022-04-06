@@ -52,22 +52,23 @@ export default defineComponent({
       await this.findPathToNode(this.locateOnNavTreeIri);
     },
     async conceptIri() {
-      if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
-        if (!this.selectedNode.children || this.selectedNode.children.length === 0) {
-          await this.onNodeExpand(this.selectedNode);
-        }
-        this.expandedKeys[this.selectedNode.key] = true;
-        this.expandedKeys = { ...this.expandedKeys };
+      await this.findPathToNode(this.conceptIri);
+      // if (this.selectedNode && this.selectedNode.data != this.conceptIri) {
+      //   if (!this.selectedNode.children || this.selectedNode.children.length === 0) {
+      //     await this.onNodeExpand(this.selectedNode);
+      //   }
+      //   this.expandedKeys[this.selectedNode.key] = true;
+      //   this.expandedKeys = { ...this.expandedKeys };
 
-        if (isObjectHasKeys(this.selectedNode, ["children"])) {
-          const child = this.selectedNode.children.find(c => c.data === this.conceptIri);
-          if (child) {
-            this.selected = {};
-            this.selected[child.key] = true;
-            this.onNodeSelect(child);
-          }
-        }
-      }
+      //   if (isObjectHasKeys(this.selectedNode, ["children"])) {
+      //     const child = this.selectedNode.children.find(c => c.data === this.conceptIri);
+      //     if (child) {
+      //       this.selected = {};
+      //       this.selected[child.key] = true;
+      //       this.onNodeSelect(child);
+      //     }
+      //   }
+      // }
     }
   },
   data() {
@@ -82,7 +83,7 @@ export default defineComponent({
   async mounted() {
     this.loading = true;
     await this.addParentFoldersToRoot();
-    if (this.conceptIri) await this.focusTree(this.conceptIri);
+    if (this.conceptIri) await this.findPathToNode(this.conceptIri);
     this.loading = false;
   },
   methods: {
