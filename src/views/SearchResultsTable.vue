@@ -274,7 +274,6 @@ export default defineComponent({
 
     onRowSelect(row: any) {
       this.$store.commit("updateSelectedConceptIri", row.data.iri);
-      this.$router.push({ name: "Folder", params: { selectedIri: row.data.iri } });
     },
 
     updateRClickOptions() {
