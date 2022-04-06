@@ -252,6 +252,11 @@ export default defineComponent({
             detail: "Unable to locate concept in the current hierarchy"
           });
         }
+        const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
+        const highlighted = container.getElementsByClassName("p-highlight")[0];
+        console.log(container);
+        console.log(highlighted);
+        if (highlighted) highlighted.scrollIntoView();
       }
       this.loading = false;
     }
