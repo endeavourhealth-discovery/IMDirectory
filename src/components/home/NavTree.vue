@@ -148,66 +148,11 @@ export default defineComponent({
       return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
     },
 
-    findNode(data: string, nodes: TreeNode[]) {
-      const foundNode = nodes.find(node => node.data === data);
-      if (foundNode) {
-        return foundNode;
-      }
-      const result = [] as TreeNode[];
-      this.findNodeRecursive(data, nodes, result);
-      return result[0];
-    },
-
-    async findNodeRecursive(data: string, nodes: TreeNode[], result: TreeNode[]) {
-      const foundNode = nodes.find(node => node.data === data);
-      if (foundNode) {
-        result.push(foundNode);
-      } else {
-        for (const node of nodes) {
-          if (node.children.length === 0) {
-            await this.onNodeExpand(node);
-          }
-          await this.findNodeRecursive(data, node.children, result);
-        }
-      }
-    },
-
-    async expandUntilSelected(iri: string) {
-      const folderPath = await EntityService.getFolderPath(iri);
-      const iris = new Set(folderPath.map(path => path["@id"]));
-      await this.expandRecursive(iris, this.root);
-      this.expandedKeys = { ...this.expandedKeys };
-      const selected = folderPath[folderPath.length - 1];
-      this.selectKey(selected.name);
-    },
-
-    async expandRecursive(iris: Set<string>, nodes: TreeNode[]) {
-      if (iris) {
-        for (const node of nodes) {
-          if (iris.has(node.data)) {
-            this.expandedKeys[node.key] = true;
-            await this.onNodeExpand(node);
-            iris.delete(node.data);
-            await this.expandRecursive(iris, node.children);
-          }
-        }
-      }
-    },
-
     selectKey(selectedKey: string) {
       Object.keys(this.selected).forEach(key => {
         this.selected[key] = false;
       });
       this.selected[selectedKey] = true;
-    },
-
-    async focusTree(iri: string) {
-      const foundNode = this.findNode(iri, this.root);
-      if (foundNode) {
-        this.selectKey(foundNode.key);
-      } else {
-        await this.expandUntilSelected(iri);
-      }
     },
 
     async findPathToNode(iri: string) {
@@ -254,8 +199,6 @@ export default defineComponent({
         }
         const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
         const highlighted = container.getElementsByClassName("p-highlight")[0];
-        console.log(container);
-        console.log(highlighted);
         if (highlighted) highlighted.scrollIntoView();
       }
       this.loading = false;
