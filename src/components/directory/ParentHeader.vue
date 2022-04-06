@@ -9,12 +9,17 @@
       </h4>
     </div>
     <div class="concept-buttons-container">
-      <Button icon="pi pi-fw pi-eye" class="p-button-secondary p-button-outlined concept-button" @click="view(concept['@id'])" v-tooltip="'Open in Viewer'" />
+      <Button
+        icon="pi pi-fw pi-eye"
+        class="p-button-secondary p-button-outlined concept-button"
+        @click="view(concept['@id'])"
+        v-tooltip.left="'Open in Viewer'"
+      />
       <Button
         icon="pi pi-fw pi-info-circle"
         class="p-button-secondary p-button-outlined concept-button"
         @click="showInfo(concept['@id'])"
-        v-tooltip="'Show summary panel'"
+        v-tooltip.left="'Show summary panel'"
       />
       <Button
         v-if="isFavourite(concept['@id'])"
@@ -22,14 +27,14 @@
         icon="pi pi-fw pi-star-fill"
         class="p-button-secondary p-button-outlined concept-button-fav"
         @click="updateFavourites(concept['@id'])"
-        v-tooltip="'Unfavourite'"
+        v-tooltip.left="'Unfavourite'"
       />
       <Button
         v-else
         icon="pi pi-fw pi-star"
         class="p-button-secondary p-button-outlined concept-button"
         @click="updateFavourites(concept['@id'])"
-        v-tooltip="'Favourite'"
+        v-tooltip.left="'Favourite'"
       />
     </div>
   </div>
@@ -38,14 +43,12 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Helpers, Vocabulary, Enums } from "im-library";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
 import { mapState } from "vuex";
-const { IM, RDFS, RDF } = Vocabulary;
+const { IM, RDF } = Vocabulary;
 const { AppEnum } = Enums;
 const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType },
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
 
@@ -54,7 +57,7 @@ export default defineComponent({
   emits: ["openBar"],
   props: ["concept"],
   computed: {
-    ...mapState(["conceptIri", "favourites"])
+    ...mapState(["favourites"])
   },
   methods: {
     isFavourite(iri: string) {
