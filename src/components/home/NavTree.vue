@@ -1,10 +1,9 @@
 <template>
   <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
-    <div v-if="loading" class="loading-container">
+    <!-- <div v-if="loading" class="loading-container">
       <ProgressSpinner />
-    </div>
+    </div> -->
     <Tree
-      v-else
       :value="root"
       selectionMode="single"
       v-model:selectionKeys="selected"
@@ -46,6 +45,10 @@ export default defineComponent({
   computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
     async locateOnNavTreeIri() {
+      this.$router.push({
+        name: "Folder",
+        params: { selectedIri: this.locateOnNavTreeIri }
+      });
       await this.findPathToNode(this.locateOnNavTreeIri);
     },
     async conceptIri() {
@@ -207,6 +210,7 @@ export default defineComponent({
     },
 
     async findPathToNode(iri: string) {
+      this.loading = true;
       const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
       // Recursively expand
@@ -227,7 +231,19 @@ export default defineComponent({
         }
 
         if (n && n.data === path[0]["@id"]) {
-          this.onNodeSelect(n);
+          this.selectKey(n.key);
+          // Expand node if necessary
+          if (!n.children || n.children.length == 0) {
+            await this.onNodeExpand(n);
+          }
+          for (const gc of n.children) {
+            if (gc.data === iri) {
+              this.selectKey(gc.key);
+            }
+          }
+          this.expandedKeys[n.key] = true;
+          this.selectedNode = n;
+          this.$store.commit("updateSelectedConceptIri", n.data);
         } else {
           this.$toast.add({
             severity: "warn",
@@ -236,6 +252,7 @@ export default defineComponent({
           });
         }
       }
+      this.loading = false;
     }
   }
 });
