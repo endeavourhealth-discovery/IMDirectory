@@ -42,10 +42,6 @@ export default defineComponent({
   computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
     async locateOnNavTreeIri() {
-      this.$router.push({
-        name: "Folder",
-        params: { selectedIri: this.locateOnNavTreeIri }
-      });
       await this.findPathToNode(this.locateOnNavTreeIri);
     },
     async conceptIri() {
