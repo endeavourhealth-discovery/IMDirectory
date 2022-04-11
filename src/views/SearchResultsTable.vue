@@ -318,6 +318,10 @@ export default defineComponent({
 
     locate(row: any) {
       if (row) {
+        this.$router.push({
+          name: "Folder",
+          params: { selectedIri: row.data.iri }
+        });
         this.$store.commit("updateLocateOnNavTreeIri", row.data.iri);
       }
     }
