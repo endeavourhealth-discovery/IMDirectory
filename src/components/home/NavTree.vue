@@ -166,7 +166,6 @@ export default defineComponent({
           }
           this.expandedKeys[n.key] = true;
           this.selectedNode = n;
-          this.$store.commit("updateSelectedConceptIri", n.data);
         } else {
           this.$toast.add({
             severity: "warn",
