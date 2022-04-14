@@ -54,9 +54,13 @@ export default createStore({
       { "@id": IM.DRAFT, severity: "warning" },
       { "@id": IM.INACTIVE, severity: "danger" }
     ],
-    textDefinitionStartExpanded: ["Definition"]
+    textDefinitionStartExpanded: ["Definition"],
+    activeProfile: { uuid: "", activeClausePath: "" },
   },
   mutations: {
+    updateActiveProfile(state, value) {
+      state.activeProfile = value;
+    },
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },
