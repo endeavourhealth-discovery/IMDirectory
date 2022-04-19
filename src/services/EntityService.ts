@@ -271,4 +271,12 @@ export default class EntityService {
       return [];
     }
   }
+
+  public static async getNames(iris: string[]): Promise<TTIriRef[]> {
+    try {
+      return await axios.post(Env.api + "api/entity/public/getNames", iris);
+    } catch (error) {
+      return [];
+    }
+  }
 }
