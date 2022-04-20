@@ -50,11 +50,11 @@ import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
 import SecondaryTree from "./infoSideBar/SecondaryTree.vue";
 import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import {Vocabulary, Helpers, LoggerService, Models} from 'im-library';
+import { Vocabulary, Helpers, LoggerService, Models } from "im-library";
 import { mapState } from "vuex";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
-  ConceptTypeMethods: {isQuery},
+  ConceptTypeMethods: { isQuery },
   DataTypeCheckers: { isObjectHasKeys },
   ContainerDimensionGetters: { getContainerElementOptimalHeight },
   Sorters: { byOrder }
@@ -71,7 +71,7 @@ export default defineComponent({
       set(value: any): void {
         this.$store.commit("updateActiveProfile", value);
       }
-    },
+    }
   },
   components: {
     PanelHeader,
@@ -154,30 +154,31 @@ export default defineComponent({
       await this.hydrateDefinition();
 
       // if(isQuery(this.concept[RDF.TYPE])) {
-        this.isQuery = true;
-        this.profile = new Models.Query.Profile(this.concept);
+      this.isQuery = true;
+      this.profile = new Models.Query.Profile(this.concept);
       // } else {
       //   this.isQuery = false;
       //   this.profile = {} as Models.Query.Profile;
       // }
     },
     async hydrateDefinition() {
+      if (this.concept[IM.DEFINITION]) {
+        const def = this.concept[IM.DEFINITION];
+        const iris: any[] = this.getIris(def);
+        const ttiris = await EntityService.getNames(iris.map(i => i["@id"]));
 
-      const def = JSON.parse(this.concept[IM.DEFINITION]);
-      const iris: any[] = this.getIris(def);
-      const ttiris = await EntityService.getNames(iris.map(i => i['@id']));
+        this.setIriNames(iris, ttiris);
 
-      this.setIriNames(iris, ttiris);
-
-      this.concept[IM.DEFINITION] = JSON.stringify(def);
+        this.concept[IM.DEFINITION] = JSON.stringify(def);
+      }
     },
     getIris(def: any): string[] {
       const result = [];
 
-      for(const k of Object.keys(def)) {
-        if (def[k]['@id']) {
+      for (const k of Object.keys(def)) {
+        if (def[k]["@id"]) {
           result.push(def[k]);
-        } else if (typeof def[k] === 'object') {
+        } else if (typeof def[k] === "object") {
           this.getIris(def[k]).forEach(i => result.push(i));
         }
       }
@@ -185,10 +186,10 @@ export default defineComponent({
       return result;
     },
     setIriNames(iris: TTIriRef[], ttIris: TTIriRef[]) {
-      for(const i of iris) {
-        const match = ttIris.find(t => t['@id'] === i['@id']);
+      for (const i of iris) {
+        const match = ttIris.find(t => t["@id"] === i["@id"]);
         if (match) {
-          i['name'] = match.name;
+          i["name"] = match.name;
         }
       }
     },
@@ -197,7 +198,7 @@ export default defineComponent({
       if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
         const roleGroup = result.entity[IM.ROLE_GROUP];
         delete result.entity[IM.ROLE_GROUP];
-        const newRoleGroup : any = {};
+        const newRoleGroup: any = {};
         newRoleGroup[IM.ROLE_GROUP] = roleGroup;
         result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
       }
@@ -247,7 +248,7 @@ export default defineComponent({
         this.contentHeight = "height: " + calcHeight + ";" + "max-height: " + calcHeight + ";";
         this.contentHeightValue = parseInt(calcHeight, 10);
       }
-    },
+    }
   }
 });
 </script>
