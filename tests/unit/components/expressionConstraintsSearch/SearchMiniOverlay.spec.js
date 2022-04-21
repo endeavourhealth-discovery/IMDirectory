@@ -59,7 +59,7 @@ describe("SearchMiniOverlay.vue", () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    mockRef = { render: () => {}, methods: { show: vi.fn(), hide: vi.fn() } };
+    mockRef = { render: () => { }, methods: { show: vi.fn(), hide: vi.fn() } };
 
     docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(undefined);
@@ -88,7 +88,7 @@ describe("SearchMiniOverlay.vue", () => {
 
   it("can get colour by concept type", () => {
     const testConceptType = [{ name: "Class", "@id": "http://www.w3.org/2002/07/owl#Class" }];
-    expect(wrapper.vm.getColorByConceptType(testConceptType)).toBe("color:#e39a3688");
+    expect(wrapper.vm.getColorByConceptType(testConceptType)).toBe("color:#c3ba4588");
   });
 
   it("routes onNodeSelect", async () => {

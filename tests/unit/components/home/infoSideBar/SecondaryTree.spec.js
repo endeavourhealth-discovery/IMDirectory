@@ -80,7 +80,7 @@ describe("SecondaryTree.vue", () => {
     mockToast = {
       add: vi.fn()
     };
-    mockRef = { render: () => {}, methods: { show: vi.fn(), hide: vi.fn() } };
+    mockRef = { render: () => { }, methods: { show: vi.fn(), hide: vi.fn() } };
     mockRoute = { name: "Concept" };
     mockRouter = { push: vi.fn() };
 
@@ -116,7 +116,7 @@ describe("SecondaryTree.vue", () => {
         children: [
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#111266001",
             key: "Acquired scoliosis (disorder)",
             label: "Acquired scoliosis (disorder)",
@@ -126,7 +126,7 @@ describe("SecondaryTree.vue", () => {
           },
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#773773006",
             key: "Acrodysplasia scoliosis (disorder)",
             label: "Acrodysplasia scoliosis (disorder)",
@@ -136,7 +136,7 @@ describe("SecondaryTree.vue", () => {
           },
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#205045003",
             key: "Congenital scoliosis due to bony malformation (disorder)",
             label: "Congenital scoliosis due to bony malformation (disorder)",
@@ -145,7 +145,7 @@ describe("SecondaryTree.vue", () => {
             typeIcon: ["far", "lightbulb"]
           }
         ],
-        color: "#e39a3688",
+        color: "#c3ba4588",
         data: "http://snomed.info/sct#298382003",
         key: "Scoliosis deformity of spine (disorder)",
         label: "Scoliosis deformity of spine (disorder)",
@@ -225,7 +225,7 @@ describe("SecondaryTree.vue", () => {
         children: [
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#111266001",
             key: "Acquired scoliosis (disorder)",
             label: "Acquired scoliosis (disorder)",
@@ -235,7 +235,7 @@ describe("SecondaryTree.vue", () => {
           },
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#773773006",
             key: "Acrodysplasia scoliosis (disorder)",
             label: "Acrodysplasia scoliosis (disorder)",
@@ -245,7 +245,7 @@ describe("SecondaryTree.vue", () => {
           },
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#205045003",
             key: "Congenital scoliosis due to bony malformation (disorder)",
             label: "Congenital scoliosis due to bony malformation (disorder)",
@@ -254,7 +254,7 @@ describe("SecondaryTree.vue", () => {
             typeIcon: ["far", "lightbulb"]
           }
         ],
-        color: "#e39a3688",
+        color: "#c3ba4588",
         data: "http://snomed.info/sct#298382003",
         key: "Scoliosis deformity of spine (disorder)",
         label: "Scoliosis deformity of spine (disorder)",
@@ -279,7 +279,7 @@ describe("SecondaryTree.vue", () => {
         children: [
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#111266001",
             key: "Acquired scoliosis (disorder)",
             label: "Acquired scoliosis (disorder)",
@@ -289,7 +289,7 @@ describe("SecondaryTree.vue", () => {
           },
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#773773006",
             key: "Acrodysplasia scoliosis (disorder)",
             label: "Acrodysplasia scoliosis (disorder)",
@@ -299,7 +299,7 @@ describe("SecondaryTree.vue", () => {
           },
           {
             children: [],
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#205045003",
             key: "Congenital scoliosis due to bony malformation (disorder)",
             label: "Congenital scoliosis due to bony malformation (disorder)",
@@ -308,7 +308,7 @@ describe("SecondaryTree.vue", () => {
             typeIcon: ["far", "lightbulb"]
           }
         ],
-        color: "#e39a3688",
+        color: "#c3ba4588",
         data: "http://snomed.info/sct#298382003",
         key: "Scoliosis deformity of spine (disorder)",
         label: "Scoliosis deformity of spine (disorder)",
@@ -395,7 +395,7 @@ describe("SecondaryTree.vue", () => {
       )
     ).toStrictEqual({
       children: [],
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#298382003",
       key: "Scoliosis deformity of spine (disorder)",
       label: "Scoliosis deformity of spine (disorder)",
@@ -457,7 +457,7 @@ describe("SecondaryTree.vue", () => {
       key: "Acquired scoliosis (disorder)",
       label: "Acquired scoliosis (disorder)",
       typeIcon: ["far", "lightbulb"],
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#111266001",
       leaf: false,
       loading: false,
@@ -472,7 +472,7 @@ describe("SecondaryTree.vue", () => {
       children: [
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#405771009",
           key: "Acquired kyphoscoliosis (disorder)",
           label: "Acquired kyphoscoliosis (disorder)",
@@ -482,7 +482,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#203646004",
           key: "Adolescent idiopathic scoliosis (disorder)",
           label: "Adolescent idiopathic scoliosis (disorder)",
@@ -492,7 +492,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#310421000119106",
           key: "Infantile idiopathic scoliosis of cervical spine (disorder)",
           label: "Infantile idiopathic scoliosis of cervical spine (disorder)",
@@ -502,7 +502,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#203647008",
           key: "Post-surgical scoliosis (disorder)",
           label: "Post-surgical scoliosis (disorder)",
@@ -512,7 +512,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#47518006",
           key: "Scoliosis caused by radiation (disorder)",
           label: "Scoliosis caused by radiation (disorder)",
@@ -522,7 +522,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#72992003",
           key: "Thoracogenic scoliosis (disorder)",
           label: "Thoracogenic scoliosis (disorder)",
@@ -531,7 +531,7 @@ describe("SecondaryTree.vue", () => {
           typeIcon: ["far", "lightbulb"]
         }
       ],
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#111266001",
       key: "Acquired scoliosis (disorder)",
       label: "Acquired scoliosis (disorder)",
@@ -586,14 +586,14 @@ describe("SecondaryTree.vue", () => {
       key: "Acquired scoliosis (disorder)",
       label: "Acquired scoliosis (disorder)",
       typeIcon: ["far", "lightbulb"],
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#111266001",
       leaf: false,
       loading: false,
       children: [
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#405771009",
           key: "Acquired kyphoscoliosis (disorder)",
           label: "Acquired kyphoscoliosis (disorder)",
@@ -612,7 +612,7 @@ describe("SecondaryTree.vue", () => {
       children: [
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#405771009",
           key: "Acquired kyphoscoliosis (disorder)",
           label: "Acquired kyphoscoliosis (disorder)",
@@ -622,7 +622,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#203646004",
           key: "Adolescent idiopathic scoliosis (disorder)",
           label: "Adolescent idiopathic scoliosis (disorder)",
@@ -632,7 +632,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#310421000119106",
           key: "Infantile idiopathic scoliosis of cervical spine (disorder)",
           label: "Infantile idiopathic scoliosis of cervical spine (disorder)",
@@ -642,7 +642,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#203647008",
           key: "Post-surgical scoliosis (disorder)",
           label: "Post-surgical scoliosis (disorder)",
@@ -652,7 +652,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#47518006",
           key: "Scoliosis caused by radiation (disorder)",
           label: "Scoliosis caused by radiation (disorder)",
@@ -662,7 +662,7 @@ describe("SecondaryTree.vue", () => {
         },
         {
           children: [],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#72992003",
           key: "Thoracogenic scoliosis (disorder)",
           label: "Thoracogenic scoliosis (disorder)",
@@ -671,7 +671,7 @@ describe("SecondaryTree.vue", () => {
           typeIcon: ["far", "lightbulb"]
         }
       ],
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#111266001",
       key: "Acquired scoliosis (disorder)",
       label: "Acquired scoliosis (disorder)",
@@ -687,7 +687,7 @@ describe("SecondaryTree.vue", () => {
       key: "Acquired scoliosis (disorder)",
       label: "Acquired scoliosis (disorder)",
       typeIcon: "far fa-fw fa-lightbulb",
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#111266001",
       leaf: false,
       loading: false,
@@ -696,7 +696,7 @@ describe("SecondaryTree.vue", () => {
           key: "Acquired kyphoscoliosis (disorder)",
           label: "Acquired kyphoscoliosis (disorder)",
           typeIcon: "far fa-fw fa-lightbulb",
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#405771009",
           leaf: false,
           loading: false,
@@ -706,7 +706,7 @@ describe("SecondaryTree.vue", () => {
           key: "Adolescent idiopathic scoliosis (disorder)",
           label: "Adolescent idiopathic scoliosis (disorder)",
           typeIcon: "far fa-fw fa-lightbulb",
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#203646004",
           leaf: false,
           loading: false,
@@ -729,7 +729,7 @@ describe("SecondaryTree.vue", () => {
       key: "Acquired scoliosis (disorder)",
       label: "Acquired scoliosis (disorder)",
       typeIcon: "far fa-fw fa-lightbulb",
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#111266001",
       leaf: false,
       loading: false,
@@ -738,7 +738,7 @@ describe("SecondaryTree.vue", () => {
           key: "Adolescent idiopathic scoliosis (disorder)",
           label: "Adolescent idiopathic scoliosis (disorder)",
           typeIcon: "far fa-fw fa-lightbulb",
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#203646004",
           leaf: false,
           loading: false,
@@ -763,7 +763,7 @@ describe("SecondaryTree.vue", () => {
         key: "Curvature of spine (disorder)",
         label: "Curvature of spine (disorder)",
         typeIcon: "far fa-fw fa-lightbulb",
-        color: "#e39a3688",
+        color: "#c3ba4588",
         data: "http://snomed.info/sct#64217002",
         leaf: false,
         loading: false,
@@ -772,7 +772,7 @@ describe("SecondaryTree.vue", () => {
             key: "Scoliosis deformity of spine (disorder)",
             label: "Scoliosis deformity of spine (disorder)",
             typeIcon: "far fa-fw fa-lightbulb",
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#298382003",
             leaf: true,
             loading: false,
@@ -781,7 +781,7 @@ describe("SecondaryTree.vue", () => {
                 key: "Acquired scoliosis (disorder)",
                 label: "Acquired scoliosis (disorder)",
                 typeIcon: "far fa-fw fa-lightbulb",
-                color: "#e39a3688",
+                color: "#c3ba4588",
                 data: "http://snomed.info/sct#111266001",
                 leaf: false,
                 loading: false,
@@ -808,7 +808,7 @@ describe("SecondaryTree.vue", () => {
               children: [
                 {
                   children: [],
-                  color: "#e39a3688",
+                  color: "#c3ba4588",
                   data: "http://snomed.info/sct#111266001",
                   key: "Acquired scoliosis (disorder)",
                   label: "Acquired scoliosis (disorder)",
@@ -817,7 +817,7 @@ describe("SecondaryTree.vue", () => {
                   typeIcon: "far fa-fw fa-lightbulb"
                 }
               ],
-              color: "#e39a3688",
+              color: "#c3ba4588",
               data: "http://snomed.info/sct#298382003",
               key: "Scoliosis deformity of spine (disorder)",
               label: "Scoliosis deformity of spine (disorder)",
@@ -826,7 +826,7 @@ describe("SecondaryTree.vue", () => {
               typeIcon: "far fa-fw fa-lightbulb"
             }
           ],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#64217002",
           key: "Curvature of spine (disorder)",
           label: "Curvature of spine (disorder)",
@@ -845,7 +845,7 @@ describe("SecondaryTree.vue", () => {
         key: "Curvature of spine (disorder)",
         label: "Curvature of spine (disorder)",
         typeIcon: "far fa-fw fa-lightbulb",
-        color: "#e39a3688",
+        color: "#c3ba4588",
         data: "http://snomed.info/sct#64217002",
         leaf: false,
         loading: false,
@@ -854,7 +854,7 @@ describe("SecondaryTree.vue", () => {
             key: "Scoliosis deformity of spine (disorder)",
             label: "Scoliosis deformity of spine (disorder)",
             typeIcon: "far fa-fw fa-lightbulb",
-            color: "#e39a3688",
+            color: "#c3ba4588",
             data: "http://snomed.info/sct#298382003",
             leaf: true,
             loading: false,
@@ -863,7 +863,7 @@ describe("SecondaryTree.vue", () => {
                 key: "Acquired scoliosis (disorder)",
                 label: "Acquired scoliosis (disorder)",
                 typeIcon: "far fa-fw fa-lightbulb",
-                color: "#e39a3688",
+                color: "#c3ba4588",
                 data: "http://snomed.info/sct#111266001",
                 leaf: false,
                 loading: false,
@@ -890,7 +890,7 @@ describe("SecondaryTree.vue", () => {
               children: [
                 {
                   children: [],
-                  color: "#e39a3688",
+                  color: "#c3ba4588",
                   data: "http://snomed.info/sct#111266001",
                   key: "Acquired scoliosis (disorder)",
                   label: "Acquired scoliosis (disorder)",
@@ -899,7 +899,7 @@ describe("SecondaryTree.vue", () => {
                   typeIcon: "far fa-fw fa-lightbulb"
                 }
               ],
-              color: "#e39a3688",
+              color: "#c3ba4588",
               data: "http://snomed.info/sct#298382003",
               key: "Scoliosis deformity of spine (disorder)",
               label: "Scoliosis deformity of spine (disorder)",
@@ -908,7 +908,7 @@ describe("SecondaryTree.vue", () => {
               typeIcon: "far fa-fw fa-lightbulb"
             }
           ],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#64217002",
           key: "Curvature of spine (disorder)",
           label: "Curvature of spine (disorder)",
@@ -954,7 +954,7 @@ describe("SecondaryTree.vue", () => {
           children: [
             {
               children: [],
-              color: "#e39a3688",
+              color: "#c3ba4588",
               data: "http://snomed.info/sct#111266001",
               key: "Acquired scoliosis (disorder)",
               label: "Acquired scoliosis (disorder)",
@@ -964,7 +964,7 @@ describe("SecondaryTree.vue", () => {
             },
             {
               children: [],
-              color: "#e39a3688",
+              color: "#c3ba4588",
               data: "http://snomed.info/sct#773773006",
               key: "Acrodysplasia scoliosis (disorder)",
               label: "Acrodysplasia scoliosis (disorder)",
@@ -974,7 +974,7 @@ describe("SecondaryTree.vue", () => {
             },
             {
               children: [],
-              color: "#e39a3688",
+              color: "#c3ba4588",
               data: "http://snomed.info/sct#205045003",
               key: "Congenital scoliosis due to bony malformation (disorder)",
               label: "Congenital scoliosis due to bony malformation (disorder)",
@@ -983,7 +983,7 @@ describe("SecondaryTree.vue", () => {
               typeIcon: ["far", "lightbulb"]
             }
           ],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#298382003",
           key: "Scoliosis deformity of spine (disorder)",
           label: "Scoliosis deformity of spine (disorder)",
@@ -992,7 +992,7 @@ describe("SecondaryTree.vue", () => {
           typeIcon: ["far", "lightbulb"]
         }
       ],
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#12903001",
       key: "Acquired curvature of spine (disorder)",
       label: "Acquired curvature of spine (disorder)",
@@ -1029,7 +1029,7 @@ describe("SecondaryTree.vue", () => {
           children: [
             {
               children: [],
-              color: "#e39a3688",
+              color: "#c3ba4588",
               data: "http://snomed.info/sct#111266001",
               key: "Acquired scoliosis (disorder)",
               label: "Acquired scoliosis (disorder)",
@@ -1039,7 +1039,7 @@ describe("SecondaryTree.vue", () => {
             },
             {
               children: [],
-              color: "#e39a3688",
+              color: "#c3ba4588",
               data: "http://snomed.info/sct#773773006",
               key: "Acrodysplasia scoliosis (disorder)",
               label: "Acrodysplasia scoliosis (disorder)",
@@ -1049,7 +1049,7 @@ describe("SecondaryTree.vue", () => {
             },
             {
               children: [],
-              color: "#e39a3688",
+              color: "#c3ba4588",
               data: "http://snomed.info/sct#205045003",
               key: "Congenital scoliosis due to bony malformation (disorder)",
               label: "Congenital scoliosis due to bony malformation (disorder)",
@@ -1058,7 +1058,7 @@ describe("SecondaryTree.vue", () => {
               typeIcon: ["far", "lightbulb"]
             }
           ],
-          color: "#e39a3688",
+          color: "#c3ba4588",
           data: "http://snomed.info/sct#298382003",
           key: "Scoliosis deformity of spine (disorder)",
           label: "Scoliosis deformity of spine (disorder)",
@@ -1067,7 +1067,7 @@ describe("SecondaryTree.vue", () => {
           typeIcon: ["far", "lightbulb"]
         }
       ],
-      color: "#e39a3688",
+      color: "#c3ba4588",
       data: "http://snomed.info/sct#12903001",
       key: "Acquired curvature of spine (disorder)",
       label: "Acquired curvature of spine (disorder)",
