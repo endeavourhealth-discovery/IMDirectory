@@ -1,14 +1,6 @@
 <template>
-  <div>
-    <AutoComplete
-      id="autocomplete-search"
-      autoWidth="false"
-      v-model="searchText"
-      placeholder="Search"
-      :suggestions="searchResults"
-      @complete="search"
-      @item-select="navigate"
-    />
+  <div class="search-container">
+    <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" />
 
     <Button id="filter-button" icon="pi pi-sliders-h" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openFiltersOverlay" />
     <OverlayPanel ref="filtersO" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
@@ -45,6 +37,11 @@ export default defineComponent({
   },
   computed: {
     ...mapState(["conceptIri", "filterOptions", "searchResults", "selectedFilters", "authReturnUrl"])
+  },
+  watch: {
+    async searchText() {
+      await this.search();
+    }
   },
   data() {
     return {
@@ -158,9 +155,16 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 #filter-button {
   height: 2.25rem;
+}
+
+.search-container {
+  padding: 0 0.2rem;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.2rem;
 }
 
 #autocomplete-search {
@@ -171,29 +175,7 @@ export default defineComponent({
   height: 2.25rem;
 }
 
-.p-autocomplete-panel {
-  width: 30rem;
-}
-
-.autocomplete-row {
-  width: 100%;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-}
-
-.autocomplete-row-name {
-  max-width: calc(100% - 0.5rem);
-  height: fit-content;
-  word-wrap: break-word;
-  white-space: normal;
-}
-
 .fa-icon {
   padding-right: 0.25rem;
-}
-
-.p-autocomplete-items {
-  display: none;
 }
 </style>

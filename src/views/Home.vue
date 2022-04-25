@@ -1,10 +1,10 @@
 <template>
-  <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="setSplitterContainerHoriz">
+  <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto;">
       <NavTree />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto;">
-      <div class="splitter-right" v-if="visibleRight" :style="splitterContentWidth">
+      <div class="splitter-right" v-if="visibleRight">
         <router-view @openBar="visibleRight = true" />
         <div id="info-side-bar-wrapper" v-if="visibleRight">
           <InfoSideBar @closeBar="visibleRight = false" />
@@ -35,34 +35,12 @@ export default defineComponent({
     InfoSideBar
   },
   computed: mapState(["filterOptions", "filterDefaults"]),
-  mounted() {
-    this.setSplitterContainerHoriz({ sizes: localStorage.getItem("directoryMainSplitterHorizontal") });
-  },
+
   data() {
     return {
       visibleRight: false,
-      selectedIri: "",
-      splitterContentWidth: ""
+      selectedIri: ""
     };
-  },
-  methods: {
-    setSplitterContainerHoriz(event: any) {
-      let leftWidth;
-      if (isArrayHasLength(event.sizes) && event.sizes[0] > 0) {
-        leftWidth = event.sizes[0];
-      } else if (typeof event.sizes === "string") {
-        const parsed = JSON.parse(event.sizes);
-        if (isArrayHasLength(parsed) && parsed[0] > 0) {
-          leftWidth = parsed[0];
-        } else {
-          leftWidth = 30;
-        }
-      } else {
-        leftWidth = 30;
-      }
-      const calcWidth = 100 - leftWidth;
-      this.splitterContentWidth = "width: calc(" + calcWidth + "vw - 0.5rem);" + "max-width: calc(" + calcWidth + "vw - 0.5rem);";
-    }
   }
 });
 </script>
@@ -74,7 +52,6 @@ export default defineComponent({
 }
 
 #info-side-bar-wrapper {
-  overflow-x: none;
   transition: 0.5s;
   width: 40%;
 }
