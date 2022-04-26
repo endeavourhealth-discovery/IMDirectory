@@ -94,12 +94,5 @@ describe("Home.vue", () => {
   it("mounts", () => {
     expect(wrapper.vm.visibleRight).toBe(false);
     expect(wrapper.vm.selectedIri).toBe("");
-    expect(wrapper.vm.splitterContentWidth).toBe("width: calc(48vw - 0.5rem);max-width: calc(48vw - 0.5rem);");
-  });
-
-  it("can setSplitterContainerHoriz", () => {
-    wrapper.vm.splitterContentWidth = "";
-    wrapper.vm.setSplitterContainerHoriz({ sizes: [25, 75] });
-    expect(wrapper.vm.splitterContentWidth).toBe("width: calc(75vw - 0.5rem);max-width: calc(75vw - 0.5rem);");
   });
 });
