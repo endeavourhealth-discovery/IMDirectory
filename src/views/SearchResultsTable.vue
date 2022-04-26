@@ -1,99 +1,97 @@
 <template>
   <div id="search-results-main-container">
-    <div class="card">
-      <div class="filters-container">
-        <div class="p-inputgroup">
-          <span class="p-float-label">
-            <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
-            <label for="status">Select status:</label>
-          </span>
-        </div>
-        <div class="p-inputgroup">
-          <span class="p-float-label">
-            <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
-            <label for="scheme">Select scheme:</label>
-          </span>
-        </div>
-        <div class="p-inputgroup">
-          <span class="p-float-label">
-            <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
-            <label for="type">Select concept type:</label>
-          </span>
-        </div>
+    <div class="filters-container">
+      <div class="p-inputgroup">
+        <span class="p-float-label">
+          <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
+          <label for="status">Select status:</label>
+        </span>
       </div>
-
-      <DataTable
-        :paginator="true"
-        :rows="20"
-        :value="localSearchResults"
-        class="p-datatable-sm"
-        v-model:selection="selected"
-        selectionMode="single"
-        @rowUnselect="onRowUnselect"
-        @rowSelect="onRowSelect"
-        @rowContextmenu="onRowContextMenu"
-        @contextmenu="onRightClick"
-        @row-dblclick="onRowDblClick"
-        :scrollable="true"
-        scrollHeight="flex"
-        :loading="isLoading"
-        v-model:contextMenuSelection="selected"
-        ref="searchTable"
-        dataKey="iri"
-      >
-        <template #empty>
-          None
-        </template>
-        <Column field="name" header="Name">
-          <template #body="slotProps">
-            <div class="ml-2">
-              <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
-                <font-awesome-icon v-if="slotProps.data.icon" :icon="slotProps.data.icon" />
-              </span>
-              {{ slotProps.data.match }}
-            </div>
-          </template>
-        </Column>
-        <Column field="entityType" header="Types">
-          <template #body="slotProps">
-            {{ slotProps.data.typeNames }}
-          </template>
-        </Column>
-        <Column field="status" header="Status">
-          <template #body="slotProps">
-            {{ slotProps.data.status?.name }}
-          </template>
-        </Column>
-        <Column field="code" header="Code"></Column>
-        <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
-          <template #body="slotProps">
-            <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" />
-            <Button
-              v-if="slotProps.data.hasChildren"
-              @click="open(slotProps)"
-              aria-haspopup="true"
-              aria-controls="overlay_menu"
-              type="button"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              icon="pi pi-folder-open"
-            />
-            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" />
-            <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(slotProps)" />
-
-            <Button
-              v-if="isFavourite(slotProps.data.iri)"
-              style="color: #e39a36"
-              icon="pi pi-fw pi-star-fill"
-              class="p-button-rounded p-button-text row-button-fav"
-              @click="updateFavourites(slotProps)"
-            />
-
-            <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(slotProps)" />
-          </template>
-        </Column>
-      </DataTable>
-      <ContextMenu :model="rClickOptions" ref="cm" />
+      <div class="p-inputgroup">
+        <span class="p-float-label">
+          <MultiSelect id="scheme" v-model="selectedSchemes" @change="filterResults" :options="schemeOptions" display="chip" />
+          <label for="scheme">Select scheme:</label>
+        </span>
+      </div>
+      <div class="p-inputgroup">
+        <span class="p-float-label">
+          <MultiSelect id="type" v-model="selectedTypes" @change="filterResults" :options="typeOptions" display="chip" />
+          <label for="type">Select concept type:</label>
+        </span>
+      </div>
     </div>
+
+    <DataTable
+      :paginator="true"
+      :rows="20"
+      :value="localSearchResults"
+      class="p-datatable-sm"
+      v-model:selection="selected"
+      selectionMode="single"
+      @rowUnselect="onRowUnselect"
+      @rowSelect="onRowSelect"
+      @rowContextmenu="onRowContextMenu"
+      @contextmenu="onRightClick"
+      @row-dblclick="onRowDblClick"
+      :scrollable="true"
+      scrollHeight="flex"
+      :loading="isLoading"
+      v-model:contextMenuSelection="selected"
+      ref="searchTable"
+      dataKey="iri"
+    >
+      <template #empty>
+        None
+      </template>
+      <Column field="name" header="Name">
+        <template #body="slotProps">
+          <div class="ml-2">
+            <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
+              <font-awesome-icon v-if="slotProps.data.icon" :icon="slotProps.data.icon" />
+            </span>
+            {{ slotProps.data.match }}
+          </div>
+        </template>
+      </Column>
+      <Column field="entityType" header="Types">
+        <template #body="slotProps">
+          {{ slotProps.data.typeNames }}
+        </template>
+      </Column>
+      <Column field="status" header="Status">
+        <template #body="slotProps">
+          {{ slotProps.data.status?.name }}
+        </template>
+      </Column>
+      <Column field="code" header="Code"></Column>
+      <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+        <template #body="slotProps">
+          <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" />
+          <Button
+            v-if="slotProps.data.hasChildren"
+            @click="open(slotProps)"
+            aria-haspopup="true"
+            aria-controls="overlay_menu"
+            type="button"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            icon="pi pi-folder-open"
+          />
+          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" />
+          <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(slotProps)" />
+
+          <Button
+            v-if="isFavourite(slotProps.data.iri)"
+            style="color: #e39a36"
+            icon="pi pi-fw pi-star-fill"
+            class="p-button-rounded p-button-text row-button-fav"
+            @click="updateFavourites(slotProps)"
+          />
+
+          <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(slotProps)" />
+        </template>
+      </Column>
+    </DataTable>
+    <ContextMenu :model="rClickOptions" ref="cm" />
   </div>
 </template>
 
@@ -342,14 +340,17 @@ label {
 }
 
 #search-results-main-container {
-  padding-top: 1rem;
   height: 100%;
-  width: 100%;
+  flex: 1 1 auto;
+  overflow: auto;
   background-color: #ffffff;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .filters-container {
   width: 100%;
+  padding-top: 1rem;
   display: flex;
   flex-flow: row wrap;
   justify-content: flex-start;
@@ -361,7 +362,8 @@ label {
 }
 
 .p-datatable {
-  height: calc(100% - 3.5rem) !important;
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
 .row-button:hover {
