@@ -48,7 +48,6 @@ import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
-import SecondaryTree from "./infoSideBar/SecondaryTree.vue";
 import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, LoggerService, Models } from "im-library";
 import { mapState } from "vuex";
@@ -75,8 +74,7 @@ export default defineComponent({
   },
   components: {
     PanelHeader,
-    Definition,
-    SecondaryTree
+    Definition
   },
 
   watch: {
