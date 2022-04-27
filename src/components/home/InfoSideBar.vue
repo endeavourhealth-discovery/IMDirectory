@@ -151,13 +151,13 @@ export default defineComponent({
 
       await this.hydrateDefinition();
 
-      // if(isQuery(this.concept[RDF.TYPE])) {
+      if(isQuery(this.concept[RDF.TYPE])) {
       this.isQuery = true;
       this.profile = new Models.Query.Profile(this.concept);
-      // } else {
-      //   this.isQuery = false;
-      //   this.profile = {} as Models.Query.Profile;
-      // }
+      } else {
+        this.isQuery = false;
+        this.profile = {} as Models.Query.Profile;
+      }
     },
     async hydrateDefinition() {
       if (this.concept[IM.DEFINITION]) {
