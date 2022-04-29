@@ -1,5 +1,17 @@
 <template>
-  <div id="concept-main-container">
+  <div id="concept-empty-container" v-if="selectedConceptIri === 'http://endhealth.info/im#Favourites'">
+    <Panel>
+      <template #icons>
+        <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
+          <span class="pi pi-times"></span>
+        </button>
+      </template>
+      <template #header>
+        Please select an item to display
+      </template>
+    </Panel>
+  </div>
+  <div id="concept-main-container" v-else>
     <Panel>
       <template #icons>
         <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
