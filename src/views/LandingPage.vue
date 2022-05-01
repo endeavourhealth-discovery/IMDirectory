@@ -109,7 +109,7 @@ export default defineComponent({
     },
 
     async getRecentActivityDetails() {
-      const storedActivity: RecentActivityItem[] = this.recentLocalActivity;
+      const storedActivity: RecentActivityItem[] = Object.assign([], this.recentLocalActivity);
       for (let activity of storedActivity) {
         const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
         activity.name = result[RDFS.LABEL];

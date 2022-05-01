@@ -264,9 +264,17 @@ export default class EntityService {
 
   public static async getPathBetweenNodes(descendant: string, ancestor: string): Promise<TTIriRef[]> {
     try {
-      return await axios.get(Env.api + "api/entity/public/pathBetweenNodes", {
+      return await axios.get(Env.api + "api/entity/public/shortestParentHierarchy", {
         params: { descendant: descendant, ancestor: ancestor }
       });
+    } catch (error) {
+      return [];
+    }
+  }
+
+  public static async getNames(iris: string[]): Promise<TTIriRef[]> {
+    try {
+      return await axios.post(Env.api + "api/entity/public/getNames", iris);
     } catch (error) {
       return [];
     }

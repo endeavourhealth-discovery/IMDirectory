@@ -44,7 +44,11 @@ describe("state", () => {
       "sidebarControlActivePanel",
       "hierarchySelectedFilters",
       "filterDefaults",
-      "defaultPredicateNames"
+      "defaultPredicateNames",
+      "arrayObjectNameListboxWithLabelStartExpanded",
+      "tagSeverityMatches",
+      "textDefinitionStartExpanded",
+      "activeProfile"
     ]);
     expect(store.state.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
 

@@ -43,9 +43,6 @@ export default defineComponent({
   watch: {
     async locateOnNavTreeIri() {
       await this.findPathToNode(this.locateOnNavTreeIri);
-    },
-    async conceptIri() {
-      await this.findPathToNode(this.conceptIri);
     }
   },
   data() {
@@ -114,8 +111,7 @@ export default defineComponent({
         node.loading = true;
         const children = await EntityService.getEntityChildren(node.data);
         children.forEach(child => {
-          if (!this.nodeHasChild(node, child) && child.hasChildren)
-            node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasGrandChildren));
+          if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
         });
         node.loading = false;
       }
@@ -166,7 +162,6 @@ export default defineComponent({
           }
           this.expandedKeys[n.key] = true;
           this.selectedNode = n;
-          this.$store.commit("updateSelectedConceptIri", n.data);
         } else {
           this.$toast.add({
             severity: "warn",

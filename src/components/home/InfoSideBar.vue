@@ -1,5 +1,17 @@
 <template>
-  <div id="concept-main-container">
+  <div id="concept-empty-container" v-if="selectedConceptIri === 'http://endhealth.info/im#Favourites'">
+    <Panel>
+      <template #icons>
+        <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
+          <span class="pi pi-times"></span>
+        </button>
+      </template>
+      <template #header>
+        Please select an item to display
+      </template>
+    </Panel>
+  </div>
+  <div id="concept-main-container" v-else>
     <Panel>
       <template #icons>
         <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
@@ -30,6 +42,11 @@
                 <SecondaryTree :conceptIri="selectedConceptIri" />
               </div>
             </TabPanel>
+            <TabPanel v-if="isQuery" header="Query">
+              <div class="concept-panel-content" id="query-container" :style="contentHeight">
+                <ProfileDisplay theme="light" :modelValue="profile" :activeProfile="activeProfile" />
+              </div>
+            </TabPanel>
           </TabView>
         </div>
       </div>
@@ -43,12 +60,12 @@ import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
-import SecondaryTree from "./infoSideBar/SecondaryTree.vue";
 import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, LoggerService } from "im-library";
+import { Vocabulary, Helpers, LoggerService, Models } from "im-library";
 import { mapState } from "vuex";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
+  ConceptTypeMethods: { isQuery },
   DataTypeCheckers: { isObjectHasKeys },
   ContainerDimensionGetters: { getContainerElementOptimalHeight },
   Sorters: { byOrder }
@@ -57,12 +74,19 @@ const {
 export default defineComponent({
   name: "InfoSideBar",
   computed: {
-    ...mapState(["conceptIri", "selectedConceptIri"])
+    ...mapState(["conceptIri", "selectedConceptIri"]),
+    activeProfile: {
+      get(): any {
+        return this.$store.state.activeProfile;
+      },
+      set(value: any): void {
+        this.$store.commit("updateActiveProfile", value);
+      }
+    }
   },
   components: {
     PanelHeader,
-    Definition,
-    SecondaryTree
+    Definition
   },
 
   watch: {
@@ -94,7 +118,9 @@ export default defineComponent({
       contentHeightValue: 0,
       configs: [] as DefinitionConfig[],
       conceptAsString: "",
-      terms: [] as any[] | undefined
+      terms: [] as any[] | undefined,
+      profile: {} as Models.Query.Profile,
+      isQuery: false
     };
   },
   methods: {
@@ -126,6 +152,7 @@ export default defineComponent({
         .filter((c: DefinitionConfig) => c.predicate !== "None")
         .filter((c: DefinitionConfig) => c.predicate !== undefined)
         .map((c: DefinitionConfig) => c.predicate);
+      predicates.push(IM.DEFINITION);
 
       this.concept = await EntityService.getPartialEntity(iri, predicates);
 
@@ -133,14 +160,55 @@ export default defineComponent({
       this.concept["subtypes"] = await EntityService.getEntityChildren(iri);
 
       this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
-    },
 
+      await this.hydrateDefinition();
+
+      if(isQuery(this.concept[RDF.TYPE])) {
+      this.isQuery = true;
+      this.profile = new Models.Query.Profile(this.concept);
+      } else {
+        this.isQuery = false;
+        this.profile = {} as Models.Query.Profile;
+      }
+    },
+    async hydrateDefinition() {
+      if (this.concept[IM.DEFINITION]) {
+        const def = this.concept[IM.DEFINITION];
+        const iris: any[] = this.getIris(def);
+        const ttiris = await EntityService.getNames(iris.map(i => i["@id"]));
+
+        this.setIriNames(iris, ttiris);
+
+        this.concept[IM.DEFINITION] = JSON.stringify(def);
+      }
+    },
+    getIris(def: any): string[] {
+      const result = [];
+
+      for (const k of Object.keys(def)) {
+        if (def[k]["@id"]) {
+          result.push(def[k]);
+        } else if (typeof def[k] === "object") {
+          this.getIris(def[k]).forEach(i => result.push(i));
+        }
+      }
+
+      return result;
+    },
+    setIriNames(iris: TTIriRef[], ttIris: TTIriRef[]) {
+      for (const i of iris) {
+        const match = ttIris.find(t => t["@id"] === i["@id"]);
+        if (match) {
+          i["name"] = match.name;
+        }
+      }
+    },
     async getInferred(iri: string): Promise<void> {
       const result = await EntityService.getDefinitionBundle(iri);
       if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
         const roleGroup = result.entity[IM.ROLE_GROUP];
         delete result.entity[IM.ROLE_GROUP];
-        const newRoleGroup : any = {};
+        const newRoleGroup: any = {};
         newRoleGroup[IM.ROLE_GROUP] = roleGroup;
         result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
       }

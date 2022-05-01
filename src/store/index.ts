@@ -47,9 +47,20 @@ export default createStore({
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
     filterDefaults: {} as FilterDefaultsConfig,
-    defaultPredicateNames: {} as any
+    defaultPredicateNames: {} as any,
+    arrayObjectNameListboxWithLabelStartExpanded: [],
+    tagSeverityMatches: [
+      { "@id": IM.ACTIVE, severity: "success" },
+      { "@id": IM.DRAFT, severity: "warning" },
+      { "@id": IM.INACTIVE, severity: "danger" }
+    ],
+    textDefinitionStartExpanded: ["Definition"],
+    activeProfile: { uuid: "", activeClausePath: "" },
   },
   mutations: {
+    updateActiveProfile(state, value) {
+      state.activeProfile = value;
+    },
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },
@@ -143,6 +154,15 @@ export default createStore({
     },
     updateLocateOnNavTreeIri(state, iri) {
       state.locateOnNavTreeIri = iri;
+    },
+    updateArrayObjectNameListboxWithLabelStartExpanded(state, items) {
+      state.arrayObjectNameListboxWithLabelStartExpanded = items;
+    },
+    updateTagSeverityMatches(state, items) {
+      state.tagSeverityMatches = items;
+    },
+    updateTextDefinitionStartExpanded(state, items) {
+      state.textDefinitionStartExpanded = items;
     }
   },
   actions: {
