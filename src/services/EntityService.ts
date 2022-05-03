@@ -1,7 +1,6 @@
 import axios, { CancelToken } from "axios";
 import {
   EntityReferenceNode,
-  PartialBundle,
   EntityDefinitionDto,
   TTBundle,
   TTIriRef,
@@ -66,7 +65,7 @@ export default class EntityService {
     }
   }
 
-  public static async getPartialEntityBundle(iri: string, predicates: string[]): Promise<PartialBundle> {
+  public static async getPartialEntityBundle(iri: string, predicates: string[]): Promise<TTBundle> {
     try {
       return await axios.get(Env.api + "api/entity/public/partialBundle", {
         params: {
@@ -75,11 +74,11 @@ export default class EntityService {
         }
       });
     } catch (error) {
-      return {} as PartialBundle;
+      return {} as TTBundle;
     }
   }
 
-  public static async getDefinitionBundle(iri: string): Promise<PartialBundle> {
+  public static async getDefinitionBundle(iri: string): Promise<TTBundle> {
     try {
       return await axios.get(Env.api + "api/entity/public/inferredBundle", {
         params: {
@@ -87,7 +86,7 @@ export default class EntityService {
         }
       });
     } catch (error) {
-      return {} as PartialBundle;
+      return {} as TTBundle;
     }
   }
 
