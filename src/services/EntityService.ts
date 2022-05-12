@@ -179,6 +179,17 @@ export default class EntityService {
     }
   }
 
+  public static async getChildrenAndTotalCount(iri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, cancelToken?: CancelToken): Promise<any> {
+    try {
+      return await axios.get(Env.api + "api/entity/public/childrenAndTotalCount", {
+        params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+        cancelToken: cancelToken
+      });
+    } catch (error) {
+      return {} as any;
+    }
+  }
+
   public static async getEntityUsages(iri: string, pageIndex: number, pageSize: number): Promise<TTIriRef[]> {
     try {
       return await axios.get(Env.api + "api/entity/public/usages", {
