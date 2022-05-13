@@ -4,7 +4,7 @@ import Directory from "../views/Directory.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
 import EclSearch from "../views/EclSearch.vue";
-import { AccessDenied, SnomedLicense, Env } from "im-library";
+import { AccessDenied, PageNotFound, SnomedLicense, Env } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
 
@@ -60,6 +60,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/401",
     name: "AccessDenied",
     component: AccessDenied
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "PageNotFound",
+    component: PageNotFound
   }
 ];
 
