@@ -29,7 +29,7 @@
                 <ProgressSpinner />
               </div>
               <div v-else class="concept-panel-content" id="definition-container" :style="contentHeight">
-                <Definition :concept="concept" :configs="configs" />
+                <Definition :concept="concept" :configs="configs" :totalCount="totalCount" />
               </div>
             </TabPanel>
             <TabPanel v-if="terms" header="Terms">
@@ -120,7 +120,9 @@ export default defineComponent({
       conceptAsString: "",
       terms: [] as any[] | undefined,
       profile: {} as Models.Query.Profile,
-      isQuery: false
+      isQuery: false,
+      children: {} as any,
+      totalCount: 0
     };
   },
   methods: {
@@ -157,7 +159,9 @@ export default defineComponent({
       this.concept = await EntityService.getPartialEntity(iri, predicates);
 
       this.concept["@id"] = iri;
-      this.concept["subtypes"] = await EntityService.getEntityChildren(iri);
+      this.children = await EntityService.getChildrenAndTotalCount(iri,1,10);
+      this.totalCount = this.children["totalCount"];
+      this.concept["subtypes"] = this.children.result;
 
       this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
 
