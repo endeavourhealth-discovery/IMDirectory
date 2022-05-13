@@ -18,17 +18,17 @@
     </template>
     <div id="query-builder-container">
       <div id="query-build">
-        <template v-for="item in queryBuild" :key="item.id">
+        <template v-for="item of queryBuild" :key="item.id">
           <component
-            :is="item.component"
+            :is="item.type"
             :value="item.value"
             :id="item.id"
             :position="item.position"
-            :last="queryBuild.length - 2 <= item.position ? true : false"
+            :showButtons="item.showButtons"
             @deleteClicked="deleteItem"
             @addClicked="addItem"
             @updateClicked="updateItem"
-            @addNextOptionsClicked="addNextOptions"
+            @addNextOptionsClicked="addItem"
           >
           </component>
         </template>
@@ -56,28 +56,27 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Logic from "@/components/eclSearch/Logic.vue";
-import RefinementGroup from "@/components/eclSearch/RefinementGroup.vue";
-import FocusConcept from "@/components/eclSearch/FocusConcept.vue";
-import AddNext from "@/components/eclSearch/AddNext.vue";
+import Logic from "@/components/eclSearch/builder/Logic.vue";
+import RefinementGroup from "@/components/eclSearch/builder/RefinementGroup.vue";
+import FocusConcept from "@/components/eclSearch/builder/FocusConcept.vue";
 import { Enums, Helpers, LoggerService, Models } from "im-library";
-import { ECLComponentDetails, ECLNextComponentSummary } from "im-library/dist/types/interfaces/Interfaces";
+import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
 const {
-  Sorters: { byPosition }
+  Sorters: { byPosition },
+  EclSearchBuilderMethods: { generateNewComponent, addItem, updateItem, updatePositions }
 } = Helpers;
-const { ECLComponent, ECLType } = Enums;
+const { ECLComponent } = Enums;
 
 export default defineComponent({
   name: "Builder",
   components: {
     Logic,
     RefinementGroup,
-    FocusConcept,
-    AddNext
+    FocusConcept
   },
   props: { showDialog: Boolean },
   emits: {
-    ECLSubmitted: (payload: string) => true,
+    ECLSubmitted: (_payload: string) => true,
     closeDialog: () => true
   },
   watch: {
@@ -90,7 +89,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.queryBuild = this.setStartBuild();
+    this.setStartBuild();
   },
   data() {
     return {
@@ -107,36 +106,20 @@ export default defineComponent({
       this.$emit("closeDialog");
     },
 
-    async addNextOptions(data: ECLNextComponentSummary): Promise<void> {
-      const nextOptionsComponent = this.getNextOptions(data.previousPosition, data.previousComponentType, data.parentGroup);
-      if (this.queryBuild[data.previousPosition + 1].type === ECLType.ADD_NEXT) {
-        this.queryBuild[data.previousPosition + 1] = nextOptionsComponent;
-      } else {
-        this.queryBuild.splice(data.previousPosition + 1, 0, nextOptionsComponent);
+    addItem(data: { selectedType: Enums.ECLComponent; position: number; value: any }): void {
+      if (data.selectedType === ECLComponent.LOGIC) {
+        data.value = { data: data.value, parentGroup: ECLComponent.BUILDER };
       }
-      this.updatePositions();
-      await this.$nextTick();
-      const itemToScrollTo = document.getElementById(nextOptionsComponent.id);
-      itemToScrollTo?.scrollIntoView();
-    },
-
-    addItem(data: { selectedType: Enums.ECLType; position: number }): void {
-      const newComponent = this.generateNewComponent(data.selectedType, data.position);
-      if (!newComponent) return;
-      this.queryBuild[data.position] = newComponent;
-      if (this.queryBuild[this.queryBuild.length - 1].type !== ECLType.ADD_NEXT) {
-        this.queryBuild.push(this.getNextOptions(this.queryBuild.length - 1, this.queryBuild[this.queryBuild.length - 1].type, undefined));
-      }
-      this.updatePositions();
+      addItem(data, this.queryBuild, { minus: true, plus: true });
     },
 
     generateQueryString(): void {
       this.queryString = this.queryBuild
         .map(item => {
-          if (item.type === ECLType.LOGIC) {
-            return item.label + "\n";
+          if (item.type === ECLComponent.LOGIC) {
+            return item.queryString + "\n";
           } else {
-            return item.label;
+            return item.queryString;
           }
         })
         .join(" ")
@@ -146,112 +129,21 @@ export default defineComponent({
     deleteItem(data: ECLComponentDetails): void {
       const index = this.queryBuild.findIndex(item => item.position === data.position);
       this.queryBuild.splice(index, 1);
-      if (data.position === 0) {
-        this.queryBuild.unshift(this.setStartBuild()[0]);
+      const length = this.queryBuild.length;
+      if (length === 0) {
+        this.setStartBuild();
+        return;
       }
-      if (index < this.queryBuild.length - 1 && this.queryBuild[index].type === ECLType.ADD_NEXT) {
-        this.queryBuild[index] = this.getNextOptions(index - 1, this.queryBuild[index - 1].type, undefined);
-      }
-      if (this.queryBuild[this.queryBuild.length - 1].type !== ECLType.ADD_NEXT) {
-        this.queryBuild.push(this.getNextOptions(this.queryBuild.length - 1, this.queryBuild[this.queryBuild.length - 1].type, undefined));
-      } else {
-        this.queryBuild[this.queryBuild.length - 1] = this.getNextOptions(
-          this.queryBuild.length - 2,
-          this.queryBuild[this.queryBuild.length - 2].type,
-          undefined
-        );
-      }
-      this.updatePositions();
+      updatePositions(this.queryBuild);
     },
 
     updateItem(data: ECLComponentDetails): void {
-      const index = this.queryBuild.findIndex(item => item.position === data.position);
-      this.queryBuild[index] = data;
+      updateItem(data, this.queryBuild);
     },
 
-    getNextOptions(position: number, previous: Enums.ECLType, group: Enums.ECLType | undefined): ECLComponentDetails {
-      return {
-        id: "addNext" + "_" + (position + 1),
-        value: {
-          previousPosition: position,
-          previousComponentType: previous,
-          parentGroup: group
-        },
-        position: position + 1,
-        type: ECLType.ADD_NEXT,
-        label: "",
-        component: ECLComponent.ADD_NEXT
-      };
-    },
-
-    generateNewComponent(type: Enums.ECLType, position: number): ECLComponentDetails | undefined {
-      let result;
-      switch (type) {
-        case ECLType.LOGIC:
-          result = {
-            id: ECLType.LOGIC + "_" + position,
-            value: null,
-            position: position,
-            type: ECLType.LOGIC,
-            label: "",
-            component: ECLComponent.LOGIC
-          };
-          break;
-        case ECLType.REFINEMENT_GROUP:
-          result = {
-            id: ECLType.REFINEMENT_GROUP + "_" + position,
-            value: null,
-            position: position,
-            type: ECLType.REFINEMENT_GROUP,
-            label: "",
-            component: ECLComponent.REFINEMENT_GROUP
-          };
-          break;
-        case ECLType.FOCUS_CONCEPT:
-          result = {
-            id: ECLType.FOCUS_CONCEPT + "_" + position,
-            value: null,
-            position: position,
-            type: ECLType.FOCUS_CONCEPT,
-            label: "",
-            component: ECLComponent.FOCUS_CONCEPT
-          };
-          break;
-        default:
-          break;
-      }
-      return result;
-    },
-
-    setStartBuild(): ECLComponentDetails[] {
-      return [
-        {
-          component: ECLComponent.FOCUS_CONCEPT,
-          id: ECLType.FOCUS_CONCEPT + "_" + 0,
-          value: null,
-          position: 0,
-          type: ECLType.FOCUS_CONCEPT,
-          label: ""
-        },
-        {
-          id: ECLType.ADD_NEXT + "_" + 1,
-          value: {
-            previousPosition: 0,
-            previousComponentType: ECLType.FOCUS_CONCEPT,
-            parentGroup: undefined
-          },
-          position: 1,
-          type: ECLType.ADD_NEXT,
-          label: "",
-          component: ECLComponent.ADD_NEXT
-        }
-      ];
-    },
-
-    updatePositions(): void {
-      this.queryBuild.forEach((item: ECLComponentDetails, index: number) => {
-        item.position = index;
-      });
+    setStartBuild(): void {
+      this.queryBuild = [];
+      this.queryBuild.push(generateNewComponent(ECLComponent.FOCUS_CONCEPT, 0, null, { minus: false, plus: true }));
     },
 
     copyToClipboard(): string {

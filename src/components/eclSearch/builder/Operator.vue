@@ -18,7 +18,7 @@
 import { defineComponent, PropType } from "@vue/runtime-core";
 import { Enums } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent, ECLType } = Enums;
+const { ECLComponent } = Enums;
 
 export default defineComponent({
   name: "Operator",
@@ -31,9 +31,10 @@ export default defineComponent({
         name: string;
       }>,
       required: false
-    }
+    },
+    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
-  emits: { updateClicked: (payload: ECLComponentDetails) => true },
+  emits: { updateClicked: (_payload: ECLComponentDetails) => true },
   watch: {
     selected() {
       this.onConfirm();
@@ -66,9 +67,9 @@ export default defineComponent({
         id: this.id,
         value: this.selected,
         position: this.position,
-        type: ECLType.OPERATOR,
-        component: ECLComponent.OPERATOR,
-        label: this.selected.symbol
+        type: ECLComponent.OPERATOR,
+        queryString: this.selected.symbol,
+        showButtons: this.showButtons
       };
     }
   }

@@ -15,26 +15,30 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { Enums } from "im-library";
+import { defineComponent, PropType } from "vue";
+import { Enums, Helpers } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent, ECLType } = Enums;
+const { ECLComponent } = Enums;
+const {
+  DataTypeCheckers: { isObjectHasKeys }
+} = Helpers;
 
 export default defineComponent({
   name: "Constraint",
   props: {
     id: { type: String, required: true },
     position: { type: Number, required: true },
-    value: { type: Object as () => { name: string; symbol: string }, required: false }
+    value: { type: Object as () => { name: string; symbol: string }, required: false },
+    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
-  emits: { updateClicked: (payload: ECLComponentDetails) => true },
+  emits: { updateClicked: (_payload: ECLComponentDetails) => true },
   watch: {
     selected() {
       this.onConfirm();
     }
   },
   mounted() {
-    if (this.value) {
+    if (this.value && isObjectHasKeys(this.value, ["name", "symbol"])) {
       this.selected = this.value;
     } else {
       this.selected = this.options[0];
@@ -67,9 +71,9 @@ export default defineComponent({
         id: this.id,
         value: this.selected,
         position: this.position,
-        type: ECLType.CONSTRAINT,
-        label: this.selected.symbol,
-        component: ECLComponent.CONSTRAINT
+        type: ECLComponent.CONSTRAINT,
+        queryString: this.selected.symbol,
+        showButtons: this.showButtons
       };
     }
   }
