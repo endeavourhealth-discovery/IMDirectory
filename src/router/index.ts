@@ -4,9 +4,13 @@ import Directory from "../views/Directory.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
 import EclSearch from "../views/EclSearch.vue";
-import { AccessDenied, PageNotFound, SnomedLicense, Env } from "im-library";
+import { AccessDenied, PageNotFound, SnomedLicense, Env, EntityNotFound, Helpers } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
+const {
+  DataTypeCheckers: { isObjectHasKeys }
+} = Helpers;
+import EntityService from "@/services/EntityService";
 
 const APP_TITLE = "IM Directory";
 
@@ -62,6 +66,11 @@ const routes: Array<RouteRecordRaw> = [
     component: AccessDenied
   },
   {
+    path: "/404",
+    name: "EntityNotFound",
+    component: EntityNotFound
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "PageNotFound",
     component: PageNotFound
@@ -96,6 +105,18 @@ router.beforeEach(async (to, from) => {
       return {
         path: "/snomedLicense"
       };
+    }
+  }
+
+  if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"])) {
+    const iri = to.params.selectedIri as string;
+    try {
+      new URL(iri);
+      if (!(await EntityService.iriExists(iri))) {
+        router.push({ name: "EntityNotFound" });
+      }
+    } catch (_error) {
+      router.push({ name: "EntityNotFound" });
     }
   }
 });

@@ -78,6 +78,14 @@ export default class EntityService {
     }
   }
 
+  public static async iriExists(iri: String): Promise<boolean> {
+    try {
+      return await axios.get(Env.api + "api/entity/public/iriExists", { params: { iri: iri } });
+    } catch (error) {
+      return false;
+    }
+  }
+
   public static async getDefinitionBundle(iri: string): Promise<TTBundle> {
     try {
       return await axios.get(Env.api + "api/entity/public/inferredBundle", {
