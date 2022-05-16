@@ -1,17 +1,19 @@
-import Refinement from "@/components/eclSearch/Refinement.vue";
+import Refinement from "@/components/eclSearch/builder/Refinement.vue";
 import { shallowMount } from "@vue/test-utils";
+import { Enums } from "im-library";
+const { ECLComponent } = Enums;
 
 describe("Refinement.vue ___ value", () => {
   let wrapper;
 
   const REFINEMENT_BUILD = [
     {
-      id: "refinementGroup_1refinementconstraint",
+      id: "Constraint_0",
       value: { name: "Descendant or self of", symbol: "<<" },
       position: 0,
-      type: "constraint",
-      label: "<<",
-      component: "Constraint"
+      type: "Constraint",
+      queryString: "<<",
+      showButtons: { minus: false, plus: false }
     },
     {
       value: {
@@ -25,13 +27,13 @@ describe("Refinement.vue ___ value", () => {
         match: "ANY",
         entityType: [{ "@id": "http://endhealth.info/im#Concept", name: "Concept" }]
       },
-      id: "refinementGroup_1refinementexpression",
+      id: "Expression_1",
       position: 1,
-      type: "expression",
-      label: "*",
-      component: "Expression"
+      type: "Expression",
+      queryString: "*",
+      showButtons: { minus: false, plus: false }
     },
-    { id: "refinementGroup_1refinementoperator", value: { symbol: "=", name: "Equals" }, position: 2, type: "operator", component: "Operator", label: "=" },
+    { id: "Operator_2", value: { symbol: "=", name: "Equals" }, position: 2, type: "Operator", showButtons: { minus: false, plus: false }, queryString: "=" },
     {
       value: {
         code: "",
@@ -44,30 +46,30 @@ describe("Refinement.vue ___ value", () => {
         match: "ANY",
         entityType: [{ "@id": "http://endhealth.info/im#Concept", name: "Concept" }]
       },
-      id: "refinementGroup_1refinementexpression",
+      id: "Expression_4",
       position: 4,
-      type: "expression",
-      label: "*",
-      component: "Expression"
+      type: "Expression",
+      queryString: "*",
+      showButtons: { minus: false, plus: false }
     },
     {
-      id: "refinementGroup_1refinementconstraint",
+      id: "Constraint_3",
       value: { name: "Descendant or self of", symbol: "<<" },
       position: 3,
-      type: "constraint",
-      label: "<<",
-      component: "Constraint"
+      type: "Constraint",
+      queryString: "<<",
+      showButtons: { minus: false, plus: false }
     }
   ];
 
   const REFINEMENT_BUILD_SORTED = [
     {
-      id: "refinementGroup_1refinementconstraint",
+      id: "Constraint_0",
       value: { name: "Descendant or self of", symbol: "<<" },
       position: 0,
-      type: "constraint",
-      label: "<<",
-      component: "Constraint"
+      type: "Constraint",
+      queryString: "<<",
+      showButtons: { minus: false, plus: false }
     },
     {
       value: {
@@ -81,20 +83,20 @@ describe("Refinement.vue ___ value", () => {
         match: "ANY",
         entityType: [{ "@id": "http://endhealth.info/im#Concept", name: "Concept" }]
       },
-      id: "refinementGroup_1refinementexpression",
+      id: "Expression_1",
       position: 1,
-      type: "expression",
-      label: "*",
-      component: "Expression"
+      type: "Expression",
+      queryString: "*",
+      showButtons: { minus: false, plus: false }
     },
-    { id: "refinementGroup_1refinementoperator", value: { symbol: "=", name: "Equals" }, position: 2, type: "operator", component: "Operator", label: "=" },
+    { id: "Operator_2", value: { symbol: "=", name: "Equals" }, position: 2, type: "Operator", showButtons: { minus: false, plus: false }, queryString: "=" },
     {
-      id: "refinementGroup_1refinementconstraint",
+      id: "Constraint_3",
       value: { name: "Descendant or self of", symbol: "<<" },
       position: 3,
-      type: "constraint",
-      label: "<<",
-      component: "Constraint"
+      type: "Constraint",
+      queryString: "<<",
+      showButtons: { minus: false, plus: false }
     },
     {
       value: {
@@ -108,39 +110,38 @@ describe("Refinement.vue ___ value", () => {
         match: "ANY",
         entityType: [{ "@id": "http://endhealth.info/im#Concept", name: "Concept" }]
       },
-      id: "refinementGroup_1refinementexpression",
+      id: "Expression_4",
       position: 4,
-      type: "expression",
-      label: "*",
-      component: "Expression"
+      type: "Expression",
+      queryString: "*",
+      showButtons: { minus: false, plus: false }
     }
   ];
 
   const REFINEMENT = {
-    component: "Refinement",
     id: "refinementGroup_1refinement",
-    label: "<< * = << *",
+    queryString: "<< * = << *",
     position: 0,
-    type: "refinement",
+    type: "Refinement",
+    showButtons: { minus: true, plus: true },
     value: {
       children: [
         {
-          component: "Constraint",
-          id: "refinementGroup_1refinementconstraint",
-          label: "<<",
+          id: "Constraint_0",
+          queryString: "<<",
           position: 0,
-          type: "constraint",
+          type: "Constraint",
           value: {
             name: "Descendant or self of",
             symbol: "<<"
-          }
+          },
+          showButtons: { minus: false, plus: false }
         },
         {
-          component: "Expression",
-          id: "refinementGroup_1refinementexpression",
-          label: "*",
+          id: "Expression_1",
+          queryString: "*",
           position: 1,
-          type: "expression",
+          type: "Expression",
           value: {
             code: "",
             entityType: [
@@ -156,36 +157,37 @@ describe("Refinement.vue ___ value", () => {
             scheme: {},
             status: {},
             weighting: 0
-          }
+          },
+          showButtons: { minus: false, plus: false }
         },
         {
-          component: "Operator",
-          id: "refinementGroup_1refinementoperator",
-          label: "=",
+          id: "Operator_2",
+          queryString: "=",
           position: 2,
-          type: "operator",
+          type: "Operator",
           value: {
             name: "Equals",
             symbol: "="
-          }
+          },
+          showButtons: { minus: false, plus: false }
         },
         {
-          component: "Constraint",
-          id: "refinementGroup_1refinementconstraint",
-          label: "<<",
+          id: "Constraint_3",
+          queryString: "<<",
           position: 3,
-          type: "constraint",
+          type: "Constraint",
           value: {
             name: "Descendant or self of",
             symbol: "<<"
-          }
+          },
+          showButtons: { minus: false, plus: false }
         },
         {
-          component: "Expression",
-          id: "refinementGroup_1refinementexpression",
-          label: "*",
+          showButtons: { minus: false, plus: false },
+          id: "Expression_4",
+          queryString: "*",
           position: 4,
-          type: "expression",
+          type: "Expression",
           value: {
             code: "",
             entityType: [
@@ -213,7 +215,7 @@ describe("Refinement.vue ___ value", () => {
     wrapper = shallowMount(Refinement, {
       props: {
         id: "refinementGroup_1refinement",
-        last: true,
+        showButtons: { minus: true, plus: true },
         position: 0,
         value: {
           children: REFINEMENT_BUILD
@@ -227,7 +229,7 @@ describe("Refinement.vue ___ value", () => {
   it("mounts", async () => {
     expect(wrapper.vm.refinementBuild).toStrictEqual(REFINEMENT_BUILD_SORTED);
     expect(wrapper.vm.id).toBe("refinementGroup_1refinement");
-    expect(wrapper.vm.last).toBe(true);
+    expect(wrapper.vm.showButtons).toStrictEqual({ minus: true, plus: true });
     expect(wrapper.vm.position).toBe(0);
     expect(wrapper.vm.value).toStrictEqual({ children: REFINEMENT_BUILD });
   });
@@ -269,30 +271,29 @@ describe("Refinement.vue ___ value", () => {
   });
 
   it("can addNextClicked", async () => {
-    wrapper.vm.addNextClicked();
+    wrapper.vm.addNextClicked(ECLComponent.LOGIC);
     await wrapper.vm.$nextTick();
     expect(wrapper.emitted().addNextOptionsClicked).toBeTruthy();
     expect(wrapper.emitted().addNextOptionsClicked[0]).toStrictEqual([
       {
-        parentGroup: "refinementGroup",
-        previousComponentType: "refinement",
-        previousPosition: 0
+        position: 1,
+        selectedType: ECLComponent.LOGIC
       }
     ]);
   });
 
   it("can createRefinement", () => {
-    wrapper.vm.generateRefinementLabel = vi.fn().mockReturnValue("<< * = << *");
+    wrapper.vm.generateRefinementQueryString = vi.fn().mockReturnValue("<< * = << *");
     expect(wrapper.vm.createRefinement()).toStrictEqual(REFINEMENT);
   });
 
-  it("can generateRefinementLabel", () => {
-    expect(wrapper.vm.generateRefinementLabel()).toBe("<< * = << *");
+  it("can generateRefinementQueryString", () => {
+    expect(wrapper.vm.generateRefinementQueryString()).toBe("<< * = << *");
   });
 
-  it("can generateRefinementLabel ___ empty build", () => {
+  it("can generateRefinementQueryString ___ empty build", () => {
     wrapper.vm.refinementBuild = [];
-    expect(wrapper.vm.generateRefinementLabel()).toBe("");
+    expect(wrapper.vm.generateRefinementQueryString()).toBe("");
   });
 
   it("can setStartBuild", () => {
@@ -306,37 +307,37 @@ describe("Refinement.vue ___ no value", () => {
 
   const REFINEMENT_BUILD = [
     {
-      id: "refinementGroup_1refinementconstraint",
+      id: "Constraint_0",
       value: null,
       position: 0,
-      type: "constraint",
-      label: "",
-      component: "Constraint"
+      type: "Constraint",
+      queryString: "",
+      showButtons: { minus: false, plus: false }
     },
     {
       value: null,
-      id: "refinementGroup_1refinementexpression",
+      id: "Expression_1",
       position: 1,
-      type: "expression",
-      label: "",
-      component: "Expression"
+      type: "Expression",
+      queryString: "",
+      showButtons: { minus: false, plus: false }
     },
-    { id: "refinementGroup_1refinementoperator", value: null, position: 2, type: "operator", component: "Operator", label: "" },
+    { id: "Operator_2", value: null, position: 2, type: "Operator", showButtons: { minus: false, plus: false }, queryString: "" },
     {
-      id: "refinementGroup_1refinementconstraint",
+      id: "Constraint_3",
       value: null,
       position: 3,
-      type: "constraint",
-      label: "",
-      component: "Constraint"
+      type: "Constraint",
+      queryString: "",
+      showButtons: { minus: false, plus: false }
     },
     {
       value: null,
-      id: "refinementGroup_1refinementexpression",
+      id: "Expression_4",
       position: 4,
-      type: "expression",
-      label: "",
-      component: "Expression"
+      type: "Expression",
+      queryString: "",
+      showButtons: { minus: false, plus: false }
     }
   ];
 
@@ -358,7 +359,7 @@ describe("Refinement.vue ___ no value", () => {
   it("mounts", () => {
     expect(wrapper.vm.refinementBuild).toStrictEqual(REFINEMENT_BUILD);
     expect(wrapper.vm.id).toBe("refinementGroup_1refinement");
-    expect(wrapper.vm.last).toBe(true);
+    expect(wrapper.vm.showButtons).toStrictEqual({ minus: true, plus: true });
     expect(wrapper.vm.position).toBe(0);
     expect(wrapper.vm.value).toStrictEqual({ children: [] });
     expect(wrapper.vm.refinementBuild).toStrictEqual(REFINEMENT_BUILD);
