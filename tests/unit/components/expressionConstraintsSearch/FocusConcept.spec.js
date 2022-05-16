@@ -1,5 +1,7 @@
-import FocusConcept from "@/components/eclSearch/FocusConcept.vue";
+import FocusConcept from "@/components/eclSearch/builder/FocusConcept.vue";
 import { shallowMount } from "@vue/test-utils";
+import { Enums } from "im-library";
+const { ECLComponent } = Enums;
 
 describe("FocusConcept.vue ___ value", () => {
   let wrapper;
@@ -19,17 +21,17 @@ describe("FocusConcept.vue ___ value", () => {
       },
       id: "focusConcept_0expression",
       position: 1,
-      type: "expression",
-      label: "*",
-      component: "Expression"
+      type: "Expression",
+      queryString: "*",
+      showButtons: { minus: false, plus: false }
     },
     {
       id: "focusConcept_0constraint",
       value: { name: "Descendant or self of", symbol: "<<" },
       position: 0,
-      type: "constraint",
-      label: "<<",
-      component: "Constraint"
+      type: "Constraint",
+      queryString: "<<",
+      showButtons: { minus: false, plus: false }
     }
   ];
 
@@ -38,9 +40,9 @@ describe("FocusConcept.vue ___ value", () => {
       id: "focusConcept_0constraint",
       value: { name: "Descendant or self of", symbol: "<<" },
       position: 0,
-      type: "constraint",
-      label: "<<",
-      component: "Constraint"
+      type: "Constraint",
+      queryString: "<<",
+      showButtons: { minus: false, plus: false }
     },
     {
       value: {
@@ -56,37 +58,35 @@ describe("FocusConcept.vue ___ value", () => {
       },
       id: "focusConcept_0expression",
       position: 1,
-      type: "expression",
-      label: "*",
-      component: "Expression"
+      type: "Expression",
+      queryString: "*",
+      showButtons: { minus: false, plus: false }
     }
   ];
 
   const FOCUS_CONCEPT = {
-    component: "FocusConcept",
     id: "focusConcept_0",
-    label: "<< *",
+    queryString: "<< *",
     position: 0,
-    type: "focusConcept",
+    type: "FocusConcept",
     value: {
       children: [
         {
-          component: "Constraint",
           id: "focusConcept_0constraint",
-          label: "<<",
+          queryString: "<<",
           position: 0,
-          type: "constraint",
+          type: "Constraint",
           value: {
             name: "Descendant or self of",
             symbol: "<<"
-          }
+          },
+          showButtons: { minus: false, plus: false }
         },
         {
-          component: "Expression",
           id: "focusConcept_0expression",
-          label: "*",
+          queryString: "*",
           position: 1,
-          type: "expression",
+          type: "Expression",
           value: {
             code: "",
             entityType: [
@@ -102,16 +102,20 @@ describe("FocusConcept.vue ___ value", () => {
             scheme: {},
             status: {},
             weighting: 0
-          }
+          },
+          showButtons: { minus: false, plus: false }
         }
       ]
-    }
+    },
+    showButtons: { minus: false, plus: true }
   };
 
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    wrapper = shallowMount(FocusConcept, { props: { id: "focusConcept_0", last: false, position: 0, value: { children: FOCUS_CONCEPT_BUILD } } });
+    wrapper = shallowMount(FocusConcept, {
+      props: { id: "focusConcept_0", showButtons: { minus: false, plus: true }, position: 0, value: { children: FOCUS_CONCEPT_BUILD } }
+    });
 
     await wrapper.vm.$nextTick();
   });
@@ -119,7 +123,7 @@ describe("FocusConcept.vue ___ value", () => {
   it("mounts", () => {
     expect(wrapper.vm.focusConceptBuild).toStrictEqual(FOCUS_CONCEPT_BUILD_SORTED);
     expect(wrapper.vm.id).toBe("focusConcept_0");
-    expect(wrapper.vm.last).toBe(false);
+    expect(wrapper.vm.showButtons).toStrictEqual({ minus: false, plus: true });
     expect(wrapper.vm.position).toBe(0);
     expect(wrapper.vm.value).toStrictEqual({ children: FOCUS_CONCEPT_BUILD });
   });
@@ -161,30 +165,29 @@ describe("FocusConcept.vue ___ value", () => {
   });
 
   it("can addNextClicked", async () => {
-    wrapper.vm.addNextClicked();
+    wrapper.vm.addNextClicked(ECLComponent.LOGIC);
     await wrapper.vm.$nextTick();
     expect(wrapper.emitted().addNextOptionsClicked).toBeTruthy();
     expect(wrapper.emitted().addNextOptionsClicked[0]).toStrictEqual([
       {
-        parentGroup: "focusConcept",
-        previousComponentType: "focusConcept",
-        previousPosition: 0
+        position: 1,
+        selectedType: ECLComponent.LOGIC
       }
     ]);
   });
 
   it("can createFocusConcept", () => {
-    wrapper.vm.generateFocusConceptLabel = vi.fn().mockReturnValue("<< *");
+    wrapper.vm.generateFocusConceptQueryString = vi.fn().mockReturnValue("<< *");
     expect(wrapper.vm.createFocusConcept()).toStrictEqual(FOCUS_CONCEPT);
   });
 
-  it("can generateFocusConceptLabel", () => {
-    expect(wrapper.vm.generateFocusConceptLabel()).toBe("<< *");
+  it("can generateFocusConceptQueryString", () => {
+    expect(wrapper.vm.generateFocusConceptQueryString()).toBe("<< *");
   });
 
-  it("can generateFocusConceptLabel ___ empty build", () => {
+  it("can generateFocusConceptQueryString ___ empty build", () => {
     wrapper.vm.focusConceptBuild = [];
-    expect(wrapper.vm.generateFocusConceptLabel()).toBe("");
+    expect(wrapper.vm.generateFocusConceptQueryString()).toBe("");
   });
 
   it("can setStartBuild", () => {
@@ -199,7 +202,7 @@ describe("FocusConcept.vue ___ no value", () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    wrapper = shallowMount(FocusConcept, { props: { id: "focusConcept_0", last: false, position: 0, value: { children: [] } } });
+    wrapper = shallowMount(FocusConcept, { props: { id: "focusConcept_0", showButtons: { minus: false, plus: true }, position: 0, value: { children: [] } } });
 
     await wrapper.vm.$nextTick();
   });
@@ -208,20 +211,20 @@ describe("FocusConcept.vue ___ no value", () => {
     wrapper.vm.setStartBuild();
     expect(wrapper.vm.focusConceptBuild).toStrictEqual([
       {
-        component: "Constraint",
-        id: "focusConcept_0constraint",
-        label: "",
+        id: "Constraint_0",
+        queryString: "",
         position: 0,
-        type: "constraint",
-        value: null
+        type: "Constraint",
+        value: null,
+        showButtons: { minus: false, plus: false }
       },
       {
-        component: "Expression",
-        id: "focusConcept_0expression",
-        label: "",
+        id: "Expression_1",
+        queryString: "",
         position: 1,
-        type: "expression",
-        value: null
+        type: "Expression",
+        value: null,
+        showButtons: { minus: false, plus: false }
       }
     ]);
   });

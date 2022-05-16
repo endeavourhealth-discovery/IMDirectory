@@ -116,6 +116,7 @@ export default defineComponent({
       if (this.value && isObjectHasKeys(this.value, ["children"]) && isArrayHasLength(this.value.children)) {
         this.focusConceptBuild = [...this.value.children];
       } else {
+        this.focusConceptBuild = [];
         this.focusConceptBuild.push(generateNewComponent(ECLComponent.CONSTRAINT, 0, null, { minus: false, plus: false }));
         this.focusConceptBuild.push(generateNewComponent(ECLComponent.EXPRESSION, 1, null, { minus: false, plus: false }));
       }
