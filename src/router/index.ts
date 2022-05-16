@@ -108,7 +108,7 @@ router.beforeEach(async (to, from) => {
     }
   }
 
-  if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"])) {
+  if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
     const iri = to.params.selectedIri as string;
     try {
       new URL(iri);
