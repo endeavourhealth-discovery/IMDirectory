@@ -142,6 +142,8 @@ export default defineComponent({
 
 <style scoped>
 .refinement-container {
+  flex: 1 1 auto;
+  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: center;
@@ -168,21 +170,22 @@ export default defineComponent({
 
 .refinement-children-next-container {
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-  border: 1px solid #56a902;
-  border-radius: 3px;
-  padding: 1rem;
-  margin: 0 1em 0 0;
   position: relative;
+  gap: 1rem;
 }
 
 .refinement-children-container {
   display: flex;
   flex-flow: row wrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  border: 1px solid #56a902;
+  border-radius: 3px;
+  padding: 1rem;
+  gap: 1rem;
 }
 
 .buttons-container {

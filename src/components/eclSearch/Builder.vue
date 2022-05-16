@@ -5,46 +5,48 @@
     :closable="false"
     :maximizable="true"
     :style="{
-      minWidth: '80vw',
-      minHeight: '80vh',
+      minWidth: '90vw',
+      minHeight: '90vh',
       display: 'flex',
       flexFlow: 'column nowrap'
     }"
-    id="builder-dialog"
-    :contentStyle="{ flexGrow: '100' }"
+    id="ecl-builder-dialog"
+    :contentStyle="{ flexGrow: '100', display: 'flex' }"
   >
     <template #header>
       <h3>ECL Builder:</h3>
     </template>
-    <div id="query-builder-container">
-      <div id="query-build">
-        <template v-for="item of queryBuild" :key="item.id">
-          <component
-            :is="item.type"
-            :value="item.value"
-            :id="item.id"
-            :position="item.position"
-            :showButtons="item.showButtons"
-            @deleteClicked="deleteItem"
-            @addClicked="addItem"
-            @updateClicked="updateItem"
-            @addNextOptionsClicked="addItem"
-          >
-          </component>
-        </template>
+    <div id="builder-string-container">
+      <div id="query-builder-container">
+        <div id="query-build">
+          <template v-for="item of queryBuild" :key="item.id">
+            <component
+              :is="item.type"
+              :value="item.value"
+              :id="item.id"
+              :position="item.position"
+              :showButtons="item.showButtons"
+              @deleteClicked="deleteItem"
+              @addClicked="addItem"
+              @updateClicked="updateItem"
+              @addNextOptionsClicked="addItem"
+            >
+            </component>
+          </template>
+        </div>
       </div>
-    </div>
-    <div id="build-string-container">
-      <h3>Output:</h3>
-      <div class="string-copy-container">
-        <pre class="output-string">{{ queryString }}</pre>
-        <Button
-          icon="far fa-copy"
-          v-tooltip.left="'Copy to clipboard'"
-          v-clipboard:copy="copyToClipboard()"
-          v-clipboard:success="onCopy"
-          v-clipboard:error="onCopyError"
-        />
+      <div id="build-string-container">
+        <h3>Output:</h3>
+        <div class="string-copy-container">
+          <pre class="output-string">{{ queryString }}</pre>
+          <Button
+            icon="far fa-copy"
+            v-tooltip.left="'Copy to clipboard'"
+            v-clipboard:copy="copyToClipboard()"
+            v-clipboard:success="onCopy"
+            v-clipboard:error="onCopyError"
+          />
+        </div>
       </div>
     </div>
     <template #footer>
@@ -162,40 +164,29 @@ export default defineComponent({
 </script>
 
 <style scoped>
+#builder-string-container {
+  flex: 1 1 auto;
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+}
+
 #query-builder-container {
   width: 100%;
-  height: calc(100% - 10rem - 2rem);
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
 #query-build {
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: column nowrap;
   justify-content: center;
   align-items: flex-start;
   gap: 1rem;
-  margin: 0 0 1rem 0;
-  max-height: calc(100% - 2rem);
+  flex: 1 1 auto;
   overflow: auto;
-}
-
-#query-build ::v-deep(.focus-concept-container) {
-  flex-basis: 100%;
-}
-
-#query-build ::v-deep(.refinement-container) {
-  flex-basis: 100%;
-}
-
-#query-build ::v-deep(.logic-container) {
-  flex-basis: 100%;
-}
-
-#query-build ::v-deep(.add-next-container) {
-  flex-basis: 100%;
-}
-
-#query-build ::v-deep(.refinement-group-container) {
-  flex-basis: 100%;
 }
 
 #next-option-container {
@@ -208,7 +199,9 @@ export default defineComponent({
 
 #build-string-container {
   width: 100%;
-  height: 10rem;
+  flex: 0 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .output-string {
@@ -224,7 +217,7 @@ export default defineComponent({
 }
 
 .string-copy-container {
-  height: calc(100% - 1.75rem - 1.5rem);
+  height: 10rem;
   display: flex;
   flex-flow: row nowrap;
   align-items: center;

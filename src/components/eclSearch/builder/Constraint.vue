@@ -82,22 +82,25 @@ export default defineComponent({
 
 <style scoped>
 .query-item-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  border: 1px solid #ffc952;
+  border-radius: 3px;
+  gap: 1rem;
 }
 
 .label-container {
-  margin: 0 1rem 0 0;
+  flex: 1 1 auto;
   padding: 1rem;
-  border: 1px solid #ffc952;
-  border-radius: 3px;
   position: relative;
 }
 
 .p-dropdown {
-  width: 15rem;
+  width: 100%;
+  min-width: 15rem;
 }
 
 .float-text {

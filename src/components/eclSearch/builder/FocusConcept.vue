@@ -134,10 +134,12 @@ export default defineComponent({
 
 <style scoped>
 .focus-concept-container {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: row;
-  justify-content: center;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
   align-items: center;
+  width: 100%;
 }
 
 .add-focus-concept-button {
@@ -145,22 +147,25 @@ export default defineComponent({
 }
 
 .focus-concept-children-next-container {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-  border: 1px solid #47b8e0;
-  border-radius: 3px;
-  padding: 1rem;
-  margin: 0 1em 0 0;
   position: relative;
+  gap: 1rem;
 }
 
 .focus-concept-children-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row wrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  gap: 1rem;
+  border: 1px solid #47b8e0;
+  border-radius: 3px;
+  padding: 1rem;
 }
 
 .float-text {

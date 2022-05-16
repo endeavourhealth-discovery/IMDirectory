@@ -180,10 +180,12 @@ export default defineComponent({
 
 <style scoped>
 .refinement-group-container {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: row;
-  justify-content: center;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
   align-items: center;
+  gap: 1rem;
 }
 
 .add-refinement-button {
@@ -191,7 +193,6 @@ export default defineComponent({
 }
 
 .switch-button-container {
-  order: 2;
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
@@ -207,22 +208,22 @@ export default defineComponent({
 
 .refinement-group-children-next-container {
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-  border: 1px solid #d499b9;
-  border-radius: 3px;
-  padding: 1rem;
-  margin: 0 1em 0 0;
   position: relative;
+  gap: 1rem;
 }
 
 .refinement-group-children-container {
   display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
   align-items: center;
   gap: 1rem;
+  border: 1px solid #d499b9;
+  border-radius: 3px;
+  padding: 1rem;
 }
 
 .float-text {

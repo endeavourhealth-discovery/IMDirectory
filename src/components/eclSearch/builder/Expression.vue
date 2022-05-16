@@ -178,19 +178,19 @@ export default defineComponent({
 
 <style scoped>
 .query-item-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  border: 1px solid #ffc952;
+  border-radius: 3px;
 }
 
 .label-container {
-  margin: 0 1rem 0 0;
+  width: 100%;
   padding: 1rem;
-  border: 1px solid #ffc952;
-  border-radius: 3px;
   position: relative;
-  min-width: 15rem;
 }
 
 .label {
@@ -210,6 +210,7 @@ export default defineComponent({
 }
 
 .search-input {
-  width: 15rem;
+  width: 100%;
+  min-width: 15rem;
 }
 </style>
