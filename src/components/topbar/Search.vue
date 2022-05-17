@@ -20,7 +20,7 @@ import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
 import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Env, Models, Helpers } from "im-library";
-const { AppEnum, SortBy } = Enums;
+const { SortBy } = Enums;
 const {
   DataTypeCheckers: { isObjectHasKeys },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder }
@@ -53,7 +53,7 @@ export default defineComponent({
   },
   methods: {
     navigateToEditor(): void {
-      DirectService.directTo(AppEnum.EDITOR, "", this);
+      DirectService.directTo(Env.editorUrl, "", this);
     },
 
     getFAIconFromType(types: TTIriRef[]) {
@@ -76,7 +76,7 @@ export default defineComponent({
           params: { selectedIri: event.value.iri }
         });
       } else {
-        DirectService.directTo(AppEnum.VIEWER, event.value.iri, this);
+        DirectService.directTo(Env.viewerUrl, event.value.iri, this);
       }
       this.searchText = "";
     },
