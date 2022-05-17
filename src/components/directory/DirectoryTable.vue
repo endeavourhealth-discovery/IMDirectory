@@ -60,6 +60,9 @@
   </DataTable>
 
   <ContextMenu ref="menu" :model="rClickOptions" />
+  <Dialog header="Move to folder" v-model:visible="displayMoveToFolder" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '50vw' }">
+    <MoveToFolder :selectedIri="selected['@id']" />
+  </Dialog>
 </template>
 
 <script lang="ts">
@@ -70,6 +73,7 @@ import { Helpers, Vocabulary, Enums } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
+import MoveToFolder from "../MoveToFolder.vue";
 const { IM, RDFS, RDF } = Vocabulary;
 const { AppEnum } = Enums;
 const {
@@ -79,6 +83,7 @@ const {
 
 export default defineComponent({
   name: "DirectoryTable",
+  components: { MoveToFolder },
   computed: {
     ...mapState(["conceptIri", "favourites"])
   },
@@ -99,6 +104,7 @@ export default defineComponent({
   data() {
     return {
       loading: false,
+      displayMoveToFolder: false,
       children: [] as any[],
       selected: {} as any,
       rClickOptions: [
@@ -121,6 +127,14 @@ export default defineComponent({
           separator: true
         },
         {
+          label: "Move to folder",
+          icon: "pi pi-fw pi-file",
+          command: () => this.openMoveToFolder((this.selected as any)["@id"])
+        },
+        {
+          separator: true
+        },
+        {
           label: "Favourite",
           icon: "pi pi-fw pi-star",
           command: () => this.updateFavourites((this.selected as any)["@id"])
@@ -134,6 +148,10 @@ export default defineComponent({
       this.loading = true;
       !this.onFavouriteView() ? await this.getChildren(this.conceptIri) : await this.getFavourites();
       this.loading = false;
+    },
+
+    openMoveToFolder(iri: string) {
+      this.displayMoveToFolder = true;
     },
 
     onFavouriteView() {

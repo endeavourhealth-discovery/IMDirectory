@@ -80,6 +80,7 @@ import Breadcrumb from "primevue/breadcrumb";
 import Sidebar from "primevue/sidebar";
 import Chips from "primevue/chips";
 import DataView from "primevue/dataview";
+import TreeSelect from "primevue/treeselect";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -160,6 +161,7 @@ const app = createApp(App)
   .component("Sidebar", Sidebar)
   .component("Chips", Chips)
   .component("DataView", DataView)
+  .component("TreeSelect", TreeSelect)
   .component("Tag", Tag);
 
 const vm = app.mount("#app");
