@@ -4,30 +4,30 @@
       <span class="float-text">Logic</span>
       <Dropdown v-model="selected" :options="options" placeholder="Select logic" />
     </div>
-    <AddDeleteButtons :last="last" :position="position" @deleteClicked="deleteClicked" @addNextClicked="addNextClicked" />
+    <AddDeleteButtons :show="showButtons" :position="position" :options="getButtonOptions()" @deleteClicked="deleteClicked" @addNextClicked="addNextClicked" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, PropType } from "vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
-import { Enums } from "im-library";
-import { ECLComponentDetails, ECLNextComponentSummary } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent, ECLType } = Enums;
+import { Enums, Helpers } from "im-library";
+import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
+const { ECLComponent } = Enums;
 
 export default defineComponent({
   name: "Logic",
   props: {
     id: { type: String, required: true },
     position: { type: Number, required: true },
-    value: { type: String, required: false },
-    last: { type: Boolean, required: true }
+    value: { type: Object as PropType<{ data: string; parentGroup: Enums.ECLComponent }>, required: true },
+    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
   components: { AddDeleteButtons },
   emits: {
-    addNextOptionsClicked: (payload: ECLNextComponentSummary) => true,
-    deleteClicked: (payload: ECLComponentDetails) => true,
-    updateClicked: (payload: ECLComponentDetails) => true
+    addNextOptionsClicked: (_payload: any) => true,
+    deleteClicked: (_payload: ECLComponentDetails) => true,
+    updateClicked: (_payload: ECLComponentDetails) => true
   },
   watch: {
     selected(): void {
@@ -35,8 +35,8 @@ export default defineComponent({
     }
   },
   mounted() {
-    if (this.value) {
-      this.selected = this.value;
+    if (this.value && this.value.data) {
+      this.selected = this.value.data;
     } else {
       this.selected = this.options[0];
     }
@@ -51,30 +51,38 @@ export default defineComponent({
     onConfirm(): void {
       this.$emit("updateClicked", {
         id: this.id,
-        value: this.selected,
+        value: { data: this.selected, parentGroup: this.value?.parentGroup },
         position: this.position,
-        type: ECLType.LOGIC,
-        component: ECLComponent.LOGIC,
-        label: this.selected
+        type: ECLComponent.LOGIC,
+        queryString: this.selected,
+        showButtons: this.showButtons
       });
     },
 
     deleteClicked(): void {
       this.$emit("deleteClicked", {
         id: this.id,
-        value: this.selected,
+        value: { data: this.selected, parentGroup: this.value?.parentGroup },
         position: this.position,
-        type: ECLType.LOGIC,
-        component: ECLComponent.LOGIC,
-        label: this.selected
+        type: ECLComponent.LOGIC,
+        queryString: this.selected,
+        showButtons: this.showButtons
       });
     },
 
-    addNextClicked(): void {
+    addNextClicked(item: any): void {
       this.$emit("addNextOptionsClicked", {
-        previousComponentType: ECLType.LOGIC,
-        previousPosition: this.position
+        position: this.position + 1,
+        selectedType: item
       });
+    },
+
+    getButtonOptions() {
+      if (this.value.parentGroup === ECLComponent.REFINEMENT_GROUP) {
+        return [ECLComponent.REFINEMENT];
+      } else {
+        return [ECLComponent.FOCUS_CONCEPT];
+      }
     }
   }
 });
@@ -82,10 +90,13 @@ export default defineComponent({
 
 <style scoped>
 .logic-container {
+  flex: 1 1 auto;
+  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
 }
 
 .p-button-label {
@@ -100,7 +111,6 @@ export default defineComponent({
 }
 
 .label-container {
-  margin: 0 1rem 0 0;
   padding: 1rem;
   border: 1px solid #34314c;
   border-radius: 3px;

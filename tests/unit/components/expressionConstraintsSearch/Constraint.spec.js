@@ -1,4 +1,4 @@
-import Constraint from "@/components/eclSearch/Constraint.vue";
+import Constraint from "@/components/eclSearch/builder/Constraint.vue";
 import { shallowMount } from "@vue/test-utils";
 import Dropdown from "primevue/dropdown";
 
@@ -34,12 +34,12 @@ describe("Constraint.vue ___prop value", () => {
     wrapper.vm.onConfirm();
     expect(wrapper.emitted().updateClicked[0]).toStrictEqual([
       {
-        component: "Constraint",
         id: "focusConcept_0constraint",
-        label: "<<",
+        queryString: "<<",
         position: 0,
-        type: "constraint",
-        value: { name: "Descendant or self of", symbol: "<<" }
+        type: "Constraint",
+        value: { name: "Descendant or self of", symbol: "<<" },
+        showButtons: { minus: true, plus: true }
       }
     ]);
     console.warn = warn;
@@ -47,12 +47,12 @@ describe("Constraint.vue ___prop value", () => {
 
   it("can createConstraint", () => {
     expect(wrapper.vm.createConstraint()).toStrictEqual({
-      component: "Constraint",
       id: "focusConcept_0constraint",
-      label: "<<",
+      queryString: "<<",
       position: 0,
-      type: "constraint",
-      value: { name: "Descendant or self of", symbol: "<<" }
+      type: "Constraint",
+      value: { name: "Descendant or self of", symbol: "<<" },
+      showButtons: { minus: true, plus: true }
     });
   });
 });

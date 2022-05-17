@@ -1,28 +1,43 @@
 <template>
   <div class="focus-concept-container" :id="id">
-    <AddDeleteButtons :last="last" :position="position" @deleteClicked="deleteClicked" @addNextClicked="addNextClicked" />
     <div class="focus-concept-children-next-container">
       <span class="float-text">Focus concept</span>
       <div v-if="focusConceptBuild && focusConceptBuild.length" class="focus-concept-children-container">
-        <template v-for="child in focusConceptBuild" :key="child.id">
-          <component :is="child.component" :value="child.value" :id="child.id" :position="child.position" @updateClicked="updateChild"> </component>
+        <template v-for="child of focusConceptBuild" :key="child.id">
+          <component
+            :is="child.type"
+            :value="child.value"
+            :id="child.id"
+            :position="child.position"
+            :showButtons="child.showButtons"
+            @updateClicked="updateChild"
+          >
+          </component>
         </template>
       </div>
+      <AddDeleteButtons
+        :show="showButtons"
+        :position="position"
+        :options="getButtonOptions()"
+        @deleteClicked="deleteClicked"
+        @addNextClicked="addNextClicked"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
-import Expression from "@/components/eclSearch/Expression.vue";
-import Constraint from "@/components/eclSearch/Constraint.vue";
+import Expression from "@/components/eclSearch/builder/Expression.vue";
+import Constraint from "@/components/eclSearch/builder/Constraint.vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
 import { Enums, Helpers } from "im-library";
-import { ECLNextComponentSummary, ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent, ECLType } = Enums;
+import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
+const { ECLComponent } = Enums;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
-  Sorters: { byPosition }
+  Sorters: { byPosition },
+  EclSearchBuilderMethods: { generateNewComponent }
 } = Helpers;
 
 export default defineComponent({
@@ -36,12 +51,13 @@ export default defineComponent({
       }>,
       required: false
     },
-    last: Boolean
+    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
   emits: {
-    addNextOptionsClicked: (payload: ECLNextComponentSummary) => true,
+    addNextOptionsClicked: (payload: any) => true,
     deleteClicked: (payload: ECLComponentDetails) => true,
-    updateClicked: (payload: ECLComponentDetails) => true
+    updateClicked: (payload: ECLComponentDetails) => true,
+    addClicked: (_payload: any) => true
   },
   components: { Expression, Constraint, AddDeleteButtons },
   watch: {
@@ -71,14 +87,6 @@ export default defineComponent({
       this.focusConceptBuild[index] = data;
     },
 
-    addNextClicked(): void {
-      this.$emit("addNextOptionsClicked", {
-        previousComponentType: ECLType.FOCUS_CONCEPT,
-        previousPosition: this.position,
-        parentGroup: ECLType.FOCUS_CONCEPT
-      });
-    },
-
     createFocusConcept(): ECLComponentDetails {
       return {
         id: this.id,
@@ -86,47 +94,40 @@ export default defineComponent({
           children: this.focusConceptBuild
         },
         position: this.position,
-        type: ECLType.FOCUS_CONCEPT,
-        label: this.generateFocusConceptLabel(),
-        component: ECLComponent.FOCUS_CONCEPT
+        type: ECLComponent.FOCUS_CONCEPT,
+        queryString: this.generateFocusConceptQueryString(),
+        showButtons: this.showButtons
       };
     },
 
-    generateFocusConceptLabel(): string {
-      let label = "";
-      if (this.focusConceptBuild.length && this.focusConceptBuild.every(item => typeof item.label === "string")) {
-        const labels = this.focusConceptBuild.map(item => item.label);
-        label = labels
+    generateFocusConceptQueryString(): string {
+      let queryString = "";
+      if (this.focusConceptBuild.length && this.focusConceptBuild.every(item => typeof item.queryString === "string")) {
+        const queryStrings = this.focusConceptBuild.map(item => item.queryString);
+        queryString = queryStrings
           .join(" ")
           .replace("/\n /g", "\n")
           .trim();
       }
-      return label;
+      return queryString;
     },
 
     setStartBuild(): void {
       if (this.value && isObjectHasKeys(this.value, ["children"]) && isArrayHasLength(this.value.children)) {
         this.focusConceptBuild = [...this.value.children];
       } else {
-        this.focusConceptBuild = [
-          {
-            component: ECLComponent.CONSTRAINT,
-            id: this.id + ECLType.CONSTRAINT,
-            label: "",
-            position: 0,
-            type: ECLType.CONSTRAINT,
-            value: null
-          },
-          {
-            component: ECLComponent.EXPRESSION,
-            id: this.id + ECLType.EXPRESSION,
-            label: "",
-            position: 1,
-            type: ECLType.EXPRESSION,
-            value: null
-          }
-        ];
+        this.focusConceptBuild = [];
+        this.focusConceptBuild.push(generateNewComponent(ECLComponent.CONSTRAINT, 0, null, { minus: false, plus: false }));
+        this.focusConceptBuild.push(generateNewComponent(ECLComponent.EXPRESSION, 1, null, { minus: false, plus: false }));
       }
+    },
+
+    addNextClicked(item: any): void {
+      this.$emit("addNextOptionsClicked", { position: this.position + 1, selectedType: item });
+    },
+
+    getButtonOptions() {
+      return [ECLComponent.LOGIC, ECLComponent.REFINEMENT_GROUP];
     }
   }
 });
@@ -134,10 +135,12 @@ export default defineComponent({
 
 <style scoped>
 .focus-concept-container {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: row;
-  justify-content: center;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
   align-items: center;
+  width: 100%;
 }
 
 .add-focus-concept-button {
@@ -145,22 +148,25 @@ export default defineComponent({
 }
 
 .focus-concept-children-next-container {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-  border: 1px solid #47b8e0;
-  border-radius: 3px;
-  padding: 1rem;
-  margin: 0 1em 0 0;
   position: relative;
+  gap: 1rem;
 }
 
 .focus-concept-children-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row wrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  gap: 1rem;
+  border: 1px solid #47b8e0;
+  border-radius: 3px;
+  padding: 1rem;
 }
 
 .float-text {

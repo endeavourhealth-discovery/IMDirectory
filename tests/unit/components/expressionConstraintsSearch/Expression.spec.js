@@ -1,4 +1,4 @@
-import Expression from "@/components/eclSearch/Expression.vue";
+import Expression from "@/components/eclSearch/builder/Expression.vue";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import InputText from "primevue/inputtext";
 import OverlayPanel from "primevue/overlaypanel";
@@ -596,9 +596,9 @@ describe("Expression.vue ___ value", () => {
       },
       id: "focusConcept_0expression",
       position: 1,
-      type: ECLType.EXPRESSION,
-      label: "testLabel",
-      component: ECLComponent.EXPRESSION
+      type: ECLComponent.EXPRESSION,
+      queryString: "testLabel",
+      showButtons: { minus: false, plus: false }
     });
     wrapper.vm.hideOverlay = vi.fn();
     expect(wrapper.vm.selectedResult).toStrictEqual({
@@ -670,9 +670,9 @@ describe("Expression.vue ___ value", () => {
         },
         id: "focusConcept_0expression",
         position: 1,
-        type: ECLType.EXPRESSION,
-        label: "testLabel",
-        component: ECLComponent.EXPRESSION
+        type: ECLComponent.EXPRESSION,
+        queryString: "testLabel",
+        showButtons: { minus: false, plus: false }
       }
     ]);
     expect(wrapper.vm.hideOverlay).toHaveBeenCalledTimes(1);
@@ -687,11 +687,10 @@ describe("Expression.vue ___ value", () => {
 
   it("can createExpression ___ any", () => {
     expect(wrapper.vm.createExpression()).toStrictEqual({
-      component: "Expression",
       id: "focusConcept_0expression",
-      label: "*",
+      queryString: "*",
       position: 1,
-      type: "expression",
+      type: "Expression",
       value: {
         code: "",
         entityType: [
@@ -707,7 +706,8 @@ describe("Expression.vue ___ value", () => {
         scheme: {},
         status: {},
         weighting: 0
-      }
+      },
+      showButtons: { minus: true, plus: true }
     });
   });
 
@@ -728,11 +728,10 @@ describe("Expression.vue ___ value", () => {
       match: "Acquired scoliosis"
     };
     expect(wrapper.vm.createExpression()).toStrictEqual({
-      component: "Expression",
       id: "focusConcept_0expression",
-      label: "111266001 |Acquired scoliosis|",
+      queryString: "111266001 |Acquired scoliosis|",
       position: 1,
-      type: "expression",
+      type: "Expression",
       value: {
         code: "111266001",
         description: "Acquired scoliosis (disorder)",
@@ -759,7 +758,8 @@ describe("Expression.vue ___ value", () => {
           name: "Active"
         },
         weighting: 11
-      }
+      },
+      showButtons: { minus: true, plus: true }
     });
   });
 });

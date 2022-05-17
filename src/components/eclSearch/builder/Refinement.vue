@@ -1,31 +1,44 @@
 <template>
   <div class="refinement-container" :id="id">
-    <div class="switch-button-container">
-      <AddDeleteButtons :last="last" :position="position" @deleteClicked="deleteClicked" @addNextClicked="addNextClicked" />
-    </div>
+    <div class="switch-button-container"></div>
     <div class="refinement-children-next-container">
       <span class="float-text">Refinement</span>
       <div v-if="refinementBuild && refinementBuild.length" class="refinement-children-container">
         <template v-for="child in refinementBuild" :key="child.id">
-          <component :is="child.component" :value="child.value" :id="child.id" :position="child.position" @updateClicked="updateChild"> </component>
+          <component
+            :is="child.type"
+            :value="child.value"
+            :id="child.id"
+            :position="child.position"
+            :showButtons="child.showButtons"
+            @updateClicked="updateChild"
+          />
         </template>
       </div>
+      <AddDeleteButtons
+        :show="showButtons"
+        :position="position"
+        :options="getButtonOptions()"
+        @deleteClicked="deleteClicked"
+        @addNextClicked="addNextClicked"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
-import Expression from "@/components/eclSearch/Expression.vue";
-import Constraint from "@/components/eclSearch/Constraint.vue";
-import Operator from "@/components/eclSearch/Operator.vue";
+import Expression from "@/components/eclSearch/builder/Expression.vue";
+import Constraint from "@/components/eclSearch/builder/Constraint.vue";
+import Operator from "@/components/eclSearch/builder/Operator.vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
 import { Enums, Helpers } from "im-library";
-import { ECLComponentDetails, ECLNextComponentSummary } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent, ECLType } = Enums;
+import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
+const { ECLComponent } = Enums;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
-  Sorters: { byPosition }
+  Sorters: { byPosition },
+  EclSearchBuilderMethods: { addItem, updateItem, updatePositions, generateNewComponent }
 } = Helpers;
 
 export default defineComponent({
@@ -39,12 +52,12 @@ export default defineComponent({
       }>,
       required: false
     },
-    last: { type: Boolean, required: true }
+    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
   emits: {
-    addNextOptionsClicked: (payload: ECLNextComponentSummary) => true,
-    deleteClicked: (payload: ECLComponentDetails) => true,
-    updateClicked: (payload: ECLComponentDetails) => true
+    addNextOptionsClicked: (_payload: any) => true,
+    deleteClicked: (_payload: ECLComponentDetails) => true,
+    updateClicked: (_payload: ECLComponentDetails) => true
   },
   components: { Expression, Constraint, Operator, AddDeleteButtons },
   watch: {
@@ -70,15 +83,13 @@ export default defineComponent({
     },
 
     updateChild(data: ECLComponentDetails): void {
-      const index = this.refinementBuild.findIndex(item => item.position === data.position);
-      this.refinementBuild[index] = data;
+      updateItem(data, this.refinementBuild);
     },
 
-    addNextClicked(): void {
+    addNextClicked(item: any): void {
       this.$emit("addNextOptionsClicked", {
-        previousComponentType: ECLType.REFINEMENT,
-        previousPosition: this.position,
-        parentGroup: ECLType.REFINEMENT_GROUP
+        position: this.position + 1,
+        selectedType: item
       });
     },
 
@@ -89,23 +100,23 @@ export default defineComponent({
           children: this.refinementBuild
         },
         position: this.position,
-        type: ECLType.REFINEMENT,
-        label: this.generateRefinementLabel(),
-        component: ECLComponent.REFINEMENT
+        type: ECLComponent.REFINEMENT,
+        queryString: this.generateRefinementQueryString(),
+        showButtons: this.showButtons
       };
     },
 
-    generateRefinementLabel(): string {
-      let label = "";
-      if (isArrayHasLength(this.refinementBuild) && this.refinementBuild.every(item => typeof item.label === "string")) {
-        const labels = this.refinementBuild.map(item => item.label);
-        label = labels
+    generateRefinementQueryString(): string {
+      let queryString = "";
+      if (isArrayHasLength(this.refinementBuild) && this.refinementBuild.every(item => typeof item.queryString === "string")) {
+        const queryStrings = this.refinementBuild.map(item => item.queryString);
+        queryString = queryStrings
           .join(" ")
           .replace("/\n /g", "\n")
           .replace("/  /g", " ")
           .trim();
       }
-      return label;
+      return queryString;
     },
 
     setStartBuild(): void {
@@ -113,48 +124,17 @@ export default defineComponent({
         this.refinementBuild = [...this.value.children];
       } else {
         this.refinementBuild = [
-          {
-            component: ECLComponent.CONSTRAINT,
-            id: this.id + ECLType.CONSTRAINT,
-            label: "",
-            position: 0,
-            type: ECLType.CONSTRAINT,
-            value: null
-          },
-          {
-            component: ECLComponent.EXPRESSION,
-            id: this.id + ECLType.EXPRESSION,
-            label: "",
-            position: 1,
-            type: ECLType.EXPRESSION,
-            value: null
-          },
-          {
-            component: ECLComponent.OPERATOR,
-            id: this.id + ECLType.OPERATOR,
-            label: "",
-            position: 2,
-            type: ECLType.OPERATOR,
-            value: null
-          },
-          {
-            component: ECLComponent.CONSTRAINT,
-            id: this.id + ECLType.CONSTRAINT,
-            label: "",
-            position: 3,
-            type: ECLType.CONSTRAINT,
-            value: null
-          },
-          {
-            component: ECLComponent.EXPRESSION,
-            id: this.id + ECLType.EXPRESSION,
-            label: "",
-            position: 4,
-            type: ECLType.EXPRESSION,
-            value: null
-          }
+          generateNewComponent(ECLComponent.CONSTRAINT, 0, null, { minus: false, plus: false }),
+          generateNewComponent(ECLComponent.EXPRESSION, 1, null, { minus: false, plus: false }),
+          generateNewComponent(ECLComponent.OPERATOR, 2, null, { minus: false, plus: false }),
+          generateNewComponent(ECLComponent.CONSTRAINT, 3, null, { minus: false, plus: false }),
+          generateNewComponent(ECLComponent.EXPRESSION, 4, null, { minus: false, plus: false })
         ];
       }
+    },
+
+    getButtonOptions() {
+      return [ECLComponent.LOGIC];
     }
   }
 });
@@ -162,6 +142,8 @@ export default defineComponent({
 
 <style scoped>
 .refinement-container {
+  flex: 1 1 auto;
+  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: center;
@@ -188,21 +170,22 @@ export default defineComponent({
 
 .refinement-children-next-container {
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-  border: 1px solid #56a902;
-  border-radius: 3px;
-  padding: 1rem;
-  margin: 0 1em 0 0;
   position: relative;
+  gap: 1rem;
 }
 
 .refinement-children-container {
   display: flex;
   flex-flow: row wrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  border: 1px solid #56a902;
+  border-radius: 3px;
+  padding: 1rem;
+  gap: 1rem;
 }
 
 .buttons-container {
