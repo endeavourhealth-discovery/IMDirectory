@@ -286,7 +286,7 @@ export default defineComponent({
     },
 
     navigateToEditor(): void {
-      DirectService.directTo(Env.editorUrl, this.selected.iri, this, "editor");
+      DirectService.directTo(Env.EDITOR_URL, this.selected.iri, this, "editor");
     },
 
     onRightClick(event: any) {
@@ -309,7 +309,7 @@ export default defineComponent({
 
     view(row?: any) {
       if (row) this.selected = row.data;
-      DirectService.directTo(Env.viewerUrl, this.selected.iri, this);
+      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this);
     },
 
     locate(row: any) {

@@ -197,11 +197,11 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      DirectService.directTo(Env.viewerUrl, iri, this);
+      DirectService.directTo(Env.VIEWER_URL, iri, this);
     },
 
     edit(iri: string) {
-      DirectService.directTo(Env.editorUrl, iri, this, "editor");
+      DirectService.directTo(Env.EDITOR_URL, iri, this, "editor");
     },
 
     open(iri: string) {

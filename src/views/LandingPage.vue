@@ -152,10 +152,10 @@ export default defineComponent({
       let action = "";
       const dateTime = new Date(activity.dateTime);
       switch (activity.app) {
-        case Env.viewerUrl:
+        case Env.VIEWER_URL:
           action = "Viewed";
           break;
-        case Env.editorUrl:
+        case Env.EDITOR_URL:
           action = "Edited";
           break;
 
@@ -197,12 +197,12 @@ export default defineComponent({
 
     view(data?: any) {
       if (data) this.onRowSelect(data);
-      DirectService.directTo(Env.viewerUrl, this.selected.iri, this);
+      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this);
     },
 
     edit(data?: any) {
       if (data) this.onRowSelect(data);
-      DirectService.directTo(Env.editorUrl, this.selected.iri, this, "editor");
+      DirectService.directTo(Env.EDITOR_URL, this.selected.iri, this, "editor");
     },
 
     showInfo(data?: any) {
