@@ -47,7 +47,7 @@
         <template #body="slotProps">
           <div class="ml-2">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
-              <font-awesome-icon v-if="slotProps.data.icon" :icon="slotProps.data.icon" />
+              <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
             {{ slotProps.data.match }}
           </div>
