@@ -197,7 +197,7 @@ export default defineComponent({
 
     view(data?: any) {
       if (data) this.onRowSelect(data);
-      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this);
+      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this, "concept");
     },
 
     edit(data?: any) {

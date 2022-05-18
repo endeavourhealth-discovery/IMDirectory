@@ -76,7 +76,7 @@ export default defineComponent({
           params: { selectedIri: event.value.iri }
         });
       } else {
-        DirectService.directTo(Env.VIEWER_URL, event.value.iri, this);
+        DirectService.directTo(Env.VIEWER_URL, event.value.iri, this, "concept");
       }
       this.searchText = "";
     },

@@ -40,7 +40,7 @@ export default defineComponent({
   },
   methods: {
     navigate() {
-      DirectService.directTo(Env.VIEWER_URL, this.selectedConceptIri, this);
+      DirectService.directTo(Env.VIEWER_URL, this.selectedConceptIri, this, "concept");
     }
   }
 });

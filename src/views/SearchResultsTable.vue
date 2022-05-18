@@ -309,7 +309,7 @@ export default defineComponent({
 
     view(row?: any) {
       if (row) this.selected = row.data;
-      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this);
+      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this, "concept");
     },
 
     locate(row: any) {
