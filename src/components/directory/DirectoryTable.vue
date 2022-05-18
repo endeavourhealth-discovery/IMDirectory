@@ -24,7 +24,7 @@
     <Column field="name" header="Name">
       <template #body="{data}">
         <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-          <font-awesome-icon :icon="data.icon" />
+          <i :class="data.icon" aria-hidden="true" />
         </span>
         <span>{{ data.name }}</span>
       </template>
