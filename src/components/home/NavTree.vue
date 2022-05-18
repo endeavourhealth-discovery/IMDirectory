@@ -69,7 +69,7 @@ export default defineComponent({
       }
       this.root.sort(this.byKey);
       const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
-      favNode.typeIcon = ["fas", "star"];
+      favNode.typeIcon = ["fa-solid", "fa-star"];
       favNode.color = "#e39a36";
       this.root.push(favNode);
     },
