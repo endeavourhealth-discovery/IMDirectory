@@ -30,10 +30,26 @@
                 <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
               </template>
             </Column>
-            <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+            <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
               <template #body="{data}">
-                <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
-                <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
+                <Button
+                  icon="pi pi-fw pi-eye"
+                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
+                  @click="view(data)"
+                  v-tooltip.top="'View'"
+                />
+                <Button
+                  icon="pi pi-fw pi-info-circle"
+                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
+                  @click="showInfo(data)"
+                  v-tooltip.top="'Info'"
+                />
+                <Button
+                  icon="far fa-edit"
+                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
+                  @click="edit(data)"
+                  v-tooltip.top="'Edit'"
+                />
               </template>
             </Column>
           </DataTable>
@@ -65,8 +81,7 @@ import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
 import DirectService from "@/services/DirectService";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Vocabulary, Helpers } from "im-library";
-const { AppEnum } = Enums;
+import { Env, Vocabulary, Helpers } from "im-library";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
@@ -137,10 +152,10 @@ export default defineComponent({
       let action = "";
       const dateTime = new Date(activity.dateTime);
       switch (activity.app) {
-        case AppEnum.VIEWER:
+        case Env.VIEWER_URL:
           action = "Viewed";
           break;
-        case AppEnum.EDITOR:
+        case Env.EDITOR_URL:
           action = "Edited";
           break;
 
@@ -182,7 +197,12 @@ export default defineComponent({
 
     view(data?: any) {
       if (data) this.onRowSelect(data);
-      DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
+      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this, "concept");
+    },
+
+    edit(data?: any) {
+      if (data) this.onRowSelect(data);
+      DirectService.directTo(Env.EDITOR_URL, this.selected.iri, this, "editor");
     },
 
     showInfo(data?: any) {
@@ -232,5 +252,10 @@ export default defineComponent({
   border: none;
   box-shadow: none;
   border-radius: none;
+}
+
+.activity-row-button:hover {
+  background-color: #6c757d !important;
+  color: #ffffff !important;
 }
 </style>

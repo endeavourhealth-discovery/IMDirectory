@@ -69,7 +69,7 @@
           <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" />
           <Button
             v-if="slotProps.data.hasChildren"
-            @click="open(slotProps)"
+            @click="open"
             aria-haspopup="true"
             aria-controls="overlay_menu"
             type="button"
@@ -99,13 +99,11 @@
 import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { Enums, Helpers, Vocabulary, Models } from "im-library";
-const { IM } = Vocabulary;
+import { Env, Helpers, Models } from "im-library";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
-const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "SearchResultsTable",
@@ -288,7 +286,7 @@ export default defineComponent({
     },
 
     navigateToEditor(): void {
-      DirectService.directTo(AppEnum.EDITOR, this.selected.iri, this);
+      DirectService.directTo(Env.EDITOR_URL, this.selected.iri, this, "editor");
     },
 
     onRightClick(event: any) {
@@ -298,7 +296,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.selected = event.data;
-      if (isFolder(this.selected?.entityType, IM.FOLDER)) this.open();
+      if (isFolder(this.selected?.entityType)) this.open();
       else this.view();
     },
 
@@ -311,7 +309,7 @@ export default defineComponent({
 
     view(row?: any) {
       if (row) this.selected = row.data;
-      DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
+      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this, "concept");
     },
 
     locate(row: any) {

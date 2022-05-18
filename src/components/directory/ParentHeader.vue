@@ -21,6 +21,7 @@
         @click="showInfo(concept['@id'])"
         v-tooltip.left="'Show summary panel'"
       />
+      <Button icon="far fa-edit" class="p-button-secondary p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
       <Button
         v-if="isFavourite(concept['@id'])"
         style="color: #e39a36"
@@ -42,11 +43,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Helpers, Vocabulary, Enums } from "im-library";
+import { Helpers, Vocabulary, Env } from "im-library";
 import DirectService from "@/services/DirectService";
 import { mapState } from "vuex";
 const { IM, RDF } = Vocabulary;
-const { AppEnum } = Enums;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType },
   DataTypeCheckers: { isArrayHasLength }
@@ -79,7 +79,11 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      DirectService.directTo(AppEnum.VIEWER, iri, this);
+      DirectService.directTo(Env.VIEWER_URL, iri, this, "concept");
+    },
+
+    edit(iri: string) {
+      DirectService.directTo(Env.EDITOR_URL, iri, this, "editor");
     },
 
     updateFavourites(iri: string) {

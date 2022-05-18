@@ -30,7 +30,7 @@ import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
 import { Enums, Helpers, Models, Vocabulary } from "im-library";
 import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent, ECLType, SortBy } = Enums;
+const { ECLComponent, SortBy } = Enums;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
@@ -44,9 +44,10 @@ export default defineComponent({
   props: {
     id: { type: String, required: true },
     position: { type: Number, required: true },
-    value: { type: Object as PropType<Models.Search.ConceptSummary>, required: false }
+    value: { type: Object as PropType<Models.Search.ConceptSummary>, required: false },
+    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
-  emits: { updateClicked: (payload: ECLComponentDetails) => true },
+  emits: { updateClicked: (_payload: ECLComponentDetails) => true },
   components: { SearchMiniOverlay },
   computed: mapState(["filterOptions", "selectedFilters"]),
   mounted() {
@@ -156,19 +157,19 @@ export default defineComponent({
     },
 
     createExpression(): ECLComponentDetails {
-      let label;
+      let queryString = "";
       if (this.selectedResult.name === "ANY") {
-        label = "*";
+        queryString = "*";
       } else {
-        label = this.selectedResult.code + " |" + this.selectedResult.name + "|";
+        queryString = this.selectedResult.code + " |" + this.selectedResult.name + "|";
       }
       return {
         value: this.selectedResult,
         id: this.id,
         position: this.position,
-        type: ECLType.EXPRESSION,
-        label: label,
-        component: ECLComponent.EXPRESSION
+        type: ECLComponent.EXPRESSION,
+        queryString: queryString,
+        showButtons: this.showButtons
       };
     }
   }
@@ -177,19 +178,19 @@ export default defineComponent({
 
 <style scoped>
 .query-item-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  border: 1px solid #ffc952;
+  border-radius: 3px;
 }
 
 .label-container {
-  margin: 0 1rem 0 0;
+  width: 100%;
   padding: 1rem;
-  border: 1px solid #ffc952;
-  border-radius: 3px;
   position: relative;
-  min-width: 15rem;
 }
 
 .label {
@@ -209,6 +210,7 @@ export default defineComponent({
 }
 
 .search-input {
-  width: 15rem;
+  width: 100%;
+  min-width: 15rem;
 }
 </style>
