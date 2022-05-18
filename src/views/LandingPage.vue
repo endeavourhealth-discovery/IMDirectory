@@ -45,7 +45,7 @@
                   v-tooltip.top="'Info'"
                 />
                 <Button
-                  icon="far fa-edit"
+                  icon="fa-solid fa-pen-to-square"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
                   @click="edit(data)"
                   v-tooltip.top="'Edit'"

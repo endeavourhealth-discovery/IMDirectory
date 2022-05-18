@@ -40,7 +40,7 @@
         <div class="string-copy-container">
           <pre class="output-string">{{ queryString }}</pre>
           <Button
-            icon="far fa-copy"
+            icon="fa-solid fa-copy"
             v-tooltip.left="'Copy to clipboard'"
             v-clipboard:copy="copyToClipboard()"
             v-clipboard:success="onCopy"

@@ -66,7 +66,7 @@
       <Column field="code" header="Code"></Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
         <template #body="slotProps">
-          <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
+          <Button icon="fa-solid fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
           <Button
             v-if="slotProps.data.hasChildren"
             @click="open"
@@ -84,7 +84,12 @@
             @click="showInfo(slotProps)"
             v-tooltip.top="'Info'"
           />
-          <Button icon="far fa-edit" class="p-button-rounded p-button-text p-button-plain row-button" @click="edit(slotProps)" v-tooltip.top="'Edit'" />
+          <Button
+            icon="fa-solid fa-pen-to-square"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="edit(slotProps)"
+            v-tooltip.top="'Edit'"
+          />
           <Button
             v-if="isFavourite(slotProps.data.iri)"
             style="color: #e39a36"

@@ -11,7 +11,7 @@
       />
       <Button
         :disabled="!queryString.length"
-        icon="far fa-copy"
+        icon="fa-solid fa-copy"
         v-tooltip.left="'Copy to clipboard'"
         v-clipboard:copy="copyToClipboard()"
         v-clipboard:success="onCopy"
