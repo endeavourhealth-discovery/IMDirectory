@@ -79,7 +79,7 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      DirectService.directTo(Env.VIEWER_URL, iri, this);
+      DirectService.directTo(Env.VIEWER_URL, iri, this, "concept");
     },
 
     edit(iri: string) {
