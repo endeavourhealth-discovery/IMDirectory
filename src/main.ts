@@ -165,7 +165,7 @@ const app = createApp(App)
 const vm = app.mount("#app");
 
 axios.interceptors.request.use(async request => {
-  if (store.state.isLoggedIn && Env.api && request.url?.startsWith(Env.api)) {
+  if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
     request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
   }
   return request;
@@ -183,7 +183,7 @@ axios.interceptors.response.use(
           summary: "Access denied",
           detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
         });
-        window.location.href = Env.authUrl + "login?returnUrl=" + vm.$route.fullPath;
+        window.location.href = Env.AUTH_URL + "login?returnUrl=" + vm.$route.fullPath;
       } else if (error.response.status === 401) {
         vm.$toast.add({
           severity: "error",

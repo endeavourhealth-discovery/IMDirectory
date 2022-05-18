@@ -20,7 +20,7 @@ import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
 import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Env, Models, Helpers } from "im-library";
-const { AppEnum, SortBy } = Enums;
+const { SortBy } = Enums;
 const {
   DataTypeCheckers: { isObjectHasKeys },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder }
@@ -53,7 +53,7 @@ export default defineComponent({
   },
   methods: {
     navigateToEditor(): void {
-      DirectService.directTo(AppEnum.EDITOR, "", this);
+      DirectService.directTo(Env.EDITOR_URL, "", this);
     },
 
     getFAIconFromType(types: TTIriRef[]) {
@@ -76,7 +76,7 @@ export default defineComponent({
           params: { selectedIri: event.value.iri }
         });
       } else {
-        DirectService.directTo(AppEnum.VIEWER, event.value.iri, this);
+        DirectService.directTo(Env.VIEWER_URL, event.value.iri, this);
       }
       this.searchText = "";
     },
@@ -120,34 +120,34 @@ export default defineComponent({
         {
           label: "Login",
           icon: "fa fa-fw fa-user",
-          url: Env.authUrl + "login?returnUrl=" + this.authReturnUrl
+          url: Env.AUTH_URL + "login?returnUrl=" + this.authReturnUrl
         },
         {
           label: "Register",
           icon: "fa fa-fw fa-user-plus",
-          url: Env.authUrl + "register?returnUrl=" + this.authReturnUrl
+          url: Env.AUTH_URL + "register?returnUrl=" + this.authReturnUrl
         }
       ];
       this.accountItems = [
         {
           label: "My account",
           icon: "fa fa-fw fa-user",
-          url: Env.authUrl + "my-account?returnUrl=" + this.authReturnUrl
+          url: Env.AUTH_URL + "my-account?returnUrl=" + this.authReturnUrl
         },
         {
           label: "Edit account",
           icon: "fa fa-fw fa-user-edit",
-          url: Env.authUrl + "my-account/edit?returnUrl=" + this.authReturnUrl
+          url: Env.AUTH_URL + "my-account/edit?returnUrl=" + this.authReturnUrl
         },
         {
           label: "Change password",
           icon: "fa fa-fw fa-user-lock",
-          url: Env.authUrl + "my-account/password-edit?returnUrl=" + this.authReturnUrl
+          url: Env.AUTH_URL + "my-account/password-edit?returnUrl=" + this.authReturnUrl
         },
         {
           label: "Logout",
           icon: "fa fa-fw fa-sign-out-alt",
-          url: Env.authUrl + "logout?returnUrl=" + this.authReturnUrl
+          url: Env.AUTH_URL + "logout?returnUrl=" + this.authReturnUrl
         }
       ];
     }

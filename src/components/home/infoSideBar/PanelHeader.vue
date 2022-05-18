@@ -12,11 +12,10 @@ import { defineComponent, PropType } from "@vue/runtime-core";
 import { mapState } from "vuex";
 import DirectService from "@/services/DirectService";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Helpers } from "im-library";
+import { Env, Helpers } from "im-library";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
-const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "PanelHeader",
@@ -41,7 +40,7 @@ export default defineComponent({
   },
   methods: {
     navigate() {
-      DirectService.directTo(AppEnum.VIEWER, this.selectedConceptIri, this);
+      DirectService.directTo(Env.VIEWER_URL, this.selectedConceptIri, this);
     }
   }
 });

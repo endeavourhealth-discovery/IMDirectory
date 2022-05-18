@@ -32,7 +32,7 @@
     <Column field="type" header="Type">
       <template #body="{data}"> {{ getTypesDisplay(data.type) }}</template>
     </Column>
-    <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+    <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
       <template #body="{data}">
         <Button
           v-if="data.hasChildren"
@@ -42,19 +42,32 @@
           type="button"
           class="p-button-rounded p-button-text p-button-plain row-button"
           icon="pi pi-folder-open"
+          v-tooltip.top="'Open'"
         />
-        <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data['@id'])" />
-        <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(data['@id'])" />
-
+        <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data['@id'])" v-tooltip.top="'View'" />
+        <Button
+          icon="pi pi-fw pi-info-circle"
+          class="p-button-rounded p-button-text p-button-plain row-button"
+          @click="showInfo(data['@id'])"
+          v-tooltip.top="'Info'"
+        />
+        <Button icon="far fa-edit" class="p-button-rounded p-button-text p-button-plain row-button" @click="edit(data['@id'])" v-tooltip.top="'Edit'" />
         <Button
           v-if="isFavourite(data['@id'])"
           style="color: #e39a36"
           icon="pi pi-fw pi-star-fill"
           class="p-button-rounded p-button-text row-button-fav"
           @click="updateFavourites(data['@id'])"
+          v-tooltip.left="'Unfavourite'"
         />
 
-        <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(data['@id'])" />
+        <Button
+          v-else
+          icon="pi pi-fw pi-star"
+          class="p-button-rounded p-button-text p-button-plain row-button"
+          @click="updateFavourites(data['@id'])"
+          v-tooltip.left="'Favourite'"
+        />
       </template>
     </Column>
   </DataTable>
@@ -66,12 +79,11 @@
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import EntityService from "@/services/EntityService";
-import { Helpers, Vocabulary, Enums } from "im-library";
+import { Helpers, Vocabulary, Env } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
 const { IM, RDFS, RDF } = Vocabulary;
-const { AppEnum } = Enums;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength }
@@ -185,7 +197,11 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      DirectService.directTo(AppEnum.VIEWER, iri, this);
+      DirectService.directTo(Env.VIEWER_URL, iri, this);
+    },
+
+    edit(iri: string) {
+      DirectService.directTo(Env.EDITOR_URL, iri, this, "editor");
     },
 
     open(iri: string) {
