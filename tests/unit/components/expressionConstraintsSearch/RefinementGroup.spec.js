@@ -214,7 +214,7 @@ describe("RefinementGroup.vue ___ no value", () => {
         type: "Refinement",
         queryString: "<< * = << *"
       },
-      { id: "refinementGroup_1logic_1", value: "AND", position: 1, type: "Logic", queryString: "AND" },
+      { id: "refinementGroup_1logic_1", value: { data: "AND", parentGroup: "RefinementGroup" }, position: 1, type: "Logic", queryString: "AND" },
       {
         id: "refinementGroup_1refinement_2",
         value: {
@@ -240,7 +240,7 @@ describe("RefinementGroup.vue ___ no value", () => {
         type: "Refinement",
         queryString: "<< * = << *"
       },
-      { id: "refinementGroup_1logic_1", value: "AND", position: 1, type: "Logic", queryString: "AND" },
+      { id: "refinementGroup_1logic_1", value: { data: "AND", parentGroup: "RefinementGroup" }, position: 1, type: "Logic", queryString: "AND" },
       {
         id: "refinementGroup_1refinement_2",
         value: {
@@ -343,7 +343,14 @@ describe("RefinementGroup.vue ___ value", () => {
       queryString: "<< * = << *",
       showButtons: { minus: false, plus: false }
     },
-    { id: "RefinementGroup_1Logic_1", value: "AND", position: 1, type: "Logic", queryString: "AND", showButtons: { minus: false, plus: false } },
+    {
+      id: "RefinementGroup_1Logic_1",
+      value: { data: "AND", parentGroup: "RefinementGroup" },
+      position: 1,
+      type: "Logic",
+      queryString: "AND",
+      showButtons: { minus: false, plus: false }
+    },
     {
       id: "RefinementGroup_1Refinement_2",
       value: {
