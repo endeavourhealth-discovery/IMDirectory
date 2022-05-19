@@ -304,11 +304,11 @@ export default class EntityService {
     }
   }
 
-  public static async updateHierarchy(entity: any): Promise<TTIriRef[]> {
+  public static async updateHierarchy(entity: any): Promise<any> {
     try {
-      return await axios.post(Env.api + "api/entity/hierarchy", entity);
+      return await axios.post(Env.API + "api/entity/hierarchy", entity);
     } catch (error) {
-      return [];
+      return {} as any;
     }
   }
 }

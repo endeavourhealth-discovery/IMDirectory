@@ -1,39 +1,54 @@
 <template>
-  Select folder(s) to move the entity into:
-  <TreeSelect
-    v-if="root.length"
-    :options="root"
-    v-model="selectedValues"
-    selectionMode="multiple"
-    :metaKeySelection="false"
-    :expandedKeys="expandedKeys"
-    @node-expand="onNodeExpand"
-    @node-select="onNodeSelect"
-    @node-unselect="onNodeUnselect"
-    :loading="loading"
-  >
-    <template #value="{value}">
-      {{ getDisplay(value) }}
+  <Card>
+    <template #subtitle>
+      Select folder(s) to move the entity into:
     </template>
-  </TreeSelect>
-  <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="addToFolders" />
+    <template #content>
+      <TreeSelect
+        style="width: 100%"
+        v-if="root.length"
+        :options="root"
+        v-model="selectedValues"
+        selectionMode="multiple"
+        :metaKeySelection="false"
+        :expandedKeys="expandedKeys"
+        @node-expand="onNodeExpand"
+        @node-select="onNodeSelect"
+        @node-unselect="onNodeUnselect"
+        :loading="loading"
+      >
+        <template #value="{value}">
+          {{ getDisplay(value) }}
+        </template>
+      </TreeSelect>
+    </template>
+    <template #footer>
+      <div class="button-bar">
+        <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" @click="cancel" />
+        <Button icon="pi pi-check" label="Update hierarchy" class="save-button" @click="addToFolders" />
+      </div>
+    </template>
+  </Card>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import EntityService from "@/services/EntityService";
 import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers } from "im-library";
+import { Vocabulary, Helpers, LoggerService } from "im-library";
 const { IM } = Vocabulary;
 const {
-  DataTypeCheckers: { isObjectHasKeys },
+  DataTypeCheckers: { isObjectHasKeys, isArrayHasLength },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder }
 } = Helpers;
 
 export default defineComponent({
   name: "MoveToFolder",
   props: ["selectedIri"],
-
+  emits: {
+    containedInUpdated: () => true,
+    closeMoveToDialog: () => true
+  },
   data() {
     return {
       selectedValues: {} as any,
@@ -46,6 +61,12 @@ export default defineComponent({
   async mounted() {
     this.loading = true;
     this.root = await this.addParentFoldersToRoot();
+    const entity = await EntityService.getPartialEntity(this.selectedIri, [IM.IS_CONTAINED_IN]);
+    if (isArrayHasLength(entity[IM.IS_CONTAINED_IN])) {
+      entity[IM.IS_CONTAINED_IN].forEach((containedIn: TTIriRef) => {
+        this.onNodeSelect(this.createTreeNode(containedIn.name, containedIn["@id"], [], false));
+      });
+    }
     this.loading = false;
   },
   methods: {
@@ -54,15 +75,29 @@ export default defineComponent({
       return values.map(value => value.label).join(", ");
     },
 
+    cancel() {
+      this.$emit("closeMoveToDialog");
+    },
+
     async addToFolders() {
       const entity = { "@id": this.selectedIri } as any;
       entity[IM.IS_CONTAINED_IN] = [] as any[];
       this.selectedNodes.forEach(node => {
         entity[IM.IS_CONTAINED_IN].push({ "@id": node.data });
       });
-      const updated = await EntityService.updateHierarchy(entity);
-      console.log(updated);
+      try {
+        const updated = await EntityService.updateHierarchy(entity);
+        let updateMessage = "";
+        if (isArrayHasLength(updated[IM.IS_CONTAINED_IN])) {
+          updateMessage = ". Can be found under: " + updated[IM.IS_CONTAINED_IN].map((containedIn: TTIriRef) => containedIn.name).join(", ");
+        }
+        this.$toast.add(LoggerService.success("Entity updated" + updateMessage));
+      } catch (error) {
+        this.$toast.add(LoggerService.success("Something went wrong and the entity was not updated"));
+      }
+      this.$emit("containedInUpdated");
     },
+
     async addParentFoldersToRoot() {
       const root = [...this.root];
       const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
@@ -104,7 +139,7 @@ export default defineComponent({
 
     onNodeSelect(node: TreeNode) {
       this.selectedNodes.push(node);
-      this.selectedValues[node.data] = true;
+      this.selectedValues[node.key] = true;
     },
 
     async onNodeExpand(node: TreeNode) {
@@ -126,4 +161,20 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.button-bar {
+  flex: 0 1 auto;
+  padding: 1rem 1rem 1rem 0;
+  gap: 0.5rem;
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-end;
+}
+
+.p-card {
+  border: none;
+  box-shadow: none;
+}
+</style>

@@ -74,7 +74,7 @@
 
   <ContextMenu ref="menu" :model="rClickOptions" />
   <Dialog header="Move to folder" v-model:visible="displayMoveToFolder" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '50vw' }">
-    <MoveToFolder :selectedIri="selected['@id']" />
+    <MoveToFolder :selectedIri="selected['@id']" @contained-in-updated="onContainedInUpdate" @close-move-to-dialog="toggleMoveToFolder(false)" />
   </Dialog>
 </template>
 
@@ -141,7 +141,7 @@ export default defineComponent({
         {
           label: "Move to folder",
           icon: "pi pi-fw pi-file",
-          command: () => this.openMoveToFolder((this.selected as any)["@id"])
+          command: () => this.toggleMoveToFolder(true)
         },
         {
           separator: true
@@ -162,8 +162,13 @@ export default defineComponent({
       this.loading = false;
     },
 
-    openMoveToFolder(iri: string) {
-      this.displayMoveToFolder = true;
+    onContainedInUpdate() {
+      this.displayMoveToFolder = false;
+      this.init();
+    },
+
+    toggleMoveToFolder(bool: boolean) {
+      this.displayMoveToFolder = bool;
     },
 
     onFavouriteView() {
@@ -232,6 +237,7 @@ export default defineComponent({
 
     onRowSelect(event: any) {
       this.$store.commit("updateSelectedConceptIri", event.data["@id"]);
+      this.displayMoveToFolder = false;
     },
 
     showInfo(iri: string) {
@@ -256,4 +262,5 @@ export default defineComponent({
   background-color: #e39a36 !important;
   color: #ffffff !important;
 }
+
 </style>
