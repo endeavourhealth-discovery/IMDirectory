@@ -3,7 +3,7 @@
     <div class="title-container">
       <h4 class="title">
         <span :style="getColour(concept)" class="p-mx-1 type-icon">
-          <font-awesome-icon :icon="getIcon(concept)" />
+          <i :class="getIcon(concept)" aria-hidden="true" />
         </span>
         {{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}
       </h4>

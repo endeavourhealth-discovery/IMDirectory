@@ -1,7 +1,7 @@
 <template>
   <div id="entity-panel-header-text" :key="icon">
     <span :style="color" class="p-mx-2">
-      <font-awesome-icon v-if="types && types.length" :icon="icon" />
+      <i v-if="types && types.length" :class="icon" aria-hidden="true" />
     </span>
     <a v-tooltip.right="'See in viewer app'" class="info-bar-title" @click="navigate">{{ header }}</a>
   </div>
