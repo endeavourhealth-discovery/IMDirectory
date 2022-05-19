@@ -303,4 +303,12 @@ export default class EntityService {
       return [];
     }
   }
+
+  public static async updateHierarchy(entity: any): Promise<any> {
+    try {
+      return await axios.post(Env.API + "api/entity/hierarchy", entity);
+    } catch (error) {
+      return {} as any;
+    }
+  }
 }

@@ -78,6 +78,9 @@
   </DataTable>
 
   <ContextMenu ref="menu" :model="rClickOptions" />
+  <Dialog header="Move to folder" v-model:visible="displayMoveToFolder" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '50vw' }">
+    <MoveToFolder :selectedIri="selected['@id']" @contained-in-updated="onContainedInUpdate" @close-move-to-dialog="toggleMoveToFolder(false)" />
+  </Dialog>
 </template>
 
 <script lang="ts">
@@ -88,6 +91,7 @@ import { Helpers, Vocabulary, Env } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
+import MoveToFolder from "../MoveToFolder.vue";
 const { IM, RDFS, RDF } = Vocabulary;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
@@ -96,6 +100,7 @@ const {
 
 export default defineComponent({
   name: "DirectoryTable",
+  components: { MoveToFolder },
   computed: {
     ...mapState(["conceptIri", "favourites"])
   },
@@ -116,6 +121,7 @@ export default defineComponent({
   data() {
     return {
       loading: false,
+      displayMoveToFolder: false,
       children: [] as any[],
       selected: {} as any,
       rClickOptions: [
@@ -138,6 +144,14 @@ export default defineComponent({
           separator: true
         },
         {
+          label: "Move to folder",
+          icon: "pi pi-fw pi-file",
+          command: () => this.toggleMoveToFolder(true)
+        },
+        {
+          separator: true
+        },
+        {
           label: "Favourite",
           icon: "pi pi-fw pi-star",
           command: () => this.updateFavourites((this.selected as any)["@id"])
@@ -151,6 +165,15 @@ export default defineComponent({
       this.loading = true;
       !this.onFavouriteView() ? await this.getChildren(this.conceptIri) : await this.getFavourites();
       this.loading = false;
+    },
+
+    onContainedInUpdate() {
+      this.displayMoveToFolder = false;
+      this.init();
+    },
+
+    toggleMoveToFolder(bool: boolean) {
+      this.displayMoveToFolder = bool;
     },
 
     onFavouriteView() {
@@ -219,6 +242,7 @@ export default defineComponent({
 
     onRowSelect(event: any) {
       this.$store.commit("updateSelectedConceptIri", event.data["@id"]);
+      this.displayMoveToFolder = false;
     },
 
     showInfo(iri: string) {
@@ -243,4 +267,5 @@ export default defineComponent({
   background-color: #e39a36 !important;
   color: #ffffff !important;
 }
+
 </style>
