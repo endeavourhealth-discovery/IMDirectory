@@ -21,7 +21,12 @@
         @click="showInfo(concept['@id'])"
         v-tooltip.left="'Show summary panel'"
       />
-      <Button icon="far fa-edit" class="p-button-secondary p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
+      <Button
+        icon="fa-solid fa-pen-to-square"
+        class="p-button-secondary p-button-outlined concept-button"
+        @click="edit(concept['@id'])"
+        v-tooltip.left="'Edit'"
+      />
       <Button
         v-if="isFavourite(concept['@id'])"
         style="color: #e39a36"

@@ -14,7 +14,7 @@
         <div class="tree-row">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
-              <font-awesome-icon :icon="slotProps.node.typeIcon" class="fa-fw"></font-awesome-icon>
+              <i :class="slotProps.node.typeIcon" class="fa-fw"></i>
             </div>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
@@ -69,7 +69,7 @@ export default defineComponent({
       }
       this.root.sort(this.byKey);
       const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
-      favNode.typeIcon = ["fas", "star"];
+      favNode.typeIcon = ["fa-solid", "fa-star"];
       favNode.color = "#e39a36";
       this.root.push(favNode);
     },
