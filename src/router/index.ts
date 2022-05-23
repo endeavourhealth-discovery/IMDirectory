@@ -96,7 +96,7 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
-      window.location.href = Env.AUTH_URL + "login?returnUrl=" + currentUrl;
+      window.location.href = Env.AUTH_URL + "#/login?returnUrl=" + currentUrl;
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
