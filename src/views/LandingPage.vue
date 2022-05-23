@@ -176,7 +176,7 @@ export default defineComponent({
     },
 
     onDoubleClick(event: any) {
-      DirectService.directTo(event.data.app, event.data.iri, this);
+      DirectService.directTo(event.data.app, event.data.iri, this, event.data.route || "concept");
     },
 
     async getCardsData(): Promise<void> {
