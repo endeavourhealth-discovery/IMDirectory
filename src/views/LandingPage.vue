@@ -127,8 +127,8 @@ export default defineComponent({
       const storedActivity: RecentActivityItem[] = Object.assign([], this.recentLocalActivity);
       for (let activity of storedActivity) {
         const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
-        activity.name = result[RDFS.LABEL];
         if (isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
+          activity.name = result[RDFS.LABEL];
           activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
         }
       }
