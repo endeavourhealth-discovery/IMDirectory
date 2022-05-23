@@ -45,7 +45,7 @@
                   v-tooltip.top="'Info'"
                 />
                 <Button
-                  icon="far fa-edit"
+                  icon="fa-solid fa-pen-to-square"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
                   @click="edit(data)"
                   v-tooltip.top="'Edit'"
@@ -127,8 +127,8 @@ export default defineComponent({
       const storedActivity: RecentActivityItem[] = Object.assign([], this.recentLocalActivity);
       for (let activity of storedActivity) {
         const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
-        activity.name = result[RDFS.LABEL];
         if (isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
+          activity.name = result[RDFS.LABEL];
           activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
         }
       }

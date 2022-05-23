@@ -24,7 +24,7 @@
     <Column field="name" header="Name">
       <template #body="{data}">
         <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-          <font-awesome-icon :icon="data.icon" />
+          <i :class="data.icon" aria-hidden="true" />
         </span>
         <span>{{ data.name }}</span>
       </template>
@@ -51,7 +51,12 @@
           @click="showInfo(data['@id'])"
           v-tooltip.top="'Info'"
         />
-        <Button icon="far fa-edit" class="p-button-rounded p-button-text p-button-plain row-button" @click="edit(data['@id'])" v-tooltip.top="'Edit'" />
+        <Button
+          icon="fa-solid fa-pen-to-square"
+          class="p-button-rounded p-button-text p-button-plain row-button"
+          @click="edit(data['@id'])"
+          v-tooltip.top="'Edit'"
+        />
         <Button
           v-if="isFavourite(data['@id'])"
           style="color: #e39a36"

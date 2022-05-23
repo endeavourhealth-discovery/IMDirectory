@@ -59,7 +59,7 @@ describe("SearchMiniOverlay.vue", () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    mockRef = { render: () => { }, methods: { show: vi.fn(), hide: vi.fn() } };
+    mockRef = { render: () => {}, methods: { show: vi.fn(), hide: vi.fn() } };
 
     docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(undefined);
@@ -83,7 +83,7 @@ describe("SearchMiniOverlay.vue", () => {
 
   it("can get perspective by concept type", () => {
     const testConceptType = [{ name: "Class", "@id": "http://www.w3.org/2002/07/owl#Class" }];
-    expect(wrapper.vm.getPerspectiveByConceptType(testConceptType)).toStrictEqual(["far", "lightbulb"]);
+    expect(wrapper.vm.getPerspectiveByConceptType(testConceptType)).toStrictEqual(["fa-solid", "fa-lightbulb"]);
   });
 
   it("can get colour by concept type", () => {

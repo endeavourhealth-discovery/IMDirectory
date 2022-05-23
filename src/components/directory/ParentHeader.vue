@@ -3,7 +3,7 @@
     <div class="title-container">
       <h4 class="title">
         <span :style="getColour(concept)" class="p-mx-1 type-icon">
-          <font-awesome-icon :icon="getIcon(concept)" />
+          <i :class="getIcon(concept)" aria-hidden="true" />
         </span>
         {{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}
       </h4>
@@ -21,7 +21,12 @@
         @click="showInfo(concept['@id'])"
         v-tooltip.left="'Show summary panel'"
       />
-      <Button icon="far fa-edit" class="p-button-secondary p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
+      <Button
+        icon="fa-solid fa-pen-to-square"
+        class="p-button-secondary p-button-outlined concept-button"
+        @click="edit(concept['@id'])"
+        v-tooltip.left="'Edit'"
+      />
       <Button
         v-if="isFavourite(concept['@id'])"
         style="color: #e39a36"

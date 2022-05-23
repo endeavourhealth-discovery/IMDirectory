@@ -47,7 +47,7 @@
         <template #body="slotProps">
           <div class="ml-2">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
-              <font-awesome-icon v-if="slotProps.data.icon" :icon="slotProps.data.icon" />
+              <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
             {{ slotProps.data.match }}
           </div>
@@ -66,7 +66,7 @@
       <Column field="code" header="Code"></Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
         <template #body="slotProps">
-          <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" />
+          <Button icon="fa-solid fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
           <Button
             v-if="slotProps.data.hasChildren"
             @click="open"
@@ -75,19 +75,37 @@
             type="button"
             class="p-button-rounded p-button-text p-button-plain row-button"
             icon="pi pi-folder-open"
+            v-tooltip.top="'Open'"
           />
-          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" />
-          <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(slotProps)" />
-
+          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" v-tooltip.top="'View'" />
+          <Button
+            icon="pi pi-fw pi-info-circle"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="showInfo(slotProps)"
+            v-tooltip.top="'Info'"
+          />
+          <Button
+            icon="fa-solid fa-pen-to-square"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="edit(slotProps)"
+            v-tooltip.top="'Edit'"
+          />
           <Button
             v-if="isFavourite(slotProps.data.iri)"
             style="color: #e39a36"
             icon="pi pi-fw pi-star-fill"
             class="p-button-rounded p-button-text row-button-fav"
             @click="updateFavourites(slotProps)"
+            v-tooltip.left="'Unfavourite'"
           />
 
-          <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(slotProps)" />
+          <Button
+            v-else
+            icon="pi pi-fw pi-star"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="updateFavourites(slotProps)"
+            v-tooltip.left="'Favourite'"
+          />
         </template>
       </Column>
     </DataTable>
@@ -310,6 +328,11 @@ export default defineComponent({
     view(row?: any) {
       if (row) this.selected = row.data;
       DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this, "concept");
+    },
+
+    edit(row?: any) {
+      if (row) this.selected = row.data;
+      DirectService.directTo(Env.EDITOR_URL, this.selected.iri, this, "editor");
     },
 
     locate(row: any) {
