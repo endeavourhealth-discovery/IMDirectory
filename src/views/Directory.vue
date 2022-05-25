@@ -1,5 +1,8 @@
 <template>
-  <div id="directory-table-container">
+  <div class="loading-container flex flex-row justify-content-center align-items-center" v-if="loading">
+    <ProgressSpinner />
+  </div>
+  <div v-else id="directory-table-container">
     <div class="header-container">
       <ParentHierarchy :conceptIri="concept['@id']" />
       <ParentHeader v-if="conceptIri !== 'http://endhealth.info/im#Favourites'" @openBar="openBar" :concept="concept" />
@@ -37,7 +40,8 @@ export default defineComponent({
 
   data() {
     return {
-      concept: {} as any
+      concept: {} as any,
+      loading: true
     };
   },
   async mounted() {
@@ -45,7 +49,9 @@ export default defineComponent({
   },
   methods: {
     async init() {
+      this.loading = true;
       this.concept = await EntityService.getPartialEntity(this.conceptIri, []);
+      this.loading = false;
     },
 
     openBar() {
@@ -55,6 +61,11 @@ export default defineComponent({
 });
 </script>
 <style scoped>
+.loading-container {
+  height: 100%;
+  width: 100%;
+}
+
 #directory-table-container {
   height: 100%;
   width: 100%;

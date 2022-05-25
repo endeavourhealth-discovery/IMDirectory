@@ -2,7 +2,7 @@
   <div class="title-buttons-container">
     <div class="title-container">
       <h4 class="title">
-        <span :style="getColour(concept)" class="p-mx-1 type-icon">
+        <span :style="getColour(concept)" class="p-mx-1 type-icon" key="type-icon">
           <i :class="getIcon(concept)" aria-hidden="true" />
         </span>
         {{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}
@@ -70,7 +70,7 @@ export default defineComponent({
     },
 
     getIcon(concept: any) {
-      if (concept["@id"] === IM.NAMESPACE + "Favourites") return ["fas", "star"];
+      if (concept["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
       return getFAIconFromType(concept[RDF.TYPE]);
     },
 
