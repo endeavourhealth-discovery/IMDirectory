@@ -2,7 +2,7 @@
   <div class="title-buttons-container">
     <div class="title-container">
       <h4 class="title">
-        <span :style="getColour(concept)" class="p-mx-1 type-icon" key="type-icon">
+        <span :style="getColour(concept)" class="p-mx-1 type-icon" :key="concept['@id']">
           <i :class="getIcon(concept)" aria-hidden="true" />
         </span>
         {{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}
@@ -59,8 +59,8 @@ const {
 
 export default defineComponent({
   name: "ParentHeader",
-  emits: ["openBar"],
-  props: ["concept"],
+  emits: { openBar: () => true },
+  props: { concept: { type: Object as any, required: true } },
   computed: {
     ...mapState(["favourites"])
   },
