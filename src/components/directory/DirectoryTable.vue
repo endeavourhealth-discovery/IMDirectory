@@ -8,10 +8,14 @@
     :scrollable="true"
     scrollHeight="flex"
     :loading="loading"
+    :lazy="true"
+    :paginator="true"
+    :rows="pageSize"
     contextMenu
     @rowContextmenu="onRowContextMenu"
     @row-dblclick="onRowDblClick"
     @row-select="onRowSelect"
+    @page="onPage($event)"
   >
     <template #loading>
       Loading data. Please wait.
@@ -76,7 +80,6 @@
       </template>
     </Column>
   </DataTable>
-
   <ContextMenu ref="menu" :model="rClickOptions" />
 </template>
 
@@ -142,7 +145,11 @@ export default defineComponent({
           icon: "pi pi-fw pi-star",
           command: () => this.updateFavourites((this.selected as any)["@id"])
         }
-      ]
+      ],
+      totalCount: 0,
+      nextPage: 2,
+      pageSize: 50,
+      loadButtonVisible: false
     };
   },
 
@@ -174,7 +181,9 @@ export default defineComponent({
     },
 
     async getChildren(iri: string) {
-      this.children = await EntityService.getEntityChildren(iri);
+      const result = await EntityService.getChildrenAndTotalCount(iri, 1, this.pageSize);
+      this.children = result.result;
+      this.totalCount = result.totalCount;
       this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
     },
 
@@ -224,6 +233,27 @@ export default defineComponent({
     showInfo(iri: string) {
       this.$store.commit("updateSelectedConceptIri", iri);
       this.$emit("openBar");
+    },
+
+    async loadMore() {
+      if (this.loadButtonVisible) {
+        if (this.nextPage * this.pageSize < this.totalCount) {
+          const result = await EntityService.getChildrenAndTotalCount(this.conceptIri, this.nextPage, this.pageSize);
+          this.children = this.children.concat(result.result);
+          this.nextPage = this.nextPage + 1;
+          this.loadButtonVisible = true;
+        } else if (this.nextPage * this.pageSize > this.totalCount) {
+          const result = await EntityService.getChildrenAndTotalCount(this.conceptIri, this.nextPage, this.pageSize);
+          this.children = this.children.concat(result.result);
+          this.loadButtonVisible = false;
+        } else {
+          this.loadButtonVisible = false;
+        }
+      }
+    },
+
+    onPage(event: any) {
+      console.log(event);
     }
   }
 });
