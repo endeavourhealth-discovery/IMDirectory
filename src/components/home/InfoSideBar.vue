@@ -29,7 +29,7 @@
                 <ProgressSpinner />
               </div>
               <div v-else class="concept-panel-content" id="definition-container" :style="contentHeight">
-                <Definition :concept="concept" :configs="configs" :totalCount="totalCount" />
+                <Definition :concept="concept" :configs="configs" />
               </div>
             </TabPanel>
             <TabPanel v-if="terms" header="Terms">
@@ -120,9 +120,7 @@ export default defineComponent({
       conceptAsString: "",
       terms: [] as any[] | undefined,
       profile: {} as Models.Query.Profile,
-      isQuery: false,
-      children: {} as any,
-      totalCount: 0
+      isQuery: false
     };
   },
   methods: {
@@ -159,17 +157,15 @@ export default defineComponent({
       this.concept = await EntityService.getPartialEntity(iri, predicates);
 
       this.concept["@id"] = iri;
-      this.children = await EntityService.getChildrenAndTotalCount(iri,1,10);
-      this.totalCount = this.children["totalCount"];
-      this.concept["subtypes"] = this.children.result;
-
+      const result = await EntityService.getChildrenAndTotalCount(iri, 1, 10);
+      this.concept["subtypes"] = { children: result.result, totalCount: result.totalCount, loadMore: this.loadMore };
       this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
 
       await this.hydrateDefinition();
 
-      if(isQuery(this.concept[RDF.TYPE])) {
-      this.isQuery = true;
-      this.profile = new Models.Query.Profile(this.concept);
+      if (isQuery(this.concept[RDF.TYPE])) {
+        this.isQuery = true;
+        this.profile = new Models.Query.Profile(this.concept);
       } else {
         this.isQuery = false;
         this.profile = {} as Models.Query.Profile;
@@ -262,6 +258,24 @@ export default defineComponent({
         this.contentHeight = "height: " + calcHeight + ";" + "max-height: " + calcHeight + ";";
         this.contentHeightValue = parseInt(calcHeight, 10);
       }
+    },
+
+    async loadMore(children: any[], totalCount: number, nextPage: number, pageSize: number, loadButton: boolean, iri: string) {
+      if (loadButton) {
+        if (nextPage * pageSize < totalCount) {
+          const result = await EntityService.getChildrenAndTotalCount(iri, nextPage, pageSize);
+          children = children.concat(result.result);
+          nextPage = nextPage + 1;
+          loadButton = true;
+        } else if (nextPage * pageSize > totalCount) {
+          const result = await EntityService.getChildrenAndTotalCount(iri, nextPage, pageSize);
+          children = children.concat(result.result);
+          loadButton = false;
+        } else {
+          loadButton = false;
+        }
+      }
+      return { children: children, totalCount: totalCount, nextPage: nextPage, pageSize: pageSize, loadButton: loadButton, iri: iri };
     }
   }
 });
