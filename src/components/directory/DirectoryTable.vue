@@ -9,8 +9,9 @@
     scrollHeight="flex"
     :loading="loading"
     :lazy="true"
-    :paginator="true"
+    :paginator="totalCount > pageSize ? true : false"
     :rows="pageSize"
+    :totalRecords="totalCount"
     contextMenu
     @rowContextmenu="onRowContextMenu"
     @row-dblclick="onRowDblClick"
@@ -148,8 +149,7 @@ export default defineComponent({
       ],
       totalCount: 0,
       nextPage: 2,
-      pageSize: 50,
-      loadButtonVisible: false
+      pageSize: 50
     };
   },
 
@@ -181,7 +181,7 @@ export default defineComponent({
     },
 
     async getChildren(iri: string) {
-      const result = await EntityService.getChildrenAndTotalCount(iri, 1, this.pageSize);
+      const result = await EntityService.getPagedChildren(iri, 1, this.pageSize);
       this.children = result.result;
       this.totalCount = result.totalCount;
       this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
@@ -236,24 +236,15 @@ export default defineComponent({
     },
 
     async loadMore() {
-      if (this.loadButtonVisible) {
-        if (this.nextPage * this.pageSize < this.totalCount) {
-          const result = await EntityService.getChildrenAndTotalCount(this.conceptIri, this.nextPage, this.pageSize);
-          this.children = this.children.concat(result.result);
-          this.nextPage = this.nextPage + 1;
-          this.loadButtonVisible = true;
-        } else if (this.nextPage * this.pageSize > this.totalCount) {
-          const result = await EntityService.getChildrenAndTotalCount(this.conceptIri, this.nextPage, this.pageSize);
-          this.children = this.children.concat(result.result);
-          this.loadButtonVisible = false;
-        } else {
-          this.loadButtonVisible = false;
-        }
-      }
+      this.loading = true;
+      const result = await EntityService.getPagedChildren(this.conceptIri, this.nextPage, this.pageSize);
+      this.children = result.result;
+      this.loading = false;
     },
 
-    onPage(event: any) {
-      console.log(event);
+    async onPage(event: any) {
+      this.nextPage = event.page + 1;
+      await this.loadMore();
     }
   }
 });
