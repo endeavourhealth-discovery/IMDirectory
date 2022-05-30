@@ -187,15 +187,9 @@ export default class EntityService {
     }
   }
 
-  public static async getChildrenAndTotalCount(
-    iri: string,
-    pageIndex: number,
-    pageSize: number,
-    filters?: FiltersAsIris,
-    cancelToken?: CancelToken
-  ): Promise<any> {
+  public static async getPagedChildren(iri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, cancelToken?: CancelToken): Promise<any> {
     try {
-      return await axios.get(Env.API + "api/entity/public/childrenAndTotalCount", {
+      return await axios.get(Env.API + "api/entity/public/childrenPaged", {
         params: { iri: iri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
         cancelToken: cancelToken
       });

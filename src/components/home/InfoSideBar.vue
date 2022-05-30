@@ -60,7 +60,7 @@ import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
 import ConfigService from "@/services/ConfigService";
-import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, LoggerService, Models } from "im-library";
 import { mapState } from "vuex";
 const { IM, RDF, RDFS } = Vocabulary;
@@ -157,8 +157,11 @@ export default defineComponent({
       this.concept = await EntityService.getPartialEntity(iri, predicates);
 
       this.concept["@id"] = iri;
-      const result = await EntityService.getChildrenAndTotalCount(iri, 1, 10);
-      this.concept["subtypes"] = { children: result.result, totalCount: result.totalCount, loadMore: this.loadMore };
+      const result = await EntityService.getPagedChildren(iri, 1, 10);
+      const subtypes = result.result.map((child: EntityReferenceNode) => {
+        return { "@id": child["@id"], name: child.name };
+      });
+      this.concept["subtypes"] = { children: subtypes, totalCount: result.totalCount, loadMore: this.loadMore };
       this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
 
       await this.hydrateDefinition();
@@ -263,13 +266,19 @@ export default defineComponent({
     async loadMore(children: any[], totalCount: number, nextPage: number, pageSize: number, loadButton: boolean, iri: string) {
       if (loadButton) {
         if (nextPage * pageSize < totalCount) {
-          const result = await EntityService.getChildrenAndTotalCount(iri, nextPage, pageSize);
-          children = children.concat(result.result);
+          const result = await EntityService.getPagedChildren(iri, nextPage, pageSize);
+          const resultChildren = result.result.map((child: EntityReferenceNode) => {
+            return { "@id": child["@id"], name: child.name };
+          });
+          children = children.concat(resultChildren);
           nextPage = nextPage + 1;
           loadButton = true;
         } else if (nextPage * pageSize > totalCount) {
-          const result = await EntityService.getChildrenAndTotalCount(iri, nextPage, pageSize);
-          children = children.concat(result.result);
+          const result = await EntityService.getPagedChildren(iri, nextPage, pageSize);
+          const resultChildren = result.result.map((child: EntityReferenceNode) => {
+            return { "@id": child["@id"], name: child.name };
+          });
+          children = children.concat(resultChildren);
           loadButton = false;
         } else {
           loadButton = false;

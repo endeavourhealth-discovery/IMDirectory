@@ -8,10 +8,15 @@
     :scrollable="true"
     scrollHeight="flex"
     :loading="loading"
+    :lazy="true"
+    :paginator="totalCount > pageSize ? true : false"
+    :rows="pageSize"
+    :totalRecords="totalCount"
     contextMenu
     @rowContextmenu="onRowContextMenu"
     @row-dblclick="onRowDblClick"
     @row-select="onRowSelect"
+    @page="onPage($event)"
   >
     <template #loading>
       Loading data. Please wait.
@@ -76,7 +81,6 @@
       </template>
     </Column>
   </DataTable>
-
   <ContextMenu ref="menu" :model="rClickOptions" />
 </template>
 
@@ -142,7 +146,10 @@ export default defineComponent({
           icon: "pi pi-fw pi-star",
           command: () => this.updateFavourites((this.selected as any)["@id"])
         }
-      ]
+      ],
+      totalCount: 0,
+      nextPage: 2,
+      pageSize: 50
     };
   },
 
@@ -174,7 +181,9 @@ export default defineComponent({
     },
 
     async getChildren(iri: string) {
-      this.children = await EntityService.getEntityChildren(iri);
+      const result = await EntityService.getPagedChildren(iri, 1, this.pageSize);
+      this.children = result.result;
+      this.totalCount = result.totalCount;
       this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
     },
 
@@ -224,6 +233,18 @@ export default defineComponent({
     showInfo(iri: string) {
       this.$store.commit("updateSelectedConceptIri", iri);
       this.$emit("openBar");
+    },
+
+    async loadMore() {
+      this.loading = true;
+      const result = await EntityService.getPagedChildren(this.conceptIri, this.nextPage, this.pageSize);
+      this.children = result.result;
+      this.loading = false;
+    },
+
+    async onPage(event: any) {
+      this.nextPage = event.page + 1;
+      await this.loadMore();
     }
   }
 });
