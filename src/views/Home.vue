@@ -22,11 +22,7 @@
 import { defineComponent } from "vue";
 import NavTree from "@/components/home/NavTree.vue";
 import InfoSideBar from "@/components/home/InfoSideBar.vue";
-import { Helpers } from "im-library";
 import { mapState } from "vuex";
-const {
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
 
 export default defineComponent({
   name: "Home",
@@ -38,7 +34,7 @@ export default defineComponent({
 
   data() {
     return {
-      visibleRight: false,
+      visibleRight: true,
       selectedIri: ""
     };
   }
@@ -54,6 +50,7 @@ export default defineComponent({
 #info-side-bar-wrapper {
   transition: 0.5s;
   width: 40%;
+  height: 100%;
 }
 
 .splitter-right {

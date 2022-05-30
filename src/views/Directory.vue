@@ -63,12 +63,12 @@ export default defineComponent({
 <style scoped>
 .loading-container {
   height: 100%;
-  width: 100%;
+  flex: 1 1 auto;
 }
 
 #directory-table-container {
+  flex: 1 1 auto;
   height: 100%;
-  width: 100%;
   display: flex;
   flex-flow: column nowrap;
 }
