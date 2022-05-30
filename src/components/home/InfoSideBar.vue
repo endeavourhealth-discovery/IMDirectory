@@ -159,7 +159,7 @@ export default defineComponent({
       this.concept["@id"] = iri;
       const result = await EntityService.getPagedChildren(iri, 1, 10);
       const subtypes = result.result.map((child: EntityReferenceNode) => {
-        return { iri: child["@id"], name: child.name };
+        return { "@id": child["@id"], name: child.name };
       });
       this.concept["subtypes"] = { children: subtypes, totalCount: result.totalCount, loadMore: this.loadMore };
       this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
@@ -268,7 +268,7 @@ export default defineComponent({
         if (nextPage * pageSize < totalCount) {
           const result = await EntityService.getPagedChildren(iri, nextPage, pageSize);
           const resultChildren = result.result.map((child: EntityReferenceNode) => {
-            return { iri: child["@id"], name: child.name };
+            return { "@id": child["@id"], name: child.name };
           });
           children = children.concat(resultChildren);
           nextPage = nextPage + 1;
@@ -276,7 +276,7 @@ export default defineComponent({
         } else if (nextPage * pageSize > totalCount) {
           const result = await EntityService.getPagedChildren(iri, nextPage, pageSize);
           const resultChildren = result.result.map((child: EntityReferenceNode) => {
-            return { iri: child["@id"], name: child.name };
+            return { "@id": child["@id"], name: child.name };
           });
           children = children.concat(resultChildren);
           loadButton = false;
