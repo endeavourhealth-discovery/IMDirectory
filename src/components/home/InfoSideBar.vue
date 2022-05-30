@@ -4,17 +4,13 @@
       <div class="title">
         <span>Please select an item to display</span>
       </div>
-      <button class="header-close-icon p-link mr-2" @click="closeBar">
-        <span class="pi pi-times"></span>
-      </button>
+      <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
     </div>
   </div>
   <div id="concept-main-container" v-else>
     <div class="header">
       <PanelHeader :types="types" :header="header" />
-      <button class="header-close-icon p-link mr-2" @click="closeBar">
-        <span class="pi pi-times"></span>
-      </button>
+      <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
     </div>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
@@ -284,25 +280,14 @@ export default defineComponent({
   background: #f8f9fa;
   color: #495057;
   display: flex;
+  justify-content: space-between;
 }
 
-.header-close-icon {
-  width: 4rem;
-  height: 2rem;
-  color: #6c757d;
-  border: 0 none;
-  background: transparent;
-  border-radius: 50%;
-  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  text-decoration: none;
-  overflow: hidden;
-  position: relative;
+.header-close-button {
+  flex: 0 1 auto;
 }
 
-.header-close-icon:hover {
+.header-close-button:hover {
   background-color: #6c757d !important;
   color: #ffffff !important;
 }
