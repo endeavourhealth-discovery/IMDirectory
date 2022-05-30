@@ -1,56 +1,45 @@
 <template>
   <div id="concept-empty-container" v-if="selectedConceptIri === 'http://endhealth.info/im#Favourites'">
-    <Panel>
-      <template #icons>
-        <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
-          <span class="pi pi-times"></span>
-        </button>
-      </template>
-      <template #header>
-        Please select an item to display
-      </template>
-    </Panel>
+    <div class="header">
+      <div class="title">
+        <span>Please select an item to display</span>
+      </div>
+      <button class="header-close-icon p-link mr-2" @click="closeBar">
+        <span class="pi pi-times"></span>
+      </button>
+    </div>
   </div>
   <div id="concept-main-container" v-else>
-    <Panel>
-      <template #icons>
-        <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
-          <span class="pi pi-times"></span>
-        </button>
-      </template>
-      <template #header>
-        <PanelHeader :types="types" :header="header" />
-      </template>
-      <div id="concept-content-dialogs-container">
-        <div id="concept-panel-container">
-          <TabView :lazy="true">
-            <TabPanel header="Details">
-              <div v-if="loading" class="loading-container" :style="contentHeight">
-                <ProgressSpinner />
-              </div>
-              <div v-else class="concept-panel-content" id="definition-container" :style="contentHeight">
-                <Definition :concept="concept" :configs="configs" />
-              </div>
-            </TabPanel>
-            <TabPanel v-if="terms" header="Terms">
-              <div class="concept-panel-content" id="term-table-container" :style="contentHeight">
-                <TermCodeTable :terms="terms" />
-              </div>
-            </TabPanel>
-            <TabPanel header="Hierarchy position">
-              <div class="concept-panel-content" id="secondary-tree-container" :style="contentHeight">
-                <SecondaryTree :conceptIri="selectedConceptIri" />
-              </div>
-            </TabPanel>
-            <TabPanel v-if="isQuery" header="Query">
-              <div class="concept-panel-content" id="query-container" :style="contentHeight">
-                <ProfileDisplay theme="light" :modelValue="profile" :activeProfile="activeProfile" />
-              </div>
-            </TabPanel>
-          </TabView>
-        </div>
+    <div class="header">
+      <PanelHeader :types="types" :header="header" />
+      <button class="header-close-icon p-link mr-2" @click="closeBar">
+        <span class="pi pi-times"></span>
+      </button>
+    </div>
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
+    </div>
+    <div v-else id="concept-content-dialogs-container">
+      <div id="concept-panel-container">
+        <TabView :lazy="true">
+          <TabPanel header="Details">
+            <div v-if="isObjectHasKeysWrapper(concept)" class="concept-panel-content" id="definition-container">
+              <Definition :concept="concept" :configs="configs" />
+            </div>
+          </TabPanel>
+          <TabPanel v-if="terms" header="Terms">
+            <div class="concept-panel-content" id="term-table-container">
+              <TermCodeTable :terms="terms" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Hierarchy position">
+            <div class="concept-panel-content" id="secondary-tree-container">
+              <SecondaryTree :conceptIri="selectedConceptIri" />
+            </div>
+          </TabPanel>
+        </TabView>
       </div>
-    </Panel>
+    </div>
   </div>
 </template>
 
@@ -99,13 +88,10 @@ export default defineComponent({
     }
   },
   async mounted() {
-    this.setContentHeight();
-    window.addEventListener("resize", this.onResize);
+    if (!this.selectedConceptIri && this.conceptIri) {
+      this.$store.commit("updateSelectedConceptIri", this.conceptIri);
+    }
     await this.init();
-    this.setContentHeight();
-  },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.onResize);
   },
   data() {
     return {
@@ -114,8 +100,6 @@ export default defineComponent({
       definitionText: "",
       types: [] as TTIriRef[],
       header: "",
-      contentHeight: "",
-      contentHeightValue: 0,
       configs: [] as DefinitionConfig[],
       conceptAsString: "",
       terms: [] as any[] | undefined,
@@ -126,9 +110,6 @@ export default defineComponent({
   methods: {
     closeBar() {
       this.$emit("closeBar");
-    },
-    onResize(): void {
-      this.setContentHeight();
     },
 
     directToEditRoute(): void {
@@ -164,16 +145,9 @@ export default defineComponent({
       this.concept["subtypes"] = { children: subtypes, totalCount: result.totalCount, loadMore: this.loadMore };
       this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
 
-      await this.hydrateDefinition();
-
-      if (isQuery(this.concept[RDF.TYPE])) {
-        this.isQuery = true;
-        this.profile = new Models.Query.Profile(this.concept);
-      } else {
-        this.isQuery = false;
-        this.profile = {} as Models.Query.Profile;
-      }
+      // await this.hydrateDefinition();
     },
+
     async hydrateDefinition() {
       if (this.concept[IM.DEFINITION]) {
         const def = this.concept[IM.DEFINITION];
@@ -185,9 +159,9 @@ export default defineComponent({
         this.concept[IM.DEFINITION] = JSON.stringify(def);
       }
     },
+
     getIris(def: any): string[] {
       const result = [];
-
       for (const k of Object.keys(def)) {
         if (def[k]["@id"]) {
           result.push(def[k]);
@@ -198,6 +172,7 @@ export default defineComponent({
 
       return result;
     },
+
     setIriNames(iris: TTIriRef[], ttIris: TTIriRef[]) {
       for (const i of iris) {
         const match = ttIris.find(t => t["@id"] === i["@id"]);
@@ -206,6 +181,7 @@ export default defineComponent({
         }
       }
     },
+
     async getInferred(iri: string): Promise<void> {
       const result = await EntityService.getDefinitionBundle(iri);
       if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
@@ -252,17 +228,6 @@ export default defineComponent({
         : undefined;
     },
 
-    setContentHeight(): void {
-      const calcHeight = getContainerElementOptimalHeight("concept-main-container", ["p-panel-header", "p-tabview-nav-container"], true, 4, 1);
-      if (!calcHeight.length) {
-        this.contentHeight = "height: 700px; max-height: 700px;";
-        this.contentHeightValue = 800;
-      } else {
-        this.contentHeight = "height: " + calcHeight + ";" + "max-height: " + calcHeight + ";";
-        this.contentHeightValue = parseInt(calcHeight, 10);
-      }
-    },
-
     async loadMore(children: any[], totalCount: number, nextPage: number, pageSize: number, loadButton: boolean, iri: string) {
       if (loadButton) {
         if (nextPage * pageSize < totalCount) {
@@ -285,6 +250,10 @@ export default defineComponent({
         }
       }
       return { children: children, totalCount: totalCount, nextPage: nextPage, pageSize: pageSize, loadButton: loadButton, iri: iri };
+    },
+
+    isObjectHasKeysWrapper(object: any) {
+      return isObjectHasKeys(object);
     }
   }
 });
@@ -293,10 +262,77 @@ export default defineComponent({
 #concept-main-container {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  border-left: 1px solid #dee2e6;
 }
 
-.p-tabview-panel {
-  min-height: 100%;
+#concept-empty-container {
+  height: 100%;
+  width: 100%;
+  border-left: 1px solid #dee2e6;
+}
+
+.loading-container {
+  height: 100%;
+  width: 100%;
+}
+
+.header {
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem;
+  background: #f8f9fa;
+  color: #495057;
+  display: flex;
+}
+
+.header-close-icon {
+  width: 4rem;
+  height: 2rem;
+  color: #6c757d;
+  border: 0 none;
+  background: transparent;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  overflow: hidden;
+  position: relative;
+}
+
+.header-close-icon:hover {
+  background-color: #6c757d !important;
+  color: #ffffff !important;
+}
+
+#concept-content-dialogs-container {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#concept-panel-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.p-tabview {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabview-panels) {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabview-panel) {
+  height: 100%;
+  overflow: auto;
 }
 
 .p-panel {
@@ -310,6 +346,7 @@ export default defineComponent({
   height: 100%;
   overflow: auto;
   background-color: #ffffff;
+  display: flex;
 }
 
 .copy-container {
