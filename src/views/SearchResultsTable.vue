@@ -49,63 +49,69 @@
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
               <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
-            {{ slotProps.data.match }}
+            <span class="break-all">{{ slotProps.data.match }}</span>
           </div>
         </template>
       </Column>
       <Column field="entityType" header="Types">
         <template #body="slotProps">
-          {{ slotProps.data.typeNames }}
+          <span class="break-all">{{ slotProps.data.typeNames }}</span>
         </template>
       </Column>
       <Column field="status" header="Status">
         <template #body="slotProps">
-          {{ slotProps.data.status?.name }}
+          <span>{{ slotProps.data.status?.name }}</span>
         </template>
       </Column>
-      <Column field="code" header="Code"></Column>
+      <Column field="code" header="Code">
+        <template #body="slotProps">
+          <span class="break-all">{{ slotProps.data.code }}</span>
+        </template>
+      </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
         <template #body="slotProps">
-          <Button icon="fa-solid fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
-          <Button
-            v-if="slotProps.data.hasChildren"
-            @click="open"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
-            type="button"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            icon="pi pi-folder-open"
-            v-tooltip.top="'Open'"
-          />
-          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" v-tooltip.top="'View'" />
-          <Button
-            icon="pi pi-fw pi-info-circle"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            @click="showInfo(slotProps)"
-            v-tooltip.top="'Info'"
-          />
-          <Button
-            icon="fa-solid fa-pen-to-square"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            @click="edit(slotProps)"
-            v-tooltip.top="'Edit'"
-          />
-          <Button
-            v-if="isFavourite(slotProps.data.iri)"
-            style="color: #e39a36"
-            icon="pi pi-fw pi-star-fill"
-            class="p-button-rounded p-button-text row-button-fav"
-            @click="updateFavourites(slotProps)"
-            v-tooltip.left="'Unfavourite'"
-          />
+          <div class="buttons-container">
+            <Button icon="fa-solid fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
+            <Button
+              v-if="slotProps.data.hasChildren"
+              @click="open"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              type="button"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              icon="pi pi-folder-open"
+              v-tooltip.top="'Open'"
+            />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" v-tooltip.top="'View'" />
+            <Button
+              icon="pi pi-fw pi-info-circle"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="showInfo(slotProps)"
+              v-tooltip.top="'Info'"
+            />
+            <Button
+              icon="fa-solid fa-pen-to-square"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="edit(slotProps)"
+              v-tooltip.top="'Edit'"
+            />
+            <Button
+              v-if="isFavourite(slotProps.data.iri)"
+              style="color: #e39a36"
+              icon="pi pi-fw pi-star-fill"
+              class="p-button-rounded p-button-text row-button-fav"
+              @click="updateFavourites(slotProps)"
+              v-tooltip.left="'Unfavourite'"
+            />
 
-          <Button
-            v-else
-            icon="pi pi-fw pi-star"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            @click="updateFavourites(slotProps)"
-            v-tooltip.left="'Favourite'"
-          />
+            <Button
+              v-else
+              icon="pi pi-fw pi-star"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="updateFavourites(slotProps)"
+              v-tooltip.left="'Favourite'"
+            />
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -385,6 +391,18 @@ label {
 .p-datatable {
   flex: 1 1 auto;
   overflow: auto;
+}
+
+.buttons-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  row-gap: 0.5rem;
+}
+
+.break-all {
+  word-break: break-all;
 }
 
 .row-button:hover {

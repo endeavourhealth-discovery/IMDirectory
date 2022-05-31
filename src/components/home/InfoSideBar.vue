@@ -1,39 +1,41 @@
 <template>
-  <div id="concept-empty-container" v-if="selectedConceptIri === 'http://endhealth.info/im#Favourites'">
-    <div class="header">
-      <div class="title">
-        <span>Please select an item to display</span>
+  <div id="info-side-bar-wrapper" v-if="visible">
+    <div id="concept-empty-container" v-if="selectedConceptIri === 'http://endhealth.info/im#Favourites'">
+      <div class="header">
+        <div class="title">
+          <span>Please select an item to display</span>
+        </div>
+        <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
       </div>
-      <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
     </div>
-  </div>
-  <div id="concept-main-container" v-else>
-    <div class="header">
-      <PanelHeader :types="types" :header="header" />
-      <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
-    </div>
-    <div v-if="loading" class="loading-container">
-      <ProgressSpinner />
-    </div>
-    <div v-else id="concept-content-dialogs-container">
-      <div id="concept-panel-container">
-        <TabView :lazy="true">
-          <TabPanel header="Details">
-            <div v-if="isObjectHasKeysWrapper(concept)" class="concept-panel-content" id="definition-container">
-              <Definition :concept="concept" :configs="configs" />
-            </div>
-          </TabPanel>
-          <TabPanel v-if="terms" header="Terms">
-            <div class="concept-panel-content" id="term-table-container">
-              <TermCodeTable :terms="terms" />
-            </div>
-          </TabPanel>
-          <TabPanel header="Hierarchy position">
-            <div class="concept-panel-content" id="secondary-tree-container">
-              <SecondaryTree :conceptIri="selectedConceptIri" />
-            </div>
-          </TabPanel>
-        </TabView>
+    <div id="concept-main-container" v-else>
+      <div class="header">
+        <PanelHeader :types="types" :header="header" />
+        <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
+      </div>
+      <div v-if="loading" class="loading-container">
+        <ProgressSpinner />
+      </div>
+      <div v-else id="concept-content-dialogs-container">
+        <div id="concept-panel-container">
+          <TabView :lazy="true">
+            <TabPanel header="Details">
+              <div v-if="isObjectHasKeysWrapper(concept)" class="concept-panel-content" id="definition-container">
+                <Definition :concept="concept" :configs="configs" />
+              </div>
+            </TabPanel>
+            <TabPanel v-if="terms" header="Terms">
+              <div class="concept-panel-content" id="term-table-container">
+                <TermCodeTable :terms="terms" />
+              </div>
+            </TabPanel>
+            <TabPanel header="Hierarchy position">
+              <div class="concept-panel-content" id="secondary-tree-container">
+                <SecondaryTree :conceptIri="selectedConceptIri" />
+              </div>
+            </TabPanel>
+          </TabView>
+        </div>
       </div>
     </div>
   </div>
@@ -73,7 +75,7 @@ export default defineComponent({
     PanelHeader,
     Definition
   },
-
+  props: { visible: { type: Boolean, required: true } },
   watch: {
     async conceptIri() {
       if (this.conceptIri) this.$store.commit("updateSelectedConceptIri", this.conceptIri);
@@ -255,6 +257,12 @@ export default defineComponent({
 });
 </script>
 <style scoped>
+#info-side-bar-wrapper {
+  transition: 0.5s;
+  flex: 0 0 40%;
+  height: 100%;
+}
+
 #concept-main-container {
   height: 100%;
   width: 100%;
@@ -275,6 +283,7 @@ export default defineComponent({
 }
 
 .header {
+  width: 100%;
   border-bottom: 1px solid #dee2e6;
   padding: 1rem;
   background: #f8f9fa;
