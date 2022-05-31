@@ -4,15 +4,9 @@
       <NavTree />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto;">
-      <div class="splitter-right" v-if="visibleRight">
-        <router-view @openBar="visibleRight = true" />
-        <div id="info-side-bar-wrapper" v-if="visibleRight">
-          <InfoSideBar @closeBar="visibleRight = false" />
-        </div>
-      </div>
-
-      <div class="splitter-right" v-else>
+      <div class="splitter-right">
         <router-view @openBar="visibleRight = true" @closeBar="visibleRight = false" />
+        <InfoSideBar :visible="visibleRight" @closeBar="visibleRight = false" />
       </div>
     </SplitterPanel>
   </Splitter>
@@ -45,12 +39,6 @@ export default defineComponent({
 .p-splitter {
   height: 100%;
   width: 100%;
-}
-
-#info-side-bar-wrapper {
-  transition: 0.5s;
-  width: 40%;
-  height: 100%;
 }
 
 .splitter-right {

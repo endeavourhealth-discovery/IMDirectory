@@ -35,49 +35,53 @@
       </template>
     </Column>
     <Column field="type" header="Type">
-      <template #body="{data}"> {{ getTypesDisplay(data.type) }}</template>
-    </Column>
-    <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
       <template #body="{data}">
-        <Button
-          v-if="data.hasChildren"
-          @click="open(data['@id'])"
-          aria-haspopup="true"
-          aria-controls="overlay_menu"
-          type="button"
-          class="p-button-rounded p-button-text p-button-plain row-button"
-          icon="pi pi-folder-open"
-          v-tooltip.top="'Open'"
-        />
-        <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data['@id'])" v-tooltip.top="'View'" />
-        <Button
-          icon="pi pi-fw pi-info-circle"
-          class="p-button-rounded p-button-text p-button-plain row-button"
-          @click="showInfo(data['@id'])"
-          v-tooltip.top="'Info'"
-        />
-        <Button
-          icon="fa-solid fa-pen-to-square"
-          class="p-button-rounded p-button-text p-button-plain row-button"
-          @click="edit(data['@id'])"
-          v-tooltip.top="'Edit'"
-        />
-        <Button
-          v-if="isFavourite(data['@id'])"
-          style="color: #e39a36"
-          icon="pi pi-fw pi-star-fill"
-          class="p-button-rounded p-button-text row-button-fav"
-          @click="updateFavourites(data['@id'])"
-          v-tooltip.left="'Unfavourite'"
-        />
+        <span>{{ getTypesDisplay(data.type) }}</span>
+      </template>
+    </Column>
+    <Column :exportable="false">
+      <template #body="{data}">
+        <div class="buttons-container">
+          <Button
+            v-if="data.hasChildren"
+            @click="open(data['@id'])"
+            aria-haspopup="true"
+            aria-controls="overlay_menu"
+            type="button"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            icon="pi pi-folder-open"
+            v-tooltip.top="'Open'"
+          />
+          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data['@id'])" v-tooltip.top="'View'" />
+          <Button
+            icon="pi pi-fw pi-info-circle"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="showInfo(data['@id'])"
+            v-tooltip.top="'Info'"
+          />
+          <Button
+            icon="fa-solid fa-pen-to-square"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="edit(data['@id'])"
+            v-tooltip.top="'Edit'"
+          />
+          <Button
+            v-if="isFavourite(data['@id'])"
+            style="color: #e39a36"
+            icon="pi pi-fw pi-star-fill"
+            class="p-button-rounded p-button-text row-button-fav"
+            @click="updateFavourites(data['@id'])"
+            v-tooltip.left="'Unfavourite'"
+          />
 
-        <Button
-          v-else
-          icon="pi pi-fw pi-star"
-          class="p-button-rounded p-button-text p-button-plain row-button"
-          @click="updateFavourites(data['@id'])"
-          v-tooltip.left="'Favourite'"
-        />
+          <Button
+            v-else
+            icon="pi pi-fw pi-star"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="updateFavourites(data['@id'])"
+            v-tooltip.left="'Favourite'"
+          />
+        </div>
       </template>
     </Column>
   </DataTable>
@@ -251,6 +255,14 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.buttons-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  row-gap: 0.5rem;
+}
+
 .type-icon {
   padding-right: 0.5rem;
 }
