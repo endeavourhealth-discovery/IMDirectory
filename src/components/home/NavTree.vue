@@ -11,7 +11,7 @@
       :loading="loading"
     >
       <template #default="slotProps">
-        <div class="tree-row">
+        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node.data)" @mouseleave="hideOverlay($event)">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
               <i :class="slotProps.node.typeIcon" class="fa-fw"></i>
@@ -22,6 +22,39 @@
         </div>
       </template>
     </Tree>
+
+    <OverlayPanel ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem;">
+        <div class="left-side" style="width: 50%">
+          <p>
+            <strong>Name: </strong>
+            <span>{{ hoveredResult.name }}</span>
+          </p>
+          <p>
+            <strong>Iri: </strong>
+            <span style="word-break:break-all;">{{ hoveredResult.iri }}</span>
+          </p>
+          <p v-if="hoveredResult.code">
+            <strong>Code: </strong>
+            <span>{{ hoveredResult.code }}</span>
+          </p>
+        </div>
+        <div class="right-side" style="width: 50%">
+          <p v-if="hoveredResult.status">
+            <strong>Status: </strong>
+            <span>{{ hoveredResult.status.name }}</span>
+          </p>
+          <p v-if="hoveredResult.scheme">
+            <strong>Scheme: </strong>
+            <span>{{ hoveredResult.scheme.name }}</span>
+          </p>
+          <p v-if="hoveredResult.entityType">
+            <strong>Type: </strong>
+            <span>{{ getConceptTypes(hoveredResult.entityType) }}</span>
+          </p>
+        </div>
+      </div>
+    </OverlayPanel>
   </div>
 </template>
 
@@ -30,11 +63,11 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import EntityService from "@/services/EntityService";
 import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers } from "im-library";
+import { Vocabulary, Helpers, Models } from "im-library";
 const { IM } = Vocabulary;
 const {
-  DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
+  DataTypeCheckers: { isObjectHasKeys, isArrayHasLength, isObject },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes }
 } = Helpers;
 
 export default defineComponent({
@@ -51,7 +84,9 @@ export default defineComponent({
       selectedNode: {} as TreeNode,
       root: [] as TreeNode[],
       loading: true,
-      expandedKeys: {} as any
+      expandedKeys: {} as any,
+      hoveredResult: {} as Models.Search.ConceptSummary,
+      overlayLocation: {} as any
     };
   },
   async mounted() {
@@ -59,6 +94,11 @@ export default defineComponent({
     await this.addParentFoldersToRoot();
     if (this.conceptIri) await this.findPathToNode(this.conceptIri);
     this.loading = false;
+  },
+  beforeUnmount() {
+    if (isObject(this.overlayLocation) && isArrayHasLength(Object.keys(this.overlayLocation))) {
+      this.hideOverlay(this.overlayLocation);
+    }
   },
   methods: {
     async addParentFoldersToRoot() {
@@ -97,7 +137,7 @@ export default defineComponent({
       };
     },
 
-    onNodeSelect(node: TreeNode): void {
+    onNodeSelect(node: any): void {
       this.selectedNode = node;
       this.$router.push({
         name: "Folder",
@@ -106,7 +146,7 @@ export default defineComponent({
       this.$store.commit("updateSelectedConceptIri", node.data);
     },
 
-    async onNodeExpand(node: TreeNode) {
+    async onNodeExpand(node: any) {
       if (isObjectHasKeys(node)) {
         node.loading = true;
         const children = await EntityService.getEntityChildren(node.data);
@@ -174,6 +214,25 @@ export default defineComponent({
         if (highlighted) highlighted.scrollIntoView();
       }
       this.loading = false;
+    },
+
+    async showOverlay(event: any, iri?: string): Promise<void> {
+      if (iri) {
+        const x = this.$refs.navTreeOP as any;
+        this.overlayLocation = event;
+        x.show(this.overlayLocation);
+        this.hoveredResult = await EntityService.getEntitySummary(iri);
+      }
+    },
+
+    hideOverlay(event: any): void {
+      const x = this.$refs.navTreeOP as any;
+      x.hide(event);
+      this.overlayLocation = {} as any;
+    },
+
+    getConceptTypes(types: TTIriRef[]): string {
+      return getNamesAsStringFromTypes(types);
     }
   }
 });
