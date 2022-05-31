@@ -47,6 +47,12 @@ export default defineComponent({
 </script>
 
 <style scoped>
+#entity-panel-header-text {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
 .info-bar-title {
   cursor: pointer;
   padding-left: 3px;
