@@ -18,7 +18,7 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { RouteRecordName } from "vue-router";
 import DirectService from "@/services/DirectService";
-import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem } from "im-library/dist/types/interfaces/Interfaces";
+import { TTIriRef, Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Env, Models, Helpers } from "im-library";
 const { SortBy } = Enums;
 const {
@@ -32,9 +32,6 @@ const {
 export default defineComponent({
   name: "Search",
   components: { Filters },
-  mounted() {
-    this.setUserMenuItems();
-  },
   computed: {
     ...mapState(["conceptIri", "filterOptions", "searchResults", "selectedFilters", "authReturnUrl"])
   },
@@ -46,16 +43,10 @@ export default defineComponent({
   data() {
     return {
       request: {} as { cancel: any; msg: string },
-      searchText: "",
-      loginItems: [] as LoginItem[],
-      accountItems: [] as AccountItem[]
+      searchText: ""
     };
   },
   methods: {
-    navigateToEditor(): void {
-      DirectService.directTo(Env.EDITOR_URL, "", this);
-    },
-
     getFAIconFromType(types: TTIriRef[]) {
       return getFAIconFromType(types);
     },
@@ -66,19 +57,6 @@ export default defineComponent({
 
     openFiltersOverlay(event: any) {
       (this.$refs.filtersO as any).toggle(event);
-    },
-
-    navigate(event: any): void {
-      const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isFolder(event.value?.entityType)) {
-        this.$router.push({
-          name: currentRoute,
-          params: { selectedIri: event.value.iri }
-        });
-      } else {
-        DirectService.directTo(Env.VIEWER_URL, event.value.iri, this, "concept");
-      }
-      this.searchText = "";
     },
 
     async search(): Promise<void> {
@@ -114,42 +92,6 @@ export default defineComponent({
         });
         this.$store.commit("updateSearchLoading", false);
       }
-    },
-    setUserMenuItems(): void {
-      this.loginItems = [
-        {
-          label: "Login",
-          icon: "fa-solid fa-fw fa-user",
-          url: Env.AUTH_URL + "login?returnUrl=" + this.authReturnUrl
-        },
-        {
-          label: "Register",
-          icon: "fa-solid fa-fw fa-user-plus",
-          url: Env.AUTH_URL + "register?returnUrl=" + this.authReturnUrl
-        }
-      ];
-      this.accountItems = [
-        {
-          label: "My account",
-          icon: "fa-solid fa-fw fa-user",
-          url: Env.AUTH_URL + "my-account?returnUrl=" + this.authReturnUrl
-        },
-        {
-          label: "Edit account",
-          icon: "fa-solid fa-fw fa-user-pen",
-          url: Env.AUTH_URL + "my-account/edit?returnUrl=" + this.authReturnUrl
-        },
-        {
-          label: "Change password",
-          icon: "fa-solid fa-fw fa-user-lock",
-          url: Env.AUTH_URL + "my-account/password-edit?returnUrl=" + this.authReturnUrl
-        },
-        {
-          label: "Logout",
-          icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-          url: Env.AUTH_URL + "logout?returnUrl=" + this.authReturnUrl
-        }
-      ];
     }
   }
 });

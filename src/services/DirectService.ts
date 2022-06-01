@@ -6,8 +6,8 @@ export default class DirectService {
 
   public static directTo(app: string, iri: string, _component: CreateComponentPublicInstance<any>, appRoute?: string) {
     if (iri) {
-      if (appRoute) window.open(app + "#/" + appRoute + "/" + encodeURIComponent(iri));
-      else window.open(app + "#/" + encodeURIComponent(iri));
+      if (appRoute) window.open(app + appRoute + "/" + encodeURIComponent(iri));
+      else window.open(app + encodeURIComponent(iri));
       store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), app: app });
     } else {
       window.open(app);
