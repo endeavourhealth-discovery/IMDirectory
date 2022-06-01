@@ -181,7 +181,7 @@ axios.interceptors.response.use(
           summary: "Access denied",
           detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
         });
-        window.location.href = Env.AUTH_URL + "#/login?returnUrl=" + vm.$route.fullPath;
+        window.location.href = Env.AUTH_URL + "login?returnUrl=" + vm.$route.fullPath;
       } else if (error.response.status === 401) {
         vm.$toast.add({
           severity: "error",
