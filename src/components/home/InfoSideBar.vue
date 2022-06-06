@@ -142,42 +142,6 @@ export default defineComponent({
       });
       this.concept["subtypes"] = { children: subtypes, totalCount: result.totalCount, loadMore: this.loadMore };
       this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
-
-      // await this.hydrateDefinition();
-    },
-
-    async hydrateDefinition() {
-      if (this.concept[IM.DEFINITION]) {
-        const def = this.concept[IM.DEFINITION];
-        const iris: any[] = this.getIris(def);
-        const ttiris = await EntityService.getNames(iris.map(i => i["@id"]));
-
-        this.setIriNames(iris, ttiris);
-
-        this.concept[IM.DEFINITION] = JSON.stringify(def);
-      }
-    },
-
-    getIris(def: any): string[] {
-      const result = [];
-      for (const k of Object.keys(def)) {
-        if (def[k]["@id"]) {
-          result.push(def[k]);
-        } else if (typeof def[k] === "object") {
-          this.getIris(def[k]).forEach(i => result.push(i));
-        }
-      }
-
-      return result;
-    },
-
-    setIriNames(iris: TTIriRef[], ttIris: TTIriRef[]) {
-      for (const i of iris) {
-        const match = ttIris.find(t => t["@id"] === i["@id"]);
-        if (match) {
-          i["name"] = match.name;
-        }
-      }
     },
 
     async getInferred(iri: string): Promise<void> {
@@ -280,6 +244,10 @@ export default defineComponent({
 .loading-container {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .header {
@@ -353,15 +321,6 @@ export default defineComponent({
 .icons-container {
   display: flex;
   flex-flow: row nowrap;
-  align-items: center;
-}
-
-.loading-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
   align-items: center;
 }
 </style>

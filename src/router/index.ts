@@ -82,7 +82,7 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to, _from) => {
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
   if (to.path !== "/snomedLicense") {
     store.commit("updateSnomedReturnUrl", currentUrl);

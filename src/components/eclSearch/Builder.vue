@@ -61,7 +61,7 @@ import { defineComponent } from "vue";
 import Logic from "@/components/eclSearch/builder/Logic.vue";
 import RefinementGroup from "@/components/eclSearch/builder/RefinementGroup.vue";
 import FocusConcept from "@/components/eclSearch/builder/FocusConcept.vue";
-import { Enums, Helpers, LoggerService, Models } from "im-library";
+import { Enums, Helpers, LoggerService } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
 const {
   Sorters: { byPosition },

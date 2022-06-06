@@ -20,7 +20,6 @@
 import { defineComponent, PropType } from "vue";
 import TermsTable from "@/components/home/infoSideBar/TermsTable.vue";
 import { DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
-import EntityService from "@/services/EntityService";
 import { Helpers } from "im-library";
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys, isObject }

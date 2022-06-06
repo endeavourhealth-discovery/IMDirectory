@@ -78,7 +78,7 @@ export default class EntityService {
     }
   }
 
-  public static async iriExists(iri: String): Promise<boolean> {
+  public static async iriExists(iri: string): Promise<boolean> {
     try {
       return await axios.get(Env.API + "api/entity/public/iriExists", { params: { iri: iri } });
     } catch (error) {

@@ -14,7 +14,7 @@
         <div class="tree-row" @mouseover="showOverlay($event, slotProps.node.data)" @mouseleave="hideOverlay($event)">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw"></i>
+              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
             </div>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
@@ -178,29 +178,17 @@ export default defineComponent({
       if (n) {
         this.expandedKeys = {};
         while (n && n.data != path[0]["@id"] && i++ < 50) {
-          this.selectKey(n.key);
-          // Expand node if necessary
-          if (!n.children || n.children.length == 0) {
-            await this.onNodeExpand(n);
-          }
-          this.expandedKeys[n.key] = true;
-
+          await this.selectAndExpand(n);
           // Find relevant child
           n = n.children.find(c => path.find(p => p["@id"] === c.data));
         }
-
         if (n && n.data === path[0]["@id"]) {
-          this.selectKey(n.key);
-          // Expand node if necessary
-          if (!n.children || n.children.length == 0) {
-            await this.onNodeExpand(n);
-          }
+          await this.selectAndExpand(n);
           for (const gc of n.children) {
             if (gc.data === iri) {
               this.selectKey(gc.key);
             }
           }
-          this.expandedKeys[n.key] = true;
           this.selectedNode = n;
         } else {
           this.$toast.add({
@@ -209,11 +197,23 @@ export default defineComponent({
             detail: "Unable to locate concept in the current hierarchy"
           });
         }
-        const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
-        const highlighted = container.getElementsByClassName("p-highlight")[0];
-        if (highlighted) highlighted.scrollIntoView();
       }
+      this.scrollToHighlighted();
       this.loading = false;
+    },
+
+    async selectAndExpand(node: any) {
+      this.selectKey(node.key);
+      if (!node.children || node.children.length === 0) {
+        await this.onNodeExpand(node);
+      }
+      this.expandedKeys[node.key] = true;
+    },
+
+    scrollToHighlighted() {
+      const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
+      const highlighted = container.getElementsByClassName("p-highlight")[0];
+      if (highlighted) highlighted.scrollIntoView();
     },
 
     async showOverlay(event: any, iri?: string): Promise<void> {

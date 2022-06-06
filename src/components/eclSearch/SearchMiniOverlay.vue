@@ -97,7 +97,7 @@ export default defineComponent({
     searchResults: { type: Array as PropType<Array<Models.Search.ConceptSummary>>, required: false },
     loading: { type: Boolean, required: true }
   },
-  emits: { searchResultSelected: (payload: Models.Search.ConceptSummary) => true },
+  emits: { searchResultSelected: (_payload: Models.Search.ConceptSummary) => true },
   data() {
     return {
       selectedResult: {} as Models.Search.ConceptSummary,

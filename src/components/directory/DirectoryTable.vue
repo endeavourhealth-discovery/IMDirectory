@@ -170,10 +170,10 @@ export default defineComponent({
 
     async getFavourites() {
       const children = await EntityService.getPartialEntities(this.favourites, []);
-      (this.children as any) = children.map(child => {
+      this.children = children.map(child => {
         return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
       });
-      this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
+      this.children.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
     },
 
     getTypesDisplay(types: TTIriRef[]): string {
@@ -188,7 +188,7 @@ export default defineComponent({
       const result = await EntityService.getPagedChildren(iri, 1, this.pageSize);
       this.children = result.result;
       this.totalCount = result.totalCount;
-      this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
+      this.children.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
     },
 
     isFavourite(iri: string) {
