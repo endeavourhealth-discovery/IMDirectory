@@ -42,7 +42,7 @@
         <template #body="slotProps">
           <div class="result-container" @mouseenter="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay()">
             <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
-              <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon" />
+              <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon" aria-hidden="true" />
             </div>
             <div class="result-text-container">
               {{ slotProps.data.name }}<br />

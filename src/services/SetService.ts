@@ -4,7 +4,7 @@ import { Env } from "im-library";
 
 export default class SetService {
   public static async download(conceptIri: string, expanded: boolean, v1: boolean) {
-    return await axios.get(Env.API + "api/set/public/download", {
+    return axios.get(Env.API + "api/set/public/download", {
       params: {
         iri: conceptIri,
         expandMembers: expanded,

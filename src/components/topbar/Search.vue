@@ -16,14 +16,12 @@ import Filters from "@/components/topbar/search/Filters.vue";
 import axios from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { RouteRecordName } from "vue-router";
-import DirectService from "@/services/DirectService";
 import { TTIriRef, Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Env, Models, Helpers } from "im-library";
+import { Enums, Models, Helpers } from "im-library";
 const { SortBy } = Enums;
 const {
   DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder }
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
 const {
   Search: { SearchRequest }

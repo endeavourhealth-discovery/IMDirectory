@@ -54,9 +54,9 @@ export default defineComponent({
     showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
   emits: {
-    addNextOptionsClicked: (payload: any) => true,
-    deleteClicked: (payload: ECLComponentDetails) => true,
-    updateClicked: (payload: ECLComponentDetails) => true,
+    addNextOptionsClicked: (_payload: any) => true,
+    deleteClicked: (_payload: ECLComponentDetails) => true,
+    updateClicked: (_payload: ECLComponentDetails) => true,
     addClicked: (_payload: any) => true
   },
   components: { Expression, Constraint, AddDeleteButtons },

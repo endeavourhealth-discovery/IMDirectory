@@ -11,7 +11,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
-import { Enums, Helpers } from "im-library";
+import { Enums } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
 const { ECLComponent } = Enums;
 
