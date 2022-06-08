@@ -46,9 +46,8 @@ import { defineComponent } from "vue";
 import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
-import ConfigService from "@/services/ConfigService";
 import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, LoggerService, Models } from "im-library";
+import { Vocabulary, Helpers, LoggerService, Models, ConfigService } from "im-library";
 import { mapState } from "vuex";
 const { IM, RDF, RDFS } = Vocabulary;
 const {

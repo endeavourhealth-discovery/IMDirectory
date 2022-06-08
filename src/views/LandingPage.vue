@@ -76,12 +76,11 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
-import ConfigService from "@/services/ConfigService";
 import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
 import DirectService from "@/services/DirectService";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
-import { Env, Vocabulary, Helpers } from "im-library";
+import { Env, Vocabulary, Helpers, ConfigService } from "im-library";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },

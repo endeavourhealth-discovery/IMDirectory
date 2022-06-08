@@ -8,7 +8,7 @@ import Tooltip from "primevue/tooltip";
 import ContextMenu from "primevue/contextmenu";
 import VueClipboard from "vue3-clipboard";
 import Button from "primevue/button";
-import ConfigService from "@/services/ConfigService";
+import { ConfigService } from "im-library";
 import { LoggerService } from "im-library";
 
 Object.assign(navigator, {

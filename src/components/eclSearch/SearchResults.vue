@@ -115,9 +115,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import ConfigService from "@/services/ConfigService";
 import { mapState } from "vuex";
-import { Helpers, Models, LoggerService } from "im-library";
+import { Helpers, Models, LoggerService, ConfigService } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys },

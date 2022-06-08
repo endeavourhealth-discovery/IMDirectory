@@ -7,7 +7,7 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import EntityService from "@/services/EntityService";
-import ConfigService from "@/services/ConfigService";
+import { ConfigService } from "im-library";
 import { shallowMount } from "@vue/test-utils";
 
 describe("LandingPage.vue", () => {

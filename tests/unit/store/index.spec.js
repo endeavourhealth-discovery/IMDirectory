@@ -2,8 +2,7 @@ import store from "@/store/index";
 import EntityService from "@/services/EntityService";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
-import ConfigService from "@/services/ConfigService";
-import { Models, Vocabulary, LoggerService } from "im-library";
+import { Models, Vocabulary, LoggerService, ConfigService } from "im-library";
 const { IM } = Vocabulary;
 const {
   User,
