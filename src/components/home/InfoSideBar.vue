@@ -47,7 +47,7 @@ import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import EntityService from "@/services/EntityService";
 import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, LoggerService, Models, ConfigService } from "im-library";
+import { Vocabulary, Helpers, LoggerService, Models } from "im-library";
 import { mapState } from "vuex";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
@@ -156,10 +156,10 @@ export default defineComponent({
     },
 
     async getConfig(): Promise<void> {
-      const defaultPredicateNames = await ConfigService.getDefaultPredicateNames();
+      const defaultPredicateNames = await this.$configService.getDefaultPredicateNames();
       this.$store.commit("updateDefaultPredicateNames", defaultPredicateNames);
-      const definitionConfig = await ConfigService.getComponentLayout("definition");
-      const summaryConfig = await ConfigService.getComponentLayout("summary");
+      const definitionConfig = await this.$configService.getComponentLayout("definition");
+      const summaryConfig = await this.$configService.getComponentLayout("summary");
       this.configs = definitionConfig.concat(summaryConfig);
 
       if (this.configs.every(config => isObjectHasKeys(config, ["order"]))) {

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import LandingPage from "@/views/LandingPage.vue";
 import ProgressSpinner from "primevue/progressspinner";
 import Card from "primevue/card";
@@ -7,12 +7,16 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import EntityService from "@/services/EntityService";
+import DirectService from "@/services/DirectService";
 import { ConfigService } from "im-library";
 import { shallowMount } from "@vue/test-utils";
+
+vi.mock("@/main");
 
 describe("LandingPage.vue", () => {
   let wrapper;
   let mockStore;
+  let mockConfigService;
 
   beforeEach(() => {
     mockStore = {
@@ -122,21 +126,28 @@ describe("LandingPage.vue", () => {
         ],
         "http://www.w3.org/2000/01/rdf-schema#label": "Deformity (morphologic abnormality)"
       });
-    ConfigService.getDashboardLayout = vi.fn().mockResolvedValue([
-      {
-        type: "ReportTable",
-        order: 100,
-        iri: "http://endhealth.info/im#ontologyOverview"
-      },
-      {
-        type: "PieChartDashCard",
-        order: 200,
-        iri: "http://endhealth.info/im#ontologyConceptTypes"
-      }
-    ]);
+    mockConfigService = {
+      getDashboardLayout: vi.fn().mockResolvedValue([
+        {
+          type: "ReportTable",
+          order: 100,
+          iri: "http://endhealth.info/im#ontologyOverview"
+        },
+        {
+          type: "PieChartDashCard",
+          order: 200,
+          iri: "http://endhealth.info/im#ontologyConceptTypes"
+        }
+      ])
+    };
+    DirectService.directTo = vi.fn();
 
     wrapper = shallowMount(LandingPage, {
-      global: { components: { ProgressSpinner, Card, DataTable, Column, Button }, mocks: { $store: mockStore }, directives: { Tooltip: Tooltip } }
+      global: {
+        components: { ProgressSpinner, Card, DataTable, Column, Button },
+        mocks: { $store: mockStore, $configService: mockConfigService },
+        directives: { Tooltip: Tooltip }
+      }
     });
   });
 

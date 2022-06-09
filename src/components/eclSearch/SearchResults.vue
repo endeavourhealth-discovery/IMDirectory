@@ -116,7 +116,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { mapState } from "vuex";
-import { Helpers, Models, LoggerService, ConfigService } from "im-library";
+import { Helpers, Models, LoggerService } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys },
@@ -138,7 +138,7 @@ export default defineComponent({
   },
   computed: mapState(["blockedIris"]),
   async mounted() {
-    this.defaultPredicates = await ConfigService.getDefaultPredicateNames();
+    this.defaultPredicates = await this.$configService.getDefaultPredicateNames();
   },
   data() {
     return {

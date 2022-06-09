@@ -1,8 +1,10 @@
 import store from "@/store/index";
+import axios from "axios";
 import EntityService from "@/services/EntityService";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
-import { Models, Vocabulary, LoggerService, ConfigService } from "im-library";
+import { Models, Vocabulary, LoggerService } from "im-library";
+import { vi } from "vitest";
 const { IM } = Vocabulary;
 const {
   User,
@@ -10,10 +12,26 @@ const {
   CustomAlert
 } = Models;
 
+vi.mock("@/main", () => {
+  return {
+    default: {
+      $configService: {
+        getXmlSchemaDataTypes: vi.fn(),
+        getFilterDefaults: vi.fn()
+      }
+    }
+  };
+});
+
+import vm from "@/main";
+
 describe("state", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     window.sessionStorage.clear();
+    vm.$configService.getXmlSchemaDataTypes = vi
+      .fn()
+      .mockResolvedValue(["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"]);
   });
 
   afterAll(() => {
@@ -171,12 +189,12 @@ describe("mutations", () => {
   });
 
   it("can fetchBlockedIris", async () => {
-    const iris = ["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"];
-    ConfigService.getXmlSchemaDataTypes = vi.fn().mockResolvedValue(iris);
     store.dispatch("fetchBlockedIris");
     await flushPromises();
-    expect(ConfigService.getXmlSchemaDataTypes).toHaveBeenCalledTimes(1);
-    expect(store.state.blockedIris).toStrictEqual(iris);
+    console.log("test");
+    console.log(vm.$configService);
+    expect(vm.$configService.getXmlSchemaDataTypes).toHaveBeenCalledTimes(1);
+    expect(store.state.blockedIris).toStrictEqual(["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"]);
   });
 
   it("can fetchSearchResults ___ pass", async () => {

@@ -87,10 +87,12 @@ import axios from "axios";
 // IMLibrary imports
 import IMLibrary from "im-library";
 import "im-library/dist/style.css";
-import { Helpers, Env } from "im-library";
+import { Helpers, Env, ConfigService } from "im-library";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
+
+const configService = new ConfigService(axios);
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -160,7 +162,11 @@ const app = createApp(App)
   .component("DataView", DataView)
   .component("Tag", Tag);
 
+app.config.globalProperties.$configService = configService;
+
 const vm = app.mount("#app");
+
+export default vm;
 
 axios.interceptors.request.use(async request => {
   if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {

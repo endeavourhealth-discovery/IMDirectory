@@ -80,7 +80,7 @@ import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
 import DirectService from "@/services/DirectService";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
-import { Env, Vocabulary, Helpers, ConfigService } from "im-library";
+import { Env, Vocabulary, Helpers } from "im-library";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
@@ -136,7 +136,7 @@ export default defineComponent({
     },
 
     async getConfigs(): Promise<void> {
-      this.configs = await ConfigService.getDashboardLayout("conceptDashboard");
+      this.configs = await this.$configService.getDashboardLayout("conceptDashboard");
       if (isArrayHasLength(this.configs)) {
         this.configs.sort(byOrder);
       }
