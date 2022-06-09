@@ -95,7 +95,6 @@ import EntityService from "@/services/EntityService";
 import { Helpers, Vocabulary, Env } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { RouteRecordName } from "vue-router";
-import DirectService from "@/services/DirectService";
 const { IM, RDFS, RDF } = Vocabulary;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
@@ -215,11 +214,11 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      DirectService.directTo(Env.VIEWER_URL, iri, this, "concept");
+      this.$directService.directTo(Env.VIEWER_URL, iri, "concept");
     },
 
     edit(iri: string) {
-      DirectService.directTo(Env.EDITOR_URL, iri, this, "editor");
+      this.$directService.directTo(Env.EDITOR_URL, iri, "editor");
     },
 
     open(iri: string) {

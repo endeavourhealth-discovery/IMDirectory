@@ -7,8 +7,7 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import EntityService from "@/services/EntityService";
-import DirectService from "@/services/DirectService";
-import { ConfigService } from "im-library";
+import { ConfigService, DirectService } from "im-library";
 import { shallowMount } from "@vue/test-utils";
 
 vi.mock("@/main");
@@ -17,6 +16,7 @@ describe("LandingPage.vue", () => {
   let wrapper;
   let mockStore;
   let mockConfigService;
+  let mockDirectService;
 
   beforeEach(() => {
     mockStore = {
@@ -140,12 +140,13 @@ describe("LandingPage.vue", () => {
         }
       ])
     };
-    DirectService.directTo = vi.fn();
+
+    mockDirectService = { directTo: vi.fn() };
 
     wrapper = shallowMount(LandingPage, {
       global: {
         components: { ProgressSpinner, Card, DataTable, Column, Button },
-        mocks: { $store: mockStore, $configService: mockConfigService },
+        mocks: { $store: mockStore, $configService: mockConfigService, $directService: mockDirectService },
         directives: { Tooltip: Tooltip }
       }
     });

@@ -10,7 +10,6 @@
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
 import { mapState } from "vuex";
-import DirectService from "@/services/DirectService";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Env, Helpers } from "im-library";
 const {
@@ -40,7 +39,7 @@ export default defineComponent({
   },
   methods: {
     navigate() {
-      DirectService.directTo(Env.VIEWER_URL, this.selectedConceptIri, this, "concept");
+      this.$directService.directTo(Env.VIEWER_URL, this.selectedConceptIri, "concept");
     }
   }
 });

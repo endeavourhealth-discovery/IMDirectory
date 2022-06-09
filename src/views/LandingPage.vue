@@ -78,7 +78,6 @@ import ReportTable from "@/components/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
 import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
-import DirectService from "@/services/DirectService";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
 import { Env, Vocabulary, Helpers } from "im-library";
 const { IM, RDF, RDFS } = Vocabulary;
@@ -175,7 +174,7 @@ export default defineComponent({
     },
 
     onDoubleClick(event: any) {
-      DirectService.directTo(event.data.app, event.data.iri, this, event.data.route || "concept");
+      this.$directService.directTo(event.data.app, event.data.iri, event.data.route || "concept");
     },
 
     async getCardsData(): Promise<void> {
@@ -196,12 +195,12 @@ export default defineComponent({
 
     view(data?: any) {
       if (data) this.onRowSelect(data);
-      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this, "concept");
+      this.$directService.directTo(Env.VIEWER_URL, this.selected.iri, "concept");
     },
 
     edit(data?: any) {
       if (data) this.onRowSelect(data);
-      DirectService.directTo(Env.EDITOR_URL, this.selected.iri, this, "editor");
+      this.$directService.directTo(Env.EDITOR_URL, this.selected.iri, "editor");
     },
 
     showInfo(data?: any) {

@@ -71,7 +71,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Helpers, Vocabulary, Env } from "im-library";
-import DirectService from "@/services/DirectService";
 import { mapState } from "vuex";
 const { IM, RDF } = Vocabulary;
 const {
@@ -106,11 +105,11 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      DirectService.directTo(Env.VIEWER_URL, iri, this, "concept");
+      this.$directService.directTo(Env.VIEWER_URL, iri, "concept");
     },
 
     edit(iri: string) {
-      DirectService.directTo(Env.EDITOR_URL, iri, this, "editor");
+      this.$directService.directTo(Env.EDITOR_URL, iri, "editor");
     },
 
     updateFavourites(iri: string) {

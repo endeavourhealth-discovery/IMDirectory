@@ -87,12 +87,13 @@ import axios from "axios";
 // IMLibrary imports
 import IMLibrary from "im-library";
 import "im-library/dist/style.css";
-import { Helpers, Env, ConfigService } from "im-library";
+import { Helpers, Env, ConfigService, DirectService } from "im-library";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
 
 const configService = new ConfigService(axios);
+const directService = new DirectService(store);
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -163,6 +164,7 @@ const app = createApp(App)
   .component("Tag", Tag);
 
 app.config.globalProperties.$configService = configService;
+app.config.globalProperties.$directService = directService;
 
 const vm = app.mount("#app");
 
