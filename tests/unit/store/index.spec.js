@@ -191,8 +191,6 @@ describe("mutations", () => {
   it("can fetchBlockedIris", async () => {
     store.dispatch("fetchBlockedIris");
     await flushPromises();
-    console.log("test");
-    console.log(vm.$configService);
     expect(vm.$configService.getXmlSchemaDataTypes).toHaveBeenCalledTimes(1);
     expect(store.state.blockedIris).toStrictEqual(["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"]);
   });
