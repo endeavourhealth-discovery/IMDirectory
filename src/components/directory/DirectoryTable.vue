@@ -91,7 +91,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import EntityService from "@/services/EntityService";
 import { Helpers, Vocabulary, Env } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { RouteRecordName } from "vue-router";
@@ -168,7 +167,7 @@ export default defineComponent({
     },
 
     async getFavourites() {
-      const children = await EntityService.getPartialEntities(this.favourites, []);
+      const children = await this.$entityService.getPartialEntities(this.favourites, []);
       this.children = children.map(child => {
         return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
       });
@@ -184,7 +183,7 @@ export default defineComponent({
     },
 
     async getChildren(iri: string) {
-      const result = await EntityService.getPagedChildren(iri, 1, this.pageSize);
+      const result = await this.$entityService.getPagedChildren(iri, 1, this.pageSize);
       this.children = result.result;
       this.totalCount = result.totalCount;
       this.children.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
@@ -240,7 +239,7 @@ export default defineComponent({
 
     async loadMore() {
       this.loading = true;
-      const result = await EntityService.getPagedChildren(this.conceptIri, this.nextPage, this.pageSize);
+      const result = await this.$entityService.getPagedChildren(this.conceptIri, this.nextPage, this.pageSize);
       this.children = result.result;
       this.loading = false;
     },

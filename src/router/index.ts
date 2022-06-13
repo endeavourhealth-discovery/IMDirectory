@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import axios from "axios";
 import Home from "../views/Home.vue";
 import Directory from "../views/Directory.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
@@ -10,7 +11,7 @@ import { nextTick } from "vue";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
-import EntityService from "@/services/EntityService";
+import vm from "@/main";
 
 const APP_TITLE = "IM Directory";
 
@@ -112,7 +113,7 @@ router.beforeEach(async (to, _from) => {
     const iri = to.params.selectedIri as string;
     try {
       new URL(iri);
-      if (!(await EntityService.iriExists(iri))) {
+      if (!(await vm.$entityService.iriExists(iri))) {
         router.push({ name: "EntityNotFound" });
       }
     } catch (_error) {

@@ -45,7 +45,6 @@
 import { defineComponent } from "vue";
 import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
-import EntityService from "@/services/EntityService";
 import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, LoggerService, Models } from "im-library";
 import { mapState } from "vuex";
@@ -132,19 +131,19 @@ export default defineComponent({
         .map((c: DefinitionConfig) => c.predicate);
       predicates.push(IM.DEFINITION);
 
-      this.concept = await EntityService.getPartialEntity(iri, predicates);
+      this.concept = await this.$entityService.getPartialEntity(iri, predicates);
 
       this.concept["@id"] = iri;
-      const result = await EntityService.getPagedChildren(iri, 1, 10);
+      const result = await this.$entityService.getPagedChildren(iri, 1, 10);
       const subtypes = result.result.map((child: EntityReferenceNode) => {
         return { "@id": child["@id"], name: child.name };
       });
       this.concept["subtypes"] = { children: subtypes, totalCount: result.totalCount, loadMore: this.loadMore };
-      this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
+      this.concept["termCodes"] = await this.$entityService.getEntityTermCodes(iri);
     },
 
     async getInferred(iri: string): Promise<void> {
-      const result = await EntityService.getDefinitionBundle(iri);
+      const result = await this.$entityService.getDefinitionBundle(iri);
       if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
         const roleGroup = result.entity[IM.ROLE_GROUP];
         delete result.entity[IM.ROLE_GROUP];
@@ -181,7 +180,7 @@ export default defineComponent({
     },
 
     async getTerms(iri: string) {
-      const entity = await EntityService.getPartialEntity(iri, [IM.HAS_TERM_CODE]);
+      const entity = await this.$entityService.getPartialEntity(iri, [IM.HAS_TERM_CODE]);
       this.terms = isObjectHasKeys(entity, [IM.HAS_TERM_CODE])
         ? (entity[IM.HAS_TERM_CODE] as []).map(term => {
             return { name: term[RDFS.LABEL], code: term[IM.CODE] };
@@ -192,7 +191,7 @@ export default defineComponent({
     async loadMore(children: any[], totalCount: number, nextPage: number, pageSize: number, loadButton: boolean, iri: string) {
       if (loadButton) {
         if (nextPage * pageSize < totalCount) {
-          const result = await EntityService.getPagedChildren(iri, nextPage, pageSize);
+          const result = await this.$entityService.getPagedChildren(iri, nextPage, pageSize);
           const resultChildren = result.result.map((child: EntityReferenceNode) => {
             return { "@id": child["@id"], name: child.name };
           });
@@ -200,7 +199,7 @@ export default defineComponent({
           nextPage = nextPage + 1;
           loadButton = true;
         } else if (nextPage * pageSize > totalCount) {
-          const result = await EntityService.getPagedChildren(iri, nextPage, pageSize);
+          const result = await this.$entityService.getPagedChildren(iri, nextPage, pageSize);
           const resultChildren = result.result.map((child: EntityReferenceNode) => {
             return { "@id": child["@id"], name: child.name };
           });

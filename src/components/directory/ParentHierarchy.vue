@@ -15,8 +15,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import EntityService from "@/services/EntityService";
 import { Helpers, Vocabulary } from "im-library";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const { IM } = Vocabulary;
 const {
   Converters: { iriToUrl }
@@ -61,9 +61,9 @@ export default defineComponent({
         this.pathItems = [{ label: "Favourites", to: iriToUrl(IM.NAMESPACE) + "Favourites" }];
         return;
       }
-      let folderPath = (await EntityService.getPathBetweenNodes(this.conceptIri, IM.MODULE_IM)).reverse();
-      if (!folderPath.length) folderPath = await EntityService.getFolderPath(this.conceptIri);
-      this.pathItems = folderPath.map(iriRef => {
+      let folderPath = (await this.$entityService.getPathBetweenNodes(this.conceptIri, IM.MODULE_IM)).reverse();
+      if (!folderPath.length) folderPath = await this.$entityService.getFolderPath(this.conceptIri);
+      this.pathItems = folderPath.map((iriRef: TTIriRef) => {
         return { label: iriRef.name, to: iriToUrl(iriRef["@id"]) };
       });
       if (this.pathItems.length > 2) {

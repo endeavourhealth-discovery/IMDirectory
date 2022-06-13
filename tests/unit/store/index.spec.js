@@ -1,6 +1,5 @@
 import store from "@/store/index";
 import axios from "axios";
-import EntityService from "@/services/EntityService";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
 import { Models, Vocabulary, LoggerService } from "im-library";
@@ -18,6 +17,9 @@ vi.mock("@/main", () => {
       $configService: {
         getXmlSchemaDataTypes: vi.fn(),
         getFilterDefaults: vi.fn()
+      },
+      $entityService: {
+        advancedSearch: vi.fn()
       }
     }
   };
@@ -196,25 +198,25 @@ describe("mutations", () => {
   });
 
   it("can fetchSearchResults ___ pass", async () => {
-    EntityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
+    vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
     LoggerService.info = vi.fn();
     const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
-    expect(EntityService.advancedSearch).toBeCalledTimes(1);
-    expect(EntityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
+    expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
+    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
     await flushPromises();
     expect(store.state.searchResults).toEqual([]);
   });
 
   it("can fetchSearchResults ___ failed", async () => {
-    EntityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
+    vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
     LoggerService.error = vi.fn();
     const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
-    expect(EntityService.advancedSearch).toBeCalledTimes(1);
-    expect(EntityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
+    expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
+    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
     await flushPromises();
     expect(store.state.searchResults).toStrictEqual([]);
   });
