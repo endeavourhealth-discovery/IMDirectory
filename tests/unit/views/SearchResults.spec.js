@@ -8,8 +8,6 @@ import Tooltip from "primevue/tooltip";
 import ContextMenu from "primevue/contextmenu";
 import VueClipboard from "vue3-clipboard";
 import Button from "primevue/button";
-import { ConfigService } from "im-library";
-import { LoggerService } from "im-library";
 
 Object.assign(navigator, {
   clipboard: {
@@ -24,6 +22,7 @@ describe("SearchResults.vue", () => {
   let mockToast;
   let mockRef;
   let mockConfigService;
+  let mockLoggerService;
   let clipboardSpy;
   let docSpy;
 
@@ -116,11 +115,12 @@ describe("SearchResults.vue", () => {
     docSpy.mockReturnValue(undefined);
 
     mockConfigService = { getDefaultPredicateNames: vi.fn().mockResolvedValue(DEFAULT_PREDICATES) };
+    mockLoggerService = { error: vi.fn(), warn: vi.fn(), info: vi.fn(), success: vi.fn(), debug: vi.fn() };
 
     wrapper = shallowMount(SearchResults, {
       global: {
         components: { DataTable, ProgressSpinner, Column, OverlayPanel, ContextMenu, Button },
-        mocks: { $store: mockStore, $router: mockRouter, $toast: mockToast, $configService: mockConfigService },
+        mocks: { $store: mockStore, $router: mockRouter, $toast: mockToast, $configService: mockConfigService, $loggerService: mockLoggerService },
         directives: { tooltip: Tooltip, clipboard: VueClipboard },
         stubs: { OverlayPanel: mockRef, ContextMenu: mockRef, FontAwesomeIcon: true }
       },
@@ -220,13 +220,13 @@ describe("SearchResults.vue", () => {
   it("can fire toast on copy", () => {
     wrapper.vm.onCopy();
     expect(mockToast.add).toHaveBeenCalledTimes(1);
-    expect(mockToast.add).toHaveBeenCalledWith(LoggerService.success("Value copied to clipboard"));
+    expect(mockToast.add).toHaveBeenCalledWith(mockLoggerService.success("Value copied to clipboard"));
   });
 
   it("can fire toast on copy error", () => {
     wrapper.vm.onCopyError();
     expect(mockToast.add).toHaveBeenCalledTimes(1);
-    expect(mockToast.add).toHaveBeenCalledWith(LoggerService.error("Failed to copy value to clipboard"));
+    expect(mockToast.add).toHaveBeenCalledWith(mockLoggerService.error("Failed to copy value to clipboard"));
   });
 
   it("can set copy menu items", () => {
@@ -293,47 +293,47 @@ describe("SearchResults.vue", () => {
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith(
       "name: Scoliosis deformity of spine (disorder),\niri: http://snomed.info/sct#298382003,\ncode: 298382003,\nstatus: Active,\nscheme: Snomed-CT code,\nentityType: [\n\tClass\n],\nweighting: 0,\nmatch: Scoliosis"
     );
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("Concept copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("Concept copied to clipboard"));
 
     wrapper.vm.copyMenuItems[3].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("name: Scoliosis deformity of spine (disorder)");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("name copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("name copied to clipboard"));
 
     wrapper.vm.copyMenuItems[4].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("iri: http://snomed.info/sct#298382003");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("iri copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("iri copied to clipboard"));
 
     wrapper.vm.copyMenuItems[5].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("code: 298382003");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("code copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("code copied to clipboard"));
 
     wrapper.vm.copyMenuItems[6].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("status: Active");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("status copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("status copied to clipboard"));
 
     wrapper.vm.copyMenuItems[7].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("scheme: Snomed-CT code");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("scheme copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("scheme copied to clipboard"));
 
     wrapper.vm.copyMenuItems[8].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("entityType: [\n\tClass\n]");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("entityType copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("entityType copied to clipboard"));
 
     wrapper.vm.copyMenuItems[9].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("weighting: 0");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("weighting copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("weighting copied to clipboard"));
 
     wrapper.vm.copyMenuItems[10].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("match: Scoliosis");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("match copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("match copied to clipboard"));
   });
 
   it("can run commands from copymenuItems ___ fail", async () => {
@@ -357,47 +357,47 @@ describe("SearchResults.vue", () => {
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith(
       "name: Scoliosis deformity of spine (disorder),\niri: http://snomed.info/sct#298382003,\ncode: 298382003,\nstatus: Active,\nscheme: Snomed-CT code,\nentityType: [\n\tClass\n],\nweighting: 0,\nmatch: Scoliosis"
     );
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy concept to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy concept to clipboard"));
 
     wrapper.vm.copyMenuItems[3].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("name: Scoliosis deformity of spine (disorder)");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy name to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy name to clipboard"));
 
     wrapper.vm.copyMenuItems[4].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("iri: http://snomed.info/sct#298382003");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy iri to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy iri to clipboard"));
 
     wrapper.vm.copyMenuItems[5].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("code: 298382003");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy code to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy code to clipboard"));
 
     wrapper.vm.copyMenuItems[6].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("status: Active");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy status to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy status to clipboard"));
 
     wrapper.vm.copyMenuItems[7].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("scheme: Snomed-CT code");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy scheme to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy scheme to clipboard"));
 
     wrapper.vm.copyMenuItems[8].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("entityType: [\n\tClass\n]");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy entityType to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy entityType to clipboard"));
 
     wrapper.vm.copyMenuItems[9].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("weighting: 0");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy weighting to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy weighting to clipboard"));
 
     wrapper.vm.copyMenuItems[10].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("match: Scoliosis");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy match to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy match to clipboard"));
   });
 
   it("can scroll to top", () => {

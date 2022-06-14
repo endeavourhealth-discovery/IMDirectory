@@ -9,6 +9,7 @@ describe("EclSearch.vue", () => {
   let mockStore;
   let mockToast;
   let mockSetService;
+  let mockLoggerService;
   let docSpy;
   let windowSpy;
 
@@ -93,10 +94,12 @@ describe("EclSearch.vue", () => {
 
     mockSetService = { ECLSearch: vi.fn().mockResolvedValue(SEARCH_RESULTS) };
 
+    mockLoggerService = { error: vi.fn(), warn: vi.fn(), info: vi.fn(), success: vi.fn(), debug: vi.fn() };
+
     wrapper = shallowMount(ExpressionConstraintsSearch, {
       global: {
         components: { Textarea, Button },
-        mocks: { $store: mockStore, $toast: mockToast, $setService: mockSetService },
+        mocks: { $store: mockStore, $toast: mockToast, $setService: mockSetService, $loggerService: mockLoggerService },
         directives: { tooltip: vi.fn(), clipboard: { copy: vi.fn(), success: vi.fn(), error: vi.fn() } }
       }
     });

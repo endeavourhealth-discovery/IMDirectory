@@ -85,12 +85,12 @@ import awsconfig from "./aws-exports";
 import axios from "axios";
 
 // IMLibrary imports
-import IMLibrary from "im-library";
 import "im-library/dist/style.css";
-import { Helpers, Env, ConfigService, DirectService, EntityService, SetService } from "im-library";
+import IMLibrary, { Helpers, Services } from "im-library";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
+const { ConfigService, DirectService, EntityService, Env, LoggerService, SetService } = Services;
 
 const configService = new ConfigService(axios);
 const directService = new DirectService(store);
@@ -169,6 +169,8 @@ const app = createApp(App)
 app.config.globalProperties.$configService = configService;
 app.config.globalProperties.$directService = directService;
 app.config.globalProperties.$entityService = entityService;
+app.config.globalProperties.$env = Env;
+app.config.globalProperties.$loggerService = LoggerService;
 app.config.globalProperties.$setService = setService;
 
 const vm = app.mount("#app");

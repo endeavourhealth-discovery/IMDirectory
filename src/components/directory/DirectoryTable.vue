@@ -91,7 +91,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { Helpers, Vocabulary, Env } from "im-library";
+import { Helpers, Vocabulary } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { RouteRecordName } from "vue-router";
 const { IM, RDFS, RDF } = Vocabulary;
@@ -213,11 +213,11 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      this.$directService.directTo(Env.VIEWER_URL, iri, "concept");
+      this.$directService.directTo(this.$env.VIEWER_URL, iri, "concept");
     },
 
     edit(iri: string) {
-      this.$directService.directTo(Env.EDITOR_URL, iri, "editor");
+      this.$directService.directTo(this.$env.EDITOR_URL, iri, "editor");
     },
 
     open(iri: string) {

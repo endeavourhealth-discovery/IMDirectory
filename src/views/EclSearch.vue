@@ -36,7 +36,7 @@ import Builder from "@/components/eclSearch/Builder.vue";
 import SearchResults from "@/components/eclSearch/SearchResults.vue";
 import { mapState } from "vuex";
 import axios from "axios";
-import { Helpers, LoggerService, Models } from "im-library";
+import { Helpers, Models } from "im-library";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
@@ -101,11 +101,11 @@ export default defineComponent({
     },
 
     onCopy(): void {
-      this.$toast.add(LoggerService.success("Value copied to clipboard"));
+      this.$toast.add(this.$loggerService.success("Value copied to clipboard"));
     },
 
     onCopyError(): void {
-      this.$toast.add(LoggerService.error("Failed to copy value to clipboard"));
+      this.$toast.add(this.$loggerService.error("Failed to copy value to clipboard"));
     }
   }
 });

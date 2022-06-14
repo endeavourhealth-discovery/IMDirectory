@@ -70,7 +70,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Helpers, Vocabulary, Env } from "im-library";
+import { Helpers, Vocabulary } from "im-library";
 import { mapState } from "vuex";
 const { IM, RDF } = Vocabulary;
 const {
@@ -105,11 +105,11 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      this.$directService.directTo(Env.VIEWER_URL, iri, "concept");
+      this.$directService.directTo(this.$env.VIEWER_URL, iri, "concept");
     },
 
     edit(iri: string) {
-      this.$directService.directTo(Env.EDITOR_URL, iri, "editor");
+      this.$directService.directTo(this.$env.EDITOR_URL, iri, "editor");
     },
 
     updateFavourites(iri: string) {
