@@ -1,9 +1,9 @@
 import store from "@/store/index";
-import EntityService from "@/services/EntityService";
+import axios from "axios";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
-import ConfigService from "@/services/ConfigService";
 import { Models, Vocabulary, LoggerService } from "im-library";
+import { vi } from "vitest";
 const { IM } = Vocabulary;
 const {
   User,
@@ -11,10 +11,29 @@ const {
   CustomAlert
 } = Models;
 
+vi.mock("@/main", () => {
+  return {
+    default: {
+      $configService: {
+        getXmlSchemaDataTypes: vi.fn(),
+        getFilterDefaults: vi.fn()
+      },
+      $entityService: {
+        advancedSearch: vi.fn()
+      }
+    }
+  };
+});
+
+import vm from "@/main";
+
 describe("state", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     window.sessionStorage.clear();
+    vm.$configService.getXmlSchemaDataTypes = vi
+      .fn()
+      .mockResolvedValue(["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"]);
   });
 
   afterAll(() => {
@@ -172,34 +191,32 @@ describe("mutations", () => {
   });
 
   it("can fetchBlockedIris", async () => {
-    const iris = ["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"];
-    ConfigService.getXmlSchemaDataTypes = vi.fn().mockResolvedValue(iris);
     store.dispatch("fetchBlockedIris");
     await flushPromises();
-    expect(ConfigService.getXmlSchemaDataTypes).toHaveBeenCalledTimes(1);
-    expect(store.state.blockedIris).toStrictEqual(iris);
+    expect(vm.$configService.getXmlSchemaDataTypes).toHaveBeenCalledTimes(1);
+    expect(store.state.blockedIris).toStrictEqual(["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"]);
   });
 
   it("can fetchSearchResults ___ pass", async () => {
-    EntityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
+    vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
     LoggerService.info = vi.fn();
     const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
-    expect(EntityService.advancedSearch).toBeCalledTimes(1);
-    expect(EntityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
+    expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
+    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
     await flushPromises();
     expect(store.state.searchResults).toEqual([]);
   });
 
   it("can fetchSearchResults ___ failed", async () => {
-    EntityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
+    vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
     LoggerService.error = vi.fn();
     const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
-    expect(EntityService.advancedSearch).toBeCalledTimes(1);
-    expect(EntityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
+    expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
+    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
     await flushPromises();
     expect(store.state.searchResults).toStrictEqual([]);
   });

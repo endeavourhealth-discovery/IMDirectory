@@ -61,7 +61,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import EntityService from "@/services/EntityService";
 import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, Models } from "im-library";
 const { IM } = Vocabulary;
@@ -102,7 +101,7 @@ export default defineComponent({
   },
   methods: {
     async addParentFoldersToRoot() {
-      const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+      const IMChildren = await this.$entityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
         if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren));
@@ -149,8 +148,8 @@ export default defineComponent({
     async onNodeExpand(node: any) {
       if (isObjectHasKeys(node)) {
         node.loading = true;
-        const children = await EntityService.getEntityChildren(node.data);
-        children.forEach(child => {
+        const children = await this.$entityService.getEntityChildren(node.data);
+        children.forEach((child: EntityReferenceNode) => {
           if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
         });
         node.loading = false;
@@ -170,7 +169,7 @@ export default defineComponent({
 
     async findPathToNode(iri: string) {
       this.loading = true;
-      const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
+      const path = await this.$entityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
       // Recursively expand
       let n = this.root.find(c => path.find(p => p["@id"] === c.data));
@@ -221,7 +220,7 @@ export default defineComponent({
         const x = this.$refs.navTreeOP as any;
         this.overlayLocation = event;
         x.show(this.overlayLocation);
-        this.hoveredResult = await EntityService.getEntitySummary(iri);
+        this.hoveredResult = await this.$entityService.getEntitySummary(iri);
       }
     },
 

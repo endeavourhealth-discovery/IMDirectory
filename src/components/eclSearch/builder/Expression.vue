@@ -25,7 +25,6 @@
 import { defineComponent, PropType } from "vue";
 import SearchMiniOverlay from "@/components/eclSearch/SearchMiniOverlay.vue";
 import axios from "axios";
-import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
 import { Enums, Helpers, Models, Vocabulary } from "im-library";
 import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
@@ -126,7 +125,7 @@ export default defineComponent({
     },
 
     async fetchSearchResults(searchRequest: Models.Search.SearchRequest, cancelToken: any) {
-      const result = await EntityService.advancedSearch(searchRequest, cancelToken);
+      const result = await this.$entityService.advancedSearch(searchRequest, cancelToken);
       if (result && isArrayHasLength(result)) {
         this.searchResults = result;
       } else {

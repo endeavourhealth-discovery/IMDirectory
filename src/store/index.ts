@@ -1,7 +1,5 @@
 import { createStore } from "vuex";
-import EntityService from "../services/EntityService";
 import AuthService from "@/services/AuthService";
-import ConfigService from "@/services/ConfigService";
 import { FilterDefaultsConfig, EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
 import { Models, Constants, Vocabulary, Helpers, LoggerService } from "im-library";
 const { IM, RDF, RDFS } = Vocabulary;
@@ -14,6 +12,7 @@ const {
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
+import vm from "@/main";
 
 export default createStore({
   // update stateType.ts when adding new state!
@@ -55,7 +54,7 @@ export default createStore({
       { "@id": IM.INACTIVE, severity: "danger" }
     ],
     textDefinitionStartExpanded: ["Definition"],
-    activeProfile: { uuid: "", activeClausePath: "" },
+    activeProfile: { uuid: "", activeClausePath: "" }
   },
   mutations: {
     updateActiveProfile(state, value) {
@@ -167,16 +166,15 @@ export default createStore({
   },
   actions: {
     async fetchBlockedIris({ commit }) {
-      const blockedIris = await ConfigService.getXmlSchemaDataTypes();
+      const blockedIris = await vm.$configService.getXmlSchemaDataTypes();
       commit("updateBlockedIris", blockedIris);
     },
     async fetchFilterSettings({ commit, state }) {
-      const configs = await ConfigService.getFilterDefaults();
+      const configs = await vm.$configService.getFilterDefaults();
       commit("updateFilterDefaults", configs);
-
-      const schemeOptions = await EntityService.getNamespaces();
-      const statusOptions = await EntityService.getEntityChildren(IM.STATUS);
-      const typeOptions = (await EntityService.getPartialEntities(state.filterDefaults.typeOptions, [RDFS.LABEL])).map(typeOption => {
+      const schemeOptions = await vm.$entityService.getNamespaces();
+      const statusOptions = await vm.$entityService.getEntityChildren(IM.STATUS);
+      const typeOptions = (await vm.$entityService.getPartialEntities(state.filterDefaults.typeOptions, [RDFS.LABEL])).map(typeOption => {
         return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
       });
       commit("updateFilterOptions", {
@@ -196,7 +194,7 @@ export default createStore({
       commit("updateHierarchySelectedFilters", selectedSchemes);
     },
     async fetchSearchResults({ commit }, data: { searchRequest: Models.Search.SearchRequest; cancelToken: any }) {
-      const result = await EntityService.advancedSearch(data.searchRequest, data.cancelToken);
+      const result = await vm.$entityService.advancedSearch(data.searchRequest, data.cancelToken);
       if (result && isArrayHasLength(result)) {
         commit("updateSearchResults", result);
       } else {

@@ -2,13 +2,13 @@ import ExpressionConstraintsSearch from "@/views/EclSearch.vue";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
-import SetService from "@/services/SetService";
 import axios from "axios";
 
-describe("ExpressionConstraintsSearch.vue", () => {
+describe("EclSearch.vue", () => {
   let wrapper;
   let mockStore;
   let mockToast;
+  let mockSetService;
   let docSpy;
   let windowSpy;
 
@@ -91,12 +91,12 @@ describe("ExpressionConstraintsSearch.vue", () => {
     mockStore = { state: { sidebarControlActivePanel: 0 } };
     mockToast = { add: vi.fn() };
 
-    SetService.ECLSearch = vi.fn().mockResolvedValue(SEARCH_RESULTS);
+    mockSetService = { ECLSearch: vi.fn().mockResolvedValue(SEARCH_RESULTS) };
 
     wrapper = shallowMount(ExpressionConstraintsSearch, {
       global: {
         components: { Textarea, Button },
-        mocks: { $store: mockStore, $toast: mockToast },
+        mocks: { $store: mockStore, $toast: mockToast, $setService: mockSetService },
         directives: { tooltip: vi.fn(), clipboard: { copy: vi.fn(), success: vi.fn(), error: vi.fn() } }
       }
     });
@@ -135,7 +135,7 @@ describe("ExpressionConstraintsSearch.vue", () => {
   it("can search ___ no querystring", async () => {
     wrapper.vm.search();
     await flushPromises();
-    expect(SetService.ECLSearch).not.toHaveBeenCalled();
+    expect(mockSetService.ECLSearch).not.toHaveBeenCalled();
   });
 
   it("can search ___ querystring ___ success", async () => {
@@ -144,8 +144,8 @@ describe("ExpressionConstraintsSearch.vue", () => {
     wrapper.vm.search();
     expect(wrapper.vm.loading).toBe(true);
     await flushPromises();
-    expect(SetService.ECLSearch).toHaveBeenCalledTimes(1);
-    expect(SetService.ECLSearch).toHaveBeenCalledWith("<< 10363601000001109 |UK product| ", false, 1000, token);
+    expect(mockSetService.ECLSearch).toHaveBeenCalledTimes(1);
+    expect(mockSetService.ECLSearch).toHaveBeenCalledWith("<< 10363601000001109 |UK product| ", false, 1000, token);
     expect(wrapper.vm.loading).toBe(false);
     expect(wrapper.vm.searchResults).toStrictEqual(SEARCH_RESULTS.entities);
     expect(wrapper.vm.totalCount).toBe(3);
@@ -166,7 +166,7 @@ describe("ExpressionConstraintsSearch.vue", () => {
 
   it("can search ___ empty result", async () => {
     wrapper.vm.queryString = "sco";
-    SetService.ECLSearch = vi.fn().mockResolvedValue({});
+    mockSetService.ECLSearch = vi.fn().mockResolvedValue({});
     wrapper.vm.search();
     await flushPromises();
     expect(wrapper.vm.eclError).toBe(true);

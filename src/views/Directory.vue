@@ -19,7 +19,6 @@ import { mapState } from "vuex";
 import DirectoryTable from "@/components/directory/DirectoryTable.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import EntityService from "@/services/EntityService";
 
 export default defineComponent({
   name: "Directory",
@@ -50,7 +49,7 @@ export default defineComponent({
   methods: {
     async init() {
       this.loading = true;
-      this.concept = await EntityService.getPartialEntity(this.conceptIri, []);
+      this.concept = await this.$entityService.getPartialEntity(this.conceptIri, []);
       this.loading = false;
     },
 

@@ -36,7 +36,6 @@ import Builder from "@/components/eclSearch/Builder.vue";
 import SearchResults from "@/components/eclSearch/SearchResults.vue";
 import { mapState } from "vuex";
 import axios from "axios";
-import SetService from "@/services/SetService";
 import { Helpers, LoggerService, Models } from "im-library";
 const {
   DataTypeCheckers: { isObjectHasKeys }
@@ -84,7 +83,7 @@ export default defineComponent({
         }
         const axiosSource = axios.CancelToken.source();
         this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
-        const result = await SetService.ECLSearch(this.queryString, false, 1000, axiosSource.token);
+        const result = await this.$setService.ECLSearch(this.queryString, false, 1000, axiosSource.token);
         if (isObjectHasKeys(result, ["entities", "count", "page"])) {
           this.searchResults = result.entities;
           this.totalCount = result.count;

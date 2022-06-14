@@ -7,6 +7,9 @@ import ProgressSpinner from "primevue/progressspinner";
 import store from "@/store/index";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import TopBar from "im-library";
+import { vi } from "vitest";
+
+vi.mock("@/main");
 
 describe("router", () => {
   beforeEach(() => {

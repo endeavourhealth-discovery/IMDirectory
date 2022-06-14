@@ -120,7 +120,6 @@
 </template>
 
 <script lang="ts">
-import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { Env, Helpers, Models } from "im-library";
@@ -310,7 +309,7 @@ export default defineComponent({
     },
 
     navigateToEditor(): void {
-      DirectService.directTo(Env.EDITOR_URL, this.selected.iri, this, "editor");
+      this.$directService.directTo(Env.EDITOR_URL, this.selected.iri, "editor");
     },
 
     onRightClick(event: any) {
@@ -333,12 +332,12 @@ export default defineComponent({
 
     view(row?: any) {
       if (row) this.selected = row.data;
-      DirectService.directTo(Env.VIEWER_URL, this.selected.iri, this, "concept");
+      this.$directService.directTo(Env.VIEWER_URL, this.selected.iri, "concept");
     },
 
     edit(row?: any) {
       if (row) this.selected = row.data;
-      DirectService.directTo(Env.EDITOR_URL, this.selected.iri, this, "editor");
+      this.$directService.directTo(Env.EDITOR_URL, this.selected.iri, "editor");
     },
 
     locate(row: any) {

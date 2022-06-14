@@ -8,7 +8,7 @@ import Tooltip from "primevue/tooltip";
 import ContextMenu from "primevue/contextmenu";
 import VueClipboard from "vue3-clipboard";
 import Button from "primevue/button";
-import ConfigService from "@/services/ConfigService";
+import { ConfigService } from "im-library";
 import { LoggerService } from "im-library";
 
 Object.assign(navigator, {
@@ -23,6 +23,7 @@ describe("SearchResults.vue", () => {
   let mockRouter;
   let mockToast;
   let mockRef;
+  let mockConfigService;
   let clipboardSpy;
   let docSpy;
 
@@ -114,12 +115,12 @@ describe("SearchResults.vue", () => {
     docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(undefined);
 
-    ConfigService.getDefaultPredicateNames = vi.fn().mockResolvedValue(DEFAULT_PREDICATES);
+    mockConfigService = { getDefaultPredicateNames: vi.fn().mockResolvedValue(DEFAULT_PREDICATES) };
 
     wrapper = shallowMount(SearchResults, {
       global: {
         components: { DataTable, ProgressSpinner, Column, OverlayPanel, ContextMenu, Button },
-        mocks: { $store: mockStore, $router: mockRouter, $toast: mockToast },
+        mocks: { $store: mockStore, $router: mockRouter, $toast: mockToast, $configService: mockConfigService },
         directives: { tooltip: Tooltip, clipboard: VueClipboard },
         stubs: { OverlayPanel: mockRef, ContextMenu: mockRef, FontAwesomeIcon: true }
       },
