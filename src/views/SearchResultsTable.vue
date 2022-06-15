@@ -122,7 +122,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { Env, Helpers, Models } from "im-library";
+import { Helpers, Models } from "im-library";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
@@ -309,7 +309,7 @@ export default defineComponent({
     },
 
     navigateToEditor(): void {
-      this.$directService.directTo(Env.EDITOR_URL, this.selected.iri, "editor");
+      this.$directService.directTo(this.$env.EDITOR_URL, this.selected.iri, "editor");
     },
 
     onRightClick(event: any) {
@@ -332,12 +332,12 @@ export default defineComponent({
 
     view(row?: any) {
       if (row) this.selected = row.data;
-      this.$directService.directTo(Env.VIEWER_URL, this.selected.iri, "concept");
+      this.$directService.directTo(this.$env.VIEWER_URL, this.selected.iri, "concept");
     },
 
     edit(row?: any) {
       if (row) this.selected = row.data;
-      this.$directService.directTo(Env.EDITOR_URL, this.selected.iri, "editor");
+      this.$directService.directTo(this.$env.EDITOR_URL, this.selected.iri, "editor");
     },
 
     locate(row: any) {

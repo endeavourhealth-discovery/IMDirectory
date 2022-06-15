@@ -116,7 +116,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { mapState } from "vuex";
-import { Helpers, Models, LoggerService } from "im-library";
+import { Helpers, Models } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys },
@@ -214,11 +214,11 @@ export default defineComponent({
     },
 
     onCopy(): void {
-      this.$toast.add(LoggerService.success("Value copied to clipboard"));
+      this.$toast.add(this.$loggerService.success("Value copied to clipboard"));
     },
 
     onCopyError(): void {
-      this.$toast.add(LoggerService.error("Failed to copy value to clipboard"));
+      this.$toast.add(this.$loggerService.error("Failed to copy value to clipboard"));
     },
 
     onCopyRightClick(event: any) {
@@ -249,10 +249,10 @@ export default defineComponent({
             await navigator.clipboard
               .writeText(copyConceptToClipboard(this.hoveredResult, undefined, this.defaultPredicates, this.blockedIris))
               .then(() => {
-                this.$toast.add(LoggerService.success("Concept copied to clipboard"));
+                this.$toast.add(this.$loggerService.success("Concept copied to clipboard"));
               })
               .catch(err => {
-                this.$toast.add(LoggerService.error("Failed to copy concept to clipboard", err));
+                this.$toast.add(this.$loggerService.error("Failed to copy concept to clipboard", err));
               });
           }
         }
@@ -271,10 +271,10 @@ export default defineComponent({
             await navigator.clipboard
               .writeText(text)
               .then(() => {
-                this.$toast.add(LoggerService.success(label + " copied to clipboard"));
+                this.$toast.add(this.$loggerService.success(label + " copied to clipboard"));
               })
               .catch(err => {
-                this.$toast.add(LoggerService.error("Failed to copy " + label + " to clipboard", err));
+                this.$toast.add(this.$loggerService.error("Failed to copy " + label + " to clipboard", err));
               });
           }
         });

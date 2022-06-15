@@ -61,7 +61,7 @@ import { defineComponent } from "vue";
 import Logic from "@/components/eclSearch/builder/Logic.vue";
 import RefinementGroup from "@/components/eclSearch/builder/RefinementGroup.vue";
 import FocusConcept from "@/components/eclSearch/builder/FocusConcept.vue";
-import { Enums, Helpers, LoggerService } from "im-library";
+import { Enums, Helpers } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
 const {
   Sorters: { byPosition },
@@ -153,11 +153,11 @@ export default defineComponent({
     },
 
     onCopy(): void {
-      this.$toast.add(LoggerService.success("Value copied to clipboard"));
+      this.$toast.add(this.$loggerService.success("Value copied to clipboard"));
     },
 
     onCopyError(): void {
-      this.$toast.add(LoggerService.error("Failed to copy value to clipboard"));
+      this.$toast.add(this.$loggerService.error("Failed to copy value to clipboard"));
     }
   }
 });

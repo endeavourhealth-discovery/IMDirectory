@@ -5,12 +5,13 @@ import Directory from "../views/Directory.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
 import EclSearch from "../views/EclSearch.vue";
-import { AccessDenied, PageNotFound, SnomedLicense, Env, EntityNotFound, Helpers } from "im-library";
+import { AccessDenied, PageNotFound, SnomedLicense, Services, EntityNotFound, Helpers } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
+const { Env } = Services;
 import vm from "@/main";
 
 const APP_TITLE = "IM Directory";

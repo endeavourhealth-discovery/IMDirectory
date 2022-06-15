@@ -3,23 +3,26 @@ import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { shallowMount, flushPromises } from "@vue/test-utils";
 import Tooltip from "primevue/tooltip";
-import { Enums, LoggerService } from "im-library";
+import { Enums } from "im-library";
+import { vi } from "vitest";
 const { ECLComponent } = Enums;
 
 describe("Builder.vue", () => {
   let wrapper;
   let mockToast;
   let docSpy;
+  let mockLoggerService;
 
   beforeEach(async () => {
     vi.resetAllMocks();
 
     mockToast = { add: vi.fn() };
+    mockLoggerService = { error: vi.fn(), warn: vi.fn(), info: vi.fn(), success: vi.fn(), debug: vi.fn() };
 
     wrapper = shallowMount(Builder, {
       global: {
         components: { Dialog, Button },
-        mocks: { $toast: mockToast },
+        mocks: { $toast: mockToast, $loggerService: mockLoggerService },
         directives: { tooltip: Tooltip, clipboard: { copy: vi.fn(), success: vi.fn(), error: vi.fn() } }
       },
       props: { showDialog: true }
@@ -205,12 +208,12 @@ describe("Builder.vue", () => {
   it("toasts onCopy", () => {
     wrapper.vm.onCopy();
     expect(mockToast.add).toHaveBeenCalledTimes(1);
-    expect(mockToast.add).toHaveBeenCalledWith(LoggerService.success("Value copied to clipboard"));
+    expect(mockToast.add).toHaveBeenCalledWith(mockLoggerService.success("Value copied to clipboard"));
   });
 
   it("toasts onCopyError", () => {
     wrapper.vm.onCopyError();
     expect(mockToast.add).toHaveBeenCalledTimes(1);
-    expect(mockToast.add).toHaveBeenCalledWith(LoggerService.error("Failed to copy value to clipboard"));
+    expect(mockToast.add).toHaveBeenCalledWith(mockLoggerService.error("Failed to copy value to clipboard"));
   });
 });

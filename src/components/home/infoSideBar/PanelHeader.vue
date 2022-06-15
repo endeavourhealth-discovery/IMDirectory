@@ -11,7 +11,7 @@
 import { defineComponent, PropType } from "@vue/runtime-core";
 import { mapState } from "vuex";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Env, Helpers } from "im-library";
+import { Helpers } from "im-library";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
@@ -39,7 +39,7 @@ export default defineComponent({
   },
   methods: {
     navigate() {
-      this.$directService.directTo(Env.VIEWER_URL, this.selectedConceptIri, "concept");
+      this.$directService.directTo(this.$env.VIEWER_URL, this.selectedConceptIri, "concept");
     }
   }
 });
