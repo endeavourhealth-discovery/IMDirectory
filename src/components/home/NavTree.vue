@@ -7,11 +7,12 @@
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
+      @node-collapse="onNodeCollapse"
       class="tree-root"
       :loading="loading"
     >
       <template #default="slotProps">
-        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node.data)" @mouseleave="hideOverlay($event)">
+        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
               <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
@@ -23,7 +24,12 @@
       </template>
     </Tree>
 
-    <OverlayPanel ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+    <OverlayPanel v-if="hoveredResult.iri === 'load'" ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+      <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem;">
+        <span>{{ hoveredResult.name }}</span>
+      </div>
+    </OverlayPanel>
+    <OverlayPanel v-else ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
       <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem;">
         <div class="left-side" style="width: 50%">
           <p>
@@ -136,24 +142,74 @@ export default defineComponent({
       };
     },
 
+    createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
+      return {
+        key: "loadMore" + parentNode.data,
+        label: "Load more...",
+        typeIcon: null,
+        color: null,
+        data: "loadMore",
+        leaf: true,
+        loading: false,
+        children: [] as TreeNode[],
+        parentNode: parentNode,
+        nextPage: nextPage,
+        totalCount: totalCount,
+        style: "font-weight: bold;"
+      };
+    },
+
     onNodeSelect(node: any): void {
-      this.selectedNode = node;
-      this.$router.push({
-        name: "Folder",
-        params: { selectedIri: node.data }
-      });
-      this.$store.commit("updateSelectedConceptIri", node.data);
+      if(node.data === "loadMore"){
+        this.loadMore(node);
+      } else {
+        this.selectedNode = node;
+        this.$router.push({
+          name: "Folder",
+          params: { selectedIri: node.data }
+        });
+        this.$store.commit("updateSelectedConceptIri", node.data);
+      }
+    },
+
+    async loadMore(node: any){
+      const pageSize = 20;
+      if (node.nextPage * pageSize < node.totalCount) {
+        const children = await this.$entityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize);
+        node.parentNode.children.pop();
+        children.result.forEach((child:any) => {
+          if (!this.nodeHasChild(node.parentNode, child)) node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+        });
+        node.nextPage = node.nextPage + 1;
+        node.parentNode.children.push(this.createLoadMoreNode(node.parentNode,node.nextPage,node.totalCount));
+      } else if (node.nextPage * pageSize > node.totalCount) {
+        const children = await this.$entityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize);
+        node.parentNode.children.pop();
+        children.result.forEach((child:any) => {
+          if (!this.nodeHasChild(node.parentNode, child)) node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+        });
+      } else {
+        node.parentNode.children.pop();
+      }
     },
 
     async onNodeExpand(node: any) {
       if (isObjectHasKeys(node)) {
         node.loading = true;
-        const children = await this.$entityService.getEntityChildren(node.data);
-        children.forEach((child: EntityReferenceNode) => {
+        const children = await this.$entityService.getPagedChildren(node.data, 1,20);
+        children.result.forEach((child:any) => {
           if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
         });
+        if(children.totalCount >= 20){
+          node.children.push(this.createLoadMoreNode(node,2,children.totalCount));
+        }
         node.loading = false;
       }
+    },
+
+    onNodeCollapse(node: any) {
+      node.children = [];
+      node.leaf = false;
     },
 
     nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
@@ -183,6 +239,10 @@ export default defineComponent({
         }
         if (n && n.data === path[0]["@id"]) {
           await this.selectAndExpand(n);
+
+          while (!n.children.some(child => child.data === iri)){
+            await this.loadMoreChildren(n);
+          }
           for (const gc of n.children) {
             if (gc.data === iri) {
               this.selectKey(gc.key);
@@ -215,12 +275,24 @@ export default defineComponent({
       if (highlighted) highlighted.scrollIntoView();
     },
 
-    async showOverlay(event: any, iri?: string): Promise<void> {
-      if (iri) {
+    async loadMoreChildren(node:any){
+      if(node.children[node.children.length - 1].data === "loadMore"){
+        await this.loadMore(node.children[node.children.length - 1]);
+      }
+    },
+
+    async showOverlay(event: any, node?: any): Promise<void> {
+      if(node.data === "loadMore"){
         const x = this.$refs.navTreeOP as any;
         this.overlayLocation = event;
         x.show(this.overlayLocation);
-        this.hoveredResult = await this.$entityService.getEntitySummary(iri);
+        this.hoveredResult.iri = "load";
+        this.hoveredResult.name = node.parentNode.label;
+      } else if (node.data) {
+        const x = this.$refs.navTreeOP as any;
+        this.overlayLocation = event;
+        x.show(this.overlayLocation);
+        this.hoveredResult = await this.$entityService.getEntitySummary(node.data);
       }
     },
 
