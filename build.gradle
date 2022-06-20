@@ -33,7 +33,7 @@ clean.doLast {
 
 
 frontend {
-    nodeVersion = '16.15.1'
+    nodeVersion = '18.4.0'
     assembleScript = 'run build'
     checkScript = 'run test:coverage'
 }
