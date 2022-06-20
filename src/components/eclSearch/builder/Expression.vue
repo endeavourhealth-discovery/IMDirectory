@@ -24,13 +24,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import SearchMiniOverlay from "@/components/eclSearch/SearchMiniOverlay.vue";
-import axios from "axios";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { mapState } from "vuex";
 import { Enums, Helpers, Models, Vocabulary } from "im-library";
 import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const { ECLComponent, SortBy } = Enums;
 const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys, isObject }
 } = Helpers;
 const {
   Search: { SearchRequest }
@@ -59,7 +59,7 @@ export default defineComponent({
     return {
       loading: false,
       debounce: 0,
-      request: {} as { cancel: any; msg: string },
+      controller: {} as AbortController,
       selectedResult: {} as Models.Search.ConceptSummary,
       anyModel: {
         code: "",
@@ -114,18 +114,17 @@ export default defineComponent({
         this.selectedFilters.types.forEach((type: TTIriRef) => {
           searchRequest.typeFilter.push(type["@id"]);
         });
-        if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
-          await this.request.cancel({ status: 499, message: "Search cancelled by user" });
+        if (!isObject(this.controller)) {
+          this.controller.abort();
         }
-        const axiosSource = axios.CancelToken.source();
-        this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
-        await this.fetchSearchResults(searchRequest, axiosSource.token);
+        this.controller = new AbortController();
+        await this.fetchSearchResults(searchRequest, this.controller);
         this.loading = false;
       }
     },
 
-    async fetchSearchResults(searchRequest: Models.Search.SearchRequest, cancelToken: any) {
-      const result = await this.$entityService.advancedSearch(searchRequest, cancelToken);
+    async fetchSearchResults(searchRequest: Models.Search.SearchRequest, controller: AbortController) {
+      const result = await this.$entityService.advancedSearch(searchRequest, controller);
       if (result && isArrayHasLength(result)) {
         this.searchResults = result;
       } else {

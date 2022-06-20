@@ -1,8 +1,8 @@
 import ExpressionConstraintsSearch from "@/views/EclSearch.vue";
 import { flushPromises, shallowMount } from "@vue/test-utils";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
-import axios from "axios";
 
 describe("EclSearch.vue", () => {
   let wrapper;
@@ -143,22 +143,22 @@ describe("EclSearch.vue", () => {
 
   it("can search ___ querystring ___ success", async () => {
     wrapper.vm.queryString = "<< 10363601000001109 |UK product| ";
-    const token = axios.CancelToken.source().token;
+    const controller = new AbortController();
     wrapper.vm.search();
     expect(wrapper.vm.loading).toBe(true);
     await flushPromises();
     expect(mockSetService.ECLSearch).toHaveBeenCalledTimes(1);
-    expect(mockSetService.ECLSearch).toHaveBeenCalledWith("<< 10363601000001109 |UK product| ", false, 1000, token);
+    expect(mockSetService.ECLSearch).toHaveBeenCalledWith("<< 10363601000001109 |UK product| ", false, 1000, controller);
     expect(wrapper.vm.loading).toBe(false);
     expect(wrapper.vm.searchResults).toStrictEqual(SEARCH_RESULTS.entities);
     expect(wrapper.vm.totalCount).toBe(3);
   });
 
   it("cancels existing requests on new search", async () => {
+    const spy = vi.spyOn(AbortController.prototype, "abort");
     wrapper.vm.queryString = "sco";
     wrapper.vm.search();
     await wrapper.vm.$nextTick();
-    const spy = vi.spyOn(wrapper.vm.request, "cancel");
     wrapper.vm.queryString = "pul";
     wrapper.vm.search();
     await wrapper.vm.$nextTick();

@@ -1,5 +1,6 @@
 import Expression from "@/components/eclSearch/builder/Expression.vue";
 import { flushPromises, shallowMount } from "@vue/test-utils";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import InputText from "primevue/inputtext";
 import OverlayPanel from "primevue/overlaypanel";
 import axios from "axios";
@@ -356,7 +357,7 @@ describe("Expression.vue ___ value", () => {
       status: {},
       weighting: 0
     });
-    expect(wrapper.vm.request).toStrictEqual({});
+    expect(wrapper.vm.controller).toStrictEqual({});
     expect(wrapper.vm.anyModel).toStrictEqual(EXPRESSION);
     expect(wrapper.vm.searchTerm).toBe("ANY");
     expect(wrapper.vm.searchResults).toStrictEqual([]);
@@ -419,7 +420,6 @@ describe("Expression.vue ___ value", () => {
   });
 
   it("searches when not empty ___ 3", async () => {
-    const axiosSource = axios.CancelToken.source();
     wrapper.vm.fetchSearchResults = vi.fn();
     wrapper.vm.searchTerm = "sco";
     wrapper.vm.search();
@@ -447,23 +447,23 @@ describe("Expression.vue ___ value", () => {
           "http://endhealth.info/im#ValueSet"
         ]
       },
-      axiosSource.token
+      wrapper.vm.controller
     );
     await flushPromises();
     expect(wrapper.vm.loading).toBe(false);
   });
 
   it("can cancel existing request", () => {
-    wrapper.vm.request = { cancel: vi.fn(), msg: "testMsg" };
+    const controllerSpy = vi.spyOn(AbortController.prototype, "abort");
     wrapper.vm.fetchSearchResults = vi.fn();
     wrapper.vm.searchTerm = "sco";
     wrapper.vm.search();
-    expect(wrapper.vm.request.cancel).toHaveBeenCalledTimes(1);
-    expect(wrapper.vm.request.cancel).toHaveBeenCalledWith({ status: 499, message: "Search cancelled by user" });
+    wrapper.vm.searchTerm = "sco";
+    wrapper.vm.search();
+    expect(controllerSpy).toHaveBeenCalledTimes(1);
   });
 
   it("can fetchSearchResults ___ success", async () => {
-    const axiosSource = axios.CancelToken.source();
     wrapper.vm.fetchSearchResults(
       {
         descendentFilter: undefined,
@@ -485,7 +485,7 @@ describe("Expression.vue ___ value", () => {
           "http://endhealth.info/im#ValueSet"
         ]
       },
-      axiosSource.token
+      wrapper.vm.controller
     );
     await flushPromises();
     expect(wrapper.vm.searchResults).toStrictEqual([
@@ -857,7 +857,7 @@ describe("Expression.vue ___ no value", () => {
       status: {},
       weighting: 0
     });
-    expect(wrapper.vm.request).toStrictEqual({});
+    expect(wrapper.vm.controller).toStrictEqual({});
     expect(wrapper.vm.anyModel).toStrictEqual(EXPRESSION);
     expect(wrapper.vm.searchTerm).toBe("ANY");
     expect(wrapper.vm.searchResults).toStrictEqual([]);
