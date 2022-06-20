@@ -33,9 +33,10 @@ clean.doLast {
 
 
 frontend {
-    nodeVersion = '14.18.0'
+    nodeVersion = '18.4.0'
     assembleScript = 'run build'
     checkScript = 'run test:coverage'
+    installScript = 'install --legacy-peer-deps'
 }
 
 check.finalizedBy 'sonarqube'
