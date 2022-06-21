@@ -540,7 +540,7 @@ describe("Expression.vue ___ value", () => {
 
   it("can fetchSearchResults ___ success", async () => {
     mockEntityService.advancedSearch = vi.fn().mockResolvedValue({});
-    const axiosSource = axios.CancelToken.source();
+    const controller = new AbortController();
     wrapper.vm.fetchSearchResults(
       {
         descendentFilter: undefined,
@@ -562,7 +562,7 @@ describe("Expression.vue ___ value", () => {
           "http://endhealth.info/im#ValueSet"
         ]
       },
-      axiosSource.token
+      controller
     );
     await flushPromises();
     expect(wrapper.vm.searchResults).toStrictEqual([]);

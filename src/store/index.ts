@@ -193,8 +193,8 @@ export default createStore({
       });
       commit("updateHierarchySelectedFilters", selectedSchemes);
     },
-    async fetchSearchResults({ commit }, data: { searchRequest: Models.Search.SearchRequest; cancelToken: any }) {
-      const result = await vm.$entityService.advancedSearch(data.searchRequest, data.cancelToken);
+    async fetchSearchResults({ commit }, data: { searchRequest: Models.Search.SearchRequest; controller: AbortController }) {
+      const result = await vm.$entityService.advancedSearch(data.searchRequest, data.controller);
       if (result && isArrayHasLength(result)) {
         commit("updateSearchResults", result);
       } else {

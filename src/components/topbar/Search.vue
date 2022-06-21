@@ -16,11 +16,12 @@ import Filters from "@/components/topbar/search/Filters.vue";
 import axios from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { TTIriRef, Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Models, Helpers } from "im-library";
 const { SortBy } = Enums;
 const {
-  DataTypeCheckers: { isObjectHasKeys },
+  DataTypeCheckers: { isObject },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
 const {
@@ -40,7 +41,7 @@ export default defineComponent({
   },
   data() {
     return {
-      request: {} as { cancel: any; msg: string },
+      controller: {} as AbortController,
       searchText: ""
     };
   },
@@ -79,14 +80,13 @@ export default defineComponent({
         this.selectedFilters.types.forEach((type: TTIriRef) => {
           searchRequest.typeFilter.push(type["@id"]);
         });
-        if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
-          await this.request.cancel({ status: 499, message: "Search cancelled by user" });
+        if (!isObject(this.controller)) {
+          this.controller.abort();
         }
-        const axiosSource = axios.CancelToken.source();
-        this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
+        this.controller = new AbortController();
         await this.$store.dispatch("fetchSearchResults", {
           searchRequest: searchRequest,
-          cancelToken: axiosSource.token
+          controller: this.controller
         });
         this.$store.commit("updateSearchLoading", false);
       }
