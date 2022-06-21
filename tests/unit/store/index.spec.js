@@ -1,10 +1,8 @@
 import store from "@/store/index";
-import axios from "axios";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
-import { Models, Vocabulary } from "im-library";
+import { Models } from "im-library";
 import { vi } from "vitest";
-const { IM } = Vocabulary;
 const {
   User,
   Search: { SearchRequest },
@@ -207,11 +205,11 @@ describe("mutations", () => {
   it("can fetchSearchResults ___ pass", async () => {
     vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
     vm.$loggerService.info = vi.fn();
-    const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
+    const testInput = { searchRequest: new SearchRequest(), controller: new AbortController() };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
     expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
-    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
+    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
     expect(store.state.searchResults).toEqual([]);
   });
@@ -219,11 +217,11 @@ describe("mutations", () => {
   it("can fetchSearchResults ___ failed", async () => {
     vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
     vm.$loggerService.error = vi.fn();
-    const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
+    const testInput = { searchRequest: new SearchRequest(), controller: new AbortController() };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
     expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
-    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
+    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
     expect(store.state.searchResults).toStrictEqual([]);
   });
