@@ -80,7 +80,8 @@ export default defineComponent({
   computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
     async locateOnNavTreeIri() {
-      await this.findPathToNode(this.locateOnNavTreeIri);
+      console.log(this.locateOnNavTreeIri.iri)
+      await this.findPathToNode(this.locateOnNavTreeIri.iri);
     }
   },
   data() {
@@ -161,7 +162,7 @@ export default defineComponent({
     },
 
     onNodeSelect(node: any): void {
-      if(node.data === "loadMore"){
+      if (node.data === "loadMore") {
         this.loadMore(node);
       } else {
         this.selectedNode = node;
@@ -173,20 +174,22 @@ export default defineComponent({
       }
     },
 
-    async loadMore(node: any){
+    async loadMore(node: any) {
       if (node.nextPage * this.pageSize < node.totalCount) {
         const children = await this.$entityService.getPagedChildren(node.parentNode.data, node.nextPage, this.pageSize);
         node.parentNode.children.pop();
-        children.result.forEach((child:any) => {
-          if (!this.nodeHasChild(node.parentNode, child)) node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+        children.result.forEach((child: any) => {
+          if (!this.nodeHasChild(node.parentNode, child))
+            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
         });
         node.nextPage = node.nextPage + 1;
-        node.parentNode.children.push(this.createLoadMoreNode(node.parentNode,node.nextPage,node.totalCount));
+        node.parentNode.children.push(this.createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
       } else if (node.nextPage * this.pageSize > node.totalCount) {
         const children = await this.$entityService.getPagedChildren(node.parentNode.data, node.nextPage, this.pageSize);
         node.parentNode.children.pop();
-        children.result.forEach((child:any) => {
-          if (!this.nodeHasChild(node.parentNode, child)) node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+        children.result.forEach((child: any) => {
+          if (!this.nodeHasChild(node.parentNode, child))
+            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
         });
       } else {
         node.parentNode.children.pop();
@@ -196,12 +199,12 @@ export default defineComponent({
     async onNodeExpand(node: any) {
       if (isObjectHasKeys(node)) {
         node.loading = true;
-        const children = await this.$entityService.getPagedChildren(node.data, 1,this.pageSize);
-        children.result.forEach((child:any) => {
+        const children = await this.$entityService.getPagedChildren(node.data, 1, this.pageSize);
+        children.result.forEach((child: any) => {
           if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
         });
-        if(children.totalCount >= this.pageSize){
-          node.children.push(this.createLoadMoreNode(node,2,children.totalCount));
+        if (children.totalCount >= this.pageSize) {
+          node.children.push(this.createLoadMoreNode(node, 2, children.totalCount));
         }
         node.loading = false;
       }
@@ -224,6 +227,11 @@ export default defineComponent({
     },
 
     async findPathToNode(iri: string) {
+      console.log("finding")
+      this.selected = {}
+      this.expandedKeys = {}
+      // console.log(this.selected, this.expandedKeys);
+
       this.loading = true;
       const path = await this.$entityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
@@ -240,7 +248,7 @@ export default defineComponent({
         if (n && n.data === path[0]["@id"]) {
           await this.selectAndExpand(n);
 
-          while (!n.children.some(child => child.data === iri)){
+          while (!n.children.some(child => child.data === iri)) {
             await this.loadMoreChildren(n);
           }
           for (const gc of n.children) {
@@ -275,14 +283,14 @@ export default defineComponent({
       if (highlighted) highlighted.scrollIntoView();
     },
 
-    async loadMoreChildren(node:any){
-      if(node.children[node.children.length - 1].data === "loadMore"){
+    async loadMoreChildren(node: any) {
+      if (node.children[node.children.length - 1].data === "loadMore") {
         await this.loadMore(node.children[node.children.length - 1]);
       }
     },
 
     async showOverlay(event: any, node?: any): Promise<void> {
-      if(node.data === "loadMore"){
+      if (node.data === "loadMore") {
         const x = this.$refs.navTreeOP as any;
         this.overlayLocation = event;
         x.show(this.overlayLocation);
