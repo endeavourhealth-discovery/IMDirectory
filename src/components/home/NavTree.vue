@@ -80,7 +80,6 @@ export default defineComponent({
   computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
     async locateOnNavTreeIri() {
-      console.log(this.locateOnNavTreeIri.iri)
       await this.findPathToNode(this.locateOnNavTreeIri.iri);
     }
   },
@@ -227,11 +226,6 @@ export default defineComponent({
     },
 
     async findPathToNode(iri: string) {
-      console.log("finding")
-      this.selected = {}
-      this.expandedKeys = {}
-      // console.log(this.selected, this.expandedKeys);
-
       this.loading = true;
       const path = await this.$entityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
