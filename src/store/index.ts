@@ -6,7 +6,7 @@ const { IM, RDF, RDFS } = Vocabulary;
 const { Avatars } = Constants;
 const {
   User,
-  Search: { SearchRequest, ConceptSummary },
+  Search: { SearchRequest, ConceptSummary, SortDirection },
   CustomAlert
 } = Models;
 const {
@@ -34,12 +34,19 @@ export default createStore({
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
-      types: [] as EntityReferenceNode[]
+      types: [] as EntityReferenceNode[],
+      sortFields: [{ label: "Usage", value: "weighting" }],
+      sortDirections: [
+        { label: "Descending", value: SortDirection.DESC },
+        { label: "Ascending", value: SortDirection.ASC }
+      ]
     },
     selectedFilters: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
-      types: [] as EntityReferenceNode[]
+      types: [] as EntityReferenceNode[],
+      sortField: "",
+      sortDirection: ""
     },
     quickFiltersStatus: new Map<string, boolean>(),
     focusHierarchy: false,

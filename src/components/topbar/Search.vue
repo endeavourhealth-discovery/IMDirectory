@@ -80,6 +80,12 @@ export default defineComponent({
         this.selectedFilters.types.forEach((type: TTIriRef) => {
           searchRequest.typeFilter.push(type["@id"]);
         });
+
+        if (this.selectedFilters.sortField) {
+          searchRequest.sortField = this.selectedFilters.sortField;
+          searchRequest.sortDirection = this.selectedFilters.sortDirection;
+        }
+
         if (!isObject(this.controller)) {
           this.controller.abort();
         }

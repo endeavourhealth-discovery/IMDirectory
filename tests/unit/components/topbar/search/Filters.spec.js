@@ -597,7 +597,9 @@ describe("Filters.vue ___ empty store", () => {
           ],
           "@id": "http://endhealth.info/im#ValueSet"
         }
-      ]
+      ],
+      sortDirection: "",
+      sortField: ""
     });
   });
 

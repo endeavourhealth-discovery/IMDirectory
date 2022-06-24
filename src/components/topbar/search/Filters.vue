@@ -35,13 +35,40 @@
       </span>
     </div>
   </div>
+
+  <div class="p-field">
+    <div class="p-inputgroup">
+      <span class="p-float-label">
+        <Dropdown id="sortField" v-model="selectedSortField" @change="checkForSearch" :options="sortFieldOptions" optionLabel="label" optionValue="value" />
+        <label for="sortField">Select sort field:</label>
+        <Button icon="pi pi-undo" class="p-button-secondary" @click="resetSortField" v-tooltip="'Reset sort field filters'" />
+      </span>
+    </div>
+  </div>
+
+  <div class="p-field">
+    <div class="p-inputgroup">
+      <span class="p-float-label">
+        <Dropdown
+          id="sortDirection"
+          v-model="selectedSortDirection"
+          @change="checkForSearch"
+          :options="sortDirectionsOptions"
+          optionLabel="label"
+          optionValue="value"
+        />
+        <label for="sortDirection">Select sort direction:</label>
+        <Button icon="pi pi-undo" class="p-button-secondary" @click="resetSortDirection" v-tooltip="'Reset sort direction filters'" />
+      </span>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import {Helpers, Vocabulary} from 'im-library';
+import { Helpers, Vocabulary, Models } from "im-library";
 const {
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
@@ -63,6 +90,12 @@ export default defineComponent({
     },
     selectedTypes() {
       this.updateStoreSelectedFilters();
+    },
+    selectedSortField() {
+      this.updateStoreSelectedFilters();
+    },
+    selectedSortDirection() {
+      this.updateStoreSelectedFilters();
     }
   },
   mounted() {
@@ -73,13 +106,30 @@ export default defineComponent({
       selectedStatus: [] as EntityReferenceNode[],
       selectedSchemes: [] as Namespace[],
       selectedTypes: [] as EntityReferenceNode[],
-      includeLegacy: false
+      selectedSortField: "" as any,
+      selectedSortDirection: "" as any,
+      includeLegacy: false,
+      sortFieldOptions: [{ label: "Usage", value: "weighting" }],
+      sortDirectionsOptions: [
+        { label: "Descending", value: Models.Search.SortDirection.DESC },
+        { label: "Ascending", value: Models.Search.SortDirection.ASC }
+      ]
     };
   },
   methods: {
     init() {
       this.setDefaults();
     },
+
+    resetSortField() {
+      this.selectedSortField = undefined;
+      this.selectedSortDirection = undefined;
+    },
+
+    resetSortDirection() {
+      this.selectedSortDirection = undefined;
+    },
+
     resetStatus() {
       this.selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.filterDefaults.statusOptions.includes(item["@id"]));
       this.checkForSearch();
@@ -101,7 +151,9 @@ export default defineComponent({
       this.$store.commit("updateSelectedFilters", {
         status: this.selectedStatus,
         schemes: this.selectedSchemes,
-        types: this.selectedTypes
+        types: this.selectedTypes,
+        sortField: this.selectedSortField,
+        sortDirection: this.selectedSortDirection
       });
     },
 
@@ -115,6 +167,8 @@ export default defineComponent({
         this.selectedStatus = this.selectedFilters.status;
         this.selectedSchemes = this.selectedFilters.schemes;
         this.selectedTypes = this.selectedFilters.types;
+        this.selectedSortField = this.selectedFilters.sortField;
+        this.selectedSortDirection = this.selectedFilters.sortDirection;
       }
 
       if (this.quickFiltersStatus.includeLegacy) {

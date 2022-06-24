@@ -85,9 +85,27 @@ describe("state", () => {
     expect(store.state.selectedFilters).toEqual({
       status: [],
       schemes: [],
-      types: []
+      types: [],
+      sortDirection: "",
+      sortField: ""
     });
-    expect(store.state.filterOptions).toStrictEqual({ status: [], schemes: [], types: [] });
+    expect(store.state.filterOptions).toStrictEqual({
+      status: [], schemes: [], types: [],
+      sortDirections: [{
+        "label": "Descending",
+        "value": "DESC",
+      },
+      {
+        "label": "Ascending",
+        "value": "ASC",
+      },
+      ],
+      "sortFields": [
+        {
+          "label": "Usage",
+          "value": "weighting",
+        }]
+    });
     expect(store.state.quickFiltersStatus).toEqual(new Map());
     expect(store.state.focusHierarchy).toBe(false);
     expect(store.state.hierarchySelectedFilters).toStrictEqual([]);

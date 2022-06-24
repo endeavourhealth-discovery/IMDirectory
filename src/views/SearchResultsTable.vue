@@ -68,6 +68,11 @@
           <span class="break-all">{{ slotProps.data.code }}</span>
         </template>
       </Column>
+      <Column field="weighting" header="Usage">
+        <template #body="slotProps">
+          <span class="break-all">{{ slotProps.data.weighting }}</span>
+        </template>
+      </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
         <template #body="slotProps">
           <div class="buttons-container">
