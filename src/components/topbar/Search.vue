@@ -64,7 +64,7 @@ export default defineComponent({
           name: "Search"
         });
         this.$store.commit("updateSearchLoading", true);
-        const searchRequest = new SearchRequest();
+        const searchRequest = {} as SearchRequest;
         searchRequest.termFilter = this.searchText;
         searchRequest.sortBy = SortBy.Usage;
         searchRequest.page = 1;

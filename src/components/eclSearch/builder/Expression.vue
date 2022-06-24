@@ -98,7 +98,7 @@ export default defineComponent({
       if (this.searchTerm.length > 0) {
         this.searchResults = [];
         this.loading = true;
-        const searchRequest = new SearchRequest();
+        const searchRequest = {} as SearchRequest;
         searchRequest.termFilter = this.searchTerm;
         searchRequest.sortBy = SortBy.Usage;
         searchRequest.page = 1;

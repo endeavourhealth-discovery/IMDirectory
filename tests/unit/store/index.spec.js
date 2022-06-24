@@ -223,7 +223,7 @@ describe("mutations", () => {
   it("can fetchSearchResults ___ pass", async () => {
     vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
     vm.$loggerService.info = vi.fn();
-    const testInput = { searchRequest: new SearchRequest(), controller: new AbortController() };
+    const testInput = { searchRequest: {}, controller: new AbortController() };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
     expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
@@ -235,7 +235,7 @@ describe("mutations", () => {
   it("can fetchSearchResults ___ failed", async () => {
     vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
     vm.$loggerService.error = vi.fn();
-    const testInput = { searchRequest: new SearchRequest(), controller: new AbortController() };
+    const testInput = { searchRequest: {}, controller: new AbortController() };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
     expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
