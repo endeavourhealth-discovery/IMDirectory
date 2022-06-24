@@ -142,7 +142,7 @@ export default defineComponent({
   },
   data() {
     return {
-      results: new Models.Search.SearchResponse(),
+      results: {} as Models.Search.SearchResponse,
       selectedResult: {} as Models.Search.ConceptSummary,
       hoveredResult: {} as Models.Search.ConceptSummary,
       copyMenuItems: [] as any[],
