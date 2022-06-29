@@ -111,7 +111,7 @@ export default defineComponent({
       const IMChildren = await this.$entityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
-        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren));
+        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, IMchild.orderNumber));
       }
       this.root.sort(this.byKey);
       const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
@@ -121,16 +121,19 @@ export default defineComponent({
     },
 
     byKey(a: any, b: any): number {
-      if (a.key > b.key) {
-        return 1;
-      } else if (b.key > a.key) {
-        return -1;
-      } else {
-        return 0;
-      }
+      // order by order number
+      if (a.order && b.order) return a.order - b.order;
+      else if (a.order && !b.order) return -1;
+      else if (!a.order && b.order) return 1;
+      
+      // order alphabetically
+      else if (a.key > b.key) return 1;
+      else if (b.key > a.key) return -1;
+
+      return 0;
     },
 
-    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
+    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, order?: number): TreeNode {
       return {
         key: conceptName,
         label: conceptName,
@@ -139,7 +142,8 @@ export default defineComponent({
         data: conceptIri,
         leaf: !hasChildren,
         loading: false,
-        children: [] as TreeNode[]
+        children: [] as TreeNode[],
+        order: order
       };
     },
 
