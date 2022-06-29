@@ -34,6 +34,7 @@ export default defineComponent({
     await this.$store.dispatch("authenticateCurrentUser");
     await this.$store.dispatch("fetchBlockedIris");
     await this.$store.dispatch("fetchFilterSettings");
+    await this.$store.dispatch("initFavourites");
     this.loading = false;
   },
   data() {

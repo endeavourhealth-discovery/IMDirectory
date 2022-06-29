@@ -28,10 +28,11 @@ describe("App.vue", () => {
   });
 
   it("should check auth and update store history count on mount", async () => {
-    expect(mockStore.dispatch).toHaveBeenCalledTimes(3);
+    expect(mockStore.dispatch).toHaveBeenCalledTimes(4);
     expect(mockStore.dispatch).toHaveBeenCalledWith("authenticateCurrentUser");
     expect(mockStore.dispatch).toHaveBeenCalledWith("fetchBlockedIris");
     expect(mockStore.dispatch).toHaveBeenCalledWith("fetchFilterSettings");
+    expect(mockStore.dispatch).toHaveBeenCalledWith("initFavourites");
     expect(wrapper.vm.loading).toBe(false);
   });
 });

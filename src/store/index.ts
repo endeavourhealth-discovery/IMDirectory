@@ -20,7 +20,7 @@ export default createStore({
     selectedConceptIri: "",
     locateOnNavTreeIri: {},
     conceptIri: IM.MODULE_ONTOLOGY,
-    favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
+    favourites: [] as string[],
     history: [] as HistoryItem[],
     searchResults: [] as Models.Search.ConceptSummary[],
     searchLoading: false,
@@ -172,6 +172,17 @@ export default createStore({
     }
   },
   actions: {
+    async initFavourites({ commit, state }) {
+      const favourites = JSON.parse(localStorage.getItem("favourites") || "[]") as string[];
+      for (let index = 0; index < favourites.length; index++) {
+        const iriExists = await vm.$entityService.iriExists(favourites[index]);
+        if (!iriExists) {
+          favourites.splice(index, 1);
+        }
+      }
+      localStorage.setItem("favourites", JSON.stringify(favourites));
+      state.favourites = favourites;
+    },
     async fetchBlockedIris({ commit }) {
       const blockedIris = await vm.$configService.getXmlSchemaDataTypes();
       commit("updateBlockedIris", blockedIris);
