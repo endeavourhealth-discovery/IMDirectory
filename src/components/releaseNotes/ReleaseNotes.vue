@@ -20,14 +20,17 @@ export default defineComponent({
       release: {
         version: 2.1,
         notes: [
-            "Update to SNOMED xx.xx",
+            "Updated core to SNOMED 33.1 (15-Jun-2022)",
+            "Updated textual query view",
+            "Extended concept summary at top of IMDirectory",
             "Navigation trees now support double-click",
             "Tooltips added to main tree",
-            "'Load more' in trees for large lists",
-            "'See more' navigation option in definition & graph",
-            "Sort search results by usage",
+            "'Load more' added to trees",
+            "'See more' navigation in definition & graph",
+            "Sort search results by usage option",
             "Query definition now updates when navigating",
             "Fixed issue when user tried to update their email",
+            "Optimized set member download/publish",
             "Various bug fixes/performance enhancements"
         ]
       }
@@ -36,7 +39,7 @@ export default defineComponent({
   mounted() {
     console.log("mounted");
     const lastVer = localStorage.getItem("IMVersion");
-    if (!lastVer || +lastVer <= this.release.version) {
+    if (!lastVer || +lastVer < this.release.version) {
       this.showRelNotes = true;
     }
   },
