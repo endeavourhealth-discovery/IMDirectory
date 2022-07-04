@@ -170,7 +170,6 @@ export default createStore({
     },
     async fetchFilterSettings({ commit, state }) {
       const filterDefaults = await vm.$entityService.getFilterOptions();
-      console.log(JSON.stringify(filterDefaults));
       commit("updateFilterOptions", {
         status: filterDefaults.status,
         schemes: filterDefaults.schemes,
