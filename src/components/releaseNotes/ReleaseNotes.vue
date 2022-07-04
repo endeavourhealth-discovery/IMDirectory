@@ -1,5 +1,5 @@
 <template>
-  <Dialog :header="'What\'s new (v' + release.version + ')'" :visible="showRelNotes" :closable=false>
+  <Dialog :header="'What\'s new (v' + release.version + ')'" :visible="showRelNotes" :closable=false :modal="true">
     <ul>
       <li v-for="item in release.notes">{{item}}</li>
     </ul>
@@ -39,7 +39,7 @@ export default defineComponent({
   mounted() {
     console.log("mounted");
     const lastVer = localStorage.getItem("IMVersion");
-    if (!lastVer || +lastVer < this.release.version) {
+    if (!lastVer || +lastVer <= this.release.version) {
       this.showRelNotes = true;
     }
   },
