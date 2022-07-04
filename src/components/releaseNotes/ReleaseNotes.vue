@@ -39,7 +39,7 @@ export default defineComponent({
   mounted() {
     console.log("mounted");
     const lastVer = localStorage.getItem("IMVersion");
-    if (!lastVer || +lastVer <= this.release.version) {
+    if (!lastVer || +lastVer < this.release.version) {
       this.showRelNotes = true;
     }
   },
