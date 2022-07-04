@@ -1,7 +1,7 @@
 import store from "@/store/index";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
-import { Models } from "im-library";
+import { Config, Models } from "im-library";
 import { vi } from "vitest";
 const {
   User,
@@ -81,7 +81,6 @@ describe("state", () => {
     expect(store.state.isLoggedIn).toBeFalsy();
     expect(store.state.snomedLicenseAccepted).toBeNull();
 
-    expect(store.state.blockedIris).toStrictEqual([]);
     expect(store.state.selectedFilters).toEqual({
       status: [],
       schemes: [],
@@ -91,26 +90,12 @@ describe("state", () => {
     });
     expect(store.state.filterOptions).toStrictEqual({
       status: [], schemes: [], types: [],
-      sortDirections: [{
-        "label": "Descending",
-        "value": "DESC",
-      },
-      {
-        "label": "Ascending",
-        "value": "ASC",
-      },
-      ],
-      "sortFields": [
-        {
-          "label": "Usage",
-          "value": "weighting",
-        }]
+      sortDirections: [],
+      sortFields: []
     });
     expect(store.state.quickFiltersStatus).toEqual(new Map());
     expect(store.state.focusHierarchy).toBe(false);
     expect(store.state.hierarchySelectedFilters).toStrictEqual([]);
-    expect(store.state.filterDefaults).toStrictEqual({});
-    expect(store.state.defaultPredicateNames).toStrictEqual({});
   });
 });
 
@@ -211,13 +196,6 @@ describe("mutations", () => {
   it("can updateFilterDefaults", () => {
     store.commit("updateFilterDefaults", { schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
     expect(store.state.filterDefaults).toStrictEqual({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
-  });
-
-  it("can fetchBlockedIris", async () => {
-    store.dispatch("fetchBlockedIris");
-    await flushPromises();
-    expect(vm.$configService.getXmlSchemaDataTypes).toHaveBeenCalledTimes(1);
-    expect(store.state.blockedIris).toStrictEqual(["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"]);
   });
 
   it("can fetchSearchResults ___ pass", async () => {
