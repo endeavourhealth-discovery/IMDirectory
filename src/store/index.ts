@@ -1,16 +1,12 @@
 import { createStore } from "vuex";
 import AuthService from "@/services/AuthService";
-import { FilterDefaultsConfig, EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
-import { Models, Constants, Vocabulary, Helpers } from "im-library";
-const { IM, RDF, RDFS } = Vocabulary;
+import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
+import { Models, Constants, Vocabulary, Helpers, Config } from "im-library";
+const { IM } = Vocabulary;
 const { Avatars } = Constants;
+const { CustomAlert } = Models;
 const {
-  User,
-  Search: { SearchRequest, ConceptSummary, SortDirection },
-  CustomAlert
-} = Models;
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
+  DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
 import vm from "@/main";
 
@@ -20,7 +16,7 @@ export default createStore({
     selectedConceptIri: "",
     locateOnNavTreeIri: {},
     conceptIri: IM.MODULE_ONTOLOGY,
-    favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
+    favourites: [] as string[],
     history: [] as HistoryItem[],
     searchResults: [] as Models.Search.ConceptSummary[],
     searchLoading: false,
@@ -30,16 +26,12 @@ export default createStore({
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     snomedReturnUrl: "",
     authReturnUrl: "",
-    blockedIris: [] as string[],
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
       types: [] as EntityReferenceNode[],
-      sortFields: [{ label: "Usage", value: "weighting" }],
-      sortDirections: [
-        { label: "Descending", value: SortDirection.DESC },
-        { label: "Ascending", value: SortDirection.ASC }
-      ]
+      sortFields: [] as { label: string; value: any }[],
+      sortDirections: [] as { label: string; value: any }[]
     },
     selectedFilters: {
       status: [] as EntityReferenceNode[],
@@ -52,8 +44,7 @@ export default createStore({
     focusHierarchy: false,
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
-    filterDefaults: {} as FilterDefaultsConfig,
-    defaultPredicateNames: {} as any,
+    filterDefaults: Config.Values.FILTER_DEFAULTS,
     arrayObjectNameListboxWithLabelStartExpanded: [],
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
@@ -69,9 +60,6 @@ export default createStore({
     },
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
-    },
-    updateBlockedIris(state, blockedIris) {
-      state.blockedIris = blockedIris;
     },
     updateSelectedConceptIri(state, selectedConceptIri) {
       state.selectedConceptIri = selectedConceptIri;
@@ -155,9 +143,6 @@ export default createStore({
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
     },
-    updateDefaultPredicateNames(state, names) {
-      state.defaultPredicateNames = names;
-    },
     updateLocateOnNavTreeIri(state, iri) {
       state.locateOnNavTreeIri = { iri };
     },
@@ -172,27 +157,32 @@ export default createStore({
     }
   },
   actions: {
-    async fetchBlockedIris({ commit }) {
-      const blockedIris = await vm.$configService.getXmlSchemaDataTypes();
-      commit("updateBlockedIris", blockedIris);
+    async initFavourites({ commit, state }) {
+      const favourites = JSON.parse(localStorage.getItem("favourites") || "[]") as string[];
+      for (let index = 0; index < favourites.length; index++) {
+        const iriExists = await vm.$entityService.iriExists(favourites[index]);
+        if (!iriExists) {
+          favourites.splice(index, 1);
+        }
+      }
+      localStorage.setItem("favourites", JSON.stringify(favourites));
+      state.favourites = favourites;
     },
     async fetchFilterSettings({ commit, state }) {
-      const configs = await vm.$configService.getFilterDefaults();
-      commit("updateFilterDefaults", configs);
-      const schemeOptions = await vm.$entityService.getNamespaces();
-      const statusOptions = await vm.$entityService.getEntityChildren(IM.STATUS);
-      const typeOptions = (await vm.$entityService.getPartialEntities(state.filterDefaults.typeOptions, [RDFS.LABEL])).map(typeOption => {
-        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
-      });
+      const filterDefaults = await vm.$entityService.getFilterOptions();
       commit("updateFilterOptions", {
-        status: statusOptions,
-        schemes: schemeOptions,
-        types: typeOptions
+        status: filterDefaults.status,
+        schemes: filterDefaults.schemes,
+        types: filterDefaults.types,
+        sortFields: filterDefaults.sortFields,
+        sortDirections: filterDefaults.sortDirections
       });
 
-      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => configs.statusOptions.includes(item["@id"]));
-      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => configs.schemeOptions.includes(item.iri));
-      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => configs.typeOptions.includes(item["@id"]));
+      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) =>
+        Config.Values.FILTER_DEFAULTS.statusOptions.includes(item["@id"])
+      );
+      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => Config.Values.FILTER_DEFAULTS.schemeOptions.includes(item.iri));
+      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => Config.Values.FILTER_DEFAULTS.typeOptions.includes(item["@id"]));
       commit("updateSelectedFilters", {
         status: selectedStatus,
         schemes: selectedSchemes,

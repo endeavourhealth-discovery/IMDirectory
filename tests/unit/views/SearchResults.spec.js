@@ -11,7 +11,7 @@ import Button from "primevue/button";
 
 Object.assign(navigator, {
   clipboard: {
-    writeText: () => {}
+    writeText: () => { }
   }
 });
 
@@ -25,53 +25,6 @@ describe("SearchResults.vue", () => {
   let mockLoggerService;
   let clipboardSpy;
   let docSpy;
-
-  const BLOCKED_IRIS = [
-    "http://www.w3.org/2001/XMLSchema#string",
-    "http://www.w3.org/2001/XMLSchema#boolean",
-    "http://www.w3.org/2001/XMLSchema#float",
-    "http://www.w3.org/2001/XMLSchema#double",
-    "http://www.w3.org/2001/XMLSchema#decimal",
-    "http://www.w3.org/2001/XMLSchema#dateTime",
-    "http://www.w3.org/2001/XMLSchema#duration",
-    "http://www.w3.org/2001/XMLSchema#hexBinary",
-    "http://www.w3.org/2001/XMLSchema#base64Binary",
-    "http://www.w3.org/2001/XMLSchema#anyURI",
-    "http://www.w3.org/2001/XMLSchema#ID",
-    "http://www.w3.org/2001/XMLSchema#IDREF",
-    "http://www.w3.org/2001/XMLSchema#ENTITY",
-    "http://www.w3.org/2001/XMLSchema#NOTATION",
-    "http://www.w3.org/2001/XMLSchema#normalizedString",
-    "http://www.w3.org/2001/XMLSchema#token",
-    "http://www.w3.org/2001/XMLSchema#language",
-    "http://www.w3.org/2001/XMLSchema#IDREFS",
-    "http://www.w3.org/2001/XMLSchema#ENTITIES",
-    "http://www.w3.org/2001/XMLSchema#NMTOKEN",
-    "http://www.w3.org/2001/XMLSchema#NMTOKENS",
-    "http://www.w3.org/2001/XMLSchema#Name",
-    "http://www.w3.org/2001/XMLSchema#QName",
-    "http://www.w3.org/2001/XMLSchema#NCName",
-    "http://www.w3.org/2001/XMLSchema#integer",
-    "http://www.w3.org/2001/XMLSchema#nonNegativeInteger",
-    "http://www.w3.org/2001/XMLSchema#positiveInteger",
-    "http://www.w3.org/2001/XMLSchema#nonPositiveInteger",
-    "http://www.w3.org/2001/XMLSchema#negativeInteger",
-    "http://www.w3.org/2001/XMLSchema#byte",
-    "http://www.w3.org/2001/XMLSchema#int",
-    "http://www.w3.org/2001/XMLSchema#long",
-    "http://www.w3.org/2001/XMLSchema#short",
-    "http://www.w3.org/2001/XMLSchema#unsignedByte",
-    "http://www.w3.org/2001/XMLSchema#unsignedInt",
-    "http://www.w3.org/2001/XMLSchema#unsignedLong",
-    "http://www.w3.org/2001/XMLSchema#unsignedShort",
-    "http://www.w3.org/2001/XMLSchema#date",
-    "http://www.w3.org/2001/XMLSchema#time",
-    "http://www.w3.org/2001/XMLSchema#gYearMonth",
-    "http://www.w3.org/2001/XMLSchema#gYear",
-    "http://www.w3.org/2001/XMLSchema#gMonthDay",
-    "http://www.w3.org/2001/XMLSchema#gDay",
-    "http://www.w3.org/2001/XMLSchema#gMonth"
-  ];
 
   const SEARCH_RESULTS = [
     {
@@ -89,11 +42,15 @@ describe("SearchResults.vue", () => {
 
   const DEFAULT_PREDICATES = {
     "http://endhealth.info/im#roleGroup": "Where",
-    "http://www.w3.org/2002/07/owl#onProperty": "On property",
-    "http://www.w3.org/2002/07/owl#intersectionOf": "Combination of",
-    "http://www.w3.org/2002/07/owl#someValuesFrom": "With a value",
+    "http://www.w3.org/2000/01/rdf-schema#label": "Name",
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": "Is subclass of",
     "http://www.w3.org/2002/07/owl#equivalentClass": "Is equivalent to",
-    "http://www.w3.org/2000/01/rdf-schema#subClassOf": "Is subclass of"
+    "http://www.w3.org/2002/07/owl#intersectionOf": "Combination of",
+    "http://www.w3.org/2002/07/owl#onProperty": "On property",
+    "http://www.w3.org/2002/07/owl#someValuesFrom": "With a value",
+    "http://www.w3.org/ns/shacl#class": "Type",
+    "http://www.w3.org/ns/shacl#datatype": "Type",
+    "http://www.w3.org/ns/shacl#path": "Property",
   };
 
   beforeEach(async () => {
@@ -103,14 +60,12 @@ describe("SearchResults.vue", () => {
       push: vi.fn()
     };
     mockStore = {
-      state: {
-        blockedIris: BLOCKED_IRIS
-      }
+      state: {}
     };
     mockToast = {
       add: vi.fn()
     };
-    mockRef = { render: () => {}, methods: { show: vi.fn(), hide: vi.fn() } };
+    mockRef = { render: () => { }, methods: { show: vi.fn(), hide: vi.fn() } };
     docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(undefined);
 

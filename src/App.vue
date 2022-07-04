@@ -34,8 +34,8 @@ export default defineComponent({
     // check for user and log them in if found or logout if not
     this.loading = true;
     await this.$store.dispatch("authenticateCurrentUser");
-    await this.$store.dispatch("fetchBlockedIris");
     await this.$store.dispatch("fetchFilterSettings");
+    await this.$store.dispatch("initFavourites");
     this.loading = false;
   },
   data() {

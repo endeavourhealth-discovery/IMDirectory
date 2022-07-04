@@ -31,7 +31,7 @@
         <template #header>
           Results
           <Button
-            :disabled="!searchResults.length"
+            :disabled="!searchResults?.length"
             class="p-button-sm p-button-text"
             icon="pi pi-external-link"
             @click="exportCSV()"
@@ -116,7 +116,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { mapState } from "vuex";
-import { Helpers, Models } from "im-library";
+import { Config, Helpers, Models } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys },
@@ -136,17 +136,14 @@ export default defineComponent({
       this.results = newValue;
     }
   },
-  computed: mapState(["blockedIris"]),
-  async mounted() {
-    this.defaultPredicates = await this.$configService.getDefaultPredicateNames();
-  },
   data() {
     return {
       results: {} as Models.Search.SearchResponse,
       selectedResult: {} as Models.Search.ConceptSummary,
       hoveredResult: {} as Models.Search.ConceptSummary,
       copyMenuItems: [] as any[],
-      defaultPredicates: {} as any
+      blockedIris: Config.Values.XML_SCHEMA_DATATYPES,
+      defaultPredicates: Config.Values.DEFAULT_PREDICATE_NAMES
     };
   },
   methods: {

@@ -24,8 +24,6 @@ export default defineComponent({
     NavTree,
     InfoSideBar
   },
-  computed: mapState(["filterOptions", "filterDefaults"]),
-
   data() {
     return {
       visibleRight: true,
