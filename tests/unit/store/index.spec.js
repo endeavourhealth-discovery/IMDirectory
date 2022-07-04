@@ -60,7 +60,6 @@ describe("state", () => {
       "snomedLicenseAccepted",
       "snomedReturnUrl",
       "authReturnUrl",
-      "blockedIris",
       "filterOptions",
       "selectedFilters",
       "quickFiltersStatus",
@@ -68,7 +67,6 @@ describe("state", () => {
       "sidebarControlActivePanel",
       "hierarchySelectedFilters",
       "filterDefaults",
-      "defaultPredicateNames",
       "arrayObjectNameListboxWithLabelStartExpanded",
       "tagSeverityMatches",
       "textDefinitionStartExpanded",
@@ -143,12 +141,6 @@ describe("mutations", () => {
     const testBool = "true";
     store.commit("updateSnomedLicenseAccepted", testBool);
     expect(store.state.snomedLicenseAccepted).toBe("true");
-  });
-
-  it("can update blockedIris", () => {
-    const testIris = ["iri1", "iri2", "iri3"];
-    store.commit("updateBlockedIris", testIris);
-    expect(store.state.blockedIris).toStrictEqual(testIris);
   });
 
   it("can updateSelectedFilters", () => {

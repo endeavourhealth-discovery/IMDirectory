@@ -26,7 +26,6 @@ export default createStore({
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     snomedReturnUrl: "",
     authReturnUrl: "",
-    blockedIris: Config.Values.XML_SCHEMA_DATATYPES,
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
@@ -46,7 +45,6 @@ export default createStore({
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
     filterDefaults: Config.Values.FILTER_DEFAULTS,
-    defaultPredicateNames: Config.Values.DEFAULT_PREDICATE_NAMES,
     arrayObjectNameListboxWithLabelStartExpanded: [],
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
@@ -62,9 +60,6 @@ export default createStore({
     },
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
-    },
-    updateBlockedIris(state, blockedIris) {
-      state.blockedIris = blockedIris;
     },
     updateSelectedConceptIri(state, selectedConceptIri) {
       state.selectedConceptIri = selectedConceptIri;

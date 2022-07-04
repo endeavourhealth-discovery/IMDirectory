@@ -136,13 +136,13 @@ export default defineComponent({
       this.results = newValue;
     }
   },
-  computed: mapState(["blockedIris"]),
   data() {
     return {
       results: {} as Models.Search.SearchResponse,
       selectedResult: {} as Models.Search.ConceptSummary,
       hoveredResult: {} as Models.Search.ConceptSummary,
       copyMenuItems: [] as any[],
+      blockedIris: Config.Values.XML_SCHEMA_DATATYPES,
       defaultPredicates: Config.Values.DEFAULT_PREDICATE_NAMES
     };
   },
