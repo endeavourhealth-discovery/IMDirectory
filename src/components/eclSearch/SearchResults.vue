@@ -21,12 +21,8 @@
       :rows="15"
       @page="scrollToTop"
     >
-      <template #empty>
-        None
-      </template>
-      <template #loading>
-        Loading...
-      </template>
+      <template #empty> None </template>
+      <template #loading> Loading... </template>
       <Column field="name">
         <template #header>
           Results
@@ -46,7 +42,7 @@
             </div>
             <div class="result-text-container">
               {{ slotProps.data.name }}<br />
-              <small style="color:lightgrey">{{ slotProps.data.name }}</small>
+              <small style="color: lightgrey">{{ slotProps.data.name }}</small>
             </div>
             <div class="button-container">
               <Button
@@ -77,7 +73,7 @@
           </p>
           <p>
             <strong>Iri: </strong>
-            <span style="word-break:break-all;">
+            <span style="word-break: break-all">
               {{ hoveredResult.iri }}
             </span>
           </p>
@@ -142,8 +138,8 @@ export default defineComponent({
       selectedResult: {} as Models.Search.ConceptSummary,
       hoveredResult: {} as Models.Search.ConceptSummary,
       copyMenuItems: [] as any[],
-      blockedIris: Config.Values.XML_SCHEMA_DATATYPES,
-      defaultPredicates: Config.Values.DEFAULT_PREDICATE_NAMES
+      blockedIris: Config.XmlSchemaDatatypes,
+      defaultPredicates: Config.DefaultPredicateNames
     };
   },
   methods: {
@@ -201,7 +197,7 @@ export default defineComponent({
     getConceptTypes(concept: Models.Search.ConceptSummary): string {
       if (isObjectHasKeys(concept, ["entityType"])) {
         return concept.entityType
-          .map(function(type: any) {
+          .map(function (type: any) {
             return type.name;
           })
           .join(", ");

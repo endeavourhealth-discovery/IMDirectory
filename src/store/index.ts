@@ -44,7 +44,7 @@ export default createStore({
     focusHierarchy: false,
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
-    filterDefaults: Config.Values.FILTER_DEFAULTS,
+    filterDefaults: Config.FilterDefaults,
     arrayObjectNameListboxWithLabelStartExpanded: [],
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
@@ -178,11 +178,9 @@ export default createStore({
         sortDirections: filterDefaults.sortDirections
       });
 
-      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) =>
-        Config.Values.FILTER_DEFAULTS.statusOptions.includes(item["@id"])
-      );
-      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => Config.Values.FILTER_DEFAULTS.schemeOptions.includes(item.iri));
-      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => Config.Values.FILTER_DEFAULTS.typeOptions.includes(item["@id"]));
+      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => Config.FilterDefaults.statusOptions.includes(item["@id"]));
+      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => Config.FilterDefaults.schemeOptions.includes(item.iri));
+      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => Config.FilterDefaults.typeOptions.includes(item["@id"]));
       commit("updateSelectedFilters", {
         status: selectedStatus,
         schemes: selectedSchemes,
