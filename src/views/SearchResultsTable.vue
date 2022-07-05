@@ -40,9 +40,7 @@
       ref="searchTable"
       dataKey="iri"
     >
-      <template #empty>
-        None
-      </template>
+      <template #empty> None </template>
       <Column field="name" header="Name">
         <template #body="slotProps">
           <div class="ml-2">
@@ -128,6 +126,7 @@
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { Helpers, Models } from "im-library";
+import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
@@ -255,7 +254,7 @@ export default defineComponent({
       const schemeOptions = [] as string[];
       const typeOptions = [] as string[];
       const statusOptions = [] as string[];
-      (this.localSearchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
+      (this.localSearchResults as ConceptSummary[]).forEach(searchResult => {
         schemeOptions.push(searchResult.scheme?.name);
         searchResult.entityType.forEach(type => {
           if (this.filterDefaults.typeOptions.includes(type["@id"])) typeOptions.push(type.name);
@@ -279,8 +278,8 @@ export default defineComponent({
     },
 
     filterResults() {
-      const filteredSearchResults = [] as Models.Search.ConceptSummary[];
-      (this.searchResults as Models.Search.ConceptSummary[]).forEach(searchResult => {
+      const filteredSearchResults = [] as ConceptSummary[];
+      (this.searchResults as ConceptSummary[]).forEach(searchResult => {
         let isSelectedType = false;
         searchResult.entityType.forEach(type => {
           if (this.selectedTypes.indexOf(type.name) != -1) {
@@ -310,7 +309,7 @@ export default defineComponent({
     },
 
     onRowUnselect() {
-      this.selected = {} as Models.Search.ConceptSummary;
+      this.selected = {} as ConceptSummary;
     },
 
     navigateToEditor(): void {

@@ -17,16 +17,13 @@ import axios from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { TTIriRef, Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
+import { TTIriRef, Namespace, EntityReferenceNode, SearchRequest } from "im-library/dist/types/interfaces/Interfaces";
 import { Enums, Models, Helpers } from "im-library";
 const { SortBy } = Enums;
 const {
   DataTypeCheckers: { isObject },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
-const {
-  Search: { SearchRequest }
-} = Models;
 
 export default defineComponent({
   name: "Search",

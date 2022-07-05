@@ -1,6 +1,6 @@
 import { createStore } from "vuex";
 import AuthService from "@/services/AuthService";
-import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
+import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest } from "im-library/dist/types/interfaces/Interfaces";
 import { Models, Constants, Vocabulary, Helpers, Config } from "im-library";
 const { IM } = Vocabulary;
 const { Avatars } = Constants;
@@ -18,7 +18,7 @@ export default createStore({
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: [] as string[],
     history: [] as HistoryItem[],
-    searchResults: [] as Models.Search.ConceptSummary[],
+    searchResults: [] as ConceptSummary[],
     searchLoading: false,
     currentUser: {} as Models.User,
     isLoggedIn: false as boolean,
@@ -188,7 +188,7 @@ export default createStore({
       });
       commit("updateHierarchySelectedFilters", selectedSchemes);
     },
-    async fetchSearchResults({ commit }, data: { searchRequest: Models.Search.SearchRequest; controller: AbortController }) {
+    async fetchSearchResults({ commit }, data: { searchRequest: SearchRequest; controller: AbortController }) {
       const result = await vm.$entityService.advancedSearch(data.searchRequest, data.controller);
       if (result && isArrayHasLength(result)) {
         commit("updateSearchResults", result);
