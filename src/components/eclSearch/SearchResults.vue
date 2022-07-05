@@ -21,17 +21,13 @@
       :rows="15"
       @page="scrollToTop"
     >
-      <template #empty>
-        None
-      </template>
-      <template #loading>
-        Loading...
-      </template>
+      <template #empty> None </template>
+      <template #loading> Loading... </template>
       <Column field="name">
         <template #header>
           Results
           <Button
-            :disabled="!searchResults.length"
+            :disabled="!searchResults?.length"
             class="p-button-sm p-button-text"
             icon="pi pi-external-link"
             @click="exportCSV()"
@@ -42,11 +38,11 @@
         <template #body="slotProps">
           <div class="result-container" @mouseenter="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay()">
             <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
-              <font-awesome-icon :icon="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon fa-fw" />
+              <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon" aria-hidden="true" />
             </div>
             <div class="result-text-container">
               {{ slotProps.data.name }}<br />
-              <small style="color:lightgrey">{{ slotProps.data.name }}</small>
+              <small style="color: lightgrey">{{ slotProps.data.name }}</small>
             </div>
             <div class="button-container">
               <Button
@@ -77,7 +73,7 @@
           </p>
           <p>
             <strong>Iri: </strong>
-            <span style="word-break:break-all;">
+            <span style="word-break: break-all">
               {{ hoveredResult.iri }}
             </span>
           </p>
@@ -115,9 +111,8 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
-import ConfigService from "@/services/ConfigService";
 import { mapState } from "vuex";
-import { Helpers, Models, LoggerService } from "im-library";
+import { Config, Helpers, Models } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys },
@@ -137,17 +132,14 @@ export default defineComponent({
       this.results = newValue;
     }
   },
-  computed: mapState(["blockedIris"]),
-  async mounted() {
-    this.defaultPredicates = await ConfigService.getDefaultPredicateNames();
-  },
   data() {
     return {
-      results: new Models.Search.SearchResponse(),
+      results: {} as Models.Search.SearchResponse,
       selectedResult: {} as Models.Search.ConceptSummary,
       hoveredResult: {} as Models.Search.ConceptSummary,
       copyMenuItems: [] as any[],
-      defaultPredicates: {} as any
+      blockedIris: Config.XmlSchemaDatatypes,
+      defaultPredicates: Config.DefaultPredicateNames
     };
   },
   methods: {
@@ -205,7 +197,7 @@ export default defineComponent({
     getConceptTypes(concept: Models.Search.ConceptSummary): string {
       if (isObjectHasKeys(concept, ["entityType"])) {
         return concept.entityType
-          .map(function(type: any) {
+          .map(function (type: any) {
             return type.name;
           })
           .join(", ");
@@ -215,11 +207,11 @@ export default defineComponent({
     },
 
     onCopy(): void {
-      this.$toast.add(LoggerService.success("Value copied to clipboard"));
+      this.$toast.add(this.$loggerService.success("Value copied to clipboard"));
     },
 
     onCopyError(): void {
-      this.$toast.add(LoggerService.error("Failed to copy value to clipboard"));
+      this.$toast.add(this.$loggerService.error("Failed to copy value to clipboard"));
     },
 
     onCopyRightClick(event: any) {
@@ -250,10 +242,10 @@ export default defineComponent({
             await navigator.clipboard
               .writeText(copyConceptToClipboard(this.hoveredResult, undefined, this.defaultPredicates, this.blockedIris))
               .then(() => {
-                this.$toast.add(LoggerService.success("Concept copied to clipboard"));
+                this.$toast.add(this.$loggerService.success("Concept copied to clipboard"));
               })
               .catch(err => {
-                this.$toast.add(LoggerService.error("Failed to copy concept to clipboard", err));
+                this.$toast.add(this.$loggerService.error("Failed to copy concept to clipboard", err));
               });
           }
         }
@@ -272,10 +264,10 @@ export default defineComponent({
             await navigator.clipboard
               .writeText(text)
               .then(() => {
-                this.$toast.add(LoggerService.success(label + " copied to clipboard"));
+                this.$toast.add(this.$loggerService.success(label + " copied to clipboard"));
               })
               .catch(err => {
-                this.$toast.add(LoggerService.error("Failed to copy " + label + " to clipboard", err));
+                this.$toast.add(this.$loggerService.error("Failed to copy " + label + " to clipboard", err));
               });
           }
         });

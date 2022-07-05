@@ -16,14 +16,13 @@ import Filters from "@/components/topbar/search/Filters.vue";
 import axios from "axios";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { RouteRecordName } from "vue-router";
-import DirectService from "@/services/DirectService";
-import { TTIriRef, Namespace, EntityReferenceNode, AccountItem, LoginItem } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Env, Models, Helpers } from "im-library";
-const { AppEnum, SortBy } = Enums;
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { TTIriRef, Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Models, Helpers } from "im-library";
+const { SortBy } = Enums;
 const {
-  DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder }
+  DataTypeCheckers: { isObject },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
 const {
   Search: { SearchRequest }
@@ -32,9 +31,6 @@ const {
 export default defineComponent({
   name: "Search",
   components: { Filters },
-  mounted() {
-    this.setUserMenuItems();
-  },
   computed: {
     ...mapState(["conceptIri", "filterOptions", "searchResults", "selectedFilters", "authReturnUrl"])
   },
@@ -45,17 +41,11 @@ export default defineComponent({
   },
   data() {
     return {
-      request: {} as { cancel: any; msg: string },
-      searchText: "",
-      loginItems: [] as LoginItem[],
-      accountItems: [] as AccountItem[]
+      controller: {} as AbortController,
+      searchText: ""
     };
   },
   methods: {
-    navigateToEditor(): void {
-      DirectService.directTo(AppEnum.EDITOR, "", this);
-    },
-
     getFAIconFromType(types: TTIriRef[]) {
       return getFAIconFromType(types);
     },
@@ -68,26 +58,13 @@ export default defineComponent({
       (this.$refs.filtersO as any).toggle(event);
     },
 
-    navigate(event: any): void {
-      const currentRoute = this.$route.name as RouteRecordName | undefined;
-      if (isFolder(event.value?.entityType)) {
-        this.$router.push({
-          name: currentRoute,
-          params: { selectedIri: event.value.iri }
-        });
-      } else {
-        DirectService.directTo(AppEnum.VIEWER, event.value.iri, this);
-      }
-      this.searchText = "";
-    },
-
     async search(): Promise<void> {
       if (this.searchText) {
         this.$router.push({
           name: "Search"
         });
         this.$store.commit("updateSearchLoading", true);
-        const searchRequest = new SearchRequest();
+        const searchRequest = {} as SearchRequest;
         searchRequest.termFilter = this.searchText;
         searchRequest.sortBy = SortBy.Usage;
         searchRequest.page = 1;
@@ -103,53 +80,22 @@ export default defineComponent({
         this.selectedFilters.types.forEach((type: TTIriRef) => {
           searchRequest.typeFilter.push(type["@id"]);
         });
-        if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
-          await this.request.cancel({ status: 499, message: "Search cancelled by user" });
+
+        if (this.selectedFilters.sortField) {
+          searchRequest.sortField = this.selectedFilters.sortField;
+          searchRequest.sortDirection = this.selectedFilters.sortDirection;
         }
-        const axiosSource = axios.CancelToken.source();
-        this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
+
+        if (!isObject(this.controller)) {
+          this.controller.abort();
+        }
+        this.controller = new AbortController();
         await this.$store.dispatch("fetchSearchResults", {
           searchRequest: searchRequest,
-          cancelToken: axiosSource.token
+          controller: this.controller
         });
         this.$store.commit("updateSearchLoading", false);
       }
-    },
-    setUserMenuItems(): void {
-      this.loginItems = [
-        {
-          label: "Login",
-          icon: "fa fa-fw fa-user",
-          url: Env.authUrl + "login?returnUrl=" + this.authReturnUrl
-        },
-        {
-          label: "Register",
-          icon: "fa fa-fw fa-user-plus",
-          url: Env.authUrl + "register?returnUrl=" + this.authReturnUrl
-        }
-      ];
-      this.accountItems = [
-        {
-          label: "My account",
-          icon: "fa fa-fw fa-user",
-          url: Env.authUrl + "my-account?returnUrl=" + this.authReturnUrl
-        },
-        {
-          label: "Edit account",
-          icon: "fa fa-fw fa-user-edit",
-          url: Env.authUrl + "my-account/edit?returnUrl=" + this.authReturnUrl
-        },
-        {
-          label: "Change password",
-          icon: "fa fa-fw fa-user-lock",
-          url: Env.authUrl + "my-account/password-edit?returnUrl=" + this.authReturnUrl
-        },
-        {
-          label: "Logout",
-          icon: "fa fa-fw fa-sign-out-alt",
-          url: Env.authUrl + "logout?returnUrl=" + this.authReturnUrl
-        }
-      ];
     }
   }
 });

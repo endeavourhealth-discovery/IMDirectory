@@ -1,5 +1,8 @@
 <template>
-  <div id="directory-table-container">
+  <div class="loading-container flex flex-row justify-content-center align-items-center" v-if="loading">
+    <ProgressSpinner />
+  </div>
+  <div v-else id="directory-table-container">
     <div class="header-container">
       <ParentHierarchy :conceptIri="concept['@id']" />
       <ParentHeader v-if="conceptIri !== 'http://endhealth.info/im#Favourites'" @openBar="openBar" :concept="concept" />
@@ -16,7 +19,8 @@ import { mapState } from "vuex";
 import DirectoryTable from "@/components/directory/DirectoryTable.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import EntityService from "@/services/EntityService";
+import { Vocabulary } from "im-library";
+const { IM } = Vocabulary;
 
 export default defineComponent({
   name: "Directory",
@@ -37,7 +41,8 @@ export default defineComponent({
 
   data() {
     return {
-      concept: {} as any
+      concept: {} as any,
+      loading: true
     };
   },
   async mounted() {
@@ -45,7 +50,9 @@ export default defineComponent({
   },
   methods: {
     async init() {
-      this.concept = await EntityService.getPartialEntity(this.conceptIri, []);
+      this.loading = true;
+      this.concept = await this.$entityService.getEntityByPredicateExclusions(this.conceptIri, [IM.HAS_MEMBER]);
+      this.loading = false;
     },
 
     openBar() {
@@ -55,9 +62,14 @@ export default defineComponent({
 });
 </script>
 <style scoped>
-#directory-table-container {
+.loading-container {
   height: 100%;
-  width: 100%;
+  flex: 1 1 auto;
+}
+
+#directory-table-container {
+  flex: 1 1 auto;
+  height: 100%;
   display: flex;
   flex-flow: column nowrap;
 }

@@ -24,7 +24,7 @@
         <template #body="slotProps">
           <div class="result-container" @mouseenter="showDetailsOverlay($event, slotProps.data)" @mouseleave="hideDetailsOverlay()">
             <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
-              <font-awesome-icon :icon="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon fa-fw" />
+              <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon fa-fw" aria-hidden="true" />
             </div>
             <div class="result-text-container">
               {{ slotProps.data.name }}<br />
@@ -97,7 +97,7 @@ export default defineComponent({
     searchResults: { type: Array as PropType<Array<Models.Search.ConceptSummary>>, required: false },
     loading: { type: Boolean, required: true }
   },
-  emits: { searchResultSelected: (payload: Models.Search.ConceptSummary) => true },
+  emits: { searchResultSelected: (_payload: Models.Search.ConceptSummary) => true },
   data() {
     return {
       selectedResult: {} as Models.Search.ConceptSummary,

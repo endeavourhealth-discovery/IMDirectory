@@ -30,10 +30,26 @@
                 <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
               </template>
             </Column>
-            <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+            <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
               <template #body="{data}">
-                <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain" @click="view(data)" />
-                <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain" @click="showInfo(data)" />
+                <Button
+                  icon="pi pi-fw pi-eye"
+                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
+                  @click="view(data)"
+                  v-tooltip.top="'View'"
+                />
+                <Button
+                  icon="pi pi-fw pi-info-circle"
+                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
+                  @click="showInfo(data)"
+                  v-tooltip.top="'Info'"
+                />
+                <Button
+                  icon="fa-solid fa-pen-to-square"
+                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
+                  @click="edit(data)"
+                  v-tooltip.top="'Edit'"
+                />
               </template>
             </Column>
           </DataTable>
@@ -60,13 +76,9 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
-import ConfigService from "@/services/ConfigService";
-import EntityService from "@/services/EntityService";
 import { mapState } from "vuex";
-import DirectService from "@/services/DirectService";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Vocabulary, Helpers } from "im-library";
-const { AppEnum } = Enums;
+import { Vocabulary, Helpers } from "im-library";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
@@ -111,9 +123,9 @@ export default defineComponent({
     async getRecentActivityDetails() {
       const storedActivity: RecentActivityItem[] = Object.assign([], this.recentLocalActivity);
       for (let activity of storedActivity) {
-        const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
-        activity.name = result[RDFS.LABEL];
+        const result = await this.$entityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
         if (isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
+          activity.name = result[RDFS.LABEL];
           activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
         }
       }
@@ -122,7 +134,7 @@ export default defineComponent({
     },
 
     async getConfigs(): Promise<void> {
-      this.configs = await ConfigService.getDashboardLayout("conceptDashboard");
+      this.configs = await this.$configService.getDashboardLayout("conceptDashboard");
       if (isArrayHasLength(this.configs)) {
         this.configs.sort(byOrder);
       }
@@ -137,10 +149,10 @@ export default defineComponent({
       let action = "";
       const dateTime = new Date(activity.dateTime);
       switch (activity.app) {
-        case AppEnum.VIEWER:
+        case this.$env.VIEWER_URL:
           action = "Viewed";
           break;
-        case AppEnum.EDITOR:
+        case this.$env.EDITOR_URL:
           action = "Edited";
           break;
 
@@ -161,13 +173,13 @@ export default defineComponent({
     },
 
     onDoubleClick(event: any) {
-      DirectService.directTo(event.data.app, event.data.iri, this);
+      this.$directService.directTo(event.data.app, event.data.iri, event.data.route || "concept");
     },
 
     async getCardsData(): Promise<void> {
       const cards = [] as { name: string; description: string; inputData: IriCount; component: string }[];
       for (const config of this.configs) {
-        const result = await EntityService.getPartialEntity(config.iri, [RDFS.LABEL, RDFS.COMMENT, IM.STATS_REPORT_ENTRY]);
+        const result = await this.$entityService.getPartialEntity(config.iri, [RDFS.LABEL, RDFS.COMMENT, IM.STATS_REPORT_ENTRY]);
         if (!isObjectHasKeys(result)) return;
         const cardData = {
           name: result[RDFS.LABEL],
@@ -182,7 +194,12 @@ export default defineComponent({
 
     view(data?: any) {
       if (data) this.onRowSelect(data);
-      DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
+      this.$directService.directTo(this.$env.VIEWER_URL, this.selected.iri, "concept");
+    },
+
+    edit(data?: any) {
+      if (data) this.onRowSelect(data);
+      this.$directService.directTo(this.$env.EDITOR_URL, this.selected.iri, "editor");
     },
 
     showInfo(data?: any) {
@@ -232,5 +249,10 @@ export default defineComponent({
   border: none;
   box-shadow: none;
   border-radius: none;
+}
+
+.activity-row-button:hover {
+  background-color: #6c757d !important;
+  color: #ffffff !important;
 }
 </style>

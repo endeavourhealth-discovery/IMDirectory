@@ -1,26 +1,34 @@
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
 import { shallowMount } from "@vue/test-utils";
+import { Enums } from "im-library";
+const { ECLComponent } = Enums;
 import Button from "primevue/button";
+import { vi } from "vitest";
 
 describe("AddDeleteButtons.vue", () => {
   let wrapper;
+  let mockRef;
 
   beforeEach(() => {
     vi.resetAllMocks();
 
-    wrapper = shallowMount(AddDeleteButtons, { props: { position: 0, last: true }, global: { components: { Button } } });
+    mockRef = { render: () => {}, methods: { toggle: vi.fn() } };
+
+    wrapper = shallowMount(AddDeleteButtons, {
+      props: { position: 0, show: { minus: true, plus: true }, options: [ECLComponent.FOCUS_CONCEPT] },
+      global: { components: { Button }, stubs: { Menu: mockRef } }
+    });
   });
 
   it("mounts", () => {
     expect(wrapper.vm.position).toBe(0);
-    expect(wrapper.vm.last).toBe(true);
+    expect(wrapper.vm.show).toStrictEqual({ minus: true, plus: true });
   });
 
   it("handles addNextClicked", async () => {
-    wrapper.vm.addNextClicked();
+    wrapper.vm.addNextClicked(true);
     await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().addNextClicked).toBeTruthy();
-    expect(wrapper.emitted().addNextClicked[0]).toStrictEqual([]);
+    expect(mockRef.methods.toggle).toHaveBeenCalledTimes(1);
   });
 
   it("handles deleteClicked", async () => {

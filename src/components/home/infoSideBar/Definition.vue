@@ -6,6 +6,7 @@
           :is="config.type"
           :label="config.label"
           :data="concept[config.predicate]"
+          :predicate="config.predicate"
           :size="config.size"
           :id="config.type + index"
           :show="showItem(config, index)"
@@ -31,7 +32,8 @@ export default defineComponent({
   },
   props: {
     concept: { type: Object, required: true },
-    configs: { type: Array as PropType<Array<DefinitionConfig>>, required: true }
+    configs: { type: Array as PropType<Array<DefinitionConfig>>, required: true },
+    totalCount: { type: Number as any }
   },
   methods: {
     showItem(config: DefinitionConfig, index: number): boolean {

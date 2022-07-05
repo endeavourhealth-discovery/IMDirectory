@@ -8,10 +8,15 @@
     :scrollable="true"
     scrollHeight="flex"
     :loading="loading"
+    :lazy="true"
+    :paginator="totalCount > pageSize ? true : false"
+    :rows="pageSize"
+    :totalRecords="totalCount"
     contextMenu
     @rowContextmenu="onRowContextMenu"
     @row-dblclick="onRowDblClick"
     @row-select="onRowSelect"
+    @page="onPage($event)"
   >
     <template #loading>
       Loading data. Please wait.
@@ -24,54 +29,72 @@
     <Column field="name" header="Name">
       <template #body="{data}">
         <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-          <font-awesome-icon :icon="data.icon" />
+          <i :class="data.icon" aria-hidden="true" />
         </span>
         <span>{{ data.name }}</span>
       </template>
     </Column>
     <Column field="type" header="Type">
-      <template #body="{data}"> {{ getTypesDisplay(data.type) }}</template>
-    </Column>
-    <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
       <template #body="{data}">
-        <Button
-          v-if="data.hasChildren"
-          @click="open(data['@id'])"
-          aria-haspopup="true"
-          aria-controls="overlay_menu"
-          type="button"
-          class="p-button-rounded p-button-text p-button-plain row-button"
-          icon="pi pi-folder-open"
-        />
-        <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data['@id'])" />
-        <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(data['@id'])" />
+        <span>{{ getTypesDisplay(data.type) }}</span>
+      </template>
+    </Column>
+    <Column :exportable="false">
+      <template #body="{data}">
+        <div class="buttons-container">
+          <Button
+            v-if="data.hasChildren"
+            @click="open(data['@id'])"
+            aria-haspopup="true"
+            aria-controls="overlay_menu"
+            type="button"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            icon="pi pi-folder-open"
+            v-tooltip.top="'Open'"
+          />
+          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data['@id'])" v-tooltip.top="'View'" />
+          <Button
+            icon="pi pi-fw pi-info-circle"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="showInfo(data['@id'])"
+            v-tooltip.top="'Info'"
+          />
+          <Button
+            icon="fa-solid fa-pen-to-square"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="edit(data['@id'])"
+            v-tooltip.top="'Edit'"
+          />
+          <Button
+            v-if="isFavourite(data['@id'])"
+            style="color: #e39a36"
+            icon="pi pi-fw pi-star-fill"
+            class="p-button-rounded p-button-text row-button-fav"
+            @click="updateFavourites(data['@id'])"
+            v-tooltip.left="'Unfavourite'"
+          />
 
-        <Button
-          v-if="isFavourite(data['@id'])"
-          style="color: #e39a36"
-          icon="pi pi-fw pi-star-fill"
-          class="p-button-rounded p-button-text row-button-fav"
-          @click="updateFavourites(data['@id'])"
-        />
-
-        <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(data['@id'])" />
+          <Button
+            v-else
+            icon="pi pi-fw pi-star"
+            class="p-button-rounded p-button-text p-button-plain row-button"
+            @click="updateFavourites(data['@id'])"
+            v-tooltip.left="'Favourite'"
+          />
+        </div>
       </template>
     </Column>
   </DataTable>
-
   <ContextMenu ref="menu" :model="rClickOptions" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import EntityService from "@/services/EntityService";
-import { Helpers, Vocabulary, Enums } from "im-library";
+import { Helpers, Vocabulary } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { RouteRecordName } from "vue-router";
-import DirectService from "@/services/DirectService";
 const { IM, RDFS, RDF } = Vocabulary;
-const { AppEnum } = Enums;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength }
@@ -125,7 +148,10 @@ export default defineComponent({
           icon: "pi pi-fw pi-star",
           command: () => this.updateFavourites((this.selected as any)["@id"])
         }
-      ]
+      ],
+      totalCount: 0,
+      nextPage: 2,
+      pageSize: 50
     };
   },
 
@@ -141,11 +167,11 @@ export default defineComponent({
     },
 
     async getFavourites() {
-      const children = await EntityService.getPartialEntities(this.favourites, []);
-      (this.children as any) = children.map(child => {
+      const children = await this.$entityService.getPartialEntities(this.favourites, []);
+      this.children = children.map(child => {
         return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
       });
-      this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
+      this.children.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
     },
 
     getTypesDisplay(types: TTIriRef[]): string {
@@ -157,8 +183,10 @@ export default defineComponent({
     },
 
     async getChildren(iri: string) {
-      this.children = await EntityService.getEntityChildren(iri);
-      this.children.forEach(child => ((child as any).icon = getFAIconFromType(child.type)));
+      const result = await this.$entityService.getPagedChildren(iri, 1, this.pageSize);
+      this.children = result.result;
+      this.totalCount = result.totalCount;
+      this.children.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
     },
 
     isFavourite(iri: string) {
@@ -185,7 +213,11 @@ export default defineComponent({
     },
 
     view(iri: string) {
-      DirectService.directTo(AppEnum.VIEWER, iri, this);
+      this.$directService.directTo(this.$env.VIEWER_URL, iri, "concept");
+    },
+
+    edit(iri: string) {
+      this.$directService.directTo(this.$env.EDITOR_URL, iri, "editor");
     },
 
     open(iri: string) {
@@ -203,12 +235,32 @@ export default defineComponent({
     showInfo(iri: string) {
       this.$store.commit("updateSelectedConceptIri", iri);
       this.$emit("openBar");
+    },
+
+    async loadMore() {
+      this.loading = true;
+      const result = await this.$entityService.getPagedChildren(this.conceptIri, this.nextPage, this.pageSize);
+      this.children = result.result;
+      this.loading = false;
+    },
+
+    async onPage(event: any) {
+      this.nextPage = event.page + 1;
+      await this.loadMore();
     }
   }
 });
 </script>
 
 <style scoped>
+.buttons-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  row-gap: 0.5rem;
+}
+
 .type-icon {
   padding-right: 0.5rem;
 }

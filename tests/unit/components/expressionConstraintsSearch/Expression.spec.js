@@ -1,8 +1,8 @@
-import Expression from "@/components/eclSearch/Expression.vue";
+import Expression from "@/components/eclSearch/builder/Expression.vue";
 import { flushPromises, shallowMount } from "@vue/test-utils";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import InputText from "primevue/inputtext";
 import OverlayPanel from "primevue/overlaypanel";
-import EntityService from "@/services/EntityService";
 import axios from "axios";
 import { Enums } from "im-library";
 const { ECLComponent, ECLType } = Enums;
@@ -252,6 +252,7 @@ describe("Expression.vue ___ value", () => {
   let wrapper;
   let mockStore;
   let mockRef;
+  let mockEntityService;
 
   const EXPRESSION = {
     code: "",
@@ -269,54 +270,56 @@ describe("Expression.vue ___ value", () => {
     vi.resetAllMocks();
     vi.useFakeTimers();
 
-    EntityService.advancedSearch = vi.fn().mockResolvedValue([
-      {
-        iri: "http://snomed.info/sct#29741004",
-        name: "Treponema scoliodontum",
-        code: "29741004",
-        scheme: {
-          name: "Snomed-CT",
-          "@id": "http://snomed.info/sct#"
-        },
-        entityType: [
-          {
-            name: "Address (record type)",
-            "@id": "http://endhealth.info/im#Address"
+    mockEntityService = {
+      advancedSearch: vi.fn().mockResolvedValue([
+        {
+          iri: "http://snomed.info/sct#29741004",
+          name: "Treponema scoliodontum",
+          code: "29741004",
+          scheme: {
+            name: "Snomed-CT",
+            "@id": "http://snomed.info/sct#"
           },
-          {
-            name: "Ontological Concept",
-            "@id": "http://endhealth.info/im#Concept"
+          entityType: [
+            {
+              name: "Address (record type)",
+              "@id": "http://endhealth.info/im#Address"
+            },
+            {
+              name: "Ontological Concept",
+              "@id": "http://endhealth.info/im#Concept"
+            }
+          ],
+          status: {
+            name: "Active",
+            "@id": "http://endhealth.info/im#Active"
           }
-        ],
-        status: {
-          name: "Active",
-          "@id": "http://endhealth.info/im#Active"
-        }
-      },
-      {
-        iri: "http://snomed.info/sct#54914001",
-        name: "Scoliotic pelvis",
-        code: "54914001",
-        scheme: {
-          name: "Snomed-CT",
-          "@id": "http://snomed.info/sct#"
         },
-        entityType: [
-          {
-            name: "Ontological Concept",
-            "@id": "http://endhealth.info/im#Concept"
+        {
+          iri: "http://snomed.info/sct#54914001",
+          name: "Scoliotic pelvis",
+          code: "54914001",
+          scheme: {
+            name: "Snomed-CT",
+            "@id": "http://snomed.info/sct#"
           },
-          {
-            name: "Organisation  (record type)",
-            "@id": "http://endhealth.info/im#Organisation"
+          entityType: [
+            {
+              name: "Ontological Concept",
+              "@id": "http://endhealth.info/im#Concept"
+            },
+            {
+              name: "Organisation  (record type)",
+              "@id": "http://endhealth.info/im#Organisation"
+            }
+          ],
+          status: {
+            name: "Active",
+            "@id": "http://endhealth.info/im#Active"
           }
-        ],
-        status: {
-          name: "Active",
-          "@id": "http://endhealth.info/im#Active"
         }
-      }
-    ]);
+      ])
+    };
 
     mockStore = { commit: vi.fn(), state: { filterOptions: FILTER_OPTIONS, selectedFilters: SELECTED_FILTERS } };
 
@@ -324,7 +327,7 @@ describe("Expression.vue ___ value", () => {
 
     wrapper = shallowMount(Expression, {
       props: { id: "focusConcept_0expression", position: 1, value: EXPRESSION },
-      global: { components: { InputText, OverlayPanel }, stubs: { OverlayPanel: mockRef }, mocks: { $store: mockStore } }
+      global: { components: { InputText, OverlayPanel }, stubs: { OverlayPanel: mockRef }, mocks: { $store: mockStore, $entityService: mockEntityService } }
     });
 
     vi.clearAllMocks();
@@ -354,7 +357,7 @@ describe("Expression.vue ___ value", () => {
       status: {},
       weighting: 0
     });
-    expect(wrapper.vm.request).toStrictEqual({});
+    expect(wrapper.vm.controller).toStrictEqual({});
     expect(wrapper.vm.anyModel).toStrictEqual(EXPRESSION);
     expect(wrapper.vm.searchTerm).toBe("ANY");
     expect(wrapper.vm.searchResults).toStrictEqual([]);
@@ -417,7 +420,6 @@ describe("Expression.vue ___ value", () => {
   });
 
   it("searches when not empty ___ 3", async () => {
-    const axiosSource = axios.CancelToken.source();
     wrapper.vm.fetchSearchResults = vi.fn();
     wrapper.vm.searchTerm = "sco";
     wrapper.vm.search();
@@ -445,23 +447,23 @@ describe("Expression.vue ___ value", () => {
           "http://endhealth.info/im#ValueSet"
         ]
       },
-      axiosSource.token
+      wrapper.vm.controller
     );
     await flushPromises();
     expect(wrapper.vm.loading).toBe(false);
   });
 
   it("can cancel existing request", () => {
-    wrapper.vm.request = { cancel: vi.fn(), msg: "testMsg" };
+    const controllerSpy = vi.spyOn(AbortController.prototype, "abort");
     wrapper.vm.fetchSearchResults = vi.fn();
     wrapper.vm.searchTerm = "sco";
     wrapper.vm.search();
-    expect(wrapper.vm.request.cancel).toHaveBeenCalledTimes(1);
-    expect(wrapper.vm.request.cancel).toHaveBeenCalledWith({ status: 499, message: "Search cancelled by user" });
+    wrapper.vm.searchTerm = "sco";
+    wrapper.vm.search();
+    expect(controllerSpy).toHaveBeenCalledTimes(1);
   });
 
   it("can fetchSearchResults ___ success", async () => {
-    const axiosSource = axios.CancelToken.source();
     wrapper.vm.fetchSearchResults(
       {
         descendentFilter: undefined,
@@ -483,7 +485,7 @@ describe("Expression.vue ___ value", () => {
           "http://endhealth.info/im#ValueSet"
         ]
       },
-      axiosSource.token
+      wrapper.vm.controller
     );
     await flushPromises();
     expect(wrapper.vm.searchResults).toStrictEqual([
@@ -537,8 +539,8 @@ describe("Expression.vue ___ value", () => {
   });
 
   it("can fetchSearchResults ___ success", async () => {
-    EntityService.advancedSearch = vi.fn().mockResolvedValue({});
-    const axiosSource = axios.CancelToken.source();
+    mockEntityService.advancedSearch = vi.fn().mockResolvedValue({});
+    const controller = new AbortController();
     wrapper.vm.fetchSearchResults(
       {
         descendentFilter: undefined,
@@ -560,7 +562,7 @@ describe("Expression.vue ___ value", () => {
           "http://endhealth.info/im#ValueSet"
         ]
       },
-      axiosSource.token
+      controller
     );
     await flushPromises();
     expect(wrapper.vm.searchResults).toStrictEqual([]);
@@ -596,9 +598,9 @@ describe("Expression.vue ___ value", () => {
       },
       id: "focusConcept_0expression",
       position: 1,
-      type: ECLType.EXPRESSION,
-      label: "testLabel",
-      component: ECLComponent.EXPRESSION
+      type: ECLComponent.EXPRESSION,
+      queryString: "testLabel",
+      showButtons: { minus: false, plus: false }
     });
     wrapper.vm.hideOverlay = vi.fn();
     expect(wrapper.vm.selectedResult).toStrictEqual({
@@ -670,9 +672,9 @@ describe("Expression.vue ___ value", () => {
         },
         id: "focusConcept_0expression",
         position: 1,
-        type: ECLType.EXPRESSION,
-        label: "testLabel",
-        component: ECLComponent.EXPRESSION
+        type: ECLComponent.EXPRESSION,
+        queryString: "testLabel",
+        showButtons: { minus: false, plus: false }
       }
     ]);
     expect(wrapper.vm.hideOverlay).toHaveBeenCalledTimes(1);
@@ -687,11 +689,10 @@ describe("Expression.vue ___ value", () => {
 
   it("can createExpression ___ any", () => {
     expect(wrapper.vm.createExpression()).toStrictEqual({
-      component: "Expression",
       id: "focusConcept_0expression",
-      label: "*",
+      queryString: "*",
       position: 1,
-      type: "expression",
+      type: "Expression",
       value: {
         code: "",
         entityType: [
@@ -707,7 +708,8 @@ describe("Expression.vue ___ value", () => {
         scheme: {},
         status: {},
         weighting: 0
-      }
+      },
+      showButtons: { minus: true, plus: true }
     });
   });
 
@@ -728,11 +730,10 @@ describe("Expression.vue ___ value", () => {
       match: "Acquired scoliosis"
     };
     expect(wrapper.vm.createExpression()).toStrictEqual({
-      component: "Expression",
       id: "focusConcept_0expression",
-      label: "111266001 |Acquired scoliosis|",
+      queryString: "111266001 |Acquired scoliosis|",
       position: 1,
-      type: "expression",
+      type: "Expression",
       value: {
         code: "111266001",
         description: "Acquired scoliosis (disorder)",
@@ -759,7 +760,8 @@ describe("Expression.vue ___ value", () => {
           name: "Active"
         },
         weighting: 11
-      }
+      },
+      showButtons: { minus: true, plus: true }
     });
   });
 });
@@ -768,6 +770,7 @@ describe("Expression.vue ___ no value", () => {
   let wrapper;
   let mockStore;
   let mockRef;
+  let mockEntityService;
 
   const EXPRESSION = {
     code: "",
@@ -784,38 +787,40 @@ describe("Expression.vue ___ no value", () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    EntityService.advancedSearch = vi.fn().mockResolvedValue([
-      {
-        name: "Scoliosis deformity of spine",
-        iri: "http://snomed.info/sct#298382003",
-        code: "298382003",
-        description: "Scoliosis deformity of spine (disorder)",
-        status: { name: "Active", "@id": "http://endhealth.info/im#Active" },
-        scheme: { name: "Snomed-CT namespace", "@id": "http://snomed.info/sct#" },
-        entityType: [
-          { name: "Address (record type)", "@id": "http://endhealth.info/im#Address" },
-          { name: "Concept", "@id": "http://endhealth.info/im#Concept" }
-        ],
-        isDescendentOf: [],
-        weighting: 2,
-        match: "Scoliosis"
-      },
-      {
-        name: "Acquired scoliosis",
-        iri: "http://snomed.info/sct#111266001",
-        code: "111266001",
-        description: "Acquired scoliosis (disorder)",
-        status: { name: "Active", "@id": "http://endhealth.info/im#Active" },
-        scheme: { name: "Snomed-CT namespace", "@id": "http://snomed.info/sct#" },
-        entityType: [
-          { name: "Concept", "@id": "http://endhealth.info/im#Concept" },
-          { name: "Organisation  (record type)", "@id": "http://endhealth.info/im#Organisation" }
-        ],
-        isDescendentOf: [],
-        weighting: 11,
-        match: "Acquired scoliosis"
-      }
-    ]);
+    mockEntityService = {
+      advancedSearch: vi.fn().mockResolvedValue([
+        {
+          name: "Scoliosis deformity of spine",
+          iri: "http://snomed.info/sct#298382003",
+          code: "298382003",
+          description: "Scoliosis deformity of spine (disorder)",
+          status: { name: "Active", "@id": "http://endhealth.info/im#Active" },
+          scheme: { name: "Snomed-CT namespace", "@id": "http://snomed.info/sct#" },
+          entityType: [
+            { name: "Address (record type)", "@id": "http://endhealth.info/im#Address" },
+            { name: "Concept", "@id": "http://endhealth.info/im#Concept" }
+          ],
+          isDescendentOf: [],
+          weighting: 2,
+          match: "Scoliosis"
+        },
+        {
+          name: "Acquired scoliosis",
+          iri: "http://snomed.info/sct#111266001",
+          code: "111266001",
+          description: "Acquired scoliosis (disorder)",
+          status: { name: "Active", "@id": "http://endhealth.info/im#Active" },
+          scheme: { name: "Snomed-CT namespace", "@id": "http://snomed.info/sct#" },
+          entityType: [
+            { name: "Concept", "@id": "http://endhealth.info/im#Concept" },
+            { name: "Organisation  (record type)", "@id": "http://endhealth.info/im#Organisation" }
+          ],
+          isDescendentOf: [],
+          weighting: 11,
+          match: "Acquired scoliosis"
+        }
+      ])
+    };
 
     mockStore = { commit: vi.fn(), state: { filterOptions: FILTER_OPTIONS, selectedFilters: SELECTED_FILTERS } };
 
@@ -823,7 +828,7 @@ describe("Expression.vue ___ no value", () => {
 
     wrapper = shallowMount(Expression, {
       props: { id: "focusConcept_0expression", position: 1, value: {} },
-      global: { components: { InputText, OverlayPanel }, stubs: { OverlayPanel: mockRef }, mocks: { $store: mockStore } }
+      global: { components: { InputText, OverlayPanel }, stubs: { OverlayPanel: mockRef }, mocks: { $store: mockStore, $entityService: mockEntityService } }
     });
 
     await flushPromises();
@@ -852,7 +857,7 @@ describe("Expression.vue ___ no value", () => {
       status: {},
       weighting: 0
     });
-    expect(wrapper.vm.request).toStrictEqual({});
+    expect(wrapper.vm.controller).toStrictEqual({});
     expect(wrapper.vm.anyModel).toStrictEqual(EXPRESSION);
     expect(wrapper.vm.searchTerm).toBe("ANY");
     expect(wrapper.vm.searchResults).toStrictEqual([]);

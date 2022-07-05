@@ -15,9 +15,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import EntityService from "@/services/EntityService";
-import { Vocabulary } from "im-library";
+import { Helpers, Vocabulary } from "im-library";
+import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 const { IM } = Vocabulary;
+const {
+  Converters: { iriToUrl }
+} = Helpers;
 
 export default defineComponent({
   name: "ParentHierarhcy",
@@ -55,13 +58,13 @@ export default defineComponent({
 
     async getPath() {
       if (this.conceptIri === IM.NAMESPACE + "Favourites") {
-        this.pathItems = [{ label: "Favourites", to: (IM.NAMESPACE + "Favourites").replace(/\//gi, "%2F").replace(/#/gi, "%23") }];
+        this.pathItems = [{ label: "Favourites", to: iriToUrl(IM.NAMESPACE) + "Favourites" }];
         return;
       }
-      let folderPath = (await EntityService.getPathBetweenNodes(this.conceptIri, IM.MODULE_IM)).reverse();
-      if (!folderPath.length) folderPath = await EntityService.getFolderPath(this.conceptIri);
-      this.pathItems = folderPath.map(iriRef => {
-        return { label: iriRef.name, to: iriRef["@id"].replace(/\//gi, "%2F").replace(/#/gi, "%23") };
+      let folderPath = (await this.$entityService.getPathBetweenNodes(this.conceptIri, IM.MODULE_IM)).reverse();
+      if (!folderPath.length) folderPath = await this.$entityService.getFolderPath(this.conceptIri);
+      this.pathItems = folderPath.map((iriRef: TTIriRef) => {
+        return { label: iriRef.name, to: iriToUrl(iriRef["@id"]) };
       });
       if (this.pathItems.length > 2) {
         const filteredOutPathItems = this.pathItems.splice(1, this.pathItems.length - 2);

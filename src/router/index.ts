@@ -1,12 +1,18 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import axios from "axios";
 import Home from "../views/Home.vue";
 import Directory from "../views/Directory.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
 import EclSearch from "../views/EclSearch.vue";
-import { SnomedLicense, Env } from "im-library";
+import { AccessDenied, PageNotFound, SnomedLicense, Services, EntityNotFound, Helpers } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
+const {
+  DataTypeCheckers: { isObjectHasKeys }
+} = Helpers;
+const { Env } = Services;
+import vm from "@/main";
 
 const APP_TITLE = "IM Directory";
 
@@ -55,6 +61,21 @@ const routes: Array<RouteRecordRaw> = [
     path: "/snomedLicense",
     name: "License",
     component: SnomedLicense
+  },
+  {
+    path: "/401",
+    name: "AccessDenied",
+    component: AccessDenied
+  },
+  {
+    path: "/404",
+    name: "EntityNotFound",
+    component: EntityNotFound
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "PageNotFound",
+    component: PageNotFound
   }
 ];
 
@@ -63,8 +84,8 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach(async (to, from) => {
-  const currentUrl = Env.directoryUrl + "#" + to.path;
+router.beforeEach(async (to, _from) => {
+  const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
   if (to.path !== "/snomedLicense") {
     store.commit("updateSnomedReturnUrl", currentUrl);
     store.commit("updateAuthReturnUrl", currentUrl);
@@ -77,7 +98,7 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
-      window.location.href = Env.authUrl + "login?returnUrl=" + currentUrl;
+      window.location.href = Env.AUTH_URL + "login?returnUrl=" + currentUrl;
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
@@ -86,6 +107,18 @@ router.beforeEach(async (to, from) => {
       return {
         path: "/snomedLicense"
       };
+    }
+  }
+
+  if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
+    const iri = to.params.selectedIri as string;
+    try {
+      new URL(iri);
+      if (!(await vm.$entityService.iriExists(iri))) {
+        router.push({ name: "EntityNotFound" });
+      }
+    } catch (_error) {
+      router.push({ name: "EntityNotFound" });
     }
   }
 });

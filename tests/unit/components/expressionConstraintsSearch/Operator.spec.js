@@ -1,4 +1,4 @@
-import Operator from "@/components/eclSearch/Operator.vue";
+import Operator from "@/components/eclSearch/builder/Operator.vue";
 import { shallowMount } from "@vue/test-utils";
 import Dropdown from "primevue/dropdown";
 
@@ -34,12 +34,12 @@ describe("Operator.vue ___prop value", () => {
     wrapper.vm.onConfirm();
     expect(wrapper.emitted().updateClicked[0]).toStrictEqual([
       {
-        component: "Operator",
         id: "focusConcept_0operator",
-        label: "=",
+        queryString: "=",
         position: 0,
-        type: "operator",
-        value: { name: "Equals", symbol: "=" }
+        type: "Operator",
+        value: { name: "Equals", symbol: "=" },
+        showButtons: { minus: true, plus: true }
       }
     ]);
     console.warn = warn;

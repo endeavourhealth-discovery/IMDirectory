@@ -47,47 +47,76 @@
         <template #body="slotProps">
           <div class="ml-2">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
-              <font-awesome-icon v-if="slotProps.data.icon" :icon="slotProps.data.icon" />
+              <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
-            {{ slotProps.data.match }}
+            <span class="break-all">{{ slotProps.data.match }}</span>
           </div>
         </template>
       </Column>
       <Column field="entityType" header="Types">
         <template #body="slotProps">
-          {{ slotProps.data.typeNames }}
+          <span class="break-all">{{ slotProps.data.typeNames }}</span>
         </template>
       </Column>
       <Column field="status" header="Status">
         <template #body="slotProps">
-          {{ slotProps.data.status?.name }}
+          <span>{{ slotProps.data.status?.name }}</span>
         </template>
       </Column>
-      <Column field="code" header="Code"></Column>
+      <Column field="code" header="Code">
+        <template #body="slotProps">
+          <span class="break-all">{{ slotProps.data.code }}</span>
+        </template>
+      </Column>
+      <Column field="weighting" header="Usage">
+        <template #body="slotProps">
+          <span class="break-all">{{ slotProps.data.weighting }}</span>
+        </template>
+      </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
         <template #body="slotProps">
-          <Button icon="fas fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" />
-          <Button
-            v-if="slotProps.data.hasChildren"
-            @click="open(slotProps)"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
-            type="button"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            icon="pi pi-folder-open"
-          />
-          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" />
-          <Button icon="pi pi-fw pi-info-circle" class="p-button-rounded p-button-text p-button-plain row-button" @click="showInfo(slotProps)" />
+          <div class="buttons-container">
+            <Button icon="fa-solid fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
+            <Button
+              v-if="slotProps.data.hasChildren"
+              @click="open"
+              aria-haspopup="true"
+              aria-controls="overlay_menu"
+              type="button"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              icon="pi pi-folder-open"
+              v-tooltip.top="'Open'"
+            />
+            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" v-tooltip.top="'View'" />
+            <Button
+              icon="pi pi-fw pi-info-circle"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="showInfo(slotProps)"
+              v-tooltip.top="'Info'"
+            />
+            <Button
+              icon="fa-solid fa-pen-to-square"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="edit(slotProps)"
+              v-tooltip.top="'Edit'"
+            />
+            <Button
+              v-if="isFavourite(slotProps.data.iri)"
+              style="color: #e39a36"
+              icon="pi pi-fw pi-star-fill"
+              class="p-button-rounded p-button-text row-button-fav"
+              @click="updateFavourites(slotProps)"
+              v-tooltip.left="'Unfavourite'"
+            />
 
-          <Button
-            v-if="isFavourite(slotProps.data.iri)"
-            style="color: #e39a36"
-            icon="pi pi-fw pi-star-fill"
-            class="p-button-rounded p-button-text row-button-fav"
-            @click="updateFavourites(slotProps)"
-          />
-
-          <Button v-else icon="pi pi-fw pi-star" class="p-button-rounded p-button-text p-button-plain row-button" @click="updateFavourites(slotProps)" />
+            <Button
+              v-else
+              icon="pi pi-fw pi-star"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="updateFavourites(slotProps)"
+              v-tooltip.left="'Favourite'"
+            />
+          </div>
         </template>
       </Column>
     </DataTable>
@@ -96,16 +125,13 @@
 </template>
 
 <script lang="ts">
-import DirectService from "@/services/DirectService";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { Enums, Helpers, Vocabulary, Models } from "im-library";
-const { IM } = Vocabulary;
+import { Helpers, Models } from "im-library";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
-const { AppEnum } = Enums;
 
 export default defineComponent({
   name: "SearchResultsTable",
@@ -288,7 +314,7 @@ export default defineComponent({
     },
 
     navigateToEditor(): void {
-      DirectService.directTo(AppEnum.EDITOR, this.selected.iri, this);
+      this.$directService.directTo(this.$env.EDITOR_URL, this.selected.iri, "editor");
     },
 
     onRightClick(event: any) {
@@ -298,7 +324,7 @@ export default defineComponent({
 
     onRowDblClick(event: any) {
       this.selected = event.data;
-      if (isFolder(this.selected?.entityType, IM.FOLDER)) this.open();
+      if (isFolder(this.selected?.entityType)) this.open();
       else this.view();
     },
 
@@ -311,7 +337,12 @@ export default defineComponent({
 
     view(row?: any) {
       if (row) this.selected = row.data;
-      DirectService.directTo(AppEnum.VIEWER, this.selected.iri, this);
+      this.$directService.directTo(this.$env.VIEWER_URL, this.selected.iri, "concept");
+    },
+
+    edit(row?: any) {
+      if (row) this.selected = row.data;
+      this.$directService.directTo(this.$env.EDITOR_URL, this.selected.iri, "editor");
     },
 
     locate(row: any) {
@@ -364,6 +395,18 @@ label {
 .p-datatable {
   flex: 1 1 auto;
   overflow: auto;
+}
+
+.buttons-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  row-gap: 0.5rem;
+}
+
+.break-all {
+  word-break: break-all;
 }
 
 .row-button:hover {

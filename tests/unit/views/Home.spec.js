@@ -4,6 +4,8 @@ import Home from "@/views/Home.vue";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
 
+vi.mock("@/main");
+
 describe("Home.vue", () => {
   let wrapper;
   let mockStore;
@@ -92,7 +94,7 @@ describe("Home.vue", () => {
   });
 
   it("mounts", () => {
-    expect(wrapper.vm.visibleRight).toBe(false);
+    expect(wrapper.vm.visibleRight).toBe(true);
     expect(wrapper.vm.selectedIri).toBe("");
   });
 });

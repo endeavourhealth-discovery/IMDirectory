@@ -4,15 +4,9 @@
       <NavTree />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto;">
-      <div class="splitter-right" v-if="visibleRight">
-        <router-view @openBar="visibleRight = true" />
-        <div id="info-side-bar-wrapper" v-if="visibleRight">
-          <InfoSideBar @closeBar="visibleRight = false" />
-        </div>
-      </div>
-
-      <div class="splitter-right" v-else>
+      <div class="splitter-right">
         <router-view @openBar="visibleRight = true" @closeBar="visibleRight = false" />
+        <InfoSideBar :visible="visibleRight" @closeBar="visibleRight = false" />
       </div>
     </SplitterPanel>
   </Splitter>
@@ -22,11 +16,7 @@
 import { defineComponent } from "vue";
 import NavTree from "@/components/home/NavTree.vue";
 import InfoSideBar from "@/components/home/InfoSideBar.vue";
-import { Helpers } from "im-library";
 import { mapState } from "vuex";
-const {
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
 
 export default defineComponent({
   name: "Home",
@@ -34,11 +24,9 @@ export default defineComponent({
     NavTree,
     InfoSideBar
   },
-  computed: mapState(["filterOptions", "filterDefaults"]),
-
   data() {
     return {
-      visibleRight: false,
+      visibleRight: true,
       selectedIri: ""
     };
   }
@@ -49,11 +37,6 @@ export default defineComponent({
 .p-splitter {
   height: 100%;
   width: 100%;
-}
-
-#info-side-bar-wrapper {
-  transition: 0.5s;
-  width: 40%;
 }
 
 .splitter-right {

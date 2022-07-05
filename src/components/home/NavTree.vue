@@ -7,14 +7,15 @@
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
+      @node-collapse="onNodeCollapse"
       class="tree-root"
       :loading="loading"
     >
       <template #default="slotProps">
-        <div class="tree-row">
+        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
-              <font-awesome-icon :icon="slotProps.node.typeIcon" class="fa-fw"></font-awesome-icon>
+              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
             </div>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
@@ -22,19 +23,56 @@
         </div>
       </template>
     </Tree>
+
+    <OverlayPanel v-if="hoveredResult.iri === 'load'" ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+      <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem;">
+        <span>{{ hoveredResult.name }}</span>
+      </div>
+    </OverlayPanel>
+    <OverlayPanel v-else ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem;">
+        <div class="left-side" style="width: 50%">
+          <p>
+            <strong>Name: </strong>
+            <span>{{ hoveredResult.name }}</span>
+          </p>
+          <p>
+            <strong>Iri: </strong>
+            <span style="word-break:break-all;">{{ hoveredResult.iri }}</span>
+          </p>
+          <p v-if="hoveredResult.code">
+            <strong>Code: </strong>
+            <span>{{ hoveredResult.code }}</span>
+          </p>
+        </div>
+        <div class="right-side" style="width: 50%">
+          <p v-if="hoveredResult.status">
+            <strong>Status: </strong>
+            <span>{{ hoveredResult.status.name }}</span>
+          </p>
+          <p v-if="hoveredResult.scheme">
+            <strong>Scheme: </strong>
+            <span>{{ hoveredResult.scheme.name }}</span>
+          </p>
+          <p v-if="hoveredResult.entityType">
+            <strong>Type: </strong>
+            <span>{{ getConceptTypes(hoveredResult.entityType) }}</span>
+          </p>
+        </div>
+      </div>
+    </OverlayPanel>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import EntityService from "@/services/EntityService";
 import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers } from "im-library";
+import { Vocabulary, Helpers, Models } from "im-library";
 const { IM } = Vocabulary;
 const {
-  DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
+  DataTypeCheckers: { isObjectHasKeys, isArrayHasLength, isObject },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes }
 } = Helpers;
 
 export default defineComponent({
@@ -42,7 +80,7 @@ export default defineComponent({
   computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
   watch: {
     async locateOnNavTreeIri() {
-      await this.findPathToNode(this.locateOnNavTreeIri);
+      await this.findPathToNode(this.locateOnNavTreeIri.iri);
     }
   },
   data() {
@@ -51,7 +89,10 @@ export default defineComponent({
       selectedNode: {} as TreeNode,
       root: [] as TreeNode[],
       loading: true,
-      expandedKeys: {} as any
+      expandedKeys: {} as any,
+      hoveredResult: {} as Models.Search.ConceptSummary,
+      overlayLocation: {} as any,
+      pageSize: 20
     };
   },
   async mounted() {
@@ -60,31 +101,39 @@ export default defineComponent({
     if (this.conceptIri) await this.findPathToNode(this.conceptIri);
     this.loading = false;
   },
+  beforeUnmount() {
+    if (isObject(this.overlayLocation) && isArrayHasLength(Object.keys(this.overlayLocation))) {
+      this.hideOverlay(this.overlayLocation);
+    }
+  },
   methods: {
     async addParentFoldersToRoot() {
-      const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+      const IMChildren = await this.$entityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
-        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren));
+        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, IMchild.orderNumber));
       }
       this.root.sort(this.byKey);
       const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
-      favNode.typeIcon = ["fas", "star"];
+      favNode.typeIcon = ["fa-solid", "fa-star"];
       favNode.color = "#e39a36";
       this.root.push(favNode);
     },
 
     byKey(a: any, b: any): number {
-      if (a.key > b.key) {
-        return 1;
-      } else if (b.key > a.key) {
-        return -1;
-      } else {
-        return 0;
-      }
+      // order by order number
+      if (a.order && b.order) return a.order - b.order;
+      else if (a.order && !b.order) return -1;
+      else if (!a.order && b.order) return 1;
+      
+      // order alphabetically
+      else if (a.key > b.key) return 1;
+      else if (b.key > a.key) return -1;
+
+      return 0;
     },
 
-    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
+    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, order?: number): TreeNode {
       return {
         key: conceptName,
         label: conceptName,
@@ -93,28 +142,80 @@ export default defineComponent({
         data: conceptIri,
         leaf: !hasChildren,
         loading: false,
-        children: [] as TreeNode[]
+        children: [] as TreeNode[],
+        order: order
       };
     },
 
-    onNodeSelect(node: TreeNode): void {
-      this.selectedNode = node;
-      this.$router.push({
-        name: "Folder",
-        params: { selectedIri: node.data }
-      });
-      this.$store.commit("updateSelectedConceptIri", node.data);
+    createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
+      return {
+        key: "loadMore" + parentNode.data,
+        label: "Load more...",
+        typeIcon: null,
+        color: null,
+        data: "loadMore",
+        leaf: true,
+        loading: false,
+        children: [] as TreeNode[],
+        parentNode: parentNode,
+        nextPage: nextPage,
+        totalCount: totalCount,
+        style: "font-weight: bold;"
+      };
     },
 
-    async onNodeExpand(node: TreeNode) {
+    onNodeSelect(node: any): void {
+      if (node.data === "loadMore") {
+        this.loadMore(node);
+      } else {
+        this.selectedNode = node;
+        this.$router.push({
+          name: "Folder",
+          params: { selectedIri: node.data }
+        });
+        this.$store.commit("updateSelectedConceptIri", node.data);
+      }
+    },
+
+    async loadMore(node: any) {
+      if (node.nextPage * this.pageSize < node.totalCount) {
+        const children = await this.$entityService.getPagedChildren(node.parentNode.data, node.nextPage, this.pageSize);
+        node.parentNode.children.pop();
+        children.result.forEach((child: any) => {
+          if (!this.nodeHasChild(node.parentNode, child))
+            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+        });
+        node.nextPage = node.nextPage + 1;
+        node.parentNode.children.push(this.createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
+      } else if (node.nextPage * this.pageSize > node.totalCount) {
+        const children = await this.$entityService.getPagedChildren(node.parentNode.data, node.nextPage, this.pageSize);
+        node.parentNode.children.pop();
+        children.result.forEach((child: any) => {
+          if (!this.nodeHasChild(node.parentNode, child))
+            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+        });
+      } else {
+        node.parentNode.children.pop();
+      }
+    },
+
+    async onNodeExpand(node: any) {
       if (isObjectHasKeys(node)) {
         node.loading = true;
-        const children = await EntityService.getEntityChildren(node.data);
-        children.forEach(child => {
+        const children = await this.$entityService.getPagedChildren(node.data, 1, this.pageSize);
+        children.result.forEach((child: any) => {
           if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
         });
+        if (children.totalCount >= this.pageSize) {
+          node.children.push(this.createLoadMoreNode(node, 2, children.totalCount));
+        }
         node.loading = false;
       }
+    },
+
+    onNodeCollapse(node: any) {
+      node.children = [];
+      node.leaf = false;
     },
 
     nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
@@ -130,7 +231,7 @@ export default defineComponent({
 
     async findPathToNode(iri: string) {
       this.loading = true;
-      const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
+      const path = await this.$entityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
       // Recursively expand
       let n = this.root.find(c => path.find(p => p["@id"] === c.data));
@@ -138,29 +239,21 @@ export default defineComponent({
       if (n) {
         this.expandedKeys = {};
         while (n && n.data != path[0]["@id"] && i++ < 50) {
-          this.selectKey(n.key);
-          // Expand node if necessary
-          if (!n.children || n.children.length == 0) {
-            await this.onNodeExpand(n);
-          }
-          this.expandedKeys[n.key] = true;
-
+          await this.selectAndExpand(n);
           // Find relevant child
           n = n.children.find(c => path.find(p => p["@id"] === c.data));
         }
-
         if (n && n.data === path[0]["@id"]) {
-          this.selectKey(n.key);
-          // Expand node if necessary
-          if (!n.children || n.children.length == 0) {
-            await this.onNodeExpand(n);
+          await this.selectAndExpand(n);
+
+          while (!n.children.some(child => child.data === iri)) {
+            await this.loadMoreChildren(n);
           }
           for (const gc of n.children) {
             if (gc.data === iri) {
               this.selectKey(gc.key);
             }
           }
-          this.expandedKeys[n.key] = true;
           this.selectedNode = n;
         } else {
           this.$toast.add({
@@ -169,11 +262,54 @@ export default defineComponent({
             detail: "Unable to locate concept in the current hierarchy"
           });
         }
-        const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
-        const highlighted = container.getElementsByClassName("p-highlight")[0];
-        if (highlighted) highlighted.scrollIntoView();
       }
+      this.scrollToHighlighted();
       this.loading = false;
+    },
+
+    async selectAndExpand(node: any) {
+      this.selectKey(node.key);
+      if (!node.children || node.children.length === 0) {
+        await this.onNodeExpand(node);
+      }
+      this.expandedKeys[node.key] = true;
+    },
+
+    scrollToHighlighted() {
+      const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
+      const highlighted = container.getElementsByClassName("p-highlight")[0];
+      if (highlighted) highlighted.scrollIntoView();
+    },
+
+    async loadMoreChildren(node: any) {
+      if (node.children[node.children.length - 1].data === "loadMore") {
+        await this.loadMore(node.children[node.children.length - 1]);
+      }
+    },
+
+    async showOverlay(event: any, node?: any): Promise<void> {
+      if (node.data === "loadMore") {
+        const x = this.$refs.navTreeOP as any;
+        this.overlayLocation = event;
+        x.show(this.overlayLocation);
+        this.hoveredResult.iri = "load";
+        this.hoveredResult.name = node.parentNode.label;
+      } else if (node.data) {
+        const x = this.$refs.navTreeOP as any;
+        this.overlayLocation = event;
+        x.show(this.overlayLocation);
+        this.hoveredResult = await this.$entityService.getEntitySummary(node.data);
+      }
+    },
+
+    hideOverlay(event: any): void {
+      const x = this.$refs.navTreeOP as any;
+      x.hide(event);
+      this.overlayLocation = {} as any;
+    },
+
+    getConceptTypes(types: TTIriRef[]): string {
+      return getNamesAsStringFromTypes(types);
     }
   }
 });

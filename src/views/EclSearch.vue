@@ -11,7 +11,7 @@
       />
       <Button
         :disabled="!queryString.length"
-        icon="far fa-copy"
+        icon="fa-solid fa-copy"
         v-tooltip.left="'Copy to clipboard'"
         v-clipboard:copy="copyToClipboard()"
         v-clipboard:success="onCopy"
@@ -35,11 +35,10 @@ import { defineComponent } from "vue";
 import Builder from "@/components/eclSearch/Builder.vue";
 import SearchResults from "@/components/eclSearch/SearchResults.vue";
 import { mapState } from "vuex";
-import axios from "axios";
-import SetService from "@/services/SetService";
-import { Helpers, LoggerService, Models } from "im-library";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { Helpers, Models } from "im-library";
 const {
-  DataTypeCheckers: { isObjectHasKeys }
+  DataTypeCheckers: { isObjectHasKeys, isObject }
 } = Helpers;
 
 export default defineComponent({
@@ -63,7 +62,7 @@ export default defineComponent({
       totalCount: 0,
       eclError: false,
       loading: false,
-      request: {} as { cancel: any; msg: string }
+      controller: {} as AbortController
     };
   },
   methods: {
@@ -79,12 +78,11 @@ export default defineComponent({
     async search(): Promise<void> {
       if (this.queryString) {
         this.loading = true;
-        if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
-          await this.request.cancel({ status: 499, message: "Search cancelled by user" });
+        if (!isObject(this.controller)) {
+          this.controller.abort();
         }
-        const axiosSource = axios.CancelToken.source();
-        this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
-        const result = await SetService.ECLSearch(this.queryString, false, 1000, axiosSource.token);
+        this.controller = new AbortController();
+        const result = await this.$setService.ECLSearch(this.queryString, false, 1000, this.controller);
         if (isObjectHasKeys(result, ["entities", "count", "page"])) {
           this.searchResults = result.entities;
           this.totalCount = result.count;
@@ -102,11 +100,11 @@ export default defineComponent({
     },
 
     onCopy(): void {
-      this.$toast.add(LoggerService.success("Value copied to clipboard"));
+      this.$toast.add(this.$loggerService.success("Value copied to clipboard"));
     },
 
     onCopyError(): void {
-      this.$toast.add(LoggerService.error("Failed to copy value to clipboard"));
+      this.$toast.add(this.$loggerService.error("Failed to copy value to clipboard"));
     }
   }
 });

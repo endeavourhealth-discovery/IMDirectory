@@ -9,7 +9,6 @@
         @input="search"
         @keyup.enter="search"
         @focus="showOverlay"
-        @blur="hideOverlay"
         @change="showOverlay"
         placeholder="Search"
         class="p-inputtext search-input"
@@ -17,7 +16,7 @@
       />
     </div>
   </div>
-  <OverlayPanel class="search-op" ref="miniSearchOP">
+  <OverlayPanel class="search-op" ref="miniSearchOP" :showCloseIcon="true" :dismissable="true">
     <SearchMiniOverlay :searchTerm="searchTerm" :searchResults="searchResults" :loading="loading" @searchResultSelected="updateSelectedResult" />
   </OverlayPanel>
 </template>
@@ -25,14 +24,13 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import SearchMiniOverlay from "@/components/eclSearch/SearchMiniOverlay.vue";
-import axios from "axios";
-import EntityService from "@/services/EntityService";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { mapState } from "vuex";
 import { Enums, Helpers, Models, Vocabulary } from "im-library";
 import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent, ECLType, SortBy } = Enums;
+const { ECLComponent, SortBy } = Enums;
 const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
+  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys, isObject }
 } = Helpers;
 const {
   Search: { SearchRequest }
@@ -44,9 +42,10 @@ export default defineComponent({
   props: {
     id: { type: String, required: true },
     position: { type: Number, required: true },
-    value: { type: Object as PropType<Models.Search.ConceptSummary>, required: false }
+    value: { type: Object as PropType<Models.Search.ConceptSummary>, required: false },
+    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
-  emits: { updateClicked: (payload: ECLComponentDetails) => true },
+  emits: { updateClicked: (_payload: ECLComponentDetails) => true },
   components: { SearchMiniOverlay },
   computed: mapState(["filterOptions", "selectedFilters"]),
   mounted() {
@@ -60,7 +59,7 @@ export default defineComponent({
     return {
       loading: false,
       debounce: 0,
-      request: {} as { cancel: any; msg: string },
+      controller: {} as AbortController,
       selectedResult: {} as Models.Search.ConceptSummary,
       anyModel: {
         code: "",
@@ -99,7 +98,7 @@ export default defineComponent({
       if (this.searchTerm.length > 0) {
         this.searchResults = [];
         this.loading = true;
-        const searchRequest = new SearchRequest();
+        const searchRequest = {} as SearchRequest;
         searchRequest.termFilter = this.searchTerm;
         searchRequest.sortBy = SortBy.Usage;
         searchRequest.page = 1;
@@ -115,18 +114,17 @@ export default defineComponent({
         this.selectedFilters.types.forEach((type: TTIriRef) => {
           searchRequest.typeFilter.push(type["@id"]);
         });
-        if (isObjectHasKeys(this.request, ["cancel", "msg"])) {
-          await this.request.cancel({ status: 499, message: "Search cancelled by user" });
+        if (!isObject(this.controller)) {
+          this.controller.abort();
         }
-        const axiosSource = axios.CancelToken.source();
-        this.request = { cancel: axiosSource.cancel, msg: "Loading..." };
-        await this.fetchSearchResults(searchRequest, axiosSource.token);
+        this.controller = new AbortController();
+        await this.fetchSearchResults(searchRequest, this.controller);
         this.loading = false;
       }
     },
 
-    async fetchSearchResults(searchRequest: Models.Search.SearchRequest, cancelToken: any) {
-      const result = await EntityService.advancedSearch(searchRequest, cancelToken);
+    async fetchSearchResults(searchRequest: Models.Search.SearchRequest, controller: AbortController) {
+      const result = await this.$entityService.advancedSearch(searchRequest, controller);
       if (result && isArrayHasLength(result)) {
         this.searchResults = result;
       } else {
@@ -156,19 +154,19 @@ export default defineComponent({
     },
 
     createExpression(): ECLComponentDetails {
-      let label;
+      let queryString = "";
       if (this.selectedResult.name === "ANY") {
-        label = "*";
+        queryString = "*";
       } else {
-        label = this.selectedResult.code + " |" + this.selectedResult.name + "|";
+        queryString = this.selectedResult.code + " |" + this.selectedResult.name + "|";
       }
       return {
         value: this.selectedResult,
         id: this.id,
         position: this.position,
-        type: ECLType.EXPRESSION,
-        label: label,
-        component: ECLComponent.EXPRESSION
+        type: ECLComponent.EXPRESSION,
+        queryString: queryString,
+        showButtons: this.showButtons
       };
     }
   }
@@ -177,19 +175,19 @@ export default defineComponent({
 
 <style scoped>
 .query-item-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  border: 1px solid #ffc952;
+  border-radius: 3px;
 }
 
 .label-container {
-  margin: 0 1rem 0 0;
+  width: 100%;
   padding: 1rem;
-  border: 1px solid #ffc952;
-  border-radius: 3px;
   position: relative;
-  min-width: 15rem;
 }
 
 .label {
@@ -209,6 +207,7 @@ export default defineComponent({
 }
 
 .search-input {
-  width: 15rem;
+  width: 100%;
+  min-width: 15rem;
 }
 </style>

@@ -2,6 +2,7 @@
   <div class="layout-wrapper layout-static">
     <Toast />
     <ConfirmDialog />
+    <ReleaseNotes />
     <div id="main-container">
       <TopBar>
         <template #content>
@@ -24,16 +25,17 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import Search from "@/components/topbar/Search.vue";
+import ReleaseNotes from '@/components/releaseNotes/ReleaseNotes.vue';
 
 export default defineComponent({
   name: "App",
-  components: { Search },
+  components: { ReleaseNotes, Search },
   async mounted() {
     // check for user and log them in if found or logout if not
     this.loading = true;
     await this.$store.dispatch("authenticateCurrentUser");
-    await this.$store.dispatch("fetchBlockedIris");
     await this.$store.dispatch("fetchFilterSettings");
+    await this.$store.dispatch("initFavourites");
     this.loading = false;
   },
   data() {

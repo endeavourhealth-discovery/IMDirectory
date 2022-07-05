@@ -1,56 +1,43 @@
 <template>
-  <div id="concept-empty-container" v-if="selectedConceptIri === 'http://endhealth.info/im#Favourites'">
-    <Panel>
-      <template #icons>
-        <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
-          <span class="pi pi-times"></span>
-        </button>
-      </template>
-      <template #header>
-        Please select an item to display
-      </template>
-    </Panel>
-  </div>
-  <div id="concept-main-container" v-else>
-    <Panel>
-      <template #icons>
-        <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
-          <span class="pi pi-times"></span>
-        </button>
-      </template>
-      <template #header>
+  <div id="info-side-bar-wrapper" v-if="visible">
+    <div id="concept-empty-container" v-if="selectedConceptIri === 'http://endhealth.info/im#Favourites'">
+      <div class="header">
+        <div class="title">
+          <span>Please select an item to display</span>
+        </div>
+        <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
+      </div>
+    </div>
+    <div id="concept-main-container" v-else>
+      <div class="header">
         <PanelHeader :types="types" :header="header" />
-      </template>
-      <div id="concept-content-dialogs-container">
+        <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
+      </div>
+      <div v-if="loading" class="loading-container">
+        <ProgressSpinner />
+      </div>
+      <div v-else id="concept-content-dialogs-container">
         <div id="concept-panel-container">
           <TabView :lazy="true">
             <TabPanel header="Details">
-              <div v-if="loading" class="loading-container" :style="contentHeight">
-                <ProgressSpinner />
-              </div>
-              <div v-else class="concept-panel-content" id="definition-container" :style="contentHeight">
+              <div v-if="isObjectHasKeysWrapper(concept)" class="concept-panel-content" id="definition-container">
                 <Definition :concept="concept" :configs="configs" />
               </div>
             </TabPanel>
             <TabPanel v-if="terms" header="Terms">
-              <div class="concept-panel-content" id="term-table-container" :style="contentHeight">
+              <div class="concept-panel-content" id="term-table-container">
                 <TermCodeTable :terms="terms" />
               </div>
             </TabPanel>
             <TabPanel header="Hierarchy position">
-              <div class="concept-panel-content" id="secondary-tree-container" :style="contentHeight">
+              <div class="concept-panel-content" id="secondary-tree-container">
                 <SecondaryTree :conceptIri="selectedConceptIri" />
-              </div>
-            </TabPanel>
-            <TabPanel v-if="isQuery" header="Query">
-              <div class="concept-panel-content" id="query-container" :style="contentHeight">
-                <ProfileDisplay theme="light" :modelValue="profile" :activeProfile="activeProfile" />
               </div>
             </TabPanel>
           </TabView>
         </div>
       </div>
-    </Panel>
+    </div>
   </div>
 </template>
 
@@ -58,10 +45,8 @@
 import { defineComponent } from "vue";
 import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
-import EntityService from "@/services/EntityService";
-import ConfigService from "@/services/ConfigService";
-import { DefinitionConfig, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, LoggerService, Models } from "im-library";
+import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
+import { Vocabulary, Helpers, Models } from "im-library";
 import { mapState } from "vuex";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
@@ -88,7 +73,7 @@ export default defineComponent({
     PanelHeader,
     Definition
   },
-
+  props: { visible: { type: Boolean, required: true } },
   watch: {
     async conceptIri() {
       if (this.conceptIri) this.$store.commit("updateSelectedConceptIri", this.conceptIri);
@@ -99,13 +84,10 @@ export default defineComponent({
     }
   },
   async mounted() {
-    this.setContentHeight();
-    window.addEventListener("resize", this.onResize);
+    if (!this.selectedConceptIri && this.conceptIri) {
+      this.$store.commit("updateSelectedConceptIri", this.conceptIri);
+    }
     await this.init();
-    this.setContentHeight();
-  },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.onResize);
   },
   data() {
     return {
@@ -114,8 +96,6 @@ export default defineComponent({
       definitionText: "",
       types: [] as TTIriRef[],
       header: "",
-      contentHeight: "",
-      contentHeightValue: 0,
       configs: [] as DefinitionConfig[],
       conceptAsString: "",
       terms: [] as any[] | undefined,
@@ -126,9 +106,6 @@ export default defineComponent({
   methods: {
     closeBar() {
       this.$emit("closeBar");
-    },
-    onResize(): void {
-      this.setContentHeight();
     },
 
     directToEditRoute(): void {
@@ -154,57 +131,19 @@ export default defineComponent({
         .map((c: DefinitionConfig) => c.predicate);
       predicates.push(IM.DEFINITION);
 
-      this.concept = await EntityService.getPartialEntity(iri, predicates);
+      this.concept = await this.$entityService.getPartialEntity(iri, predicates);
 
       this.concept["@id"] = iri;
-      this.concept["subtypes"] = await EntityService.getEntityChildren(iri);
-
-      this.concept["termCodes"] = await EntityService.getEntityTermCodes(iri);
-
-      await this.hydrateDefinition();
-
-      if(isQuery(this.concept[RDF.TYPE])) {
-      this.isQuery = true;
-      this.profile = new Models.Query.Profile(this.concept);
-      } else {
-        this.isQuery = false;
-        this.profile = {} as Models.Query.Profile;
-      }
+      const result = await this.$entityService.getPagedChildren(iri, 1, 10);
+      const subtypes = result.result.map((child: EntityReferenceNode) => {
+        return { "@id": child["@id"], name: child.name };
+      });
+      this.concept["subtypes"] = { children: subtypes, totalCount: result.totalCount, loadMore: this.loadMore };
+      this.concept["termCodes"] = await this.$entityService.getEntityTermCodes(iri);
     },
-    async hydrateDefinition() {
-      if (this.concept[IM.DEFINITION]) {
-        const def = this.concept[IM.DEFINITION];
-        const iris: any[] = this.getIris(def);
-        const ttiris = await EntityService.getNames(iris.map(i => i["@id"]));
 
-        this.setIriNames(iris, ttiris);
-
-        this.concept[IM.DEFINITION] = JSON.stringify(def);
-      }
-    },
-    getIris(def: any): string[] {
-      const result = [];
-
-      for (const k of Object.keys(def)) {
-        if (def[k]["@id"]) {
-          result.push(def[k]);
-        } else if (typeof def[k] === "object") {
-          this.getIris(def[k]).forEach(i => result.push(i));
-        }
-      }
-
-      return result;
-    },
-    setIriNames(iris: TTIriRef[], ttIris: TTIriRef[]) {
-      for (const i of iris) {
-        const match = ttIris.find(t => t["@id"] === i["@id"]);
-        if (match) {
-          i["name"] = match.name;
-        }
-      }
-    },
     async getInferred(iri: string): Promise<void> {
-      const result = await EntityService.getDefinitionBundle(iri);
+      const result = await this.$entityService.getDefinitionBundle(iri);
       if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
         const roleGroup = result.entity[IM.ROLE_GROUP];
         delete result.entity[IM.ROLE_GROUP];
@@ -216,16 +155,14 @@ export default defineComponent({
     },
 
     async getConfig(): Promise<void> {
-      const defaultPredicateNames = await ConfigService.getDefaultPredicateNames();
-      this.$store.commit("updateDefaultPredicateNames", defaultPredicateNames);
-      const definitionConfig = await ConfigService.getComponentLayout("definition");
-      const summaryConfig = await ConfigService.getComponentLayout("summary");
+      const definitionConfig = await this.$configService.getComponentLayout("definition");
+      const summaryConfig = await this.$configService.getComponentLayout("summary");
       this.configs = definitionConfig.concat(summaryConfig);
 
       if (this.configs.every(config => isObjectHasKeys(config, ["order"]))) {
         this.configs.sort(byOrder);
       } else {
-        LoggerService.error(undefined, "Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
+        this.$loggerService.error(undefined, "Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
       }
     },
 
@@ -241,7 +178,7 @@ export default defineComponent({
     },
 
     async getTerms(iri: string) {
-      const entity = await EntityService.getPartialEntity(iri, [IM.HAS_TERM_CODE]);
+      const entity = await this.$entityService.getPartialEntity(iri, [IM.HAS_TERM_CODE]);
       this.terms = isObjectHasKeys(entity, [IM.HAS_TERM_CODE])
         ? (entity[IM.HAS_TERM_CODE] as []).map(term => {
             return { name: term[RDFS.LABEL], code: term[IM.CODE] };
@@ -249,27 +186,111 @@ export default defineComponent({
         : undefined;
     },
 
-    setContentHeight(): void {
-      const calcHeight = getContainerElementOptimalHeight("concept-main-container", ["p-panel-header", "p-tabview-nav-container"], true, 4, 1);
-      if (!calcHeight.length) {
-        this.contentHeight = "height: 700px; max-height: 700px;";
-        this.contentHeightValue = 800;
-      } else {
-        this.contentHeight = "height: " + calcHeight + ";" + "max-height: " + calcHeight + ";";
-        this.contentHeightValue = parseInt(calcHeight, 10);
+    async loadMore(children: any[], totalCount: number, nextPage: number, pageSize: number, loadButton: boolean, iri: string) {
+      if (loadButton) {
+        if (nextPage * pageSize < totalCount) {
+          const result = await this.$entityService.getPagedChildren(iri, nextPage, pageSize);
+          const resultChildren = result.result.map((child: EntityReferenceNode) => {
+            return { "@id": child["@id"], name: child.name };
+          });
+          children = children.concat(resultChildren);
+          nextPage = nextPage + 1;
+          loadButton = true;
+        } else if (nextPage * pageSize > totalCount) {
+          const result = await this.$entityService.getPagedChildren(iri, nextPage, pageSize);
+          const resultChildren = result.result.map((child: EntityReferenceNode) => {
+            return { "@id": child["@id"], name: child.name };
+          });
+          children = children.concat(resultChildren);
+          loadButton = false;
+        } else {
+          loadButton = false;
+        }
       }
+      return { children: children, totalCount: totalCount, nextPage: nextPage, pageSize: pageSize, loadButton: loadButton, iri: iri };
+    },
+
+    isObjectHasKeysWrapper(object: any) {
+      return isObjectHasKeys(object);
     }
   }
 });
 </script>
 <style scoped>
+#info-side-bar-wrapper {
+  transition: 0.5s;
+  flex: 0 0 40%;
+  height: 100%;
+}
+
 #concept-main-container {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  border-left: 1px solid #dee2e6;
 }
 
-.p-tabview-panel {
-  min-height: 100%;
+#concept-empty-container {
+  height: 100%;
+  width: 100%;
+  border-left: 1px solid #dee2e6;
+}
+
+.loading-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.header {
+  width: 100%;
+  border-bottom: 1px solid #dee2e6;
+  padding: 1rem;
+  background: #f8f9fa;
+  color: #495057;
+  display: flex;
+  justify-content: space-between;
+}
+
+.header-close-button {
+  flex: 0 1 auto;
+}
+
+.header-close-button:hover {
+  background-color: #6c757d !important;
+  color: #ffffff !important;
+}
+
+#concept-content-dialogs-container {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#concept-panel-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.p-tabview {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabview-panels) {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabview-panel) {
+  height: 100%;
+  overflow: auto;
 }
 
 .p-panel {
@@ -283,6 +304,7 @@ export default defineComponent({
   height: 100%;
   overflow: auto;
   background-color: #ffffff;
+  display: flex;
 }
 
 .copy-container {
@@ -295,15 +317,6 @@ export default defineComponent({
 .icons-container {
   display: flex;
   flex-flow: row nowrap;
-  align-items: center;
-}
-
-.loading-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
   align-items: center;
 }
 </style>

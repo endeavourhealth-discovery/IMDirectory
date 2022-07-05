@@ -3,23 +3,26 @@ import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { shallowMount, flushPromises } from "@vue/test-utils";
 import Tooltip from "primevue/tooltip";
-import { Enums, LoggerService } from "im-library";
-const { ECLComponent, ECLType } = Enums;
+import { Enums } from "im-library";
+import { vi } from "vitest";
+const { ECLComponent } = Enums;
 
 describe("Builder.vue", () => {
   let wrapper;
   let mockToast;
   let docSpy;
+  let mockLoggerService;
 
   beforeEach(async () => {
     vi.resetAllMocks();
 
     mockToast = { add: vi.fn() };
+    mockLoggerService = { error: vi.fn(), warn: vi.fn(), info: vi.fn(), success: vi.fn(), debug: vi.fn() };
 
     wrapper = shallowMount(Builder, {
       global: {
         components: { Dialog, Button },
-        mocks: { $toast: mockToast },
+        mocks: { $toast: mockToast, $loggerService: mockLoggerService },
         directives: { tooltip: Tooltip, clipboard: { copy: vi.fn(), success: vi.fn(), error: vi.fn() } }
       },
       props: { showDialog: true }
@@ -31,27 +34,15 @@ describe("Builder.vue", () => {
 
   it("mounts", () => {
     expect(wrapper.vm.showDialog).toBe(true);
-    expect(wrapper.vm.queryString).toBe(" ");
+    expect(wrapper.vm.queryString).toBe("");
     expect(wrapper.vm.queryBuild).toStrictEqual([
       {
-        component: ECLComponent.FOCUS_CONCEPT,
-        id: ECLType.FOCUS_CONCEPT + "_" + 0,
+        id: ECLComponent.FOCUS_CONCEPT + "_" + 0,
         value: null,
         position: 0,
-        type: ECLType.FOCUS_CONCEPT,
-        label: ""
-      },
-      {
-        id: ECLType.ADD_NEXT + "_" + 1,
-        value: {
-          previousPosition: 0,
-          previousComponentType: ECLType.FOCUS_CONCEPT,
-          parentGroup: undefined
-        },
-        position: 1,
-        type: ECLType.ADD_NEXT,
-        label: "",
-        component: ECLComponent.ADD_NEXT
+        type: ECLComponent.FOCUS_CONCEPT,
+        queryString: "",
+        showButtons: { minus: false, plus: true }
       }
     ]);
   });
@@ -60,46 +51,22 @@ describe("Builder.vue", () => {
     wrapper.vm.generateQueryString = vi.fn();
     wrapper.vm.$options.watch.queryBuild.handler.call(wrapper.vm, [
       {
-        id: ECLType.ADD_NEXT + "_" + 1,
-        value: {
-          previousPosition: 0,
-          previousComponentType: ECLType.FOCUS_CONCEPT,
-          parentGroup: undefined
-        },
-        position: 1,
-        type: ECLType.ADD_NEXT,
-        label: "",
-        component: ECLComponent.ADD_NEXT
-      },
-      {
-        component: ECLComponent.FOCUS_CONCEPT,
-        id: ECLType.FOCUS_CONCEPT + "_" + 0,
+        id: ECLComponent.FOCUS_CONCEPT + "_" + 0,
         value: null,
         position: 0,
-        type: ECLType.FOCUS_CONCEPT,
-        label: ""
+        type: ECLComponent.FOCUS_CONCEPT,
+        queryString: "",
+        showButtons: { minus: false, plus: false }
       }
     ]);
     expect(wrapper.vm.queryBuild).toStrictEqual([
       {
-        component: ECLComponent.FOCUS_CONCEPT,
-        id: ECLType.FOCUS_CONCEPT + "_" + 0,
+        id: ECLComponent.FOCUS_CONCEPT + "_" + 0,
         value: null,
         position: 0,
-        type: ECLType.FOCUS_CONCEPT,
-        label: ""
-      },
-      {
-        id: ECLType.ADD_NEXT + "_" + 1,
-        value: {
-          previousPosition: 0,
-          previousComponentType: ECLType.FOCUS_CONCEPT,
-          parentGroup: undefined
-        },
-        position: 1,
-        type: ECLType.ADD_NEXT,
-        label: "",
-        component: ECLComponent.ADD_NEXT
+        type: ECLComponent.FOCUS_CONCEPT,
+        queryString: "",
+        showButtons: { minus: false, plus: true }
       }
     ]);
     expect(wrapper.vm.generateQueryString).toHaveBeenCalledTimes(1);
@@ -120,801 +87,82 @@ describe("Builder.vue", () => {
     expect(wrapper.emitted().closeDialog[0]).toStrictEqual([]);
   });
 
-  it("can addNextOptions ___ not addNext", () => {
-    wrapper.vm.queryBuild = [
-      {
-        id: "focusConcept_0",
-        value: {
-          children: []
-        },
-        position: 0,
-        type: "focusConcept",
-        label: "",
-        component: "FocusConcept"
-      },
-      { id: "logic_1", value: "AND", position: 1, type: "logic", component: "Logic", label: "AND" },
-      {
-        id: "addNext_2",
-        value: { previousPosition: 1, previousComponentType: "logic", parentGroup: undefined },
-        position: 2,
-        type: "addNext",
-        label: "",
-        component: "AddNext"
-      }
-    ];
-    docSpy = vi.spyOn(document, "getElementById");
-    docSpy.mockReturnValue(undefined);
-    wrapper.vm.getNextOptions = vi.fn().mockReturnValue({
-      id: "addNext_1",
-      value: {
-        previousPosition: 0,
-        previousComponentType: "focusConcept",
-        parentGroup: undefined
-      },
-      position: 1,
-      type: "addNext",
-      label: "",
-      component: "AddNext"
-    });
-    wrapper.vm.updatePositions = vi.fn();
-    wrapper.vm.addNextOptions({ previousComponentType: "focusConcept", previousPosition: 0, parentGroup: undefined });
-    expect(wrapper.vm.queryBuild).toStrictEqual([
-      {
-        id: "focusConcept_0",
-        value: {
-          children: []
-        },
-        position: 0,
-        type: "focusConcept",
-        label: "",
-        component: "FocusConcept"
-      },
-      {
-        id: "addNext_1",
-        value: { previousPosition: 0, previousComponentType: "focusConcept", parentGroup: undefined },
-        position: 1,
-        type: "addNext",
-        label: "",
-        component: "AddNext"
-      },
-      { id: "logic_1", value: "AND", position: 1, type: "logic", component: "Logic", label: "AND" },
-      {
-        id: "addNext_2",
-        value: { previousPosition: 1, previousComponentType: "logic", parentGroup: undefined },
-        position: 2,
-        type: "addNext",
-        label: "",
-        component: "AddNext"
-      }
-    ]);
-    expect(wrapper.vm.updatePositions).toHaveBeenCalledTimes(1);
-  });
-
-  it("can addNextOptions ___ addNext", async () => {
-    wrapper.vm.queryBuild = [
-      {
-        id: "focusConcept_0",
-        value: {
-          children: []
-        },
-        position: 0,
-        type: "focusConcept",
-        label: "",
-        component: "FocusConcept"
-      },
-      { id: "logic_1", value: "AND", position: 1, type: "logic", component: "Logic", label: "AND" },
-      {
-        id: "addNext_2",
-        value: { previousPosition: 1, previousComponentType: "logic", parentGroup: undefined },
-        position: 2,
-        type: "addNext",
-        label: "",
-        component: "AddNext"
-      }
-    ];
-    const mockElement = document.createElement("div");
-    mockElement.scrollIntoView = vi.fn();
-    docSpy = vi.spyOn(document, "getElementById");
-    docSpy.mockReturnValue(mockElement);
-    wrapper.vm.getNextOptions = vi.fn().mockReturnValue({
-      id: "addNext_1",
-      value: {
-        previousPosition: 1,
-        previousComponentType: "logic",
-        parentGroup: undefined
-      },
-      position: 2,
-      type: "addNext",
-      label: "",
-      component: "AddNext"
-    });
-    wrapper.vm.updatePositions = vi.fn();
-    wrapper.vm.addNextOptions({ previousComponentType: "logic", previousPosition: 1, parentGroup: undefined });
-    expect(wrapper.vm.queryBuild).toStrictEqual([
-      {
-        id: "focusConcept_0",
-        value: {
-          children: []
-        },
-        position: 0,
-        type: "focusConcept",
-        label: "",
-        component: "FocusConcept"
-      },
-      { id: "logic_1", value: "AND", position: 1, type: "logic", component: "Logic", label: "AND" },
-      {
-        id: "addNext_1",
-        value: { previousPosition: 1, previousComponentType: "logic", parentGroup: undefined },
-        position: 2,
-        type: "addNext",
-        label: "",
-        component: "AddNext"
-      }
-    ]);
-    expect(wrapper.vm.updatePositions).toHaveBeenCalledTimes(1);
-    await flushPromises();
-    expect(mockElement.scrollIntoView).toHaveBeenCalledTimes(1);
-  });
-
-  it("can addItem ___ end", () => {
-    wrapper.vm.updatePositions = vi.fn();
+  it("can addItem ___ logic", () => {
     wrapper.vm.generateNewComponent = vi.fn().mockReturnValue({
       id: "logic_1",
       value: null,
       position: 1,
-      type: "logic",
-      label: "",
-      component: "Logic"
+      type: ECLComponent.LOGIC,
+      queryString: "",
+      showButtons: { minus: false, plus: false }
     });
-    wrapper.vm.getNextOptions = vi.fn().mockReturnValue({
-      id: "addNext_1",
-      value: {
-        previousPosition: 1,
-        previousComponentType: "logic",
-        parentGroup: undefined
-      },
-      position: 2,
-      type: "addNext",
-      label: "",
-      component: "AddNext"
-    });
-    wrapper.vm.addItem({ selectedType: "logic", position: 1 });
+    wrapper.vm.addItem({ selectedType: ECLComponent.LOGIC, position: 1, value: null });
     expect(wrapper.vm.queryBuild).toStrictEqual([
       {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "",
+        id: "FocusConcept_0",
+        queryString: "",
         position: 0,
-        type: "focusConcept",
-        value: null
+        type: "FocusConcept",
+        value: null,
+        showButtons: { minus: false, plus: true }
       },
       {
-        component: "Logic",
-        id: "logic_1",
-        label: "",
+        id: "Logic_1",
+        queryString: "",
         position: 1,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 2,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
+        type: "Logic",
+        value: { data: null, parentGroup: "Builder" },
+        showButtons: { minus: true, plus: true }
       }
     ]);
-    expect(wrapper.vm.updatePositions).toHaveBeenCalledTimes(1);
-  });
-
-  it("can addItem ___ no end", () => {
-    wrapper.vm.queryBuild = [
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 1
-        }
-      },
-      {
-        component: "Logic",
-        id: "logic_2",
-        label: "",
-        position: 2,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_3",
-        label: "",
-        position: 3,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
-      }
-    ];
-    wrapper.vm.updatePositions = vi.fn();
-    wrapper.vm.generateNewComponent = vi.fn().mockReturnValue({
-      id: "logic_1",
-      value: null,
-      position: 1,
-      type: "logic",
-      label: "",
-      component: "Logic"
-    });
-    wrapper.vm.getNextOptions = vi.fn().mockReturnValue({
-      id: "addNext_1",
-      value: {
-        previousPosition: 1,
-        previousComponentType: "logic",
-        parentGroup: undefined
-      },
-      position: 2,
-      type: "addNext",
-      label: "",
-      component: "AddNext"
-    });
-    wrapper.vm.addItem({ selectedType: "logic", position: 1 });
-    expect(wrapper.vm.queryBuild).toStrictEqual([
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "Logic",
-        id: "logic_1",
-        label: "",
-        position: 1,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "Logic",
-        id: "logic_2",
-        label: "",
-        position: 2,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_3",
-        label: "",
-        position: 3,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
-      }
-    ]);
-    expect(wrapper.vm.updatePositions).toHaveBeenCalledTimes(1);
-  });
-
-  it("can addItem ___ no newComponent", () => {
-    wrapper.vm.updatePositions = vi.fn();
-    wrapper.vm.generateNewComponent = vi.fn().mockReturnValue(undefined);
-    wrapper.vm.addItem({ selectedType: "logic", position: 1 });
-    expect(wrapper.vm.updatePositions).not.toHaveBeenCalled();
   });
 
   it("can generateQueryString", () => {
     wrapper.vm.queryBuild = [
       {
-        component: "FocusConcept",
         id: "focusConcept_0",
-        label: "<< *",
+        queryString: "<< *",
         position: 0,
-        type: "focusConcept",
-        value: null
+        type: "FocusConcept",
+        value: null,
+        showButtons: { minus: false, plus: false }
       },
       {
-        component: "Logic",
         id: "logic_1",
-        label: "AND",
+        queryString: "AND",
         position: 1,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_2",
-        label: "",
-        position: 2,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
+        type: "Logic",
+        value: null,
+        showButtons: { minus: false, plus: false }
       }
     ];
     wrapper.vm.generateQueryString();
     expect(wrapper.vm.queryString).toBe("<< * AND\n");
   });
 
-  it("can deleteItem ___ position 0", () => {
+  it("can deleteItem ___ length 0", () => {
     wrapper.vm.queryBuild = [
       {
         component: "FocusConcept",
         id: "focusConcept_0",
-        label: "testLabel",
+        queryString: "testLabel",
         position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 1
-        }
-      },
-      {
-        component: "Logic",
-        id: "logic_2",
-        label: "",
-        position: 2,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_3",
-        label: "",
-        position: 3,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
+        type: "FocusConcept",
+        value: null,
+        showButtons: { minus: false, plus: false }
       }
     ];
-    wrapper.vm.updatePositions = vi.fn();
-    wrapper.vm.setStartBuild = vi.fn().mockReturnValue([
-      {
-        component: ECLComponent.FOCUS_CONCEPT,
-        id: ECLType.FOCUS_CONCEPT + "_0",
-        label: "",
-        position: 0,
-        type: ECLType.FOCUS_CONCEPT,
-        value: null
-      },
-      {
-        component: ECLComponent.ADD_NEXT,
-        id: ECLType.ADD_NEXT + "_1",
-        value: {
-          previousPosition: 0,
-          previousComponentType: ECLType.FOCUS_CONCEPT,
-          parentGroup: undefined
-        },
-        position: 1,
-        type: ECLType.ADD_NEXT,
-        label: ""
-      }
-    ]);
-    wrapper.vm.getNextOptions = vi.fn().mockReturnValue({
-      id: "addNext_1",
-      value: {
-        previousPosition: 1,
-        previousComponentType: "logic",
-        parentGroup: undefined
-      },
-      position: 2,
-      type: "addNext",
-      label: "",
-      component: "AddNext"
-    });
+    wrapper.vm.setStartBuild = vi.fn();
     wrapper.vm.deleteItem({
-      component: "FocusConcept",
       id: "focusConcept",
-      label: "testLabel",
+      queryString: "testLabel",
       position: 0,
-      type: "focusConcept",
-      value: null
+      type: "FocusConcept",
+      value: null,
+      showButtons: { minus: false, plus: false }
     });
-    expect(wrapper.vm.queryBuild).toStrictEqual([
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 1
-        }
-      },
-      {
-        component: "Logic",
-        id: "logic_2",
-        label: "",
-        position: 2,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 2,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
-      }
-    ]);
-    expect(wrapper.vm.updatePositions).toHaveBeenCalledTimes(1);
-  });
-
-  it("can deleteItem ___ end", () => {
-    wrapper.vm.queryBuild = [
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "testLabel",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 1
-        }
-      },
-      {
-        component: "Logic",
-        id: "logic_2",
-        label: "",
-        position: 2,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_3",
-        label: "",
-        position: 3,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
-      }
-    ];
-    wrapper.vm.updatePositions = vi.fn();
-    wrapper.vm.setStartBuild = vi.fn();
-    wrapper.vm.getNextOptions = vi.fn().mockReturnValue({
-      id: "addNext_1",
-      value: {
-        previousPosition: 1,
-        previousComponentType: "logic",
-        parentGroup: undefined
-      },
-      position: 2,
-      type: "addNext",
-      label: "",
-      component: "AddNext"
-    });
-    wrapper.vm.deleteItem({
-      component: "AddNext",
-      id: "addNext_3",
-      label: "",
-      position: 3,
-      type: "addNext",
-      value: {
-        parentGroup: undefined,
-        previousComponentType: "logic",
-        previousPosition: 1
-      }
-    });
-    expect(wrapper.vm.queryBuild).toStrictEqual([
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "testLabel",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 1
-        }
-      },
-      {
-        component: "Logic",
-        id: "logic_2",
-        label: "",
-        position: 2,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 2,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
-      }
-    ]);
-    expect(wrapper.vm.updatePositions).toHaveBeenCalledTimes(1);
-  });
-
-  it("can deleteItem ___ middle ___ addNext followed", () => {
-    wrapper.vm.queryBuild = [
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "testLabel",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "Logic",
-        id: "logic_1",
-        label: "",
-        position: 1,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_2",
-        label: "",
-        position: 2,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
-      },
-      {
-        component: "RefinementGroup",
-        id: "refinementGroup_3",
-        label: "testLabel",
-        position: 3,
-        type: "refinementGroup",
-        value: { children: [] }
-      },
-      {
-        component: "AddNext",
-        id: "addNext_4",
-        label: "",
-        position: 4,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
-      }
-    ];
-    wrapper.vm.updatePositions = vi.fn();
-    wrapper.vm.setStartBuild = vi.fn();
-    wrapper.vm.getNextOptions = vi.fn().mockReturnValue({
-      id: "addNext_1",
-      value: {
-        previousPosition: 1,
-        previousComponentType: "focusConcept",
-        parentGroup: undefined
-      },
-      position: 1,
-      type: "addNext",
-      label: "",
-      component: "AddNext"
-    });
-    wrapper.vm.deleteItem({
-      component: "Logic",
-      id: "logic_1",
-      label: "",
-      position: 1,
-      type: "logic",
-      value: null
-    });
-    expect(wrapper.vm.queryBuild).toStrictEqual([
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "testLabel",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 1
-        }
-      },
-      {
-        component: "RefinementGroup",
-        id: "refinementGroup_3",
-        label: "testLabel",
-        position: 3,
-        type: "refinementGroup",
-        value: { children: [] }
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 1
-        }
-      }
-    ]);
-    expect(wrapper.vm.updatePositions).toHaveBeenCalledTimes(1);
-  });
-
-  it("can deleteItem ___ middle ___ other", () => {
-    wrapper.vm.queryBuild = [
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "testLabel",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "Logic",
-        id: "logic_1",
-        label: "",
-        position: 1,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "RefinementGroup",
-        id: "refinementGroup_2",
-        label: "testLabel",
-        position: 2,
-        type: "refinementGroup",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_3",
-        label: "",
-        position: 3,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "refinementGroup",
-          previousPosition: 1
-        }
-      }
-    ];
-    wrapper.vm.updatePositions = vi.fn();
-    wrapper.vm.setStartBuild = vi.fn();
-    wrapper.vm.getNextOptions = vi.fn().mockReturnValue({
-      id: "addNext_1",
-      value: {
-        previousPosition: 1,
-        previousComponentType: "focusConcept",
-        parentGroup: undefined
-      },
-      position: 1,
-      type: "addNext",
-      label: "",
-      component: "AddNext"
-    });
-    wrapper.vm.deleteItem({
-      component: "Logic",
-      id: "logic_1",
-      label: "",
-      position: 1,
-      type: "logic",
-      value: null
-    });
-    expect(wrapper.vm.queryBuild).toStrictEqual([
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "testLabel",
-        position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "RefinementGroup",
-        id: "refinementGroup_2",
-        label: "testLabel",
-        position: 2,
-        type: "refinementGroup",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 1
-        }
-      }
-    ]);
-    expect(wrapper.vm.updatePositions).toHaveBeenCalledTimes(1);
+    expect(wrapper.vm.queryBuild).toStrictEqual([]);
+    expect(wrapper.vm.setStartBuild).toHaveBeenCalledTimes(1);
   });
 
   it("can updateItem", () => {
@@ -922,171 +170,32 @@ describe("Builder.vue", () => {
       id: "focusConcept_0",
       value: null,
       position: 0,
-      type: "focusConcept",
-      label: "testLabel",
-      component: "FocusConcept"
+      type: "FocusConcept",
+      queryString: "testLabel",
+      showButtons: { minus: false, plus: false }
     });
     expect(wrapper.vm.queryBuild).toStrictEqual([
       {
-        component: "FocusConcept",
         id: "focusConcept_0",
-        label: "testLabel",
+        queryString: "testLabel",
         position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 1,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "focusConcept",
-          previousPosition: 0
-        }
+        type: "FocusConcept",
+        value: null,
+        showButtons: { minus: false, plus: false }
       }
     ]);
-  });
-
-  it("can getNextOptions", () => {
-    expect(wrapper.vm.getNextOptions(0, ECLType.FOCUS_CONCEPT, undefined)).toStrictEqual({
-      id: "addNext_1",
-      value: {
-        previousPosition: 0,
-        previousComponentType: ECLType.FOCUS_CONCEPT,
-        parentGroup: undefined
-      },
-      position: 1,
-      type: ECLType.ADD_NEXT,
-      label: "",
-      component: ECLComponent.ADD_NEXT
-    });
-  });
-
-  it("can generateNewComponent ___ refinementGroup", () => {
-    expect(wrapper.vm.generateNewComponent(ECLType.REFINEMENT_GROUP, 1)).toStrictEqual({
-      id: ECLType.REFINEMENT_GROUP + "_1",
-      value: null,
-      position: 1,
-      type: ECLType.REFINEMENT_GROUP,
-      label: "",
-      component: ECLComponent.REFINEMENT_GROUP
-    });
-  });
-
-  it("can generateNewComponent ___ logic", () => {
-    expect(wrapper.vm.generateNewComponent(ECLType.LOGIC, 1)).toStrictEqual({
-      id: ECLType.LOGIC + "_1",
-      value: null,
-      position: 1,
-      type: ECLType.LOGIC,
-      label: "",
-      component: ECLComponent.LOGIC
-    });
-  });
-
-  it("can generateNewComponent ___ focusConcept", () => {
-    expect(wrapper.vm.generateNewComponent(ECLType.FOCUS_CONCEPT, 1)).toStrictEqual({
-      id: ECLType.FOCUS_CONCEPT + "_1",
-      value: null,
-      position: 1,
-      type: ECLType.FOCUS_CONCEPT,
-      label: "",
-      component: ECLComponent.FOCUS_CONCEPT
-    });
-  });
-
-  it("can generateNewComponent ___ other", () => {
-    expect(wrapper.vm.generateNewComponent(ECLType.EXPRESSION, 1)).toStrictEqual(undefined);
   });
 
   it("can setStartBuild", () => {
-    expect(wrapper.vm.setStartBuild()).toStrictEqual([
-      {
-        component: ECLComponent.FOCUS_CONCEPT,
-        id: ECLType.FOCUS_CONCEPT + "_" + 0,
-        value: null,
-        position: 0,
-        type: ECLType.FOCUS_CONCEPT,
-        label: ""
-      },
-      {
-        id: ECLType.ADD_NEXT + "_" + 1,
-        value: {
-          previousPosition: 0,
-          previousComponentType: ECLType.FOCUS_CONCEPT,
-          parentGroup: undefined
-        },
-        position: 1,
-        type: ECLType.ADD_NEXT,
-        label: "",
-        component: ECLComponent.ADD_NEXT
-      }
-    ]);
-  });
-
-  it("can updatePositions", () => {
-    wrapper.vm.queryBuild = [
-      {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "",
-        position: 2,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "Logic",
-        id: "logic_1",
-        label: "",
-        position: 1,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 0,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
-      }
-    ];
-    wrapper.vm.updatePositions();
+    wrapper.vm.setStartBuild();
     expect(wrapper.vm.queryBuild).toStrictEqual([
       {
-        component: "FocusConcept",
-        id: "focusConcept_0",
-        label: "",
+        id: ECLComponent.FOCUS_CONCEPT + "_" + 0,
+        value: null,
         position: 0,
-        type: "focusConcept",
-        value: null
-      },
-      {
-        component: "Logic",
-        id: "logic_1",
-        label: "",
-        position: 1,
-        type: "logic",
-        value: null
-      },
-      {
-        component: "AddNext",
-        id: "addNext_1",
-        label: "",
-        position: 2,
-        type: "addNext",
-        value: {
-          parentGroup: undefined,
-          previousComponentType: "logic",
-          previousPosition: 1
-        }
+        type: ECLComponent.FOCUS_CONCEPT,
+        queryString: "",
+        showButtons: { minus: false, plus: true }
       }
     ]);
   });
@@ -1099,12 +208,12 @@ describe("Builder.vue", () => {
   it("toasts onCopy", () => {
     wrapper.vm.onCopy();
     expect(mockToast.add).toHaveBeenCalledTimes(1);
-    expect(mockToast.add).toHaveBeenCalledWith(LoggerService.success("Value copied to clipboard"));
+    expect(mockToast.add).toHaveBeenCalledWith(mockLoggerService.success("Value copied to clipboard"));
   });
 
   it("toasts onCopyError", () => {
     wrapper.vm.onCopyError();
     expect(mockToast.add).toHaveBeenCalledTimes(1);
-    expect(mockToast.add).toHaveBeenCalledWith(LoggerService.error("Failed to copy value to clipboard"));
+    expect(mockToast.add).toHaveBeenCalledWith(mockLoggerService.error("Failed to copy value to clipboard"));
   });
 });

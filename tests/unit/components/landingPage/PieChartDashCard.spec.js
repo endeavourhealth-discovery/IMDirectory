@@ -1,13 +1,13 @@
 import { shallowMount } from "@vue/test-utils";
 import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
 import Card from "primevue/card";
-import { LoggerService } from "im-library";
 
 describe("PieChartDashCard.vue", () => {
   let wrapper;
   let docSpyId;
   let docSpyClass;
   let windowSpy;
+  let mockLoggerService;
   let inputData = [
     { "http://www.w3.org/2002/07/owl#hasValue": 1030354, "http://www.w3.org/2000/01/rdf-schema#label": "Class" },
     { "http://www.w3.org/2002/07/owl#hasValue": 93282, "http://www.w3.org/2000/01/rdf-schema#label": "Legacy concept" },
@@ -39,6 +39,8 @@ describe("PieChartDashCard.vue", () => {
     windowSpy = vi.spyOn(window, "getComputedStyle");
     windowSpy.mockReturnValue({ getPropertyValue: vi.fn().mockReturnValue("16px") });
 
+    mockLoggerService = { error: vi.fn(), warn: vi.fn(), info: vi.fn(), success: vi.fn(), debug: vi.fn() };
+
     const err = console.error;
     console.error = vi.fn();
 
@@ -52,7 +54,8 @@ describe("PieChartDashCard.vue", () => {
         dataKey: "http://www.w3.org/2002/07/owl#hasValue"
       },
       global: {
-        components: { Card }
+        components: { Card },
+        mocks: { $loggerService: mockLoggerService }
       }
     });
 
@@ -76,10 +79,10 @@ describe("PieChartDashCard.vue", () => {
   });
 
   it("can setChartSize ___ no container", () => {
-    LoggerService.error = vi.fn();
+    mockLoggerService.error = vi.fn();
     wrapper.vm.setChartSize();
-    expect(LoggerService.error).toHaveBeenCalledTimes(1);
-    expect(LoggerService.error).toHaveBeenCalledWith(undefined, "Failed to set chart size for element id: Chart1");
+    expect(mockLoggerService.error).toHaveBeenCalledTimes(1);
+    expect(mockLoggerService.error).toHaveBeenCalledWith(undefined, "Failed to set chart size for element id: Chart1");
   });
 
   it("can setChartSize ___ resize elements", async () => {

@@ -1,20 +1,44 @@
 import store from "@/store/index";
-import EntityService from "@/services/EntityService";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
-import ConfigService from "@/services/ConfigService";
-import { Models, Vocabulary, LoggerService } from "im-library";
-const { IM } = Vocabulary;
+import { Config, Models } from "im-library";
+import { vi } from "vitest";
 const {
   User,
   Search: { SearchRequest },
   CustomAlert
 } = Models;
 
+vi.mock("@/main", () => {
+  return {
+    default: {
+      $configService: {
+        getXmlSchemaDataTypes: vi.fn(),
+        getFilterDefaults: vi.fn()
+      },
+      $entityService: {
+        advancedSearch: vi.fn()
+      },
+      $loggerService: {
+        error: vi.fn(),
+        warn: vi.fn(),
+        info: vi.fn(),
+        success: vi.fn(),
+        debug: vi.fn()
+      }
+    }
+  };
+});
+
+import vm from "@/main";
+
 describe("state", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     window.sessionStorage.clear();
+    vm.$configService.getXmlSchemaDataTypes = vi
+      .fn()
+      .mockResolvedValue(["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"]);
   });
 
   afterAll(() => {
@@ -36,7 +60,6 @@ describe("state", () => {
       "snomedLicenseAccepted",
       "snomedReturnUrl",
       "authReturnUrl",
-      "blockedIris",
       "filterOptions",
       "selectedFilters",
       "quickFiltersStatus",
@@ -44,7 +67,6 @@ describe("state", () => {
       "sidebarControlActivePanel",
       "hierarchySelectedFilters",
       "filterDefaults",
-      "defaultPredicateNames",
       "arrayObjectNameListboxWithLabelStartExpanded",
       "tagSeverityMatches",
       "textDefinitionStartExpanded",
@@ -57,18 +79,21 @@ describe("state", () => {
     expect(store.state.isLoggedIn).toBeFalsy();
     expect(store.state.snomedLicenseAccepted).toBeNull();
 
-    expect(store.state.blockedIris).toStrictEqual([]);
     expect(store.state.selectedFilters).toEqual({
       status: [],
       schemes: [],
-      types: []
+      types: [],
+      sortDirection: "",
+      sortField: ""
     });
-    expect(store.state.filterOptions).toStrictEqual({ status: [], schemes: [], types: [] });
+    expect(store.state.filterOptions).toStrictEqual({
+      status: [], schemes: [], types: [],
+      sortDirections: [],
+      sortFields: []
+    });
     expect(store.state.quickFiltersStatus).toEqual(new Map());
     expect(store.state.focusHierarchy).toBe(false);
     expect(store.state.hierarchySelectedFilters).toStrictEqual([]);
-    expect(store.state.filterDefaults).toStrictEqual({});
-    expect(store.state.defaultPredicateNames).toStrictEqual({});
   });
 });
 
@@ -118,12 +143,6 @@ describe("mutations", () => {
     expect(store.state.snomedLicenseAccepted).toBe("true");
   });
 
-  it("can update blockedIris", () => {
-    const testIris = ["iri1", "iri2", "iri3"];
-    store.commit("updateBlockedIris", testIris);
-    expect(store.state.blockedIris).toStrictEqual(testIris);
-  });
-
   it("can updateSelectedFilters", () => {
     const testFilter = {
       selectedStatus: ["testActive", "testDraft"],
@@ -171,42 +190,33 @@ describe("mutations", () => {
     expect(store.state.filterDefaults).toStrictEqual({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
   });
 
-  it("can fetchBlockedIris", async () => {
-    const iris = ["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"];
-    ConfigService.getXmlSchemaDataTypes = vi.fn().mockResolvedValue(iris);
-    store.dispatch("fetchBlockedIris");
-    await flushPromises();
-    expect(ConfigService.getXmlSchemaDataTypes).toHaveBeenCalledTimes(1);
-    expect(store.state.blockedIris).toStrictEqual(iris);
-  });
-
   it("can fetchSearchResults ___ pass", async () => {
-    EntityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
-    LoggerService.info = vi.fn();
-    const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
+    vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
+    vm.$loggerService.info = vi.fn();
+    const testInput = { searchRequest: {}, controller: new AbortController() };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
-    expect(EntityService.advancedSearch).toBeCalledTimes(1);
-    expect(EntityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
+    expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
+    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
     expect(store.state.searchResults).toEqual([]);
   });
 
   it("can fetchSearchResults ___ failed", async () => {
-    EntityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
-    LoggerService.error = vi.fn();
-    const testInput = { searchRequest: new SearchRequest(), cancelToken: "testCancelToken" };
+    vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
+    vm.$loggerService.error = vi.fn();
+    const testInput = { searchRequest: {}, controller: new AbortController() };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
-    expect(EntityService.advancedSearch).toBeCalledTimes(1);
-    expect(EntityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.cancelToken);
+    expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
+    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
     expect(store.state.searchResults).toStrictEqual([]);
   });
 
   it("can logoutCurrentUser ___ 200", async () => {
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
-    LoggerService.error = vi.fn();
+    vm.$loggerService.error = vi.fn();
     let result = false;
     await store.dispatch("logoutCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -219,7 +229,7 @@ describe("mutations", () => {
 
   it("can logoutCurrentUser ___ 400", async () => {
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed 400"));
-    LoggerService.error = vi.fn();
+    vm.$loggerService.error = vi.fn();
     let result = false;
     await store.dispatch("logoutCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -260,7 +270,7 @@ describe("mutations", () => {
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
-    LoggerService.info = vi.fn();
+    vm.$loggerService.info = vi.fn();
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -271,14 +281,14 @@ describe("mutations", () => {
     expect(store.state.isLoggedIn).toBe(false);
     expect(store.state.currentUser).toBe(null);
     expect(result.authenticated).toBe(false);
-    expect(LoggerService.info).toBeCalledTimes(1);
-    expect(LoggerService.info).toBeCalledWith(undefined, "Force logout successful");
+    expect(vm.$loggerService.info).toBeCalledTimes(1);
+    expect(vm.$loggerService.info).toBeCalledWith(undefined, "Force logout successful");
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed"));
-    LoggerService.error = vi.fn();
+    vm.$loggerService.error = vi.fn();
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -289,7 +299,7 @@ describe("mutations", () => {
     expect(store.state.isLoggedIn).toBe(false);
     expect(store.state.currentUser).toBe(null);
     expect(result.authenticated).toBe(false);
-    expect(LoggerService.error).toBeCalledTimes(1);
-    expect(LoggerService.error).toBeCalledWith(undefined, "Force logout failed");
+    expect(vm.$loggerService.error).toBeCalledTimes(1);
+    expect(vm.$loggerService.error).toBeCalledWith(undefined, "Force logout failed");
   });
 });

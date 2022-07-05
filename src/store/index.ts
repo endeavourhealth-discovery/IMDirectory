@@ -1,27 +1,22 @@
 import { createStore } from "vuex";
-import EntityService from "../services/EntityService";
 import AuthService from "@/services/AuthService";
-import ConfigService from "@/services/ConfigService";
-import { FilterDefaultsConfig, EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
-import { Models, Constants, Vocabulary, Helpers, LoggerService } from "im-library";
-const { IM, RDF, RDFS } = Vocabulary;
+import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem } from "im-library/dist/types/interfaces/Interfaces";
+import { Models, Constants, Vocabulary, Helpers, Config } from "im-library";
+const { IM } = Vocabulary;
 const { Avatars } = Constants;
+const { CustomAlert } = Models;
 const {
-  User,
-  Search: { SearchRequest, ConceptSummary },
-  CustomAlert
-} = Models;
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
+  DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
+import vm from "@/main";
 
 export default createStore({
   // update stateType.ts when adding new state!
   state: {
     selectedConceptIri: "",
-    locateOnNavTreeIri: "",
+    locateOnNavTreeIri: {},
     conceptIri: IM.MODULE_ONTOLOGY,
-    favourites: JSON.parse(localStorage.getItem("favourites") || "[]") as string[],
+    favourites: [] as string[],
     history: [] as HistoryItem[],
     searchResults: [] as Models.Search.ConceptSummary[],
     searchLoading: false,
@@ -31,23 +26,25 @@ export default createStore({
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     snomedReturnUrl: "",
     authReturnUrl: "",
-    blockedIris: [] as string[],
     filterOptions: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
-      types: [] as EntityReferenceNode[]
+      types: [] as EntityReferenceNode[],
+      sortFields: [] as { label: string; value: any }[],
+      sortDirections: [] as { label: string; value: any }[]
     },
     selectedFilters: {
       status: [] as EntityReferenceNode[],
       schemes: [] as Namespace[],
-      types: [] as EntityReferenceNode[]
+      types: [] as EntityReferenceNode[],
+      sortField: "",
+      sortDirection: ""
     },
     quickFiltersStatus: new Map<string, boolean>(),
     focusHierarchy: false,
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
-    filterDefaults: {} as FilterDefaultsConfig,
-    defaultPredicateNames: {} as any,
+    filterDefaults: Config.FilterDefaults,
     arrayObjectNameListboxWithLabelStartExpanded: [],
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
@@ -55,7 +52,7 @@ export default createStore({
       { "@id": IM.INACTIVE, severity: "danger" }
     ],
     textDefinitionStartExpanded: ["Definition"],
-    activeProfile: { uuid: "", activeClausePath: "" },
+    activeProfile: { uuid: "", activeClausePath: "" }
   },
   mutations: {
     updateActiveProfile(state, value) {
@@ -63,9 +60,6 @@ export default createStore({
     },
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
-    },
-    updateBlockedIris(state, blockedIris) {
-      state.blockedIris = blockedIris;
     },
     updateSelectedConceptIri(state, selectedConceptIri) {
       state.selectedConceptIri = selectedConceptIri;
@@ -149,11 +143,8 @@ export default createStore({
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
     },
-    updateDefaultPredicateNames(state, names) {
-      state.defaultPredicateNames = names;
-    },
     updateLocateOnNavTreeIri(state, iri) {
-      state.locateOnNavTreeIri = iri;
+      state.locateOnNavTreeIri = { iri };
     },
     updateArrayObjectNameListboxWithLabelStartExpanded(state, items) {
       state.arrayObjectNameListboxWithLabelStartExpanded = items;
@@ -166,28 +157,30 @@ export default createStore({
     }
   },
   actions: {
-    async fetchBlockedIris({ commit }) {
-      const blockedIris = await ConfigService.getXmlSchemaDataTypes();
-      commit("updateBlockedIris", blockedIris);
+    async initFavourites({ commit, state }) {
+      const favourites = JSON.parse(localStorage.getItem("favourites") || "[]") as string[];
+      for (let index = 0; index < favourites.length; index++) {
+        const iriExists = await vm.$entityService.iriExists(favourites[index]);
+        if (!iriExists) {
+          favourites.splice(index, 1);
+        }
+      }
+      localStorage.setItem("favourites", JSON.stringify(favourites));
+      state.favourites = favourites;
     },
     async fetchFilterSettings({ commit, state }) {
-      const configs = await ConfigService.getFilterDefaults();
-      commit("updateFilterDefaults", configs);
-
-      const schemeOptions = await EntityService.getNamespaces();
-      const statusOptions = await EntityService.getEntityChildren(IM.STATUS);
-      const typeOptions = (await EntityService.getPartialEntities(state.filterDefaults.typeOptions, [RDFS.LABEL])).map(typeOption => {
-        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
-      });
+      const filterDefaults = await vm.$entityService.getFilterOptions();
       commit("updateFilterOptions", {
-        status: statusOptions,
-        schemes: schemeOptions,
-        types: typeOptions
+        status: filterDefaults.status,
+        schemes: filterDefaults.schemes,
+        types: filterDefaults.types,
+        sortFields: filterDefaults.sortFields,
+        sortDirections: filterDefaults.sortDirections
       });
 
-      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => configs.statusOptions.includes(item["@id"]));
-      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => configs.schemeOptions.includes(item.iri));
-      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => configs.typeOptions.includes(item["@id"]));
+      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => Config.FilterDefaults.statusOptions.includes(item["@id"]));
+      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => Config.FilterDefaults.schemeOptions.includes(item.iri));
+      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => Config.FilterDefaults.typeOptions.includes(item["@id"]));
       commit("updateSelectedFilters", {
         status: selectedStatus,
         schemes: selectedSchemes,
@@ -195,8 +188,8 @@ export default createStore({
       });
       commit("updateHierarchySelectedFilters", selectedSchemes);
     },
-    async fetchSearchResults({ commit }, data: { searchRequest: Models.Search.SearchRequest; cancelToken: any }) {
-      const result = await EntityService.advancedSearch(data.searchRequest, data.cancelToken);
+    async fetchSearchResults({ commit }, data: { searchRequest: Models.Search.SearchRequest; controller: AbortController }) {
+      const result = await vm.$entityService.advancedSearch(data.searchRequest, data.controller);
       if (result && isArrayHasLength(result)) {
         commit("updateSearchResults", result);
       } else {
@@ -231,9 +224,9 @@ export default createStore({
         } else {
           dispatch("logoutCurrentUser").then(resLogout => {
             if (resLogout.status === 200) {
-              LoggerService.info(undefined, "Force logout successful");
+              vm.$loggerService.info(undefined, "Force logout successful");
             } else {
-              LoggerService.error(undefined, "Force logout failed");
+              vm.$loggerService.error(undefined, "Force logout failed");
             }
           });
         }

@@ -8,8 +8,6 @@ import Tooltip from "primevue/tooltip";
 import ContextMenu from "primevue/contextmenu";
 import VueClipboard from "vue3-clipboard";
 import Button from "primevue/button";
-import ConfigService from "@/services/ConfigService";
-import { LoggerService } from "im-library";
 
 Object.assign(navigator, {
   clipboard: {
@@ -23,55 +21,10 @@ describe("SearchResults.vue", () => {
   let mockRouter;
   let mockToast;
   let mockRef;
+  let mockConfigService;
+  let mockLoggerService;
   let clipboardSpy;
   let docSpy;
-
-  const BLOCKED_IRIS = [
-    "http://www.w3.org/2001/XMLSchema#string",
-    "http://www.w3.org/2001/XMLSchema#boolean",
-    "http://www.w3.org/2001/XMLSchema#float",
-    "http://www.w3.org/2001/XMLSchema#double",
-    "http://www.w3.org/2001/XMLSchema#decimal",
-    "http://www.w3.org/2001/XMLSchema#dateTime",
-    "http://www.w3.org/2001/XMLSchema#duration",
-    "http://www.w3.org/2001/XMLSchema#hexBinary",
-    "http://www.w3.org/2001/XMLSchema#base64Binary",
-    "http://www.w3.org/2001/XMLSchema#anyURI",
-    "http://www.w3.org/2001/XMLSchema#ID",
-    "http://www.w3.org/2001/XMLSchema#IDREF",
-    "http://www.w3.org/2001/XMLSchema#ENTITY",
-    "http://www.w3.org/2001/XMLSchema#NOTATION",
-    "http://www.w3.org/2001/XMLSchema#normalizedString",
-    "http://www.w3.org/2001/XMLSchema#token",
-    "http://www.w3.org/2001/XMLSchema#language",
-    "http://www.w3.org/2001/XMLSchema#IDREFS",
-    "http://www.w3.org/2001/XMLSchema#ENTITIES",
-    "http://www.w3.org/2001/XMLSchema#NMTOKEN",
-    "http://www.w3.org/2001/XMLSchema#NMTOKENS",
-    "http://www.w3.org/2001/XMLSchema#Name",
-    "http://www.w3.org/2001/XMLSchema#QName",
-    "http://www.w3.org/2001/XMLSchema#NCName",
-    "http://www.w3.org/2001/XMLSchema#integer",
-    "http://www.w3.org/2001/XMLSchema#nonNegativeInteger",
-    "http://www.w3.org/2001/XMLSchema#positiveInteger",
-    "http://www.w3.org/2001/XMLSchema#nonPositiveInteger",
-    "http://www.w3.org/2001/XMLSchema#negativeInteger",
-    "http://www.w3.org/2001/XMLSchema#byte",
-    "http://www.w3.org/2001/XMLSchema#int",
-    "http://www.w3.org/2001/XMLSchema#long",
-    "http://www.w3.org/2001/XMLSchema#short",
-    "http://www.w3.org/2001/XMLSchema#unsignedByte",
-    "http://www.w3.org/2001/XMLSchema#unsignedInt",
-    "http://www.w3.org/2001/XMLSchema#unsignedLong",
-    "http://www.w3.org/2001/XMLSchema#unsignedShort",
-    "http://www.w3.org/2001/XMLSchema#date",
-    "http://www.w3.org/2001/XMLSchema#time",
-    "http://www.w3.org/2001/XMLSchema#gYearMonth",
-    "http://www.w3.org/2001/XMLSchema#gYear",
-    "http://www.w3.org/2001/XMLSchema#gMonthDay",
-    "http://www.w3.org/2001/XMLSchema#gDay",
-    "http://www.w3.org/2001/XMLSchema#gMonth"
-  ];
 
   const SEARCH_RESULTS = [
     {
@@ -89,11 +42,15 @@ describe("SearchResults.vue", () => {
 
   const DEFAULT_PREDICATES = {
     "http://endhealth.info/im#roleGroup": "Where",
-    "http://www.w3.org/2002/07/owl#onProperty": "On property",
-    "http://www.w3.org/2002/07/owl#intersectionOf": "Combination of",
-    "http://www.w3.org/2002/07/owl#someValuesFrom": "With a value",
+    "http://www.w3.org/2000/01/rdf-schema#label": "Name",
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf": "Is subclass of",
     "http://www.w3.org/2002/07/owl#equivalentClass": "Is equivalent to",
-    "http://www.w3.org/2000/01/rdf-schema#subClassOf": "Is subclass of"
+    "http://www.w3.org/2002/07/owl#intersectionOf": "Combination of",
+    "http://www.w3.org/2002/07/owl#onProperty": "On property",
+    "http://www.w3.org/2002/07/owl#someValuesFrom": "With a value",
+    "http://www.w3.org/ns/shacl#class": "Type",
+    "http://www.w3.org/ns/shacl#datatype": "Type",
+    "http://www.w3.org/ns/shacl#path": "Property",
   };
 
   beforeEach(async () => {
@@ -103,9 +60,7 @@ describe("SearchResults.vue", () => {
       push: vi.fn()
     };
     mockStore = {
-      state: {
-        blockedIris: BLOCKED_IRIS
-      }
+      state: {}
     };
     mockToast = {
       add: vi.fn()
@@ -114,12 +69,13 @@ describe("SearchResults.vue", () => {
     docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(undefined);
 
-    ConfigService.getDefaultPredicateNames = vi.fn().mockResolvedValue(DEFAULT_PREDICATES);
+    mockConfigService = { getDefaultPredicateNames: vi.fn().mockResolvedValue(DEFAULT_PREDICATES) };
+    mockLoggerService = { error: vi.fn(), warn: vi.fn(), info: vi.fn(), success: vi.fn(), debug: vi.fn() };
 
     wrapper = shallowMount(SearchResults, {
       global: {
         components: { DataTable, ProgressSpinner, Column, OverlayPanel, ContextMenu, Button },
-        mocks: { $store: mockStore, $router: mockRouter, $toast: mockToast },
+        mocks: { $store: mockStore, $router: mockRouter, $toast: mockToast, $configService: mockConfigService, $loggerService: mockLoggerService },
         directives: { tooltip: Tooltip, clipboard: VueClipboard },
         stubs: { OverlayPanel: mockRef, ContextMenu: mockRef, FontAwesomeIcon: true }
       },
@@ -146,7 +102,7 @@ describe("SearchResults.vue", () => {
 
   it("can get perspective by concept type", () => {
     const testConceptType = [{ name: "Class", "@id": "http://www.w3.org/2002/07/owl#Class" }];
-    expect(wrapper.vm.getPerspectiveByConceptType(testConceptType)).toStrictEqual(["far", "lightbulb"]);
+    expect(wrapper.vm.getPerspectiveByConceptType(testConceptType)).toStrictEqual(["fa-solid", "fa-lightbulb"]);
   });
 
   it("can get colour by concept type", () => {
@@ -219,13 +175,13 @@ describe("SearchResults.vue", () => {
   it("can fire toast on copy", () => {
     wrapper.vm.onCopy();
     expect(mockToast.add).toHaveBeenCalledTimes(1);
-    expect(mockToast.add).toHaveBeenCalledWith(LoggerService.success("Value copied to clipboard"));
+    expect(mockToast.add).toHaveBeenCalledWith(mockLoggerService.success("Value copied to clipboard"));
   });
 
   it("can fire toast on copy error", () => {
     wrapper.vm.onCopyError();
     expect(mockToast.add).toHaveBeenCalledTimes(1);
-    expect(mockToast.add).toHaveBeenCalledWith(LoggerService.error("Failed to copy value to clipboard"));
+    expect(mockToast.add).toHaveBeenCalledWith(mockLoggerService.error("Failed to copy value to clipboard"));
   });
 
   it("can set copy menu items", () => {
@@ -292,47 +248,47 @@ describe("SearchResults.vue", () => {
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith(
       "name: Scoliosis deformity of spine (disorder),\niri: http://snomed.info/sct#298382003,\ncode: 298382003,\nstatus: Active,\nscheme: Snomed-CT code,\nentityType: [\n\tClass\n],\nweighting: 0,\nmatch: Scoliosis"
     );
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("Concept copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("Concept copied to clipboard"));
 
     wrapper.vm.copyMenuItems[3].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("name: Scoliosis deformity of spine (disorder)");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("name copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("name copied to clipboard"));
 
     wrapper.vm.copyMenuItems[4].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("iri: http://snomed.info/sct#298382003");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("iri copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("iri copied to clipboard"));
 
     wrapper.vm.copyMenuItems[5].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("code: 298382003");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("code copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("code copied to clipboard"));
 
     wrapper.vm.copyMenuItems[6].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("status: Active");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("status copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("status copied to clipboard"));
 
     wrapper.vm.copyMenuItems[7].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("scheme: Snomed-CT code");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("scheme copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("scheme copied to clipboard"));
 
     wrapper.vm.copyMenuItems[8].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("entityType: [\n\tClass\n]");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("entityType copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("entityType copied to clipboard"));
 
     wrapper.vm.copyMenuItems[9].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("weighting: 0");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("weighting copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("weighting copied to clipboard"));
 
     wrapper.vm.copyMenuItems[10].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("match: Scoliosis");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.success("match copied to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.success("match copied to clipboard"));
   });
 
   it("can run commands from copymenuItems ___ fail", async () => {
@@ -356,47 +312,47 @@ describe("SearchResults.vue", () => {
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith(
       "name: Scoliosis deformity of spine (disorder),\niri: http://snomed.info/sct#298382003,\ncode: 298382003,\nstatus: Active,\nscheme: Snomed-CT code,\nentityType: [\n\tClass\n],\nweighting: 0,\nmatch: Scoliosis"
     );
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy concept to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy concept to clipboard"));
 
     wrapper.vm.copyMenuItems[3].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("name: Scoliosis deformity of spine (disorder)");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy name to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy name to clipboard"));
 
     wrapper.vm.copyMenuItems[4].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("iri: http://snomed.info/sct#298382003");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy iri to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy iri to clipboard"));
 
     wrapper.vm.copyMenuItems[5].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("code: 298382003");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy code to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy code to clipboard"));
 
     wrapper.vm.copyMenuItems[6].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("status: Active");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy status to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy status to clipboard"));
 
     wrapper.vm.copyMenuItems[7].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("scheme: Snomed-CT code");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy scheme to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy scheme to clipboard"));
 
     wrapper.vm.copyMenuItems[8].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("entityType: [\n\tClass\n]");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy entityType to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy entityType to clipboard"));
 
     wrapper.vm.copyMenuItems[9].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("weighting: 0");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy weighting to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy weighting to clipboard"));
 
     wrapper.vm.copyMenuItems[10].command();
     await flushPromises();
     expect(navigator.clipboard.writeText).toHaveBeenLastCalledWith("match: Scoliosis");
-    expect(mockToast.add).toHaveBeenLastCalledWith(LoggerService.error("Failed to copy match to clipboard"));
+    expect(mockToast.add).toHaveBeenLastCalledWith(mockLoggerService.error("Failed to copy match to clipboard"));
   });
 
   it("can scroll to top", () => {
