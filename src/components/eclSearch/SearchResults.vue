@@ -112,8 +112,8 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { mapState } from "vuex";
-import { Config, Helpers, Models } from "im-library";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { Config, Helpers } from "im-library";
+import { TTIriRef, ConceptSummary, SearchResponse } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType },
@@ -134,9 +134,9 @@ export default defineComponent({
   },
   data() {
     return {
-      results: {} as Models.Search.SearchResponse,
-      selectedResult: {} as Models.Search.ConceptSummary,
-      hoveredResult: {} as Models.Search.ConceptSummary,
+      results: {} as SearchResponse,
+      selectedResult: {} as ConceptSummary,
+      hoveredResult: {} as ConceptSummary,
       copyMenuItems: [] as any[],
       blockedIris: Config.XmlSchemaDatatypes,
       defaultPredicates: Config.DefaultPredicateNames
@@ -187,14 +187,14 @@ export default defineComponent({
       x.hide();
     },
 
-    showOverlay(event: any, data: Models.Search.ConceptSummary): void {
+    showOverlay(event: any, data: ConceptSummary): void {
       this.hoveredResult = data;
       this.setCopyMenuItems();
       const x = this.$refs.op as any;
       x.show(event, event.target);
     },
 
-    getConceptTypes(concept: Models.Search.ConceptSummary): string {
+    getConceptTypes(concept: ConceptSummary): string {
       if (isObjectHasKeys(concept, ["entityType"])) {
         return concept.entityType
           .map(function (type: any) {

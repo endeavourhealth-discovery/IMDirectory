@@ -36,7 +36,8 @@ import Builder from "@/components/eclSearch/Builder.vue";
 import SearchResults from "@/components/eclSearch/SearchResults.vue";
 import { mapState } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { Helpers, Models } from "im-library";
+import { Helpers } from "im-library";
+import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
 const {
   DataTypeCheckers: { isObjectHasKeys, isObject }
 } = Helpers;
@@ -58,7 +59,7 @@ export default defineComponent({
     return {
       queryString: "",
       showDialog: false,
-      searchResults: [] as Models.Search.ConceptSummary[],
+      searchResults: [] as ConceptSummary[],
       totalCount: 0,
       eclError: false,
       loading: false,
