@@ -25,12 +25,12 @@
     </Tree>
 
     <OverlayPanel v-if="hoveredResult.iri === 'load'" ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-      <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem;">
+      <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
         <span>{{ hoveredResult.name }}</span>
       </div>
     </OverlayPanel>
     <OverlayPanel v-else ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem;">
+      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
         <div class="left-side" style="width: 50%">
           <p>
             <strong>Name: </strong>
@@ -38,7 +38,7 @@
           </p>
           <p>
             <strong>Iri: </strong>
-            <span style="word-break:break-all;">{{ hoveredResult.iri }}</span>
+            <span style="word-break: break-all">{{ hoveredResult.iri }}</span>
           </p>
           <p v-if="hoveredResult.code">
             <strong>Code: </strong>
@@ -67,8 +67,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
-import { TreeNode, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, Models } from "im-library";
+import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
+import { Vocabulary, Helpers } from "im-library";
 const { IM } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys, isArrayHasLength, isObject },
@@ -90,7 +90,7 @@ export default defineComponent({
       root: [] as TreeNode[],
       loading: true,
       expandedKeys: {} as any,
-      hoveredResult: {} as Models.Search.ConceptSummary,
+      hoveredResult: {} as ConceptSummary,
       overlayLocation: {} as any,
       pageSize: 20
     };
@@ -125,7 +125,6 @@ export default defineComponent({
       if (a.order && b.order) return a.order - b.order;
       else if (a.order && !b.order) return -1;
       else if (!a.order && b.order) return 1;
-      
       // order alphabetically
       else if (a.key > b.key) return 1;
       else if (b.key > a.key) return -1;

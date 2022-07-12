@@ -68,11 +68,12 @@
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers, Vocabulary, Models } from "im-library";
+import { Helpers, Vocabulary, Enums } from "im-library";
 const {
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
 const { IM, RDF, RDFS } = Vocabulary;
+const { SortDirection } = Enums;
 
 export default defineComponent({
   name: "Filters",
@@ -111,8 +112,8 @@ export default defineComponent({
       includeLegacy: false,
       sortFieldOptions: [{ label: "Usage", value: "weighting" }],
       sortDirectionsOptions: [
-        { label: "Descending", value: Models.Search.SortDirection.DESC },
-        { label: "Ascending", value: Models.Search.SortDirection.ASC }
+        { label: "Descending", value: SortDirection.DESC },
+        { label: "Ascending", value: SortDirection.ASC }
       ]
     };
   },

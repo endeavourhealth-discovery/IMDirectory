@@ -3,11 +3,7 @@ import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
 import { Config, Models } from "im-library";
 import { vi } from "vitest";
-const {
-  User,
-  Search: { SearchRequest },
-  CustomAlert
-} = Models;
+const { User, CustomAlert } = Models;
 
 vi.mock("@/main", () => {
   return {
@@ -87,7 +83,9 @@ describe("state", () => {
       sortField: ""
     });
     expect(store.state.filterOptions).toStrictEqual({
-      status: [], schemes: [], types: [],
+      status: [],
+      schemes: [],
+      types: [],
       sortDirections: [],
       sortFields: []
     });

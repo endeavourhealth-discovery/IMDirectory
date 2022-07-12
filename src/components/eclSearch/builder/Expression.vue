@@ -26,15 +26,12 @@ import { defineComponent, PropType } from "vue";
 import SearchMiniOverlay from "@/components/eclSearch/SearchMiniOverlay.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { mapState } from "vuex";
-import { Enums, Helpers, Models, Vocabulary } from "im-library";
-import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { Enums, Helpers, Vocabulary } from "im-library";
+import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef, SearchRequest, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
 const { ECLComponent, SortBy } = Enums;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys, isObject }
 } = Helpers;
-const {
-  Search: { SearchRequest }
-} = Models;
 const { IM } = Vocabulary;
 
 export default defineComponent({
@@ -42,7 +39,7 @@ export default defineComponent({
   props: {
     id: { type: String, required: true },
     position: { type: Number, required: true },
-    value: { type: Object as PropType<Models.Search.ConceptSummary>, required: false },
+    value: { type: Object as PropType<ConceptSummary>, required: false },
     showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
   },
   emits: { updateClicked: (_payload: ECLComponentDetails) => true },
@@ -60,7 +57,7 @@ export default defineComponent({
       loading: false,
       debounce: 0,
       controller: {} as AbortController,
-      selectedResult: {} as Models.Search.ConceptSummary,
+      selectedResult: {} as ConceptSummary,
       anyModel: {
         code: "",
         name: "ANY",
@@ -71,9 +68,9 @@ export default defineComponent({
         status: {} as TTIriRef,
         match: "ANY",
         entityType: [{ "@id": IM.CONCEPT, name: "Concept" }]
-      } as Models.Search.ConceptSummary,
+      } as ConceptSummary,
       searchTerm: "ANY",
-      searchResults: [] as Models.Search.ConceptSummary[]
+      searchResults: [] as ConceptSummary[]
     };
   },
   methods: {
@@ -123,7 +120,7 @@ export default defineComponent({
       }
     },
 
-    async fetchSearchResults(searchRequest: Models.Search.SearchRequest, controller: AbortController) {
+    async fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {
       const result = await this.$entityService.advancedSearch(searchRequest, controller);
       if (result && isArrayHasLength(result)) {
         this.searchResults = result;
@@ -142,7 +139,7 @@ export default defineComponent({
       x.show(event, event.target);
     },
 
-    updateSelectedResult(data: Models.Search.ConceptSummary) {
+    updateSelectedResult(data: ConceptSummary) {
       this.selectedResult = data;
       this.searchTerm = data.name;
       this.$emit("updateClicked", this.createExpression());
