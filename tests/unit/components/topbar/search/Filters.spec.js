@@ -23,7 +23,9 @@ describe("Filters.vue ___ empty store", () => {
       "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property",
       "http://endhealth.info/im#QueryTemplate",
       "http://endhealth.info/im#ValueSet"
-    ]
+    ],
+    sortField: "weighting",
+    sortDirection: "DESC"
   };
   const NAMESPACES = [
     { iri: "http://endhealth.info/bc#", prefix: "bc", name: "Barts Cerner namespace" },
@@ -155,18 +157,29 @@ describe("Filters.vue ___ empty store", () => {
     }
   ];
 
+  const FIELDS = [{ label: "Usage", value: "weighting" }];
+
+  const DIRECTIONS = [
+    { label: "Descending", value: "DESC" },
+    { label: "Ascending", value: "ASC" }
+  ]
+
   beforeEach(async () => {
     mockStore = {
       state: {
         selectedFilters: {
           status: [],
           schemes: [],
-          types: []
+          types: [],
+          sortField: "",
+          sortDirection: ""
         },
         filterOptions: {
           status: STATUS,
           schemes: NAMESPACES,
-          types: TYPES
+          types: TYPES,
+          sortFields: FIELDS,
+          sortDirections: DIRECTIONS
         },
         quickFiltersStatus: {
           includeLegacy: false
@@ -598,8 +611,8 @@ describe("Filters.vue ___ empty store", () => {
           "@id": "http://endhealth.info/im#ValueSet"
         }
       ],
-      sortDirection: "",
-      sortField: ""
+      sortField: "weighting",
+      sortDirection: "DESC"
     });
   });
 
