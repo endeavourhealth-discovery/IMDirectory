@@ -4,11 +4,9 @@
       <ProgressSpinner />
     </div>
     <div id="landing-content" v-else>
-      <Card>
-        <template #title>
-          Suggested
-        </template>
-        <template #content>
+      <div class="activity-container">
+        <span class="title"> Suggested </span>
+        <div class="datatable-container">
           <DataTable
             :value="activities"
             v-model:selection="selected"
@@ -20,18 +18,15 @@
             scrollHeight="flex"
             class="p-datatable-sm"
           >
-            <template #empty>
-              No recent activity
-            </template>
+            <template #empty> No recent activity </template>
             <Column field="name" header="Name"></Column>
-            <Column field="type" header="Type"></Column>
             <Column field="latestActivity" header="Latest activity">
-              <template #body="{data}">
+              <template #body="{ data }">
                 <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
               </template>
             </Column>
             <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
-              <template #body="{data}">
+              <template #body="{ data }">
                 <Button
                   icon="pi pi-fw pi-eye"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
@@ -53,8 +48,8 @@
               </template>
             </Column>
           </DataTable>
-        </template>
-      </Card>
+        </div>
+      </div>
       <div id="dashboard-container">
         <template v-for="(cardData, index) in cardsData" :key="index">
           <component
@@ -236,6 +231,25 @@ export default defineComponent({
   overflow: auto;
 }
 
+.activity-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.datatable-container {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
 .p-card {
   box-shadow: none;
 }
@@ -244,7 +258,7 @@ export default defineComponent({
   display: flex;
   flex-flow: row wrap;
   width: 100%;
-  height: 100%;
+  flex: 1 0 auto;
   overflow: auto;
   border: none;
   box-shadow: none;
