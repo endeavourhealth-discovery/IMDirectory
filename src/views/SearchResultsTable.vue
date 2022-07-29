@@ -39,19 +39,20 @@
       v-model:contextMenuSelection="selected"
       ref="searchTable"
       dataKey="iri"
+      :autoLayout="true"
     >
       <template #empty> None </template>
-      <Column field="name" header="Name">
+      <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #body="slotProps">
           <div class="ml-2">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
               <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
-            <span class="break-all">{{ slotProps.data.match }}</span>
+            <span class="break-word">{{ slotProps.data.match }}</span>
           </div>
         </template>
       </Column>
-      <Column field="entityType" header="Types">
+      <!-- <Column field="entityType" header="Types">
         <template #body="slotProps">
           <span class="break-all">{{ slotProps.data.typeNames }}</span>
         </template>
@@ -65,13 +66,13 @@
         <template #body="slotProps">
           <span class="break-all">{{ slotProps.data.code }}</span>
         </template>
-      </Column>
-      <Column field="weighting" header="Usage">
+      </Column> -->
+      <Column field="weighting" header="Usage" headerStyle="flex: 0 0 5rem;" bodyStyle="flex: 0 0 5rem; text-align: center;">
         <template #body="slotProps">
           <span class="break-all">{{ slotProps.data.weighting }}</span>
         </template>
       </Column>
-      <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end;">
+      <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="slotProps">
           <div class="buttons-container">
             <Button icon="fa-solid fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
@@ -358,13 +359,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.card {
-  height: 100%;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-}
-
 label {
   font-size: 1rem !important;
 }
@@ -406,6 +400,10 @@ label {
 
 .break-all {
   word-break: break-all;
+}
+
+.break-word {
+  word-break: normal;
 }
 
 .row-button:hover {
