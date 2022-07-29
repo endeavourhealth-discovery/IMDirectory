@@ -382,4 +382,9 @@ export default defineComponent({
 .next-parent-button {
   width: fit-content !important;
 }
+
+#hierarchy-tree-bar-container::v-deep(.p-tree-toggler) {
+  height: 1.25rem !important;
+  margin: 0 0 0 0 !important;
+}
 </style>
