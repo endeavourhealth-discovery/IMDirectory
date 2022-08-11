@@ -90,12 +90,13 @@ import IMLibrary, { Helpers, Services } from "im-library";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
-const { ConfigService, DirectService, EntityService, Env, LoggerService, SetService } = Services;
+const { ConfigService, DirectService, EntityService, Env, LoggerService, SetService, FilerService } = Services;
 
 const configService = new ConfigService(axios);
 const directService = new DirectService(store);
 const entityService = new EntityService(axios);
 const setService = new SetService(axios);
+const filerService = new FilerService(axios);
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -169,6 +170,7 @@ const app = createApp(App)
 app.config.globalProperties.$configService = configService;
 app.config.globalProperties.$directService = directService;
 app.config.globalProperties.$entityService = entityService;
+app.config.globalProperties.$filerService = filerService;
 app.config.globalProperties.$env = Env;
 app.config.globalProperties.$loggerService = LoggerService;
 app.config.globalProperties.$setService = setService;

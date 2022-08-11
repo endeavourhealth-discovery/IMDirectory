@@ -13,7 +13,8 @@
       :loading="loading"
     >
       <template #default="slotProps">
-        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)" @dblclick="onNodeDblClick($event, slotProps.node)">
+        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)" @dblclick="onNodeDblClick($event, slotProps.node)" @contextmenu="onNodeContext($event, slotProps.node)">
+          <ContextMenu ref="menu" :model="items" />
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
               <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
@@ -62,14 +63,24 @@
         </div>
       </div>
     </OverlayPanel>
+    <Dialog header="New folder" v-model:visible="showNewFolder" :modal="true">
+      <InputText type="text" v-model="newFolderName" autofocus/>
+      <template #footer>
+        <Button label="Cancel" icon="pi pi-times" @click="showNewFolder = null" class="p-button-text"/>
+        <Button label="Create" icon="pi pi-check" @click="createFolder" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script lang="ts">
+import { Auth } from "aws-amplify";
 import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers } from "im-library";
+import {MenuItem} from 'primevue/menuitem';
+import ContextMenu from 'primevue/contextmenu';
 const { IM } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys, isArrayHasLength, isObject },
@@ -93,7 +104,11 @@ export default defineComponent({
       expandedKeys: {} as any,
       hoveredResult: {} as ConceptSummary,
       overlayLocation: {} as any,
-      pageSize: 20
+      pageSize: 20,
+      items: [] as MenuItem[],
+      moveNode: null as TreeNode | null,
+      showNewFolder: null as TreeNode | null,
+      newFolderName: "New folder"
     };
   },
   async mounted() {
@@ -112,10 +127,10 @@ export default defineComponent({
       const IMChildren = await this.$entityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
-        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, IMchild.orderNumber));
+        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
       }
       this.root.sort(this.byKey);
-      const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
+      const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null);
       favNode.typeIcon = ["fa-solid", "fa-star"];
       favNode.color = "#e39a36";
       this.root.push(favNode);
@@ -133,7 +148,7 @@ export default defineComponent({
       return 0;
     },
 
-    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, order?: number): TreeNode {
+    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, parent: TreeNode | null, order?: number): TreeNode {
       return {
         key: conceptIri,
         label: conceptName,
@@ -143,7 +158,8 @@ export default defineComponent({
         leaf: !hasChildren,
         loading: false,
         children: [] as TreeNode[],
-        order: order
+        order: order,
+        parentNode: parent
       };
     },
 
@@ -178,9 +194,9 @@ export default defineComponent({
     },
 
     onNodeDblClick($event: any, node: any) {
-      if (node.typeIcon.includes('fa-folder'))
+      if (node.typeIcon && node.typeIcon.includes('fa-folder'))
         this.selectAndExpand(node);
-      else
+      else if (node.data !== "loadMore")
         this.$directService.directTo(this.$env.VIEWER_URL, node.key, "concept");
     },
 
@@ -190,7 +206,7 @@ export default defineComponent({
         node.parentNode.children.pop();
         children.result.forEach((child: any) => {
           if (!this.nodeHasChild(node.parentNode, child))
-            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
         });
         node.nextPage = node.nextPage + 1;
         node.parentNode.children.push(this.createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
@@ -199,7 +215,7 @@ export default defineComponent({
         node.parentNode.children.pop();
         children.result.forEach((child: any) => {
           if (!this.nodeHasChild(node.parentNode, child))
-            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node.parentNode));
         });
       } else {
         node.parentNode.children.pop();
@@ -211,7 +227,7 @@ export default defineComponent({
         node.loading = true;
         const children = await this.$entityService.getPagedChildren(node.data, 1, this.pageSize);
         children.result.forEach((child: any) => {
-          if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+          if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
         });
         if (children.totalCount >= this.pageSize) {
           node.children.push(this.createLoadMoreNode(node, 2, children.totalCount));
@@ -223,6 +239,102 @@ export default defineComponent({
     onNodeCollapse(node: any) {
       node.children = [];
       node.leaf = false;
+    },
+
+    onNodeContext(event: any, node: any) {
+      this.items = [];
+      Auth.currentSession()
+          .then(data => {
+            let userRoles = data.getIdToken().payload["cognito:groups"];
+            if (userRoles.includes("IMAdmin")) {
+              if (node.typeIcon.includes("fa-folder")) {
+                this.items.push({
+                  label: 'New folder',
+                  icon: 'fas fa-fw fa-folder-plus',
+                  command: () => { this.newFolder(node) }
+                });
+              }
+              this.items.push({
+                label: 'Cut...',
+                icon: 'fas fa-fw fa-scissors',
+                command: () => { this.cut(node) }
+              });
+              if (this.moveNode && node.typeIcon.includes("fa-folder")) {
+                this.items.push({
+                  label: 'Paste',
+                  icon: 'fas fa-fw fa-paste',
+                  command: () => { this.paste(node) }
+                });
+              }
+              if (this.items.length > 0)
+                (this.$refs.menu as ContextMenu).show(event);
+            }
+          })
+      // .catch(() => {});
+    },
+
+    cut(node: TreeNode) {
+      this.moveNode = node;
+      console.log(node);
+      this.$toast.add({severity:'info', summary:'Cut', detail:node.label, life: 3000});
+    },
+
+    paste(node: TreeNode) {
+      if (this.moveNode) {
+        this.$confirm.require({
+          header: 'Confirm move',
+          message: 'Are you sure you want to move "' + this.moveNode.label + '" to "' + node.label +'" ?',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            this.moveConcept(node);
+
+          },
+          reject: () => {
+            this.$toast.add({severity:'warn', summary:'Cancelled', detail:'Paste cancelled', life: 3000});
+          }
+        });
+      }
+    },
+
+    newFolder(node: TreeNode) {
+      this.newFolderName = "";
+      this.showNewFolder = node;
+    },
+
+    async createFolder() {
+      console.log("Create new folder " + this.newFolderName + " in " + this.showNewFolder?.key);
+      const iri = await this.$filerService.createFolder(this.showNewFolder?.key, this.newFolderName);
+      if (iri) {
+        console.log("Created folder")
+        console.log(iri);
+        this.$toast.add({ severity: 'success', summary: 'New folder', detail: 'New folder "' + this.newFolderName + '" created', life: 3000 });
+        if (this.showNewFolder?.children) {
+          this.showNewFolder?.children.push(this.createTreeNode(
+              this.newFolderName,
+              iri,
+              [{"@id": IM.FOLDER, name: "Folder" }],
+              false,
+              this.showNewFolder
+          ));
+        }
+      } else {
+        this.$toast.add({ severity: 'error', summary: 'New folder', detail: '"' + this.newFolderName + '" already exists', life: 3000 });
+      }
+      this.showNewFolder = null;
+    },
+
+    async moveConcept( target: TreeNode) {
+      if (this.moveNode && this.moveNode.parentNode) {
+        const moved = await this.$filerService.moveFolder(this.moveNode.key, this.moveNode.parentNode.key, target.key);
+
+        if (moved) {
+          this.$toast.add({ severity: 'success', summary: 'Paste', detail: '"' + this.moveNode.label + '" into "' + target.label + '"', life: 3000 });
+          this.moveNode.parentNode.children = this.moveNode.parentNode.children.filter((v, i, r) => v != this.moveNode);
+          this.moveNode.parentNode = target;
+          target.children.push(this.moveNode);
+        } else
+          this.$toast.add({ severity: 'error', summary: 'Error', detail: 'Paste failed', life: 3000 });
+      }
     },
 
     nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
