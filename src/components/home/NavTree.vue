@@ -8,11 +8,12 @@
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
       @node-collapse="onNodeCollapse"
+
       class="tree-root"
       :loading="loading"
     >
       <template #default="slotProps">
-        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
+        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)" @dblclick="onNodeDblClick($event, slotProps.node)">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
               <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
@@ -174,6 +175,13 @@ export default defineComponent({
         });
         this.$store.commit("updateSelectedConceptIri", node.data);
       }
+    },
+
+    onNodeDblClick($event: any, node: any) {
+      if (node.typeIcon.includes('fa-folder'))
+        this.selectAndExpand(node);
+      else
+        this.$directService.directTo(this.$env.VIEWER_URL, node.key, "concept");
     },
 
     async loadMore(node: any) {
