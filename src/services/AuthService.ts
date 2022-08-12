@@ -15,13 +15,15 @@ export default {
   async getCurrentAuthenticatedUser(): Promise<Models.CustomAlert> {
     try {
       const cognitoUser = await Auth.currentAuthenticatedUser();
+
       const authenticatedUser = new User(
         cognitoUser.username,
         cognitoUser.attributes["custom:forename"],
         cognitoUser.attributes["custom:surname"],
         cognitoUser.attributes.email,
         "",
-        cognitoUser.attributes["custom:avatar"]
+        cognitoUser.attributes["custom:avatar"],
+        cognitoUser.signInUserSession.accessToken.payload["cognito:groups"]
       );
       authenticatedUser.setId(cognitoUser.attributes.sub);
       return new CustomAlert(200, "User authenticated successfully", undefined, authenticatedUser);
