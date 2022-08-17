@@ -39,4 +39,8 @@ frontend {
     installScript = 'install --legacy-peer-deps'
 }
 
-check.finalizedBy 'sonarqube'
+println 'Build environment = [' + env + ']'
+
+if (env == 'prod') {
+    check.finalizedBy 'sonarqube'
+}
