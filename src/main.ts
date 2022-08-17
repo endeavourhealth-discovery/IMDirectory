@@ -183,30 +183,35 @@ app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | nu
   vm.$toast.add({
     severity: "error",
     summary: info,
-    detail: err
+    detail: err,
+    life: 3000
   });
 }
 
 // Vue external exceptions (e.g. Axios)
 window.addEventListener('unhandledrejection', e => {
   e.preventDefault();
+  console.error(e);
   if (e.reason?.response?.data?.title)
     vm.$toast.add({
       severity: "error",
       summary: e.reason.response.data.title,
-      detail: e.reason.response.data.detail
+      detail: e.reason.response.data.detail,
+      life: 3000
     });
   else if (e.reason?.name)
     vm.$toast.add({
       severity: "error",
       summary: e.reason.name,
-      detail: e.reason.message
+      detail: e.reason.message,
+      life: 3000
     });
   else
     vm.$toast.add({
       severity: "error",
       summary: "An error occurred",
-      detail: e.reason
+      detail: e.reason,
+      life: 3000
     });
 });
 

@@ -1,4 +1,4 @@
-import { shallowMount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import TermsTable from "@/components/home/infoSideBar/TermsTable.vue";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";
@@ -9,7 +9,7 @@ describe("TermsTable.vue", () => {
   let wrapper;
 
   beforeEach(() => {
-    wrapper = shallowMount(TermsTable, {
+    wrapper = mount(TermsTable, {
       global: {
         components: { Button, StyleClass, DataTable, Column },
         directives: { styleclass: StyleClass }

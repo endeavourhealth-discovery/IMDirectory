@@ -4,6 +4,7 @@ import MultiSelect from "primevue/multiselect";
 import InputSwitch from "primevue/inputswitch";
 import Tooltip from "primevue/tooltip";
 import Button from "primevue/button";
+import Dropdown from "primevue/dropdown";
 
 describe("Filters.vue ___ empty store", () => {
   let wrapper;
@@ -197,7 +198,7 @@ describe("Filters.vue ___ empty store", () => {
     wrapper = shallowMount(Filters, {
       props: { search: vi.fn() },
       global: {
-        components: { MultiSelect, InputSwitch, Button },
+        components: { MultiSelect, InputSwitch, Button, Dropdown },
         directives: { Tooltip: Tooltip },
         mocks: { $store: mockStore, $toast: mockToast }
       }
@@ -866,7 +867,7 @@ describe("Filters.vue ___ full store", () => {
     wrapper = shallowMount(Filters, {
       props: { search: vi.fn() },
       global: {
-        components: { MultiSelect, InputSwitch, Button },
+        components: { MultiSelect, InputSwitch, Button, Dropdown },
         directives: { Tooltip: Tooltip },
         mocks: { $store: mockStore, $toast: mockToast }
       }
@@ -1063,7 +1064,7 @@ describe("Filters.vue ___ no emis in options", () => {
     wrapper = shallowMount(Filters, {
       props: { search: vi.fn() },
       global: {
-        components: { MultiSelect, InputSwitch, Button },
+        components: { MultiSelect, InputSwitch, Button, Dropdown },
         directives: { Tooltip: Tooltip },
         mocks: { $store: mockStore, $toast: mockToast }
       }

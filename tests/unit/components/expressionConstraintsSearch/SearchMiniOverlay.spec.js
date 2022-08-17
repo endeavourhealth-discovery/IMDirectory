@@ -2,7 +2,7 @@ import SearchMiniOverlay from "@/components/eclSearch/SearchMiniOverlay.vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import OverlayPanel from "primevue/overlaypanel";
-import { shallowMount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import { Vocabulary } from "im-library";
 const { IM } = Vocabulary;
 
@@ -64,7 +64,7 @@ describe("SearchMiniOverlay.vue", () => {
     docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(undefined);
 
-    wrapper = shallowMount(SearchMiniOverlay, {
+    wrapper = mount(SearchMiniOverlay, {
       global: { components: { DataTable, Column, OverlayPanel }, stubs: { OverlayPanel: mockRef, FontAwesomeIcon: true } },
       props: { searchTerm: "product", searchResults: SEARCH_RESULTS, loading: false }
     });

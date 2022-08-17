@@ -261,14 +261,14 @@ export default defineComponent({
           label: 'Move selection here',
           icon: 'fas fa-fw fa-file-import',
           command: () => {
-            this.paste(node)
+            this.confirmMove(node)
           }
         });
         this.items.push({
           label: 'Add selection here',
           icon: 'fas fa-fw fa-copy',
           command: () => {
-            this.paste(node)
+            this.confirmAdd(node)
           }
         });
       }
@@ -277,7 +277,7 @@ export default defineComponent({
         (this.$refs.menu as ContextMenu).show(event);
     },
 
-    paste(node: TreeNode) {
+    confirmMove(node: TreeNode) {
       if (this.selectedNode) {
         this.$confirm.require({
           header: 'Confirm move',
@@ -288,9 +288,51 @@ export default defineComponent({
 
           },
           reject: () => {
-            this.$toast.add({ severity: 'warn', summary: 'Cancelled', detail: 'Paste cancelled', life: 3000 });
+            this.$toast.add({ severity: 'warn', summary: 'Cancelled', detail: 'Move cancelled', life: 3000 });
           }
         });
+      }
+    },
+
+    async moveConcept(target: TreeNode) {
+      if (this.selectedNode && this.selectedNode.parentNode) {
+        try {
+          await this.$filerService.moveFolder(this.selectedNode.key, IM.IS_CONTAINED_IN, this.selectedNode.parentNode.key, target.key);
+          this.$toast.add({ severity: 'success', summary: 'Move', detail: 'Moved "' + this.selectedNode.label + '" into "' + target.label + '"', life: 3000 });
+          this.selectedNode.parentNode.children = this.selectedNode.parentNode.children.filter((v, _i, _r) => v != this.selectedNode);
+          this.selectedNode.parentNode = target;
+          target.children.push(this.selectedNode);
+        } catch (e: any) {
+          this.$toast.add({ severity: 'error', summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
+        }
+      }
+    },
+
+    confirmAdd(node: TreeNode) {
+      if (this.selectedNode) {
+        this.$confirm.require({
+          header: 'Confirm add',
+          message: 'Are you sure you want to add "' + this.selectedNode.label + '" to "' + node.label + '" ?',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            this.addConcept(node);
+          },
+          reject: () => {
+            this.$toast.add({ severity: 'warn', summary: 'Cancelled', detail: 'Add cancelled', life: 3000 });
+          }
+        });
+      }
+    },
+
+    async addConcept(target: TreeNode) {
+      if (this.selectedNode && this.selectedNode.parentNode) {
+        try {
+          await this.$filerService.addToFolder(this.selectedNode.key, IM.IS_CONTAINED_IN, target.key);
+          this.$toast.add({ severity: 'success', summary: 'Add', detail: 'Added "' + this.selectedNode.label + '" into "' + target.label + '"', life: 3000 });
+          target.children.push(this.selectedNode);  // Does this need to be a (deep) clone?
+        } catch (e: any) {
+          this.$toast.add({ severity: 'error', summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
+        }
       }
     },
 
@@ -317,20 +359,6 @@ export default defineComponent({
         this.$toast.add({ severity: 'error', summary: 'New folder', detail: '"' + this.newFolderName + '" already exists', life: 3000 });
       }
       this.showNewFolder = null;
-    },
-
-    async moveConcept(target: TreeNode) {
-      if (this.selectedNode && this.selectedNode.parentNode) {
-        try {
-          await this.$filerService.moveFolder(this.selectedNode.key, this.selectedNode.parentNode.key, target.key);
-          this.$toast.add({ severity: 'success', summary: 'Paste', detail: '"' + this.selectedNode.label + '" into "' + target.label + '"', life: 3000 });
-          this.selectedNode.parentNode.children = this.selectedNode.parentNode.children.filter((v, _i, _r) => v != this.selectedNode);
-          this.selectedNode.parentNode = target;
-          target.children.push(this.selectedNode);
-        } catch (e: any) {
-          this.$toast.add({ severity: 'error', summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
-        }
-      }
     },
 
     nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
