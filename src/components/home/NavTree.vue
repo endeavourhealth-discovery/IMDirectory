@@ -88,12 +88,7 @@ const {
 
 export default defineComponent({
   name: "NavTree",
-  computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri", "currentUser"]),
-  watch: {
-    async locateOnNavTreeIri() {
-      await this.findPathToNode(this.locateOnNavTreeIri.iri);
-    }
-  },
+  computed: mapState(["conceptIri", "favourites", "currentUser"]),
   data() {
     return {
       selectedKeys: {} as any,
