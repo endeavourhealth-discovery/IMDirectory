@@ -75,6 +75,7 @@
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="slotProps">
           <div class="buttons-container">
+            <Button icon="fa-solid fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
             <Button
               v-if="slotProps.data.hasChildren"
               @click="open"
@@ -342,6 +343,16 @@ export default defineComponent({
     edit(row?: any) {
       if (row) this.selected = row.data;
       this.$directService.directTo(this.$env.EDITOR_URL, this.selected.iri, "editor");
+    },
+
+    locate(row: any) {
+      if (row) {
+        this.$router.push({
+          name: "Folder",
+          params: { selectedIri: row.data.iri }
+        });
+        this.$store.commit("updateLocateOnNavTreeIri", row.data.iri);
+      }
     }
   }
 });

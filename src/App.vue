@@ -34,7 +34,6 @@ import { defineComponent } from "vue";
 import Search from "@/components/topbar/Search.vue";
 import ReleaseNotes from '@/components/releaseNotes/ReleaseNotes.vue';
 import {mapState} from 'vuex';
-import {MenuItem} from 'primevue/menuitem';
 
 export default defineComponent({
   name: "App",
@@ -60,7 +59,7 @@ export default defineComponent({
     openAdminMenu(event: any): void {
       (this.$refs.adminMenu as any).toggle(event);
     },
-    getAdminItems(): MenuItem[] {
+    getAdminItems(): any[] {
       return [
         {
           label: "Download changes",

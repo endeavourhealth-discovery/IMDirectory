@@ -44,6 +44,7 @@ describe("state", () => {
   it("should start with the correct values", () => {
     expect(Object.keys(store.state)).toStrictEqual([
       "selectedConceptIri",
+      "locateOnNavTreeIri",
       "conceptIri",
       "favourites",
       "history",

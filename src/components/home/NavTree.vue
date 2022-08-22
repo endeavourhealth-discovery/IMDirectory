@@ -78,7 +78,6 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers } from "im-library";
-import {MenuItem} from 'primevue/menuitem';
 import ContextMenu from 'primevue/contextmenu';
 const { IM } = Vocabulary;
 const {
@@ -99,7 +98,7 @@ export default defineComponent({
       hoveredResult: {} as ConceptSummary,
       overlayLocation: {} as any,
       pageSize: 20,
-      items: [] as MenuItem[],
+      items: [] as any[],
       showNewFolder: null as TreeNode | null,
       newFolderName: "New folder"
     };
@@ -292,7 +291,7 @@ export default defineComponent({
     async moveConcept(target: TreeNode) {
       if (this.selectedNode && this.selectedNode.parentNode) {
         try {
-          await this.$filerService.moveFolder(this.selectedNode.key, IM.IS_CONTAINED_IN, this.selectedNode.parentNode.key, target.key);
+          await this.$filerService.moveFolder(this.selectedNode.key, this.selectedNode.parentNode.key, target.key);
           this.$toast.add({ severity: 'success', summary: 'Move', detail: 'Moved "' + this.selectedNode.label + '" into "' + target.label + '"', life: 3000 });
           this.selectedNode.parentNode.children = this.selectedNode.parentNode.children.filter((v, _i, _r) => v != this.selectedNode);
           this.selectedNode.parentNode = target;
@@ -322,7 +321,7 @@ export default defineComponent({
     async addConcept(target: TreeNode) {
       if (this.selectedNode && this.selectedNode.parentNode) {
         try {
-          await this.$filerService.addToFolder(this.selectedNode.key, IM.IS_CONTAINED_IN, target.key);
+          await this.$filerService.addToFolder(this.selectedNode.key, target.key);
           this.$toast.add({ severity: 'success', summary: 'Add', detail: 'Added "' + this.selectedNode.label + '" into "' + target.label + '"', life: 3000 });
           target.children.push(this.selectedNode);  // Does this need to be a (deep) clone?
         } catch (e: any) {

@@ -14,6 +14,7 @@ export default createStore({
   // update stateType.ts when adding new state!
   state: {
     selectedConceptIri: "",
+    locateOnNavTreeIri: {},
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: [] as string[],
     history: [] as HistoryItem[],
@@ -141,6 +142,9 @@ export default createStore({
     },
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
+    },
+    updateLocateOnNavTreeIri(state, iri) {
+      state.locateOnNavTreeIri = { iri };
     },
     updateArrayObjectNameListboxWithLabelStartExpanded(state, items) {
       state.arrayObjectNameListboxWithLabelStartExpanded = items;
