@@ -8,9 +8,10 @@ import ProgressSpinner from "primevue/progressspinner";
 describe("ReportTable.vue ___ label + hasValue input", () => {
   let wrapper;
   let reportData = [
-    { "http://www.w3.org/2002/07/owl#hasValue": 8, "http://www.w3.org/2000/01/rdf-schema#label": "Value sets" },
-    { "http://www.w3.org/2002/07/owl#hasValue": 1973, "http://www.w3.org/2000/01/rdf-schema#label": "Data models" },
-    { "http://www.w3.org/2002/07/owl#hasValue": 1124984, "http://www.w3.org/2000/01/rdf-schema#label": "Ontology" }
+    { "http://endhealth.info/im#hasValue": 2823174, "http://www.w3.org/2000/01/rdf-schema#label": "Ontologies" },
+    { "http://endhealth.info/im#hasValue": 2227, "http://www.w3.org/2000/01/rdf-schema#label": "Discovery data model" },
+    { "http://endhealth.info/im#hasValue": 1323, "http://www.w3.org/2000/01/rdf-schema#label": "Concept sets and value sets" },
+    { "http://endhealth.info/im#hasValue": 159, "http://www.w3.org/2000/01/rdf-schema#label": "Query library" }
   ];
 
   beforeEach(async () => {
@@ -28,9 +29,10 @@ describe("ReportTable.vue ___ label + hasValue input", () => {
 
   it("mounts", () => {
     expect(wrapper.vm.tableData).toStrictEqual([
-      { count: 8, label: "Value sets" },
-      { count: 1973, label: "Data models" },
-      { count: 1124984, label: "Ontology" }
+      { count:  2823174, label: "Ontologies" },
+      { count: 2227, label: "Discovery data model" },
+      { count: 1323, label: "Concept sets and value sets" },
+      { count: 159, label: "Query library" }
     ]);
     expect(wrapper.vm.loading).toBe(false);
   });
@@ -53,9 +55,10 @@ describe("ReportTable.vue ___ label + hasValue input", () => {
     wrapper.vm.tableData = [];
     wrapper.vm.getReportTableData();
     expect(wrapper.vm.tableData).toStrictEqual([
-      { count: 8, label: "Value sets" },
-      { count: 1973, label: "Data models" },
-      { count: 1124984, label: "Ontology" }
+      { count:  2823174, label: "Ontologies" },
+      { count: 2227, label: "Discovery data model" },
+      { count: 1323, label: "Concept sets and value sets" },
+      { count: 159, label: "Query library" }
     ]);
   });
 });
@@ -63,9 +66,10 @@ describe("ReportTable.vue ___ label + hasValue input", () => {
 describe("ReportTable.vue ___ label + count input", () => {
   let wrapper;
   let reportData = [
-    { count: 8, label: "Value sets" },
-    { count: 1973, label: "Data models" },
-    { count: 1124984, label: "Ontology" }
+    { count:  2823174, label: "Ontologies" },
+    { count: 2227, label: "Discovery data model" },
+    { count: 1323, label: "Concept sets and value sets" },
+    { count: 159, label: "Query library" }
   ];
 
   beforeEach(async () => {
@@ -85,9 +89,10 @@ describe("ReportTable.vue ___ label + count input", () => {
     wrapper.vm.tableData = [];
     wrapper.vm.getReportTableData();
     expect(wrapper.vm.tableData).toStrictEqual([
-      { count: 8, label: "Value sets" },
-      { count: 1973, label: "Data models" },
-      { count: 1124984, label: "Ontology" }
+      { count:  2823174, label: "Ontologies" },
+      { count: 2227, label: "Discovery data model" },
+      { count: 1323, label: "Concept sets and value sets" },
+      { count: 159, label: "Query library" }
     ]);
   });
 });
@@ -95,9 +100,10 @@ describe("ReportTable.vue ___ label + count input", () => {
 describe("ReportTable.vue ___ bad input", () => {
   let wrapper;
   let reportData = [
-    { total: 8, label: "Value sets" },
-    { total: 1973, label: "Data models" },
-    { total: 1124984, label: "Ontology" }
+    { total:  2823174, label: "Ontologies" },
+    { total: 2227, label: "Discovery data model" },
+    { total: 1323, label: "Concept sets and value sets" },
+    { total: 159, label: "Query library" }
   ];
 
   beforeEach(async () => {

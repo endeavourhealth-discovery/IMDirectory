@@ -3,16 +3,18 @@
     <Tree
       :value="root"
       selectionMode="single"
-      v-model:selectionKeys="selected"
+      v-model:selectionKeys="selectedKeys"
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
       @node-collapse="onNodeCollapse"
+
       class="tree-root"
       :loading="loading"
     >
       <template #default="slotProps">
-        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
+        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)" @dblclick="onNodeDblClick($event, slotProps.node)" @contextmenu="onNodeContext($event, slotProps.node)">
+          <ContextMenu ref="menu" :model="items" />
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
               <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
@@ -61,6 +63,13 @@
         </div>
       </div>
     </OverlayPanel>
+    <Dialog header="New folder" v-model:visible="showNewFolder" :modal="true">
+      <InputText type="text" v-model="newFolderName" autofocus/>
+      <template #footer>
+        <Button label="Cancel" icon="pi pi-times" @click="showNewFolder = null" class="p-button-text"/>
+        <Button label="Create" icon="pi pi-check" @click="createFolder" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -69,6 +78,7 @@ import { defineComponent } from "vue";
 import { mapState } from "vuex";
 import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers } from "im-library";
+import ContextMenu from 'primevue/contextmenu';
 const { IM } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys, isArrayHasLength, isObject },
@@ -77,22 +87,20 @@ const {
 
 export default defineComponent({
   name: "NavTree",
-  computed: mapState(["conceptIri", "favourites", "locateOnNavTreeIri"]),
-  watch: {
-    async locateOnNavTreeIri() {
-      await this.findPathToNode(this.locateOnNavTreeIri.iri);
-    }
-  },
+  computed: mapState(["conceptIri", "favourites", "currentUser"]),
   data() {
     return {
-      selected: {} as any,
+      selectedKeys: {} as any,
       selectedNode: {} as TreeNode,
       root: [] as TreeNode[],
       loading: true,
       expandedKeys: {} as any,
       hoveredResult: {} as ConceptSummary,
       overlayLocation: {} as any,
-      pageSize: 20
+      pageSize: 20,
+      items: [] as any[],
+      showNewFolder: null as TreeNode | null,
+      newFolderName: "New folder"
     };
   },
   async mounted() {
@@ -111,10 +119,10 @@ export default defineComponent({
       const IMChildren = await this.$entityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
       for (let IMchild of IMChildren) {
         const hasNode = !!this.root.find(node => node.data === IMchild["@id"]);
-        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, IMchild.orderNumber));
+        if (!hasNode) this.root.push(this.createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
       }
       this.root.sort(this.byKey);
-      const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
+      const favNode = this.createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null);
       favNode.typeIcon = ["fa-solid", "fa-star"];
       favNode.color = "#e39a36";
       this.root.push(favNode);
@@ -132,9 +140,9 @@ export default defineComponent({
       return 0;
     },
 
-    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, order?: number): TreeNode {
+    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, parent: TreeNode | null, order?: number): TreeNode {
       return {
-        key: conceptName,
+        key: conceptIri,
         label: conceptName,
         typeIcon: getFAIconFromType(conceptTypes),
         color: getColourFromType(conceptTypes),
@@ -142,7 +150,8 @@ export default defineComponent({
         leaf: !hasChildren,
         loading: false,
         children: [] as TreeNode[],
-        order: order
+        order: order,
+        parentNode: parent
       };
     },
 
@@ -176,13 +185,20 @@ export default defineComponent({
       }
     },
 
+    onNodeDblClick($event: any, node: any) {
+      if (node.typeIcon && node.typeIcon.includes('fa-folder'))
+        this.selectAndExpand(node);
+      else if (node.data !== "loadMore")
+        this.$directService.directTo(this.$env.VIEWER_URL, node.key, "concept");
+    },
+
     async loadMore(node: any) {
       if (node.nextPage * this.pageSize < node.totalCount) {
         const children = await this.$entityService.getPagedChildren(node.parentNode.data, node.nextPage, this.pageSize);
         node.parentNode.children.pop();
         children.result.forEach((child: any) => {
           if (!this.nodeHasChild(node.parentNode, child))
-            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
         });
         node.nextPage = node.nextPage + 1;
         node.parentNode.children.push(this.createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
@@ -191,7 +207,7 @@ export default defineComponent({
         node.parentNode.children.pop();
         children.result.forEach((child: any) => {
           if (!this.nodeHasChild(node.parentNode, child))
-            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+            node.parentNode.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node.parentNode));
         });
       } else {
         node.parentNode.children.pop();
@@ -203,7 +219,7 @@ export default defineComponent({
         node.loading = true;
         const children = await this.$entityService.getPagedChildren(node.data, 1, this.pageSize);
         children.result.forEach((child: any) => {
-          if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+          if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
         });
         if (children.totalCount >= this.pageSize) {
           node.children.push(this.createLoadMoreNode(node, 2, children.totalCount));
@@ -217,15 +233,137 @@ export default defineComponent({
       node.leaf = false;
     },
 
+    onNodeContext(event: any, node: any) {
+      this.items = [];
+
+      if (!this.currentUser.roles.includes("IMAdmin"))
+        return;
+
+      if (node.typeIcon.includes("fa-folder")) {
+        this.items.push({
+          label: 'New folder',
+          icon: 'fas fa-fw fa-folder-plus',
+          command: () => {
+            this.newFolderName = "";
+            this.showNewFolder = node;
+          }
+        });
+      }
+
+      if (this.selectedNode && node.typeIcon.includes("fa-folder")) {
+        this.items.push({
+          label: 'Move selection here',
+          icon: 'fas fa-fw fa-file-import',
+          command: () => {
+            this.confirmMove(node)
+          }
+        });
+        this.items.push({
+          label: 'Add selection here',
+          icon: 'fas fa-fw fa-copy',
+          command: () => {
+            this.confirmAdd(node)
+          }
+        });
+      }
+
+      if (this.items.length > 0)
+        (this.$refs.menu as ContextMenu).show(event);
+    },
+
+    confirmMove(node: TreeNode) {
+      if (this.selectedNode) {
+        this.$confirm.require({
+          header: 'Confirm move',
+          message: 'Are you sure you want to move "' + this.selectedNode.label + '" to "' + node.label + '" ?',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            this.moveConcept(node);
+
+          },
+          reject: () => {
+            this.$toast.add({ severity: 'warn', summary: 'Cancelled', detail: 'Move cancelled', life: 3000 });
+          }
+        });
+      }
+    },
+
+    async moveConcept(target: TreeNode) {
+      if (this.selectedNode && this.selectedNode.parentNode) {
+        try {
+          await this.$filerService.moveFolder(this.selectedNode.key, this.selectedNode.parentNode.key, target.key);
+          this.$toast.add({ severity: 'success', summary: 'Move', detail: 'Moved "' + this.selectedNode.label + '" into "' + target.label + '"', life: 3000 });
+          this.selectedNode.parentNode.children = this.selectedNode.parentNode.children.filter((v, _i, _r) => v != this.selectedNode);
+          this.selectedNode.parentNode = target;
+          target.children.push(this.selectedNode);
+        } catch (e: any) {
+          this.$toast.add({ severity: 'error', summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
+        }
+      }
+    },
+
+    confirmAdd(node: TreeNode) {
+      if (this.selectedNode) {
+        this.$confirm.require({
+          header: 'Confirm add',
+          message: 'Are you sure you want to add "' + this.selectedNode.label + '" to "' + node.label + '" ?',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+            this.addConcept(node);
+          },
+          reject: () => {
+            this.$toast.add({ severity: 'warn', summary: 'Cancelled', detail: 'Add cancelled', life: 3000 });
+          }
+        });
+      }
+    },
+
+    async addConcept(target: TreeNode) {
+      if (this.selectedNode && this.selectedNode.parentNode) {
+        try {
+          await this.$filerService.addToFolder(this.selectedNode.key, target.key);
+          this.$toast.add({ severity: 'success', summary: 'Add', detail: 'Added "' + this.selectedNode.label + '" into "' + target.label + '"', life: 3000 });
+          target.children.push(this.selectedNode);  // Does this need to be a (deep) clone?
+        } catch (e: any) {
+          this.$toast.add({ severity: 'error', summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
+        }
+      }
+    },
+
+    async createFolder() {
+      if (!this.showNewFolder)
+        return;
+
+      console.log("Create new folder " + this.newFolderName + " in " + this.showNewFolder.key);
+      const iri = await this.$filerService.createFolder(this.showNewFolder.key, this.newFolderName);
+      if (iri) {
+        console.log("Created folder")
+        console.log(iri);
+        this.$toast.add({ severity: 'success', summary: 'New folder', detail: 'New folder "' + this.newFolderName + '" created', life: 3000 });
+        if (this.showNewFolder?.children) {
+          this.showNewFolder?.children.push(this.createTreeNode(
+              this.newFolderName,
+              iri,
+              [{ "@id": IM.FOLDER, name: "Folder" }],
+              false,
+              this.showNewFolder
+          ));
+        }
+      } else {
+        this.$toast.add({ severity: 'error', summary: 'New folder', detail: '"' + this.newFolderName + '" already exists', life: 3000 });
+      }
+      this.showNewFolder = null;
+    },
+
     nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
       return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
     },
 
     selectKey(selectedKey: string) {
-      Object.keys(this.selected).forEach(key => {
-        this.selected[key] = false;
+      Object.keys(this.selectedKeys).forEach(key => {
+        this.selectedKeys[key] = false;
       });
-      this.selected[selectedKey] = true;
+      this.selectedKeys[selectedKey] = true;
     },
 
     async findPathToNode(iri: string) {
@@ -381,5 +519,10 @@ export default defineComponent({
 .home-button,
 .next-parent-button {
   width: fit-content !important;
+}
+
+#hierarchy-tree-bar-container::v-deep(.p-tree-toggler) {
+  height: 1.25rem !important;
+  margin: 0 0 0 0 !important;
 }
 </style>

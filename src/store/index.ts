@@ -181,10 +181,14 @@ export default createStore({
       const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => Config.FilterDefaults.statusOptions.includes(item["@id"]));
       const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => Config.FilterDefaults.schemeOptions.includes(item.iri));
       const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => Config.FilterDefaults.typeOptions.includes(item["@id"]));
+      const selectedField = Config.FilterDefaults.sortField;
+      const selectedDirection = Config.FilterDefaults.sortDirection;
       commit("updateSelectedFilters", {
         status: selectedStatus,
         schemes: selectedSchemes,
-        types: selectedTypes
+        types: selectedTypes,
+        sortField: selectedField,
+        sortDirection: selectedDirection
       });
       commit("updateHierarchySelectedFilters", selectedSchemes);
     },

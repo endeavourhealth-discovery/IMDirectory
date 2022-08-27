@@ -4,8 +4,6 @@ import AuthService from "@/services/AuthService";
 import { Models } from "im-library";
 const { User, CustomAlert } = Models;
 
-const testUser = new User("devtest", "John", "Doe", "john.doe@ergosoft.co.uk", "12345678", "colour/002-man.png");
-
 describe("signOut", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -61,7 +59,7 @@ describe("getCurrentAuthenticatedUser", () => {
       promiseResult = res;
     });
     await flushPromises();
-    const currentUser = new User("devtest", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/002-man.png");
+    const currentUser = new User("devtest", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/002-man.png", []);
     currentUser.setId("9gkej864-l39k-9u87-4lau-w7777b3m5g09");
     expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
     expect(promiseResult).toStrictEqual(new CustomAlert(200, "User authenticated successfully", undefined, currentUser));

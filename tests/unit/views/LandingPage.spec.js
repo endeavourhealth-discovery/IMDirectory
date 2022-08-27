@@ -2,12 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import LandingPage from "@/views/LandingPage.vue";
 import ProgressSpinner from "primevue/progressspinner";
 import Card from "primevue/card";
+import Chart from "primevue/chart";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
-import { ConfigService, DirectService } from "im-library";
-import { shallowMount } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 
 vi.mock("@/main");
 
@@ -142,16 +142,27 @@ describe("LandingPage.vue", () => {
         }
       ])
     };
+    let mockLoggerService = {
+        error: vi.fn()
+    };
 
     mockDirectService = { directTo: vi.fn() };
 
-    wrapper = shallowMount(LandingPage, {
+    wrapper = mount(LandingPage, {
       global: {
-        components: { ProgressSpinner, Card, DataTable, Column, Button },
-        mocks: { $store: mockStore, $configService: mockConfigService, $directService: mockDirectService, $entityService: mockEntityService },
+        components: { ProgressSpinner, Card, DataTable, Column, Button, Chart },
+        mocks: { $store: mockStore, $configService: mockConfigService, $directService: mockDirectService, $entityService: mockEntityService, $loggerService: mockLoggerService },
         directives: { Tooltip: Tooltip }
       }
     });
+
+    wrapper.vm.$env = {
+        VIEWER_URL: "/",
+        EDITOR_URL: "/"
+    }
+
+
+
   });
 
   it("mounts", () => {

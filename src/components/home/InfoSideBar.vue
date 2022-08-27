@@ -18,7 +18,7 @@
       </div>
       <div v-else id="concept-content-dialogs-container">
         <div id="concept-panel-container">
-          <TabView :lazy="true">
+          <TabView :lazy="true" :active-index="activeTab">
             <TabPanel header="Details">
               <div v-if="isObjectHasKeysWrapper(concept)" class="concept-panel-content" id="definition-container">
                 <Definition :concept="concept" :configs="configs" />
@@ -59,7 +59,7 @@ const {
 export default defineComponent({
   name: "InfoSideBar",
   computed: {
-    ...mapState(["conceptIri", "selectedConceptIri"]),
+    ...mapState(["conceptIri", "selectedConceptIri", "locateOnNavTreeIri"]),
     activeProfile: {
       get(): any {
         return this.$store.state.activeProfile;
@@ -81,6 +81,9 @@ export default defineComponent({
     },
     async selectedConceptIri() {
       if (this.selectedConceptIri) await this.init();
+    },
+    async locateOnNavTreeIri() {
+      this.activeTab = (this.terms) ? 2 : 1;
     }
   },
   async mounted() {
@@ -100,7 +103,8 @@ export default defineComponent({
       conceptAsString: "",
       terms: [] as any[] | undefined,
       profile: {} as Models.Query.Profile,
-      isQuery: false
+      isQuery: false,
+      activeTab: 0
     };
   },
   methods: {

@@ -1,1 +1,4 @@
-import { it, describe, expect, afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
+// Global canvas mock (for charts)
+HTMLCanvasElement.prototype.getContext = () => {
+    {}
+};

@@ -18,20 +18,14 @@ export default defineComponent({
     return {
       showRelNotes: false,
       release: {
-        version: 2.1,
+        version: 2.2,
         notes: [
-            "Updated core to SNOMED 33.1 (15-Jun-2022)",
-            "Updated textual query view",
-            "Extended concept summary at top of IMDirectory",
-            "Navigation trees now support double-click",
-            "Tooltips added to main tree",
-            "'Load more' added to trees",
-            "'See more' navigation in definition & graph",
-            "Sort search results by usage option",
-            "Query definition now updates when navigating",
-            "Fixed issue when user tried to update their email",
-            "Optimized set member download/publish",
-            "Various bug fixes/performance enhancements"
+            "Updated core to SNOMED 34.1 (10-Aug-2022)",
+            "Visual enhancements (e.g. less whitespace on tree)",
+            "Optimized search results table",
+            "Main directory tree now supports double-click",
+            "'Find in tree' now locates in the right panel hierarchy",
+            "Fixed incorrect code display (symbols) in IMViewer"
         ]
       }
     };

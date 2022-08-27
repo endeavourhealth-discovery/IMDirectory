@@ -1,4 +1,4 @@
-import { createApp, Plugin } from "vue";
+import {createApp, Plugin} from 'vue';
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -15,8 +15,6 @@ dom.watch();
 library.add(fas as any, far as any);
 
 import "primevue/resources/themes/saga-blue/theme.css"; //theme
-
-// import "primevue/resources/themes/md-light-indigo/theme.css"
 
 import "primevue/resources/primevue.min.css"; //core css
 import "primeicons/primeicons.css"; //icons
@@ -87,15 +85,17 @@ import axios from "axios";
 // IMLibrary imports
 import "im-library/dist/style.css";
 import IMLibrary, { Helpers, Services } from "im-library";
+import {ComponentPublicInstance} from '@vue/runtime-core';
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
-const { ConfigService, DirectService, EntityService, Env, LoggerService, SetService } = Services;
+const { ConfigService, DirectService, EntityService, Env, LoggerService, SetService, FilerService } = Services;
 
 const configService = new ConfigService(axios);
 const directService = new DirectService(store);
 const entityService = new EntityService(axios);
 const setService = new SetService(axios);
+const filerService = new FilerService(axios);
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -169,6 +169,7 @@ const app = createApp(App)
 app.config.globalProperties.$configService = configService;
 app.config.globalProperties.$directService = directService;
 app.config.globalProperties.$entityService = entityService;
+app.config.globalProperties.$filerService = filerService;
 app.config.globalProperties.$env = Env;
 app.config.globalProperties.$loggerService = LoggerService;
 app.config.globalProperties.$setService = setService;
@@ -177,8 +178,48 @@ const vm = app.mount("#app");
 
 export default vm;
 
+// Vue application exceptions
+app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {
+  vm.$toast.add({
+    severity: "error",
+    summary: info,
+    detail: err,
+    life: 3000
+  });
+}
+
+// Vue external exceptions (e.g. Axios)
+window.addEventListener('unhandledrejection', e => {
+  e.preventDefault();
+  console.error(e);
+  if (e.reason?.response?.data?.title)
+    vm.$toast.add({
+      severity: "error",
+      summary: e.reason.response.data.title,
+      detail: e.reason.response.data.detail,
+      life: 3000
+    });
+  else if (e.reason?.name)
+    vm.$toast.add({
+      severity: "error",
+      summary: e.reason.name,
+      detail: e.reason.message,
+      life: 3000
+    });
+  else
+    vm.$toast.add({
+      severity: "error",
+      summary: "An error occurred",
+      detail: e.reason,
+      life: 3000
+    });
+});
+
 axios.interceptors.request.use(async request => {
   if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
+    if (!request.headers)
+      request.headers = {};
+
     request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
   }
   return request;
@@ -189,72 +230,25 @@ axios.interceptors.response.use(
     return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
   },
   error => {
-    if (error.response.status.toString().charAt(0) === "4") {
-      if (error.response.status === 403) {
-        vm.$toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-        });
-        window.location.href = Env.AUTH_URL + "login?returnUrl=" + vm.$route.fullPath;
-      } else if (error.response.status === 401) {
-        vm.$toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail:
-            "Insufficient clearance to access " +
-            error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
-            ". Please contact an admin to change your account security clearance if you require access to this resource."
-        });
-        vm.$router.push({ name: "AccessDenied" });
-      } else {
-        vm.$toast.add({
-          severity: "warn",
-          summary: "Warning",
-          detail:
-            "Request for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + " was unsuccessful. " + error.response.data.message + ".",
-          life: 4000
-        });
-        console.warn(
-          error.config.url +
-            " :" +
-            "\n\t" +
-            "Status: " +
-            error.response.data.status +
-            "\n\t" +
-            "Code: " +
-            error.response.data.code +
-            "\n\t" +
-            "Timestamp: " +
-            error.response.data.timestamp +
-            "\n\t" +
-            "Message: " +
-            error.response.data.message
-        );
-      }
-    } else {
+    if (error.response.status === 403) {
       vm.$toast.add({
         severity: "error",
-        summary: "Request error",
-        detail: "Request for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + " was unsuccessful. " + error.response.data.message + ".",
-        life: 4000
+        summary: "Access denied",
+        detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
       });
-      console.error(
-        error.config.url +
-          " :" +
-          "\n\t" +
-          "Status: " +
-          error.response.data.status +
-          "\n\t" +
-          "Code: " +
-          error.response.data.code +
-          "\n\t" +
-          "Timestamp: " +
-          error.response.data.timestamp +
-          "\n\t" +
-          "Message: " +
-          error.response.data.message
-      );
+      window.location.href = Env.AUTH_URL + "login?returnUrl=" + vm.$route.fullPath;
+    } else if (error.response.status === 401) {
+      vm.$toast.add({
+        severity: "error",
+        summary: "Access denied",
+        detail:
+          "Insufficient clearance to access " +
+          error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
+          ". Please contact an admin to change your account security clearance if you require access to this resource."
+      });
+      vm.$router.push({ name: "AccessDenied" }).then();
+    } else {
+      return Promise.reject(error);
     }
   }
 );

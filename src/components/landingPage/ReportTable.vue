@@ -26,7 +26,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
 import { Helpers, Vocabulary } from "im-library";
-const { RDFS, OWL } = Vocabulary;
+const { RDFS, IM } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
@@ -42,8 +42,7 @@ export default defineComponent({
   computed: {
     isCorrectInputData(): boolean {
       return this.inputData.every(item => {
-        if (isObjectHasKeys(item, [RDFS.LABEL, OWL.HAS_VALUE]) || isObjectHasKeys(item, ["count", "label"])) return true;
-        else return false;
+        return !!(isObjectHasKeys(item, [RDFS.LABEL, IM.HAS_VALUE]) || isObjectHasKeys(item, ["count", "label"]));
       });
     }
   },
@@ -61,10 +60,10 @@ export default defineComponent({
       if (!this.isCorrectInputData) return;
       this.loading = true;
       for (const entry of this.inputData) {
-        if (isObjectHasKeys(entry, [RDFS.LABEL, OWL.HAS_VALUE])) {
+        if (isObjectHasKeys(entry, [RDFS.LABEL, IM.HAS_VALUE])) {
           this.tableData.push({
             label: entry[RDFS.LABEL],
-            count: +entry[OWL.HAS_VALUE]
+            count: +entry[IM.HAS_VALUE]
           });
         }
         if (isObjectHasKeys(entry, ["label", "count"])) {

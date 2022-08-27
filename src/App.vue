@@ -9,6 +9,13 @@
           <div id="topbar-content-container">
             <Search />
             <Button class="ecl-search-button" label="Ecl Search" @click="toEclSearch" />
+            <Button
+                v-if="isLoggedIn && currentUser && currentUser.roles.includes('IMAdmin')"
+                icon="pi pi-cog"
+                class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
+                @click="openAdminMenu"
+            />
+            <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
           </div>
         </template>
       </TopBar>
@@ -26,10 +33,12 @@
 import { defineComponent } from "vue";
 import Search from "@/components/topbar/Search.vue";
 import ReleaseNotes from '@/components/releaseNotes/ReleaseNotes.vue';
+import {mapState} from 'vuex';
 
 export default defineComponent({
   name: "App",
   components: { ReleaseNotes, Search },
+  computed: mapState(["currentUser", "isLoggedIn"]),
   async mounted() {
     // check for user and log them in if found or logout if not
     this.loading = true;
@@ -46,6 +55,27 @@ export default defineComponent({
   methods: {
     toEclSearch() {
       this.$router.push({ name: "EclSearch" });
+    },
+    openAdminMenu(event: any): void {
+      (this.$refs.adminMenu as any).toggle(event);
+    },
+    getAdminItems(): any[] {
+      return [
+        {
+          label: "Download changes",
+          icon: "fa-solid fa-fw fa-cloud-arrow-down",
+          command: () => this.downloadChanges()
+        }
+      ];
+    },
+    async downloadChanges() {
+      this.$toast.add({ severity: 'info', summary: 'Preparing download', detail: 'Zipping delta files for download...', life: 3000 })
+      let blob = (await this.$filerService.downloadDeltas());
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = 'deltas.zip';
+      link.click();
     }
   }
 });

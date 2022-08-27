@@ -123,12 +123,12 @@ export default defineComponent({
     },
 
     resetSortField() {
-      this.selectedSortField = undefined;
-      this.selectedSortDirection = undefined;
+      this.selectedSortField = this.filterDefaults.sortField;
+      this.selectedSortDirection = this.filterDefaults.sortDirection;
     },
 
     resetSortDirection() {
-      this.selectedSortDirection = undefined;
+      this.selectedSortDirection = this.filterDefaults.sortDirection;
     },
 
     resetStatus() {
@@ -163,6 +163,8 @@ export default defineComponent({
         this.selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.filterDefaults.statusOptions.includes(item["@id"]));
         this.selectedSchemes = this.filterOptions.schemes.filter((item: Namespace) => this.filterDefaults.schemeOptions.includes(item.iri));
         this.selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.filterDefaults.typeOptions.includes(item["@id"]));
+        this.selectedSortField = this.filterDefaults.sortField;
+        this.selectedSortDirection = this.filterDefaults.sortDirection;
         this.updateStoreSelectedFilters();
       } else {
         this.selectedStatus = this.selectedFilters.status;
