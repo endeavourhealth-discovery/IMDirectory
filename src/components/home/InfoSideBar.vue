@@ -24,14 +24,14 @@
                 <Definition :concept="concept" :configs="configs" />
               </div>
             </TabPanel>
-            <TabPanel v-if="terms" header="Terms">
-              <div class="concept-panel-content" id="term-table-container">
-                <TermCodeTable :terms="terms" />
-              </div>
-            </TabPanel>
             <TabPanel header="Hierarchy position">
               <div class="concept-panel-content" id="secondary-tree-container">
                 <SecondaryTree :conceptIri="selectedConceptIri" />
+              </div>
+            </TabPanel>
+            <TabPanel v-if="terms" header="Terms">
+              <div class="concept-panel-content" id="term-table-container">
+                <TermCodeTable :terms="terms" />
               </div>
             </TabPanel>
           </TabView>
@@ -83,7 +83,7 @@ export default defineComponent({
       if (this.selectedConceptIri) await this.init();
     },
     async locateOnNavTreeIri() {
-      this.activeTab = (this.terms) ? 2 : 1;
+      this.activeTab = 1;
     }
   },
   async mounted() {
