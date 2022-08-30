@@ -410,6 +410,7 @@ export default defineComponent({
         await this.onNodeExpand(node);
       }
       this.expandedKeys[node.key] = true;
+      this.expandedKeys = { ...this.expandedKeys };
     },
 
     scrollToHighlighted() {
