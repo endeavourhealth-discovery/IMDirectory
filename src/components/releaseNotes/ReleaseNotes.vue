@@ -31,8 +31,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    console.log("mounted");
-    const lastVer = localStorage.getItem("IMVersion");
+    const lastVer = window.localStorage.getItem("IMVersion");
     if (!lastVer || +lastVer < this.release.version) {
       this.showRelNotes = true;
     }
