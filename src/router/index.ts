@@ -1,11 +1,9 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import axios from "axios";
 import Home from "../views/Home.vue";
 import Directory from "../views/Directory.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
 import EclSearch from "../views/EclSearch.vue";
-import QuickQuery from "../views/QuickQuery.vue";
 import { AccessDenied, PageNotFound, SnomedLicense, Services, EntityNotFound, Helpers } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
@@ -57,11 +55,6 @@ const routes: Array<RouteRecordRaw> = [
         }
       }
     ]
-  },
-  {
-    path: "/quickQuery",
-    name: "QuickQuery",
-    component: QuickQuery
   },
   {
     path: "/snomedLicense",
