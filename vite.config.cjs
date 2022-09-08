@@ -30,6 +30,13 @@ export default defineConfig({
     },
     server: {
         proxy: {
+            '/nodeapi': {
+                target: 'http://localhost:3000',
+                changeOrigin: true,
+                secure: false,
+                ws: true,
+                rewrite: (p) => p.replace(/^\/nodeapi/, '')
+            },
             '/imapi': {
                 target: 'http://localhost:8080',
                 changeOrigin: true,
