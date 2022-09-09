@@ -31,14 +31,14 @@ export default defineConfig({
     server: {
         proxy: {
             '/nodeapi': {
-                target: 'http://localhost:3000',
+                target: 'http://127.0.0.1:3000',
                 changeOrigin: true,
                 secure: false,
                 ws: true,
                 rewrite: (p) => p.replace(/^\/nodeapi/, '')
             },
             '/imapi': {
-                target: 'http://localhost:8080',
+                target: 'http://127.0.0.1:8080',
                 changeOrigin: true,
                 secure: false,
                 ws: true,
