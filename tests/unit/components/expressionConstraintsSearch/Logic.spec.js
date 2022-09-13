@@ -2,98 +2,117 @@ import Logic from "@/components/eclSearch/builder/Logic.vue";
 import { shallowMount } from "@vue/test-utils";
 import Dropdown from "primevue/dropdown";
 import { Enums } from "im-library";
+import { describe } from "vitest";
+import { setupServer } from "msw/node";
 const { ECLComponent } = Enums;
 
-describe("Logic.vue ___ value", () => {
-  let wrapper;
+describe("Logic.vue", () => {
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
 
-  beforeEach(() => {
-    vi.resetAllMocks();
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
 
-    const warn = console.warn;
-    console.warn = vi.fn();
-    wrapper = shallowMount(Logic, {
-      props: { id: "logic_1", showButtons: { minus: true, plus: true }, position: 1, value: { data: "OR", parentGroup: ECLComponent.BUILDER } },
-      global: { components: { Dropdown } }
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
+
+  describe("value", () => {
+    let wrapper;
+
+    beforeEach(() => {
+      vi.resetAllMocks();
+
+      const warn = console.warn;
+      console.warn = vi.fn();
+      wrapper = shallowMount(Logic, {
+        props: { id: "logic_1", showButtons: { minus: true, plus: true }, position: 1, value: { data: "OR", parentGroup: ECLComponent.BUILDER } },
+        global: { components: { Dropdown } }
+      });
+      console.warn = warn;
     });
-    console.warn = warn;
-  });
 
-  it("mounts", () => {
-    expect(wrapper.vm.options).toStrictEqual(["AND", "OR", "MINUS"]);
-    expect(wrapper.vm.selected).toBe("OR");
-    expect(wrapper.vm.id).toBe("logic_1");
-    expect(wrapper.vm.position).toBe(1);
-    expect(wrapper.vm.showButtons).toStrictEqual({ minus: true, plus: true });
-    expect(wrapper.vm.value).toStrictEqual({ data: "OR", parentGroup: ECLComponent.BUILDER });
-  });
-
-  it("handles onConfirm", async () => {
-    wrapper.vm.onConfirm();
-    await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().updateClicked).toBeTruthy();
-    expect(wrapper.emitted().updateClicked[0]).toStrictEqual([
-      {
-        id: "logic_1",
-        queryString: "OR",
-        position: 1,
-        type: "Logic",
-        value: { data: "OR", parentGroup: ECLComponent.BUILDER },
-        showButtons: { minus: true, plus: true }
-      }
-    ]);
-  });
-
-  it("handles deleteClicked", async () => {
-    wrapper.vm.deleteClicked();
-    await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().deleteClicked).toBeTruthy();
-    expect(wrapper.emitted().deleteClicked[0]).toStrictEqual([
-      {
-        id: "logic_1",
-        queryString: "OR",
-        position: 1,
-        type: "Logic",
-        value: { data: "OR", parentGroup: ECLComponent.BUILDER },
-        showButtons: { minus: true, plus: true }
-      }
-    ]);
-  });
-
-  it("handles addNextClicked", async () => {
-    wrapper.vm.addNextClicked(ECLComponent.FOCUS_CONCEPT);
-    await wrapper.vm.$nextTick();
-    expect(wrapper.emitted().addNextOptionsClicked).toBeTruthy();
-    expect(wrapper.emitted().addNextOptionsClicked[0]).toStrictEqual([
-      {
-        position: 2,
-        selectedType: ECLComponent.FOCUS_CONCEPT
-      }
-    ]);
-  });
-});
-
-describe("Logic.vue ___ no value", () => {
-  let wrapper;
-
-  beforeEach(() => {
-    vi.resetAllMocks();
-
-    const warn = console.warn;
-    console.warn = vi.fn();
-    wrapper = shallowMount(Logic, {
-      props: { id: "logic_1", showButtons: { minus: true, plus: true }, position: 1, value: { data: undefined, parentGroup: ECLComponent.BUILDER } },
-      global: { components: { Dropdown } }
+    it("mounts", () => {
+      expect(wrapper.vm.options).toStrictEqual(["AND", "OR", "MINUS"]);
+      expect(wrapper.vm.selected).toBe("OR");
+      expect(wrapper.vm.id).toBe("logic_1");
+      expect(wrapper.vm.position).toBe(1);
+      expect(wrapper.vm.showButtons).toStrictEqual({ minus: true, plus: true });
+      expect(wrapper.vm.value).toStrictEqual({ data: "OR", parentGroup: ECLComponent.BUILDER });
     });
-    console.warn = warn;
+
+    it("handles onConfirm", async () => {
+      wrapper.vm.onConfirm();
+      await wrapper.vm.$nextTick();
+      expect(wrapper.emitted().updateClicked).toBeTruthy();
+      expect(wrapper.emitted().updateClicked[0]).toStrictEqual([
+        {
+          id: "logic_1",
+          queryString: "OR",
+          position: 1,
+          type: "Logic",
+          value: { data: "OR", parentGroup: ECLComponent.BUILDER },
+          showButtons: { minus: true, plus: true }
+        }
+      ]);
+    });
+
+    it("handles deleteClicked", async () => {
+      wrapper.vm.deleteClicked();
+      await wrapper.vm.$nextTick();
+      expect(wrapper.emitted().deleteClicked).toBeTruthy();
+      expect(wrapper.emitted().deleteClicked[0]).toStrictEqual([
+        {
+          id: "logic_1",
+          queryString: "OR",
+          position: 1,
+          type: "Logic",
+          value: { data: "OR", parentGroup: ECLComponent.BUILDER },
+          showButtons: { minus: true, plus: true }
+        }
+      ]);
+    });
+
+    it("handles addNextClicked", async () => {
+      wrapper.vm.addNextClicked(ECLComponent.FOCUS_CONCEPT);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.emitted().addNextOptionsClicked).toBeTruthy();
+      expect(wrapper.emitted().addNextOptionsClicked[0]).toStrictEqual([
+        {
+          position: 2,
+          selectedType: ECLComponent.FOCUS_CONCEPT
+        }
+      ]);
+    });
   });
 
-  it("mounts", () => {
-    expect(wrapper.vm.options).toStrictEqual(["AND", "OR", "MINUS"]);
-    expect(wrapper.vm.selected).toBe("AND");
-    expect(wrapper.vm.id).toBe("logic_1");
-    expect(wrapper.vm.position).toBe(1);
-    expect(wrapper.vm.showButtons).toStrictEqual({ minus: true, plus: true });
-    expect(wrapper.vm.value).toStrictEqual({ data: undefined, parentGroup: ECLComponent.BUILDER });
+  describe("no value", () => {
+    let wrapper;
+
+    beforeEach(() => {
+      vi.resetAllMocks();
+
+      const warn = console.warn;
+      console.warn = vi.fn();
+      wrapper = shallowMount(Logic, {
+        props: { id: "logic_1", showButtons: { minus: true, plus: true }, position: 1, value: { data: undefined, parentGroup: ECLComponent.BUILDER } },
+        global: { components: { Dropdown } }
+      });
+      console.warn = warn;
+    });
+
+    it("mounts", () => {
+      expect(wrapper.vm.options).toStrictEqual(["AND", "OR", "MINUS"]);
+      expect(wrapper.vm.selected).toBe("AND");
+      expect(wrapper.vm.id).toBe("logic_1");
+      expect(wrapper.vm.position).toBe(1);
+      expect(wrapper.vm.showButtons).toStrictEqual({ minus: true, plus: true });
+      expect(wrapper.vm.value).toStrictEqual({ data: undefined, parentGroup: ECLComponent.BUILDER });
+    });
   });
 });

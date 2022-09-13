@@ -8,10 +8,11 @@ import Tooltip from "primevue/tooltip";
 import ContextMenu from "primevue/contextmenu";
 import VueClipboard from "vue3-clipboard";
 import Button from "primevue/button";
+import { setupServer } from "msw/node";
 
 Object.assign(navigator, {
   clipboard: {
-    writeText: () => { }
+    writeText: () => {}
   }
 });
 
@@ -50,8 +51,23 @@ describe("SearchResults.vue", () => {
     "http://www.w3.org/2002/07/owl#someValuesFrom": "With a value",
     "http://www.w3.org/ns/shacl#class": "Type",
     "http://www.w3.org/ns/shacl#datatype": "Type",
-    "http://www.w3.org/ns/shacl#path": "Property",
+    "http://www.w3.org/ns/shacl#path": "Property"
   };
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(async () => {
     vi.resetAllMocks();
@@ -65,7 +81,7 @@ describe("SearchResults.vue", () => {
     mockToast = {
       add: vi.fn()
     };
-    mockRef = { render: () => { }, methods: { show: vi.fn(), hide: vi.fn() } };
+    mockRef = { render: () => {}, methods: { show: vi.fn(), hide: vi.fn() } };
     docSpy = vi.spyOn(document, "getElementById");
     docSpy.mockReturnValue(undefined);
 

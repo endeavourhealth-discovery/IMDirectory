@@ -4,10 +4,26 @@ import { Enums } from "im-library";
 const { ECLComponent } = Enums;
 import Button from "primevue/button";
 import { vi } from "vitest";
+import { setupServer } from "msw/node";
 
 describe("AddDeleteButtons.vue", () => {
   let wrapper;
   let mockRef;
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(() => {
     vi.resetAllMocks();

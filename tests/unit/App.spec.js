@@ -7,10 +7,26 @@ import Button from "primevue/button";
 import Menu from "primevue/menu";
 import TopBar from "im-library";
 import { expect, vi } from "vitest";
+import { setupServer } from "msw/node";
 
 describe("App.vue", () => {
   let wrapper;
   let mockStore;
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(async () => {
     vi.resetAllMocks();

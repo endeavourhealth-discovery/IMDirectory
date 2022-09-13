@@ -9,10 +9,25 @@ import store from "@/store/index";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import TopBar from "im-library";
 import { vi } from "vitest";
+import { setupServer } from "msw/node";
 
 vi.mock("@/main");
 
 describe("router", () => {
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
   beforeEach(() => {
     console.log = vi.fn();
   });

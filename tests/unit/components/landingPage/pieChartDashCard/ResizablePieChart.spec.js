@@ -4,6 +4,7 @@ import Card from "primevue/card";
 import Chart from "primevue/chart";
 import ProgressSpinner from "primevue/progressspinner";
 import { Models } from "im-library";
+import { setupServer } from "msw/node";
 const { PieChartData } = Models;
 
 describe("ResizablePieChart.vue", () => {
@@ -31,6 +32,21 @@ describe("ResizablePieChart.vue", () => {
     { "http://www.w3.org/2002/07/owl#hasValue": 2, "http://www.w3.org/2000/01/rdf-schema#label": "Reflexive property" },
     { "http://www.w3.org/2002/07/owl#hasValue": 1, "http://www.w3.org/2000/01/rdf-schema#label": "Query template" }
   ];
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -96,21 +112,8 @@ describe("ResizablePieChart.vue", () => {
           ],
           borderRadius: 1,
           data: [
-            680405.1187499999,
-            67617.9,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
-            6339.178124999999,
+            680405.1187499999, 67617.9, 6339.178124999999, 6339.178124999999, 6339.178124999999, 6339.178124999999, 6339.178124999999, 6339.178124999999,
+            6339.178124999999, 6339.178124999999, 6339.178124999999, 6339.178124999999, 6339.178124999999, 6339.178124999999, 6339.178124999999,
             6339.178124999999
           ],
           hoverBackgroundColor: [
@@ -169,22 +172,22 @@ describe("ResizablePieChart.vue", () => {
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.chartConceptTypes).toEqual(testChartConceptType);
     expect(wrapper.vm.realData).toStrictEqual({
-      "0": 1030354,
-      "1": 93282,
-      "2": 1811,
-      "3": 1122,
-      "4": 99,
-      "5": 94,
-      "6": 68,
-      "7": 45,
-      "8": 26,
-      "9": 23,
-      "10": 11,
-      "11": 11,
-      "12": 8,
-      "13": 8,
-      "14": 2,
-      "15": 1
+      0: 1030354,
+      1: 93282,
+      2: 1811,
+      3: 1122,
+      4: 99,
+      5: 94,
+      6: 68,
+      7: 45,
+      8: 26,
+      9: 23,
+      10: 11,
+      11: 11,
+      12: 8,
+      13: 8,
+      14: 2,
+      15: 1
     });
   });
 
@@ -318,12 +321,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 40,
           fontSize: 12
         },
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "default";
         }
       }
@@ -342,12 +345,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 20,
           fontSize: 10
         },
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "default";
         }
       }
@@ -366,12 +369,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 10,
           fontSize: 8
         },
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "default";
         }
       }
@@ -390,12 +393,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 40,
           fontSize: 8
         },
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "default";
         }
       }
@@ -414,12 +417,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 20,
           fontSize: 6
         },
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "default";
         }
       }
@@ -438,12 +441,12 @@ describe("ResizablePieChart.vue", () => {
           boxWidth: 10,
           fontSize: 4
         },
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "pointer";
         }
       },
       hover: {
-        onHover: function(e) {
+        onHover: function (e) {
           e.target.style.cursor = "default";
         }
       }
