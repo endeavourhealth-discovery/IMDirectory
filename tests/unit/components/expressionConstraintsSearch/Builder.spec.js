@@ -5,6 +5,7 @@ import { shallowMount, flushPromises } from "@vue/test-utils";
 import Tooltip from "primevue/tooltip";
 import { Enums } from "im-library";
 import { vi } from "vitest";
+import { setupServer } from "msw/node";
 const { ECLComponent } = Enums;
 
 describe("Builder.vue", () => {
@@ -12,6 +13,21 @@ describe("Builder.vue", () => {
   let mockToast;
   let docSpy;
   let mockLoggerService;
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(async () => {
     vi.resetAllMocks();

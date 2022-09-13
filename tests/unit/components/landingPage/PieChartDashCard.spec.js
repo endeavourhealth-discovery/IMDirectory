@@ -1,6 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
 import Card from "primevue/card";
+import { setupServer } from "msw/node";
 
 describe("PieChartDashCard.vue", () => {
   let wrapper;
@@ -26,6 +27,21 @@ describe("PieChartDashCard.vue", () => {
     { "http://www.w3.org/2002/07/owl#hasValue": 2, "http://www.w3.org/2000/01/rdf-schema#label": "Reflexive property" },
     { "http://www.w3.org/2002/07/owl#hasValue": 1, "http://www.w3.org/2000/01/rdf-schema#label": "Query template" }
   ];
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(async () => {
     vi.clearAllMocks();

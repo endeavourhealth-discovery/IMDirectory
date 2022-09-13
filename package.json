@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm link im-library && vite --port 8082",
+    "dev:mocked": "npm link im-library && vite --mode mock  --port 8082 ",
     "preview": "vite preview --port 8082",
     "build": "vite build",
     "test:unit": "cross-env NODE_OPTIONS=\"--experimental-specifier-resolution=node\" vitest",
@@ -28,6 +29,7 @@
     "core-js": "3.23.1",
     "google-palette": "1.1.0",
     "im-library": "https://endeavour-codebuild-output.s3.eu-west-2.amazonaws.com/im-library-1.0.0.tgz",
+    "msw": "^0.47.2",
     "path": "0.12.7",
     "primeflex": "3.2.1",
     "primeicons": "5.0.0",
@@ -63,5 +65,8 @@
     "typescript": "4.7.4",
     "vite": "2.9.13",
     "vitest": "0.15.1"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

@@ -3,12 +3,28 @@ import { beforeEach, describe, expect, it } from "vitest";
 import Home from "@/views/Home.vue";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
+import { setupServer } from "msw/node";
 
 vi.mock("@/main");
 
 describe("Home.vue", () => {
   let wrapper;
   let mockStore;
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(() => {
     mockStore = {

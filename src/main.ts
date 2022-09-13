@@ -1,9 +1,10 @@
-import {createApp, Plugin} from 'vue';
+import { createApp, Plugin } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
+import { worker } from "./mocks/browser";
 
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
@@ -85,7 +86,7 @@ import axios from "axios";
 // IMLibrary imports
 import "im-library/dist/style.css";
 import IMLibrary, { Helpers, Services } from "im-library";
-import {ComponentPublicInstance} from '@vue/runtime-core';
+import { ComponentPublicInstance } from "@vue/runtime-core";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
@@ -99,6 +100,11 @@ const filerService = new FilerService(axios);
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
+
+// msw initialising
+if (import.meta.env.MODE === "mock") {
+  worker.start();
+}
 
 const app = createApp(App)
   .use(store)
@@ -186,10 +192,10 @@ app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | nu
     detail: err,
     life: 3000
   });
-}
+};
 
 // Vue external exceptions (e.g. Axios)
-window.addEventListener('unhandledrejection', e => {
+window.addEventListener("unhandledrejection", e => {
   e.preventDefault();
   console.error(e);
   if (e.reason?.response?.data?.title)
@@ -217,8 +223,7 @@ window.addEventListener('unhandledrejection', e => {
 
 axios.interceptors.request.use(async request => {
   if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
-    if (!request.headers)
-      request.headers = {};
+    if (!request.headers) request.headers = {};
 
     request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
   }

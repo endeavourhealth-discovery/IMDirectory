@@ -8,6 +8,7 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import { mount } from "@vue/test-utils";
+import { setupServer } from "msw/node";
 
 vi.mock("@/main");
 
@@ -17,6 +18,21 @@ describe("LandingPage.vue", () => {
   let mockConfigService;
   let mockDirectService;
   let mockEntityService;
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(() => {
     mockStore = {
@@ -143,7 +159,7 @@ describe("LandingPage.vue", () => {
       ])
     };
     let mockLoggerService = {
-        error: vi.fn()
+      error: vi.fn()
     };
 
     mockDirectService = { directTo: vi.fn() };
@@ -151,18 +167,21 @@ describe("LandingPage.vue", () => {
     wrapper = mount(LandingPage, {
       global: {
         components: { ProgressSpinner, Card, DataTable, Column, Button, Chart },
-        mocks: { $store: mockStore, $configService: mockConfigService, $directService: mockDirectService, $entityService: mockEntityService, $loggerService: mockLoggerService },
+        mocks: {
+          $store: mockStore,
+          $configService: mockConfigService,
+          $directService: mockDirectService,
+          $entityService: mockEntityService,
+          $loggerService: mockLoggerService
+        },
         directives: { Tooltip: Tooltip }
       }
     });
 
     wrapper.vm.$env = {
-        VIEWER_URL: "/",
-        EDITOR_URL: "/"
-    }
-
-
-
+      VIEWER_URL: "/",
+      EDITOR_URL: "/"
+    };
   });
 
   it("mounts", () => {

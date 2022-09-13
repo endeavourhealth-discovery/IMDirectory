@@ -2,7 +2,8 @@ import store from "@/store/index";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
 import { Config, Models } from "im-library";
-import { vi } from "vitest";
+import { describe, vi } from "vitest";
+import { setupServer } from "msw/node";
 const { User, CustomAlert } = Models;
 
 vi.mock("@/main", () => {
@@ -198,6 +199,23 @@ describe("mutations", () => {
     expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
     expect(store.state.searchResults).toEqual([]);
+  });
+});
+
+describe("actions", () => {
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
   });
 
   it("can fetchSearchResults ___ failed", async () => {

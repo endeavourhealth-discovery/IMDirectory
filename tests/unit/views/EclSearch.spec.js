@@ -3,6 +3,7 @@ import { flushPromises, shallowMount } from "@vue/test-utils";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
+import { setupServer } from "msw/node";
 
 describe("EclSearch.vue", () => {
   let wrapper;
@@ -12,6 +13,21 @@ describe("EclSearch.vue", () => {
   let mockLoggerService;
   let docSpy;
   let windowSpy;
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   const SEARCH_RESULTS = {
     page: 1,

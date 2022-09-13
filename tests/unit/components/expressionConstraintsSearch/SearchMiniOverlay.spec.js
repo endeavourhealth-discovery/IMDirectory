@@ -4,6 +4,7 @@ import Column from "primevue/column";
 import OverlayPanel from "primevue/overlaypanel";
 import { mount } from "@vue/test-utils";
 import { Vocabulary } from "im-library";
+import { setupServer } from "msw/node";
 const { IM } = Vocabulary;
 
 describe("SearchMiniOverlay.vue", () => {
@@ -55,6 +56,21 @@ describe("SearchMiniOverlay.vue", () => {
       match: "GF Products"
     }
   ];
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(async () => {
     vi.resetAllMocks();

@@ -4,9 +4,25 @@ import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
+import { setupServer } from "msw/node";
 
 describe("TermsTable.vue", () => {
   let wrapper;
+
+  const restHandlers = [];
+  const server = setupServer(...restHandlers);
+
+  beforeAll(() => {
+    server.listen({ onUnhandledRequest: "error" });
+  });
+
+  afterAll(() => {
+    server.close();
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
   beforeEach(() => {
     wrapper = mount(TermsTable, {
