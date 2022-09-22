@@ -27,9 +27,9 @@
               :position="item.position"
               :showButtons="item.showButtons"
               @deleteClicked="deleteItem"
-              @addClicked="addItem"
-              @updateClicked="updateItem"
-              @addNextOptionsClicked="addItem"
+              @addClicked="addItemWrapper"
+              @updateClicked="updateItemWrapper"
+              @addNextOptionsClicked="addItemWrapper"
             >
             </component>
           </template>
@@ -57,110 +57,106 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+export default defineComponent({
+  components: { Logic, RefinementGroup, FocusConcept }
+});
+</script>
+
+<script setup lang="ts">
+import { defineComponent, onMounted, Ref, ref, watch } from "vue";
 import Logic from "@/components/eclSearch/builder/Logic.vue";
 import RefinementGroup from "@/components/eclSearch/builder/RefinementGroup.vue";
 import FocusConcept from "@/components/eclSearch/builder/FocusConcept.vue";
-import { Enums, Helpers } from "im-library";
+import { Enums, Helpers, Services } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
+import { useToast } from "primevue/usetoast";
 const {
   Sorters: { byPosition },
   EclSearchBuilderMethods: { generateNewComponent, addItem, updateItem, updatePositions }
 } = Helpers;
 const { ECLComponent } = Enums;
+const { LoggerService } = Services;
 
-export default defineComponent({
-  name: "Builder",
-  components: {
-    Logic,
-    RefinementGroup,
-    FocusConcept
-  },
-  props: { showDialog: Boolean },
-  emits: {
-    ECLSubmitted: (_payload: string) => true,
-    closeDialog: () => true
-  },
-  watch: {
-    queryBuild: {
-      handler() {
-        this.queryBuild.sort(byPosition);
-        this.generateQueryString();
-      },
-      deep: true
-    }
-  },
-  mounted() {
-    this.setStartBuild();
-  },
-  data() {
-    return {
-      queryString: "",
-      queryBuild: [] as ECLComponentDetails[]
-    };
-  },
-  methods: {
-    submit(): void {
-      this.$emit("ECLSubmitted", this.queryString);
-    },
-
-    closeBuilderDialog(): void {
-      this.$emit("closeDialog");
-    },
-
-    addItem(data: { selectedType: Enums.ECLComponent; position: number; value: any }): void {
-      if (data.selectedType === ECLComponent.LOGIC) {
-        data.value = { data: data.value, parentGroup: ECLComponent.BUILDER };
-      }
-      addItem(data, this.queryBuild, { minus: true, plus: true });
-    },
-
-    generateQueryString(): void {
-      this.queryString = this.queryBuild
-        .map(item => {
-          if (item.type === ECLComponent.LOGIC) {
-            return item.queryString + "\n";
-          } else {
-            return item.queryString;
-          }
-        })
-        .join(" ")
-        .replace(/\n +/g, "\n");
-    },
-
-    deleteItem(data: ECLComponentDetails): void {
-      const index = this.queryBuild.findIndex(item => item.position === data.position);
-      this.queryBuild.splice(index, 1);
-      const length = this.queryBuild.length;
-      if (length === 0) {
-        this.setStartBuild();
-        return;
-      }
-      updatePositions(this.queryBuild);
-    },
-
-    updateItem(data: ECLComponentDetails): void {
-      updateItem(data, this.queryBuild);
-    },
-
-    setStartBuild(): void {
-      this.queryBuild = [];
-      this.queryBuild.push(generateNewComponent(ECLComponent.FOCUS_CONCEPT, 0, null, { minus: false, plus: true }));
-    },
-
-    copyToClipboard(): string {
-      return this.queryString;
-    },
-
-    onCopy(): void {
-      this.$toast.add(this.$loggerService.success("Value copied to clipboard"));
-    },
-
-    onCopyError(): void {
-      this.$toast.add(this.$loggerService.error("Failed to copy value to clipboard"));
-    }
-  }
+const props = defineProps({
+  showDialog: Boolean
 });
+
+const emit = defineEmits({
+  ECLSubmitted: (_payload: string) => true,
+  closeDialog: () => true
+});
+
+const toast = useToast();
+
+const queryString = ref("");
+const queryBuild: Ref<ECLComponentDetails[]> = ref([]);
+
+watch(queryBuild, () => {
+  queryBuild.value.sort(byPosition);
+  generateQueryString();
+});
+
+onMounted(() => setStartBuild());
+
+function submit(): void {
+  emit("ECLSubmitted", queryString.value);
+}
+
+function closeBuilderDialog(): void {
+  emit("closeDialog");
+}
+
+function addItemWrapper(data: { selectedType: Enums.ECLComponent; position: number; value: any }): void {
+  if (data.selectedType === ECLComponent.LOGIC) {
+    data.value = { data: data.value, parentGroup: ECLComponent.BUILDER };
+  }
+  addItem(data, queryBuild.value, { minus: true, plus: true });
+}
+
+function generateQueryString(): void {
+  queryString.value = queryBuild.value
+    .map(item => {
+      if (item.type === ECLComponent.LOGIC) {
+        return item.queryString + "\n";
+      } else {
+        return item.queryString;
+      }
+    })
+    .join(" ")
+    .replace(/\n +/g, "\n");
+}
+
+function deleteItem(data: ECLComponentDetails): void {
+  const index = queryBuild.value.findIndex(item => item.position === data.position);
+  queryBuild.value.splice(index, 1);
+  const length = queryBuild.value.length;
+  if (length === 0) {
+    setStartBuild();
+    return;
+  }
+  updatePositions(queryBuild.value);
+}
+
+function updateItemWrapper(data: ECLComponentDetails): void {
+  updateItem(data, queryBuild.value);
+}
+
+function setStartBuild(): void {
+  queryBuild.value = [];
+  queryBuild.value.push(generateNewComponent(ECLComponent.FOCUS_CONCEPT, 0, null, { minus: false, plus: true }));
+}
+
+function copyToClipboard(): string {
+  return queryString.value;
+}
+
+function onCopy(): void {
+  toast.add(LoggerService.success("Value copied to clipboard"));
+}
+
+function onCopyError(): void {
+  toast.add(LoggerService.error("Failed to copy value to clipboard"));
+}
 </script>
 
 <style scoped>

@@ -119,243 +119,248 @@
         </template>
       </Column>
     </DataTable>
-    <ContextMenu :model="rClickOptions" ref="cm" />
+    <ContextMenu :model="rClickOptions" ref="contextMenu" />
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { mapState } from "vuex";
-import { Helpers, Models } from "im-library";
+<script setup lang="ts">
+import { computed, defineComponent, onMounted, ref, Ref, watch } from "vue";
+import { mapState, useStore } from "vuex";
+import _ from "lodash";
+import { Helpers, Models, Services } from "im-library";
 import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
+import Chips from "primevue/chips";
+import axios from "axios";
+import { useRouter } from "vue-router";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
+const { DirectService, Env } = Services;
 
-export default defineComponent({
-  name: "SearchResultsTable",
-  computed: {
-    ...mapState(["searchLoading", "filterOptions", "selectedFilters", "searchResults", "favourites", "filterDefaults"]),
+const emit = defineEmits({
+  openBar: () => true
+});
 
-    isLoading() {
-      if (this.loading || this.searchLoading) return true;
-      else return false;
-    }
+const router = useRouter();
+const store = useStore();
+const searchLoading = computed(() => store.state.searchLoading);
+const filterDefaults = computed(() => store.state.filterDefaults);
+const filterOptions = computed(() => store.state.filterOptions);
+const selectedFilters = computed(() => store.state.selectedFilters);
+const searchResults = computed(() => store.state.searchResults);
+const favourites = computed(() => store.state.favourites);
+
+const directService = new DirectService(axios);
+
+let selectedSchemes: Ref<string[]> = ref([]);
+let selectedStatus: Ref<string[]> = ref([]);
+let selectedTypes: Ref<string[]> = ref([]);
+let schemeOptions: Ref<string[]> = ref([]);
+let statusOptions: Ref<string[]> = ref([]);
+let typeOptions: Ref<string[]> = ref([]);
+let localSearchResults: Ref<any[]> = ref([]);
+let loading = ref(true);
+let selected: Ref<any> = ref({});
+let rClickOptions: Ref<any[]> = ref([
+  {
+    label: "Open",
+    icon: "pi pi-fw pi-folder-open",
+    command: () => open()
   },
-  watch: {
-    searchResults() {
-      this.init();
-    },
-    chips() {
-      this.filterResults();
-    }
+  {
+    label: "View",
+    icon: "pi pi-fw pi-eye",
+    command: () => view()
   },
-  mounted() {
-    this.init();
+  {
+    label: "Info",
+    icon: "pi pi-fw pi-info-circle",
+    command: () => showInfo()
   },
-  data() {
-    return {
-      selectedSchemes: [] as string[],
-      selectedStatus: [] as string[],
-      selectedTypes: [] as string[],
-      schemeOptions: [] as string[],
-      statusOptions: [] as string[],
-      typeOptions: [] as string[],
-      localSearchResults: [] as any[],
-      loading: true,
-      selected: {} as any,
-      rClickOptions: [
-        {
-          label: "Open",
-          icon: "pi pi-fw pi-folder-open",
-          command: () => this.open()
-        },
-        {
-          label: "View",
-          icon: "pi pi-fw pi-eye",
-          command: () => this.view()
-        },
-        {
-          label: "Info",
-          icon: "pi pi-fw pi-info-circle",
-          command: () => this.showInfo()
-        },
-        // {
-        //   label: "Edit",
-        //   icon: "pi pi-fw pi-pencil",
-        //   command: () => this.navigateToEditor()
-        // },
-        // {
-        //   label: "Move to",
-        //   icon: "pi pi-fw pi-arrow-circle-right",
-        //   command: () => this.showInfo()
-        // },
-        {
-          separator: true
-        },
-        {
-          label: "Favourite",
-          icon: "pi pi-fw pi-star",
-          command: () => this.updateFavourites()
-        }
-      ]
-    };
+  // {
+  //   label: "Edit",
+  //   icon: "pi pi-fw pi-pencil",
+  //   command: () => this.navigateToEditor()
+  // },
+  // {
+  //   label: "Move to",
+  //   icon: "pi pi-fw pi-arrow-circle-right",
+  //   command: () => this.showInfo()
+  // },
+  {
+    separator: true
   },
-  methods: {
-    updateFavourites(row?: any) {
-      if (row) this.selected = row.data;
-      this.$store.commit("updateFavourites", this.selected.iri);
-    },
+  {
+    label: "Favourite",
+    icon: "pi pi-fw pi-star",
+    command: () => updateFavourites()
+  }
+]);
 
-    isFavourite(iri: string) {
-      if (!this.favourites.length) return false;
-      return this.favourites.includes(iri);
-    },
+const contextMenu = ref();
+const menu = ref();
 
-    init() {
-      this.loading = true;
-      this.localSearchResults = [...this.searchResults];
-      this.processSearchResults();
-      if (isArrayHasLength(this.localSearchResults)) {
-        this.setFiltersFromSearchResults();
-      } else {
-        this.setFilterDefaults();
-      }
-      this.loading = false;
-    },
+watch(
+  () => _.cloneDeep(searchResults.value),
+  () => init()
+);
 
-    processSearchResults() {
-      for (const result of this.localSearchResults) {
-        if (isObjectHasKeys(result, ["entityType"])) {
-          result.icon = getFAIconFromType(result.entityType);
-          result.colour = getColourFromType(result.entityType);
-          result.typeNames = getNamesAsStringFromTypes(result.entityType);
-          result.favourite = this.isFavourite(result.iri);
-        }
-      }
-    },
+onMounted(() => init());
 
-    setFilterDefaults() {
-      this.schemeOptions = this.filterOptions.schemes.map((scheme: any) => scheme.name);
-      this.typeOptions = this.filterOptions.types.map((type: any) => type.name);
-      this.statusOptions = this.filterOptions.status.map((item: any) => item.name);
-      this.selectedSchemes = this.filterOptions.schemes
-        .filter((option: any) => this.filterDefaults.schemeOptions.includes(option.iri))
-        .map((scheme: any) => scheme.name);
-      this.selectedStatus = this.filterOptions.status
-        .filter((option: any) => this.filterDefaults.statusOptions.includes(option["@id"]))
-        .map((status: any) => status.name);
-      this.selectedTypes = this.filterOptions.types
-        .filter((option: any) => this.filterDefaults.typeOptions.includes(option["@id"]))
-        .map((type: any) => type.name);
-    },
+const isLoading = computed(() => loading.value || searchLoading.value);
 
-    setFiltersFromSearchResults() {
-      const schemeOptions = [] as string[];
-      const typeOptions = [] as string[];
-      const statusOptions = [] as string[];
-      (this.localSearchResults as ConceptSummary[]).forEach(searchResult => {
-        schemeOptions.push(searchResult.scheme?.name);
-        searchResult.entityType.forEach(type => {
-          if (this.filterDefaults.typeOptions.includes(type["@id"])) typeOptions.push(type.name);
-        });
-        statusOptions.push(searchResult.status?.name);
-      });
-      this.schemeOptions = [...new Set(schemeOptions)];
-      this.typeOptions = [...new Set(typeOptions)];
-      this.statusOptions = [...new Set(statusOptions)];
+function updateFavourites(row?: any) {
+  if (row) selected.value = row.data;
+  store.commit("updateFavourites", selected.value.iri);
+}
 
-      this.selectedSchemes = [...new Set(schemeOptions)];
-      this.selectedTypes = [...new Set(typeOptions)];
-      this.selectedStatus = [...new Set(statusOptions)];
-    },
+function isFavourite(iri: string) {
+  if (!favourites.value.length) return false;
+  return favourites.value.includes(iri);
+}
 
-    showInfo(row?: any) {
-      if (row) this.selected = row.data;
+function init() {
+  loading.value = true;
+  localSearchResults.value = [...searchResults.value];
+  processSearchResults();
+  if (isArrayHasLength(localSearchResults.value)) {
+    setFiltersFromSearchResults();
+  } else {
+    setFilterDefaults();
+  }
+  loading.value = false;
+}
 
-      this.$store.commit("updateSelectedConceptIri", this.selected.iri);
-      this.$emit("openBar");
-    },
-
-    filterResults() {
-      const filteredSearchResults = [] as ConceptSummary[];
-      (this.searchResults as ConceptSummary[]).forEach(searchResult => {
-        let isSelectedType = false;
-        searchResult.entityType.forEach(type => {
-          if (this.selectedTypes.indexOf(type.name) != -1) {
-            isSelectedType = true;
-          }
-        });
-
-        if (this.selectedSchemes.indexOf(searchResult.scheme.name) != -1 && isSelectedType && this.selectedStatus.indexOf(searchResult.status.name) != -1) {
-          filteredSearchResults.push(searchResult);
-        }
-      });
-      this.localSearchResults = [...filteredSearchResults];
-      this.processSearchResults();
-    },
-
-    onRowSelect(row: any) {
-      this.$store.commit("updateSelectedConceptIri", row.data.iri);
-    },
-
-    updateRClickOptions() {
-      this.rClickOptions[this.rClickOptions.length - 1].label = this.isFavourite(this.selected.iri) ? "Unfavourite" : "Favourite";
-    },
-
-    onRowContextMenu(event: any) {
-      this.updateRClickOptions();
-      (this.$refs.cm as any).show(event.originalEvent);
-    },
-
-    onRowUnselect() {
-      this.selected = {} as ConceptSummary;
-    },
-
-    navigateToEditor(): void {
-      this.$directService.directTo(this.$env.EDITOR_URL, this.selected.iri, "editor");
-    },
-
-    onRightClick(event: any) {
-      this.updateRClickOptions();
-      (this.$refs.menu as any).show(event);
-    },
-
-    onRowDblClick(event: any) {
-      this.selected = event.data;
-      if (isFolder(this.selected?.entityType)) this.open();
-      else this.view();
-    },
-
-    open() {
-      this.$router.push({
-        name: "Folder",
-        params: { selectedIri: this.selected.iri }
-      });
-    },
-
-    view(row?: any) {
-      if (row) this.selected = row.data;
-      this.$directService.directTo(this.$env.VIEWER_URL, this.selected.iri, "concept");
-    },
-
-    edit(row?: any) {
-      if (row) this.selected = row.data;
-      this.$directService.directTo(this.$env.EDITOR_URL, this.selected.iri, "editor");
-    },
-
-    locate(row: any) {
-      if (row) {
-        this.$router.push({
-          name: "Folder",
-          params: { selectedIri: row.data.iri }
-        });
-        this.$store.commit("updateLocateOnNavTreeIri", row.data.iri);
-      }
+function processSearchResults() {
+  for (const result of localSearchResults.value) {
+    if (isObjectHasKeys(result, ["entityType"])) {
+      result.icon = getFAIconFromType(result.entityType);
+      result.colour = getColourFromType(result.entityType);
+      result.typeNames = getNamesAsStringFromTypes(result.entityType);
+      result.favourite = isFavourite(result.iri);
     }
   }
-});
+}
+
+function setFilterDefaults() {
+  schemeOptions.value = filterOptions.value.schemes.map((scheme: any) => scheme.name);
+  typeOptions.value = filterOptions.value.types.map((type: any) => type.name);
+  statusOptions.value = filterOptions.value.status.map((item: any) => item.name);
+  selectedSchemes.value = filterOptions.value.schemes
+    .filter((option: any) => filterDefaults.value.schemeOptions.includes(option.iri))
+    .map((scheme: any) => scheme.name);
+  selectedStatus.value = filterOptions.value.status
+    .filter((option: any) => filterDefaults.value.statusOptions.includes(option["@id"]))
+    .map((status: any) => status.name);
+  selectedTypes.value = filterOptions.value.types
+    .filter((option: any) => filterDefaults.value.typeOptions.includes(option["@id"]))
+    .map((type: any) => type.name);
+}
+
+function setFiltersFromSearchResults() {
+  const schemes = [] as string[];
+  const types = [] as string[];
+  const status = [] as string[];
+  (localSearchResults.value as ConceptSummary[]).forEach(searchResult => {
+    schemes.push(searchResult.scheme?.name);
+    searchResult.entityType.forEach(type => {
+      if (filterDefaults.value.typeOptions.includes(type["@id"])) types.push(type.name);
+    });
+    status.push(searchResult.status?.name);
+  });
+  schemeOptions.value = [...new Set(schemes)];
+  typeOptions.value = [...new Set(types)];
+  statusOptions.value = [...new Set(status)];
+
+  selectedSchemes.value = [...new Set(schemes)];
+  selectedTypes.value = [...new Set(types)];
+  selectedStatus.value = [...new Set(status)];
+}
+
+function showInfo(row?: any) {
+  if (row) selected.value = row.data;
+
+  store.commit("updateSelectedConceptIri", selected.value.iri);
+  emit("openBar");
+}
+
+function filterResults() {
+  const filteredSearchResults = [] as ConceptSummary[];
+  (searchResults.value as ConceptSummary[]).forEach(searchResult => {
+    let isSelectedType = false;
+    searchResult.entityType.forEach(type => {
+      if (selectedTypes.value.indexOf(type.name) != -1) {
+        isSelectedType = true;
+      }
+    });
+
+    if (selectedSchemes.value.indexOf(searchResult.scheme.name) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name) != -1) {
+      filteredSearchResults.push(searchResult);
+    }
+  });
+  localSearchResults.value = [...filteredSearchResults];
+  processSearchResults();
+}
+
+function onRowSelect(row: any) {
+  store.commit("updateSelectedConceptIri", row.data.iri);
+}
+
+function updateRClickOptions() {
+  rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
+}
+
+function onRowContextMenu(event: any) {
+  updateRClickOptions();
+  contextMenu.value.show(event.originalEvent);
+}
+
+function onRowUnselect() {
+  selected.value = {} as ConceptSummary;
+}
+
+function navigateToEditor(): void {
+  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
+}
+
+function onRightClick(event: any) {
+  updateRClickOptions();
+  contextMenu.value.show(event);
+}
+
+function onRowDblClick(event: any) {
+  selected.value = event.data;
+  if (isFolder(selected.value.entityType)) open();
+  else view();
+}
+
+function open() {
+  router.push({
+    name: "Folder",
+    params: { selectedIri: selected.value.iri }
+  });
+}
+
+function view(row?: any) {
+  if (row) selected.value = row.data;
+  directService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
+}
+
+function edit(row?: any) {
+  if (row) selected.value = row.data;
+  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
+}
+
+function locate(row: any) {
+  if (row) {
+    router.push({
+      name: "Folder",
+      params: { selectedIri: row.data.iri }
+    });
+    store.commit("updateLocateOnNavTreeIri", row.data.iri);
+  }
+}
 </script>
 
 <style scoped>

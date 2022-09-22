@@ -14,8 +14,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
 import { Enums, Helpers } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
 const { ECLComponent } = Enums;
@@ -23,61 +23,53 @@ const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
 
-export default defineComponent({
-  name: "Constraint",
-  props: {
-    id: { type: String, required: true },
-    position: { type: Number, required: true },
-    value: { type: Object as () => { name: string; symbol: string }, required: false },
-    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
-  },
-  emits: { updateClicked: (_payload: ECLComponentDetails) => true },
-  watch: {
-    selected() {
-      this.onConfirm();
-    }
-  },
-  mounted() {
-    if (this.value && isObjectHasKeys(this.value, ["name", "symbol"])) {
-      this.selected = this.value;
-    } else {
-      this.selected = this.options[0];
-    }
-  },
-  data() {
-    return {
-      options: [
-        { name: "Descendant or self of", symbol: "<<" },
-        { name: "Descendant of", symbol: "<" },
-        { name: "Self", symbol: "" },
-        { name: "Child of", symbol: "<!" },
-        { name: "Child or self of", symbol: "<<!" },
-        { name: "Ancestor of", symbol: ">" },
-        { name: "Ancestor or self of", symbol: ">>" },
-        { name: "Parent of", symbol: ">!" },
-        { name: "Parent or self of", symbol: ">>!" },
-        { name: "Member of", symbol: "^" }
-      ] as { name: string; symbol: string }[],
-      selected: {} as { name: string; symbol: string }
-    };
-  },
-  methods: {
-    onConfirm(): void {
-      this.$emit("updateClicked", this.createConstraint());
-    },
+const props = defineProps({
+  id: { type: String, required: true },
+  position: { type: Number, required: true },
+  value: { type: Object as () => { name: string; symbol: string }, required: false },
+  showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
+});
 
-    createConstraint(): ECLComponentDetails {
-      return {
-        id: this.id,
-        value: this.selected,
-        position: this.position,
-        type: ECLComponent.CONSTRAINT,
-        queryString: this.selected.symbol,
-        showButtons: this.showButtons
-      };
-    }
+const emit = defineEmits({ updateClicked: (_payload: ECLComponentDetails) => true });
+
+const selected: Ref<{ name: string; symbol: string }> = ref({} as { name: string; symbol: string });
+const options: Ref<{ name: string; symbol: string }[]> = ref([
+  { name: "Descendant or self of", symbol: "<<" },
+  { name: "Descendant of", symbol: "<" },
+  { name: "Self", symbol: "" },
+  { name: "Child of", symbol: "<!" },
+  { name: "Child or self of", symbol: "<<!" },
+  { name: "Ancestor of", symbol: ">" },
+  { name: "Ancestor or self of", symbol: ">>" },
+  { name: "Parent of", symbol: ">!" },
+  { name: "Parent or self of", symbol: ">>!" },
+  { name: "Member of", symbol: "^" }
+]);
+
+watch(selected, () => onConfirm());
+
+onMounted(() => {
+  if (props.value && isObjectHasKeys(props.value, ["name", "symbol"])) {
+    selected.value = props.value;
+  } else {
+    selected.value = options.value[0];
   }
 });
+
+function onConfirm(): void {
+  emit("updateClicked", createConstraint());
+}
+
+function createConstraint(): ECLComponentDetails {
+  return {
+    id: props.id,
+    value: selected.value,
+    position: props.position,
+    type: ECLComponent.CONSTRAINT,
+    queryString: selected.value.symbol,
+    showButtons: props.showButtons
+  };
+}
 </script>
 
 <style scoped>

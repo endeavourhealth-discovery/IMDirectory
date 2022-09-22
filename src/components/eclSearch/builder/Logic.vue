@@ -8,84 +8,75 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { defineComponent, onMounted, PropType, Ref, ref, watch } from "vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
 import { Enums } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
 const { ECLComponent } = Enums;
 
-export default defineComponent({
-  name: "Logic",
-  props: {
-    id: { type: String, required: true },
-    position: { type: Number, required: true },
-    value: { type: Object as PropType<{ data: string; parentGroup: Enums.ECLComponent }>, required: true },
-    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
-  },
-  components: { AddDeleteButtons },
-  emits: {
-    addNextOptionsClicked: (_payload: any) => true,
-    deleteClicked: (_payload: ECLComponentDetails) => true,
-    updateClicked: (_payload: ECLComponentDetails) => true
-  },
-  watch: {
-    selected(): void {
-      this.onConfirm();
-    }
-  },
-  mounted() {
-    if (this.value && this.value.data) {
-      this.selected = this.value.data;
-    } else {
-      this.selected = this.options[0];
-    }
-  },
-  data() {
-    return {
-      options: ["AND", "OR", "MINUS"] as string[],
-      selected: ""
-    };
-  },
-  methods: {
-    onConfirm(): void {
-      this.$emit("updateClicked", {
-        id: this.id,
-        value: { data: this.selected, parentGroup: this.value?.parentGroup },
-        position: this.position,
-        type: ECLComponent.LOGIC,
-        queryString: this.selected,
-        showButtons: this.showButtons
-      });
-    },
+const props = defineProps({
+  id: { type: String, required: true },
+  position: { type: Number, required: true },
+  value: { type: Object as PropType<{ data: string; parentGroup: Enums.ECLComponent }>, required: true },
+  showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
+});
 
-    deleteClicked(): void {
-      this.$emit("deleteClicked", {
-        id: this.id,
-        value: { data: this.selected, parentGroup: this.value?.parentGroup },
-        position: this.position,
-        type: ECLComponent.LOGIC,
-        queryString: this.selected,
-        showButtons: this.showButtons
-      });
-    },
+const emit = defineEmits({
+  addNextOptionsClicked: (_payload: any) => true,
+  deleteClicked: (_payload: ECLComponentDetails) => true,
+  updateClicked: (_payload: ECLComponentDetails) => true
+});
 
-    addNextClicked(item: any): void {
-      this.$emit("addNextOptionsClicked", {
-        position: this.position + 1,
-        selectedType: item
-      });
-    },
+const options: Ref<string[]> = ref(["AND", "OR", "MINUS"]);
+const selected = ref("");
 
-    getButtonOptions() {
-      if (this.value.parentGroup === ECLComponent.REFINEMENT_GROUP) {
-        return [ECLComponent.REFINEMENT];
-      } else {
-        return [ECLComponent.FOCUS_CONCEPT];
-      }
-    }
+watch(selected, () => onConfirm());
+
+onMounted(() => {
+  if (props.value && props.value.data) {
+    selected.value = props.value.data;
+  } else {
+    selected.value = options.value[0];
   }
 });
+
+function onConfirm(): void {
+  emit("updateClicked", {
+    id: props.id,
+    value: { data: selected.value, parentGroup: props.value.parentGroup },
+    position: props.position,
+    type: ECLComponent.LOGIC,
+    queryString: selected.value,
+    showButtons: props.showButtons
+  });
+}
+
+function deleteClicked(): void {
+  emit("deleteClicked", {
+    id: props.id,
+    value: { data: selected.value, parentGroup: props.value.parentGroup },
+    position: props.position,
+    type: ECLComponent.LOGIC,
+    queryString: selected.value,
+    showButtons: props.showButtons
+  });
+}
+
+function addNextClicked(item: any): void {
+  emit("addNextOptionsClicked", {
+    position: props.position + 1,
+    selectedType: item
+  });
+}
+
+function getButtonOptions() {
+  if (props.value.parentGroup === ECLComponent.REFINEMENT_GROUP) {
+    return [ECLComponent.REFINEMENT];
+  } else {
+    return [ECLComponent.FOCUS_CONCEPT];
+  }
+}
 </script>
 
 <style scoped>

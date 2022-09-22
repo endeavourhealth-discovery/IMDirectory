@@ -14,66 +14,58 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "@vue/runtime-core";
+<script setup lang="ts">
+import { defineComponent, onMounted, PropType, Ref, ref, watch } from "vue";
 import { Enums } from "im-library";
 import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
 const { ECLComponent } = Enums;
 
-export default defineComponent({
-  name: "Operator",
-  props: {
-    id: { type: String, required: true },
-    position: { type: Number, required: true },
-    value: {
-      type: Object as PropType<{
-        symbol: string;
-        name: string;
-      }>,
-      required: false
-    },
-    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
+const props = defineProps({
+  id: { type: String, required: true },
+  position: { type: Number, required: true },
+  value: {
+    type: Object as PropType<{
+      symbol: string;
+      name: string;
+    }>,
+    required: false
   },
-  emits: { updateClicked: (_payload: ECLComponentDetails) => true },
-  watch: {
-    selected() {
-      this.onConfirm();
-    }
-  },
-  mounted() {
-    if (this.value) {
-      this.selected = this.value;
-    } else {
-      this.selected = this.options[0];
-    }
-  },
-  data() {
-    return {
-      options: [
-        { symbol: "=", name: "Equals" },
-        { symbol: "!=", name: "Not equals" }
-      ] as { symbol: string; name: string }[],
-      selected: { symbol: "=", name: "Equals" } as { symbol: string; name: string },
-      edit: false
-    };
-  },
-  methods: {
-    onConfirm() {
-      this.$emit("updateClicked", this.createOperator());
-    },
+  showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
+});
 
-    createOperator(): ECLComponentDetails {
-      return {
-        id: this.id,
-        value: this.selected,
-        position: this.position,
-        type: ECLComponent.OPERATOR,
-        queryString: this.selected.symbol,
-        showButtons: this.showButtons
-      };
-    }
+const emit = defineEmits({ updateClicked: (_payload: ECLComponentDetails) => true });
+
+const options: Ref<{ symbol: string; name: string }[]> = ref([
+  { symbol: "=", name: "Equals" },
+  { symbol: "!=", name: "Not equals" }
+]);
+const selected: Ref<{ symbol: string; name: string }> = ref({ symbol: "=", name: "Equals" });
+const edit = ref(false);
+
+watch(selected, () => onConfirm());
+
+onMounted(() => {
+  if (props.value) {
+    selected.value = props.value;
+  } else {
+    selected.value = options.value[0];
   }
 });
+
+function onConfirm() {
+  emit("updateClicked", createOperator());
+}
+
+function createOperator(): ECLComponentDetails {
+  return {
+    id: props.id,
+    value: selected.value,
+    position: props.position,
+    type: ECLComponent.OPERATOR,
+    queryString: selected.value.symbol,
+    showButtons: props.showButtons
+  };
+}
 </script>
 
 <style scoped>

@@ -1,5 +1,5 @@
 <template>
-  <div id="entity-panel-header-text" :key="icon">
+  <div id="entity-panel-header-text">
     <span :style="color" class="p-mx-2">
       <i v-if="types && types.length" :class="icon" aria-hidden="true" />
     </span>
@@ -7,42 +7,44 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "@vue/runtime-core";
-import { mapState } from "vuex";
+<script setup lang="ts">
+import { computed, defineComponent, PropType, Ref, ref, watch } from "vue";
+import { mapState, useStore } from "vuex";
+import _ from "lodash";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers } from "im-library";
+import { Helpers, Services } from "im-library";
+import axios from "axios";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
+const { DirectService, Env } = Services;
 
-export default defineComponent({
-  name: "PanelHeader",
-  computed: { ...mapState(["selectedConceptIri"]) },
-  props: {
-    types: { type: Array as PropType<Array<TTIriRef>>, required: true },
-    header: { type: String, required: true }
-  },
-  data() {
-    return {
-      icon: [] as any,
-      color: ""
-    };
-  },
-  watch: {
-    types(newValue): void {
-      if (newValue.length > 0) {
-        this.color = "color: " + getColourFromType(newValue);
-        this.icon = getFAIconFromType(newValue);
-      }
-    }
-  },
-  methods: {
-    navigate() {
-      this.$directService.directTo(this.$env.VIEWER_URL, this.selectedConceptIri, "concept");
+const props = defineProps({
+  types: { type: Array as PropType<TTIriRef[]>, required: true },
+  header: { type: String, required: true }
+});
+
+const directService = new DirectService(axios);
+
+watch(
+  () => _.cloneDeep(props.types),
+  newValue => {
+    if (newValue.length > 0) {
+      color.value = "color: " + getColourFromType(newValue);
+      icon.value = getFAIconFromType(newValue);
     }
   }
-});
+);
+
+const store = useStore();
+const selectedConceptIri = computed(() => store.state.selectedConceptIri);
+
+const icon: Ref<string[]> = ref([]);
+const color = ref("");
+
+function navigate() {
+  directService.directTo(Env.VIEWER_URL, selectedConceptIri.value, "concept");
+}
 </script>
 
 <style scoped>

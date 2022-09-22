@@ -68,55 +68,56 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { Helpers, Vocabulary } from "im-library";
-import { mapState } from "vuex";
+<script setup lang="ts">
+import { computed, defineComponent } from "vue";
+import { Helpers, Vocabulary, Services } from "im-library";
+import { mapState, useStore } from "vuex";
+import axios from "axios";
 const { IM, RDF } = Vocabulary;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType },
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
+const { Env, DirectService } = Services;
 
-export default defineComponent({
-  name: "ParentHeader",
-  emits: { openBar: () => true },
-  props: { concept: { type: Object as any, required: true } },
-  computed: {
-    ...mapState(["favourites"])
-  },
-  methods: {
-    isFavourite(iri: string) {
-      return isArrayHasLength(this.favourites) && this.favourites.includes(iri);
-    },
+const props = defineProps({ concept: { type: Object as any, required: true } });
 
-    getIcon(concept: any) {
-      if (concept["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
-      return getFAIconFromType(concept[RDF.TYPE]);
-    },
+const emit = defineEmits({ openBar: () => true });
 
-    getColour(concept: any) {
-      return "color: " + getColourFromType(concept[RDF.TYPE]);
-    },
+const store = useStore();
+const favourites = computed(() => store.state.favourites);
 
-    showInfo(iri: string) {
-      this.$store.commit("updateSelectedConceptIri", iri);
-      this.$emit("openBar");
-    },
+const directService = new DirectService(axios);
 
-    view(iri: string) {
-      this.$directService.directTo(this.$env.VIEWER_URL, iri, "concept");
-    },
+function isFavourite(iri: string) {
+  return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
+}
 
-    edit(iri: string) {
-      this.$directService.directTo(this.$env.EDITOR_URL, iri, "editor");
-    },
+function getIcon(concept: any) {
+  if (concept["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
+  return getFAIconFromType(concept[RDF.TYPE]);
+}
 
-    updateFavourites(iri: string) {
-      this.$store.commit("updateFavourites", iri);
-    }
-  }
-});
+function getColour(concept: any) {
+  return "color: " + getColourFromType(concept[RDF.TYPE]);
+}
+
+function showInfo(iri: string) {
+  store.commit("updateSelectedConceptIri", iri);
+  emit("openBar");
+}
+
+function view(iri: string) {
+  directService.directTo(Env.VIEWER_URL, iri, "concept");
+}
+
+function edit(iri: string) {
+  directService.directTo(Env.EDITOR_URL, iri, "editor");
+}
+
+function updateFavourites(iri: string) {
+  store.commit("updateFavourites", iri);
+}
 </script>
 
 <style scoped>

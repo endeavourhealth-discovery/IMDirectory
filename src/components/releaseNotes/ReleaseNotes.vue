@@ -1,7 +1,7 @@
 <template>
-  <Dialog :header="'What\'s new (v' + release.version + ')'" :visible="showRelNotes" :closable=false :modal="true">
+  <Dialog :header="'What\'s new (v' + release.version + ')'" :visible="showRelNotes" :closable="false" :modal="true">
     <ul>
-      <li v-for="item in release.notes">{{item}}</li>
+      <li v-for="item in release.notes">{{ item }}</li>
     </ul>
     <template #footer>
       <Button label="Close" @click="close" autofocus />
@@ -9,41 +9,33 @@
   </Dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { defineComponent, onMounted, ref } from "vue";
 
-export default defineComponent({
-  name: "ReleaseNotes",
-  data() {
-    return {
-      showRelNotes: false,
-      release: {
-        version: 2.2,
-        notes: [
-            "Updated core to SNOMED 34.1 (10-Aug-2022)",
-            "Visual enhancements (e.g. less whitespace on tree)",
-            "Optimized search results table",
-            "Main directory tree now supports double-click",
-            "'Find in tree' now locates in the right panel hierarchy",
-            "Fixed incorrect code display (symbols) in IMViewer"
-        ]
-      }
-    };
-  },
-  mounted() {
-    const lastVer = window.localStorage.getItem("IMVersion");
-    if (!lastVer || +lastVer < this.release.version) {
-      this.showRelNotes = true;
-    }
-  },
-  methods: {
-    close() {
-      this.showRelNotes = false;
-      localStorage.setItem("IMVersion", this.release.version.toString());
-    }
+const showRelNotes = ref(false);
+const release = ref({
+  version: 2.2,
+  notes: [
+    "Updated core to SNOMED 34.1 (10-Aug-2022)",
+    "Visual enhancements (e.g. less whitespace on tree)",
+    "Optimized search results table",
+    "Main directory tree now supports double-click",
+    "'Find in tree' now locates in the right panel hierarchy",
+    "Fixed incorrect code display (symbols) in IMViewer"
+  ]
+});
+
+onMounted(() => {
+  const lastVer = window.localStorage.getItem("IMVersion");
+  if (!lastVer || +lastVer < release.value.version) {
+    showRelNotes.value = true;
   }
 });
+
+function close() {
+  showRelNotes.value = false;
+  localStorage.setItem("IMVersion", release.value.version.toString());
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

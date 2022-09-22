@@ -13,78 +13,86 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { Helpers, Vocabulary } from "im-library";
+<script setup lang="ts">
+import { defineComponent, onMounted, ref, Ref, watch } from "vue";
+import { Helpers, Vocabulary, Services } from "im-library";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { useRoute, useRouter } from "vue-router";
+import axios from "axios";
 const { IM } = Vocabulary;
 const {
   Converters: { iriToUrl }
 } = Helpers;
+const { EntityService } = Services;
 
-export default defineComponent({
-  name: "ParentHierarhcy",
-  props: ["conceptIri"],
-  data() {
-    return { pathItems: [] as any[], pathOptions: [] as any[], home: { icon: "pi pi-home", to: "/" }, canGoForward: false, canGoBack: false };
-  },
-  watch: {
-    conceptIri() {
-      this.init();
-    }
-  },
-  mounted() {
-    this.init();
-  },
-  methods: {
-    openPathOverlaymenu(event: any) {
-      (this.$refs.pathOverlayMenu as any).toggle(event);
-    },
+const props = defineProps({ conceptIri: { type: String, required: true } });
 
-    goBack() {
-      if (window.history.length > 0) this.$router.back();
-    },
+const router = useRouter();
+const route = useRoute();
+const entityService = new EntityService(axios);
 
-    goForward() {
-      if (window.history.length > window.history.state.position + 1) this.$router.forward();
-    },
+watch(
+  () => props.conceptIri,
+  () => init()
+);
 
-    init() {
-      if (this.conceptIri) {
-        this.getPath();
-        this.setBackForwardDisables();
-      }
-    },
+const pathItems: Ref<any[]> = ref([]);
+const pathOptions: Ref<any[]> = ref([]);
+const canGoBack = ref(false);
+const canGoForward = ref(false);
 
-    async getPath() {
-      if (this.conceptIri === IM.NAMESPACE + "Favourites") {
-        this.pathItems = [{ label: "Favourites", to: iriToUrl(IM.NAMESPACE) + "Favourites" }];
-        return;
-      }
-      let folderPath = (await this.$entityService.getPathBetweenNodes(this.conceptIri, IM.MODULE_IM)).reverse();
-      if (!folderPath.length) folderPath = await this.$entityService.getFolderPath(this.conceptIri);
-      this.pathItems = folderPath.map((iriRef: TTIriRef) => {
-        return { label: iriRef.name, to: iriToUrl(iriRef["@id"]) };
-      });
-      if (this.pathItems.length > 2) {
-        const filteredOutPathItems = this.pathItems.splice(1, this.pathItems.length - 2);
-        this.pathItems.splice(this.pathItems.length - 1, 0, {
-          label: "...",
-          to: this.$route.fullPath,
-          command: () => {
-            this.openPathOverlaymenu(event);
-          }
-        });
-        this.pathOptions = filteredOutPathItems;
-      }
-    },
+const home = { icon: "pi pi-home", to: "/" };
 
-    setBackForwardDisables() {
-      this.canGoForward = window.history.length === window.history.state.position + 1;
-      this.canGoBack = window.history.state.position === 0;
-    }
+const pathOverlayMenu = ref();
+
+onMounted(() => init());
+
+function openPathOverlaymenu(event: any) {
+  pathOverlayMenu.value.toggle(event);
+}
+
+function goBack() {
+  if (window.history.length > 0) router.back();
+}
+
+function goForward() {
+  if (window.history.length > window.history.state.position + 1) router.forward();
+}
+
+function init() {
+  if (props.conceptIri) {
+    getPath();
+    setBackForwardDisables();
   }
-});
+}
+
+async function getPath() {
+  if (props.conceptIri === IM.NAMESPACE + "Favourites") {
+    pathItems.value = [{ label: "Favourites", to: iriToUrl(IM.NAMESPACE) + "Favourites" }];
+    return;
+  }
+  let folderPath = (await entityService.getPathBetweenNodes(props.conceptIri, IM.MODULE_IM)).reverse();
+  if (!folderPath.length) folderPath = await entityService.getFolderPath(props.conceptIri);
+  pathItems.value = folderPath.map((iriRef: TTIriRef) => {
+    return { label: iriRef.name, to: iriToUrl(iriRef["@id"]) };
+  });
+  if (pathItems.value.length > 2) {
+    const filteredOutPathItems = pathItems.value.splice(1, pathItems.value.length - 2);
+    pathItems.value.splice(pathItems.value.length - 1, 0, {
+      label: "...",
+      to: route.fullPath,
+      command: () => {
+        openPathOverlaymenu(event);
+      }
+    });
+    pathOptions.value = filteredOutPathItems;
+  }
+}
+
+function setBackForwardDisables() {
+  canGoForward.value = window.history.length === window.history.state.position + 1;
+  canGoBack.value = window.history.state.position === 0;
+}
 </script>
 
 <style scoped>

@@ -1,9 +1,9 @@
 <template>
   <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local">
-    <SplitterPanel :size="30" :minSize="10" style="overflow: auto;">
+    <SplitterPanel :size="30" :minSize="10" style="overflow: auto">
       <NavTree />
     </SplitterPanel>
-    <SplitterPanel :size="70" :minSize="10" style="overflow: auto;">
+    <SplitterPanel :size="70" :minSize="10" style="overflow: auto">
       <div class="splitter-right">
         <router-view @openBar="visibleRight = true" @closeBar="visibleRight = false" />
         <InfoSideBar :visible="visibleRight" @closeBar="visibleRight = false" />
@@ -12,25 +12,14 @@
   </Splitter>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { defineComponent, ref } from "vue";
 import NavTree from "@/components/home/NavTree.vue";
 import InfoSideBar from "@/components/home/InfoSideBar.vue";
 import { mapState } from "vuex";
 
-export default defineComponent({
-  name: "Home",
-  components: {
-    NavTree,
-    InfoSideBar
-  },
-  data() {
-    return {
-      visibleRight: true,
-      selectedIri: ""
-    };
-  }
-});
+let visibleRight = ref(true);
+let selectedIri = ref("");
 </script>
 
 <style scoped>

@@ -13,53 +13,45 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { mapState } from "vuex";
+<script setup lang="ts">
+import { computed, defineComponent, onMounted, ref, Ref, watch } from "vue";
+import { mapState, useStore } from "vuex";
 import DirectoryTable from "@/components/directory/DirectoryTable.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { Vocabulary } from "im-library";
+import { Vocabulary, Services } from "im-library";
+import axios from "axios";
 const { IM } = Vocabulary;
+const { EntityService } = Services;
 
-export default defineComponent({
-  name: "Directory",
-  components: {
-    DirectoryTable,
-    ParentHeader,
-    ParentHierarchy
-  },
-  emits: ["openBar"],
-  computed: {
-    ...mapState(["conceptIri"])
-  },
-  watch: {
-    async conceptIri() {
-      await this.init();
-    }
-  },
-
-  data() {
-    return {
-      concept: {} as any,
-      loading: true
-    };
-  },
-  async mounted() {
-    this.init();
-  },
-  methods: {
-    async init() {
-      this.loading = true;
-      this.concept = await this.$entityService.getEntityByPredicateExclusions(this.conceptIri, [IM.HAS_MEMBER]);
-      this.loading = false;
-    },
-
-    openBar() {
-      this.$emit("openBar");
-    }
-  }
+const emit = defineEmits({
+  openBar: () => true
 });
+
+const store = useStore();
+const conceptIri = computed(() => store.state.conceptIri);
+
+const entityService = new EntityService(axios);
+
+watch(
+  () => conceptIri.value,
+  async () => await init()
+);
+
+const concept: Ref<any> = ref({});
+const loading = ref(true);
+
+onMounted(async () => await init());
+
+async function init() {
+  loading.value = true;
+  concept.value = await entityService.getEntityByPredicateExclusions(conceptIri.value, [IM.HAS_MEMBER]);
+  loading.value = false;
+}
+
+function openBar() {
+  emit("openBar");
+}
 </script>
 <style scoped>
 .loading-container {
