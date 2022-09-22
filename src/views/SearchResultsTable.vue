@@ -264,7 +264,7 @@ function setFiltersFromSearchResults() {
   const status = [] as string[];
   (localSearchResults.value as ConceptSummary[]).forEach(searchResult => {
     schemes.push(searchResult.scheme?.name);
-    searchResult.entityType.forEach(type => {
+    searchResult.entityType.forEach((type: any) => {
       if (filterDefaults.value.typeOptions.includes(type["@id"])) types.push(type.name);
     });
     status.push(searchResult.status?.name);
@@ -289,7 +289,7 @@ function filterResults() {
   const filteredSearchResults = [] as ConceptSummary[];
   (searchResults.value as ConceptSummary[]).forEach(searchResult => {
     let isSelectedType = false;
-    searchResult.entityType.forEach(type => {
+    searchResult.entityType.forEach((type: any) => {
       if (selectedTypes.value.indexOf(type.name) != -1) {
         isSelectedType = true;
       }
