@@ -75,7 +75,13 @@
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="slotProps">
           <div class="buttons-container">
-            <Button icon="fa-solid fa-sitemap" class="p-button-rounded p-button-text p-button-plain row-button" @click="locate(slotProps)" v-tooltip.top="" />
+            <Button
+              icon="fa-solid fa-sitemap"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="locate(slotProps)"
+              v-tooltip.top="'Select'"
+              data-testid="select-button"
+            />
             <Button
               v-if="slotProps.data.hasChildren"
               @click="open"
@@ -85,6 +91,7 @@
               class="p-button-rounded p-button-text p-button-plain row-button"
               icon="pi pi-folder-open"
               v-tooltip.top="'Open'"
+              data-testid="open-button"
             />
             <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" v-tooltip.top="'View'" />
             <Button
@@ -92,12 +99,14 @@
               class="p-button-rounded p-button-text p-button-plain row-button"
               @click="showInfo(slotProps)"
               v-tooltip.top="'Info'"
+              data-testid="info-button"
             />
             <Button
               icon="fa-solid fa-pen-to-square"
               class="p-button-rounded p-button-text p-button-plain row-button"
               @click="edit(slotProps)"
               v-tooltip.top="'Edit'"
+              data-testid="edit-button"
             />
             <Button
               v-if="isFavourite(slotProps.data.iri)"
@@ -106,6 +115,7 @@
               class="p-button-rounded p-button-text row-button-fav"
               @click="updateFavourites(slotProps)"
               v-tooltip.left="'Unfavourite'"
+              data-testid="unfavourite-button"
             />
 
             <Button
@@ -114,6 +124,7 @@
               class="p-button-rounded p-button-text p-button-plain row-button"
               @click="updateFavourites(slotProps)"
               v-tooltip.left="'Favourite'"
+              data-testid="favourite-button"
             />
           </div>
         </template>
@@ -202,7 +213,7 @@ const contextMenu = ref();
 const menu = ref();
 
 watch(
-  () => _.cloneDeep(searchResults.value),
+  () => searchResults.value,
   () => init()
 );
 
