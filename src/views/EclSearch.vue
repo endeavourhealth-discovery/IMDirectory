@@ -8,6 +8,7 @@
         id="query-string-container"
         placeholder="Enter expression here or use the ECL builder to generate your search..."
         :class="eclError ? 'p-invalid' : ''"
+        data-testid="query-string"
       />
       <Button
         :disabled="!queryString.length"
@@ -16,25 +17,25 @@
         v-clipboard:copy="copyToClipboard()"
         v-clipboard:success="onCopy"
         v-clipboard:error="onCopyError"
+        data-testid="copy-to-clipboard-button"
       />
     </div>
     <div class="button-container">
-      <Button label="ECL builder" @click="showBuilder" class="p-button-help" />
-      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" />
+      <Button label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
+      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
-      <p v-if="searchResults.length > 1000" class="result-summary">{{ totalCount }} results found. Display limited to first 1000.</p>
+      <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
       <SearchResults :searchResults="searchResults" :loading="loading" />
     </div>
   </div>
-  <Builder :showDialog="showDialog" @ECLSubmitted="updateECL" @closeDialog="showDialog = false" />
+  <Builder :showDialog="showDialog" @ECLSubmitted="updateECL" @closeDialog="showDialog = false" :data-testid="'builder-visible-' + showDialog" />
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, Ref, ref, watch } from "vue";
+import { Ref, ref, watch } from "vue";
 import Builder from "@/components/eclSearch/Builder.vue";
 import SearchResults from "@/components/eclSearch/SearchResults.vue";
-import { mapState, useStore } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { Helpers, Services } from "im-library";
 import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
@@ -51,8 +52,6 @@ const emit = defineEmits({
 });
 
 const toast = useToast();
-const store = useStore();
-const sidebarControlActivePanel = computed(() => store.state.sidebarControlActivePanel);
 
 const setService = new SetService(axios);
 

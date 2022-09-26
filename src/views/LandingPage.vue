@@ -32,18 +32,21 @@
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
                   @click="view(data)"
                   v-tooltip.top="'View'"
+                  data-testid="view-button"
                 />
                 <Button
                   icon="pi pi-fw pi-info-circle"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
                   @click="showInfo(data)"
                   v-tooltip.top="'Info'"
+                  data-testid="info-button"
                 />
                 <Button
                   icon="fa-solid fa-pen-to-square"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
                   @click="edit(data)"
                   v-tooltip.top="'Edit'"
+                  data-testid="edit-button"
                 />
               </template>
             </Column>
@@ -66,6 +69,12 @@
     </div>
   </div>
 </template>
+
+<script lang="ts">
+export default defineComponent({
+  components: { ReportTable, PieChartDashCard }
+});
+</script>
 
 <script setup lang="ts">
 import { defineComponent, computed, Ref, ref, watch, onMounted } from "vue";
@@ -187,18 +196,19 @@ async function getCardsData(): Promise<void> {
   cardsData.value = cards;
 }
 
-function view(data?: any) {
-  if (data) onRowSelect(data);
+function view(data: any) {
+  console.log("here");
+  onRowSelect(data);
   directService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
 }
 
-function edit(data?: any) {
-  if (data) onRowSelect(data);
+function edit(data: any) {
+  onRowSelect(data);
   directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
 }
 
-function showInfo(data?: any) {
-  if (data) onRowSelect(data);
+function showInfo(data: any) {
+  onRowSelect(data);
   emit("openBar");
 }
 

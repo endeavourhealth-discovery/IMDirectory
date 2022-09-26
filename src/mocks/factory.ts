@@ -26,6 +26,23 @@ const data = factory({
     orderNumber: faker.datatype.number,
     parents: manyOf("iriRef", { unique: true }),
     type: manyOf("iriRef", { unique: true })
+  },
+  conceptSummary: {
+    name: faker.lorem.sentence,
+    iri: primaryKey(faker.internet.url),
+    scheme: manyOf("iriRef", { unique: true }),
+    code: faker.datatype.string,
+    entityType: manyOf("iriRef", { unique: true }),
+    isDescendentOf: manyOf("iriRef", { unique: true }),
+    weighting: faker.datatype.number,
+    match: faker.datatype.string,
+    status: manyOf("iriRef", { unique: true })
+  },
+  eclSearch: {
+    uuid: primaryKey(faker.datatype.uuid),
+    entities: manyOf("conceptSummary", { unique: true }),
+    count: Number,
+    page: Number
   }
 });
 

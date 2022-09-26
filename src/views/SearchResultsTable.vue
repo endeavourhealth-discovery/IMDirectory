@@ -406,6 +406,10 @@ label {
   overflow: auto;
 }
 
+#search-results-main-container:deep(.p-datatable-thead) {
+  z-index: 0 !important;
+}
+
 .buttons-container {
   display: flex;
   flex-flow: row wrap;

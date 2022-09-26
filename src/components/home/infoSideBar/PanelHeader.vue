@@ -21,7 +21,7 @@ const { DirectService, Env } = Services;
 
 const props = defineProps({
   types: { type: Array as PropType<TTIriRef[]>, required: true },
-  header: { type: String, required: true }
+  header: { type: String, default: "" }
 });
 
 const directService = new DirectService(axios);

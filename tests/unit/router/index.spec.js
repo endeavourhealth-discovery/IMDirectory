@@ -7,31 +7,20 @@ import Menu from "primevue/menu";
 import ProgressSpinner from "primevue/progressspinner";
 import store from "@/store/index";
 import { flushPromises, shallowMount } from "@vue/test-utils";
+import PrimeVue from "primevue/config";
 import TopBar from "im-library";
 import { vi } from "vitest";
 import { setupServer } from "msw/node";
 
-vi.mock("@/main");
+const mockAdd = vi.fn();
+
+vi.mock("primevue/usetoast", () => ({
+  useToast: () => ({
+    add: mockAdd
+  })
+}));
 
 describe("router", () => {
-  const restHandlers = [];
-  const server = setupServer(...restHandlers);
-
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: "error" });
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-  });
-  beforeEach(() => {
-    console.log = vi.fn();
-  });
-
   afterEach(() => {
     vi.resetAllMocks();
   });
@@ -49,7 +38,7 @@ describe("router", () => {
       wrapper = shallowMount(App, {
         global: {
           components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu },
-          plugins: [router, store]
+          plugins: [router, store, PrimeVue]
         }
       });
 
