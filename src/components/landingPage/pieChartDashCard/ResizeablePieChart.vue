@@ -7,140 +7,133 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { defineComponent, nextTick, onMounted, onUnmounted, PropType, Ref, ref, watch } from "vue";
 import palette from "google-palette";
+import _ from "lodash";
 import { ChartOptions } from "im-library/dist/types/interfaces/Interfaces";
 import { Helpers, Models } from "im-library";
+import { PieChartData } from "im-library/dist/types/models/Models";
 const {
   ChartRescale: { setTooltips, rescaleData }
 } = Helpers;
 const { PieChartData } = Models;
 
-export default defineComponent({
-  name: "ResizablePieChart",
-  props: {
-    inputData: { type: Array as PropType<Array<any>>, required: true },
-    labelKey: { type: String, required: true },
-    dataKey: { type: String, required: true }
-  },
-  watch: {
-    inputData: {
-      handler() {
-        this.setChartData();
-      },
-      deep: true
-    }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      window.addEventListener("resize", this.onResize);
-    });
-    this.setChartData();
-    this.onResize();
-  },
-  beforeUnmount() {
-    window.removeEventListener("resize", this.onResize);
-  },
-  data() {
-    return {
-      loading: true,
-      chartOptions: {
-        plugins: {
-          legend: {
-            position: "right",
-            onHover: function(e: any) {
-              e.native.target.style.cursor = "pointer";
-            },
-            onLeave: function(e: any) {
-              e.native.target.style.cursor = "default";
-            }
-          }
-        },
-        maintainAspectRatio: true
-      } as ChartOptions,
-      realData: [] as number[],
-      chartConceptTypes: new PieChartData(
-        [
-          {
-            data: [],
-            backgroundColor: [],
-            hoverBackgroundColor: [],
-            borderRadius: 1
-          }
-        ],
-        []
-      )
-    };
-  },
-  methods: {
-    onResize() {
-      this.setLegendOptions();
-    },
-
-    setChartData(): void {
-      this.loading = true;
-      for (const entry of this.inputData) {
-        this.chartConceptTypes.labels.push(entry[this.labelKey]);
-        this.chartConceptTypes.datasets[0].data.push(entry[this.dataKey]);
-      }
-      this.realData = { ...this.chartConceptTypes.datasets[0].data };
-      // set tooltip to use real data
-      this.chartOptions.plugins.tooltip = setTooltips(this.realData);
-      // refactor data to a minimum graph size (1%) if less than min
-      this.chartConceptTypes.datasets[0].data = rescaleData(this.chartConceptTypes.datasets[0].data);
-      this.setChartColours(this.inputData.length);
-      // }
-      this.loading = false;
-    },
-
-    setChartColours(colourCount: number): void {
-      const colours = palette("tol-rainbow", colourCount);
-      this.chartConceptTypes.datasets[0].backgroundColor = colours.map((color: string) => "#" + color + "BB");
-      this.chartConceptTypes.datasets[0].hoverBackgroundColor = colours.map((color: string) => "#" + color);
-    },
-
-    setLegendOptions(): void {
-      this.chartOptions.plugins.legend.display = false;
-      const width = window.innerWidth;
-      if (width > 1750) {
-        this.chartOptions.plugins.legend.position = "right";
-        this.chartOptions.plugins.legend.labels = { boxWidth: 40, fontSize: 12 };
-      } else if (width > 1300) {
-        this.chartOptions.plugins.legend.position = "bottom";
-        this.chartOptions.plugins.legend.labels = { boxWidth: 20, fontSize: 10 };
-      } else if (width >= 1024) {
-        this.chartOptions.plugins.legend.position = "bottom";
-        this.chartOptions.plugins.legend.labels = { boxWidth: 10, fontSize: 8 };
-      } else if (width >= 892) {
-        this.chartOptions.plugins.legend.position = "right";
-        this.chartOptions.plugins.legend.labels = {
-          boxWidth: 40,
-          fontSize: 8
-        };
-      } else if (width >= 557) {
-        this.chartOptions.plugins.legend.position = "bottom";
-        this.chartOptions.plugins.legend.labels = {
-          boxWidth: 20,
-          fontSize: 6
-        };
-      } else if (width >= 0) {
-        this.chartOptions.plugins.legend.position = "bottom";
-        this.chartOptions.plugins.legend.labels = {
-          boxWidth: 10,
-          fontSize: 4
-        };
-      } else {
-        this.chartOptions.plugins.legend.display = false;
-      }
-    }
-  }
+const props = defineProps({
+  inputData: { type: Array as PropType<any[]>, required: true },
+  labelKey: { type: String, required: true },
+  dataKey: { type: String, required: true }
 });
+
+watch(
+  () => _.cloneDeep(props.inputData),
+  () => setChartData()
+);
+
+const loading = ref(true);
+const chartOptions: Ref<ChartOptions> = ref({
+  plugins: {
+    legend: {
+      position: "right",
+      onHover: function (e: any) {
+        e.native.target.style.cursor = "pointer";
+      },
+      onLeave: function (e: any) {
+        e.native.target.style.cursor = "default";
+      }
+    }
+  },
+  maintainAspectRatio: true
+});
+const realData: Ref<number[]> = ref([]);
+const chartConceptTypes: Ref<PieChartData> = ref(
+  new PieChartData(
+    [
+      {
+        data: [],
+        backgroundColor: [],
+        hoverBackgroundColor: [],
+        borderRadius: 1
+      }
+    ],
+    []
+  )
+);
+
+onMounted(async () => {
+  await nextTick();
+  window.addEventListener("resize", onResize);
+  setChartData();
+  onResize();
+});
+
+onUnmounted(() => window.removeEventListener("resize", onResize));
+
+function onResize() {
+  setLegendOptions();
+}
+
+function setChartData(): void {
+  loading.value = true;
+  for (const entry of props.inputData) {
+    chartConceptTypes.value.labels.push(entry[props.labelKey]);
+    chartConceptTypes.value.datasets[0].data.push(entry[props.dataKey]);
+  }
+  realData.value = { ...chartConceptTypes.value.datasets[0].data };
+  // set tooltip to use real data
+  chartOptions.value.plugins.tooltip = setTooltips(realData.value);
+  // refactor data to a minimum graph size (1%) if less than min
+  chartConceptTypes.value.datasets[0].data = rescaleData(chartConceptTypes.value.datasets[0].data);
+  setChartColours(props.inputData.length);
+  // }
+  loading.value = false;
+}
+
+function setChartColours(colourCount: number): void {
+  const colours = palette("tol-rainbow", colourCount);
+  chartConceptTypes.value.datasets[0].backgroundColor = colours.map((color: string) => "#" + color + "BB");
+  chartConceptTypes.value.datasets[0].hoverBackgroundColor = colours.map((color: string) => "#" + color);
+}
+
+function setLegendOptions(): void {
+  chartOptions.value.plugins.legend.display = false;
+  const width = window.innerWidth;
+  if (width > 1750) {
+    chartOptions.value.plugins.legend.position = "right";
+    chartOptions.value.plugins.legend.labels = { boxWidth: 40, fontSize: 12 };
+  } else if (width > 1300) {
+    chartOptions.value.plugins.legend.position = "bottom";
+    chartOptions.value.plugins.legend.labels = { boxWidth: 20, fontSize: 10 };
+  } else if (width >= 1024) {
+    chartOptions.value.plugins.legend.position = "bottom";
+    chartOptions.value.plugins.legend.labels = { boxWidth: 10, fontSize: 8 };
+  } else if (width >= 892) {
+    chartOptions.value.plugins.legend.position = "right";
+    chartOptions.value.plugins.legend.labels = {
+      boxWidth: 40,
+      fontSize: 8
+    };
+  } else if (width >= 557) {
+    chartOptions.value.plugins.legend.position = "bottom";
+    chartOptions.value.plugins.legend.labels = {
+      boxWidth: 20,
+      fontSize: 6
+    };
+  } else if (width >= 0) {
+    chartOptions.value.plugins.legend.position = "bottom";
+    chartOptions.value.plugins.legend.labels = {
+      boxWidth: 10,
+      fontSize: 4
+    };
+  } else {
+    chartOptions.value.plugins.legend.display = false;
+  }
+}
 </script>
 
 <style scoped>
 .chart-container {
-  position:relative;
+  position: relative;
   margin-left: 20%;
   height: 50%;
   width: 50%;

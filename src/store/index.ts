@@ -1,14 +1,17 @@
 import { createStore } from "vuex";
 import AuthService from "@/services/AuthService";
 import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest } from "im-library/dist/types/interfaces/Interfaces";
-import { Models, Constants, Vocabulary, Helpers, Config } from "im-library";
+import { Models, Constants, Vocabulary, Helpers, Config, Services } from "im-library";
+import axios from "axios";
 const { IM } = Vocabulary;
 const { Avatars } = Constants;
 const { CustomAlert } = Models;
 const {
   DataTypeCheckers: { isArrayHasLength }
 } = Helpers;
-import vm from "@/main";
+const { EntityService, LoggerService } = Services;
+
+const entityService = new EntityService(axios);
 
 export default createStore({
   // update stateType.ts when adding new state!
@@ -160,7 +163,7 @@ export default createStore({
     async initFavourites({ commit, state }) {
       const favourites = JSON.parse(localStorage.getItem("favourites") || "[]") as string[];
       for (let index = 0; index < favourites.length; index++) {
-        const iriExists = await vm.$entityService.iriExists(favourites[index]);
+        const iriExists = await entityService.iriExists(favourites[index]);
         if (!iriExists) {
           favourites.splice(index, 1);
         }
@@ -169,7 +172,7 @@ export default createStore({
       state.favourites = favourites;
     },
     async fetchFilterSettings({ commit, state }) {
-      const filterDefaults = await vm.$entityService.getFilterOptions();
+      const filterDefaults = await entityService.getFilterOptions();
       commit("updateFilterOptions", {
         status: filterDefaults.status,
         schemes: filterDefaults.schemes,
@@ -193,7 +196,7 @@ export default createStore({
       commit("updateHierarchySelectedFilters", selectedSchemes);
     },
     async fetchSearchResults({ commit }, data: { searchRequest: SearchRequest; controller: AbortController }) {
-      const result = await vm.$entityService.advancedSearch(data.searchRequest, data.controller);
+      const result = await entityService.advancedSearch(data.searchRequest, data.controller);
       if (result && isArrayHasLength(result)) {
         commit("updateSearchResults", result);
       } else {
@@ -228,9 +231,9 @@ export default createStore({
         } else {
           dispatch("logoutCurrentUser").then(resLogout => {
             if (resLogout.status === 200) {
-              vm.$loggerService.info(undefined, "Force logout successful");
+              LoggerService.info(undefined, "Force logout successful");
             } else {
-              vm.$loggerService.error(undefined, "Force logout failed");
+              LoggerService.error(undefined, "Force logout failed");
             }
           });
         }

@@ -1,4 +1,5 @@
 import { setupServer } from "msw/node";
+import { handlers, handlersFaker } from "@/mocks/handlers";
 
 // Global canvas mock (for charts)
 HTMLCanvasElement.prototype.getContext = () => {

@@ -8,6 +8,7 @@
         id="query-string-container"
         placeholder="Enter expression here or use the ECL builder to generate your search..."
         :class="eclError ? 'p-invalid' : ''"
+        data-testid="query-string"
       />
       <Button
         :disabled="!queryString.length"
@@ -16,99 +17,94 @@
         v-clipboard:copy="copyToClipboard()"
         v-clipboard:success="onCopy"
         v-clipboard:error="onCopyError"
+        data-testid="copy-to-clipboard-button"
       />
     </div>
     <div class="button-container">
-      <Button label="ECL builder" @click="showBuilder" class="p-button-help" />
-      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" />
+      <Button label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
+      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
-      <p v-if="searchResults.length > 1000" class="result-summary">{{ totalCount }} results found. Display limited to first 1000.</p>
+      <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
       <SearchResults :searchResults="searchResults" :loading="loading" />
     </div>
   </div>
-  <Builder :showDialog="showDialog" @ECLSubmitted="updateECL" @closeDialog="showDialog = false" />
+  <Builder :showDialog="showDialog" @ECLSubmitted="updateECL" @closeDialog="showDialog = false" :data-testid="'builder-visible-' + showDialog" />
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { Ref, ref, watch } from "vue";
 import Builder from "@/components/eclSearch/Builder.vue";
 import SearchResults from "@/components/eclSearch/SearchResults.vue";
-import { mapState } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { Helpers } from "im-library";
+import { Helpers, Services } from "im-library";
 import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
+import { useToast } from "primevue/usetoast";
+import axios from "axios";
 const {
   DataTypeCheckers: { isObjectHasKeys, isObject }
 } = Helpers;
+const { SetService, LoggerService } = Services;
 
-export default defineComponent({
-  name: "ExpressionConstraintsSearch",
-  components: {
-    Builder,
-    SearchResults
-  },
-  computed: mapState(["sidebarControlActivePanel"]),
-  emits: ["openBar", "closeBar"],
-  watch: {
-    queryString() {
-      this.eclError = false;
-    }
-  },
-  data() {
-    return {
-      queryString: "",
-      showDialog: false,
-      searchResults: [] as ConceptSummary[],
-      totalCount: 0,
-      eclError: false,
-      loading: false,
-      controller: {} as AbortController
-    };
-  },
-  methods: {
-    updateECL(data: string): void {
-      this.queryString = data;
-      this.showDialog = false;
-    },
-
-    showBuilder(): void {
-      this.showDialog = true;
-    },
-
-    async search(): Promise<void> {
-      if (this.queryString) {
-        this.loading = true;
-        if (!isObject(this.controller)) {
-          this.controller.abort();
-        }
-        this.controller = new AbortController();
-        const result = await this.$setService.ECLSearch(this.queryString, false, 1000, this.controller);
-        if (isObjectHasKeys(result, ["entities", "count", "page"])) {
-          this.searchResults = result.entities;
-          this.totalCount = result.count;
-        } else {
-          this.eclError = true;
-          this.searchResults = [];
-          this.totalCount = 0;
-        }
-        this.loading = false;
-      }
-    },
-
-    copyToClipboard(): string {
-      return this.queryString;
-    },
-
-    onCopy(): void {
-      this.$toast.add(this.$loggerService.success("Value copied to clipboard"));
-    },
-
-    onCopyError(): void {
-      this.$toast.add(this.$loggerService.error("Failed to copy value to clipboard"));
-    }
-  }
+const emit = defineEmits({
+  openBar: () => true,
+  closeBar: () => true
 });
+
+const toast = useToast();
+
+const setService = new SetService(axios);
+
+let queryString = ref("");
+let showDialog = ref(false);
+let searchResults: Ref<ConceptSummary[]> = ref([]);
+let totalCount = ref(0);
+let eclError = ref(false);
+let loading = ref(false);
+let controller: Ref<AbortController> = ref({} as AbortController);
+
+watch(queryString, () => (eclError.value = false));
+
+function updateECL(data: string): void {
+  queryString.value = data;
+  showDialog.value = false;
+}
+
+function showBuilder(): void {
+  showDialog.value = true;
+}
+
+async function search(): Promise<void> {
+  if (queryString.value) {
+    loading.value = true;
+    if (!isObject(controller.value)) {
+      controller.value.abort();
+    }
+    controller.value = new AbortController();
+    const result = await setService.ECLSearch(queryString.value, false, 1000, controller.value);
+    if (isObjectHasKeys(result, ["entities", "count", "page"])) {
+      searchResults.value = result.entities;
+      totalCount.value = result.count;
+    } else {
+      eclError.value = true;
+      searchResults.value = [];
+      totalCount.value = 0;
+    }
+    loading.value = false;
+  }
+}
+
+function copyToClipboard(): string {
+  return queryString.value;
+}
+
+function onCopy(): void {
+  toast.add(LoggerService.success("Value copied to clipboard"));
+}
+
+function onCopyError(): void {
+  toast.add(LoggerService.error("Failed to copy value to clipboard"));
+}
 </script>
 
 <style scoped>

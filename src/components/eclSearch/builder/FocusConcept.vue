@@ -27,7 +27,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "@vue/runtime-core";
+export default defineComponent({
+  components: { Expression, Constraint }
+});
+</script>
+
+<script setup lang="ts">
+import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
 import Expression from "@/components/eclSearch/builder/Expression.vue";
 import Constraint from "@/components/eclSearch/builder/Constraint.vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
@@ -40,97 +46,82 @@ const {
   EclSearchBuilderMethods: { generateNewComponent }
 } = Helpers;
 
-export default defineComponent({
-  name: "FocusConcept",
-  props: {
-    id: { type: String, required: true },
-    position: { type: Number, required: true },
-    value: {
-      type: Object as PropType<{
-        children: ECLComponentDetails[];
-      }>,
-      required: false
-    },
-    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
+const props = defineProps({
+  id: { type: String, required: true },
+  position: { type: Number, required: true },
+  value: {
+    type: Object as PropType<{
+      children: ECLComponentDetails[];
+    }>,
+    required: false
   },
-  emits: {
-    addNextOptionsClicked: (_payload: any) => true,
-    deleteClicked: (_payload: ECLComponentDetails) => true,
-    updateClicked: (_payload: ECLComponentDetails) => true,
-    addClicked: (_payload: any) => true
-  },
-  components: { Expression, Constraint, AddDeleteButtons },
-  watch: {
-    focusConceptBuild: {
-      handler() {
-        this.focusConceptBuild.sort(byPosition);
-        this.$emit("updateClicked", this.createFocusConcept());
-      },
-      deep: true
-    }
-  },
-  mounted() {
-    this.setStartBuild();
-  },
-  data() {
-    return {
-      focusConceptBuild: [] as ECLComponentDetails[]
-    };
-  },
-  methods: {
-    deleteClicked(): void {
-      this.$emit("deleteClicked", this.createFocusConcept());
-    },
-
-    updateChild(data: any): void {
-      const index = this.focusConceptBuild.findIndex(item => item.position === data.position);
-      this.focusConceptBuild[index] = data;
-    },
-
-    createFocusConcept(): ECLComponentDetails {
-      return {
-        id: this.id,
-        value: {
-          children: this.focusConceptBuild
-        },
-        position: this.position,
-        type: ECLComponent.FOCUS_CONCEPT,
-        queryString: this.generateFocusConceptQueryString(),
-        showButtons: this.showButtons
-      };
-    },
-
-    generateFocusConceptQueryString(): string {
-      let queryString = "";
-      if (this.focusConceptBuild.length && this.focusConceptBuild.every(item => typeof item.queryString === "string")) {
-        const queryStrings = this.focusConceptBuild.map(item => item.queryString);
-        queryString = queryStrings
-          .join(" ")
-          .replace("/\n /g", "\n")
-          .trim();
-      }
-      return queryString;
-    },
-
-    setStartBuild(): void {
-      if (this.value && isObjectHasKeys(this.value, ["children"]) && isArrayHasLength(this.value.children)) {
-        this.focusConceptBuild = [...this.value.children];
-      } else {
-        this.focusConceptBuild = [];
-        this.focusConceptBuild.push(generateNewComponent(ECLComponent.CONSTRAINT, 0, null, { minus: false, plus: false }));
-        this.focusConceptBuild.push(generateNewComponent(ECLComponent.EXPRESSION, 1, null, { minus: false, plus: false }));
-      }
-    },
-
-    addNextClicked(item: any): void {
-      this.$emit("addNextOptionsClicked", { position: this.position + 1, selectedType: item });
-    },
-
-    getButtonOptions() {
-      return [ECLComponent.LOGIC, ECLComponent.REFINEMENT_GROUP];
-    }
-  }
+  showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
 });
+
+const emit = defineEmits({
+  addNextOptionsClicked: (_payload: any) => true,
+  deleteClicked: (_payload: ECLComponentDetails) => true,
+  updateClicked: (_payload: ECLComponentDetails) => true,
+  addClicked: (_payload: any) => true
+});
+
+const focusConceptBuild: Ref<ECLComponentDetails[]> = ref([]);
+
+watch(focusConceptBuild, newValue => {
+  newValue.sort(byPosition);
+  emit("updateClicked", createFocusConcept());
+});
+
+onMounted(() => setStartBuild());
+
+function deleteClicked(): void {
+  emit("deleteClicked", createFocusConcept());
+}
+
+function updateChild(data: any): void {
+  const index = focusConceptBuild.value.findIndex(item => item.position === data.position);
+  focusConceptBuild.value[index] = data;
+}
+
+function createFocusConcept(): ECLComponentDetails {
+  return {
+    id: props.id,
+    value: {
+      children: focusConceptBuild.value
+    },
+    position: props.position,
+    type: ECLComponent.FOCUS_CONCEPT,
+    queryString: generateFocusConceptQueryString(),
+    showButtons: props.showButtons
+  };
+}
+
+function generateFocusConceptQueryString(): string {
+  let queryString = "";
+  if (focusConceptBuild.value.length && focusConceptBuild.value.every(item => typeof item.queryString === "string")) {
+    const queryStrings = focusConceptBuild.value.map(item => item.queryString);
+    queryString = queryStrings.join(" ").replace("/\n /g", "\n").trim();
+  }
+  return queryString;
+}
+
+function setStartBuild(): void {
+  if (props.value && isObjectHasKeys(props.value, ["children"]) && isArrayHasLength(props.value.children)) {
+    focusConceptBuild.value = [...props.value.children];
+  } else {
+    focusConceptBuild.value = [];
+    focusConceptBuild.value.push(generateNewComponent(ECLComponent.CONSTRAINT, 0, null, { minus: false, plus: false }));
+    focusConceptBuild.value.push(generateNewComponent(ECLComponent.EXPRESSION, 1, null, { minus: false, plus: false }));
+  }
+}
+
+function addNextClicked(item: any): void {
+  emit("addNextOptionsClicked", { position: props.position + 1, selectedType: item });
+}
+
+function getButtonOptions() {
+  return [ECLComponent.LOGIC, ECLComponent.REFINEMENT_GROUP];
+}
 </script>
 
 <style scoped>

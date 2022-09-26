@@ -64,9 +64,9 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { mapState } from "vuex";
+<script setup lang="ts">
+import { computed, defineComponent, onMounted, ref, Ref, watch } from "vue";
+import { mapState, useStore } from "vuex";
 import { Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Helpers, Vocabulary, Enums } from "im-library";
 const {
@@ -75,129 +75,115 @@ const {
 const { IM, RDF, RDFS } = Vocabulary;
 const { SortDirection } = Enums;
 
-export default defineComponent({
-  name: "Filters",
-  props: { search: { type: Function, required: true } },
-  computed: mapState(["filterOptions", "selectedFilters", "quickFiltersStatus", "filterDefaults"]),
-  watch: {
-    includeLegacy(newValue) {
-      this.setLegacy(newValue);
-    },
-    selectedStatus() {
-      this.updateStoreSelectedFilters();
-    },
-    selectedSchemes() {
-      this.updateStoreSelectedFilters();
-    },
-    selectedTypes() {
-      this.updateStoreSelectedFilters();
-    },
-    selectedSortField() {
-      this.updateStoreSelectedFilters();
-    },
-    selectedSortDirection() {
-      this.updateStoreSelectedFilters();
+const props = defineProps({
+  search: { type: Function, required: true }
+});
+
+const store = useStore();
+const filterOptions = computed(() => store.state.filterOptions);
+const filterDefaults = computed(() => store.state.filterDefaults);
+const selectedFilters = computed(() => store.state.selectedFilters);
+const quickFiltersStatus = computed(() => store.state.quickFiltersStatus);
+
+const selectedStatus: Ref<EntityReferenceNode[]> = ref([]);
+const selectedSchemes: Ref<Namespace[]> = ref([]);
+const selectedTypes: Ref<EntityReferenceNode[]> = ref([]);
+const selectedSortField = ref("");
+const selectedSortDirection = ref("");
+const includeLegacy = ref(false);
+const sortFieldOptions = ref([{ label: "Usage", value: "weighting" }]);
+const sortDirectionsOptions = ref([
+  { label: "Descending", value: SortDirection.DESC },
+  { label: "Ascending", value: SortDirection.ASC }
+]);
+
+watch(includeLegacy, newValue => setLegacy(newValue));
+
+watch([selectedStatus, selectedSchemes, selectedTypes, selectedSortField, selectedSortDirection], () => updateStoreSelectedFilters());
+
+onMounted(() => init());
+
+function init() {
+  setDefaults();
+}
+
+function resetSortField() {
+  selectedSortField.value = filterDefaults.value.sortField;
+  selectedSortDirection.value = filterDefaults.value.sortDirection;
+}
+
+function resetSortDirection() {
+  selectedSortDirection.value = filterDefaults.value.sortDirection;
+}
+
+function resetStatus() {
+  selectedStatus.value = filterOptions.value.status.filter((item: EntityReferenceNode) => filterDefaults.value.statusOptions.includes(item["@id"]));
+  checkForSearch();
+}
+
+function resetSchemes() {
+  selectedSchemes.value = filterOptions.value.schemes.filter((item: Namespace) => filterDefaults.value.schemeOptions.includes(item.iri));
+  checkForSearch();
+}
+
+function resetTypes() {
+  selectedTypes.value = filterOptions.value.types.filter((item: EntityReferenceNode) => filterDefaults.value.typeOptions.includes(item["@id"]));
+  checkForSearch();
+}
+
+function checkForSearch(): void {
+  updateStoreSelectedFilters();
+  props.search();
+}
+
+function updateStoreSelectedFilters(): void {
+  store.commit("updateSelectedFilters", {
+    status: selectedStatus.value,
+    schemes: selectedSchemes.value,
+    types: selectedTypes.value,
+    sortField: selectedSortField.value,
+    sortDirection: selectedSortDirection.value
+  });
+}
+
+function setDefaults(): void {
+  if (!isArrayHasLength(selectedFilters.value.status) && !isArrayHasLength(selectedFilters.value.schemes) && !isArrayHasLength(selectedFilters.value.types)) {
+    selectedStatus.value = filterOptions.value.status.filter((item: EntityReferenceNode) => filterDefaults.value.statusOptions.includes(item["@id"]));
+    selectedSchemes.value = filterOptions.value.schemes.filter((item: Namespace) => filterDefaults.value.schemeOptions.includes(item.iri));
+    selectedTypes.value = filterOptions.value.types.filter((item: EntityReferenceNode) => filterDefaults.value.typeOptions.includes(item["@id"]));
+    selectedSortField.value = filterDefaults.value.sortField;
+    selectedSortDirection.value = filterDefaults.value.sortDirection;
+    updateStoreSelectedFilters();
+  } else {
+    selectedStatus.value = selectedFilters.value.status;
+    selectedSchemes.value = selectedFilters.value.schemes;
+    selectedTypes.value = selectedFilters.value.types;
+    selectedSortField.value = selectedFilters.value.sortField;
+    selectedSortDirection.value = selectedFilters.value.sortDirection;
+  }
+
+  if (quickFiltersStatus.value.includeLegacy) {
+    includeLegacy.value = quickFiltersStatus.value.includeLegacy;
+  }
+}
+
+function setLegacy(include: boolean): void {
+  const emisScheme = selectedSchemes.value.findIndex(scheme => scheme.iri === IM.GRAPH_EMIS);
+  if (include) {
+    if (emisScheme === -1) {
+      const found = filterOptions.value.schemes.find((scheme: Namespace) => scheme.iri === IM.GRAPH_EMIS);
+      if (found) selectedSchemes.value.push(found);
     }
-  },
-  mounted() {
-    this.init();
-  },
-  data() {
-    return {
-      selectedStatus: [] as EntityReferenceNode[],
-      selectedSchemes: [] as Namespace[],
-      selectedTypes: [] as EntityReferenceNode[],
-      selectedSortField: "" as any,
-      selectedSortDirection: "" as any,
-      includeLegacy: false,
-      sortFieldOptions: [{ label: "Usage", value: "weighting" }],
-      sortDirectionsOptions: [
-        { label: "Descending", value: SortDirection.DESC },
-        { label: "Ascending", value: SortDirection.ASC }
-      ]
-    };
-  },
-  methods: {
-    init() {
-      this.setDefaults();
-    },
-
-    resetSortField() {
-      this.selectedSortField = this.filterDefaults.sortField;
-      this.selectedSortDirection = this.filterDefaults.sortDirection;
-    },
-
-    resetSortDirection() {
-      this.selectedSortDirection = this.filterDefaults.sortDirection;
-    },
-
-    resetStatus() {
-      this.selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.filterDefaults.statusOptions.includes(item["@id"]));
-      this.checkForSearch();
-    },
-    resetSchemes() {
-      this.selectedSchemes = this.filterOptions.schemes.filter((item: Namespace) => this.filterDefaults.schemeOptions.includes(item.iri));
-      this.checkForSearch();
-    },
-    resetTypes() {
-      this.selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.filterDefaults.typeOptions.includes(item["@id"]));
-      this.checkForSearch();
-    },
-    checkForSearch(): void {
-      this.updateStoreSelectedFilters();
-      this.search();
-    },
-
-    updateStoreSelectedFilters(): void {
-      this.$store.commit("updateSelectedFilters", {
-        status: this.selectedStatus,
-        schemes: this.selectedSchemes,
-        types: this.selectedTypes,
-        sortField: this.selectedSortField,
-        sortDirection: this.selectedSortDirection
-      });
-    },
-
-    setDefaults(): void {
-      if (!isArrayHasLength(this.selectedFilters.status) && !isArrayHasLength(this.selectedFilters.schemes) && !isArrayHasLength(this.selectedFilters.types)) {
-        this.selectedStatus = this.filterOptions.status.filter((item: EntityReferenceNode) => this.filterDefaults.statusOptions.includes(item["@id"]));
-        this.selectedSchemes = this.filterOptions.schemes.filter((item: Namespace) => this.filterDefaults.schemeOptions.includes(item.iri));
-        this.selectedTypes = this.filterOptions.types.filter((item: EntityReferenceNode) => this.filterDefaults.typeOptions.includes(item["@id"]));
-        this.selectedSortField = this.filterDefaults.sortField;
-        this.selectedSortDirection = this.filterDefaults.sortDirection;
-        this.updateStoreSelectedFilters();
-      } else {
-        this.selectedStatus = this.selectedFilters.status;
-        this.selectedSchemes = this.selectedFilters.schemes;
-        this.selectedTypes = this.selectedFilters.types;
-        this.selectedSortField = this.selectedFilters.sortField;
-        this.selectedSortDirection = this.selectedFilters.sortDirection;
-      }
-
-      if (this.quickFiltersStatus.includeLegacy) {
-        this.includeLegacy = this.quickFiltersStatus.includeLegacy;
-      }
-    },
-
-    setLegacy(include: boolean): void {
-      const emisScheme = this.selectedSchemes.findIndex(scheme => scheme.iri === IM.GRAPH_EMIS);
-      if (include) {
-        if (emisScheme === -1) {
-          const found = this.filterOptions.schemes.find((scheme: Namespace) => scheme.iri === IM.GRAPH_EMIS);
-          if (found) this.selectedSchemes.push(found);
-        }
-      } else {
-        if (emisScheme > -1) {
-          this.selectedSchemes.splice(emisScheme, 1);
-        }
-      }
-      this.$store.commit("updateQuickFiltersStatus", {
-        key: "includeLegacy",
-        value: include
-      });
+  } else {
+    if (emisScheme > -1) {
+      selectedSchemes.value.splice(emisScheme, 1);
     }
   }
-});
+  store.commit("updateQuickFiltersStatus", {
+    key: "includeLegacy",
+    value: include
+  });
+}
 </script>
 
 <style scoped>

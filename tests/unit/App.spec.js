@@ -1,4 +1,4 @@
-import { flushPromises, shallowMount } from "@vue/test-utils";
+import { render, fireEvent, within } from "@testing-library/vue";
 import App from "@/App.vue";
 import Toast from "primevue/toast";
 import ProgressSpinner from "primevue/progressspinner";
@@ -7,48 +7,54 @@ import Button from "primevue/button";
 import Menu from "primevue/menu";
 import TopBar from "im-library";
 import { expect, vi } from "vitest";
-import { setupServer } from "msw/node";
+import PrimeVue from "primevue/config";
+
+vi.mock("vuex", () => ({
+  useStore: () => ({
+    dispatch: mockDispatch
+  })
+}));
+
+const mockDispatch = vi.fn();
+
+const mockPush = vi.fn();
+const mockGo = vi.fn();
+const mockRoute = { name: "Concept" };
+
+vi.mock("vue-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    go: mockGo
+  }),
+  useRoute: () => mockRoute
+}));
+
+const mockAdd = vi.fn();
+
+vi.mock("primevue/usetoast", () => ({
+  useToast: () => ({
+    add: mockAdd
+  })
+}));
 
 describe("App.vue", () => {
-  let wrapper;
-  let mockStore;
-
-  const restHandlers = [];
-  const server = setupServer(...restHandlers);
-
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: "error" });
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-  });
+  let component;
 
   beforeEach(async () => {
     vi.resetAllMocks();
-    mockStore = {
-      state: { historyCount: 1 },
-      commit: vi.fn(),
-      dispatch: vi.fn()
-    };
-    wrapper = shallowMount(App, {
+    component = render(App, {
       global: {
         components: { Toast, ProgressSpinner, ConfirmDialog, TopBar, Button, Menu },
-        stubs: ["router-link", "router-view"],
-        mocks: { $store: mockStore }
+        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true, Search: true },
+        plugins: [PrimeVue]
       }
     });
   });
 
   it("should check auth and update store history count on mount", async () => {
-    expect(mockStore.dispatch).toHaveBeenCalledTimes(3);
-    expect(mockStore.dispatch).toHaveBeenCalledWith("authenticateCurrentUser");
-    expect(mockStore.dispatch).toHaveBeenCalledWith("fetchFilterSettings");
-    expect(mockStore.dispatch).toHaveBeenCalledWith("initFavourites");
-    expect(wrapper.vm.loading).toBe(false);
+    expect(mockDispatch).toHaveBeenCalledTimes(3);
+    expect(mockDispatch).toHaveBeenCalledWith("authenticateCurrentUser");
+    expect(mockDispatch).toHaveBeenCalledWith("fetchFilterSettings");
+    expect(mockDispatch).toHaveBeenCalledWith("initFavourites");
   });
 });

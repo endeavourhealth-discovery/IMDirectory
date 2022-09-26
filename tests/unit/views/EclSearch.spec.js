@@ -1,203 +1,119 @@
+import { render, fireEvent, within } from "@testing-library/vue";
 import ExpressionConstraintsSearch from "@/views/EclSearch.vue";
-import { flushPromises, shallowMount } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
-import { setupServer } from "msw/node";
+import testData from "./EclSearch.testData";
+import { Services } from "im-library";
+import { expect, it } from "vitest";
+import { data } from "../../../src/mocks/factory";
+import VueClipboard from "vue3-clipboard";
+import Tooltip from "primevue/tooltip";
+const { SetService } = Services;
 
-describe("EclSearch.vue", () => {
-  let wrapper;
-  let mockStore;
-  let mockToast;
-  let mockSetService;
-  let mockLoggerService;
+vi.mock("vuex", () => ({
+  useStore: () => ({
+    dispatch: mockDispatch
+  })
+}));
+
+const mockDispatch = vi.fn();
+
+const mockPush = vi.fn();
+const mockGo = vi.fn();
+const mockRoute = { name: "Concept" };
+
+vi.mock("vue-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    go: mockGo
+  }),
+  useRoute: () => mockRoute
+}));
+
+const mockAdd = vi.fn();
+
+vi.mock("primevue/usetoast", () => ({
+  useToast: () => ({
+    add: mockAdd
+  })
+}));
+
+describe("EclSearch.vue", async () => {
+  let component;
+  let mockECLSearch;
   let docSpy;
   let windowSpy;
-
-  const restHandlers = [];
-  const server = setupServer(...restHandlers);
-
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: "error" });
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-  });
-
-  const SEARCH_RESULTS = {
-    page: 1,
-    count: 3,
-    entities: [
-      {
-        name: "Arthrotec 50 gastro-resistant tablets (Pfizer Ltd) 60 tablet 6 x 10 tablets",
-        iri: "http://snomed.info/sct#3160311000001101",
-        code: "3160311000001101",
-        description: "Arthrotec 50 gastro-resistant tablets (Pfizer Ltd) 60 tablet 6 x 10 tablets (product)",
-        status: {
-          name: "Active",
-          "@id": "http://endhealth.info/im#Active"
-        },
-        scheme: {
-          name: "Snomed-CT namespace",
-          "@id": "http://snomed.info/sct#"
-        },
-        entityType: [
-          {
-            name: "Concept",
-            "@id": "http://endhealth.info/im#Concept"
-          }
-        ],
-        isDescendentOf: [],
-        match: "25663601000001112"
-      },
-      {
-        name: "Gabapentin 100mg capsules (Zentiva Pharma UK Ltd) 100 capsule",
-        iri: "http://snomed.info/sct#9557811000001109",
-        code: "9557811000001109",
-        description: "Gabapentin 100mg capsules (Zentiva Pharma UK Ltd) 100 capsule (product)",
-        status: {
-          name: "Active",
-          "@id": "http://endhealth.info/im#Active"
-        },
-        scheme: {
-          name: "Snomed-CT namespace",
-          "@id": "http://snomed.info/sct#"
-        },
-        entityType: [
-          {
-            name: "Concept",
-            "@id": "http://endhealth.info/im#Concept"
-          }
-        ],
-        isDescendentOf: [],
-        match: "1762201000001114"
-      },
-      {
-        name: "Dermablend cover creme B12 (Vichy)",
-        iri: "http://snomed.info/sct#10222311000001109",
-        code: "10222311000001109",
-        description: "Dermablend cover creme B12 (Vichy) (product)",
-        status: {
-          name: "Active",
-          "@id": "http://endhealth.info/im#Active"
-        },
-        scheme: {
-          name: "Snomed-CT namespace",
-          "@id": "http://snomed.info/sct#"
-        },
-        entityType: [
-          {
-            name: "Concept",
-            "@id": "http://endhealth.info/im#Concept"
-          }
-        ],
-        isDescendentOf: [],
-        match: "66209001000001114"
-      }
-    ]
-  };
 
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    mockStore = { state: { sidebarControlActivePanel: 0 } };
-    mockToast = { add: vi.fn() };
+    mockECLSearch = vi.spyOn(SetService.prototype, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
 
-    mockSetService = { ECLSearch: vi.fn().mockResolvedValue(SEARCH_RESULTS) };
-
-    mockLoggerService = { error: vi.fn(), warn: vi.fn(), info: vi.fn(), success: vi.fn(), debug: vi.fn() };
-
-    wrapper = shallowMount(ExpressionConstraintsSearch, {
+    component = render(ExpressionConstraintsSearch, {
       global: {
         components: { Textarea, Button },
-        mocks: { $store: mockStore, $toast: mockToast, $setService: mockSetService, $loggerService: mockLoggerService },
-        directives: { tooltip: vi.fn(), clipboard: { copy: vi.fn(), success: vi.fn(), error: vi.fn() } }
+        directives: {
+          tooltip: Tooltip
+        },
+        stubs: { SearchResults: true, Builder: true },
+        plugins: [
+          app =>
+            VueClipboard(app, {
+              autoSetContainer: true,
+              appendToBody: true
+            })
+        ]
       }
     });
 
     await flushPromises();
-    await wrapper.vm.$nextTick();
     vi.clearAllMocks();
   });
 
   it("mounts", () => {
-    expect(wrapper.vm.queryString).toBe("");
-    expect(wrapper.vm.showDialog).toBe(false);
-    expect(wrapper.vm.searchResults).toStrictEqual([]);
-    expect(wrapper.vm.totalCount).toBe(0);
-    expect(wrapper.vm.eclError).toBe(false);
-    expect(wrapper.vm.loading).toBe(false);
+    component.getByText("ECL expression:");
   });
 
-  it("can watch queryString", () => {
-    wrapper.vm.eclError = true;
-    wrapper.vm.$options.watch.queryString.call(wrapper.vm, "any");
-    expect(wrapper.vm.eclError).toBe(false);
-  });
-
-  it("can updateECL", () => {
-    wrapper.vm.updateECL("<< 10363601000001109 |UK product| ");
-    expect(wrapper.vm.queryString).toBe("<< 10363601000001109 |UK product| ");
-    expect(wrapper.vm.showDialog).toBe(false);
-  });
-
-  it("can showBuilder", () => {
-    wrapper.vm.showBuilder();
-    expect(wrapper.vm.showDialog).toBe(true);
-  });
-
-  it("can search ___ no querystring", async () => {
-    wrapper.vm.search();
+  it("searches", async () => {
+    const textbox = component.getByTestId("query-string");
+    await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
+    component.getByDisplayValue("<< 10363601000001109 |UK product|");
+    const search = component.getByTestId("search-button");
+    await fireEvent.click(search);
     await flushPromises();
-    expect(mockSetService.ECLSearch).not.toHaveBeenCalled();
+    expect(mockECLSearch).toHaveBeenCalledTimes(1);
   });
 
-  it("can search ___ querystring ___ success", async () => {
-    wrapper.vm.queryString = "<< 10363601000001109 |UK product| ";
-    const controller = new AbortController();
-    wrapper.vm.search();
-    expect(wrapper.vm.loading).toBe(true);
+  it("opens builder overlay", async () => {
+    const button = component.getByTestId("builder-button");
+    await fireEvent.click(button);
+    component.getByTestId("builder-visible-true");
+  });
+
+  it("handles >1000 results", async () => {
+    const largeSearchResults = [];
+    for (let i = 1; i <= 1100; i++) {
+      largeSearchResults.push(data.conceptSummary.create());
+    }
+    mockECLSearch.mockResolvedValue({ page: 1, count: largeSearchResults.length, entities: largeSearchResults });
+    const textbox = component.getByTestId("query-string");
+    await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
+    component.getByDisplayValue("<< 10363601000001109 |UK product|");
+    const search = component.getByTestId("search-button");
+    await fireEvent.click(search);
     await flushPromises();
-    expect(mockSetService.ECLSearch).toHaveBeenCalledTimes(1);
-    expect(mockSetService.ECLSearch).toHaveBeenCalledWith("<< 10363601000001109 |UK product| ", false, 1000, controller);
-    expect(wrapper.vm.loading).toBe(false);
-    expect(wrapper.vm.searchResults).toStrictEqual(SEARCH_RESULTS.entities);
-    expect(wrapper.vm.totalCount).toBe(3);
+    component.getByText("1100 results found. Display limited to first 1000.");
   });
 
-  it("cancels existing requests on new search", async () => {
-    const spy = vi.spyOn(AbortController.prototype, "abort");
-    wrapper.vm.queryString = "sco";
-    wrapper.vm.search();
-    await wrapper.vm.$nextTick();
-    wrapper.vm.queryString = "pul";
-    wrapper.vm.search();
-    await wrapper.vm.$nextTick();
+  it("toasts on copy", async () => {
+    const textbox = component.getByTestId("query-string");
+    await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
+    component.getByDisplayValue("<< 10363601000001109 |UK product|");
+    const button = component.getByTestId("copy-to-clipboard-button");
+    await fireEvent.click(button);
     await flushPromises();
-    expect(spy).toHaveBeenCalledTimes(1);
-    spy.mockReset();
-  });
-
-  it("can search ___ empty result", async () => {
-    wrapper.vm.queryString = "sco";
-    mockSetService.ECLSearch = vi.fn().mockResolvedValue({});
-    wrapper.vm.search();
-    await flushPromises();
-    expect(wrapper.vm.eclError).toBe(true);
-  });
-
-  it("can toast onCopy", () => {
-    wrapper.vm.onCopy();
-    expect(mockToast.add).toHaveBeenCalledTimes(1);
-  });
-
-  it("can toast onCopyError", () => {
-    wrapper.vm.onCopyError();
-    expect(mockToast.add).toHaveBeenCalledTimes(1);
+    expect(mockAdd).toHaveBeenCalledOnce();
   });
 });

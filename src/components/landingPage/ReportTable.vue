@@ -12,9 +12,7 @@
           <ProgressSpinner />
         </div>
         <DataTable v-else-if="isCorrectInputData" :value="tableData" class="p-datatable-sm" :scrollable="true" scrollHeight="350px">
-          <template #header>
-            Ontology data
-          </template>
+          <template #header> Ontology data </template>
           <Column field="label" header="Label"></Column>
           <Column field="count" header="Total"></Column>
         </DataTable>
@@ -23,60 +21,49 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { computed, defineComponent, onMounted, PropType, ref, Ref } from "vue";
 import { Helpers, Vocabulary } from "im-library";
 const { RDFS, IM } = Vocabulary;
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
 
-export default defineComponent({
-  name: "ReportTable",
-  props: {
-    name: { type: String, required: false },
-    description: { type: String, required: false },
-    inputData: { type: Array as PropType<Array<any>>, required: true },
-    id: { type: String, required: true }
-  },
-  computed: {
-    isCorrectInputData(): boolean {
-      return this.inputData.every(item => {
-        return !!(isObjectHasKeys(item, [RDFS.LABEL, IM.HAS_VALUE]) || isObjectHasKeys(item, ["count", "label"]));
+const props = defineProps({
+  name: { type: String, required: false },
+  description: { type: String, required: false },
+  inputData: { type: Array as PropType<any[]>, required: true },
+  id: { type: String, required: true }
+});
+
+const tableData: Ref<{ count: number; label: string }[]> = ref([]);
+const loading = ref(false);
+
+const isCorrectInputData = computed(() =>
+  props.inputData.every(item => !!(isObjectHasKeys(item, [RDFS.LABEL, IM.HAS_VALUE]) || isObjectHasKeys(item, ["count", "label"])))
+);
+
+onMounted(() => getReportTableData());
+
+function getReportTableData(): void {
+  if (!isCorrectInputData.value) return;
+  loading.value = true;
+  for (const entry of props.inputData) {
+    if (isObjectHasKeys(entry, [RDFS.LABEL, IM.HAS_VALUE])) {
+      tableData.value.push({
+        label: entry[RDFS.LABEL],
+        count: +entry[IM.HAS_VALUE]
       });
     }
-  },
-  data() {
-    return {
-      tableData: [] as { count: number; label: string }[],
-      loading: false
-    };
-  },
-  mounted() {
-    this.getReportTableData();
-  },
-  methods: {
-    getReportTableData(): void {
-      if (!this.isCorrectInputData) return;
-      this.loading = true;
-      for (const entry of this.inputData) {
-        if (isObjectHasKeys(entry, [RDFS.LABEL, IM.HAS_VALUE])) {
-          this.tableData.push({
-            label: entry[RDFS.LABEL],
-            count: +entry[IM.HAS_VALUE]
-          });
-        }
-        if (isObjectHasKeys(entry, ["label", "count"])) {
-          this.tableData.push({
-            label: entry.label,
-            count: +entry.count
-          });
-        }
-      }
-      this.loading = false;
+    if (isObjectHasKeys(entry, ["label", "count"])) {
+      tableData.value.push({
+        label: entry.label,
+        count: +entry.count
+      });
     }
   }
-});
+  loading.value = false;
+}
 </script>
 
 <style scoped>

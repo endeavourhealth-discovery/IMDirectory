@@ -21,153 +21,141 @@
   </OverlayPanel>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { computed, defineComponent, onMounted, PropType, Ref, ref } from "vue";
 import SearchMiniOverlay from "@/components/eclSearch/SearchMiniOverlay.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { mapState } from "vuex";
-import { Enums, Helpers, Vocabulary } from "im-library";
+import { mapState, useStore } from "vuex";
+import { Enums, Helpers, Vocabulary, Services } from "im-library";
 import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef, SearchRequest, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
+import axios from "axios";
 const { ECLComponent, SortBy } = Enums;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys, isObject }
 } = Helpers;
 const { IM } = Vocabulary;
+const { EntityService } = Services;
 
-export default defineComponent({
-  name: "Expression",
-  props: {
-    id: { type: String, required: true },
-    position: { type: Number, required: true },
-    value: { type: Object as PropType<ConceptSummary>, required: false },
-    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
-  },
-  emits: { updateClicked: (_payload: ECLComponentDetails) => true },
-  components: { SearchMiniOverlay },
-  computed: mapState(["filterOptions", "selectedFilters"]),
-  mounted() {
-    if (this.value && isObjectHasKeys(this.value, ["name", "iri"])) {
-      this.updateSelectedResult(this.value);
-    } else {
-      this.updateSelectedResult({ ...this.anyModel });
-    }
-  },
-  data() {
-    return {
-      loading: false,
-      debounce: 0,
-      controller: {} as AbortController,
-      selectedResult: {} as ConceptSummary,
-      anyModel: {
-        code: "",
-        name: "ANY",
-        iri: "",
-        isDescendentOf: [],
-        weighting: 0,
-        scheme: {} as TTIriRef,
-        status: {} as TTIriRef,
-        match: "ANY",
-        entityType: [{ "@id": IM.CONCEPT, name: "Concept" }]
-      } as ConceptSummary,
-      searchTerm: "ANY",
-      searchResults: [] as ConceptSummary[]
-    };
-  },
-  methods: {
-    // debounceForSearch(): void {
-    //   clearTimeout(this.debounce);
-    //   this.debounce = window.setTimeout(() => {
-    //     this.search();
-    //   }, 600);
-    // },
+const props = defineProps({
+  id: { type: String, required: true },
+  position: { type: Number, required: true },
+  value: { type: Object as PropType<ConceptSummary>, required: false },
+  showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
+});
 
-    // checkKey(event: any) {
-    //   if (event.code === "Enter") {
-    //     this.search();
-    //   }
-    // },
+const emit = defineEmits({ updateClicked: (_payload: ECLComponentDetails) => true });
 
-    async search(): Promise<void> {
-      if (this.searchTerm.toUpperCase() === "ANY" || this.searchTerm === "*") {
-        this.searchResults = [{ ...this.anyModel }];
-        return;
-      }
-      if (this.searchTerm.length > 0) {
-        this.searchResults = [];
-        this.loading = true;
-        const searchRequest = {} as SearchRequest;
-        searchRequest.termFilter = this.searchTerm;
-        searchRequest.sortBy = SortBy.Usage;
-        searchRequest.page = 1;
-        searchRequest.size = 100;
-        searchRequest.schemeFilter = this.selectedFilters.schemes.map((scheme: Namespace) => scheme.iri);
+const store = useStore();
+const filterOptions = computed(() => store.state.filterOptions);
+const selectedFilters = computed(() => store.state.selectedFilters);
 
-        searchRequest.statusFilter = [];
-        this.selectedFilters.status.forEach((status: EntityReferenceNode) => {
-          searchRequest.statusFilter.push(status["@id"]);
-        });
+const entityService = new EntityService(axios);
 
-        searchRequest.typeFilter = [];
-        this.selectedFilters.types.forEach((type: TTIriRef) => {
-          searchRequest.typeFilter.push(type["@id"]);
-        });
-        if (!isObject(this.controller)) {
-          this.controller.abort();
-        }
-        this.controller = new AbortController();
-        await this.fetchSearchResults(searchRequest, this.controller);
-        this.loading = false;
-      }
-    },
+const loading = ref(false);
+const debounce = ref(0);
+const controller: Ref<AbortController> = ref({} as AbortController);
+const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const searchTerm = ref("ANY");
+const searchResults: Ref<ConceptSummary[]> = ref([]);
+const anyModel: Ref<ConceptSummary> = ref({
+  code: "",
+  name: "ANY",
+  iri: "",
+  isDescendentOf: [],
+  weighting: 0,
+  scheme: {} as TTIriRef,
+  status: {} as TTIriRef,
+  match: "ANY",
+  entityType: [{ "@id": IM.CONCEPT, name: "Concept" }]
+});
 
-    async fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {
-      const result = await this.$entityService.advancedSearch(searchRequest, controller);
-      if (result && isArrayHasLength(result)) {
-        this.searchResults = result;
-      } else {
-        this.searchResults = [];
-      }
-    },
+const miniSearchOP = ref();
 
-    hideOverlay(): void {
-      const x = this.$refs.miniSearchOP as any;
-      x.hide();
-    },
-
-    showOverlay(event: any): void {
-      const x = this.$refs.miniSearchOP as any;
-      x.show(event, event.target);
-    },
-
-    updateSelectedResult(data: ConceptSummary) {
-      this.selectedResult = data;
-      this.searchTerm = data.name;
-      this.$emit("updateClicked", this.createExpression());
-      this.hideOverlay();
-    },
-
-    editClicked(event: any) {
-      this.showOverlay(event);
-    },
-
-    createExpression(): ECLComponentDetails {
-      let queryString = "";
-      if (this.selectedResult.name === "ANY") {
-        queryString = "*";
-      } else {
-        queryString = this.selectedResult.code + " |" + this.selectedResult.name + "|";
-      }
-      return {
-        value: this.selectedResult,
-        id: this.id,
-        position: this.position,
-        type: ECLComponent.EXPRESSION,
-        queryString: queryString,
-        showButtons: this.showButtons
-      };
-    }
+onMounted(() => {
+  if (props.value && isObjectHasKeys(props.value, ["name", "iri"])) {
+    updateSelectedResult(props.value);
+  } else {
+    updateSelectedResult({ ...anyModel.value });
   }
 });
+
+async function search(): Promise<void> {
+  if (searchTerm.value.toUpperCase() === "ANY" || searchTerm.value === "*") {
+    searchResults.value = [{ ...anyModel.value }];
+    return;
+  }
+  if (searchTerm.value.length > 0) {
+    searchResults.value = [];
+    loading.value = true;
+    const searchRequest = {} as SearchRequest;
+    searchRequest.termFilter = searchTerm.value;
+    searchRequest.sortBy = SortBy.Usage;
+    searchRequest.page = 1;
+    searchRequest.size = 100;
+    searchRequest.schemeFilter = selectedFilters.value.schemes.map((scheme: Namespace) => scheme.iri);
+
+    searchRequest.statusFilter = [];
+    selectedFilters.value.status.forEach((status: EntityReferenceNode) => {
+      searchRequest.statusFilter.push(status["@id"]);
+    });
+
+    searchRequest.typeFilter = [];
+    selectedFilters.value.types.forEach((type: TTIriRef) => {
+      searchRequest.typeFilter.push(type["@id"]);
+    });
+    if (!isObject(controller.value)) {
+      controller.value.abort();
+    }
+    controller.value = new AbortController();
+    await fetchSearchResults(searchRequest, controller.value);
+    loading.value = false;
+  }
+}
+
+async function fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {
+  const result = await entityService.advancedSearch(searchRequest, controller);
+  if (result && isArrayHasLength(result)) {
+    searchResults.value = result;
+  } else {
+    searchResults.value = [];
+  }
+}
+
+function hideOverlay(): void {
+  miniSearchOP.value.hide();
+}
+
+function showOverlay(event: any): void {
+  miniSearchOP.value.show(event, event.target);
+}
+
+function updateSelectedResult(data: ConceptSummary) {
+  selectedResult.value = data;
+  searchTerm.value = data.name;
+  emit("updateClicked", createExpression());
+  hideOverlay();
+}
+
+function editClicked(event: any) {
+  showOverlay(event);
+}
+
+function createExpression(): ECLComponentDetails {
+  let queryString = "";
+  if (selectedResult.value.name === "ANY") {
+    queryString = "*";
+  } else {
+    queryString = selectedResult.value.code + " |" + selectedResult.value.name + "|";
+  }
+  return {
+    value: selectedResult.value,
+    id: props.id,
+    position: props.position,
+    type: ECLComponent.EXPRESSION,
+    queryString: queryString,
+    showButtons: props.showButtons
+  };
+}
 </script>
 
 <style scoped>

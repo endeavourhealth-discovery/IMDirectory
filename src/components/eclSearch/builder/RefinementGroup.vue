@@ -11,8 +11,8 @@
             :position="item.position"
             :showButtons="item.showButtons"
             @deleteClicked="deleteItem"
-            @addClicked="addItem"
-            @updateClicked="updateItem"
+            @addClicked="addItemWrapper"
+            @updateClicked="updateItemWrapper"
             @addNextOptionsClicked="addItem"
           >
           </component>
@@ -36,7 +36,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "@vue/runtime-core";
+export default defineComponent({
+  components: { Refinement, Logic }
+});
+</script>
+
+<script setup lang="ts">
+import { defineComponent, onMounted, PropType, Ref, ref, watch } from "vue";
 import Refinement from "@/components/eclSearch/builder/Refinement.vue";
 import Logic from "@/components/eclSearch/builder/Logic.vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
@@ -49,133 +55,120 @@ const {
   EclSearchBuilderMethods: { addItem, updateItem, updatePositions, generateNewComponent }
 } = Helpers;
 
-export default defineComponent({
-  name: "RefinementGroup",
-  props: {
-    id: { type: String, required: true },
-    position: { type: Number, required: true },
-    value: {
-      type: Object as PropType<{
-        children: ECLComponentDetails[];
-        group: boolean;
-      }>,
-      required: false
-    },
-    showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
+const props = defineProps({
+  id: { type: String, required: true },
+  position: { type: Number, required: true },
+  value: {
+    type: Object as PropType<{
+      children: ECLComponentDetails[];
+      group: boolean;
+    }>,
+    required: false
   },
-  emits: {
-    addNextOptionsClicked: (_payload: any) => true,
-    addClicked: (_payload: ECLComponentDetails) => true,
-    deleteClicked: (_payload: ECLComponentDetails) => true,
-    updateClicked: (_payload: ECLComponentDetails) => true
-  },
-  components: { Refinement, Logic, AddDeleteButtons },
-  watch: {
-    refinementGroupBuild: {
-      handler(): void {
-        this.refinementGroupBuild.sort(byPosition);
-        this.$emit("updateClicked", this.createRefinementGroup());
-      },
-      deep: true
-    },
-    group(): void {
-      this.$emit("updateClicked", this.createRefinementGroup());
-    }
-  },
-  mounted() {
-    this.setStartBuild();
-  },
-  data() {
-    return {
-      refinementGroupBuild: [] as ECLComponentDetails[],
-      group: false
-    };
-  },
-  methods: {
-    onConfirm(): void {
-      this.$emit("addClicked", this.createRefinementGroup());
-    },
-
-    deleteClicked(): void {
-      this.$emit("deleteClicked", this.createRefinementGroup());
-    },
-
-    addNextClicked(item: any): void {
-      this.$emit("addNextOptionsClicked", {
-        position: this.position + 1,
-        selectedType: item
-      });
-    },
-
-    addItem(data: { selectedType: Enums.ECLComponent; position: number; value: any }): void {
-      if (data.selectedType === ECLComponent.LOGIC) {
-        data.value = { data: data.value, parentGroup: ECLComponent.REFINEMENT_GROUP };
-      }
-      addItem(data, this.refinementGroupBuild, { minus: true, plus: true });
-    },
-
-    deleteItem(data: ECLComponentDetails): void {
-      const index = this.refinementGroupBuild.findIndex(child => child.position === data.position);
-      this.refinementGroupBuild.splice(index, 1);
-      if (this.refinementGroupBuild.length === 0) {
-        this.setStartBuild();
-        return;
-      }
-      updatePositions(this.refinementGroupBuild);
-    },
-
-    updateItem(data: ECLComponentDetails): void {
-      updateItem(data, this.refinementGroupBuild);
-    },
-
-    createRefinementGroup(): ECLComponentDetails {
-      return {
-        id: this.id,
-        value: {
-          children: this.refinementGroupBuild,
-          group: this.group
-        },
-        position: this.position,
-        type: ECLComponent.REFINEMENT_GROUP,
-        queryString: this.generateRefinementGroupQueryString(),
-        showButtons: this.showButtons
-      };
-    },
-
-    generateRefinementGroupQueryString(): string {
-      let queryString = "";
-      if (!isArrayHasLength(this.refinementGroupBuild)) return queryString;
-      const queryStrings = this.refinementGroupBuild.map(item => {
-        if (item.type === ECLComponent.LOGIC) {
-          return item.queryString + "\n\t";
-        } else {
-          return item.queryString;
-        }
-      });
-      queryString = queryStrings
-        .join(" ")
-        .trim()
-        .replace(/\n\t +/, "\n\t");
-      if (this.group) {
-        return ":\n\t{" + queryString + "}";
-      } else {
-        return ":\n\t" + queryString;
-      }
-    },
-
-    setStartBuild(): void {
-      if (this.value && this.value.children) {
-        this.refinementGroupBuild = [...this.value.children];
-      } else {
-        this.refinementGroupBuild = [generateNewComponent(ECLComponent.REFINEMENT, 0, null, { minus: false, plus: true })];
-      }
-    },
-
-    getButtonOptions() {
-      return [ECLComponent.LOGIC];
-    }
-  }
+  showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
 });
+
+const emit = defineEmits({
+  addNextOptionsClicked: (_payload: any) => true,
+  addClicked: (_payload: ECLComponentDetails) => true,
+  deleteClicked: (_payload: ECLComponentDetails) => true,
+  updateClicked: (_payload: ECLComponentDetails) => true
+});
+
+const refinementGroupBuild: Ref<ECLComponentDetails[]> = ref([]);
+const group = ref(false);
+
+watch(refinementGroupBuild, newValue => {
+  newValue.sort(byPosition);
+  emit("updateClicked", createRefinementGroup());
+});
+
+watch(group, () => emit("updateClicked", createRefinementGroup()));
+
+onMounted(() => setStartBuild());
+
+function onConfirm(): void {
+  emit("addClicked", createRefinementGroup());
+}
+
+function deleteClicked(): void {
+  emit("deleteClicked", createRefinementGroup());
+}
+
+function addNextClicked(item: any): void {
+  emit("addNextOptionsClicked", {
+    position: props.position + 1,
+    selectedType: item
+  });
+}
+
+function addItemWrapper(data: { selectedType: Enums.ECLComponent; position: number; value: any }): void {
+  if (data.selectedType === ECLComponent.LOGIC) {
+    data.value = { data: data.value, parentGroup: ECLComponent.REFINEMENT_GROUP };
+  }
+  addItem(data, refinementGroupBuild.value, { minus: true, plus: true });
+}
+
+function deleteItem(data: ECLComponentDetails): void {
+  const index = refinementGroupBuild.value.findIndex(child => child.position === data.position);
+  refinementGroupBuild.value.splice(index, 1);
+  if (refinementGroupBuild.value.length === 0) {
+    setStartBuild();
+    return;
+  }
+  updatePositions(refinementGroupBuild.value);
+}
+
+function updateItemWrapper(data: ECLComponentDetails): void {
+  updateItem(data, refinementGroupBuild.value);
+}
+
+function createRefinementGroup(): ECLComponentDetails {
+  return {
+    id: props.id,
+    value: {
+      children: refinementGroupBuild.value,
+      group: group.value
+    },
+    position: props.position,
+    type: ECLComponent.REFINEMENT_GROUP,
+    queryString: generateRefinementGroupQueryString(),
+    showButtons: props.showButtons
+  };
+}
+
+function generateRefinementGroupQueryString(): string {
+  let queryString = "";
+  if (!isArrayHasLength(refinementGroupBuild.value)) return queryString;
+  const queryStrings = refinementGroupBuild.value.map(item => {
+    if (item.type === ECLComponent.LOGIC) {
+      return item.queryString + "\n\t";
+    } else {
+      return item.queryString;
+    }
+  });
+  queryString = queryStrings
+    .join(" ")
+    .trim()
+    .replace(/\n\t +/, "\n\t");
+  if (group.value) {
+    return ":\n\t{" + queryString + "}";
+  } else {
+    return ":\n\t" + queryString;
+  }
+}
+
+function setStartBuild(): void {
+  if (props.value && props.value.children) {
+    refinementGroupBuild.value = [...props.value.children];
+  } else {
+    refinementGroupBuild.value = [generateNewComponent(ECLComponent.REFINEMENT, 0, null, { minus: false, plus: true })];
+  }
+}
+
+function getButtonOptions() {
+  return [ECLComponent.LOGIC];
+}
 </script>
 
 <style scoped>

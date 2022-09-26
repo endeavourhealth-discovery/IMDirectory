@@ -1,190 +1,93 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { render, fireEvent, within } from "@testing-library/vue";
 import LandingPage from "@/views/LandingPage.vue";
 import ProgressSpinner from "primevue/progressspinner";
+import PrimeVue from "primevue/config";
 import Card from "primevue/card";
 import Chart from "primevue/chart";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
-import { mount } from "@vue/test-utils";
-import { setupServer } from "msw/node";
+import testData from "./LandingPage.testData";
+import { Services } from "im-library";
+import { flushPromises } from "@vue/test-utils";
+import { afterAll, it, vi } from "vitest";
+const { EntityService, ConfigService, DirectService } = Services;
 
-vi.mock("@/main");
+const mockDispatch = vi.fn();
+const mockState = {
+  recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", app: "/viewer/#/" }]
+};
+const mockCommit = vi.fn();
 
-describe("LandingPage.vue", () => {
-  let wrapper;
-  let mockStore;
-  let mockConfigService;
-  let mockDirectService;
-  let mockEntityService;
+vi.mock("vuex", () => ({
+  useStore: () => ({
+    dispatch: mockDispatch,
+    state: mockState,
+    commit: mockCommit
+  })
+}));
 
-  const restHandlers = [];
-  const server = setupServer(...restHandlers);
+describe("LandingPage.vue", async () => {
+  let component;
+  let getPartialSpy;
+  let getDashboardLayoutSpy;
+  let directToSpy;
 
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: "error" });
-  });
+  beforeEach(async () => {
+    vi.resetAllMocks();
+    getPartialSpy = vi
+      .spyOn(EntityService.prototype, "getPartialEntity")
+      .mockResolvedValueOnce(testData.ONTOLOGY_OVERVIEW)
+      .mockResolvedValueOnce(testData.CONCEPT_TYPES)
+      .mockResolvedValue(testData.ENTITY);
+    getDashboardLayoutSpy = vi.spyOn(ConfigService.prototype, "getDashboardLayout").mockResolvedValue(testData.DASHBOARD_LAYOUT);
+    directToSpy = vi.spyOn(DirectService.prototype, "directTo");
+    vi.useFakeTimers().setSystemTime(new Date("2022-09-23T12:18:59.78"));
 
-  afterAll(() => {
-    server.close();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-  });
-
-  beforeEach(() => {
-    mockStore = {
-      state: {
-        recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-03-25T15:57:56.778Z", app: "/viewer/#/concept/" }]
-      }
-    };
-    mockEntityService = {
-      getPartialEntity: vi
-        .fn()
-        .mockResolvedValueOnce({
-          "@id": "http://endhealth.info/im#ontologyOverview",
-          "http://www.w3.org/2000/01/rdf-schema#label": "Ontology overview",
-          "http://www.w3.org/2000/01/rdf-schema#comment": "A brief overview of the concepts stored in the Ontology",
-          "http://endhealth.info/im#hasStatsReportEntry": [
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Value sets",
-              "http://www.w3.org/2002/07/owl#hasValue": 8
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Data models",
-              "http://www.w3.org/2002/07/owl#hasValue": "1973"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Ontology",
-              "http://www.w3.org/2002/07/owl#hasValue": "1124984"
-            }
-          ]
-        })
-        .mockResolvedValueOnce({
-          "@id": "http://endhealth.info/im#ontologyConceptTypes",
-          "http://www.w3.org/2000/01/rdf-schema#label": "Ontology concept types",
-          "http://www.w3.org/2000/01/rdf-schema#comment": "A brief overview of the types of data stored in the Ontology",
-          "http://endhealth.info/im#hasStatsReportEntry": [
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Class",
-              "http://www.w3.org/2002/07/owl#hasValue": "1030354"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Legacy concept",
-              "http://www.w3.org/2002/07/owl#hasValue": "93282"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Object property",
-              "http://www.w3.org/2002/07/owl#hasValue": "1811"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Set",
-              "http://www.w3.org/2002/07/owl#hasValue": "1122"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Node shape",
-              "http://www.w3.org/2002/07/owl#hasValue": "99"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Record type",
-              "http://www.w3.org/2002/07/owl#hasValue": "94"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Data property",
-              "http://www.w3.org/2002/07/owl#hasValue": "68"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "undefined",
-              "http://www.w3.org/2002/07/owl#hasValue": "45"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Functional property",
-              "http://www.w3.org/2002/07/owl#hasValue": "26"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Annotation property",
-              "http://www.w3.org/2002/07/owl#hasValue": "23"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Symmetric property",
-              "http://www.w3.org/2002/07/owl#hasValue": "11"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Transitive property",
-              "http://www.w3.org/2002/07/owl#hasValue": "11"
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Folder",
-              "http://www.w3.org/2002/07/owl#hasValue": 8
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Value set",
-              "http://www.w3.org/2002/07/owl#hasValue": 8
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Reflexive property",
-              "http://www.w3.org/2002/07/owl#hasValue": 2
-            },
-            {
-              "http://www.w3.org/2000/01/rdf-schema#label": "Query template",
-              "http://www.w3.org/2002/07/owl#hasValue": "1"
-            }
-          ]
-        })
-        .mockResolvedValue({
-          "@id": "http://snomed.info/sct#6081001",
-          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
-            {
-              "@id": "http://endhealth.info/im#Concept",
-              name: "Terminology Concept"
-            }
-          ],
-          "http://www.w3.org/2000/01/rdf-schema#label": "Deformity (morphologic abnormality)"
-        })
-    };
-    mockConfigService = {
-      getDashboardLayout: vi.fn().mockResolvedValue([
-        {
-          type: "ReportTable",
-          order: 100,
-          iri: "http://endhealth.info/im#ontologyOverview"
-        },
-        {
-          type: "PieChartDashCard",
-          order: 200,
-          iri: "http://endhealth.info/im#ontologyConceptTypes"
-        }
-      ])
-    };
-    let mockLoggerService = {
-      error: vi.fn()
-    };
-
-    mockDirectService = { directTo: vi.fn() };
-
-    wrapper = mount(LandingPage, {
+    component = render(LandingPage, {
       global: {
         components: { ProgressSpinner, Card, DataTable, Column, Button, Chart },
-        mocks: {
-          $store: mockStore,
-          $configService: mockConfigService,
-          $directService: mockDirectService,
-          $entityService: mockEntityService,
-          $loggerService: mockLoggerService
-        },
-        directives: { Tooltip: Tooltip }
+        directives: { Tooltip: Tooltip },
+        plugins: [PrimeVue]
       }
     });
-
-    wrapper.vm.$env = {
-      VIEWER_URL: "/",
-      EDITOR_URL: "/"
-    };
+    await flushPromises();
   });
 
-  it("mounts", () => {
-    expect(wrapper.vm.activities).toStrictEqual([]);
+  it("has recent activities", async () => {
+    component.getByText(testData.ENTITY["http://www.w3.org/2000/01/rdf-schema#label"]);
   });
+
+  it("sets activity time", () => {
+    component.getByText("Viewed yesterday");
+  });
+
+  // it("updates store and routes on view", async () => {
+  //   vi.clearAllMocks();
+  //   const view = component.getAllByTestId("view-button")[0];
+  //   await fireEvent.click(view);
+  //   expect(mockCommit).toHaveBeenCalledTimes(1);
+  //   expect(mockCommit).toHaveBeenLastCalledWith("updateSelectedConceptIri", "http://snomed.info/sct#6081001");
+  //   expect(directToSpy).toHaveBeenCalledTimes(1);
+  //   expect(directToSpy).toHaveBeenLastCalledWith("/viewer/#/", "http://snomed.info/sct#6081001", "concept");
+  // });
+
+  // it("updates store and emits on info", async () => {
+  //   vi.clearAllMocks();
+  //   const info = component.getAllByTestId("info-button")[0];
+  //   await fireEvent.click(info);
+  //   expect(mockCommit).toHaveBeenCalledTimes(1);
+  //   expect(mockCommit).toHaveBeenLastCalledWith("updateSelectedConceptIri", mockState.searchResults[0].iri);
+  //   const emits = component.emitted();
+  //   expect(emits.openBar).toBeTruthy();
+  // });
+
+  // it("routes on edit", async () => {
+  //   vi.clearAllMocks();
+  //   const edit = component.getAllByTestId("edit-button")[0];
+  //   await fireEvent.click(edit);
+  //   expect(directToSpy).toHaveBeenCalledTimes(1);
+  //   expect(directToSpy).toHaveBeenLastCalledWith("/editor/#/", "http://snomed.info/sct#241193003", "editor");
+  // });
 });

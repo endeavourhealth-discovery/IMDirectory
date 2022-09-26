@@ -1,41 +1,17 @@
 import store from "@/store/index";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
-import { Config, Models } from "im-library";
-import { describe, vi } from "vitest";
+import { Config, Models, Services } from "im-library";
+import { beforeEach, describe, vi } from "vitest";
 import { setupServer } from "msw/node";
+import testData from "./index.testData";
 const { User, CustomAlert } = Models;
-
-vi.mock("@/main", () => {
-  return {
-    default: {
-      $configService: {
-        getXmlSchemaDataTypes: vi.fn(),
-        getFilterDefaults: vi.fn()
-      },
-      $entityService: {
-        advancedSearch: vi.fn()
-      },
-      $loggerService: {
-        error: vi.fn(),
-        warn: vi.fn(),
-        info: vi.fn(),
-        success: vi.fn(),
-        debug: vi.fn()
-      }
-    }
-  };
-});
-
-import vm from "@/main";
+const { EntityService, LoggerService } = Services;
 
 describe("state", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     window.sessionStorage.clear();
-    vm.$configService.getXmlSchemaDataTypes = vi
-      .fn()
-      .mockResolvedValue(["http://www.w3.org/2001/XMLSchema#string", "http://www.w3.org/2001/XMLSchema#boolean"]);
   });
 
   afterAll(() => {
@@ -188,51 +164,43 @@ describe("mutations", () => {
     store.commit("updateFilterDefaults", { schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
     expect(store.state.filterDefaults).toStrictEqual({ schemeOptions: ["testScheme"], statusOptions: ["testStatus"], typeOptions: ["testType"] });
   });
-
-  it("can fetchSearchResults ___ pass", async () => {
-    vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ entities: [{ iri: "testResult" }] });
-    vm.$loggerService.info = vi.fn();
-    const testInput = { searchRequest: {}, controller: new AbortController() };
-    await store.dispatch("fetchSearchResults", testInput);
-    await flushPromises();
-    expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
-    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.controller);
-    await flushPromises();
-    expect(store.state.searchResults).toEqual([]);
-  });
 });
 
 describe("actions", () => {
-  const restHandlers = [];
-  const server = setupServer(...restHandlers);
+  let iriExistsSpy = vi.spyOn(EntityService.prototype, "iriExists");
+  let getFilterOptionsSpy = vi.spyOn(EntityService.prototype, "getFilterOptions");
+  let advancedSearchSpy = vi.spyOn(EntityService.prototype, "advancedSearch");
 
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: "error" });
+  beforeEach(() => {
+    vi.resetAllMocks();
+    iriExistsSpy.mockResolvedValue(true);
+    getFilterOptionsSpy.mockResolvedValue(testData.FILTER_OPTIONS);
+    advancedSearchSpy.mockResolvedValue(testData.SEARCH_RESULTS);
   });
 
-  afterAll(() => {
-    server.close();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-  });
-
-  it("can fetchSearchResults ___ failed", async () => {
-    vm.$entityService.advancedSearch = vi.fn().mockResolvedValue({ status: 400, message: "test fail" });
-    vm.$loggerService.error = vi.fn();
+  it("can fetchSearchResults ___ pass", async () => {
     const testInput = { searchRequest: {}, controller: new AbortController() };
     await store.dispatch("fetchSearchResults", testInput);
     await flushPromises();
-    expect(vm.$entityService.advancedSearch).toBeCalledTimes(1);
-    expect(vm.$entityService.advancedSearch).toBeCalledWith(testInput.searchRequest, testInput.controller);
+    expect(advancedSearchSpy).toBeCalledTimes(1);
+    expect(advancedSearchSpy).toBeCalledWith(testInput.searchRequest, testInput.controller);
+    await flushPromises();
+    expect(store.state.searchResults).toEqual(testData.SEARCH_RESULTS);
+  });
+
+  it("can fetchSearchResults ___ failed", async () => {
+    advancedSearchSpy.mockResolvedValue({ status: 400, message: "test fail" });
+    const testInput = { searchRequest: {}, controller: new AbortController() };
+    await store.dispatch("fetchSearchResults", testInput);
+    await flushPromises();
+    expect(advancedSearchSpy).toBeCalledTimes(1);
+    expect(advancedSearchSpy).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
     expect(store.state.searchResults).toStrictEqual([]);
   });
 
   it("can logoutCurrentUser ___ 200", async () => {
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
-    vm.$loggerService.error = vi.fn();
     let result = false;
     await store.dispatch("logoutCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -245,7 +213,6 @@ describe("actions", () => {
 
   it("can logoutCurrentUser ___ 400", async () => {
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed 400"));
-    vm.$loggerService.error = vi.fn();
     let result = false;
     await store.dispatch("logoutCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -286,7 +253,7 @@ describe("actions", () => {
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
-    vm.$loggerService.info = vi.fn();
+    LoggerService.info = vi.fn();
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -297,14 +264,14 @@ describe("actions", () => {
     expect(store.state.isLoggedIn).toBe(false);
     expect(store.state.currentUser).toBe(null);
     expect(result.authenticated).toBe(false);
-    expect(vm.$loggerService.info).toBeCalledTimes(1);
-    expect(vm.$loggerService.info).toBeCalledWith(undefined, "Force logout successful");
+    expect(LoggerService.info).toBeCalledTimes(1);
+    expect(LoggerService.info).toBeCalledWith(undefined, "Force logout successful");
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed"));
-    vm.$loggerService.error = vi.fn();
+    LoggerService.error = vi.fn();
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -315,7 +282,7 @@ describe("actions", () => {
     expect(store.state.isLoggedIn).toBe(false);
     expect(store.state.currentUser).toBe(null);
     expect(result.authenticated).toBe(false);
-    expect(vm.$loggerService.error).toBeCalledTimes(1);
-    expect(vm.$loggerService.error).toBeCalledWith(undefined, "Force logout failed");
+    expect(LoggerService.error).toBeCalledTimes(1);
+    expect(LoggerService.error).toBeCalledWith(undefined, "Force logout failed");
   });
 });

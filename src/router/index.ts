@@ -7,11 +7,13 @@ import EclSearch from "../views/EclSearch.vue";
 import { AccessDenied, PageNotFound, SnomedLicense, Services, EntityNotFound, Helpers } from "im-library";
 import store from "@/store/index";
 import { nextTick } from "vue";
+import axios from "axios";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
-const { Env } = Services;
-import vm from "@/main";
+const { Env, EntityService } = Services;
+
+const entityService = new EntityService(axios);
 
 const APP_TITLE = "IM Directory";
 
@@ -113,7 +115,7 @@ router.beforeEach(async (to, _from) => {
     const iri = to.params.selectedIri as string;
     try {
       new URL(iri);
-      if (!(await vm.$entityService.iriExists(iri))) {
+      if (!(await entityService.iriExists(iri))) {
         router.push({ name: "EntityNotFound" });
       }
     } catch (_error) {

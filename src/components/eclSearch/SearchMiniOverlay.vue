@@ -78,72 +78,68 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "@vue/runtime-core";
+<script setup lang="ts">
+import { defineComponent, PropType, ref, Ref } from "vue";
 import { Helpers } from "im-library";
 import { TTIriRef, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType }
 } = Helpers;
 
-export default defineComponent({
-  name: "SearchMiniOverlay",
-  props: {
-    searchTerm: { type: String, required: false },
-    searchResults: { type: Array as PropType<Array<ConceptSummary>>, required: false },
-    loading: { type: Boolean, required: true }
-  },
-  emits: { searchResultSelected: (_payload: ConceptSummary) => true },
-  data() {
-    return {
-      selectedResult: {} as ConceptSummary,
-      hoveredResult: {} as ConceptSummary
-    };
-  },
-  methods: {
-    getPerspectiveByConceptType(conceptType: TTIriRef[]): string[] {
-      return getFAIconFromType(conceptType);
-    },
-
-    getColorByConceptType(conceptType: TTIriRef[]): string {
-      return "color:" + getColourFromType(conceptType);
-    },
-
-    onNodeSelect(): void {
-      this.$emit("searchResultSelected", this.selectedResult);
-    },
-
-    scrollToTop(): void {
-      const resultsContainer = document.getElementById("search-results-container") as HTMLElement;
-      const scrollBox = resultsContainer?.getElementsByClassName("p-datatable-wrapper")[0] as HTMLElement;
-      if (scrollBox) {
-        scrollBox.scrollTop = 0;
-      }
-    },
-
-    hideDetailsOverlay(): void {
-      const x = this.$refs.detailsOP as any;
-      x.hide();
-    },
-
-    showDetailsOverlay(event: any, data: ConceptSummary) {
-      this.hoveredResult = data;
-      if (this.hoveredResult.name === "ANY") {
-        return;
-      }
-      const x = this.$refs.detailsOP as any;
-      x.show(event, event.target);
-    },
-
-    getConceptTypes(concept: ConceptSummary): any {
-      return concept.entityType
-        .map(function (type: any) {
-          return type.name;
-        })
-        .join(", ");
-    }
-  }
+const props = defineProps({
+  searchTerm: { type: String, required: false },
+  searchResults: { type: Array as PropType<ConceptSummary[]>, required: false },
+  loading: { type: Boolean, required: true }
 });
+
+const emit = defineEmits({
+  searchResultSelected: (_payload: ConceptSummary) => true
+});
+
+const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+
+const detailsOP = ref();
+
+function getPerspectiveByConceptType(conceptType: TTIriRef[]): string[] {
+  return getFAIconFromType(conceptType);
+}
+
+function getColorByConceptType(conceptType: TTIriRef[]): string {
+  return "color:" + getColourFromType(conceptType);
+}
+
+function onNodeSelect(): void {
+  emit("searchResultSelected", selectedResult.value);
+}
+
+function scrollToTop(): void {
+  const resultsContainer = document.getElementById("search-results-container") as HTMLElement;
+  const scrollBox = resultsContainer?.getElementsByClassName("p-datatable-wrapper")[0] as HTMLElement;
+  if (scrollBox) {
+    scrollBox.scrollTop = 0;
+  }
+}
+
+function hideDetailsOverlay(): void {
+  detailsOP.value.hide();
+}
+
+function showDetailsOverlay(event: any, data: ConceptSummary) {
+  hoveredResult.value = data;
+  if (hoveredResult.value.name === "ANY") {
+    return;
+  }
+  detailsOP.value.show(event, event.target);
+}
+
+function getConceptTypes(concept: ConceptSummary): any {
+  return concept.entityType
+    .map(function (type: any) {
+      return type.name;
+    })
+    .join(", ");
+}
 </script>
 
 <style scoped>

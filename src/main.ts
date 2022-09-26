@@ -90,13 +90,7 @@ import { ComponentPublicInstance } from "@vue/runtime-core";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
-const { ConfigService, DirectService, EntityService, Env, LoggerService, SetService, FilerService } = Services;
-
-const configService = new ConfigService(axios);
-const directService = new DirectService(store);
-const entityService = new EntityService(axios);
-const setService = new SetService(axios);
-const filerService = new FilerService(axios);
+const { Env } = Services;
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -171,18 +165,7 @@ const app = createApp(App)
   .component("DataView", DataView)
   .component("Tag", Tag);
 
-// register custom $properties
-app.config.globalProperties.$configService = configService;
-app.config.globalProperties.$directService = directService;
-app.config.globalProperties.$entityService = entityService;
-app.config.globalProperties.$filerService = filerService;
-app.config.globalProperties.$env = Env;
-app.config.globalProperties.$loggerService = LoggerService;
-app.config.globalProperties.$setService = setService;
-
 const vm = app.mount("#app");
-
-export default vm;
 
 // Vue application exceptions
 app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {

@@ -10,10 +10,10 @@
             <Search />
             <Button class="ecl-search-button" label="Ecl Search" @click="toEclSearch" />
             <Button
-                v-if="isLoggedIn && currentUser && currentUser.roles.includes('IMAdmin')"
-                icon="pi pi-cog"
-                class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
-                @click="openAdminMenu"
+              v-if="isLoggedIn && currentUser && currentUser.roles.includes('IMAdmin')"
+              icon="pi pi-cog"
+              class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
+              @click="openAdminMenu"
             />
             <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
           </div>
@@ -29,56 +29,66 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+import { computed, defineComponent, onMounted, provide, ref } from "vue";
 import Search from "@/components/topbar/Search.vue";
-import ReleaseNotes from '@/components/releaseNotes/ReleaseNotes.vue';
-import {mapState} from 'vuex';
+import ReleaseNotes from "@/components/releaseNotes/ReleaseNotes.vue";
+import { mapState, useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
+import { Services } from "im-library";
+import axios from "axios";
+const { FilerService } = Services;
 
-export default defineComponent({
-  name: "App",
-  components: { ReleaseNotes, Search },
-  computed: mapState(["currentUser", "isLoggedIn"]),
-  async mounted() {
-    // check for user and log them in if found or logout if not
-    this.loading = true;
-    await this.$store.dispatch("authenticateCurrentUser");
-    await this.$store.dispatch("fetchFilterSettings");
-    await this.$store.dispatch("initFavourites");
-    this.loading = false;
-  },
-  data() {
-    return {
-      loading: true
-    };
-  },
-  methods: {
-    toEclSearch() {
-      this.$router.push({ name: "EclSearch" });
-    },
-    openAdminMenu(event: any): void {
-      (this.$refs.adminMenu as any).toggle(event);
-    },
-    getAdminItems(): any[] {
-      return [
-        {
-          label: "Download changes",
-          icon: "fa-solid fa-fw fa-cloud-arrow-down",
-          command: () => this.downloadChanges()
-        }
-      ];
-    },
-    async downloadChanges() {
-      this.$toast.add({ severity: 'info', summary: 'Preparing download', detail: 'Zipping delta files for download...', life: 3000 })
-      let blob = (await this.$filerService.downloadDeltas());
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = 'deltas.zip';
-      link.click();
-    }
-  }
+provide("axios", axios);
+
+const router = useRouter();
+const toast = useToast();
+const store = useStore();
+const currentUser = computed(() => store.state.currentUser);
+const isLoggedIn = computed(() => store.state.isLoggedIn);
+
+const filerService = new FilerService(axios);
+
+let loading = ref(true);
+
+const adminMenu = ref();
+
+onMounted(async () => {
+  loading.value = true;
+  await store.dispatch("authenticateCurrentUser");
+  await store.dispatch("fetchFilterSettings");
+  await store.dispatch("initFavourites");
+  loading.value = false;
 });
+
+function toEclSearch() {
+  router.push({ name: "EclSearch" });
+}
+
+function openAdminMenu(event: any): void {
+  adminMenu.value.toggle(event);
+}
+
+function getAdminItems(): any[] {
+  return [
+    {
+      label: "Download changes",
+      icon: "fa-solid fa-fw fa-cloud-arrow-down",
+      command: () => downloadChanges()
+    }
+  ];
+}
+
+async function downloadChanges() {
+  toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
+  let blob = await filerService.downloadDeltas();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "deltas.zip";
+  link.click();
+}
 </script>
 
 <style>

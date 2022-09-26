@@ -109,172 +109,172 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "vue";
+<script setup lang="ts">
+import { defineComponent, PropType, ref, Ref, watch } from "vue";
 import { mapState } from "vuex";
-import { Config, Helpers } from "im-library";
+import _ from "lodash";
+import { Config, Helpers, Services } from "im-library";
 import { TTIriRef, ConceptSummary, SearchResponse } from "im-library/dist/types/interfaces/Interfaces";
+import { useRouter } from "vue-router";
+import { useToast } from "primevue/usetoast";
 const {
   DataTypeCheckers: { isObjectHasKeys },
   ConceptTypeMethods: { getColourFromType, getFAIconFromType },
   CopyConceptToClipboard: { copyConceptToClipboard, conceptObjectToCopyString }
 } = Helpers;
+const { LoggerService } = Services;
 
-export default defineComponent({
-  name: "SearchResults",
-  components: {},
-  props: {
-    searchResults: { type: Array as PropType<Array<unknown>> },
-    loading: Boolean
-  },
-  watch: {
-    searchResults(newValue) {
-      this.results = newValue;
-    }
-  },
-  data() {
-    return {
-      results: {} as SearchResponse,
-      selectedResult: {} as ConceptSummary,
-      hoveredResult: {} as ConceptSummary,
-      copyMenuItems: [] as any[],
-      blockedIris: Config.XmlSchemaDatatypes,
-      defaultPredicates: Config.DefaultPredicateNames
-    };
-  },
-  methods: {
-    downloadFile(data: any, fileName: string) {
-      const url = window.URL.createObjectURL(new Blob([data], { type: "application" }));
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      link.click();
-    },
-
-    exportCSV(): void {
-      const heading = ["name", "iri"].join(",");
-      const body = this.searchResults?.map((row: any) => [row.name, row.iri].join(",")).join("\n");
-      const csv = [heading, body].join("\n");
-      console.log(csv);
-      this.downloadFile(csv, "results.csv");
-    },
-
-    getPerspectiveByConceptType(conceptTypes: TTIriRef[]): string[] {
-      return getFAIconFromType(conceptTypes);
-    },
-
-    getColorByConceptType(conceptTypes: TTIriRef[]): string {
-      return "color:" + getColourFromType(conceptTypes);
-    },
-
-    onNodeSelect(): void {
-      this.$router.push({
-        name: "Concept",
-        params: { selectedIri: this.selectedResult.iri }
-      });
-    },
-
-    scrollToTop(): void {
-      const resultsContainer = document.getElementById("search-results-container") as HTMLElement;
-      const scrollBox = resultsContainer?.getElementsByClassName("p-datatable-wrapper")[0] as HTMLElement;
-      if (scrollBox) {
-        scrollBox.scrollTop = 0;
-      }
-    },
-
-    hideOverlay(): void {
-      const x = this.$refs.op as any;
-      x.hide();
-    },
-
-    showOverlay(event: any, data: ConceptSummary): void {
-      this.hoveredResult = data;
-      this.setCopyMenuItems();
-      const x = this.$refs.op as any;
-      x.show(event, event.target);
-    },
-
-    getConceptTypes(concept: ConceptSummary): string {
-      if (isObjectHasKeys(concept, ["entityType"])) {
-        return concept.entityType
-          .map(function (type: any) {
-            return type.name;
-          })
-          .join(", ");
-      } else {
-        return "None";
-      }
-    },
-
-    onCopy(): void {
-      this.$toast.add(this.$loggerService.success("Value copied to clipboard"));
-    },
-
-    onCopyError(): void {
-      this.$toast.add(this.$loggerService.error("Failed to copy value to clipboard"));
-    },
-
-    onCopyRightClick(event: any) {
-      const x = this.$refs.copyMenu as any;
-      x.show(event);
-    },
-
-    copyConceptToClipboardVueWrapper(data: any) {
-      let filteredData = { ...data };
-      delete filteredData.match;
-      delete filteredData.weighting;
-      delete filteredData.isDescendantOf;
-      return copyConceptToClipboard(filteredData, undefined, this.defaultPredicates, this.blockedIris);
-    },
-
-    async setCopyMenuItems(): Promise<void> {
-      this.copyMenuItems = [
-        {
-          label: "Copy",
-          disabled: true
-        },
-        {
-          separator: true
-        },
-        {
-          label: "All",
-          command: async () => {
-            await navigator.clipboard
-              .writeText(copyConceptToClipboard(this.hoveredResult, undefined, this.defaultPredicates, this.blockedIris))
-              .then(() => {
-                this.$toast.add(this.$loggerService.success("Concept copied to clipboard"));
-              })
-              .catch(err => {
-                this.$toast.add(this.$loggerService.error("Failed to copy concept to clipboard", err));
-              });
-          }
-        }
-      ];
-
-      let key: string;
-      let value: any;
-      for ([key, value] of Object.entries(this.hoveredResult)) {
-        let result = conceptObjectToCopyString(key, value, 0, 1, undefined, this.defaultPredicates);
-        if (!result) continue;
-        const label = result.label;
-        const text = result.value;
-        this.copyMenuItems.push({
-          label: label,
-          command: async () => {
-            await navigator.clipboard
-              .writeText(text)
-              .then(() => {
-                this.$toast.add(this.$loggerService.success(label + " copied to clipboard"));
-              })
-              .catch(err => {
-                this.$toast.add(this.$loggerService.error("Failed to copy " + label + " to clipboard", err));
-              });
-          }
-        });
-      }
-    }
-  }
+const props = defineProps({
+  searchResults: { type: Array as PropType<any[]>, default: [] },
+  loading: Boolean
 });
+
+watch(
+  () => _.cloneDeep(props.searchResults),
+  newValue => (results.value = newValue)
+);
+
+const router = useRouter();
+const toast = useToast();
+
+const results: Ref<any[]> = ref([]);
+const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const copyMenuItems: Ref<any[]> = ref([]);
+
+const blockedIris = Config.XmlSchemaDatatypes;
+const defaultPredicates = Config.DefaultPredicateNames;
+
+const op = ref();
+const copyMenu = ref();
+
+function downloadFile(data: any, fileName: string) {
+  const url = window.URL.createObjectURL(new Blob([data], { type: "application" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+}
+
+function exportCSV(): void {
+  const heading = ["name", "iri"].join(",");
+  const body = props.searchResults.map((row: any) => [row.name, row.iri].join(",")).join("\n");
+  const csv = [heading, body].join("\n");
+  console.log(csv);
+  downloadFile(csv, "results.csv");
+}
+
+function getPerspectiveByConceptType(conceptTypes: TTIriRef[]): string[] {
+  return getFAIconFromType(conceptTypes);
+}
+
+function getColorByConceptType(conceptTypes: TTIriRef[]): string {
+  return "color:" + getColourFromType(conceptTypes);
+}
+
+function onNodeSelect(): void {
+  router.push({
+    name: "Concept",
+    params: { selectedIri: selectedResult.value.iri }
+  });
+}
+
+function scrollToTop(): void {
+  const resultsContainer = document.getElementById("search-results-container") as HTMLElement;
+  const scrollBox = resultsContainer?.getElementsByClassName("p-datatable-wrapper")[0] as HTMLElement;
+  if (scrollBox) {
+    scrollBox.scrollTop = 0;
+  }
+}
+
+function hideOverlay(): void {
+  op.value.hide();
+}
+
+function showOverlay(event: any, data: ConceptSummary): void {
+  hoveredResult.value = data;
+  setCopyMenuItems();
+  op.value.show(event, event.target);
+}
+
+function getConceptTypes(concept: ConceptSummary): string {
+  if (isObjectHasKeys(concept, ["entityType"])) {
+    return concept.entityType
+      .map(function (type: any) {
+        return type.name;
+      })
+      .join(", ");
+  } else {
+    return "None";
+  }
+}
+
+function onCopy(): void {
+  toast.add(LoggerService.success("Value copied to clipboard"));
+}
+
+function onCopyError(): void {
+  toast.add(LoggerService.error("Failed to copy value to clipboard"));
+}
+
+function onCopyRightClick(event: any) {
+  copyMenu.value.show(event);
+}
+
+function copyConceptToClipboardVueWrapper(data: any) {
+  let filteredData = { ...data };
+  delete filteredData.match;
+  delete filteredData.weighting;
+  delete filteredData.isDescendantOf;
+  return copyConceptToClipboard(filteredData, undefined, defaultPredicates, blockedIris);
+}
+
+async function setCopyMenuItems(): Promise<void> {
+  copyMenuItems.value = [
+    {
+      label: "Copy",
+      disabled: true
+    },
+    {
+      separator: true
+    },
+    {
+      label: "All",
+      command: async () => {
+        await navigator.clipboard
+          .writeText(copyConceptToClipboard(hoveredResult.value, undefined, defaultPredicates, blockedIris))
+          .then(() => {
+            toast.add(LoggerService.success("Concept copied to clipboard"));
+          })
+          .catch(err => {
+            toast.add(loggerService.error("Failed to copy concept to clipboard", err));
+          });
+      }
+    }
+  ];
+
+  let key: string;
+  let value: any;
+  for ([key, value] of Object.entries(hoveredResult.value)) {
+    let result = conceptObjectToCopyString(key, value, 0, 1, undefined, defaultPredicates);
+    if (!result) continue;
+    const label = result.label;
+    const text = result.value;
+    copyMenuItems.value.push({
+      label: label,
+      command: async () => {
+        await navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            toast.add(LoggerService.success(label + " copied to clipboard"));
+          })
+          .catch(err => {
+            toast.add(LoggerService.error("Failed to copy " + label + " to clipboard", err));
+          });
+      }
+    });
+  }
+}
 </script>
 
 <style scoped>
