@@ -161,12 +161,8 @@ onMounted(() => init());
 
 async function init() {
   loading.value = true;
-  !isFavourite ? await getChildren(conceptIri.value) : await getFavourites();
+  !conceptIsFavourite.value ? await getChildren(conceptIri.value) : await getFavourites();
   loading.value = false;
-}
-
-function onFavouriteView() {
-  return conceptIri.value === IM.NAMESPACE + "Favourites";
 }
 
 async function getFavourites() {
