@@ -1,11 +1,17 @@
 <template>
   <div class="search-container">
-    <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" />
+    <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" data-testid="search-input" />
 
-    <Button id="filter-button" icon="pi pi-sliders-h" class="p-button-rounded p-button-text p-button-plain p-button-lg" @click="openFiltersOverlay" />
+    <Button
+      id="filter-button"
+      icon="pi pi-sliders-h"
+      class="p-button-rounded p-button-text p-button-plain p-button-lg"
+      @click="openFiltersOverlay"
+      data-testid="filters-open-button"
+    />
     <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
       <div class="p-fluid results-filter-container">
-        <Filters :search="search" />
+        <Filters :search="search" data-testid="filters" />
       </div>
     </OverlayPanel>
   </div>
