@@ -111,7 +111,7 @@ let cardsData: Ref<{ name: string; description: string; inputData: IriCount; com
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
-  async () => await init()
+  async () => await getRecentActivityDetails()
 );
 
 onMounted(async () => await init());
