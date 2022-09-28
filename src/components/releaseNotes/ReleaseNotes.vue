@@ -10,8 +10,11 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, Ref, ref } from "vue";
 import semver from "semver";
+import axios from "axios";
+import { Services } from "im-library";
+const { Env } = Services;
 
 const version = __APP_VERSION__;
 const showRelNotes = ref(false);
@@ -23,8 +26,12 @@ const releaseNotes = ref([
   "'Find in tree' now locates in the right panel hierarchy",
   "Fixed incorrect code display (symbols) in IMViewer"
 ]);
+const latest: Ref<any> = ref({});
 
-onMounted(() => {
+onMounted(async () => {
+  console.log("sending latest request");
+  latest.value = await axios.get(Env.VITE_NODE_API + "node_api/github/public/releases", { params: { repositoryName: "IMDirectory" } });
+  console.log(latest);
   const lastVer = window.localStorage.getItem("IMVersion");
   if (!lastVer || !semver.valid(lastVer) || semver.lt(lastVer, version)) {
     showRelNotes.value = true;
