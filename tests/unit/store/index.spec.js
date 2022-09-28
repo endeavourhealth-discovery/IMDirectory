@@ -19,32 +19,34 @@ describe("state", () => {
   });
 
   it("should start with the correct values", () => {
-    expect(Object.keys(store.state)).toStrictEqual([
-      "selectedConceptIri",
-      "locateOnNavTreeIri",
-      "conceptIri",
-      "favourites",
-      "history",
-      "searchResults",
-      "searchLoading",
-      "currentUser",
-      "isLoggedIn",
-      "recentLocalActivity",
-      "snomedLicenseAccepted",
-      "snomedReturnUrl",
-      "authReturnUrl",
-      "filterOptions",
-      "selectedFilters",
-      "quickFiltersStatus",
-      "focusHierarchy",
-      "sidebarControlActivePanel",
-      "hierarchySelectedFilters",
-      "filterDefaults",
-      "arrayObjectNameListboxWithLabelStartExpanded",
-      "tagSeverityMatches",
-      "textDefinitionStartExpanded",
-      "activeProfile"
-    ]);
+    expect(Object.keys(store.state)).toEqual(
+      expect.arrayContaining([
+        "selectedConceptIri",
+        "locateOnNavTreeIri",
+        "conceptIri",
+        "favourites",
+        "history",
+        "searchResults",
+        "searchLoading",
+        "currentUser",
+        "isLoggedIn",
+        "recentLocalActivity",
+        "snomedLicenseAccepted",
+        "snomedReturnUrl",
+        "authReturnUrl",
+        "filterOptions",
+        "selectedFilters",
+        "quickFiltersStatus",
+        "focusHierarchy",
+        "sidebarControlActivePanel",
+        "hierarchySelectedFilters",
+        "filterDefaults",
+        "arrayObjectNameListboxWithLabelStartExpanded",
+        "tagSeverityMatches",
+        "textDefinitionStartExpanded",
+        "activeProfile"
+      ])
+    );
     expect(store.state.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
 
     expect(store.state.searchResults).toEqual([]);
