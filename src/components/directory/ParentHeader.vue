@@ -71,8 +71,7 @@
 <script setup lang="ts">
 import { computed, defineComponent } from "vue";
 import { Helpers, Vocabulary, Services } from "im-library";
-import { mapState, useStore } from "vuex";
-import axios from "axios";
+import {Store, useStore} from 'vuex';
 const { IM, RDF } = Vocabulary;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType },
@@ -84,10 +83,10 @@ const props = defineProps({ concept: { type: Object as any, required: true } });
 
 const emit = defineEmits({ openBar: () => true });
 
-const store = useStore();
+const store: Store<any> = useStore();
 const favourites = computed(() => store.state.favourites);
 
-const directService = new DirectService(axios);
+const directService = new DirectService(store);
 
 function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);

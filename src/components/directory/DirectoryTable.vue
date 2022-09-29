@@ -119,7 +119,7 @@ watch(
 );
 
 const entityService = new EntityService(axios);
-const directService = new DirectService(axios);
+const directService = new DirectService(store);
 
 const conceptIsFavourite = computed(() => conceptIri.value === IM.NAMESPACE + "Favourites");
 

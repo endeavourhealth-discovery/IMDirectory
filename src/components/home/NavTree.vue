@@ -104,8 +104,8 @@ const favourites = computed(() => store.state.favourites);
 const currentUser = computed(() => store.state.currentUser);
 
 const entityService = new EntityService(axios);
-const directService = new DirectService(axios);
 const filerService = new FilerService(axios);
+const directService = new DirectService(store);
 
 const selectedKeys: Ref<any> = ref({});
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);

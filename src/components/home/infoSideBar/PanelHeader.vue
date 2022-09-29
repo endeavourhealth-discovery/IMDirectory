@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, PropType, Ref, ref, watch } from "vue";
-import { mapState, useStore } from "vuex";
+import {mapState, Store, useStore} from 'vuex';
 import _ from "lodash";
 import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
 import { Helpers, Services } from "im-library";
@@ -24,7 +24,8 @@ const props = defineProps({
   header: { type: String, default: "" }
 });
 
-const directService = new DirectService(axios);
+const store: Store<any> = useStore();
+const directService = new DirectService(store);
 
 watch(
   () => _.cloneDeep(props.types),
@@ -36,7 +37,6 @@ watch(
   }
 );
 
-const store = useStore();
 const selectedConceptIri = computed(() => store.state.selectedConceptIri);
 
 const icon: Ref<string[]> = ref([]);

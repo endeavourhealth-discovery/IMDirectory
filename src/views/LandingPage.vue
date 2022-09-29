@@ -101,7 +101,7 @@ const recentLocalActivity = computed(() => store.state.recentLocalActivity);
 
 const entityService = new EntityService(axios);
 const configService = new ConfigService(axios);
-const directService = new DirectService(axios);
+const directService = new DirectService(store);
 
 let activities: Ref<RecentActivityItem[]> = ref([]);
 let selected: Ref<any> = ref({});

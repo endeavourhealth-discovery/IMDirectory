@@ -162,7 +162,7 @@ const selectedFilters = computed(() => store.state.selectedFilters);
 const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
 
-const directService = new DirectService(axios);
+const directService = new DirectService(store);
 
 let selectedSchemes: Ref<string[]> = ref([]);
 let selectedStatus: Ref<string[]> = ref([]);
