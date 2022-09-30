@@ -30,10 +30,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, provide, ref } from "vue";
+import { computed, onMounted, provide, ref } from "vue";
 import Search from "@/components/topbar/Search.vue";
-// import ReleaseNotes from "@/components/releaseNotes/ReleaseNotes.vue";
-import { mapState, useStore } from "vuex";
+import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { Helpers, Services } from "im-library";
