@@ -2,7 +2,7 @@
   <div class="layout-wrapper layout-static">
     <Toast />
     <ConfirmDialog />
-    <ReleaseNotes />
+    <ReleaseNotes v-if="!loading" :appVersion="appVersion" repositoryName="IMDirectory" />
     <div id="main-container">
       <TopBar>
         <template #content>
@@ -30,23 +30,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, provide, ref } from "vue";
+import { computed, onMounted, provide, ref } from "vue";
 import Search from "@/components/topbar/Search.vue";
-import ReleaseNotes from "@/components/releaseNotes/ReleaseNotes.vue";
-import { mapState, useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import { Services } from "im-library";
+import { Helpers, Services } from "im-library";
+import { Auth } from "aws-amplify";
 import axios from "axios";
-const { FilerService } = Services;
+const { Env, FilerService } = Services;
+const {
+  DataTypeCheckers: { isObjectHasKeys }
+} = Helpers;
+
+setupAxiosInterceptors(axios);
+setupExternalErrorHandler();
 
 provide("axios", axios);
 
+const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
 const isLoggedIn = computed(() => store.state.isLoggedIn);
+
+const appVersion = __APP_VERSION__;
 
 const filerService = new FilerService(axios);
 
@@ -88,6 +97,69 @@ async function downloadChanges() {
   link.href = url;
   link.download = "deltas.zip";
   link.click();
+}
+
+async function setupAxiosInterceptors(axios: any) {
+  axios.interceptors.request.use(async (request: any) => {
+    if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
+      if (!request.headers) request.headers = {};
+      request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
+    }
+    return request;
+  });
+
+  axios.interceptors.response.use(
+    (response: any) => {
+      return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
+    },
+    (error: any) => {
+      if (error.response.status === 403) {
+        toast.add({
+          severity: "error",
+          summary: "Access denied",
+          detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+        });
+        window.location.href = Env.AUTH_URL + "login?returnUrl=" + route.fullPath;
+      } else if (error.response.status === 401) {
+        toast.add({
+          severity: "error",
+          summary: "Access denied",
+          detail:
+            "Insufficient clearance to access " +
+            error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
+            ". Please contact an admin to change your account security clearance if you require access to this resource."
+        });
+        router.push({ name: "AccessDenied" }).then();
+      } else {
+        return Promise.reject(error);
+      }
+    }
+  );
+}
+
+function setupExternalErrorHandler() {
+  window.addEventListener("unhandledrejection", e => {
+    e.preventDefault();
+    console.error(e);
+    if (e.reason?.response?.data?.title)
+      toast.add({
+        severity: "error",
+        summary: e.reason.response.data.title,
+        detail: e.reason.response.data.detail
+      });
+    else if (e.reason?.name)
+      toast.add({
+        severity: "error",
+        summary: e.reason.name,
+        detail: e.reason.message
+      });
+    else
+      toast.add({
+        severity: "error",
+        summary: "An error occurred",
+        detail: e.reason
+      });
+  });
 }
 </script>
 

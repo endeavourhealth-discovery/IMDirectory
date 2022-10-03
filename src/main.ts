@@ -1,4 +1,4 @@
-import { createApp, Plugin } from "vue";
+import { createApp, Plugin, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -86,7 +86,6 @@ import axios from "axios";
 // IMLibrary imports
 import "im-library/dist/style.css";
 import IMLibrary, { Helpers, Services } from "im-library";
-import { ComponentPublicInstance } from "@vue/runtime-core";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
@@ -169,74 +168,10 @@ const vm = app.mount("#app");
 
 // Vue application exceptions
 app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {
-  vm.$toast.add({
+  console.error(err);
+  _instance?.$toast.add({
     severity: "error",
     summary: info,
-    detail: err,
-    life: 3000
+    detail: err
   });
 };
-
-// Vue external exceptions (e.g. Axios)
-window.addEventListener("unhandledrejection", e => {
-  e.preventDefault();
-  console.error(e);
-  if (e.reason?.response?.data?.title)
-    vm.$toast.add({
-      severity: "error",
-      summary: e.reason.response.data.title,
-      detail: e.reason.response.data.detail,
-      life: 3000
-    });
-  else if (e.reason?.name)
-    vm.$toast.add({
-      severity: "error",
-      summary: e.reason.name,
-      detail: e.reason.message,
-      life: 3000
-    });
-  else
-    vm.$toast.add({
-      severity: "error",
-      summary: "An error occurred",
-      detail: e.reason,
-      life: 3000
-    });
-});
-
-axios.interceptors.request.use(async request => {
-  if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
-    if (!request.headers) request.headers = {};
-
-    request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
-  }
-  return request;
-});
-
-axios.interceptors.response.use(
-  response => {
-    return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
-  },
-  error => {
-    if (error.response.status === 403) {
-      vm.$toast.add({
-        severity: "error",
-        summary: "Access denied",
-        detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-      });
-      window.location.href = Env.AUTH_URL + "login?returnUrl=" + vm.$route.fullPath;
-    } else if (error.response.status === 401) {
-      vm.$toast.add({
-        severity: "error",
-        summary: "Access denied",
-        detail:
-          "Insufficient clearance to access " +
-          error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
-          ". Please contact an admin to change your account security clearance if you require access to this resource."
-      });
-      vm.$router.push({ name: "AccessDenied" }).then();
-    } else {
-      return Promise.reject(error);
-    }
-  }
-);
