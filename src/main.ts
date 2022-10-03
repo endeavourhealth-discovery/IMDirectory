@@ -1,4 +1,4 @@
-import { createApp, Plugin } from "vue";
+import { createApp, Plugin, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
@@ -86,7 +86,6 @@ import axios from "axios";
 // IMLibrary imports
 import "im-library/dist/style.css";
 import IMLibrary, { Helpers, Services } from "im-library";
-import { ComponentPublicInstance } from "@vue/runtime-core";
 const {
   DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
@@ -169,7 +168,7 @@ const vm = app.mount("#app");
 
 // Vue application exceptions
 app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {
-  console.error(err)
+  console.error(err);
   _instance?.$toast.add({
     severity: "error",
     summary: info,
