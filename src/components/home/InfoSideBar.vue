@@ -34,6 +34,11 @@
                 <TermCodeTable :terms="terms" />
               </div>
             </TabPanel>
+            <TabPanel v-if="isRecordModel(types)" header="Data Model">
+              <div class="concept-panel-content" id="data-model-container">
+                <DataModel :conceptIri="conceptIri" />
+              </div>
+            </TabPanel>
           </TabView>
         </div>
       </div>
@@ -44,6 +49,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, onMounted, Ref, ref, watch } from "vue";
 import Definition from "./infoSideBar/Definition.vue";
+import DataModel from "./infoSideBar/dataModel/DataModel.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, Models, Services } from "im-library";
@@ -52,7 +58,7 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
-  ConceptTypeMethods: { isQuery },
+  ConceptTypeMethods: { isQuery, isRecordModel },
   DataTypeCheckers: { isObjectHasKeys },
   ContainerDimensionGetters: { getContainerElementOptimalHeight },
   Sorters: { byOrder }
@@ -113,7 +119,7 @@ const configs: Ref<DefinitionConfig[]> = ref([]);
 const conceptAsString = ref("");
 const terms: Ref<any[] | undefined> = ref([]);
 const profile = ref({} as Models.Query.Profile);
-const activeTab = ref(0);
+const activeTab = ref(isRecordModel(types.value) ? 2 : 0);
 
 onMounted(async () => {
   if (!selectedConceptIri.value && conceptIri.value) store.commit("updateSelectedConceptIri", conceptIri.value);
