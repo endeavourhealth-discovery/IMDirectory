@@ -28,7 +28,7 @@ watch(
 );
 
 let options: Ref = ref({});
-let color = ref(d3.scaleOrdinal(d3.schemeDark2));
+let color = ref(d3.scaleOrdinal(d3.schemeSet2));
 let chartData:  Ref<TangledTreeData[][]> = ref([]);
 
 onMounted(() => {
@@ -37,10 +37,10 @@ onMounted(() => {
 })
 
 function renderChart(){
-  const w = 700;
-  const h = 1000;
 
   const tangleLayout = constructTangleLayout(chartData.value,options);
+  const w = 700;
+  const h = 1500;
 
   const svg = d3.select("#data-model-svg").attr("viewBox", [-5, -5, w, h] as any);
 
@@ -83,22 +83,22 @@ function renderChart(){
 
   node.append("path")
       .attr("stroke", "black")
-      .attr("stroke-width", 10)
+      .attr("stroke-width", 13)
       .attr("d", (n:any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
 
   node.append("path")
       .attr("stroke", "white")
-      .attr("stroke-width", 7)
+      .attr("stroke-width", 10)
       .attr("d", (n:any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
 
   node
       .append("text")
       .attr("x", (n:any) => n.x + 4)
       .attr("y", (n:any) => n.y - n.height / 2 - 4)
-      .text((d: any) => d.name)
+      .text((d: any) => d.name.slice(0,25))
       .attr("stroke", "black")
-      .attr("stroke-width", 0.5)
-      .style("font-size", 15);
+      .attr("stroke-width", 0.1)
+      .style("font-size", 20);
 
 }
 </script>

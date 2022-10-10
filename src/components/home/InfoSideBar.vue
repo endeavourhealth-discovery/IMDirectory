@@ -18,7 +18,7 @@
       </div>
       <div v-else id="concept-content-dialogs-container">
         <div id="concept-panel-container">
-          <TabView :lazy="true" :active-index="activeTab">
+          <TabView :lazy="true" :active-index="activeTab" id="info-side-bar-tabs">
             <TabPanel header="Details">
               <div v-if="isObjectHasKeys(concept)" class="concept-panel-content" id="definition-container">
                 <Definition :concept="concept" :configs="configs" />
@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, Ref, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, Ref, ref, watch, reactive } from "vue";
 import Definition from "./infoSideBar/Definition.vue";
 import DataModel from "./infoSideBar/dataModel/DataModel.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
@@ -102,6 +102,13 @@ watch(
   () => selectedConceptIri.value,
   async newValue => {
     if (newValue) await init();
+    tabMap.clear();
+    setTabMap();
+    if(isRecordModel(types.value)) {
+      activeTab.value = tabMap.get("Data Model") || 0;
+    } else {
+      activeTab.value = 0;
+    }
   }
 );
 
@@ -119,12 +126,31 @@ const configs: Ref<DefinitionConfig[]> = ref([]);
 const conceptAsString = ref("");
 const terms: Ref<any[] | undefined> = ref([]);
 const profile = ref({} as Models.Query.Profile);
-const activeTab = ref(isRecordModel(types.value) ? 2 : 0);
+const activeTab = ref(0);
+
+let tabMap = reactive(new Map<string, number>());
 
 onMounted(async () => {
   if (!selectedConceptIri.value && conceptIri.value) store.commit("updateSelectedConceptIri", conceptIri.value);
   await init();
+  setTabMap();
+  if(isRecordModel(types.value)) {
+    activeTab.value = tabMap.get("Data Model") || 0;
+  } else {
+    activeTab.value = 0;
+  }
 });
+
+function setTabMap() {
+  const tabList = document.getElementById("info-side-bar-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
+  if (tabList && tabList.length) {
+    for (let i = 0; i < tabList.length; i++) {
+      if (tabList[i].textContent) {
+        tabMap.set(tabList[i].textContent as string, i);
+      }
+    }
+  }
+}
 
 function closeBar() {
   emit("closeBar");
