@@ -3,7 +3,7 @@ import { faker } from "@faker-js/faker";
 
 const apiUrl = "http://localhost/imapi/api/";
 
-const data = factory({
+const fakerFactory = factory({
   entity: {
     "@id": primaryKey(faker.internet.url),
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": nullable(manyOf("iriRef", { unique: true })),
@@ -43,7 +43,14 @@ const data = factory({
     entities: manyOf("conceptSummary", { unique: true }),
     count: Number,
     page: Number
+  },
+  componentLayout: {
+    label: faker.lorem.sentence,
+    predicate: primaryKey(faker.internet.url),
+    type: String,
+    size: faker.datatype.string,
+    order: faker.datatype.number
   }
 });
 
-export { data };
+export { fakerFactory };

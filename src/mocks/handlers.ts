@@ -1,6 +1,6 @@
 import { rest } from "msw";
 import { Services, Vocabulary } from "im-library";
-import { data } from "./factory";
+import { fakerFactory } from "./factory";
 const { Env } = Services;
 const { IM } = Vocabulary;
 
@@ -63,7 +63,7 @@ export const handlersFaker = [
     if (predicatesArray && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax")) entityValue["http://www.w3.org/1999/02/22-rdf-syntax"] = null;
     if (predicatesArray && !predicatesArray.includes("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
       entityValue["http://www.w3.org/1999/02/22-rdf-syntax-ns#type"] = null;
-    const entity = data.entity.create(entityValue) as any;
+    const entity = fakerFactory.entity.create(entityValue) as any;
     Object.keys(entity).forEach((key: string) => {
       if (!entity[key]) delete entity[key];
     });
@@ -71,19 +71,24 @@ export const handlersFaker = [
   }),
   rest.get(apiUrl + "entity/public/parents", async (req, res, ctx) => {
     const iri = req.url.searchParams.get("iri");
-    return res(ctx.status(200), ctx.json([data.entitySummary.create(), data.entitySummary.create()]));
+    return res(ctx.status(200), ctx.json([fakerFactory.entitySummary.create(), fakerFactory.entitySummary.create()]));
   }),
   rest.get(apiUrl + "entity/public/childrenPaged", async (req, res, ctx) => {
     const iri = req.url.searchParams.get("iri");
-    const children = [data.entitySummary.create(), data.entitySummary.create(), data.entitySummary.create(), data.entitySummary.create()];
-    return res(ctx.status(200), ctx.json(data.pagedChildren.create({ result: children, totalCount: 4 })));
+    const children = [
+      fakerFactory.entitySummary.create(),
+      fakerFactory.entitySummary.create(),
+      fakerFactory.entitySummary.create(),
+      fakerFactory.entitySummary.create()
+    ];
+    return res(ctx.status(200), ctx.json(fakerFactory.pagedChildren.create({ result: children, totalCount: 4 })));
   }),
   rest.get(apiUrl + "entity/public/summary", async (req, res, ctx) => {
     const iri = req.url.searchParams.get("iri");
     if (iri) {
-      const found = data.entitySummary.findFirst({ where: { "@id": { equals: iri } } });
+      const found = fakerFactory.entitySummary.findFirst({ where: { "@id": { equals: iri } } });
       if (found) return res(ctx.status(200), ctx.json(found));
-      else return res(ctx.status(200), ctx.json(data.pagedChildren.create()));
+      else return res(ctx.status(200), ctx.json(fakerFactory.pagedChildren.create()));
     } else return res(ctx.status(500), ctx.json({ errorMessage: "Missing iri parameter" }));
   })
 ];
