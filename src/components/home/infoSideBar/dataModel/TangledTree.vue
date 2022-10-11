@@ -37,6 +37,10 @@ onMounted(() => {
 })
 
 function renderChart(){
+  const svgDoc = document.getElementById("data-model-svg");
+  if (svgDoc != null) {
+    svgDoc.innerHTML = "";
+  }
 
   const tangleLayout = constructTangleLayout(chartData.value,options);
   const w = 700;
