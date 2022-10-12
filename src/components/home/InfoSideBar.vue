@@ -3,15 +3,20 @@
     <div id="concept-empty-container" v-if="selectedConceptIri === 'http://endhealth.info/im#Favourites'">
       <div class="header">
         <div class="title">
-          <span>Please select an item to display</span>
+          <span data-testid="favourites-message">Please select an item to display</span>
         </div>
         <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
       </div>
     </div>
     <div id="concept-main-container" v-else>
       <div class="header">
-        <PanelHeader :types="types" :header="header" />
-        <Button class="p-button-rounded p-button-text p-button-plain header-close-button" icon="pi pi-times" @click="closeBar" />
+        <PanelHeader :types="types" :header="header" data-testid="panel-header" />
+        <Button
+          class="p-button-rounded p-button-text p-button-plain header-close-button"
+          icon="pi pi-times"
+          @click="closeBar"
+          data-testid="header-close-button"
+        />
       </div>
       <div v-if="loading" class="loading-container">
         <ProgressSpinner />
@@ -55,6 +60,7 @@ import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist
 import { Vocabulary, Helpers, Models, Services } from "im-library";
 import { mapState, useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { setupConcept, loadMore, setupConfig, getInferred, setupTerms } from "./InfoSideBarMethods";
 import axios from "axios";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
@@ -87,9 +93,6 @@ const activeProfile = computed({
   }
 });
 
-const entityService = new EntityService(axios);
-const configService = new ConfigService(axios);
-
 watch(
   () => conceptIri.value,
   newValue => {
@@ -101,10 +104,11 @@ watch(
 watch(
   () => selectedConceptIri.value,
   async newValue => {
-    if (newValue) await init();
+    if (newValue && newValue !== concept.value["@id"]) await init();
+
     tabMap.clear();
     setTabMap();
-    if(isRecordModel(types.value)) {
+    if (isRecordModel(types.value)) {
       activeTab.value = tabMap.get("Data Model") || 0;
     } else {
       activeTab.value = 0;
@@ -118,23 +122,24 @@ watch(
 );
 
 const loading = ref(false);
-const concept: Ref<any> = ref({});
 const definitionText = ref("");
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
-const configs: Ref<DefinitionConfig[]> = ref([]);
 const conceptAsString = ref("");
-const terms: Ref<any[] | undefined> = ref([]);
+
 const profile = ref({} as Models.Query.Profile);
 const activeTab = ref(0);
 
+const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = setupConcept();
+const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
+const { terms, getTerms }: { terms: Ref<any[] | undefined>; getTerms: Function } = setupTerms();
 let tabMap = reactive(new Map<string, number>());
 
 onMounted(async () => {
   if (!selectedConceptIri.value && conceptIri.value) store.commit("updateSelectedConceptIri", conceptIri.value);
   await init();
   setTabMap();
-  if(isRecordModel(types.value)) {
+  if (isRecordModel(types.value)) {
     activeTab.value = tabMap.get("Data Model") || 0;
   } else {
     activeTab.value = 0;
@@ -167,95 +172,15 @@ function directToCreateRoute(): void {
   router.push({ name: "Create" });
 }
 
-async function getConcept(iri: string): Promise<void> {
-  const predicates = configs.value
-    .filter((c: DefinitionConfig) => c.type !== "Divider")
-    .filter((c: DefinitionConfig) => c.predicate !== "subtypes")
-    .filter((c: DefinitionConfig) => c.predicate !== "inferred")
-    .filter((c: DefinitionConfig) => c.predicate !== "termCodes")
-    .filter((c: DefinitionConfig) => c.predicate !== "@id")
-    .filter((c: DefinitionConfig) => c.predicate !== "None")
-    .filter((c: DefinitionConfig) => c.predicate !== undefined)
-    .map((c: DefinitionConfig) => c.predicate);
-  predicates.push(IM.DEFINITION);
-
-  concept.value = await entityService.getPartialEntity(iri, predicates);
-
-  concept.value["@id"] = iri;
-  const result = await entityService.getPagedChildren(iri, 1, 10);
-  const subtypes = result.result.map((child: EntityReferenceNode) => {
-    return { "@id": child["@id"], name: child.name };
-  });
-  concept.value["subtypes"] = { children: subtypes, totalCount: result.totalCount, loadMore: loadMore };
-  concept.value["termCodes"] = await entityService.getEntityTermCodes(iri);
-}
-
-async function getInferred(iri: string): Promise<void> {
-  const result = await entityService.getDefinitionBundle(iri);
-  if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
-    const roleGroup = result.entity[IM.ROLE_GROUP];
-    delete result.entity[IM.ROLE_GROUP];
-    const newRoleGroup: any = {};
-    newRoleGroup[IM.ROLE_GROUP] = roleGroup;
-    result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
-  }
-  concept.value["inferred"] = result;
-}
-
-async function getConfig(): Promise<void> {
-  const definitionConfig = await configService.getComponentLayout("definition");
-  const summaryConfig = await configService.getComponentLayout("summary");
-  configs.value = definitionConfig.concat(summaryConfig);
-
-  if (configs.value.every(config => isObjectHasKeys(config, ["order"]))) {
-    configs.value.sort(byOrder);
-  } else {
-    LoggerService.error(undefined, "Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
-  }
-}
-
 async function init(): Promise<void> {
   loading.value = true;
   await getConfig();
-  await getConcept(selectedConceptIri.value);
-  await getInferred(selectedConceptIri.value);
+  await getConcept(selectedConceptIri.value, configs);
+  await getInferred(selectedConceptIri.value, concept);
   await getTerms(selectedConceptIri.value);
   types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
   header.value = concept.value[RDFS.LABEL];
   loading.value = false;
-}
-
-async function getTerms(iri: string) {
-  const entity = await entityService.getPartialEntity(iri, [IM.HAS_TERM_CODE]);
-  terms.value = isObjectHasKeys(entity, [IM.HAS_TERM_CODE])
-    ? (entity[IM.HAS_TERM_CODE] as []).map(term => {
-        return { name: term[RDFS.LABEL], code: term[IM.CODE] };
-      })
-    : undefined;
-}
-
-async function loadMore(children: any[], totalCount: number, nextPage: number, pageSize: number, loadButton: boolean, iri: string) {
-  if (loadButton) {
-    if (nextPage * pageSize < totalCount) {
-      const result = await entityService.getPagedChildren(iri, nextPage, pageSize);
-      const resultChildren = result.result.map((child: EntityReferenceNode) => {
-        return { "@id": child["@id"], name: child.name };
-      });
-      children = children.concat(resultChildren);
-      nextPage = nextPage + 1;
-      loadButton = true;
-    } else if (nextPage * pageSize > totalCount) {
-      const result = await entityService.getPagedChildren(iri, nextPage, pageSize);
-      const resultChildren = result.result.map((child: EntityReferenceNode) => {
-        return { "@id": child["@id"], name: child.name };
-      });
-      children = children.concat(resultChildren);
-      loadButton = false;
-    } else {
-      loadButton = false;
-    }
-  }
-  return { children: children, totalCount: totalCount, nextPage: nextPage, pageSize: pageSize, loadButton: loadButton, iri: iri };
 }
 </script>
 <style scoped>

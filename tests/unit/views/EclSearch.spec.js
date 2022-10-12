@@ -7,7 +7,7 @@ import Button from "primevue/button";
 import testData from "./EclSearch.testData";
 import { Services } from "im-library";
 import { expect, it } from "vitest";
-import { data } from "../../../src/mocks/factory";
+import { fakerFactory } from "../../../src/mocks/factory";
 import VueClipboard from "vue3-clipboard";
 import Tooltip from "primevue/tooltip";
 const { SetService } = Services;
@@ -95,7 +95,7 @@ describe("EclSearch.vue", async () => {
   it("handles >1000 results", async () => {
     const largeSearchResults = [];
     for (let i = 1; i <= 1100; i++) {
-      largeSearchResults.push(data.conceptSummary.create());
+      largeSearchResults.push(fakerFactory.conceptSummary.create());
     }
     mockECLSearch.mockResolvedValue({ page: 1, count: largeSearchResults.length, entities: largeSearchResults });
     const textbox = component.getByTestId("query-string");
