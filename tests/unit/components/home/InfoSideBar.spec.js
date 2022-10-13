@@ -57,7 +57,7 @@ describe("InfoSideBar.vue ___ selectedConceptIri", () => {
     getPartialEntitySpy = vi.spyOn(EntityService.prototype, "getPartialEntity").mockResolvedValue(testData.ENTITY);
     getPagedChildrenSpy = vi.spyOn(EntityService.prototype, "getPagedChildren").mockResolvedValue(testData.CHILDREN);
     getEntityTermCodesSpy = vi.spyOn(EntityService.prototype, "getEntityTermCodes").mockResolvedValue([]);
-    getDefinitionBundleSpy = vi.spyOn(EntityService.prototype, "getDefinitionBundle").mockResolvedValue(testData.INFERRED_BUNDLE);
+    getDefinitionBundleSpy = vi.spyOn(EntityService.prototype, "getDefinitionBundle").mockResolvedValue({ ...testData.INFERRED_BUNDLE });
 
     component = render(InfoSideBar, {
       props: { visible: true },
@@ -132,7 +132,7 @@ describe("InfoSideBar.vue ___ no selectedConceptIri", () => {
     getPartialEntitySpy = vi.spyOn(EntityService.prototype, "getPartialEntity").mockResolvedValue(testData.ENTITY);
     getPagedChildrenSpy = vi.spyOn(EntityService.prototype, "getPagedChildren").mockResolvedValue(testData.CHILDREN);
     getEntityTermCodesSpy = vi.spyOn(EntityService.prototype, "getEntityTermCodes").mockResolvedValue([]);
-    getDefinitionBundleSpy = vi.spyOn(EntityService.prototype, "getDefinitionBundle").mockResolvedValue(testData.INFERRED_BUNDLE);
+    getDefinitionBundleSpy = vi.spyOn(EntityService.prototype, "getDefinitionBundle").mockResolvedValue({ ...testData.INFERRED_BUNDLE });
 
     component = render(InfoSideBar, {
       props: { visible: true },
@@ -187,7 +187,7 @@ describe("InfoSideBar.vue ___ favourites", () => {
     getPartialEntitySpy = vi.spyOn(EntityService.prototype, "getPartialEntity").mockResolvedValue(testData.ENTITY);
     getPagedChildrenSpy = vi.spyOn(EntityService.prototype, "getPagedChildren").mockResolvedValue(testData.CHILDREN);
     getEntityTermCodesSpy = vi.spyOn(EntityService.prototype, "getEntityTermCodes").mockResolvedValue([]);
-    getDefinitionBundleSpy = vi.spyOn(EntityService.prototype, "getDefinitionBundle").mockResolvedValue(testData.INFERRED_BUNDLE);
+    getDefinitionBundleSpy = vi.spyOn(EntityService.prototype, "getDefinitionBundle").mockResolvedValue({ ...testData.INFERRED_BUNDLE });
 
     component = render(InfoSideBar, {
       props: { visible: true },
