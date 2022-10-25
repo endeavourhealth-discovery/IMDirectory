@@ -1,5 +1,5 @@
 <template>
-  <div class="graph-controls-container">
+  <div id="tree-container">
     <TangledTree :data="data" />
   </div>
 </template>
@@ -47,7 +47,8 @@ async function addPropertiesAndTypes(iri: any) {
                       id: r.property["@id"],
                       parents: [iri],
                       name: r.property.name || r.property["@id"],
-                      type: "property"
+                      type: "property",
+                      cardinality: `${r.minExclusive || r.minInclusive || 0} : ${r.maxExclusive || r.maxInclusive || "*"}`
                     });
     if (r.type["@id"] === iri) {
       if (types.some((t: any) => t.id === twinNode + r.type["@id"])) {
@@ -81,10 +82,10 @@ async function addPropertiesAndTypes(iri: any) {
 </script>
 
 <style scoped>
-.graph-controls-container {
+#tree-container {
   flex: 1 1 auto;
   width: 100%;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
 }
 </style>
