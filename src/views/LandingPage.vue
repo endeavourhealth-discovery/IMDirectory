@@ -19,7 +19,14 @@
             class="p-datatable-sm"
           >
             <template #empty> No recent activity </template>
-            <Column field="name" header="Name"></Column>
+            <Column field="name" header="Name">
+              <template #body="{ data }">
+                <div class="result-icon-container" :style="data.color">
+                  <i :class="data.icon" class="recent-icon" aria-hidden="true" />
+                </div>
+                {{ data.name }}
+              </template>
+            </Column>
             <Column field="latestActivity" header="Latest activity">
               <template #body="{ data }">
                 <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
@@ -88,6 +95,7 @@ import axios from "axios";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
+  ConceptTypeMethods: { getColourFromType, getFAIconFromType },
   Sorters: { byOrder }
 } = Helpers;
 const { EntityService, ConfigService, Env, DirectService } = Services;
@@ -110,7 +118,7 @@ let configs: Ref<DashboardLayout[]> = ref([]);
 let cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
 
 watch(
-  () => _.cloneDeep(recentLocalActivity.value),
+  () => _.clone(recentLocalActivity.value),
   async () => await getRecentActivityDetails()
 );
 
@@ -131,6 +139,8 @@ async function getRecentActivityDetails() {
     if (isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
       activity.name = result[RDFS.LABEL];
       activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      activity.icon = getFAIconFromType(result[RDF.TYPE]);
+      activity.color = "color:" + getColourFromType(result[RDF.TYPE]);
     }
   }
   storedActivity.reverse();
@@ -276,5 +286,12 @@ function onRowSelect(event: any) {
 .activity-row-button:hover {
   background-color: #6c757d !important;
   color: #ffffff !important;
+}
+
+.recent-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+  padding: 5px;
 }
 </style>
