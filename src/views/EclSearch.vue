@@ -55,13 +55,13 @@ const toast = useToast();
 
 const setService = new SetService(axios);
 
-let queryString = ref("");
-let showDialog = ref(false);
-let searchResults: Ref<ConceptSummary[]> = ref([]);
-let totalCount = ref(0);
-let eclError = ref(false);
-let loading = ref(false);
-let controller: Ref<AbortController> = ref({} as AbortController);
+const queryString = ref("");
+const showDialog = ref(false);
+const searchResults: Ref<ConceptSummary[]> = ref([]);
+const totalCount = ref(0);
+const eclError = ref(false);
+const loading = ref(false);
+const controller: Ref<AbortController> = ref({} as AbortController);
 
 watch(queryString, () => (eclError.value = false));
 

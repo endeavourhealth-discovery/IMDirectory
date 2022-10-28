@@ -17,7 +17,7 @@ import { ref } from "vue";
 import NavTree from "@/components/home/NavTree.vue";
 import InfoSideBar from "@/components/home/InfoSideBar.vue";
 
-let visibleRight = ref(true);
+const visibleRight = ref(true);
 </script>
 
 <style scoped>

@@ -27,9 +27,9 @@ watch(
     }
 );
 
-let options: Ref = ref({});
-let color = ref(d3.scaleOrdinal(d3.schemeSet2));
-let chartData:  Ref<TangledTreeData[][]> = ref([]);
+const options: Ref = ref({});
+const color = ref(d3.scaleOrdinal(d3.schemeSet2));
+const chartData:  Ref<TangledTreeData[][]> = ref([]);
 
 onMounted(() => {
   chartData.value = props.data;

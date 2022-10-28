@@ -59,7 +59,7 @@ const appVersion = __APP_VERSION__;
 
 const filerService = new FilerService(axios);
 
-let loading = ref(true);
+const loading = ref(true);
 
 const adminMenu = ref();
 
