@@ -103,11 +103,11 @@ const entityService = new EntityService(axios);
 const configService = new ConfigService(axios);
 const directService = new DirectService(store);
 
-let activities: Ref<RecentActivityItem[]> = ref([]);
-let selected: Ref<any> = ref({});
-let loading = ref(false);
-let configs: Ref<DashboardLayout[]> = ref([]);
-let cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
+const activities: Ref<RecentActivityItem[]> = ref([]);
+const selected: Ref<any> = ref({});
+const loading = ref(false);
+const configs: Ref<DashboardLayout[]> = ref([]);
+const cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),

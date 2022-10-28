@@ -164,16 +164,16 @@ const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService(store);
 
-let selectedSchemes: Ref<string[]> = ref([]);
-let selectedStatus: Ref<string[]> = ref([]);
-let selectedTypes: Ref<string[]> = ref([]);
-let schemeOptions: Ref<string[]> = ref([]);
-let statusOptions: Ref<string[]> = ref([]);
-let typeOptions: Ref<string[]> = ref([]);
-let localSearchResults: Ref<any[]> = ref([]);
-let loading = ref(true);
-let selected: Ref<any> = ref({});
-let rClickOptions: Ref<any[]> = ref([
+const selectedSchemes: Ref<string[]> = ref([]);
+const selectedStatus: Ref<string[]> = ref([]);
+const selectedTypes: Ref<string[]> = ref([]);
+const schemeOptions: Ref<string[]> = ref([]);
+const statusOptions: Ref<string[]> = ref([]);
+const typeOptions: Ref<string[]> = ref([]);
+const localSearchResults: Ref<any[]> = ref([]);
+const loading = ref(true);
+const selected: Ref<any> = ref({});
+const rClickOptions: Ref<any[]> = ref([
   {
     label: "Open",
     icon: "pi pi-fw pi-folder-open",
