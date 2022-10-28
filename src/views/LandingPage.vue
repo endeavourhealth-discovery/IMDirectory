@@ -118,11 +118,11 @@ let configs: Ref<DashboardLayout[]> = ref([]);
 let cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
 
 watch(
-  () => _.clone(recentLocalActivity.value),
-  async () => await getRecentActivityDetails()
+  () => _.cloneDeep(recentLocalActivity.value),
+  async () => getRecentActivityDetails()
 );
 
-onMounted(async () => await init());
+onMounted(async () => init());
 
 async function init(): Promise<void> {
   loading.value = true;
@@ -133,18 +133,29 @@ async function init(): Promise<void> {
 }
 
 async function getRecentActivityDetails() {
-  const storedActivity: RecentActivityItem[] = Object.assign([], recentLocalActivity.value);
-  for (let activity of storedActivity) {
-    const result = await entityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
-    if (isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
-      activity.name = result[RDFS.LABEL];
-      activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
-      activity.icon = getFAIconFromType(result[RDF.TYPE]);
-      activity.color = "color:" + getColourFromType(result[RDF.TYPE]);
+  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
+  const results = await entityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
+
+  const temp: RecentActivityItem[] = [];
+
+  for (const rla of recentLocalActivity.value) {
+    const clone = {...rla};
+
+    const result = results.find(r => r['@id'] === rla.iri);
+
+    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
+      clone.name = result[RDFS.LABEL];
+      clone.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      clone.icon = getFAIconFromType(result[RDF.TYPE]);
+      clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
     }
+
+    temp.push(clone);
   }
-  storedActivity.reverse();
-  activities.value = storedActivity;
+
+  temp.reverse();
+
+  activities.value = temp;
 }
 
 async function getConfigs(): Promise<void> {
