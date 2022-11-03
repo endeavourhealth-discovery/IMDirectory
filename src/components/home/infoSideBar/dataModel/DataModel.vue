@@ -5,11 +5,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch } from "vue";
+import {computed, onMounted, Ref, ref, watch} from "vue";
 import { TangledTreeData } from "im-library/dist/types/interfaces/Interfaces";
 import { Services } from "im-library";
 import axios from "axios";
 import TangledTree from "@/components/home/infoSideBar/dataModel/TangledTree.vue";
+import {useStore} from "vuex";
 
 const { EntityService } = Services;
 
@@ -18,9 +19,16 @@ const props = defineProps({
 });
 
 const entityService = new EntityService(axios);
+const store = useStore();
+const selectedConceptIri = computed(() => store.state.selectedConceptIri);
 
 watch(
     () => props.conceptIri,
+    async newValue => await getDataModel(newValue)
+);
+
+watch(
+    () => selectedConceptIri.value,
     async newValue => await getDataModel(newValue)
 );
 
@@ -28,7 +36,7 @@ const loading = ref(false);
 const data: Ref<TangledTreeData[][]> = ref([]);
 const twinNode = ref("twin-node-");
 
-onMounted(async () => await getDataModel(props.conceptIri));
+onMounted(async () => await getDataModel(selectedConceptIri.value));
 
 async function getDataModel(iri: string) {
   loading.value = true;
