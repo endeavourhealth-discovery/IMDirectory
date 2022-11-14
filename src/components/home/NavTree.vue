@@ -462,7 +462,7 @@ async function showOverlay(event: any, node?: any): Promise<void> {
     x.show(overlayLocation.value);
     hoveredResult.value.iri = "load";
     hoveredResult.value.name = node.parentNode.label;
-  } else if (node.data) {
+  } else if (node.data && node.data !== "http://endhealth.info/im#Favourites") {
     const x = navTreeOP.value;
     overlayLocation.value = event;
     x.show(overlayLocation.value);
