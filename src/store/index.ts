@@ -118,21 +118,25 @@ export default createStore({
         });
       } else {
         while (activity.length > 4) activity.shift();
-        activity.push(recentActivityItem);
+        if(recentActivityItem.iri !== "http://endhealth.info/im#Favourites") {
+          activity.push(recentActivityItem);
+        }
       }
 
       localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       state.recentLocalActivity = activity;
     },
     updateFavourites(state, favourite: string) {
-      const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");
-      if (!favourites.includes(favourite)) {
-        favourites.push(favourite);
-      } else {
-        favourites.splice(favourites.indexOf(favourite), 1);
+      if(favourite !== "http://endhealth.info/im#Favourites") {
+        const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");
+        if (!favourites.includes(favourite)) {
+          favourites.push(favourite);
+        } else {
+          favourites.splice(favourites.indexOf(favourite), 1);
+        }
+        localStorage.setItem("favourites", JSON.stringify(favourites));
+        state.favourites = favourites;
       }
-      localStorage.setItem("favourites", JSON.stringify(favourites));
-      state.favourites = favourites;
     },
     updateFocusHierarchy(state, bool) {
       state.focusHierarchy = bool;
