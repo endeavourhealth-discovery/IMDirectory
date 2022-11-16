@@ -166,7 +166,7 @@ async function init() {
 }
 
 async function getFavourites() {
-  const result = await entityService.getPartialEntities(favourites.value, []);
+  const result = await entityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
     return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
   });
