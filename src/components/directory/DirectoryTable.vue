@@ -9,7 +9,7 @@
     scrollHeight="flex"
     :loading="loading"
     :lazy="true"
-    :paginator="totalCount > pageSize ? true : false"
+    :paginator="totalCount > pageSize"
     :rows="pageSize"
     :totalRecords="totalCount"
     contextMenu
