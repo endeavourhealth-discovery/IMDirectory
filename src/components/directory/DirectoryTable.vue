@@ -1,274 +1,309 @@
 <template>
-  <DataTable
-    :value="children"
-    class="concept-data-table p-datatable-sm"
-    v-model:selection="selected"
-    selectionMode="single"
-    dataKey="@id"
-    :scrollable="true"
-    scrollHeight="flex"
-    :loading="loading"
-    :lazy="true"
-    :paginator="totalCount > pageSize"
-    :rows="pageSize"
-    :totalRecords="totalCount"
-    contextMenu
-    @rowContextmenu="onRowContextMenu"
-    @row-dblclick="onRowDblClick"
-    @row-select="onRowSelect"
-    @page="onPage($event)"
-  >
-    <template #loading> Loading data. Please wait. </template>
-    <template #empty> No records found. </template>
-
-    <template #header>Contains</template>
-    <Column field="name" header="Name">
-      <template #body="{ data }">
-        <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-          <i :class="data.icon" aria-hidden="true" />
-        </span>
-        <span>{{ data.name }}</span>
-      </template>
-    </Column>
-    <Column field="type" header="Type">
-      <template #body="{ data }">
-        <span>{{ getTypesDisplay(data.type) }}</span>
-      </template>
-    </Column>
-    <Column :exportable="false">
-      <template #body="{ data }">
-        <div class="buttons-container">
-          <Button
-            v-if="data.hasChildren"
-            @click="open(data['@id'])"
-            aria-haspopup="true"
-            aria-controls="overlay_menu"
-            type="button"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            icon="pi pi-folder-open"
-            v-tooltip.top="'Open'"
-          />
-          <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data['@id'])" v-tooltip.top="'View'" />
-          <Button
-            icon="pi pi-fw pi-info-circle"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            @click="showInfo(data['@id'])"
-            v-tooltip.top="'Info'"
-          />
-          <Button
-            icon="fa-solid fa-pen-to-square"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            @click="edit(data['@id'])"
-            v-tooltip.top="'Edit'"
-          />
-          <Button
-            v-if="isFavourite(data['@id'])"
-            style="color: #e39a36"
-            icon="pi pi-fw pi-star-fill"
-            class="p-button-rounded p-button-text row-button-fav"
-            @click="updateFavourites(data['@id'])"
-            v-tooltip.left="'Unfavourite'"
-          />
-
-          <Button
-            v-else
-            icon="pi pi-fw pi-star"
-            class="p-button-rounded p-button-text p-button-plain row-button"
-            @click="updateFavourites(data['@id'])"
-            v-tooltip.left="'Favourite'"
-          />
-        </div>
-      </template>
-    </Column>
-  </DataTable>
-  <ContextMenu ref="menu" :model="rClickOptions" />
+  <div id="concept-main-container">
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
+    </div>
+    <div v-else id="concept-content-dialogs-container">
+      <div id="concept-panel-container">
+        <TabView :lazy="true" :active-index="activeTab" id="info-side-bar-tabs">
+          <TabPanel header="Contents">
+            <div v-if="isObjectHasKeys(concept)" class="concept-panel-content" id="definition-container">
+              <Content />
+            </div>
+          </TabPanel>
+          <TabPanel header="Hierarchy position">
+            <div class="concept-panel-content" id="secondary-tree-container">
+              <SecondaryTree :conceptIri="selectedConceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel v-if="terms" header="Terms">
+            <div class="concept-panel-content" id="term-table-container">
+              <TermCodeTable :terms="terms" />
+            </div>
+          </TabPanel>
+          <TabPanel v-if="isRecordModel(types)" header="Data Model">
+            <div class="concept-panel-content" id="data-model-container">
+              <DataModel :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel v-if="isQuery(types)" header="Query">
+            <div class="concept-panel-content" id="query-container">
+              <QueryDefinition :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel v-if="isValueSet(types)" header="Set">
+            <div class="concept-panel-content" id="set-container">
+              <SetDefinition :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Maps" v-if="showMappings">
+            <div class="concept-panel-content" id="mappings-container">
+              <Mappings :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Used in">
+            <div class="concept-panel-content" id="usedin-container">
+              <UsedIn :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Entity chart" v-if="showGraph">
+            <div class="concept-panel-content" id="entity-chart-container">
+              <EntityChart :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Properties" v-if="isRecordModel(types)">
+            <div class="concept-panel-content" id="properties-container">
+              <Properties :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Terms" v-if="terms">
+            <div class="concept-panel-content" id="term-table-container">
+              <TermCodeTable :terms="terms" />
+            </div>
+          </TabPanel>
+          <TabPanel header="ECL" v-if="isValueSet(types) && isObjectHasKeys(concept['http://endhealth.info/im#definition'])">
+            <div class="concept-panel-content" id="ecl-container">
+              <EclDefinition :definition="concept['http://endhealth.info/im#definition']" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Graph">
+            <div class="concept-panel-content" id="graph-container">
+              <Graph :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Query" v-if="isQuery(types)">
+            <div class="concept-panel-content" id="query-container">
+              <QueryDefinition :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel header="JSON">
+            <div class="concept-panel-content" id="json-container">
+              <JSONViewer :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+          <TabPanel header="Provenance">
+            <div class="concept-panel-content" id="provenance-container">
+              <Provenance :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
+        </TabView>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, Ref, ref, watch } from "vue";
+import { computed, defineComponent, onMounted, Ref, ref, watch, reactive } from "vue";
+import Definition from "../home/infoSideBar/Definition.vue";
+import DataModel from "../home/infoSideBar/dataModel/DataModel.vue";
+import PanelHeader from "../home/infoSideBar/PanelHeader.vue";
+import SetDefinition from "../home/infoSideBar/setDefinition/SetDefinition.vue";
+import QueryDefinition from "../home/infoSideBar/QueryDefinition.vue";
+import Content from "../home/infoSideBar/Content.vue";
+
+import EntityChart from "../home/infoSideBar/EntityChart.vue";
+import Graph from "../home/infoSideBar/graph/Graph.vue";
+import UsedIn from "../home/infoSideBar/UsedIn.vue";
+import Mappings from "../home/infoSideBar/mapping/Mappings.vue";
+import EclDefinition from "../home/infoSideBar/EclDefinition.vue";
+import Properties from "../home/infoSideBar/Properties.vue";
+import JSONViewer from "../home/infoSideBar/JSONViewer.vue";
+import Provenance from "../home/infoSideBar/Provenance.vue";
+
+import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
+import { Vocabulary, Helpers, Models, Services } from "im-library";
 import { mapState, useStore } from "vuex";
-import _ from "lodash";
-import { Helpers, Vocabulary, Services } from "im-library";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
+import { setupConcept, loadMore, setupConfig, getInferred, setupTerms } from "../home/InfoSideBarMethods";
 import axios from "axios";
-const { IM, RDFS, RDF } = Vocabulary;
+const { IM, RDF, RDFS, SHACL } = Vocabulary;
 const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
-  DataTypeCheckers: { isArrayHasLength }
+  ConceptTypeMethods: { isOfTypes, isProperty, isValueSet, isConcept, isQuery, isFolder, isRecordModel },
+  DataTypeCheckers: { isObjectHasKeys },
+  ContainerDimensionGetters: { getContainerElementOptimalHeight },
+  Sorters: { byOrder }
 } = Helpers;
-const { EntityService, DirectService, Env } = Services;
+const { ConfigService, EntityService, LoggerService } = Services;
 
-const emit = defineEmits({ openBar: () => true });
-
-const route = useRoute();
 const router = useRouter();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
-const favourites = computed(() => store.state.favourites);
+const selectedConceptIri = computed(() => store.state.selectedConceptIri);
+const locateOnNavTreeIri = computed(() => store.state.locateOnNavTreeIri);
+const activeProfile = computed({
+  get() {
+    store.state.activeProfile;
+  },
+  set(newValue) {
+    store.commit("updateActiveProfile", newValue);
+  }
+});
 
 watch(
-  () => conceptIri.value,
-  () => init()
-);
-watch(
-  () => _.cloneDeep(favourites.value),
-  () => {
-    if (conceptIsFavourite.value) init();
+  () => selectedConceptIri.value,
+  async newValue => {
+    if (newValue && newValue !== concept.value["@id"]) await init();
+
+    tabMap.clear();
+    setTabMap();
+    setDefaultTab();
   }
 );
 
-const entityService = new EntityService(axios);
-const directService = new DirectService(store);
-
-const conceptIsFavourite = computed(() => conceptIri.value === IM.NAMESPACE + "Favourites");
+watch(
+  () => locateOnNavTreeIri.value,
+  () => (activeTab.value = 1)
+);
 
 const loading = ref(false);
-const children: Ref<any[]> = ref([]);
-const selected: Ref<any> = ref({});
-const rClickOptions: Ref<any[]> = ref([
-  {
-    label: "Open",
-    icon: "pi pi-fw pi-folder-open",
-    command: () => open((selected.value as any)["@id"])
-  },
-  {
-    label: "View",
-    icon: "pi pi-fw pi-eye",
-    command: () => view((selected.value as any)["@id"])
-  },
-  {
-    label: "Info",
-    icon: "pi pi-fw pi-info-circle",
-    command: () => showInfo((selected.value as any)["@id"])
-  },
-  {
-    separator: true
-  },
-  {
-    label: "Favourite",
-    icon: "pi pi-fw pi-star",
-    command: () => updateFavourites((selected.value as any)["@id"])
+const definitionText = ref("");
+const types: Ref<TTIriRef[]> = ref([]);
+const header = ref("");
+const conceptAsString = ref("");
+
+const profile = ref({} as Models.Query.Profile);
+const activeTab = ref(0);
+
+const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
+const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
+
+const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = setupConcept();
+const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
+const { terms, getTerms }: { terms: Ref<any[] | undefined>; getTerms: Function } = setupTerms();
+let tabMap = reactive(new Map<string, number>());
+
+onMounted(async () => {
+  if (!selectedConceptIri.value && conceptIri.value) store.commit("updateSelectedConceptIri", conceptIri.value);
+  await init();
+  setTabMap();
+  setDefaultTab();
+});
+
+function setDefaultTab() {
+  if (isRecordModel(types.value)) {
+    activeTab.value = tabMap.get("Data Model") || 0;
+  } else if (isQuery(types.value)) {
+    activeTab.value = tabMap.get("Query") || 0;
+  } else if (isValueSet(types.value)) {
+    activeTab.value = tabMap.get("Set") || 0;
+  } else {
+    activeTab.value = 0;
   }
-]);
-const totalCount = ref(0);
-const nextPage = ref(2);
-const pageSize = ref(50);
-
-const menu = ref();
-
-onMounted(() => init());
-
-async function init() {
-  loading.value = true;
-  !conceptIsFavourite.value ? await getChildren(conceptIri.value) : await getFavourites();
-  loading.value = false;
 }
 
-async function getFavourites() {
-  const result = await entityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
-  children.value = result.map((child: any) => {
-    return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
-  });
-  children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
+function setTabMap() {
+  const tabList = document.getElementById("info-side-bar-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
+  if (tabList && tabList.length) {
+    for (let i = 0; i < tabList.length; i++) {
+      if (tabList[i].textContent) {
+        tabMap.set(tabList[i].textContent as string, i);
+      }
+    }
+  }
 }
 
-function getTypesDisplay(types: TTIriRef[]): string {
-  return getNamesAsStringFromTypes(types);
-}
-
-function getColourStyleFromType(types: TTIriRef[]) {
-  return "color: " + getColourFromType(types);
-}
-
-async function getChildren(iri: string) {
-  const result = await entityService.getPagedChildren(iri, 1, pageSize.value);
-  children.value = result.result;
-  totalCount.value = result.totalCount;
-  children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
-}
-
-function isFavourite(iri: string) {
-  return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
-}
-
-function updateRClickOptions() {
-  rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
-}
-
-function onRowContextMenu(data: any) {
-  selected.value = data.data;
-  updateRClickOptions();
-  menu.value.show(event);
-}
-
-function updateFavourites(iri: string) {
-  store.commit("updateFavourites", iri);
-}
-
-function onRowDblClick(event: any) {
-  if (isFolder(event.data.type)) open(event.data["@id"]);
-  else view(event.data["@id"]);
-}
-
-function view(iri: string) {
-  directService.directTo(Env.VIEWER_URL, iri, "concept");
-}
-
-function edit(iri: string) {
-  directService.directTo(Env.EDITOR_URL, iri, "editor");
-}
-
-function open(iri: string) {
-  const currentRoute = route.name as RouteRecordName | undefined;
+function directToEditRoute(): void {
   router.push({
-    name: currentRoute,
-    params: { selectedIri: iri }
+    name: "Edit",
+    params: { iri: concept.value["@id"] }
   });
 }
 
-function onRowSelect(event: any) {
-  store.commit("updateSelectedConceptIri", event.data["@id"]);
+function directToCreateRoute(): void {
+  router.push({ name: "Create" });
 }
 
-function showInfo(iri: string) {
-  store.commit("updateSelectedConceptIri", iri);
-  emit("openBar");
-}
-
-async function loadMore() {
+async function init(): Promise<void> {
   loading.value = true;
-  const result = await entityService.getPagedChildren(conceptIri.value, nextPage.value, pageSize.value);
-  children.value = result.result;
+  await getConfig();
+  await getConcept(selectedConceptIri.value, configs);
+  await getInferred(selectedConceptIri.value, concept);
+  await getTerms(selectedConceptIri.value);
+  types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
+  header.value = concept.value[RDFS.LABEL];
   loading.value = false;
-}
-
-async function onPage(event: any) {
-  nextPage.value = event.page + 1;
-  await loadMore();
 }
 </script>
-
 <style scoped>
-.buttons-container {
+#info-side-bar-wrapper {
+  transition: 0.5s;
+  flex: 0 0 40%;
+  height: 100%;
+}
+
+#concept-main-container {
+  height: 100%;
+  width: 100%;
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: column nowrap;
+}
+
+#concept-empty-container {
+  height: 100%;
+  width: 100%;
+}
+
+.loading-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
   justify-content: center;
   align-items: center;
-  row-gap: 0.5rem;
 }
 
-.type-icon {
-  padding-right: 0.5rem;
+#concept-content-dialogs-container {
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
-.row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+#concept-panel-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
 }
 
-.row-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+.p-tabview {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabview-panels) {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabview-panel) {
+  height: 100%;
+  overflow: auto;
+}
+
+.p-panel {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.concept-panel-content {
+  height: 100%;
+  overflow: auto;
+  background-color: #ffffff;
+  display: flex;
+}
+
+.copy-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.icons-container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
 }
 </style>

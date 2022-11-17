@@ -5,8 +5,7 @@
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
-        <router-view @openBar="visibleRight = true" @closeBar="visibleRight = false" />
-        <InfoSideBar :visible="visibleRight" @closeBar="visibleRight = false" />
+        <router-view />
       </div>
     </SplitterPanel>
   </Splitter>
@@ -15,10 +14,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import NavTree from "@/components/home/NavTree.vue";
-import InfoSideBar from "@/components/home/InfoSideBar.vue";
-
-const visibleRight = ref(true);
-</script>
+const visibleRight = ref(true);</script>
 
 <style scoped>
 .p-splitter {

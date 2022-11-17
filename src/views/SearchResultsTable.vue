@@ -95,13 +95,6 @@
             />
             <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" v-tooltip.top="'View'" />
             <Button
-              icon="pi pi-fw pi-info-circle"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="showInfo(slotProps)"
-              v-tooltip.top="'Info'"
-              data-testid="info-button"
-            />
-            <Button
               icon="fa-solid fa-pen-to-square"
               class="p-button-rounded p-button-text p-button-plain row-button"
               @click="edit(slotProps)"
@@ -149,10 +142,6 @@ const {
 } = Helpers;
 const { DirectService, Env } = Services;
 
-const emit = defineEmits({
-  openBar: () => true
-});
-
 const router = useRouter();
 const store = useStore();
 const searchLoading = computed(() => store.state.searchLoading);
@@ -184,21 +173,6 @@ const rClickOptions: Ref<any[]> = ref([
     icon: "pi pi-fw pi-eye",
     command: () => view()
   },
-  {
-    label: "Info",
-    icon: "pi pi-fw pi-info-circle",
-    command: () => showInfo()
-  },
-  // {
-  //   label: "Edit",
-  //   icon: "pi pi-fw pi-pencil",
-  //   command: () => this.navigateToEditor()
-  // },
-  // {
-  //   label: "Move to",
-  //   icon: "pi pi-fw pi-arrow-circle-right",
-  //   command: () => this.showInfo()
-  // },
   {
     separator: true
   },
@@ -287,13 +261,6 @@ function setFiltersFromSearchResults() {
   selectedSchemes.value = [...new Set(schemes)];
   selectedTypes.value = [...new Set(types)];
   selectedStatus.value = [...new Set(status)];
-}
-
-function showInfo(row?: any) {
-  if (row) selected.value = row.data;
-
-  store.commit("updateSelectedConceptIri", selected.value.iri);
-  emit("openBar");
 }
 
 function filterResults() {

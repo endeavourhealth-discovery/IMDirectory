@@ -35,13 +35,6 @@
                   data-testid="view-button"
                 />
                 <Button
-                  icon="pi pi-fw pi-info-circle"
-                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
-                  @click="showInfo(data)"
-                  v-tooltip.top="'Info'"
-                  data-testid="info-button"
-                />
-                <Button
                   icon="fa-solid fa-pen-to-square"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
                   @click="edit(data)"
@@ -91,10 +84,6 @@ const {
   Sorters: { byOrder }
 } = Helpers;
 const { EntityService, ConfigService, Env, DirectService } = Services;
-
-const emit = defineEmits({
-  openBar: () => true
-});
 
 const store = useStore();
 const recentLocalActivity = computed(() => store.state.recentLocalActivity);
@@ -205,11 +194,6 @@ function view(data: any) {
 function edit(data: any) {
   onRowSelect(data);
   directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
-}
-
-function showInfo(data: any) {
-  onRowSelect(data);
-  emit("openBar");
 }
 
 function onRowSelect(event: any) {

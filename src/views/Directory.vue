@@ -5,10 +5,10 @@
   <div v-else id="directory-table-container">
     <div class="header-container">
       <ParentHierarchy :conceptIri="concept['@id']" />
-      <ParentHeader v-if="conceptIri !== 'http://endhealth.info/im#Favourites'" @openBar="openBar" :concept="concept" />
+      <ParentHeader v-if="conceptIri !== 'http://endhealth.info/im#Favourites'" :concept="concept" />
     </div>
     <div class="datatable-container">
-      <DirectoryTable @openBar="openBar" />
+      <DirectoryTable />
     </div>
   </div>
 </template>
@@ -23,10 +23,6 @@ import { Vocabulary, Services } from "im-library";
 import axios from "axios";
 const { IM } = Vocabulary;
 const { EntityService } = Services;
-
-const emit = defineEmits({
-  openBar: () => true
-});
 
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
@@ -47,10 +43,6 @@ async function init() {
   loading.value = true;
   concept.value = await entityService.getEntityByPredicateExclusions(conceptIri.value, [IM.HAS_MEMBER]);
   loading.value = false;
-}
-
-function openBar() {
-  emit("openBar");
 }
 </script>
 <style scoped>

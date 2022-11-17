@@ -46,11 +46,6 @@ const {
 } = Helpers;
 const { SetService, LoggerService } = Services;
 
-const emit = defineEmits({
-  openBar: () => true,
-  closeBar: () => true
-});
-
 const toast = useToast();
 
 const setService = new SetService(axios);
@@ -99,11 +94,11 @@ function copyToClipboard(): string {
 }
 
 function onCopy(): void {
-  toast.add(LoggerService.success("Value copied to clipboard"));
+  toast.add(LoggerService.success("Value copied to clipboard") as any);
 }
 
 function onCopyError(): void {
-  toast.add(LoggerService.error("Failed to copy value to clipboard"));
+  toast.add(LoggerService.error("Failed to copy value to clipboard") as any);
 }
 </script>
 

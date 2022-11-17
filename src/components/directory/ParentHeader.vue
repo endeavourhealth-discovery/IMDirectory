@@ -17,12 +17,6 @@
           v-tooltip.left="'Open in Viewer'"
         />
         <Button
-          icon="pi pi-fw pi-info-circle"
-          class="p-button-secondary p-button-outlined concept-button"
-          @click="showInfo(concept['@id'])"
-          v-tooltip.left="'Show summary panel'"
-        />
-        <Button
           icon="fa-solid fa-pen-to-square"
           class="p-button-secondary p-button-outlined concept-button"
           @click="edit(concept['@id'])"
@@ -71,7 +65,7 @@
 <script setup lang="ts">
 import { computed, defineComponent } from "vue";
 import { Helpers, Vocabulary, Services } from "im-library";
-import {Store, useStore} from 'vuex';
+import { Store, useStore } from "vuex";
 const { IM, RDF } = Vocabulary;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType },
@@ -80,8 +74,6 @@ const {
 const { Env, DirectService } = Services;
 
 const props = defineProps({ concept: { type: Object as any, required: true } });
-
-const emit = defineEmits({ openBar: () => true });
 
 const store: Store<any> = useStore();
 const favourites = computed(() => store.state.favourites);
@@ -99,11 +91,6 @@ function getIcon(concept: any) {
 
 function getColour(concept: any) {
   return "color: " + getColourFromType(concept[RDF.TYPE]);
-}
-
-function showInfo(iri: string) {
-  store.commit("updateSelectedConceptIri", iri);
-  emit("openBar");
 }
 
 function view(iri: string) {
