@@ -44,6 +44,16 @@
                 <DataModel :conceptIri="conceptIri" />
               </div>
             </TabPanel>
+            <TabPanel v-if="isQuery(types)" header="Query">
+              <div class="concept-panel-content" id="query-container">
+                <QueryDefinition :conceptIri="conceptIri" />
+              </div>
+            </TabPanel>
+            <TabPanel v-if="isValueSet(types)" header="Set">
+              <div class="concept-panel-content" id="set-container">
+                <SetDefinition :conceptIri="conceptIri" />
+              </div>
+            </TabPanel>
           </TabView>
         </div>
       </div>
@@ -56,6 +66,8 @@ import { computed, defineComponent, onMounted, Ref, ref, watch, reactive } from 
 import Definition from "./infoSideBar/Definition.vue";
 import DataModel from "./infoSideBar/dataModel/DataModel.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
+import SetDefinition from "./infoSideBar/setDefinition/SetDefinition.vue";
+import QueryDefinition from "./infoSideBar/QueryDefinition.vue";
 import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, Models, Services } from "im-library";
 import { mapState, useStore } from "vuex";
@@ -64,7 +76,7 @@ import { setupConcept, loadMore, setupConfig, getInferred, setupTerms } from "./
 import axios from "axios";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
-  ConceptTypeMethods: { isQuery, isRecordModel },
+  ConceptTypeMethods: { isQuery, isRecordModel, isValueSet },
   DataTypeCheckers: { isObjectHasKeys },
   ContainerDimensionGetters: { getContainerElementOptimalHeight },
   Sorters: { byOrder }
@@ -108,11 +120,7 @@ watch(
 
     tabMap.clear();
     setTabMap();
-    if (isRecordModel(types.value)) {
-      activeTab.value = tabMap.get("Data Model") || 0;
-    } else {
-      activeTab.value = 0;
-    }
+    setDefaultTab();
   }
 );
 
@@ -139,12 +147,20 @@ onMounted(async () => {
   if (!selectedConceptIri.value && conceptIri.value) store.commit("updateSelectedConceptIri", conceptIri.value);
   await init();
   setTabMap();
+  setDefaultTab();
+});
+
+function setDefaultTab() {
   if (isRecordModel(types.value)) {
     activeTab.value = tabMap.get("Data Model") || 0;
+  } else if (isQuery(types.value)) {
+    activeTab.value = tabMap.get("Query") || 0;
+  } else if (isValueSet(types.value)) {
+    activeTab.value = tabMap.get("Set") || 0;
   } else {
     activeTab.value = 0;
   }
-});
+}
 
 function setTabMap() {
   const tabList = document.getElementById("info-side-bar-tabs")?.children?.[0]?.children?.[0]?.children?.[0]?.children as HTMLCollectionOf<HTMLElement>;
