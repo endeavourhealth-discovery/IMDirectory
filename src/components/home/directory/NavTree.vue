@@ -214,8 +214,7 @@ function onNodeSelect(node: any): void {
 }
 
 function onNodeDblClick($event: any, node: any) {
-  if (node.typeIcon && node.typeIcon.includes("fa-folder")) selectAndExpand(node);
-  else if (node.data !== "loadMore") directService.directTo(Env.DIRECTORY_URL, node.key, "folder");
+  if (node.data !== "loadMore") directService.directTo(Env.DIRECTORY_URL, node.key, "folder");
 }
 
 async function loadMore(node: any) {

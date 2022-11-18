@@ -20,7 +20,7 @@ const props = defineProps({
 
 const entityService = new EntityService(axios);
 const store = useStore();
-const selectedConceptIri = computed(() => store.state.selectedConceptIri);
+const conceptIri = computed(() => store.state.conceptIri);
 
 watch(
   () => props.conceptIri,
@@ -28,7 +28,7 @@ watch(
 );
 
 watch(
-  () => selectedConceptIri.value,
+  () => conceptIri.value,
   async newValue => await getDataModel(newValue)
 );
 
@@ -36,7 +36,7 @@ const loading = ref(false);
 const data: Ref<TangledTreeData[][]> = ref([]);
 const twinNode = ref("twin-node-");
 
-onMounted(async () => await getDataModel(selectedConceptIri.value));
+onMounted(async () => await getDataModel(conceptIri.value));
 
 async function getDataModel(iri: string) {
   loading.value = true;

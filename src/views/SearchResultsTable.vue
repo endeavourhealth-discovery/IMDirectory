@@ -29,7 +29,6 @@
       v-model:selection="selected"
       selectionMode="single"
       @rowUnselect="onRowUnselect"
-      @rowSelect="onRowSelect"
       @rowContextmenu="onRowContextMenu"
       @contextmenu="onRightClick"
       @row-dblclick="onRowDblClick"
@@ -264,10 +263,6 @@ function filterResults() {
   processSearchResults();
 }
 
-function onRowSelect(row: any) {
-  store.commit("updateSelectedConceptIri", row.data.iri);
-}
-
 function updateRClickOptions() {
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
 }
@@ -319,7 +314,7 @@ function locate(row: any) {
       name: "Folder",
       params: { selectedIri: row.data.iri }
     });
-    store.commit("updateSelectedConceptIri", row.data.iri);
+    store.commit("updateConceptIri", row.data.iri);
   }
 }
 </script>

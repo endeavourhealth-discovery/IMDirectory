@@ -16,7 +16,6 @@
       contextMenu
       @rowContextmenu="onRowContextMenu"
       @row-dblclick="onRowDblClick"
-      @row-select="onRowSelect"
       @page="onPage($event)"
     >
       <template #loading> Loading data. Please wait. </template>
@@ -215,10 +214,6 @@ function open(iri: string) {
     name: currentRoute,
     params: { selectedIri: iri }
   });
-}
-
-function onRowSelect(event: any) {
-  store.commit("updateSelectedConceptIri", event.data["@id"]);
 }
 
 async function loadMore() {

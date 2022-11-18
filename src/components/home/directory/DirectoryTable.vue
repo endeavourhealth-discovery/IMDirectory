@@ -53,7 +53,7 @@
           </TabPanel>
           <TabPanel header="Hierarchy position">
             <div class="concept-panel-content" id="secondary-tree-container">
-              <SecondaryTree :conceptIri="selectedConceptIri" />
+              <SecondaryTree :conceptIri="conceptIri" />
             </div>
           </TabPanel>
           <TabPanel header="Entity chart" v-if="showGraph">
@@ -118,7 +118,6 @@ const configService = new ConfigService(axios);
 const router = useRouter();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
-const selectedConceptIri = computed(() => store.state.selectedConceptIri);
 const activeProfile = computed({
   get() {
     store.state.activeProfile;
@@ -129,7 +128,7 @@ const activeProfile = computed({
 });
 
 watch(
-  () => selectedConceptIri.value,
+  () => conceptIri.value,
   async newValue => {
     if (newValue && newValue !== concept.value["@id"]) await init();
 
@@ -203,9 +202,9 @@ function setTabMap() {
 async function init(): Promise<void> {
   loading.value = true;
   await getConfig();
-  await getConcept(selectedConceptIri.value, configs);
-  await getInferred(selectedConceptIri.value, concept);
-  await getTerms(selectedConceptIri.value);
+  await getConcept(conceptIri.value, configs);
+  await getInferred(conceptIri.value, concept);
+  await getTerms(conceptIri.value);
   types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
   header.value = concept.value[RDFS.LABEL];
   loading.value = false;

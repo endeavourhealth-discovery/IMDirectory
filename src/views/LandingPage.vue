@@ -197,7 +197,6 @@ function edit(data: any) {
 
 function onRowSelect(event: any) {
   selected.value = event?.data || event;
-  store.commit("updateSelectedConceptIri", selected.value.iri);
 }
 </script>
 
