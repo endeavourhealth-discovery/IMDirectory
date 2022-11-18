@@ -1,5 +1,5 @@
 <template>
-  <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local">
+  <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
       <NavTree />
     </SplitterPanel>
@@ -13,8 +13,14 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import NavTree from "@/components/home/NavTree.vue";
-const visibleRight = ref(true);</script>
+import NavTree from "../components/home/directory/NavTree.vue";
+import { useStore } from "vuex";
+const store = useStore();
+
+function updateSplitter(event: any) {
+  store.commit("updateSplitterRightSize", event.sizes[1]);
+}
+</script>
 
 <style scoped>
 .p-splitter {

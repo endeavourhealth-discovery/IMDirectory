@@ -14,11 +14,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, ref, Ref, watch } from "vue";
-import { mapState, useStore } from "vuex";
-import DirectoryTable from "@/components/directory/DirectoryTable.vue";
-import ParentHeader from "@/components/directory/ParentHeader.vue";
-import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
+import { computed, onMounted, ref, Ref, watch } from "vue";
+import { useStore } from "vuex";
+import DirectoryTable from "../components/home/directory/DirectoryTable.vue";
+import ParentHeader from "../components/home/directory/ParentHeader.vue";
+import ParentHierarchy from "../components/home/directory/ParentHierarchy.vue";
 import { Vocabulary, Services } from "im-library";
 import axios from "axios";
 const { IM } = Vocabulary;

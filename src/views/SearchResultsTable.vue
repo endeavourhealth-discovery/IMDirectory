@@ -52,21 +52,6 @@
           </div>
         </template>
       </Column>
-      <!-- <Column field="entityType" header="Types">
-        <template #body="slotProps">
-          <span class="break-all">{{ slotProps.data.typeNames }}</span>
-        </template>
-      </Column>
-      <Column field="status" header="Status">
-        <template #body="slotProps">
-          <span>{{ slotProps.data.status?.name }}</span>
-        </template>
-      </Column>
-      <Column field="code" header="Code">
-        <template #body="slotProps">
-          <span class="break-all">{{ slotProps.data.code }}</span>
-        </template>
-      </Column> -->
       <Column field="weighting" header="Usage" headerStyle="flex: 0 0 5rem;" bodyStyle="flex: 0 0 5rem; text-align: center;">
         <template #body="slotProps">
           <span class="break-all">{{ slotProps.data.weighting }}</span>
@@ -128,13 +113,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, ref, Ref, watch } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, ref, Ref, watch } from "vue";
+import { useStore } from "vuex";
 import _ from "lodash";
 import { Helpers, Models, Services } from "im-library";
 import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
-import Chips from "primevue/chips";
-import axios from "axios";
 import { useRouter } from "vue-router";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
@@ -322,7 +305,7 @@ function open() {
 
 function view(row?: any) {
   if (row) selected.value = row.data;
-  directService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
+  directService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
 }
 
 function edit(row?: any) {
@@ -336,7 +319,7 @@ function locate(row: any) {
       name: "Folder",
       params: { selectedIri: row.data.iri }
     });
-    store.commit("updateLocateOnNavTreeIri", row.data.iri);
+    store.commit("updateSelectedConceptIri", row.data.iri);
   }
 }
 </script>

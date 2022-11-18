@@ -71,9 +71,9 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { defineComponent, computed, Ref, ref, watch, onMounted } from "vue";
-import ReportTable from "@/components/landingPage/ReportTable.vue";
-import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
-import { mapState, useStore } from "vuex";
+import ReportTable from "../components/home/landingPage/ReportTable.vue";
+import PieChartDashCard from "../components/home/landingPage/PieChartDashCard.vue";
+import { useStore } from "vuex";
 import _ from "lodash";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, Services } from "im-library";
@@ -142,7 +142,7 @@ function getActivityMessage(activity: RecentActivityItem) {
   let action = "";
   const dateTime = new Date(activity.dateTime);
   switch (activity.app) {
-    case Env.VIEWER_URL:
+    case Env.DIRECTORY_URL:
       action = "Viewed";
       break;
     case Env.EDITOR_URL:
@@ -186,9 +186,8 @@ async function getCardsData(): Promise<void> {
 }
 
 function view(data: any) {
-  console.log("here");
   onRowSelect(data);
-  directService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
+  directService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
 }
 
 function edit(data: any) {
