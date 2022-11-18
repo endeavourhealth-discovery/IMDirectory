@@ -1,6 +1,9 @@
 <template>
   <div id="concept-main-container">
-    <div v-if="loading" class="loading-container">
+    <div v-if="conceptIri === 'http://endhealth.info/im#Favourites'">
+      <Content />
+    </div>
+    <div v-else-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
     <div v-else id="concept-content-dialogs-container">

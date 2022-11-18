@@ -49,6 +49,14 @@
               v-tooltip.top="'Open'"
             />
             <Button
+              v-else
+              icon="fa-solid fa-sitemap"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="open(data['@id'])"
+              v-tooltip.top="'Select'"
+              data-testid="select-button"
+            />
+            <Button
               icon="pi pi-fw pi-external-link"
               class="p-button-rounded p-button-text p-button-plain row-button"
               @click="view(data['@id'])"
