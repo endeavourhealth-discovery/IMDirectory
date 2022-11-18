@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import TermsTable from "@/components/home/infoSideBar/TermsTable.vue";
+import TermsTable from "../../../../../src/components/home/directory/viewer/TermsTable.vue";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";
 import DataTable from "primevue/datatable";

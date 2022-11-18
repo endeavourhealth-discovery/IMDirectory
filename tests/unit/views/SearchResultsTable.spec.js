@@ -107,32 +107,12 @@ describe("SearchResultsTable.vue", () => {
     component.getByText(mockState.searchResults[20].name);
   });
 
-  it("updates store on item select", async () => {
-    expect(mockCommit).not.toHaveBeenCalledOnce();
-    const row = component.getAllByRole("row")[1];
-    await fireEvent.click(row);
-    expect(mockCommit).toHaveBeenCalledOnce();
-    expect(mockCommit).toHaveBeenCalledWith("updateSelectedConceptIri", mockState.searchResults[0].iri);
-  });
-
   it("routes and updated locateonnavtree on select", async () => {
     vi.clearAllMocks();
     const select = component.getAllByTestId("select-button")[0];
     await fireEvent.click(select);
     expect(mockPush).toHaveBeenCalledTimes(1);
     expect(mockPush).toHaveBeenLastCalledWith({ name: "Folder", params: { selectedIri: mockState.searchResults[0].iri } });
-    expect(mockCommit).toHaveBeenCalledTimes(1);
-    expect(mockCommit).toHaveBeenCalledWith("updateLocateOnNavTreeIri", mockState.searchResults[0].iri);
-  });
-
-  it("updates store and emits on info", async () => {
-    vi.clearAllMocks();
-    const info = component.getAllByTestId("info-button")[0];
-    await fireEvent.click(info);
-    expect(mockCommit).toHaveBeenCalledTimes(1);
-    expect(mockCommit).toHaveBeenLastCalledWith("updateSelectedConceptIri", mockState.searchResults[0].iri);
-    const emits = component.emitted();
-    expect(emits.openBar).toBeTruthy();
   });
 
   it("routes on edit", async () => {

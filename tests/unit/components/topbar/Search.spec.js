@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Search from "../../../../src/components/topbar/Search.vue";
+import Search from "../../../../src/components/home/directory/topbar/Search.vue";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import OverlayPanel from "primevue/overlaypanel";

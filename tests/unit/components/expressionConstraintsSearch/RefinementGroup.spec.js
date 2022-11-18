@@ -1,4 +1,4 @@
-import RefinementGroup from "@/components/eclSearch/builder/RefinementGroup.vue";
+import RefinementGroup from "../../../../src/components/home/directory/topbar/eclSearch/builder/RefinementGroup.vue";
 import InputSwitch from "primevue/inputswitch";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import { Enums } from "im-library";
