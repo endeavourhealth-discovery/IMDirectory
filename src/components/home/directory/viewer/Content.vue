@@ -48,7 +48,12 @@
               icon="pi pi-folder-open"
               v-tooltip.top="'Open'"
             />
-            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data['@id'])" v-tooltip.top="'View'" />
+            <Button
+              icon="pi pi-fw pi-external-link"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="view(data['@id'])"
+              v-tooltip.top="'View in new tab'"
+            />
 
             <Button
               icon="fa-solid fa-pen-to-square"
@@ -127,8 +132,8 @@ const rClickOptions: Ref<any[]> = ref([
     command: () => open((selected.value as any)["@id"])
   },
   {
-    label: "View",
-    icon: "pi pi-fw pi-eye",
+    label: "View in new tab",
+    icon: "pi pi-fw pi-external-link",
     command: () => view((selected.value as any)["@id"])
   },
   {

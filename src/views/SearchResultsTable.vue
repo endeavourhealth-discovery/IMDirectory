@@ -77,7 +77,12 @@
               v-tooltip.top="'Open'"
               data-testid="open-button"
             />
-            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" v-tooltip.top="'View'" />
+            <Button
+              icon="pi pi-fw pi-external-link"
+              class="p-button-rounded p-button-text p-button-plain row-button"
+              @click="view(slotProps)"
+              v-tooltip.top="'View in new tab'"
+            />
             <Button
               icon="fa-solid fa-pen-to-square"
               class="p-button-rounded p-button-text p-button-plain row-button"
@@ -151,8 +156,8 @@ const rClickOptions: Ref<any[]> = ref([
     command: () => open()
   },
   {
-    label: "View",
-    icon: "pi pi-fw pi-eye",
+    label: "View in new tab",
+    icon: "pi pi-fw pi-external-link",
     command: () => view()
   },
   {

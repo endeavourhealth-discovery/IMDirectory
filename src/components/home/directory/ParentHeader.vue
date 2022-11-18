@@ -11,7 +11,7 @@
       </div>
       <div class="concept-buttons-container">
         <Button
-          icon="pi pi-fw pi-eye"
+          icon="pi pi-fw pi-external-link"
           class="p-button-secondary p-button-outlined concept-button"
           @click="view(concept['@id'])"
           v-tooltip.left="'Open in new tab'"

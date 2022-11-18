@@ -209,11 +209,11 @@ function getConceptTypes(concept: ConceptSummary): string {
 }
 
 function onCopy(): void {
-  toast.add(LoggerService.success("Value copied to clipboard"));
+  toast.add(LoggerService.success("Value copied to clipboard") as any);
 }
 
 function onCopyError(): void {
-  toast.add(LoggerService.error("Failed to copy value to clipboard"));
+  toast.add(LoggerService.error("Failed to copy value to clipboard") as any);
 }
 
 function onCopyRightClick(event: any) {
@@ -243,10 +243,10 @@ async function setCopyMenuItems(): Promise<void> {
         await navigator.clipboard
           .writeText(copyConceptToClipboard(hoveredResult.value, undefined, defaultPredicates, blockedIris))
           .then(() => {
-            toast.add(LoggerService.success("Concept copied to clipboard"));
+            toast.add(LoggerService.success("Concept copied to clipboard") as any);
           })
           .catch(err => {
-            toast.add(loggerService.error("Failed to copy concept to clipboard", err));
+            toast.add(LoggerService.error("Failed to copy concept to clipboard", err) as any);
           });
       }
     }
@@ -265,10 +265,10 @@ async function setCopyMenuItems(): Promise<void> {
         await navigator.clipboard
           .writeText(text)
           .then(() => {
-            toast.add(LoggerService.success(label + " copied to clipboard"));
+            toast.add(LoggerService.success(label + " copied to clipboard") as any);
           })
           .catch(err => {
-            toast.add(LoggerService.error("Failed to copy " + label + " to clipboard", err));
+            toast.add(LoggerService.error("Failed to copy " + label + " to clipboard", err) as any);
           });
       }
     });

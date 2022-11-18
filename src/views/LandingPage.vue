@@ -28,7 +28,14 @@
             <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
               <template #body="{ data }">
                 <Button
-                  icon="pi pi-fw pi-eye"
+                  icon="fa-solid fa-sitemap"
+                  class="p-button-rounded p-button-text p-button-plain row-button"
+                  @click="open(data)"
+                  v-tooltip.top="'Select'"
+                  data-testid="select-button"
+                />
+                <Button
+                  icon="pi pi-fw pi-external-link"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
                   @click="view(data)"
                   v-tooltip.top="'View'"
@@ -77,6 +84,7 @@ import { useStore } from "vuex";
 import _ from "lodash";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
 import { Vocabulary, Helpers, Services } from "im-library";
+import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import axios from "axios";
 const { IM, RDF, RDFS } = Vocabulary;
 const {
@@ -84,7 +92,7 @@ const {
   Sorters: { byOrder }
 } = Helpers;
 const { EntityService, ConfigService, Env, DirectService } = Services;
-
+const router = useRouter();
 const store = useStore();
 const recentLocalActivity = computed(() => store.state.recentLocalActivity);
 
@@ -188,6 +196,14 @@ async function getCardsData(): Promise<void> {
 function view(data: any) {
   onRowSelect(data);
   directService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
+}
+
+function open(data: any) {
+  onRowSelect(data);
+  router.push({
+    name: "Folder",
+    params: { selectedIri: selected.value.iri }
+  });
 }
 
 function edit(data: any) {
