@@ -1,4 +1,4 @@
-import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
+import AddDeleteButtons from "../../../../src/components/home/directory/topbar/eclSearch/AddDeleteButtons.vue";
 import { shallowMount } from "@vue/test-utils";
 import { Enums } from "im-library";
 const { ECLComponent } = Enums;

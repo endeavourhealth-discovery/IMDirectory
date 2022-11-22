@@ -1,4 +1,4 @@
-import Operator from "@/components/eclSearch/builder/Operator.vue";
+import Operator from "../../../../src/components/home/directory/topbar/eclSearch/builder/Operator.vue";
 import { shallowMount } from "@vue/test-utils";
 import Dropdown from "primevue/dropdown";
 import { setupServer } from "msw/node";

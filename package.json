@@ -40,7 +40,9 @@
     "vue": "3.2.37",
     "vue-router": "4.0.15",
     "vue3-clipboard": "1.0.0",
-    "vuex": "4.0.2"
+    "vuex": "4.0.2",
+    "svg-pan-zoom": "3.6.1",
+    "vue-json-pretty": "2.2.2"
   },
   "devDependencies": {
     "@cypress/vite-dev-server": "3.0.0",

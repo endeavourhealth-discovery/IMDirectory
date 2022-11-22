@@ -29,7 +29,6 @@
       v-model:selection="selected"
       selectionMode="single"
       @rowUnselect="onRowUnselect"
-      @rowSelect="onRowSelect"
       @rowContextmenu="onRowContextMenu"
       @contextmenu="onRightClick"
       @row-dblclick="onRowDblClick"
@@ -52,21 +51,6 @@
           </div>
         </template>
       </Column>
-      <!-- <Column field="entityType" header="Types">
-        <template #body="slotProps">
-          <span class="break-all">{{ slotProps.data.typeNames }}</span>
-        </template>
-      </Column>
-      <Column field="status" header="Status">
-        <template #body="slotProps">
-          <span>{{ slotProps.data.status?.name }}</span>
-        </template>
-      </Column>
-      <Column field="code" header="Code">
-        <template #body="slotProps">
-          <span class="break-all">{{ slotProps.data.code }}</span>
-        </template>
-      </Column> -->
       <Column field="weighting" header="Usage" headerStyle="flex: 0 0 5rem;" bodyStyle="flex: 0 0 5rem; text-align: center;">
         <template #body="slotProps">
           <span class="break-all">{{ slotProps.data.weighting }}</span>
@@ -93,13 +77,11 @@
               v-tooltip.top="'Open'"
               data-testid="open-button"
             />
-            <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(slotProps)" v-tooltip.top="'View'" />
             <Button
-              icon="pi pi-fw pi-info-circle"
+              icon="pi pi-fw pi-external-link"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="showInfo(slotProps)"
-              v-tooltip.top="'Info'"
-              data-testid="info-button"
+              @click="view(slotProps)"
+              v-tooltip.top="'View in new tab'"
             />
             <Button
               icon="fa-solid fa-pen-to-square"
@@ -135,23 +117,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, ref, Ref, watch } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, ref, Ref, watch } from "vue";
+import { useStore } from "vuex";
 import _ from "lodash";
 import { Helpers, Models, Services } from "im-library";
 import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
-import Chips from "primevue/chips";
-import axios from "axios";
 import { useRouter } from "vue-router";
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
   DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
 } = Helpers;
 const { DirectService, Env } = Services;
-
-const emit = defineEmits({
-  openBar: () => true
-});
 
 const router = useRouter();
 const store = useStore();
@@ -180,25 +156,10 @@ const rClickOptions: Ref<any[]> = ref([
     command: () => open()
   },
   {
-    label: "View",
-    icon: "pi pi-fw pi-eye",
+    label: "View in new tab",
+    icon: "pi pi-fw pi-external-link",
     command: () => view()
   },
-  {
-    label: "Info",
-    icon: "pi pi-fw pi-info-circle",
-    command: () => showInfo()
-  },
-  // {
-  //   label: "Edit",
-  //   icon: "pi pi-fw pi-pencil",
-  //   command: () => this.navigateToEditor()
-  // },
-  // {
-  //   label: "Move to",
-  //   icon: "pi pi-fw pi-arrow-circle-right",
-  //   command: () => this.showInfo()
-  // },
   {
     separator: true
   },
@@ -289,13 +250,6 @@ function setFiltersFromSearchResults() {
   selectedStatus.value = [...new Set(status)];
 }
 
-function showInfo(row?: any) {
-  if (row) selected.value = row.data;
-
-  store.commit("updateSelectedConceptIri", selected.value.iri);
-  emit("openBar");
-}
-
 function filterResults() {
   const filteredSearchResults = [] as ConceptSummary[];
   (searchResults.value as ConceptSummary[]).forEach(searchResult => {
@@ -312,10 +266,6 @@ function filterResults() {
   });
   localSearchResults.value = [...filteredSearchResults];
   processSearchResults();
-}
-
-function onRowSelect(row: any) {
-  store.commit("updateSelectedConceptIri", row.data.iri);
 }
 
 function updateRClickOptions() {
@@ -355,7 +305,7 @@ function open() {
 
 function view(row?: any) {
   if (row) selected.value = row.data;
-  directService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
+  directService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
 }
 
 function edit(row?: any) {
@@ -369,7 +319,7 @@ function locate(row: any) {
       name: "Folder",
       params: { selectedIri: row.data.iri }
     });
-    store.commit("updateLocateOnNavTreeIri", row.data.iri);
+    store.commit("updateConceptIri", row.data.iri);
   }
 }
 </script>

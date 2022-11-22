@@ -1,4 +1,4 @@
-import Constraint from "@/components/eclSearch/builder/Constraint.vue";
+import Constraint from "../../../../src/components/home/directory/topbar/eclSearch/builder/Constraint.vue";
 import { shallowMount } from "@vue/test-utils";
 import Dropdown from "primevue/dropdown";
 import { describe, expect } from "vitest";

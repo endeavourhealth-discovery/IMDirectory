@@ -16,8 +16,6 @@ const entityService = new EntityService(axios);
 export default createStore({
   // update stateType.ts when adding new state!
   state: {
-    selectedConceptIri: "",
-    locateOnNavTreeIri: {},
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: [] as string[],
     history: [] as HistoryItem[],
@@ -55,7 +53,8 @@ export default createStore({
       { "@id": IM.INACTIVE, severity: "danger" }
     ],
     textDefinitionStartExpanded: ["Definition"],
-    activeProfile: { uuid: "", activeClausePath: "" }
+    activeProfile: { uuid: "", activeClausePath: "" },
+    splitterRightSize: 0
   },
   mutations: {
     updateActiveProfile(state, value) {
@@ -64,13 +63,9 @@ export default createStore({
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },
-    updateSelectedConceptIri(state, selectedConceptIri) {
-      state.selectedConceptIri = selectedConceptIri;
-    },
     updateConceptIri(state, conceptIri) {
       state.conceptIri = conceptIri;
     },
-
     updateSearchResults(state, searchResults) {
       state.searchResults = searchResults;
     },
@@ -118,7 +113,7 @@ export default createStore({
         });
       } else {
         while (activity.length > 4) activity.shift();
-        if(recentActivityItem.iri !== "http://endhealth.info/im#Favourites") {
+        if (recentActivityItem.iri !== "http://endhealth.info/im#Favourites") {
           activity.push(recentActivityItem);
         }
       }
@@ -127,7 +122,7 @@ export default createStore({
       state.recentLocalActivity = activity;
     },
     updateFavourites(state, favourite: string) {
-      if(favourite !== "http://endhealth.info/im#Favourites") {
+      if (favourite !== "http://endhealth.info/im#Favourites") {
         const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");
         if (!favourites.includes(favourite)) {
           favourites.push(favourite);
@@ -150,9 +145,6 @@ export default createStore({
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
     },
-    updateLocateOnNavTreeIri(state, iri) {
-      state.locateOnNavTreeIri = { iri };
-    },
     updateArrayObjectNameListboxWithLabelStartExpanded(state, items) {
       state.arrayObjectNameListboxWithLabelStartExpanded = items;
     },
@@ -161,6 +153,9 @@ export default createStore({
     },
     updateTextDefinitionStartExpanded(state, items) {
       state.textDefinitionStartExpanded = items;
+    },
+    updateSplitterRightSize(state, splitterRightSize) {
+      state.splitterRightSize = splitterRightSize;
     }
   },
   actions: {

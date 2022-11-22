@@ -1,4 +1,4 @@
-import FocusConcept from "@/components/eclSearch/builder/FocusConcept.vue";
+import FocusConcept from "../../../../src/components/home/directory/topbar/eclSearch/builder/FocusConcept.vue";
 import { shallowMount } from "@vue/test-utils";
 import { Enums } from "im-library";
 import { describe, expect, it } from "vitest";
