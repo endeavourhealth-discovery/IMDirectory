@@ -66,6 +66,7 @@
 import { computed } from "vue";
 import { Helpers, Vocabulary, Services } from "im-library";
 import { Store, useStore } from "vuex";
+import { State } from "@/store/stateType";
 const { IM, RDF } = Vocabulary;
 const {
   ConceptTypeMethods: { getColourFromType, getFAIconFromType },
@@ -75,7 +76,7 @@ const { Env, DirectService } = Services;
 
 const props = defineProps({ concept: { type: Object as any, required: true } });
 
-const store: Store<any> = useStore();
+const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService(store);

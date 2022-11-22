@@ -107,7 +107,7 @@ async function getContextMenu(d: any) {
   if (node.iri && !node.name.startsWith("middle-node")) {
     const bundle = await entityService.getBundleByPredicateExclusions(node.iri, [IM.HAS_MEMBER]);
     const hasMember = await entityService.getPartialAndTotalCount(node.iri, IM.HAS_MEMBER, 1, 10);
-    if (hasMember.totalCount !== 0) {
+    if (isObjectHasKeys(hasMember, ["totalCount"]) && hasMember.totalCount !== 0) {
       bundle.entity[IM.HAS_MEMBER] = hasMember.result;
       bundle.predicates[IM.HAS_MEMBER] = "has member";
     }
@@ -342,7 +342,7 @@ async function dblclick(d: any) {
         redrawGraph();
       }
     } else {
-      toast.add(LoggerService.warn("Node can not be expanded.") as any);
+      toast.add(LoggerService.warn("Node can not be expanded."));
     }
   }
 }

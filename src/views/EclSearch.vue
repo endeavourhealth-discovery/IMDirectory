@@ -94,11 +94,11 @@ function copyToClipboard(): string {
 }
 
 function onCopy(): void {
-  toast.add(LoggerService.success("Value copied to clipboard") as any);
+  toast.add(LoggerService.success("Value copied to clipboard"));
 }
 
 function onCopyError(): void {
-  toast.add(LoggerService.error("Failed to copy value to clipboard") as any);
+  toast.add(LoggerService.error("Failed to copy value to clipboard"));
 }
 </script>
 

@@ -104,7 +104,7 @@ import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist
 import { Vocabulary, Helpers, Models, Services } from "im-library";
 import { mapState, useStore } from "vuex";
 import { useRouter } from "vue-router";
-
+import ReusableComposables from "../../../composables/ReusableComposables";
 import axios from "axios";
 const { IM, RDF, RDFS, SHACL } = Vocabulary;
 const {
@@ -121,14 +121,7 @@ const configService = new ConfigService(axios);
 const router = useRouter();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
-const activeProfile = computed({
-  get() {
-    store.state.activeProfile;
-  },
-  set(newValue) {
-    store.commit("updateActiveProfile", newValue);
-  }
-});
+const activeProfile = computed(() => store.state.activeProfile);
 
 watch(
   () => conceptIri.value,
@@ -168,9 +161,9 @@ const showTabs = ref({
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
 
-const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = setupConcept();
-const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
-const { terms, getTerms }: { terms: Ref<any[] | undefined>; getTerms: Function } = setupTerms();
+const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = ReusableComposables.setupConcept();
+const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = ReusableComposables.setupConfig();
+const { terms, getTerms }: { terms: Ref<any[] | undefined>; getTerms: Function } = ReusableComposables.setupTerms();
 let tabMap = reactive(new Map<string, number>());
 
 onMounted(async () => {
@@ -213,76 +206,6 @@ async function init(): Promise<void> {
   loading.value = false;
 }
 
-function setupConcept() {
-  const concept: Ref<any> = ref({});
-
-  async function getConcept(iri: string, configs: Ref<DefinitionConfig[]>) {
-    const predicates = configs.value
-      .filter((c: DefinitionConfig) => c.type !== "Divider")
-      .filter((c: DefinitionConfig) => c.predicate !== "subtypes")
-      .filter((c: DefinitionConfig) => c.predicate !== "inferred")
-      .filter((c: DefinitionConfig) => c.predicate !== "termCodes")
-      .filter((c: DefinitionConfig) => c.predicate !== "@id")
-      .filter((c: DefinitionConfig) => c.predicate !== "None")
-      .filter((c: DefinitionConfig) => c.predicate !== undefined)
-      .map((c: DefinitionConfig) => c.predicate);
-    predicates.push(IM.DEFINITION);
-
-    concept.value = await entityService.getPartialEntity(iri, predicates);
-
-    concept.value["@id"] = iri;
-    const result = await entityService.getPagedChildren(iri, 1, 10);
-    const subtypes = result.result.map((child: EntityReferenceNode) => {
-      return { "@id": child["@id"], name: child.name };
-    });
-    concept.value["subtypes"] = { children: subtypes, totalCount: result.totalCount, loadMore: loadMore };
-    concept.value["termCodes"] = await entityService.getEntityTermCodes(iri);
-  }
-  return { concept, getConcept };
-}
-
-async function loadMore(children: any[], totalCount: number, nextPage: number, pageSize: number, loadButton: boolean, iri: string) {
-  if (loadButton) {
-    if (nextPage * pageSize < totalCount) {
-      const result = await entityService.getPagedChildren(iri, nextPage, pageSize);
-      const resultChildren = result.result.map((child: EntityReferenceNode) => {
-        return { "@id": child["@id"], name: child.name };
-      });
-      children = children.concat(resultChildren);
-      nextPage = nextPage + 1;
-      loadButton = true;
-    } else if (nextPage * pageSize > totalCount) {
-      const result = await entityService.getPagedChildren(iri, nextPage, pageSize);
-      const resultChildren = result.result.map((child: EntityReferenceNode) => {
-        return { "@id": child["@id"], name: child.name };
-      });
-      children = children.concat(resultChildren);
-      loadButton = false;
-    } else {
-      loadButton = false;
-    }
-  }
-  return { children: children, totalCount: totalCount, nextPage: nextPage, pageSize: pageSize, loadButton: loadButton, iri: iri };
-}
-
-function setupConfig() {
-  const configs: Ref<DefinitionConfig[]> = ref([]);
-
-  async function getConfig(): Promise<void> {
-    const definitionConfig = await configService.getComponentLayout("definition");
-    const summaryConfig = await configService.getComponentLayout("summary");
-    configs.value = definitionConfig.concat(summaryConfig);
-
-    if (configs.value.every(config => isObjectHasKeys(config, ["order"]))) {
-      configs.value.sort(byOrder);
-    } else {
-      LoggerService.error(undefined, "Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
-    }
-  }
-
-  return { configs, getConfig };
-}
-
 async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
   const result = await entityService.getDefinitionBundle(iri);
   if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
@@ -293,19 +216,6 @@ async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
     result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
   }
   concept.value["inferred"] = result;
-}
-
-function setupTerms() {
-  const terms: Ref<any[] | undefined> = ref([]);
-  async function getTerms(iri: string) {
-    const entity = await entityService.getPartialEntity(iri, [IM.HAS_TERM_CODE]);
-    terms.value = isObjectHasKeys(entity, [IM.HAS_TERM_CODE])
-      ? (entity[IM.HAS_TERM_CODE] as []).map(term => {
-          return { name: term[RDFS.LABEL], code: term[IM.CODE] };
-        })
-      : undefined;
-  }
-  return { terms, getTerms };
 }
 </script>
 <style scoped>

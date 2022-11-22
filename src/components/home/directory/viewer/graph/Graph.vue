@@ -23,7 +23,8 @@ import { Config, Helpers, Services, Vocabulary } from "im-library";
 import axios from "axios";
 const { IM } = Vocabulary;
 const {
-  GraphTranslator: { translateFromEntityBundle }
+  GraphTranslator: { translateFromEntityBundle },
+  DataTypeCheckers: { isObjectHasKeys }
 } = Helpers;
 const { EntityService } = Services;
 
@@ -63,7 +64,7 @@ async function getEntityBundle(iri: string) {
   loading.value = true;
   bundle.value = await entityService.getBundleByPredicateExclusions(iri, [IM.HAS_MEMBER]);
   const hasMember = await entityService.getPartialAndTotalCount(iri, IM.HAS_MEMBER, 1, 10);
-  if (hasMember.totalCount !== 0) {
+  if (isObjectHasKeys(hasMember, ["totalCount"]) && hasMember.totalCount !== 0) {
     bundle.value.entity[IM.HAS_MEMBER] = hasMember.result;
     bundle.value.predicates[IM.HAS_MEMBER] = "has member";
   }

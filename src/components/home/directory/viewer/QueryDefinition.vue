@@ -4,7 +4,10 @@
 
     <div v-else class="query-display-container">
       <Tree :value="queryDisplay as unknown as TreeNode[]" :expandedKeys="expandedKeys" class="tree-container">
-        <template #default="{ node }">{{ node.value ? node.label + " - " + node.value : node.label }} </template>
+        <template #default="{ node }">
+          <div v-if="node.value">{{ node.label + " - " + node.value }}</div>
+          <div v-else>{{ node.label }}</div>
+        </template>
       </Tree>
     </div>
   </div>
