@@ -68,7 +68,7 @@
         </div>
       </div>
     </OverlayPanel>
-    <Dialog header="New folder" v-model:visible="showNewFolder" :modal="true">
+    <Dialog header="New folder" v-model:visible="newFolder" :modal="true">
       <InputText type="text" v-model="newFolderName" autofocus />
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" @click="newFolder = null" class="p-button-text" />
@@ -115,8 +115,6 @@ const newFolderName = ref("");
 
 const menu = ref();
 const navTreeOP = ref();
-
-const showNewFolder = computed(() => !isObjectHasKeys(newFolder));
 
 onMounted(async () => {
   loading.value = true;
@@ -349,15 +347,15 @@ async function createFolder() {
   if (!newFolder.value) return;
 
   console.log("Create new folder " + newFolderName.value + " in " + newFolder.value.key);
-  const iri = await FilerService.createFolder(newFolder.value.key, newFolderName.value);
-  if (iri) {
+  try {
+    const iri = await FilerService.createFolder(newFolder.value.key, newFolderName.value);
     console.log("Created folder");
     console.log(iri);
     toast.add({ severity: "success", summary: "New folder", detail: 'New folder "' + newFolderName.value + '" created', life: 3000 });
     if (newFolder.value.children) {
       newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" }], false, newFolder.value));
     }
-  } else {
+  } catch (e) {
     toast.add({ severity: "error", summary: "New folder", detail: '"' + newFolderName.value + '" already exists', life: 3000 });
   }
   newFolder.value = null;
