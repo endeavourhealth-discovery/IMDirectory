@@ -37,14 +37,11 @@ import { Ref, ref, watch } from "vue";
 import Builder from "@/components/eclSearch/Builder.vue";
 import SearchResults from "@/components/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { Helpers, Services } from "im-library";
-import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
+import { ConceptSummary } from "@/im_library/interfaces";
+import { DataTypeCheckers } from "@/im_library/helpers";
+import { LoggerService, SetService } from "@/im_library/services";
 import { useToast } from "primevue/usetoast";
-import axios from "axios";
-const {
-  DataTypeCheckers: { isObjectHasKeys, isObject }
-} = Helpers;
-const { SetService, LoggerService } = Services;
+const { isObjectHasKeys, isObject } = DataTypeCheckers;
 
 const emit = defineEmits({
   openBar: () => true,
@@ -52,8 +49,6 @@ const emit = defineEmits({
 });
 
 const toast = useToast();
-
-const setService = new SetService(axios);
 
 const queryString = ref("");
 const showDialog = ref(false);
@@ -81,7 +76,7 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    const result = await setService.ECLSearch(queryString.value, false, 1000, controller.value);
+    const result = await SetService.ECLSearch(queryString.value, false, 1000, controller.value);
     if (isObjectHasKeys(result, ["entities", "count", "page"])) {
       searchResults.value = result.entities;
       totalCount.value = result.count;

@@ -3,13 +3,12 @@ import ResizeablePieChart from "@/components/landingPage/pieChartDashCard/Resize
 import Card from "primevue/card";
 import Chart from "primevue/chart";
 import ProgressSpinner from "primevue/progressspinner";
-import { Models } from "im-library";
+import { PieChartData } from "@/im_library/models";
 import { setupServer } from "msw/node";
 import { render } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import testData from "./ResizablePieChart.testData";
 import { expect } from "vitest";
-const { PieChartData } = Models;
 
 describe("ResizablePieChart.vue", () => {
   let component;

@@ -8,10 +8,9 @@ import TabPanel from "primevue/tabpanel";
 import PrimeVue from "primevue/config";
 import Tooltip from "primevue/tooltip";
 import testData from "./InfoSideBar.testData";
-import { Services } from "im-library";
+import { EntityService, ConfigService } from "@/im_library/services";
 import { flushPromises } from "@vue/test-utils";
 import { createStore } from "vuex";
-const { EntityService, ConfigService } = Services;
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

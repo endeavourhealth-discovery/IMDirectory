@@ -19,10 +19,8 @@ import { mapState, useStore } from "vuex";
 import DirectoryTable from "@/components/directory/DirectoryTable.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { Vocabulary, Services } from "im-library";
-import axios from "axios";
-const { IM } = Vocabulary;
-const { EntityService } = Services;
+import { EntityService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
 
 const emit = defineEmits({
   openBar: () => true
@@ -30,8 +28,6 @@ const emit = defineEmits({
 
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
-
-const entityService = new EntityService(axios);
 
 watch(
   () => conceptIri.value,
@@ -45,7 +41,7 @@ onMounted(async () => await init());
 
 async function init() {
   loading.value = true;
-  concept.value = await entityService.getEntityByPredicateExclusions(conceptIri.value, [IM.HAS_MEMBER]);
+  concept.value = await EntityService.getEntityByPredicateExclusions(conceptIri.value, [IM.HAS_MEMBER]);
   loading.value = false;
 }
 

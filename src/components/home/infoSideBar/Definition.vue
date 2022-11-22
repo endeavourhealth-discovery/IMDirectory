@@ -18,18 +18,42 @@
 
 <script lang="ts">
 export default defineComponent({
-  components: { TermsTable }
+  components: {
+    TermsTable,
+    ArrayObjectNameListboxWithLabel,
+    ArrayObjectNameListboxWithLabelAndLoadMore,
+    ArrayObjectNameTagWithLabel,
+    ArrayObjectNamesToStringWithLabel,
+    NumberWithLabel,
+    ObjectNameTagWithLabel,
+    ObjectNameWithLabel,
+    SectionDivider,
+    TextDefinition,
+    TextHTMLWithLabel,
+    TextSectionHeader,
+    TextWithLabel
+  }
 });
 </script>
 
 <script setup lang="ts">
 import { defineComponent, PropType } from "vue";
 import TermsTable from "@/components/home/infoSideBar/TermsTable.vue";
-import { DefinitionConfig } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers } from "im-library";
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys, isObject }
-} = Helpers;
+import ArrayObjectNameListboxWithLabel from "@/im_library/components/modules/generics/ArrayObjectNameListboxWithLabel.vue";
+import ArrayObjectNameListboxWithLabelAndLoadMore from "@/im_library/components/modules/generics/ArrayObjectNameListboxWithLabelAndLoadMore.vue";
+import ArrayObjectNameTagWithLabel from "@/im_library/components/modules/generics/ArrayObjectNameTagWithLabel.vue";
+import ArrayObjectNamesToStringWithLabel from "@/im_library/components/modules/generics/ArrayObjectNamesToStringWithLabel.vue";
+import NumberWithLabel from "@/im_library/components/modules/generics/NumberWithLabel.vue";
+import ObjectNameTagWithLabel from "@/im_library/components/modules/generics/ObjectNameTagWithLabel.vue";
+import ObjectNameWithLabel from "@/im_library/components/modules/generics/ObjectNameWithLabel.vue";
+import SectionDivider from "@/im_library/components/modules/generics/SectionDivider.vue";
+import TextDefinition from "@/im_library/components/modules/generics/TextDefinition.vue";
+import TextHTMLWithLabel from "@/im_library/components/modules/generics/TextHTMLWithLabel.vue";
+import TextSectionHeader from "@/im_library/components/modules/generics/TextSectionHeader.vue";
+import TextWithLabel from "@/im_library/components/modules/generics/TextWithLabel.vue";
+import { DefinitionConfig } from "@/im_library/interfaces";
+import { DataTypeCheckers } from "@/im_library/helpers";
+const { isArrayHasLength, isObjectHasKeys, isObject } = DataTypeCheckers;
 
 const props = defineProps({
   concept: { type: Object, required: true },

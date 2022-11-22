@@ -1,12 +1,12 @@
 import store from "@/store/index";
 import { flushPromises } from "@vue/test-utils";
 import AuthService from "@/services/AuthService";
-import { Config, Models, Services } from "im-library";
+import { User, CustomAlert } from "@/im_library/models";
+import { EntityService, LoggerService } from "@/im_library/services";
 import { beforeEach, describe, vi } from "vitest";
 import { setupServer } from "msw/node";
 import testData from "./index.testData";
 const { User, CustomAlert } = Models;
-const { EntityService, LoggerService } = Services;
 
 describe("state", () => {
   beforeEach(() => {

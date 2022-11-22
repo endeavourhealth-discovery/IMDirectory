@@ -1,0 +1,66 @@
+@mixin icon-override($icon) {
+    &:before {
+        content: $icon;
+    }
+}
+
+@mixin linear-gradient($top, $bottom){
+    background: $top; /* Old browsers */
+    background: linear-gradient(to bottom,  $top 0%,$bottom 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#000000',GradientType=0 ); /* IE6-9 */
+}
+
+@mixin linear-gradient-left($left, $right){
+    background: $left; /* Old browsers */
+    background: linear-gradient(to right,  $left 0%,$right 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=$left, endColorstr=$right,GradientType=1 ); /* IE6-9 */
+}
+
+@mixin opacity($opacity) {
+    opacity: $opacity;
+    $opacity-ie: $opacity * 100;
+    filter: alpha(opacity=$opacity-ie);
+}
+
+@mixin focused() {
+    outline: 0 none;
+    outline-offset: 0;
+    box-shadow: 0 0 0 0.2em $focusShadowColor;
+}
+
+@mixin focused-inset() {
+    outline: 0 none;
+    outline-offset: 0;
+    box-shadow: inset 0 0 0 0.2em $focusShadowColor;
+}
+
+@mixin clearfix {
+    &:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+}
+
+@function strip-unit($value) {
+    @return $value / ($value * 0 + 1);
+}
+
+@mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+    $u1: unit($min-vw);
+    $u2: unit($max-vw);
+    $u3: unit($min-font-size);
+    $u4: unit($max-font-size);
+
+    @if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+      & {
+        font-size: $min-font-size;
+        @media screen and (min-width: $min-vw) {
+          font-size: calc(#{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}));
+        }
+        @media screen and (min-width: $max-vw) {
+          font-size: $max-font-size;
+        }
+      }
+    }
+}

@@ -82,15 +82,13 @@ import ReportTable from "@/components/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
 import { mapState, useStore } from "vuex";
 import _ from "lodash";
-import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, Services } from "im-library";
+import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@/im_library/interfaces";
+import { DataTypeCheckers, Sorters } from "@/im_library/helpers";
+import { EntityService, Env, ConfigService, DirectService } from "@/im_library/services";
+import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 import axios from "axios";
-const { IM, RDF, RDFS } = Vocabulary;
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
-  Sorters: { byOrder }
-} = Helpers;
-const { EntityService, ConfigService, Env, DirectService } = Services;
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+const { byOrder } = Sorters;
 
 const emit = defineEmits({
   openBar: () => true
@@ -98,10 +96,6 @@ const emit = defineEmits({
 
 const store = useStore();
 const recentLocalActivity = computed(() => store.state.recentLocalActivity);
-
-const entityService = new EntityService(axios);
-const configService = new ConfigService(axios);
-const directService = new DirectService(store);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
@@ -127,7 +121,7 @@ async function init(): Promise<void> {
 async function getRecentActivityDetails() {
   const storedActivity: RecentActivityItem[] = Object.assign([], recentLocalActivity.value);
   for (let activity of storedActivity) {
-    const result = await entityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
+    const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
     if (isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
       activity.name = result[RDFS.LABEL];
       activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
@@ -138,7 +132,7 @@ async function getRecentActivityDetails() {
 }
 
 async function getConfigs(): Promise<void> {
-  configs.value = await configService.getDashboardLayout("conceptDashboard");
+  configs.value = await ConfigService.getDashboardLayout("conceptDashboard");
   if (isArrayHasLength(configs.value)) {
     configs.value.sort(byOrder);
   }
@@ -177,13 +171,13 @@ function getDayDisplay(dateTime: Date) {
 }
 
 function onDoubleClick(event: any) {
-  directService.directTo(event.data.app, event.data.iri, event.data.route || "concept");
+  DirectService.directTo(event.data.app, event.data.iri, event.data.route || "concept");
 }
 
 async function getCardsData(): Promise<void> {
   const cards = [] as { name: string; description: string; inputData: IriCount; component: string }[];
   for (const config of configs.value) {
-    const result = await entityService.getPartialEntity(config.iri, [RDFS.LABEL, RDFS.COMMENT, IM.STATS_REPORT_ENTRY]);
+    const result = await EntityService.getPartialEntity(config.iri, [RDFS.LABEL, RDFS.COMMENT, IM.STATS_REPORT_ENTRY]);
     if (!isObjectHasKeys(result)) return;
     const cardData = {
       name: result[RDFS.LABEL],
@@ -199,12 +193,12 @@ async function getCardsData(): Promise<void> {
 function view(data: any) {
   console.log("here");
   onRowSelect(data);
-  directService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
+  DirectService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
 }
 
 function edit(data: any) {
   onRowSelect(data);
-  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
+  DirectService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
 }
 
 function showInfo(data: any) {

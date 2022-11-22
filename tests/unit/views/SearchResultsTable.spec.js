@@ -10,11 +10,10 @@ import VueClipboard from "vue3-clipboard";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
 import PrimeVue from "primevue/config";
-import { Services } from "im-library";
+import { DirectService } from "@/im_library/services";
 import { expect, it, vi } from "vitest";
 import testData from "./SearchResultsTable.testData";
 import { nextTick } from "vue";
-const { DirectService } = Services;
 
 Object.assign(navigator, {
   clipboard: {

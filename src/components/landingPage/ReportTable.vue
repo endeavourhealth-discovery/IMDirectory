@@ -23,11 +23,9 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, onMounted, PropType, ref, Ref } from "vue";
-import { Helpers, Vocabulary } from "im-library";
-const { RDFS, IM } = Vocabulary;
-const {
-  DataTypeCheckers: { isObjectHasKeys }
-} = Helpers;
+import { DataTypeCheckers } from "@/im_library/helpers";
+import { IM, RDFS } from "@/im_library/vocabulary";
+const { isObjectHasKeys } = DataTypeCheckers;
 
 const props = defineProps({
   name: { type: String, required: false },

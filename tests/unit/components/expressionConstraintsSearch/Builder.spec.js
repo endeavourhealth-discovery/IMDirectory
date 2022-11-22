@@ -3,10 +3,9 @@ import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { shallowMount, flushPromises } from "@vue/test-utils";
 import Tooltip from "primevue/tooltip";
-import { Enums } from "im-library";
+import { ECLComponent } from "@/im_library/enums";
 import { expect, vi } from "vitest";
 import { setupServer } from "msw/node";
-const { ECLComponent } = Enums;
 
 describe("Builder.vue", () => {
   it("fakes tests", () => {

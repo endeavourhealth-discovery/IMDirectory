@@ -46,14 +46,12 @@ import { defineComponent, onMounted, PropType, Ref, ref, watch } from "vue";
 import Refinement from "@/components/eclSearch/builder/Refinement.vue";
 import Logic from "@/components/eclSearch/builder/Logic.vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
-import { Enums, Helpers } from "im-library";
-import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent } = Enums;
-const {
-  DataTypeCheckers: { isArrayHasLength },
-  Sorters: { byPosition },
-  EclSearchBuilderMethods: { addItem, updateItem, updatePositions, generateNewComponent }
-} = Helpers;
+import { ECLComponent } from "@/im_library/enums";
+import { DataTypeCheckers, Sorters, EclSearchBuilderMethods } from "@/im_library/helpers";
+import { ECLComponentDetails } from "@/im_library/interfaces";
+const { isArrayHasLength } = DataTypeCheckers;
+const { byPosition } = Sorters;
+const { addItem, updateItem, updatePositions, generateNewComponent } = EclSearchBuilderMethods;
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -102,7 +100,7 @@ function addNextClicked(item: any): void {
   });
 }
 
-function addItemWrapper(data: { selectedType: Enums.ECLComponent; position: number; value: any }): void {
+function addItemWrapper(data: { selectedType: ECLComponent; position: number; value: any }): void {
   if (data.selectedType === ECLComponent.LOGIC) {
     data.value = { data: data.value, parentGroup: ECLComponent.REFINEMENT_GROUP };
   }

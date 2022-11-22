@@ -3,9 +3,8 @@ import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import OverlayPanel from "primevue/overlaypanel";
 import { mount } from "@vue/test-utils";
-import { Vocabulary } from "im-library";
+import { IM } from "@/im_library/vocabulary";
 import { setupServer } from "msw/node";
-const { IM } = Vocabulary;
 
 describe("SearchMiniOverlay.vue", () => {
   let wrapper;

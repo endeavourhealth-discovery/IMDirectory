@@ -1,11 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setupConcept, setupConfig, setupTerms, loadMore, getInferred } from "../../../../src/components/home/InfoSideBarMethods";
 import testData from "./InfoSideBar.testData";
-import { Services } from "im-library";
+import { EntityService, ConfigService } from "@/im_library/services";
 import { ref } from "vue";
 import { flushPromises } from "@vue/test-utils";
 import { fakerFactory } from "../../../../src/mocks/factory";
-const { EntityService, ConfigService } = Services;
 
 describe("getConcept", () => {
   let getPartialEntitySpy;

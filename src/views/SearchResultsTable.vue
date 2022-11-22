@@ -138,16 +138,13 @@
 import { computed, defineComponent, onMounted, ref, Ref, watch } from "vue";
 import { mapState, useStore } from "vuex";
 import _ from "lodash";
-import { Helpers, Models, Services } from "im-library";
-import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
+import { ConceptSummary } from "@/im_library/interfaces";
+import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
+import { DirectService, Env } from "@/im_library/services";
 import Chips from "primevue/chips";
-import axios from "axios";
 import { useRouter } from "vue-router";
-const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
-} = Helpers;
-const { DirectService, Env } = Services;
+const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
 const emit = defineEmits({
   openBar: () => true
@@ -161,8 +158,6 @@ const filterOptions = computed(() => store.state.filterOptions);
 const selectedFilters = computed(() => store.state.selectedFilters);
 const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
-
-const directService = new DirectService(store);
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
@@ -332,7 +327,7 @@ function onRowUnselect() {
 }
 
 function navigateToEditor(): void {
-  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
+  DirectService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
 }
 
 function onRightClick(event: any) {
@@ -355,12 +350,12 @@ function open() {
 
 function view(row?: any) {
   if (row) selected.value = row.data;
-  directService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
+  DirectService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
 }
 
 function edit(row?: any) {
   if (row) selected.value = row.data;
-  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
+  DirectService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
 }
 
 function locate(row: any) {

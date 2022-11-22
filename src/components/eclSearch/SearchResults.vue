@@ -113,16 +113,15 @@
 import { defineComponent, PropType, ref, Ref, watch } from "vue";
 import { mapState } from "vuex";
 import _ from "lodash";
-import { Config, Helpers, Services } from "im-library";
-import { TTIriRef, ConceptSummary, SearchResponse } from "im-library/dist/types/interfaces/Interfaces";
+import { XmlSchemaDatatypes, DefaultPredicateNames } from "@/im_library/config";
+import { DataTypeCheckers, ConceptTypeMethods, CopyConceptToClipboard } from "@/im_library/helpers";
+import { LoggerService } from "@/im_library/services";
+import { TTIriRef, ConceptSummary, SearchResponse } from "@/im_library/interfaces";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-const {
-  DataTypeCheckers: { isObjectHasKeys },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType },
-  CopyConceptToClipboard: { copyConceptToClipboard, conceptObjectToCopyString }
-} = Helpers;
-const { LoggerService } = Services;
+const { isObjectHasKeys } = DataTypeCheckers;
+const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
+const { copyConceptToClipboard, conceptObjectToCopyString } = CopyConceptToClipboard;
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -142,8 +141,8 @@ const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const copyMenuItems: Ref<any[]> = ref([]);
 
-const blockedIris = Config.XmlSchemaDatatypes;
-const defaultPredicates = Config.DefaultPredicateNames;
+const blockedIris = XmlSchemaDatatypes;
+const defaultPredicates = DefaultPredicateNames;
 
 const op = ref();
 const copyMenu = ref();

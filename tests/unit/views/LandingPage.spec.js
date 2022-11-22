@@ -9,10 +9,9 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import testData from "./LandingPage.testData";
-import { Services } from "im-library";
+import { EntityService, ConfigService, DirectService } from "@/im_library/services";
 import { flushPromises } from "@vue/test-utils";
 import { afterAll, it, vi } from "vitest";
-const { EntityService, ConfigService, DirectService } = Services;
 
 const mockDispatch = vi.fn();
 const mockState = {

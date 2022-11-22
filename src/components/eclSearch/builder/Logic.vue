@@ -11,14 +11,13 @@
 <script setup lang="ts">
 import { defineComponent, onMounted, PropType, Ref, ref, watch } from "vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
-import { Enums } from "im-library";
-import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent } = Enums;
+import { ECLComponent } from "@/im_library/enums";
+import { ECLComponentDetails } from "@/im_library/interfaces";
 
 const props = defineProps({
   id: { type: String, required: true },
   position: { type: Number, required: true },
-  value: { type: Object as PropType<{ data: string; parentGroup: Enums.ECLComponent }>, required: true },
+  value: { type: Object as PropType<{ data: string; parentGroup: ECLComponent }>, required: true },
   showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } }
 });
 

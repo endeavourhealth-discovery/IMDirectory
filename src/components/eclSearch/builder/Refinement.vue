@@ -38,14 +38,12 @@ import Expression from "@/components/eclSearch/builder/Expression.vue";
 import Constraint from "@/components/eclSearch/builder/Constraint.vue";
 import Operator from "@/components/eclSearch/builder/Operator.vue";
 import AddDeleteButtons from "@/components/eclSearch/AddDeleteButtons.vue";
-import { Enums, Helpers } from "im-library";
-import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent } = Enums;
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
-  Sorters: { byPosition },
-  EclSearchBuilderMethods: { addItem, updateItem, updatePositions, generateNewComponent }
-} = Helpers;
+import { ECLComponentDetails } from "@/im_library/interfaces";
+import { ECLComponent } from "@/im_library/enums";
+import { DataTypeCheckers, Sorters, EclSearchBuilderMethods } from "@/im_library/helpers";
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+const { byPosition } = Sorters;
+const { addItem, updateItem, updatePositions, generateNewComponent } = EclSearchBuilderMethods;
 
 const props = defineProps({
   id: { type: String, required: true },

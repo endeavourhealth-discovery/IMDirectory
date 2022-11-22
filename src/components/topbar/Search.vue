@@ -23,13 +23,11 @@ import Filters from "@/components/topbar/search/Filters.vue";
 import { computed, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { TTIriRef, Namespace, EntityReferenceNode, SearchRequest } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Helpers } from "im-library";
+import { TTIriRef, Namespace, EntityReferenceNode, SearchRequest } from "@/im_library/interfaces";
+import { SortBy } from "@/im_library/enums";
+import { DataTypeCheckers } from "@/im_library/helpers";
 import { useRouter } from "vue-router";
-const { SortBy } = Enums;
-const {
-  DataTypeCheckers: { isObject }
-} = Helpers;
+const { isObject } = DataTypeCheckers;
 
 const router = useRouter();
 const store = useStore();

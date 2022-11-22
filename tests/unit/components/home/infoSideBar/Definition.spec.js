@@ -1,11 +1,11 @@
 import { shallowMount } from "@vue/test-utils";
 import Definition from "@/components/home/infoSideBar/Definition.vue";
 import Divider from "primevue/divider";
-import ArrayObjectNamesToStringWithLabel from "im-library";
-import TextHTMLWithLabel from "im-library";
-import TextWithLabel from "im-library";
-import ObjectNameWithLabel from "im-library";
-import ArrayObjectNameListboxWithLabel from "im-library";
+import ArrayObjectNamesToStringWithLabel from "@/im_library/components/modules/generics/ArrayObjectNamesToStringWithLabel.vue";
+import TextHTMLWithLabel from "@/im_library/components/modules/generics/TextHTMLWithLabel.vue";
+import TextWithLabel from "@/im_library/components/modules/generics/TextWithLabel.vue";
+import ObjectNameWithLabel from "@/im_library/components/modules/generics/ObjectNameWithLabel.vue";
+import ArrayObjectNameListboxWithLabel from "@/im_library/components/modules/generics/ArrayObjectNameListboxWithLabel.vue";
 import { describe } from "vitest";
 import { setupServer } from "msw/node";
 

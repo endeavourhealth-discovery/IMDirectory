@@ -70,14 +70,12 @@
 
 <script setup lang="ts">
 import { computed, defineComponent } from "vue";
-import { Helpers, Vocabulary, Services } from "im-library";
-import {Store, useStore} from 'vuex';
-const { IM, RDF } = Vocabulary;
-const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType },
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
-const { Env, DirectService } = Services;
+import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
+import { IM, RDF } from "@/im_library/vocabulary";
+import { Env, DirectService } from "@/im_library/services";
+import { Store, useStore } from "vuex";
+const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
+const { isArrayHasLength } = DataTypeCheckers;
 
 const props = defineProps({ concept: { type: Object as any, required: true } });
 
@@ -85,8 +83,6 @@ const emit = defineEmits({ openBar: () => true });
 
 const store: Store<any> = useStore();
 const favourites = computed(() => store.state.favourites);
-
-const directService = new DirectService(store);
 
 function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
@@ -107,11 +103,11 @@ function showInfo(iri: string) {
 }
 
 function view(iri: string) {
-  directService.directTo(Env.VIEWER_URL, iri, "concept");
+  DirectService.directTo(Env.VIEWER_URL, iri, "concept");
 }
 
 function edit(iri: string) {
-  directService.directTo(Env.EDITOR_URL, iri, "editor");
+  DirectService.directTo(Env.EDITOR_URL, iri, "editor");
 }
 
 function updateFavourites(iri: string) {

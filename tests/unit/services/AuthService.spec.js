@@ -1,10 +1,9 @@
 import { flushPromises } from "@vue/test-utils";
 import { Auth } from "aws-amplify";
 import AuthService from "@/services/AuthService";
-import { Models } from "im-library";
+import { User, CustomAlert } from "@/im_library/models";
 import { describe } from "vitest";
 import { setupServer } from "msw/node";
-const { User, CustomAlert } = Models;
 
 describe("AuthService", () => {
   const restHandlers = [];

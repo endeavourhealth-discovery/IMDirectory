@@ -80,11 +80,9 @@
 
 <script setup lang="ts">
 import { defineComponent, PropType, ref, Ref } from "vue";
-import { Helpers } from "im-library";
-import { TTIriRef, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
-const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
-} = Helpers;
+import { TTIriRef, ConceptSummary } from "@/im_library/interfaces";
+import { ConceptTypeMethods } from "@/im_library/helpers";
+const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 
 const props = defineProps({
   searchTerm: { type: String, required: false },

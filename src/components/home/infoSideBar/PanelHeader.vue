@@ -9,15 +9,12 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, PropType, Ref, ref, watch } from "vue";
-import {mapState, Store, useStore} from 'vuex';
+import { mapState, Store, useStore } from "vuex";
 import _ from "lodash";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers, Services } from "im-library";
-import axios from "axios";
-const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
-} = Helpers;
-const { DirectService, Env } = Services;
+import { TTIriRef } from "@/im_library/interfaces";
+import { ConceptTypeMethods } from "@/im_library/helpers";
+import { DirectService, Env } from "@/im_library/services";
+const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 
 const props = defineProps({
   types: { type: Array as PropType<TTIriRef[]>, required: true },
@@ -25,7 +22,6 @@ const props = defineProps({
 });
 
 const store: Store<any> = useStore();
-const directService = new DirectService(store);
 
 watch(
   () => _.cloneDeep(props.types),
@@ -43,7 +39,7 @@ const icon: Ref<string[]> = ref([]);
 const color = ref("");
 
 function navigate() {
-  directService.directTo(Env.VIEWER_URL, selectedConceptIri.value, "concept");
+  DirectService.directTo(Env.VIEWER_URL, selectedConceptIri.value, "concept");
 }
 </script>
 

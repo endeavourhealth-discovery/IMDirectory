@@ -68,20 +68,20 @@ import DataModel from "./infoSideBar/dataModel/DataModel.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import SetDefinition from "./infoSideBar/setDefinition/SetDefinition.vue";
 import QueryDefinition from "./infoSideBar/QueryDefinition.vue";
-import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, Models, Services } from "im-library";
+import TermCodeTable from "@/im_library/components/modules/TermCodeTable.vue";
+import SecondaryTree from "@/im_library/components/modules/SecondaryTree.vue";
+import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "@/im_library/interfaces";
+import { ConceptTypeMethods, DataTypeCheckers, ContainerDimensionGetters, Sorters } from "@/im_library/helpers";
+import { Query } from "@/im_library/models";
+import { ConfigService, EntityService, LoggerService } from "@/im_library/services";
+import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 import { mapState, useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { setupConcept, loadMore, setupConfig, getInferred, setupTerms } from "./InfoSideBarMethods";
-import axios from "axios";
-const { IM, RDF, RDFS } = Vocabulary;
-const {
-  ConceptTypeMethods: { isQuery, isRecordModel, isValueSet },
-  DataTypeCheckers: { isObjectHasKeys },
-  ContainerDimensionGetters: { getContainerElementOptimalHeight },
-  Sorters: { byOrder }
-} = Helpers;
-const { ConfigService, EntityService, LoggerService } = Services;
+const { isQuery, isRecordModel, isValueSet } = ConceptTypeMethods;
+const { isObjectHasKeys } = DataTypeCheckers;
+const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
+const { byOrder } = Sorters;
 
 const props = defineProps({
   visible: { type: Boolean, required: true }
@@ -135,7 +135,7 @@ const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
 const conceptAsString = ref("");
 
-const profile = ref({} as Models.Query.Profile);
+const profile = ref({} as Query.Profile);
 const activeTab = ref(0);
 
 const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = setupConcept();

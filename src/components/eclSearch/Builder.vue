@@ -67,15 +67,13 @@ import { defineComponent, onMounted, Ref, ref, watch } from "vue";
 import Logic from "@/components/eclSearch/builder/Logic.vue";
 import RefinementGroup from "@/components/eclSearch/builder/RefinementGroup.vue";
 import FocusConcept from "@/components/eclSearch/builder/FocusConcept.vue";
-import { Enums, Helpers, Services } from "im-library";
-import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
+import { ECLComponent } from "@/im_library/enums";
+import { Sorters, EclSearchBuilderMethods } from "@/im_library/helpers";
+import { LoggerService } from "@/im_library/services";
+import { ECLComponentDetails } from "@/im_library/interfaces";
 import { useToast } from "primevue/usetoast";
-const {
-  Sorters: { byPosition },
-  EclSearchBuilderMethods: { generateNewComponent, addItem, updateItem, updatePositions }
-} = Helpers;
-const { ECLComponent } = Enums;
-const { LoggerService } = Services;
+const { byPosition } = Sorters;
+const { generateNewComponent, addItem, updateItem, updatePositions } = EclSearchBuilderMethods;
 
 const props = defineProps({
   showDialog: Boolean
@@ -106,7 +104,7 @@ function closeBuilderDialog(): void {
   emit("closeDialog");
 }
 
-function addItemWrapper(data: { selectedType: Enums.ECLComponent; position: number; value: any }): void {
+function addItemWrapper(data: { selectedType: ECLComponent; position: number; value: any }): void {
   if (data.selectedType === ECLComponent.LOGIC) {
     data.value = { data: data.value, parentGroup: ECLComponent.BUILDER };
   }

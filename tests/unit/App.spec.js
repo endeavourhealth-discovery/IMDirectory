@@ -5,7 +5,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import ConfirmDialog from "primevue/confirmdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
-import TopBar from "im-library";
+import TopBar from "@/im_library/components/modules/TopBar.vue";
 import { expect, vi } from "vitest";
 import PrimeVue from "primevue/config";
 
