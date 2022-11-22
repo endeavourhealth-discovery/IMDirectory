@@ -34,19 +34,14 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
-import Builder from "@/components/eclSearch/Builder.vue";
-import SearchResults from "@/components/eclSearch/SearchResults.vue";
+import Builder from "../components/home/directory/topbar/eclSearch/Builder.vue";
+import SearchResults from "../components/home/directory/topbar/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary } from "@/im_library/interfaces";
 import { DataTypeCheckers } from "@/im_library/helpers";
 import { LoggerService, SetService } from "@/im_library/services";
 import { useToast } from "primevue/usetoast";
 const { isObjectHasKeys, isObject } = DataTypeCheckers;
-
-const emit = defineEmits({
-  openBar: () => true,
-  closeBar: () => true
-});
 
 const toast = useToast();
 

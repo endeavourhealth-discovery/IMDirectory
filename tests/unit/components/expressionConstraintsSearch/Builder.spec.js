@@ -1,4 +1,4 @@
-import Builder from "@/components/eclSearch/Builder.vue";
+import Builder from "../../../../src/components/home/directory/topbar/eclSearch/Builder.vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { shallowMount, flushPromises } from "@vue/test-utils";

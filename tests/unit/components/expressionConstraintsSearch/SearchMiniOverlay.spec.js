@@ -1,4 +1,4 @@
-import SearchMiniOverlay from "@/components/eclSearch/SearchMiniOverlay.vue";
+import SearchMiniOverlay from "../../../../src/components/home/directory/topbar/eclSearch/SearchMiniOverlay.vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import OverlayPanel from "primevue/overlaypanel";

@@ -11,8 +11,6 @@ import { FilterDefaults } from "@/im_library/config";
 export default createStore({
   // update stateType.ts when adding new state!
   state: {
-    selectedConceptIri: "",
-    locateOnNavTreeIri: {},
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: [] as string[],
     history: [] as HistoryItem[],
@@ -50,7 +48,8 @@ export default createStore({
       { "@id": IM.INACTIVE, severity: "danger" }
     ],
     textDefinitionStartExpanded: ["Definition"],
-    activeProfile: { uuid: "", activeClausePath: "" }
+    activeProfile: { uuid: "", activeClausePath: "" },
+    splitterRightSize: 0
   },
   mutations: {
     updateActiveProfile(state, value) {
@@ -59,13 +58,9 @@ export default createStore({
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },
-    updateSelectedConceptIri(state, selectedConceptIri) {
-      state.selectedConceptIri = selectedConceptIri;
-    },
     updateConceptIri(state, conceptIri) {
       state.conceptIri = conceptIri;
     },
-
     updateSearchResults(state, searchResults) {
       state.searchResults = searchResults;
     },
@@ -145,9 +140,6 @@ export default createStore({
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
     },
-    updateLocateOnNavTreeIri(state, iri) {
-      state.locateOnNavTreeIri = { iri };
-    },
     updateArrayObjectNameListboxWithLabelStartExpanded(state, items) {
       state.arrayObjectNameListboxWithLabelStartExpanded = items;
     },
@@ -156,6 +148,9 @@ export default createStore({
     },
     updateTextDefinitionStartExpanded(state, items) {
       state.textDefinitionStartExpanded = items;
+    },
+    updateSplitterRightSize(state, splitterRightSize) {
+      state.splitterRightSize = splitterRightSize;
     }
   },
   actions: {

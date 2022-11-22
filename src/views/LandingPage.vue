@@ -28,18 +28,18 @@
             <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
               <template #body="{ data }">
                 <Button
-                  icon="pi pi-fw pi-eye"
+                  icon="fa-solid fa-sitemap"
+                  class="p-button-rounded p-button-text p-button-plain row-button"
+                  @click="open(data)"
+                  v-tooltip.top="'Select'"
+                  data-testid="select-button"
+                />
+                <Button
+                  icon="pi pi-fw pi-external-link"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
                   @click="view(data)"
                   v-tooltip.top="'View'"
                   data-testid="view-button"
-                />
-                <Button
-                  icon="pi pi-fw pi-info-circle"
-                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
-                  @click="showInfo(data)"
-                  v-tooltip.top="'Info'"
-                  data-testid="info-button"
                 />
                 <Button
                   icon="fa-solid fa-pen-to-square"
@@ -78,22 +78,20 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { defineComponent, computed, Ref, ref, watch, onMounted } from "vue";
-import ReportTable from "@/components/landingPage/ReportTable.vue";
-import PieChartDashCard from "@/components/landingPage/PieChartDashCard.vue";
-import { mapState, useStore } from "vuex";
+import ReportTable from "../components/home/landingPage/ReportTable.vue";
+import PieChartDashCard from "../components/home/landingPage/PieChartDashCard.vue";
+import { useStore } from "vuex";
 import _ from "lodash";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@/im_library/interfaces";
 import { DataTypeCheckers, Sorters } from "@/im_library/helpers";
 import { EntityService, Env, ConfigService, DirectService } from "@/im_library/services";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
+import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import axios from "axios";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byOrder } = Sorters;
 
-const emit = defineEmits({
-  openBar: () => true
-});
-
+const router = useRouter();
 const store = useStore();
 const recentLocalActivity = computed(() => store.state.recentLocalActivity);
 
@@ -147,7 +145,7 @@ function getActivityMessage(activity: RecentActivityItem) {
   let action = "";
   const dateTime = new Date(activity.dateTime);
   switch (activity.app) {
-    case Env.VIEWER_URL:
+    case Env.DIRECTORY_URL:
       action = "Viewed";
       break;
     case Env.EDITOR_URL:
@@ -191,9 +189,16 @@ async function getCardsData(): Promise<void> {
 }
 
 function view(data: any) {
-  console.log("here");
   onRowSelect(data);
-  DirectService.directTo(Env.VIEWER_URL, selected.value.iri, "concept");
+  DirectService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
+}
+
+function open(data: any) {
+  onRowSelect(data);
+  router.push({
+    name: "Folder",
+    params: { selectedIri: selected.value.iri }
+  });
 }
 
 function edit(data: any) {
@@ -201,14 +206,8 @@ function edit(data: any) {
   DirectService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
 }
 
-function showInfo(data: any) {
-  onRowSelect(data);
-  emit("openBar");
-}
-
 function onRowSelect(event: any) {
   selected.value = event?.data || event;
-  store.commit("updateSelectedConceptIri", selected.value.iri);
 }
 </script>
 

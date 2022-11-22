@@ -1,4 +1,4 @@
-import Expression from "@/components/eclSearch/builder/Expression.vue";
+import Expression from "../../../../src/components/home/directory/topbar/eclSearch/builder/Expression.vue";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import InputText from "primevue/inputtext";

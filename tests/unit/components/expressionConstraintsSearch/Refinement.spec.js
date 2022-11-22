@@ -1,4 +1,4 @@
-import Refinement from "@/components/eclSearch/builder/Refinement.vue";
+import Refinement from "../../../../src/components/home/directory/topbar/eclSearch/builder/Refinement.vue";
 import { shallowMount } from "@vue/test-utils";
 import { ECLComponent } from "@/im_library/enums";
 import { describe, expect, it } from "vitest";

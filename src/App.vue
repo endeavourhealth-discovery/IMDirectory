@@ -31,9 +31,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import Search from "@/components/topbar/Search.vue";
 import TopBar from "@/im_library/components/modules/TopBar.vue";
 import ReleaseNotes from "./im_library/components/modules/ReleaseNotes.vue";
+import Search from "./components/home/directory/topbar/Search.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";

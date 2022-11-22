@@ -1,12 +1,11 @@
 <template>
-  <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local">
+  <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
       <NavTree />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
-        <router-view @openBar="visibleRight = true" @closeBar="visibleRight = false" />
-        <InfoSideBar :visible="visibleRight" @closeBar="visibleRight = false" />
+        <router-view />
       </div>
     </SplitterPanel>
   </Splitter>
@@ -14,10 +13,13 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import NavTree from "@/components/home/NavTree.vue";
-import InfoSideBar from "@/components/home/InfoSideBar.vue";
+import NavTree from "../components/home/directory/NavTree.vue";
+import { useStore } from "vuex";
+const store = useStore();
 
-const visibleRight = ref(true);
+function updateSplitter(event: any) {
+  store.commit("updateSplitterRightSize", event.sizes[1]);
+}
 </script>
 
 <style scoped>

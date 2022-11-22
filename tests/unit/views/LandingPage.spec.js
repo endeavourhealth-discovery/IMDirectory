@@ -59,7 +59,7 @@ describe("LandingPage.vue", async () => {
   });
 
   it("sets activity time", () => {
-    component.getByText("Viewed yesterday");
+    component.getByText("yesterday");
   });
 
   // it("updates store and routes on view", async () => {

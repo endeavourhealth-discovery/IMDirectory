@@ -1,4 +1,4 @@
-import Logic from "@/components/eclSearch/builder/Logic.vue";
+import Logic from "../../../../src/components/home/directory/topbar/eclSearch/builder/Logic.vue";
 import { shallowMount } from "@vue/test-utils";
 import Dropdown from "primevue/dropdown";
 import { ECLComponent } from "@/im_library/enums";
