@@ -97,22 +97,22 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import { useStore } from "vuex";
 import _ from "lodash";
-import { Helpers, Vocabulary, Services } from "im-library";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { TTIriRef } from "@/im_library/interfaces";
+import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
+import { IM, RDF, RDFS } from "@/im_library/vocabulary";
+import { EntityService, Env, DirectService } from "@/im_library/services";
 import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import axios from "axios";
-const { IM, RDFS, RDF } = Vocabulary;
-const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
-const { EntityService, DirectService, Env } = Services;
+const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
+const { isArrayHasLength } = DataTypeCheckers;
 
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
+
+const directService = new DirectService(store);
 
 watch(
   () => conceptIri.value,
@@ -124,9 +124,6 @@ watch(
     if (conceptIsFavourite.value) init();
   }
 );
-
-const entityService = new EntityService(axios);
-const directService = new DirectService(store);
 
 const conceptIsFavourite = computed(() => conceptIri.value === IM.NAMESPACE + "Favourites");
 
@@ -168,7 +165,7 @@ async function init() {
 }
 
 async function getFavourites() {
-  const result = await entityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
+  const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
     return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
   });
@@ -184,7 +181,7 @@ function getColourStyleFromType(types: TTIriRef[]) {
 }
 
 async function getChildren(iri: string) {
-  const result = await entityService.getPagedChildren(iri, 1, pageSize.value);
+  const result = await EntityService.getPagedChildren(iri, 1, pageSize.value);
   children.value = result.result;
   totalCount.value = result.totalCount;
   children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
@@ -231,7 +228,7 @@ function open(iri: string) {
 
 async function loadMore() {
   loading.value = true;
-  const result = await entityService.getPagedChildren(conceptIri.value, nextPage.value, pageSize.value);
+  const result = await EntityService.getPagedChildren(conceptIri.value, nextPage.value, pageSize.value);
   children.value = result.result;
   loading.value = false;
 }

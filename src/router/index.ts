@@ -4,16 +4,13 @@ import Directory from "../views/Directory.vue";
 import SearchResultsTable from "../views/SearchResultsTable.vue";
 import LandingPage from "../views/LandingPage.vue";
 import EclSearch from "../views/EclSearch.vue";
-import { AccessDenied, PageNotFound, SnomedLicense, Services, EntityNotFound, Helpers } from "im-library";
+import { AccessDenied, PageNotFound, SnomedLicense, EntityNotFound } from "@/im_library/components";
+import { EntityService, Env } from "@/im_library/services";
+import { DataTypeCheckers } from "@/im_library/helpers";
 import store from "@/store/index";
 import { nextTick } from "vue";
 import axios from "axios";
-const {
-  DataTypeCheckers: { isObjectHasKeys }
-} = Helpers;
-const { Env, EntityService } = Services;
-
-const entityService = new EntityService(axios);
+const { isObjectHasKeys } = DataTypeCheckers;
 
 const APP_TITLE = "IM Directory";
 
@@ -115,7 +112,7 @@ router.beforeEach(async (to, _from) => {
     const iri = to.params.selectedIri as string;
     try {
       new URL(iri);
-      if (!(await entityService.iriExists(iri))) {
+      if (!(await EntityService.iriExists(iri))) {
         router.push({ name: "EntityNotFound" });
       }
     } catch (_error) {

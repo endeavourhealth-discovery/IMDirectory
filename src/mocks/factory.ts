@@ -50,6 +50,15 @@ const fakerFactory = factory({
     type: String,
     size: faker.datatype.string,
     order: faker.datatype.number
+  },
+  githubRelease: {
+    version: faker.datatype.string,
+    title: faker.datatype.string,
+    createdDate: faker.date.recent,
+    publishedDate: faker.date.past,
+    releaseNotes: faker.datatype.array,
+    author: faker.name.fullName,
+    url: primaryKey(faker.internet.url)
   }
 });
 

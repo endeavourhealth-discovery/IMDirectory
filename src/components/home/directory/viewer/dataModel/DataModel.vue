@@ -5,20 +5,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch } from "vue";
-import { TangledTreeData } from "im-library/dist/types/interfaces/Interfaces";
-import { Services, Vocabulary } from "im-library";
-import axios from "axios";
-import TangledTree from "../dataModel/TangledTree.vue";
-const { RDFS } = Vocabulary;
-
-const { EntityService } = Services;
+import { computed, onMounted, Ref, ref, watch } from "vue";
+import { TangledTreeData } from "@/im_library/interfaces";
+import { EntityService } from "@/im_library/services";
+import TangledTree from "./TangledTree.vue";
+import { useStore } from "vuex";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const entityService = new EntityService(axios);
+const store = useStore();
+const conceptIri = computed(() => store.state.conceptIri);
 
 watch(
   () => props.conceptIri,
@@ -33,7 +31,7 @@ onMounted(async () => await getDataModel(props.conceptIri));
 
 async function getDataModel(iri: string) {
   loading.value = true;
-  const name = (await entityService.getPartialEntity(iri, [RDFS.LABEL]))[RDFS.LABEL];
+  const name = (await EntityService.getNames([iri]))[0].name;
   data.value.push([{ id: iri, parents: [], name: name || iri, type: "root" }]);
   await addPropertiesAndTypes(iri);
 }
@@ -41,7 +39,7 @@ async function addPropertiesAndTypes(iri: any) {
   const properties = [] as any;
   const types = [] as any;
 
-  const result = await entityService.getDataModelProperties(iri);
+  const result = await EntityService.getDataModelProperties(iri);
 
   result.forEach((r: any) => {
     properties.push({

@@ -1,9 +1,8 @@
 import FocusConcept from "../../../../src/components/home/directory/topbar/eclSearch/builder/FocusConcept.vue";
 import { shallowMount } from "@vue/test-utils";
-import { Enums } from "im-library";
+import { ECLComponent } from "@/im_library/enums";
 import { describe, expect, it } from "vitest";
 import { setupServer } from "msw/node";
-const { ECLComponent } = Enums;
 
 describe("FocusConcept.vue", () => {
   it("fakes tests", () => {

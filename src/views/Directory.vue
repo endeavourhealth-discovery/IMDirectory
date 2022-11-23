@@ -16,18 +16,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
+import { EntityService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
 import DirectoryTable from "../components/home/directory/DirectoryTable.vue";
 import ParentHeader from "../components/home/directory/ParentHeader.vue";
 import ParentHierarchy from "../components/home/directory/ParentHierarchy.vue";
-import { Vocabulary, Services } from "im-library";
-import axios from "axios";
-const { IM } = Vocabulary;
-const { EntityService } = Services;
 
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
-
-const entityService = new EntityService(axios);
 
 watch(
   () => conceptIri.value,
@@ -41,7 +37,7 @@ onMounted(async () => await init());
 
 async function init() {
   loading.value = true;
-  concept.value = await entityService.getEntityByPredicateExclusions(conceptIri.value, [IM.HAS_MEMBER]);
+  concept.value = await EntityService.getEntityByPredicateExclusions(conceptIri.value, [IM.HAS_MEMBER]);
   loading.value = false;
 }
 </script>

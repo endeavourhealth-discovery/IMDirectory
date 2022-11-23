@@ -11,18 +11,15 @@
 </template>
 
 <script setup lang="ts">
-import { Services, Vocabulary } from "im-library";
+import { ProvService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
 import axios from "axios";
 import { onMounted, ref, Ref } from "vue";
-const { IM } = Vocabulary;
-
-const { ProvService } = Services;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const provService = new ProvService(axios);
 const provenances: Ref<any[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
@@ -30,7 +27,7 @@ onMounted(async () => await getProvHistory(props.conceptIri));
 
 async function getProvHistory(iri: string) {
   loading.value = true;
-  const result = await provService.getProvHistory(iri);
+  const result = await ProvService.getProvHistory(iri);
   result.forEach((p: any) =>
     provenances.value.push({
       prov: p["@id"],

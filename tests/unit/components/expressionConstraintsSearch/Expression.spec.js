@@ -4,10 +4,9 @@ import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import InputText from "primevue/inputtext";
 import OverlayPanel from "primevue/overlaypanel";
 import axios from "axios";
-import { Enums } from "im-library";
+import { ECLComponent, ECLType } from "@/im_library/enums";
 import { describe, expect, it } from "vitest";
 import { setupServer } from "msw/node";
-const { ECLComponent, ECLType } = Enums;
 
 const FILTER_OPTIONS = {
   status: [

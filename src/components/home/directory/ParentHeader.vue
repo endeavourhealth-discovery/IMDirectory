@@ -64,15 +64,17 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { Helpers, Vocabulary, Services } from "im-library";
+import TextHTMLWithLabel from "@/im_library/components/modules/generics/TextHTMLWithLabel.vue";
+import ArrayObjectNamesToStringWithLabel from "@/im_library/components/modules/generics/ArrayObjectNamesToStringWithLabel.vue";
+import ArrayObjectNameTagWithLabel from "@/im_library/components/modules/generics/ArrayObjectNameTagWithLabel.vue";
+import TextWithLabel from "@/im_library/components/modules/generics/TextWithLabel.vue";
+import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
+import { IM, RDF } from "@/im_library/vocabulary";
+import { Env, DirectService } from "@/im_library/services";
 import { Store, useStore } from "vuex";
 import { State } from "@/store/stateType";
-const { IM, RDF } = Vocabulary;
-const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType },
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
-const { Env, DirectService } = Services;
+const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
+const { isArrayHasLength } = DataTypeCheckers;
 
 const props = defineProps({ concept: { type: Object as any, required: true } });
 

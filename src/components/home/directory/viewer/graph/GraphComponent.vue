@@ -24,24 +24,22 @@ import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
 import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import _ from "lodash";
-import { TTGraphData } from "im-library/dist/types/interfaces/Interfaces";
-import { Config, Helpers, Services, Vocabulary } from "im-library";
+import { TTGraphData } from "@/im_library/interfaces";
+import { GraphExcludePredicates } from "@/im_library/config";
+import { GraphTranslator, DataTypeCheckers } from "@/im_library/helpers";
+import { EntityService, LoggerService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import axios from "axios";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
-const { IM } = Vocabulary;
-const {
-  GraphTranslator: { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes },
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
-} = Helpers;
-const { EntityService, LoggerService } = Services;
+const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
 const props = defineProps({
   data: { type: Object as PropType<TTGraphData>, required: true, default: {} as TTGraphData }
 });
 
-const entityService = new EntityService(axios);
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
@@ -80,7 +78,7 @@ const colour = ref({
 });
 const contextMenu: Ref<{ iri: string; label: string; command: (d: any) => void; disabled?: boolean }[]> = ref([]);
 
-const graphExcludePredicates = Config.GraphExcludePredicates;
+const graphExcludePredicates = GraphExcludePredicates;
 
 const nodeFontSize = computed(() => radius.value / 5);
 const pathFontSize = computed(() => radius.value / 5 + 3);
@@ -105,8 +103,8 @@ async function getContextMenu(d: any) {
   let node = d.path[0]["__data__"]["data"] as TTGraphData;
   contextMenu.value = [] as { iri: string; label: string; command: (d: any) => void; disabled?: boolean }[];
   if (node.iri && !node.name.startsWith("middle-node")) {
-    const bundle = await entityService.getBundleByPredicateExclusions(node.iri, [IM.HAS_MEMBER]);
-    const hasMember = await entityService.getPartialAndTotalCount(node.iri, IM.HAS_MEMBER, 1, 10);
+    const bundle = await EntityService.getBundleByPredicateExclusions(node.iri, [IM.HAS_MEMBER]);
+    const hasMember = await EntityService.getPartialAndTotalCount(node.iri, IM.HAS_MEMBER, 1, 10);
     if (isObjectHasKeys(hasMember, ["totalCount"]) && hasMember.totalCount !== 0) {
       bundle.entity[IM.HAS_MEMBER] = hasMember.result;
       bundle.predicates[IM.HAS_MEMBER] = "has member";
@@ -332,7 +330,7 @@ async function dblclick(d: any) {
     redrawGraph();
   } else {
     if (node.iri) {
-      const bundle = await entityService.getPartialEntityBundle(node.iri, []);
+      const bundle = await EntityService.getPartialEntityBundle(node.iri, []);
       const data = translateFromEntityBundle(bundle, []);
       if (isArrayHasLength(data.children)) {
         data.children.forEach((child: any) => {

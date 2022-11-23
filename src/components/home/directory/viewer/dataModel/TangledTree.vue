@@ -16,18 +16,16 @@
 
 <script setup lang="ts">
 import * as d3 from "d3";
-import { Helpers } from "im-library";
-import { onMounted, PropType, ref, Ref, watch, reactive } from "vue";
-import { TangledTreeData } from "im-library/dist/types/interfaces/Interfaces";
+import { onMounted, PropType, ref, Ref, watch } from "vue";
+import { TangledTreeData } from "@/im_library/interfaces";
+import { TangledTreeLayout } from "@/im_library/helpers";
 import _ from "lodash";
 import { Services } from "im-library";
 import axios from "axios";
 
 const { EntityService } = Services;
 
-const {
-  TangledTreeLayout: { constructTangleLayout }
-} = Helpers;
+const { constructTangleLayout } = TangledTreeLayout;
 
 const props = defineProps({
   data: { type: Array as PropType<Array<TangledTreeData[]>>, required: true },

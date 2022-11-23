@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { onMounted, PropType, ref, Ref, watch } from "vue";
-import { ECLComponent } from "im-library/dist/types/enums/Enums";
+import { ECLComponent } from "@/im_library/enums";
 
 const props = defineProps({
   position: Number,

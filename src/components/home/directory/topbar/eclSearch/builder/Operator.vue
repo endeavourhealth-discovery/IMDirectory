@@ -16,9 +16,8 @@
 
 <script setup lang="ts">
 import { onMounted, PropType, Ref, ref, watch } from "vue";
-import { Enums } from "im-library";
-import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent } = Enums;
+import { ECLComponent } from "@/im_library/enums";
+import { ECLComponentDetails } from "@/im_library/interfaces";
 
 const props = defineProps({
   id: { type: String, required: true },

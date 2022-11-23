@@ -55,23 +55,20 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers, Services, Vocabulary } from "im-library";
+import { TTIriRef } from "@/im_library/interfaces";
+import { DataTypeCheckers } from "@/im_library/helpers";
+import { EntityService, LoggerService, SetService } from "@/im_library/services";
+import { IM, RDFS } from "@/im_library/vocabulary";
 import axios from "axios";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
-} = Helpers;
-const { RDFS, IM } = Vocabulary;
-const { EntityService, LoggerService, SetService } = Services;
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const entityService = new EntityService(axios);
-const setService = new SetService(axios);
 const toast = useToast();
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
@@ -123,7 +120,7 @@ async function init() {
 }
 
 async function setHasDefinition() {
-  const entity = await entityService.getPartialEntity(props.conceptIri, [IM.DEFINITION]);
+  const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.DEFINITION]);
   hasDefintion.value = isObjectHasKeys(entity, [IM.DEFINITION]);
 }
 
@@ -134,7 +131,7 @@ function toggle(event: any) {
 
 async function getMembers(): Promise<void> {
   loading.value = true;
-  const paged = await entityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, 1, pageSize.value);
+  const paged = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, 1, pageSize.value);
   members.value = paged.result;
   loading.value = false;
 }
@@ -143,8 +140,8 @@ async function downloadIMV1(): Promise<void> {
   downloading.value = true;
   try {
     toast.add(LoggerService.success("Download will begin shortly"));
-    const result = await setService.IMV1(props.conceptIri);
-    const label: string = (await entityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
+    const result = await SetService.IMV1(props.conceptIri);
+    const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, label + ".txt");
   } catch (error) {
     toast.add(LoggerService.error("Download failed from server"));
@@ -157,8 +154,8 @@ async function download(core: boolean, legacy: boolean, flat: boolean = false): 
   downloading.value = true;
   try {
     toast.add(LoggerService.success("Download will begin shortly"));
-    const result = (await entityService.getFullExportSet(props.conceptIri, core, legacy, flat)).data;
-    const label: string = (await entityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
+    const result = (await EntityService.getFullExportSet(props.conceptIri, core, legacy, flat)).data;
+    const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, getFileName(label));
   } catch (error) {
     toast.add(LoggerService.error("Download failed from server"));
@@ -184,8 +181,7 @@ function downloadFile(data: any, fileName: string) {
 
 function publish() {
   isPublishing.value = true;
-  setService
-    .publish(props.conceptIri)
+  SetService.publish(props.conceptIri)
     .then(() => {
       isPublishing.value = false;
       toast.add(LoggerService.success("Value set published", "Published to IM1 :" + props.conceptIri));
@@ -205,12 +201,12 @@ function checkAuthorization() {
 async function loadMore() {
   let pagedNewMembers: any = { result: [] as TTIriRef[] };
   if (nextPage.value * pageSize.value < totalCount.value) {
-    pagedNewMembers = await entityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, nextPage.value, pageSize.value);
+    pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, nextPage.value, pageSize.value);
     members.value = members.value.concat(pagedNewMembers.result);
     nextPage.value = nextPage.value + 1;
     loadButton.value = true;
   } else if (nextPage.value * pageSize.value > totalCount.value) {
-    pagedNewMembers = await entityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, nextPage.value, pageSize.value);
+    pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, nextPage.value, pageSize.value);
     members.value = members.value.concat(pagedNewMembers.result);
     loadButton.value = false;
   } else {
@@ -219,7 +215,7 @@ async function loadMore() {
 }
 
 async function getTotalCount() {
-  totalCount.value = (await entityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, 1, 10)).totalCount;
+  totalCount.value = (await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, 1, 10)).totalCount;
 }
 </script>
 

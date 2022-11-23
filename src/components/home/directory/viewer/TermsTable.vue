@@ -37,12 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
-import { TermCode } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers } from "im-library";
-const {
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
+import { defineComponent, PropType, ref, Ref, computed } from "vue";
+import { TermCode } from "@/im_library/interfaces";
+import { DataTypeCheckers } from "@/im_library/helpers";
+const { isArrayHasLength } = DataTypeCheckers;
 
 const props = defineProps({
   label: { type: String },

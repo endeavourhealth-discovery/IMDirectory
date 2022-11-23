@@ -22,7 +22,7 @@ module.exports = {
     parser: "@typescript-eslint/parser"
   },
 
-  ignorePatterns: ["src/discovery-syntax/*", "tests/*"],
+  ignorePatterns: ["src/discovery-syntax/*"],
 
   rules: {
     "no-console": import.meta.env.NODE_ENV === "production" ? "warn" : "off",
