@@ -1,6 +1,6 @@
 <template>
   <div id="tree-container">
-    <TangledTree :data="data" />
+    <TangledTree :conceptIri="conceptIri" :data="data" />
   </div>
 </template>
 
@@ -23,16 +23,11 @@ watch(
   async newValue => await getDataModel(newValue)
 );
 
-watch(
-  () => conceptIri.value,
-  async newValue => await getDataModel(newValue)
-);
-
 const loading = ref(false);
 const data: Ref<TangledTreeData[][]> = ref([]);
 const twinNode = ref("twin-node-");
 
-onMounted(async () => await getDataModel(conceptIri.value));
+onMounted(async () => await getDataModel(props.conceptIri));
 
 async function getDataModel(iri: string) {
   loading.value = true;
@@ -87,8 +82,8 @@ async function addPropertiesAndTypes(iri: any) {
 
 <style scoped>
 #tree-container {
-  flex: 1 1 auto;
   width: 100%;
+  height: 100%;
   position: relative;
   overflow: auto;
 }
