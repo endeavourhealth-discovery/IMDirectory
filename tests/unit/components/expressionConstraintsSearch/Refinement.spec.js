@@ -1,9 +1,8 @@
 import Refinement from "../../../../src/components/home/directory/topbar/eclSearch/builder/Refinement.vue";
 import { shallowMount } from "@vue/test-utils";
-import { Enums } from "im-library";
+import { ECLComponent } from "@/im_library/enums";
 import { describe, expect, it } from "vitest";
 import { setupServer } from "msw/node";
-const { ECLComponent } = Enums;
 
 describe("Refinement.vue", () => {
   it("fakes tests", () => {

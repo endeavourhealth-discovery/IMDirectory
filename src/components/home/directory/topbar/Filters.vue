@@ -67,13 +67,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { Namespace, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers, Vocabulary, Enums } from "im-library";
-const {
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
-const { IM, RDF, RDFS } = Vocabulary;
-const { SortDirection } = Enums;
+import { Namespace, EntityReferenceNode } from "@/im_library/interfaces";
+import { SortDirection } from "@/im_library/enums";
+import { DataTypeCheckers } from "@/im_library/helpers";
+import { IM } from "@/im_library/vocabulary";
+const { isArrayHasLength } = DataTypeCheckers;
 
 const props = defineProps({
   search: { type: Function, required: true }

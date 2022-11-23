@@ -35,22 +35,19 @@
 </template>
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { Helpers, Services, Vocabulary } from "im-library";
+import { DataTypeCheckers, ContainerDimensionGetters, ConceptTypeMethods } from "@/im_library/helpers";
+import { EntityService } from "@/im_library/services";
+import { RDF, RDFS } from "@/im_library/vocabulary";
 import axios from "axios";
 import { useRouter } from "vue-router";
-const {
-  DataTypeCheckers: { isObjectHasKeys },
-  ContainerDimensionGetters: { getContainerElementOptimalHeight },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType }
-} = Helpers;
-const { RDF, RDFS } = Vocabulary;
-const { EntityService } = Services;
+const { isObjectHasKeys } = DataTypeCheckers;
+const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
+const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const entityService = new EntityService(axios);
 const router = useRouter();
 
 const usages: Ref<any[]> = ref([]);
@@ -83,7 +80,7 @@ async function init() {
 }
 
 async function getUsages(iri: string, pageIndex: number, pageSize: number): Promise<void> {
-  const result = await entityService.getEntityUsages(iri, pageIndex, pageSize);
+  const result = await EntityService.getEntityUsages(iri, pageIndex, pageSize);
   usages.value = result.map((usage: any) => {
     return {
       "@id": usage["@id"],
@@ -95,7 +92,7 @@ async function getUsages(iri: string, pageIndex: number, pageSize: number): Prom
 }
 
 async function getRecordsSize(iri: string): Promise<void> {
-  recordsTotal.value = await entityService.getUsagesTotalRecords(iri);
+  recordsTotal.value = await EntityService.getUsagesTotalRecords(iri);
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
 }
 

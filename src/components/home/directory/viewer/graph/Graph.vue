@@ -18,21 +18,17 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import GraphComponent from "./GraphComponent.vue";
-import { TTGraphData, TTBundle } from "im-library/dist/types/interfaces/Interfaces";
-import { Config, Helpers, Services, Vocabulary } from "im-library";
-import axios from "axios";
-const { IM } = Vocabulary;
-const {
-  GraphTranslator: { translateFromEntityBundle },
-  DataTypeCheckers: { isObjectHasKeys }
-} = Helpers;
-const { EntityService } = Services;
+import { TTGraphData, TTBundle } from "@/im_library/interfaces";
+import { GraphExcludePredicates } from "@/im_library/config";
+import { GraphTranslator, DataTypeCheckers } from "@/im_library/helpers";
+import { EntityService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
+const { translateFromEntityBundle } = GraphTranslator;
+const { isObjectHasKeys } = DataTypeCheckers;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
-
-const entityService = new EntityService(axios);
 
 watch(
   () => props.conceptIri,
@@ -48,7 +44,7 @@ const bundle: Ref<TTBundle> = ref({} as TTBundle);
 const options: Ref<{ iri: string; name: string }[]> = ref([]);
 const predicates: Ref<any[]> = ref([]);
 
-const graphExcludePredicates = Config.GraphExcludePredicates;
+const graphExcludePredicates = GraphExcludePredicates;
 
 onMounted(async () => await getEntityBundle(props.conceptIri));
 
@@ -62,8 +58,8 @@ async function updatePredicates() {
 
 async function getEntityBundle(iri: string) {
   loading.value = true;
-  bundle.value = await entityService.getBundleByPredicateExclusions(iri, [IM.HAS_MEMBER]);
-  const hasMember = await entityService.getPartialAndTotalCount(iri, IM.HAS_MEMBER, 1, 10);
+  bundle.value = await EntityService.getBundleByPredicateExclusions(iri, [IM.HAS_MEMBER]);
+  const hasMember = await EntityService.getPartialAndTotalCount(iri, IM.HAS_MEMBER, 1, 10);
   if (isObjectHasKeys(hasMember, ["totalCount"]) && hasMember.totalCount !== 0) {
     bundle.value.entity[IM.HAS_MEMBER] = hasMember.result;
     bundle.value.predicates[IM.HAS_MEMBER] = "has member";

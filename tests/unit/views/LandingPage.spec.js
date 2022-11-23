@@ -9,10 +9,9 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import testData from "./LandingPage.testData";
-import { Services } from "im-library";
+import { EntityService, ConfigService, DirectService } from "@/im_library/services";
 import { flushPromises } from "@vue/test-utils";
 import { afterAll, it, vi } from "vitest";
-const { EntityService, ConfigService, DirectService } = Services;
 
 const mockDispatch = vi.fn();
 const mockState = {
@@ -37,11 +36,11 @@ describe("LandingPage.vue", async () => {
   beforeEach(async () => {
     vi.resetAllMocks();
     getPartialSpy = vi
-      .spyOn(EntityService.prototype, "getPartialEntity")
+      .spyOn(EntityService, "getPartialEntity")
       .mockResolvedValueOnce(testData.ONTOLOGY_OVERVIEW)
       .mockResolvedValueOnce(testData.CONCEPT_TYPES)
       .mockResolvedValue(testData.ENTITY);
-    getDashboardLayoutSpy = vi.spyOn(ConfigService.prototype, "getDashboardLayout").mockResolvedValue(testData.DASHBOARD_LAYOUT);
+    getDashboardLayoutSpy = vi.spyOn(ConfigService, "getDashboardLayout").mockResolvedValue(testData.DASHBOARD_LAYOUT);
     directToSpy = vi.spyOn(DirectService.prototype, "directTo");
     vi.useFakeTimers().setSystemTime(new Date("2022-09-23T12:18:59.78"));
 

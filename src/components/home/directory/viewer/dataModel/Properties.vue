@@ -41,19 +41,15 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, Ref, ref, watch } from "vue";
 import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { DataModelProperty, ProcessedDataModelProperty } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers, Services } from "im-library";
-import axios from "axios";
-const {
-  ContainerDimensionGetters: { getContainerElementOptimalHeight }
-} = Helpers;
-const { EntityService } = Services;
+import { DataModelProperty, ProcessedDataModelProperty } from "@/im_library/interfaces";
+import { ContainerDimensionGetters } from "@/im_library/helpers";
+import { EntityService } from "@/im_library/services";
+const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const entityService = new EntityService(axios);
 const route = useRoute();
 const router = useRouter();
 
@@ -82,7 +78,7 @@ function onResize() {
 
 async function getDataModelProps(iri: string): Promise<void> {
   loading.value = true;
-  const result = await entityService.getDataModelProperties(iri);
+  const result = await EntityService.getDataModelProperties(iri);
   dataModelPropsData.value = result.map((prop: DataModelProperty) => {
     return {
       propertyId: prop.property["@id"],

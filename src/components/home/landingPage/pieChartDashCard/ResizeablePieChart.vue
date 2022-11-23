@@ -11,13 +11,10 @@
 import { nextTick, onMounted, onUnmounted, PropType, Ref, ref, watch } from "vue";
 import palette from "google-palette";
 import _ from "lodash";
-import { ChartOptions } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers, Models } from "im-library";
-import { PieChartData } from "im-library/dist/types/models/Models";
-const {
-  ChartRescale: { setTooltips, rescaleData }
-} = Helpers;
-const { PieChartData } = Models;
+import { ChartOptions } from "@/im_library/interfaces";
+import { ChartRescale } from "@/im_library/helpers";
+import { PieChartData } from "@/im_library/models";
+const { setTooltips, rescaleData } = ChartRescale;
 
 const props = defineProps({
   inputData: { type: Array as PropType<any[]>, required: true },

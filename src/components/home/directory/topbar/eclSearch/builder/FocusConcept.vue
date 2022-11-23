@@ -37,14 +37,12 @@ import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
 import Expression from "./Expression.vue";
 import Constraint from "./Constraint.vue";
 import AddDeleteButtons from "../AddDeleteButtons.vue";
-import { Enums, Helpers } from "im-library";
-import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent } = Enums;
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
-  Sorters: { byPosition },
-  EclSearchBuilderMethods: { generateNewComponent }
-} = Helpers;
+import { ECLComponent } from "@/im_library/enums";
+import { DataTypeCheckers, Sorters, EclSearchBuilderMethods } from "@/im_library/helpers";
+import { ECLComponentDetails } from "@/im_library/interfaces";
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+const { byPosition } = Sorters;
+const { generateNewComponent } = EclSearchBuilderMethods;
 
 const props = defineProps({
   id: { type: String, required: true },

@@ -120,14 +120,13 @@
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import _ from "lodash";
-import { Helpers, Models, Services } from "im-library";
-import { ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
+import { ConceptSummary } from "@/im_library/interfaces";
+import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
+import { DirectService, Env } from "@/im_library/services";
+import Chips from "primevue/chips";
 import { useRouter } from "vue-router";
-const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes },
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys }
-} = Helpers;
-const { DirectService, Env } = Services;
+const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
 const router = useRouter();
 const store = useStore();
