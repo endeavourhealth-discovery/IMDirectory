@@ -1,67 +1,118 @@
 <template>
-  <div class="loading-container flex flex-row justify-content-center align-items-center" v-if="loading">
-    <ProgressSpinner />
-  </div>
-  <div v-else id="directory-table-container">
-    <div class="header-container">
-      <ParentHierarchy :conceptIri="concept['@id']" />
-      <ParentHeader v-if="conceptIri !== 'http://endhealth.info/im#Favourites'" :concept="concept" />
-    </div>
-    <div class="datatable-container">
-      <DirectoryTable />
+  <div id="directory-main-container">
+    <TopBar>
+      <template #content>
+        <div id="topbar-content-container">
+          <Search />
+          <Button class="ecl-search-button" label="Ecl Search" @click="toEclSearch" />
+          <Button
+            v-if="isLoggedIn && currentUser && currentUser.roles.includes('IMAdmin')"
+            icon="pi pi-cog"
+            class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
+            @click="openAdminMenu"
+          />
+          <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
+        </div>
+      </template>
+    </TopBar>
+    <div id="app-content-container">
+      <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
+        <ProgressSpinner />
+      </div>
+      <DirectorySplitter v-else />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
+import TopBar from "@/im_library/components/modules/TopBar.vue";
+import Search from "@/components/directory/topbar/Search.vue";
+import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
+import { useRoute, useRouter } from "vue-router";
+import { Env, FilerService } from "@/im_library/services";
+import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
-import { EntityService } from "@/im_library/services";
-import { IM } from "@/im_library/vocabulary";
-import DirectoryTable from "../components/home/directory/DirectoryTable.vue";
-import ParentHeader from "../components/home/directory/ParentHeader.vue";
-import ParentHierarchy from "../components/home/directory/ParentHierarchy.vue";
 
+const router = useRouter();
+const toast = useToast();
 const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
 
-watch(
-  () => conceptIri.value,
-  async () => await init()
-);
+const currentUser = computed(() => store.state.currentUser);
+const isLoggedIn = computed(() => store.state.isLoggedIn);
 
-const concept: Ref<any> = ref({});
+const adminMenu = ref();
 const loading = ref(true);
 
-onMounted(async () => await init());
-
-async function init() {
+onMounted(async () => {
   loading.value = true;
-  concept.value = await EntityService.getEntityByPredicateExclusions(conceptIri.value, [IM.HAS_MEMBER]);
+  await store.dispatch("fetchFilterSettings");
+  await store.dispatch("initFavourites");
   loading.value = false;
+});
+
+function toEclSearch() {
+  router.push({ name: "EclSearch" });
+}
+
+function openAdminMenu(event: any): void {
+  adminMenu.value.toggle(event);
+}
+
+function getAdminItems(): any[] {
+  return [
+    {
+      label: "Download changes",
+      icon: "fa-solid fa-fw fa-cloud-arrow-down",
+      command: () => downloadChanges()
+    }
+  ];
+}
+
+async function downloadChanges() {
+  toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
+  let blob = await FilerService.downloadDeltas();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "deltas.zip";
+  link.click();
 }
 </script>
+
 <style scoped>
+#directory-main-container {
+  height: 100%;
+  width: 100%;
+}
+
+#topbar-content-container {
+  height: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.ecl-search-button {
+  height: fit-content;
+}
+
+body {
+  overflow: hidden;
+}
+
 .loading-container {
+  width: 100%;
   height: 100%;
-  flex: 1 1 auto;
 }
 
-#directory-table-container {
-  flex: 1 1 auto;
-  height: 100%;
-  display: flex;
-  flex-flow: column nowrap;
+#app-content-container {
+  height: calc(100% - 3.5rem);
 }
 
-.datatable-container {
-  flex: 0 2 auto;
-  overflow: auto;
-  padding: 0.5rem;
-}
-
-.header-container {
-  display: flex;
-  flex-flow: column nowrap;
+#topbar-container {
+  height: 4rem;
+  width: 100vw;
 }
 </style>

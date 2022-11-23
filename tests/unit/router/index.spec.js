@@ -77,7 +77,7 @@ describe("router", () => {
     });
 
     it("routes to home if snomedAccepted ___ true", () => {
-      expect(wrapper.vm.$route.path).toBe("/");
+      expect(wrapper.vm.$route.path).toBe("/directory/landingPage");
     });
   });
 

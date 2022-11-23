@@ -18,6 +18,7 @@ export default createStore({
     searchLoading: false,
     currentUser: {} as User,
     isLoggedIn: false as boolean,
+    registeredUsername: "" as string,
     recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     snomedReturnUrl: "",
@@ -78,6 +79,9 @@ export default createStore({
     },
     updateIsLoggedIn(state, status) {
       state.isLoggedIn = status;
+    },
+    updateRegisteredUsername(state, username) {
+      state.registeredUsername = username;
     },
     updateSnomedLicenseAccepted(state, status: string) {
       state.snomedLicenseAccepted = status;

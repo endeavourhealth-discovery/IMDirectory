@@ -44,16 +44,14 @@ describe("App.vue", () => {
     component = render(App, {
       global: {
         components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu },
-        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true, Search: true, TopBar: true },
+        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true },
         plugins: [PrimeVue]
       }
     });
   });
 
   it("should check auth and update store history count on mount", async () => {
-    expect(mockDispatch).toHaveBeenCalledTimes(3);
+    expect(mockDispatch).toHaveBeenCalledTimes(1);
     expect(mockDispatch).toHaveBeenCalledWith("authenticateCurrentUser");
-    expect(mockDispatch).toHaveBeenCalledWith("fetchFilterSettings");
-    expect(mockDispatch).toHaveBeenCalledWith("initFavourites");
   });
 });
