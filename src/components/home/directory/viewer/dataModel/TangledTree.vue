@@ -16,14 +16,11 @@
 
 <script setup lang="ts">
 import * as d3 from "d3";
-import { onMounted, PropType, ref, Ref, watch } from "vue";
+import { onMounted, PropType, reactive, ref, Ref, watch } from "vue";
 import { TangledTreeData } from "@/im_library/interfaces";
 import { TangledTreeLayout } from "@/im_library/helpers";
 import _ from "lodash";
-import { Services } from "im-library";
-import axios from "axios";
-
-const { EntityService } = Services;
+import { EntityService } from "@/im_library/services";
 
 const { constructTangleLayout } = TangledTreeLayout;
 
@@ -31,8 +28,6 @@ const props = defineProps({
   data: { type: Array as PropType<Array<TangledTreeData[]>>, required: true },
   conceptIri: { type: String, required: true }
 });
-
-const entityService = new EntityService(axios);
 
 watch(
   () => _.cloneDeep(props.data),
@@ -64,7 +59,7 @@ onMounted(() => {
 async function getMultiselectMenu(d: any) {
   let node = d.path[0]["__data__"] as any;
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
-  const result = !node.id.startsWith(twinNode) ? await entityService.getDataModelProperties(node.id) : [];
+  const result = !node.id.startsWith(twinNode) ? await EntityService.getDataModelProperties(node.id) : [];
   if (result.length > 0) {
     result.forEach((r: any) => {
       multiselectMenu.value.push({
@@ -164,7 +159,7 @@ function hideNode(node: any, parentId: any) {
 }
 
 async function setSelected(iri: any) {
-  const result = (await entityService.getDataModelProperties(iri)) || [];
+  const result = (await EntityService.getDataModelProperties(iri)) || [];
   if (result.length > 0) {
     result.forEach((r: any) => {
       selected.value.push({
