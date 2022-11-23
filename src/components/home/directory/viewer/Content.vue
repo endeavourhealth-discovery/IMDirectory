@@ -112,6 +112,8 @@ const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
 
+const directService = new DirectService(store);
+
 watch(
   () => conceptIri.value,
   () => init()
@@ -209,11 +211,11 @@ function onRowDblClick(event: any) {
 }
 
 function view(iri: string) {
-  DirectService.directTo(Env.DIRECTORY_URL, iri, "folder");
+  directService.directTo(Env.DIRECTORY_URL, iri, "folder");
 }
 
 function edit(iri: string) {
-  DirectService.directTo(Env.EDITOR_URL, iri, "editor");
+  directService.directTo(Env.EDITOR_URL, iri, "editor");
 }
 
 function open(iri: string) {

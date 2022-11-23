@@ -15,6 +15,6 @@ const ProvService = {
   }
 };
 
-Object.freeze(ProvService);
+if (process.env.NODE_ENV !== "test") Object.freeze(ProvService);
 
 export default ProvService;

@@ -1,4 +1,4 @@
-import TextDefinition from "../../../../src/components/modules/generics/TextDefinition.vue";
+import TextDefinition from "../../../../../src/im_library/components/modules/generics/TextDefinition.vue";
 import { render, fireEvent, within } from "@testing-library/vue";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";

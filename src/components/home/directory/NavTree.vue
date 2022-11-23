@@ -101,6 +101,8 @@ const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
 const currentUser = computed(() => store.state.currentUser);
 
+const directService = new DirectService(store);
+
 const selectedKeys: Ref<any> = ref({});
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
 const root: Ref<TreeNode[]> = ref([]);
@@ -206,7 +208,7 @@ function onNodeSelect(node: any): void {
 }
 
 function onNodeDblClick($event: any, node: any) {
-  if (node.data !== "loadMore") DirectService.directTo(Env.DIRECTORY_URL, node.key, "folder");
+  if (node.data !== "loadMore") directService.directTo(Env.DIRECTORY_URL, node.key, "folder");
 }
 
 async function loadMore(node: any) {

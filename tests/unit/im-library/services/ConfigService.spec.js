@@ -1,10 +1,7 @@
-import ConfigService from "../../../../src/im_library/services/modules/ConfigService";
+import { ConfigService, Env } from "../../../../src/im_library/services";
 import axios from "axios";
-import Env from "../../../src/services/modules/Env";
 import { vi } from "vitest";
 import { setupServer } from "msw/node";
-
-let configService;
 
 describe("ConfigService.ts ___ axios success", () => {
   const api = Env.API;
@@ -26,18 +23,17 @@ describe("ConfigService.ts ___ axios success", () => {
 
   beforeEach(() => {
     axios.get = vi.fn().mockResolvedValue(["test config"]);
-    configService = new ConfigService(axios);
   });
 
   it("can get component layout", async () => {
-    const result = await configService.getComponentLayout("definition");
+    const result = await ConfigService.getComponentLayout("definition");
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(api + "api/config/public/componentLayout", { params: { name: "definition" } });
     expect(result).toStrictEqual(["test config"]);
   });
 
   it("can get dashboard layout", async () => {
-    const result = await configService.getDashboardLayout("conceptDashboard");
+    const result = await ConfigService.getDashboardLayout("conceptDashboard");
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(api + "api/config/public/dashboardLayout", { params: { name: "conceptDashboard" } });
     expect(result).toStrictEqual(["test config"]);
@@ -51,18 +47,17 @@ describe("ConfigService.ts ___ axios fail", () => {
     vi.resetAllMocks();
     const mockError = new Error("axios test error");
     axios.get = vi.fn().mockRejectedValue(mockError);
-    configService = new ConfigService(axios);
   });
 
   it("can get component layout", async () => {
-    const result = await configService.getComponentLayout("definition");
+    const result = await ConfigService.getComponentLayout("definition");
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(api + "api/config/public/componentLayout", { params: { name: "definition" } });
     expect(result).toStrictEqual([]);
   });
 
   it("can get dashboardLayout", async () => {
-    const result = await configService.getDashboardLayout("conceptDashboard");
+    const result = await ConfigService.getDashboardLayout("conceptDashboard");
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(api + "api/config/public/dashboardLayout", { params: { name: "conceptDashboard" } });
     expect(result).toStrictEqual([]);

@@ -22,6 +22,6 @@ const GithubService = {
   }
 };
 
-Object.freeze(GithubService);
+if (process.env.NODE_ENV !== "test") Object.freeze(GithubService);
 
 export default GithubService;

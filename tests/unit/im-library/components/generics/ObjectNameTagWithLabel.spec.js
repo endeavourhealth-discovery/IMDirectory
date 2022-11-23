@@ -1,8 +1,8 @@
-import ObjectNameTagWithLabel from "../../../../src/components/modules/generics/ObjectNameTagWithLabel.vue";
+import ObjectNameTagWithLabel from "../../../../../src/im_library/components/modules/generics/ObjectNameTagWithLabel.vue";
 import { render, fireEvent, within } from "@testing-library/vue";
 import Tag from "primevue/tag";
-import LoggerService from "../../../../src/services/modules/LoggerService";
-import { IM } from "../../../../src/vocabulary/IM";
+import LoggerService from "../../../../../src/im_library/services";
+import { IM } from "../../../../../src/im_library/vocabulary";
 import { it } from "vitest";
 
 const mockDispatch = vi.fn();

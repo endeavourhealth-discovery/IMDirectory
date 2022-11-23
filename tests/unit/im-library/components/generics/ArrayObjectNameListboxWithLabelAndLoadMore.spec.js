@@ -1,10 +1,10 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import ArrayObjectNameListboxWithLabelAndLoadMore from "../../../../src/components/modules/generics/ArrayObjectNameListboxWithLabelAndLoadMore.vue";
+import ArrayObjectNameListboxWithLabelAndLoadMore from "../../../../../src/im_library/components/modules/generics/ArrayObjectNameListboxWithLabelAndLoadMore.vue";
 import Listbox from "primevue/listbox";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";
 import { expect, it } from "vitest";
-import EntityService from "../../../../src/services/modules/EntityService";
+import EntityService from "../../../../../src/im_library/services";
 import axios from "axios";
 
 const mockPush = vi.fn();
@@ -30,8 +30,6 @@ vi.mock("vuex", () => ({
     commit: mockCommit
   })
 }));
-
-const entityService = new EntityService(axios);
 
 async function loadMore(children, totalCount, nextPage, pageSize, loadButton, iri) {
   return { children: CHILDREN, totalCount: totalCount, nextPage: nextPage, pageSize: pageSize, loadButton: false, iri: iri };

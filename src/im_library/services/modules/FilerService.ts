@@ -44,6 +44,6 @@ const FilerService = {
   }
 };
 
-Object.freeze(FilerService);
+if (process.env.NODE_ENV !== "test") Object.freeze(FilerService);
 
 export default FilerService;

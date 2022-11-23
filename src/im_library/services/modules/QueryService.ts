@@ -149,6 +149,6 @@ const QueryService = {
   }
 };
 
-Object.freeze(QueryService);
+if (process.env.NODE_ENV !== "test") Object.freeze(QueryService);
 
 export default QueryService;

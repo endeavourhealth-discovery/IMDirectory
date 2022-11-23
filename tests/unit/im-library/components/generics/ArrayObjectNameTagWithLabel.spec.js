@@ -1,8 +1,8 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import ArrayObjectNameTagWithLabel from "../../../../src/components/modules/generics/ArrayObjectNameTagWithLabel.vue";
+import ArrayObjectNameTagWithLabel from "@/im_library/components/modules/generics/ArrayObjectNameTagWithLabel.vue";
 import Tag from "primevue/tag";
-import LoggerService from "../../../../src/services/modules/LoggerService";
-import { IM } from "../../../../src/vocabulary/IM";
+import LoggerService from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
 import { expect } from "vitest";
 
 const mockDispatch = vi.fn();

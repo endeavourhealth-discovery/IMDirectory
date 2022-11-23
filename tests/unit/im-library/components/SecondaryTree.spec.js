@@ -1,9 +1,6 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import { test } from "uuid-random";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import SecondaryTree from "../../../src/components/modules/SecondaryTree.vue";
-import { server, restHandlers } from "../../setupTests";
-import { rest } from "msw";
+import SecondaryTree from "@/im_library/components/modules/SecondaryTree.vue";
 import axios from "axios";
 import Button from "primevue/button";
 import Tree from "primevue/tree";
@@ -11,7 +8,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import OverlayPanel from "primevue/overlaypanel";
 import Tooltip from "primevue/tooltip";
 import { flushPromises } from "@vue/test-utils";
-import EntityService from "../../../src/services/modules/EntityService";
+import { EntityService } from "@/im_library/services";
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -187,10 +184,10 @@ const SUMMARY = {
 };
 
 describe("SecondaryTree.vue", () => {
-  let getPartialEntitySpy = vi.spyOn(EntityService.prototype, "getPartialEntity").mockResolvedValue(ENTITY);
-  let getEntityParentsSpy = vi.spyOn(EntityService.prototype, "getEntityParents").mockResolvedValue(PARENTS);
-  let getPagedChildrenSpy = vi.spyOn(EntityService.prototype, "getPagedChildren").mockResolvedValue(CHILDREN);
-  let getEntitySummarySpy = vi.spyOn(EntityService.prototype, "getEntitySummary").mockResolvedValue(SUMMARY);
+  let getPartialEntitySpy = vi.spyOn(EntityService, "getPartialEntity").mockResolvedValue(ENTITY);
+  let getEntityParentsSpy = vi.spyOn(EntityService, "getEntityParents").mockResolvedValue(PARENTS);
+  let getPagedChildrenSpy = vi.spyOn(EntityService, "getPagedChildren").mockResolvedValue(CHILDREN);
+  let getEntitySummarySpy = vi.spyOn(EntityService, "getEntitySummary").mockResolvedValue(SUMMARY);
   let component;
 
   beforeEach(() => {

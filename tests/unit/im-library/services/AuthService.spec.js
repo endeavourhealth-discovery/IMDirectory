@@ -1,6 +1,6 @@
 import { flushPromises } from "@vue/test-utils";
 import { Auth } from "aws-amplify";
-import AuthService from "@/services/AuthService";
+import { AuthService } from "@/im_library/services";
 import { User, CustomAlert } from "@/im_library/models";
 import { describe } from "vitest";
 import { setupServer } from "msw/node";

@@ -497,6 +497,6 @@ const EntityService = {
   }
 };
 
-Object.freeze(EntityService);
+if (process.env.NODE_ENV !== "test") Object.freeze(EntityService);
 
 export default EntityService;

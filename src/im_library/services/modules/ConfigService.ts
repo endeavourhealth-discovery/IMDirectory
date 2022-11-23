@@ -28,6 +28,6 @@ const ConfigService = {
   }
 };
 
-Object.freeze(ConfigService);
+if (process.env.NODE_ENV !== "test") Object.freeze(ConfigService);
 
 export default ConfigService;

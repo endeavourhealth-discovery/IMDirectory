@@ -193,6 +193,6 @@ const AuthService = {
   // },
 };
 
-Object.freeze(AuthService);
+if (process.env.NODE_ENV !== "test") Object.freeze(AuthService);
 
 export default AuthService;

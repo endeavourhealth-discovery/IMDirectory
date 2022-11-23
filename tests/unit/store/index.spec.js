@@ -1,12 +1,11 @@
 import store from "@/store/index";
 import { flushPromises } from "@vue/test-utils";
-import AuthService from "@/services/AuthService";
+import { AuthService } from "@/im_library/services";
 import { User, CustomAlert } from "@/im_library/models";
 import { EntityService, LoggerService } from "@/im_library/services";
 import { beforeEach, describe, vi } from "vitest";
 import { setupServer } from "msw/node";
 import testData from "./index.testData";
-const { User, CustomAlert } = Models;
 
 describe("state", () => {
   beforeEach(() => {
@@ -167,9 +166,9 @@ describe("mutations", () => {
 });
 
 describe("actions", () => {
-  let iriExistsSpy = vi.spyOn(EntityService.prototype, "iriExists");
-  let getFilterOptionsSpy = vi.spyOn(EntityService.prototype, "getFilterOptions");
-  let advancedSearchSpy = vi.spyOn(EntityService.prototype, "advancedSearch");
+  let iriExistsSpy = vi.spyOn(EntityService, "iriExists");
+  let getFilterOptionsSpy = vi.spyOn(EntityService, "getFilterOptions");
+  let advancedSearchSpy = vi.spyOn(EntityService, "advancedSearch");
 
   beforeEach(() => {
     vi.resetAllMocks();

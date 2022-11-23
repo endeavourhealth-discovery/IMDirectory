@@ -48,7 +48,7 @@ describe("EclSearch.vue", async () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    mockECLSearch = vi.spyOn(SetService.prototype, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    mockECLSearch = vi.spyOn(SetService, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
 
     component = render(ExpressionConstraintsSearch, {
       global: {

@@ -1,13 +1,13 @@
-import ReleaseNotes from "../../../src/components/modules/ReleaseNotes.vue";
+import ReleaseNotes from "@/im_library/components/modules/ReleaseNotes.vue";
 import { render, fireEvent, within, getAllByTestId } from "@testing-library/vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fakerFactory } from "../../setupTests";
+import { fakerFactory } from "@/mocks/factory";
 import axios from "axios";
 import { flushPromises } from "@vue/test-utils";
-import { GithubService } from "../../../src/services/Services";
+import { GithubService } from "@/im_library/services";
 import PrimeVue from "primevue/config";
 import StyleClass from "primevue/styleclass";
 
@@ -22,8 +22,8 @@ describe("ReleaseNotes.vue ___ version mismatch", () => {
 
   beforeEach(async () => {
     vi.resetAllMocks();
-    getLatestReleaseSpy = vi.spyOn(GithubService.prototype, "getLatestRelease").mockResolvedValue(testLatestRelease);
-    getReleasesSpy = vi.spyOn(GithubService.prototype, "getReleases").mockResolvedValue(testReleases);
+    getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
+    getReleasesSpy = vi.spyOn(GithubService, "getReleases").mockResolvedValue(testReleases);
     setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => vi.fn());
     getItemSpy = vi.spyOn(Storage.prototype, "getItem").mockReturnValue("v0.1.0");
 
@@ -146,8 +146,8 @@ describe("ReleaseNotes.vue ___ version match", () => {
 
   beforeEach(async () => {
     vi.resetAllMocks();
-    getLatestReleaseSpy = vi.spyOn(GithubService.prototype, "getLatestRelease").mockResolvedValue(testLatestRelease);
-    getReleasesSpy = vi.spyOn(GithubService.prototype, "getReleases").mockResolvedValue(testReleases);
+    getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
+    getReleasesSpy = vi.spyOn(GithubService, "getReleases").mockResolvedValue(testReleases);
     setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => vi.fn());
     getItemSpy = vi.spyOn(Storage.prototype, "getItem").mockReturnValue("v1.0.0");
 

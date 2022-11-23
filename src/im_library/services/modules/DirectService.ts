@@ -1,21 +1,28 @@
 import { CreateComponentPublicInstance } from "vue";
-import store from "@/store";
-const message = "You will be directed to a different application. Are you sure you want to proceed?";
+import { Store } from "vuex";
 
-const DirectService = {
-  directTo(app: string, iri: string, appRoute?: string) {
+export default class DirectService {
+  store: Store<any>;
+  private _message: string;
+
+  constructor(store: Store<any>) {
+    this.store = store;
+    this._message = "You will be directed to a different application. Are you sure you want to proceed?";
+  }
+
+  public directTo(app: string, iri: string, appRoute?: string) {
     if (iri) {
       if (appRoute) window.open(app + appRoute + "/" + encodeURIComponent(iri));
       else window.open(app + encodeURIComponent(iri));
-      store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), app: app });
+      this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), app: app });
     } else {
       window.open(app);
     }
-  },
+  }
 
-  directWithConfirmation(app: string, iri: string, component: CreateComponentPublicInstance<any>, appRoute?: string) {
+  public directWithConfirmation(app: string, iri: string, component: CreateComponentPublicInstance<any>, appRoute?: string) {
     component.$confirm.require({
-      message: message,
+      message: this._message,
       header: "Confirmation",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
@@ -26,8 +33,4 @@ const DirectService = {
       }
     });
   }
-};
-
-Object.freeze(DirectService);
-
-export default DirectService;
+}

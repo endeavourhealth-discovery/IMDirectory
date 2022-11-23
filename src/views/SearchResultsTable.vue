@@ -137,6 +137,8 @@ const selectedFilters = computed(() => store.state.selectedFilters);
 const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
 
+const directService = new DirectService(store);
+
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
 const selectedTypes: Ref<string[]> = ref([]);
@@ -279,7 +281,7 @@ function onRowUnselect() {
 }
 
 function navigateToEditor(): void {
-  DirectService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
+  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
 }
 
 function onRightClick(event: any) {
@@ -302,12 +304,12 @@ function open() {
 
 function view(row?: any) {
   if (row) selected.value = row.data;
-  DirectService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
+  directService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
 }
 
 function edit(row?: any) {
   if (row) selected.value = row.data;
-  DirectService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
+  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
 }
 
 function locate(row: any) {

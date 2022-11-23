@@ -5,7 +5,6 @@ import ProgressSpinner from "primevue/progressspinner";
 import ConfirmDialog from "primevue/confirmdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
-import TopBar from "@/im_library/components/modules/TopBar.vue";
 import { expect, vi } from "vitest";
 import PrimeVue from "primevue/config";
 
@@ -44,8 +43,8 @@ describe("App.vue", () => {
     vi.resetAllMocks();
     component = render(App, {
       global: {
-        components: { Toast, ProgressSpinner, ConfirmDialog, TopBar, Button, Menu },
-        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true, Search: true },
+        components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu },
+        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true, Search: true, TopBar: true },
         plugins: [PrimeVue]
       }
     });

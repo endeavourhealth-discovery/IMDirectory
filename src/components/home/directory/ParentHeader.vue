@@ -81,6 +81,8 @@ const props = defineProps({ concept: { type: Object as any, required: true } });
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
 
+const directService = new DirectService(store);
+
 function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
 }
@@ -95,11 +97,11 @@ function getColour(concept: any) {
 }
 
 function view(iri: string) {
-  DirectService.directTo(Env.DIRECTORY_URL, iri, "folder");
+  directService.directTo(Env.DIRECTORY_URL, iri, "folder");
 }
 
 function edit(iri: string) {
-  DirectService.directTo(Env.EDITOR_URL, iri, "editor");
+  directService.directTo(Env.EDITOR_URL, iri, "editor");
 }
 
 function updateFavourites(iri: string) {

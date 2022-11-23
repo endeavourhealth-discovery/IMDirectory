@@ -1,10 +1,4 @@
-import {
-  ttValueToString,
-  ttArrayToString,
-  ttIriToString,
-  ttNodeToString,
-  bundleToText,
-} from "@/helpers/modules/Transforms";
+import { ttValueToString, ttArrayToString, ttIriToString, ttNodeToString, bundleToText } from "@/im_library/helpers/modules/Transforms";
 
 const url = window.location.origin;
 
@@ -14,115 +8,115 @@ describe("bundleToText", () => {
       "http://endhealth.info/im#isA": [
         {
           "@id": "http://snomed.info/sct#82354003",
-          name: "Multiple system malformation syndrome (disorder)",
+          name: "Multiple system malformation syndrome (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#85995004",
-          name: "Autosomal recessive hereditary disorder (disorder)",
+          name: "Autosomal recessive hereditary disorder (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#89886004",
-          name: "Congenital anomaly of skeletal muscle (disorder)",
+          name: "Congenital anomaly of skeletal muscle (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#128084001",
-          name: "Duane's syndrome, type 3 (disorder)",
+          name: "Duane's syndrome, type 3 (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#298382003",
-          name: "Scoliosis deformity of spine (disorder)",
+          name: "Scoliosis deformity of spine (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#363212003",
-          name: "Hereditary disorder of musculoskeletal system (disorder)",
+          name: "Hereditary disorder of musculoskeletal system (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#363235000",
-          name: "Hereditary disorder of nervous system (disorder)",
+          name: "Hereditary disorder of nervous system (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#363343008",
-          name: "Hereditary disorder of the visual system (disorder)",
+          name: "Hereditary disorder of the visual system (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#257277002",
-          name: "Combined disorder of muscle AND peripheral nerve (disorder)",
+          name: "Combined disorder of muscle AND peripheral nerve (disorder)"
         },
         {
           "@id": "http://snomed.info/sct#363070008",
-          name: "Developmental hereditary disorder (disorder)",
-        },
+          name: "Developmental hereditary disorder (disorder)"
+        }
       ],
       "http://endhealth.info/im#roleGroup": [
         {
           "http://snomed.info/sct#370135005": {
             "@id": "http://snomed.info/sct#308490002",
-            name: "Pathological developmental process (qualifier value)",
+            name: "Pathological developmental process (qualifier value)"
           },
           "http://snomed.info/sct#116676008": {
             "@id": "http://snomed.info/sct#49755003",
-            name: "Morphologically abnormal structure (morphologic abnormality)",
+            name: "Morphologically abnormal structure (morphologic abnormality)"
           },
           "http://snomed.info/sct#363698007": {
             "@id": "http://snomed.info/sct#80622005",
-            name: "Abducens nerve structure (body structure)",
+            name: "Abducens nerve structure (body structure)"
           },
           "http://snomed.info/sct#246454002": {
             "@id": "http://snomed.info/sct#255399007",
-            name: "Congenital (qualifier value)",
-          },
+            name: "Congenital (qualifier value)"
+          }
         },
         {
           "http://snomed.info/sct#370135005": {
             "@id": "http://snomed.info/sct#308490002",
-            name: "Pathological developmental process (qualifier value)",
+            name: "Pathological developmental process (qualifier value)"
           },
           "http://snomed.info/sct#116676008": {
             "@id": "http://snomed.info/sct#31739005",
-            name: "Lateral abnormal curvature (morphologic abnormality)",
+            name: "Lateral abnormal curvature (morphologic abnormality)"
           },
           "http://snomed.info/sct#363698007": {
             "@id": "http://snomed.info/sct#289959001",
-            name: "Musculoskeletal structure of spine (body structure)",
-          },
+            name: "Musculoskeletal structure of spine (body structure)"
+          }
         },
         {
           "http://snomed.info/sct#370135005": {
             "@id": "http://snomed.info/sct#308490002",
-            name: "Pathological developmental process (qualifier value)",
+            name: "Pathological developmental process (qualifier value)"
           },
           "http://snomed.info/sct#116676008": {
             "@id": "http://snomed.info/sct#49755003",
-            name: "Morphologically abnormal structure (morphologic abnormality)",
+            name: "Morphologically abnormal structure (morphologic abnormality)"
           },
           "http://snomed.info/sct#363698007": {
             "@id": "http://snomed.info/sct#127954009",
-            name: "Skeletal muscle structure (body structure)",
+            name: "Skeletal muscle structure (body structure)"
           },
           "http://snomed.info/sct#246454002": {
             "@id": "http://snomed.info/sct#255399007",
-            name: "Congenital (qualifier value)",
-          },
+            name: "Congenital (qualifier value)"
+          }
         },
         {
           "http://snomed.info/sct#370135005": {
             "@id": "http://snomed.info/sct#308490002",
-            name: "Pathological developmental process (qualifier value)",
+            name: "Pathological developmental process (qualifier value)"
           },
           "http://snomed.info/sct#116676008": {
             "@id": "http://snomed.info/sct#49755003",
-            name: "Morphologically abnormal structure (morphologic abnormality)",
+            name: "Morphologically abnormal structure (morphologic abnormality)"
           },
           "http://snomed.info/sct#363698007": {
             "@id": "http://snomed.info/sct#81745001",
-            name: "Structure of eye proper (body structure)",
+            name: "Structure of eye proper (body structure)"
           },
           "http://snomed.info/sct#246454002": {
             "@id": "http://snomed.info/sct#255399007",
-            name: "Congenital (qualifier value)",
-          },
-        },
-      ],
+            name: "Congenital (qualifier value)"
+          }
+        }
+      ]
     },
     predicates: {
       "http://snomed.info/sct#370135005": "Pathological process (attribute)",
@@ -134,8 +128,8 @@ describe("bundleToText", () => {
       "http://www.w3.org/2002/07/owl#onProperty": "On property",
       "http://www.w3.org/2002/07/owl#intersectionOf": "Combination of",
       "http://www.w3.org/2002/07/owl#someValuesFrom": "With a value",
-      "http://www.w3.org/2002/07/owl#equivalentClass": "Is equivalent to",
-    },
+      "http://www.w3.org/2002/07/owl#equivalentClass": "Is equivalent to"
+    }
   };
 
   const PREDICATES = {
@@ -144,7 +138,7 @@ describe("bundleToText", () => {
     "http://www.w3.org/2002/07/owl#onProperty": "On property",
     "http://www.w3.org/2002/07/owl#intersectionOf": "Combination of",
     "http://www.w3.org/2002/07/owl#someValuesFrom": "With a value",
-    "http://www.w3.org/2002/07/owl#equivalentClass": "Is equivalent to",
+    "http://www.w3.org/2002/07/owl#equivalentClass": "Is equivalent to"
   };
 
   const expected =
@@ -206,21 +200,17 @@ describe("bundleToText", () => {
 
 describe("ttValueToString", () => {
   it("handles ttIri", async () => {
-    expect(
-      ttValueToString("", { "@id": "testIri", name: "testName" }, "object", 0, true)
-    ).toBe('<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>');
-  });
-
-  it("handles array", async () => {
-    expect(ttValueToString("", [{ "@id": "testIri" }], "object", 0, true)).toBe(
-      '<a target="_blank" href="http://localhost/#/concept/testIri">testIri</a>\n'
+    expect(ttValueToString("", { "@id": "testIri", name: "testName" }, "object", 0, true)).toBe(
+      '<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>'
     );
   });
 
+  it("handles array", async () => {
+    expect(ttValueToString("", [{ "@id": "testIri" }], "object", 0, true)).toBe('<a target="_blank" href="http://localhost/#/concept/testIri">testIri</a>\n');
+  });
+
   it("handles ttNode", async () => {
-    expect(
-      ttValueToString("", { nodeIri: { "@id": "testIri" } }, "object", 0, true)
-    ).toStrictEqual(
+    expect(ttValueToString("", { nodeIri: { "@id": "testIri" } }, "object", 0, true)).toStrictEqual(
       'nodeIri : <a target="_blank" href="http://localhost/#/concept/testIri">testIri</a>\n'
     );
   });
@@ -232,57 +222,33 @@ describe("ttValueToString", () => {
 
 describe("ttIriToString", () => {
   it("handles iri with name", () => {
-    expect(
-      ttIriToString("",
-        { "@id": "testIri", name: "testName" },
-        "object",
-        0,
-        true,
-        false
-      )
-    ).toBe('<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>');
+    expect(ttIriToString("", { "@id": "testIri", name: "testName" }, "object", 0, true, false)).toBe(
+      '<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>'
+    );
   });
 
   it("handles iri no name", () => {
-    expect(
-      ttIriToString("", { "@id": "testIri", name: "" }, "object", 0, true, false)
-    ).toBe('<a target="_blank" href="http://localhost/#/concept/testIri">testIri</a>');
+    expect(ttIriToString("", { "@id": "testIri", name: "" }, "object", 0, true, false)).toBe(
+      '<a target="_blank" href="http://localhost/#/concept/testIri">testIri</a>'
+    );
   });
 
   it("handles not inline", () => {
-    expect(
-      ttIriToString("",
-        { "@id": "testIri", name: "testName" },
-        "object",
-        2,
-        true,
-        false
-      )
-    ).toBe('    <a target="_blank" href="http://localhost/#/concept/testIri">testName</a>');
+    expect(ttIriToString("", { "@id": "testIri", name: "testName" }, "object", 2, true, false)).toBe(
+      '    <a target="_blank" href="http://localhost/#/concept/testIri">testName</a>'
+    );
   });
 
   it("handles inline", () => {
-    expect(
-      ttIriToString("",
-        { "@id": "testIri", name: "testName" },
-        "object",
-        2,
-        true,
-        true
-      )
-    ).toBe('<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>');
+    expect(ttIriToString("", { "@id": "testIri", name: "testName" }, "object", 2, true, true)).toBe(
+      '<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>'
+    );
   });
 
   it("handles previous array", () => {
-    expect(
-      ttIriToString("",
-        { "@id": "testIri", name: "testName" },
-        "array",
-        2,
-        true,
-        true
-      )
-    ).toBe('<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>\n');
+    expect(ttIriToString("", { "@id": "testIri", name: "testName" }, "array", 2, true, true)).toBe(
+      '<a target="_blank" href="http://localhost/#/concept/testIri">testName</a>\n'
+    );
   });
 });
 
@@ -291,117 +257,117 @@ describe("ttNodeToString ___ isa rolegroup", () => {
     "http://endhealth.info/im#isA": [
       {
         "@id": "http://snomed.info/sct#82354003",
-        name: "Multiple system malformation syndrome",
+        name: "Multiple system malformation syndrome"
       },
       {
         "@id": "http://snomed.info/sct#85995004",
-        name: "Autosomal recessive hereditary disorder",
+        name: "Autosomal recessive hereditary disorder"
       },
       {
         "@id": "http://snomed.info/sct#89886004",
-        name: "Congenital anomaly of skeletal muscle",
+        name: "Congenital anomaly of skeletal muscle"
       },
       {
         "@id": "http://snomed.info/sct#128084001",
-        name: "Duane's syndrome, type 3",
+        name: "Duane's syndrome, type 3"
       },
       {
         "@id": "http://snomed.info/sct#298382003",
-        name: "Scoliosis deformity of spine",
+        name: "Scoliosis deformity of spine"
       },
       {
         "@id": "http://snomed.info/sct#363212003",
-        name: "Hereditary disorder of musculoskeletal system",
+        name: "Hereditary disorder of musculoskeletal system"
       },
       {
         "@id": "http://snomed.info/sct#363235000",
-        name: "Hereditary disorder of nervous system",
+        name: "Hereditary disorder of nervous system"
       },
       {
         "@id": "http://snomed.info/sct#363343008",
-        name: "Hereditary disorder of the visual system",
+        name: "Hereditary disorder of the visual system"
       },
       {
         "@id": "http://snomed.info/sct#257277002",
-        name: "Combined disorder of muscle AND peripheral nerve (disorder)",
+        name: "Combined disorder of muscle AND peripheral nerve (disorder)"
       },
       {
         "@id": "http://snomed.info/sct#363070008",
-        name: "Developmental hereditary disorder",
+        name: "Developmental hereditary disorder"
       },
       {
         "http://endhealth.info/im#roleGroup": [
           {
             "http://snomed.info/sct#370135005": {
               "@id": "http://snomed.info/sct#308490002",
-              name: "Pathological developmental process",
+              name: "Pathological developmental process"
             },
             "http://snomed.info/sct#116676008": {
               "@id": "http://snomed.info/sct#49755003",
-              name: "Morphologically abnormal structure",
+              name: "Morphologically abnormal structure"
             },
             "http://snomed.info/sct#363698007": {
               "@id": "http://snomed.info/sct#80622005",
-              name: "Abducens nerve structure",
+              name: "Abducens nerve structure"
             },
             "http://snomed.info/sct#246454002": {
               "@id": "http://snomed.info/sct#255399007",
-              name: "Congenital",
-            },
+              name: "Congenital"
+            }
           },
           {
             "http://snomed.info/sct#370135005": {
               "@id": "http://snomed.info/sct#308490002",
-              name: "Pathological developmental process",
+              name: "Pathological developmental process"
             },
             "http://snomed.info/sct#116676008": {
               "@id": "http://snomed.info/sct#31739005",
-              name: "Lateral abnormal curvature",
+              name: "Lateral abnormal curvature"
             },
             "http://snomed.info/sct#363698007": {
               "@id": "http://snomed.info/sct#289959001",
-              name: "Musculoskeletal structure of spine",
-            },
+              name: "Musculoskeletal structure of spine"
+            }
           },
           {
             "http://snomed.info/sct#370135005": {
               "@id": "http://snomed.info/sct#308490002",
-              name: "Pathological developmental process",
+              name: "Pathological developmental process"
             },
             "http://snomed.info/sct#116676008": {
               "@id": "http://snomed.info/sct#49755003",
-              name: "Morphologically abnormal structure",
+              name: "Morphologically abnormal structure"
             },
             "http://snomed.info/sct#363698007": {
               "@id": "http://snomed.info/sct#127954009",
-              name: "Skeletal muscle structure",
+              name: "Skeletal muscle structure"
             },
             "http://snomed.info/sct#246454002": {
               "@id": "http://snomed.info/sct#255399007",
-              name: "Congenital",
-            },
+              name: "Congenital"
+            }
           },
           {
             "http://snomed.info/sct#370135005": {
               "@id": "http://snomed.info/sct#308490002",
-              name: "Pathological developmental process",
+              name: "Pathological developmental process"
             },
             "http://snomed.info/sct#116676008": {
               "@id": "http://snomed.info/sct#49755003",
-              name: "Morphologically abnormal structure",
+              name: "Morphologically abnormal structure"
             },
             "http://snomed.info/sct#363698007": {
               "@id": "http://snomed.info/sct#81745001",
-              name: "Structure of eye proper",
+              name: "Structure of eye proper"
             },
             "http://snomed.info/sct#246454002": {
               "@id": "http://snomed.info/sct#255399007",
-              name: "Congenital",
-            },
-          },
-        ],
-      },
-    ],
+              name: "Congenital"
+            }
+          }
+        ]
+      }
+    ]
   };
   const EXPECTED =
     "http://endhealth.info/im#isA : \n" +
@@ -498,7 +464,7 @@ describe("ttNodeToString ___ isa rolegroup", () => {
     "http://www.w3.org/2002/07/owl#onProperty": "On property",
     "http://www.w3.org/2002/07/owl#intersectionOf": "Combination of",
     "http://www.w3.org/2002/07/owl#someValuesFrom": "With a value",
-    "http://www.w3.org/2002/07/owl#equivalentClass": "Is equivalent to",
+    "http://www.w3.org/2002/07/owl#equivalentClass": "Is equivalent to"
   };
   beforeEach(() => {
     vi.resetAllMocks();

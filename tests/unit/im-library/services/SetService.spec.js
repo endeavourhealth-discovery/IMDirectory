@@ -1,9 +1,6 @@
-import SetService from "../../../../src/im_library/services/modules/SetService";
+import { SetService, Env } from "../../../../src/im_library/services";
 import axios from "axios";
-import Env from "../../../src/services/modules/Env";
 import { setupServer } from "msw/node";
-
-const setService = new SetService(axios);
 
 describe("SetService.ts ___ axios success", () => {
   const restHandlers = [];
@@ -29,7 +26,7 @@ describe("SetService.ts ___ axios success", () => {
 
   it("can get ECLSearch", async () => {
     const controller = new AbortController();
-    const result = await setService.ECLSearch("testString", false, 1000, controller);
+    const result = await SetService.ECLSearch("testString", false, 1000, controller);
     expect(axios.post).toBeCalledTimes(1);
     expect(axios.post).toHaveBeenCalledWith(Env.API + "api/set/public/eclSearch", "testString", {
       headers: { "Content-Type": "text/plain" },
@@ -40,7 +37,7 @@ describe("SetService.ts ___ axios success", () => {
   });
 
   it("can publish", async () => {
-    const result = await setService.publish("testIri");
+    const result = await SetService.publish("testIri");
     expect(axios.get).toBeCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/publish", {
       params: { iri: "testIri" }
@@ -49,7 +46,7 @@ describe("SetService.ts ___ axios success", () => {
   });
 
   it("can get IMV1", async () => {
-    const result = await setService.IMV1("testIri");
+    const result = await SetService.IMV1("testIri");
     expect(axios.get).toBeCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(Env.API + "api/set/public/export", { params: { iri: "testIri" }, responseType: "blob" });
     expect(result).toBe("axios get return");
@@ -65,7 +62,7 @@ describe("SetService.ts ___ axios fail", () => {
 
   it("can get ECLSearch", async () => {
     const controller = new AbortController();
-    const result = await setService.ECLSearch("testString", false, 1000, controller);
+    const result = await SetService.ECLSearch("testString", false, 1000, controller);
     expect(axios.post).toBeCalledTimes(1);
     expect(axios.post).toHaveBeenCalledWith(Env.API + "api/set/public/eclSearch", "testString", {
       headers: { "Content-Type": "text/plain" },

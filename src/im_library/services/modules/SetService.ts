@@ -53,6 +53,6 @@ const SetService = {
   }
 };
 
-Object.freeze(SetService);
+if (process.env.NODE_ENV !== "test") Object.freeze(SetService);
 
 export default SetService;

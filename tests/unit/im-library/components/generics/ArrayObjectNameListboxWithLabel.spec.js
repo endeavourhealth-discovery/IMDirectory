@@ -1,5 +1,5 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import ArrayObjectNameListboxWithLabel from "../../../../src/components/modules/generics/ArrayObjectNameListboxWithLabel.vue";
+import ArrayObjectNameListboxWithLabel from "../../../../../src/im_library/components/modules/generics/ArrayObjectNameListboxWithLabel.vue";
 import Listbox from "primevue/listbox";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";

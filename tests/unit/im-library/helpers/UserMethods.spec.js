@@ -3,9 +3,9 @@ import {
   verifyPasswordsMatch,
   verifyIsName,
   verifyIsUsername,
-  checkPasswordStrength,
-} from "@/helpers/modules/UserMethods";
-import { PasswordStrength } from "@/enums/modules/PasswordStrength";
+  checkPasswordStrength
+} from "../../../../src/im_library/helpers/modules/UserMethods";
+import { PasswordStrength } from "@/im_library/enums";
 
 describe("verifyIsEmail", () => {
   it("should fail if empty", () => {

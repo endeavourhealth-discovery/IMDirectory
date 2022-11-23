@@ -28,6 +28,6 @@ const ClassService = {
   }
 };
 
-Object.freeze(ClassService);
+if (process.env.NODE_ENV !== "test") Object.freeze(ClassService);
 
 export default ClassService;
