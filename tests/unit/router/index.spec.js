@@ -8,7 +8,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import store from "@/store/index";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import PrimeVue from "primevue/config";
-import TopBar from "im-library";
+import TopBar from "@/im_library/components/modules/TopBar.vue";
 import { vi } from "vitest";
 import { setupServer } from "msw/node";
 

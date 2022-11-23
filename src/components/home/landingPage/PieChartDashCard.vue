@@ -17,8 +17,7 @@
 <script setup lang="ts">
 import { onMounted, PropType, nextTick, onUnmounted } from "vue";
 import ResizeablePieChart from "./pieChartDashCard/ResizeablePieChart.vue";
-import { Services } from "im-library";
-const { LoggerService } = Services;
+import { LoggerService } from "@/im_library/services";
 
 const props = defineProps({
   name: { type: String, required: false },

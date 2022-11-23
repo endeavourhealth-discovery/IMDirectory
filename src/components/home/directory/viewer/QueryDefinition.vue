@@ -14,17 +14,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { ref, watch } from "vue";
-import { QueryObject } from "im-library/dist/types/interfaces/Interfaces";
-import { Services, Vocabulary } from "im-library";
-import axios from "axios";
+import { ref, watch, onMounted } from "vue";
+import { QueryObject } from "@/im_library/interfaces";
+import { QueryService } from "@/im_library/services";
 import { TreeNode } from "primevue/tree";
-const { QueryService } = Services;
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
 
-const queryService = new QueryService(axios);
 const queryDisplay = ref<QueryObject[]>();
 let expandedKeys = ref<any>({});
 
@@ -40,7 +36,7 @@ watch(
 );
 
 async function getQueryDisplay() {
-  queryDisplay.value = (await queryService.getQueryObjectByIri(props.conceptIri)).children;
+  queryDisplay.value = (await QueryService.getQueryObjectByIri(props.conceptIri)).children;
 }
 
 function expandAll() {

@@ -61,16 +61,13 @@
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
 import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { GraphData } from "im-library/dist/types/interfaces/Interfaces";
-import { Services } from "im-library";
-import axios from "axios";
-const { EntityService } = Services;
+import { GraphData } from "@/im_library/interfaces";
+import { EntityService } from "@/im_library/services";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const entityService = new EntityService(axios);
 const route = useRoute();
 const router = useRouter();
 
@@ -95,7 +92,7 @@ function getTypeFromIri(iri: string): string {
 
 async function getGraph(iri: string): Promise<void> {
   loading.value = true;
-  graph.value = await entityService.getEntityGraph(iri);
+  graph.value = await EntityService.getEntityGraph(iri);
   loading.value = false;
 }
 

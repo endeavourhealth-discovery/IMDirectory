@@ -5,12 +5,11 @@ import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import testData from "./EclSearch.testData";
-import { Services } from "im-library";
+import { SetService } from "@/im_library/services";
 import { expect, it } from "vitest";
 import { fakerFactory } from "../../../src/mocks/factory";
 import VueClipboard from "vue3-clipboard";
 import Tooltip from "primevue/tooltip";
-const { SetService } = Services;
 
 vi.mock("vuex", () => ({
   useStore: () => ({
@@ -49,7 +48,7 @@ describe("EclSearch.vue", async () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    mockECLSearch = vi.spyOn(SetService.prototype, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    mockECLSearch = vi.spyOn(SetService, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
 
     component = render(ExpressionConstraintsSearch, {
       global: {

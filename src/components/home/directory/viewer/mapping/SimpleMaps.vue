@@ -46,7 +46,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
-import { SimpleMap } from "im-library/dist/types/interfaces/Interfaces";
+import { SimpleMap } from "@/im_library/interfaces";
 
 const props = defineProps({
   data: {

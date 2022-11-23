@@ -99,21 +99,17 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
-import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Helpers, Services, Vocabulary } from "im-library";
+import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode } from "@/im_library/interfaces";
+import { DataTypeCheckers, Sorters } from "@/im_library/helpers";
+import { EntityService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
 import axios from "axios";
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys },
-  Sorters: { byPriority, byScheme }
-} = Helpers;
-const { IM } = Vocabulary;
-const { EntityService } = Services;
+const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+const { byPriority, byScheme } = Sorters;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
-
-const entityService = new EntityService(axios);
 
 const mappings: Ref<any[]> = ref([]);
 const data: Ref = ref({});
@@ -143,12 +139,12 @@ async function updateMappings() {
 }
 
 async function getMappings(): Promise<void> {
-  mappings.value = (await entityService.getPartialEntity(props.conceptIri, [IM.HAS_MAP]))[IM.HAS_MAP] || [];
+  mappings.value = (await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_MAP]))[IM.HAS_MAP] || [];
   data.value = {};
 
-  namespaces.value = await entityService.getNamespaces();
-  matchedFrom.value = await entityService.getMatchedFrom(props.conceptIri);
-  matchedTo.value = await entityService.getMatchedTo(props.conceptIri);
+  namespaces.value = await EntityService.getNamespaces();
+  matchedFrom.value = await EntityService.getMatchedFrom(props.conceptIri);
+  matchedTo.value = await EntityService.getMatchedTo(props.conceptIri);
 }
 
 function createChartTableNode(

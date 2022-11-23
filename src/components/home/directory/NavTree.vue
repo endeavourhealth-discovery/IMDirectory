@@ -81,19 +81,17 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref } from "vue";
 import { useStore } from "vuex";
-import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, Services } from "im-library";
+import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "@/im_library/interfaces";
+import { DataTypeCheckers, ConceptTypeMethods } from "@/im_library/helpers";
+import { DirectService, EntityService, Env, FilerService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import { useConfirm } from "primevue/useconfirm";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-const { IM } = Vocabulary;
-const {
-  DataTypeCheckers: { isObjectHasKeys, isArrayHasLength, isObject },
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes }
-} = Helpers;
-const { DirectService, EntityService, Env, FilerService } = Services;
+const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
+const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -103,8 +101,6 @@ const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
 const currentUser = computed(() => store.state.currentUser);
 
-const entityService = new EntityService(axios);
-const filerService = new FilerService(axios);
 const directService = new DirectService(store);
 
 const selectedKeys: Ref<any> = ref({});
@@ -136,7 +132,7 @@ onUnmounted(() => {
 });
 
 async function addParentFoldersToRoot() {
-  const IMChildren = await entityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
   for (let IMchild of IMChildren) {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
@@ -217,7 +213,7 @@ function onNodeDblClick($event: any, node: any) {
 
 async function loadMore(node: any) {
   if (node.nextPage * pageSize.value < node.totalCount) {
-    const children = await entityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
+    const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
     node.parentNode.children.pop();
     children.result.forEach((child: any) => {
       if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
@@ -225,7 +221,7 @@ async function loadMore(node: any) {
     node.nextPage = node.nextPage + 1;
     node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
   } else if (node.nextPage * pageSize.value > node.totalCount) {
-    const children = await entityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
+    const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
     node.parentNode.children.pop();
     children.result.forEach((child: any) => {
       if (!nodeHasChild(node.parentNode, child))
@@ -239,7 +235,7 @@ async function loadMore(node: any) {
 async function onNodeExpand(node: any) {
   if (isObjectHasKeys(node)) {
     node.loading = true;
-    const children = await entityService.getPagedChildren(node.data, 1, pageSize.value);
+    const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
     children.result.forEach((child: any) => {
       if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
     });
@@ -310,7 +306,7 @@ function confirmMove(node: TreeNode) {
 async function moveConcept(target: TreeNode) {
   if (selectedNode.value && selectedNode.value.parentNode) {
     try {
-      await filerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
+      await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
       toast.add({ severity: "success", summary: "Move", detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
       selectedNode.value.parentNode.children = selectedNode.value.parentNode.children.filter((v, _i, _r) => v != selectedNode.value);
       selectedNode.value.parentNode = target;
@@ -340,7 +336,7 @@ function confirmAdd(node: TreeNode) {
 async function addConcept(target: TreeNode) {
   if (selectedNode.value && selectedNode.value.parentNode) {
     try {
-      await filerService.addToFolder(selectedNode.value.key, target.key);
+      await FilerService.addToFolder(selectedNode.value.key, target.key);
       toast.add({ severity: "success", summary: "Add", detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
       target.children.push(selectedNode.value); // Does this need to be a (deep) clone?
     } catch (e: any) {
@@ -354,14 +350,14 @@ async function createFolder() {
 
   console.log("Create new folder " + newFolderName.value + " in " + newFolder.value.key);
   try {
-  const iri = await filerService.createFolder(newFolder.value.key, newFolderName.value);
+    const iri = await FilerService.createFolder(newFolder.value.key, newFolderName.value);
     console.log("Created folder");
     console.log(iri);
     toast.add({ severity: "success", summary: "New folder", detail: 'New folder "' + newFolderName.value + '" created', life: 3000 });
     if (newFolder.value.children) {
       newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" }], false, newFolder.value));
     }
-  } catch(e) {
+  } catch (e) {
     toast.add({ severity: "error", summary: "New folder", detail: '"' + newFolderName.value + '" already exists', life: 3000 });
   }
   newFolder.value = null;
@@ -380,7 +376,7 @@ function selectKey(selectedKey: string) {
 
 async function findPathToNode(iri: string) {
   loading.value = true;
-  const path = await entityService.getPathBetweenNodes(iri, IM.MODULE_IM);
+  const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
 
   // Recursively expand
   let n = root.value.find(c => path.find(p => p["@id"] === c.data));
@@ -462,7 +458,7 @@ async function showOverlay(event: any, node?: any): Promise<void> {
     const x = navTreeOP.value;
     overlayLocation.value = event;
     x.show(overlayLocation.value);
-    hoveredResult.value = await entityService.getEntitySummary(node.data);
+    hoveredResult.value = await EntityService.getEntitySummary(node.data);
   }
 }
 

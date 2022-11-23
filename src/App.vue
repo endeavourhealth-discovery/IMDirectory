@@ -30,23 +30,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, provide, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import TopBar from "@/im_library/components/modules/TopBar.vue";
+import ReleaseNotes from "./im_library/components/modules/ReleaseNotes.vue";
 import Search from "./components/home/directory/topbar/Search.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import { Helpers, Services } from "im-library";
+import { DataTypeCheckers } from "@/im_library/helpers";
+import { Env, FilerService } from "@/im_library/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
-const { Env, FilerService } = Services;
-const {
-  DataTypeCheckers: { isObjectHasKeys }
-} = Helpers;
+const { isObjectHasKeys } = DataTypeCheckers;
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
-
-provide("axios", axios);
 
 const route = useRoute();
 const router = useRouter();
@@ -56,8 +54,6 @@ const currentUser = computed(() => store.state.currentUser);
 const isLoggedIn = computed(() => store.state.isLoggedIn);
 
 const appVersion = __APP_VERSION__;
-
-const filerService = new FilerService(axios);
 
 const loading = ref(true);
 
@@ -91,7 +87,7 @@ function getAdminItems(): any[] {
 
 async function downloadChanges() {
   toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
-  let blob = await filerService.downloadDeltas();
+  let blob = await FilerService.downloadDeltas();
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;

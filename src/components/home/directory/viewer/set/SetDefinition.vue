@@ -30,13 +30,10 @@
 import Members from "./Members.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
 import { onMounted, ref } from "@vue/runtime-core";
-import { Services, Vocabulary } from "im-library";
-import axios from "axios";
-const { EntityService } = Services;
-const { RDFS, IM } = Vocabulary;
+import { EntityService } from "@/im_library/services";
+import { IM, RDFS } from "@/im_library/vocabulary";
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
-const entityService = new EntityService(axios);
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();
@@ -45,7 +42,7 @@ const active = ref([] as number[]);
 
 onMounted(async () => {
   active.value = [0, 1, 2];
-  const entity = await entityService.getPartialEntity(props.conceptIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF]);
+  const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF]);
   ttentity.value = entity;
   if (entity[IM.IS_SUBSET_OF]) {
     subsetOf.value = entity[IM.IS_SUBSET_OF];

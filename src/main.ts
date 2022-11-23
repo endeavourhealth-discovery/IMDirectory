@@ -84,12 +84,8 @@ import awsconfig from "./aws-exports";
 import axios from "axios";
 
 // IMLibrary imports
-import "im-library/dist/style.css";
-import IMLibrary, { Helpers, Services } from "im-library";
-const {
-  DataTypeCheckers: { isObjectHasKeys }
-} = Helpers;
-const { Env } = Services;
+import { DataTypeCheckers } from "@/im_library/helpers";
+import { Env } from "@/im_library/services";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -103,7 +99,6 @@ const app = createApp(App)
   .use(store)
   .use(router)
   .use(PrimeVue, { ripple: true })
-  .use(IMLibrary.install as Plugin, { store })
   .use(ConfirmationService)
   .use(ToastService)
   .use(VueClipboard, {

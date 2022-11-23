@@ -16,12 +16,10 @@
 
 <script setup lang="ts">
 import { onMounted, PropType, ref, Ref, watch } from "vue";
-import { Enums, Helpers } from "im-library";
-import { ECLComponentDetails } from "im-library/dist/types/interfaces/Interfaces";
-const { ECLComponent } = Enums;
-const {
-  DataTypeCheckers: { isObjectHasKeys }
-} = Helpers;
+import { ECLComponent } from "@/im_library/enums";
+import { DataTypeCheckers } from "@/im_library/helpers";
+import { ECLComponentDetails } from "@/im_library/interfaces";
+const { isObjectHasKeys } = DataTypeCheckers;
 
 const props = defineProps({
   id: { type: String, required: true },

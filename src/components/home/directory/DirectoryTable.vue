@@ -99,24 +99,22 @@ import EclDefinition from "./viewer/set/EclDefinition.vue";
 import Properties from "./viewer/dataModel/Properties.vue";
 import JSONViewer from "./viewer/JSONViewer.vue";
 import Provenance from "./viewer/Provenance.vue";
+import SecondaryTree from "@/im_library/components/modules/SecondaryTree.vue";
+import TermCodeTable from "@/im_library/components/modules/TermCodeTable.vue";
 
-import { DefinitionConfig, TTIriRef, EntityReferenceNode } from "im-library/dist/types/interfaces/Interfaces";
-import { Vocabulary, Helpers, Models, Services } from "im-library";
-import { mapState, useStore } from "vuex";
+import { DefinitionConfig, TTIriRef } from "@/im_library/interfaces";
+import { ConceptTypeMethods, DataTypeCheckers, Sorters } from "@/im_library/helpers";
+import { Query } from "@/im_library/models";
+import { EntityService } from "@/im_library/services";
+import { IM, RDF, RDFS, SHACL } from "@/im_library/vocabulary";
+import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import ReusableComposables from "../../../composables/ReusableComposables";
-import axios from "axios";
-const { IM, RDF, RDFS, SHACL } = Vocabulary;
-const {
-  ConceptTypeMethods: { isOfTypes, isProperty, isValueSet, isConcept, isQuery, isFolder, isRecordModel },
-  DataTypeCheckers: { isObjectHasKeys },
-  Sorters: { byOrder }
-} = Helpers;
-
-const { ConfigService, EntityService, LoggerService } = Services;
-
-const entityService = new EntityService(axios);
-const configService = new ConfigService(axios);
+import setupConcept from "@/composables/setupConcept";
+import setupConfig from "@/composables/setupConfig";
+import setupTerms from "@/composables/setupTerms";
+const { isOfTypes, isProperty, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
+const { isObjectHasKeys } = DataTypeCheckers;
+const { byOrder } = Sorters;
 
 const router = useRouter();
 const store = useStore();
@@ -140,7 +138,7 @@ const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
 const conceptAsString = ref("");
 
-const profile = ref({} as Models.Query.Profile);
+const profile = ref({} as Query.Profile);
 const activeTab = ref(0);
 const showTabs = ref({
   contents: true,
@@ -161,9 +159,9 @@ const showTabs = ref({
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
 
-const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = ReusableComposables.setupConcept();
-const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = ReusableComposables.setupConfig();
-const { terms, getTerms }: { terms: Ref<any[] | undefined>; getTerms: Function } = ReusableComposables.setupTerms();
+const { concept, getConcept }: { concept: Ref<any>; getConcept: Function } = setupConcept();
+const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
+const { terms, getTerms }: { terms: Ref<any[] | undefined>; getTerms: Function } = setupTerms();
 let tabMap = reactive(new Map<string, number>());
 
 onMounted(async () => {
@@ -207,7 +205,7 @@ async function init(): Promise<void> {
 }
 
 async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
-  const result = await entityService.getDefinitionBundle(iri);
+  const result = await EntityService.getDefinitionBundle(iri);
   if (isObjectHasKeys(result, ["entity"]) && isObjectHasKeys(result.entity, [RDFS.SUBCLASS_OF, IM.ROLE_GROUP])) {
     const roleGroup = result.entity[IM.ROLE_GROUP];
     delete result.entity[IM.ROLE_GROUP];

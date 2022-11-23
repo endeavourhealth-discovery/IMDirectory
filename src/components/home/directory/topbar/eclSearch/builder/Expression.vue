@@ -26,15 +26,13 @@ import { computed, onMounted, PropType, Ref, ref } from "vue";
 import SearchMiniOverlay from "../SearchMiniOverlay.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
-import { Enums, Helpers, Vocabulary, Services } from "im-library";
-import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef, SearchRequest, ConceptSummary } from "im-library/dist/types/interfaces/Interfaces";
+import { ECLComponent, SortBy } from "@/im_library/enums";
+import { DataTypeCheckers } from "@/im_library/helpers";
+import { EntityService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
+import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef, SearchRequest, ConceptSummary } from "@/im_library/interfaces";
 import axios from "axios";
-const { ECLComponent, SortBy } = Enums;
-const {
-  DataTypeCheckers: { isArrayHasLength, isObjectHasKeys, isObject }
-} = Helpers;
-const { IM } = Vocabulary;
-const { EntityService } = Services;
+const { isArrayHasLength, isObjectHasKeys, isObject } = DataTypeCheckers;
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -48,8 +46,6 @@ const emit = defineEmits({ updateClicked: (_payload: ECLComponentDetails) => tru
 const store = useStore();
 const filterOptions = computed(() => store.state.filterOptions);
 const selectedFilters = computed(() => store.state.selectedFilters);
-
-const entityService = new EntityService(axios);
 
 const loading = ref(false);
 const debounce = ref(0);
@@ -113,7 +109,7 @@ async function search(): Promise<void> {
 }
 
 async function fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {
-  const result = await entityService.advancedSearch(searchRequest, controller);
+  const result = await EntityService.advancedSearch(searchRequest, controller);
   if (result && isArrayHasLength(result)) {
     searchResults.value = result;
   } else {

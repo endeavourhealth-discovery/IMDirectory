@@ -1,10 +1,9 @@
 import RefinementGroup from "../../../../src/components/home/directory/topbar/eclSearch/builder/RefinementGroup.vue";
 import InputSwitch from "primevue/inputswitch";
 import { flushPromises, shallowMount } from "@vue/test-utils";
-import { Enums } from "im-library";
+import { ECLComponent } from "@/im_library/enums";
 import { describe, expect, it } from "vitest";
 import { setupServer } from "msw/node";
-const { ECLComponent } = Enums;
 
 describe("RefinementGroup.vue", () => {
   it("fakes tests", () => {
