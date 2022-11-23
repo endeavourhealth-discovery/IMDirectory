@@ -1,16 +1,16 @@
 <template>
   <div id="tree-container">
-    <TangledTree :data="data" />
+    <TangledTree :conceptIri="conceptIri" :data="data" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import { TangledTreeData } from "im-library/dist/types/interfaces/Interfaces";
-import { Services } from "im-library";
+import { Services, Vocabulary } from "im-library";
 import axios from "axios";
-import TangledTree from "./TangledTree.vue";
-import { useStore } from "vuex";
+import TangledTree from "../dataModel/TangledTree.vue";
+const { RDFS } = Vocabulary;
 
 const { EntityService } = Services;
 
@@ -19,16 +19,9 @@ const props = defineProps({
 });
 
 const entityService = new EntityService(axios);
-const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
 
 watch(
   () => props.conceptIri,
-  async newValue => await getDataModel(newValue)
-);
-
-watch(
-  () => conceptIri.value,
   async newValue => await getDataModel(newValue)
 );
 
@@ -36,11 +29,11 @@ const loading = ref(false);
 const data: Ref<TangledTreeData[][]> = ref([]);
 const twinNode = ref("twin-node-");
 
-onMounted(async () => await getDataModel(conceptIri.value));
+onMounted(async () => await getDataModel(props.conceptIri));
 
 async function getDataModel(iri: string) {
   loading.value = true;
-  const name = (await entityService.getNames([iri]))[0].name;
+  const name = (await entityService.getPartialEntity(iri, [RDFS.LABEL]))[RDFS.LABEL];
   data.value.push([{ id: iri, parents: [], name: name || iri, type: "root" }]);
   await addPropertiesAndTypes(iri);
 }
@@ -91,8 +84,8 @@ async function addPropertiesAndTypes(iri: any) {
 
 <style scoped>
 #tree-container {
-  flex: 1 1 auto;
   width: 100%;
+  height: 100%;
   position: relative;
   overflow: auto;
 }
