@@ -1,7 +1,7 @@
 <template>
   <div class="search-container">
     <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" data-testid="search-input" />
-
+    <SplitButton class="search-button p-button-secondary" label="Search" @click="search" :model="buttonActions" />
     <Button
       id="filter-button"
       icon="pi pi-sliders-h"
@@ -40,8 +40,19 @@ watch(searchText, async () => await search());
 
 const filtersOP = ref();
 
+const buttonActions = ref([
+  {
+    label: "ECL",
+    command: () => toEclSearch()
+  }
+]);
+
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
+}
+
+function toEclSearch() {
+  router.push({ name: "EclSearch" });
 }
 
 async function search(): Promise<void> {
@@ -107,5 +118,9 @@ async function search(): Promise<void> {
 
 .fa-icon {
   padding-right: 0.25rem;
+}
+
+.search-button {
+  height: fit-content;
 }
 </style>

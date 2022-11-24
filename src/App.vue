@@ -116,7 +116,6 @@ function setupExternalErrorHandler() {
   justify-content: flex-start;
   overflow: auto;
 }
-
 .loading-container {
   width: 100%;
   height: 100%;
