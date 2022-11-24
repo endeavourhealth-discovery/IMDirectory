@@ -41,19 +41,21 @@ export default class DirectService {
   }
 
   public view(iri: string) {
-    this.directTo(Env.DIRECTORY_URL, iri, "folder");
+    if (iri) this.directTo(Env.DIRECTORY_URL, iri, "folder");
   }
 
   public select(iri: string, routeName?: string) {
-    const currentRoute = this.route.name as RouteRecordName | undefined;
-    this.router.push({
-      name: routeName || currentRoute,
-      params: { selectedIri: iri }
-    });
-    this.store.commit("updateConceptIri", iri);
+    if (iri) {
+      const currentRoute = this.route.name as RouteRecordName | undefined;
+      this.router.push({
+        name: routeName || currentRoute,
+        params: { selectedIri: iri }
+      });
+      this.store.commit("updateConceptIri", iri);
+    }
   }
 
   public edit(iri: string) {
-    this.directTo(Env.EDITOR_URL, iri, "editor");
+    if (iri) this.directTo(Env.EDITOR_URL, iri, "editor");
   }
 }

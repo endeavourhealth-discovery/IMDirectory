@@ -201,10 +201,7 @@ function onNodeSelect(node: any): void {
     loadMore(node);
   } else {
     selectedNode.value = node;
-    router.push({
-      name: "Folder",
-      params: { selectedIri: node.data }
-    });
+    directService.select(node.data, "Folder");
   }
 }
 

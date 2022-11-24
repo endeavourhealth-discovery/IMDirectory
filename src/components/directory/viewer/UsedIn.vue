@@ -14,7 +14,7 @@
       :currentPageReportTemplate="templateString"
       selectionMode="single"
       v-model:selection="selected"
-      @click="handleSelected"
+      @row-select="onRowSelect"
       :lazy="true"
       @page="handlePage($event)"
       :loading="loading"
@@ -36,10 +36,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { DataTypeCheckers, ContainerDimensionGetters, ConceptTypeMethods } from "@/im_library/helpers";
-import { EntityService } from "@/im_library/services";
+import { DirectService, EntityService } from "@/im_library/services";
 import { RDF, RDFS } from "@/im_library/vocabulary";
 import axios from "axios";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 const { isObjectHasKeys } = DataTypeCheckers;
 const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
@@ -49,6 +50,9 @@ const props = defineProps({
 });
 
 const router = useRouter();
+const store = useStore();
+const route = useRoute();
+const directService = new DirectService(store, router, route);
 
 const usages: Ref<any[]> = ref([]);
 const loading = ref(false);
@@ -79,6 +83,10 @@ async function init() {
   await getRecordsSize(props.conceptIri);
 }
 
+function onRowSelect(event: any) {
+  directService.select(event.data["@id"]);
+}
+
 async function getUsages(iri: string, pageIndex: number, pageSize: number): Promise<void> {
   const result = await EntityService.getEntityUsages(iri, pageIndex, pageSize);
   usages.value = result.map((usage: any) => {
@@ -103,15 +111,6 @@ async function handlePage(event: any): Promise<void> {
   await getUsages(props.conceptIri, currentPage.value, pageSize.value);
   scrollToTop();
   loading.value = false;
-}
-
-function handleSelected(): void {
-  if (isObjectHasKeys(selected.value, ["@id"])) {
-    router.push({
-      name: "Folder",
-      params: { selectedIri: selected.value["@id"] }
-    });
-  }
 }
 
 function scrollToTop(): void {

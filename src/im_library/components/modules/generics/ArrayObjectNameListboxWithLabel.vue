@@ -22,7 +22,7 @@
       :options="data"
       listStyle="max-height: 12rem;overflow: auto;"
       v-model="selected"
-      @change="navigate(selected['@id'])"
+      @change="directService.select(selected['@id'], 'Folder')"
       emptyMessage="None"
       :id="'listbox-' + id"
       class="array-listbox hidden"
@@ -37,9 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, PropType, ref, Ref } from "vue";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { mapState, useStore } from "vuex";
+import { DirectService } from "@/im_library/services";
+import { computed, onMounted, PropType, ref, Ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys } from "../../../helpers/modules/DataTypeCheckers";
 import LoggerService from "../../../services/modules/LoggerService";
 
@@ -54,6 +55,7 @@ const props = defineProps({
 const route = useRoute();
 const router = useRouter();
 const store = useStore();
+const directService = new DirectService(store, router, route);
 const arrayObjectNameListboxWithLabelStartExpanded = computed(() => store.state.arrayObjectNameListboxWithLabelStartExpanded);
 
 const selected: Ref = ref({});
@@ -76,15 +78,6 @@ const isArrayObjectWithName = computed(() => {
 onMounted(() => {
   expandAtStartup();
 });
-
-function navigate(iri: string) {
-  const currentRoute = route.name as RouteRecordName | undefined;
-  if (iri)
-    router.push({
-      name: currentRoute,
-      params: { selectedIri: iri }
-    });
-}
 
 function setButtonExpanded() {
   buttonExpanded.value = !buttonExpanded.value;

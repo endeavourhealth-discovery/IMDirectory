@@ -23,7 +23,7 @@
       :options="listboxData"
       listStyle="max-height: 40rem;overflow: auto;"
       v-model="selected"
-      @change="navigate(selected['@id'])"
+      @change="directService.select(selected['@id'], 'Folder')"
       emptyMessage="None"
       :id="'listbox-' + id"
       class="array-listbox hidden"
@@ -54,6 +54,7 @@ import { mapState, useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys } from "../../../helpers/modules/DataTypeCheckers";
 import LoggerService from "../../../services/modules/LoggerService";
 import _ from "lodash";
+import { DirectService } from "@/im_library/services";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -66,6 +67,7 @@ const props = defineProps({
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
+const directService = new DirectService(store, router, route);
 const arrayObjectNameListboxWithLabelStartExpanded = computed(() => store.state.arrayObjectNameListboxWithLabelStartExpanded);
 const conceptIri = computed(() => store.state.conceptIri);
 
@@ -106,15 +108,6 @@ function init() {
     loadMoreButtonVisible.value = true;
   }
   listboxData.value = props.data.children;
-}
-
-function navigate(iri: string) {
-  const currentRoute = route.name as RouteRecordName | undefined;
-  if (iri)
-    router.push({
-      name: currentRoute,
-      params: { selectedIri: iri }
-    });
 }
 
 function setButtonExpanded() {

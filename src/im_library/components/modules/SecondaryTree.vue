@@ -115,7 +115,8 @@ import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from 
 import { isArrayHasLength, isObject, isObjectHasKeys } from "../../helpers/modules/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeNode, TreeParent, TTIriRef } from "../../interfaces";
 import { IM, RDF, RDFS } from "../../vocabulary";
-import { EntityService } from "../../services";
+import { DirectService, EntityService } from "../../services";
+import { useStore } from "vuex";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -123,6 +124,8 @@ const props = defineProps({
 
 const router = useRouter();
 const route = useRoute();
+const store = useStore();
+const directService = new DirectService(store, router, route);
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const root: Ref<TreeNode[]> = ref([]);
@@ -377,11 +380,11 @@ function getConceptTypes(types: TTIriRef[]): string {
 }
 
 function navigate(event: any, iri: string): void {
-  if (event.metaKey || event.ctrlKey) router.push({ name: route.name || undefined, params: { selectedIri: iri } });
+  if (event.metaKey || event.ctrlKey) directService.select(iri);
 }
 
 function onDblClick(iri: string) {
-  router.push({ name: route.name || undefined, params: { selectedIri: iri } });
+  directService.select(iri);
 }
 
 async function loadMore(node: any) {

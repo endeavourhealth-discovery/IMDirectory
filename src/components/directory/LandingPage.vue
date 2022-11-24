@@ -29,7 +29,7 @@
                 <Button
                   icon="fa-solid fa-sitemap"
                   class="p-button-rounded p-button-text p-button-plain row-button"
-                  @click="directService.select(data.iri)"
+                  @click="directService.select(data.iri, 'Folder')"
                   v-tooltip.top="'Select'"
                   data-testid="select-button"
                 />
@@ -138,7 +138,7 @@ async function getConfigs(): Promise<void> {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data.iri);
+  directService.select(event.data.iri, "Folder");
 }
 
 function getActivityTooltipMessage(activity: RecentActivityItem) {
