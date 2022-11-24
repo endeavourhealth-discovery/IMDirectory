@@ -28,14 +28,12 @@
       class="p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
-      @rowUnselect="onRowUnselect"
+      @row-select="onRowSelect"
+      contextMenu
       @rowContextmenu="onRowContextMenu"
-      @contextmenu="onRightClick"
-      @row-dblclick="onRowDblClick"
       :scrollable="true"
       scrollHeight="flex"
       :loading="isLoading"
-      v-model:contextMenuSelection="selected"
       ref="searchTable"
       dataKey="iri"
       :autoLayout="true"
@@ -60,33 +58,22 @@
         <template #body="slotProps">
           <div class="buttons-container">
             <Button
-              icon="fa-solid fa-sitemap"
+              :icon="slotProps.data.hasChildren ? 'pi pi-folder-open' : 'fa-solid fa-sitemap'"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="locate(slotProps)"
-              v-tooltip.top="'Select'"
+              @click="directService.select(slotProps.data.iri, 'Folder')"
+              v-tooltip.top="slotProps.data.hasChildren ? 'Open' : 'Select'"
               data-testid="select-button"
-            />
-            <Button
-              v-if="slotProps.data.hasChildren"
-              @click="open"
-              aria-haspopup="true"
-              aria-controls="overlay_menu"
-              type="button"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              icon="pi pi-folder-open"
-              v-tooltip.top="'Open'"
-              data-testid="open-button"
             />
             <Button
               icon="pi pi-fw pi-external-link"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="view(slotProps)"
+              @click="directService.view(slotProps.data.iri)"
               v-tooltip.top="'View in new tab'"
             />
             <Button
               icon="fa-solid fa-pen-to-square"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="edit(slotProps)"
+              @click="directService.edit(slotProps.data.iri)"
               v-tooltip.top="'Edit'"
               data-testid="edit-button"
             />
@@ -99,7 +86,6 @@
               v-tooltip.left="'Unfavourite'"
               data-testid="unfavourite-button"
             />
-
             <Button
               v-else
               icon="pi pi-fw pi-star"
@@ -123,12 +109,9 @@ import _ from "lodash";
 import { ConceptSummary } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { DirectService, Env } from "@/im_library/services";
-import Chips from "primevue/chips";
-import { useRouter } from "vue-router";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
-const router = useRouter();
 const store = useStore();
 const searchLoading = computed(() => store.state.searchLoading);
 const filterDefaults = computed(() => store.state.filterDefaults);
@@ -137,7 +120,7 @@ const selectedFilters = computed(() => store.state.selectedFilters);
 const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
 
-const directService = new DirectService(store);
+const directService = new DirectService();
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
@@ -150,14 +133,14 @@ const loading = ref(true);
 const selected: Ref<any> = ref({});
 const rClickOptions: Ref<any[]> = ref([
   {
-    label: "Open",
-    icon: "pi pi-fw pi-folder-open",
-    command: () => open()
+    label: "Select",
+    icon: "fa-solid fa-sitemap",
+    command: () => directService.select((selected.value as any).iri, "Folder")
   },
   {
     label: "View in new tab",
     icon: "pi pi-fw pi-external-link",
-    command: () => view()
+    command: () => directService.view((selected.value as any).iri)
   },
   {
     separator: true
@@ -272,54 +255,13 @@ function updateRClickOptions() {
 }
 
 function onRowContextMenu(event: any) {
+  selected.value = event.data;
   updateRClickOptions();
   contextMenu.value.show(event.originalEvent);
 }
 
-function onRowUnselect() {
-  selected.value = {} as ConceptSummary;
-}
-
-function navigateToEditor(): void {
-  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
-}
-
-function onRightClick(event: any) {
-  updateRClickOptions();
-  contextMenu.value.show(event);
-}
-
-function onRowDblClick(event: any) {
-  selected.value = event.data;
-  if (isFolder(selected.value.entityType)) open();
-  else view();
-}
-
-function open() {
-  router.push({
-    name: "Folder",
-    params: { selectedIri: selected.value.iri }
-  });
-}
-
-function view(row?: any) {
-  if (row) selected.value = row.data;
-  directService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
-}
-
-function edit(row?: any) {
-  if (row) selected.value = row.data;
-  directService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
-}
-
-function locate(row: any) {
-  if (row) {
-    router.push({
-      name: "Folder",
-      params: { selectedIri: row.data.iri }
-    });
-    store.commit("updateConceptIri", row.data.iri);
-  }
+function onRowSelect(event: any) {
+  directService.select(event.data.iri, "Folder");
 }
 </script>
 

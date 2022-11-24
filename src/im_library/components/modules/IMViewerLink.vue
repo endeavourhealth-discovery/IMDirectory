@@ -1,20 +1,15 @@
 <template>
-  <a v-tooltip.right="'See in viewer app'" class="clickable" @click="navigate">{{ label || iri }}</a>
+  <a v-tooltip.right="'See in viewer app'" class="clickable" @click="directService.view(iri)">{{ label || iri }}</a>
 </template>
 
 <script setup lang="ts">
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { DirectService, Env } from "../../services";
 
 const props = defineProps({ iri: { type: String, required: true }, label: { type: String, required: false } });
 
-const store = useStore();
-
-const directService = new DirectService(store);
-
-function navigate() {
-  directService.directTo(Env.VIEWER_URL, props.iri, "concept");
-}
+const directService = new DirectService();
 </script>
 
 <style scoped>

@@ -11,21 +11,21 @@
       </template>
       <Column field="propertyDisplay" header="Name" :sortable="true">
         <template #body="slotProps">
-          <div class="link" @click="navigate(slotProps.data.propertyId)" data-testid="name">
+          <div class="link" @click="directService.select(slotProps.data.propertyId)" data-testid="name">
             {{ slotProps.data.propertyDisplay }}
           </div>
         </template>
       </Column>
       <Column field="typeDisplay" header="Type" :sortable="true">
         <template #body="slotProps">
-          <div class="link" @click="navigate(slotProps.data.typeId)">
+          <div class="link" @click="directService.select(slotProps.data.typeId)">
             {{ slotProps.data.typeDisplay }}
           </div>
         </template>
       </Column>
       <Column field="inheritedDisplay" header="Inherited From" :sortable="true">
         <template #body="slotProps">
-          <div class="link" @click="navigate(slotProps.data.inheritedId)">
+          <div class="link" @click="directService.select(slotProps.data.inheritedId)">
             {{ slotProps.data.inheritedDisplay }}
           </div>
         </template>
@@ -43,15 +43,15 @@ import { onMounted, onUnmounted, Ref, ref, watch } from "vue";
 import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import { DataModelProperty, ProcessedDataModelProperty } from "@/im_library/interfaces";
 import { ContainerDimensionGetters } from "@/im_library/helpers";
-import { EntityService } from "@/im_library/services";
+import { DirectService, EntityService } from "@/im_library/services";
+import { useStore } from "vuex";
 const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const route = useRoute();
-const router = useRouter();
+const directService = new DirectService();
 
 const loading = ref(false);
 const dataModelPropsData: Ref<ProcessedDataModelProperty[]> = ref([]);
@@ -94,15 +94,6 @@ async function getDataModelProps(iri: string): Promise<void> {
     };
   });
   loading.value = false;
-}
-
-function navigate(iri: any): void {
-  const currentRoute = route.name as RouteRecordName | undefined;
-  if (iri)
-    router.push({
-      name: currentRoute,
-      params: { selectedIri: iri }
-    });
 }
 
 function setScrollHeight(): void {

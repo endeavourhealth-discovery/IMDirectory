@@ -27,7 +27,7 @@ import _ from "lodash";
 import { TTGraphData } from "@/im_library/interfaces";
 import { GraphExcludePredicates } from "@/im_library/config";
 import { GraphTranslator, DataTypeCheckers } from "@/im_library/helpers";
-import { EntityService, LoggerService } from "@/im_library/services";
+import { DirectService, EntityService, LoggerService } from "@/im_library/services";
 import { IM } from "@/im_library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import axios from "axios";
@@ -41,9 +41,9 @@ const props = defineProps({
 });
 
 const route = useRoute();
-const router = useRouter();
 const toast = useToast();
 const store = useStore();
+const directService = new DirectService();
 const splitterRightSize = computed(() => store.state.splitterRightSize);
 
 watch(
@@ -311,10 +311,7 @@ function navigate(iri: string) {
   if (iri === "seeMore") {
     store.commit("updateConceptActivePanel", 2);
   } else if (iri) {
-    router.push({
-      name: currentRoute,
-      params: { selectedIri: iri }
-    });
+    directService.select(iri);
   }
 }
 

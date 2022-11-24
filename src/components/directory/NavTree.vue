@@ -87,21 +87,18 @@ import { DirectService, EntityService, Env, FilerService } from "@/im_library/se
 import { IM } from "@/im_library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import { useConfirm } from "primevue/useconfirm";
-import axios from "axios";
-import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
 
 const toast = useToast();
 const confirm = useConfirm();
-const router = useRouter();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
 const currentUser = computed(() => store.state.currentUser);
 
-const directService = new DirectService(store);
+const directService = new DirectService();
 
 const selectedKeys: Ref<any> = ref({});
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
@@ -200,15 +197,12 @@ function onNodeSelect(node: any): void {
     loadMore(node);
   } else {
     selectedNode.value = node;
-    router.push({
-      name: "Folder",
-      params: { selectedIri: node.data }
-    });
+    directService.select(node.data, "Folder");
   }
 }
 
 function onNodeDblClick($event: any, node: any) {
-  if (node.data !== "loadMore") directService.directTo(Env.DIRECTORY_URL, node.key, "folder");
+  if (node.data !== "loadMore") directService.view(node.key);
 }
 
 async function loadMore(node: any) {

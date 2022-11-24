@@ -13,13 +13,13 @@
         <Button
           icon="pi pi-fw pi-external-link"
           class="p-button-secondary p-button-outlined concept-button"
-          @click="view(concept['@id'])"
+          @click="directService.view(concept['@id'])"
           v-tooltip.left="'Open in new tab'"
         />
         <Button
           icon="fa-solid fa-pen-to-square"
           class="p-button-secondary p-button-outlined concept-button"
-          @click="edit(concept['@id'])"
+          @click="directService.edit(concept['@id'])"
           v-tooltip.left="'Edit'"
         />
         <Button
@@ -70,7 +70,7 @@ import ArrayObjectNameTagWithLabel from "@/im_library/components/modules/generic
 import TextWithLabel from "@/im_library/components/modules/generics/TextWithLabel.vue";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { IM, RDF } from "@/im_library/vocabulary";
-import { Env, DirectService } from "@/im_library/services";
+import { DirectService } from "@/im_library/services";
 import { Store, useStore } from "vuex";
 import { State } from "@/store/stateType";
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
@@ -81,7 +81,7 @@ const props = defineProps({ concept: { type: Object as any, required: true } });
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
 
-const directService = new DirectService(store);
+const directService = new DirectService();
 
 function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
@@ -94,14 +94,6 @@ function getIcon(concept: any) {
 
 function getColour(concept: any) {
   return "color: " + getColourFromType(concept[RDF.TYPE]);
-}
-
-function view(iri: string) {
-  directService.directTo(Env.DIRECTORY_URL, iri, "folder");
-}
-
-function edit(iri: string) {
-  directService.directTo(Env.EDITOR_URL, iri, "editor");
 }
 
 function updateFavourites(iri: string) {

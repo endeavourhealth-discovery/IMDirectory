@@ -19,8 +19,8 @@
         </thead>
         <tbody>
           <tr v-for="prop of slotProps.node.leafNodes" :key="prop">
-            <td @click="navigate(prop.iri)">{{ prop.name }}</td>
-            <td @click="navigate(prop.valueTypeIri)">
+            <td @click="directService.select(prop.iri)">{{ prop.name }}</td>
+            <td @click="directService.select(prop.valueTypeIri)">
               {{ prop.valueTypeName || getTypeFromIri(prop.valueTypeIri) }}
             </td>
           </tr>
@@ -36,7 +36,7 @@
         </thead>
         <tbody>
           <tr v-for="isa of slotProps.node.leafNodes" :key="isa">
-            <td @click="navigate(isa.iri)">{{ isa.name }}</td>
+            <td @click="directService.select(isa.iri)">{{ isa.name }}</td>
           </tr>
         </tbody>
       </table>
@@ -50,7 +50,7 @@
         </thead>
         <tbody>
           <tr v-for="subtype of slotProps.node.leafNodes" :key="subtype">
-            <td @click="navigate(subtype.iri)">{{ subtype.name }}</td>
+            <td @click="directService.select(subtype.iri)">{{ subtype.name }}</td>
           </tr>
         </tbody>
       </table>
@@ -62,14 +62,14 @@
 import { onMounted, Ref, ref, watch } from "vue";
 import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import { GraphData } from "@/im_library/interfaces";
-import { EntityService } from "@/im_library/services";
+import { DirectService, EntityService } from "@/im_library/services";
+import { useStore } from "vuex";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const route = useRoute();
-const router = useRouter();
+const directService = new DirectService();
 
 const loading = ref(false);
 const graph: Ref<GraphData> = ref({} as GraphData);
@@ -94,15 +94,6 @@ async function getGraph(iri: string): Promise<void> {
   loading.value = true;
   graph.value = await EntityService.getEntityGraph(iri);
   loading.value = false;
-}
-
-function navigate(iri: string): void {
-  const currentRoute = route.name as RouteRecordName | undefined;
-  if (iri)
-    router.push({
-      name: currentRoute,
-      params: { selectedIri: iri }
-    });
 }
 </script>
 

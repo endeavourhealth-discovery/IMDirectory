@@ -9,7 +9,7 @@
       v-else
       :value="searchResults"
       v-model:selection="selectedResult"
-      @row-select="onNodeSelect"
+      @row-select="directService.select(selectedResult.iri, 'Folder')"
       selectionMode="single"
       class="p-datatable-sm"
       :scrollable="true"
@@ -114,10 +114,11 @@ import { PropType, ref, Ref, watch } from "vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@/im_library/config";
 import { DataTypeCheckers, ConceptTypeMethods, CopyConceptToClipboard } from "@/im_library/helpers";
-import { LoggerService } from "@/im_library/services";
+import { DirectService, LoggerService } from "@/im_library/services";
 import { TTIriRef, ConceptSummary, SearchResponse } from "@/im_library/interfaces";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
+import { useStore } from "vuex";
 const { isObjectHasKeys } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { copyConceptToClipboard, conceptObjectToCopyString } = CopyConceptToClipboard;
@@ -132,8 +133,8 @@ watch(
   newValue => (results.value = newValue)
 );
 
-const router = useRouter();
 const toast = useToast();
+const directService = new DirectService();
 
 const results: Ref<any[]> = ref([]);
 const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
@@ -171,10 +172,7 @@ function getColorByConceptType(conceptTypes: TTIriRef[]): string {
 }
 
 function onNodeSelect(): void {
-  router.push({
-    name: "Concept",
-    params: { selectedIri: selectedResult.value.iri }
-  });
+  directService.select(selectedResult.value.iri, "Folder");
 }
 
 function scrollToTop(): void {
