@@ -13,7 +13,6 @@
             selectionMode="single"
             @rowSelect="onRowSelect"
             dataKey="dateTime"
-            @row-dblclick="onDoubleClick"
             :scrollable="true"
             scrollHeight="flex"
             class="p-datatable-sm"
@@ -30,21 +29,21 @@
                 <Button
                   icon="fa-solid fa-sitemap"
                   class="p-button-rounded p-button-text p-button-plain row-button"
-                  @click="open(data)"
+                  @click="directService.select(data.iri)"
                   v-tooltip.top="'Select'"
                   data-testid="select-button"
                 />
                 <Button
                   icon="pi pi-fw pi-external-link"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
-                  @click="view(data)"
+                  @click="directService.view(data.iri)"
                   v-tooltip.top="'View'"
                   data-testid="view-button"
                 />
                 <Button
                   icon="fa-solid fa-pen-to-square"
                   class="p-button-rounded p-button-text p-button-plain activity-row-button"
-                  @click="edit(data)"
+                  @click="directService.edit(data.iri)"
                   v-tooltip.top="'Edit'"
                   data-testid="edit-button"
                 />
@@ -94,6 +93,8 @@ const { byOrder } = Sorters;
 const router = useRouter();
 const store = useStore();
 const recentLocalActivity = computed(() => store.state.recentLocalActivity);
+const route = useRoute();
+const directService = new DirectService(store, router, route);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
@@ -136,6 +137,10 @@ async function getConfigs(): Promise<void> {
   }
 }
 
+function onRowSelect(event: any) {
+  directService.select(event.data.iri);
+}
+
 function getActivityTooltipMessage(activity: RecentActivityItem) {
   const dateTime = new Date(activity.dateTime);
   return ["on", dateTime.toDateString(), "at", dateTime.toTimeString().substring(0, 9)].join(" ");
@@ -168,10 +173,6 @@ function getDayDisplay(dateTime: Date) {
   if (dateTime.getFullYear() === now.getFullYear()) return "this year";
 }
 
-function onDoubleClick(event: any) {
-  DirectService.directTo(event.data.app, event.data.iri, event.data.route || "concept");
-}
-
 async function getCardsData(): Promise<void> {
   const cards = [] as { name: string; description: string; inputData: IriCount; component: string }[];
   for (const config of configs.value) {
@@ -186,28 +187,6 @@ async function getCardsData(): Promise<void> {
     cards.push(cardData);
   }
   cardsData.value = cards;
-}
-
-function view(data: any) {
-  onRowSelect(data);
-  DirectService.directTo(Env.DIRECTORY_URL, selected.value.iri, "folder");
-}
-
-function open(data: any) {
-  onRowSelect(data);
-  router.push({
-    name: "Folder",
-    params: { selectedIri: selected.value.iri }
-  });
-}
-
-function edit(data: any) {
-  onRowSelect(data);
-  DirectService.directTo(Env.EDITOR_URL, selected.value.iri, "editor");
-}
-
-function onRowSelect(event: any) {
-  selected.value = event?.data || event;
 }
 </script>
 
