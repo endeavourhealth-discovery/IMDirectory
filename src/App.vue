@@ -8,7 +8,6 @@
         <template #content>
           <div id="topbar-content-container">
             <Search />
-            <Button class="ecl-search-button" label="Ecl Search" @click="toEclSearch" />
             <Button
               v-if="isLoggedIn && currentUser && currentUser.roles.includes('IMAdmin')"
               icon="pi pi-cog"
@@ -66,10 +65,6 @@ onMounted(async () => {
   await store.dispatch("initFavourites");
   loading.value = false;
 });
-
-function toEclSearch() {
-  router.push({ name: "EclSearch" });
-}
 
 function openAdminMenu(event: any): void {
   adminMenu.value.toggle(event);
@@ -176,10 +171,6 @@ function setupExternalErrorHandler() {
   flex-flow: row;
   justify-content: flex-start;
   align-items: center;
-}
-
-.ecl-search-button {
-  height: fit-content;
 }
 
 body {
