@@ -64,10 +64,8 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const router = useRouter();
-const route = useRoute();
 const store = useStore();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 const arrayObjectNameListboxWithLabelStartExpanded = computed(() => store.state.arrayObjectNameListboxWithLabelStartExpanded);
 const conceptIri = computed(() => store.state.conceptIri);
 

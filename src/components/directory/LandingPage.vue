@@ -89,13 +89,10 @@ import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import axios from "axios";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byOrder } = Sorters;
-
-const router = useRouter();
 const store = useStore();
 const recentLocalActivity = computed(() => store.state.recentLocalActivity);
-const route = useRoute();
-const directService = new DirectService(store, router, route);
 
+const directService = new DirectService();
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
 const loading = ref(false);

@@ -9,10 +9,7 @@ import { DirectService, Env } from "../../services";
 
 const props = defineProps({ iri: { type: String, required: true }, label: { type: String, required: false } });
 
-const store = useStore();
-const router = useRouter();
-const route = useRoute();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 </script>
 
 <style scoped>

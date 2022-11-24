@@ -49,10 +49,7 @@ const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const router = useRouter();
-const store = useStore();
-const route = useRoute();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 
 const usages: Ref<any[]> = ref([]);
 const loading = ref(false);

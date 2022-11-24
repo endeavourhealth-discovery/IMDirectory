@@ -51,10 +51,7 @@ const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const route = useRoute();
-const router = useRouter();
-const store = useStore();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 
 const loading = ref(false);
 const dataModelPropsData: Ref<ProcessedDataModelProperty[]> = ref([]);

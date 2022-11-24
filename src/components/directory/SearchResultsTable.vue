@@ -109,12 +109,9 @@ import _ from "lodash";
 import { ConceptSummary } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { DirectService, Env } from "@/im_library/services";
-import Chips from "primevue/chips";
-import { useRoute, useRouter } from "vue-router";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
-const router = useRouter();
 const store = useStore();
 const searchLoading = computed(() => store.state.searchLoading);
 const filterDefaults = computed(() => store.state.filterDefaults);
@@ -123,8 +120,7 @@ const selectedFilters = computed(() => store.state.selectedFilters);
 const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
 
-const route = useRoute();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);

@@ -1,6 +1,6 @@
 import { CreateComponentPublicInstance } from "vue";
 import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
-import { Store } from "vuex";
+import { Store, useStore } from "vuex";
 import Env from "./Env";
 
 export default class DirectService {
@@ -9,10 +9,10 @@ export default class DirectService {
   private router: Router;
   private route: RouteLocationNormalizedLoaded;
 
-  constructor(store: Store<any>, router: Router, route: RouteLocationNormalizedLoaded) {
-    this.store = store;
-    this.route = route;
-    this.router = router;
+  constructor() {
+    this.route = useRoute();
+    this.router = useRouter();
+    this.store = useStore();
     this._message = "You will be directed to a different application. Are you sure you want to proceed?";
   }
 

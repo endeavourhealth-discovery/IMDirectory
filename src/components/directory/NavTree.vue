@@ -87,22 +87,18 @@ import { DirectService, EntityService, Env, FilerService } from "@/im_library/se
 import { IM } from "@/im_library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import { useConfirm } from "primevue/useconfirm";
-import axios from "axios";
-import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
 
 const toast = useToast();
 const confirm = useConfirm();
-const router = useRouter();
-const route = useRoute();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
 const currentUser = computed(() => store.state.currentUser);
 
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 
 const selectedKeys: Ref<any> = ref({});
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);

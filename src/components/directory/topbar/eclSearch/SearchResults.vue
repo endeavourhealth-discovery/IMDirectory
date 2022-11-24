@@ -133,11 +133,8 @@ watch(
   newValue => (results.value = newValue)
 );
 
-const router = useRouter();
 const toast = useToast();
-const store = useStore();
-const route = useRoute();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 
 const results: Ref<any[]> = ref([]);
 const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);

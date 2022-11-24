@@ -88,18 +88,14 @@ import { TTIriRef } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 import { EntityService, Env, DirectService } from "@/im_library/services";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import axios from "axios";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength } = DataTypeCheckers;
 
-const route = useRoute();
-const router = useRouter();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
 
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 
 watch(
   () => conceptIri.value,

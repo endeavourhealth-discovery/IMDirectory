@@ -122,10 +122,7 @@ const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const router = useRouter();
-const route = useRoute();
-const store = useStore();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const root: Ref<TreeNode[]> = ref([]);

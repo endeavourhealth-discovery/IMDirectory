@@ -70,10 +70,9 @@ import ArrayObjectNameTagWithLabel from "@/im_library/components/modules/generic
 import TextWithLabel from "@/im_library/components/modules/generics/TextWithLabel.vue";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { IM, RDF } from "@/im_library/vocabulary";
-import { Env, DirectService } from "@/im_library/services";
+import { DirectService } from "@/im_library/services";
 import { Store, useStore } from "vuex";
 import { State } from "@/store/stateType";
-import { useRoute, useRouter } from "vue-router";
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { isArrayHasLength } = DataTypeCheckers;
 
@@ -82,9 +81,7 @@ const props = defineProps({ concept: { type: Object as any, required: true } });
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
 
-const router = useRouter();
-const route = useRoute();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 
 function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);

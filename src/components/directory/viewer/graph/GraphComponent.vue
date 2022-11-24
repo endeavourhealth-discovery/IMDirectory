@@ -41,10 +41,9 @@ const props = defineProps({
 });
 
 const route = useRoute();
-const router = useRouter();
 const toast = useToast();
 const store = useStore();
-const directService = new DirectService(store, router, route);
+const directService = new DirectService();
 const splitterRightSize = computed(() => store.state.splitterRightSize);
 
 watch(
