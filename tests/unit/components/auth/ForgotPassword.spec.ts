@@ -1,7 +1,7 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
 import { mount, flushPromises } from "@vue/test-utils";
-import ForgotPassword from "@/components/user/ForgotPassword.vue";
+import ForgotPassword from "@/components/auth/ForgotPassword.vue";
 import InputText from "primevue/inputtext";
 import { AuthService } from "@/im_library/services";
 import { vi } from "vitest";

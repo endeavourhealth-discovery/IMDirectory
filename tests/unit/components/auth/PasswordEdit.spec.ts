@@ -2,7 +2,7 @@ import Card from "primevue/card";
 import Button from "primevue/button";
 import InlineMessage from "primevue/inlinemessage";
 import { flushPromises, mount } from "@vue/test-utils";
-import PasswordEdit from "@/components/user/PasswordEdit.vue";
+import PasswordEdit from "@/components/auth/PasswordEdit.vue";
 import InputText from "primevue/inputtext";
 import { AuthService } from "@/im_library/services";
 import { Avatars } from "@/im_library/constants";

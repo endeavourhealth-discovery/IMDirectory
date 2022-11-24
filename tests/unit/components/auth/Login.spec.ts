@@ -1,5 +1,5 @@
 import { mount, flushPromises } from "@vue/test-utils";
-import Login from "@/components/user/Login.vue";
+import Login from "@/components/auth/Login.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
