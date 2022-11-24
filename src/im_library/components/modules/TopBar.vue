@@ -104,41 +104,41 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.AUTH_URL + "login?returnUrl=" + authReturnUrl.value
+      url: Env.DIRECTORY_URL + "user/" + "login"
     },
     {
       label: "Register",
       icon: "fa-solid fa-fw fa-user-plus",
-      url: Env.AUTH_URL + "register?returnUrl=" + authReturnUrl.value
+      url: Env.DIRECTORY_URL + "user/" + "register"
     }
   ];
   accountItems.value = [
     {
       label: "My account",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.AUTH_URL + "my-account?returnUrl=" + authReturnUrl.value
+      url: Env.DIRECTORY_URL + "user/" + "my-account"
     },
     {
       label: "Edit account",
       icon: "fa-solid fa-fw fa-user-pen",
-      url: Env.AUTH_URL + "my-account/edit?returnUrl=" + authReturnUrl.value
+      url: Env.DIRECTORY_URL + "user/" + "my-account/edit"
     },
     {
       label: "Change password",
       icon: "fa-solid fa-fw fa-user-lock",
-      url: Env.AUTH_URL + "my-account/password-edit?returnUrl=" + authReturnUrl.value
+      url: Env.DIRECTORY_URL + "user/" + "my-account/password-edit"
     },
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      url: Env.AUTH_URL + "logout?returnUrl=" + authReturnUrl.value
+      url: Env.DIRECTORY_URL + "user/" + "logout"
     }
   ];
 }
 
 function setAppMenuItems() {
   appItems.value = [
-    { label: "Directory", icon: "fa-solid fa-folder-open", url: "/" },
+    { label: "Directory", icon: "fa-solid fa-folder-open", url: "/directory" },
     { label: "Creator", icon: "fa-solid fa-circle-plus", url: "/editor/#/creator" },
     { label: "Editor", icon: "fa-solid fa-pen-to-square", url: "/editor/#/editor" },
     { label: "Mapper", icon: "fa-solid fa-diagram-project", url: "/editor/#/mapper" }
