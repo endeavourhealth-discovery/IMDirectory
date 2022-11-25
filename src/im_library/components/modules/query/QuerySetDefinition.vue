@@ -56,7 +56,7 @@ watch(
 );
 
 async function getQueryDisplay() {
-  const queryDefinition = ((await QueryService.getQueryDefinitionDisplay(props.conceptIri)) as any).data;
+  const queryDefinition = await QueryService.getQueryDefinitionDisplay(props.conceptIri);
   return queryDefinition.children || ([] as QueryDisplay[]);
 }
 

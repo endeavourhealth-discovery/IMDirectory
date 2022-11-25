@@ -32,6 +32,7 @@ import SubsetDisplay from "./SubsetDisplay.vue";
 import { onMounted, ref } from "@vue/runtime-core";
 import { EntityService } from "@/im_library/services";
 import { IM, RDFS } from "@/im_library/vocabulary";
+import QuerySetDefinition from "@/im_library/components/modules/query/QuerySetDefinition.vue"
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
 const subsetOf = ref();
