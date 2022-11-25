@@ -11,21 +11,15 @@
       </div>
       <div class="concept-buttons-container">
         <Button
-          icon="pi pi-fw pi-eye"
+          icon="pi pi-fw pi-external-link"
           class="p-button-secondary p-button-outlined concept-button"
-          @click="view(concept['@id'])"
-          v-tooltip.left="'Open in Viewer'"
-        />
-        <Button
-          icon="pi pi-fw pi-info-circle"
-          class="p-button-secondary p-button-outlined concept-button"
-          @click="showInfo(concept['@id'])"
-          v-tooltip.left="'Show summary panel'"
+          @click="directService.view(concept['@id'])"
+          v-tooltip.left="'Open in new tab'"
         />
         <Button
           icon="fa-solid fa-pen-to-square"
           class="p-button-secondary p-button-outlined concept-button"
-          @click="edit(concept['@id'])"
+          @click="directService.edit(concept['@id'])"
           v-tooltip.left="'Edit'"
         />
         <Button
@@ -69,24 +63,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent } from "vue";
-import { Helpers, Vocabulary, Services } from "im-library";
-import {Store, useStore} from 'vuex';
-const { IM, RDF } = Vocabulary;
-const {
-  ConceptTypeMethods: { getColourFromType, getFAIconFromType },
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
-const { Env, DirectService } = Services;
+import { computed } from "vue";
+import TextHTMLWithLabel from "@/im_library/components/modules/generics/TextHTMLWithLabel.vue";
+import ArrayObjectNamesToStringWithLabel from "@/im_library/components/modules/generics/ArrayObjectNamesToStringWithLabel.vue";
+import ArrayObjectNameTagWithLabel from "@/im_library/components/modules/generics/ArrayObjectNameTagWithLabel.vue";
+import TextWithLabel from "@/im_library/components/modules/generics/TextWithLabel.vue";
+import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
+import { IM, RDF } from "@/im_library/vocabulary";
+import { DirectService } from "@/im_library/services";
+import { Store, useStore } from "vuex";
+import { State } from "@/store/stateType";
+const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
+const { isArrayHasLength } = DataTypeCheckers;
 
 const props = defineProps({ concept: { type: Object as any, required: true } });
 
-const emit = defineEmits({ openBar: () => true });
-
-const store: Store<any> = useStore();
+const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
 
-const directService = new DirectService(store);
+const directService = new DirectService();
 
 function isFavourite(iri: string) {
   return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
@@ -99,19 +94,6 @@ function getIcon(concept: any) {
 
 function getColour(concept: any) {
   return "color: " + getColourFromType(concept[RDF.TYPE]);
-}
-
-function showInfo(iri: string) {
-  store.commit("updateSelectedConceptIri", iri);
-  emit("openBar");
-}
-
-function view(iri: string) {
-  directService.directTo(Env.VIEWER_URL, iri, "concept");
-}
-
-function edit(iri: string) {
-  directService.directTo(Env.EDITOR_URL, iri, "editor");
 }
 
 function updateFavourites(iri: string) {

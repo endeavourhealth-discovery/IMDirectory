@@ -1,8 +1,7 @@
 import { rest } from "msw";
-import { Services, Vocabulary } from "im-library";
+import { Env } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
 import { fakerFactory } from "./factory";
-const { Env } = Services;
-const { IM } = Vocabulary;
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 

@@ -5,6 +5,7 @@ export interface State {
   loading: Map<string, boolean>;
   conceptIri: string;
   searchResults: [];
+  favourites: string[];
   currentUser: User;
   registeredUsername: string;
   isLoggedIn: boolean;

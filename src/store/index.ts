@@ -1,30 +1,24 @@
 import { createStore } from "vuex";
-import AuthService from "@/services/AuthService";
-import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest } from "im-library/dist/types/interfaces/Interfaces";
-import { Models, Constants, Vocabulary, Helpers, Config, Services } from "im-library";
-import axios from "axios";
-const { IM } = Vocabulary;
-const { Avatars } = Constants;
-const { CustomAlert } = Models;
-const {
-  DataTypeCheckers: { isArrayHasLength }
-} = Helpers;
-const { EntityService, LoggerService } = Services;
-
-const entityService = new EntityService(axios);
+import { AuthService } from "@/im_library/services";
+import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest } from "@/im_library/interfaces";
+import { Avatars } from "@/im_library/constants";
+import { CustomAlert, User } from "@/im_library/models";
+import { IM } from "@/im_library/vocabulary";
+import { isArrayHasLength } from "@/im_library/helpers/modules/DataTypeCheckers";
+import { EntityService, LoggerService } from "@/im_library/services";
+import { FilterDefaults } from "@/im_library/config";
 
 export default createStore({
   // update stateType.ts when adding new state!
   state: {
-    selectedConceptIri: "",
-    locateOnNavTreeIri: {},
     conceptIri: IM.MODULE_ONTOLOGY,
     favourites: [] as string[],
     history: [] as HistoryItem[],
     searchResults: [] as ConceptSummary[],
     searchLoading: false,
-    currentUser: {} as Models.User,
+    currentUser: {} as User,
     isLoggedIn: false as boolean,
+    registeredUsername: "" as string,
     recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     snomedReturnUrl: "",
@@ -47,7 +41,7 @@ export default createStore({
     focusHierarchy: false,
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
-    filterDefaults: Config.FilterDefaults,
+    filterDefaults: FilterDefaults,
     arrayObjectNameListboxWithLabelStartExpanded: [],
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
@@ -55,7 +49,8 @@ export default createStore({
       { "@id": IM.INACTIVE, severity: "danger" }
     ],
     textDefinitionStartExpanded: ["Definition"],
-    activeProfile: { uuid: "", activeClausePath: "" }
+    activeProfile: { uuid: "", activeClausePath: "" },
+    splitterRightSize: 0
   },
   mutations: {
     updateActiveProfile(state, value) {
@@ -64,13 +59,9 @@ export default createStore({
     updateSearchLoading(state, loading) {
       state.searchLoading = loading;
     },
-    updateSelectedConceptIri(state, selectedConceptIri) {
-      state.selectedConceptIri = selectedConceptIri;
-    },
     updateConceptIri(state, conceptIri) {
       state.conceptIri = conceptIri;
     },
-
     updateSearchResults(state, searchResults) {
       state.searchResults = searchResults;
     },
@@ -88,6 +79,9 @@ export default createStore({
     },
     updateIsLoggedIn(state, status) {
       state.isLoggedIn = status;
+    },
+    updateRegisteredUsername(state, username) {
+      state.registeredUsername = username;
     },
     updateSnomedLicenseAccepted(state, status: string) {
       state.snomedLicenseAccepted = status;
@@ -118,21 +112,25 @@ export default createStore({
         });
       } else {
         while (activity.length > 4) activity.shift();
-        activity.push(recentActivityItem);
+        if (recentActivityItem.iri !== "http://endhealth.info/im#Favourites") {
+          activity.push(recentActivityItem);
+        }
       }
 
       localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       state.recentLocalActivity = activity;
     },
     updateFavourites(state, favourite: string) {
-      const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");
-      if (!favourites.includes(favourite)) {
-        favourites.push(favourite);
-      } else {
-        favourites.splice(favourites.indexOf(favourite), 1);
+      if (favourite !== "http://endhealth.info/im#Favourites") {
+        const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");
+        if (!favourites.includes(favourite)) {
+          favourites.push(favourite);
+        } else {
+          favourites.splice(favourites.indexOf(favourite), 1);
+        }
+        localStorage.setItem("favourites", JSON.stringify(favourites));
+        state.favourites = favourites;
       }
-      localStorage.setItem("favourites", JSON.stringify(favourites));
-      state.favourites = favourites;
     },
     updateFocusHierarchy(state, bool) {
       state.focusHierarchy = bool;
@@ -146,9 +144,6 @@ export default createStore({
     updateFilterDefaults(state, defaults) {
       state.filterDefaults = defaults;
     },
-    updateLocateOnNavTreeIri(state, iri) {
-      state.locateOnNavTreeIri = { iri };
-    },
     updateArrayObjectNameListboxWithLabelStartExpanded(state, items) {
       state.arrayObjectNameListboxWithLabelStartExpanded = items;
     },
@@ -157,13 +152,16 @@ export default createStore({
     },
     updateTextDefinitionStartExpanded(state, items) {
       state.textDefinitionStartExpanded = items;
+    },
+    updateSplitterRightSize(state, splitterRightSize) {
+      state.splitterRightSize = splitterRightSize;
     }
   },
   actions: {
     async initFavourites({ commit, state }) {
       const favourites = JSON.parse(localStorage.getItem("favourites") || "[]") as string[];
       for (let index = 0; index < favourites.length; index++) {
-        const iriExists = await entityService.iriExists(favourites[index]);
+        const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
           favourites.splice(index, 1);
         }
@@ -172,7 +170,7 @@ export default createStore({
       state.favourites = favourites;
     },
     async fetchFilterSettings({ commit, state }) {
-      const filterDefaults = await entityService.getFilterOptions();
+      const filterDefaults = await EntityService.getFilterOptions();
       commit("updateFilterOptions", {
         status: filterDefaults.status,
         schemes: filterDefaults.schemes,
@@ -181,11 +179,11 @@ export default createStore({
         sortDirections: filterDefaults.sortDirections
       });
 
-      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => Config.FilterDefaults.statusOptions.includes(item["@id"]));
-      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => Config.FilterDefaults.schemeOptions.includes(item.iri));
-      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => Config.FilterDefaults.typeOptions.includes(item["@id"]));
-      const selectedField = Config.FilterDefaults.sortField;
-      const selectedDirection = Config.FilterDefaults.sortDirection;
+      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => FilterDefaults.statusOptions.includes(item["@id"]));
+      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => FilterDefaults.schemeOptions.includes(item.iri));
+      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => FilterDefaults.typeOptions.includes(item["@id"]));
+      const selectedField = FilterDefaults.sortField;
+      const selectedDirection = FilterDefaults.sortDirection;
       commit("updateSelectedFilters", {
         status: selectedStatus,
         schemes: selectedSchemes,
@@ -196,7 +194,7 @@ export default createStore({
       commit("updateHierarchySelectedFilters", selectedSchemes);
     },
     async fetchSearchResults({ commit }, data: { searchRequest: SearchRequest; controller: AbortController }) {
-      const result = await entityService.advancedSearch(data.searchRequest, data.controller);
+      const result = await EntityService.advancedSearch(data.searchRequest, data.controller);
       if (result && isArrayHasLength(result)) {
         commit("updateSearchResults", result);
       } else {

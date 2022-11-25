@@ -1,31 +1,40 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import Home from "../views/Home.vue";
-import Directory from "../views/Directory.vue";
-import SearchResultsTable from "../views/SearchResultsTable.vue";
-import LandingPage from "../views/LandingPage.vue";
-import EclSearch from "../views/EclSearch.vue";
-import { AccessDenied, PageNotFound, SnomedLicense, Services, EntityNotFound, Helpers } from "im-library";
+import Directory from "@/views/Directory.vue";
+import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
+import SearchResultsTable from "@/components/directory/SearchResultsTable.vue";
+import LandingPage from "@/components/directory/LandingPage.vue";
+import EclSearch from "@/components/directory/EclSearch.vue";
+import Auth from "@/views/Auth.vue";
+import Login from "@/components/auth/Login.vue";
+import ConfirmCode from "@/components/auth/ConfirmCode.vue";
+import ForgotPassword from "@/components/auth/ForgotPassword.vue";
+import ForgotPasswordSubmit from "@/components/auth/ForgotPasswordSubmit.vue";
+import Logout from "@/components/auth/Logout.vue";
+import PasswordEdit from "@/components/auth/PasswordEdit.vue";
+import Register from "@/components/auth/Register.vue";
+import UserDetails from "@/components/auth/UserDetails.vue";
+import UserEdit from "@/components/auth/UserEdit.vue";
+import { AccessDenied, PageNotFound, SnomedLicense, EntityNotFound } from "@/im_library/components";
+import { EntityService, Env } from "@/im_library/services";
+import { DataTypeCheckers } from "@/im_library/helpers";
 import store from "@/store/index";
 import { nextTick } from "vue";
 import axios from "axios";
-const {
-  DataTypeCheckers: { isObjectHasKeys }
-} = Helpers;
-const { Env, EntityService } = Services;
-
-const entityService = new EntityService(axios);
+const { isObjectHasKeys } = DataTypeCheckers;
 
 const APP_TITLE = "IM Directory";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/",
-    name: "Home",
-    component: Home,
+    path: "/directory",
+    name: "Directory",
+    component: Directory,
+    meta: { requiredLicense: true },
     redirect: { name: "LandingPage" },
+    alias: "/",
     children: [
       {
-        path: "",
+        path: "landingPage",
         name: "LandingPage",
         component: LandingPage,
         meta: {
@@ -35,7 +44,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "folder/:selectedIri",
         name: "Folder",
-        component: Directory,
+        component: DirectoryDetails,
         meta: {
           requiresLicense: true
         }
@@ -55,6 +64,68 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           requiresLicense: true
         }
+      }
+    ]
+  },
+  {
+    path: "/user",
+    name: "User",
+    component: Auth,
+    redirect: { name: "Login" },
+    children: [
+      {
+        path: "login:returnUrl?",
+        name: "Login",
+        component: Login
+      },
+      {
+        path: "confirm-code:returnUrl?",
+        name: "ConfirmCode",
+        component: ConfirmCode
+      },
+      {
+        path: "register:returnUrl?",
+        name: "Register",
+        component: Register
+      },
+      {
+        path: "my-account:returnUrl?",
+        name: "UserDetails",
+        component: UserDetails,
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
+        path: "my-account/edit:returnUrl?",
+        name: "UserEdit",
+        component: UserEdit,
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
+        path: "my-account/password-edit:returnUrl?",
+        name: "PasswordEdit",
+        component: PasswordEdit,
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
+        path: "logout:returnUrl?",
+        name: "Logout",
+        component: Logout
+      },
+      {
+        path: "password-recovery:returnUrl?",
+        name: "ForgotPassword",
+        component: ForgotPassword
+      },
+      {
+        path: "password-recovery/submit:returnUrl?",
+        name: "ForgotPasswordSubmit",
+        component: ForgotPasswordSubmit
       }
     ]
   },
@@ -99,7 +170,7 @@ router.beforeEach(async (to, _from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
-      window.location.href = Env.AUTH_URL + "login?returnUrl=" + currentUrl;
+      router.push({ name: "Login" });
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
@@ -115,7 +186,7 @@ router.beforeEach(async (to, _from) => {
     const iri = to.params.selectedIri as string;
     try {
       new URL(iri);
-      if (!(await entityService.iriExists(iri))) {
+      if (!(await EntityService.iriExists(iri))) {
         router.push({ name: "EntityNotFound" });
       }
     } catch (_error) {

@@ -14,22 +14,18 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, ref, Ref, watch } from "vue";
-import { Helpers, Vocabulary, Services } from "im-library";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { onMounted, ref, Ref, watch } from "vue";
+import { Converters } from "@/im_library/helpers";
+import { EntityService } from "@/im_library/services";
+import { IM } from "@/im_library/vocabulary";
+import { TTIriRef } from "@/im_library/interfaces";
 import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
-const { IM } = Vocabulary;
-const {
-  Converters: { iriToUrl }
-} = Helpers;
-const { EntityService } = Services;
+const { iriToUrl } = Converters;
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
 
 const router = useRouter();
 const route = useRoute();
-const entityService = new EntityService(axios);
 
 watch(
   () => props.conceptIri,
@@ -71,8 +67,8 @@ async function getPath() {
     pathItems.value = [{ label: "Favourites", to: iriToUrl(IM.NAMESPACE) + "Favourites" }];
     return;
   }
-  let folderPath = (await entityService.getPathBetweenNodes(props.conceptIri, IM.MODULE_IM)).reverse();
-  if (!folderPath.length) folderPath = await entityService.getFolderPath(props.conceptIri);
+  let folderPath = (await EntityService.getPathBetweenNodes(props.conceptIri, IM.MODULE_IM)).reverse();
+  if (!folderPath.length) folderPath = await EntityService.getFolderPath(props.conceptIri);
   pathItems.value = folderPath.map((iriRef: TTIriRef) => {
     return { label: iriRef.name, to: iriToUrl(iriRef["@id"]) };
   });

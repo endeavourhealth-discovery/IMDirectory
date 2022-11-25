@@ -5,7 +5,6 @@ import ProgressSpinner from "primevue/progressspinner";
 import ConfirmDialog from "primevue/confirmdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
-import TopBar from "im-library";
 import { expect, vi } from "vitest";
 import PrimeVue from "primevue/config";
 
@@ -44,17 +43,15 @@ describe("App.vue", () => {
     vi.resetAllMocks();
     component = render(App, {
       global: {
-        components: { Toast, ProgressSpinner, ConfirmDialog, TopBar, Button, Menu },
-        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true, Search: true },
+        components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu },
+        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true },
         plugins: [PrimeVue]
       }
     });
   });
 
   it("should check auth and update store history count on mount", async () => {
-    expect(mockDispatch).toHaveBeenCalledTimes(3);
+    expect(mockDispatch).toHaveBeenCalledTimes(1);
     expect(mockDispatch).toHaveBeenCalledWith("authenticateCurrentUser");
-    expect(mockDispatch).toHaveBeenCalledWith("fetchFilterSettings");
-    expect(mockDispatch).toHaveBeenCalledWith("initFavourites");
   });
 });
