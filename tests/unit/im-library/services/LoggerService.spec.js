@@ -19,7 +19,7 @@ describe("LoggerService", () => {
       const result = LoggerService.error(undefined, testError);
       expect(console.error).toHaveBeenCalledTimes(1);
       expect(console.error).toHaveBeenCalledWith(testError);
-      expect(result).toBeUndefined();
+      expect(result).toStrictEqual({});
     });
 
     it("returns a toast message, no console", () => {
@@ -47,7 +47,7 @@ describe("LoggerService", () => {
       const result = LoggerService.warn(undefined, testError);
       expect(console.warn).toHaveBeenCalledTimes(1);
       expect(console.warn).toHaveBeenCalledWith(testError);
-      expect(result).toBeUndefined();
+      expect(result).toStrictEqual({});
     });
 
     it("returns a toast message, no console", () => {
@@ -75,7 +75,7 @@ describe("LoggerService", () => {
       const result = LoggerService.info(undefined, testError);
       expect(console.info).toHaveBeenCalledTimes(1);
       expect(console.info).toHaveBeenCalledWith(testError);
-      expect(result).toBeUndefined();
+      expect(result).toStrictEqual({});
     });
 
     it("returns a toast message, no console", () => {
@@ -102,7 +102,7 @@ describe("LoggerService", () => {
       const result = LoggerService.success(undefined, "Test success log");
       expect(console.log).toHaveBeenCalledTimes(1);
       expect(console.log).toHaveBeenCalledWith("Test success log");
-      expect(result).toBeUndefined();
+      expect(result).toStrictEqual({});
     });
 
     it("returns a toast message, no console", () => {
