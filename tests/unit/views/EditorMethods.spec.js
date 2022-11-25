@@ -27,7 +27,7 @@ describe("fetchEntity", () => {
     expect(entityName.value).toEqual("");
   });
 
-  it("gets full entity by iri and process entity", async () => {
+  it.skip("gets full entity by iri and process entity", async () => {
     vi.doMock("vuex", () => ({
       useStore: vi.fn().mockReturnValue({ state: { editorIri: "testIri" } })
     }));
