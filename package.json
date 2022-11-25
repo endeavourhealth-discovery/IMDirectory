@@ -44,6 +44,7 @@
     "vue-json-pretty": "2.2.2",
     "vue-router": "4.0.15",
     "vue3-clipboard": "1.0.0",
+    "vuedraggable": "4.1.0",
     "vuex": "4.0.2"
   },
   "devDependencies": {

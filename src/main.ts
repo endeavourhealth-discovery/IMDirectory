@@ -78,6 +78,9 @@ import Breadcrumb from "primevue/breadcrumb";
 import Sidebar from "primevue/sidebar";
 import Chips from "primevue/chips";
 import DataView from "primevue/dataview";
+import Steps from "primevue/steps";
+import Chip from "primevue/chip";
+import ToggleButton from "primevue/togglebutton";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -157,7 +160,10 @@ const app = createApp(App)
   .component("Sidebar", Sidebar)
   .component("Chips", Chips)
   .component("DataView", DataView)
-  .component("Tag", Tag);
+  .component("Tag", Tag)
+  .component("Steps", Steps)
+  .component("Chip", Chip)
+  .component("ToggleButton", ToggleButton);
 
 const vm = app.mount("#app");
 

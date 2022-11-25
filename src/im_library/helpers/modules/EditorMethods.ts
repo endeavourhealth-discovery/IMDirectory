@@ -24,14 +24,14 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
   return result;
 }
 
-function getTreeQueryIri(select: TTIriRef[]) {
+export function getTreeQueryIri(select: TTIriRef[]) {
   if (!isArrayHasLength(select) || select.length < 2) {
     return undefined;
   }
   return select[1]["@id"];
 }
 
-function processComponentType(type: TTIriRef): any {
+export function processComponentType(type: TTIriRef): any {
   switch (type["@id"]) {
     case IM.TEXT_DISPLAY_COMPONENT:
       return ComponentType.TEXT_DISPLAY;
