@@ -18,7 +18,14 @@
             class="p-datatable-sm"
           >
             <template #empty> No recent activity </template>
-            <Column field="name" header="Name"></Column>
+            <Column field="name" header="Name">
+              <template #body="{ data }">
+                <div class="result-icon-container" :style="data.color">
+                  <i :class="data.icon" class="recent-icon" aria-hidden="true" />
+                </div>
+                {{ data.name }}
+              </template>
+            </Column>
             <Column field="latestActivity" header="Latest activity">
               <template #body="{ data }">
                 <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
@@ -70,23 +77,25 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
+import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
+
 export default defineComponent({
   components: { ReportTable, PieChartDashCard }
 });
 </script>
 
 <script setup lang="ts">
-import { defineComponent, computed, Ref, ref, watch, onMounted } from "vue";
-import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
-import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
+import { computed, Ref, ref, watch, onMounted } from "vue";
+import { getColourFromType, getFAIconFromType } from '@/im_library/helpers/modules/ConceptTypeMethods';
+
 import { useStore } from "vuex";
 import _ from "lodash";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@/im_library/interfaces";
 import { DataTypeCheckers, Sorters } from "@/im_library/helpers";
 import { EntityService, Env, ConfigService, DirectService } from "@/im_library/services";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import axios from "axios";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byOrder } = Sorters;
 const store = useStore();
@@ -101,10 +110,10 @@ const cardsData: Ref<{ name: string; description: string; inputData: IriCount; c
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
-  async () => await getRecentActivityDetails()
+  async () => getRecentActivityDetails()
 );
 
-onMounted(async () => await init());
+onMounted(async () => init());
 
 async function init(): Promise<void> {
   loading.value = true;
@@ -115,16 +124,29 @@ async function init(): Promise<void> {
 }
 
 async function getRecentActivityDetails() {
-  const storedActivity: RecentActivityItem[] = Object.assign([], recentLocalActivity.value);
-  for (let activity of storedActivity) {
-    const result = await EntityService.getPartialEntity(activity.iri, [RDFS.LABEL, RDF.TYPE]);
-    if (isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
-      activity.name = result[RDFS.LABEL];
-      activity.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
+  const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
+
+  const temp: RecentActivityItem[] = [];
+
+  for (const rla of recentLocalActivity.value) {
+    const clone = {...rla};
+
+    const result = results.find(r => r['@id'] === rla.iri);
+
+    if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
+      clone.name = result[RDFS.LABEL];
+      clone.type = result[RDF.TYPE].map((type: TTIriRef) => type.name).join(", ");
+      clone.icon = getFAIconFromType(result[RDF.TYPE]);
+      clone.color = "color:" + getColourFromType(result[RDF.TYPE]);
     }
+
+    temp.push(clone);
   }
-  storedActivity.reverse();
-  activities.value = storedActivity;
+
+  temp.reverse();
+
+  activities.value = temp;
 }
 
 async function getConfigs(): Promise<void> {
@@ -245,5 +267,12 @@ async function getCardsData(): Promise<void> {
 .activity-row-button:hover {
   background-color: #6c757d !important;
   color: #ffffff !important;
+}
+
+.recent-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+  padding: 5px;
 }
 </style>
