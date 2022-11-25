@@ -207,10 +207,6 @@ async function onPage(event: any) {
 </script>
 
 <style scoped>
-.action-column {
-  all: unset;
-  justify-content: flex-end !important;
-}
 .buttons-container {
   display: flex;
   flex-flow: row wrap;
