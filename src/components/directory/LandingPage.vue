@@ -77,23 +77,25 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
+import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
+
 export default defineComponent({
   components: { ReportTable, PieChartDashCard }
 });
 </script>
 
 <script setup lang="ts">
-import { defineComponent, computed, Ref, ref, watch, onMounted } from "vue";
-import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
-import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
+import { computed, Ref, ref, watch, onMounted } from "vue";
+import { getColourFromType, getFAIconFromType } from '@/im_library/helpers/modules/ConceptTypeMethods';
+
 import { useStore } from "vuex";
 import _ from "lodash";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@/im_library/interfaces";
 import { DataTypeCheckers, Sorters } from "@/im_library/helpers";
 import { EntityService, Env, ConfigService, DirectService } from "@/im_library/services";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import axios from "axios";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byOrder } = Sorters;
 const store = useStore();
