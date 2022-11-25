@@ -59,7 +59,7 @@ import { TTIriRef } from "@/im_library/interfaces";
 import { DataTypeCheckers } from "@/im_library/helpers";
 import { EntityService, LoggerService, SetService } from "@/im_library/services";
 import { IM, RDFS } from "@/im_library/vocabulary";
-import axios from "axios";
+import IMViewerLink from "@/im_library/components/modules/IMViewerLink.vue"
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 
