@@ -21,7 +21,6 @@
       <template #loading> Loading data. Please wait. </template>
       <template #empty> No records found. </template>
 
-      <template #header>Contains</template>
       <Column field="name" header="Name">
         <template #body="{ data }">
           <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
@@ -35,7 +34,7 @@
           <span>{{ getTypesDisplay(data.type) }}</span>
         </template>
       </Column>
-      <Column :exportable="false">
+      <Column :exportable="false" style="justify-content: flex-end">
         <template #body="{ data }">
           <div class="buttons-container">
             <Button
@@ -208,6 +207,10 @@ async function onPage(event: any) {
 </script>
 
 <style scoped>
+.action-column {
+  all: unset;
+  justify-content: flex-end !important;
+}
 .buttons-container {
   display: flex;
   flex-flow: row wrap;

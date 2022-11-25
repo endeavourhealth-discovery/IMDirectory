@@ -7,7 +7,7 @@
       <ProgressSpinner />
     </div>
     <div v-else id="concept-content-dialogs-container">
-      <div>
+      <div  id="concept-panel-container">
         <TabView :lazy="true" :active-index="activeTab" id="info-side-bar-tabs">
           <TabPanel v-if="terms" header="Terms">
             <div class="concept-panel-content" id="term-table-container">
@@ -281,5 +281,21 @@ async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+}
+
+#concept-panel-container:deep(.p-tabview-panels) {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+#concept-panel-container:deep(.p-tabview-panel) {
+  height: 100%;
+  overflow: auto;
+}
+
+#concept-panel-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
 }
 </style>
