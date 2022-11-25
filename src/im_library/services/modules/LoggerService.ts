@@ -1,4 +1,5 @@
 import { ToastType } from "@/im_library/interfaces";
+import { ToastMessageOptions } from "primevue/toast";
 
 export default {
   // for toast functionality, LoggerService should be called within Vue toast operation
@@ -7,60 +8,52 @@ export default {
   // LoggerService.error("Concept schemes server request failed", err)
   // );
 
-  error(toastMessage?: string, consoleData?: Error | string): ToastType | void {
-    if (consoleData) {
-      console.error(consoleData);
-    }
-    if (toastMessage) {
-      return {
-        severity: "error",
-        summary: "Error",
-        detail: toastMessage,
-        life: 3000
-      };
-    }
+  error(toastMessage?: string, consoleData?: Error | string): ToastMessageOptions {
+    if (consoleData) console.error(consoleData);
+    if (!toastMessage) return {};
+
+    return {
+      severity: "error",
+      summary: "Error",
+      detail: toastMessage,
+      life: 3000
+    } as ToastMessageOptions;
   },
 
-  warn(toastMessage?: string, consoleData?: Error | string): ToastType | void {
-    if (consoleData) {
-      console.warn(consoleData);
-    }
-    if (toastMessage) {
-      return {
-        severity: "warn",
-        summary: "Warning",
-        detail: toastMessage,
-        life: 3000
-      };
-    }
+  warn(toastMessage?: string, consoleData?: Error | string): ToastMessageOptions {
+    if (consoleData) console.warn(consoleData);
+    if (!toastMessage) return {};
+
+    return {
+      severity: "warn",
+      summary: "Warning",
+      detail: toastMessage,
+      life: 3000
+    };
   },
 
-  info(toastMessage?: string, consoleData?: Error | string): ToastType | void {
-    if (consoleData) {
-      console.info(consoleData);
-    }
-    if (toastMessage) {
-      return {
-        severity: "info",
-        summary: "Info",
-        detail: toastMessage,
-        life: 3000
-      };
-    }
+  info(toastMessage?: string, consoleData?: Error | string): ToastMessageOptions {
+    if (consoleData) console.info(consoleData);
+    if (!toastMessage) return {};
+
+    return {
+      severity: "info",
+      summary: "Info",
+      detail: toastMessage,
+      life: 3000
+    };
   },
 
-  success(toastMessage?: string, consoleData?: string): ToastType | void {
-    if (consoleData) {
-      console.log(consoleData);
-    }
-    if (toastMessage) {
-      return {
-        severity: "success",
-        summary: "Success",
-        detail: toastMessage,
-        life: 3000
-      };
-    }
+  success(toastMessage?: string, consoleData?: string): ToastMessageOptions {
+    if (consoleData) console.log(consoleData);
+    if (!toastMessage) return {};
+
+    return {
+      severity: "success",
+      summary: "Success",
+      detail: toastMessage,
+      life: 3000
+    };
   },
 
   debug(consoleData: Error | string): void {
