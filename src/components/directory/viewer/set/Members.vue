@@ -59,7 +59,7 @@ import { TTIriRef } from "@/im_library/interfaces";
 import { DataTypeCheckers } from "@/im_library/helpers";
 import { EntityService, LoggerService, SetService } from "@/im_library/services";
 import { IM, RDFS } from "@/im_library/vocabulary";
-import IMViewerLink from "@/im_library/components/modules/IMViewerLink.vue"
+import IMViewerLink from "@/im_library/components/modules/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 
@@ -202,9 +202,11 @@ async function loadMore() {
   let pagedNewMembers: any = { result: [] as TTIriRef[] };
   if (nextPage.value * pageSize.value < totalCount.value) {
     pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, nextPage.value, pageSize.value);
-    members.value = members.value.concat(pagedNewMembers.result);
-    nextPage.value = nextPage.value + 1;
-    loadButton.value = true;
+    if (isObjectHasKeys(pagedNewMembers)) {
+      members.value = members.value.concat(pagedNewMembers.result);
+      nextPage.value = nextPage.value + 1;
+      loadButton.value = true;
+    }
   } else if (nextPage.value * pageSize.value > totalCount.value) {
     pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, nextPage.value, pageSize.value);
     members.value = members.value.concat(pagedNewMembers.result);
