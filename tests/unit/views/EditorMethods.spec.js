@@ -1,30 +1,67 @@
-import { afterAll, afterEach, vi } from "vitest";
+import { afterAll, afterEach, expect, vi } from "vitest";
 import { EntityService } from "@/im_library/services";
 import { IM } from "@/im_library/vocabulary";
 import { fakerFactory } from "@/mocks/factory";
 import testData from "./EditorMethods.testData";
+import { createStore } from "vuex";
+import { defineComponent } from "vue";
+import { mount } from "@vue/test-utils";
+import { setupEntity, setupShape } from "@/views/EditorMethods";
+
+function createTestStore(mockState, mockCommit, mockDispatch) {
+  const store = createStore({
+    state() {
+      return mockState;
+    }
+  });
+  store.commit = vi.fn().mockReturnValue(mockCommit);
+  store.dispatch = vi.fn().mockReturnValue(mockDispatch);
+  return store;
+}
+
+function factory(composable, mockState, mockCommit, mockDispatch) {
+  const TestComponent = defineComponent({
+    setup() {
+      return { ...composable() };
+    }
+  });
+
+  return mount(TestComponent, {
+    global: {
+      provide: { store: createTestStore(mockState, mockCommit, mockDispatch) }
+    }
+  });
+}
 
 describe("fetchEntity", () => {
   let getFullEntitySpy;
   beforeEach(async () => {
-    vi.resetModules();
-    // vi.resetAllMocks();
+    // vi.resetModules();
+    vi.resetAllMocks();
     getFullEntitySpy = vi.spyOn(EntityService, "getFullEntity");
   });
 
   it("does nothing if no editorIri", async () => {
-    vi.doMock("vuex", () => ({
-      useStore: vi.fn().mockReturnValue({ state: { editorIri: undefined } })
-    }));
-    const testEntity = fakerFactory.entity.create();
-    getFullEntitySpy.mockResolvedValue(testEntity);
-    let { setupEntity, setupShape } = await import("@/views/EditorMethods");
-    const { fetchEntity, editorEntity, editorEntityOriginal, entityName } = setupEntity();
-    await fetchEntity();
-    expect(getFullEntitySpy).not.toHaveBeenCalled();
-    expect(editorEntity.value).toEqual({});
-    expect(editorEntityOriginal.value).toEqual({});
-    expect(entityName.value).toEqual("");
+    const mockState = { editorIri: undefined };
+    const mockCommit = vi.fn();
+    const mockDispatch = vi.fn();
+    const wrapper = factory(setupEntity, mockState, mockCommit, mockDispatch);
+    await wrapper.vm.fetchEntity();
+    expect(wrapper.vm.editorEntity).toEqual({});
+    expect(wrapper.vm.editorEntityOriginal).toEqual({});
+    expect(wrapper.vm.entityName).toEqual("");
+    // vi.doMock("vuex", () => ({
+    //   useStore: vi.fn().mockReturnValue({ state: { editorIri: undefined } })
+    // }));
+    // const testEntity = fakerFactory.entity.create();
+    // getFullEntitySpy.mockResolvedValue(testEntity);
+    // let { setupEntity, setupShape } = await import("@/views/EditorMethods");
+    // const { fetchEntity, editorEntity, editorEntityOriginal, entityName } = setupEntity();
+    // await fetchEntity();
+    // expect(getFullEntitySpy).not.toHaveBeenCalled();
+    // expect(editorEntity.value).toEqual({});
+    // expect(editorEntityOriginal.value).toEqual({});
+    // expect(entityName.value).toEqual("");
   });
 
   it.skip("gets full entity by iri and process entity", async () => {
