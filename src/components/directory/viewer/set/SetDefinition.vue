@@ -1,9 +1,9 @@
 <template>
   <div class="set-definition-wrapper">
     <div class="details-container">
-      <ArrayObjectNamesToStringWithLabel v-if="isContainedIn" label="Contained in" :data="isContainedIn" show="true" />
-      <ArrayObjectNamesToStringWithLabel v-if="subsetOf" label="Subset of" :data="subsetOf" show="true" />
-      <ArrayObjectNamesToStringWithLabel v-if="subclassOf" label="Subclass of" :data="subclassOf" show="true" />
+      <ArrayObjectNamesToStringWithLabel v-if="isContainedIn" label="Contained in" :data="isContainedIn" :show="true" />
+      <ArrayObjectNamesToStringWithLabel v-if="subsetOf" label="Subset of" :data="subsetOf" :show="true" />
+      <ArrayObjectNamesToStringWithLabel v-if="subclassOf" label="Subclass of" :data="subclassOf" :show="true" />
     </div>
 
     <Accordion multiple v-model:activeIndex="active">
@@ -32,7 +32,8 @@ import SubsetDisplay from "./SubsetDisplay.vue";
 import { onMounted, ref } from "@vue/runtime-core";
 import { EntityService } from "@/im_library/services";
 import { IM, RDFS } from "@/im_library/vocabulary";
-import QuerySetDefinition from "@/im_library/components/modules/query/QuerySetDefinition.vue"
+import QuerySetDefinition from "@/im_library/components/modules/query/QuerySetDefinition.vue";
+import ArrayObjectNamesToStringWithLabel from "@/im_library/components/modules/generics/ArrayObjectNamesToStringWithLabel.vue";
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
 const subsetOf = ref();
@@ -59,7 +60,7 @@ onMounted(async () => {
 
 <style scoped>
 .details-container {
-  padding: 1rem;
+  padding-bottom: 1rem;
 }
 .set-accordion-content {
   height: 100%;
