@@ -14,12 +14,19 @@ import PasswordEdit from "@/components/auth/PasswordEdit.vue";
 import Register from "@/components/auth/Register.vue";
 import UserDetails from "@/components/auth/UserDetails.vue";
 import UserEdit from "@/components/auth/UserEdit.vue";
+import Creator from "@/views/Creator.vue";
+import TypeSelector from "@/components/creator/TypeSelector.vue";
+import Editor from "@/views/Editor.vue";
+import Mapper from "@/views/Mapper.vue";
+import Workflow from "@/views/Workflow.vue";
+import TaskDefinition from "@/components/workflow/TaskDefinition.vue";
+import TaskViewer from "@/components/workflow/TaskViewer.vue";
 import { AccessDenied, PageNotFound, SnomedLicense, EntityNotFound } from "@/im_library/components";
 import { EntityService, Env } from "@/im_library/services";
 import { DataTypeCheckers } from "@/im_library/helpers";
 import store from "@/store/index";
 import { nextTick } from "vue";
-import axios from "axios";
+import { urlToIri } from "@/im_library/helpers/modules/Converters";
 const { isObjectHasKeys } = DataTypeCheckers;
 
 const APP_TITLE = "IM Directory";
@@ -130,6 +137,55 @@ const routes: Array<RouteRecordRaw> = [
     ]
   },
   {
+    path: "/creator",
+    name: "Creator",
+    component: Creator,
+    meta: {
+      requiresAuth: true
+    },
+    children: [{ path: "type", name: "TypeSelector", component: TypeSelector }]
+  },
+  {
+    path: "/editor/:selectedIri?",
+    name: "Editor",
+    component: Editor,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
+    },
+    children: []
+  },
+  {
+    path: "/workflow",
+    name: "Workflow",
+    component: Workflow,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
+    },
+    children: [
+      {
+        path: "task",
+        name: "TaskDefinition",
+        component: TaskDefinition
+      },
+      {
+        path: "tasks",
+        name: "TaskViewer",
+        component: TaskViewer
+      }
+    ]
+  },
+  {
+    path: "/mapper",
+    name: "Mapper",
+    component: Mapper,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
+    }
+  },
+  {
     path: "/snomedLicense",
     name: "License",
     component: SnomedLicense
@@ -162,8 +218,19 @@ router.beforeEach(async (to, _from) => {
     store.commit("updateSnomedReturnUrl", currentUrl);
     store.commit("updateAuthReturnUrl", currentUrl);
   }
-  if (to.params.selectedIri) {
-    store.commit("updateConceptIri", to.params.selectedIri as string);
+  const iri = to.params.selectedIri;
+  if (iri) {
+    store.commit("updateConceptIri", iri as string);
+  }
+  if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
+    if (iri) store.commit("updateEditorIri", iri);
+    try {
+      if (!(await EntityService.iriExists(urlToIri(iri)))) {
+        router.push({ name: "EntityNotFound" });
+      }
+    } catch (_error) {
+      router.push({ name: "EntityNotFound" });
+    }
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
     const res = await store.dispatch("authenticateCurrentUser");
@@ -180,6 +247,18 @@ router.beforeEach(async (to, _from) => {
         path: "/snomedLicense"
       };
     }
+  }
+
+  if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {
+    router.push({ name: "Creator" });
+  }
+  if (to.name === "PageNotFound" && to.path.startsWith("/editor/")) {
+    const urlSections = to.path.split("/");
+    if (urlSections.length > 2) {
+      const selectedIriParam = to.path.split("/")[2];
+      if (!selectedIriParam) router.push({ name: "EntityNotFound" });
+      else router.push({ name: "Editor", params: { selectedIri: urlToIri(selectedIriParam) } });
+    } else router.push({ name: "Editor" });
   }
 
   if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {

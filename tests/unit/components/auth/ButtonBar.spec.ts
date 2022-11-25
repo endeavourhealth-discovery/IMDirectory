@@ -17,10 +17,12 @@ vi.mock("vuex", () => ({
 }));
 
 const mockBack = vi.fn();
+const mockPush = vi.fn();
 
 vi.mock("vue-router", () => ({
   useRouter: () => ({
-    back: mockBack
+    back: mockBack,
+    push: mockPush
   })
 }));
 

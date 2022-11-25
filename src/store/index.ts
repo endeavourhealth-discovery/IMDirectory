@@ -50,7 +50,12 @@ export default createStore({
     ],
     textDefinitionStartExpanded: ["Definition"],
     activeProfile: { uuid: "", activeClausePath: "" },
-    splitterRightSize: 0
+    splitterRightSize: 0,
+    editorIri: localStorage.getItem("editorSelectedIri") as string,
+    editorSavedEntity: JSON.parse(localStorage.getItem("editorSavedEntity") || "{}") as any,
+    creatorSavedEntity: JSON.parse(localStorage.getItem("creatorSavedEntity") || "{}") as any,
+    findInEditorTreeIri: "",
+    refreshEditorTree: false as boolean
   },
   mutations: {
     updateActiveProfile(state, value) {
@@ -155,6 +160,26 @@ export default createStore({
     },
     updateSplitterRightSize(state, splitterRightSize) {
       state.splitterRightSize = splitterRightSize;
+    },
+    updateEditorIri(state, iri) {
+      state.editorIri = iri;
+      localStorage.setItem("editorSelectedIri", iri);
+    },
+    updateEditorSavedEntity(state, entity) {
+      state.editorSavedEntity = entity;
+      if (entity) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
+      else localStorage.removeItem("editorSavedEntity");
+    },
+    updateCreatorSavedEntity(state, entity) {
+      state.creatorSavedEntity = entity;
+      if (entity) localStorage.setItem("creatorSavedEntity", JSON.stringify(entity));
+      else localStorage.removeItem("creatorSavedEntity");
+    },
+    updateFindInEditorTreeIri(state, iri) {
+      state.findInEditorTreeIri = iri;
+    },
+    updateRefreshTree(state) {
+      state.refreshEditorTree = !state.refreshEditorTree;
     }
   },
   actions: {

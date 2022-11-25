@@ -4,4 +4,6 @@ export interface RecentActivityItem {
   type: string;
   dateTime: Date;
   app: string;
+  color: string;
+  icon: string[];
 }
