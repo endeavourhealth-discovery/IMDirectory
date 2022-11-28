@@ -23,8 +23,7 @@
 
       <Column field="name" header="Name">
         <template #body="{ data }">
-          <div @mouseover="showOverlay($event, data)"
-               @mouseleave="hideOverlay($event)">
+          <div @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
             <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
               <i :class="data.icon" aria-hidden="true" />
             </span>
