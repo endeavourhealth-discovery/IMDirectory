@@ -47,6 +47,10 @@
             <strong>Iri: </strong>
             <span style="word-break: break-all">{{ hoveredResult.iri }}</span>
           </p>
+          <p>
+            <strong>Description: </strong>
+            <span>{{ hoveredResult.description }}</span>
+          </p>
           <p v-if="hoveredResult.code">
             <strong>Code: </strong>
             <span>{{ hoveredResult.code }}</span>

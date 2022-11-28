@@ -10,4 +10,5 @@ export interface ConceptSummary {
   weighting: number;
   match: string;
   status: TTIriRef;
+  description: string;
 }
