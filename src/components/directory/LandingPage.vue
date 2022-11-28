@@ -88,7 +88,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { computed, Ref, ref, watch, onMounted } from "vue";
-import { getColourFromType, getFAIconFromType } from '@/im_library/helpers/modules/ConceptTypeMethods';
+import { getColourFromType, getFAIconFromType } from "@/im_library/helpers/modules/ConceptTypeMethods";
 
 import { useStore } from "vuex";
 import _ from "lodash";
@@ -96,6 +96,7 @@ import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@/im_li
 import { DataTypeCheckers, Sorters } from "@/im_library/helpers";
 import { EntityService, Env, ConfigService, DirectService } from "@/im_library/services";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
+import rowClick from "@/composables/rowClick";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byOrder } = Sorters;
 const store = useStore();
@@ -104,9 +105,10 @@ const recentLocalActivity = computed(() => store.state.recentLocalActivity);
 const directService = new DirectService();
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
-const loading = ref(false);
+const loading: Ref<boolean> = ref(false);
 const configs: Ref<DashboardLayout[]> = ref([]);
 const cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
+const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
@@ -130,9 +132,9 @@ async function getRecentActivityDetails() {
   const temp: RecentActivityItem[] = [];
 
   for (const rla of recentLocalActivity.value) {
-    const clone = {...rla};
+    const clone = { ...rla };
 
-    const result = results.find(r => r['@id'] === rla.iri);
+    const result = results.find(r => r["@id"] === rla.iri);
 
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
       clone.name = result[RDFS.LABEL];
@@ -157,7 +159,7 @@ async function getConfigs(): Promise<void> {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data.iri, "Folder");
+  onRowClick(event.data.iri);
 }
 
 function getActivityTooltipMessage(activity: RecentActivityItem) {

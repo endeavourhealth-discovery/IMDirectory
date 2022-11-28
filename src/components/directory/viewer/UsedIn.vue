@@ -41,6 +41,7 @@ import { RDF, RDFS } from "@/im_library/vocabulary";
 import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
+import rowClick from "@/composables/rowClick";
 const { isObjectHasKeys } = DataTypeCheckers;
 const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
@@ -59,6 +60,7 @@ const currentPage = ref(0);
 const pageSize = ref(25);
 const scrollHeight = ref("500px");
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
+const { onRowClick }: { onRowClick: Function } = rowClick();
 
 onMounted(async () => {
   window.addEventListener("resize", onResize);
@@ -81,7 +83,7 @@ async function init() {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data["@id"]);
+  onRowClick(event.data["@id"]);
 }
 
 async function getUsages(iri: string, pageIndex: number, pageSize: number): Promise<void> {
