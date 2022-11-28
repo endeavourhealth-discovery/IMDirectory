@@ -37,7 +37,6 @@ import { computed, ComputedRef, Ref, ref, watch } from "vue";
 import { isArrayHasLength } from "@/im_library/helpers/modules/DataTypeCheckers";
 import { EntityService } from "@/im_library/services";
 import { RDFS } from "@/im_library/vocabulary";
-import axios from "axios";
 
 class TextProcessingError extends Error {
   constructor() {
@@ -125,10 +124,12 @@ function validateText(text: string): boolean {
 }
 
 function getArrayFromText(text: string): string[] {
-  if (text.includes("\n")) return text.split("\n");
-  else if (text.includes(" ")) return text.split(" ");
-  else if (text.includes(",")) return text.split(",");
-  else throw new TextProcessingError();
+  try {
+    const result = text.match(/\d+/g);
+    return result?.filter(code => code.length >= 10) as string[];
+  } catch (error) {
+    throw new TextProcessingError();
+  }
 }
 
 async function getValidatedEntities(codeList: string[]) {
