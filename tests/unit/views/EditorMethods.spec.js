@@ -1,60 +1,52 @@
-import { afterAll, afterEach, vi } from "vitest";
+import { afterAll, afterEach, expect, vi } from "vitest";
 import { EntityService } from "@/im_library/services";
 import { IM } from "@/im_library/vocabulary";
 import { fakerFactory } from "@/mocks/factory";
 import testData from "./EditorMethods.testData";
+import { createTestStore, createTestRouter, mountComposable } from "@/im_library/helpers/modules/TestMethods";
+
+import { setupEntity, setupShape } from "@/views/EditorMethods";
 
 describe("fetchEntity", () => {
   let getFullEntitySpy;
   beforeEach(async () => {
-    vi.resetModules();
-    // vi.resetAllMocks();
+    vi.resetAllMocks();
     getFullEntitySpy = vi.spyOn(EntityService, "getFullEntity");
   });
 
   it("does nothing if no editorIri", async () => {
-    vi.doMock("vuex", () => ({
-      useStore: vi.fn().mockReturnValue({ state: { editorIri: undefined } })
-    }));
-    const testEntity = fakerFactory.entity.create();
-    getFullEntitySpy.mockResolvedValue(testEntity);
-    let { setupEntity, setupShape } = await import("@/views/EditorMethods");
-    const { fetchEntity, editorEntity, editorEntityOriginal, entityName } = setupEntity();
-    await fetchEntity();
-    expect(getFullEntitySpy).not.toHaveBeenCalled();
-    expect(editorEntity.value).toEqual({});
-    expect(editorEntityOriginal.value).toEqual({});
-    expect(entityName.value).toEqual("");
+    const mockState = { editorIri: undefined };
+    const mockCommit = vi.fn();
+    const mockDispatch = vi.fn();
+    const wrapper = mountComposable(setupEntity, createTestStore(mockState, mockCommit, mockDispatch));
+    await wrapper.vm.fetchEntity();
+    expect(wrapper.vm.editorEntity).toEqual({});
+    expect(wrapper.vm.editorEntityOriginal).toEqual({});
+    expect(wrapper.vm.entityName).toEqual("");
   });
 
-  it.skip("gets full entity by iri and process entity", async () => {
-    vi.doMock("vuex", () => ({
-      useStore: vi.fn().mockReturnValue({ state: { editorIri: "testIri" } })
-    }));
-    let { setupEntity, setupShape } = await import("@/views/EditorMethods");
+  it("gets full entity by iri and process entity", async () => {
     const testEntity = fakerFactory.entity.create();
     getFullEntitySpy.mockResolvedValue(testEntity);
-    let { fetchEntity, editorEntity, editorEntityOriginal, entityName, processEntity } = setupEntity();
-    await fetchEntity();
+    const mockState = { editorIri: "testIri" };
+    const mockCommit = vi.fn();
+    const mockDispatch = vi.fn();
+    const wrapper = mountComposable(setupEntity, createTestStore(mockState, mockCommit, mockDispatch));
+    await wrapper.vm.fetchEntity();
     expect(getFullEntitySpy).toHaveBeenCalled();
-    expect(editorEntityOriginal.value).toEqual(processEntity(testEntity));
-    expect(editorEntity.value).toEqual(processEntity(testEntity));
-    expect(entityName.value).toEqual(testEntity["http://www.w3.org/2000/01/rdf-schema#label"]);
-  });
-
-  afterEach(() => {
-    vi.resetModules();
+    expect(wrapper.vm.editorEntityOriginal).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity["@id"] }));
+    expect(wrapper.vm.editorEntity).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity["@id"] }));
+    expect(wrapper.vm.entityName).toEqual(testEntity["http://www.w3.org/2000/01/rdf-schema#label"]);
   });
 });
 
 describe("processEntity", () => {
   it("changes @id to full iri and removes im1id and im1scheme", async () => {
-    const { setupEntity } = await import("@/views/EditorMethods");
-    const { processEntity } = setupEntity();
     const testEntity = fakerFactory.entity.create();
     testEntity[IM.IM_1_ID] = "testIri";
     testEntity[IM.IM_1_SCHEME] = [{ "@id": "testScheme" }];
-    const result = processEntity(testEntity);
+    const wrapper = mountComposable(setupEntity, createTestStore());
+    const result = wrapper.vm.processEntity(testEntity);
     expect(result).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity["@id"] }));
     expect(result).toEqual(
       expect.not.objectContaining({ "http://endhealth.info/im#im1Id": testEntity.IM_1_ID, "http://endhealth.info/im#im1Scheme": testEntity.IM_1_SCHEME })
@@ -65,8 +57,7 @@ describe("processEntity", () => {
 describe("setupShape", async () => {
   let getShapeFromTypeSpy;
   let getShapeSpy;
-  const { setupShape } = await import("@/views/EditorMethods");
-  const { getShape, getShapesCombined, addToShape, processShape, processComponentType, setSteps, shape, targetShape, groups, stepsItems } = setupShape();
+  let wrapper;
 
   describe("getShape", () => {
     beforeEach(() => {
@@ -78,14 +69,16 @@ describe("setupShape", async () => {
     it("gets shape from a type iri ___ success", async () => {
       getShapeFromTypeSpy.mockResolvedValue({ "@id": testData.CONCEPT_SHAPE["@id"] });
       getShapeSpy.mockResolvedValue(testData.CONCEPT_SHAPE);
-      const shape = await getShape("testTypeIri");
+      wrapper = mountComposable(setupShape, undefined, createTestRouter());
+      const shape = await wrapper.vm.getShape("testTypeIri");
       expect(shape).toEqual(testData.CONCEPT_SHAPE);
     });
 
     it("gets shape from a type iri ___ fail", async () => {
       getShapeFromTypeSpy.mockResolvedValue({});
       getShapeSpy.mockResolvedValue(testData.CONCEPT_SHAPE);
-      const shape = await getShape("testTypeIri");
+      wrapper = mountComposable(setupShape, undefined, createTestRouter());
+      const shape = await wrapper.vm.getShape("testTypeIri");
       expect(shape).toEqual({});
     });
   });
@@ -95,7 +88,8 @@ describe("setupShape", async () => {
       const startShape = { ...testData.CONCEPT_SHAPE };
       const shapeToAdd = { ...testData.CONCEPT_SET_SHAPE };
       expect(startShape.group.length).toBe(4);
-      addToShape(startShape, shapeToAdd);
+      wrapper = mountComposable(setupShape, undefined, createTestRouter());
+      wrapper.vm.addToShape(startShape, shapeToAdd);
       expect(startShape.group.length).toBe(5);
       expect(startShape.group[0]).toEqual(testData.CONCEPT_SHAPE.group[0]);
       expect(startShape.group[1]).toEqual(testData.CONCEPT_SHAPE.group[1]);
