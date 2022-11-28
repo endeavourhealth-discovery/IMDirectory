@@ -12,14 +12,14 @@
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
       />
-      <OverlayPanel ref="appsOP">
+      <OverlayPanel ref="appsOP" class="app-overlay-panel">
         <div class="flex flex-row flex-wrap gap-1 justify-content-start">
           <Button
             v-for="item in appItems"
             v-tooltip.bottom="item.label"
             :icon="item.icon"
             class="p-button-rounded p-button-text p-button-plain"
-            @click="navigate(item.url)"
+            @click="open(item)"
           />
         </div>
       </OverlayPanel>
@@ -50,7 +50,7 @@ import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem } from "../../interfaces/modules/AccountItem";
 import { LoginItem } from "../../interfaces/modules/LoginItem";
 import { useStore } from "vuex";
-import { Env } from "../../services";
+import { DirectService, Env } from "../../services";
 
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
@@ -60,10 +60,11 @@ const authReturnUrl = computed(() => store.state.authReturnUrl);
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
 const accountItems: Ref<AccountItem[]> = ref([]);
-const appItems: Ref<{ icon: string; url: string; label: string }[]> = ref([]);
+const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
 
 const userMenu = ref();
 const appsOP = ref();
+const directService = new DirectService();
 
 onMounted(() => {
   setUserMenuItems();
@@ -74,8 +75,8 @@ function toLandingPage() {
   window.location.href = "/";
 }
 
-function navigate(url: string) {
-  window.open(url);
+function open(item: { icon: string; command: Function; label: string }) {
+  item.command();
 }
 
 function getItems(): LoginItem[] | AccountItem[] {
@@ -138,10 +139,8 @@ function setUserMenuItems(): void {
 
 function setAppMenuItems() {
   appItems.value = [
-    { label: "Directory", icon: "fa-solid fa-folder-open", url: "/directory" },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", url: "/editor/#/creator" },
-    { label: "Editor", icon: "fa-solid fa-pen-to-square", url: "/editor/#/editor" },
-    { label: "Mapper", icon: "fa-solid fa-diagram-project", url: "/editor/#/mapper" }
+    { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
+    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() }
   ];
 }
 </script>
@@ -193,5 +192,13 @@ function setAppMenuItems() {
 .topbar-end-button:hover {
   background-color: #6c757d !important;
   color: #ffffff !important;
+}
+
+.app-overlay-panel {
+  z-index: 1;
+}
+
+.p-tooltip {
+  z-index: 999;
 }
 </style>
