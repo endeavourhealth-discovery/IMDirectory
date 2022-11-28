@@ -16,6 +16,7 @@ import EclSearchBuilderMethods from "./modules/EclSearchBuilderMethods.ts";
 import QueryBuilderMethods from "./modules/QueryBuilderMethods";
 import UtililityMethods from "./modules/UtilityMethods";
 import TangledTreeLayout from "./modules/TangledTreeLayout";
+import TestMethods from "./modules/TestMethods";
 
 export {
   ChartRescale,
@@ -35,5 +36,6 @@ export {
   EclSearchBuilderMethods,
   QueryBuilderMethods,
   UtililityMethods,
-  TangledTreeLayout
+  TangledTreeLayout,
+  TestMethods
 };
