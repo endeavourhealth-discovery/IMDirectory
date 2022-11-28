@@ -40,8 +40,8 @@ export default class DirectService {
     });
   }
 
-  public view(iri: string) {
-    if (iri) this.directTo(Env.DIRECTORY_URL, iri, "folder");
+  public view(iri?: string) {
+    this.directTo(Env.DIRECTORY_URL, iri || "", "folder");
   }
 
   public select(iri: string, routeName?: string) {
@@ -55,7 +55,11 @@ export default class DirectService {
     }
   }
 
-  public edit(iri: string) {
-    if (iri) this.directTo(Env.EDITOR_URL, iri, "editor");
+  public edit(iri?: string) {
+    this.directTo(Env.DIRECTORY_URL, iri || "", "editor");
+  }
+
+  public create() {
+    window.open(Env.DIRECTORY_URL + "creator");
   }
 }
