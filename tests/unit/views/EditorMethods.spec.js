@@ -77,6 +77,7 @@ describe("setupShape", async () => {
     it("gets shape from a type iri ___ fail", async () => {
       getShapeFromTypeSpy.mockResolvedValue({});
       getShapeSpy.mockResolvedValue(testData.CONCEPT_SHAPE);
+      wrapper = mountComposable(setupShape, undefined, createTestRouter());
       const shape = await wrapper.vm.getShape("testTypeIri");
       expect(shape).toEqual({});
     });
