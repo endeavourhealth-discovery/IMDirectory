@@ -88,6 +88,7 @@ import { IM } from "@/im_library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
+import rowClick from "@/composables/rowClick";
 const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
 
@@ -114,6 +115,7 @@ const newFolderName = ref("");
 
 const menu = ref();
 const navTreeOP = ref();
+const { onRowClick }: { onRowClick: Function } = rowClick();
 
 onMounted(async () => {
   loading.value = true;
@@ -197,7 +199,7 @@ function onNodeSelect(node: any): void {
     loadMore(node);
   } else {
     selectedNode.value = node;
-    directService.select(node.data, "Folder");
+    onRowClick(node.data);
   }
 }
 

@@ -3,9 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter } from "vue-router";
-import { useStore } from "vuex";
-import { DirectService, Env } from "../../services";
+import { DirectService } from "../../services";
 
 const props = defineProps({ iri: { type: String, required: true }, label: { type: String, required: false } });
 

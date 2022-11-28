@@ -109,6 +109,7 @@ import _ from "lodash";
 import { ConceptSummary } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { DirectService, Env } from "@/im_library/services";
+import rowClick from "@/composables/rowClick";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -154,6 +155,7 @@ const rClickOptions: Ref<any[]> = ref([
 
 const contextMenu = ref();
 const menu = ref();
+const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => searchResults.value,
@@ -261,7 +263,7 @@ function onRowContextMenu(event: any) {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data.iri, "Folder");
+  onRowClick(event.data.iri);
 }
 </script>
 

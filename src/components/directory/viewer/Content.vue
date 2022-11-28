@@ -87,6 +87,7 @@ import { TTIriRef } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 import { EntityService, Env, DirectService } from "@/im_library/services";
+import rowClick from "@/composables/rowClick";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength } = DataTypeCheckers;
 
@@ -95,6 +96,7 @@ const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService();
+const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => conceptIri.value,
@@ -190,7 +192,8 @@ function updateFavourites(iri: string) {
 }
 
 function onRowSelect(event: any) {
-  directService.select(event.data["@id"]);
+  onRowClick(event.data["@id"]);
+
 }
 
 async function loadMore() {

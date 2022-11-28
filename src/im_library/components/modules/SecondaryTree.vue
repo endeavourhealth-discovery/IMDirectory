@@ -381,7 +381,7 @@ function navigate(event: any, iri: string): void {
 }
 
 function onDblClick(iri: string) {
-  directService.select(iri);
+  directService.view(iri);
 }
 
 async function loadMore(node: any) {
