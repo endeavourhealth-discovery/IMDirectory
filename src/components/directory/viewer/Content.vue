@@ -23,10 +23,14 @@
 
       <Column field="name" header="Name">
         <template #body="{ data }">
-          <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-            <i :class="data.icon" aria-hidden="true" />
-          </span>
-          <span>{{ data.name }}</span>
+          <div @mouseover="showOverlay($event, data)"
+               @mouseleave="hideOverlay($event)">
+            <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
+              <i :class="data.icon" aria-hidden="true" />
+            </span>
+            <span>{{ data.name }}</span>
+          </div>
+
         </template>
       </Column>
       <Column field="type" header="Type">
@@ -76,6 +80,42 @@
       </Column>
     </DataTable>
     <ContextMenu ref="menu" :model="rClickOptions" />
+    <OverlayPanel ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
+      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
+        <div class="left-side" style="width: 50%">
+          <p>
+            <strong>Name: </strong>
+            <span>{{ hoveredResult.name }}</span>
+          </p>
+          <p>
+            <strong>Iri: </strong>
+            <span style="word-break: break-all">{{ hoveredResult.iri }}</span>
+          </p>
+          <p>
+            <strong>Description: </strong>
+            <span>{{ hoveredResult.description }}</span>
+          </p>
+          <p v-if="hoveredResult.code">
+            <strong>Code: </strong>
+            <span>{{ hoveredResult.code }}</span>
+          </p>
+        </div>
+        <div class="right-side" style="width: 50%">
+          <p v-if="hoveredResult.status">
+            <strong>Status: </strong>
+            <span>{{ hoveredResult.status.name }}</span>
+          </p>
+          <p v-if="hoveredResult.scheme">
+            <strong>Scheme: </strong>
+            <span>{{ hoveredResult.scheme.name }}</span>
+          </p>
+          <p v-if="hoveredResult.entityType">
+            <strong>Type: </strong>
+            <span>{{ getConceptTypes(hoveredResult.entityType) }}</span>
+          </p>
+        </div>
+      </div>
+    </OverlayPanel>
   </div>
 </template>
 
@@ -83,7 +123,7 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import { useStore } from "vuex";
 import _ from "lodash";
-import { TTIriRef } from "@/im_library/interfaces";
+import {ConceptSummary, TTIriRef} from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 import { EntityService, Env, DirectService } from "@/im_library/services";
@@ -137,8 +177,11 @@ const rClickOptions: Ref<any[]> = ref([
 const totalCount = ref(0);
 const nextPage = ref(2);
 const pageSize = ref(50);
+const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const overlayLocation: Ref<any> = ref({});
 
 const menu = ref();
+const navTreeOP = ref();
 
 onMounted(() => init());
 
@@ -206,6 +249,23 @@ async function loadMore() {
 async function onPage(event: any) {
   nextPage.value = event.page + 1;
   await loadMore();
+}
+
+async function showOverlay(event: any, data: any): Promise<void> {
+    const x = navTreeOP.value;
+    overlayLocation.value = event;
+    x.show(overlayLocation.value);
+    hoveredResult.value = await EntityService.getEntitySummary(data["@id"]);
+}
+
+function hideOverlay(event: any): void {
+  const x = navTreeOP.value;
+  x.hide(event);
+  overlayLocation.value = {} as any;
+}
+
+function getConceptTypes(types: TTIriRef[]): string {
+  return getNamesAsStringFromTypes(types);
 }
 </script>
 
