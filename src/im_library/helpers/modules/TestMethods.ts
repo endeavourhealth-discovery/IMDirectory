@@ -14,11 +14,16 @@ export function createTestStore(mockState?: any, mockCommit?: any, mockDispatch?
   return store;
 }
 
-export function createTestRouter(routes?: RouteRecordRaw[]) {
-  return createRouter({ routes: routes || [], history: createWebHashHistory() });
+export function createTestRouter(routes?: RouteRecordRaw[], mockPush?: any, mockGo?: any, mockBack?: any, mockForward?: any) {
+  const router = createRouter({ routes: routes || [], history: createWebHashHistory() });
+  router.push = mockPush || vi.fn();
+  router.go = mockGo || vi.fn();
+  router.back = mockBack || vi.fn();
+  router.forward = mockForward || vi.fn();
+  return router;
 }
 
-export function mountComposable(composable: any, mockStore?: any, mockRouter?: any, mockRoute?: any) {
+export function mountComposable(composable: any, mockStore?: any, mockRouter?: any) {
   const TestComponent = defineComponent({
     setup() {
       return { ...composable() };
@@ -26,11 +31,14 @@ export function mountComposable(composable: any, mockStore?: any, mockRouter?: a
     template: "<template></template>"
   });
 
-  return mount(TestComponent, {
-    global: {
-      provide: { store: mockStore || createTestStore(), router: mockRouter || createTestRouter(), route: mockRoute || {} }
-    }
-  });
+  if (mockRouter)
+    return mount(TestComponent, {
+      global: {
+        provide: { store: mockStore || createTestStore() },
+        plugins: [mockRouter]
+      }
+    });
+  else return mount(TestComponent, { global: { provide: { store: mockStore || createTestStore() } } });
 }
 
 export default { createTestStore, createTestRouter, mountComposable };
