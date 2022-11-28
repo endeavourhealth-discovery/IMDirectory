@@ -89,7 +89,7 @@ const store = useStore();
 const router = useRouter();
 const toast = useToast();
 
-const treeIri: ComputedRef<string> = computed(() => store.state.findInTreeIri);
+const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
 
 let selected: Ref<any> = ref({});
 let selectedNode: Ref<any> = ref({});
