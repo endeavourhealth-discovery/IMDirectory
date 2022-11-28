@@ -494,6 +494,14 @@ const EntityService = {
     } catch (error) {
       return {} as TTIriRef;
     }
+  },
+
+  async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
+    try {
+      return await axios.post(Env.VITE_NODE_API + "node_api/public/search/validatedEntity", codes);
+    } catch (error) {
+      return [] as any[];
+    }
   }
 };
 
