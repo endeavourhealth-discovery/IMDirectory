@@ -43,7 +43,7 @@
       <template #loading> Loading data. Please wait... </template>
       <Column field="member" header="Name">
         <template #body="{ data }">
-          <IMViewerLink :iri="data['@id']" :label="data.name" />
+          <IMViewerLink :iri="data['@id']" :label="data.name" action="select"/>
         </template>
       </Column>
       <template #footer v-if="loadButton">
