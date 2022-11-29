@@ -126,7 +126,7 @@ function validateText(text: string): boolean {
 function getArrayFromText(text: string): string[] {
   try {
     const result = text.match(/\d+/g);
-    return result?.filter(code => code.length >= 10) as string[];
+    return result?.filter(code => code.length >= 6) as string[];
   } catch (error) {
     throw new TextProcessingError();
   }
