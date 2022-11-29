@@ -41,7 +41,7 @@
       <template #empty> None </template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #body="slotProps">
-          <div class="ml-2">
+          <div class="ml-2" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
               <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
@@ -99,16 +99,17 @@
       </Column>
     </DataTable>
     <ContextMenu :model="rClickOptions" ref="contextMenu" />
+    <OverlaySummary ref="OS"/>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import _ from "lodash";
 import { ConceptSummary } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
-import { DirectService, Env } from "@/im_library/services";
+import { DirectService } from "@/im_library/services";
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import findInTree from "@/composables/findInTree";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
@@ -155,6 +156,7 @@ const rClickOptions: Ref<any[]> = ref([
   }
 ]);
 
+const OS:Ref<any> = ref();
 const contextMenu = ref();
 const menu = ref();
 const { onRowClick }: { onRowClick: Function } = rowClick();
@@ -266,6 +268,14 @@ function onRowContextMenu(event: any) {
 
 function onRowSelect(event: any) {
   onRowClick(event.data.iri);
+}
+
+async function showOverlay(event: any, data: any): Promise<void> {
+  await OS.value.showOverlay(event, data.iri);
+}
+
+function hideOverlay(event: any): void {
+  OS.value.hideOverlay(event);
 }
 </script>
 

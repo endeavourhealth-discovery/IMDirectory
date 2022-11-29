@@ -23,10 +23,13 @@
 
       <Column field="name" header="Name">
         <template #body="{ data }">
-          <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-            <i :class="data.icon" aria-hidden="true" />
-          </span>
-          <span>{{ data.name }}</span>
+          <div @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
+            <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
+              <i :class="data.icon" aria-hidden="true" />
+            </span>
+            <span>{{ data.name }}</span>
+          </div>
+
         </template>
       </Column>
       <Column field="type" header="Type">
@@ -76,6 +79,7 @@
       </Column>
     </DataTable>
     <ContextMenu ref="menu" :model="rClickOptions" />
+    <OverlaySummary ref="OS"/>
   </div>
 </template>
 
@@ -89,6 +93,7 @@ import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 import { EntityService, Env, DirectService } from "@/im_library/services";
 import rowClick from "@/composables/rowClick";
 import findInTree from "@/composables/findInTree";
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength } = DataTypeCheckers;
 
@@ -139,8 +144,10 @@ const rClickOptions: Ref<any[]> = ref([
 const totalCount = ref(0);
 const nextPage = ref(2);
 const pageSize = ref(50);
+const overlayLocation: Ref<any> = ref({});
 
 const menu = ref();
+const OS:Ref<any> = ref();
 
 onMounted(() => init());
 
@@ -208,6 +215,15 @@ async function onPage(event: any) {
   nextPage.value = event.page + 1;
   await loadMore();
 }
+
+async function showOverlay(event: any, data: any): Promise<void> {
+ await OS.value.showOverlay(event, data["@id"]);
+}
+
+function hideOverlay(event: any): void {
+  OS.value.hideOverlay(event);
+}
+
 </script>
 
 <style scoped>

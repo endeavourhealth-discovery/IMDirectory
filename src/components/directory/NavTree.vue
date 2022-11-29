@@ -30,44 +30,7 @@
         </div>
       </template>
     </Tree>
-
-    <OverlayPanel v-if="hoveredResult.iri === 'load'" ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-      <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
-        <span>{{ hoveredResult.name }}</span>
-      </div>
-    </OverlayPanel>
-    <OverlayPanel v-else ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
-        <div class="left-side" style="width: 50%">
-          <p>
-            <strong>Name: </strong>
-            <span>{{ hoveredResult.name }}</span>
-          </p>
-          <p>
-            <strong>Iri: </strong>
-            <span style="word-break: break-all">{{ hoveredResult.iri }}</span>
-          </p>
-          <p v-if="hoveredResult.code">
-            <strong>Code: </strong>
-            <span>{{ hoveredResult.code }}</span>
-          </p>
-        </div>
-        <div class="right-side" style="width: 50%">
-          <p v-if="hoveredResult.status">
-            <strong>Status: </strong>
-            <span>{{ hoveredResult.status.name }}</span>
-          </p>
-          <p v-if="hoveredResult.scheme">
-            <strong>Scheme: </strong>
-            <span>{{ hoveredResult.scheme.name }}</span>
-          </p>
-          <p v-if="hoveredResult.entityType">
-            <strong>Type: </strong>
-            <span>{{ getConceptTypes(hoveredResult.entityType) }}</span>
-          </p>
-        </div>
-      </div>
-    </OverlayPanel>
+    <OverlaySummary ref="OS"/>
     <Dialog header="New folder" v-model:visible="newFolder" :modal="true">
       <InputText type="text" v-model="newFolderName" autofocus />
       <template #footer>
@@ -86,6 +49,7 @@ import { DataTypeCheckers, ConceptTypeMethods } from "@/im_library/helpers";
 import { DirectService, EntityService, Env, FilerService } from "@/im_library/services";
 import { IM } from "@/im_library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import rowClick from "@/composables/rowClick";
@@ -115,7 +79,7 @@ const newFolder: Ref<null | TreeNode> = ref(null);
 const newFolderName = ref("");
 
 const menu = ref();
-const navTreeOP = ref();
+const OS:Ref<any> = ref();
 const { onRowClick }: { onRowClick: Function } = rowClick();
 
 onMounted(async () => {
@@ -451,29 +415,14 @@ async function loadMoreChildren(node: any) {
   }
 }
 
-async function showOverlay(event: any, node?: any): Promise<void> {
-  if (node.data === "loadMore") {
-    const x = navTreeOP.value;
-    overlayLocation.value = event;
-    x.show(overlayLocation.value);
-    hoveredResult.value.iri = "load";
-    hoveredResult.value.name = node.parentNode.label;
-  } else if (node.data && node.data !== "http://endhealth.info/im#Favourites") {
-    const x = navTreeOP.value;
-    overlayLocation.value = event;
-    x.show(overlayLocation.value);
-    hoveredResult.value = await EntityService.getEntitySummary(node.data);
+async function showOverlay(event: any, node: any): Promise<void> {
+  if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
+    await OS.value.showOverlay(event, node.key);
   }
 }
 
 function hideOverlay(event: any): void {
-  const x = navTreeOP.value;
-  x.hide(event);
-  overlayLocation.value = {} as any;
-}
-
-function getConceptTypes(types: TTIriRef[]): string {
-  return getNamesAsStringFromTypes(types);
+  OS.value.hideOverlay(event);
 }
 </script>
 
