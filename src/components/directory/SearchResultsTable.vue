@@ -99,52 +99,17 @@
       </Column>
     </DataTable>
     <ContextMenu :model="rClickOptions" ref="contextMenu" />
-    <OverlayPanel ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
-        <div class="left-side" style="width: 50%">
-          <p>
-            <strong>Name: </strong>
-            <span>{{ hoveredResult.name }}</span>
-          </p>
-          <p>
-            <strong>Iri: </strong>
-            <span style="word-break: break-all">{{ hoveredResult.iri }}</span>
-          </p>
-          <p>
-            <strong>Description: </strong>
-            <span>{{ hoveredResult.description }}</span>
-          </p>
-          <p v-if="hoveredResult.code">
-            <strong>Code: </strong>
-            <span>{{ hoveredResult.code }}</span>
-          </p>
-        </div>
-        <div class="right-side" style="width: 50%">
-          <p v-if="hoveredResult.status">
-            <strong>Status: </strong>
-            <span>{{ hoveredResult.status.name }}</span>
-          </p>
-          <p v-if="hoveredResult.scheme">
-            <strong>Scheme: </strong>
-            <span>{{ hoveredResult.scheme.name }}</span>
-          </p>
-          <p v-if="hoveredResult.entityType">
-            <strong>Type: </strong>
-            <span>{{ getConceptTypes(hoveredResult.entityType) }}</span>
-          </p>
-        </div>
-      </div>
-    </OverlayPanel>
+    <OverlaySummary ref="OS"/>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import _ from "lodash";
-import {ConceptSummary, TTIriRef} from "@/im_library/interfaces";
+import { ConceptSummary } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
-import {DirectService, EntityService, Env} from "@/im_library/services";
+import { DirectService } from "@/im_library/services";
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import findInTree from "@/composables/findInTree";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
@@ -191,10 +156,7 @@ const rClickOptions: Ref<any[]> = ref([
   }
 ]);
 
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const overlayLocation: Ref<any> = ref({});
-const navTreeOP = ref();
-
+const OS:Ref<any> = ref();
 const contextMenu = ref();
 const menu = ref();
 const { onRowClick }: { onRowClick: Function } = rowClick();
@@ -309,20 +271,11 @@ function onRowSelect(event: any) {
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {
-  const x = navTreeOP.value;
-  overlayLocation.value = event;
-  x.show(overlayLocation.value);
-  hoveredResult.value = await EntityService.getEntitySummary(data.iri);
+  await OS.value.showOverlay(event, data.iri);
 }
 
 function hideOverlay(event: any): void {
-  const x = navTreeOP.value;
-  x.hide(event);
-  overlayLocation.value = {} as any;
-}
-
-function getConceptTypes(types: TTIriRef[]): string {
-  return getNamesAsStringFromTypes(types);
+  OS.value.hideOverlay(event);
 }
 </script>
 
