@@ -41,10 +41,10 @@
         <template #body="{ data }">
           <div class="buttons-container">
             <Button
-              :icon="data.hasChildren ? 'pi pi-folder-open' : 'fa-solid fa-sitemap'"
+              :icon="'fa-solid fa-sitemap'"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.select(data['@id'])"
-              v-tooltip.top="data.hasChildren ? 'Open' : 'Select'"
+              @click="locateInTree($event, data['@id'], 'Folder')"
+              v-tooltip.top="'Find in tree'"
               data-testid="select-button"
             />
             <Button
@@ -127,6 +127,7 @@ import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 import { EntityService, Env, DirectService } from "@/im_library/services";
 import rowClick from "@/composables/rowClick";
+import findInTree from "@/composables/findInTree";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength } = DataTypeCheckers;
 
@@ -136,6 +137,7 @@ const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService();
 const { onRowClick }: { onRowClick: Function } = rowClick();
+const { locateInTree }: { locateInTree: Function } = findInTree();
 
 watch(
   () => conceptIri.value,
@@ -235,7 +237,6 @@ function updateFavourites(iri: string) {
 
 function onRowSelect(event: any) {
   onRowClick(event.data["@id"]);
-
 }
 
 async function loadMore() {

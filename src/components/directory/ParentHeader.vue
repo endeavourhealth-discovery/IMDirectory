@@ -11,6 +11,13 @@
       </div>
       <div class="concept-buttons-container">
         <Button
+          icon="fa-solid fa-sitemap"
+          class="p-button-secondary p-button-outlined concept-button"
+          @click="locateInTree($event, concept['@id'])"
+          v-tooltip.top="'Find in tree'"
+          data-testid="find-in-tree-button"
+        />
+        <Button
           icon="pi pi-fw pi-external-link"
           class="p-button-secondary p-button-outlined concept-button"
           @click="directService.view(concept['@id'])"
@@ -73,6 +80,7 @@ import { IM, RDF } from "@/im_library/vocabulary";
 import { DirectService } from "@/im_library/services";
 import { Store, useStore } from "vuex";
 import { State } from "@/store/stateType";
+import findInTree from "@/composables/findInTree";
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { isArrayHasLength } = DataTypeCheckers;
 
@@ -80,6 +88,7 @@ const props = defineProps({ concept: { type: Object as any, required: true } });
 
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
+const { locateInTree }: { locateInTree: Function } = findInTree();
 
 const directService = new DirectService();
 

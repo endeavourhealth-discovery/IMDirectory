@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, Ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "@/im_library/interfaces";
 import { DataTypeCheckers, ConceptTypeMethods } from "@/im_library/helpers";
@@ -102,6 +102,7 @@ const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
 const favourites = computed(() => store.state.favourites);
 const currentUser = computed(() => store.state.currentUser);
+const findInTreeIri = computed(() => store.state.findInTreeIri);
 
 const directService = new DirectService();
 
@@ -133,6 +134,13 @@ onUnmounted(() => {
     hideOverlay(overlayLocation.value);
   }
 });
+
+watch(
+  () => findInTreeIri.value,
+  async () => {
+    if (findInTreeIri.value) await findPathToNode(findInTreeIri.value);
+  }
+);
 
 async function addParentFoldersToRoot() {
   const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");

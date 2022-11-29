@@ -12,6 +12,7 @@ export default createStore({
   // update stateType.ts when adding new state!
   state: {
     conceptIri: IM.MODULE_ONTOLOGY,
+    findInTreeIri: "",
     favourites: [] as string[],
     history: [] as HistoryItem[],
     searchResults: [] as ConceptSummary[],
@@ -58,6 +59,9 @@ export default createStore({
     refreshEditorTree: false as boolean
   },
   mutations: {
+    updateFindInTreeIri(state, value) {
+      state.findInTreeIri = value;
+    },
     updateActiveProfile(state, value) {
       state.activeProfile = value;
     },
