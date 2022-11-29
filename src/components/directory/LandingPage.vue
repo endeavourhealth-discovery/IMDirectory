@@ -35,9 +35,9 @@
               <template #body="{ data }">
                 <Button
                   icon="fa-solid fa-sitemap"
-                  class="p-button-rounded p-button-text p-button-plain row-button"
-                  @click="directService.select(data.iri, 'Folder')"
-                  v-tooltip.top="'Select'"
+                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
+                  @click="locateInTree($event, data.iri)"
+                  v-tooltip.top="'Find in tree'"
                   data-testid="select-button"
                 />
                 <Button
@@ -80,6 +80,7 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
+import findInTree from "@/composables/findInTree";
 
 export default defineComponent({
   components: { ReportTable, PieChartDashCard }
@@ -109,6 +110,7 @@ const loading: Ref<boolean> = ref(false);
 const configs: Ref<DashboardLayout[]> = ref([]);
 const cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
 const { onRowClick }: { onRowClick: Function } = rowClick();
+const { locateInTree }: { locateInTree: Function } = findInTree();
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
@@ -269,6 +271,7 @@ async function getCardsData(): Promise<void> {
 .activity-row-button:hover {
   background-color: #6c757d !important;
   color: #ffffff !important;
+  z-index: 999;
 }
 
 .recent-icon {

@@ -58,10 +58,10 @@
         <template #body="slotProps">
           <div class="buttons-container">
             <Button
-              :icon="slotProps.data.hasChildren ? 'pi pi-folder-open' : 'fa-solid fa-sitemap'"
+              :icon="'fa-solid fa-sitemap'"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.select(slotProps.data.iri, 'Folder')"
-              v-tooltip.top="slotProps.data.hasChildren ? 'Open' : 'Select'"
+              @click="locateInTree($event, slotProps.data.iri, 'Folder')"
+              v-tooltip.top="'Find in tree'"
               data-testid="select-button"
             />
             <Button
@@ -110,6 +110,7 @@ import { ConceptSummary } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@/im_library/helpers";
 import { DirectService, Env } from "@/im_library/services";
 import rowClick from "@/composables/rowClick";
+import findInTree from "@/composables/findInTree";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -122,6 +123,7 @@ const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService();
+const { locateInTree }: { locateInTree: Function } = findInTree();
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
