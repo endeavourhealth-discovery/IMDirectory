@@ -121,6 +121,6 @@ async function search(): Promise<void> {
 }
 
 .search-button {
-  height: fit-content;
+  height: 2.25rem;
 }
 </style>
