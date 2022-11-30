@@ -7,8 +7,13 @@
       <ProgressSpinner />
     </div>
     <div v-else id="concept-content-dialogs-container">
-      <div  id="concept-panel-container">
+      <div id="concept-panel-container">
         <TabView :lazy="true" :active-index="activeTab" id="info-side-bar-tabs">
+          <TabPanel header="Details">
+            <div class="concept-panel-content" id="details-container">
+              <Details :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
           <TabPanel v-if="terms" header="Terms">
             <div class="concept-panel-content" id="term-table-container">
               <TermCodeTable :terms="terms" />
@@ -101,7 +106,7 @@ import JSONViewer from "./viewer/JSONViewer.vue";
 import Provenance from "./viewer/Provenance.vue";
 import SecondaryTree from "@/im_library/components/modules/SecondaryTree.vue";
 import TermCodeTable from "@/im_library/components/modules/TermCodeTable.vue";
-
+import Details from "./viewer/Details.vue";
 import { DefinitionConfig, TTIriRef } from "@/im_library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers, Sorters } from "@/im_library/helpers";
 import { Query } from "@/im_library/models";
@@ -171,7 +176,9 @@ onMounted(async () => {
 });
 
 function setDefaultTab() {
-  if (isRecordModel(types.value)) {
+  if (isFolder(types.value)) {
+    activeTab.value = tabMap.get("Contents") || 0;
+  } else if (isRecordModel(types.value)) {
     activeTab.value = tabMap.get("Data Model") || 0;
   } else if (isQuery(types.value)) {
     activeTab.value = tabMap.get("Query") || 0;

@@ -15,6 +15,7 @@ import {
 import { IM, RDFS } from "../../vocabulary";
 import Env from "./Env";
 import axios from "axios";
+import { TreeNode } from "primevue/tree";
 const api = Env.API;
 
 const EntityService = {
@@ -499,6 +500,14 @@ const EntityService = {
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
     try {
       return await axios.post(Env.VITE_NODE_API + "node_api/public/search/validatedEntity", codes);
+    } catch (error) {
+      return [] as any[];
+    }
+  },
+
+  async getEntityDefinition(iri: string): Promise<TreeNode[]> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "node_api/public/entity/definition", { params: { iri: iri } });
     } catch (error) {
       return [] as any[];
     }
