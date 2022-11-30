@@ -2,11 +2,10 @@
   <div class="content-wrapper">
     <DataTable
       :value="children"
-      class="concept-data-table p-datatable-sm"
+      class="concept-data-table p-datatable-sm scrollbar"
       v-model:selection="selected"
       selectionMode="single"
       dataKey="@id"
-      :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
       :lazy="true"
@@ -252,5 +251,11 @@ function hideOverlay(event: any): void {
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
+
+}
+
+.scrollbar {
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 </style>
