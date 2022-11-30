@@ -144,7 +144,6 @@ const rClickOptions: Ref<any[]> = ref([
 const totalCount = ref(0);
 const nextPage = ref(2);
 const pageSize = ref(50);
-const overlayLocation: Ref<any> = ref({});
 
 const menu = ref();
 const OS:Ref<any> = ref();
