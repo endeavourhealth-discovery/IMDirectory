@@ -31,7 +31,7 @@ export function isTask(conceptTypes: TTIriRef[]): boolean {
 }
 
 export function isProperty(conceptTypes: TTIriRef[]): boolean {
-  return isOfTypes(conceptTypes, RDF.PROPERTY);
+  return isOfTypes(conceptTypes, RDF.PROPERTY, IM.NAMESPACE + "Property");
 }
 
 export function isConcept(conceptTypes: TTIriRef[]): boolean {
