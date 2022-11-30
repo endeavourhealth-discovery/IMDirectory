@@ -1,5 +1,5 @@
 import { CreateComponentPublicInstance } from "vue";
-import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
+import { RouteLocationNormalizedLoaded, RouteParamsRaw, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
 import { Store, useStore } from "vuex";
 import Env from "./Env";
 
@@ -59,7 +59,12 @@ export default class DirectService {
     this.directTo(Env.DIRECTORY_URL, iri || "", "editor");
   }
 
-  public create() {
-    window.open(Env.DIRECTORY_URL + "creator");
+  public create(typeIri?: string, subClassOfIri?: string) {
+    if (!typeIri && !subClassOfIri) {
+      window.open(Env.DIRECTORY_URL + "creator");
+    } else {
+      const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, subClassOfIri: subClassOfIri } });
+      window.open(routeData.href, "_blank");
+    }
   }
 }

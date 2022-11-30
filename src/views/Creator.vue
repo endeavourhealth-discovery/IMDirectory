@@ -53,6 +53,7 @@
 <script lang="ts">
 import TypeSelector from "@/components/creator/TypeSelector.vue";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
+import { isFolder } from "@/im_library/helpers/modules/ConceptTypeMethods";
 
 export default defineComponent({
   components: { StepsGroup, TypeSelector }
@@ -70,7 +71,7 @@ import { useStore } from "vuex";
 import Swal from "sweetalert2";
 import { setupShape, setupEntity } from "./EditorMethods";
 import { useConfirm } from "primevue/useconfirm";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FormGenerator, PropertyGroup, PropertyShape, TTIriRef } from "@/im_library/interfaces";
 import { EditorMode } from "@/im_library/enums";
@@ -125,6 +126,7 @@ const creatorValidity: Ref<{ key: string; valid: boolean }[]> = ref([]);
 const targetShape: Ref<TTIriRef | undefined> = ref();
 const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
 const showTestQueryResults: Ref<boolean> = ref(false);
+const route = useRoute();
 
 provide(injectionKeys.editorValidity, { validity: creatorValidity, updateValidity, removeValidity });
 
@@ -133,6 +135,7 @@ provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableM
 
 onMounted(async () => {
   loading.value = true;
+
   if (isObjectHasKeys(creatorSavedEntity.value, ["@id"])) {
     await showEntityFoundWarning();
   }
@@ -144,8 +147,22 @@ onMounted(async () => {
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     await nextTick();
     router.push(stepsItems.value[1].to);
+  } else if (route.query.typeIri) {
+    const typeEntity = await EntityService.getPartialEntity(route.query.typeIri as string, [RDFS.LABEL]);
+    editorEntity.value[RDF.TYPE] = [{ "@id": route.query.typeIri, name: typeEntity[RDFS.LABEL] }];
+    shape.value = await getShape(route.query.typeIri as string);
+    if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
+    router.push(stepsItems.value[1].to);
+    if (route.query.subClassOfIri) {
+      const containingEntity = await EntityService.getPartialEntity(route.query.subClassOfIri as string, [RDF.TYPE, RDFS.LABEL]);
+      if (isFolder(containingEntity[RDF.TYPE])) {
+        editorEntity.value[RDFS.SUBCLASS_OF] = [{ "@id": route.query.subClassOfIri, name: containingEntity[RDFS.LABEL] }];
+      } else {
+        editorEntity.value[IM.IS_CONTAINED_IN] = [{ "@id": route.query.subClassOfIri, name: containingEntity[RDFS.LABEL] }];
+      }
+    }
   } else {
-    router.push({ name: "TypeSelector" });
+    router.push({ name: "TypeSelector", params: route.params });
   }
   loading.value = false;
 });
@@ -225,6 +242,7 @@ function removeValidity(data: { key: string; valid: boolean }) {
 }
 
 function stepsClicked(event: any) {
+  console.log(event.target.innerHTML);
   currentStep.value = event.target.innerHTML - 1;
 }
 

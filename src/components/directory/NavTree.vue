@@ -78,7 +78,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "@/im_library/interfaces";
@@ -89,6 +89,7 @@ import ContextMenu from "primevue/contextmenu";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import rowClick from "@/composables/rowClick";
+import createNew from "@/composables/createNew";
 const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
 
@@ -117,6 +118,7 @@ const newFolderName = ref("");
 const menu = ref();
 const navTreeOP = ref();
 const { onRowClick }: { onRowClick: Function } = rowClick();
+const { getCreateOptions }: { getCreateOptions: Function } = await createNew();
 
 onMounted(async () => {
   loading.value = true;
@@ -260,16 +262,13 @@ function onNodeContext(event: any, node: any) {
 
   if (!currentUser.value.roles.includes("IMAdmin")) return;
 
-  if (node.typeIcon.includes("fa-folder")) {
-    items.value.push({
-      label: "New folder",
-      icon: "fas fa-fw fa-folder-plus",
-      command: () => {
-        newFolderName.value = "";
-        newFolder.value = node;
-      }
-    });
-  }
+  items.value = [
+    {
+      label: "New",
+      icon: "fas fa-fw fa-plus",
+      items: getCreateOptions(newFolderName, newFolder, node)
+    }
+  ];
 
   if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
     items.value.push({
