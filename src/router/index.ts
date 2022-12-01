@@ -27,6 +27,7 @@ import { DataTypeCheckers } from "@/im_library/helpers";
 import store from "@/store/index";
 import { nextTick } from "vue";
 import { urlToIri } from "@/im_library/helpers/modules/Converters";
+import SimpleQueryBuilder from "@/components/editor/shapeComponents/SimpleQueryBuilder.vue";
 const { isObjectHasKeys } = DataTypeCheckers;
 
 const APP_TITLE = "IM Directory";
@@ -175,6 +176,15 @@ const routes: Array<RouteRecordRaw> = [
         component: TaskViewer
       }
     ]
+  },
+  {
+    path: "/simpleQueryBuilder",
+    name: "SimpleQueryBuilder",
+    component: SimpleQueryBuilder,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
+    }
   },
   {
     path: "/mapper",

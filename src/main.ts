@@ -28,6 +28,7 @@ import Card from "primevue/card";
 import TabView from "primevue/tabview";
 import TabPanel from "primevue/tabpanel";
 import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
 import Tree from "primevue/tree";
 import Divider from "primevue/divider";
 import Button from "primevue/button";
@@ -81,11 +82,11 @@ import DataView from "primevue/dataview";
 import Steps from "primevue/steps";
 import Chip from "primevue/chip";
 import ToggleButton from "primevue/togglebutton";
+import Calendar from "primevue/calendar";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import "sweetalert2/dist/sweetalert2.min.css";
-
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
 
@@ -159,7 +160,9 @@ const app = createApp(App)
   .component("Tag", Tag)
   .component("Steps", Steps)
   .component("Chip", Chip)
-  .component("ToggleButton", ToggleButton);
+  .component("ToggleButton", ToggleButton)
+  .component("InputNumber", InputNumber)
+  .component("Calendar", Calendar);
 
 const vm = app.mount("#app");
 

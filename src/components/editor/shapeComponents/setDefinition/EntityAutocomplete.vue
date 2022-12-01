@@ -89,7 +89,9 @@ function dropReceived(event: any) {
 async function searchEntity(searchTerm: any): Promise<void> {
   if (searchTerm.query.length > 0) {
     if (props.getSuggestionsMethod) {
-      const filtereredSuggestions = await props.getSuggestionsMethod(props.parentClauseIri, searchTerm.query);
+      const filtereredSuggestions = props.parentClauseIri
+        ? await props.getSuggestionsMethod(props.parentClauseIri, searchTerm.query)
+        : await props.getSuggestionsMethod(searchTerm.query);
       suggestions.value = filtereredSuggestions;
     } else {
       const searchRequest = {} as SearchRequest;
