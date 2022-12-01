@@ -382,7 +382,7 @@ async function submit(): Promise<void> {
           cancelButtonColor: "#607D8B"
         }).then((result: any) => {
           if (result.isConfirmed) {
-            window.location.href = Env.VIEWER_URL + "concept?selectedIri=" + iriToUrl(editorEntity.value["http://endhealth.info/im#id"]);
+            window.location.href = Env.DIRECTORY_URL + "concept?selectedIri=" + iriToUrl(editorEntity.value["http://endhealth.info/im#id"]);
           } else {
             router.push({ name: "Editor", params: { selectedIri: editorEntity.value["http://endhealth.info/im#id"] } });
           }
