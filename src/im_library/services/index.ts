@@ -10,6 +10,7 @@ import SetService from "./modules/SetService";
 import ClassService from "./modules/ClassService";
 import GithubService from "./modules/GithubService";
 import ProvService from "./modules/ProvService";
+import ParserService from "./modules/ParserService";
 
 export {
   AuthService,
@@ -18,6 +19,7 @@ export {
   EntityService,
   FilerService,
   Env,
+  ParserService,
   LoggerService,
   QueryService,
   SetService,

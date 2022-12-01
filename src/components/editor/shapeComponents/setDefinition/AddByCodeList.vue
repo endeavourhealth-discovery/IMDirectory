@@ -1,17 +1,39 @@
 <template>
   <Dialog
     header="Add by list of codes"
-    v-model:visible="showAddByList"
+    v-model:visible="showDialog"
     :maximizable="true"
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
     :style="{ width: '85vw' }"
     :closable="false"
   >
-    <div class="code-list-container">
+    <div v-if="showAddByFile" class="upload-container">
+      <FileUpload
+        name="demo[]"
+        url="https://www.primefaces.org/upload.php"
+        @upload="onAdvancedUpload"
+        :multiple="true"
+        accept=".csv, .txt"
+        :maxFileSize="1000000"
+      >
+        <template #content>
+          <ul v-if="uploadedFiles && uploadedFiles[0]">
+            <li v-for="file of uploadedFiles[0]" :key="file">{{ file.name }} - {{ file.size }} bytes</li>
+          </ul>
+        </template>
+        <template #empty>
+          <p>Drag and drop files here to upload.</p>
+        </template>
+      </FileUpload>
+      <Dropdown v-if="isArrayHasLength(headers)" v-model="selectedColumn" :options="headers" option-label="label" placeholder="Select column" />
+      <Button :loading="processing" :disabled="!isValidUpload" label="Process" class="process-button" @click="processUpload" />
+    </div>
+    <div v-else-if="showAddByList" class="code-list-container">
       <Textarea v-model="text" :autoResize="true" rows="5" cols="30" />
       <small id="code-list-help" class="p-error" v-if="invalidMessage">{{ invalidMessage }}</small>
-      <Button :disabled="!isValidText" label="Process" class="process-button" @click="processText" />
+      <Button :loading="processing" :disabled="!isValidText" label="Process" class="process-button" @click="processText" />
     </div>
+
     <DataTable class="code-list-result-table" v-if="showResultTable" :value="entities" responsiveLayout="scroll">
       <Column field="code" header="Code">
         <template #body="{ data }"> {{ data["http://endhealth.info/im#code"] }}</template>
@@ -34,9 +56,11 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, Ref, ref, watch } from "vue";
-import { isArrayHasLength } from "@/im_library/helpers/modules/DataTypeCheckers";
-import { EntityService } from "@/im_library/services";
+import { isArrayHasLength, isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
+import { EntityService, ParserService } from "@/im_library/services";
 import { RDFS } from "@/im_library/vocabulary";
+import * as d3 from "d3";
+import { DSVRowArray } from "d3";
 
 class TextProcessingError extends Error {
   constructor() {
@@ -55,32 +79,70 @@ enum CODE_STATUS {
 const text = ref("");
 const invalidMessage = ref("");
 const isValidText: ComputedRef<boolean> = computed(() => validateText(text.value));
+const isValidUpload: ComputedRef<boolean> = computed(() => validateUpload());
 const hasValidEntities: ComputedRef<boolean> = computed(() => validateEntities());
 const entities: Ref<any[]> = ref([]);
 const showResultTable: Ref<boolean> = ref(false);
-const props = defineProps({ showAddByList: { type: Boolean, required: true } });
-const emit = defineEmits({ addCodeList: _payload => true, closeDialog: () => true });
+const props = defineProps({ showAddByList: { type: Boolean, required: true }, showAddByFile: { type: Boolean, required: true } });
+const emit = defineEmits({ addCodeList: (_payload: any) => true, closeDialog: () => true });
+const showDialog = computed(() => props.showAddByList || props.showAddByFile);
+const uploadedFiles: Ref<DSVRowArray[]> = ref([]);
+const headers: Ref<{ data: string; label: string }[]> = ref([]);
+const selectedColumn: Ref<{ data: string; label: string }> = ref({} as { data: string; label: string });
+const processing: Ref<boolean> = ref(false);
+
+async function onAdvancedUpload(event: any) {
+  headers.value = [];
+  uploadedFiles.value = [];
+  const file = event.files[0];
+  const url = URL.createObjectURL(file);
+  let rowArray: DSVRowArray = {} as DSVRowArray;
+  if ((file.name as string).endsWith(".csv")) rowArray = await d3.csv(url);
+  else if ((file.name as string).endsWith(".tsv")) rowArray = await d3.tsv(url);
+  else {
+    try {
+      rowArray = await d3.csv(url);
+    } catch (_error) {
+      try {
+        rowArray = await d3.tsv(url);
+      } catch (_error) {
+        throw new TextProcessingError();
+      }
+    }
+  }
+
+  const firstObject = rowArray[0];
+  for (const column of Object.keys(firstObject)) {
+    headers.value.push({ label: column + " - e.g. " + firstObject[column], data: column });
+  }
+  uploadedFiles.value.push(rowArray);
+}
 
 function closeDialog() {
+  entities.value = [];
+  uploadedFiles.value = [];
+  headers.value = [];
+  selectedColumn.value = {} as { data: string; label: string };
   emit("closeDialog");
 }
 
 function add() {
   const validEntities = entities.value.filter(entity => entity.statusCode === CODE_STATUS.VALID);
-  emit(
-    "addCodeList",
-    validEntities.map(entity => {
-      entity.name = entity[RDFS.LABEL];
-      return entity;
-    })
-  );
+  console.log("filtered");
+  const mapped = validEntities.map(entity => {
+    entity.name = entity[RDFS.LABEL];
+    return entity;
+  });
+  console.log(mapped);
+  emit("addCodeList", mapped);
 }
 
 async function processText() {
+  processing.value = true;
   invalidMessage.value = "";
   if (isValidText.value) {
     try {
-      const codeList = getArrayFromText(text.value);
+      const codeList = await ParserService.getListFromText(text.value);
       entities.value = await getValidatedEntities(codeList);
       if (isArrayHasLength(entities.value)) showResultTable.value = true;
     } catch (error) {
@@ -89,6 +151,21 @@ async function processText() {
       }
     }
   }
+  processing.value = false;
+}
+
+async function processUpload() {
+  processing.value = true;
+  try {
+    const codeList: string[] = await ParserService.getListFromFile(uploadedFiles.value[0], selectedColumn.value.data);
+    entities.value = await getValidatedEntities(codeList);
+    if (isArrayHasLength(entities.value)) showResultTable.value = true;
+  } catch (error) {
+    if (error instanceof TextProcessingError) {
+      invalidMessage.value = error.message;
+    }
+  }
+  processing.value = false;
 }
 
 function getSeverity(codeStatus: string) {
@@ -123,13 +200,8 @@ function validateText(text: string): boolean {
   return (text && text.length) as unknown as boolean;
 }
 
-function getArrayFromText(text: string): string[] {
-  try {
-    const result = text.match(/\d+/g);
-    return result?.filter(code => code.length >= 6) as string[];
-  } catch (error) {
-    throw new TextProcessingError();
-  }
+function validateUpload() {
+  return isArrayHasLength(uploadedFiles.value);
 }
 
 async function getValidatedEntities(codeList: string[]) {
@@ -144,6 +216,7 @@ function validateEntities() {
 </script>
 
 <style scoped>
+.upload-container,
 .code-list-container {
   display: flex;
   flex-flow: column nowrap;
