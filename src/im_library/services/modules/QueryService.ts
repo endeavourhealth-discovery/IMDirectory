@@ -1,7 +1,7 @@
 import Env from "./Env";
 import { isObjectHasKeys } from "../../helpers/modules/DataTypeCheckers";
 import { mapToObject } from "@/im_library/helpers/modules/Transforms";
-import { QueryDisplay, QueryObject, TTIriRef, QueryRequest } from "@/im_library/interfaces";
+import { QueryDisplay, QueryObject, TTIriRef, QueryRequest, AllowableChildProperty } from "@/im_library/interfaces";
 import axios from "axios";
 
 const QueryService = {
@@ -145,6 +145,16 @@ const QueryService = {
       });
     } catch (error) {
       return [] as TTIriRef[];
+    }
+  },
+
+  async getAllowableChildTypes(conceptIri: string): Promise<AllowableChildProperty[]> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowableChildTypes", {
+        params: { iri: conceptIri }
+      });
+    } catch (error) {
+      return [] as AllowableChildProperty[];
     }
   }
 };
