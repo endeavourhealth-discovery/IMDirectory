@@ -135,7 +135,7 @@ provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableM
 
 onMounted(async () => {
   loading.value = true;
-
+  const { typeIri, propertyIri, valueIri } = route.query;
   if (isObjectHasKeys(creatorSavedEntity.value, ["@id"])) {
     await showEntityFoundWarning();
   }
@@ -147,19 +147,15 @@ onMounted(async () => {
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     await nextTick();
     router.push(stepsItems.value[1].to);
-  } else if (route.query.typeIri) {
-    const typeEntity = await EntityService.getPartialEntity(route.query.typeIri as string, [RDFS.LABEL]);
-    editorEntity.value[RDF.TYPE] = [{ "@id": route.query.typeIri, name: typeEntity[RDFS.LABEL] }];
-    shape.value = await getShape(route.query.typeIri as string);
+  } else if (typeIri) {
+    const typeEntity = await EntityService.getPartialEntity(typeIri as string, [RDFS.LABEL]);
+    editorEntity.value[RDF.TYPE] = [{ "@id": typeIri, name: typeEntity[RDFS.LABEL] }];
+    shape.value = await getShape(typeIri as string);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     router.push(stepsItems.value[1].to);
-    if (route.query.subClassOfIri) {
-      const containingEntity = await EntityService.getPartialEntity(route.query.subClassOfIri as string, [RDF.TYPE, RDFS.LABEL]);
-      if (isFolder(containingEntity[RDF.TYPE])) {
-        editorEntity.value[RDFS.SUBCLASS_OF] = [{ "@id": route.query.subClassOfIri, name: containingEntity[RDFS.LABEL] }];
-      } else {
-        editorEntity.value[IM.IS_CONTAINED_IN] = [{ "@id": route.query.subClassOfIri, name: containingEntity[RDFS.LABEL] }];
-      }
+    if (propertyIri && valueIri) {
+      const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
+      editorEntity.value[propertyIri as string] = [{ "@id": containingEntity["@id"], name: containingEntity[RDFS.LABEL] }];
     }
   } else {
     router.push({ name: "TypeSelector", params: route.params });

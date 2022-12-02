@@ -1,9 +1,7 @@
 <template>
   <Splitter stateKey="directoryMainSplitterHorizontal" stateStorage="local" @resizeend="updateSplitter">
     <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
-      <Suspense>
-        <NavTree />
-      </Suspense>
+      <NavTree />
     </SplitterPanel>
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
