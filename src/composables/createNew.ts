@@ -23,7 +23,7 @@ function createNew() {
       allowableTypes = allowableTypes.concat(types);
     }
 
-    if (!isArrayHasLength(allowableTypes) || allowableTypes.some(type => !isObjectHasKeys(type))) {
+    if (!isArrayHasLength(allowableTypes)) {
       selectionWrapperCopy[0].items.push({
         label: "No options",
         icon: "pi pi-ban",
