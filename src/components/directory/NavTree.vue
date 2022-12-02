@@ -246,7 +246,6 @@ async function onNodeContext(event: any, node: any) {
       }
     });
   }
-
   if (items.value.length > 0) menu.value.show(event);
 }
 
