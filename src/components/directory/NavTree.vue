@@ -30,7 +30,7 @@
         </div>
       </template>
     </Tree>
-    <OverlaySummary ref="OS"/>
+    <OverlaySummary ref="OS" />
     <Dialog header="New folder" v-model:visible="newFolder" :modal="true">
       <InputText type="text" v-model="newFolderName" autofocus />
       <template #footer>
@@ -44,7 +44,7 @@
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "@/im_library/interfaces";
+import { IMTreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "@/im_library/interfaces";
 import { DataTypeCheckers, ConceptTypeMethods } from "@/im_library/helpers";
 import { DirectService, EntityService, Env, FilerService } from "@/im_library/services";
 import { IM } from "@/im_library/vocabulary";
@@ -68,21 +68,21 @@ const findInTreeIri = computed(() => store.state.findInTreeIri);
 const directService = new DirectService();
 
 const selectedKeys: Ref<any> = ref({});
-const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
-const root: Ref<TreeNode[]> = ref([]);
+const selectedNode: Ref<IMTreeNode> = ref({} as IMTreeNode);
+const root: Ref<IMTreeNode[]> = ref([]);
 const loading = ref(true);
 const expandedKeys: Ref<any> = ref({});
 const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const overlayLocation: Ref<any> = ref({});
 const pageSize = ref(20);
 const items: Ref<any[]> = ref([]);
-const newFolder: Ref<null | TreeNode> = ref(null);
+const newFolder: Ref<null | IMTreeNode> = ref(null);
 const newFolderName = ref("");
 
 const menu = ref();
-const OS:Ref<any> = ref();
+const OS: Ref<any> = ref();
 const { onRowClick }: { onRowClick: Function } = rowClick();
-const { getCreateOptions }: { getCreateOptions: Function } = await createNew();
+const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 
 onMounted(async () => {
   loading.value = true;
@@ -134,24 +134,25 @@ function createTreeNode(
   conceptIri: string,
   conceptTypes: TTIriRef[],
   hasChildren: boolean,
-  parent: TreeNode | null,
+  parent: IMTreeNode | null,
   order?: number
-): TreeNode {
+): IMTreeNode {
   return {
     key: conceptIri,
     label: conceptName,
     typeIcon: getFAIconFromType(conceptTypes),
     color: getColourFromType(conceptTypes),
+    conceptTypes: conceptTypes,
     data: conceptIri,
     leaf: !hasChildren,
     loading: false,
-    children: [] as TreeNode[],
+    children: [] as IMTreeNode[],
     order: order,
     parentNode: parent
   };
 }
 
-function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
+function createLoadMoreNode(parentNode: IMTreeNode, nextPage: number, totalCount: number): any {
   return {
     key: "loadMore" + parentNode.data,
     label: "Load more...",
@@ -160,7 +161,7 @@ function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: 
     data: "loadMore",
     leaf: true,
     loading: false,
-    children: [] as TreeNode[],
+    children: [] as IMTreeNode[],
     parentNode: parentNode,
     nextPage: nextPage,
     totalCount: totalCount,
@@ -221,18 +222,13 @@ function onNodeCollapse(node: any) {
   node.leaf = false;
 }
 
-function onNodeContext(event: any, node: any) {
+async function onNodeContext(event: any, node: any) {
+  event.preventDefault();
   items.value = [];
 
   if (!currentUser.value.roles.includes("IMAdmin")) return;
 
-  items.value = [
-    {
-      label: "New",
-      icon: "fas fa-fw fa-plus",
-      items: getCreateOptions(newFolderName, newFolder, node)
-    }
-  ];
+  items.value = await getCreateOptions(newFolderName, newFolder, node);
 
   if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
     items.value.push({
@@ -254,7 +250,7 @@ function onNodeContext(event: any, node: any) {
   if (items.value.length > 0) menu.value.show(event);
 }
 
-function confirmMove(node: TreeNode) {
+function confirmMove(node: IMTreeNode) {
   if (selectedNode.value) {
     confirm.require({
       header: "Confirm move",
@@ -270,7 +266,7 @@ function confirmMove(node: TreeNode) {
   }
 }
 
-async function moveConcept(target: TreeNode) {
+async function moveConcept(target: IMTreeNode) {
   if (selectedNode.value && selectedNode.value.parentNode) {
     try {
       await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
@@ -284,7 +280,7 @@ async function moveConcept(target: TreeNode) {
   }
 }
 
-function confirmAdd(node: TreeNode) {
+function confirmAdd(node: IMTreeNode) {
   if (selectedNode.value) {
     confirm.require({
       header: "Confirm add",
@@ -300,7 +296,7 @@ function confirmAdd(node: TreeNode) {
   }
 }
 
-async function addConcept(target: TreeNode) {
+async function addConcept(target: IMTreeNode) {
   if (selectedNode.value && selectedNode.value.parentNode) {
     try {
       await FilerService.addToFolder(selectedNode.value.key, target.key);
@@ -330,7 +326,7 @@ async function createFolder() {
   newFolder.value = null;
 }
 
-function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
+function nodeHasChild(node: IMTreeNode, child: EntityReferenceNode) {
   return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
 }
 
@@ -379,7 +375,7 @@ async function findPathToNode(iri: string) {
   loading.value = false;
 }
 
-async function locateChildInLoadMore(n: TreeNode, path: TTIriRef[]): Promise<TreeNode | undefined> {
+async function locateChildInLoadMore(n: IMTreeNode, path: TTIriRef[]): Promise<IMTreeNode | undefined> {
   if (n.children.find(c => c.data === "loadMore")) {
     const found = n.children.find(c => path.find(p => p["@id"] === c.data));
     if (found) {

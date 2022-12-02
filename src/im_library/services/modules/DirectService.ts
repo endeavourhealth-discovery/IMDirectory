@@ -59,11 +59,11 @@ export default class DirectService {
     this.directTo(Env.DIRECTORY_URL, iri || "", "editor");
   }
 
-  public create(typeIri?: string, subClassOfIri?: string) {
-    if (!typeIri && !subClassOfIri) {
+  public create(typeIri?: string, propertyIri?: string, valueIri?: string) {
+    if (!typeIri && !propertyIri && !valueIri) {
       window.open(Env.DIRECTORY_URL + "creator");
     } else {
-      const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, subClassOfIri: subClassOfIri } });
+      const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, propertyIri: propertyIri, valueIri: valueIri } });
       window.open(routeData.href, "_blank");
     }
   }
