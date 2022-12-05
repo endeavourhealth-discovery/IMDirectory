@@ -1,0 +1,160 @@
+GET http://localhost:3000/api/item?id=99
+Accept: application/json
+
+###
+GET http://localhost:8080/api/query/public/queryIM
+content-type: application/json
+
+{
+  "name" : "AllowablePropertiesForCovid",
+  "description" : "gets the active properties and their subtypes that have a domain which is a super type of covid.",
+  "activeOnly" : true,
+  "select" : {
+    "filter" : {
+      "property" : {
+        "@id" : "http://www.w3.org/2000/01/rdf-schema#domain"
+      },
+      "valueConcept" : [ {
+        "includeSupertypes" : true,
+        "@id" : "http://snomed.info/sct#674814021000119106"
+      } ]
+    },
+    "entityType" : {
+      "includeSubtypes" : true,
+      "@id" : "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+    },
+    "distinct" : true,
+    "property" : [ {
+      "@id" : "http://endhealth.info/im#id"
+    }, {
+      "@id" : "http://endhealth.info/im#code"
+    }, {
+      "@id" : "http://www.w3.org/2000/01/rdf-schema#label"
+    } ]
+  }
+}
+
+###
+
+GET http://localhost:8080/api/query/public/queryIM
+content-type: application/json
+
+{
+  "name": "AllowableValuesForPropertyClinicalCourse",
+  "description": "Gets the allowable values (range) for the 'Clinical Course' property.",
+  "activeOnly": true,
+  "select": {
+    "filter": {
+      "property": {
+        "@id": "http://www.w3.org/2000/01/rdf-schema#range"
+      },
+      "inverseOf": true,
+      "valueConcept": [
+        {
+          "includeSupertypes": true,
+          "@id": "http://snomed.info/sct#263502005"
+        }
+      ]
+    },
+    "distinct": true,
+    "property": [
+      {
+        "@id": "http://endhealth.info/im#id"
+      },
+      {
+        "@id": "http://endhealth.info/im#code"
+      },
+      {
+        "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    ]
+  }
+}
+
+###
+
+GET http://localhost:3000/node_api/query/public/run?iri=http://endhealth.info/im#Q_RegisteredGMS
+
+###
+
+GET http://localhost:3000/node_api/query/public/run?iri=urn%3Auuid%3A6d517466-813b-46a8-b848-aaf5a4fbdcbf
+
+###
+
+GET http://localhost:3000/node_api/query/public/run?iri=urn%3Auuid%3A7d9a0a98-4df8-4748-8940-061a5148293c
+
+###
+
+GET http://localhost:3000/node_api/query/public/getSQL?iri=http://endhealth.info/im#Q_RegisteredGMS
+
+###
+
+GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A6d517466-813b-46a8-b848-aaf5a4fbdcbf
+
+###
+
+GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A951b62db-4e81-4fcd-8cf7-0e71c28d30e9
+
+###
+
+POST http://localhost:3000/node_api/validation/public/validate?iri=http://endhealth.info/im#Validation_hasParent
+Content-Type: application/json
+
+{
+   "http://endhealth.info/im#isContainedIn": [{ "@id": "http://endhealth.info/im#IMQuery", "name": "Test" }]
+}
+
+###
+
+POST http://127.0.0.1:8082/nodeapi/node_api/query/public/quickQuery
+Content-Type: application/json
+
+{
+  "http://endhealth.info/im#Patient": {
+    "output": [
+      "http://endhealth.info/im#fullName",
+      "http://endhealth.info/im#age",
+      "http://endhealth.info/im#nhsNumber"
+    ],
+    "filters": {
+      "http://endhealth.info/im#fullName": {
+        "stringPattern": "B*"
+      },
+      "http://endhealth.info/im#age": {
+        "numberRange": {
+          "from": {
+            "comparator": ">",
+            "value": "7"
+          },
+          "to": {
+            "comparator": "<=",
+            "value": "18"
+          }
+        }
+      }
+    }
+  },
+  "http://endhealth.info/im#Observation": {
+    "output": [
+      "http://endhealth.info/im#effectiveDate",
+      "http://endhealth.info/im#hasPractitioner",
+      "http://endhealth.info/im#typeOfObservation"
+    ],
+    "filters": {
+      "http://endhealth.info/im#effectiveDate": {
+        "dateRange": {
+          "from": "2008-01-01",
+          "to": "2008-12-31"
+        }
+      }
+    }
+  }
+}
+
+###
+
+GET http://127.0.0.1:3000/node_api/query/public/queryDefinitionDisplay?iri=http:%2F%2Fendhealth.info%2Fim%23CSET_OralNSAIDs
+
+###
+
+GET http://127.0.0.1:3000/node_api/github/public/latestRelease/?repositoryName=IMViewer
