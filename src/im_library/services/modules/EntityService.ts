@@ -507,7 +507,7 @@ const EntityService = {
 
   async getEntityDefinition(iri: string): Promise<TreeNode[]> {
     try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/public/entity/definition", { params: { iri: iri } });
+      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/detailsDisplay", { params: { iri: iri } });
     } catch (error) {
       return [] as any[];
     }

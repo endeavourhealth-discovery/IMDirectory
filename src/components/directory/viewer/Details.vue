@@ -59,66 +59,7 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  // TODO - move conversion logic to node api
-  // definition.value = await EntityService.getEntityDefinition(props.conceptIri);
-  const response = await EntityService.getBundleByPredicateExclusions(props.conceptIri, [IM.CODE, RDF.TYPE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT]);
-  definition.value = convertDefinitionToTreeData(response);
-}
-
-function buildTreeDataRecursively(treeNode: TreeNode, entity: any, predicates: any) {
-  if (isObjectHasKeys(entity)) {
-    for (const key of Object.keys(entity)) {
-      if (key === SHACL.PROPERTY) {
-        const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] } as TreeNode;
-        treeNode.children?.push(newTreeNode);
-        if (isArrayHasLength(entity[key])) {
-          for (const property of entity[key]) {
-            const propertyNode = {
-              key: property?.[SHACL.PATH]?.[0]?.["@id"] || key,
-              label: property?.[SHACL.PATH]?.[0]?.name || predicates[key] || key,
-              children: []
-            } as TreeNode;
-            newTreeNode.children?.push(propertyNode);
-
-            for (const propertyKey of Object.keys(property)) {
-              if (SHACL.NAMESPACE + "order" === propertyKey) {
-                propertyNode.children?.push({
-                  key: key + "." + propertyKey,
-                  label: predicates[propertyKey] + ": " + property[propertyKey]
-                });
-              } else {
-                propertyNode.children?.push({
-                  key: key + "." + propertyKey,
-                  label: predicates[propertyKey],
-                  data: property[propertyKey]?.[0],
-                  type: "property"
-                });
-              }
-            }
-
-            // console.log(property)
-            // buildTreeDataRecursively(propertyNode, property, predicates);
-          }
-        }
-      } else if (key !== "@id") {
-        const newTreeNode = { key: key, label: predicates[key], children: [] };
-        treeNode.children?.push(newTreeNode);
-        buildTreeDataRecursively(newTreeNode, entity[key], predicates);
-      }
-    }
-  } else if (isArrayHasLength(entity)) {
-    for (const item of entity) {
-      treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
-    }
-  } else {
-    treeNode.label += ": " + entity;
-  }
-}
-
-function convertDefinitionToTreeData(definition: TTBundle): TreeNode {
-  const treeNode = { children: [] } as TreeNode;
-  buildTreeDataRecursively(treeNode, definition.entity, definition.predicates);
-  return treeNode.children!;
+  definition.value = await EntityService.getEntityDefinition(props.conceptIri);
 }
 </script>
 
