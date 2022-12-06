@@ -4,32 +4,67 @@
       <Button class="details-tree-button" icon="pi pi-plus" label="Expand All" @click="expandAll" />
       <Button class="details-tree-button p-button-secondary" icon="pi pi-minus" label="Collapse All" @click="collapseAll" />
     </div>
-    <Tree :value="definition" :expandedKeys="expandedKeys" class="tree-container">
+    <Tree
+      v-model:selectionKeys="selectedKeys"
+      selectionMode="single"
+      :value="definition"
+      :expandedKeys="expandedKeys"
+      class="tree-container"
+      @node-select="onSelect"
+      @node-expand="onExpand"
+    >
       <template #default="{ node }">
-        {{ node.label }}
+        <div v-if="node.value">{{ node.label + " - " + node.value }}</div>
+        <div v-else>{{ node.label }}</div>
+      </template>
+      <template #propertyIs="{ node }">
+        <IMViewerLink
+          :iri="node.value.property['@id']"
+          :label="node.value.property.includeSubtypes ? node.value.property.name + '*' : node.value.property.name"
+        />
+        =
+        <IMViewerLink :iri="node.value.is['@id']" :label="node.value.is.includeSubtypes ? node.value.is.name + '*' : node.value.is.name" />
+      </template>
+      <template #string="{ node }">{{ node.value }}</template>
+      <template #iri="{ node }"> {{ node.label }} <IMViewerLink :iri="node.value" /></template>
+      <template #boolean="{ node }">{{ node.label }}</template>
+      <template #from="{ node }">
+        <IMViewerLink v-if="node.value.includeSubtypes" :iri="node.value['@id']" :label="node.label + '*'" />
+        <IMViewerLink v-else :iri="node.value['@id']" :label="node.label" />
+      </template>
+
+      <template #simpleOr="{ node }">
+        <div v-for="(from, index) in node.value" :key="index">
+          <IMViewerLink v-if="from.includeSubtypes" :iri="from['@id']" :label="from.label + '*'" />
+          <IMViewerLink v-else :iri="node.value['@id']" :label="from.label" />
+        </div>
       </template>
       <template #property="{ node }"> {{ node.label }}: <IMViewerLink :iri="node.data['@id']" :label="node.data.name" /> </template>
       <template #link="{ node }">
         <IMViewerLink :iri="node.key!" :label="node.label" />
+      </template>
+      <template #loadMore="{ node }">
+        <b>{{ node.label }}...</b>
       </template>
     </Tree>
   </div>
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
-import { TTBundle } from "@/im_library/interfaces";
 import { EntityService } from "@/im_library/services";
-import { IM, RDF, RDFS, SHACL } from "@/im_library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/im_library/components/modules/IMViewerLink.vue";
+import { IM } from "@/im_library/vocabulary";
+import { isArrayHasLength } from "@/im_library/helpers/modules/DataTypeCheckers";
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
 const definition: Ref<any> = ref();
 const expandedKeys: Ref<any> = ref({});
+const selectedKeys: Ref<any> = ref({});
+const predicatePageIndexMap: Ref<Map<string, { pageIndex: number; node: TreeNode }>> = ref(new Map<string, { pageIndex: number; node: TreeNode }>());
 
 watch(
   () => props.conceptIri,
@@ -59,66 +94,29 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  // TODO - move conversion logic to node api
-  // definition.value = await EntityService.getEntityDefinition(props.conceptIri);
-  const response = await EntityService.getBundleByPredicateExclusions(props.conceptIri, [IM.CODE, RDF.TYPE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT]);
-  definition.value = convertDefinitionToTreeData(response);
+  definition.value = await EntityService.getEntityDetailsDisplay(props.conceptIri);
 }
 
-function buildTreeDataRecursively(treeNode: TreeNode, entity: any, predicates: any) {
-  if (isObjectHasKeys(entity)) {
-    for (const key of Object.keys(entity)) {
-      if (key === SHACL.PROPERTY) {
-        const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] } as TreeNode;
-        treeNode.children?.push(newTreeNode);
-        if (isArrayHasLength(entity[key])) {
-          for (const property of entity[key]) {
-            const propertyNode = {
-              key: property?.[SHACL.PATH]?.[0]?.["@id"] || key,
-              label: property?.[SHACL.PATH]?.[0]?.name || predicates[key] || key,
-              children: []
-            } as TreeNode;
-            newTreeNode.children?.push(propertyNode);
-
-            for (const propertyKey of Object.keys(property)) {
-              if (SHACL.NAMESPACE + "order" === propertyKey) {
-                propertyNode.children?.push({
-                  key: key + "." + propertyKey,
-                  label: predicates[propertyKey] + ": " + property[propertyKey]
-                });
-              } else {
-                propertyNode.children?.push({
-                  key: key + "." + propertyKey,
-                  label: predicates[propertyKey],
-                  data: property[propertyKey]?.[0],
-                  type: "property"
-                });
-              }
-            }
-
-            // console.log(property)
-            // buildTreeDataRecursively(propertyNode, property, predicates);
-          }
-        }
-      } else if (key !== "@id") {
-        const newTreeNode = { key: key, label: predicates[key], children: [] };
-        treeNode.children?.push(newTreeNode);
-        buildTreeDataRecursively(newTreeNode, entity[key], predicates);
+async function onSelect(node: TreeNode) {
+  if (node.key === IM.NAMESPACE + "loadMore") {
+    const pageIndexInfo = predicatePageIndexMap.value.get(node.data.predicate);
+    if (pageIndexInfo) {
+      const entityDetails = await EntityService.loadMoreDetailsDisplay(props.conceptIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
+      const predicateValueNode = entityDetails.find(loadMoreNode => loadMoreNode.key === node.data.predicate);
+      if (isArrayHasLength(predicateValueNode?.children)) {
+        pageIndexInfo.node.children = pageIndexInfo.node.children?.concat(predicateValueNode!.children!);
+        pageIndexInfo.node.children = pageIndexInfo.node.children?.filter(child => child.key !== node.key);
+        pageIndexInfo.node.children?.push(node);
+      } else {
+        pageIndexInfo.node.children = pageIndexInfo.node.children?.filter(child => child.key !== node.key);
       }
     }
-  } else if (isArrayHasLength(entity)) {
-    for (const item of entity) {
-      treeNode.children?.push({ key: item["@id"], label: item.name, type: "link" });
-    }
-  } else {
-    treeNode.label += ": " + entity;
   }
 }
 
-function convertDefinitionToTreeData(definition: TTBundle): TreeNode {
-  const treeNode = { children: [] } as TreeNode;
-  buildTreeDataRecursively(treeNode, definition.entity, definition.predicates);
-  return treeNode.children!;
+async function onExpand(node: TreeNode) {
+  const hasLoadMore = node.children?.some(child => child.key === IM.NAMESPACE + "loadMore");
+  if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
 }
 </script>
 
