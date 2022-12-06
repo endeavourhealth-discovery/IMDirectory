@@ -505,9 +505,19 @@ const EntityService = {
     }
   },
 
-  async getEntityDefinition(iri: string): Promise<TreeNode[]> {
+  async getEntityDetailsDisplay(iri: string): Promise<TreeNode[]> {
     try {
       return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/detailsDisplay", { params: { iri: iri } });
+    } catch (error) {
+      return [] as any[];
+    }
+  },
+
+  async loadMoreDetailsDisplay(iri: string, predicate: string, pageIndex: number, pageSize: number): Promise<TreeNode[]> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/detailsDisplay/loadMore", {
+        params: { iri: iri, predicate: predicate, pageIndex: pageIndex, pageSize: pageSize }
+      });
     } catch (error) {
       return [] as any[];
     }
