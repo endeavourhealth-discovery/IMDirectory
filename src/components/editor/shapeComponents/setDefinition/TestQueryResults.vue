@@ -26,6 +26,7 @@ import { Query, QueryRequest, TTIriRef } from "@/im_library/interfaces";
 import { onMounted, PropType, ref, Ref } from "vue";
 import { isArrayHasLength } from "@/im_library/helpers/modules/DataTypeCheckers";
 import { EntityService, QueryService } from "@/im_library/services";
+import IMViewerLink from "@/im_library/components/modules/IMViewerLink.vue";
 
 const queryLoading: Ref<boolean> = ref(false);
 
