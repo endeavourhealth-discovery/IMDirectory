@@ -1,12 +1,14 @@
 import { computed, Ref, ref } from "vue";
 import { FormGenerator, PropertyGroup, TTIriRef, Namespace } from "im-library/interfaces";
-import { EditorMode } from "im-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/modules/DataTypeCheckers";
+import { Enums, Helpers, Vocabulary } from "im-library";
 import { EntityService } from "@/services";
-import { IM, RDF, RDFS } from "im-library/vocabulary";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
+
+const { EditorMode } = Enums;
+const { isArrayHasLength, isObjectHasKeys } = Helpers.DataTypeCheckers;
+const { IM, RDF, RDFS } = Vocabulary;
 
 export function setupShape() {
   const router = useRouter();
@@ -48,7 +50,7 @@ export function setupShape() {
     return newShape;
   }
 
-  function processShape(shape: FormGenerator, mode: EditorMode, entity: any) {
+  function processShape(shape: FormGenerator, mode: Enums.EditorMode, entity: any) {
     if (shape.group && shape.targetShape) {
       const validMappingSchemes = ["http://endhealth.info/emis#", "http://endhealth.info/tpp#"];
       if (shape.group.findIndex(group => group.path["@id"] === IM.MAPPED_TO) !== -1) {

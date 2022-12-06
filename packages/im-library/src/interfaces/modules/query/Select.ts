@@ -1,6 +1,6 @@
-import { Argument } from "./Argument";
-import { TTAlias } from "./TTAlias";
-import { Where } from "./Where";
+import { Argument } from "./Argument.js";
+import { TTAlias } from "./TTAlias.js";
+import { Where } from "./Where.js";
 
 export interface Select {
   property: TTAlias;

@@ -1,4 +1,4 @@
-import { ECLComponent } from "../../enums/modules/ECLComponent";
+import { ECLComponent } from "../../enums/modules/ECLComponent.js";
 
 export interface ECLComponentDetails {
   id: string;

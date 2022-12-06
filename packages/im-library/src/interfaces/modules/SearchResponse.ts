@@ -1,4 +1,4 @@
-import { ConceptSummary } from "./ConceptSummary";
+import { ConceptSummary } from "./ConceptSummary.js";
 
 export interface SearchResponse {
   entities: ConceptSummary[];

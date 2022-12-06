@@ -78,9 +78,9 @@
 <script setup lang="ts">
 import { computed, defineComponent, ref, Ref } from "vue";
 import VueJsonPretty from "vue-json-pretty";
-import { isValueSet, getColourFromType, getFAIconFromType } from "im-library/helpers/modules/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/modules/DataTypeCheckers";
-import { getContainerElementOptimalHeight } from "im-library/helpers/modules/ContainerDimensionGetters";
+import { isValueSet, getColourFromType, getFAIconFromType } from "im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { getContainerElementOptimalHeight } from "im-library/helpers/ContainerDimensionGetters";
 import { DirectService, Env, EntityService } from "@/services";
 import { FilterMatchMode, FilterMatchModeOptions } from "primevue/api";
 import { mapState, useStore } from "vuex";

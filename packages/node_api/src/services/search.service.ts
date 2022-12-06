@@ -33,7 +33,7 @@ export default class SearchService {
       const isIncluded = response.some(added => entity["@id"] === added["@id"]);
       if (isInvalid) {
         entity.statusCode = "Invalid";
-        entity[RDFS.LABEL] = "Not an entity"
+        entity[RDFS.LABEL] = "Not an entity";
       } else if (index !== -1) {
         needed.splice(index, 1);
         entity.statusCode = "Valid";

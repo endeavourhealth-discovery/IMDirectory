@@ -1,6 +1,6 @@
-import { DefinitionConfig } from "../../interfaces";
-import { bundleToText } from "./Transforms";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "./DataTypeCheckers";
+import { DefinitionConfig } from "../../interfaces/index.js";
+import { bundleToText } from "./Transforms.js";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "./DataTypeCheckers.js";
 
 export function copyConceptToClipboard(concept: any, configs?: DefinitionConfig[], defaults?: any, blockedUrlIris?: string[]): string {
   const totalKeys = Object.keys(concept).length;

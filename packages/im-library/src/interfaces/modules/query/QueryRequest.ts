@@ -1,5 +1,5 @@
-import { Query } from "./Query";
-import { TTIriRef } from "../TTIriRef";
+import { Query } from "./Query.js";
+import { TTIriRef } from "../TTIriRef.js";
 
 export interface QueryRequest {
   name: string;

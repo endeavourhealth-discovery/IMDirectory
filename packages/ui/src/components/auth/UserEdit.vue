@@ -138,7 +138,7 @@ import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
 import { Avatars } from "im-library/constants";
 import { PasswordStrength } from "im-library/enums";
-import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "im-library/helpers/modules/UserMethods";
+import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "im-library/helpers/UserMethods";
 import { User } from "im-library/models";
 import { useRouter } from "vue-router";
 

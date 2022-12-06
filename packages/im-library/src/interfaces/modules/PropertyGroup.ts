@@ -1,5 +1,5 @@
-import { PropertyShape } from "./PropertyShape";
-import { TTIriRef } from "./TTIriRef";
+import { PropertyShape } from "./PropertyShape.js";
+import { TTIriRef } from "./TTIriRef.js";
 
 export interface PropertyGroup {
   label: string;

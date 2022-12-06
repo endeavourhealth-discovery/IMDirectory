@@ -1,8 +1,8 @@
 import uuid from "uuid-random";
 import _ from "lodash";
 
-import { toTemplates } from "./Templates";
-import { IM, RDF } from "../../vocabulary";
+import { toTemplates } from "./Templates.js";
+import { IM, RDF } from "../../vocabulary/index.js";
 
 export class QueryBuilder {
   //properties without getters/setters belonging to this class

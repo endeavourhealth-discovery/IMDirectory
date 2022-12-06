@@ -1,4 +1,4 @@
-import { ComponentType } from "../../enums/modules/ComponentType";
+import { ComponentType } from "../../enums/modules/ComponentType.js";
 
 export interface NextComponentSummary {
   previousComponentType: ComponentType;

@@ -1,4 +1,4 @@
-import { SimplifiedType } from "./SimplifiedType";
+import { SimplifiedType } from "./SimplifiedType.js";
 
 export interface FieldUI {
   name: string;

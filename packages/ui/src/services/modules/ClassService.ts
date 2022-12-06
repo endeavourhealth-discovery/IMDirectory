@@ -1,4 +1,4 @@
-import { Field, FieldDto } from "../../interfaces/modules/QueryBuilder";
+import { Field, FieldDto } from "im-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
 const api = Env.API;

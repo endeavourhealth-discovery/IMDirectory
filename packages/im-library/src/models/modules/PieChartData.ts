@@ -1,4 +1,4 @@
-import { Dataset } from "../../interfaces/modules/Dataset";
+import { Dataset } from "../../interfaces/modules/Dataset.js";
 
 export class PieChartData {
   datasets: Dataset[];

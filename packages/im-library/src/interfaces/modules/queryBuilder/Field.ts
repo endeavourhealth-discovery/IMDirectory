@@ -1,4 +1,4 @@
-import { GenericType } from "./GenericType";
+import { GenericType } from "./GenericType.js";
 
 export interface Field {
   name: string;

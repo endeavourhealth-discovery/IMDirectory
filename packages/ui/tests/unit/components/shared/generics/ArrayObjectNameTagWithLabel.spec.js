@@ -1,5 +1,5 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import ArrayObjectNameTagWithLabel from "im-library/components/modules/generics/ArrayObjectNameTagWithLabel.vue";
+import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
 import Tag from "primevue/tag";
 import LoggerService from "@/services";
 import { IM } from "im-library/vocabulary";

@@ -1,8 +1,8 @@
 import { DefinitionConfig } from "im-library/interfaces";
 import { ref, Ref } from "vue";
 import { ConfigService, LoggerService } from "@/services";
-import { isObjectHasKeys } from "im-library/helpers/modules/DataTypeCheckers";
-import { byOrder } from "im-library/helpers/modules/Sorters";
+import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { byOrder } from "im-library/helpers/Sorters";
 
 function setupConfig() {
   const configs: Ref<DefinitionConfig[]> = ref([]);

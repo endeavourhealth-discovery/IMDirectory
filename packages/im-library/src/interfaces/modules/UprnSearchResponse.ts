@@ -1,5 +1,5 @@
-import { Address } from "./Address";
-import { MatchPattern } from "./MatchPattern";
+import { Address } from "./Address.js";
+import { MatchPattern } from "./MatchPattern.js";
 
 export interface UprnSearchResponse {
   ABPAddress: Address;

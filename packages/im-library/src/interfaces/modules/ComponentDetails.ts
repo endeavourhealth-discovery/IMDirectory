@@ -1,6 +1,6 @@
-import { ComponentType, EditorMode } from "../../enums";
-import { PropertyGroup } from "./PropertyGroup";
-import { PropertyShape } from "./PropertyShape";
+import { ComponentType, EditorMode } from "../../enums/index.js";
+import { PropertyGroup } from "./PropertyGroup.js";
+import { PropertyShape } from "./PropertyShape.js";
 
 export interface ComponentDetails {
   id: string;

@@ -1,5 +1,5 @@
-import { TTIriRef } from "./TTIriRef";
-import { ValueSetMember } from "./ValueSetMember";
+import { TTIriRef } from "./TTIriRef.js";
+import { ValueSetMember } from "./ValueSetMember.js";
 
 export interface ExportValueSet {
   valueSet: TTIriRef;

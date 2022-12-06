@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, Ref, ref, watch } from "vue";
-import { isArrayHasLength } from "im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength } from "im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 import { RDFS } from "im-library/vocabulary";
 

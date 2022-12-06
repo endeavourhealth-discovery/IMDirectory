@@ -1,11 +1,9 @@
 {
   "name": "im-library",
   "version": "1.0.0",
-  "main": "build/im-library.js",
-  "types": "build/im-library.d.ts",
   "type": "module",
   "scripts": {
-    "clear": "rimraf build/*",
+    "clear": "rimraf dist/*",
     "build": "clear && tsc && rollup --config",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -31,9 +29,62 @@
     "rollup-plugin-dts": "^5.0.0",
     "uuid-random": "^1.3.2"
   },
-  "files": [
-    "build/im-library.d.ts",
-    "build/im-library.js",
-    "build/im-library.js.map"
-  ]
+  "main": "dist/im-library.js",
+  "types": "dist/im-library.d.ts",
+  "module": "dist",
+  "exports": {
+    ".": {
+      "import": "./dist/im-library.js",
+      "types": "./dist/im-library.d.ts"
+    },
+    "./config/": {
+      "import": "./dist/packages/im-library/src/config/modules/",
+      "types": "./dist/types/config/"
+    },
+    "./config": {
+      "import": "./dist/packages/im-library/src/config/index.js",
+      "types": "./dist/types/config/index.d.ts"
+    },
+    "./constants/": {
+      "import": "./dist/packages/im-library/src/constants/modules/",
+      "types": "./dist/types/constants/"
+    },
+    "./constants": {
+      "import": "./dist/packages/im-library/src/constants/index.js",
+      "types": "./dist/types/constants/index.d.ts"
+    },
+    "./enums/": {
+      "import": "./dist/packages/im-library/src/enums/modules/",
+      "types": "./dist/types/enums/"
+    },
+    "./enums": {
+      "import": "./dist/packages/im-library/src/enums/index.js",
+      "types": "./dist/types/enums/index.d.ts"
+    },
+    "./helpers/": {
+      "import": "./dist/packages/im-library/src/helpers/modules/",
+      "types": "./dist/types/helpers/"
+    },
+    "./helpers": {
+      "import": "./dist/packages/im-library/src/helpers/index.js",
+      "types": "./dist/types/helpers/index.d.ts"
+    },
+    "./interfaces": "./dist/types/interfaces/index.d.ts",
+    "./models/": {
+      "import": "./dist/packages/im-library/src/models/modules/",
+      "types": "./dist/types/models/"
+    },
+    "./models": {
+      "import": "./dist/packages/im-library/src/models/index.js",
+      "types": "./dist/types/models/index.d.ts"
+    },
+    "./vocabulary/": {
+      "import": "./dist/packages/im-library/src/vocabulary/modules/",
+      "types": "./dist/types/vocabulary/"
+    },
+    "./vocabulary": {
+      "import": "./dist/packages/im-library/src/vocabulary/index.js",
+      "types": "./dist/types/vocabulary/index.d.ts"
+    }
+  }
 }

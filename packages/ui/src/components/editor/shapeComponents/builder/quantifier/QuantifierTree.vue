@@ -28,9 +28,9 @@
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
 import { EntityReferenceNode, TreeNode, TTIriRef } from "im-library/interfaces";
-import { getColourFromType, getFAIconFromType } from "im-library/helpers/modules/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/modules/DataTypeCheckers";
-import { byKey } from "im-library/helpers/modules/Sorters";
+import { getColourFromType, getFAIconFromType } from "im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { byKey } from "im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 
 export default defineComponent({

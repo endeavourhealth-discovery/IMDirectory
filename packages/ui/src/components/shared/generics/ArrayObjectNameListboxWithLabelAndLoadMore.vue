@@ -51,10 +51,9 @@
 import { computed, defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
 import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import { mapState, useStore } from "vuex";
-import { isArrayHasLength, isObjectHasKeys } from "../../../helpers/modules/DataTypeCheckers";
-import LoggerService from "../../../services/modules/LoggerService";
+import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
-import { DirectService } from "@/services";
+import { DirectService, LoggerService } from "@/services";
 
 const props = defineProps({
   label: { type: String, required: true },

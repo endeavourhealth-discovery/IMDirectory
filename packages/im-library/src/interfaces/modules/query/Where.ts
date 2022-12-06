@@ -1,6 +1,6 @@
-import { Argument } from "./Argument";
-import { TTAlias } from "./TTAlias";
-import { Value } from "./Value";
+import { Argument } from "./Argument.js";
+import { TTAlias } from "./TTAlias.js";
+import { Value } from "./Value.js";
 
 export interface Where {
   alias: string;

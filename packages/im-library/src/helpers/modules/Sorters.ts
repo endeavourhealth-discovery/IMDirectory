@@ -1,4 +1,4 @@
-import { isObjectHasKeys } from "./DataTypeCheckers";
+import { isObjectHasKeys } from "./DataTypeCheckers.js";
 
 export function byPriority(a: any, b: any): number {
   if (!isObjectHasKeys(a, ["priority"]) || !isObjectHasKeys(b, ["priority"])) return 0;

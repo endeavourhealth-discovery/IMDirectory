@@ -1,6 +1,6 @@
 import { render, fireEvent, within } from "@testing-library/vue";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import SecondaryTree from "im-library/components/modules/SecondaryTree.vue";
+import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 import axios from "axios";
 import Button from "primevue/button";
 import Tree from "primevue/tree";

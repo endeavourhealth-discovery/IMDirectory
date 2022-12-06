@@ -1,4 +1,4 @@
-import { BuilderType, QueryComponentType } from "../../enums";
+import { BuilderType, QueryComponentType } from "../../enums/index.js";
 
 export interface QueryComponentDetails {
   id: string;

@@ -1,4 +1,4 @@
-import { Compare } from "./Compare";
+import { Compare } from "./Compare.js";
 
 export interface Value {
   comparison: string;

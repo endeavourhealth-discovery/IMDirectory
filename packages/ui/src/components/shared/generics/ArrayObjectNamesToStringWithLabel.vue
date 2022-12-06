@@ -9,8 +9,8 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, PropType } from "vue";
-import { isArrayHasLength, isObjectHasKeys } from "../../../helpers/modules/DataTypeCheckers";
-import { SHACL } from "../../../vocabulary";
+import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { SHACL } from "im-library/vocabulary";
 
 const props = defineProps({
   label: { type: String, required: true },

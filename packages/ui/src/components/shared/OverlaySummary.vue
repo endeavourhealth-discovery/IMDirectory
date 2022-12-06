@@ -33,8 +33,8 @@
 
 <script setup lang="ts">
 import { defineComponent } from "vue";
-import { getNamesAsStringFromTypes } from "../../helpers/modules/ConceptTypeMethods";
-import { TTIriRef } from "../../interfaces";
+import { getNamesAsStringFromTypes } from "im-library/helpers/ConceptTypeMethods";
+import { TTIriRef } from "im-library/interfaces";
 
 const props = defineProps({
   hoveredResult: { type: Object, required: true }

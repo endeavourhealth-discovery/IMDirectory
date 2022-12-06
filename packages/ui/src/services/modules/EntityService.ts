@@ -1,4 +1,4 @@
-import { EntityTypes } from "../../../../im_library/src/config";
+import { Config, Vocabulary } from "im-library";
 import {
   EntityReferenceNode,
   FiltersAsIris,
@@ -11,8 +11,7 @@ import {
   ExportValueSet,
   SearchRequest,
   ConceptSummary
-} from "../../../../im_library/src/interfaces";
-import { IM, RDFS } from "../../../../im_library/src/vocabulary";
+} from "im-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
 const api = Env.API;
@@ -198,9 +197,9 @@ const EntityService = {
   async getFilterOptions(): Promise<any> {
     try {
       const schemeOptions = await this.getNamespaces();
-      const statusOptions = await this.getEntityChildren(IM.STATUS);
-      const typeOptions = (await this.getPartialEntities(EntityTypes, [RDFS.LABEL])).map(typeOption => {
-        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
+      const statusOptions = await this.getEntityChildren(Vocabulary.IM.STATUS);
+      const typeOptions = (await this.getPartialEntities(Config.EntityTypes, [Vocabulary.RDFS.LABEL])).map(typeOption => {
+        return { "@id": typeOption["@id"], name: typeOption[Vocabulary.RDFS.LABEL] };
       });
 
       return { status: statusOptions, schemes: schemeOptions, types: typeOptions };

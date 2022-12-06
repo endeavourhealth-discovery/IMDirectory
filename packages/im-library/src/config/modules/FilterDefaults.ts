@@ -1,5 +1,5 @@
-import { SortDirection } from "../../enums";
-import { IM, RDF, RDFS, SHACL } from "../../vocabulary";
+import { SortDirection } from "../../enums/index.js";
+import { IM, RDF, RDFS, SHACL } from "../../vocabulary/index.js";
 
 const FILTER_DEFAULTS = {
   schemeOptions: [IM.NAMESPACE, "http://snomed.info/sct#"],

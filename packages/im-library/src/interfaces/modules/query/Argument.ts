@@ -1,5 +1,5 @@
-import { TTIriRef } from "../TTIriRef";
-import { Compare } from "./Compare";
+import { TTIriRef } from "../TTIriRef.js";
+import { Compare } from "./Compare.js";
 
 export interface Argument {
   parameter: string;

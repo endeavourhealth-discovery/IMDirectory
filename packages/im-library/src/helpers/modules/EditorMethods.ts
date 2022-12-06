@@ -1,7 +1,7 @@
-import { ComponentType } from "../../enums";
-import { PropertyShape, TTIriRef } from "../../interfaces";
-import { IM } from "../../vocabulary";
-import { isArrayHasLength } from "./DataTypeCheckers";
+import { ComponentType } from "../../enums/index.js";
+import { PropertyShape, TTIriRef } from "../../interfaces/index.js";
+import { IM } from "../../vocabulary/index.js";
+import { isArrayHasLength } from "./DataTypeCheckers.js";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>) {
   const result = new Map<string, any>();

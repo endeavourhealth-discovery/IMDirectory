@@ -59,7 +59,7 @@ import { TTIriRef } from "im-library/interfaces";
 import { DataTypeCheckers } from "im-library/helpers";
 import { EntityService, LoggerService, SetService } from "@/services";
 import { IM, RDFS } from "im-library/vocabulary";
-import IMViewerLink from "im-library/components/modules/IMViewerLink.vue";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 

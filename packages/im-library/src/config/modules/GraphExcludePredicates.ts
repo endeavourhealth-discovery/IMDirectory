@@ -1,4 +1,4 @@
-import { IM, RDF, RDFS } from "../../vocabulary";
+import { IM, RDF, RDFS } from "../../vocabulary/index.js";
 
 const GRAPH_EXCLUDE_PREDICATES = [
   RDF.TYPE,

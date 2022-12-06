@@ -1,7 +1,7 @@
-import { Select } from "./Select";
-import { TTAlias } from "./TTAlias";
-import { TTContext } from "./TTContext";
-import { Where } from "./Where";
+import { Select } from "./Select.js";
+import { TTAlias } from "./TTAlias.js";
+import { TTContext } from "./TTContext.js";
+import { Where } from "./Where.js";
 
 export interface Query extends TTAlias {
   description: string;

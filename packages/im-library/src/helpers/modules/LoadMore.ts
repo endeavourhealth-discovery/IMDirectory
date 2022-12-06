@@ -1,4 +1,4 @@
-import { EntityReferenceNode } from "../../interfaces";
+import { EntityReferenceNode } from "../../interfaces/index.js";
 
 async function loadMore(children: any[], totalCount: number, nextPage: number, pageSize: number, loadButton: boolean, iri: string, entityService: any) {
   if (loadButton) {

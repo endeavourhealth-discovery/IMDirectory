@@ -63,7 +63,7 @@ export default defineComponent({
 import { onUnmounted, onBeforeUnmount, onMounted, computed, ref, Ref, watch, inject, defineComponent, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
-import TopBar from "im-library/components/modules/TopBar.vue";
+import TopBar from "@/components/shared/TopBar.vue";
 import _ from "lodash";
 import axios from "axios";
 import { useStore } from "vuex";
@@ -73,16 +73,16 @@ import { useConfirm } from "primevue/useconfirm";
 import { useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FormGenerator, PropertyGroup, PropertyShape, TTIriRef } from "im-library/interfaces";
-import { EditorMode } from "im-library/enums";
-import { DataTypeCheckers, ConceptTypeMethods, EntityValidator, Converters, UtililityMethods } from "im-library/helpers";
-import { IM, RDF, RDFS, SHACL } from "im-library/vocabulary";
+import { Enums, Helpers, Vocabulary } from "im-library";
 import { EntityService, Env, FilerService } from "@/services";
 
-const { isObjectHasKeys, isArrayHasLength } = DataTypeCheckers;
-const { isValueSet } = ConceptTypeMethods;
-const { hasValidIri, hasValidName, hasValidParents, hasValidTypes, hasValidStatus } = EntityValidator;
-const { iriToUrl } = Converters;
-const { debounce } = UtililityMethods;
+const { EditorMode } = Enums;
+const { isObjectHasKeys, isArrayHasLength } = Helpers.DataTypeCheckers;
+const { isValueSet } = Helpers.ConceptTypeMethods;
+const { hasValidIri, hasValidName, hasValidParents, hasValidTypes, hasValidStatus } = Helpers.EntityValidator;
+const { iriToUrl } = Helpers.Converters;
+const { debounce } = Helpers.UtililityMethods;
+const { IM, RDF, RDFS, SHACL } = Vocabulary;
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
