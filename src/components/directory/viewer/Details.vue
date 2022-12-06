@@ -84,6 +84,8 @@ async function onSelect(node: TreeNode) {
         pageIndexInfo.node.children = pageIndexInfo.node.children?.concat(predicateValueNode!.children!);
         pageIndexInfo.node.children = pageIndexInfo.node.children?.filter(child => child.key !== node.key);
         pageIndexInfo.node.children?.push(node);
+      } else {
+        pageIndexInfo.node.children = pageIndexInfo.node.children?.filter(child => child.key !== node.key);
       }
     }
   }
