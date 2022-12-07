@@ -1,5 +1,5 @@
 import { buildQueryFromSetQueryObject, buildSetQueryObjectFromQuery } from "@/builders/query/setQueryBuilder";
-import { Query, SetQueryObject } from "im-library/dist/types/interfaces/Interfaces";
+import { Query, SetQueryObject } from "im-library/interfaces";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
 

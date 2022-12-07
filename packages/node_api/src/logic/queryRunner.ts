@@ -12,8 +12,7 @@ import { Condition } from "../model/sql/Condition";
 
 import { Query /*, Match, Select, Function, PropertyValue, Argument*/ } from "im-library/dist/types/models/modules/AutoGen";
 import dataModelMap from "./dataModelMap.json";
-import { Vocabulary } from "im-library/dist/api";
-const { IM, RDF, SHACL } = Vocabulary;
+import { IM, RDF, SHACL } from "im-library/vocabulary";
 
 export default class QueryRunner {
   private mysql: MysqlService;

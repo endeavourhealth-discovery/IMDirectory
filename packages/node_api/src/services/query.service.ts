@@ -1,8 +1,7 @@
 import Env from "@/services/env.service";
-import { QueryRequest } from "im-library/dist/types/interfaces/Interfaces";
-import { Query, TTAlias } from "im-library/dist/types/models/modules/AutoGen";
-import { Vocabulary } from "im-library/dist/api";
-const { IM, RDFS } = Vocabulary;
+import { QueryRequest } from "im-library/interfaces";
+import { Query, TTAlias } from "im-library/interfaces/AutoGen";
+import { IM, RDFS } from "im-library/vocabulary";
 
 export default class QueryService {
   axios: any;
