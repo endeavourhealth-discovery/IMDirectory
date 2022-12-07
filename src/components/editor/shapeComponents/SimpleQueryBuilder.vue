@@ -46,12 +46,14 @@
         />
       </TabPanel>
       <TabPanel header="Preview">
+        <Button icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
         <TestQueryResults
           v-if="showTestQueryResults"
           :showDialog="showTestQueryResults"
           :imquery="JSON.parse(editorEntity[IM.DEFINITION])"
           @close-dialog="showTestQueryResults = false"
-      /></TabPanel>
+        />
+      </TabPanel>
     </TabView>
   </div>
 </template>
@@ -149,6 +151,10 @@ async function buildUIProperty(ttProperty: TTProperty) {
     valueType: ttProperty["http://www.w3.org/ns/shacl#datatype"][0],
     value: ""
   };
+}
+
+function testQuery() {
+  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
 }
 
 async function getPropertyDescription(iri: string) {
