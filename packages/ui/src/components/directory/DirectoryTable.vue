@@ -9,6 +9,11 @@
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
         <TabView :lazy="true" :active-index="activeTab" id="info-side-bar-tabs">
+          <TabPanel header="Details">
+            <div class="concept-panel-content" id="details-container">
+              <Details :conceptIri="conceptIri" />
+            </div>
+          </TabPanel>
           <TabPanel v-if="terms" header="Terms">
             <div class="concept-panel-content" id="term-table-container">
               <TermCodeTable :terms="terms" />
@@ -107,6 +112,8 @@ import { ConceptTypeMethods, DataTypeCheckers, Sorters } from "im-library/helper
 import { Query } from "im-library/models";
 import { EntityService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "im-library/vocabulary";
+import Details from "./viewer/Details.vue";
+
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import setupConcept from "@/composables/setupConcept";
@@ -171,7 +178,9 @@ onMounted(async () => {
 });
 
 function setDefaultTab() {
-  if (isRecordModel(types.value)) {
+  if (isFolder(types.value)) {
+    activeTab.value = tabMap.get("Contents") || 0;
+  } else if (isRecordModel(types.value)) {
     activeTab.value = tabMap.get("Data Model") || 0;
   } else if (isQuery(types.value)) {
     activeTab.value = tabMap.get("Query") || 0;

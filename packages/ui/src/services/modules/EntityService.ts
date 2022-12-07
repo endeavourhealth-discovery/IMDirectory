@@ -14,6 +14,7 @@ import {
 } from "im-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
+import { TreeNode } from "primevue/tree";
 const api = Env.API;
 
 const EntityService = {
@@ -498,6 +499,24 @@ const EntityService = {
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
     try {
       return await axios.post(Env.VITE_NODE_API + "node_api/public/search/validatedEntity", codes);
+    } catch (error) {
+      return [] as any[];
+    }
+  },
+
+  async getEntityDetailsDisplay(iri: string): Promise<TreeNode[]> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/detailsDisplay", { params: { iri: iri } });
+    } catch (error) {
+      return [] as any[];
+    }
+  },
+
+  async loadMoreDetailsDisplay(iri: string, predicate: string, pageIndex: number, pageSize: number): Promise<TreeNode[]> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/detailsDisplay/loadMore", {
+        params: { iri: iri, predicate: predicate, pageIndex: pageIndex, pageSize: pageSize }
+      });
     } catch (error) {
       return [] as any[];
     }

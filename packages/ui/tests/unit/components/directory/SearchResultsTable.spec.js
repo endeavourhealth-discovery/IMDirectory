@@ -28,7 +28,8 @@ const mockState = {
   filterOptions: testData.FILTER_OPTIONS,
   selectedFilters: testData.SELECTED_FILTERS,
   searchResults: testData.SEARCH_RESULTS,
-  favourites: ["http://snomed.info/sct#241193003"]
+  favourites: ["http://snomed.info/sct#241193003"],
+  findInTreeIri: ""
 };
 const mockCommit = vi.fn();
 
@@ -104,14 +105,6 @@ describe("SearchResultsTable.vue", () => {
     const paginatorButtons = buttons.filter(button => button.classList.contains("p-paginator-page"));
     await fireEvent.click(paginatorButtons[1]);
     component.getByText(mockState.searchResults[20].name);
-  });
-
-  it("routes and updated locateonnavtree on select", async () => {
-    vi.clearAllMocks();
-    const select = component.getAllByTestId("select-button")[0];
-    await fireEvent.click(select);
-    expect(mockPush).toHaveBeenCalledTimes(1);
-    expect(mockPush).toHaveBeenLastCalledWith({ name: "Folder", params: { selectedIri: mockState.searchResults[0].iri } });
   });
 
   it("routes on edit", async () => {

@@ -53,7 +53,7 @@
       />
     </div>
   </div>
-  <AddByCodeList :showAddByList="showAddByList" @addCodeList="addCodeList" @close-dialog="showAddByList = false" />
+  <AddByCodeList :showAddByList="showAddByList" :showAddByFile="showAddByFile" @addCodeList="addCodeList" @close-dialog="closeDialog" />
 </template>
 
 <script setup lang="ts">
@@ -80,19 +80,31 @@ const addButtonActions = ref([
     command: () => {
       showAddByList.value = true;
     }
+  },
+  {
+    label: "Add by file",
+    icon: "pi pi-file",
+    command: () => {
+      showAddByFile.value = true;
+    }
   }
 ]);
 
 const props = defineProps({ clauses: { type: Array as PropType<SetQueryObject[]>, required: true } });
 const showAddByList = ref(false);
+const showAddByFile = ref(false);
 
 function addCodeList(selectedCodes: any[]) {
   for (const selectedCode of selectedCodes) {
     const newTTAlias = { "@id": selectedCode["@id"], name: selectedCode.name, includeSubtypes: true } as TTAlias;
     addConcept(newTTAlias);
   }
+  closeDialog();
+}
 
+function closeDialog() {
   showAddByList.value = false;
+  showAddByFile.value = false;
 }
 
 function addRefinement(index: number) {

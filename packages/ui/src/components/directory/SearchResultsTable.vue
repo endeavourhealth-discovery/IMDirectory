@@ -41,7 +41,7 @@
       <template #empty> None </template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #body="slotProps">
-          <div class="ml-2">
+          <div class="ml-2" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
               <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
@@ -58,10 +58,10 @@
         <template #body="slotProps">
           <div class="buttons-container">
             <Button
-              :icon="slotProps.data.hasChildren ? 'pi pi-folder-open' : 'fa-solid fa-sitemap'"
+              :icon="'fa-solid fa-sitemap'"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.select(slotProps.data.iri, 'Folder')"
-              v-tooltip.top="slotProps.data.hasChildren ? 'Open' : 'Select'"
+              @click="locateInTree($event, slotProps.data.iri, 'Folder')"
+              v-tooltip.top="'Find in tree'"
               data-testid="select-button"
             />
             <Button
@@ -99,6 +99,7 @@
       </Column>
     </DataTable>
     <ContextMenu :model="rClickOptions" ref="contextMenu" />
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
@@ -109,7 +110,9 @@ import _ from "lodash";
 import { ConceptSummary } from "im-library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "im-library/helpers";
 import { DirectService, Env } from "@/services";
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
+import findInTree from "@/composables/findInTree";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -122,6 +125,7 @@ const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService();
+const { locateInTree }: { locateInTree: Function } = findInTree();
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
@@ -153,6 +157,7 @@ const rClickOptions: Ref<any[]> = ref([
   }
 ]);
 
+const OS: Ref<any> = ref();
 const contextMenu = ref();
 const menu = ref();
 const { onRowClick }: { onRowClick: Function } = rowClick();
@@ -264,6 +269,14 @@ function onRowContextMenu(event: any) {
 
 function onRowSelect(event: any) {
   onRowClick(event.data.iri);
+}
+
+async function showOverlay(event: any, data: any): Promise<void> {
+  await OS.value.showOverlay(event, data.iri);
+}
+
+function hideOverlay(event: any): void {
+  OS.value.hideOverlay(event);
 }
 </script>
 

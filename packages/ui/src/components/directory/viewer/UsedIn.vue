@@ -24,13 +24,16 @@
       <template #loading> Loading data. Please wait. </template>
       <Column field="name" filter-field="name" header="Name">
         <template #body="{ data }">
-          <span :style="'color:' + data.colour" class="p-mx-1 type-icon">
-            <i :class="data.icon" aria-hidden="true" />
-          </span>
-          <span class="text-name">{{ data.name }}</span>
+          <div @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
+            <span :style="'color:' + data.colour" class="p-mx-1 type-icon">
+              <i :class="data.icon" aria-hidden="true" />
+            </span>
+            <span class="text-name">{{ data.name }}</span>
+          </div>
         </template>
       </Column>
     </DataTable>
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 <script setup lang="ts">
@@ -45,6 +48,7 @@ import rowClick from "@/composables/rowClick";
 const { isObjectHasKeys } = DataTypeCheckers;
 const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -61,6 +65,7 @@ const pageSize = ref(25);
 const scrollHeight = ref("500px");
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
 const { onRowClick }: { onRowClick: Function } = rowClick();
+const OS = ref();
 
 onMounted(async () => {
   window.addEventListener("resize", onResize);
@@ -126,6 +131,14 @@ function onResize(): void {
 
 function setScrollHeight(): void {
   scrollHeight.value = getContainerElementOptimalHeight("usedin-table-container", ["p-paginator"], false, undefined, 1);
+}
+
+async function showOverlay(event: any, data: any): Promise<void> {
+  await OS.value.showOverlay(event, data["@id"]);
+}
+
+function hideOverlay(event: any): void {
+  OS.value.hideOverlay(event);
 }
 </script>
 

@@ -44,7 +44,7 @@ import { SimpleMap } from "./modules/SimpleMap.js";
 import { SimpleMapIri } from "./modules/SimpleMapIri.js";
 import { TermCode } from "./modules/TermCode.js";
 import { ToastType } from "./modules/ToastType.js";
-import { TreeNode } from "./modules/TreeNode.js";
+import { IMTreeNode } from "./modules/IMTreeNode.js";
 import { TreeParent } from "./modules/TreeParent.js";
 import { TTBundle } from "./modules/TTBundle.js";
 import TTGraphData from "./modules/TTGraphData.js";
@@ -71,6 +71,7 @@ import { TTContext } from "./modules/query/TTContext.js";
 import { Value } from "./modules/query/Value.js";
 import { Where } from "./modules/query/Where.js";
 import TangledTreeData from "./modules/TangledTreeData.js";
+import AllowableChildProperty from "./modules/AllowableChildProperty.js";
 
 export {
   type AccountItem,
@@ -119,7 +120,7 @@ export {
   type SimpleMapIri,
   type TermCode,
   type ToastType,
-  type TreeNode,
+  type IMTreeNode,
   type TreeParent,
   type TTBundle,
   type TTGraphData,
@@ -145,5 +146,6 @@ export {
   type TTContext,
   type Value,
   type Where,
-  type TangledTreeData
+  type TangledTreeData,
+  type AllowableChildProperty
 };

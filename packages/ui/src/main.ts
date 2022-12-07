@@ -84,11 +84,7 @@ import ToggleButton from "primevue/togglebutton";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
-import axios from "axios";
-
-// IMLibrary imports
-import { DataTypeCheckers } from "im-library/helpers";
-import { Env } from "@/services";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
