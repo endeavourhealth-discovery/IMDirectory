@@ -11,6 +11,14 @@
       scrollHeight="flex"
       :loading="loading"
       data-testid="table"
+      :lazy="true"
+      :paginator="true"
+      :rowsPerPageOptions="[25, 50, 100]"
+      :rows="25"
+      :totalRecords="totalCount"
+      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
+      :currentPageReportTemplate="templateString"
+      @page="getPage($event)"
     >
       <template #header>
         <div class="table-header-bar">
@@ -79,10 +87,6 @@ const loading = ref(false);
 const downloading = ref(false);
 const members: Ref<TTIriRef[]> = ref([]);
 const isPublishing = ref(false);
-const nextPage = ref(2);
-const pageSize = ref(20);
-const loadButton = ref(false);
-const totalCount = ref(0);
 const downloadMenu = ref([
   { label: "Definition Only", command: () => download(false, false) },
   { label: "Core", command: () => download(true, false) },
@@ -98,6 +102,10 @@ const downloadMenu1 = ref([
 ]);
 
 const menu = ref();
+const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
+const totalCount = ref(0);
+const currentPage = ref(0);
+const pageSize = ref(25);
 
 watch(
   () => props.conceptIri,
@@ -113,10 +121,6 @@ onMounted(async () => {
 async function init() {
   await getMembers();
   await setHasDefinition();
-  await getTotalCount();
-  if (totalCount.value >= 10) {
-    loadButton.value = true;
-  }
 }
 
 async function setHasDefinition() {
@@ -131,8 +135,10 @@ function toggle(event: any) {
 
 async function getMembers(): Promise<void> {
   loading.value = true;
-  const paged = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, 1, pageSize.value);
+  const paged = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
   members.value = paged.result;
+  totalCount.value = paged.totalCount;
+  templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
   loading.value = false;
 }
 
@@ -198,26 +204,13 @@ function checkAuthorization() {
   } else return false;
 }
 
-async function loadMore() {
-  let pagedNewMembers: any = { result: [] as TTIriRef[] };
-  if (nextPage.value * pageSize.value < totalCount.value) {
-    pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, nextPage.value, pageSize.value);
-    if (isObjectHasKeys(pagedNewMembers)) {
-      members.value = members.value.concat(pagedNewMembers.result);
-      nextPage.value = nextPage.value + 1;
-      loadButton.value = true;
-    }
-  } else if (nextPage.value * pageSize.value > totalCount.value) {
-    pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, nextPage.value, pageSize.value);
-    members.value = members.value.concat(pagedNewMembers.result);
-    loadButton.value = false;
-  } else {
-    loadButton.value = false;
-  }
-}
-
-async function getTotalCount() {
-  totalCount.value = (await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, 1, 10)).totalCount;
+async function getPage(event:any) {
+  loading.value = true;
+  pageSize.value = event.rows;
+  currentPage.value = event.page;
+  let pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
+  members.value = pagedNewMembers.result;
+  loading.value = false;
 }
 </script>
 
