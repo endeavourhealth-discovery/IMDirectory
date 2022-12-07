@@ -1,5 +1,5 @@
-import { Argument } from "./query/Argument";
-import { TTIriRef } from "./TTIriRef";
+import { Argument } from "./query/Argument.js";
+import { TTIriRef } from "./TTIriRef.js";
 
 export interface PropertyShape {
   label: string;

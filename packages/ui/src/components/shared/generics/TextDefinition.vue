@@ -28,12 +28,12 @@
 <script setup lang="ts">
 import { defineComponent, computed, ref, onMounted, watch } from "vue";
 import { mapState, useStore } from "vuex";
-import { TTBundle } from "../../../interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "../../../helpers/modules/DataTypeCheckers";
-import { bundleToText } from "../../../helpers/modules/Transforms";
-import { isTTBundle } from "../../../helpers/modules/TypeGuards";
-import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDatatypes } from "../../../config";
-import { IM } from "../../../vocabulary";
+import { TTBundle } from "im-library/interfaces";
+import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { bundleToText } from "im-library/helpers/Transforms";
+import { isTTBundle } from "im-library/helpers/TypeGuards";
+import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDatatypes } from "im-library/config";
+import { IM } from "im-library/vocabulary";
 import _ from "lodash";
 
 const props = defineProps({

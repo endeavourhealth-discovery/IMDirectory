@@ -6,8 +6,20 @@ export default [
   {
     input: "src/index.ts",
     output: {
-      file: "build/im-library.js",
-      format: "cjs",
+      dir: "dist",
+      preserveModules: true,
+      format: "es",
+      sourcemap: true,
+      exports: "named"
+    },
+    plugins: [typescript(), commonjs()],
+    external: ["d3", "uuid-random", "lodash"]
+  },
+  {
+    input: "src/index.ts",
+    output: {
+      file: "dist/im-library.js",
+      format: "es",
       sourcemap: true
     },
     plugins: [typescript(), commonjs()],
@@ -16,7 +28,7 @@ export default [
   {
     input: "src/index.ts",
     output: {
-      file: "build/im-library.d.ts",
+      file: "dist/im-library.d.ts",
       format: "es"
     },
     plugins: [dts()]

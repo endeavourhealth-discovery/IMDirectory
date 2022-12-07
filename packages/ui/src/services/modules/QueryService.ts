@@ -1,6 +1,5 @@
 import Env from "./Env";
-import { isObjectHasKeys } from "../../../../im_library/src/helpers/modules/DataTypeCheckers";
-import { mapToObject } from "im-library/helpers/modules/Transforms";
+import { Helpers } from "im-library";
 import { QueryDisplay, QueryObject, TTIriRef, QueryRequest } from "im-library/interfaces";
 import axios from "axios";
 
@@ -70,12 +69,12 @@ const QueryService = {
   async runFunction(iri: string, args?: Map<string, any>): Promise<any> {
     try {
       if (args && args.size > 0) {
-        const replacedArgs = mapToObject(args);
+        const replacedArgs = Helpers.Transforms.mapToObject(args);
         const result: any = await axios.post(Env.API + "api/function/public/callFunction", {
           functionIri: iri,
           arguments: replacedArgs
         });
-        if (isObjectHasKeys(replacedArgs, ["fieldName"])) return result[replacedArgs.fieldName];
+        if (Helpers.DataTypeCheckers.isObjectHasKeys(replacedArgs, ["fieldName"])) return result[replacedArgs.fieldName];
         else return result;
       } else return await axios.post(Env.API + "api/function/public/callFunction", { functionIri: iri });
     } catch (error) {

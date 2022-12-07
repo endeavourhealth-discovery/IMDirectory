@@ -1,4 +1,4 @@
-import { User, CustomAlert } from "im-library/models";
+import { CustomAlert, User } from "im-library/models";
 import { Auth } from "aws-amplify";
 
 const AuthService = {

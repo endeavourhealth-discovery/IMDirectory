@@ -1,6 +1,6 @@
-import { TTBundle, TTGraphData } from "../../interfaces";
-import { SHACL, OWL, IM, RDFS } from "../../vocabulary";
-import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { TTBundle, TTGraphData } from "../../interfaces/index.js";
+import { SHACL, OWL, IM, RDFS } from "../../vocabulary/index.js";
+import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers.js";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
   const { entity, predicates } = bundle;

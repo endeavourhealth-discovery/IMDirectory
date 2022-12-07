@@ -144,14 +144,7 @@ import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
 import { computed, defineComponent, Ref, ref } from "vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
-import {
-  verifyEmailsMatch,
-  verifyIsEmail,
-  verifyIsName,
-  verifyIsUsername,
-  verifyPasswordsMatch,
-  checkPasswordStrength
-} from "im-library/helpers/modules/UserMethods";
+import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyIsUsername, verifyPasswordsMatch, checkPasswordStrength } from "im-library/helpers/UserMethods";
 import { PasswordStrength } from "im-library/enums";
 import { Avatars } from "im-library/constants";
 import { User } from "im-library/models";

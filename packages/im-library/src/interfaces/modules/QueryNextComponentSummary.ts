@@ -1,4 +1,4 @@
-import { QueryComponentType } from "../../enums";
+import { QueryComponentType } from "../../enums/index.js";
 
 export interface QueryNextComponentSummary {
   previousComponentType: QueryComponentType;

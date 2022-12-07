@@ -73,9 +73,9 @@
 <script setup lang="ts">
 import { defineComponent, onMounted, Ref, ref, inject, reactive, nextTick } from "vue";
 import semver from "semver";
-import { Env, GithubService } from "../../services";
-import { GithubRelease } from "../../interfaces";
-import { isObjectHasKeys } from "../../helpers/modules/DataTypeCheckers";
+import { Env, GithubService } from "@/services";
+import { GithubRelease } from "im-library/interfaces";
+import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   appVersion: { type: String, required: true },

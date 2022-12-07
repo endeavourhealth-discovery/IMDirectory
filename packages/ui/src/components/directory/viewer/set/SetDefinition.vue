@@ -32,8 +32,8 @@ import SubsetDisplay from "./SubsetDisplay.vue";
 import { onMounted, ref } from "@vue/runtime-core";
 import { EntityService } from "@/services";
 import { IM, RDFS } from "im-library/vocabulary";
-import QuerySetDefinition from "im-library/components/modules/query/QuerySetDefinition.vue";
-import ArrayObjectNamesToStringWithLabel from "im-library/components/modules/generics/ArrayObjectNamesToStringWithLabel.vue";
+import QuerySetDefinition from "@/components/shared/query/QuerySetDefinition.vue";
+import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
 const subsetOf = ref();

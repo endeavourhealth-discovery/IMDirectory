@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { isArrayHasLength } from "im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength } from "im-library/helpers/DataTypeCheckers";
 import { NAMESPACES } from "im-library/vocabulary";
 import { Namespace, EntityReferenceNode } from "im-library/interfaces";
 

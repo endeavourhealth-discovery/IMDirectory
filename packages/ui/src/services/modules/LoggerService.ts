@@ -1,4 +1,3 @@
-import { ToastType } from "im-library/interfaces";
 import { ToastMessageOptions } from "primevue/toast";
 
 export default {

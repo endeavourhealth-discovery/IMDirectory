@@ -1,4 +1,4 @@
-import { TTIriRef } from "../TTIriRef";
+import { TTIriRef } from "../TTIriRef.js";
 
 export interface TTAlias extends TTIriRef {
   alias: string;

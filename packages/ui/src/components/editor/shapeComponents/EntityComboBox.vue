@@ -24,10 +24,10 @@
 <script setup lang="ts">
 import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
 import { EditorMode } from "im-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/modules/DataTypeCheckers";
-import { processArguments } from "im-library/helpers/modules/EditorMethods";
-import { byName } from "im-library/helpers/modules/Sorters";
-import { mapToObject } from "im-library/helpers/modules/Transforms";
+import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { processArguments } from "im-library/helpers/EditorMethods";
+import { byName } from "im-library/helpers/Sorters";
+import { mapToObject } from "im-library/helpers/Transforms";
 import { QueryService } from "@/services";
 import { RDFS } from "im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";

@@ -1,5 +1,5 @@
-import { ECLComponentDetails } from "../../interfaces";
-import { ECLComponent } from "../../enums";
+import { ECLComponentDetails } from "../../interfaces/index.js";
+import { ECLComponent } from "../../enums/index.js";
 
 export function generateNewComponent(type: ECLComponent, position: number, data: any, showButtons: { minus: boolean; plus: boolean }) {
   let result;

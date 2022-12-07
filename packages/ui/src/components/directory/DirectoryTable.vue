@@ -99,8 +99,8 @@ import EclDefinition from "./viewer/set/EclDefinition.vue";
 import Properties from "./viewer/dataModel/Properties.vue";
 import JSONViewer from "./viewer/JSONViewer.vue";
 import Provenance from "./viewer/Provenance.vue";
-import SecondaryTree from "im-library/components/modules/SecondaryTree.vue";
-import TermCodeTable from "im-library/components/modules/TermCodeTable.vue";
+import SecondaryTree from "@/components/shared/SecondaryTree.vue";
+import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 
 import { DefinitionConfig, TTIriRef } from "im-library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers, Sorters } from "im-library/helpers";

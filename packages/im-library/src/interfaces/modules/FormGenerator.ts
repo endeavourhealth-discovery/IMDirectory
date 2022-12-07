@@ -1,5 +1,5 @@
-import { TTIriRef } from "./TTIriRef";
-import { PropertyGroup } from "./PropertyGroup";
+import { TTIriRef } from "./TTIriRef.js";
+import { PropertyGroup } from "./PropertyGroup.js";
 
 export interface FormGenerator {
   iri: string;

@@ -11,7 +11,8 @@
     "build:production": "rimraf dist && vue-tsc && vite build",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
-    "swagger-autogen": "node ./src/swagger.js"
+    "swagger-autogen": "node ./src/swagger.js",
+    "tsc": "tsc"
   },
   "keywords": [],
   "author": "",

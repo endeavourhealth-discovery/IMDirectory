@@ -21,13 +21,15 @@ import Mapper from "@/views/Mapper.vue";
 import Workflow from "@/views/Workflow.vue";
 import TaskDefinition from "@/components/workflow/TaskDefinition.vue";
 import TaskViewer from "@/components/workflow/TaskViewer.vue";
-import { AccessDenied, PageNotFound, SnomedLicense, EntityNotFound } from "im-library/components";
+import AccessDenied from "@/components/shared/errorPages/AccessDenied.vue";
+import PageNotFound from "@/components/shared/errorPages/PageNotFound.vue";
+import EntityNotFound from "@/components/shared/errorPages/EntityNotFound.vue";
+import SnomedLicense from "@/components/shared/SnomedLicense.vue";
 import { EntityService, Env } from "@/services";
-import { DataTypeCheckers } from "im-library/helpers";
+import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
 import store from "@/store/index";
 import { nextTick } from "vue";
-import { urlToIri } from "im-library/helpers/modules/Converters";
-const { isObjectHasKeys } = DataTypeCheckers;
+import { urlToIri } from "im-library/helpers/Converters";
 
 const APP_TITLE = "IM Directory";
 

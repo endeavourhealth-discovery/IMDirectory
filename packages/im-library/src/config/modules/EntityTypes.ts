@@ -1,4 +1,4 @@
-import { IM, RDF, RDFS, SHACL } from "../../vocabulary";
+import { IM, RDF, RDFS, SHACL } from "../../vocabulary/index.js";
 
 const ENTITY_TYPES = [IM.CONCEPT, IM.VALUE_SET, IM.CONCEPT_SET, SHACL.NODESHAPE, IM.DATAMODEL_PROPERTY, IM.QUERY, RDFS.CLASS, RDF.PROPERTY, IM.FOLDER];
 

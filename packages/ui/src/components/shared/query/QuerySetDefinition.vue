@@ -35,9 +35,9 @@
 <script setup lang="ts">
 import { onMounted, Ref } from "vue";
 import { ref, watch } from "vue";
-import { QueryService } from "../../../services";
-import { QueryDisplay } from "../../../interfaces";
-import IMViewerLink from "../IMViewerLink.vue";
+import { QueryService } from "@/services";
+import { QueryDisplay } from "im-library/interfaces";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 const props = defineProps({ conceptIri: { type: String, required: true } });
 
 const loading = ref<boolean>(false);

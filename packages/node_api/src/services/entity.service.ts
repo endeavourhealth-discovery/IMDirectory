@@ -1,5 +1,5 @@
 import Env from "@/services/env.service";
-import { TTIriRef } from "im-library/dist/types/interfaces/Interfaces";
+import { TTIriRef } from "im-library/interfaces";
 
 export default class EntityService {
   axios: any;

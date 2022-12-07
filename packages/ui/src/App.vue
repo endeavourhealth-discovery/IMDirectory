@@ -14,15 +14,17 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import ReleaseNotes from "./im_library/components/modules/ReleaseNotes.vue";
+import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import { DataTypeCheckers } from "im-library/helpers";
+import { Helpers } from "im-library";
 import { Env } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
-const { isObjectHasKeys } = DataTypeCheckers;
+const {
+  DataTypeCheckers: { isObjectHasKeys }
+} = Helpers;
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();

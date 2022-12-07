@@ -1,13 +1,11 @@
-import { QueryDisplay } from "im-library/dist/types/interfaces/Interfaces";
-import { Enums, Vocabulary, Helpers } from "im-library/dist/api";
+import { QueryDisplay } from "im-library/interfaces";
+import { QueryDisplayType } from "im-library/enums";
+import { isArrayHasLength, isObjectHasKeys, isObject } from "im-library/helpers/DataTypeCheckers";
+import { IM, RDFS } from "im-library/vocabulary";
 import axios from "axios";
 import EntityService from "@/services/entity.service";
 import * as crypto from "crypto";
 
-const { DataTypeCheckers } = Helpers;
-const { isArrayHasLength, isObjectHasKeys, isObject } = DataTypeCheckers;
-const { RDFS, IM } = Vocabulary;
-const { QueryDisplayType } = Enums;
 const entityService = new EntityService(axios);
 
 export async function getQueryDefinitionDisplayByIri(iri: string): Promise<QueryDisplay> {

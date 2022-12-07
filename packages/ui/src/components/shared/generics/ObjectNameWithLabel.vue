@@ -10,8 +10,8 @@
 
 <script setup lang="ts">
 import { computed, defineComponent } from "vue";
-import { isObjectHasKeys } from "../../../helpers/modules/DataTypeCheckers";
-import LoggerService from "../../../services/modules/LoggerService";
+import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import LoggerService from "@/services/modules/LoggerService";
 
 const props = defineProps({
   label: { type: String, required: true },

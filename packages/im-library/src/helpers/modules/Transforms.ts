@@ -1,7 +1,7 @@
-import { TTIriRef, TTBundle } from "../../interfaces";
-import { IM, RDFS } from "../../vocabulary";
-import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { iriToUrl } from "./Converters";
+import { TTIriRef, TTBundle } from "../../interfaces/index.js";
+import { IM, RDFS } from "../../vocabulary/index.js";
+import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers.js";
+import { iriToUrl } from "./Converters.js";
 
 // min 2 characters
 const indentSize = "  ";

@@ -1,9 +1,7 @@
-import { BuilderType } from "../../enums/modules/BuilderType";
-import { ComponentDetails } from "../../interfaces/modules/ComponentDetails";
-import { ComponentType } from "../../enums/modules/ComponentType";
-import { NextComponentSummary } from "../../interfaces/modules/NextComponentSummary";
-import { PropertyGroup, PropertyShape } from "../../interfaces";
-import { EditorMode } from "../../enums";
+import { BuilderType } from "../../enums/modules/BuilderType.js";
+import { ComponentType } from "../../enums/modules/ComponentType.js";
+import { PropertyGroup, PropertyShape, NextComponentSummary, ComponentDetails } from "../../interfaces/index.js";
+import { EditorMode } from "../../enums/index.js";
 
 export function generateNewComponent(
   type: ComponentType,

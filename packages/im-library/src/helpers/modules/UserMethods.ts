@@ -1,4 +1,4 @@
-import { PasswordStrength } from "../../enums";
+import { PasswordStrength } from "../../enums/index.js";
 
 export function verifyIsEmail(email: string): boolean {
   return /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(email);

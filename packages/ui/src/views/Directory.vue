@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import TopBar from "im-library/components/modules/TopBar.vue";
+import TopBar from "@/components/shared/TopBar.vue";
 import Search from "@/components/directory/topbar/Search.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRoute, useRouter } from "vue-router";

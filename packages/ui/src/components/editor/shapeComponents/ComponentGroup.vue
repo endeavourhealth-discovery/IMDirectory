@@ -26,9 +26,9 @@ export default defineComponent({
 import { PropType, ref, Ref, watch, computed, onMounted, defineComponent, inject } from "vue";
 import _ from "lodash";
 import { EditorMode } from "im-library/enums";
-import { isObjectHasKeys } from "im-library/helpers/modules/DataTypeCheckers";
-import { processComponentType } from "im-library/helpers/modules/EditorMethods";
-import { isPropertyShape } from "im-library/helpers/modules/TypeGuards";
+import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { processComponentType } from "im-library/helpers/EditorMethods";
+import { isPropertyShape } from "im-library/helpers/TypeGuards";
 import { PropertyGroup, PropertyShape, TTIriRef } from "im-library/interfaces";
 
 const props = defineProps({

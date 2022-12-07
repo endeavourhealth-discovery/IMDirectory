@@ -1,4 +1,4 @@
-import { SHACL } from "../../vocabulary";
+import { SHACL } from "../../vocabulary/index.js";
 
 const TEXT_DEFINITION_EXCLUDE_PREDICATES = [SHACL.PROPERTY] as string[];
 

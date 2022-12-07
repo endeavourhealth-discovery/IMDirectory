@@ -1,6 +1,6 @@
 import Env from "./Env";
-import { TTIriRef } from "../../../../im_library/src/interfaces";
 import axios from "axios";
+import { TTIriRef } from "im-library/interfaces";
 const api = Env.API;
 
 const ProvService = {

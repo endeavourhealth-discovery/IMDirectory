@@ -37,7 +37,7 @@ import { SearchRequest, TTAlias, TTIriRef } from "im-library/interfaces";
 import { onMounted, PropType, Ref, ref, watch } from "vue";
 import { SortBy, SortDirection } from "im-library/enums";
 import { FilterDefaults } from "im-library/config";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 import {} from "im-library/vocabulary";
 import _ from "lodash";

@@ -47,10 +47,9 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
-import { AccountItem } from "../../interfaces/modules/AccountItem";
-import { LoginItem } from "../../interfaces/modules/LoginItem";
+import { AccountItem, LoginItem } from "im-library/interfaces";
 import { useStore } from "vuex";
-import { DirectService, Env } from "../../services";
+import { DirectService, Env } from "@/services";
 
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);

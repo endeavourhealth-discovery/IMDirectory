@@ -1,23 +1,14 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "esnext",
     "useDefineForClassFields": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "jsx": "preserve",
-    "sourceMap": true,
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
-    "esModuleInterop": true,
     "lib": ["esnext", "dom"],
-    "declaration": true,
     "emitDeclarationOnly": true,
     "declarationDir": "./dist/types",
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "types": ["vite/client"],
-    "outDir": "./dist"
+    "isolatedModules": true
   },
-  "include": ["src", "../ui/tests/unit/TestMethods.ts"],
-  "exclude": ["tests"]
+  "include": ["./src"],
+  "exclude": ["./tests"]
 }

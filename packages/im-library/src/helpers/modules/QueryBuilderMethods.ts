@@ -1,6 +1,5 @@
-import { BuilderType } from "../../enums";
-import { QueryComponentType } from "../../enums";
-import { QueryComponentDetails, QueryNextComponentSummary } from "../../interfaces";
+import { BuilderType, QueryComponentType } from "../../enums/index.js";
+import { QueryComponentDetails, QueryNextComponentSummary } from "../../interfaces/index.js";
 
 export function generateNewComponent(
   type: QueryComponentType,

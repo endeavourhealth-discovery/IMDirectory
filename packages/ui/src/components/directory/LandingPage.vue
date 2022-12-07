@@ -88,7 +88,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { computed, Ref, ref, watch, onMounted } from "vue";
-import { getColourFromType, getFAIconFromType } from "im-library/helpers/modules/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "im-library/helpers/ConceptTypeMethods";
 
 import { useStore } from "vuex";
 import _ from "lodash";

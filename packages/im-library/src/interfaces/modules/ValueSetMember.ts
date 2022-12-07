@@ -1,4 +1,4 @@
-import { TTIriRef } from "./TTIriRef";
+import { TTIriRef } from "./TTIriRef.js";
 
 export interface ValueSetMember {
   entity: TTIriRef;

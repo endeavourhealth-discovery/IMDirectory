@@ -1,12 +1,14 @@
 import { createStore } from "vuex";
 import { AuthService } from "@/services";
 import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest } from "im-library/interfaces";
-import { Avatars } from "im-library/constants";
+import { Config, Constants, Helpers, Models, Vocabulary } from "im-library";
 import { CustomAlert, User } from "im-library/models";
-import { IM } from "im-library/vocabulary";
-import { isArrayHasLength } from "im-library/helpers/modules/DataTypeCheckers";
 import { EntityService, LoggerService } from "@/services";
-import { FilterDefaults } from "im-library/config";
+
+const { FilterDefaults } = Config;
+const { Avatars } = Constants;
+const { isArrayHasLength } = Helpers.DataTypeCheckers;
+const { IM } = Vocabulary;
 
 export default createStore({
   // update stateType.ts when adding new state!

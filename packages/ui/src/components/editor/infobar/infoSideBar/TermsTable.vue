@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { computed, PropType, ref } from "vue";
 import { TermCode } from "im-library/interfaces";
-import { isArrayHasLength } from "im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength } from "im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   label: { type: String },

@@ -1,6 +1,6 @@
 import uuid from "uuid-random";
 import _ from "lodash";
-import { isArrayHasLength, isObjectHasKeys } from "../../helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "../../helpers/modules/DataTypeCheckers.js";
 
 // Future updates
 //#todo: create map for Paths to each entity to keep code DRY and so you can change the path to references in one places

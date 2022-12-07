@@ -3,25 +3,18 @@
 // Class, Record Type
 // Everything else
 
-import { TTIriRef } from "../../interfaces";
-import { IM, RDF, SHACL } from "../../vocabulary";
+import { TTIriRef } from "../../interfaces/index.js";
+import { IM, RDF, SHACL } from "../../vocabulary/index.js";
 import palette from "google-palette";
 
-export function isOfTypes(
-  conceptTypeElements: TTIriRef[],
-  ...types: string[]
-): boolean {
+export function isOfTypes(conceptTypeElements: TTIriRef[], ...types: string[]): boolean {
   if (!conceptTypeElements || !conceptTypeElements.length) {
     return false;
   }
   let found = false;
   let index = 0;
   while (!found && index < types.length) {
-    if (
-      conceptTypeElements.some(
-        (e: any) => e.iri === types[index] || e[IM.IRI] === types[index]
-      )
-    ) {
+    if (conceptTypeElements.some((e: any) => e.iri === types[index] || e[IM.IRI] === types[index])) {
       found = true;
     }
     index++;
@@ -30,22 +23,11 @@ export function isOfTypes(
 }
 
 export function isValueSet(conceptTypes: TTIriRef[]): boolean {
-  return isOfTypes(
-    conceptTypes,
-    IM.SET,
-    IM.QUERY_SET,
-    IM.VALUE_SET,
-    IM.CONCEPT_SET,
-    IM.CONCEPT_SET_GROUP
-  );
+  return isOfTypes(conceptTypes, IM.SET, IM.QUERY_SET, IM.VALUE_SET, IM.CONCEPT_SET, IM.CONCEPT_SET_GROUP);
 }
 
 export function isTask(conceptTypes: TTIriRef[]): boolean {
-  return (
-    isOfTypes(conceptTypes, IM.TASK) ||
-    isOfTypes(conceptTypes, IM.MAPPING_TASK) ||
-    isOfTypes(conceptTypes, IM.UPDATE_TASK)
-  );
+  return isOfTypes(conceptTypes, IM.TASK) || isOfTypes(conceptTypes, IM.MAPPING_TASK) || isOfTypes(conceptTypes, IM.UPDATE_TASK);
 }
 
 export function isProperty(conceptTypes: TTIriRef[]): boolean {
@@ -116,7 +98,7 @@ export function getColourFromType(conceptTypes: TTIriRef[]): string {
 
 export function getNamesAsStringFromTypes(typeList: TTIriRef[]) {
   return typeList
-    .map((type) => {
+    .map(type => {
       if (type["@id"] === SHACL.NODESHAPE) {
         return "Data model";
       } else return type.name;
@@ -134,5 +116,5 @@ export default {
   isRecordModel,
   getColourFromType,
   getFAIconFromType,
-  getNamesAsStringFromTypes,
+  getNamesAsStringFromTypes
 };

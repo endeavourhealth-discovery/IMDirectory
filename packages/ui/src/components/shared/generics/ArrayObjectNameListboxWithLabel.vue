@@ -37,12 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { DirectService } from "@/services";
+import { DirectService, LoggerService } from "@/services";
 import { computed, onMounted, PropType, ref, Ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { isArrayHasLength, isObjectHasKeys } from "../../../helpers/modules/DataTypeCheckers";
-import LoggerService from "../../../services/modules/LoggerService";
+import { isArrayHasLength, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   label: { type: String, required: true },

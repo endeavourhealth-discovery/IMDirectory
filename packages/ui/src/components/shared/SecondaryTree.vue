@@ -111,11 +111,11 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "../../helpers/modules/ConceptTypeMethods";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "../../helpers/modules/DataTypeCheckers";
-import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeNode, TreeParent, TTIriRef } from "../../interfaces";
-import { IM, RDF, RDFS } from "../../vocabulary";
-import { DirectService, EntityService } from "../../services";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeNode, TreeParent, TTIriRef } from "im-library/interfaces";
+import { IM, RDF, RDFS } from "im-library/vocabulary";
+import { DirectService, EntityService } from "@/services";
 import { useStore } from "vuex";
 
 const props = defineProps({

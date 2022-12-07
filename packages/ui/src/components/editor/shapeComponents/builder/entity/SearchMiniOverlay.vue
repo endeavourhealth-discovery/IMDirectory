@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import { PropType, ref, Ref } from "vue";
 import { ConceptSummary, TTIriRef } from "im-library/interfaces";
-import { getFAIconFromType, getColourFromType } from "im-library/helpers/modules/ConceptTypeMethods";
+import { getFAIconFromType, getColourFromType } from "im-library/helpers/ConceptTypeMethods";
 
 const props = defineProps({
   searchTerm: { type: String, required: false },

@@ -1,7 +1,7 @@
-import { TTIriRef } from "../../interfaces";
-import { RDF, RDFS, IM, SHACL } from "../../vocabulary";
-import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { isTTIriRef } from "./TypeGuards";
+import { TTIriRef } from "../../interfaces/index.js";
+import { RDF, RDFS, IM, SHACL } from "../../vocabulary/index.js";
+import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers.js";
+import { isTTIriRef } from "./TypeGuards.js";
 
 const validTypes = [IM.CONCEPT, IM.CONCEPT_SET, IM.CONCEPT_SET_GROUP, IM.DATAMODEL_ENTITY, SHACL.PROPERTY, IM.FOLDER, IM.QUERY];
 const validStatus = [IM.ACTIVE, IM.DRAFT, IM.INACTIVE];

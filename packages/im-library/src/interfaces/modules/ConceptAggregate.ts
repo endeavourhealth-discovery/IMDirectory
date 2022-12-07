@@ -1,4 +1,4 @@
-import { EntityReferenceNode } from "./EntityReferenceNode";
+import { EntityReferenceNode } from "./EntityReferenceNode.js";
 
 export interface ConceptAggregate {
   children: EntityReferenceNode[];

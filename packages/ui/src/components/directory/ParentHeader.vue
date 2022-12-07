@@ -64,10 +64,10 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import TextHTMLWithLabel from "im-library/components/modules/generics/TextHTMLWithLabel.vue";
-import ArrayObjectNamesToStringWithLabel from "im-library/components/modules/generics/ArrayObjectNamesToStringWithLabel.vue";
-import ArrayObjectNameTagWithLabel from "im-library/components/modules/generics/ArrayObjectNameTagWithLabel.vue";
-import TextWithLabel from "im-library/components/modules/generics/TextWithLabel.vue";
+import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
+import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
+import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
+import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import { ConceptTypeMethods, DataTypeCheckers } from "im-library/helpers";
 import { IM, RDF } from "im-library/vocabulary";
 import { DirectService } from "@/services";
