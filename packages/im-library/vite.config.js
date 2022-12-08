@@ -19,7 +19,7 @@ export default defineConfig({
         vocabulary: "./src/vocabulary/index.ts"
       }
     },
-    rollupOptions: { output: { preserveModules: true, exports: "named" } }
+    rollupOptions: { output: { preserveModules: true, exports: "named" }, external: ["d3", "uuid-random", "lodash"] }
   },
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") }
