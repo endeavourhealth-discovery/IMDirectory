@@ -1,7 +1,10 @@
 <template>
   <div class="sidebar">
     <TabView :lazy="true">
-      <TabPanel header="NavTree">
+      <TabPanel header="Suggestion tree">
+        <SuggestionTree />
+      </TabPanel>
+      <TabPanel header="Navigation tree">
         <NavTree />
       </TabPanel>
       <TabPanel header="JSON viewer">
@@ -15,6 +18,7 @@
 import { PropType } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import NavTree from "./sidebar/NavTree.vue";
+import SuggestionTree from "./sidebar/SuggestionTree.vue";
 
 const props = defineProps({
   editorEntity: { type: Object as PropType<any>, required: true }

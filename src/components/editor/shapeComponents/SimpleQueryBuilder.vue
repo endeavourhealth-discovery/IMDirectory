@@ -20,10 +20,10 @@
                 <Calendar v-if="data.valueType.name === 'Date time'" v-model="data.value" autocomplete="off" dateFormat="mm-dd-yy" />
               </div>
               <div v-else-if="data.componentType === 'class'">
-                <EntityAutocomplete :ttAlias="data.value" />
+                <EntityAutocomplete :ttAlias="data.value" :suggestion-tree-iri="data.valueType['@id']" />
               </div>
               <div v-else-if="data.componentType === 'node'">
-                <EntityAutocomplete :ttAlias="data.value" />
+                <EntityAutocomplete :ttAlias="data.value" :suggestion-tree-iri="data.valueType['@id']" />
               </div>
             </template>
           </Column>

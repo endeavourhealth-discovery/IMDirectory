@@ -74,25 +74,25 @@
 <script setup lang="ts">
 import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
-import axios from "axios";
-import { useToast } from "primevue/usetoast";
-import { IMTreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "@/im_library/interfaces";
+import { IMTreeNode, TTIriRef, EntityReferenceNode, ConceptSummary, QueryRequest, Query } from "@/im_library/interfaces";
 import _ from "lodash";
 import { isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@/im_library/helpers/modules/ConceptTypeMethods";
+import {
+  getColourFromType,
+  getFAIconFromType,
+  getNamesAsStringFromTypes,
+  isConcept,
+  isQuery,
+  isValueSet
+} from "@/im_library/helpers/modules/ConceptTypeMethods";
 import { byKey } from "@/im_library/helpers/modules/Sorters";
-import { EntityService } from "@/im_library/services";
-import { IM } from "@/im_library/vocabulary";
-import { useRouter } from "vue-router";
+import { EntityService, QueryService } from "@/im_library/services";
+import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 
 const store = useStore();
-const router = useRouter();
-const toast = useToast();
-
-const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
+const suggestionTreeIri: ComputedRef<string> = computed(() => store.state.suggestionTreeIri);
 
 let selected: Ref<any> = ref({});
-let selectedNode: Ref<any> = ref({});
 let root: Ref<IMTreeNode[]> = ref([]);
 let loading = ref(true);
 let expandedKeys: Ref<any> = ref({});
@@ -102,9 +102,12 @@ const pageSize: number = 20;
 
 const navTreeOP = ref();
 
-watch(treeIri, async () => {
-  if (treeIri) await findPathToNode(treeIri.value);
-});
+watch(
+  () => suggestionTreeIri.value,
+  async () => {
+    await init();
+  }
+);
 
 onMounted(async () => {
   await init();
@@ -118,22 +121,57 @@ onBeforeUnmount(() => {
 
 async function init() {
   loading.value = true;
-  await addParentFoldersToRoot();
-  if (treeIri.value) await findPathToNode(treeIri.value);
+  root.value = [];
+  expandedKeys.value = {};
+  if (suggestionTreeIri.value) await populateRootFromIri(suggestionTreeIri.value);
   loading.value = false;
 }
 
-async function addParentFoldersToRoot() {
-  const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
-  for (let IMchild of IMChildren) {
-    const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
-    if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, IMchild.orderNumber));
+async function populateRootFromIri(iri: string) {
+  let rootNodes: IMTreeNode[] = [];
+  const typeEntity = await EntityService.getPartialEntity(iri, []);
+  if (isValueSet(typeEntity[RDF.TYPE])) {
+    const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
+    if (isObjectHasKeys(definitionEntity, [IM.DEFINITION])) {
+      rootNodes = await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]));
+    }
+  } else if (isQuery(typeEntity[RDF.TYPE])) {
+    const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
+    if (isObjectHasKeys(definitionEntity, [IM.DEFINITION])) {
+      rootNodes = await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]));
+    }
+  } else if (isConcept(typeEntity[RDF.TYPE])) {
+    rootNodes = await getNodesFromConcept(iri);
+  } else {
+    rootNodes = await getNodesFromConcept(IM.NAMESPACE + "InformationModel");
   }
+  root.value = root.value.concat(rootNodes);
   root.value.sort(byKey);
-  const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
-  favNode.typeIcon = ["fa-solid", "fa-star"];
-  favNode.color = "#e39a36";
-  root.value.push(favNode);
+}
+
+async function getNodesFromConcept(iri: string): Promise<IMTreeNode[]> {
+  const nodes: IMTreeNode[] = [];
+  const directChildren = await EntityService.getEntityChildren(iri);
+  for (let child of directChildren) {
+    nodes.push(createTreeNode(child.name, child["@id"], child.type, child.hasGrandChildren, child.orderNumber));
+  }
+  return nodes;
+}
+
+async function getNodesFromQuery(query: Query): Promise<IMTreeNode[]> {
+  const nodes: IMTreeNode[] = [];
+  const selectedProperties = [RDFS.LABEL, RDF.TYPE, IM.HAS_CHILDREN];
+  const querySelect: any = [];
+  for (const selectedProperty of selectedProperties) {
+    querySelect.push({ property: { "@id": selectedProperty } });
+  }
+  query.select = querySelect;
+
+  const result = await QueryService.queryIM({ query: query } as QueryRequest);
+  for (const entity of result.entities) {
+    nodes.push(createTreeNode(entity[RDFS.LABEL], entity["@id"], entity[RDF.TYPE], await EntityService.getHasChildren(entity["@id"])));
+  }
+  return nodes;
 }
 
 function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, order?: number): IMTreeNode {
@@ -170,13 +208,6 @@ function createLoadMoreNode(parentNode: IMTreeNode, nextPage: number, totalCount
 function onNodeSelect(node: any): void {
   if (node.data === "loadMore") {
     loadMore(node);
-  } else {
-    selectedNode.value = node;
-    // router.push({
-    //   name: "Folder",
-    //   params: { selectedIri: node.data }
-    // });
-    // store.commit("updateSelectedConceptIri", node.data);
   }
 }
 
@@ -221,84 +252,6 @@ function onNodeCollapse(node: any) {
 
 function nodeHasChild(node: IMTreeNode, child: EntityReferenceNode) {
   return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
-}
-
-function selectKey(selectedKey: string) {
-  Object.keys(selected.value).forEach(key => {
-    selected.value[key] = false;
-  });
-  selected.value[selectedKey] = true;
-}
-
-async function findPathToNode(iri: string) {
-  loading.value = true;
-  const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
-  // Recursively expand
-  let n = root.value.find(c => path.find(p => p["@id"] === c.data));
-  let i = 0;
-  if (n) {
-    expandedKeys.value = {};
-    while (n && n.data != path[0]["@id"] && i++ < 50) {
-      await selectAndExpand(n);
-      // Find relevant child
-      n = await locateChildInLoadMore(n, path);
-    }
-    if (n && n.data === path[0]["@id"]) {
-      await selectAndExpand(n);
-
-      while (!n.children.some(child => child.data === iri)) {
-        await loadMoreChildren(n);
-      }
-      for (const gc of n.children) {
-        if (gc.data === iri) {
-          selectKey(gc.key);
-        }
-      }
-      selectedNode.value = n;
-    } else {
-      toast.add({
-        severity: "warn",
-        summary: "Unable to locate",
-        detail: "Unable to locate concept in the current hierarchy"
-      });
-    }
-  }
-  scrollToHighlighted();
-  loading.value = false;
-}
-
-async function locateChildInLoadMore(n: IMTreeNode, path: TTIriRef[]): Promise<IMTreeNode | undefined> {
-  if (n.children.find(c => c.data === "loadMore")) {
-    const found = n.children.find(c => path.find(p => p["@id"] === c.data));
-    if (found) {
-      return n.children.find(c => path.find(p => p["@id"] === c.data));
-    } else {
-      await loadMoreChildren(n);
-      return await locateChildInLoadMore(n, path);
-    }
-  } else {
-    return n.children.find(c => path.find(p => p["@id"] === c.data));
-  }
-}
-
-async function selectAndExpand(node: any) {
-  selectKey(node.key);
-  if (!node.children || node.children.length === 0) {
-    await onNodeExpand(node);
-  }
-  expandedKeys.value[node.key] = true;
-}
-
-function scrollToHighlighted() {
-  const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
-  const highlighted = container.getElementsByClassName("p-highlight")[0];
-  if (highlighted) highlighted.scrollIntoView();
-}
-
-async function loadMoreChildren(node: any) {
-  if (node.children[node.children.length - 1].data === "loadMore") {
-    await loadMore(node.children[node.children.length - 1]);
-  }
 }
 
 async function showOverlay(event: any, node?: any): Promise<void> {

@@ -8,6 +8,7 @@
     @dragenter.prevent
     @dragover.prevent
     @drop="dropReceived"
+    @focus="onFocus"
   >
     <template #item="slotProps">
       <div class="autocomplete-suggestion">
@@ -41,12 +42,13 @@ import { isArrayHasLength, isObject, isObjectHasKeys } from "@/im_library/helper
 import { EntityService } from "@/im_library/services";
 import {} from "@/im_library/vocabulary";
 import _ from "lodash";
-import { useStore } from "vuex";
+import { Store, useStore } from "vuex";
 
 const store = useStore();
 const props = defineProps({
   ttAlias: { type: Object as PropType<TTAlias>, required: true },
   parentClauseIri: { type: String, required: false },
+  suggestionTreeIri: { type: String, required: false },
   getSuggestionsMethod: { type: Function, required: false }
 });
 
@@ -115,6 +117,10 @@ async function searchEntity(searchTerm: any): Promise<void> {
       });
     }
   }
+}
+
+function onFocus() {
+  store.commit("updateSuggestionTreeIri", props.suggestionTreeIri);
 }
 </script>
 

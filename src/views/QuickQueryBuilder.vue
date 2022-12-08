@@ -84,11 +84,14 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 
-const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
+const suggestionTreeIri: ComputedRef<string> = computed(() => store.state.suggestionTreeIri);
 
-watch(treeIri, (newValue, oldValue) => {
-  if ("" === oldValue && "" !== newValue) showSidebar.value = true;
-});
+watch(
+  () => suggestionTreeIri.value,
+  (newValue, oldValue) => {
+    if (newValue) showSidebar.value = true;
+  }
+);
 
 function onShowSidebar() {
   showSidebar.value = !showSidebar.value;
