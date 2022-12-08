@@ -76,7 +76,7 @@ import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } fr
 import { useStore } from "vuex";
 import { IMTreeNode, TTIriRef, EntityReferenceNode, ConceptSummary, QueryRequest, Query } from "@/im_library/interfaces";
 import _ from "lodash";
-import { isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
 import {
   getColourFromType,
   getFAIconFromType,
@@ -91,6 +91,7 @@ import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 
 const store = useStore();
 const suggestionTreeIri: ComputedRef<string> = computed(() => store.state.suggestionTreeIri);
+const suggestionTreeTerm: ComputedRef<string> = computed(() => store.state.suggestionTreeTerm);
 
 let selected: Ref<any> = ref({});
 let root: Ref<IMTreeNode[]> = ref([]);
@@ -101,6 +102,13 @@ let overlayLocation: Ref<any> = ref({});
 const pageSize: number = 20;
 
 const navTreeOP = ref();
+
+watch(
+  () => suggestionTreeTerm.value,
+  async () => {
+    await init();
+  }
+);
 
 watch(
   () => suggestionTreeIri.value,
@@ -166,9 +174,17 @@ async function getNodesFromQuery(query: Query): Promise<IMTreeNode[]> {
     querySelect.push({ property: { "@id": selectedProperty } });
   }
   query.select = querySelect;
+  const queryRequest: QueryRequest = { query: query } as QueryRequest;
+  if (suggestionTreeTerm.value) queryRequest.textSearch = suggestionTreeTerm.value;
 
-  const result = await QueryService.queryIM({ query: query } as QueryRequest);
+  let result = await QueryService.queryIM(queryRequest);
+
+  if (!isArrayHasLength(result.entities)) {
+    delete (queryRequest as any).textSearch;
+    result = await QueryService.queryIM(queryRequest);
+  }
   for (const entity of result.entities) {
+    // TODO make hasChildren selectable property in query
     nodes.push(createTreeNode(entity[RDFS.LABEL], entity["@id"], entity[RDF.TYPE], await EntityService.getHasChildren(entity["@id"])));
   }
   return nodes;

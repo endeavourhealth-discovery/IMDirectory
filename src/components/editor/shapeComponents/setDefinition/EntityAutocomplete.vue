@@ -90,6 +90,7 @@ function dropReceived(event: any) {
 
 async function searchEntity(searchTerm: any): Promise<void> {
   if (searchTerm.query.length > 0) {
+    store.commit("updateSuggestionTreeTerm", searchTerm.query);
     if (props.getSuggestionsMethod) {
       const filtereredSuggestions = props.parentClauseIri
         ? await props.getSuggestionsMethod(props.parentClauseIri, searchTerm.query)
@@ -120,6 +121,7 @@ async function searchEntity(searchTerm: any): Promise<void> {
 }
 
 function onFocus() {
+  store.commit("updateSuggestionTreeTerm", "");
   store.commit("updateSuggestionTreeIri", props.suggestionTreeIri);
 }
 </script>

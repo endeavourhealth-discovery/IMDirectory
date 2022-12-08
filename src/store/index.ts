@@ -57,9 +57,13 @@ export default createStore({
     creatorSavedEntity: JSON.parse(localStorage.getItem("creatorSavedEntity") || "{}") as any,
     findInEditorTreeIri: "",
     suggestionTreeIri: "",
+    suggestionTreeTerm: "",
     refreshEditorTree: false as boolean
   },
   mutations: {
+    updateSuggestionTreeTerm(state, value) {
+      state.suggestionTreeTerm = value;
+    },
     updateSuggestionTreeIri(state, value) {
       state.suggestionTreeIri = value;
     },
