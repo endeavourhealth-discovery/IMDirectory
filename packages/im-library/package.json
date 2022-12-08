@@ -80,7 +80,11 @@
       "import": "./dist/packages/im-library/src/helpers/helpers.js",
       "require": "./dist/packages/im-library/src/helpers/helpers.cjs"
     },
-    "./interfaces": "./dist/types/interfaces/index.d.ts",
+    "./interfaces": {
+      "types": "./dist/types/interfaces/index.d.ts",
+      "import": "./dist/types/interfaces/index.d.ts",
+      "require": "./dist/types/interfaces/index.d.ts"
+    },
     "./models/": {
       "types": "./dist/types/models/index.d.ts",
       "import": "./dist/packages/im-library/src/models/modules/"
@@ -114,6 +118,9 @@
       ],
       "helpers": [
         "dist/types/helpers/index.d.ts"
+      ],
+      "interfaces": [
+        "dist/types/interfaces.d.ts"
       ],
       "models": [
         "dist/types/models/index.d.ts"

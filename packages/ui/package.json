@@ -14,8 +14,7 @@
     "test:e2e": "cypress open --browser chrome",
     "test:e2e:ci": "start-server-and-test preview http://localhost:8082 cypress:run",
     "lint": "eslint --fix",
-    "format": "prettier --write",
-    "tsc": "tsc"
+    "format": "prettier --write"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "6.1.1",

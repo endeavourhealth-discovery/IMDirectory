@@ -8,11 +8,10 @@
     "debug-nodemon": "nodemon --watch src -e ts --exec node --inspect-brk -r ts-node/register ./src/server.ts",
     "start": "set NODE_ENV=production && ts-node dist/server",
     "nodemon": "set NODE_ENV=production && nodemon dist/server",
-    "build:production": "rimraf dist && vue-tsc && vite build",
+    "build": "rimraf dist && vite build",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
-    "swagger-autogen": "node ./src/swagger.js",
-    "tsc": "tsc"
+    "swagger-autogen": "node ./src/swagger.js"
   },
   "keywords": [],
   "author": "",
