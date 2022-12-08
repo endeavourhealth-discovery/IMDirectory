@@ -37,39 +37,48 @@
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
-      "import": "./dist/packages/im-library/src/im-library.js"
+      "import": "./dist/packages/im-library/src/im-library.js",
+      "require": "./dist/packages/im-library/src/im-library.cjs"
     },
     "./config/": {
       "types": "./dist/types/config/index.d.ts",
-      "import": "./dist/packages/im-library/src/config/"
+      "import": "./dist/packages/im-library/src/config/",
+      "require": "./dist/packages/im-library/src/config/"
     },
     "./config": {
       "types": "./dist/types/config/index.d.ts",
-      "import": "./dist/packages/im-library/src/config/config.js"
+      "import": "./dist/packages/im-library/src/config/config.js",
+      "require": "./dist/packages/im-library/src/config/config.cjs"
     },
     "./constants/": {
       "types": "./dist/types/constants/index.d.ts",
-      "import": "./dist/packages/im-library/src/constants/modules/"
+      "import": "./dist/packages/im-library/src/constants/modules/",
+      "require": "./dist/packages/im-library/src/constants/modules/"
     },
     "./constants": {
       "types": "./dist/types/constants/index.d.ts",
-      "import": "./dist/packages/im-library/src/constants/constants.js"
+      "import": "./dist/packages/im-library/src/constants/constants.js",
+      "require": "./dist/packages/im-library/src/constants/constants.cjs"
     },
     "./enums/": {
       "types": "./dist/types/enums/index.d.ts",
-      "import": "./dist/packages/im-library/src/enums/modules/"
+      "import": "./dist/packages/im-library/src/enums/modules/",
+      "require": "./dist/packages/im-library/src/enums/modules/"
     },
     "./enums": {
       "types": "./dist/types/enums/index.d.ts",
-      "import": "./dist/packages/im-library/src/enums/enums.js"
+      "import": "./dist/packages/im-library/src/enums/enums.js",
+      "require": "./dist/packages/im-library/src/enums/enums.cjs"
     },
     "./helpers/": {
       "types": "./dist/types/helpers/index.d.ts",
-      "import": "./dist/packages/im-library/src/helpers/modules/"
+      "import": "./dist/packages/im-library/src/helpers/modules/",
+      "require": "./dist/packages/im-library/src/helpers/modules/"
     },
     "./helpers": {
       "types": "./dist/types/helpers/index.d.ts",
-      "import": "./dist/packages/im-library/src/helpers/helpers.js"
+      "import": "./dist/packages/im-library/src/helpers/helpers.js",
+      "require": "./dist/packages/im-library/src/helpers/helpers.cjs"
     },
     "./interfaces": "./dist/types/interfaces/index.d.ts",
     "./models/": {
@@ -78,25 +87,40 @@
     },
     "./models": {
       "types": "./dist/types/models/index.d.ts",
-      "import": "./dist/packages/im-library/src/models/models.js"
+      "import": "./dist/packages/im-library/src/models/models.js",
+      "require": "./dist/packages/im-library/src/models/models.cjs"
     },
     "./vocabulary/": {
       "types": "./dist/types/vocabulary/index.d.ts",
-      "import": "./dist/packages/im-library/src/vocabulary/modules/"
+      "import": "./dist/packages/im-library/src/vocabulary/modules/",
+      "require": "./dist/packages/im-library/src/vocabulary/modules/"
     },
     "./vocabulary": {
       "types": "./dist/types/vocabulary/index.d.ts",
-      "import": "./dist/packages/im-library/src/vocabulary/vocabulary.js"
+      "import": "./dist/packages/im-library/src/vocabulary/vocabulary.js",
+      "require": "./dist/packages/im-library/src/vocabulary/vocabulary.cjs/"
     }
   },
   "typesVersions": {
     "*": {
-      "config": ["dist/types/config/index.d.ts"],
-      "constants": ["dist/types/constants/index.d.ts"],
-      "enums":["dist/types/enums/index.d.ts"],
-      "helpers":["dist/types/helpers/index.d.ts"],
-      "models":["dist/types/models/index.d.ts"],
-      "vocabulary":["dist/types/vocabulary/index.d.ts"]
+      "config": [
+        "dist/types/config/index.d.ts"
+      ],
+      "constants": [
+        "dist/types/constants/index.d.ts"
+      ],
+      "enums": [
+        "dist/types/enums/index.d.ts"
+      ],
+      "helpers": [
+        "dist/types/helpers/index.d.ts"
+      ],
+      "models": [
+        "dist/types/models/index.d.ts"
+      ],
+      "vocabulary": [
+        "dist/types/vocabulary/index.d.ts"
+      ]
     }
   }
 }
