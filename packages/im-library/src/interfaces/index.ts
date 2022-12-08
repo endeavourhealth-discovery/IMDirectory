@@ -44,7 +44,6 @@ import { SimpleMap } from "./modules/SimpleMap.js";
 import { SimpleMapIri } from "./modules/SimpleMapIri.js";
 import { TermCode } from "./modules/TermCode.js";
 import { ToastType } from "./modules/ToastType.js";
-import { IMTreeNode } from "./modules/IMTreeNode.js";
 import { TreeParent } from "./modules/TreeParent.js";
 import { TTBundle } from "./modules/TTBundle.js";
 import TTGraphData from "./modules/TTGraphData.js";
@@ -120,7 +119,6 @@ export {
   type SimpleMapIri,
   type TermCode,
   type ToastType,
-  type IMTreeNode,
   type TreeParent,
   type TTBundle,
   type TTGraphData,
