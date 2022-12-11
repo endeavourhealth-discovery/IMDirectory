@@ -1,5 +1,5 @@
 import Env from "./Env";
-import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { isObjectHasKeys, isArrayHasLength } from "im-library/helpers/DataTypeCheckers";
 import { mapToObject } from "im-library/helpers/Transforms";
 import { QueryDisplay, QueryObject, TTIriRef, QueryRequest, AllowableChildProperty } from "im-library/interfaces";
 import axios from "axios";
@@ -67,18 +67,18 @@ const QueryService = {
     }
   },
 
-  async runFunction(iri: string, args?: Map<string, any>): Promise<any> {
+  async runFunction(iri: string, args?: any[]): Promise<any> {
     try {
-      if (args && args.size > 0) {
-        const replacedArgs = Helpers.Transforms.mapToObject(args);
+      if (args && args.length > 0) {
         const result: any = await axios.post(Env.API + "api/function/public/callFunction", {
           functionIri: iri,
-          arguments: replacedArgs
+          arguments: args
         });
-        if (Helpers.DataTypeCheckers.isObjectHasKeys(replacedArgs, ["fieldName"])) return result[replacedArgs.fieldName];
+        if (isArrayHasLength(args) && args.find(arg => arg.parameter === "fieldName")) return result[args.find(arg => arg.parameter === "fieldName").valueData];
         else return result;
       } else return await axios.post(Env.API + "api/function/public/callFunction", { functionIri: iri });
     } catch (error) {
+      console.error(error);
       return undefined;
     }
   },

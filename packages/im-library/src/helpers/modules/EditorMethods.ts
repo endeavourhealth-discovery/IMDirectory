@@ -1,25 +1,27 @@
 import { ComponentType } from "../../enums/index.js";
-import { PropertyShape, TTIriRef } from "../../interfaces/index.js";
+import { PropertyShape, TTIriRef, Argument } from "../../interfaces/index.js";
 import { IM } from "../../vocabulary/index.js";
 import { isArrayHasLength } from "./DataTypeCheckers.js";
 
-export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>) {
-  const result = new Map<string, any>();
+export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
+  const result: Argument[] = [];
   property.argument.forEach(arg => {
-    let key = "";
-    let value: any;
-    if (arg.parameter === "this" && !arg.valueIri) key = property.path["@id"];
-    else key = arg.parameter;
-    if (arg.valueIri) value = arg.valueIri["@id"];
-    else if (arg.valueVariable) {
-      if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
-      if (property.builderChild && valueVariableMap && valueVariableMap.has(arg.valueVariable + property.order)) {
-        value = valueVariableMap.get(arg.valueVariable + property.order);
+    const argResult: any = {};
+    for (const [key, value] of Object.entries(arg)) {
+      if (key === "valueVariable") {
+        let foundValueVariable: any = null;
+        if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
+        if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
+          foundValueVariable = valueVariableMap.get(value + property.order);
+        } else {
+          foundValueVariable = valueVariableMap.get(value);
+        }
+        argResult[key] = foundValueVariable;
       } else {
-        value = valueVariableMap.get(arg.valueVariable);
+        argResult[key] = value;
       }
-    } else if (arg.valueData) value = arg.valueData;
-    result.set(key, value);
+    }
+    result.push(argResult);
   });
   return result;
 }

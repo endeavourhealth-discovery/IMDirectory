@@ -72,9 +72,8 @@ function setSelectedEntity() {
 async function getDropdownOptions() {
   if (isObjectHasKeys(props.shape, ["select", "argument"])) {
     const args = processArguments(props.shape);
-    const replacedArgs = mapToObject(args);
     const queryRequest = {} as QueryRequest;
-    queryRequest.argument = replacedArgs;
+    queryRequest.argument = args;
     const query = { "@id": props.shape.select[0]["@id"] } as Query;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);

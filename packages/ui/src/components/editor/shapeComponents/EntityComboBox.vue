@@ -67,7 +67,8 @@ watch(selectedEntities, async newValue => {
 
 onMounted(async () => {
   loading.value = true;
-  dropdownOptions.value = await getDropdownOptions();
+  const result = await getDropdownOptions();
+  dropdownOptions.value = result;
 
   processPropsValue();
   loading.value = false;

@@ -15,9 +15,10 @@ import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
 import axios from "axios";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { PropertyShape } from "im-library/interfaces";
+import { PropertyShape, Argument } from "im-library/interfaces";
 import { EditorMode } from "im-library/enums";
 import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
+import { processArguments } from "im-library/helpers/EditorMethods";
 import { QueryService } from "@/services";
 import { IM } from "im-library/vocabulary";
 
@@ -99,10 +100,9 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
     return property.isIri["@id"];
   }
   if (isObjectHasKeys(property, ["function", "argument"])) {
-    const args = processArguments(property);
-    if (props.shape.argument.find(a => a.valueVariable)) {
-      const parameter = props.shape.argument.find(a => a.valueVariable)?.parameter;
-      if (parameter && args.get(parameter)) {
+    const args = processArguments(property, valueVariableMap?.value);
+    if (props.shape.argument.find((a: Argument) => a.valueVariable)) {
+      if (args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
         const result = await QueryService.runFunction(property.function["@id"], args);
         if (result) return result;
       } else return "";
@@ -119,20 +119,20 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
   throw new Error("Property must have isIri or function key");
 }
 
-function processArguments(property: PropertyShape) {
-  const result = new Map<string, any>();
-  property.argument.forEach(arg => {
-    let key = "";
-    let value: any;
-    if (arg.parameter === "this") key = props.shape.path["@id"] == IM.ID ? IM.IRI : props.shape.path["@id"];
-    else key = arg.parameter;
-    if (arg.valueIri) value = arg.valueIri;
-    else if (arg.valueVariable) value = valueVariableMap?.value.get(arg.valueVariable);
-    else if (arg.valueData) value = arg.valueData;
-    result.set(key, value);
-  });
-  return result;
-}
+// function processArguments(property: PropertyShape) {
+//   const result = new Map<string, any>();
+//   property.argument.forEach(arg => {
+//     let key = "";
+//     let value: any;
+//     if (arg.parameter === "this") key = props.shape.path["@id"] == IM.ID ? IM.IRI : props.shape.path["@id"];
+//     else key = arg.parameter;
+//     if (arg.valueIri) value = arg.valueIri;
+//     else if (arg.valueVariable) value = valueVariableMap?.value.get(arg.valueVariable);
+//     else if (arg.valueData) value = arg.valueData;
+//     result.set(key, value);
+//   });
+//   return result;
+// }
 
 function updateEntity(data: string) {
   const result = {} as any;
