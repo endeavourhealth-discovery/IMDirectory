@@ -119,6 +119,8 @@ export class IM {
   public static SET_DEFINITION_BUILDER = IM.NAMESPACE + "SetDefinitionBuilder";
   public static QUERY_DEFINITION_BUILDER = IM.NAMESPACE + "QueryDefinitionBuilder";
   public static TOGGLEABLE_COMPONENT = IM.NAMESPACE + "ToggleableComponent";
+  public static HORIZONTAL_LAYOUT = IM.NAMESPACE + "HorizontalLayout";
+  public static VERTICAL_LAYOUT = IM.NAMESPACE + "VerticalLayout";
 
   //editor validations
   public static VALIDATION_HAS_PARENT = IM.NAMESPACE + "Validation_hasParent";

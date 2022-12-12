@@ -67,6 +67,10 @@ export function processComponentType(type: TTIriRef): any {
       return ComponentType.PROPERTY_BUILDER;
     case IM.TOGGLEABLE_COMPONENT:
       return ComponentType.TOGGLEABLE_COMPONENT;
+    case IM.HORIZONTAL_LAYOUT:
+      return ComponentType.HORIZONTAL_LAYOUT;
+    case IM.VERTICAL_LAYOUT:
+      return ComponentType.VERTICAL_LAYOUT;
     default:
       throw new Error("Invalid component type encountered while processing component types" + type["@id"]);
   }

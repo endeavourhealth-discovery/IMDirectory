@@ -26,5 +26,7 @@ export enum ComponentType {
   PROPERTY_BUILDER = "PropertyBuilder",
   SET_DEFINITION_BUILDER = "SetDefinitionBuilder",
   QUERY_DEFINITION_BUILDER = "QueryDefinitionBuilder",
-  TOGGLEABLE_COMPONENT = "ToggleableComponent"
+  TOGGLEABLE_COMPONENT = "ToggleableComponent",
+  HORIZONTAL_LAYOUT = "HorizontalLayout",
+  VERTICAL_LAYOUT = "VerticalLayout"
 }

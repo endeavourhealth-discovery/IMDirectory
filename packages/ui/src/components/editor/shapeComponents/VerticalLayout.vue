@@ -1,7 +1,7 @@
 <template>
-  <div v-if="properties && properties.length" class="group-container">
-    <div v-for="(property, index) in properties" class="property-container">
-      <component :is="processComponentType(property.componentType)" :shape="property" :value="processEntityValue(property)" :mode="mode" />
+  <div class="vertical-layout-container">
+    <div v-for="(component, index) in components" class="component-container" :style="'height:' + heights[index]">
+      <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
   </div>
 </template>
@@ -17,8 +17,6 @@ import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
 import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinitionBuilder.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
-import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
-import VerticalLayout from "./shapeComponents/VerticalLayout.vue";
 
 export default defineComponent({
   components: {
@@ -31,40 +29,56 @@ export default defineComponent({
     HtmlInput,
     TextDisplay,
     TextInput,
-    ToggleableComponent,
-    HorizontalLayout,
-    VerticalLayout
+    ToggleableComponent
   }
 });
 </script>
 
 <script setup lang="ts">
-import { PropertyGroup, PropertyShape } from "im-library/interfaces";
-import { ref, Ref, watch, inject, onMounted, PropType, defineComponent } from "vue";
+import { PropertyGroup, PropertyShape, TTIriRef } from "im-library/dist/types/interfaces";
 import { EditorMode } from "im-library/enums";
-import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
-import { processComponentType } from "im-library/helpers/EditorMethods";
+import { PropType, inject, ref, Ref, onMounted, defineComponent } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
+import { processComponentType } from "im-library/helpers/EditorMethods";
+import { isObjectHasKeys } from "im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true }
+  mode: { type: String as PropType<EditorMode>, required: true },
+  value: { type: ([Object, String] as PropType<any>) || String, required: false },
+  position: { type: Number, required: false }
 });
-watch(
-  () => props.shape,
-  newValue => {
-    setProperties(newValue);
-  }
-);
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 
-let properties: Ref<PropertyShape[] | PropertyGroup[]> = ref([]);
+const components: Ref<any[]> = ref([]);
+const heights: Ref<String[]> = ref([]);
 
 onMounted(() => {
-  setProperties(props.shape);
+  setComponents();
+  setHeights();
 });
+
+function setComponents() {
+  components.value = props.shape.property;
+}
+
+function setHeights() {
+  if (props.shape.argument) {
+    const splitArgs = props.shape.argument[0].valueData?.split(",");
+    if (splitArgs && splitArgs?.length) {
+      heights.value = splitArgs;
+    } else {
+      for (let i = 0; i < props.shape.property.length; i++) {
+        heights.value.push(100 / props.shape.property.length + "%");
+      }
+    }
+  } else {
+    for (let i = 0; i < props.shape.property.length; i++) {
+      heights.value.push("fit-content");
+    }
+  }
+}
 
 function processEntityValue(property: PropertyShape | PropertyGroup) {
   if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
@@ -72,36 +86,16 @@ function processEntityValue(property: PropertyShape | PropertyGroup) {
   }
   return undefined;
 }
-
-function setProperties(shape: PropertyGroup) {
-  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property;
-  else if (isObjectHasKeys(shape, ["subGroup"])) properties.value = shape.subGroup;
-  else properties.value = [];
-}
 </script>
 
 <style scoped>
-.group-container {
-  flex: 1 1 auto;
+.vertical-layout-container {
   width: 100%;
-  overflow: auto;
+  height: 100%;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: flex-start;
   align-items: center;
   overflow: auto;
-  padding: 2rem 0 0 0;
-}
-
-.property-container {
-  width: 100%;
-  flex: 0 1 auto;
-  max-height: 100%;
-  display: flex;
-  flex-flow: row;
-  justify-content: center;
-  align-content: flex-start;
-  /* overflow: auto; */
-  /* padding: 2rem 0 0 0; */
+  padding: 1rem;
 }
 </style>

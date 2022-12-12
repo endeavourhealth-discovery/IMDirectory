@@ -1,5 +1,6 @@
 import { PropertyShape } from "./PropertyShape.js";
 import { TTIriRef } from "./TTIriRef.js";
+import { Argument } from "./query/Argument.js";
 
 export interface PropertyGroup {
   label: string;
@@ -16,4 +17,5 @@ export interface PropertyGroup {
   validationErrorMessage: string;
   function: TTIriRef;
   builderChild: boolean;
+  argument: Argument[];
 }
