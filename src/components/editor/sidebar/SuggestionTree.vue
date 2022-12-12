@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
-    <Tree
+    <!-- <Tree
       :value="root"
       selectionMode="single"
       v-model:selectionKeys="selected"
@@ -29,7 +29,29 @@
           <span>{{ slotProps.node.label }}</span>
         </div>
       </template>
-    </Tree>
+    </Tree> -->
+
+    <Listbox v-model="selected" :options="root" :multiple="true" :filter="true" optionLabel="name" class="tree-root" filterPlaceholder="Search">
+      <template #option="{ option }">
+        <!-- {{ option }} -->
+        <div
+          class="tree-row grabbable"
+          @mouseover="showOverlay($event, option)"
+          @mouseleave="hideOverlay($event)"
+          draggable="true"
+          @dragstart="dragStart($event, option)"
+        >
+          <!-- <i class="fa-solid fa-grip-vertical drag-icon grabbable"></i> -->
+          <span v-if="!option.loading">
+            <div :style="'color:' + option.color">
+              <i :class="option.typeIcon" class="fa-fw" aria-hidden="true"></i>
+            </div>
+          </span>
+
+          <span>{{ option.label }}</span>
+        </div>
+      </template>
+    </Listbox>
 
     <OverlayPanel v-if="hoveredResult.iri === 'load'" ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
       <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
@@ -72,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount, PropType } from "vue";
 import { useStore } from "vuex";
 import { IMTreeNode, TTIriRef, EntityReferenceNode, ConceptSummary, QueryRequest, Query } from "@/im_library/interfaces";
 import _ from "lodash";
@@ -89,16 +111,22 @@ import { byKey } from "@/im_library/helpers/modules/Sorters";
 import { EntityService, QueryService } from "@/im_library/services";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
 
+const props = defineProps({
+  propertyId: { type: String, required: false },
+  suggestionSearchTerm: { type: String, required: false },
+  suggestionIri: { type: String, required: false }
+});
+
 const store = useStore();
 const suggestionTreeIri: ComputedRef<string> = computed(() => store.state.suggestionTreeIri);
 const suggestionTreeTerm: ComputedRef<string> = computed(() => store.state.suggestionTreeTerm);
 
-let selected: Ref<any> = ref({});
-let root: Ref<IMTreeNode[]> = ref([]);
-let loading = ref(true);
-let expandedKeys: Ref<any> = ref({});
-let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-let overlayLocation: Ref<any> = ref({});
+const selected: Ref<IMTreeNode[]> = ref([]);
+const root: Ref<IMTreeNode[]> = ref([]);
+const loading = ref(true);
+const expandedKeys: Ref<any> = ref({});
+const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const overlayLocation: Ref<any> = ref({});
 const pageSize: number = 20;
 
 const navTreeOP = ref();

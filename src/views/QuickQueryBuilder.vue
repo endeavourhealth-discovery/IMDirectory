@@ -37,13 +37,7 @@
 </template>
 
 <script lang="ts">
-import TypeSelector from "@/components/creator/TypeSelector.vue";
-import StepsGroup from "@/components/editor/StepsGroup.vue";
 import SimpleQueryBuilder from "@/components/editor/shapeComponents/SimpleQueryBuilder.vue";
-
-export default defineComponent({
-  components: { StepsGroup, TypeSelector }
-});
 </script>
 
 <script setup lang="ts">
@@ -60,13 +54,12 @@ import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { TTIriRef } from "@/im_library/interfaces";
 import { EditorMode } from "@/im_library/enums";
-import { DataTypeCheckers, ConceptTypeMethods, EntityValidator, Converters, UtililityMethods } from "@/im_library/helpers";
-import { IM, RDF, RDFS, SHACL } from "@/im_library/vocabulary";
-import { EntityService, Env, FilerService } from "@/im_library/services";
+import { DataTypeCheckers, Converters } from "@/im_library/helpers";
+import { RDF, RDFS, SHACL } from "@/im_library/vocabulary";
+import { EntityService, Env } from "@/im_library/services";
 
 const { isObjectHasKeys, isArrayHasLength } = DataTypeCheckers;
 const { iriToUrl } = Converters;
-const { debounce } = UtililityMethods;
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 

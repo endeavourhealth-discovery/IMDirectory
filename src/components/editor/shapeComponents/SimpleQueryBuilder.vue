@@ -9,8 +9,10 @@
           :value="properties"
           responsiveLayout="scroll"
           class="p-datatable-sm"
+          selectionMode="single"
           v-model:selection="whereSelectedProperties"
-          @rowReorder="onRowReorder"
+          @row-reorder="onRowReorder"
+          @row-select="onRowSelect"
           sortMode="single"
           sortField="logic"
           :sortOrder="1"
@@ -26,7 +28,10 @@
               <div v-tooltip.top="data.tooltip">{{ data.label }}</div>
             </template>
           </Column>
-          <Column field="propertyValue" header="Value">
+          <Column>
+            <template #body="{ data }"> {{ data.value }} </template>
+          </Column>
+          <!-- <Column field="propertyValue" header="Value">
             <template #body="{ data }">
               <div v-if="data.componentType === 'datatype'">
                 <InputNumber v-if="data.valueType.name === 'integer'" v-model="data.value" />
@@ -34,13 +39,23 @@
                 <Calendar v-if="data.valueType.name === 'Date time'" v-model="data.value" autocomplete="off" dateFormat="mm-dd-yy" />
               </div>
               <div v-else-if="data.componentType === 'class'">
-                <EntityAutocomplete :ttAlias="data.value" :suggestion-tree-iri="data.valueType['@id']" />
+                <EntityAutocomplete
+                  :property-label="data.label"
+                  :tt-alias="data.value"
+                  :suggestion-tree-iri="data.valueType['@id']"
+                  @search-term-updated="onSearchTermUpdate"
+                />
               </div>
               <div v-else-if="data.componentType === 'node'">
-                <EntityAutocomplete :ttAlias="data.value" :suggestion-tree-iri="data.valueType['@id']" />
+                <EntityAutocomplete
+                  :property-label="data.label"
+                  :tt-alias="data.value"
+                  :suggestion-tree-iri="data.valueType['@id']"
+                  @search-term-updated="onSearchTermUpdate"
+                />
               </div>
             </template>
-          </Column>
+          </Column> -->
           <Column field="propertyDescription" header="Description" style="width: 50%">
             <template #body="{ data }">
               <div v-if="data.description">{{ data.description }}</div>
@@ -80,10 +95,11 @@ import { IM, RDFS, SHACL } from "@/im_library/vocabulary";
 import { isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import { setupEntity } from "@/views/EditorMethods";
+import { useStore } from "vuex";
 </script>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, watch } from "vue";
+import { onMounted, PropType, Ref, ref, watch } from "vue";
 
 interface TTProperty {
   "http://www.w3.org/ns/shacl#order": number;
@@ -106,6 +122,7 @@ interface UIProperty {
   logic: string;
 }
 
+const store = useStore();
 const logicOptions = ["and", "not", "or", "-"];
 
 const selectedFrom: Ref<TTAlias> = ref({} as TTAlias);
@@ -124,12 +141,16 @@ watch(
 
 async function init() {
   const mainRecords = await getFromSuggestions();
-  selectedFrom.value["@id"] = mainRecords[0]["@id"];
-  selectedFrom.value.name = mainRecords[0].name;
+  selectedFrom.value["@id"] = mainRecords[3]["@id"];
+  selectedFrom.value.name = mainRecords[3].name;
 }
 
 function onRowReorder(event: any) {
   properties.value = event.value;
+}
+
+function onSearchTermUpdate(searchTermUpdate: { propertyLabel: string; searchTerm: string }) {
+  store.commit("updateSuggestionTreeTerm", searchTermUpdate.searchTerm);
 }
 
 async function getProperties() {
@@ -204,6 +225,16 @@ async function getFromSuggestions(term?: string): Promise<TTIriRef[]> {
   return mainRecords.map(filt => {
     return { "@id": filt["@id"], name: filt.name };
   });
+}
+
+function onRowSelect(row: any) {
+  // (row.data as UIProperty).valueType["@id"];
+  console.log(row.data as UIProperty);
+  console.log((row.data as UIProperty).valueType["@id"]);
+
+  store.commit("updateSuggestionTreeTerm", "");
+  store.commit("updateSuggestionTreeIri", (row.data as UIProperty).valueType["@id"]);
+  // console.log(row);
 }
 </script>
 

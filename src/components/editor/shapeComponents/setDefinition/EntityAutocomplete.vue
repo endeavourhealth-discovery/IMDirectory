@@ -42,19 +42,23 @@ import { isArrayHasLength, isObject, isObjectHasKeys } from "@/im_library/helper
 import { EntityService } from "@/im_library/services";
 import {} from "@/im_library/vocabulary";
 import _ from "lodash";
-import { Store, useStore } from "vuex";
+import { useStore } from "vuex";
 
 const store = useStore();
 const props = defineProps({
   ttAlias: { type: Object as PropType<TTAlias>, required: true },
   parentClauseIri: { type: String, required: false },
-  suggestionTreeIri: { type: String, required: false },
   getSuggestionsMethod: { type: Function, required: false }
+});
+
+const emit = defineEmits({
+  searchTermUpdated: (_payload: { propertyLabel: string; searchTerm: string }) => true
 });
 
 const suggestions = ref();
 const abortController = ref(new AbortController());
 const selectedEntity: Ref<TTIriRef[]> = ref([] as TTIriRef[]);
+const searchTermString: Ref<string> = ref("");
 
 watch(
   () => _.cloneDeep(props.ttAlias),
@@ -62,6 +66,7 @@ watch(
 );
 
 onMounted(() => {
+  console.log();
   populateTTAlias();
 });
 
@@ -90,6 +95,8 @@ function dropReceived(event: any) {
 
 async function searchEntity(searchTerm: any): Promise<void> {
   if (searchTerm.query.length > 0) {
+    searchTermString.value = searchTerm.query;
+    // emit("searchTermUpdated", { propertyLabel: props.propertyLabel || "", searchTerm: searchTermString.value });
     store.commit("updateSuggestionTreeTerm", searchTerm.query);
     if (props.getSuggestionsMethod) {
       const filtereredSuggestions = props.parentClauseIri
@@ -122,7 +129,7 @@ async function searchEntity(searchTerm: any): Promise<void> {
 
 function onFocus() {
   store.commit("updateSuggestionTreeTerm", "");
-  store.commit("updateSuggestionTreeIri", props.suggestionTreeIri);
+  // store.commit("updateSuggestionTreeIri", props.suggestionIri);
 }
 </script>
 
