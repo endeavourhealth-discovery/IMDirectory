@@ -102,7 +102,8 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
   if (isObjectHasKeys(property, ["function", "argument"])) {
     const args = processArguments(property, valueVariableMap?.value);
     if (props.shape.argument.find((a: Argument) => a.valueVariable)) {
-      if (args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
+      const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
+      if (valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
         const result = await QueryService.runFunction(property.function["@id"], args);
         if (result) return result;
       } else return "";

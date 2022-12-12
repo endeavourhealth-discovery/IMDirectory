@@ -23,7 +23,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Object as PropType<any>, required: false }
+  value: { type: [Object, String] as PropType<any | String>, required: false }
 });
 
 const builderMode: Ref<string> = ref("Form");
