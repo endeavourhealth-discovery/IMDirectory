@@ -5,8 +5,22 @@
         <EntityAutocomplete class="multi-select" :ttAlias="selectedFrom" :getSuggestionsMethod="getFromSuggestions" />
       </TabPanel>
       <TabPanel header="Where">
-        <DataTable :value="properties" responsiveLayout="scroll" class="p-datatable-sm" v-model:selection="whereSelectedProperties">
-          <Column selectionMode="multiple" headerStyle="width: 3em"></Column>
+        <DataTable
+          :value="properties"
+          responsiveLayout="scroll"
+          class="p-datatable-sm"
+          v-model:selection="whereSelectedProperties"
+          @rowReorder="onRowReorder"
+          sortMode="single"
+          sortField="logic"
+          :sortOrder="1"
+        >
+          <Column :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false" />
+          <Column field="logic" header="Logic">
+            <template #body="{ data }">
+              <Dropdown v-model="data.logic" :options="logicOptions" />
+            </template>
+          </Column>
           <Column field="propertyName" header="Property">
             <template #body="{ data }">
               <div v-tooltip.top="data.tooltip">{{ data.label }}</div>
@@ -81,8 +95,21 @@ interface TTProperty {
   "http://www.w3.org/ns/shacl#minCount": number;
 }
 
+interface UIProperty {
+  label: string;
+  tooltip: string;
+  description: string;
+  property: TTProperty;
+  componentType: string;
+  valueType: TTIriRef;
+  value: any;
+  logic: string;
+}
+
+const logicOptions = ["and", "not", "or", "-"];
+
 const selectedFrom: Ref<TTAlias> = ref({} as TTAlias);
-const properties: Ref<{ property: TTProperty; componentType: string; valueType: TTIriRef; value: any }[]> = ref([]);
+const properties: Ref<UIProperty[]> = ref([]);
 const whereSelectedProperties: Ref = ref();
 const selectSelectedProperties: Ref = ref();
 const showTestQueryResults: Ref<boolean> = ref(false);
@@ -101,6 +128,10 @@ async function init() {
   selectedFrom.value.name = mainRecords[0].name;
 }
 
+function onRowReorder(event: any) {
+  properties.value = event.value;
+}
+
 async function getProperties() {
   properties.value = [];
   const bundle = await EntityService.getPartialEntityBundle(selectedFrom.value["@id"], [SHACL.PROPERTY]);
@@ -109,7 +140,7 @@ async function getProperties() {
   }
 }
 
-async function buildUIProperty(ttProperty: TTProperty) {
+async function buildUIProperty(ttProperty: TTProperty): Promise<UIProperty> {
   const label = ttProperty["http://www.w3.org/ns/shacl#path"][0].name || ttProperty["http://www.w3.org/ns/shacl#path"][0]["@id"];
   const description = await getPropertyDescription(ttProperty["http://www.w3.org/ns/shacl#path"][0]["@id"]);
   if (isObjectHasKeys(ttProperty, [SHACL.CLASS]))
@@ -120,7 +151,8 @@ async function buildUIProperty(ttProperty: TTProperty) {
       property: ttProperty,
       componentType: "class",
       valueType: ttProperty["http://www.w3.org/ns/shacl#class"][0],
-      value: {} as TTAlias
+      value: {} as TTAlias,
+      logic: "and"
     };
   if (isObjectHasKeys(ttProperty, [SHACL.NODE]))
     return {
@@ -130,7 +162,8 @@ async function buildUIProperty(ttProperty: TTProperty) {
       property: ttProperty,
       componentType: "node",
       valueType: ttProperty["http://www.w3.org/ns/shacl#node"][0],
-      value: {} as TTAlias
+      value: {} as TTAlias,
+      logic: "not"
     };
   if (isObjectHasKeys(ttProperty, [SHACL.DATATYPE]))
     return {
@@ -140,7 +173,8 @@ async function buildUIProperty(ttProperty: TTProperty) {
       property: ttProperty,
       componentType: "datatype",
       valueType: ttProperty["http://www.w3.org/ns/shacl#datatype"][0],
-      value: ""
+      value: "",
+      logic: "or"
     };
   return {
     label: label,
@@ -149,7 +183,8 @@ async function buildUIProperty(ttProperty: TTProperty) {
     property: ttProperty,
     componentType: "datatype",
     valueType: ttProperty["http://www.w3.org/ns/shacl#datatype"][0],
-    value: ""
+    value: "",
+    logic: "and"
   };
 }
 
