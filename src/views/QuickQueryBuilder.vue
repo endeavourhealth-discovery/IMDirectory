@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import SimpleQueryBuilder from "@/components/editor/shapeComponents/SimpleQueryBuilder.vue";
+import SimpleQueryBuilder, { SuggestionInfo } from "@/components/editor/shapeComponents/SimpleQueryBuilder.vue";
 </script>
 
 <script setup lang="ts">
@@ -77,12 +77,12 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 
-const suggestionTreeIri: ComputedRef<string> = computed(() => store.state.suggestionTreeIri);
+const suggestionInfo: ComputedRef<SuggestionInfo> = computed(() => store.state.suggestionInfo);
 
 watch(
-  () => suggestionTreeIri.value,
+  () => suggestionInfo.value,
   (newValue, oldValue) => {
-    if (newValue) showSidebar.value = true;
+    if (isObjectHasKeys(newValue)) showSidebar.value = true;
   }
 );
 

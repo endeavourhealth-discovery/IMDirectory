@@ -43,9 +43,11 @@ import { EntityService } from "@/im_library/services";
 import {} from "@/im_library/vocabulary";
 import _ from "lodash";
 import { useStore } from "vuex";
+import { SuggestionInfo } from "../SimpleQueryBuilder.vue";
 
 const store = useStore();
 const props = defineProps({
+  propertyId: { type: String, required: false },
   ttAlias: { type: Object as PropType<TTAlias>, required: true },
   parentClauseIri: { type: String, required: false },
   getSuggestionsMethod: { type: Function, required: false }
@@ -66,7 +68,6 @@ watch(
 );
 
 onMounted(() => {
-  console.log();
   populateTTAlias();
 });
 
@@ -96,8 +97,6 @@ function dropReceived(event: any) {
 async function searchEntity(searchTerm: any): Promise<void> {
   if (searchTerm.query.length > 0) {
     searchTermString.value = searchTerm.query;
-    // emit("searchTermUpdated", { propertyLabel: props.propertyLabel || "", searchTerm: searchTermString.value });
-    store.commit("updateSuggestionTreeTerm", searchTerm.query);
     if (props.getSuggestionsMethod) {
       const filtereredSuggestions = props.parentClauseIri
         ? await props.getSuggestionsMethod(props.parentClauseIri, searchTerm.query)
@@ -128,8 +127,7 @@ async function searchEntity(searchTerm: any): Promise<void> {
 }
 
 function onFocus() {
-  store.commit("updateSuggestionTreeTerm", "");
-  // store.commit("updateSuggestionTreeIri", props.suggestionIri);
+  store.commit("updateSuggestionInfo", { propertyId: props.propertyId } as SuggestionInfo);
 }
 </script>
 

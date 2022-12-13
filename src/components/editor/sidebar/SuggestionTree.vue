@@ -1,39 +1,16 @@
 <template>
   <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
-    <!-- <Tree
-      :value="root"
-      selectionMode="single"
-      v-model:selectionKeys="selected"
-      :expandedKeys="expandedKeys"
-      @node-select="onNodeSelect"
-      @node-expand="onNodeExpand"
-      @node-collapse="onNodeCollapse"
+    <Listbox
+      v-model="selected"
+      :options="root"
+      :multiple="true"
+      :filter="true"
+      optionLabel="name"
       class="tree-root"
-      :loading="loading"
+      filterPlaceholder="Search"
+      @change="onChange"
     >
-      <template #default="slotProps">
-        <div
-          class="tree-row grabbable"
-          @mouseover="showOverlay($event, slotProps.node)"
-          @mouseleave="hideOverlay($event)"
-          draggable="true"
-          @dragstart="dragStart($event, slotProps.node)"
-        >
-          <i class="fa-solid fa-grip-vertical drag-icon grabbable"></i>
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
-            </div>
-          </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span>{{ slotProps.node.label }}</span>
-        </div>
-      </template>
-    </Tree> -->
-
-    <Listbox v-model="selected" :options="root" :multiple="true" :filter="true" optionLabel="name" class="tree-root" filterPlaceholder="Search">
       <template #option="{ option }">
-        <!-- {{ option }} -->
         <div
           class="tree-row grabbable"
           @mouseover="showOverlay($event, option)"
@@ -41,7 +18,7 @@
           draggable="true"
           @dragstart="dragStart($event, option)"
         >
-          <!-- <i class="fa-solid fa-grip-vertical drag-icon grabbable"></i> -->
+          <i class="fa-solid fa-grip-vertical drag-icon grabbable"></i>
           <span v-if="!option.loading">
             <div :style="'color:' + option.color">
               <i :class="option.typeIcon" class="fa-fw" aria-hidden="true"></i>
@@ -105,11 +82,14 @@ import {
   getNamesAsStringFromTypes,
   isConcept,
   isQuery,
-  isValueSet
+  isValueSet,
+  isRecordModel
 } from "@/im_library/helpers/modules/ConceptTypeMethods";
 import { byKey } from "@/im_library/helpers/modules/Sorters";
 import { EntityService, QueryService } from "@/im_library/services";
 import { IM, RDF, RDFS } from "@/im_library/vocabulary";
+import { DisplayTTIriRef, SuggestionInfo } from "../shapeComponents/SimpleQueryBuilder.vue";
+import { ignorableKeyModifiers } from "@vue/test-utils/dist/constants/dom-events";
 
 const props = defineProps({
   propertyId: { type: String, required: false },
@@ -118,13 +98,10 @@ const props = defineProps({
 });
 
 const store = useStore();
-const suggestionTreeIri: ComputedRef<string> = computed(() => store.state.suggestionTreeIri);
-const suggestionTreeTerm: ComputedRef<string> = computed(() => store.state.suggestionTreeTerm);
-
+const suggestionInfo: ComputedRef<SuggestionInfo> = computed(() => store.state.suggestionInfo);
 const selected: Ref<IMTreeNode[]> = ref([]);
 const root: Ref<IMTreeNode[]> = ref([]);
 const loading = ref(true);
-const expandedKeys: Ref<any> = ref({});
 const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const overlayLocation: Ref<any> = ref({});
 const pageSize: number = 20;
@@ -132,17 +109,8 @@ const pageSize: number = 20;
 const navTreeOP = ref();
 
 watch(
-  () => suggestionTreeTerm.value,
-  async () => {
-    await init();
-  }
-);
-
-watch(
-  () => suggestionTreeIri.value,
-  async () => {
-    await init();
-  }
+  () => suggestionInfo.value.propertyId,
+  async () => await init()
 );
 
 onMounted(async () => {
@@ -158,9 +126,18 @@ onBeforeUnmount(() => {
 async function init() {
   loading.value = true;
   root.value = [];
-  expandedKeys.value = {};
-  if (suggestionTreeIri.value) await populateRootFromIri(suggestionTreeIri.value);
+  selected.value = [];
+  if (isArrayHasLength(suggestionInfo.value.propertyValue)) populateSelected();
+  if (suggestionInfo.value.suggestionIri) await populateRootFromIri(suggestionInfo.value.suggestionIri);
   loading.value = false;
+}
+
+function populateSelected() {
+  selected.value = getTreeNodesFromDisplayIriRefs(suggestionInfo.value.propertyValue);
+}
+
+function getTreeNodesFromDisplayIriRefs(iriRefs: DisplayTTIriRef[]) {
+  return iriRefs.map(value => createTreeNode(value.name, value["@id"], value.types, false));
 }
 
 async function populateRootFromIri(iri: string) {
@@ -178,8 +155,8 @@ async function populateRootFromIri(iri: string) {
     }
   } else if (isConcept(typeEntity[RDF.TYPE])) {
     rootNodes = await getNodesFromConcept(iri);
-  } else {
-    rootNodes = await getNodesFromConcept(IM.NAMESPACE + "InformationModel");
+  } else if (isRecordModel(typeEntity[RDF.TYPE])) {
+    console.log("record model");
   }
   root.value = root.value.concat(rootNodes);
   root.value.sort(byKey);
@@ -203,7 +180,7 @@ async function getNodesFromQuery(query: Query): Promise<IMTreeNode[]> {
   }
   query.select = querySelect;
   const queryRequest: QueryRequest = { query: query } as QueryRequest;
-  if (suggestionTreeTerm.value) queryRequest.textSearch = suggestionTreeTerm.value;
+  if (suggestionInfo.value.searchTerm) queryRequest.textSearch = suggestionInfo.value.searchTerm;
 
   let result = await QueryService.queryIM(queryRequest);
 
@@ -211,11 +188,8 @@ async function getNodesFromQuery(query: Query): Promise<IMTreeNode[]> {
     delete (queryRequest as any).textSearch;
     result = await QueryService.queryIM(queryRequest);
   }
-  for (const entity of result.entities) {
-    // TODO make hasChildren selectable property in query
-    nodes.push(createTreeNode(entity[RDFS.LABEL], entity["@id"], entity[RDF.TYPE], await EntityService.getHasChildren(entity["@id"])));
-  }
-  return nodes;
+
+  return result.entities.map(entity => createTreeNode(entity[RDFS.LABEL], entity["@id"], entity[RDF.TYPE], false));
 }
 
 function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, order?: number): IMTreeNode {
@@ -249,10 +223,17 @@ function createLoadMoreNode(parentNode: IMTreeNode, nextPage: number, totalCount
   };
 }
 
-function onNodeSelect(node: any): void {
+function onChange(node: any): void {
   if (node.data === "loadMore") {
     loadMore(node);
   }
+  suggestionInfo.value.propertyValue = getIriRefsFromNodes(node.value);
+}
+
+function getIriRefsFromNodes(nodes: IMTreeNode[]) {
+  return nodes.map(treeNode => {
+    return { "@id": treeNode.data, name: treeNode.label, types: treeNode.conceptTypes } as DisplayTTIriRef;
+  });
 }
 
 async function loadMore(node: any) {
@@ -273,25 +254,6 @@ async function loadMore(node: any) {
   } else {
     node.parentNode.children.pop();
   }
-}
-
-async function onNodeExpand(node: any) {
-  if (isObjectHasKeys(node)) {
-    node.loading = true;
-    const children = await EntityService.getPagedChildren(node.data, 1, pageSize);
-    children.result.forEach((child: any) => {
-      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-    });
-    if (children.totalCount >= pageSize) {
-      node.children.push(createLoadMoreNode(node, 2, children.totalCount));
-    }
-    node.loading = false;
-  }
-}
-
-function onNodeCollapse(node: any) {
-  node.children = [];
-  node.leaf = false;
 }
 
 function nodeHasChild(node: IMTreeNode, child: EntityReferenceNode) {

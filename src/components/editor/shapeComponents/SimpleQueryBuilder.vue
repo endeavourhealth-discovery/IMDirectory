@@ -28,34 +28,18 @@
               <div v-tooltip.top="data.tooltip">{{ data.label }}</div>
             </template>
           </Column>
-          <Column>
-            <template #body="{ data }"> {{ data.value }} </template>
-          </Column>
-          <!-- <Column field="propertyValue" header="Value">
+          <Column field="propertyValue" header="Value">
             <template #body="{ data }">
               <div v-if="data.componentType === 'datatype'">
                 <InputNumber v-if="data.valueType.name === 'integer'" v-model="data.value" />
                 <InputText v-if="data.valueType.name === 'string'" v-model="data.value" />
                 <Calendar v-if="data.valueType.name === 'Date time'" v-model="data.value" autocomplete="off" dateFormat="mm-dd-yy" />
               </div>
-              <div v-else-if="data.componentType === 'class'">
-                <EntityAutocomplete
-                  :property-label="data.label"
-                  :tt-alias="data.value"
-                  :suggestion-tree-iri="data.valueType['@id']"
-                  @search-term-updated="onSearchTermUpdate"
-                />
-              </div>
-              <div v-else-if="data.componentType === 'node'">
-                <EntityAutocomplete
-                  :property-label="data.label"
-                  :tt-alias="data.value"
-                  :suggestion-tree-iri="data.valueType['@id']"
-                  @search-term-updated="onSearchTermUpdate"
-                />
+              <div v-else>
+                <Chip v-for="value of data.value" :label="value.name" />
               </div>
             </template>
-          </Column> -->
+          </Column>
           <Column field="propertyDescription" header="Description" style="width: 50%">
             <template #body="{ data }">
               <div v-if="data.description">{{ data.description }}</div>
@@ -87,7 +71,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinition/EntityAutocomplete.vue";
 import { EntityService } from "@/im_library/services";
 import { TTAlias, TTIriRef } from "@/im_library/interfaces";
@@ -96,10 +80,20 @@ import { isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import { setupEntity } from "@/views/EditorMethods";
 import { useStore } from "vuex";
-</script>
-
-<script setup lang="ts">
 import { onMounted, PropType, Ref, ref, watch } from "vue";
+import { computed, ComputedRef } from "@vue/reactivity";
+import _ from "lodash";
+
+export interface SuggestionInfo {
+  propertyId: string;
+  suggestionIri: string;
+  searchTerm: string;
+  propertyValue: DisplayTTIriRef[];
+}
+
+export interface DisplayTTIriRef extends TTIriRef {
+  types: TTIriRef[];
+}
 
 interface TTProperty {
   "http://www.w3.org/ns/shacl#order": number;
@@ -123,6 +117,7 @@ interface UIProperty {
 }
 
 const store = useStore();
+const suggestionInfo: ComputedRef<SuggestionInfo> = computed(() => store.state.suggestionInfo);
 const logicOptions = ["and", "not", "or", "-"];
 
 const selectedFrom: Ref<TTAlias> = ref({} as TTAlias);
@@ -139,18 +134,28 @@ watch(
   async () => await getProperties()
 );
 
+watch(
+  () => _.cloneDeep(suggestionInfo.value),
+  async (currentValue, oldValue) => {
+    updatePropertyValue(currentValue.propertyId, currentValue.propertyValue);
+  }
+);
+
 async function init() {
   const mainRecords = await getFromSuggestions();
   selectedFrom.value["@id"] = mainRecords[3]["@id"];
   selectedFrom.value.name = mainRecords[3].name;
 }
 
-function onRowReorder(event: any) {
-  properties.value = event.value;
+function updatePropertyValue(propertyId: string, propertyValue: DisplayTTIriRef[]) {
+  const foundProperty = properties.value.find(property => property.label === propertyId);
+  if (foundProperty) {
+    foundProperty.value = propertyValue;
+  }
 }
 
-function onSearchTermUpdate(searchTermUpdate: { propertyLabel: string; searchTerm: string }) {
-  store.commit("updateSuggestionTreeTerm", searchTermUpdate.searchTerm);
+function onRowReorder(event: any) {
+  properties.value = event.value;
 }
 
 async function getProperties() {
@@ -228,13 +233,12 @@ async function getFromSuggestions(term?: string): Promise<TTIriRef[]> {
 }
 
 function onRowSelect(row: any) {
-  // (row.data as UIProperty).valueType["@id"];
-  console.log(row.data as UIProperty);
-  console.log((row.data as UIProperty).valueType["@id"]);
-
-  store.commit("updateSuggestionTreeTerm", "");
-  store.commit("updateSuggestionTreeIri", (row.data as UIProperty).valueType["@id"]);
-  // console.log(row);
+  const uiProperty = row.data as UIProperty;
+  store.commit("updateSuggestionInfo", {
+    propertyId: uiProperty.label,
+    suggestionIri: uiProperty.valueType["@id"],
+    propertyValue: uiProperty.value
+  } as SuggestionInfo);
 }
 </script>
 
