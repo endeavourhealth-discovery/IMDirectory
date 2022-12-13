@@ -17,6 +17,7 @@ import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
 import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinitionBuilder.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 
 export default defineComponent({
   components: {
@@ -29,7 +30,8 @@ export default defineComponent({
     HtmlInput,
     TextDisplay,
     TextInput,
-    ToggleableComponent
+    ToggleableComponent,
+    DropdownTextInputConcatenator
   }
 });
 </script>
