@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": ".",
+    "composite": true,
+    "outDir": ".",
+    "types": ["google-palette"]
+  },
+  "references": [],
+  "include": ["./src"],
+  "exclude": ["node_modules"]
+}
