@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref, watch, reactive } from "vue";
+import { computed, onMounted, Ref, ref, reactive } from "vue";
 import DataModel from "./viewer/dataModel/DataModel.vue";
 import SetDefinition from "./viewer/set/SetDefinition.vue";
 import QueryDefinition from "./viewer/QueryDefinition.vue";
@@ -117,50 +117,19 @@ import { useRouter } from "vue-router";
 import setupConcept from "@/composables/setupConcept";
 import setupConfig from "@/composables/setupConfig";
 import setupTerms from "@/composables/setupTerms";
-const { isOfTypes, isProperty, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
+const { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
 const { isObjectHasKeys } = DataTypeCheckers;
-const { byOrder } = Sorters;
 
 const router = useRouter();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
-const activeProfile = computed(() => store.state.activeProfile);
 
-watch(
-  () => conceptIri.value,
-  async newValue => {
-    if (newValue && newValue !== concept.value["@id"]) await init();
-
-    tabMap.clear();
-    setTabMap();
-    setDefaultTab();
-  }
-);
-
-const loading = ref(false);
-const definitionText = ref("");
+const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
-const conceptAsString = ref("");
 
 const profile = ref({} as Query.Profile);
 const activeTab = ref(0);
-const showTabs = ref({
-  contents: true,
-  secondaryTree: true,
-  termCodeTable: true,
-  dataModel: true,
-  queryDefinition: true,
-  setDefinition: true,
-  mappings: true,
-  usedIn: true,
-  entityChart: true,
-  properties: true,
-  eclDefinition: true,
-  graph: true,
-  jsonViewer: true,
-  provenance: true
-});
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
 

@@ -14,8 +14,6 @@
       <template #default="slotProps">
         <div
           class="tree-row"
-          @mouseover="showOverlay($event, slotProps.node)"
-          @mouseleave="hideOverlay($event)"
           @dblclick="onNodeDblClick($event, slotProps.node)"
           @contextmenu="onNodeContext($event, slotProps.node)"
         >
@@ -26,7 +24,7 @@
             </div>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
-          <span>{{ slotProps.node.label }}</span>
+          <span @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">{{ slotProps.node.label }}</span>
         </div>
       </template>
     </Tree>
