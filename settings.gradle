@@ -8,11 +8,13 @@
  */
 pluginManagement {
     plugins {
-        id 'org.siouan.frontend-jdk11' version '5.3.0'
+        id 'org.siouan.frontend-jdk11' version '6.0.0'
     }
     repositories {
         gradlePluginPortal()
     }
 }
 
-rootProject.name = 'IMDirectory'
+rootProject.name = 'IM'
+include(':ui')
+include(':node_api')

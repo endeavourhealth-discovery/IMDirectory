@@ -1,6 +1,5 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import ObjectNameWithLabel from "../../../../../src/im_library/components/modules/generics/ObjectNameWithLabel.vue";
-import LoggerService from "../../../../../src/im_library/services/modules/LoggerService";
+import ObjectNameWithLabel from "@/components/shared/generics/ObjectNameWithLabel.vue";
 
 describe("ObjectNameWithLabel.vue", () => {
   let component;

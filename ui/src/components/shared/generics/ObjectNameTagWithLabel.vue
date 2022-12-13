@@ -10,7 +10,7 @@
 import { computed, defineComponent, PropType } from "vue";
 import { TTIriRef } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
-import LoggerService from "@im-library/services/LoggerService";
+import LoggerService from "@/services/modules/LoggerService";
 import { mapState, useStore } from "vuex";
 
 const props = defineProps({

@@ -54,6 +54,7 @@
 <script lang="ts">
 import TypeSelector from "@/components/creator/TypeSelector.vue";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
+import {defineComponent} from "vue";
 
 export default defineComponent({
   components: { StepsGroup, TypeSelector }
@@ -61,7 +62,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { computed, ComputedRef, defineComponent, inject, onBeforeUnmount, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";

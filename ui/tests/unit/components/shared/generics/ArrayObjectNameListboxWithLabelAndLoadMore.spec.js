@@ -1,11 +1,9 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import ArrayObjectNameListboxWithLabelAndLoadMore from "../../../../../src/im_library/components/modules/generics/ArrayObjectNameListboxWithLabelAndLoadMore.vue";
+import ArrayObjectNameListboxWithLabelAndLoadMore from "@/components/shared/generics/ArrayObjectNameListboxWithLabelAndLoadMore.vue";
 import Listbox from "primevue/listbox";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";
 import { expect, it } from "vitest";
-import EntityService from "../../../../../src/im_library/services";
-import axios from "axios";
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

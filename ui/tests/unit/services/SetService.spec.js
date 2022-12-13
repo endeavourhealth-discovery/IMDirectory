@@ -1,4 +1,4 @@
-import { SetService, Env } from "../../../../src/im_library/services";
+import { SetService, Env } from "@/services";
 import axios from "axios";
 import { setupServer } from "msw/node";
 
