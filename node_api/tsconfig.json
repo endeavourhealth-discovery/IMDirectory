@@ -23,6 +23,6 @@
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "references": [{ "path": "../im_library", "prepend": true }],
-  "include": ["src/*", "tests/*"],
+  "include": ["./src", "./tests"],
   "exclude": ["node_modules"]
 }
