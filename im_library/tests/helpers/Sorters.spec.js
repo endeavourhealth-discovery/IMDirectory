@@ -1,4 +1,4 @@
-import { byScheme, byPriority, byLabel, byName, byPosition, byOrder } from "helpers/modules/Sorters";
+import { byScheme, byPriority, byLabel, byName, byPosition, byOrder } from "@/helpers/modules/Sorters";
 
 describe("Sorters", () => {
   describe("byScheme", () => {

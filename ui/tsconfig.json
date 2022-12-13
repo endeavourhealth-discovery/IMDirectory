@@ -21,7 +21,7 @@
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "outDir": "./dist"
   },
-  "references": [{ "path": "../im_library", "prepend": true }],
-  "include": ["./src", "./tests"],
+  "references": [{ "path": "../im_library/tsconfig.json", "prepend": true }],
+  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.js"],
   "exclude": ["node_modules"]
 }

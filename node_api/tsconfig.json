@@ -22,7 +22,7 @@
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
-  "references": [{ "path": "../im_library", "prepend": true }],
-  "include": ["./src", "./tests"],
+  "references": [{ "path": "../im_library/tsconfig.json", "prepend": true }],
+  "include": ["./src/**/*.ts", "./src/**/*.js"],
   "exclude": ["node_modules"]
 }
