@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import { VitePluginNode } from "vite-plugin-node";
 import * as path from "path";
 
@@ -21,5 +21,18 @@ export default defineConfig({
       "@im-library": path.resolve(__dirname, "./../im_library/src"),
       "./runtimeConfig": "./runtimeConfig.browser"
     }
+  },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    environmentOptions: {
+      jsdom: {
+        url: "http://localhost"
+      }
+    },
+    coverage: {
+      reporter: ["text", "lcov"]
+    },
+    setupFiles: "./tests/setupTests.js"
   }
 });
