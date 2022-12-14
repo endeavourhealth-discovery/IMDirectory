@@ -5,7 +5,7 @@ chmod +x ./gradlew
 mkdir badges
 
 # Artifact
-artifact='IMDirectory'
+artifact='IM'
 
 # Version
 version='1.0.0'
