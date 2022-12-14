@@ -121,6 +121,7 @@ export class IM {
   public static TOGGLEABLE_COMPONENT = IM.NAMESPACE + "ToggleableComponent";
   public static HORIZONTAL_LAYOUT = IM.NAMESPACE + "HorizontalLayout";
   public static VERTICAL_LAYOUT = IM.NAMESPACE + "VerticalLayout";
+  public static DROPDOWN_TEXT_INPUT_CONCATENATOR = IM.NAMESPACE + "dropdownTextInputConcatenator";
 
   //editor validations
   public static VALIDATION_HAS_PARENT = IM.NAMESPACE + "Validation_hasParent";

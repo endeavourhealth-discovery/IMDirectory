@@ -28,5 +28,6 @@ export enum ComponentType {
   QUERY_DEFINITION_BUILDER = "QueryDefinitionBuilder",
   TOGGLEABLE_COMPONENT = "ToggleableComponent",
   HORIZONTAL_LAYOUT = "HorizontalLayout",
-  VERTICAL_LAYOUT = "VerticalLayout"
+  VERTICAL_LAYOUT = "VerticalLayout",
+  DROPDOWN_TEXT_INPUT_CONCATENATOR = "DropdownTextInputConcatenator"
 }

@@ -10,6 +10,6 @@
     "types": ["google-palette"]
   },
   "references": [],
-  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.js"],
+  "include": ["./src/**/*.ts", "./src/**/*.js", "./src/typings/*.d.ts"],
   "exclude": ["node_modules"]
 }

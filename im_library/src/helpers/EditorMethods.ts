@@ -71,6 +71,8 @@ export function processComponentType(type: TTIriRef): any {
       return ComponentType.HORIZONTAL_LAYOUT;
     case IM.VERTICAL_LAYOUT:
       return ComponentType.VERTICAL_LAYOUT;
+    case IM.DROPDOWN_TEXT_INPUT_CONCATENATOR:
+      return ComponentType.DROPDOWN_TEXT_INPUT_CONCATENATOR;
     default:
       throw new Error("Invalid component type encountered while processing component types" + type["@id"]);
   }
