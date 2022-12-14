@@ -84,7 +84,7 @@ const props = defineProps({
 
 const showRelNotes = ref(false);
 const releases: Map<string, GithubRelease[]> = reactive(
-  new Map().set("auth", []).set("directory", []).set("importData", []).set("editor", []).set("viewer", [])
+  new Map().set("directory", []).set("importData", [])
 );
 const showApp: Ref<any> = ref({ auth: false, directory: false, editor: false, importData: false, viewer: false });
 const showLegacy: Ref<any> = ref({ auth: false, directory: false, editor: false, importData: false, viewer: false });
@@ -131,10 +131,7 @@ async function getLatestReleaseNotes(repoName: string) {
 
 async function getAdditionalAppLatestReleaseNotes(currentAppRepo: string) {
   if (currentAppRepo !== "IMDirectory") await getLatestReleaseNotes("IMDirectory");
-  if (currentAppRepo !== "IMAuth") await getLatestReleaseNotes("IMAuth");
-  if (currentAppRepo !== "IMEditor") await getLatestReleaseNotes("IMEditor");
   await getLatestReleaseNotes("ImportData");
-  if (currentAppRepo !== "IMViewer") await getLatestReleaseNotes("IMViewer");
 }
 
 async function getAllRepoReleaseNotes(repoName: string) {
@@ -146,10 +143,7 @@ async function getAllRepoReleaseNotes(repoName: string) {
 
 async function getAdditionalFullReleaseNotes(currentAppRepo: string) {
   if (currentAppRepo !== "IMDirectory") await getAllRepoReleaseNotes("IMDirectory");
-  if (currentAppRepo !== "IMAuth") await getAllRepoReleaseNotes("IMAuth");
-  if (currentAppRepo !== "IMEditor") await getAllRepoReleaseNotes("IMEditor");
   await getAllRepoReleaseNotes("ImportData");
-  if (currentAppRepo !== "IMViewer") await getAllRepoReleaseNotes("IMViewer");
 }
 
 function close() {
@@ -189,11 +183,8 @@ function resetBooleanObject(booleanObject: any) {
 
 async function viewAll() {
   await getAdditionalAppLatestReleaseNotes(props.repositoryName);
-  if (props.repositoryName !== "IMAuth" && showApp.value.auth === false) startExpanded("IMAuth");
   if (props.repositoryName !== "IMDirectory" && showApp.value.directory === false) startExpanded("IMDirectory");
-  if (props.repositoryName !== "IMEditor" && showApp.value.editor === false) startExpanded("IMEditor");
   if (showApp.value.importData === false) startExpanded("ImportData");
-  if (props.repositoryName !== "IMViewer" && showApp.value.viewer === false) startExpanded("IMViewer");
 }
 
 async function getOlderReleases(appKey: string) {
