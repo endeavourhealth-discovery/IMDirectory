@@ -23,4 +23,6 @@ artifacts:
   files:
     - appspec.yml
     - aws_scripts/cleanup
-    - dist/**/*
+    - aws_scripts/deploy
+    - ui/dist/**/*
+    - node_api/dist/**/*

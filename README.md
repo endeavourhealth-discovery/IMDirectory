@@ -1,60 +1,25 @@
-# IMDirectory
+# Information Model (v2)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IM&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IMViewer)
 
-![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/version.svg)
-![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/build.svg)
-![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IMViewer/unit-test.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IMViewer&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IMViewer)
+## Setup
 
-## Project setup
+Run `npm run install`
 
-**The proxy expects the IMAPI to be running on localhost:8080**
+## Execute
 
-```
-npm install
-```
+To run both the UI and API from the root folder (in parallel), run `npm run dev`.  Alternatively, cd into the relevant module and `npm run dev` from there.
 
-#### Environment variables
 
-In project root add files
 
-> .env.development.local
+### UI
 
-> .env.production.local
+![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM_UI/version.svg)
+![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM_UI/build.svg)
+![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM_UI/unit-test.svg)
 
-> .env.test.local
+### Node API
 
-Files should contain:
+![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM_Node_API/version.svg)
+![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM_Node_API/build.svg)
+![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM_Node_API/unit-test.svg)
 
-    VITE_API={url for IMApi} [local default: http://localhost:8080/]
-
-    VITE_DIRECTORY_URL={url for IMDirectory} [local default: http://localhost:8082]
-
-    VITE_AUTH_URL={url for IMAuth} [local default: http://localhost:8082]
-
-### Compiles and hot-reloads for development
-
-```
-npm run dev
-```
-
-### Compiles and minifies for production
-
-```
-npm run build
-```
-
-### Preview production build
-
-```
-npm run serve
-```
-
-### Lints and fixes files
-
-```
-npm run lint
-```
-
-### Customize configuration
-
-See [Configuration Reference](https://cli.vuejs.org/config/).
