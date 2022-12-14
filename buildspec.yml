@@ -26,3 +26,4 @@ artifacts:
     - aws_scripts/deploy
     - ui/dist/**/*
     - node_api/dist/**/*
+    - node_api/package.json
