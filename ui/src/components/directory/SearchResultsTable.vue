@@ -41,11 +41,11 @@
       <template #empty> None </template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #body="slotProps">
-          <div class="ml-2" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">
+          <div class="ml-2" >
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
               <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
-            <span class="break-word">{{ slotProps.data.match }}</span>
+            <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{ slotProps.data.match }}</span>
           </div>
         </template>
       </Column>

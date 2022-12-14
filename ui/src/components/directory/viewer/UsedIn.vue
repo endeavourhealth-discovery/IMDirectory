@@ -24,11 +24,11 @@
       <template #loading> Loading data. Please wait. </template>
       <Column field="name" filter-field="name" header="Name">
         <template #body="{ data }">
-          <div @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
+          <div>
             <span :style="'color:' + data.colour" class="p-mx-1 type-icon">
               <i :class="data.icon" aria-hidden="true" />
             </span>
-            <span class="text-name">{{ data.name }}</span>
+            <span class="text-name" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
       </Column>

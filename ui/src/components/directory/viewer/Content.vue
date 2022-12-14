@@ -25,11 +25,11 @@
 
       <Column field="name" header="Name">
         <template #body="{ data }">
-          <div @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
+          <div>
             <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
               <i :class="data.icon" aria-hidden="true" />
             </span>
-            <span>{{ data.name }}</span>
+            <span @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
       </Column>

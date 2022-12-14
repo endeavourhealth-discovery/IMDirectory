@@ -41,8 +41,6 @@
         <div
           v-if="slotProps.node.data === 'loadMore'"
           class="tree-row"
-          @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
-          @mouseleave="hidePopup($event)"
         >
           <ProgressSpinner v-if="slotProps.node.loading" />
           <span class="tree-node-label">{{ slotProps.node.label }}</span>
@@ -50,8 +48,6 @@
         <div
           v-else
           class="tree-row"
-          @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
-          @mouseleave="hidePopup($event)"
           @click="navigate($event, slotProps.node.data)"
           @dblclick="onDblClick(slotProps.node.data)"
           v-tooltip.top="'CTRL+click to navigate'"
@@ -63,7 +59,7 @@
             </div>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
-          <span class="tree-node-label" data-testid="row-label">{{ slotProps.node.label }}</span>
+          <span class="tree-node-label" data-testid="row-label"  @mouseover="showPopup($event, slotProps.node.data, slotProps.node)" @mouseleave="hidePopup($event)">{{ slotProps.node.label }}</span>
         </div>
       </template>
     </Tree>
