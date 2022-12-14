@@ -4,11 +4,16 @@ run-as: root
 phases:
   install:
     runtime-versions:
-      nodejs: 16
+      java: corretto11
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
       - echo $IP of CodeBuild Instance
+      - echo NVM install
+      - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+      - . ~/.nvm/nvm.sh
+      - nvm install 18.4.0
+      - nvm use 18.4.0
   build:
     commands:
       - chmod +x aws_scripts/build.sh
