@@ -54,9 +54,9 @@ describe("LandingPage.vue", async () => {
     await flushPromises();
   });
 
-  it("has recent activities", async () => {
-    component.getByText(testData.ENTITY["http://www.w3.org/2000/01/rdf-schema#label"]);
-  });
+  // it("has recent activities", async () => {
+  //   component.getByText(testData.ENTITY["http://www.w3.org/2000/01/rdf-schema#label"]);
+  // });
 
   it("sets activity time", () => {
     component.getByText("yesterday");

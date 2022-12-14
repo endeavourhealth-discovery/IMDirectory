@@ -6,7 +6,7 @@
  */
 plugins {
     id 'groovy-gradle-plugin'
-    id "org.sonarqube" version "3.5.0.2730"
+    id 'org.siouan.frontend-jdk11'
 }
 
 repositories {
@@ -14,16 +14,7 @@ repositories {
     gradlePluginPortal()
 }
 
-def sonarLogin= System.getenv('SONAR_LOGIN')
 
-sonar {
-    properties {
-        property 'sonar.projectKey', 'endeavourhealth-discovery_IM'
-        property 'sonar.organization', 'endeavourhealth-discovery'
-        property 'sonar.login', sonarLogin
-        property 'sonar.host.url', 'https://sonarcloud.io'
-    }
-}
 
 clean.doLast {
     file('ui/coverage').deleteDir()
@@ -34,6 +25,10 @@ clean.doLast {
 
 println 'Build environment = [' + env + ']'
 
-if (env == 'prod') {
-    check.finalizedBy 'sonar'
-}
+/*if (env == 'prod') {
+    subprojects {
+        apply plugin: 'org.sonarqube'
+
+        check.finalizedBy 'sonar'
+    }
+}*/
