@@ -8,10 +8,10 @@ plugins {
     id 'org.siouan.frontend-jdk11'
 }
 
-sonarqube {
+sonar {
     properties {
         property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.projectKey', 'endeavourhealth-discovery_IMAPI::node_api'
+        property 'sonar.projectKey', 'endeavourhealth-discovery_IM::node_api'
         property 'sonar.sources', 'src'
         property 'sonar.exclusions', '**/index.ts,**/*.d.ts'
         property 'sonar.tests', 'tests'
@@ -27,7 +27,7 @@ clean.doLast {
 
 frontend {
     nodeVersion = '18.4.0'
-    assembleScript = 'run build:production'
+    assembleScript = 'run build'
     checkScript = 'run test:coverage'
     installScript = 'install --legacy-peer-deps'
 }

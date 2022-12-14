@@ -3,7 +3,7 @@ import { AuthService } from "@/services";
 import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest } from "@im-library/interfaces";
 import { FilterDefaults } from "@im-library/config";
 import { Avatars } from "@im-library/constants";
-import { isArrayHasLength } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { CustomAlert, User } from "@im-library/models";
 import { EntityService, LoggerService } from "@/services";

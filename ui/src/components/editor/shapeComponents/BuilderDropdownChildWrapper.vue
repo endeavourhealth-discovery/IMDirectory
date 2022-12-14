@@ -27,8 +27,8 @@ import _ from "lodash";
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import { ComponentDetails, PropertyShape } from "@im-library/interfaces";
 import { ComponentType, EditorMode } from "@im-library/enums";
-import {} from "@im-library/helpers/modules/DataTypeCheckers";
-import { processComponentType } from "@im-library/helpers/modules/EditorMethods";
+import {} from "@im-library/helpers/DataTypeCheckers";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 const props = defineProps({
   id: { type: String, required: true },

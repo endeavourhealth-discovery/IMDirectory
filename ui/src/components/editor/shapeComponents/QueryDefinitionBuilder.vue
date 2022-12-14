@@ -26,7 +26,7 @@ import { QueryObject, QueryRequest, SearchRequest, TTIriRef } from "@im-library/
 import PropertyInput from "./queryDefinition/PropertyInput.vue";
 import _ from "lodash";
 import { Query } from "@im-library/models/AutoGen";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService, LoggerService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";

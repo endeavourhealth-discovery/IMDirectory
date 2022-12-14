@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { getNamesAsStringFromTypes } from "@im-library/helpers/modules/ConceptTypeMethods";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { ConceptSummary, TTIriRef } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import { ref, Ref } from "vue";

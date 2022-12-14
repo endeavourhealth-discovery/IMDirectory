@@ -18,7 +18,7 @@ import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Env } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";

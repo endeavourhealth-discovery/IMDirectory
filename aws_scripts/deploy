@@ -1,0 +1,3 @@
+cd /opt/nodeapi/
+NODE_ENV=production
+npm i --only=prod

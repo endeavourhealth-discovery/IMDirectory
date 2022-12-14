@@ -1,4 +1,4 @@
-import { isOfTypes, isValueSet, isProperty, getColourFromType, getFAIconFromType } from "@/helpers/modules/ConceptTypeMethods";
+import { isOfTypes, isValueSet, isProperty, getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeMethods";
 import { IM } from "@/vocabulary";
 
 describe("ConceptTypeMethods", () => {

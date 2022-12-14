@@ -18,7 +18,7 @@ import EntityAutoComplete from "./EntityAutoComplete.vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes } from "@im-library/config";
 import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";

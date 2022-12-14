@@ -1,4 +1,3 @@
-import SnomedLicense from "../../../../src/im_library/components/modules/SnomedLicense.vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import PrimeVue from "primevue/config";
@@ -7,6 +6,7 @@ import { render, fireEvent } from "@testing-library/vue";
 import { createStore } from "vuex";
 import { flushPromises } from "@vue/test-utils";
 import { nextTick } from "vue";
+import SnomedLicense from "@/components/shared/SnomedLicense.vue";
 
 const store = createStore({
   state: {

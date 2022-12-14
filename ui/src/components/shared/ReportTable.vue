@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, Ref } from "vue";
 import { RDFS, OWL } from "@im-library/vocabulary";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
 
 const props = defineProps({

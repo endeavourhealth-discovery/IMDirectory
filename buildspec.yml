@@ -1,0 +1,33 @@
+version: 0.2
+run-as: root
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto11
+  pre_build:
+    commands:
+      - IP=$(curl http://checkip.amazonaws.com)/32
+      - echo $IP of CodeBuild Instance
+      - echo NVM install
+      - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+      - . ~/.bashrc
+      - nvm install 18.4.0
+      - nvm use 18.4.0
+  build:
+    commands:
+      - chmod +x aws_scripts/build.sh
+      - aws_scripts/build.sh
+  post_build:
+    commands:
+      - IP=$(curl http://checkip.amazonaws.com)/32
+      - echo $IP of CodeBuild Instance
+      - echo Build completed on `date`
+artifacts:
+  files:
+    - appspec.yml
+    - aws_scripts/cleanup
+    - aws_scripts/deploy
+    - ui/dist/**/*
+    - node_api/dist/**/*
+    - node_api/package.json

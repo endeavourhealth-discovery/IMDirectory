@@ -1,3 +1,3 @@
-import { Avatars } from "./modules/Avatars.js";
+import { Avatars } from "./Avatars";
 
 export { Avatars };

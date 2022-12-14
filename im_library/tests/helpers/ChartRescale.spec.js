@@ -1,4 +1,4 @@
-import { setTooltips, rescaleData } from "@/helpers/modules/ChartRescale";
+import { setTooltips, rescaleData } from "@/helpers/ChartRescale";
 
 describe("ChartRescale", () => {
   describe("setTooltips", () => {

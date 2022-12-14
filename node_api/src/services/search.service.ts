@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Env from "@/services/env.service";
 import EntityService from "@/services/entity.service";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces";
 

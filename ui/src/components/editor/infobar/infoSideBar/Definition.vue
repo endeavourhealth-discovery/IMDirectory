@@ -30,7 +30,7 @@ export default defineComponent({
 <script setup lang="ts">
 import { defineComponent, onMounted, PropType, ref, Ref } from "vue";
 import { DefinitionConfig } from "@im-library/interfaces";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 
 const props = defineProps({

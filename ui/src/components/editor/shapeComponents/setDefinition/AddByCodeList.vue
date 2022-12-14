@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, Ref, ref, watch } from "vue";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import * as d3 from "d3";

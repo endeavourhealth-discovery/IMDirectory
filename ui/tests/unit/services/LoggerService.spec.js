@@ -1,4 +1,4 @@
-import LoggerService from "../../../../src/im_library/services/modules/LoggerService";
+import {LoggerService} from "@/services";
 
 describe("LoggerService", () => {
   describe("error", () => {

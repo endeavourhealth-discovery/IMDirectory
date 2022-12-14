@@ -1,7 +1,7 @@
 import { computed, Ref, ref } from "vue";
 import { FormGenerator, PropertyGroup, TTIriRef, Namespace } from "@im-library/interfaces";
 import { EditorMode } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
 import StepsGroup from "@/components/editor/StepsGroup.vue";

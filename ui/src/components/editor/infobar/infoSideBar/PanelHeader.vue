@@ -11,7 +11,7 @@
 import { PropType, ref, Ref, watch } from "vue";
 import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/modules/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 
 const props = defineProps({
   types: { type: Array as PropType<Array<TTIriRef>>, required: true },

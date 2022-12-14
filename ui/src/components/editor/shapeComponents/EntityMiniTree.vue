@@ -67,9 +67,9 @@
 import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
 import { ConceptSummary, EntityReferenceNode, TreeNode, TTIriRef } from "@im-library/interfaces";
 import axios from "axios";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/modules/ConceptTypeMethods";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
-import { byKey } from "@im-library/helpers/modules/Sorters";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";

@@ -1,5 +1,5 @@
-import { render, fireEvent, within } from "@testing-library/vue";
-import ArrayObjectNamesToStringWithLabel from "../../../../../src/im_library/components/modules/generics/ArrayObjectNamesToStringWithLabel.vue";
+import { render } from "@testing-library/vue";
+import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 
 describe("ArrayObjectNameToStringWithLabel.vue", () => {
   let component;

@@ -4,7 +4,7 @@ import {
   verifyIsName,
   verifyIsUsername,
   checkPasswordStrength
-} from "../../../../src/im_library/helpers/modules/UserMethods";
+} from "@/helpers/UserMethods";
 import { PasswordStrength } from "@/enums";
 
 describe("verifyIsEmail", () => {

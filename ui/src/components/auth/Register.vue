@@ -151,7 +151,7 @@ import {
   verifyIsUsername,
   verifyPasswordsMatch,
   checkPasswordStrength
-} from "@im-library/helpers/modules/UserMethods";
+} from "@im-library/helpers/UserMethods";
 import { PasswordStrength } from "@im-library/enums";
 import { Avatars } from "@im-library/constants";
 import { User } from "@im-library/models";

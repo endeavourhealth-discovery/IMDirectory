@@ -53,7 +53,7 @@ describe("router", () => {
     });
   });
 
-  describe("router ___ snomed", () => {
+  describe.skip("router ___ snomed", () => {
     let wrapper;
 
     beforeEach(async () => {

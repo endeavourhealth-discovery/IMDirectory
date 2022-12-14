@@ -1,4 +1,4 @@
-import { translateFromEntityBundle } from "@/helpers/modules/GraphTranslator";
+import { translateFromEntityBundle } from "@/helpers/GraphTranslator";
 
 describe("GraphTranslator", () => {
   describe("translateFromEntityBundle", () => {

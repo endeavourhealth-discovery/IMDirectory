@@ -1,5 +1,5 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import TextWithLabel from "../../../../../src/im_library/components/modules/generics/TextWithLabel.vue";
+import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 
 describe("TextWithLabel.vue", () => {
   let component;

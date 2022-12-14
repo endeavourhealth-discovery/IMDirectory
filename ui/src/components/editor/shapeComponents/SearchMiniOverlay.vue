@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import { defineComponent, PropType, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { getFAIconFromType, getColourFromType } from "@im-library/helpers/modules/ConceptTypeMethods";
+import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { ConceptSummary, TTIriRef } from "@im-library/interfaces";
 
 const store = useStore();

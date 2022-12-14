@@ -44,8 +44,8 @@
 
 <script setup lang="ts">
 import { defineComponent, onMounted, ref, Ref, watch } from "vue";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/modules/ConceptTypeMethods";
-import { isArrayHasLength } from "@im-library/helpers/modules/DataTypeCheckers";
+import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { DirectService, EntityService, Env } from "@/services";
 import { IM, RDF } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";

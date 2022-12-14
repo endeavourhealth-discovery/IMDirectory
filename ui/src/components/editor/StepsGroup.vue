@@ -42,8 +42,8 @@ export default defineComponent({
 import { PropertyGroup, PropertyShape } from "@im-library/interfaces";
 import { ref, Ref, watch, inject, onMounted, PropType, defineComponent } from "vue";
 import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
-import { processComponentType } from "@im-library/helpers/modules/EditorMethods";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 

@@ -17,8 +17,8 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, Argument } from "@im-library/interfaces";
 import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
-import { processArguments } from "@im-library/helpers/modules/EditorMethods";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { processArguments } from "@im-library/helpers/EditorMethods";
 import { QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 

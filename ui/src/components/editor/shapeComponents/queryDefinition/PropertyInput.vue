@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { SimplifiedType, QueryObject, TTIriRef, FieldDto } from "@im-library/interfaces";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ClassService } from "@/services";
 import { computed, onMounted, PropType, ref } from "vue";
 // import FullQueryBuilderEntityAutocomplete from "./FullQueryBuilderEntityAutocomplete.vue";

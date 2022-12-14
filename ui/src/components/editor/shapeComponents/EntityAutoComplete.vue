@@ -68,12 +68,12 @@ import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
 import _ from "lodash";
 import { ComponentType, SortBy, EditorMode } from "@im-library/enums";
-import { getNamesAsStringFromTypes } from "@im-library/helpers/modules/ConceptTypeMethods";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
-import { processArguments } from "@im-library/helpers/modules/EditorMethods";
-import { byName } from "@im-library/helpers/modules/Sorters";
-import { mapToObject } from "@im-library/helpers/modules/Transforms";
-import { isTTIriRef } from "@im-library/helpers/modules/TypeGuards";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { processArguments } from "@im-library/helpers/EditorMethods";
+import { byName } from "@im-library/helpers/Sorters";
+import { mapToObject } from "@im-library/helpers/Transforms";
+import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import {

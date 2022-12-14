@@ -62,7 +62,7 @@ import { computed, defineComponent, Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { PasswordStrength } from "@im-library/enums";
-import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/modules/UserMethods";
+import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 

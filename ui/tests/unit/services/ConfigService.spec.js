@@ -1,7 +1,7 @@
-import { ConfigService, Env } from "../../../../src/im_library/services";
 import axios from "axios";
 import { vi } from "vitest";
 import { setupServer } from "msw/node";
+import {ConfigService, Env } from "@/services";
 
 describe("ConfigService.ts ___ axios success", () => {
   const api = Env.API;

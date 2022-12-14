@@ -1,5 +1,5 @@
 import { Query, SetQueryObject } from "@im-library/interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export function buildSetQueryObjectFromQuery(value: Query) {
   if (!isObjectHasKeys(value)) {

@@ -51,7 +51,7 @@
 import { computed, defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
 import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import { mapState, useStore } from "vuex";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
 import { DirectService, LoggerService } from "@/services";
 

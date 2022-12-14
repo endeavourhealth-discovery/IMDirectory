@@ -1,4 +1,4 @@
-import { copyConceptToClipboard, conceptObjectToCopyString } from "@/helpers/modules/CopyConceptToClipboard";
+import { copyConceptToClipboard, conceptObjectToCopyString } from "@/helpers/CopyConceptToClipboard";
 
 describe("CopyConceptToClipboard", () => {
   const CONFIG = [
