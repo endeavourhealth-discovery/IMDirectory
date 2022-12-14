@@ -1,11 +1,13 @@
 <template>
-  <div class="dropdown-text-input-contatenator-container">
+  <div class="dropdown-text-input-concatenator-container">
     <div class="label-content-container">
       <label>{{ shape.name }}</label>
       <div class="content-container">
-        <Dropdown class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
-        <InputText class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" />
+        <Dropdown :disabled="loading" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
+        <InputText :disabled="loading" class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" />
+        <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
       </div>
+      <span>{{ selectedDropdownOption ? selectedDropdownOption["@id"] : "" }}{{ userInput }}</span>
     </div>
   </div>
 </template>
@@ -54,21 +56,34 @@ let key = props.shape.path["@id"];
 onMounted(async () => {
   loading.value = true;
   dropdownOptions.value = await getDropdownOptions();
-  selectedDropdownOption.value = setSelectedOption();
+  setSelectedOption();
   loading.value = false;
 });
 
 function setSelectedOption() {
   if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue) {
-    const found = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri["@id"]);
-    if (found) return found;
+    deconstructInputValue(props.shape.isIri["@id"]);
+    return;
   }
-  if (props.value && isTTIriRef(props.value)) return props.value;
-  else if (props.value && isArrayHasLength(props.value)) return props.value[0];
-  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri["@id"]) {
-    const found = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri["@id"]);
-    if (found) return found;
-  } else return undefined;
+  if (props.value && typeof props.value === "string") {
+    deconstructInputValue(props.value);
+    return;
+  } else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri["@id"]) {
+    deconstructInputValue(props.shape.isIri["@id"]);
+    return;
+  } else {
+    selectedDropdownOption.value = null;
+    userInput.value = "";
+    return;
+  }
+}
+
+function deconstructInputValue(inputValue: String) {
+  const found = dropdownOptions.value.find(o => inputValue.startsWith(o["@id"]));
+  if (found) {
+    selectedDropdownOption.value = found;
+    userInput.value = inputValue.substring(found["@id"].length);
+  }
 }
 
 async function getDropdownOptions() {
@@ -117,18 +132,38 @@ function defaultValidation(data: TTIriRef) {
 </script>
 
 <style scoped>
+.dropdown-text-input-concatenator-container {
+  display: flex;
+  flex-flow: row nowrap;
+  width: 25rem;
+  height: fit-content;
+}
 .label-content-container {
+  width: 100%;
   display: flex;
   flex-flow: column nowrap;
 }
 .content-container {
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
 }
 .dropdown {
-  max-width: 25rem;
+  width: 40%;
+}
+
+.dropdown:deep(.p-inputtext) {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .input-text {
-  max-width: 25rem;
+  width: 60%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.loading-icon {
+  flex: 0 0 auto;
 }
 </style>
