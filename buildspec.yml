@@ -4,8 +4,7 @@ run-as: root
 phases:
   install:
     runtime-versions:
-      java: corretto11
-      nodejs: 14
+      nodejs: 16
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
