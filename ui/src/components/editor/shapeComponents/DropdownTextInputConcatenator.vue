@@ -16,10 +16,10 @@
 import { inject, PropType, ref, Ref, watch, onMounted } from "vue";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces";
 import { EditorMode } from "@im-library/enums";
-import { isTTIriRef } from "@im-library/helpers/modules/TypeGuards";
-import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/modules/DataTypeCheckers";
-import { processArguments } from "@im-library/helpers/modules/EditorMethods";
-import { byName } from "@im-library/helpers/modules/Sorters";
+import { isTTIriRef } from "@im-library/helpers/TypeGuards";
+import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { processArguments } from "@im-library/helpers/EditorMethods";
+import { byName } from "@im-library/helpers/Sorters";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
