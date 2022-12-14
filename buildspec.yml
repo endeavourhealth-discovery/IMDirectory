@@ -5,11 +5,13 @@ phases:
   install:
     runtime-versions:
       java: corretto11
-      nodejs: 16
+      nodejs: 14
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
       - echo $IP of CodeBuild Instance
+      - echo NVM
+      - nvm ls
   build:
     commands:
       - chmod +x aws_scripts/build.sh
