@@ -39,8 +39,8 @@ import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/dist/types/i
 import { EditorMode } from "@im-library/enums";
 import { PropType, inject, ref, Ref, onMounted, defineComponent } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { processComponentType } from "@im-library/helpers/modules/EditorMethods";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },

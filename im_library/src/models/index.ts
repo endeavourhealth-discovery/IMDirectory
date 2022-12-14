@@ -1,9 +1,9 @@
-import APIError from "./modules/APIError.js";
-import CustomAlert from "./modules/CustomAlert.js";
-import { PieChartData } from "./modules/PieChartData.js";
-import User from "./modules/User.js";
-import * as Workflow from "./modules/Workflow.js";
-import * as Query from "./modules/Query.js";
-import * as AutoGen from "./modules/AutoGen.js";
+import APIError from "./APIError";
+import CustomAlert from "./CustomAlert";
+import { PieChartData } from "./PieChartData";
+import User from "./User";
+import * as Workflow from "./Workflow";
+import * as Query from "./Query";
+import * as AutoGen from "./AutoGen";
 
 export { APIError, CustomAlert, PieChartData, User, Workflow, Query, AutoGen };

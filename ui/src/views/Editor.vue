@@ -78,10 +78,10 @@ import { setupEntity, setupShape } from "./EditorMethods";
 import { useStore } from "vuex";
 import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@im-library/enums";
-import { isValueSet } from "@im-library/helpers/modules/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
-import { hasValidIri, hasValidName, hasValidParents, hasValidStatus, hasValidTypes } from "@im-library/helpers/modules/EntityValidator";
-import { iriToUrl } from "@im-library/helpers/modules/Converters";
+import { isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { hasValidIri, hasValidName, hasValidParents, hasValidStatus, hasValidTypes } from "@im-library/helpers/EntityValidator";
+import { iriToUrl } from "@im-library/helpers/Converters";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { DirectService, EntityService, Env } from "@/services";
 

@@ -1,4 +1,4 @@
-import { getContainerElementOptimalHeight } from "@/helpers/modules/ContainerDimensionGetters";
+import { getContainerElementOptimalHeight } from "@/helpers/ContainerDimensionGetters";
 
 describe("GetContainerElementOptimalHeight", () => {
   let mockElement;

@@ -15,7 +15,7 @@ import SetDefinitionForm from "./setDefinition/SetDefinitionForm.vue";
 import SetDefinitionECL from "./setDefinition/SetDefinitionECL.vue";
 import { PropertyGroup, Refinement, SetQueryObject, TTAlias, Query } from "@im-library/interfaces";
 import { EditorMode } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { SetService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";

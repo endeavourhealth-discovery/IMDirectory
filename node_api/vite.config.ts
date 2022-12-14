@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import { VitePluginNode } from "vite-plugin-node";
-import path from "path";
+import * as path from "path";
 
 export default defineConfig({
   server: {

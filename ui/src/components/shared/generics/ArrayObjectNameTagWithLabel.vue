@@ -11,8 +11,8 @@
 <script setup lang="ts">
 import { computed, defineComponent, PropType } from "vue";
 import { TTIriRef } from "@im-library/interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
-import LoggerService from "@/services/modules/LoggerService";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import LoggerService from "@/services/LoggerService";
 import { mapState, useStore } from "vuex";
 
 const props = defineProps({

@@ -75,7 +75,7 @@ import { defineComponent, onMounted, Ref, ref, inject, reactive, nextTick } from
 import semver from "semver";
 import { Env, GithubService } from "@/services";
 import { GithubRelease } from "@im-library/interfaces";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   appVersion: { type: String, required: true },

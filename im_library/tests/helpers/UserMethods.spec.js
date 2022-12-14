@@ -4,7 +4,7 @@ import {
   verifyIsName,
   verifyIsUsername,
   checkPasswordStrength
-} from "@/helpers/modules/UserMethods";
+} from "@/helpers/UserMethods";
 import { PasswordStrength } from "@/enums";
 
 describe("verifyIsEmail", () => {

@@ -1,8 +1,8 @@
-import DefaultPredicateNames from "./modules/DefaultPredicateNames.js";
-import EntityTypes from "./modules/EntityTypes.js";
-import FilterDefaults from "./modules/FilterDefaults.js";
-import GraphExcludePredicates from "./modules/GraphExcludePredicates.js";
-import TextDefinitionExcludePredicates from "./modules/TextDefinitionExcludePredicates.js";
-import XmlSchemaDatatypes from "./modules/XmlSchemaDatatypes.js";
+import DefaultPredicateNames from "./DefaultPredicateNames";
+import EntityTypes from "./EntityTypes";
+import FilterDefaults from "./FilterDefaults";
+import GraphExcludePredicates from "./GraphExcludePredicates";
+import TextDefinitionExcludePredicates from "./TextDefinitionExcludePredicates";
+import XmlSchemaDatatypes from "./XmlSchemaDatatypes";
 
 export { DefaultPredicateNames, EntityTypes, FilterDefaults, GraphExcludePredicates, TextDefinitionExcludePredicates, XmlSchemaDatatypes };

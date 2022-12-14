@@ -1,5 +1,5 @@
-import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/modules/DataTypeCheckers";
-import { isTTIriRef } from "@im-library/helpers/modules/TypeGuards";
+import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { IM, RDFS } from "@im-library/vocabulary";
 
 export default class Validator {

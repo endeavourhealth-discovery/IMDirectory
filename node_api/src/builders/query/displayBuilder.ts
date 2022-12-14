@@ -1,6 +1,6 @@
 import { QueryDisplay } from "@im-library/interfaces";
 import { QueryDisplayType } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS } from "@im-library/vocabulary";
 import axios from "axios";
 import EntityService from "@/services/entity.service";

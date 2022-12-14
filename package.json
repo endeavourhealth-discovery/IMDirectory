@@ -1,0 +1,18 @@
+{
+  "name": "im",
+  "type": "module",
+  "scripts": {
+    "dev": "run-p dev-api dev-ui",
+    "dev-api": "cd node_api && npm run dev",
+    "dev-ui": "cd ui && npm run dev",
+    "install": "run-p install-library install-api install-ui",
+    "install-library": "cd node_library && npm install",
+    "install-api": "cd node_api && npm install",
+    "install-ui": "cd ui && npm install",
+    "test:unit": "cd im_library && npx vitest run && cd ../node_api && npx vitest run && cd ../ui && npx vitest run",
+    "test:coverage": "cd im_library && npx vitest run --coverage && cd ../node_api && npx vitest run --coverage && cd ../ui && npx vitest run --coverage"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

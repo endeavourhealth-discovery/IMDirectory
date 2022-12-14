@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "target": "esnext",
+    "esModuleInterop": true,
     "declaration": true,
     "declarationMap": true,
     "rootDir": ".",

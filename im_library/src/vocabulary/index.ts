@@ -1,8 +1,8 @@
-import { IM } from "./modules/IM.js";
-import { NAMESPACES } from "./modules/NAMESPACES.js";
-import { OWL } from "./modules/OWL.js";
-import { RDF } from "./modules/RDF.js";
-import { RDFS } from "./modules/RDFS.js";
-import { SHACL } from "./modules/SHACL.js";
+import { IM } from "./IM";
+import { NAMESPACES } from "./NAMESPACES";
+import { OWL } from "./OWL";
+import { RDF } from "./RDF";
+import { RDFS } from "./RDFS";
+import { SHACL } from "./SHACL";
 
 export { IM, NAMESPACES, OWL, RDF, RDFS, SHACL };

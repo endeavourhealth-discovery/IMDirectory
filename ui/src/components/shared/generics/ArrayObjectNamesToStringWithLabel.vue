@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
 import { computed, defineComponent, PropType } from "vue";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { SHACL } from "@im-library/vocabulary";
 
 const props = defineProps({

@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces";
 import { onMounted, PropType, ref, Ref } from "vue";
-import { isArrayHasLength } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 

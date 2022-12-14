@@ -1,5 +1,5 @@
-import { getFAIconFromType } from "@im-library/helpers/modules/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { AllowableChildProperty, IMTreeNode, TTIriRef } from "@im-library/interfaces";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";

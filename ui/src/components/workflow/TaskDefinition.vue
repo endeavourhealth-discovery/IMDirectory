@@ -152,7 +152,7 @@ import { computed, defineComponent, onMounted, Ref, ref, watch } from "vue";
 import ConfirmDialog from "primevue/confirmdialog";
 import { mapState, useStore } from "vuex";
 import { SortBy } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";

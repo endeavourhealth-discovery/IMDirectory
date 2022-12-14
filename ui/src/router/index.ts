@@ -26,10 +26,10 @@ const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.v
 const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
 const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
 import { EntityService, Env } from "@/services";
-import { isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import store from "@/store/index";
 import { nextTick } from "vue";
-import { urlToIri } from "@im-library/helpers/modules/Converters";
+import { urlToIri } from "@im-library/helpers/Converters";
 
 const APP_TITLE = "IM Directory";
 

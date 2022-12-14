@@ -29,9 +29,9 @@
 import { defineComponent, computed, ref, onMounted, watch } from "vue";
 import { mapState, useStore } from "vuex";
 import { TTBundle } from "@im-library/interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/modules/DataTypeCheckers";
-import { bundleToText } from "@im-library/helpers/modules/Transforms";
-import { isTTBundle } from "@im-library/helpers/modules/TypeGuards";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { bundleToText } from "@im-library/helpers/Transforms";
+import { isTTBundle } from "@im-library/helpers/TypeGuards";
 import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDatatypes } from "@im-library/config";
 import { IM } from "@im-library/vocabulary";
 import _ from "lodash";

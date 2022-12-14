@@ -1,16 +1,16 @@
-import AuthService from "./modules/AuthService";
-import ConfigService from "./modules/ConfigService";
-import DirectService from "./modules/DirectService";
-import EntityService from "./modules/EntityService";
-import FilerService from "./modules/FilerService";
-import Env from "./modules/Env";
-import LoggerService from "./modules/LoggerService";
-import QueryService from "./modules/QueryService";
-import SetService from "./modules/SetService";
-import ClassService from "./modules/ClassService";
-import GithubService from "./modules/GithubService";
-import ProvService from "./modules/ProvService";
-import ParserService from "./modules/ParserService";
+import AuthService from "./AuthService";
+import ConfigService from "./ConfigService";
+import DirectService from "./DirectService";
+import EntityService from "./EntityService";
+import FilerService from "./FilerService";
+import Env from "./Env";
+import LoggerService from "./LoggerService";
+import QueryService from "./QueryService";
+import SetService from "./SetService";
+import ClassService from "./ClassService";
+import GithubService from "./GithubService";
+import ProvService from "./ProvService";
+import ParserService from "./ParserService";
 
 export {
   AuthService,

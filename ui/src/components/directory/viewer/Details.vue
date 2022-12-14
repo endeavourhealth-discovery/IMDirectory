@@ -56,7 +56,7 @@ import { TreeNode } from "primevue/tree";
 import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@im-library/vocabulary";
-import { isArrayHasLength } from "@im-library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
