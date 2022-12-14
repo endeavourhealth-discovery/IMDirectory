@@ -11,10 +11,7 @@ phases:
       - echo $IP of CodeBuild Instance
       - echo NVM install
       - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-      - . ~/.nvm/nvm.sh
-      - export NVM_DIR="$HOME/.nvm"
-      - \. "$NVM_DIR/nvm.sh"
-      - \. "$NVM_DIR/bash_completion"
+      - source ~/.bashrc
       - nvm install 18.4.0
       - nvm use 18.4.0
   build:
