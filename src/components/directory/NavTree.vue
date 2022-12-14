@@ -224,7 +224,7 @@ async function onNodeContext(event: any, node: any) {
   event.preventDefault();
   items.value = [];
 
-  if (!currentUser.value.roles.includes("IMAdmin")) return;
+  if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 
