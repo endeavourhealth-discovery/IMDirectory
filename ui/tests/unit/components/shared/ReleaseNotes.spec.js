@@ -57,21 +57,12 @@ describe("ReleaseNotes.vue ___ version mismatch", () => {
     const button = component.getByTestId("expand-all-button");
     await fireEvent.click(button);
     await flushPromises();
-    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(4);
-    expect(getLatestReleaseSpy).toHaveBeenCalledWith("IMAuth");
-    expect(getLatestReleaseSpy).toHaveBeenCalledWith("IMEditor");
+    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(1);
     expect(getLatestReleaseSpy).toHaveBeenCalledWith("ImportData");
-    expect(getLatestReleaseSpy).toHaveBeenCalledWith("IMViewer");
-    const authButton = component.getByTestId("expand-button-auth");
-    expect(authButton.classList.contains("pi-minus"));
     const directoryButton = component.getByTestId("expand-button-directory");
     expect(directoryButton.classList.contains("pi-minus"));
-    const editorButton = component.getByTestId("expand-button-editor");
-    expect(editorButton.classList.contains("pi-minus"));
     const importDataButton = component.getByTestId("expand-button-importData");
     expect(importDataButton.classList.contains("pi-minus"));
-    const viewerButton = component.getByTestId("expand-button-viewer");
-    expect(viewerButton.classList.contains("pi-minus"));
   });
 
   it("can get olderReleaseNotes", async () => {
@@ -88,14 +79,14 @@ describe("ReleaseNotes.vue ___ version mismatch", () => {
   it("gets releases on expand if not props repo", async () => {
     const testLatestRelease2 = fakerFactory.githubRelease.create();
     getLatestReleaseSpy.mockResolvedValue(testLatestRelease2);
-    const button = component.getByTestId("expand-button-auth");
+    const button = component.getByTestId("expand-button-importData");
     await fireEvent.click(button);
     await flushPromises();
     expect(getLatestReleaseSpy).toHaveBeenCalledTimes(1);
-    expect(getLatestReleaseSpy).toHaveBeenCalledWith("IMAuth");
+    expect(getLatestReleaseSpy).toHaveBeenCalledWith("ImportData");
     component.getByText(testLatestRelease2.version);
-    const authButton = component.getByTestId("expand-button-auth");
-    expect(authButton.classList.contains("pi-minus"));
+    const importDataButton = component.getByTestId("expand-button-importData");
+    expect(importDataButton.classList.contains("pi-minus"));
   });
 
   it("can hide older releases", async () => {
@@ -126,12 +117,9 @@ describe("ReleaseNotes.vue ___ version mismatch", () => {
     await flushPromises();
     const button = component.getByTestId("close-button");
     await fireEvent.click(button);
-    expect(setItemSpy).toHaveBeenCalledTimes(5);
+    expect(setItemSpy).toHaveBeenCalledTimes(2);
     expect(setItemSpy).toHaveBeenCalledWith("IMDirectoryVersion", testLatestRelease.version);
-    expect(setItemSpy).toHaveBeenCalledWith("IMAuthVersion", testLatestRelease.version);
     expect(setItemSpy).toHaveBeenCalledWith("ImportDataVersion", testLatestRelease.version);
-    expect(setItemSpy).toHaveBeenCalledWith("IMEditorVersion", testLatestRelease.version);
-    expect(setItemSpy).toHaveBeenCalledWith("IMViewerVersion", testLatestRelease.version);
   });
 });
 
