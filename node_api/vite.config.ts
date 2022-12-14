@@ -32,7 +32,6 @@ export default defineConfig({
     },
     coverage: {
       reporter: ["text", "lcov"]
-    },
-    setupFiles: "./tests/setupTests.js"
+    }
   }
 });
