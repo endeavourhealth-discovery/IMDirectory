@@ -83,6 +83,8 @@ import Steps from "primevue/steps";
 import Chip from "primevue/chip";
 import ToggleButton from "primevue/togglebutton";
 import Calendar from "primevue/calendar";
+import TreeTable from "primevue/treetable";
+import TreeSelect from "primevue/treeselect";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -162,6 +164,8 @@ const app = createApp(App)
   .component("Chip", Chip)
   .component("ToggleButton", ToggleButton)
   .component("InputNumber", InputNumber)
+  .component("TreeTable", TreeTable)
+  .component("TreeSelect", TreeSelect)
   .component("Calendar", Calendar);
 
 const vm = app.mount("#app");

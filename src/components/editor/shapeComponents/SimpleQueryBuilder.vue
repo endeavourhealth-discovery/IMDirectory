@@ -5,7 +5,65 @@
         <EntityAutocomplete class="multi-select" :ttAlias="selectedFrom" :getSuggestionsMethod="getFromSuggestions" />
       </TabPanel>
       <TabPanel header="Where">
-        <DataTable
+        <TreeTable :value="treeTableItems">
+          <template #empty>
+            <Button />
+          </template>
+          <Column field="operator" header="Operator" :expander="true"></Column>
+          <Column field="dataModel" header="Data model">
+            <template #body="{ node }">
+              <TreeSelect v-model="selectedDataModel" :options="dataModelOptions" placeholder="Select Item" @node-select="onDataModelSelect($event, node)">
+                <template #value="{ value, placeholder }">
+                  <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
+                    <span :style="value[0]?.style">
+                      <i :class="value[0]?.icon" class="fa-fw"></i>
+                    </span>
+                    {{ value[0]?.label }}
+                  </div>
+                  <div v-else>
+                    {{ placeholder }}
+                  </div>
+                </template>
+              </TreeSelect>
+            </template>
+          </Column>
+          <Column field="property" header="Property">
+            <template #body="{ node }">
+              <TreeSelect v-model="selectedDataModel" :options="dataModelOptions" placeholder="Select Item" @node-select="onDataModelSelect($event, node)">
+                <template #value="{ value, placeholder }">
+                  <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
+                    <span :style="value[0]?.style">
+                      <i :class="value[0]?.icon" class="fa-fw"></i>
+                    </span>
+                    {{ value[0]?.label }}
+                  </div>
+                  <div v-else>
+                    {{ placeholder }}
+                  </div>
+                </template>
+              </TreeSelect>
+            </template>
+          </Column>
+          <Column field="type" header="Type">
+            <template #body="slotProps">
+              {{ slotProps.node.data }}
+            </template>
+          </Column>
+
+          <Column field="node" header="Node">
+            <template #body="slotProps">
+              {{ slotProps.node }}
+            </template>
+          </Column>
+          <Column headerStyle="width: 10rem" headerClass="text-center" bodyClass="text-center">
+            <template #body>
+              <Button type="button" icon="pi pi-search" class="p-button-success" style="margin-right: 0.5em"></Button>
+              <Button type="button" icon="pi pi-pencil" class="p-button-warning"></Button>
+            </template>
+          </Column>
+        </TreeTable>
+
+        <!-- <DataTable
           :value="properties"
           responsiveLayout="scroll"
           class="p-datatable-sm"
@@ -46,7 +104,7 @@
               <div v-else>No description</div>
             </template>
           </Column>
-        </DataTable>
+        </DataTable> -->
       </TabPanel>
       <TabPanel header="Select">
         <MultiSelect
@@ -76,13 +134,15 @@ import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinitio
 import { EntityService } from "@/im_library/services";
 import { TTAlias, TTIriRef } from "@/im_library/interfaces";
 import { IM, RDFS, SHACL } from "@/im_library/vocabulary";
-import { isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@/im_library/helpers/modules/DataTypeCheckers";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import { setupEntity } from "@/views/EditorMethods";
 import { useStore } from "vuex";
 import { onMounted, PropType, Ref, ref, watch } from "vue";
 import { computed, ComputedRef } from "@vue/reactivity";
 import _ from "lodash";
+import { TreeNode } from "primevue/tree";
+import { getColourFromType, getFAIconFromType, isRecordModel } from "@/im_library/helpers/modules/ConceptTypeMethods";
 
 export interface SuggestionInfo {
   propertyId: string;
@@ -116,6 +176,31 @@ interface UIProperty {
   logic: string;
 }
 
+interface TreeTableItemData {
+  operator: string;
+  dataModel: TTIriRef;
+  property: TTIriRef;
+  value: TTIriRef;
+}
+
+interface TreeTableItem extends TreeNode {
+  data: TreeTableItemData;
+  children: TreeTableItem[];
+}
+
+interface TreeSelectOption extends TreeNode {
+  data: TreeSelectOptionData;
+  children: TreeSelectOption[];
+}
+
+interface TreeSelectOptionData extends TTIriRef {
+  type: TTIriRef[];
+}
+
+const treeTableItems: Ref<TreeTableItem[]> = ref([]);
+const dataModelOptions: Ref<TreeSelectOption[]> = ref([]);
+const selectedDataModel: Ref<TreeSelectOption> = ref({} as TreeSelectOption);
+
 const store = useStore();
 const suggestionInfo: ComputedRef<SuggestionInfo> = computed(() => store.state.suggestionInfo);
 const logicOptions = ["and", "not", "or", "-"];
@@ -142,9 +227,49 @@ watch(
 );
 
 async function init() {
+  getTreeTableItems();
+  dataModelOptions.value = await getDataModelTree();
+  console.log(JSON.stringify(dataModelOptions.value));
   const mainRecords = await getFromSuggestions();
+  console.log(mainRecords);
   selectedFrom.value["@id"] = mainRecords[3]["@id"];
   selectedFrom.value.name = mainRecords[3].name;
+}
+
+function onDataModelSelect(event: any, tableItem: TreeTableItem) {
+  const selectOptionData = event as TreeSelectOption;
+  console.log(selectOptionData);
+  console.log(tableItem);
+  tableItem.data.dataModel;
+  tableItem.data.dataModel["@id"] = selectOptionData.data["@id"];
+  tableItem.data.dataModel.name = selectOptionData.data.name;
+}
+
+async function getDataModelTree() {
+  const children = await EntityService.getEntityChildren("http://endhealth.info/im#HealthRecordEntry");
+  return children.map(child => {
+    const option = {
+      key: child["@id"],
+      label: child.name,
+      icon: getFAIconFromType(child.type).join(" "),
+      style: "color:" + getColourFromType(child.type),
+      data: { "@id": child["@id"], name: child.name, type: child.type }
+    } as TreeSelectOption;
+    console.log(child.hasChildren);
+    if (child.hasChildren) option.children = [];
+    return option;
+  });
+}
+
+async function getTreeTableItems() {
+  const itemData = { operator: "and", dataModel: { "@id": "http://endhealth.info/im#Observation" }, property: {}, value: {} } as TreeTableItemData;
+  const newItem = {
+    key: String(Date.now()),
+    data: itemData,
+    children: [{ key: String(Date.now()), data: { ...itemData }, children: [] as TreeTableItem[] }] as TreeTableItem[]
+  } as TreeTableItem;
+
+  treeTableItems.value.push(newItem);
 }
 
 function updatePropertyValue(propertyId: string, propertyValue: DisplayTTIriRef[]) {
