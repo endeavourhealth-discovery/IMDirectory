@@ -7,7 +7,7 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix",
     "format": "prettier --write",
-    "tsc": "tsc"
+    "build": "tsc"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "1.0.3",
