@@ -5,11 +5,13 @@
         <EntityAutocomplete class="multi-select" :ttAlias="selectedFrom" :getSuggestionsMethod="getFromSuggestions" />
       </TabPanel>
       <TabPanel header="Where">
-        <TreeTable :value="treeTableItems">
-          <template #empty>
-            <Button />
-          </template>
-          <Column field="operator" header="Operator" :expander="true"></Column>
+        <TreeTable :value="treeTableItems" :expandedKeys="expandedKeys">
+          <!-- <Column field="operator" header="Operator" > </Column> -->
+          <Column field="operator" header="Operator" :expander="true">
+            <template #body="{ node }">
+              <Dropdown v-model="node.data.operator" :options="logicOptions" />
+            </template>
+          </Column>
           <Column field="dataModel" header="Data model">
             <template #body="{ node }">
               <TreeSelect v-model="selectedDataModel" :options="dataModelOptions" placeholder="Select Item" @node-select="onDataModelSelect($event, node)">
@@ -132,7 +134,6 @@
 <script setup lang="ts">
 import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinition/EntityAutocomplete.vue";
 import { EntityService } from "@/services";
-import { TTAlias, TTIriRef } from "@im-library/interfaces";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
@@ -144,62 +145,10 @@ import _ from "lodash";
 import { TreeNode } from "primevue/tree";
 import { getColourFromType, getFAIconFromType, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 
-export interface SuggestionInfo {
-  propertyId: string;
-  suggestionIri: string;
-  searchTerm: string;
-  propertyValue: DisplayTTIriRef[];
-}
-
-export interface DisplayTTIriRef extends TTIriRef {
-  types: TTIriRef[];
-}
-
-interface TTProperty {
-  "http://www.w3.org/ns/shacl#order": number;
-  "http://www.w3.org/ns/shacl#path": TTIriRef[];
-  "http://www.w3.org/ns/shacl#class": TTIriRef[];
-  "http://www.w3.org/ns/shacl#datatype": TTIriRef[];
-  "http://www.w3.org/ns/shacl#node": TTIriRef[];
-  "http://www.w3.org/ns/shacl#maxCount": number;
-  "http://www.w3.org/ns/shacl#minCount": number;
-}
-
-interface UIProperty {
-  label: string;
-  tooltip: string;
-  description: string;
-  property: TTProperty;
-  componentType: string;
-  valueType: TTIriRef;
-  value: any;
-  logic: string;
-}
-
-interface TreeTableItemData {
-  operator: string;
-  dataModel: TTIriRef;
-  property: TTIriRef;
-  value: TTIriRef;
-}
-
-interface TreeTableItem extends TreeNode {
-  data: TreeTableItemData;
-  children: TreeTableItem[];
-}
-
-interface TreeSelectOption extends TreeNode {
-  data: TreeSelectOptionData;
-  children: TreeSelectOption[];
-}
-
-interface TreeSelectOptionData extends TTIriRef {
-  type: TTIriRef[];
-}
-
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
 const dataModelOptions: Ref<TreeSelectOption[]> = ref([]);
 const selectedDataModel: Ref<TreeSelectOption> = ref({} as TreeSelectOption);
+const expandedKeys: Ref<any> = ref({});
 
 const store = useStore();
 const suggestionInfo: ComputedRef<SuggestionInfo> = computed(() => store.state.suggestionInfo);
@@ -226,55 +175,55 @@ watch(
   }
 );
 
-function addLogic(node: any) {
-  console.log(node);
+function createTreeTableItem(operator: string, parent: string): TreeTableItem {
+  const data = createTreeTableItemData(operator);
+  return { key: String(Math.floor(Math.random() * 1000000)), data: data, children: [] as TreeTableItem[], parent: parent } as TreeTableItem;
+}
+
+function createTreeTableItemData(operator: string): TreeTableItemData {
+  return { operator: operator, dataModel: {} as TTIriRef, property: {} as TTIriRef, value: {} as TTIriRef } as TreeTableItemData;
+}
+
+function addLogic(node: TreeTableItem) {
+  const newLogicItem = createTreeTableItem("and", node.key!);
+  expandLogic(newLogicItem.key!);
+  node.children.push(newLogicItem);
 }
 
 function removeLogic(node: any) {
-  console.log(node);
-  const foundNode = findNode(node.key, treeTableItems.value[0]);
-  console.log(node.key, foundNode.key);
+  const parentNode = findNode(node.parent, treeTableItems.value[0]) as TreeTableItem;
+  if (parentNode) parentNode.children = parentNode.children.filter(child => child.key !== node.key);
 }
 
-function findNode(key: string, currentNode: any): any {
-  let i, currentChild, result;
+function expandLogic(key: string) {
+  expandedKeys.value[key!] = true;
+  expandedKeys.value = { ...expandedKeys.value };
+}
 
-  if (key == currentNode.key) {
+function findNode(key: string, currentNode: any): TreeTableItem | boolean {
+  if (key === currentNode.key) {
     return currentNode;
   } else {
-    // Use a for loop instead of forEach to avoid nested functions
-    // Otherwise "return" will not work properly
-    for (i = 0; i < currentNode.children.length; i += 1) {
-      currentChild = currentNode.children[i];
-
-      // Search in the current child
-      result = findNode(key, currentChild);
-
-      // Return the result if the node has been found
-      if (result !== false) {
-        return result;
+    for (const currentChild of currentNode.children) {
+      const found = findNode(key, currentChild);
+      if (found !== false) {
+        return found;
       }
     }
-
-    // The node has not been found and we have no more options
     return false;
   }
 }
 
 async function init() {
-  getTreeTableItems();
+  initTreeTableItems();
   dataModelOptions.value = await getDataModelTree();
-  console.log(JSON.stringify(dataModelOptions.value));
   const mainRecords = await getFromSuggestions();
-  console.log(mainRecords);
   selectedFrom.value["@id"] = mainRecords[3]["@id"];
   selectedFrom.value.name = mainRecords[3].name;
 }
 
 function onDataModelSelect(event: any, tableItem: TreeTableItem) {
   const selectOptionData = event as TreeSelectOption;
-  console.log(selectOptionData);
-  console.log(tableItem);
   tableItem.data.dataModel;
   tableItem.data.dataModel["@id"] = selectOptionData.data["@id"];
   tableItem.data.dataModel.name = selectOptionData.data.name;
@@ -296,15 +245,10 @@ async function getDataModelTree() {
   });
 }
 
-async function getTreeTableItems() {
-  const itemData = { operator: "and", dataModel: { "@id": "http://endhealth.info/im#Observation" }, property: {}, value: {} } as TreeTableItemData;
-  const newItem = {
-    key: String(Math.floor(Math.random() * 1000000)),
-    data: itemData,
-    children: [{ key: String(Date.now()), data: { ...itemData }, children: [] as TreeTableItem[] }] as TreeTableItem[]
-  } as TreeTableItem;
-
-  treeTableItems.value.push(newItem);
+async function initTreeTableItems() {
+  const topLogic = createTreeTableItem("and", "");
+  treeTableItems.value.push(topLogic);
+  expandLogic(topLogic.key!);
 }
 
 function updatePropertyValue(propertyId: string, propertyValue: DisplayTTIriRef[]) {
@@ -399,6 +343,79 @@ function onRowSelect(row: any) {
     suggestionIri: uiProperty.valueType["@id"],
     propertyValue: uiProperty.value
   } as SuggestionInfo);
+}
+</script>
+
+<script lang="ts">
+export interface SuggestionInfo {
+  propertyId: string;
+  suggestionIri: string;
+  searchTerm: string;
+  propertyValue: DisplayTTIriRef[];
+}
+
+export interface DisplayTTIriRef extends TTIriRef {
+  types: TTIriRef[];
+}
+
+export interface TTIriRef {
+  "@id": string;
+  name: string;
+}
+
+interface TTAlias extends TTIriRef {
+  alias: string;
+  inverse: boolean;
+  variable: string;
+  includeSupertypes: boolean;
+  includeSubtypes: boolean;
+  includeMembers: boolean;
+  excludeSelf: boolean;
+  isType: boolean;
+  isSet: boolean;
+}
+
+interface TTProperty {
+  "http://www.w3.org/ns/shacl#order": number;
+  "http://www.w3.org/ns/shacl#path": TTIriRef[];
+  "http://www.w3.org/ns/shacl#class": TTIriRef[];
+  "http://www.w3.org/ns/shacl#datatype": TTIriRef[];
+  "http://www.w3.org/ns/shacl#node": TTIriRef[];
+  "http://www.w3.org/ns/shacl#maxCount": number;
+  "http://www.w3.org/ns/shacl#minCount": number;
+}
+
+interface UIProperty {
+  label: string;
+  tooltip: string;
+  description: string;
+  property: TTProperty;
+  componentType: string;
+  valueType: TTIriRef;
+  value: any;
+  logic: string;
+}
+
+interface TreeTableItemData {
+  operator: string;
+  dataModel: TTIriRef;
+  property: TTIriRef;
+  value: TTIriRef;
+}
+
+interface TreeTableItem extends TreeNode {
+  data: TreeTableItemData;
+  children: TreeTableItem[];
+  parent: string;
+}
+
+interface TreeSelectOption extends TreeNode {
+  data: TreeSelectOptionData;
+  children: TreeSelectOption[];
+}
+
+interface TreeSelectOptionData extends TTIriRef {
+  type: TTIriRef[];
 }
 </script>
 
