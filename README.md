@@ -6,7 +6,7 @@
 
 ## Setup
 
-Run `npm run install`
+Run `npm run install-all`
 
 ## Execute
 
