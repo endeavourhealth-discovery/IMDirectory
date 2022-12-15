@@ -75,12 +75,6 @@ async function downloadChanges() {
 }
 </script>
 
-<style>
-.p-menu-overlay {
-  z-index: 1000;
-}
-</style>
-
 <style scoped>
 #directory-main-container {
   height: 100%;

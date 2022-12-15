@@ -134,4 +134,12 @@ function setupExternalErrorHandler() {
   width: 100%;
   word-wrap: break-word;
 }
+
+.p-menu-overlay {
+  z-index: 1000;
+}
+
+.p-overlaypanel {
+  z-index: 1000;
+}
 </style>
