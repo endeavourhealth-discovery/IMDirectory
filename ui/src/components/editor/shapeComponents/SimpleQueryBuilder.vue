@@ -14,10 +14,15 @@
           </Column>
           <Column field="dataModel" header="Data model">
             <template #body="{ node }">
-              <TreeSelect v-model="selectedDataModel" :options="dataModelOptions" placeholder="Select Item" @node-select="onDataModelSelect($event, node)">
+              <TreeSelect
+                v-model="node.data.dataModelDisplay"
+                :options="dataModelOptions"
+                placeholder="Select Item"
+                @node-select="onDataModelSelect($event, node.data)"
+              >
                 <template #value="{ value, placeholder }">
                   <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
-                    <span :style="value[0]?.style">
+                    <span :style="value[0]?.styleClass">
                       <i :class="value[0]?.icon" class="fa-fw"></i>
                     </span>
                     {{ value[0]?.label }}
@@ -29,7 +34,7 @@
               </TreeSelect>
             </template>
           </Column>
-          <Column field="property" header="Property">
+          <!-- <Column field="property" header="Property">
             <template #body="{ node }">
               <TreeSelect v-model="selectedDataModel" :options="dataModelOptions" placeholder="Select Item" @node-select="onDataModelSelect($event, node)">
                 <template #value="{ value, placeholder }">
@@ -45,7 +50,7 @@
                 </template>
               </TreeSelect>
             </template>
-          </Column>
+          </Column> -->
           <Column field="type" header="Type">
             <template #body="slotProps">
               {{ slotProps.node.data }}
@@ -147,7 +152,6 @@ import { getColourFromType, getFAIconFromType, isRecordModel } from "@im-library
 
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
 const dataModelOptions: Ref<TreeSelectOption[]> = ref([]);
-const selectedDataModel: Ref<TreeSelectOption> = ref({} as TreeSelectOption);
 const expandedKeys: Ref<any> = ref({});
 
 const store = useStore();
@@ -181,7 +185,15 @@ function createTreeTableItem(operator: string, parent: string): TreeTableItem {
 }
 
 function createTreeTableItemData(operator: string): TreeTableItemData {
-  return { operator: operator, dataModel: {} as TTIriRef, property: {} as TTIriRef, value: {} as TTIriRef } as TreeTableItemData;
+  return {
+    operator: operator,
+    dataModel: {} as TTIriRef,
+    dataModelDisplay: {},
+    property: {} as TTIriRef,
+    propertyDisplay: {},
+    value: {} as TTIriRef,
+    valueDisplay: {}
+  } as TreeTableItemData;
 }
 
 function addLogic(node: TreeTableItem) {
@@ -192,7 +204,9 @@ function addLogic(node: TreeTableItem) {
 
 function removeLogic(node: any) {
   const parentNode = findNode(node.parent, treeTableItems.value[0]) as TreeTableItem;
-  if (parentNode) parentNode.children = parentNode.children.filter(child => child.key !== node.key);
+  if (parentNode) {
+    parentNode.children = parentNode.children.filter(child => child.key !== node.key);
+  }
 }
 
 function expandLogic(key: string) {
@@ -222,11 +236,9 @@ async function init() {
   selectedFrom.value.name = mainRecords[3].name;
 }
 
-function onDataModelSelect(event: any, tableItem: TreeTableItem) {
-  const selectOptionData = event as TreeSelectOption;
-  tableItem.data.dataModel;
-  tableItem.data.dataModel["@id"] = selectOptionData.data["@id"];
-  tableItem.data.dataModel.name = selectOptionData.data.name;
+function onDataModelSelect(selected: any, tableItem: TreeTableItemData) {
+  tableItem.dataModel["@id"] = selected.key;
+  tableItem.dataModel.name = selected.label;
 }
 
 async function getDataModelTree() {
@@ -236,7 +248,7 @@ async function getDataModelTree() {
       key: child["@id"],
       label: child.name,
       icon: getFAIconFromType(child.type).join(" "),
-      style: "color:" + getColourFromType(child.type),
+      styleClass: "color:" + getColourFromType(child.type),
       data: { "@id": child["@id"], name: child.name, type: child.type }
     } as TreeSelectOption;
     console.log(child.hasChildren);
@@ -399,8 +411,11 @@ interface UIProperty {
 interface TreeTableItemData {
   operator: string;
   dataModel: TTIriRef;
+  dataModelDisplay: any;
   property: TTIriRef;
+  propertyDisplay: any;
   value: TTIriRef;
+  valueDisplay: any;
 }
 
 interface TreeTableItem extends TreeNode {
