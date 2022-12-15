@@ -22,7 +22,7 @@ import { LoggerService } from "@/services";
 const props = defineProps({
   name: { type: String, required: false },
   description: { type: String, required: false },
-  inputData: { type: Array as PropType<Array<any>>, required: true },
+  inputData: { type: Array as PropType<any[]>, required: true },
   id: { type: String, required: true },
   labelKey: { type: String, required: true },
   dataKey: { type: String, required: true }

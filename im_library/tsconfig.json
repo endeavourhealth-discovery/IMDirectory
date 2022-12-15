@@ -3,11 +3,12 @@
     "target": "esnext",
     "esModuleInterop": true,
     "declaration": true,
+    "emitDeclarationOnly": true,
     "declarationMap": true,
     "rootDir": ".",
     "composite": true,
     "outDir": ".",
-    "types": ["google-palette"]
+    "moduleResolution": "Node"
   },
   "references": [],
   "include": ["./src/**/*.ts", "./src/**/*.js", "./src/typings/*.d.ts"],

@@ -201,9 +201,10 @@ async function getCardsData(): Promise<void> {
   for (const config of configs.value) {
     const result = await EntityService.getPartialEntity(config.iri, [RDFS.LABEL, RDFS.COMMENT, IM.STATS_REPORT_ENTRY]);
     if (!isObjectHasKeys(result)) return;
+    result[IM.STATS_REPORT_ENTRY].forEach((stat: any) => (stat[IM.HAS_VALUE] = Number(stat[IM.HAS_VALUE])));
     const cardData = {
       name: result[RDFS.LABEL],
-      description: result[RDFS.COMMENT],
+      description: result[RDFS.COMMENT] ? result[RDFS.COMMENT] : "",
       inputData: result[IM.STATS_REPORT_ENTRY],
       component: config.type
     };

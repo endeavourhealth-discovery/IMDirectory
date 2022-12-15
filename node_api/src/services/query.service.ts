@@ -24,9 +24,14 @@ export default class QueryService {
       query: {
         "@id": "http://endhealth.info/im#Query_AllowableRanges"
       },
-      argument: {
-        this: iri
-      }
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": iri
+          }
+        }
+      ]
     } as QueryRequest;
     const subtypesQuery = {
       query: {
@@ -75,9 +80,14 @@ export default class QueryService {
       query: {
         "@id": "http://endhealth.info/im#Query_AllowableProperties"
       },
-      argument: {
-        this: iri
-      }
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": iri
+          }
+        }
+      ]
     } as QueryRequest;
 
     if (searchTerm) {
