@@ -25,6 +25,7 @@ const AccessDenied = () => import("@/components/shared/errorPages/AccessDenied.v
 const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.vue");
 const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
 const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
+const QuickQueryBuilder = () => import("@/views/QuickQueryBuilder.vue");
 import { EntityService, Env } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import store from "@/store/index";
@@ -177,6 +178,15 @@ const routes: Array<RouteRecordRaw> = [
         component: TaskViewer
       }
     ]
+  },
+  {
+    path: "/quickQueryBuilder",
+    name: "QuickQueryBuilder",
+    component: QuickQueryBuilder,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
+    }
   },
   {
     path: "/mapper",
