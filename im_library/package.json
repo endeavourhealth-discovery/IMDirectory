@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "dev": "tsc --watch",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix",

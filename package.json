@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "run-p dev-library dev-api dev-ui",
-    "dev-library": "cd im_library && npm run build",
+    "dev-library": "cd im_library && npm run dev",
     "dev-api": "cd node_api && npm run dev",
     "dev-ui": "cd ui && npm run dev",
     "install-all": "run-p install-library install-api install-ui",
