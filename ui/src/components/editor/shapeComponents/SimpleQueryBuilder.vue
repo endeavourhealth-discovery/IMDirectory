@@ -56,9 +56,9 @@
             </template>
           </Column>
           <Column headerStyle="width: 10rem" headerClass="text-center" bodyClass="text-center">
-            <template #body>
-              <Button type="button" icon="pi pi-search" class="p-button-success" style="margin-right: 0.5em"></Button>
-              <Button type="button" icon="pi pi-pencil" class="p-button-warning"></Button>
+            <template #body="{ node }">
+              <Button type="button" icon="pi pi-plus" class="p-button-success" style="margin-right: 0.5em" @click="addLogic(node)"></Button>
+              <Button type="button" icon="pi pi-times" class="p-button-danger" @click="removeLogic(node)"></Button>
             </template>
           </Column>
         </TreeTable>
@@ -226,6 +226,41 @@ watch(
   }
 );
 
+function addLogic(node: any) {
+  console.log(node);
+}
+
+function removeLogic(node: any) {
+  console.log(node);
+  const foundNode = findNode(node.key, treeTableItems.value[0]);
+  console.log(node.key, foundNode.key);
+}
+
+function findNode(key: string, currentNode: any): any {
+  let i, currentChild, result;
+
+  if (key == currentNode.key) {
+    return currentNode;
+  } else {
+    // Use a for loop instead of forEach to avoid nested functions
+    // Otherwise "return" will not work properly
+    for (i = 0; i < currentNode.children.length; i += 1) {
+      currentChild = currentNode.children[i];
+
+      // Search in the current child
+      result = findNode(key, currentChild);
+
+      // Return the result if the node has been found
+      if (result !== false) {
+        return result;
+      }
+    }
+
+    // The node has not been found and we have no more options
+    return false;
+  }
+}
+
 async function init() {
   getTreeTableItems();
   dataModelOptions.value = await getDataModelTree();
@@ -264,7 +299,7 @@ async function getDataModelTree() {
 async function getTreeTableItems() {
   const itemData = { operator: "and", dataModel: { "@id": "http://endhealth.info/im#Observation" }, property: {}, value: {} } as TreeTableItemData;
   const newItem = {
-    key: String(Date.now()),
+    key: String(Math.floor(Math.random() * 1000000)),
     data: itemData,
     children: [{ key: String(Date.now()), data: { ...itemData }, children: [] as TreeTableItem[] }] as TreeTableItem[]
   } as TreeTableItem;
