@@ -9,7 +9,7 @@ import bodyParser from "body-parser";
 import * as dns from "dns";
 import SearchController from "./controllers/searchController";
 
-dotenv.config({ path: "./src/.env" });
+dotenv.config();
 
 dns.setDefaultResultOrder("ipv4first");
 
