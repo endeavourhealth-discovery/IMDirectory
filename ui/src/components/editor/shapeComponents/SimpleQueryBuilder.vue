@@ -18,7 +18,33 @@
                 v-model="node.data.dataModelDisplay"
                 :options="dataModelOptions"
                 placeholder="Select Item"
-                @node-select="onDataModelSelect($event, node.data)"
+                :lazy="true"
+                @node-select="onDataModelSelect($event as TreeSelectOption, node.data)"
+                @node-expand="onDatamodelExpand($event as TreeSelectOption)"
+              >
+                <template #value="{ value, placeholder }">
+                  <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
+                    <span :style="value[0]?.styleClass">
+                      <i :class="value[0]?.icon" class="fa-fw"></i>
+                    </span>
+                    {{ value[0]?.label }}
+                  </div>
+                  <div v-else>
+                    {{ placeholder }}
+                  </div>
+                </template>
+              </TreeSelect>
+            </template>
+          </Column>
+          <Column field="property" header="Property">
+            <template #body="{ node }">
+              <TreeSelect
+                v-model="node.data.propertyDisplay"
+                :options="propertyOptions"
+                placeholder="Select Item"
+                :lazy="true"
+                @node-select="onPropertySelect($event as TreeSelectOption, node.data)"
+                @node-expand="onPropertyExpand($event as TreeSelectOption)"
               >
                 <template #value="{ value, placeholder }">
                   <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
@@ -117,7 +143,7 @@
         <MultiSelect
           class="multi-select"
           v-model="selectSelectedProperties"
-          :options="properties"
+          :options="fromProperties"
           optionLabel="label"
           placeholder="Select output properties"
           display="chip"
@@ -139,7 +165,7 @@
 <script setup lang="ts">
 import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinition/EntityAutocomplete.vue";
 import { EntityService } from "@/services";
-import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import { setupEntity } from "@/views/EditorMethods";
@@ -149,9 +175,11 @@ import { computed, ComputedRef } from "@vue/reactivity";
 import _ from "lodash";
 import { TreeNode } from "primevue/tree";
 import { getColourFromType, getFAIconFromType, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
+import { TTAlias, TTIriRef } from "@im-library/interfaces";
 
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
 const dataModelOptions: Ref<TreeSelectOption[]> = ref([]);
+const propertyOptions: Ref<TreeSelectOption[]> = ref([]);
 const expandedKeys: Ref<any> = ref({});
 
 const store = useStore();
@@ -159,7 +187,7 @@ const suggestionInfo: ComputedRef<SuggestionInfo> = computed(() => store.state.s
 const logicOptions = ["and", "not", "or", "-"];
 
 const selectedFrom: Ref<TTAlias> = ref({} as TTAlias);
-const properties: Ref<UIProperty[]> = ref([]);
+const fromProperties: Ref<UIProperty[]> = ref([]);
 const whereSelectedProperties: Ref = ref();
 const selectSelectedProperties: Ref = ref();
 const showTestQueryResults: Ref<boolean> = ref(false);
@@ -169,7 +197,7 @@ onMounted(async () => await init());
 
 watch(
   () => selectedFrom.value["@id"],
-  async () => await getProperties()
+  async () => await getFromProperties(selectedFrom.value["@id"])
 );
 
 watch(
@@ -230,29 +258,28 @@ function findNode(key: string, currentNode: any): TreeTableItem | boolean {
 
 async function init() {
   initTreeTableItems();
-  dataModelOptions.value = await getDataModelTree();
+  dataModelOptions.value = await getDataModelTree("http://endhealth.info/im#HealthRecordEntry");
   const mainRecords = await getFromSuggestions();
   selectedFrom.value["@id"] = mainRecords[3]["@id"];
   selectedFrom.value.name = mainRecords[3].name;
 }
 
-function onDataModelSelect(selected: any, tableItem: TreeTableItemData) {
-  tableItem.dataModel["@id"] = selected.key;
-  tableItem.dataModel.name = selected.label;
+async function onDataModelSelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
+  tableItem.dataModel["@id"] = selected.key!;
+  tableItem.dataModel.name = selected.label!;
+
+  propertyOptions.value = await getPropertySelectionTree(selected.key!);
 }
 
-async function getDataModelTree() {
-  const children = await EntityService.getEntityChildren("http://endhealth.info/im#HealthRecordEntry");
+function onPropertySelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
+  tableItem.property["@id"] = selected.key!;
+  tableItem.property.name = selected.label!;
+}
+
+async function getDataModelTree(iri: string) {
+  const children = await EntityService.getEntityChildren(iri);
   return children.map(child => {
-    const option = {
-      key: child["@id"],
-      label: child.name,
-      icon: getFAIconFromType(child.type).join(" "),
-      styleClass: "color:" + getColourFromType(child.type),
-      data: { "@id": child["@id"], name: child.name, type: child.type }
-    } as TreeSelectOption;
-    console.log(child.hasChildren);
-    if (child.hasChildren) option.children = [];
+    const option = createTreeSelectOption(child["@id"], child.name, child.type, child.hasChildren);
     return option;
   });
 }
@@ -264,27 +291,25 @@ async function initTreeTableItems() {
 }
 
 function updatePropertyValue(propertyId: string, propertyValue: DisplayTTIriRef[]) {
-  const foundProperty = properties.value.find(property => property.label === propertyId);
+  const foundProperty = fromProperties.value.find(property => property.label === propertyId);
   if (foundProperty) {
     foundProperty.value = propertyValue;
   }
 }
 
-function onRowReorder(event: any) {
-  properties.value = event.value;
-}
-
-async function getProperties() {
-  properties.value = [];
-  const bundle = await EntityService.getPartialEntityBundle(selectedFrom.value["@id"], [SHACL.PROPERTY]);
+async function getFromProperties(iri: string): Promise<UIProperty[]> {
+  const properties = [];
+  const bundle = await EntityService.getPartialEntityBundle(iri, [SHACL.PROPERTY]);
   for (const ttProperty of bundle.entity[SHACL.PROPERTY]) {
-    properties.value.push(await buildUIProperty(ttProperty));
+    properties.push(await buildUIProperty(ttProperty));
   }
+  return properties;
 }
 
 async function buildUIProperty(ttProperty: TTProperty): Promise<UIProperty> {
   const label = ttProperty["http://www.w3.org/ns/shacl#path"][0].name || ttProperty["http://www.w3.org/ns/shacl#path"][0]["@id"];
   const description = await getPropertyDescription(ttProperty["http://www.w3.org/ns/shacl#path"][0]["@id"]);
+
   if (isObjectHasKeys(ttProperty, [SHACL.CLASS]))
     return {
       label: label,
@@ -344,7 +369,7 @@ async function getFromSuggestions(term?: string): Promise<TTIriRef[]> {
   let mainRecords = await EntityService.getEntityChildren("http://endhealth.info/im#MainRecordType");
   if (term) mainRecords = mainRecords.filter(record => record.name.toUpperCase().includes(term.toUpperCase()));
   return mainRecords.map(filt => {
-    return { "@id": filt["@id"], name: filt.name };
+    return { "@id": filt["@id"], name: filt.name } as TTIriRef;
   });
 }
 
@@ -355,6 +380,66 @@ function onRowSelect(row: any) {
     suggestionIri: uiProperty.valueType["@id"],
     propertyValue: uiProperty.value
   } as SuggestionInfo);
+}
+
+async function createTreeSelectOptionDataFromTTProperty(ttProperty: TTProperty): Promise<TreeSelectOptionData> {
+  const data = {
+    "@id": ttProperty["http://www.w3.org/ns/shacl#path"][0]["@id"],
+    name: ttProperty["http://www.w3.org/ns/shacl#path"][0].name || ttProperty["http://www.w3.org/ns/shacl#path"][0]["@id"],
+    description: await getPropertyDescription(ttProperty["http://www.w3.org/ns/shacl#path"][0]["@id"])
+  } as TreeSelectOptionData;
+
+  if (isObjectHasKeys(ttProperty, [SHACL.CLASS])) {
+    data.componentType = "class";
+    data.valueType = ttProperty["http://www.w3.org/ns/shacl#class"][0];
+  } else if (isObjectHasKeys(ttProperty, [SHACL.NODE])) {
+    data.componentType = "node";
+    data.valueType = ttProperty["http://www.w3.org/ns/shacl#node"][0];
+  } else if (isObjectHasKeys(ttProperty, [SHACL.DATATYPE])) {
+    data.componentType = "datatype";
+    data.valueType = ttProperty["http://www.w3.org/ns/shacl#datatype"][0];
+  }
+
+  return data;
+}
+
+function createTreeSelectOptionData(iri: string, name: string, type: TTIriRef[]): TreeSelectOptionData {
+  return { "@id": iri, name: name, type: type } as TreeSelectOptionData;
+}
+
+function createTreeSelectOption(iri: string, name: string, type: TTIriRef[], hasChildren: boolean, optionData?: TreeSelectOptionData): TreeSelectOption {
+  const data = optionData || createTreeSelectOptionData(iri, name, type);
+  const option = {
+    key: iri,
+    label: name,
+    icon: getFAIconFromType(type).join(" "),
+    styleClass: "color:" + getColourFromType(type),
+    data: data,
+    leaf: !hasChildren
+  } as TreeSelectOption;
+  return option;
+}
+
+async function getPropertySelectionTree(iri: string): Promise<TreeSelectOption[]> {
+  const options = [] as TreeSelectOption[];
+
+  const bundle = await EntityService.getPartialEntityBundle(iri, [SHACL.PROPERTY]);
+  for (const ttProperty of bundle.entity[SHACL.PROPERTY]) {
+    const type = [{ "@id": RDF.PROPERTY }] as TTIriRef[];
+    const data = await createTreeSelectOptionDataFromTTProperty(ttProperty);
+    const option = createTreeSelectOption(data["@id"], data.name, type, data.componentType === "node", data);
+    options.push(option);
+  }
+
+  return options;
+}
+
+async function onDatamodelExpand(option: TreeSelectOption) {
+  option.children = await getDataModelTree(option.key!);
+}
+
+async function onPropertyExpand(option: TreeSelectOption) {
+  option.children = await getPropertySelectionTree(option.data.valueType["@id"]);
 }
 </script>
 
@@ -368,23 +453,6 @@ export interface SuggestionInfo {
 
 export interface DisplayTTIriRef extends TTIriRef {
   types: TTIriRef[];
-}
-
-export interface TTIriRef {
-  "@id": string;
-  name: string;
-}
-
-interface TTAlias extends TTIriRef {
-  alias: string;
-  inverse: boolean;
-  variable: string;
-  includeSupertypes: boolean;
-  includeSubtypes: boolean;
-  includeMembers: boolean;
-  excludeSelf: boolean;
-  isType: boolean;
-  isSet: boolean;
 }
 
 interface TTProperty {
@@ -431,6 +499,8 @@ interface TreeSelectOption extends TreeNode {
 
 interface TreeSelectOptionData extends TTIriRef {
   type: TTIriRef[];
+  componentType: string;
+  valueType: TTIriRef;
 }
 </script>
 
