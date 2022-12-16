@@ -517,6 +517,14 @@ const EntityService = {
     } catch (error) {
       return [] as any[];
     }
+  },
+
+  async getHasChildren(iri: string): Promise<boolean> {
+    try {
+      return await axios.get(Env.API + "api/entity/public/hasChildren", { params: { iri: iri } });
+    } catch (error) {
+      return false;
+    }
   }
 };
 

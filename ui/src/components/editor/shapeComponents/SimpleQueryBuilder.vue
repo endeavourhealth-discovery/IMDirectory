@@ -60,12 +60,20 @@
               </TreeSelect>
             </template>
           </Column>
-          <!-- <Column field="property" header="Property">
+
+          <Column field="value" header="Value">
             <template #body="{ node }">
-              <TreeSelect v-model="selectedDataModel" :options="dataModelOptions" placeholder="Select Item" @node-select="onDataModelSelect($event, node)">
+              <TreeSelect
+                v-model="node.data.valueDisplay"
+                :options="valueOptions"
+                placeholder="Select Item"
+                :lazy="true"
+                @node-select="onValueSelect($event as TreeSelectOption, node.data)"
+                @node-expand="onValueExpand($event as TreeSelectOption)"
+              >
                 <template #value="{ value, placeholder }">
                   <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
-                    <span :style="value[0]?.style">
+                    <span :style="value[0]?.styleClass">
                       <i :class="value[0]?.icon" class="fa-fw"></i>
                     </span>
                     {{ value[0]?.label }}
@@ -76,8 +84,9 @@
                 </template>
               </TreeSelect>
             </template>
-          </Column> -->
-          <Column field="type" header="Type">
+          </Column>
+
+          <!-- <Column field="type" header="Type">
             <template #body="slotProps">
               {{ slotProps.node.data }}
             </template>
@@ -87,7 +96,8 @@
             <template #body="slotProps">
               {{ slotProps.node }}
             </template>
-          </Column>
+          </Column> -->
+
           <Column headerStyle="width: 10rem" headerClass="text-center" bodyClass="text-center">
             <template #body="{ node }">
               <Button type="button" icon="pi pi-plus" class="p-button-success" style="margin-right: 0.5em" @click="addLogic(node)"></Button>
@@ -95,49 +105,6 @@
             </template>
           </Column>
         </TreeTable>
-
-        <!-- <DataTable
-          :value="properties"
-          responsiveLayout="scroll"
-          class="p-datatable-sm"
-          selectionMode="single"
-          v-model:selection="whereSelectedProperties"
-          @row-reorder="onRowReorder"
-          @row-select="onRowSelect"
-          sortMode="single"
-          sortField="logic"
-          :sortOrder="1"
-        >
-          <Column :rowReorder="true" headerStyle="width: 3rem" :reorderableColumn="false" />
-          <Column field="logic" header="Logic">
-            <template #body="{ data }">
-              <Dropdown v-model="data.logic" :options="logicOptions" />
-            </template>
-          </Column>
-          <Column field="propertyName" header="Property">
-            <template #body="{ data }">
-              <div v-tooltip.top="data.tooltip">{{ data.label }}</div>
-            </template>
-          </Column>
-          <Column field="propertyValue" header="Value">
-            <template #body="{ data }">
-              <div v-if="data.componentType === 'datatype'">
-                <InputNumber v-if="data.valueType.name === 'integer'" v-model="data.value" />
-                <InputText v-if="data.valueType.name === 'string'" v-model="data.value" />
-                <Calendar v-if="data.valueType.name === 'Date time'" v-model="data.value" autocomplete="off" dateFormat="mm-dd-yy" />
-              </div>
-              <div v-else>
-                <Chip v-for="value of data.value" :label="value.name" />
-              </div>
-            </template>
-          </Column>
-          <Column field="propertyDescription" header="Description" style="width: 50%">
-            <template #body="{ data }">
-              <div v-if="data.description">{{ data.description }}</div>
-              <div v-else>No description</div>
-            </template>
-          </Column>
-        </DataTable> -->
       </TabPanel>
       <TabPanel header="Select">
         <MultiSelect
@@ -164,7 +131,7 @@
 
 <script setup lang="ts">
 import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinition/EntityAutocomplete.vue";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
@@ -174,12 +141,15 @@ import { onMounted, PropType, Ref, ref, watch } from "vue";
 import { computed, ComputedRef } from "@vue/reactivity";
 import _ from "lodash";
 import { TreeNode } from "primevue/tree";
-import { getColourFromType, getFAIconFromType, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
-import { TTAlias, TTIriRef } from "@im-library/interfaces";
+import { getColourFromType, getFAIconFromType, isConcept, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { Query, QueryRequest, TTAlias, TTIriRef } from "@im-library/interfaces";
+import { byKey } from "@im-library/helpers/Sorters";
 
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
 const dataModelOptions: Ref<TreeSelectOption[]> = ref([]);
 const propertyOptions: Ref<TreeSelectOption[]> = ref([]);
+const valueOptions: Ref<TreeSelectOption[]> = ref([]);
+
 const expandedKeys: Ref<any> = ref({});
 
 const store = useStore();
@@ -188,7 +158,6 @@ const logicOptions = ["and", "not", "or", "-"];
 
 const selectedFrom: Ref<TTAlias> = ref({} as TTAlias);
 const fromProperties: Ref<UIProperty[]> = ref([]);
-const whereSelectedProperties: Ref = ref();
 const selectSelectedProperties: Ref = ref();
 const showTestQueryResults: Ref<boolean> = ref(false);
 const { editorEntity } = setupEntity();
@@ -271,17 +240,16 @@ async function onDataModelSelect(selected: TreeSelectOption, tableItem: TreeTabl
   propertyOptions.value = await getPropertySelectionTree(selected.key!);
 }
 
-function onPropertySelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
+async function onPropertySelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
   tableItem.property["@id"] = selected.key!;
   tableItem.property.name = selected.label!;
+
+  valueOptions.value = await getValueSelectionTree(selected);
 }
 
-async function getDataModelTree(iri: string) {
-  const children = await EntityService.getEntityChildren(iri);
-  return children.map(child => {
-    const option = createTreeSelectOption(child["@id"], child.name, child.type, child.hasChildren);
-    return option;
-  });
+function onValueSelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
+  tableItem.value["@id"] = selected.key!;
+  tableItem.value.name = selected.label!;
 }
 
 async function initTreeTableItems() {
@@ -373,14 +341,14 @@ async function getFromSuggestions(term?: string): Promise<TTIriRef[]> {
   });
 }
 
-function onRowSelect(row: any) {
-  const uiProperty = row.data as UIProperty;
-  store.commit("updateSuggestionInfo", {
-    propertyId: uiProperty.label,
-    suggestionIri: uiProperty.valueType["@id"],
-    propertyValue: uiProperty.value
-  } as SuggestionInfo);
-}
+// function onRowSelect(row: any) {
+//   const uiProperty = row.data as UIProperty;
+//   store.commit("updateSuggestionInfo", {
+//     propertyId: uiProperty.label,
+//     suggestionIri: uiProperty.valueType["@id"],
+//     propertyValue: uiProperty.value
+//   } as SuggestionInfo);
+// }
 
 async function createTreeSelectOptionDataFromTTProperty(ttProperty: TTProperty): Promise<TreeSelectOptionData> {
   const data = {
@@ -415,9 +383,45 @@ function createTreeSelectOption(iri: string, name: string, type: TTIriRef[], has
     icon: getFAIconFromType(type).join(" "),
     styleClass: "color:" + getColourFromType(type),
     data: data,
-    leaf: !hasChildren
+    leaf: !hasChildren,
+    selectable: data.componentType !== "node"
   } as TreeSelectOption;
   return option;
+}
+
+async function getDataModelTree(iri: string) {
+  return await getChildrenSelectionTree(iri);
+}
+
+async function getChildrenSelectionTree(iri: string) {
+  const children = await EntityService.getEntityChildren(iri);
+  return children.map(child => {
+    const option = createTreeSelectOption(child["@id"], child.name, child.type, child.hasChildren);
+    return option;
+  });
+}
+
+async function getValueSelectionTree(option: TreeSelectOption) {
+  const iri = option.data.valueType["@id"];
+  let options = [] as TreeSelectOption[];
+  const typeEntity = await EntityService.getPartialEntity(iri, []);
+  if (isValueSet(typeEntity[RDF.TYPE])) {
+    const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
+    if (isObjectHasKeys(definitionEntity, [IM.DEFINITION])) {
+      options = await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]));
+    }
+  } else if (isQuery(typeEntity[RDF.TYPE])) {
+    const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
+    if (isObjectHasKeys(definitionEntity, [IM.DEFINITION])) {
+      options = await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]));
+    }
+  } else if (isConcept(typeEntity[RDF.TYPE])) {
+    options = await getChildrenSelectionTree(iri);
+  } else if (isRecordModel(typeEntity[RDF.TYPE])) {
+    console.log("record model");
+  }
+  options.sort(byKey);
+  return options;
 }
 
 async function getPropertySelectionTree(iri: string): Promise<TreeSelectOption[]> {
@@ -440,6 +444,37 @@ async function onDatamodelExpand(option: TreeSelectOption) {
 
 async function onPropertyExpand(option: TreeSelectOption) {
   option.children = await getPropertySelectionTree(option.data.valueType["@id"]);
+}
+
+async function onValueExpand(option: TreeSelectOption) {
+  option.children = await getChildrenSelectionTree(option.key!);
+}
+
+async function getNodesFromQuery(query: Query): Promise<TreeSelectOption[]> {
+  const options = [] as TreeSelectOption[];
+  const selectedProperties = [RDFS.LABEL, RDF.TYPE, IM.HAS_CHILDREN];
+  const querySelect: any = [];
+  for (const selectedProperty of selectedProperties) {
+    querySelect.push({ property: { "@id": selectedProperty } });
+  }
+  query.select = querySelect;
+  const queryRequest: QueryRequest = { query: query } as QueryRequest;
+  if (suggestionInfo.value.searchTerm) queryRequest.textSearch = suggestionInfo.value.searchTerm;
+
+  let result = await QueryService.queryIM(queryRequest);
+
+  if (!isArrayHasLength(result.entities)) {
+    delete (queryRequest as any).textSearch;
+    result = await QueryService.queryIM(queryRequest);
+  }
+
+  for (const entity of result.entities) {
+    const hasChildren = await EntityService.getHasChildren(entity["@id"]);
+    const option = createTreeSelectOption(entity["@id"], entity[RDFS.LABEL], entity[RDF.TYPE], hasChildren);
+    options.push(option);
+  }
+
+  return options;
 }
 </script>
 
