@@ -450,6 +450,20 @@ async function onValueExpand(option: TreeSelectOption) {
   option.children = await getChildrenSelectionTree(option.key!);
 }
 
+async function getNodesFromSet(query: Query): Promise<TreeSelectOption[]> {
+  const options = [] as TreeSelectOption[];
+
+  if (isObjectHasKeys(query, ["where"]) && isArrayHasLength(query.where.from)) {
+    for (const from of query.where.from) {
+      const hasChildren = await EntityService.getHasChildren(from["@id"]);
+      const type = (await EntityService.getPartialEntity(from["@id"], [RDF.TYPE]))[RDF.TYPE];
+      const option = createTreeSelectOption(from["@id"], from.name, type, hasChildren);
+      options.push();
+    }
+  }
+  return options;
+}
+
 async function getNodesFromQuery(query: Query): Promise<TreeSelectOption[]> {
   const options = [] as TreeSelectOption[];
   const selectedProperties = [RDFS.LABEL, RDF.TYPE, IM.HAS_CHILDREN];
