@@ -7,5 +7,19 @@ import { QueryComponentType } from "./QueryComponentType";
 import { SortBy } from "./SortBy";
 import { SortDirection } from "./SortDirection";
 import { QueryDisplayType } from "./QueryBuilder";
+import { ToastSeverity } from "./ToastSeverity";
+import { TagSeverity } from "./TagSeverity";
 
-export { BuilderType, ComponentType, ECLComponent, EditorMode, PasswordStrength, QueryComponentType, SortBy, SortDirection, QueryDisplayType };
+export {
+  BuilderType,
+  ComponentType,
+  ECLComponent,
+  EditorMode,
+  PasswordStrength,
+  QueryComponentType,
+  SortBy,
+  SortDirection,
+  QueryDisplayType,
+  ToastSeverity,
+  TagSeverity
+};
