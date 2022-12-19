@@ -54,7 +54,7 @@
 <script lang="ts">
 import TypeSelector from "@/components/creator/TypeSelector.vue";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
-import {defineComponent} from "vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { StepsGroup, TypeSelector }
@@ -89,10 +89,6 @@ const router = useRouter();
 const route = useRoute();
 const confirm = useConfirm();
 const store = useStore();
-
-onBeforeUnmount(() => {
-  confirmLeavePage();
-});
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -210,24 +206,6 @@ function removeEroneousKeys() {
   }
 }
 
-function confirmLeavePage() {
-  if (checkForChanges()) {
-    confirm.require({
-      message: "All unsaved changes will be lost. Are you sure you want to proceed?",
-      header: "Confirmation",
-      icon: "pi pi-exclamation-triangle",
-      accept: () => {
-        return true;
-      },
-      reject: () => {
-        return false;
-      }
-    });
-  } else {
-    return true;
-  }
-}
-
 function beforeWindowUnload(e: any) {
   if (checkForChanges()) {
     e.preventDefault();
@@ -262,9 +240,11 @@ function deleteEntityKey(data: string) {
 }
 
 function checkForChanges() {
-  if (JSON.stringify(editorEntity.value) === JSON.stringify(editorEntityOriginal.value)) {
+  if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
+    store.commit("updateEditorHasChanges", false);
     return false;
   } else {
+    store.commit("updateEditorHasChanges", true);
     return true;
   }
 }
@@ -359,8 +339,6 @@ function stepsForward() {
   currentStep.value++;
   if (currentStep.value < stepsItems.value.length) router.push(stepsItems.value[currentStep.value].to);
 }
-
-defineExpose({ confirmLeavePage });
 </script>
 
 <style scoped>
