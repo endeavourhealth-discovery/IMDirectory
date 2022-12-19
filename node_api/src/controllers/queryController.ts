@@ -1,6 +1,7 @@
-import { buildQueryDisplayFromQuery, getQueryDefinitionDisplayByIri } from "@/builders/query/displayBuilder";
-import { buildQueryObjectFromQuery, getQueryObjectByIri } from "@/builders/query/objectBuilder";
+import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
+import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
 import QueryRunner from "@/logic/queryRunner";
+import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
@@ -10,11 +11,13 @@ export default class QueryController {
   public router = express.Router();
   private runner: QueryRunner;
   private queryService: QueryService;
+  private entityService: EntityService;
 
   constructor() {
     this.initRoutes();
     this.runner = new QueryRunner();
     this.queryService = new QueryService(axios);
+    this.entityService = new EntityService(axios);
   }
 
   private initRoutes() {
@@ -66,7 +69,7 @@ export default class QueryController {
 
   async getQueryObjectByIri(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await getQueryObjectByIri(req.query.iri as string);
+      const data = await this.entityService.getQueryObjectByIri(req.query.iri as string);
       res.send(data).end();
     } catch (e) {
       next(e);
@@ -75,7 +78,7 @@ export default class QueryController {
 
   async getQueryDefinitionDisplay(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await getQueryDefinitionDisplayByIri(req.query.iri as string);
+      const data = await this.entityService.getQueryDefinitionDisplayByIri(req.query.iri as string);
       res.send(data).end();
     } catch (error) {
       next(error);
