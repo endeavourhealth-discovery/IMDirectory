@@ -214,7 +214,7 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach(async (to, _from) => {
+router.beforeEach(async (to, from) => {
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
   if (to.path !== "/snomedLicense") {
     store.commit("updateSnomedReturnUrl", currentUrl);
@@ -272,6 +272,22 @@ router.beforeEach(async (to, _from) => {
       }
     } catch (_error) {
       router.push({ name: "EntityNotFound" });
+    }
+  }
+
+  if (from.path.startsWith("/creator/") && !to.path.startsWith("/creator/")) {
+    if (store.state.creatorHasChanges) {
+      if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
+        return false;
+      }
+    }
+  }
+
+  if (from.path.startsWith("/editor/") && !to.path.startsWith("/editor/")) {
+    if (store.state.editorHasChanges) {
+      if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
+        return false;
+      }
     }
   }
 });

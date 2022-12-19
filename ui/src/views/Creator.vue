@@ -89,10 +89,6 @@ const confirm = useConfirm();
 
 const creatorSavedEntity = computed(() => store.state.creatorSavedEntity);
 
-onBeforeUnmount(() => {
-  confirmLeavePage();
-});
-
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
@@ -267,24 +263,6 @@ async function updateType(types: TTIriRef[]) {
   if (currentStep.value === 0) stepsForward();
 }
 
-function confirmLeavePage() {
-  if (checkForChanges()) {
-    confirm.require({
-      message: "All unsaved changes will be lost. Are you sure you want to proceed?",
-      header: "Confirmation",
-      icon: "pi pi-exclamation-triangle",
-      accept: () => {
-        return true;
-      },
-      reject: () => {
-        return false;
-      }
-    });
-  } else {
-    return true;
-  }
-}
-
 function beforeWindowUnload(e: any) {
   if (checkForChanges()) {
     e.preventDefault();
@@ -333,9 +311,11 @@ function fileChanges(entity: any) {
 }
 
 function checkForChanges() {
-  if (JSON.stringify(editorEntity.value) === JSON.stringify(editorEntityOriginal.value)) {
+  if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
+    store.commit("updateCreatorHasChanges", false);
     return false;
   } else {
+    store.commit("updateCreatorHasChanges", true);
     return true;
   }
 }
@@ -430,8 +410,6 @@ function stepsForward() {
   currentStep.value++;
   if (currentStep.value < stepsItems.value.length) router.push(stepsItems.value[currentStep.value].to);
 }
-
-defineExpose({ confirmLeavePage });
 </script>
 
 <style scoped>

@@ -55,6 +55,8 @@ export default createStore({
     editorIri: localStorage.getItem("editorSelectedIri") as string,
     editorSavedEntity: JSON.parse(localStorage.getItem("editorSavedEntity") || "{}") as any,
     creatorSavedEntity: JSON.parse(localStorage.getItem("creatorSavedEntity") || "{}") as any,
+    creatorHasChanges: false as boolean,
+    editorHasChanges: false as boolean,
     findInEditorTreeIri: "",
     refreshEditorTree: false as boolean
   },
@@ -178,6 +180,12 @@ export default createStore({
       state.creatorSavedEntity = entity;
       if (entity) localStorage.setItem("creatorSavedEntity", JSON.stringify(entity));
       else localStorage.removeItem("creatorSavedEntity");
+    },
+    updateCreatorHasChanges(state, bool) {
+      state.creatorHasChanges = bool;
+    },
+    updateEditorHasChanges(state, bool) {
+      state.editorHasChanges = bool;
     },
     updateFindInEditorTreeIri(state, iri) {
       state.findInEditorTreeIri = iri;
