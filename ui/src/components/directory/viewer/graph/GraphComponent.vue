@@ -27,12 +27,14 @@ import _ from "lodash";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
 import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
-import { DirectService, EntityService, LoggerService } from "@/services";
+import { DirectService, EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import axios from "axios";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -337,7 +339,7 @@ async function dblclick(d: any) {
         redrawGraph();
       }
     } else {
-      toast.add(LoggerService.warn("Node can not be expanded."));
+      toast.add(new ToastOptions(ToastSeverity.warn, "Node cannot be expanded"));
     }
   }
 }

@@ -17,7 +17,9 @@
 <script setup lang="ts">
 import { onMounted, PropType, nextTick, onUnmounted } from "vue";
 import ResizeablePieChart from "./pieChartDashCard/ResizeablePieChart.vue";
-import { LoggerService } from "@/services";
+import { getLogger } from "@im-library/logger/LogConfig";
+
+const log = getLogger("components.PieChartDashCam");
 
 const props = defineProps({
   name: { type: String, required: false },
@@ -44,7 +46,7 @@ function setChartSize(): void {
   const reportTable = document.getElementsByClassName("report-table")[0] as HTMLElement;
   const container = document.getElementById(props.id) as HTMLElement;
   if (!container) {
-    LoggerService.error(undefined, `Failed to set chart size for element id: ${props.id}`);
+    log.error(() => `Failed to set chart size for element id: ${props.id}`);
     return;
   }
   const html = document.documentElement;

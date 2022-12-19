@@ -22,8 +22,9 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
-import { LoggerService } from "@/services";
 import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 
 const emit = defineEmits({
   updateECL: (_payload: string) => true
@@ -51,11 +52,11 @@ function copyToClipboard(): string {
 }
 
 function onCopy(): void {
-  toast.add(LoggerService.success("Value copied to clipboard") as any);
+  toast.add(new ToastOptions(ToastSeverity.success, "Value copied to clipboard"));
 }
 
 function onCopyError(): void {
-  toast.add(LoggerService.error("Failed to copy value to clipboard") as any);
+  toast.add(new ToastOptions(ToastSeverity.error, "Value copied to clipboard"));
 }
 </script>
 

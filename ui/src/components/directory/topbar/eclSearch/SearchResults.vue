@@ -114,11 +114,13 @@ import { PropType, ref, Ref, watch } from "vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
 import { DataTypeCheckers, ConceptTypeMethods, CopyConceptToClipboard } from "@im-library/helpers";
-import { DirectService, LoggerService } from "@/services";
+import { DirectService } from "@/services";
 import { TTIriRef, ConceptSummary, SearchResponse } from "@im-library/interfaces";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 const { isObjectHasKeys } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { copyConceptToClipboard, conceptObjectToCopyString } = CopyConceptToClipboard;
@@ -206,11 +208,11 @@ function getConceptTypes(concept: ConceptSummary): string {
 }
 
 function onCopy(): void {
-  toast.add(LoggerService.success("Value copied to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.success, "Value copied to clipboard"));
 }
 
 function onCopyError(): void {
-  toast.add(LoggerService.error("Failed to copy value to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.error, "Failed to copy value to clipboard"));
 }
 
 function onCopyRightClick(event: any) {
@@ -240,10 +242,10 @@ async function setCopyMenuItems(): Promise<void> {
         await navigator.clipboard
           .writeText(copyConceptToClipboard(hoveredResult.value, undefined, defaultPredicates, blockedIris))
           .then(() => {
-            toast.add(LoggerService.success("Concept copied to clipboard"));
+            toast.add(new ToastOptions(ToastSeverity.success, "Concept copied to clipboard"));
           })
           .catch(err => {
-            toast.add(LoggerService.error("Failed to copy concept to clipboard", err));
+            toast.add(new ToastOptions(ToastSeverity.error, "Failed to copy concept to clipboard", err));
           });
       }
     }
@@ -262,10 +264,10 @@ async function setCopyMenuItems(): Promise<void> {
         await navigator.clipboard
           .writeText(text)
           .then(() => {
-            toast.add(LoggerService.success(label + " copied to clipboard"));
+            toast.add(new ToastOptions(ToastSeverity.success, `${label} copied to clipboard`));
           })
           .catch(err => {
-            toast.add(LoggerService.error("Failed to copy " + label + " to clipboard", err));
+            toast.add(new ToastOptions(ToastSeverity.error, `Failed to copy ${label} to clipboard`, err));
           });
       }
     });

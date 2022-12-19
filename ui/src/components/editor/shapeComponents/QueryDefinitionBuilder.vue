@@ -27,10 +27,12 @@ import PropertyInput from "./queryDefinition/PropertyInput.vue";
 import _ from "lodash";
 import { Query } from "@im-library/models/AutoGen";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EntityService, QueryService, LoggerService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { ToastMessageOptions } from "primevue/toast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 
 const toast = useToast();
 
@@ -121,7 +123,7 @@ function deleteProperty(propertyKey: number) {
 
 async function handleClick() {
   await navigator.clipboard.writeText(JSON.stringify(imquery.value));
-  toast.add(LoggerService.success("Value copied to clipboard") as ToastMessageOptions);
+  toast.add(new ToastOptions(ToastSeverity.success, "Value copied to clipboard"));
 }
 
 async function testQuery() {
