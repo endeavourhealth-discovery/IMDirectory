@@ -2,17 +2,7 @@ import { QueryDisplay } from "@im-library/interfaces";
 import { QueryDisplayType } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS } from "@im-library/vocabulary";
-import axios from "axios";
-import EntityService from "@/services/entity.service";
 import * as crypto from "crypto";
-
-const entityService = new EntityService(axios);
-
-export async function getQueryDefinitionDisplayByIri(iri: string): Promise<QueryDisplay> {
-  const entity = (await entityService.getPartialEntity(iri, [IM.DEFINITION])).data;
-  if (!entity[IM.DEFINITION]) return {} as QueryDisplay;
-  return await buildQueryDisplayFromQuery(JSON.parse(entity[IM.DEFINITION]));
-}
 
 export async function buildQueryDisplayFromQuery(queryAPI: any) {
   const queryUI = {} as QueryDisplay;
@@ -181,12 +171,7 @@ async function getLabelForObject(object: any): Promise<string> {
   if (object.name) {
     return object.name;
   }
-  const entity = (await entityService.getPartialEntity(object["@id"], [RDFS.LABEL])).data;
-  if (!isObjectHasKeys(entity, [RDFS.LABEL])) {
-    return "no name";
-  }
-
-  return entity[RDFS.LABEL];
+  return "no name";
 }
 
 function getLabelFromKey(key: string): string {

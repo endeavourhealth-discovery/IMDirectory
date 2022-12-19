@@ -1,18 +1,5 @@
 import { QueryObject } from "@im-library/interfaces";
-import { QueryDisplayType } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDFS } from "@im-library/vocabulary";
-import axios from "axios";
-import EntityService from "@/services/entity.service";
 import * as crypto from "crypto";
-
-const entityService = new EntityService(axios);
-
-export async function getQueryObjectByIri(iri: string) {
-  const entity = (await entityService.getPartialEntity(iri, [IM.DEFINITION])).data;
-  if (!entity[IM.DEFINITION]) return {} as QueryObject;
-  return buildQueryObjectFromQuery(JSON.parse(entity[IM.DEFINITION]));
-}
 
 export function buildQueryObjectFromQuery(queryAPI: any) {
   const queryUI = {} as QueryObject;
