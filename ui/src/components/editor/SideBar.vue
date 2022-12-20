@@ -1,8 +1,12 @@
 <template>
   <div class="sidebar">
-    <TabView :lazy="true">
+    <SearchBar @open-search-panel="openSearchPanel" @search-loading="updateSearchLoading" @search-results="updateSearchResults" class="searchbar" />
+    <TabView :lazy="true" v-model:activeIndex="activeIndex">
       <TabPanel header="NavTree">
         <NavTree />
+      </TabPanel>
+      <TabPanel header="Search results">
+        <SearchResults :search-loading="searchLoading" :search-results="searchResults" @open-tree-panel="openTreePanel" />
       </TabPanel>
       <TabPanel header="JSON viewer">
         <VueJsonPretty class="json" :path="'res'" :data="editorEntity" @click="handleClick" />
@@ -12,13 +16,35 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
+import { PropType, ref, Ref } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import NavTree from "./sidebar/NavTree.vue";
+import SearchBar from "./sidebar/SearchBar.vue";
+import SearchResults from "./sidebar/SearchResults.vue";
 
 const props = defineProps({
   editorEntity: { type: Object as PropType<any>, required: true }
 });
+
+const searchResults: Ref<any[]> = ref([]);
+const searchLoading = ref(false);
+const activeIndex = ref(0);
+
+function openSearchPanel() {
+  activeIndex.value = 1;
+}
+
+function openTreePanel() {
+  activeIndex.value = 0;
+}
+
+function updateSearchLoading(data: boolean) {
+  searchLoading.value = data;
+}
+
+function updateSearchResults(data: any[]) {
+  searchResults.value = data;
+}
 
 function handleClick(data: any) {
   console.log("click");
@@ -27,8 +53,13 @@ function handleClick(data: any) {
 </script>
 
 <style scoped>
+.searchbar {
+  height: 3rem;
+}
 .sidebar {
   height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .p-tabview {
