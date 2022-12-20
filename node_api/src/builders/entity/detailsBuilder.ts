@@ -57,8 +57,8 @@ function addDefinition(treeNode: any, entity: any, predicates: any, key: string,
   const isQuery = types.some(type => type["@id"] === IM.QUERY);
   const definition = JSON.parse(entity[IM.DEFINITION]);
   const definitionValue = isQuery ? buildQueryObjectFromQuery(definition) : buildQueryDisplayFromQuery(definition);
-  // const definitionNode = { key: key, label: predicates[key] || key, children: definitionValue.children };
-  // treeNode.children.push(definitionNode);
+  const definitionNode = { key: key, label: predicates[key] || key, children: definitionValue.children };
+  treeNode.children.push(definitionNode);
 }
 
 function addParameter(treeNode: any, entity: any, predicates: any, key: string) {
