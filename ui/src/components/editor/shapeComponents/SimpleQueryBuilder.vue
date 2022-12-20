@@ -40,7 +40,7 @@
             <template #body="{ node }">
               <TreeSelect
                 v-model="node.data.propertyDisplay"
-                :options="propertyOptions"
+                :options="node.data.propertyOptions"
                 placeholder="Select Item"
                 :lazy="true"
                 @node-select="onPropertySelect($event as TreeSelectOption, node.data)"
@@ -65,7 +65,7 @@
             <template #body="{ node }">
               <TreeSelect
                 v-model="node.data.valueDisplay"
-                :options="valueOptions"
+                :options="node.data.valueOptions"
                 placeholder="Select Item"
                 :lazy="true"
                 @node-select="onValueSelect($event as TreeSelectOption, node.data)"
@@ -137,7 +137,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import { setupEntity } from "@/views/EditorMethods";
 import { useStore } from "vuex";
-import { onMounted, PropType, Ref, ref, watch } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import { computed, ComputedRef } from "@vue/reactivity";
 import _ from "lodash";
 import { TreeNode } from "primevue/tree";
@@ -147,8 +147,6 @@ import { byKey } from "@im-library/helpers/Sorters";
 
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
 const dataModelOptions: Ref<TreeSelectOption[]> = ref([]);
-const propertyOptions: Ref<TreeSelectOption[]> = ref([]);
-const valueOptions: Ref<TreeSelectOption[]> = ref([]);
 
 const expandedKeys: Ref<any> = ref({});
 
@@ -237,14 +235,14 @@ async function onDataModelSelect(selected: TreeSelectOption, tableItem: TreeTabl
   tableItem.dataModel["@id"] = selected.key!;
   tableItem.dataModel.name = selected.label!;
 
-  propertyOptions.value = await getPropertySelectionTree(selected.key!);
+  tableItem.propertyOptions = await getPropertySelectionTree(selected.key!);
 }
 
 async function onPropertySelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
   tableItem.property["@id"] = selected.key!;
   tableItem.property.name = selected.label!;
 
-  valueOptions.value = await getValueSelectionTree(selected);
+  tableItem.valueOptions = await getValueSelectionTree(selected);
 }
 
 function onValueSelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
@@ -541,8 +539,10 @@ interface TreeTableItemData {
   dataModel: TTIriRef;
   dataModelDisplay: any;
   property: TTIriRef;
+  propertyOptions: TreeSelectOption[];
   propertyDisplay: any;
   value: TTIriRef;
+  valueOptions: TreeSelectOption[];
   valueDisplay: any;
 }
 
