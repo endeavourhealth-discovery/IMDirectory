@@ -408,7 +408,9 @@ async function getValueSelectionTree(option: TreeSelectOption) {
   if (isValueSet(typeEntity[RDF.TYPE])) {
     const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
     if (isObjectHasKeys(definitionEntity, [IM.DEFINITION])) {
-      options = await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]));
+      options = isSimpleFromList(definitionEntity[IM.DEFINITION])
+        ? await getNodesFromSet(JSON.parse(definitionEntity[IM.DEFINITION]))
+        : await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]));
     }
   } else if (isQuery(typeEntity[RDF.TYPE])) {
     const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
@@ -458,10 +460,19 @@ async function getNodesFromSet(query: Query): Promise<TreeSelectOption[]> {
       const hasChildren = await EntityService.getHasChildren(from["@id"]);
       const type = (await EntityService.getPartialEntity(from["@id"], [RDF.TYPE]))[RDF.TYPE];
       const option = createTreeSelectOption(from["@id"], from.name, type, hasChildren);
-      options.push();
+      options.push(option);
     }
   }
   return options;
+}
+
+function isSimpleFromList(definition: Query) {
+  return (
+    isObjectHasKeys(definition, ["where"]) &&
+    isArrayHasLength(definition.where.from) &&
+    !isObjectHasKeys(definition.where, ["notExist"]) &&
+    !isObjectHasKeys(definition.where, ["and"])
+  );
 }
 
 async function getNodesFromQuery(query: Query): Promise<TreeSelectOption[]> {
