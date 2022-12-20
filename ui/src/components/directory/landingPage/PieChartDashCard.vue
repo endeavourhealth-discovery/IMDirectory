@@ -47,26 +47,26 @@ function setChartSize(): void {
   const container = document.getElementById(props.id) as HTMLElement;
   if (!container) {
     log.error(() => `Failed to set chart size for element id: ${props.id}`);
-    return;
-  }
-  const html = document.documentElement;
-  const currentFontSize = parseFloat(window.getComputedStyle(html, null).getPropertyValue("font-size"));
-  const title = container.getElementsByClassName("p-card-title")[0] as HTMLElement;
-  const subTitle = container.getElementsByClassName("p-card-subtitle")[0] as HTMLElement;
-  const content = container.getElementsByClassName("p-card-content")[0] as HTMLElement;
-  let height = reportTable?.getBoundingClientRect().height;
-  if (currentFontSize) {
-    height -= currentFontSize * 3;
-  }
-  if (title) {
-    height -= title.getBoundingClientRect().height;
-  }
-  if (subTitle) {
-    height -= subTitle.getBoundingClientRect().height;
-  }
-  if (content) {
-    content.style.height = height + "px";
-    content.style.maxHeight = height + "px";
+  } else {
+    const html = document.documentElement;
+    const currentFontSize = parseFloat(window.getComputedStyle(html, null).getPropertyValue("font-size"));
+    const title = container.getElementsByClassName("p-card-title")[0] as HTMLElement;
+    const subTitle = container.getElementsByClassName("p-card-subtitle")[0] as HTMLElement;
+    const content = container.getElementsByClassName("p-card-content")[0] as HTMLElement;
+    let height = reportTable?.getBoundingClientRect().height;
+    if (currentFontSize) {
+      height -= currentFontSize * 3;
+    }
+    if (title) {
+      height -= title.getBoundingClientRect().height;
+    }
+    if (subTitle) {
+      height -= subTitle.getBoundingClientRect().height;
+    }
+    if (content) {
+      content.style.height = height + "px";
+      content.style.maxHeight = height + "px";
+    }
   }
 }
 </script>
