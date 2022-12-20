@@ -57,21 +57,23 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import Logic from "./builder/Logic.vue";
+import RefinementGroup from "./builder/RefinementGroup.vue";
+import FocusConcept from "./builder/FocusConcept.vue";
 export default defineComponent({
   components: { Logic, RefinementGroup, FocusConcept }
 });
 </script>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, Ref, ref, watch } from "vue";
-import Logic from "./builder/Logic.vue";
-import RefinementGroup from "./builder/RefinementGroup.vue";
-import FocusConcept from "./builder/FocusConcept.vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import { ECLComponent } from "@im-library/enums";
 import { Sorters, EclSearchBuilderMethods } from "@im-library/helpers";
 import { LoggerService } from "@/services";
 import { ECLComponentDetails } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
+import _ from "lodash";
 const { byPosition } = Sorters;
 const { generateNewComponent, addItem, updateItem, updatePositions } = EclSearchBuilderMethods;
 
@@ -89,7 +91,7 @@ const toast = useToast();
 const queryString = ref("");
 const queryBuild: Ref<ECLComponentDetails[]> = ref([]);
 
-watch(queryBuild, () => {
+watch( () => _.cloneDeep(queryBuild.value), newValue => {
   queryBuild.value.sort(byPosition);
   generateQueryString();
 });
