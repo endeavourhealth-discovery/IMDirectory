@@ -4,10 +4,10 @@ import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers
 import { IM, RDFS } from "@im-library/vocabulary";
 import * as crypto from "crypto";
 
-export async function buildQueryDisplayFromQuery(queryAPI: any) {
+export function buildQueryDisplayFromQuery(queryAPI: any) {
   const queryUI = {} as QueryDisplay;
   queryUI.children = [] as QueryDisplay[];
-  await buildRecursively(queryAPI, queryUI);
+  buildRecursively(queryAPI, queryUI);
   return queryUI;
 }
 
@@ -22,22 +22,22 @@ export function buildQueryDisplay(label: string, type?: any, value?: any, select
   } as QueryDisplay;
 }
 
-async function buildRecursively(queryAPI: any, queryUI: QueryDisplay) {
+function buildRecursively(queryAPI: any, queryUI: QueryDisplay) {
   if (queryAPI !== null) {
     for (const key of Object.keys(queryAPI)) {
       if (isIncluded(key, queryAPI[key])) {
         if (isSimpleWhere(key, queryAPI[key])) {
-          await addSimpleWhere(queryAPI, key, queryUI);
+          addSimpleWhere(queryAPI, key, queryUI);
         } else if (isSimpleWhereList(key, queryAPI[key])) {
-          await addSimpleWhereList(queryAPI, key, queryUI);
+          addSimpleWhereList(queryAPI, key, queryUI);
         } else if ("from" === key) {
-          await addFrom(queryAPI, key, queryUI);
+          addFrom(queryAPI, key, queryUI);
         } else if (isPrimitiveType(queryAPI[key])) {
           addPrimitiveType(queryAPI, key, queryUI);
         } else if (isArrayHasLength(queryAPI[key])) {
-          await addArray(queryAPI, key, queryUI);
+          addArray(queryAPI, key, queryUI);
         } else if (isObject(queryAPI[key])) {
-          await addObject(queryAPI, key, queryUI);
+          addObject(queryAPI, key, queryUI);
         }
       }
     }
@@ -93,12 +93,12 @@ function isSimpleOr(key: string, object: any) {
   return false;
 }
 
-async function addSimpleOr(queryAPI: any, index: number, key: string, queryUI: QueryDisplay) {
+function addSimpleOr(queryAPI: any, index: number, key: string, queryUI: QueryDisplay) {
   const fromList: any[] = [];
   const element = { ...queryAPI[key][index] };
   if (isObjectHasKeys(element, ["from"])) {
     for (const from of element.from) {
-      from.label = await getLabelForObject(from);
+      from.label = getLabelForObject(from);
       fromList.push(from);
     }
   }
@@ -107,9 +107,9 @@ async function addSimpleOr(queryAPI: any, index: number, key: string, queryUI: Q
   delete queryAPI[key][index];
 }
 
-async function addFrom(queryAPI: any, key: string, queryUI: QueryDisplay) {
+function addFrom(queryAPI: any, key: string, queryUI: QueryDisplay) {
   for (const from of queryAPI[key]) {
-    const label = await getLabelForObject(from);
+    const label = getLabelForObject(from);
     const queryDisplay = buildQueryDisplay(label, QueryDisplayType.From, from);
     queryUI.children?.push(queryDisplay);
   }
@@ -122,38 +122,38 @@ function addPrimitiveType(queryAPI: any, key: string, queryUI: QueryDisplay) {
   queryUI.children?.push(queryDisplay);
 }
 
-async function addArray(queryAPI: any, key: string, queryUI: QueryDisplay) {
+function addArray(queryAPI: any, key: string, queryUI: QueryDisplay) {
   for (let index = 0; index < queryAPI[key].length; index++) {
     const element = queryAPI[key][index];
     if (isSimpleOr(key, element)) {
-      await addSimpleOr(queryAPI, index, key, queryUI);
+      addSimpleOr(queryAPI, index, key, queryUI);
     } else {
       const queryDisplay = buildQueryDisplay(key, getQueryDisplayType(element));
       queryUI.children?.push(queryDisplay);
-      await buildRecursively(element, queryDisplay);
+      buildRecursively(element, queryDisplay);
     }
   }
 }
 
-async function addObject(queryAPI: any, key: string, queryUI: QueryDisplay) {
+function addObject(queryAPI: any, key: string, queryUI: QueryDisplay) {
   const queryDisplay = buildQueryDisplay(key, getQueryDisplayType(queryAPI[key]));
-  await buildRecursively(queryAPI[key], queryDisplay);
+  buildRecursively(queryAPI[key], queryDisplay);
   queryUI.children?.push(queryDisplay);
 }
 
-async function addSimpleWhere(queryAPI: any, key: string, queryUI: QueryDisplay) {
+function addSimpleWhere(queryAPI: any, key: string, queryUI: QueryDisplay) {
   const where = buildQueryDisplay(key, QueryDisplayType.Default);
-  queryAPI[key].name = await getLabelForObject(queryAPI[key]);
+  queryAPI[key].name = getLabelForObject(queryAPI[key]);
   where.children?.push(buildQueryDisplay(key, QueryDisplayType.PropertyIs, { ...queryAPI[key] }));
   queryUI.children?.push(where);
   delete queryAPI[key];
 }
 
-async function addSimpleWhereList(queryAPI: any, key: string, queryUI: QueryDisplay) {
+function addSimpleWhereList(queryAPI: any, key: string, queryUI: QueryDisplay) {
   const where = buildQueryDisplay("with", QueryDisplayType.Default);
   for (const propertyIs of queryAPI[key]) {
-    propertyIs.property.name = await getLabelForObject(propertyIs.property);
-    propertyIs.is.name = await getLabelForObject(propertyIs.is);
+    propertyIs.property.name = getLabelForObject(propertyIs.property);
+    propertyIs.is.name = getLabelForObject(propertyIs.is);
     where.children?.push(buildQueryDisplay(key, QueryDisplayType.PropertyIs, { ...propertyIs }));
   }
   queryUI.children?.push(where);
@@ -167,7 +167,7 @@ function getQueryDisplayType(queryAPIObject: any) {
   return QueryDisplayType.Default;
 }
 
-async function getLabelForObject(object: any): Promise<string> {
+function getLabelForObject(object: any): string {
   if (object.name) {
     return object.name;
   }
