@@ -12,40 +12,21 @@
               <Dropdown v-model="node.data.operator" :options="logicOptions" />
             </template>
           </Column>
-          <Column field="dataModel" header="Data model">
-            <template #body="{ node }">
-              <TreeSelect
-                v-model="node.data.dataModelDisplay"
-                :options="dataModelOptions"
-                placeholder="Select Item"
-                :lazy="true"
-                @node-select="onDataModelSelect($event as TreeSelectOption, node.data)"
-                @node-expand="onDatamodelExpand($event as TreeSelectOption)"
-              >
-                <template #value="{ value, placeholder }">
-                  <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
-                    <span :style="value[0]?.styleClass">
-                      <i :class="value[0]?.icon" class="fa-fw"></i>
-                    </span>
-                    {{ value[0]?.label }}
-                  </div>
-                  <div v-else>
-                    {{ placeholder }}
-                  </div>
-                </template>
-              </TreeSelect>
-            </template>
-          </Column>
           <Column field="property" header="Property">
             <template #body="{ node }">
               <TreeSelect
                 v-model="node.data.propertyDisplay"
-                :options="node.data.propertyOptions"
+                :options="propertyOptions"
                 placeholder="Select Item"
                 :lazy="true"
                 @node-select="onPropertySelect($event as TreeSelectOption, node.data)"
                 @node-expand="onPropertyExpand($event as TreeSelectOption)"
               >
+                <template #header>
+                  <div class="search-term-input">
+                    <InputText type="text" v-model="propertySearchTerm" />
+                  </div>
+                </template>
                 <template #value="{ value, placeholder }">
                   <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
                     <span :style="value[0]?.styleClass">
@@ -146,8 +127,8 @@ import { Query, QueryRequest, TTAlias, TTIriRef } from "@im-library/interfaces";
 import { byKey } from "@im-library/helpers/Sorters";
 
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
-const dataModelOptions: Ref<TreeSelectOption[]> = ref([]);
-
+const propertyOptions: Ref<TreeSelectOption[]> = ref([]);
+const propertySearchTerm: Ref<string> = ref("");
 const expandedKeys: Ref<any> = ref({});
 
 const store = useStore();
@@ -164,7 +145,10 @@ onMounted(async () => await init());
 
 watch(
   () => selectedFrom.value["@id"],
-  async () => await getFromProperties(selectedFrom.value["@id"])
+  async () => {
+    fromProperties.value = await getFromProperties(selectedFrom.value["@id"]);
+    propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
+  }
 );
 
 watch(
@@ -182,8 +166,6 @@ function createTreeTableItem(operator: string, parent: string): TreeTableItem {
 function createTreeTableItemData(operator: string): TreeTableItemData {
   return {
     operator: operator,
-    dataModel: {} as TTIriRef,
-    dataModelDisplay: {},
     property: {} as TTIriRef,
     propertyDisplay: {},
     value: {} as TTIriRef,
@@ -224,18 +206,11 @@ function findNode(key: string, currentNode: any): TreeTableItem | boolean {
 }
 
 async function init() {
-  initTreeTableItems();
-  dataModelOptions.value = await getDataModelTree("http://endhealth.info/im#HealthRecordEntry");
   const mainRecords = await getFromSuggestions();
   selectedFrom.value["@id"] = mainRecords[3]["@id"];
   selectedFrom.value.name = mainRecords[3].name;
-}
-
-async function onDataModelSelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
-  tableItem.dataModel["@id"] = selected.key!;
-  tableItem.dataModel.name = selected.label!;
-
-  tableItem.propertyOptions = await getPropertySelectionTree(selected.key!);
+  propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
+  initTreeTableItems();
 }
 
 async function onPropertySelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
@@ -427,19 +402,17 @@ async function getValueSelectionTree(option: TreeSelectOption) {
 async function getPropertySelectionTree(iri: string): Promise<TreeSelectOption[]> {
   const options = [] as TreeSelectOption[];
 
-  const bundle = await EntityService.getPartialEntityBundle(iri, [SHACL.PROPERTY]);
-  for (const ttProperty of bundle.entity[SHACL.PROPERTY]) {
-    const type = [{ "@id": RDF.PROPERTY }] as TTIriRef[];
-    const data = await createTreeSelectOptionDataFromTTProperty(ttProperty);
-    const option = createTreeSelectOption(data["@id"], data.name, type, data.componentType === "node", data);
-    options.push(option);
+  if (iri) {
+    const bundle = await EntityService.getPartialEntityBundle(iri, [SHACL.PROPERTY]);
+    for (const ttProperty of bundle.entity[SHACL.PROPERTY]) {
+      const type = [{ "@id": RDF.PROPERTY }] as TTIriRef[];
+      const data = await createTreeSelectOptionDataFromTTProperty(ttProperty);
+      const option = createTreeSelectOption(data["@id"], data.name, type, data.componentType === "node", data);
+      options.push(option);
+    }
   }
 
   return options;
-}
-
-async function onDatamodelExpand(option: TreeSelectOption) {
-  option.children = await getDataModelTree(option.key!);
 }
 
 async function onPropertyExpand(option: TreeSelectOption) {
@@ -536,8 +509,6 @@ interface UIProperty {
 
 interface TreeTableItemData {
   operator: string;
-  dataModel: TTIriRef;
-  dataModelDisplay: any;
   property: TTIriRef;
   propertyOptions: TreeSelectOption[];
   propertyDisplay: any;
@@ -578,5 +549,15 @@ interface TreeSelectOptionData extends TTIriRef {
   padding: 0 1rem;
   display: flex;
   flex-flow: column;
+}
+
+.search-term-input {
+  display: flex;
+  flex-flow: column;
+  /* align-items: center; */
+  /* width: 80%; */
+  padding-right: 4rem;
+  padding-left: 4rem;
+  padding-top: 2rem;
 }
 </style>
