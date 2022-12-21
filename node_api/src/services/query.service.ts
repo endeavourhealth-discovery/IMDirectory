@@ -1,6 +1,6 @@
 import Env from "@/services/env.service";
-import { QueryRequest } from "@im-library/interfaces";
-import { Query, TTAlias } from "@im-library/interfaces/AutoGen";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { QueryRequest, TTAlias } from "@im-library/interfaces";
 import { IM, RDFS } from "@im-library/vocabulary";
 
 export default class QueryService {
@@ -109,5 +109,26 @@ export default class QueryService {
 
   private convertTTEntityToTTIriRef(ttEntity: any) {
     return { "@id": ttEntity["@id"], name: ttEntity[RDFS.LABEL] };
+  }
+
+  public async getAllowableChildTypes(iri: string) {
+    const queryRequest = {
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": iri
+          }
+        }
+      ],
+      query: {
+        "@id": "http://endhealth.info/im#AllowableChildTypes"
+      }
+    };
+
+    const response = await this.queryIM(queryRequest as any);
+
+    if (!isObjectHasKeys(response)) return [];
+    return response.entities;
   }
 }
