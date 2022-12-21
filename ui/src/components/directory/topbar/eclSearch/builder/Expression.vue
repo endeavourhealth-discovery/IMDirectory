@@ -163,6 +163,8 @@ function createExpression(): ECLComponentDetails {
   align-items: center;
   border: 1px solid #ffc952;
   border-radius: 3px;
+  background-color: #ff8c0010;
+
 }
 
 .label-container {

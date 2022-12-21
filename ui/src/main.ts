@@ -85,6 +85,9 @@ import ToggleButton from "primevue/togglebutton";
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import "sweetalert2/dist/sweetalert2.min.css";
+import BoolGroup from '@/components/directory/topbar/eclSearch/builder/BoolGroup.vue';
+import Concept from '@/components/directory/topbar/eclSearch/builder/Concept.vue';
+import RefinementX from '@/components/directory/topbar/eclSearch/builder/RefinementX.vue';
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -159,7 +162,11 @@ const app = createApp(App)
   .component("Tag", Tag)
   .component("Steps", Steps)
   .component("Chip", Chip)
-  .component("ToggleButton", ToggleButton);
+  .component("ToggleButton", ToggleButton)
+  .component("BoolGroup", BoolGroup)
+  .component("Concept", Concept)
+  .component("RefinementX", RefinementX)
+;
 
 const vm = app.mount("#app");
 

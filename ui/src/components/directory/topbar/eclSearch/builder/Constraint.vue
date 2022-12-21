@@ -80,6 +80,8 @@ function createConstraint(): ECLComponentDetails {
   border: 1px solid #ffc952;
   border-radius: 3px;
   gap: 1rem;
+  background-color: #ff8c0010;
+
 }
 
 .label-container {

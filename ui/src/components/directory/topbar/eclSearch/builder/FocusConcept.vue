@@ -1,7 +1,5 @@
 <template>
   <div class="focus-concept-container" :id="id">
-    <div class="focus-concept-children-next-container">
-      <span class="float-text">Focus concept</span>
       <div v-if="focusConceptBuild && focusConceptBuild.length" class="focus-concept-children-container">
         <template v-for="child of focusConceptBuild" :key="child.id">
           <component
@@ -23,7 +21,6 @@
         @addNextClicked="addNextClicked"
       />
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -132,20 +129,6 @@ function getButtonOptions() {
   width: 100%;
 }
 
-.add-focus-concept-button {
-  border-style: dashed !important;
-}
-
-.focus-concept-children-next-container {
-  flex: 1 1 auto;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  position: relative;
-  gap: 1rem;
-}
-
 .focus-concept-children-container {
   flex: 1 1 auto;
   display: flex;
@@ -153,16 +136,6 @@ function getButtonOptions() {
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
-  border: 1px solid #47b8e0;
-  border-radius: 3px;
-  padding: 1rem;
 }
 
-.float-text {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 0.75rem;
-  color: #6c757d;
-}
 </style>

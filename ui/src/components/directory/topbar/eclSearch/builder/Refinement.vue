@@ -136,6 +136,8 @@ function getButtonOptions() {
   flex-flow: row;
   justify-content: center;
   align-items: center;
+  background-color: #ff8c0010;
+
 }
 
 .add-refinement-button {

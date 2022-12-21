@@ -19,26 +19,17 @@
     <div id="builder-string-container">
       <div id="query-builder-container">
         <div id="query-build">
-          <template v-for="item of queryBuild" :key="item.id">
-            <component
-              :is="item.type"
-              :value="item.value"
-              :id="item.id"
-              :position="item.position"
-              :showButtons="item.showButtons"
-              @deleteClicked="deleteItem"
-              @addClicked="addItemWrapper"
-              @updateClicked="updateItemWrapper"
-              @addNextOptionsClicked="addItemWrapper"
-            >
-            </component>
-          </template>
+          <bool-group :value="ecl" style="width: 100%; margin: 0"></bool-group>
         </div>
+        <small style="color: red" v-if="!ecl.items || ecl.items.length == 0">*Move pointer over panel above to add concepts, refinements and groups.</small>
       </div>
       <div id="build-string-container">
         <h3>Output:</h3>
         <div class="string-copy-container">
+          <pre class="output-string">{{ JSON.stringify(ecl, null, 2) }}</pre>
+<!--
           <pre class="output-string">{{ queryString }}</pre>
+-->
           <Button
             icon="fa-solid fa-copy"
             v-tooltip.left="'Copy to clipboard'"
@@ -57,16 +48,21 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import Logic from "./builder/Logic.vue";
+import RefinementGroup from "./builder/RefinementGroup.vue";
+import FocusConcept from "./builder/FocusConcept.vue";
+import BoolGroup from './builder/BoolGroup.vue';
+import Concept from '@/components/directory/topbar/eclSearch/builder/Concept.vue';
+import RefinementX from '@/components/directory/topbar/eclSearch/builder/RefinementX.vue';
+
 export default defineComponent({
-  components: { Logic, RefinementGroup, FocusConcept }
+  components: { Logic, RefinementGroup, FocusConcept, BoolGroup, Concept, RefinementX }
 });
 </script>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, Ref, ref, watch } from "vue";
-import Logic from "./builder/Logic.vue";
-import RefinementGroup from "./builder/RefinementGroup.vue";
-import FocusConcept from "./builder/FocusConcept.vue";
+import {  onMounted, Ref, ref, watch } from "vue";
 import { ECLComponent } from "@im-library/enums";
 import { Sorters, EclSearchBuilderMethods } from "@im-library/helpers";
 import { LoggerService } from "@/services";
@@ -85,6 +81,8 @@ const emit = defineEmits({
 });
 
 const toast = useToast();
+
+const ecl: Ref<any> = ref({ "type": "BoolGroup", "operator": "AND" });
 
 const queryString = ref("");
 const queryBuild: Ref<ECLComponentDetails[]> = ref([]);
@@ -170,7 +168,6 @@ function onCopyError(): void {
 #query-builder-container {
   width: 100%;
   flex: 1 1 auto;
-  overflow: auto;
 }
 
 #query-build {
@@ -181,6 +178,7 @@ function onCopyError(): void {
   gap: 1rem;
   flex: 1 1 auto;
   overflow: auto;
+  font-size: 12px;
 }
 
 #next-option-container {
