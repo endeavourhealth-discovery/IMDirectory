@@ -6,7 +6,6 @@
       </TabPanel>
       <TabPanel header="Where">
         <TreeTable :value="treeTableItems" :expandedKeys="expandedKeys">
-          <!-- <Column field="operator" header="Operator" > </Column> -->
           <Column field="operator" header="Operator" :expander="true">
             <template #body="{ node }">
               <Dropdown v-model="node.data.operator" :options="logicOptions" />
@@ -23,9 +22,10 @@
                 @node-expand="onPropertyExpand($event as TreeSelectOption)"
               >
                 <template #header>
-                  <div class="search-term-input">
-                    <InputText type="text" v-model="propertySearchTerm" />
-                  </div>
+                  <span class="p-input-icon-right search-term-input">
+                    <i class="pi pi-search" />
+                    <InputText type="text" class="" v-model="propertySearchTerm" placeholder="Search all properties" />
+                  </span>
                 </template>
                 <template #value="{ value, placeholder }">
                   <div v-if="isArrayHasLength(value) && isObjectHasKeys(value[0], ['label'])">
@@ -44,7 +44,11 @@
 
           <Column field="value" header="Value">
             <template #body="{ node }">
+              <InputText v-if="getTypeFromNode(node) === 'string'" type="text" v-model="node.data.value" />
+              <InputNumber v-else-if="getTypeFromNode(node) === 'integer'" type="text" v-model="node.data.value" />
+              <Calendar v-else-if="getTypeFromNode(node) === 'Date time'" v-model="node.data.value" dateFormat="dd/mm/yy" />
               <TreeSelect
+                v-else
                 v-model="node.data.valueDisplay"
                 :options="node.data.valueOptions"
                 placeholder="Select Item"
@@ -66,18 +70,6 @@
               </TreeSelect>
             </template>
           </Column>
-
-          <!-- <Column field="type" header="Type">
-            <template #body="slotProps">
-              {{ slotProps.node.data }}
-            </template>
-          </Column>
-
-          <Column field="node" header="Node">
-            <template #body="slotProps">
-              {{ slotProps.node }}
-            </template>
-          </Column> -->
 
           <Column headerStyle="width: 10rem" headerClass="text-center" bodyClass="text-center">
             <template #body="{ node }">
@@ -144,6 +136,19 @@ const { editorEntity } = setupEntity();
 onMounted(async () => await init());
 
 watch(
+  () => _.cloneDeep(treeTableItems.value),
+  async (newValue, oldValue) => {
+    editorEntity.value = newValue;
+    console.log(editorEntity.value);
+  }
+);
+
+watch(
+  () => propertySearchTerm.value,
+  async () => await filterPropertyOptions(propertySearchTerm.value)
+);
+
+watch(
   () => selectedFrom.value["@id"],
   async () => {
     fromProperties.value = await getFromProperties(selectedFrom.value["@id"]);
@@ -158,6 +163,15 @@ watch(
   }
 );
 
+async function filterPropertyOptions(searchTerm: string) {
+  if (searchTerm) propertyOptions.value = propertyOptions.value.filter(option => option.data.name.includes(searchTerm));
+  else propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
+}
+
+function getTypeFromNode(node: TreeTableItem) {
+  return node?.data?.valueType?.name;
+}
+
 function createTreeTableItem(operator: string, parent: string): TreeTableItem {
   const data = createTreeTableItemData(operator);
   return { key: String(Math.floor(Math.random() * 1000000)), data: data, children: [] as TreeTableItem[], parent: parent } as TreeTableItem;
@@ -168,7 +182,7 @@ function createTreeTableItemData(operator: string): TreeTableItemData {
     operator: operator,
     property: {} as TTIriRef,
     propertyDisplay: {},
-    value: {} as TTIriRef,
+    value: null,
     valueDisplay: {}
   } as TreeTableItemData;
 }
@@ -207,8 +221,8 @@ function findNode(key: string, currentNode: any): TreeTableItem | boolean {
 
 async function init() {
   const mainRecords = await getFromSuggestions();
-  selectedFrom.value["@id"] = mainRecords[3]["@id"];
-  selectedFrom.value.name = mainRecords[3].name;
+  selectedFrom.value["@id"] = mainRecords[0]["@id"];
+  selectedFrom.value.name = mainRecords[0].name;
   propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
   initTreeTableItems();
 }
@@ -216,13 +230,12 @@ async function init() {
 async function onPropertySelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
   tableItem.property["@id"] = selected.key!;
   tableItem.property.name = selected.label!;
-
+  tableItem.valueType = selected.data.valueType;
   tableItem.valueOptions = await getValueSelectionTree(selected);
 }
 
 function onValueSelect(selected: TreeSelectOption, tableItem: TreeTableItemData) {
-  tableItem.value["@id"] = selected.key!;
-  tableItem.value.name = selected.label!;
+  tableItem.value = { "@id": selected.key!, name: selected.label! } as TTIriRef;
 }
 
 async function initTreeTableItems() {
@@ -377,7 +390,7 @@ async function getChildrenSelectionTree(iri: string) {
 async function getValueSelectionTree(option: TreeSelectOption) {
   const iri = option.data.valueType["@id"];
   let options = [] as TreeSelectOption[];
-  const typeEntity = await EntityService.getPartialEntity(iri, []);
+  const typeEntity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
   if (isValueSet(typeEntity[RDF.TYPE])) {
     const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
     if (isObjectHasKeys(definitionEntity, [IM.DEFINITION])) {
@@ -512,9 +525,10 @@ interface TreeTableItemData {
   property: TTIriRef;
   propertyOptions: TreeSelectOption[];
   propertyDisplay: any;
-  value: TTIriRef;
+  value: any;
   valueOptions: TreeSelectOption[];
   valueDisplay: any;
+  valueType: TTIriRef;
 }
 
 interface TreeTableItem extends TreeNode {
@@ -554,10 +568,6 @@ interface TreeSelectOptionData extends TTIriRef {
 .search-term-input {
   display: flex;
   flex-flow: column;
-  /* align-items: center; */
-  /* width: 80%; */
-  padding-right: 4rem;
-  padding-left: 4rem;
-  padding-top: 2rem;
+  width: 100%;
 }
 </style>
