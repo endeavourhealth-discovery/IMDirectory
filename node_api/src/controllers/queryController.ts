@@ -28,6 +28,15 @@ export default class QueryController {
     this.router.get("/public/queryObjectDisplay", (req, res, next) => this.getQueryObjectByIri(req, res, next));
     this.router.get("/public/allowablePropertySuggestions", (req, res, next) => this.getAllowablePropertySuggestions(req, res, next));
     this.router.get("/public/allowableRangeSuggestions", (req, res, next) => this.getAllowableRangeSuggestions(req, res, next));
+    this.router.get("/public/allowableChildTypes", (req, res, next) => this.getAllowableChildTypes(req, res, next));
+  }
+  async getAllowableChildTypes(req: Request, res: Response, next: NextFunction) {
+    try {
+      const childTypes = await this.queryService.getAllowableChildTypes(req.query.iri as string);
+      res.send(childTypes).end();
+    } catch (e) {
+      next(e);
+    }
   }
 
   async getSQL(req: Request, res: Response, next: NextFunction) {
