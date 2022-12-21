@@ -1,7 +1,7 @@
 <template>
   <Dialog
     :header="queryLoading ? 'Results' : 'Results: ' + testQueryResults.length"
-    v-model:visible="showDialog"
+    v-model:visible="internalShowDialog"
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
     :style="{ width: '50vw' }"
     :closable="false"
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces";
-import { onMounted, PropType, ref, Ref } from "vue";
+import {onMounted, PropType, ref, Ref, watch} from "vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
@@ -38,7 +38,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits({ closeDialog: () => true });
+const internalShowDialog = ref(false);
 
+watch(() => props.showDialog, (newValue) => internalShowDialog.value = newValue );
 onMounted(async () => {
   if (props.imquery) await testQuery();
 });
