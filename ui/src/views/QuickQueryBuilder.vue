@@ -15,7 +15,7 @@
             <ProgressSpinner />
           </div>
           <div v-else class="steps-content">
-            <SimpleQueryBuilder />
+            <SimpleQueryBuilder @updateQuery="onUpdateQuery" />
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
           <div v-if="showSidebar" class="sidebar-container">
@@ -39,11 +39,12 @@
 <script setup lang="ts">
 import { computed, ref, Ref, watch, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
-import SimpleQueryBuilder, { SuggestionInfo } from "@/components/editor/shapeComponents/SimpleQueryBuilder.vue";
+import SimpleQueryBuilder from "@/components/editor/shapeComponents/SimpleQueryBuilder.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import _ from "lodash";
 import { useStore } from "vuex";
 import { DataTypeCheckers } from "@im-library/helpers";
+import { Query, SuggestionInfo, TreeTableItem } from "@im-library/interfaces";
 
 const { isObjectHasKeys, isArrayHasLength } = DataTypeCheckers;
 const store = useStore();
@@ -67,6 +68,9 @@ function onShowSidebar() {
 function refreshCreator() {}
 
 function submit() {}
+function onUpdateQuery(query: Query) {
+  queryObject.value = query;
+}
 </script>
 
 <style scoped>

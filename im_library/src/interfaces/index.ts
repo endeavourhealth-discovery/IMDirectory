@@ -71,6 +71,15 @@ import { Value } from "./query/Value.js";
 import { Where } from "./query/Where.js";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
+import { DisplayTTIriRef } from "./DisplayTTIriRef";
+import { SuggestionInfo } from "./SuggestionInfo";
+import { TreeNode } from "./TreeNode";
+import { TTProperty } from "./TTProperty";
+import { UIProperty } from "./UIProperty";
+import { TreeSelectOption } from "./quickQuery/TreeSelectOption";
+import { TreeSelectOptionData } from "./quickQuery/TreeSelectOptionData";
+import { TreeTableItem } from "./quickQuery/TreeTableItem";
+import { TreeTableItemData } from "./quickQuery/TreeTableItemData";
 
 export {
   type AccountItem,
@@ -145,5 +154,14 @@ export {
   type Value,
   type Where,
   type TangledTreeData,
-  type AllowableChildProperty
+  type AllowableChildProperty,
+  type DisplayTTIriRef,
+  type SuggestionInfo,
+  type TreeNode,
+  type TTProperty,
+  type UIProperty,
+  type TreeSelectOption,
+  type TreeSelectOptionData,
+  type TreeTableItem,
+  type TreeTableItemData
 };

@@ -91,12 +91,7 @@
       </TabPanel>
       <TabPanel header="Preview">
         <Button icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
-        <TestQueryResults
-          v-if="showTestQueryResults"
-          :showDialog="showTestQueryResults"
-          :imquery="JSON.parse(editorEntity[IM.DEFINITION])"
-          @close-dialog="showTestQueryResults = false"
-        />
+        <TestQueryResults v-if="showTestQueryResults" :showDialog="showTestQueryResults" :imquery="imquery" @close-dialog="showTestQueryResults = false" />
       </TabPanel>
     </TabView>
   </div>
@@ -108,15 +103,30 @@ import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
-import { setupEntity } from "@/views/EditorMethods";
 import { useStore } from "vuex";
 import { onMounted, Ref, ref, watch } from "vue";
 import { computed, ComputedRef } from "@vue/reactivity";
 import _ from "lodash";
-import { TreeNode } from "primevue/tree";
 import { getColourFromType, getFAIconFromType, isConcept, isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { Query, QueryRequest, TTAlias, TTIriRef } from "@im-library/interfaces";
+import {
+  DisplayTTIriRef,
+  Query,
+  QueryRequest,
+  SuggestionInfo,
+  TreeSelectOption,
+  TreeSelectOptionData,
+  TreeTableItem,
+  TreeTableItemData,
+  TTAlias,
+  TTIriRef,
+  TTProperty,
+  UIProperty,
+  Value,
+  Where
+} from "@im-library/interfaces";
 import { byKey } from "@im-library/helpers/Sorters";
+
+const emit = defineEmits({ updateQuery: (payload: Query) => payload });
 
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
 const propertyOptions: Ref<TreeSelectOption[]> = ref([]);
@@ -131,15 +141,21 @@ const selectedFrom: Ref<TTAlias> = ref({} as TTAlias);
 const fromProperties: Ref<UIProperty[]> = ref([]);
 const selectSelectedProperties: Ref = ref();
 const showTestQueryResults: Ref<boolean> = ref(false);
-const { editorEntity } = setupEntity();
+const imquery: Ref<Query> = ref({} as Query);
 
 onMounted(async () => await init());
 
 watch(
   () => _.cloneDeep(treeTableItems.value),
   async (newValue, oldValue) => {
-    editorEntity.value = newValue;
-    console.log(editorEntity.value);
+    emit("updateQuery", convertTreeTableItemToQuery());
+  }
+);
+
+watch(
+  () => _.cloneDeep(selectedFrom.value),
+  async (newValue, oldValue) => {
+    emit("updateQuery", convertTreeTableItemToQuery());
   }
 );
 
@@ -162,6 +178,53 @@ watch(
     updatePropertyValue(currentValue.propertyId, currentValue.propertyValue);
   }
 );
+
+function convertTreeTableItemToQuery() {
+  const query = { from: [selectedFrom.value], where: {} as Where } as Query;
+
+  for (const tableItem of treeTableItems.value) {
+    recursevilyAddClauses(query.where, tableItem);
+  }
+
+  // return tableItems as any;
+  return query;
+}
+
+function recursevilyAddClauses(parentClause: Where, tableItem: TreeTableItem) {
+  const where = createWhereFromTreeTableItem(tableItem);
+  switch (tableItem.data.operator) {
+    case "and":
+      parentClause.and = [where];
+      break;
+    case "not":
+      parentClause.notExist = where;
+    case "or":
+      parentClause.or = [where];
+    default:
+      parentClause.and = [where];
+      break;
+  }
+
+  if (isArrayHasLength(tableItem.children)) {
+    for (const child of tableItem.children) {
+      recursevilyAddClauses(where, child);
+    }
+  }
+}
+
+function createWhereFromTreeTableItem(tableItem: TreeTableItem): Where {
+  const where = { property: tableItem.data.property } as Where;
+  if (isObjectHasKeys(tableItem.data, ["valueType"]))
+    if (tableItem.data?.valueType.name === "string" || tableItem.data.valueType.name === "integer") {
+      where.value = { value: tableItem.data.value } as Value;
+    } else if (tableItem.data?.valueType.name === "Date time") {
+      where.value = { value: new Date(tableItem.data.value).toLocaleDateString("en-GB") } as Value;
+    } else {
+      where.is = tableItem.data.value as TTAlias;
+    }
+
+  return where;
+}
 
 async function filterPropertyOptions(searchTerm: string) {
   if (searchTerm) propertyOptions.value = propertyOptions.value.filter(option => option.data.name.includes(searchTerm));
@@ -310,7 +373,7 @@ async function buildUIProperty(ttProperty: TTProperty): Promise<UIProperty> {
 }
 
 function testQuery() {
-  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
+  // if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
 }
 
 async function getPropertyDescription(iri: string) {
@@ -484,68 +547,6 @@ async function getNodesFromQuery(query: Query): Promise<TreeSelectOption[]> {
   }
 
   return options;
-}
-</script>
-
-<script lang="ts">
-export interface SuggestionInfo {
-  propertyId: string;
-  suggestionIri: string;
-  searchTerm: string;
-  propertyValue: DisplayTTIriRef[];
-}
-
-export interface DisplayTTIriRef extends TTIriRef {
-  types: TTIriRef[];
-}
-
-interface TTProperty {
-  "http://www.w3.org/ns/shacl#order": number;
-  "http://www.w3.org/ns/shacl#path": TTIriRef[];
-  "http://www.w3.org/ns/shacl#class": TTIriRef[];
-  "http://www.w3.org/ns/shacl#datatype": TTIriRef[];
-  "http://www.w3.org/ns/shacl#node": TTIriRef[];
-  "http://www.w3.org/ns/shacl#maxCount": number;
-  "http://www.w3.org/ns/shacl#minCount": number;
-}
-
-interface UIProperty {
-  label: string;
-  tooltip: string;
-  description: string;
-  property: TTProperty;
-  componentType: string;
-  valueType: TTIriRef;
-  value: any;
-  logic: string;
-}
-
-interface TreeTableItemData {
-  operator: string;
-  property: TTIriRef;
-  propertyOptions: TreeSelectOption[];
-  propertyDisplay: any;
-  value: any;
-  valueOptions: TreeSelectOption[];
-  valueDisplay: any;
-  valueType: TTIriRef;
-}
-
-interface TreeTableItem extends TreeNode {
-  data: TreeTableItemData;
-  children: TreeTableItem[];
-  parent: string;
-}
-
-interface TreeSelectOption extends TreeNode {
-  data: TreeSelectOptionData;
-  children: TreeSelectOption[];
-}
-
-interface TreeSelectOptionData extends TTIriRef {
-  type: TTIriRef[];
-  componentType: string;
-  valueType: TTIriRef;
 }
 </script>
 

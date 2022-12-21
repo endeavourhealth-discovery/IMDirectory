@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import { PropType } from "vue";
 import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
 import NavTree from "./sidebar/NavTree.vue";
 
 const props = defineProps({
