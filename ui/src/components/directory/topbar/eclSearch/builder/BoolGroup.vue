@@ -29,36 +29,6 @@
   </div>
 </template>
 
-
-<!--
-<template>
-  <div class="nested-div">
-    <Button type="button" :label="value.operator" @click="toggleBool" v-if="value.items && value.items.length > 1" />
-    <Menu ref="menuBool" :model="boolOptions" :popup="true" />
-    <template v-for="(item, index) in value.items">
-      <div class="component-container">
-        <component
-            :is="item.type"
-            :value="item"
-            :parent="props.value"
-        >
-        </component>
-        <span class="move-group hover-show">
-          <Button @click="deleteItem(index)" class="p-button-sm p-button-secondary">X</Button>
-          <Button @click="move(index, -1)" :disabled="index == 0" class="p-button-sm p-button-secondary">^</Button>
-          <Button @click="move(index, +1)" :disabled="index == value.items.length - 1" class="p-button-sm p-button-secondary">v</Button>
-        </span>
-      </div>
-    </template>
-    <div class="add-group hover-show">
-      <Button type="button" class="p-button-success" label="Add" @click="toggleAdd" />
-      <Menu ref="menuAdd" :model="addOptions" :popup="true" />
-    </div>
-  </div>
-</template>
--->
-
-
 <script setup lang="ts">
 import {ref, Ref} from 'vue';
 

@@ -1,7 +1,7 @@
 <template>
   <div class="nested-div">
     <div style="display:flex">
-      <InputText style="flex: 1" placeholder="Focus concept"></InputText>
+      <AutoComplete style="flex: 1" input-style="flex:1" field="name" dataKey="iri" v-model="value.concept" :suggestions="suggestions" @complete="search(value.concept)"></AutoComplete>
       <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value"></Dropdown>
     </div>
     <template v-for="(item, index) in value.items">
@@ -14,8 +14,8 @@
           </component>
           <span class="move-group hover-show">
             <Button @click="deleteItem(index)" class="p-button-sm p-button-danger" icon="pi pi-times"/>
-            <Button @click="move(index, -1)" :disabled="index == 0" class="p-button-sm p-button-secondary" icon="pi pi-arrow-up"/>
-            <Button @click="move(index, +1)" :disabled="index == value.items.length - 1" class="p-button-sm p-button-secondary" icon="pi pi-arrow-down"/>
+            <Button @click="move(index, -1)" :disabled="index === 0" class="p-button-sm p-button-secondary" icon="pi pi-arrow-up"/>
+            <Button @click="move(index, +1)" :disabled="index === value.items.length - 1" class="p-button-sm p-button-secondary" icon="pi pi-arrow-down"/>
           </span>
         </div>
       </template>
@@ -28,13 +28,22 @@
 
 <script setup lang="ts">
 
-import {ref} from 'vue';
+import {Ref, ref} from 'vue';
+import { SearchRequest } from "@im-library/interfaces";
+import { SortBy } from "@im-library/enums";
+import {AbortController} from 'abortcontroller-polyfill/dist/cjs-ponyfill';
+import {useStore} from 'vuex';
+import {EntityService} from '@/services';
 
 const props = defineProps({
   value: { type: Object, required: true },
   parent: { type: Object, required: false },
 });
 
+const store = useStore();
+
+const controller: Ref<AbortController> = ref({} as AbortController);
+const suggestions: Ref<any[]> = ref([]);
 const menu = ref();
 
 const descendantOptions = [
@@ -63,7 +72,7 @@ const addOptions = [
   }
 ];
 
-function toggle(event) {
+function toggle(event: any) {
   menu.value.toggle(event);
 }
 
@@ -73,6 +82,23 @@ function add(item: any) {
   } else {
     props.value.items.push(item);
   }
+}
+
+async function search(term: string) {
+  console.log("SEARCH");
+  console.log(term);
+  const searchRequest = {} as SearchRequest;
+  searchRequest.termFilter = term;
+  searchRequest.sortBy = SortBy.Usage;
+  searchRequest.page = 1;
+  searchRequest.size = 100;
+  searchRequest.schemeFilter = ["http://snomed.info/sct#"];
+
+  if ((controller.value && controller.value.abort)) {
+    controller.value.abort();
+  }
+  controller.value = new AbortController();
+  suggestions.value = await EntityService.advancedSearch(searchRequest, controller.value);
 }
 
 function addRefinement() {
