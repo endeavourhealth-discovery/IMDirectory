@@ -198,8 +198,10 @@ function recursevilyAddClauses(parentClause: Where, tableItem: TreeTableItem) {
       break;
     case "not":
       parentClause.notExist = where;
+      break;
     case "or":
       parentClause.or = [where];
+      break;
     default:
       parentClause.and = [where];
       break;
