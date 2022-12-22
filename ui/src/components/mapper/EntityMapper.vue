@@ -145,12 +145,12 @@
 import { computed, defineComponent, onMounted, reactive, ref, Ref } from "vue";
 import { mapState, useStore } from "vuex";
 import { FilterDefaults } from "@im-library/config";
-import { SortBy } from "@im-library/enums";
+import { SortBy, ToastSeverity } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
-import {} from "@im-library/models";
+import { ToastOptions } from "@im-library/models";
 import { IM, RDFS } from "@im-library/vocabulary";
-import { EntityService, Env, LoggerService, DirectService } from "@/services";
+import { EntityService, Env, DirectService } from "@/services";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
@@ -215,9 +215,9 @@ async function saveMappings() {
   mappingsMap[taskIri.value] = mappingIris;
   try {
     await EntityService.saveMapping(mappingsMap);
-    toast.add(LoggerService.success("Mappings were saved"));
+    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Mappings were saved"));
   } catch (error) {
-    toast.add(LoggerService.error("Mappings were not saved"));
+    toast.add(new ToastOptions(ToastSeverity.ERROR, "Mappings were not saved", error));
   }
   saveLoading.value = false;
 }

@@ -4,7 +4,6 @@ import DirectService from "./DirectService";
 import EntityService from "./EntityService";
 import FilerService from "./FilerService";
 import Env from "./Env";
-import LoggerService from "./LoggerService";
 import QueryService from "./QueryService";
 import SetService from "./SetService";
 import ClassService from "./ClassService";
@@ -20,7 +19,6 @@ export {
   FilerService,
   Env,
   ParserService,
-  LoggerService,
   QueryService,
   SetService,
   ClassService,
