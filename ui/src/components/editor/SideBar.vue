@@ -54,16 +54,17 @@ function handleClick(data: any) {
 
 <style scoped>
 .searchbar {
-  height: 3rem;
+  display: flex;
+  flex-flow: column;
 }
 .sidebar {
-  height: 100%;
   display: flex;
   flex-flow: column nowrap;
+  overflow-y: hidden;
 }
 
 .p-tabview {
-  height: 100%;
+  height: 97%;
   display: flex;
   flex-flow: column nowrap;
 }

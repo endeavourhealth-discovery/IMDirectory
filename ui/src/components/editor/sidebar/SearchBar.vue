@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-inputgroup">
     <InputText id="editor-search" v-model="searchText" placeholder="Search..." @keyup.enter="search" data-testid="editor-search-input" />
     <Button
       id="filter=button"
@@ -8,12 +8,12 @@
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
     />
-    <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
-      <div class="p-fluid results-filter-container">
-        <Filters :search="search" />
-      </div>
-    </OverlayPanel>
   </div>
+  <OverlayPanel ref="filtersOP" :breakpoints="{ '960px': '75vw', '640px': '100vw' }" :style="{ width: '450px' }">
+    <div class="p-fluid results-filter-container">
+      <Filters :search="search" />
+    </div>
+  </OverlayPanel>
 </template>
 
 <script setup lang="ts">
