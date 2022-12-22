@@ -57,20 +57,22 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import Logic from "./builder/Logic.vue";
+import RefinementGroup from "./builder/RefinementGroup.vue";
+import FocusConcept from "./builder/FocusConcept.vue";
 export default defineComponent({
   components: { Logic, RefinementGroup, FocusConcept }
 });
 </script>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, Ref, ref, watch } from "vue";
-import Logic from "./builder/Logic.vue";
-import RefinementGroup from "./builder/RefinementGroup.vue";
-import FocusConcept from "./builder/FocusConcept.vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import { ECLComponent } from "@im-library/enums";
 import { Sorters, EclSearchBuilderMethods } from "@im-library/helpers";
 import { ECLComponentDetails } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
+import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 const { byPosition } = Sorters;
@@ -90,10 +92,13 @@ const toast = useToast();
 const queryString = ref("");
 const queryBuild: Ref<ECLComponentDetails[]> = ref([]);
 
-watch(queryBuild, () => {
-  queryBuild.value.sort(byPosition);
-  generateQueryString();
-});
+watch(
+  () => _.cloneDeep(queryBuild.value),
+  newValue => {
+    queryBuild.value.sort(byPosition);
+    generateQueryString();
+  }
+);
 
 onMounted(() => setStartBuild());
 

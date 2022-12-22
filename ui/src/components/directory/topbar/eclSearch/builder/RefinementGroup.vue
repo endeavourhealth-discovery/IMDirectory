@@ -13,7 +13,7 @@
             @deleteClicked="deleteItem"
             @addClicked="addItemWrapper"
             @updateClicked="updateItemWrapper"
-            @addNextOptionsClicked="addItem"
+            @addNextOptionsClicked="addItemWrapper"
           >
           </component>
         </template>
@@ -36,19 +36,22 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import Refinement from "./Refinement.vue";
+import Logic from "./Logic.vue";
 export default defineComponent({
   components: { Refinement, Logic }
 });
 </script>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, Ref, ref, watch } from "vue";
-import Refinement from "./Refinement.vue";
-import Logic from "./Logic.vue";
+import { onMounted, PropType, Ref, ref, watch } from "vue";
+
 import AddDeleteButtons from "../AddDeleteButtons.vue";
 import { ECLComponent } from "@im-library/enums";
 import { DataTypeCheckers, Sorters, EclSearchBuilderMethods } from "@im-library/helpers";
 import { ECLComponentDetails } from "@im-library/interfaces";
+import _ from "lodash";
 const { isArrayHasLength } = DataTypeCheckers;
 const { byPosition } = Sorters;
 const { addItem, updateItem, updatePositions, generateNewComponent } = EclSearchBuilderMethods;
@@ -76,7 +79,7 @@ const emit = defineEmits({
 const refinementGroupBuild: Ref<ECLComponentDetails[]> = ref([]);
 const group = ref(false);
 
-watch(refinementGroupBuild, newValue => {
+watch(() => _.cloneDeep(refinementGroupBuild.value), (newValue) =>{
   newValue.sort(byPosition);
   emit("updateClicked", createRefinementGroup());
 });
