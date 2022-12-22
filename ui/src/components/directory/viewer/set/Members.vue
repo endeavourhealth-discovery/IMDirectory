@@ -54,9 +54,6 @@
           <IMViewerLink :iri="data['@id']" :label="data.name" action="select" />
         </template>
       </Column>
-      <template #footer v-if="loadButton">
-        <Button label="Load more..." class="p-button-text p-button-plain" @click="loadMore" />
-      </template>
     </DataTable>
   </div>
 </template>
@@ -73,7 +70,7 @@ import { useStore } from "vuex";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+const { isObjectHasKeys } = DataTypeCheckers;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
