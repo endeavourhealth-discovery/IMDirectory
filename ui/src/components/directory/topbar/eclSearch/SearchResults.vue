@@ -208,11 +208,11 @@ function getConceptTypes(concept: ConceptSummary): string {
 }
 
 function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.success, "Value copied to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
 }
 
 function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.error, "Failed to copy value to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
 }
 
 function onCopyRightClick(event: any) {
@@ -242,10 +242,10 @@ async function setCopyMenuItems(): Promise<void> {
         await navigator.clipboard
           .writeText(copyConceptToClipboard(hoveredResult.value, undefined, defaultPredicates, blockedIris))
           .then(() => {
-            toast.add(new ToastOptions(ToastSeverity.success, "Concept copied to clipboard"));
+            toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Concept copied to clipboard"));
           })
           .catch(err => {
-            toast.add(new ToastOptions(ToastSeverity.error, "Failed to copy concept to clipboard", err));
+            toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy concept to clipboard", err));
           });
       }
     }
@@ -264,10 +264,10 @@ async function setCopyMenuItems(): Promise<void> {
         await navigator.clipboard
           .writeText(text)
           .then(() => {
-            toast.add(new ToastOptions(ToastSeverity.success, `${label} copied to clipboard`));
+            toast.add(new ToastOptions(ToastSeverity.SUCCESS, `${label} copied to clipboard`));
           })
           .catch(err => {
-            toast.add(new ToastOptions(ToastSeverity.error, `Failed to copy ${label} to clipboard`, err));
+            toast.add(new ToastOptions(ToastSeverity.ERROR, `Failed to copy ${label} to clipboard`, err));
           });
       }
     });

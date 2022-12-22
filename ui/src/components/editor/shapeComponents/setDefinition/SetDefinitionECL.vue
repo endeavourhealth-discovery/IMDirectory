@@ -52,11 +52,11 @@ function copyToClipboard(): string {
 }
 
 function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.success, "Value copied to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
 }
 
 function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.error, "Value copied to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.ERROR, "Value copied to clipboard"));
 }
 </script>
 

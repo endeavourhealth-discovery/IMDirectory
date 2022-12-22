@@ -147,12 +147,12 @@ async function getMembers(): Promise<void> {
 async function downloadIMV1(): Promise<void> {
   downloading.value = true;
   try {
-    toast.add(new ToastOptions(ToastSeverity.success, "Download will begin shortly"));
+    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
     const result = await SetService.IMV1(props.conceptIri);
     const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, label + ".txt");
   } catch (err) {
-    toast.add(new ToastOptions(ToastSeverity.error, "Download  failed from server", err));
+    toast.add(new ToastOptions(ToastSeverity.ERROR, "Download  failed from server", err));
   } finally {
     downloading.value = false;
   }
@@ -161,12 +161,12 @@ async function downloadIMV1(): Promise<void> {
 async function download(core: boolean, legacy: boolean, flat: boolean = false): Promise<void> {
   downloading.value = true;
   try {
-    toast.add(new ToastOptions(ToastSeverity.success, "Download will begin shortly"));
+    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
     const result = (await EntityService.getFullExportSet(props.conceptIri, core, legacy, flat)).data;
     const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, getFileName(label));
   } catch (error) {
-    toast.add(new ToastOptions(ToastSeverity.error, "Download failed from server", error));
+    toast.add(new ToastOptions(ToastSeverity.ERROR, "Download failed from server", error));
   } finally {
     downloading.value = false;
   }
@@ -192,11 +192,11 @@ function publish() {
   SetService.publish(props.conceptIri)
     .then(() => {
       isPublishing.value = false;
-      toast.add(new ToastOptions(ToastSeverity.success, `Value set published to IM1 : ${props.conceptIri}`));
+      toast.add(new ToastOptions(ToastSeverity.SUCCESS, `Value set published to IM1 : ${props.conceptIri}`));
     })
     .catch(() => {
       isPublishing.value = false;
-      toast.add(new ToastOptions(ToastSeverity.error, `Failed to publish value set to IM1 : ${props.conceptIri}`));
+      toast.add(new ToastOptions(ToastSeverity.ERROR, `Failed to publish value set to IM1 : ${props.conceptIri}`));
     });
 }
 

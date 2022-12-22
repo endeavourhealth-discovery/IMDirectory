@@ -215,9 +215,9 @@ async function saveMappings() {
   mappingsMap[taskIri.value] = mappingIris;
   try {
     await EntityService.saveMapping(mappingsMap);
-    toast.add(new ToastOptions(ToastSeverity.success, "Mappings were saved"));
+    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Mappings were saved"));
   } catch (error) {
-    toast.add(new ToastOptions(ToastSeverity.error, "Mappings were not saved", error));
+    toast.add(new ToastOptions(ToastSeverity.ERROR, "Mappings were not saved", error));
   }
   saveLoading.value = false;
 }

@@ -56,7 +56,7 @@ onMounted(async () => {
   options.value.type = await searchByIsA([RDFS.CLASS]);
 });
 
-async function searchByIsA(isA: string[]) {
+async function searchByIsA(isA: string[]): Promise<TTIriRef[]> {
   const searchRequest = {} as SearchRequest;
   searchRequest.isA = isA;
   if (!isObject(abortController.value)) {
@@ -67,7 +67,7 @@ async function searchByIsA(isA: string[]) {
   const results = await EntityService.advancedSearch(searchRequest, abortController.value);
   return results.map(summary => {
     return { "@id": summary.iri, name: summary.name };
-  });
+  }) as TTIriRef[];
 }
 
 const initNode = {
@@ -123,7 +123,7 @@ function deleteProperty(propertyKey: number) {
 
 async function handleClick() {
   await navigator.clipboard.writeText(JSON.stringify(imquery.value));
-  toast.add(new ToastOptions(ToastSeverity.success, "Value copied to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
 }
 
 async function testQuery() {

@@ -339,7 +339,7 @@ async function dblclick(d: any) {
         redrawGraph();
       }
     } else {
-      toast.add(new ToastOptions(ToastSeverity.warn, "Node cannot be expanded"));
+      toast.add(new ToastOptions(ToastSeverity.WARN, "Node cannot be expanded"));
     }
   }
 }
