@@ -6,7 +6,10 @@ import { Avatars } from "@im-library/constants";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { CustomAlert, User } from "@im-library/models";
-import { EntityService, LoggerService } from "@/services";
+import { EntityService } from "@/services";
+import { getLogger } from "@im-library/logger/LogConfig";
+
+const log = getLogger("store");
 
 export default createStore({
   // update stateType.ts when adding new state!
@@ -266,9 +269,9 @@ export default createStore({
         } else {
           dispatch("logoutCurrentUser").then(resLogout => {
             if (resLogout.status === 200) {
-              LoggerService.info(undefined, "Force logout successful");
+              log.info("Force logout successful");
             } else {
-              LoggerService.error(undefined, "Force logout failed");
+              log.error("Force logout failed");
             }
           });
         }

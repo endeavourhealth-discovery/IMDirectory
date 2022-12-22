@@ -37,11 +37,14 @@
 </template>
 
 <script setup lang="ts">
-import { DirectService, LoggerService } from "@/services";
+import { DirectService } from "@/services";
 import { computed, onMounted, PropType, ref, Ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getLogger } from "@im-library/logger/LogConfig";
+
+const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabel");
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -64,8 +67,7 @@ const isArrayObjectWithName = computed(() => {
   if (props.data.every(item => isObjectHasKeys(item, ["name"]))) {
     return true;
   } else {
-    LoggerService.warn(
-      undefined,
+    log.warn(
       "Data error. Data is not array, array does not contain Object or Object has no property 'name' for use within component ArrayObjectNameListboxWithLabel.vue"
     );
     return false;
