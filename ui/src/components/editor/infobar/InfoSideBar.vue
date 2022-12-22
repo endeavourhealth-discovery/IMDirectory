@@ -59,8 +59,11 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byOrder } from "@im-library/helpers/Sorters";
 import { Query } from "@im-library/models";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { ConfigService, EntityService, LoggerService } from "@/services";
+import { ConfigService, EntityService } from "@/services";
 import { useRouter } from "vue-router";
+import { getLogger } from "@im-library/logger/LogConfig";
+
+const log = getLogger("components.editor.infobar.InfoSideBar");
 
 const props = defineProps({
   selectedConceptIri: { type: String, required: true }
@@ -207,7 +210,7 @@ async function getConfig(): Promise<void> {
   if (configs.value.every(config => isObjectHasKeys(config, ["order"]))) {
     configs.value.sort(byOrder);
   } else {
-    LoggerService.error(undefined, "Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
+    log.error("Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
   }
 }
 

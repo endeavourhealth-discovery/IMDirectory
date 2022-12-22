@@ -12,8 +12,11 @@
 import { computed, defineComponent, PropType } from "vue";
 import { TTIriRef } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import LoggerService from "@/services/LoggerService";
 import { mapState, useStore } from "vuex";
+import { getLogger } from "@im-library/logger/LogConfig";
+import { TagSeverity } from "@im-library/enums";
+
+const log = getLogger("components.shared.generics.ArrayObjectNameTagWithLabel");
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -34,13 +37,13 @@ const isArrayObject = computed(() => {
   }
 });
 
-function getSeverity(item: TTIriRef): string {
-  let result = "info";
+function getSeverity(item: TTIriRef): TagSeverity {
+  let result = TagSeverity.INFO;
   if (!tagSeverityMatches.value) throw new Error("Missing vuex store property 'tagSeverityMatches'");
   if (item && isObjectHasKeys(item, ["name"])) {
     const found = tagSeverityMatches.value.find((severity: { "@id": string; severity: string }) => severity["@id"] === item["@id"]);
     if (found) result = found.severity;
-    else LoggerService.warn("TagWithLabel missing case for severity");
+    else log.warn("TagWithLabel missing case for severity");
   }
   return result;
 }

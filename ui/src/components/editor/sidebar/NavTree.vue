@@ -76,7 +76,7 @@ import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } fr
 import { useStore } from "vuex";
 import axios from "axios";
 import { useToast } from "primevue/usetoast";
-import { TreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "@im-library/interfaces";
+import { TTIriRef, EntityReferenceNode, ConceptSummary } from "@im-library/interfaces";
 import _ from "lodash";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
@@ -84,6 +84,7 @@ import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
+import { TreeNode } from "primevue/tree";
 
 const store = useStore();
 const router = useRouter();
@@ -220,7 +221,7 @@ function onNodeCollapse(node: any) {
 }
 
 function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
-  return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
+  return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
 }
 
 function selectKey(selectedKey: string) {
@@ -246,11 +247,11 @@ async function findPathToNode(iri: string) {
     if (n && n.data === path[0]["@id"]) {
       await selectAndExpand(n);
 
-      while (!n.children.some(child => child.data === iri)) {
+      while (!n.children?.some(child => child.data === iri)) {
         await loadMoreChildren(n);
       }
       for (const gc of n.children) {
-        if (gc.data === iri) {
+        if (gc.data === iri && gc.key) {
           selectKey(gc.key);
         }
       }
@@ -268,7 +269,7 @@ async function findPathToNode(iri: string) {
 }
 
 async function locateChildInLoadMore(n: TreeNode, path: TTIriRef[]): Promise<TreeNode | undefined> {
-  if (n.children.find(c => c.data === "loadMore")) {
+  if (n.children?.find(c => c.data === "loadMore")) {
     const found = n.children.find(c => path.find(p => p["@id"] === c.data));
     if (found) {
       return n.children.find(c => path.find(p => p["@id"] === c.data));
@@ -277,7 +278,7 @@ async function locateChildInLoadMore(n: TreeNode, path: TTIriRef[]): Promise<Tre
       return await locateChildInLoadMore(n, path);
     }
   } else {
-    return n.children.find(c => path.find(p => p["@id"] === c.data));
+    return n.children?.find(c => path.find(p => p["@id"] === c.data));
   }
 }
 

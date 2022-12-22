@@ -17,7 +17,9 @@
 <script setup lang="ts">
 import { onMounted, PropType, nextTick, onUnmounted } from "vue";
 import ResizeablePieChart from "./pieChartDashCard/ResizeablePieChart.vue";
-import { LoggerService } from "@/services";
+import { getLogger } from "@im-library/logger/LogConfig";
+
+const log = getLogger("components.PieChartDashCam");
 
 const props = defineProps({
   name: { type: String, required: false },
@@ -44,27 +46,27 @@ function setChartSize(): void {
   const reportTable = document.getElementsByClassName("report-table")[0] as HTMLElement;
   const container = document.getElementById(props.id) as HTMLElement;
   if (!container) {
-    LoggerService.error(undefined, `Failed to set chart size for element id: ${props.id}`);
-    return;
-  }
-  const html = document.documentElement;
-  const currentFontSize = parseFloat(window.getComputedStyle(html, null).getPropertyValue("font-size"));
-  const title = container.getElementsByClassName("p-card-title")[0] as HTMLElement;
-  const subTitle = container.getElementsByClassName("p-card-subtitle")[0] as HTMLElement;
-  const content = container.getElementsByClassName("p-card-content")[0] as HTMLElement;
-  let height = reportTable?.getBoundingClientRect().height;
-  if (currentFontSize) {
-    height -= currentFontSize * 3;
-  }
-  if (title) {
-    height -= title.getBoundingClientRect().height;
-  }
-  if (subTitle) {
-    height -= subTitle.getBoundingClientRect().height;
-  }
-  if (content) {
-    content.style.height = height + "px";
-    content.style.maxHeight = height + "px";
+    log.error(() => `Failed to set chart size for element id: ${props.id}`);
+  } else {
+    const html = document.documentElement;
+    const currentFontSize = parseFloat(window.getComputedStyle(html, null).getPropertyValue("font-size"));
+    const title = container.getElementsByClassName("p-card-title")[0] as HTMLElement;
+    const subTitle = container.getElementsByClassName("p-card-subtitle")[0] as HTMLElement;
+    const content = container.getElementsByClassName("p-card-content")[0] as HTMLElement;
+    let height = reportTable?.getBoundingClientRect().height;
+    if (currentFontSize) {
+      height -= currentFontSize * 3;
+    }
+    if (title) {
+      height -= title.getBoundingClientRect().height;
+    }
+    if (subTitle) {
+      height -= subTitle.getBoundingClientRect().height;
+    }
+    if (content) {
+      content.style.height = height + "px";
+      content.style.maxHeight = height + "px";
+    }
   }
 }
 </script>

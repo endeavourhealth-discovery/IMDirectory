@@ -122,6 +122,7 @@ provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableM
 
 onMounted(async () => {
   loading.value = true;
+  await store.dispatch("fetchFilterSettings");
   await fetchEntity();
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
     await getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());

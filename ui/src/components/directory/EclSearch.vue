@@ -38,10 +38,12 @@ import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary } from "@im-library/interfaces";
-import { DataTypeCheckers } from "@im-library/helpers";
-import { LoggerService, SetService } from "@/services";
+import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getLogger } from "@im-library/logger/LogConfig";
+import { SetService } from "@/services";
 import { useToast } from "primevue/usetoast";
-const { isObjectHasKeys, isObject } = DataTypeCheckers;
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 
 const toast = useToast();
 
@@ -89,11 +91,11 @@ function copyToClipboard(): string {
 }
 
 function onCopy(): void {
-  toast.add(LoggerService.success("Value copied to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
 }
 
 function onCopyError(): void {
-  toast.add(LoggerService.error("Failed to copy value to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
 }
 </script>
 

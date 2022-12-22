@@ -2,7 +2,7 @@ import store from "@/store/index";
 import { flushPromises } from "@vue/test-utils";
 import { AuthService } from "@/services";
 import { User, CustomAlert } from "@im-library/models";
-import { EntityService, LoggerService } from "@/services";
+import { EntityService } from "@/services";
 import { beforeEach, describe, vi } from "vitest";
 import { setupServer } from "msw/node";
 import testData from "./index.testData";
@@ -252,7 +252,6 @@ describe("actions", () => {
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
-    LoggerService.info = vi.fn();
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -263,14 +262,11 @@ describe("actions", () => {
     expect(store.state.isLoggedIn).toBe(false);
     expect(store.state.currentUser).toBe(null);
     expect(result.authenticated).toBe(false);
-    expect(LoggerService.info).toBeCalledTimes(1);
-    expect(LoggerService.info).toBeCalledWith(undefined, "Force logout successful");
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
     AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed"));
-    LoggerService.error = vi.fn();
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -281,7 +277,5 @@ describe("actions", () => {
     expect(store.state.isLoggedIn).toBe(false);
     expect(store.state.currentUser).toBe(null);
     expect(result.authenticated).toBe(false);
-    expect(LoggerService.error).toBeCalledTimes(1);
-    expect(LoggerService.error).toBeCalledWith(undefined, "Force logout failed");
   });
 });

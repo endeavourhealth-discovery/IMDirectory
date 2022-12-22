@@ -1,8 +1,11 @@
 import { DefinitionConfig } from "@im-library/interfaces";
 import { ref, Ref } from "vue";
-import { ConfigService, LoggerService } from "@/services";
+import { ConfigService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byOrder } from "@im-library/helpers/Sorters";
+import { getLogger } from "@im-library/logger/LogConfig";
+
+const log = getLogger("composables.setupConfig");
 
 function setupConfig() {
   const configs: Ref<DefinitionConfig[]> = ref([]);
@@ -15,7 +18,7 @@ function setupConfig() {
     if (configs.value.every(config => isObjectHasKeys(config, ["order"]))) {
       configs.value.sort(byOrder);
     } else {
-      LoggerService.error(undefined, "Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
+      log.error("Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
     }
   }
 
