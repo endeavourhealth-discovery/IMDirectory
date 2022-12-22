@@ -1,6 +1,6 @@
 import { getLogger } from "../logger/LogConfig";
 import { Logger } from "typescript-logging-log4ts-style";
-import toTitleCase from "../helpers/StringManipulators";
+import { toTitleCase } from "../helpers/StringManipulators";
 import { ToastSeverity } from "../enums/ToastSeverity";
 
 export default class ToastOptions {
