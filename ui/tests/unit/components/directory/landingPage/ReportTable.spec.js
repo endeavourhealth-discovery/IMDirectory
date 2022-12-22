@@ -64,66 +64,65 @@ describe("ReportTable.vue", () => {
     // });
   });
 
-  describe("label + count input", () => {
-    let wrapper;
-    let reportData = [
-      { count: 2823174, label: "Ontologies" },
-      { count: 2227, label: "Discovery data model" },
-      { count: 1323, label: "Concept sets and value sets" },
-      { count: 159, label: "Query library" }
-    ];
+  // describe("label + count input", () => {
+  //   let component;
+  //   let reportData = [
+  //     { count: 2823174, label: "Ontologies" },
+  //     { count: 2227, label: "Discovery data model" },
+  //     { count: 1323, label: "Concept sets and value sets" },
+  //     { count: 159, label: "Query library" }
+  //   ];
 
-    beforeEach(async () => {
-      vi.clearAllMocks();
-      wrapper = shallowMount(ReportTable, {
-        props: { inputData: reportData, description: "A brief overview of the concepts stored in the Ontology", name: "Ontology overview", id: "reportTable1" },
-        global: {
-          components: { Card, DataTable, Column, ProgressSpinner }
-        }
-      });
+  //   beforeEach(async () => {
+  //     vi.clearAllMocks();
+  //     component = render(ReportTable, {
+  //       props: { inputData: reportData, description: "A brief overview of the concepts stored in the Ontology", name: "Ontology overview", id: "reportTable1" },
+  //       global: {
+  //         components: { Card, DataTable, Column, ProgressSpinner },
+  //         plugins: [PrimeVue]
+  //       }
+  //     });
 
-      await wrapper.vm.$nextTick();
-      vi.clearAllMocks();
-    });
+  //     vi.clearAllMocks();
+  //   });
 
-    it("can getReportTableData ___ label + count", () => {
-      wrapper.vm.tableData = [];
-      wrapper.vm.getReportTableData();
-      expect(wrapper.vm.tableData).toStrictEqual([
-        { count: 2823174, label: "Ontologies" },
-        { count: 2227, label: "Discovery data model" },
-        { count: 1323, label: "Concept sets and value sets" },
-        { count: 159, label: "Query library" }
-      ]);
-    });
-  });
+  //   it("can getReportTableData ___ label + count", () => {
+  //     component.getReportTableData();
+  //     expect(component.tableData).toStrictEqual([
+  //       { count: 2823174, label: "Ontologies" },
+  //       { count: 2227, label: "Discovery data model" },
+  //       { count: 1323, label: "Concept sets and value sets" },
+  //       { count: 159, label: "Query library" }
+  //     ]);
+  //   });
+  // });
 
-  describe("bad input", () => {
-    let wrapper;
-    let reportData = [
-      { total: 2823174, label: "Ontologies" },
-      { total: 2227, label: "Discovery data model" },
-      { total: 1323, label: "Concept sets and value sets" },
-      { total: 159, label: "Query library" }
-    ];
+  // describe("bad input", () => {
+  //   let wrapper;
+  //   let reportData = [
+  //     { total: 2823174, label: "Ontologies" },
+  //     { total: 2227, label: "Discovery data model" },
+  //     { total: 1323, label: "Concept sets and value sets" },
+  //     { total: 159, label: "Query library" }
+  //   ];
 
-    beforeEach(async () => {
-      vi.clearAllMocks();
-      wrapper = shallowMount(ReportTable, {
-        props: { inputData: reportData, description: "A brief overview of the concepts stored in the Ontology", name: "Ontology overview", id: "reportTable1" },
-        global: {
-          components: { Card, DataTable, Column, ProgressSpinner }
-        }
-      });
+  //   beforeEach(async () => {
+  //     vi.clearAllMocks();
+  //     wrapper = shallowMount(ReportTable, {
+  //       props: { inputData: reportData, description: "A brief overview of the concepts stored in the Ontology", name: "Ontology overview", id: "reportTable1" },
+  //       global: {
+  //         components: { Card, DataTable, Column, ProgressSpinner }
+  //       }
+  //     });
 
-      await wrapper.vm.$nextTick();
-      vi.clearAllMocks();
-    });
+  //     await wrapper.vm.$nextTick();
+  //     vi.clearAllMocks();
+  //   });
 
-    it("can getReportTableData ___ label + count", () => {
-      wrapper.vm.tableData = [];
-      wrapper.vm.getReportTableData();
-      expect(wrapper.vm.tableData).toStrictEqual([]);
-    });
-  });
+  //   it("can getReportTableData ___ label + count", () => {
+  //     wrapper.vm.tableData = [];
+  //     wrapper.vm.getReportTableData();
+  //     expect(wrapper.vm.tableData).toStrictEqual([]);
+  //   });
+  // });
 });
