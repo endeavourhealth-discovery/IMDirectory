@@ -92,10 +92,13 @@ const toast = useToast();
 const queryString = ref("");
 const queryBuild: Ref<ECLComponentDetails[]> = ref([]);
 
-watch( () => _.cloneDeep(queryBuild.value), newValue => {
-  queryBuild.value.sort(byPosition);
-  generateQueryString();
-});
+watch(
+  () => _.cloneDeep(queryBuild.value),
+  newValue => {
+    queryBuild.value.sort(byPosition);
+    generateQueryString();
+  }
+);
 
 onMounted(() => setStartBuild());
 
