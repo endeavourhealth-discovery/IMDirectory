@@ -284,7 +284,7 @@ async function submit(): Promise<void> {
           cancelButtonColor: "#607D8B"
         }).then(async (result: any) => {
           if (result.isConfirmed) {
-            directService.directTo(Env.VIEWER_URL, "concept?selectedIri=" + iriToUrl(editorEntity.value["http://endhealth.info/im#id"]));
+            directService.view(editorEntity.value["http://endhealth.info/im#id"]);
           } else {
             await fetchEntity();
           }
