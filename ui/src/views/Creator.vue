@@ -79,7 +79,7 @@ import { iriToUrl } from "@im-library/helpers/Converters";
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { EntityService, Env, FilerService } from "@/services";
+import { DirectService, EntityService, Env, FilerService } from "@/services";
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
@@ -88,6 +88,7 @@ const store = useStore();
 const confirm = useConfirm();
 
 const creatorSavedEntity = computed(() => store.state.creatorSavedEntity);
+const directService = new DirectService();
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -356,9 +357,9 @@ async function submit(): Promise<void> {
           cancelButtonColor: "#607D8B"
         }).then((result: any) => {
           if (result.isConfirmed) {
-            window.location.href = Env.DIRECTORY_URL + "concept?selectedIri=" + iriToUrl(editorEntity.value["http://endhealth.info/im#id"]);
+            directService.view(editorEntity.value["http://endhealth.info/im#id"]);
           } else {
-            router.push({ name: "Editor", params: { selectedIri: editorEntity.value["http://endhealth.info/im#id"] } });
+            directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
           }
         });
       }
