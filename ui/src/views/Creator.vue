@@ -41,7 +41,7 @@
         <div class="button-bar" id="creator-button-bar">
           <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" />
           <Button icon="pi pi-refresh" label="Reset" class="p-button-warning" @click="refreshCreator" />
-          <Button v-if="groups[currentStep - 1]?.name === 'Members'" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
+          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
           <Button icon="pi pi-check" label="Create" class="p-button-success save-button" @click="submit" />
           <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" />
         </div>
@@ -98,6 +98,7 @@ const hasType = computed<boolean>(() => {
 });
 
 const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
+const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;

@@ -41,7 +41,7 @@
         <div class="button-bar" id="editor-button-bar">
           <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" data-testid="back-button" />
           <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" @click="router.go(-1)" data-testid="cancel-button" />
-          <Button v-if="groups[currentStep]?.name === 'Members'" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
+          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
           <Button icon="pi pi-refresh" label="Reset" class="p-button-warning" @click="refreshEditor" data-testid="refresh-button" />
           <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
           <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" data-testid="forward-button" />
@@ -144,6 +144,7 @@ watch(
 );
 
 const directService = new DirectService();
+const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 function findPrimaryType(): TTIriRef | undefined {
   if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]))) return undefined;
