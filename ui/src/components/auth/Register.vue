@@ -120,7 +120,7 @@
         <div class="flex flex-row justify-content-center">
           <Button
             data-testid="register-submit-disabled"
-            v-if="!allVerified()"
+            v-if="!allVerified"
             class="user-submit"
             type="submit"
             label="Register"
@@ -177,13 +177,28 @@ const firstNameVerified = computed(() => verifyIsName(firstName.value));
 const lastNameVerified = computed(() => verifyIsName(lastName.value));
 const passwordStrength = computed(() => checkPasswordStrength(password1.value));
 const passwordsMatch = computed(() => verifyEmailsMatch(password1.value, password2.value));
+const allVerified = computed(
+  () =>
+    usernameVerified.value &&
+    email1Verified.value &&
+    emailsMatch.value &&
+    firstNameVerified.value &&
+    lastNameVerified.value &&
+    passwordStrength.value !== PasswordStrength.fail &&
+    passwordsMatch.value &&
+    emailIsNotRegistered.value
+);
+
+watch(email1, async newValue => {
+  await verifyEmailIsNotRegistered(newValue);
+});
 
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);
 }
 
 async function handleSubmit(): Promise<void> {
-  if (await allVerified()) {
+  if (allVerified.value) {
     const user = new User(username.value, firstName.value, lastName.value, email1.value.toLowerCase(), password1.value, selectedAvatar.value, []);
     AuthService.register(user)
       .then(res => {
@@ -243,25 +258,6 @@ function clearForm(): void {
   selectedAvatar.value = Avatars[0];
 }
 
-async function allVerified(): Promise<boolean> {
-  await verifiyEmailIsNotRegistered(email1.value);
-  if (
-    usernameVerified.value &&
-    email1Verified.value &&
-    emailsMatch.value &&
-    passwordsMatch.value &&
-    passwordStrength.value !== PasswordStrength.fail &&
-    firstNameVerified.value &&
-    lastNameVerified.value &&
-    selectedAvatar.value &&
-    emailIsNotRegistered
-  ) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function updateAvatar(newValue: string): void {
   selectedAvatar.value = newValue;
 }
@@ -272,8 +268,8 @@ function checkKey(event: any): void {
   }
 }
 
-async function verifiyEmailIsNotRegistered(email: string): Promise<void> {
-  if (email && email1Verified) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
+async function verifyEmailIsNotRegistered(email: string): Promise<void> {
+  if (email && email1Verified.value) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
   else emailIsNotRegistered.value = true;
 }
 </script>
