@@ -1,5 +1,7 @@
 import { CustomAlert, User } from "@im-library/models";
 import { Auth } from "aws-amplify";
+import axios from "axios";
+import Env from "./Env";
 
 const AuthService = {
   async register(userToRegister: User): Promise<CustomAlert> {
@@ -22,6 +24,10 @@ const AuthService = {
         return new CustomAlert(400, "User registration failed", err);
       }
     }
+  },
+
+  async isEmailRegistered(email: string) {
+    return await axios.get(Env.VITE_NODE_API + "node_api/cognito/public/isEmailRegistered", { params: { email: email } });
   },
 
   async confirmRegister(username: string, code: string): Promise<CustomAlert> {
