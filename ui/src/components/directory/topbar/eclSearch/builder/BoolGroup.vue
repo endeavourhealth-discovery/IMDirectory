@@ -4,8 +4,9 @@
     <template v-for="(item, index) in value.items">
       <div class="component-container">
         <span class="left-container">
-          <div v-if="index == 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index == 1" type="button" :label="value.operator" @click="toggleBool" />
+          <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
+<!--          <Button v-if="index === 0" type="button" label="WHERE" class="p-button-secondary" disabled />-->
+          <Button v-else-if="index === 1" type="button" :label="value.operator" @click="toggleBool" />
           <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
         </span>
 
@@ -89,7 +90,7 @@ function add(item: any) {
 }
 
 function addConcept() {
-  add({ "type": "Concept", "descendants": "<<"});
+  add({ "type": "Concept", "descendants": "<<", "operator": "AND"});
 }
 
 function addRefinement() {
@@ -130,7 +131,7 @@ function move(index: number, direction: number) {
 }
 
 .move-group {
-  width: 10rem;
+  width: 7rem;
 }
 
 .hover-show {
@@ -157,7 +158,7 @@ function move(index: number, direction: number) {
 }
 
 Button {
-  margin-right: 8px;
+  margin-right: 4px;
   height: 1.5rem;
   align-self: center;
 }

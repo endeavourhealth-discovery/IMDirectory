@@ -4,21 +4,28 @@
       <AutoComplete style="flex: 1" input-style="flex:1" field="name" dataKey="iri" v-model="value.concept" :suggestions="suggestions" @complete="search(value.concept)"></AutoComplete>
       <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value"></Dropdown>
     </div>
+    <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <template v-for="(item, index) in value.items">
-        <div style="display: flex">
-          <component
-              :is="item.type"
-              :value="item"
-              :parent="value"
-          >
-          </component>
-          <span class="move-group hover-show">
-            <Button @click="deleteItem(index)" class="p-button-sm p-button-danger" icon="pi pi-times"/>
-            <Button @click="move(index, -1)" :disabled="index === 0" class="p-button-sm p-button-secondary" icon="pi pi-arrow-up"/>
-            <Button @click="move(index, +1)" :disabled="index === value.items.length - 1" class="p-button-sm p-button-secondary" icon="pi pi-arrow-down"/>
-          </span>
-        </div>
-      </template>
+      <div style="display: flex">
+        <span class="left-container">
+          <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
+<!--          <Button v-if="index === 0" type="button" label="WHERE" class="p-button-secondary" disabled />-->
+          <Button v-else-if="index === 1" type="button" :label="value.operator" @click="toggleBool" />
+          <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
+        </span>
+        <component
+            :is="item.type"
+            :value="item"
+            :parent="value"
+        >
+        </component>
+        <span class="move-group hover-show">
+          <Button @click="deleteItem(index)" class="p-button-sm p-button-danger" icon="pi pi-times"/>
+          <Button @click="move(index, -1)" :disabled="index === 0" class="p-button-sm p-button-secondary" icon="pi pi-arrow-up"/>
+          <Button @click="move(index, +1)" :disabled="index === value.items.length - 1" class="p-button-sm p-button-secondary" icon="pi pi-arrow-down"/>
+        </span>
+      </div>
+    </template>
     <div class="add-group hover-show">
       <Button type="button" class="p-button-success" label="Add" @click="toggle" />
       <Menu ref="menu" :model="addOptions" :popup="true" />
@@ -44,7 +51,23 @@ const store = useStore();
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const suggestions: Ref<any[]> = ref([]);
+const menuBool = ref();
 const menu = ref();
+
+const boolOptions = [
+  {
+    label: 'AND',
+    command: () => props.value.operator = 'AND'
+  },
+  {
+    label: 'OR',
+    command: () => props.value.operator = 'OR'
+  },
+  {
+    label: 'MINUS',
+    command: () => props.value.operator = 'MINUS'
+  }
+];
 
 const descendantOptions = [
   {
@@ -71,6 +94,10 @@ const addOptions = [
     command: () => addGroup()
   }
 ];
+
+function toggleBool(event :any) {
+  menuBool.value.toggle(event);
+}
 
 function toggle(event: any) {
   menu.value.toggle(event);
@@ -123,6 +150,16 @@ function move(index: number, direction: number) {
 </script>
 
 <style scoped>
+.left-container {
+  display: flex;
+  align-items: center;
+}
+
+.left-container > * {
+  width: 6rem;
+  margin: 0;
+}
+
 .nested-div {
   padding: 0.5rem;
   border: #ff8c0030 1px solid;
@@ -133,7 +170,7 @@ function move(index: number, direction: number) {
 }
 
 Button {
-  margin-right: 8px;
+  margin-right: 4px;
   height: 1.5rem;
   align-self: center;
 }
@@ -143,7 +180,7 @@ Button {
 }
 
 .move-group {
-  width: 10rem;
+  width: 6rem;
 }
 
 .hover-show {

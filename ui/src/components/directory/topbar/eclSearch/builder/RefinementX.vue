@@ -66,10 +66,10 @@ async function search(term: string) {
 
 <style scoped>
 .nested-div {
-  padding: 0.5rem;
-  border: #ff8c0030 1px solid;
+  padding: 0;
+  border: none;
   border-radius: 5px;
-  background-color: #ff8c0010;
+  background-color: unset;
   margin: 0.5rem;
   flex: 1;
 }
