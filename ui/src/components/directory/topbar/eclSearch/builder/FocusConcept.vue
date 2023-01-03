@@ -24,19 +24,21 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import Expression from "./Expression.vue";
+import Constraint from "./Constraint.vue";
 export default defineComponent({
   components: { Expression, Constraint }
 });
 </script>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
-import Expression from "./Expression.vue";
-import Constraint from "./Constraint.vue";
+import { onMounted, PropType, ref, Ref, watch } from "vue";
 import AddDeleteButtons from "../AddDeleteButtons.vue";
 import { ECLComponent } from "@im-library/enums";
 import { DataTypeCheckers, Sorters, EclSearchBuilderMethods } from "@im-library/helpers";
 import { ECLComponentDetails } from "@im-library/interfaces";
+import _ from "lodash";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPosition } = Sorters;
 const { generateNewComponent } = EclSearchBuilderMethods;
@@ -62,7 +64,7 @@ const emit = defineEmits({
 
 const focusConceptBuild: Ref<ECLComponentDetails[]> = ref([]);
 
-watch(focusConceptBuild, newValue => {
+watch(() => _.cloneDeep(focusConceptBuild.value), newValue =>{
   newValue.sort(byPosition);
   emit("updateClicked", createFocusConcept());
 });

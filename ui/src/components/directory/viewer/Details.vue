@@ -94,7 +94,7 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  definition.value = await EntityService.getEntityDetailsDisplay(props.conceptIri);
+  definition.value = (await EntityService.getEntityDetailsDisplay(props.conceptIri)).filter((c:any) => c.key !== IM.IS_A);
 }
 
 async function onSelect(node: TreeNode) {

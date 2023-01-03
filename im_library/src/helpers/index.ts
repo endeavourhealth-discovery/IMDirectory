@@ -16,6 +16,7 @@ import EclSearchBuilderMethods from "./EclSearchBuilderMethods";
 import QueryBuilderMethods from "./QueryBuilderMethods";
 import UtililityMethods from "./UtilityMethods";
 import TangledTreeLayout from "./TangledTreeLayout";
+import StringManipulators from "./StringManipulators";
 
 export {
   ChartRescale,
@@ -35,5 +36,6 @@ export {
   EclSearchBuilderMethods,
   QueryBuilderMethods,
   UtililityMethods,
-  TangledTreeLayout
+  TangledTreeLayout,
+  StringManipulators
 };

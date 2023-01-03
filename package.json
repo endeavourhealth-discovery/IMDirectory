@@ -6,6 +6,7 @@
     "dev-library": "cd im_library && npm run dev",
     "dev-api": "cd node_api && npm run dev",
     "dev-ui": "cd ui && npm run dev",
+    "clean-install-all": "rimraf ui/node_modules && rimraf node_api/node_modules && rimraf im_library/node_modules && rimraf node_modules && npm run install-all",
     "install-all": "npm install && run-p install-library install-api install-ui",
     "install-library": "cd im_library && npm install",
     "install-api": "cd node_api && npm install",
@@ -14,6 +15,7 @@
     "test:coverage": "cd im_library && npx vitest run --coverage && cd ../node_api && npx vitest run --coverage && cd ../ui && npx vitest run --coverage"
   },
   "devDependencies": {
-    "npm-run-all": "^4.1.5"
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2"
   }
 }

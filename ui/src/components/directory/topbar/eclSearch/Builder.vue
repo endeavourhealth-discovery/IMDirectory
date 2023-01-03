@@ -65,9 +65,11 @@ export default defineComponent({
 import {  onMounted, Ref, ref, watch } from "vue";
 import { ECLComponent } from "@im-library/enums";
 import { Sorters, EclSearchBuilderMethods } from "@im-library/helpers";
-import { LoggerService } from "@/services";
 import { ECLComponentDetails } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
+import _ from "lodash";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 const { byPosition } = Sorters;
 const { generateNewComponent, addItem, updateItem, updatePositions } = EclSearchBuilderMethods;
 
@@ -87,10 +89,13 @@ const ecl: Ref<any> = ref({ "type": "BoolGroup", "operator": "AND" });
 const queryString = ref("");
 const queryBuild: Ref<ECLComponentDetails[]> = ref([]);
 
-watch(queryBuild, () => {
-  queryBuild.value.sort(byPosition);
-  generateQueryString();
-});
+watch(
+  () => _.cloneDeep(queryBuild.value),
+  newValue => {
+    queryBuild.value.sort(byPosition);
+    generateQueryString();
+  }
+);
 
 onMounted(() => setStartBuild());
 
@@ -147,11 +152,11 @@ function copyToClipboard(): string {
 }
 
 function onCopy(): void {
-  toast.add(LoggerService.success("Value copied to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
 }
 
 function onCopyError(): void {
-  toast.add(LoggerService.error("Failed to copy value to clipboard"));
+  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipbard"));
 }
 </script>
 

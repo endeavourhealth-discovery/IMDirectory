@@ -24,7 +24,9 @@
       listStyle="max-height: 40rem;overflow: auto;"
       v-model="selected"
       @change="directService.select(selected['@id'], 'Folder')"
+      emptySelectionMessage="None"
       emptyMessage="None"
+      selectionMessage="Selected"
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >
@@ -53,7 +55,10 @@ import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import { mapState, useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
-import { DirectService, LoggerService } from "@/services";
+import { DirectService } from "@/services";
+import { getLogger } from "@im-library/logger/LogConfig";
+
+const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabelAndLoadMore");
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -83,8 +88,7 @@ const isArrayObjectWithName = computed(() => {
   if (props.data.children.every(item => isObjectHasKeys(item, ["name"]))) {
     return true;
   } else {
-    LoggerService.warn(
-      undefined,
+    log.warn(
       "Data error. Data is not array, array does not contain Object or Object has no property 'name' for use within component ArrayObjectNameListboxWithLabelAndLoadMore.vue"
     );
     return false;

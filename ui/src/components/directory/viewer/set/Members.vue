@@ -54,9 +54,6 @@
           <IMViewerLink :iri="data['@id']" :label="data.name" action="select" />
         </template>
       </Column>
-      <template #footer v-if="loadButton">
-        <Button label="Load more..." class="p-button-text p-button-plain" @click="loadMore" />
-      </template>
     </DataTable>
   </div>
 </template>
@@ -65,13 +62,15 @@
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { TTIriRef } from "@im-library/interfaces";
 import { DataTypeCheckers } from "@im-library/helpers";
-import { EntityService, LoggerService, SetService } from "@/services";
+import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+const { isObjectHasKeys } = DataTypeCheckers;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -145,12 +144,12 @@ async function getMembers(): Promise<void> {
 async function downloadIMV1(): Promise<void> {
   downloading.value = true;
   try {
-    toast.add(LoggerService.success("Download will begin shortly"));
+    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
     const result = await SetService.IMV1(props.conceptIri);
     const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, label + ".txt");
-  } catch (error) {
-    toast.add(LoggerService.error("Download failed from server"));
+  } catch (err) {
+    toast.add(new ToastOptions(ToastSeverity.ERROR, "Download  failed from server", err));
   } finally {
     downloading.value = false;
   }
@@ -159,12 +158,12 @@ async function downloadIMV1(): Promise<void> {
 async function download(core: boolean, legacy: boolean, flat: boolean = false): Promise<void> {
   downloading.value = true;
   try {
-    toast.add(LoggerService.success("Download will begin shortly"));
+    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
     const result = (await EntityService.getFullExportSet(props.conceptIri, core, legacy, flat)).data;
     const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, getFileName(label));
   } catch (error) {
-    toast.add(LoggerService.error("Download failed from server"));
+    toast.add(new ToastOptions(ToastSeverity.ERROR, "Download failed from server", error));
   } finally {
     downloading.value = false;
   }
@@ -190,11 +189,11 @@ function publish() {
   SetService.publish(props.conceptIri)
     .then(() => {
       isPublishing.value = false;
-      toast.add(LoggerService.success("Value set published", "Published to IM1 :" + props.conceptIri));
+      toast.add(new ToastOptions(ToastSeverity.SUCCESS, `Value set published to IM1 : ${props.conceptIri}`));
     })
     .catch(() => {
       isPublishing.value = false;
-      toast.add(LoggerService.error("Failed to publish value set", "Publish to IM1 FAILED :" + props.conceptIri));
+      toast.add(new ToastOptions(ToastSeverity.ERROR, `Failed to publish value set to IM1 : ${props.conceptIri}`));
     });
 }
 
