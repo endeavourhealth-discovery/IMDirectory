@@ -9,6 +9,7 @@ import bodyParser from "body-parser";
 import * as dns from "dns";
 import SearchController from "./controllers/searchController";
 import EntityController from "./controllers/entityController";
+import CognitoController from "./controllers/cognitoController";
 import ParserController from "./controllers/parserController";
 
 dotenv.config();
@@ -24,6 +25,7 @@ const app = new App({
     new SearchController(),
     new SetController(),
     new EntityController(),
+    new CognitoController(),
     new ParserController()
   ],
   middleWares: [bodyParser.json(), bodyParser.urlencoded({ extended: true })]
