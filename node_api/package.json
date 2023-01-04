@@ -33,6 +33,7 @@
     "jwk-to-pem": "2.0.5",
     "lodash": "4.17.21",
     "mysql2": "2.3.3",
+    "n3": "1.16.2",
     "node-fetch": "3.3.0",
     "rimraf": "3.0.2",
     "swagger-ui-express": "4.6.0",
