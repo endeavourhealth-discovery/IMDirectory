@@ -24,7 +24,9 @@
       listStyle="max-height: 40rem;overflow: auto;"
       v-model="selected"
       @change="directService.select(selected['@id'], 'Folder')"
+      emptySelectionMessage="None"
       emptyMessage="None"
+      selectionMessage="Selected"
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >

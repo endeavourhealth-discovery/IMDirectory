@@ -5,6 +5,7 @@ import Button from "primevue/button";
 import OverlayPanel from "primevue/overlaypanel";
 import testData from "./Search.testData";
 import PrimeVue from "primevue/config";
+import SplitButton from "primevue/splitbutton";
 import { fireEvent, render } from "@testing-library/vue";
 
 const mockDispatch = vi.fn();
@@ -40,7 +41,7 @@ describe("Search.vue", () => {
     vi.resetAllMocks();
     component = render(Search, {
       global: {
-        components: { InputText, Button, OverlayPanel },
+        components: { InputText, Button, OverlayPanel, SplitButton },
         plugins: [PrimeVue],
         stubs: { Filters: true }
       }

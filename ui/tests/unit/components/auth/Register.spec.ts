@@ -12,7 +12,7 @@ import { Avatars } from "@im-library/constants";
 import { PasswordStrength } from "@im-library/enums";
 import { User } from "@im-library/models";
 import PrimeVue from "primevue/config";
-import { vi } from "vitest";
+import { describe, vi, beforeEach, it, expect } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 
 const mockDispatch = vi.fn();
@@ -50,6 +50,7 @@ describe("register.vue empty", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     AuthService.register = vi.fn().mockResolvedValue({ status: 201, message: "Register successful" });
+    AuthService.isEmailRegistered = vi.fn().mockResolvedValue(false);
 
     testUser = new User("DevTest", "John", "Doe", "devtest@ergo.co.uk", "12345678", Avatars[0], []);
     component = render(Register, {
@@ -78,6 +79,7 @@ describe("register.vue prefilled", () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     AuthService.register = vi.fn().mockResolvedValue({ status: 201, message: "Register successful" });
+    AuthService.isEmailRegistered = vi.fn().mockResolvedValue(false);
 
     testUser = new User("DevTest", "John", "Doe", "devtest@ergo.co.uk", "12345678", Avatars[0], []);
     component = render(Register, {

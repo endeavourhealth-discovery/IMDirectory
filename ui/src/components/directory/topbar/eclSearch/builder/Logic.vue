@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, Ref, ref, watch } from "vue";
+import { onMounted, PropType, Ref, ref, watch } from "vue";
 import AddDeleteButtons from "../AddDeleteButtons.vue";
 import { ECLComponent } from "@im-library/enums";
 import { ECLComponentDetails } from "@im-library/interfaces";

@@ -13,7 +13,7 @@
         url="https://www.primefaces.org/upload.php"
         @upload="onAdvancedUpload"
         :multiple="true"
-        accept=".csv, .txt"
+        accept=".csv, .tsv"
         :maxFileSize="1000000"
       >
         <template #content>
@@ -57,7 +57,7 @@
 <script setup lang="ts">
 import { computed, ComputedRef, Ref, ref, watch } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EntityService } from "@/services";
+import { EntityService, ParserService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import * as d3 from "d3";
 import { DSVRowArray } from "d3";
@@ -99,17 +99,6 @@ async function onAdvancedUpload(event: any) {
   let rowArray: DSVRowArray = {} as DSVRowArray;
   if ((file.name as string).endsWith(".csv")) rowArray = await d3.csv(url);
   else if ((file.name as string).endsWith(".tsv")) rowArray = await d3.tsv(url);
-  else {
-    try {
-      rowArray = await d3.csv(url);
-    } catch (_error) {
-      try {
-        rowArray = await d3.tsv(url);
-      } catch (_error) {
-        throw new TextProcessingError();
-      }
-    }
-  }
 
   const firstObject = rowArray[0];
   for (const column of Object.keys(firstObject)) {

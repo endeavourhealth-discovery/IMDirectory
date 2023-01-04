@@ -27,16 +27,17 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
+import Expression from "./Expression.vue";
+import Constraint from "./Constraint.vue";
+import Operator from "./Operator.vue";
 export default defineComponent({
   components: { Expression, Constraint, Operator }
 });
 </script>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
-import Expression from "./Expression.vue";
-import Constraint from "./Constraint.vue";
-import Operator from "./Operator.vue";
+import { onMounted, PropType, ref, Ref, watch } from "vue";
 import AddDeleteButtons from "../AddDeleteButtons.vue";
 import { ECLComponentDetails } from "@im-library/interfaces";
 import { ECLComponent } from "@im-library/enums";
@@ -44,6 +45,7 @@ import { DataTypeCheckers, Sorters, EclSearchBuilderMethods } from "@im-library/
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPosition } = Sorters;
 const { addItem, updateItem, updatePositions, generateNewComponent } = EclSearchBuilderMethods;
+import _ from "lodash";
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -65,7 +67,7 @@ const emit = defineEmits({
 
 const refinementBuild: Ref<ECLComponentDetails[]> = ref([]);
 
-watch(refinementBuild, () => {
+watch(() => _.cloneDeep(refinementBuild.value), () => {
   refinementBuild.value.sort(byPosition);
   emit("updateClicked", createRefinement());
 });

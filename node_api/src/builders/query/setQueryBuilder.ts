@@ -1,5 +1,6 @@
 import { Query, SetQueryObject } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { IM } from "@im-library/vocabulary";
 
 export function buildSetQueryObjectFromQuery(value: Query) {
   if (!isObjectHasKeys(value)) {
@@ -92,7 +93,7 @@ export function buildQueryFromSetQueryObject(clauses: SetQueryObject[]): any {
     }
 
     if (isArrayHasLength(clause.refinements)) {
-      newQuery.where.path = "http://endhealth.info/im#roleGroup";
+      newQuery.where.pathTo = IM.ROLE_GROUP;
       newQuery.where.and = [] as any[];
     }
 

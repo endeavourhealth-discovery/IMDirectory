@@ -41,7 +41,7 @@
         <div class="button-bar" id="creator-button-bar">
           <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" />
           <Button icon="pi pi-refresh" label="Reset" class="p-button-warning" @click="refreshCreator" />
-          <Button v-if="groups[currentStep - 1]?.name === 'Members'" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
+          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
           <Button icon="pi pi-check" label="Create" class="p-button-success save-button" @click="submit" />
           <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" />
         </div>
@@ -79,7 +79,7 @@ import { iriToUrl } from "@im-library/helpers/Converters";
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { EntityService, Env, FilerService } from "@/services";
+import { DirectService, EntityService, Env, FilerService } from "@/services";
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
@@ -88,6 +88,7 @@ const store = useStore();
 const confirm = useConfirm();
 
 const creatorSavedEntity = computed(() => store.state.creatorSavedEntity);
+const directService = new DirectService();
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -98,6 +99,7 @@ const hasType = computed<boolean>(() => {
 });
 
 const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
+const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
@@ -355,9 +357,9 @@ async function submit(): Promise<void> {
           cancelButtonColor: "#607D8B"
         }).then((result: any) => {
           if (result.isConfirmed) {
-            window.location.href = Env.DIRECTORY_URL + "concept?selectedIri=" + iriToUrl(editorEntity.value["http://endhealth.info/im#id"]);
+            directService.view(editorEntity.value["http://endhealth.info/im#id"]);
           } else {
-            router.push({ name: "Editor", params: { selectedIri: editorEntity.value["http://endhealth.info/im#id"] } });
+            directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
           }
         });
       }

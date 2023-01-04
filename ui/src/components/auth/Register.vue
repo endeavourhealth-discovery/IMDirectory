@@ -33,6 +33,7 @@
               @focus="updateFocused('email1', true)"
               @blur="updateFocused('email1', false)"
             />
+            <InlineMessage v-if="!emailIsNotRegistered && email1Verified" severity="error">Email address is already registered</InlineMessage>
             <i
               v-if="email1Verified && focused.get('email1') === false"
               data-testid="register-email1-verified"
@@ -119,7 +120,7 @@
         <div class="flex flex-row justify-content-center">
           <Button
             data-testid="register-submit-disabled"
-            v-if="!allVerified()"
+            v-if="!allVerified"
             class="user-submit"
             type="submit"
             label="Register"
@@ -142,16 +143,9 @@
 <script setup lang="ts">
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
-import { computed, defineComponent, Ref, ref } from "vue";
+import { computed, defineComponent, Ref, ref, watch } from "vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
-import {
-  verifyEmailsMatch,
-  verifyIsEmail,
-  verifyIsName,
-  verifyIsUsername,
-  verifyPasswordsMatch,
-  checkPasswordStrength
-} from "@im-library/helpers/UserMethods";
+import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyIsUsername, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import { PasswordStrength } from "@im-library/enums";
 import { Avatars } from "@im-library/constants";
 import { User } from "@im-library/models";
@@ -165,15 +159,16 @@ const emit = defineEmits({
 const store = useStore();
 const router = useRouter();
 
-let username = ref("");
-let email1 = ref("");
-let email2 = ref("");
-let firstName = ref("");
-let lastName = ref("");
-let password1 = ref("");
-let password2 = ref("");
-let selectedAvatar = ref(Avatars[0]);
-let focused: Ref<Map<string, boolean>> = ref(new Map());
+const username = ref("");
+const email1 = ref("");
+const email2 = ref("");
+const firstName = ref("");
+const lastName = ref("");
+const password1 = ref("");
+const password2 = ref("");
+const selectedAvatar = ref(Avatars[0]);
+const focused: Ref<Map<string, boolean>> = ref(new Map());
+const emailIsNotRegistered = ref(true);
 
 const usernameVerified = computed(() => verifyIsUsername(username.value));
 const email1Verified = computed(() => verifyIsEmail(email1.value));
@@ -182,13 +177,28 @@ const firstNameVerified = computed(() => verifyIsName(firstName.value));
 const lastNameVerified = computed(() => verifyIsName(lastName.value));
 const passwordStrength = computed(() => checkPasswordStrength(password1.value));
 const passwordsMatch = computed(() => verifyEmailsMatch(password1.value, password2.value));
+const allVerified = computed(
+  () =>
+    usernameVerified.value &&
+    email1Verified.value &&
+    emailsMatch.value &&
+    firstNameVerified.value &&
+    lastNameVerified.value &&
+    passwordStrength.value !== PasswordStrength.fail &&
+    passwordsMatch.value &&
+    emailIsNotRegistered.value
+);
+
+watch(email1, async newValue => {
+  await verifyEmailIsNotRegistered(newValue);
+});
 
 function updateFocused(key: string, value: boolean) {
   focused.value.set(key, value);
 }
 
-function handleSubmit(): void {
-  if (allVerified()) {
+async function handleSubmit(): Promise<void> {
+  if (allVerified.value) {
     const user = new User(username.value, firstName.value, lastName.value, email1.value.toLowerCase(), password1.value, selectedAvatar.value, []);
     AuthService.register(user)
       .then(res => {
@@ -248,23 +258,6 @@ function clearForm(): void {
   selectedAvatar.value = Avatars[0];
 }
 
-function allVerified(): boolean {
-  if (
-    usernameVerified.value &&
-    email1Verified.value &&
-    emailsMatch.value &&
-    passwordsMatch.value &&
-    passwordStrength.value !== PasswordStrength.fail &&
-    firstNameVerified.value &&
-    lastNameVerified.value &&
-    selectedAvatar.value
-  ) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function updateAvatar(newValue: string): void {
   selectedAvatar.value = newValue;
 }
@@ -273,6 +266,11 @@ function checkKey(event: any): void {
   if (event.keyCode === 13) {
     handleSubmit();
   }
+}
+
+async function verifyEmailIsNotRegistered(email: string): Promise<void> {
+  if (email && email1Verified.value) emailIsNotRegistered.value = !(await AuthService.isEmailRegistered(email));
+  else emailIsNotRegistered.value = true;
 }
 </script>
 
