@@ -1,7 +1,9 @@
 <template>
   <div class="search-container">
     <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" data-testid="search-input" />
-    <SplitButton class="search-button p-button-secondary" label="Search" @click="search" :model="buttonActions" />
+    <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
+      <Button @click="search" class="search-button p-button-secondary" label="Search" />
+    </SplitButton>
     <Button
       id="filter-button"
       icon="pi pi-sliders-h"
@@ -56,6 +58,7 @@ function toEclSearch() {
 }
 
 async function search(): Promise<void> {
+  console.log(event);
   if (searchText.value) {
     router.push({
       name: "Search"
