@@ -41,40 +41,7 @@
       <Column :exportable="false" style="justify-content: flex-end">
         <template #body="{ data }">
           <div class="buttons-container">
-            <Button
-              :icon="'fa-solid fa-sitemap'"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="locateInTree($event, data['@id'], 'Folder')"
-              v-tooltip.top="'Find in tree'"
-              data-testid="select-button"
-            />
-            <Button
-              icon="pi pi-fw pi-external-link"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.view(data['@id'])"
-              v-tooltip.top="'View in new tab'"
-            />
-            <Button
-              icon="fa-solid fa-pen-to-square"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.edit(data['@id'])"
-              v-tooltip.top="'Edit'"
-            />
-            <Button
-              v-if="isFavourite(data['@id'])"
-              style="color: #e39a36"
-              icon="pi pi-fw pi-star-fill"
-              class="p-button-rounded p-button-text row-button-fav"
-              @click="updateFavourites(data['@id'])"
-              v-tooltip.left="'Unfavourite'"
-            />
-            <Button
-              v-else
-              icon="pi pi-fw pi-star"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="updateFavourites(data['@id'])"
-              v-tooltip.left="'Favourite'"
-            />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" />
           </div>
         </template>
       </Column>
@@ -93,8 +60,8 @@ import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, Env, DirectService } from "@/services";
 import rowClick from "@/composables/rowClick";
-import findInTree from "@/composables/findInTree";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import ActionButtons from "@/components/shared/ActionButtons.vue";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength } = DataTypeCheckers;
 
@@ -104,7 +71,6 @@ const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService();
 const { onRowClick }: { onRowClick: Function } = rowClick();
-const { locateInTree }: { locateInTree: Function } = findInTree();
 
 watch(
   () => conceptIri.value,

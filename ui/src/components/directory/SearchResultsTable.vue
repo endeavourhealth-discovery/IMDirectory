@@ -41,7 +41,7 @@
       <template #empty> None </template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #body="slotProps">
-          <div class="ml-2" >
+          <div class="ml-2">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
               <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
@@ -57,43 +57,7 @@
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="slotProps">
           <div class="buttons-container">
-            <Button
-              :icon="'fa-solid fa-sitemap'"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="locateInTree($event, slotProps.data.iri, 'Folder')"
-              v-tooltip.top="'Find in tree'"
-              data-testid="select-button"
-            />
-            <Button
-              icon="pi pi-fw pi-external-link"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.view(slotProps.data.iri)"
-              v-tooltip.top="'View in new tab'"
-            />
-            <Button
-              icon="fa-solid fa-pen-to-square"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.edit(slotProps.data.iri)"
-              v-tooltip.top="'Edit'"
-              data-testid="edit-button"
-            />
-            <Button
-              v-if="isFavourite(slotProps.data.iri)"
-              style="color: #e39a36"
-              icon="pi pi-fw pi-star-fill"
-              class="p-button-rounded p-button-text row-button-fav"
-              @click="updateFavourites(slotProps)"
-              v-tooltip.left="'Unfavourite'"
-              data-testid="unfavourite-button"
-            />
-            <Button
-              v-else
-              icon="pi pi-fw pi-star"
-              class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="updateFavourites(slotProps)"
-              v-tooltip.left="'Favourite'"
-              data-testid="favourite-button"
-            />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="slotProps.data.iri" />
           </div>
         </template>
       </Column>
@@ -112,7 +76,7 @@ import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService, Env } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
-import findInTree from "@/composables/findInTree";
+import ActionButtons from "@/components/shared/ActionButtons.vue";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -125,7 +89,6 @@ const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService();
-const { locateInTree }: { locateInTree: Function } = findInTree();
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
@@ -330,15 +293,5 @@ label {
 
 .break-word {
   word-break: normal;
-}
-
-.row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
-}
-
-.row-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
 }
 </style>
