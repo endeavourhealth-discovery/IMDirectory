@@ -33,27 +33,7 @@
             </Column>
             <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
               <template #body="{ data }">
-                <Button
-                  icon="fa-solid fa-sitemap"
-                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
-                  @click="locateInTree($event, data.iri)"
-                  v-tooltip.top="'Find in tree'"
-                  data-testid="select-button"
-                />
-                <Button
-                  icon="pi pi-fw pi-external-link"
-                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
-                  @click="directService.view(data.iri)"
-                  v-tooltip.top="'View'"
-                  data-testid="view-button"
-                />
-                <Button
-                  icon="fa-solid fa-pen-to-square"
-                  class="p-button-rounded p-button-text p-button-plain activity-row-button"
-                  @click="directService.edit(data.iri)"
-                  v-tooltip.top="'Edit'"
-                  data-testid="edit-button"
-                />
+                <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
               </template>
             </Column>
           </DataTable>
@@ -80,7 +60,7 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
-import findInTree from "@/composables/findInTree";
+import ActionButtons from "@/components/shared/ActionButtons.vue";
 
 export default defineComponent({
   components: { ReportTable, PieChartDashCard }
@@ -90,12 +70,11 @@ export default defineComponent({
 <script setup lang="ts">
 import { computed, Ref, ref, watch, onMounted } from "vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-
 import { useStore } from "vuex";
 import _ from "lodash";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
-import { EntityService, Env, ConfigService, DirectService } from "@/services";
+import { EntityService, Env, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
@@ -103,14 +82,12 @@ const { byOrder } = Sorters;
 const store = useStore();
 const recentLocalActivity = computed(() => store.state.recentLocalActivity);
 
-const directService = new DirectService();
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
 const loading: Ref<boolean> = ref(false);
 const configs: Ref<DashboardLayout[]> = ref([]);
 const cardsData: Ref<{ name: string; description: string; inputData: IriCount; component: string }[]> = ref([]);
 const { onRowClick }: { onRowClick: Function } = rowClick();
-const { locateInTree }: { locateInTree: Function } = findInTree();
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
@@ -136,7 +113,7 @@ async function getRecentActivityDetails() {
   for (const rla of recentLocalActivity.value) {
     const clone = { ...rla };
 
-    const result = results.find(r => r["@id"] === rla.iri);
+    const result = results.find((r: any) => r["@id"] === rla.iri);
 
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
       clone.name = result[RDFS.LABEL];
@@ -267,12 +244,6 @@ async function getCardsData(): Promise<void> {
   border: none;
   box-shadow: none;
   border-radius: none;
-}
-
-.activity-row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
-  z-index: 999;
 }
 
 .recent-icon {
