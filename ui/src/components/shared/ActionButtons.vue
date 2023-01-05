@@ -30,6 +30,7 @@
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Unfavourite'"
+    data-testid="unfavourite-button"
   />
   <Button
     v-else-if="show('favourite') && !isFavourite(iri)"
@@ -37,6 +38,7 @@
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Favourite'"
+    data-testid="favourite-button"
   />
 </template>
 
