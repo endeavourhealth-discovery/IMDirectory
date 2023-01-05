@@ -17,6 +17,7 @@ import QueryBuilderMethods from "./QueryBuilderMethods";
 import UtililityMethods from "./UtilityMethods";
 import TangledTreeLayout from "./TangledTreeLayout";
 import StringManipulators from "./StringManipulators";
+import QuickQueryBuilders from "./QuickQueryBuilders";
 
 export {
   ChartRescale,
@@ -37,5 +38,6 @@ export {
   QueryBuilderMethods,
   UtililityMethods,
   TangledTreeLayout,
-  StringManipulators
+  StringManipulators,
+  QuickQueryBuilders
 };
