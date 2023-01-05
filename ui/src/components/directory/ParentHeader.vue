@@ -10,40 +10,7 @@
         </h4>
       </div>
       <div class="concept-buttons-container">
-        <Button
-          icon="fa-solid fa-sitemap"
-          class="p-button-secondary p-button-outlined concept-button"
-          @click="locateInTree($event, concept['@id'])"
-          v-tooltip.top="'Find in tree'"
-          data-testid="find-in-tree-button"
-        />
-        <Button
-          icon="pi pi-fw pi-external-link"
-          class="p-button-secondary p-button-outlined concept-button"
-          @click="directService.view(concept['@id'])"
-          v-tooltip.left="'Open in new tab'"
-        />
-        <Button
-          icon="fa-solid fa-pen-to-square"
-          class="p-button-secondary p-button-outlined concept-button"
-          @click="directService.edit(concept['@id'])"
-          v-tooltip.left="'Edit'"
-        />
-        <Button
-          v-if="isFavourite(concept['@id'])"
-          style="color: #e39a36"
-          icon="pi pi-fw pi-star-fill"
-          class="p-button-secondary p-button-outlined concept-button-fav"
-          @click="updateFavourites(concept['@id'])"
-          v-tooltip.left="'Unfavourite'"
-        />
-        <Button
-          v-else
-          icon="pi pi-fw pi-star"
-          class="p-button-secondary p-button-outlined concept-button"
-          @click="updateFavourites(concept['@id'])"
-          v-tooltip.left="'Favourite'"
-        />
+        <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="concept['@id']" :type="'conceptButton'" />
       </div>
     </div>
     <TextWithLabel label="Iri" :data="concept['@id']" :show="concept['@id'] ? true : false" />
@@ -70,31 +37,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
+import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF } from "@im-library/vocabulary";
-import { DirectService } from "@/services";
-import { Store, useStore } from "vuex";
-import { State } from "@/store/stateType";
-import findInTree from "@/composables/findInTree";
-const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
-const { isArrayHasLength } = DataTypeCheckers;
+import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 
 const props = defineProps({ concept: { type: Object as any, required: true } });
-
-const store: Store<State> = useStore();
-const favourites = computed(() => store.state.favourites);
-const { locateInTree }: { locateInTree: Function } = findInTree();
-
-const directService = new DirectService();
-
-function isFavourite(iri: string) {
-  return isArrayHasLength(favourites.value) && favourites.value.includes(iri);
-}
 
 function getIcon(concept: any) {
   if (concept["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
@@ -103,10 +54,6 @@ function getIcon(concept: any) {
 
 function getColour(concept: any) {
   return "color: " + getColourFromType(concept[RDF.TYPE]);
-}
-
-function updateFavourites(iri: string) {
-  store.commit("updateFavourites", iri);
 }
 </script>
 
@@ -147,20 +94,5 @@ function updateFavourites(iri: string) {
   justify-content: flex-end;
   align-items: center;
   gap: 0.5rem;
-}
-
-.concept-button,
-.concept-button-fav {
-  height: fit-content;
-}
-
-.concept-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
-}
-
-.concept-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
 }
 </style>

@@ -280,11 +280,11 @@ const EntityService = {
     }
   },
 
-  async getPartialEntities(typeIris: string[], predicates: string[]) {
+  async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
     try {
       return await axios.get(api + "api/entity/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
     } catch (error) {
-      return [];
+      return [] as any[];
     }
   },
 
