@@ -80,6 +80,7 @@ import { TreeSelectOption } from "./quickQuery/TreeSelectOption";
 import { TreeSelectOptionData } from "./quickQuery/TreeSelectOptionData";
 import { TreeTableItem } from "./quickQuery/TreeTableItem";
 import { TreeTableItemData } from "./quickQuery/TreeTableItemData";
+import { TreeDialogActions } from "./TreeDialogActions";
 
 export {
   type AccountItem,
@@ -163,5 +164,6 @@ export {
   type TreeSelectOption,
   type TreeSelectOptionData,
   type TreeTableItem,
-  type TreeTableItemData
+  type TreeTableItemData,
+  type TreeDialogActions
 };
