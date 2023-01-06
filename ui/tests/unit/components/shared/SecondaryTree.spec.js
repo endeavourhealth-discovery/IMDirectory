@@ -22,6 +22,18 @@ vi.mock("vue-router", () => ({
   useRoute: () => mockRoute
 }));
 
+const mockDispatch = vi.fn();
+const mockState = {};
+const mockCommit = vi.fn();
+
+vi.mock("vuex", () => ({
+  useStore: () => ({
+    dispatch: mockDispatch,
+    state: mockState,
+    commit: mockCommit
+  })
+}));
+
 const ENTITY = {
   "@id": "http://snomed.info/sct#111266001",
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [
