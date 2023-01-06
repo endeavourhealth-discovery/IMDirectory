@@ -64,16 +64,11 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import {  onMounted, Ref, ref, watch } from "vue";
-import { ECLComponent } from "@im-library/enums";
-import { Sorters, EclSearchBuilderMethods } from "@im-library/helpers";
-import { ECLComponentDetails } from "@im-library/interfaces";
+import { Ref, ref, watch } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-const { byPosition } = Sorters;
-const { generateNewComponent, addItem, updateItem, updatePositions } = EclSearchBuilderMethods;
 
 const props = defineProps({
   showDialog: Boolean
@@ -97,17 +92,6 @@ watch(
 )
 
 const queryString = ref("");
-const queryBuild: Ref<ECLComponentDetails[]> = ref([]);
-
-watch(
-  () => _.cloneDeep(queryBuild.value),
-  newValue => {
-    queryBuild.value.sort(byPosition);
-    generateQueryString();
-  }
-);
-
-onMounted(() => setStartBuild());
 
 function submit(): void {
   emit("ECLSubmitted", queryString.value);
@@ -117,20 +101,13 @@ function closeBuilderDialog(): void {
   emit("closeDialog");
 }
 
-function addItemWrapper(data: { selectedType: ECLComponent; position: number; value: any }): void {
-  if (data.selectedType === ECLComponent.LOGIC) {
-    data.value = { data: data.value, parentGroup: ECLComponent.BUILDER };
-  }
-  addItem(data, queryBuild.value, { minus: true, plus: true });
-}
-
 function newGenerateQueryString() {
   queryString.value = getBoolGroupECL(ecl.value);
 }
 
 function getBoolGroupECL(clause: any) {
   if (clause.items && clause.items.length > 0)
-    return clause.items.map((i: any) => getClauseECL(i)).join("\n" + clause.operator);
+    return clause.items.map((i: any) => getClauseECL(i)).join("\n" + clause.operator + " ");
   else
     return "";
 }
@@ -180,39 +157,6 @@ function getRefinementECL(clause: any) {
   return result;
 }
 
-function generateQueryString(): void {
-  queryString.value = queryBuild.value
-    .map(item => {
-      if (item.type === ECLComponent.LOGIC) {
-        return item.queryString + "\n";
-      } else {
-        return item.queryString;
-      }
-    })
-    .join(" ")
-    .replace(/\n +/g, "\n");
-}
-
-function deleteItem(data: ECLComponentDetails): void {
-  const index = queryBuild.value.findIndex(item => item.position === data.position);
-  queryBuild.value.splice(index, 1);
-  const length = queryBuild.value.length;
-  if (length === 0) {
-    setStartBuild();
-    return;
-  }
-  updatePositions(queryBuild.value);
-}
-
-function updateItemWrapper(data: ECLComponentDetails): void {
-  updateItem(data, queryBuild.value);
-}
-
-function setStartBuild(): void {
-  queryBuild.value = [];
-  queryBuild.value.push(generateNewComponent(ECLComponent.FOCUS_CONCEPT, 0, null, { minus: false, plus: true }));
-}
-
 function copyToClipboard(): string {
   return queryString.value;
 }
@@ -250,14 +194,6 @@ function onCopyError(): void {
   flex: 1 1 auto;
   overflow: auto;
   font-size: 12px;
-}
-
-#next-option-container {
-  width: 100%;
-  display: flex;
-  flex-flow: row;
-  justify-content: center;
-  min-height: 2rem;
 }
 
 #build-string-container {

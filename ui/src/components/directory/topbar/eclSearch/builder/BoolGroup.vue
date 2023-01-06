@@ -14,6 +14,7 @@
             :is="item.type"
             :value="item"
             :parent="props.value"
+            :focus="props.focus"
         >
         </component>
         <span class="move-group hover-show">
@@ -36,6 +37,7 @@ import {ref, Ref} from 'vue';
 const props = defineProps({
   value: { type: Object, required: true },
   parent: { type: Object, required: false },
+  focus: { type: Object, required: false },
 });
 
 const selected = ref("AND");

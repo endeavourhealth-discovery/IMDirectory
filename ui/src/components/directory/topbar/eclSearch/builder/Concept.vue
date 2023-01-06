@@ -17,6 +17,7 @@
             :is="item.type"
             :value="item"
             :parent="value"
+            :focus="value.concept"
         >
         </component>
         <span class="move-group hover-show">
