@@ -39,6 +39,12 @@ vi.mock("vue-router", () => ({
   })
 }));
 
+vi.mock("sweetalert2", () => {
+  return {
+    default: { fire: vi.fn() }
+  };
+});
+
 let testUser: User;
 
 describe("userEdit.vue ___ user", () => {
