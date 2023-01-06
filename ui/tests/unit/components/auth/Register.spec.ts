@@ -37,6 +37,12 @@ vi.mock("vue-router", () => ({
   })
 }));
 
+vi.mock("sweetalert2", () => {
+  return {
+    default: { fire: vi.fn() }
+  };
+});
+
 describe("register.vue empty", () => {
   let component: RenderResult;
   let testUser;

@@ -245,7 +245,9 @@ router.beforeEach(async (to, from) => {
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
     console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
     if (store.state.snomedLicenseAccepted !== "true") {
-      router.push({ name: "License" });
+      return {
+        path: "/snomedLicense"
+      };
     }
   }
 
