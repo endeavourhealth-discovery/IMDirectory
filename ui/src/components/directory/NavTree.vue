@@ -12,11 +12,7 @@
       :loading="loading"
     >
       <template #default="slotProps">
-        <div
-          class="tree-row"
-          @dblclick="onNodeDblClick($event, slotProps.node)"
-          @contextmenu="onNodeContext($event, slotProps.node)"
-        >
+        <div class="tree-row" @dblclick="onNodeDblClick($event, slotProps.node)" @contextmenu="onNodeContext($event, slotProps.node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
@@ -52,6 +48,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import rowClick from "@/composables/rowClick";
 import createNew from "@/composables/createNew";
+import { isArray } from "lodash";
 const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
 
@@ -103,7 +100,9 @@ watch(
 );
 
 async function addParentFoldersToRoot() {
-  const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  let IMChildren: any[] = [];
+  const results = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  if (results && isArray(results)) IMChildren = results;
   for (let IMchild of IMChildren) {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
@@ -336,8 +335,9 @@ function selectKey(selectedKey: string) {
 
 async function findPathToNode(iri: string) {
   loading.value = true;
-  const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
-
+  let path: any[] = [];
+  const results = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
+  if (results && isArray(results)) path = results;
   // Recursively expand
   let n = root.value.find(c => path.find(p => p["@id"] === c.data));
   let i = 0;

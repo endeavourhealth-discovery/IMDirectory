@@ -7,6 +7,7 @@
       <slot name="content" />
     </div>
     <div id="topbar-end">
+      <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
       <Button
         icon="pi pi-th-large"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
@@ -141,6 +142,10 @@ function setAppMenuItems() {
     { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
     { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() }
   ];
+}
+
+function showReleaseNotes() {
+  store.commit("updateShowReleaseNotes", true);
 }
 </script>
 
