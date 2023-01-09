@@ -50,6 +50,7 @@ import rowClick from "@/composables/rowClick";
 import setupTree from "@/composables/setupTree";
 import createNew from "@/composables/createNew";
 import { TreeNode } from "primevue/tree";
+import { isArray } from "lodash";
 const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
 
@@ -117,7 +118,9 @@ watch(
 );
 
 async function addParentFoldersToRoot() {
-  const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  let IMChildren: any[] = [];
+  const results = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  if (results && isArray(results)) IMChildren = results;
   for (let IMchild of IMChildren) {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
