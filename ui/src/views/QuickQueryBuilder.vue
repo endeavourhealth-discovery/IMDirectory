@@ -101,7 +101,7 @@ function onUpdateQuery(query: Query) {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
-  overflow: auto;
+  overflow: hidden;
   position: relative;
 }
 

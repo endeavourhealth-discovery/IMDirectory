@@ -2,7 +2,14 @@
   <div class="quick-query-builder-container">
     <TabView ref="tabview1">
       <TabPanel header="From">
-        <EntityAutocomplete class="multi-select" :ttAlias="selectedFrom" :getSuggestionsMethod="getFromSuggestions" />
+        <div class="from-list-container">
+          <div class="from-list-box">
+            <Listbox v-model="selectedFrom" :options="fromList" :filter="true" optionLabel="name"> </Listbox>
+          </div>
+          <div class="selected-from-property-table" v-if="isObjectHasKeys(selectedFrom, ['@id'])">
+            <Properties :conceptIri="selectedFrom['@id']" />
+          </div>
+        </div>
       </TabPanel>
       <TabPanel header="Where">
         <TreeTable :value="treeTableItems" :expandedKeys="expandedKeys">
@@ -19,6 +26,7 @@
                 :table-item="node.data"
                 :show-dialog="showPropertyDialog"
                 :actions="propertyTreeDialogActions"
+                :from="selectedFrom['@id']"
                 @on-close-dialog="showPropertyDialog = false"
               />
             </template>
@@ -35,6 +43,7 @@
                 :table-item="node.data"
                 :show-dialog="showValueDialog"
                 :actions="valueTreeDialogActions"
+                :from="selectedFrom['@id']"
                 @on-close-dialog="showValueDialog = false"
               />
             </template>
@@ -67,13 +76,14 @@
 </template>
 
 <script setup lang="ts">
+import Properties from "@/components/directory/viewer/dataModel/Properties.vue";
 import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinition/EntityAutocomplete.vue";
-import { EntityService } from "@/services";
-import { RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { EntityService, QueryService } from "@/services";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import { onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
-import { Query, TreeDialogActions, TreeSelectOption, TreeTableItem, TTAlias, TTIriRef, UIProperty } from "@im-library/interfaces";
+import { Query, QueryRequest, TreeDialogActions, TreeSelectOption, TreeTableItem, TTAlias, TTIriRef, UIProperty } from "@im-library/interfaces";
 import SelectTreeDialog from "./simpleQueryBuilder/SelectTreeDialog.vue";
 import {
   buildUIProperty,
@@ -93,9 +103,11 @@ import TabPanel from "primevue/tabpanel";
 import TabView from "primevue/tabview";
 import TreeTable from "primevue/treetable";
 import { onPropertyExpand, onPropertyFinalSelect, onSelect, onValueExpand, onValueFinalSelect } from "@/composables/treeSelectDialog";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const emit = defineEmits({ updateQuery: (payload: Query) => payload });
 
+const fromList: Ref<any[]> = ref([]);
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
 const propertyOptions: Ref<TreeSelectOption[]> = ref([]);
 const propertySearchTerm: Ref<string> = ref("");
@@ -125,6 +137,8 @@ const valueTreeDialogActions = {
 
 onMounted(async () => await init());
 
+// watch
+
 watch(
   () => _.cloneDeep(treeTableItems.value),
   async (newValue, oldValue) => {
@@ -153,10 +167,10 @@ watch(
 );
 
 async function init() {
-  const mainRecords = await getFromSuggestions();
-  selectedFrom.value["@id"] = mainRecords[0]["@id"];
-  selectedFrom.value.name = mainRecords[0].name;
-  propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
+  fromList.value = await getFromSuggestions();
+  // selectedFrom.value["@id"] = mainRecords[10]["@id"];
+  // selectedFrom.value.name = mainRecords[10][RDFS.LABEL];
+  // propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
   initTreeTableItems();
 }
 
@@ -176,12 +190,44 @@ async function getFromProperties(iri: string): Promise<UIProperty[]> {
   return properties;
 }
 
-async function getFromSuggestions(term?: string): Promise<TTIriRef[]> {
-  let mainRecords = await EntityService.getEntityChildren("http://endhealth.info/im#MainRecordType");
-  if (term) mainRecords = mainRecords.filter(record => record.name.toUpperCase().includes(term.toUpperCase()));
-  return mainRecords.map(filt => {
-    return { "@id": filt["@id"], name: filt.name } as TTIriRef;
-  });
+async function getFromSuggestions(term?: string): Promise<any[]> {
+  const allRecordsQuery = {
+    query: {
+      name: "Get all data models",
+      where: {
+        property: {
+          "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+        },
+        is: {
+          "@id": "http://www.w3.org/ns/shacl#NodeShape"
+        }
+      },
+      select: [
+        {
+          property: {
+            "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+          }
+        },
+        {
+          property: {
+            "@id": "http://endhealth.info/im#weighting"
+          }
+        }
+      ],
+      orderBy: [
+        {
+          "@id": "http://endhealth.info/im#weighting"
+        }
+      ],
+      direction: "DESC"
+    }
+  };
+
+  const allRecordsResult = await QueryService.queryIM(allRecordsQuery as any);
+  for (const entity of allRecordsResult.entities) {
+    entity.name = entity[RDFS.LABEL];
+  }
+  return allRecordsResult.entities;
 }
 
 async function getDataModelTree(iri: string): Promise<TreeSelectOption[]> {
@@ -285,5 +331,29 @@ async function getPropertyDescription(iri: string) {
   display: flex;
   flex-flow: column;
   width: 100%;
+}
+
+.from-list-container {
+  display: flex;
+  flex-flow: row wrap;
+  height: calc(100vh - 13rem);
+  overflow-y: hidden;
+  width: 100%;
+}
+
+.from-list-box {
+  height: 100%;
+  width: 35%;
+}
+
+.p-listbox {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.selected-from-property-table {
+  height: 100%;
+  width: 65%;
+  overflow-y: auto;
 }
 </style>

@@ -7,6 +7,18 @@ import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { createTreeSelectOption, createTreeSelectOptionDataFromTTProperty } from "@im-library/helpers/QuickQueryBuilders";
 import { Ref } from "vue";
 
+export async function getSuggestionPaths(source: TTIriRef, target: TTIriRef, depth?: number) {
+  const pathSusggestionQuery = {
+    pathQuery: {
+      source: source,
+      target: target,
+      depth: depth || 5
+    }
+  } as QueryRequest;
+  const queryResult = await QueryService.queryIM(pathSusggestionQuery);
+  return queryResult.entities;
+}
+
 export function onSelect(selectedVariable: Ref<TreeSelectOption>, selectedValue: TreeSelectOption) {
   selectedVariable.value = selectedValue;
 }
@@ -135,4 +147,83 @@ async function getNodesFromSet(query: Query): Promise<TreeSelectOption[]> {
     }
   }
   return options;
+}
+
+interface Class {
+  "@id": string;
+  "http://www.w3.org/2000/01/rdf-schema#label": string;
+  "http://www.w3.org/ns/shacl#property": Property[];
+}
+
+interface Node {
+  "@id": string;
+  "http://www.w3.org/2000/01/rdf-schema#label": string;
+  "http://www.w3.org/ns/shacl#property": Property[];
+}
+
+interface Property {
+  "http://www.w3.org/ns/shacl#path": TTIriRef[];
+  "http://www.w3.org/ns/shacl#node": Node[];
+  "http://www.w3.org/ns/shacl#class": Class[];
+}
+
+interface Entity {
+  "@id": string;
+  "http://www.w3.org/2000/01/rdf-schema#label": string;
+  "http://www.w3.org/ns/shacl#property": Property[];
+}
+
+export function buildSuggestionPathNodes(entities: Entity[]) {
+  const nodes: TreeSelectOption[] = [];
+  for (const entity of entities) {
+    for (const property of entity["http://www.w3.org/ns/shacl#property"]) {
+      const currentPathString = entity["http://www.w3.org/2000/01/rdf-schema#label"];
+      addPropertiesRecursively(currentPathString, property, nodes);
+    }
+  }
+
+  return nodes;
+}
+
+function addPropertiesRecursively(parentPathString: string, property: Property, nodes: TreeSelectOption[]) {
+  const optionPath = property["http://www.w3.org/ns/shacl#path"][0];
+  const optionNodes = property["http://www.w3.org/ns/shacl#node"];
+  const optionClasses = property["http://www.w3.org/ns/shacl#class"];
+  let currentPathString = optionPath.name + " (property)";
+
+  if (isArrayHasLength(optionNodes)) {
+    for (const node of optionNodes) {
+      const label = node["http://www.w3.org/2000/01/rdf-schema#label"];
+      if (label) currentPathString += " -> " + label + " (node)";
+      if (isArrayHasLength(node["http://www.w3.org/ns/shacl#property"])) {
+        for (const nodeProperty of node["http://www.w3.org/ns/shacl#property"]) {
+          addPropertiesRecursively(parentPathString + " -> " + currentPathString, nodeProperty, nodes);
+        }
+      } else {
+        nodes.push(createTreeSelectSuggestionOption(parentPathString + " -> " + currentPathString));
+      }
+    }
+  } else if (isArrayHasLength(optionClasses)) {
+    for (const claz of optionClasses) {
+      const label = claz["http://www.w3.org/2000/01/rdf-schema#label"];
+      if (label) currentPathString += " -> " + label + " (class)";
+      if (isArrayHasLength(claz["http://www.w3.org/ns/shacl#property"])) {
+        for (const clazProperty of claz["http://www.w3.org/ns/shacl#property"]) {
+          addPropertiesRecursively(parentPathString + " -> " + currentPathString, clazProperty, nodes);
+        }
+      } else {
+        nodes.push(createTreeSelectSuggestionOption(parentPathString + " -> " + currentPathString));
+      }
+    }
+  }
+}
+
+function createTreeSelectSuggestionOption(label: string) {
+  return {
+    key: String(Math.floor(Math.random() * 1000000)),
+    label: label,
+    children: [] as TreeSelectOption[],
+    leaf: true,
+    selectable: true
+  } as TreeSelectOption;
 }
