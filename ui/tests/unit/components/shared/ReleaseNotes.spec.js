@@ -11,6 +11,18 @@ import { GithubService } from "@/services";
 import PrimeVue from "primevue/config";
 import StyleClass from "primevue/styleclass";
 
+const mockDispatch = vi.fn();
+const mockState = {};
+const mockCommit = vi.fn();
+
+vi.mock("vuex", () => ({
+  useStore: () => ({
+    dispatch: mockDispatch,
+    state: mockState,
+    commit: mockCommit
+  })
+}));
+
 describe("ReleaseNotes.vue", () => {
   let component;
   let getLatestReleaseSpy;
