@@ -130,17 +130,14 @@ function setLegendOptions(): void {
 <style scoped>
 .chart-container {
   position: relative;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
+  margin-left: 20%;
+  height: 50%;
+  width: 50%;
 }
 
 .p-chart {
   height: 100%;
   width: 100%;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: center;
 }
 
 .loading-container {

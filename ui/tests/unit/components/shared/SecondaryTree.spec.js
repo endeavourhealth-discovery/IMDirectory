@@ -9,6 +9,7 @@ import OverlayPanel from "primevue/overlaypanel";
 import Tooltip from "primevue/tooltip";
 import { flushPromises } from "@vue/test-utils";
 import { EntityService } from "@/services";
+import { PrimeVue } from "primevue/config";
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -33,6 +34,14 @@ vi.mock("vuex", () => ({
     commit: mockCommit
   })
 }));
+
+vi.mock("primevue/usetoast", () => ({
+  useToast: () => ({
+    add: mockAdd
+  })
+}));
+
+const mockAdd = vi.fn();
 
 const ENTITY = {
   "@id": "http://snomed.info/sct#111266001",
@@ -208,7 +217,8 @@ describe("SecondaryTree.vue", () => {
         components: { Button, Tree, ProgressSpinner, OverlayPanel },
         stubs: { FontAwesomeIcon: true },
         directives: { Tooltip: Tooltip },
-        provide: { axios: axios }
+        provide: { axios: axios },
+        plugins: [PrimeVue]
       },
       props: { conceptIri: "http://snomed.info/sct#298382003" }
     });

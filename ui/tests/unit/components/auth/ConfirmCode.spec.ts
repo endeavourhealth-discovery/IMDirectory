@@ -43,6 +43,12 @@ vi.mock("primevue/usetoast", () => ({
   })
 }));
 
+vi.mock("sweetalert2", () => {
+  return {
+    default: { fire: vi.fn() }
+  };
+});
+
 function mockResponse(method: string, response: any) {
   const authService = AuthService as any;
   authService[method] = vi.fn().mockResolvedValue(response);
