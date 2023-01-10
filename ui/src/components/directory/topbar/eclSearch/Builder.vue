@@ -31,7 +31,6 @@
         </div>
         <div class="string-copy-container">
           <pre class="output-string">{{ queryString }}</pre>
-<!--          <pre class="output-string">{{ JSON.stringify(ecl, null, 2) }}</pre>-->
           <Button
             icon="fa-solid fa-copy"
             v-tooltip.left="'Copy to clipboard'"

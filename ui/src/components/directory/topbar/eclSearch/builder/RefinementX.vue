@@ -13,8 +13,9 @@
 <script setup lang="ts">
 
 import {ref, Ref} from 'vue';
-import { QueryService} from '@/services';
-import { QueryRequest } from "@im-library/interfaces";
+import {EntityService, QueryService} from '@/services';
+import { QueryRequest, SearchRequest } from "@im-library/interfaces";
+import { SortBy } from "@im-library/enums";
 import {AbortController} from 'abortcontroller-polyfill/dist/cjs-ponyfill';
 import {useStore} from 'vuex';
 
@@ -78,7 +79,7 @@ async function searchProperty(term: string) {
 }
 
 async function searchValue(term: string) {
-  if (!props.value.property.concept.iri)
+/*  if (!props.value.property.concept.iri)
     return;
 
   const req: QueryRequest = {
@@ -103,7 +104,19 @@ async function searchValue(term: string) {
         name: e['http://www.w3.org/2000/01/rdf-schema#label'],
         code: e['http://endhealth.info/im#code']
       };
-    })
+    })*/
+  const searchRequest = {} as SearchRequest;
+  searchRequest.termFilter = term;
+  searchRequest.sortBy = SortBy.Usage;
+  searchRequest.page = 1;
+  searchRequest.size = 100;
+  searchRequest.schemeFilter = ["http://snomed.info/sct#"];
+
+  if ((valueController.value && valueController.value.abort)) {
+    valueController.value.abort();
+  }
+  valueController.value = new AbortController();
+  valueResults.value = await EntityService.advancedSearch(searchRequest, valueController.value);
 }
 
 </script>

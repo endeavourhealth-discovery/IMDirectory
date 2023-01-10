@@ -5,7 +5,6 @@
       <div class="component-container">
         <span class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-<!--          <Button v-if="index === 0" type="button" label="WHERE" class="p-button-secondary" disabled />-->
           <Button v-else-if="index === 1" type="button" :label="value.operator" @click="toggleBool" />
           <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
         </span>
@@ -19,8 +18,6 @@
         </component>
         <span class="move-group hover-show">
             <Button @click="deleteItem(index)" class="p-button-sm p-button-danger" icon="pi pi-times"/>
-            <Button @click="move(index, -1)" :disabled="index == 0" class="p-button-sm p-button-secondary" icon="pi pi-arrow-up"/>
-            <Button @click="move(index, +1)" :disabled="index == value.items.length - 1" class="p-button-sm p-button-secondary" icon="pi pi-arrow-down"/>
         </span>
       </div>
     </template>
@@ -32,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, Ref} from 'vue';
+import {ref} from 'vue';
 
 const props = defineProps({
   value: { type: Object, required: true },
@@ -55,7 +52,7 @@ const boolOptions = [
     command: () => props.value.operator = 'OR'
   },
   {
-    label: 'MINUS',
+    label: 'NOT',
     command: () => props.value.operator = 'MINUS'
   }
 ];
@@ -108,12 +105,6 @@ function deleteItem(index: number) {
   props.value.items.splice(index, 1);
 }
 
-function move(index: number, direction: number) {
-  let t = props.value.items[index];
-  props.value.items[index] = props.value.items[index + direction];
-  props.value.items[index + direction] = t;
-}
-
 </script>
 
 <style scoped>
@@ -124,7 +115,7 @@ function move(index: number, direction: number) {
 }
 
 .left-container > * {
-  width: 6rem;
+  width: 4rem;
   margin: 0;
 }
 
@@ -133,7 +124,7 @@ function move(index: number, direction: number) {
 }
 
 .move-group {
-  width: 7rem;
+  width: 2rem;
 }
 
 .hover-show {
