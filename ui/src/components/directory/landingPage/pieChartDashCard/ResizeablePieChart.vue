@@ -130,9 +130,8 @@ function setLegendOptions(): void {
 <style scoped>
 .chart-container {
   position: relative;
-  margin-left: 20%;
-  height: 50%;
-  width: 50%;
+  height: 100%;
+  width: 100%;
 }
 
 .p-chart {

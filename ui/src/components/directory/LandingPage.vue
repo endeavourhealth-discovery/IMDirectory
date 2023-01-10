@@ -243,9 +243,8 @@ async function getCardsData(): Promise<void> {
   width: 100%;
   flex: 1 0 auto;
   overflow: auto;
-  border: none;
-  box-shadow: none;
-  border-radius: none;
+  padding: 1rem;
+  gap: 1rem;
 }
 
 .recent-icon {
