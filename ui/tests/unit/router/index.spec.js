@@ -41,7 +41,7 @@ describe("router", () => {
         global: {
           components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu },
           plugins: [router, store, PrimeVue],
-          stubs: { SnomedLicense: { template: "<span>Test Snomed License</span>" } }
+          stubs: { SnomedLicense: { template: "<span>Test Snomed License</span>" }, Directory: true, ReleaseNotes: true }
         }
       });
 
