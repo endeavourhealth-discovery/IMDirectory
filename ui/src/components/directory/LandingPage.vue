@@ -209,13 +209,13 @@ async function getCardsData(): Promise<void> {
   height: 100%;
   width: 100%;
   display: flex;
-  flex-flow: column;
+  flex-flow: column nowrap;
   justify-content: flex-start;
   overflow: auto;
 }
 
 .activity-container {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   display: flex;
   flex-flow: column nowrap;
   overflow: auto;
