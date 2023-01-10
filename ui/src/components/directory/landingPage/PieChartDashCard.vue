@@ -1,16 +1,12 @@
 <template>
   <div :id="id" class="dashcard-container">
-    <Card class="dashcard dash-pie">
-      <template #title>
-        <span v-if="name">{{ name }}</span>
-      </template>
-      <template #subtitle>
-        <span v-if="description">{{ description }}</span>
-      </template>
-      <template #content>
+    <div class="dashcard">
+      <span v-if="name" class="title">{{ name }}</span>
+      <span v-if="description" class="description">{{ description }}</span>
+      <div class="content">
         <ResizeablePieChart :inputData="inputData" :labelKey="labelKey" :dataKey="dataKey" />
-      </template>
-    </Card>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -73,11 +69,36 @@ function setChartSize(): void {
 
 <style scoped>
 .dashcard-container {
-  width: 50%;
+  flex: 1 0 auto;
+  height: 100%;
 }
 
-.dashcard-container ::v-deep(.p-card-body) {
+.dash-pie {
   width: 100%;
+  height: 100%;
+}
+
+.dashcard {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+}
+
+.content {
+  flex: 1 1 auto;
 }
 
 .dashcard {
