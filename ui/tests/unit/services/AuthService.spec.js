@@ -6,21 +6,6 @@ import { describe } from "vitest";
 import { setupServer } from "msw/node";
 
 describe("AuthService", () => {
-  const restHandlers = [];
-  const server = setupServer(...restHandlers);
-
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: "error" });
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-  });
-
   describe("signOut", () => {
     beforeEach(() => {
       vi.clearAllMocks();

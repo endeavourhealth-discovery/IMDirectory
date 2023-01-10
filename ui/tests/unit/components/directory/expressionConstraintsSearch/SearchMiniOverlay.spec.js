@@ -6,6 +6,8 @@ import { mount } from "@vue/test-utils";
 import { IM } from "@im-library/vocabulary";
 import { setupServer } from "msw/node";
 import { render } from "@testing-library/vue";
+import PrimeVue from "primevue/config";
+import { expect } from "vitest";
 
 describe("SearchMiniOverlay.vue", () => {
   let component;
@@ -66,7 +68,7 @@ describe("SearchMiniOverlay.vue", () => {
     docSpy.mockReturnValue(undefined);
 
     component = render(SearchMiniOverlay, {
-      global: { components: { Column, OverlayPanel }, stubs: { OverlayPanel: mockRef, FontAwesomeIcon: true } },
+      global: { components: { Column, OverlayPanel, DataTable }, stubs: { OverlayPanel: mockRef, FontAwesomeIcon: true }, plugins: [PrimeVue] },
       props: { searchTerm: "product", searchResults: SEARCH_RESULTS, loading: false }
     });
 
@@ -74,6 +76,7 @@ describe("SearchMiniOverlay.vue", () => {
   });
 
   it("mounts", () => {
+    expect(component).toBeTruthy();
     // component.getByText("UK product");
     // expect(wrapper.searchTerm).toBe("product");
     // expect(wrapper.vm.searchResults).toStrictEqual(SEARCH_RESULTS);

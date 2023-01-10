@@ -29,19 +29,16 @@
     <Tree
       :value="root"
       selectionMode="single"
-      v-model:selectionKeys="selectedKey"
+      v-model:selectionKeys="selectedKeys"
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
-      @node-expand="expandChildren"
+      @node-expand="onNodeExpand"
       @node-collapse="onNodeCollapse"
       class="tree-root"
       :loading="loading"
     >
       <template #default="slotProps">
-        <div
-          v-if="slotProps.node.data === 'loadMore'"
-          class="tree-row"
-        >
+        <div v-if="slotProps.node.data === 'loadMore'" class="tree-row">
           <ProgressSpinner v-if="slotProps.node.loading" />
           <span class="tree-node-label">{{ slotProps.node.label }}</span>
         </div>
@@ -49,7 +46,7 @@
           v-else
           class="tree-row"
           @click="navigate($event, slotProps.node.data)"
-          @dblclick="onDblClick(slotProps.node.data)"
+          @dblclick="onNodeDblClick($event, slotProps.node)"
           v-tooltip.top="'CTRL+click to navigate'"
           data-testid="row"
         >
@@ -59,7 +56,13 @@
             </div>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
-          <span class="tree-node-label" data-testid="row-label"  @mouseover="showPopup($event, slotProps.node.data, slotProps.node)" @mouseleave="hidePopup($event)">{{ slotProps.node.label }}</span>
+          <span
+            class="tree-node-label"
+            data-testid="row-label"
+            @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
+            @mouseleave="hidePopup($event)"
+            >{{ slotProps.node.label }}</span
+          >
         </div>
       </template>
     </Tree>
@@ -109,10 +112,12 @@ import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "v
 import { useRoute, useRouter } from "vue-router";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeNode, TreeParent, TTIriRef } from "@im-library/interfaces";
+import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent, TTIriRef } from "@im-library/interfaces";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { DirectService, EntityService } from "@/services";
 import { useStore } from "vuex";
+import setupTree from "@/composables/setupTree";
+import { TreeNode } from "primevue/tree";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -120,10 +125,10 @@ const props = defineProps({
 
 const directService = new DirectService();
 
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, onRowClick, loadMore } =
+  setupTree();
+
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
-const root: Ref<TreeNode[]> = ref([]);
-const expandedKeys: Ref = ref({});
-const selectedKey: Ref = ref({});
 const currentParent: Ref<TreeParent | null> = ref(null);
 const alternateParents: Ref<TreeParent[]> = ref([]);
 const parentPosition = ref(0);
@@ -138,7 +143,7 @@ const altTreeOP = ref();
 watch(
   () => props.conceptIri,
   async newValue => {
-    selectedKey.value = {};
+    selectedKeys.value = {};
     alternateParents.value = [];
     expandedKeys.value = {};
     await getConceptAggregate(newValue);
@@ -175,20 +180,20 @@ async function getConceptAggregate(iri: string): Promise<void> {
 
 async function createTree(concept: any, parentHierarchy: EntityReferenceNode[], children: EntityReferenceNode[], parentPosition: number): Promise<void> {
   loading.value = true;
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept[IM.IRI], concept[RDF.TYPE], concept.hasChildren);
+  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept[IM.IRI], concept[RDF.TYPE], concept.hasChildren, null, undefined);
   children.forEach((child: EntityReferenceNode) => {
-    selectedConcept.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+    selectedConcept.children?.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, selectedConcept, child.orderNumber));
   });
   if (totalCount.value >= pageSize.value) {
-    selectedConcept.children.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
+    selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
   }
   root.value = [] as TreeNode[];
   setParents(parentHierarchy, parentPosition);
   root.value.push(selectedConcept);
-  if (!isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
+  if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
     expandedKeys.value[selectedConcept.key] = true;
   }
-  selectedKey.value[selectedConcept.key] = true;
+  if (selectedConcept.key) selectedKeys.value[selectedConcept.key] = true;
   loading.value = false;
 }
 
@@ -224,53 +229,6 @@ function setParents(parentHierarchy: EntityReferenceNode[], parentPosition: numb
   }
 }
 
-function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
-  return {
-    key: conceptIri,
-    label: conceptName,
-    typeIcon: getFAIconFromType(conceptTypes),
-    color: getColourFromType(conceptTypes),
-    data: conceptIri,
-    leaf: !hasChildren,
-    loading: false,
-    children: [] as TreeNode[]
-  };
-}
-
-function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
-  return {
-    key: "loadMore" + parentNode.data,
-    label: "Load more...",
-    typeIcon: null,
-    color: null,
-    data: "loadMore",
-    leaf: true,
-    loading: false,
-    children: [] as TreeNode[],
-    parentNode: parentNode,
-    nextPage: nextPage,
-    totalCount: totalCount,
-    style: "font-weight: bold;"
-  };
-}
-
-async function expandChildren(node: TreeNode): Promise<void> {
-  node.loading = true;
-  if (!isObjectHasKeys(expandedKeys.value, [node.key])) {
-    expandedKeys.value[node.key] = true;
-  }
-  const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
-  children.result.forEach((child: EntityReferenceNode) => {
-    if (!containsChild(node.children, child)) {
-      node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-    }
-  });
-  if (children.totalCount >= pageSize.value) {
-    node.children.push(createLoadMoreNode(node, 2, children.totalCount));
-  }
-  node.loading = false;
-}
-
 function containsChild(nodeChildren: TreeNode[], child: EntityReferenceNode): boolean {
   return nodeChildren.some(nodeChild => nodeChild.data === child["@id"]);
 }
@@ -278,7 +236,7 @@ function containsChild(nodeChildren: TreeNode[], child: EntityReferenceNode): bo
 async function expandParents(parentPosition: number): Promise<void> {
   loading.value = true;
   if (!isArrayHasLength(root.value)) return;
-  if (!isObjectHasKeys(expandedKeys.value, [root.value[0].key])) {
+  if (root.value[0].key && !isObjectHasKeys(expandedKeys.value, [root.value[0].key])) {
     expandedKeys.value[root.value[0].key] = true;
   }
 
@@ -296,10 +254,12 @@ function createExpandedParentTree(parents: any, parentPosition: number): TreeNod
   let parentNode = {} as TreeNode;
   for (let i = 0; i < parents.length; i++) {
     if (i === parentPosition) {
-      parentNode = createTreeNode(parents[i].name, parents[i]["@id"], parents[i].type, true);
-      parentNode.children.push(root.value[0]);
-      if (!isObjectHasKeys(expandedKeys.value, [parentNode.key])) {
-        expandedKeys.value[parentNode.key] = true;
+      parentNode = createTreeNode(parents[i].name, parents[i]["@id"], parents[i].type, true, null, undefined);
+      if (parentNode.children && parentNode.key) {
+        parentNode.children.push(root.value[0]);
+        if (!isObjectHasKeys(expandedKeys.value, [parentNode.key])) {
+          expandedKeys.value[parentNode.key] = true;
+        }
       }
     }
   }
@@ -343,8 +303,8 @@ async function onNodeSelect(node: any): Promise<void> {
   } else {
   }
   await nextTick();
-  selectedKey.value = {};
-  selectedKey.value[conceptAggregate.value.concept[RDFS.LABEL]] = true;
+  selectedKeys.value = {};
+  selectedKeys.value[conceptAggregate.value.concept[RDFS.LABEL]] = true;
 }
 
 async function showPopup(event: any, iri?: string, node?: any): Promise<void> {
@@ -374,35 +334,6 @@ function getConceptTypes(types: TTIriRef[]): string {
 
 function navigate(event: any, iri: string): void {
   if (event.metaKey || event.ctrlKey) directService.select(iri);
-}
-
-function onDblClick(iri: string) {
-  directService.view(iri);
-}
-
-async function loadMore(node: any) {
-  if (node.nextPage * pageSize.value < node.totalCount) {
-    const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
-    node.parentNode.children.pop();
-    children.result.forEach((child: any) => {
-      node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-    });
-    node.nextPage = node.nextPage + 1;
-    node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
-  } else if (node.nextPage * pageSize.value > node.totalCount) {
-    const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
-    node.parentNode.children.pop();
-    children.result.forEach((child: any) => {
-      node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-    });
-  } else {
-    node.parentNode.children.pop();
-  }
-}
-
-function onNodeCollapse(node: any) {
-  node.children = [];
-  node.leaf = false;
 }
 </script>
 

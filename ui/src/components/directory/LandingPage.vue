@@ -71,7 +71,7 @@ export default defineComponent({
 import { computed, Ref, ref, watch, onMounted } from "vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { useStore } from "vuex";
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService, Env, ConfigService } from "@/services";
@@ -113,7 +113,8 @@ async function getRecentActivityDetails() {
   for (const rla of recentLocalActivity.value) {
     const clone = { ...rla };
 
-    const result = results.find((r: any) => r["@id"] === rla.iri);
+    let result = null;
+    if (results && isArray(results)) result = results.find((r: any) => r["@id"] === rla.iri);
 
     if (result && isObjectHasKeys(result, [RDF.TYPE, RDFS.LABEL])) {
       clone.name = result[RDFS.LABEL];
@@ -131,7 +132,8 @@ async function getRecentActivityDetails() {
 }
 
 async function getConfigs(): Promise<void> {
-  configs.value = await ConfigService.getDashboardLayout("conceptDashboard");
+  const result = await ConfigService.getDashboardLayout("conceptDashboard");
+  if (result && isArray(result)) configs.value = result;
   if (isArrayHasLength(configs.value)) {
     configs.value.sort(byOrder);
   }

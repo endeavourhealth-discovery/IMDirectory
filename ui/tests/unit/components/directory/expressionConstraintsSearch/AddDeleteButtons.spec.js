@@ -9,21 +9,6 @@ describe("AddDeleteButtons.vue", () => {
   let wrapper;
   let mockRef;
 
-  const restHandlers = [];
-  const server = setupServer(...restHandlers);
-
-  beforeAll(() => {
-    server.listen({ onUnhandledRequest: "error" });
-  });
-
-  afterAll(() => {
-    server.close();
-  });
-
-  afterEach(() => {
-    server.resetHandlers();
-  });
-
   beforeEach(() => {
     vi.resetAllMocks();
 

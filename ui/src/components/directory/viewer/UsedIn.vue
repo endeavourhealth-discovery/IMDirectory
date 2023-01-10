@@ -3,7 +3,7 @@
     <DataTable
       :value="usages"
       :scrollable="true"
-      :scrollHeight="scrollHeight"
+      scrollHeight="flex"
       showGridlines
       class="p-datatable-sm"
       :totalRecords="recordsTotal ? recordsTotal : usages.length"
@@ -37,16 +37,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { DataTypeCheckers, ContainerDimensionGetters, ConceptTypeMethods } from "@im-library/helpers";
+import { onMounted, ref, Ref, watch } from "vue";
+import { DataTypeCheckers, ConceptTypeMethods } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
 import { RDF, RDFS } from "@im-library/vocabulary";
-import axios from "axios";
-import { useRoute, useRouter } from "vue-router";
-import { useStore } from "vuex";
 import rowClick from "@/composables/rowClick";
 const { isObjectHasKeys } = DataTypeCheckers;
-const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 
@@ -62,17 +58,13 @@ const selected: Ref = ref({});
 const recordsTotal = ref(0);
 const currentPage = ref(0);
 const pageSize = ref(25);
-const scrollHeight = ref("500px");
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
 const { onRowClick }: { onRowClick: Function } = rowClick();
 const OS = ref();
 
 onMounted(async () => {
-  window.addEventListener("resize", onResize);
   await init();
 });
-
-onUnmounted(() => window.removeEventListener("resize", onResize));
 
 watch(
   () => props.conceptIri,
@@ -82,7 +74,6 @@ watch(
 async function init() {
   loading.value = true;
   await getUsages(props.conceptIri, currentPage.value, pageSize.value);
-  setScrollHeight();
   loading.value = false;
   await getRecordsSize(props.conceptIri);
 }
@@ -123,14 +114,6 @@ function scrollToTop(): void {
   if (scrollBox) {
     scrollBox.scrollTop = 0;
   }
-}
-
-function onResize(): void {
-  setScrollHeight();
-}
-
-function setScrollHeight(): void {
-  scrollHeight.value = getContainerElementOptimalHeight("usedin-table-container", ["p-paginator"], false, undefined, 1);
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {

@@ -10,11 +10,15 @@ import PrimeVue from "primevue/config";
 
 vi.mock("vuex", () => ({
   useStore: () => ({
-    dispatch: mockDispatch
+    dispatch: mockDispatch,
+    commit: mockCommit,
+    state: mockState
   })
 }));
 
 const mockDispatch = vi.fn();
+const mockCommit = vi.fn();
+const mockState = { showReleaseNotes: false };
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

@@ -11,7 +11,19 @@ import { GithubService } from "@/services";
 import PrimeVue from "primevue/config";
 import StyleClass from "primevue/styleclass";
 
-describe("ReleaseNotes.vue ___ version mismatch", () => {
+const mockDispatch = vi.fn();
+const mockState = {};
+const mockCommit = vi.fn();
+
+vi.mock("vuex", () => ({
+  useStore: () => ({
+    dispatch: mockDispatch,
+    state: mockState,
+    commit: mockCommit
+  })
+}));
+
+describe("ReleaseNotes.vue", () => {
   let component;
   let getLatestReleaseSpy;
   let getReleasesSpy;
@@ -38,10 +50,6 @@ describe("ReleaseNotes.vue ___ version mismatch", () => {
     });
     await flushPromises();
     vi.clearAllMocks();
-  });
-
-  it("opens dialog if versions don't match", () => {
-    component.getByTestId("dialog-visible-true");
   });
 
   it("shows latest release for prop app", () => {
@@ -120,39 +128,5 @@ describe("ReleaseNotes.vue ___ version mismatch", () => {
     expect(setItemSpy).toHaveBeenCalledTimes(2);
     expect(setItemSpy).toHaveBeenCalledWith("IMDirectoryVersion", testLatestRelease.version);
     expect(setItemSpy).toHaveBeenCalledWith("ImportDataVersion", testLatestRelease.version);
-  });
-});
-
-describe("ReleaseNotes.vue ___ version match", () => {
-  let component;
-  let getLatestReleaseSpy;
-  let getReleasesSpy;
-  let setItemSpy;
-  let getItemSpy;
-  let testLatestRelease = fakerFactory.githubRelease.create();
-  let testReleases = [fakerFactory.githubRelease.create(), fakerFactory.githubRelease.create(), fakerFactory.githubRelease.create()];
-
-  beforeEach(async () => {
-    vi.resetAllMocks();
-    getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
-    getReleasesSpy = vi.spyOn(GithubService, "getReleases").mockResolvedValue(testReleases);
-    setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => vi.fn());
-    getItemSpy = vi.spyOn(Storage.prototype, "getItem").mockReturnValue("v1.0.0");
-
-    component = render(ReleaseNotes, {
-      global: {
-        components: { Dialog, Button, ProgressSpinner },
-        provide: { axios: axios },
-        plugins: [PrimeVue],
-        directives: { styleclass: StyleClass }
-      },
-      props: { appVersion: "v1.0.0", repositoryName: "IMDirectory" }
-    });
-    await flushPromises();
-    vi.clearAllMocks();
-  });
-
-  it("doesn't open dialog if versions match", () => {
-    expect(component.queryByTestId("dialog-visible-false")).toBeNull();
   });
 });

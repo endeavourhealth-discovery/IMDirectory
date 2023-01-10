@@ -82,7 +82,6 @@ describe("TextDefinition.vue ___ data", () => {
 
   it("has a definition with hyperlinks", () => {
     component.getByText("Definition");
-    component.debug(component.getByText("(4)"));
     const definition = component.getByTestId("text-definition");
     within(definition).getByText((content, element) => content.startsWith("Is subclass of"));
     const tag1 = within(definition).getByText("Curvature of spine");

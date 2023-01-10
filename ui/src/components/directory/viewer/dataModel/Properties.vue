@@ -1,6 +1,12 @@
 <template>
   <div id="properties-table-container" class="properties-table-wrapper">
-    <DataTable :value="dataModelPropsData" :scrollable="true" ref="propertiesTable" :loading="loading" data-testid="table">
+    <DataTable
+        :value="dataModelPropsData"
+        :scrollable="true"
+        ref="propertiesTable"
+        :loading="loading"
+        scroll-height="flex"
+        data-testid="table">
       <template #empty> No records found </template>
       <template #loading> Loading data. Please wait... </template>
       <template #header>
@@ -39,13 +45,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, onUnmounted, Ref, ref, watch } from "vue";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
+import { onMounted, Ref, ref, watch } from "vue";
 import { DataModelProperty, ProcessedDataModelProperty } from "@im-library/interfaces";
-import { ContainerDimensionGetters } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
-import { useStore } from "vuex";
-const { getContainerElementOptimalHeight } = ContainerDimensionGetters;
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -55,7 +57,6 @@ const directService = new DirectService();
 
 const loading = ref(false);
 const dataModelPropsData: Ref<ProcessedDataModelProperty[]> = ref([]);
-const scrollHeight = ref("500px");
 
 const propertiesTable = ref();
 
@@ -65,16 +66,8 @@ watch(
 );
 
 onMounted(async () => {
-  window.addEventListener("resize", onResize);
-  onResize();
   await getDataModelProps(props.conceptIri);
 });
-
-onUnmounted(() => window.removeEventListener("resize", onResize));
-
-function onResize() {
-  setScrollHeight();
-}
 
 async function getDataModelProps(iri: string): Promise<void> {
   loading.value = true;
@@ -94,10 +87,6 @@ async function getDataModelProps(iri: string): Promise<void> {
     };
   });
   loading.value = false;
-}
-
-function setScrollHeight(): void {
-  scrollHeight.value = getContainerElementOptimalHeight("properties-table-container", ["p-paginator"], false, undefined, 1);
 }
 
 function exportCSV(): void {

@@ -1,12 +1,5 @@
 <template>
-  <Dialog
-    header="What's new"
-    :visible="showRelNotes"
-    :closable="false"
-    :modal="true"
-    :data-testid="'dialog-visible-' + showRelNotes"
-    :style="{ width: '80vw' }"
-  >
+  <Dialog header="What's new" :visible="true" :closable="false" :modal="true" :style="{ width: '80vw' }">
     <div v-if="loadingGlobal" class="global-loading-container">
       <ProgressSpinner />
     </div>
@@ -76,46 +69,31 @@ import semver from "semver";
 import { Env, GithubService } from "@/services";
 import { GithubRelease } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useStore } from "vuex";
 
 const props = defineProps({
-  appVersion: { type: String, required: true },
   repositoryName: { type: String, required: true }
 });
 
-const showRelNotes = ref(false);
-const releases: Map<string, GithubRelease[]> = reactive(
-  new Map().set("directory", []).set("importData", [])
-);
+const store = useStore();
+
+const releases: Map<string, GithubRelease[]> = reactive(new Map().set("directory", []).set("importData", []));
 const showApp: Ref<any> = ref({ auth: false, directory: false, editor: false, importData: false, viewer: false });
 const showLegacy: Ref<any> = ref({ auth: false, directory: false, editor: false, importData: false, viewer: false });
 const loadingPerApp: Ref<any> = ref({ auth: false, directory: false, editor: false, importData: false, viewer: false });
 const loadingGlobal = ref(false);
 
 onMounted(async () => {
-  await init(props.repositoryName, props.appVersion);
+  await init(props.repositoryName);
 });
 
-async function init(repoName: string, latestVersion: string) {
+async function init(repoName: string) {
   loadingGlobal.value = true;
-  const lastVersion = getLocalVersion(repoName);
-  if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, latestVersion)) {
-    await getLatestReleaseNotes(repoName);
-    showRelNotes.value = true;
-    loadingGlobal.value = false;
-    await nextTick();
-    startExpanded(props.repositoryName);
-  } else if (semver.valid(lastVersion) && semver.gt(lastVersion, lastVersion)) {
-    setLocalVersion(repoName, latestVersion);
-    await getLatestReleaseNotes(repoName);
-    showRelNotes.value = true;
-    loadingGlobal.value = false;
-    await nextTick();
-    startExpanded(props.repositoryName);
-  } else loadingGlobal.value = false;
-}
-
-function getLocalVersion(repoName: string): string | null {
-  return localStorage.getItem(repoName + "Version");
+  await getLatestReleaseNotes(repoName);
+  loadingGlobal.value = false;
+  await nextTick();
+  startExpanded(props.repositoryName);
+  loadingGlobal.value = false;
 }
 
 function setLocalVersion(repoName: string, versionNo: string) {
@@ -147,7 +125,6 @@ async function getAdditionalFullReleaseNotes(currentAppRepo: string) {
 }
 
 function close() {
-  showRelNotes.value = false;
   const iterator = releases.entries();
   for (let i = 0; i < releases.size; i++) {
     const item = iterator.next().value;
@@ -157,6 +134,7 @@ function close() {
     if (value.length) version = value[0].version;
     if (version) setLocalVersion(keyToRepoName(key), version);
   }
+  store.commit("updateShowReleaseNotes", false);
 }
 
 async function expandAppClicked(key: string, show: boolean) {
