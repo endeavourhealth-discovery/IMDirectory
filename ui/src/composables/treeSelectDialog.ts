@@ -44,8 +44,8 @@ export async function onPropertyFinalSelect(tableItem: TreeTableItemData, select
   tableItem.propertyDisplay = selectedNode.value.label;
 }
 
-async function getPropertySelectionTree(iri: string): Promise<TreeSelectOption[]> {
-  const options = [] as TreeSelectOption[];
+export async function getPropertySelectionTree(iri: string, searchTerm?: string): Promise<TreeSelectOption[]> {
+  let options = [] as TreeSelectOption[];
 
   if (iri) {
     const bundle = await EntityService.getPartialEntityBundle(iri, [SHACL.PROPERTY]);
@@ -58,16 +58,20 @@ async function getPropertySelectionTree(iri: string): Promise<TreeSelectOption[]
     }
   }
 
+  if (searchTerm) {
+    options = options.filter(option => option.label?.toLowerCase().includes(searchTerm.toLowerCase()));
+  }
+
   return options;
 }
 
-async function getPropertyDescription(iri: string) {
+export async function getPropertyDescription(iri: string) {
   const descriptionEntity = await EntityService.getPartialEntity(iri, [RDFS.COMMENT]);
   if (!descriptionEntity[RDFS.COMMENT]) return "No description";
   return descriptionEntity[RDFS.COMMENT];
 }
 
-async function getValueSelectionTree(option: TreeSelectOption) {
+export async function getValueSelectionTree(option: TreeSelectOption, searchTerm?: string) {
   const iri = option.data.valueType["@id"];
   let options = [] as TreeSelectOption[];
   const typeEntity = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
@@ -75,16 +79,16 @@ async function getValueSelectionTree(option: TreeSelectOption) {
     const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
     if (isObjectHasKeys(definitionEntity, [IM.DEFINITION])) {
       options = isSimpleFromList(definitionEntity[IM.DEFINITION])
-        ? await getNodesFromSet(JSON.parse(definitionEntity[IM.DEFINITION]))
-        : await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]));
+        ? await getNodesFromSet(JSON.parse(definitionEntity[IM.DEFINITION]), searchTerm)
+        : await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]), searchTerm);
     }
   } else if (isQuery(typeEntity[RDF.TYPE])) {
     const definitionEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
     if (isObjectHasKeys(definitionEntity, [IM.DEFINITION])) {
-      options = await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]));
+      options = await getNodesFromQuery(JSON.parse(definitionEntity[IM.DEFINITION]), searchTerm);
     }
   } else if (isConcept(typeEntity[RDF.TYPE])) {
-    options = await getChildrenSelectionTree(iri);
+    options = await getChildrenSelectionTree(iri, searchTerm);
   } else if (isRecordModel(typeEntity[RDF.TYPE])) {
     console.log("record model");
   }
@@ -101,15 +105,16 @@ function isSimpleFromList(definition: Query) {
   );
 }
 
-async function getChildrenSelectionTree(iri: string) {
-  const children = await EntityService.getEntityChildren(iri);
+async function getChildrenSelectionTree(iri: string, searchTerm?: string) {
+  let children = await EntityService.getEntityChildren(iri);
+  if (searchTerm) children = children.filter(child => child.name.includes(searchTerm));
   return children.map(child => {
     const option = createTreeSelectOption(child["@id"], child.name, child.type, child.hasChildren);
     return option;
   });
 }
 
-async function getNodesFromQuery(query: Query): Promise<TreeSelectOption[]> {
+async function getNodesFromQuery(query: Query, searchTerm?: string): Promise<TreeSelectOption[]> {
   const options = [] as TreeSelectOption[];
   const selectedProperties = [RDFS.LABEL, RDF.TYPE, IM.HAS_CHILDREN];
   const querySelect: any = [];
@@ -118,6 +123,10 @@ async function getNodesFromQuery(query: Query): Promise<TreeSelectOption[]> {
   }
   query.select = querySelect;
   const queryRequest: QueryRequest = { query: query } as QueryRequest;
+
+  if (searchTerm) {
+    queryRequest.textSearch = searchTerm;
+  }
 
   let result = await QueryService.queryIM(queryRequest);
 
@@ -135,8 +144,8 @@ async function getNodesFromQuery(query: Query): Promise<TreeSelectOption[]> {
   return options;
 }
 
-async function getNodesFromSet(query: Query): Promise<TreeSelectOption[]> {
-  const options = [] as TreeSelectOption[];
+async function getNodesFromSet(query: Query, searchTerm?: string): Promise<TreeSelectOption[]> {
+  let options = [] as TreeSelectOption[];
 
   if (isObjectHasKeys(query, ["where"]) && isArrayHasLength(query.where.from)) {
     for (const from of query.where.from) {
@@ -146,6 +155,11 @@ async function getNodesFromSet(query: Query): Promise<TreeSelectOption[]> {
       options.push(option);
     }
   }
+
+  if (searchTerm) {
+    options = options.filter(option => option.label?.toLowerCase().includes(searchTerm.toLowerCase()));
+  }
+
   return options;
 }
 

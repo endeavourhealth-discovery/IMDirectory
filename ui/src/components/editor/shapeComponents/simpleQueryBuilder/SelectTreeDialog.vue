@@ -10,7 +10,7 @@
     {{ from }}
 
     <div v-if="nodes && nodes.length" class="select-tree-dialog-container">
-      <InputText type="text" v-model="searchTerm" />
+      <InputText type="text" v-model="searchTerm" placeholder="Filter" @keyup.enter="filter" />
       <Tree
         :value="nodes"
         selectionMode="single"
@@ -43,7 +43,6 @@
 <script setup lang="ts">
 import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinition/EntityAutocomplete.vue";
 import { getSuggestionPaths, buildSuggestionPathNodes } from "@/composables/treeSelectDialog";
-import { createTreeSelectOption } from "@im-library/helpers/QuickQueryBuilders";
 import { TreeDialogActions, TreeSelectOption, TreeTableItemData, TTAlias, TTIriRef } from "@im-library/interfaces";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
@@ -58,10 +57,14 @@ const props = defineProps({
   showDialog: { type: Boolean, required: true },
   actions: { type: Object as PropType<TreeDialogActions>, required: true },
   from: { type: String, required: true },
+  selectType: { type: String, required: true },
   title: { type: String, required: false, default: "Select item" }
 });
 
-const emit = defineEmits({ onCloseDialog: () => true });
+const emit = defineEmits({
+  onCloseDialog: () => true,
+  onFilter: (selectType: string, searchTerm: string, tableItem: TreeTableItemData) => true
+});
 const selectedNode: Ref<TreeSelectOption> = ref({} as TreeSelectOption);
 const selectedKey = ref();
 const showPropertyDialog = ref(false);
@@ -96,6 +99,12 @@ watch(
     suggestionNodes.value = await getSuggestionPathNodes(source, target);
   }
 );
+
+async function filter() {
+  if (searchTerm) {
+    emit("onFilter", props.selectType, searchTerm.value, props.tableItem);
+  }
+}
 
 async function getSuggestionPathNodes(source: TTIriRef, target: TTIriRef, depth?: number) {
   const suggestionPaths = await getSuggestionPaths(source, target);

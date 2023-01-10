@@ -1,17 +1,14 @@
 <template>
   <div class="quick-query-builder-container">
     <TabView ref="tabview1">
-      <TabPanel header="From">
-        <div class="from-list-container">
-          <div class="from-list-box">
-            <Listbox v-model="selectedFrom" :options="fromList" :filter="true" optionLabel="name"> </Listbox>
-          </div>
-          <div class="selected-from-property-table" v-if="isObjectHasKeys(selectedFrom, ['@id'])">
-            <Properties :conceptIri="selectedFrom['@id']" />
-          </div>
+      <TabPanel header="Profile">
+        <div class="profile-container">
+          <span class="type-input-container">Type: <InputText v-model="selectedType.name" @click="showTypeDialog = true" /></span>
+          <span class="bpop-input-container">Base population: <InputText v-model="selectedBPop.name" @click="showBPopDialog = true" /></span>
+          <ListBoxDialog :list="fromList" :show-dialog="showTypeDialog" @on-close-dialog="showTypeDialog = false" @on-select="onTypeSelect" />
+          <ListBoxDialog :list="fromList" :show-dialog="showBPopDialog" @on-close-dialog="showBPopDialog = false" @on-select="onBPopSelect" />
         </div>
-      </TabPanel>
-      <TabPanel header="Where">
+
         <TreeTable :value="treeTableItems" :expandedKeys="expandedKeys">
           <Column field="operator" header="Operator" :expander="true">
             <template #body="{ node }">
@@ -20,14 +17,16 @@
           </Column>
           <Column field="property" header="Property">
             <template #body="{ node }">
-              <InputText v-model="node.data.propertyDisplay" @click="showPropertyDialog = true" />
+              <InputText v-model="node.data.propertyDisplay" @click="node.data.showPropertyDialog = true" />
               <SelectTreeDialog
                 :nodes="propertyOptions"
                 :table-item="node.data"
-                :show-dialog="showPropertyDialog"
+                :show-dialog="node.data.showPropertyDialog"
                 :actions="propertyTreeDialogActions"
-                :from="selectedFrom['@id']"
-                @on-close-dialog="showPropertyDialog = false"
+                :from="selectedType['@id']"
+                :selectType="'property'"
+                @on-close-dialog="node.data.showPropertyDialog = false"
+                @on-filter="filterOptions"
               />
             </template>
           </Column>
@@ -37,14 +36,16 @@
               <InputText v-if="getTypeFromNode(node) === 'string'" type="text" v-model="node.data.value" />
               <InputNumber v-else-if="getTypeFromNode(node) === 'integer'" type="text" v-model="node.data.value" />
               <Calendar v-else-if="getTypeFromNode(node) === 'Date time'" v-model="node.data.value" dateFormat="dd/mm/yy" />
-              <InputText v-else v-model="node.data.valueDisplay" @click="showValueDialog = true" />
+              <InputText v-else v-model="node.data.valueDisplay" @click="node.data.showValueDialog = true" />
               <SelectTreeDialog
                 :nodes="node.data.valueOptions"
                 :table-item="node.data"
-                :show-dialog="showValueDialog"
+                :show-dialog="node.data.showValueDialog"
                 :actions="valueTreeDialogActions"
-                :from="selectedFrom['@id']"
-                @on-close-dialog="showValueDialog = false"
+                :from="selectedType['@id']"
+                :selectType="'value'"
+                @on-close-dialog="node.data.showValueDialog = false"
+                @on-filter="filterOptions"
               />
             </template>
           </Column>
@@ -57,7 +58,8 @@
           </Column>
         </TreeTable>
       </TabPanel>
-      <TabPanel header="Select">
+
+      <TabPanel header="Dataset">
         <MultiSelect
           class="multi-select"
           v-model="selectSelectedProperties"
@@ -76,22 +78,23 @@
 </template>
 
 <script setup lang="ts">
-import Properties from "@/components/directory/viewer/dataModel/Properties.vue";
-import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinition/EntityAutocomplete.vue";
 import { EntityService, QueryService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { RDFS, SHACL } from "@im-library/vocabulary";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import { onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
-import { Query, QueryRequest, TreeDialogActions, TreeSelectOption, TreeTableItem, TTAlias, TTIriRef, UIProperty } from "@im-library/interfaces";
-import SelectTreeDialog from "./simpleQueryBuilder/SelectTreeDialog.vue";
 import {
-  buildUIProperty,
-  convertTreeTableItemToQuery,
-  createTreeSelectOption,
-  createTreeSelectOptionDataFromTTProperty,
-  createTreeTableItem
-} from "@im-library/helpers/QuickQueryBuilders";
+  Query,
+  TreeDialogActions,
+  TreeSelectOption,
+  TreeSelectOptionData,
+  TreeTableItem,
+  TreeTableItemData,
+  TTAlias,
+  UIProperty
+} from "@im-library/interfaces";
+import SelectTreeDialog from "./simpleQueryBuilder/SelectTreeDialog.vue";
+import { buildUIProperty, convertTreeTableItemToQuery, createTreeTableItem } from "@im-library/helpers/QuickQueryBuilders";
 import Button from "primevue/button";
 import Calendar from "primevue/calendar";
 import Column from "primevue/column";
@@ -102,26 +105,33 @@ import MultiSelect from "primevue/multiselect";
 import TabPanel from "primevue/tabpanel";
 import TabView from "primevue/tabview";
 import TreeTable from "primevue/treetable";
-import { onPropertyExpand, onPropertyFinalSelect, onSelect, onValueExpand, onValueFinalSelect } from "@/composables/treeSelectDialog";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import {
+  onPropertyExpand,
+  onPropertyFinalSelect,
+  onSelect,
+  onValueExpand,
+  onValueFinalSelect,
+  getPropertySelectionTree,
+  getPropertyDescription,
+  getValueSelectionTree
+} from "@/composables/treeSelectDialog";
+import ListBoxDialog from "./simpleQueryBuilder/ListBoxDialog.vue";
 
 const emit = defineEmits({ updateQuery: (payload: Query) => payload });
 
 const fromList: Ref<any[]> = ref([]);
 const treeTableItems: Ref<TreeTableItem[]> = ref([]);
 const propertyOptions: Ref<TreeSelectOption[]> = ref([]);
-const propertySearchTerm: Ref<string> = ref("");
 const expandedKeys: Ref<any> = ref({});
 const logicOptions = ["and", "not", "or", "-"];
-
-const selectedFrom: Ref<TTAlias> = ref({} as TTAlias);
+const showTypeDialog: Ref<boolean> = ref(false);
+const showBPopDialog: Ref<boolean> = ref(false);
+const selectedType: Ref<TTAlias> = ref({} as TTAlias);
+const selectedBPop: Ref<TTAlias> = ref({} as TTAlias);
 const fromProperties: Ref<UIProperty[]> = ref([]);
 const selectSelectedProperties: Ref = ref();
 const showTestQueryResults: Ref<boolean> = ref(false);
 const imquery: Ref<Query> = ref({} as Query);
-
-const showValueDialog = ref(false);
-const showPropertyDialog = ref(false);
 
 const propertyTreeDialogActions = {
   onSelect: onSelect,
@@ -137,40 +147,30 @@ const valueTreeDialogActions = {
 
 onMounted(async () => await init());
 
-// watch
-
 watch(
   () => _.cloneDeep(treeTableItems.value),
   async (newValue, oldValue) => {
-    emit("updateQuery", convertTreeTableItemToQuery(selectedFrom.value, treeTableItems.value));
+    emit("updateQuery", convertTreeTableItemToQuery(selectedType.value, treeTableItems.value));
   }
 );
 
 watch(
-  () => _.cloneDeep(selectedFrom.value),
+  () => _.cloneDeep(selectedType.value),
   async (newValue, oldValue) => {
-    emit("updateQuery", convertTreeTableItemToQuery(selectedFrom.value, treeTableItems.value));
+    emit("updateQuery", convertTreeTableItemToQuery(selectedType.value, treeTableItems.value));
   }
 );
 
 watch(
-  () => propertySearchTerm.value,
-  async () => await filterPropertyOptions(propertySearchTerm.value)
-);
-
-watch(
-  () => selectedFrom.value["@id"],
+  () => selectedType.value["@id"],
   async () => {
-    fromProperties.value = await getFromProperties(selectedFrom.value["@id"]);
-    propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
+    fromProperties.value = await getFromProperties(selectedType.value["@id"]);
+    propertyOptions.value = await getPropertySelectionTree(selectedType.value["@id"]);
   }
 );
 
 async function init() {
   fromList.value = await getFromSuggestions();
-  // selectedFrom.value["@id"] = mainRecords[10]["@id"];
-  // selectedFrom.value.name = mainRecords[10][RDFS.LABEL];
-  // propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
   initTreeTableItems();
 }
 
@@ -178,6 +178,16 @@ async function initTreeTableItems() {
   const topLogic = createTreeTableItem("and", "");
   treeTableItems.value.push(topLogic);
   expandLogic(topLogic.key!);
+}
+
+function onTypeSelect(selected: any) {
+  selectedType.value["@id"] = selected["@id"];
+  selectedType.value.name = selected.name;
+}
+
+function onBPopSelect(selected: any) {
+  selectedBPop.value["@id"] = selected["@id"];
+  selectedBPop.value.name = selected[RDFS.LABEL];
 }
 
 async function getFromProperties(iri: string): Promise<UIProperty[]> {
@@ -190,7 +200,7 @@ async function getFromProperties(iri: string): Promise<UIProperty[]> {
   return properties;
 }
 
-async function getFromSuggestions(term?: string): Promise<any[]> {
+async function getFromSuggestions(): Promise<any[]> {
   const allRecordsQuery = {
     query: {
       name: "Get all data models",
@@ -224,44 +234,28 @@ async function getFromSuggestions(term?: string): Promise<any[]> {
   };
 
   const allRecordsResult = await QueryService.queryIM(allRecordsQuery as any);
+
   for (const entity of allRecordsResult.entities) {
     entity.name = entity[RDFS.LABEL];
   }
   return allRecordsResult.entities;
 }
 
-async function getDataModelTree(iri: string): Promise<TreeSelectOption[]> {
-  return await getChildrenSelectionTree(iri);
-}
-
-async function getChildrenSelectionTree(iri: string): Promise<TreeSelectOption[]> {
-  const children = await EntityService.getEntityChildren(iri);
-  return children.map(child => {
-    const option = createTreeSelectOption(child["@id"], child.name, child.type, child.hasChildren);
-    return option;
-  });
-}
-
-async function getPropertySelectionTree(iri: string): Promise<TreeSelectOption[]> {
-  const options = [] as TreeSelectOption[];
-
-  if (iri) {
-    const bundle = await EntityService.getPartialEntityBundle(iri, [SHACL.PROPERTY]);
-    for (const ttProperty of bundle.entity[SHACL.PROPERTY]) {
-      const type = [{ "@id": RDF.PROPERTY }] as TTIriRef[];
-      const description = await getPropertyDescription(ttProperty["http://www.w3.org/ns/shacl#path"][0]["@id"]);
-      const data = createTreeSelectOptionDataFromTTProperty(ttProperty, description);
-      const option = createTreeSelectOption(data["@id"], data.name, type, data.componentType === "node", data);
-      options.push(option);
-    }
+async function filterOptions(selectType: string, searchTerm: string, tableItem: TreeTableItemData) {
+  if (selectType === "value") {
+    await filterValueOptions(searchTerm, tableItem);
+  } else if (selectType === "property") {
+    await filterPropertyOptions(searchTerm);
   }
+}
 
-  return options;
+async function filterValueOptions(searchTerm: string, tableItem: TreeTableItemData) {
+  const option = { data: { valueType: tableItem.valueType } as TreeSelectOptionData } as TreeSelectOption;
+  tableItem.valueOptions = await getValueSelectionTree(option, searchTerm);
 }
 
 async function filterPropertyOptions(searchTerm: string) {
-  if (searchTerm) propertyOptions.value = propertyOptions.value.filter(option => option.data.name.includes(searchTerm));
-  else propertyOptions.value = await getPropertySelectionTree(selectedFrom.value["@id"]);
+  propertyOptions.value = await getPropertySelectionTree(selectedType.value["@id"], searchTerm);
 }
 
 function getTypeFromNode(node: TreeTableItem) {
@@ -303,12 +297,6 @@ function findNode(key: string, currentNode: any): TreeTableItem | boolean {
 function testQuery() {
   // if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
 }
-
-async function getPropertyDescription(iri: string) {
-  const descriptionEntity = await EntityService.getPartialEntity(iri, [RDFS.COMMENT]);
-  if (!descriptionEntity[RDFS.COMMENT]) return "No description";
-  return descriptionEntity[RDFS.COMMENT];
-}
 </script>
 
 <style scoped>
@@ -326,34 +314,12 @@ async function getPropertyDescription(iri: string) {
   display: flex;
   flex-flow: column;
 }
-
-.search-term-input {
-  display: flex;
-  flex-flow: column;
-  width: 100%;
+.type-input-container,
+.bpop-input-container {
+  padding: 0.5rem;
 }
 
-.from-list-container {
-  display: flex;
-  flex-flow: row wrap;
-  height: calc(100vh - 13rem);
-  overflow-y: hidden;
-  width: 100%;
-}
-
-.from-list-box {
-  height: 100%;
-  width: 35%;
-}
-
-.p-listbox {
-  height: 100%;
-  overflow-y: auto;
-}
-
-.selected-from-property-table {
-  height: 100%;
-  width: 65%;
-  overflow-y: auto;
+.profile-container {
+  padding-bottom: 1rem;
 }
 </style>

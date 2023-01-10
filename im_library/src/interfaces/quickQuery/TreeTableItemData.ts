@@ -10,4 +10,5 @@ export interface TreeTableItemData {
   valueOptions: TreeSelectOption[];
   valueDisplay: any;
   valueType: TTIriRef;
+  showValueOptions: boolean;
 }
