@@ -11,6 +11,8 @@ import PrimeVue from "primevue/config";
 import TopBar from "@/components/shared/TopBar.vue";
 import { vi } from "vitest";
 import { setupServer } from "msw/node";
+import { render } from "@testing-library/vue";
+import { nextTick } from "vue";
 
 const mockAdd = vi.fn();
 
@@ -25,7 +27,7 @@ describe("router", () => {
     vi.resetAllMocks();
   });
   describe("router ___ no snomed", () => {
-    let wrapper;
+    let component;
 
     beforeEach(async () => {
       vi.resetAllMocks();
@@ -35,20 +37,21 @@ describe("router", () => {
       router.push("/");
       await router.isReady();
 
-      wrapper = shallowMount(App, {
+      component = render(App, {
         global: {
           components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu },
-          plugins: [router, store, PrimeVue]
+          plugins: [router, store, PrimeVue],
+          stubs: { SnomedLicense: { template: "<span>Test Snomed License</span>" }, Directory: true, ReleaseNotes: true }
         }
       });
 
       await flushPromises();
-      await wrapper.vm.$nextTick();
+      await nextTick();
       vi.clearAllMocks();
     });
 
     it("routes to snomedLicense if snomedAccepted ___ false", () => {
-      expect(wrapper.vm.$route.path).toBe("/snomedLicense");
+      component.getByText("Test Snomed License");
       store.commit("updateSnomedLicenseAccepted", "true");
     });
   });

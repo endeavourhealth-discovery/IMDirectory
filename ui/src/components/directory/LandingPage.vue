@@ -209,13 +209,13 @@ async function getCardsData(): Promise<void> {
   height: 100%;
   width: 100%;
   display: flex;
-  flex-flow: column;
+  flex-flow: column nowrap;
   justify-content: flex-start;
   overflow: auto;
 }
 
 .activity-container {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   display: flex;
   flex-flow: column nowrap;
   overflow: auto;
@@ -243,9 +243,8 @@ async function getCardsData(): Promise<void> {
   width: 100%;
   flex: 1 0 auto;
   overflow: auto;
-  border: none;
-  box-shadow: none;
-  border-radius: none;
+  padding: 1rem;
+  gap: 1rem;
 }
 
 .recent-icon {

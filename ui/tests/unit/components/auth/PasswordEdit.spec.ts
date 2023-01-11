@@ -34,12 +34,6 @@ vi.mock("vue-router", () => ({
   })
 }));
 
-vi.mock("sweetalert2", () => {
-  return {
-    default: { fire: vi.fn() }
-  };
-});
-
 describe("PasswordEdit.vue with registeredUser", () => {
   let component: RenderResult;
   const user = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", Avatars[0], []);

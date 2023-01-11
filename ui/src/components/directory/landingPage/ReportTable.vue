@@ -1,13 +1,9 @@
 <template>
   <div :id="id" class="dashcard-container report-table">
-    <Card class="dashcard dash-table">
-      <template #title>
-        <span v-if="name">{{ name }}</span>
-      </template>
-      <template #subtitle>
-        <span v-if="description">{{ description }}</span>
-      </template>
-      <template #content>
+    <div class="dashcard">
+      <span v-if="name" class="title">{{ name }}</span>
+      <span v-if="description" class="description">{{ description }}</span>
+      <div class="content">
         <div class="p-d-flex p-flex-row p-jc-center p-ai-center loading-container" v-if="loading">
           <ProgressSpinner />
         </div>
@@ -16,8 +12,8 @@
           <Column field="label" header="Label"></Column>
           <Column field="count" header="Total"></Column>
         </DataTable>
-      </template>
-    </Card>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -66,14 +62,32 @@ function getReportTableData(): void {
 
 <style scoped>
 .dashcard-container {
-  height: fit-content;
-  width: 50%;
+  flex: 1 0 auto;
+  height: 100%;
 }
 .dashcard {
   width: 100%;
-  box-shadow: none;
-  border-radius: none;
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
 }
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.description {
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+}
+
+.content {
+  flex: 1 1 auto;
+}
+
 .loading-container {
   width: 100%;
 }
