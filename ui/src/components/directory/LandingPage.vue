@@ -149,21 +149,8 @@ function getActivityTooltipMessage(activity: RecentActivityItem) {
 }
 
 function getActivityMessage(activity: RecentActivityItem) {
-  let action = "";
   const dateTime = new Date(activity.dateTime);
-  switch (activity.app) {
-    case Env.DIRECTORY_URL:
-      action = "Viewed";
-      break;
-    case Env.EDITOR_URL:
-      action = "Edited";
-      break;
-
-    default:
-      break;
-  }
-
-  return action + " " + getDayDisplay(dateTime);
+  return activity.action + " " + getDayDisplay(dateTime);
 }
 
 function getDayDisplay(dateTime: Date) {
