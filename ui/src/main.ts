@@ -10,6 +10,7 @@ import { worker } from "./mocks/browser";
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { far } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 dom.watch();
 
@@ -106,6 +107,7 @@ const app = createApp(App)
   })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
+  .component("font-awesome-icon", FontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)
   .component("TabView", TabView)
