@@ -38,34 +38,27 @@
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { TTIriRef, EntityReferenceNode, ConceptSummary } from "@im-library/interfaces";
-import { DataTypeCheckers, ConceptTypeMethods } from "@im-library/helpers";
-import { DirectService, EntityService, Env, FilerService } from "@/services";
+import { TTIriRef } from "@im-library/interfaces";
+import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import rowClick from "@/composables/rowClick";
 import setupTree from "@/composables/setupTree";
 import createNew from "@/composables/createNew";
 import { TreeNode } from "primevue/tree";
 import { isArray } from "lodash";
-const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
-const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 
 const toast = useToast();
 const confirm = useConfirm();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
-const favourites = computed(() => store.state.favourites);
 const currentUser = computed(() => store.state.currentUser);
 const findInTreeIri = computed(() => store.state.findInTreeIri);
 
-const directService = new DirectService();
-
 const loading = ref(true);
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const overlayLocation: Ref<any> = ref({});
 const items: Ref<any[]> = ref([]);
 const newFolder: Ref<null | TreeNode> = ref(null);
@@ -79,22 +72,13 @@ const {
   selectedNode,
   root,
   expandedKeys,
-  pageSize,
+
   createTreeNode,
-  createLoadMoreNode,
   onNodeCollapse,
   onNodeDblClick,
   onNodeExpand,
   onNodeSelect,
-  onRowClick,
-  loadMore,
-  loadMoreChildren,
-  locateChildInLoadMore,
-  nodeHasChild,
-  findPathToNode,
-  scrollToHighlighted,
-  selectAndExpand,
-  selectKey
+  findPathToNode
 } = setupTree();
 
 onMounted(async () => {
@@ -239,7 +223,7 @@ async function createFolder() {
     console.log(iri);
     toast.add({ severity: "success", summary: "New folder", detail: 'New folder "' + newFolderName.value + '" created', life: 3000 });
     if (newFolder.value.children) {
-      newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" }], false, newFolder.value));
+      newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" } as TTIriRef], false, newFolder.value));
     }
   } catch (e) {
     toast.add({ severity: "error", summary: "New folder", detail: '"' + newFolderName.value + '" already exists', life: 3000 });

@@ -112,7 +112,7 @@ describe("SearchResultsTable.vue", () => {
     const edit = component.getAllByTestId("edit-button")[0];
     await fireEvent.click(edit);
     expect(directToSpy).toHaveBeenCalledTimes(1);
-    expect(directToSpy).toHaveBeenLastCalledWith("/#/", "http://snomed.info/sct#241193003", "editor");
+    expect(directToSpy).toHaveBeenLastCalledWith("/#/", "http://snomed.info/sct#241193003", "Edited", "editor");
   });
 
   it("can unfavourite", async () => {

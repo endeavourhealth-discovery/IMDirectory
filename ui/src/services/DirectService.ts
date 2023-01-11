@@ -16,23 +16,23 @@ export default class DirectService {
     this._message = "You will be directed to a different application. Are you sure you want to proceed?";
   }
 
-  public directTo(app: string, iri: string, appRoute?: string) {
+  public directTo(app: string, iri: string, action: string, appRoute?: string) {
     if (iri) {
       if (appRoute) window.open(app + appRoute + "/" + encodeURIComponent(iri));
       else window.open(app + encodeURIComponent(iri));
-      this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), app: app });
+      this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), action: action });
     } else {
       window.open(app);
     }
   }
 
-  public directWithConfirmation(app: string, iri: string, component: CreateComponentPublicInstance<any>, appRoute?: string) {
+  public directWithConfirmation(app: string, iri: string, action: string, component: CreateComponentPublicInstance<any>, appRoute?: string) {
     component.$confirm.require({
       message: this._message,
       header: "Confirmation",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
-        this.directTo(app, iri, appRoute);
+        this.directTo(app, iri, action, appRoute);
       },
       reject: () => {
         component.$confirm.close();
@@ -41,7 +41,7 @@ export default class DirectService {
   }
 
   public view(iri?: string) {
-    this.directTo(Env.DIRECTORY_URL, iri || "", "folder");
+    this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "folder");
   }
 
   public select(iri: string, routeName?: string) {
@@ -53,10 +53,11 @@ export default class DirectService {
       });
       this.store.commit("updateConceptIri", iri);
     }
+    this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), action: "Viewed" });
   }
 
   public edit(iri?: string) {
-    this.directTo(Env.DIRECTORY_URL, iri || "", "editor");
+    this.directTo(Env.DIRECTORY_URL, iri || "", "Edited", "editor");
   }
 
   public create(typeIri?: string, propertyIri?: string, valueIri?: string) {

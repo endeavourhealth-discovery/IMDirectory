@@ -3,7 +3,7 @@ export interface RecentActivityItem {
   name: string;
   type: string;
   dateTime: Date;
-  app: string;
+  action: string;
   color: string;
   icon: string[];
 }
