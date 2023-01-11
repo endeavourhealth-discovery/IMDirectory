@@ -113,7 +113,7 @@ export default createStore({
       activity.forEach(activityItem => {
         activityItem.dateTime = new Date(activityItem.dateTime);
       });
-      const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.app === recentActivityItem.app);
+      const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.action === recentActivityItem.action);
       if (foundIndex !== -1) {
         activity[foundIndex].dateTime = recentActivityItem.dateTime;
         activity.sort((a, b) => {
