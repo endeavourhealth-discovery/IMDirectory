@@ -3,7 +3,7 @@ import { AuthService } from "@/services";
 import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest } from "@im-library/interfaces";
 import { FilterDefaults } from "@im-library/config";
 import { Avatars } from "@im-library/constants";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { CustomAlert, User } from "@im-library/models";
 import { EntityService } from "@/services";
@@ -61,7 +61,8 @@ export default createStore({
     creatorHasChanges: false as boolean,
     editorHasChanges: false as boolean,
     findInEditorTreeIri: "",
-    refreshEditorTree: false as boolean
+    refreshEditorTree: false as boolean,
+    showReleaseNotes: false as boolean
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -112,7 +113,7 @@ export default createStore({
       activity.forEach(activityItem => {
         activityItem.dateTime = new Date(activityItem.dateTime);
       });
-      const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.app === recentActivityItem.app);
+      const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.action === recentActivityItem.action);
       if (foundIndex !== -1) {
         activity[foundIndex].dateTime = recentActivityItem.dateTime;
         activity.sort((a, b) => {
@@ -195,6 +196,9 @@ export default createStore({
     },
     updateRefreshTree(state) {
       state.refreshEditorTree = !state.refreshEditorTree;
+    },
+    updateShowReleaseNotes(state, bool) {
+      state.showReleaseNotes = bool;
     }
   },
   actions: {
@@ -211,27 +215,29 @@ export default createStore({
     },
     async fetchFilterSettings({ commit, state }) {
       const filterDefaults = await EntityService.getFilterOptions();
-      commit("updateFilterOptions", {
-        status: filterDefaults.status,
-        schemes: filterDefaults.schemes,
-        types: filterDefaults.types,
-        sortFields: filterDefaults.sortFields,
-        sortDirections: filterDefaults.sortDirections
-      });
+      if (filterDefaults && isObjectHasKeys(filterDefaults, ["status", "schemes", "types", "sortFields", "sortDirections"])) {
+        commit("updateFilterOptions", {
+          status: filterDefaults.status,
+          schemes: filterDefaults.schemes,
+          types: filterDefaults.types,
+          sortFields: filterDefaults.sortFields,
+          sortDirections: filterDefaults.sortDirections
+        });
 
-      const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => FilterDefaults.statusOptions.includes(item["@id"]));
-      const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => FilterDefaults.schemeOptions.includes(item.iri));
-      const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => FilterDefaults.typeOptions.includes(item["@id"]));
-      const selectedField = FilterDefaults.sortField;
-      const selectedDirection = FilterDefaults.sortDirection;
-      commit("updateSelectedFilters", {
-        status: selectedStatus,
-        schemes: selectedSchemes,
-        types: selectedTypes,
-        sortField: selectedField,
-        sortDirection: selectedDirection
-      });
-      commit("updateHierarchySelectedFilters", selectedSchemes);
+        const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => FilterDefaults.statusOptions.includes(item["@id"]));
+        const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => FilterDefaults.schemeOptions.includes(item.iri));
+        const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => FilterDefaults.typeOptions.includes(item["@id"]));
+        const selectedField = FilterDefaults.sortField;
+        const selectedDirection = FilterDefaults.sortDirection;
+        commit("updateSelectedFilters", {
+          status: selectedStatus,
+          schemes: selectedSchemes,
+          types: selectedTypes,
+          sortField: selectedField,
+          sortDirection: selectedDirection
+        });
+        commit("updateHierarchySelectedFilters", selectedSchemes);
+      }
     },
     async fetchSearchResults({ commit }, data: { searchRequest: SearchRequest; controller: AbortController }) {
       const result = await EntityService.advancedSearch(data.searchRequest, data.controller);

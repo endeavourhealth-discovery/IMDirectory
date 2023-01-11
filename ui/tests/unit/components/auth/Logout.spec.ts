@@ -33,12 +33,6 @@ vi.mock("vue-router", () => ({
   })
 }));
 
-vi.mock("sweetalert2", () => {
-  return {
-    default: { fire: vi.fn() }
-  };
-});
-
 describe("Logout.vue", () => {
   let component: RenderResult;
   let user;

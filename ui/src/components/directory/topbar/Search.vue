@@ -58,7 +58,6 @@ function toEclSearch() {
 }
 
 async function search(): Promise<void> {
-  console.log(event);
   if (searchText.value) {
     router.push({
       name: "Search"

@@ -1,0 +1,226 @@
+import { DirectService, EntityService } from "@/services";
+import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { EntityReferenceNode, TTIriRef } from "@im-library/interfaces";
+import { IM } from "@im-library/vocabulary";
+import { TreeNode } from "primevue/tree";
+import { ref, Ref } from "vue";
+import { useToast } from "primevue/usetoast";
+import rowClick from "./rowClick";
+
+function setupTree() {
+  const toast = useToast();
+
+  const { onRowClick } = rowClick();
+
+  const selectedKeys: Ref<any> = ref({});
+  const selectedNode: Ref<TreeNode> = ref({});
+  const root: Ref<TreeNode[]> = ref([]);
+  const expandedKeys: Ref<any> = ref({});
+  const pageSize = ref(20);
+
+  const directService = new DirectService();
+
+  function createTreeNode(
+    conceptName: string,
+    conceptIri: string,
+    conceptTypes: TTIriRef[],
+    hasChildren: boolean,
+    parent: TreeNode | null,
+    order?: number
+  ): TreeNode {
+    return {
+      key: conceptIri,
+      label: conceptName,
+      typeIcon: getFAIconFromType(conceptTypes),
+      color: getColourFromType(conceptTypes),
+      conceptTypes: conceptTypes,
+      data: conceptIri,
+      leaf: !hasChildren,
+      loading: false,
+      children: [] as TreeNode[],
+      order: order,
+      parentNode: parent
+    };
+  }
+
+  function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
+    return {
+      key: "loadMore" + parentNode.data,
+      label: "Load more...",
+      typeIcon: null,
+      color: null,
+      data: "loadMore",
+      leaf: true,
+      loading: false,
+      children: [] as TreeNode[],
+      parentNode: parentNode,
+      nextPage: nextPage,
+      totalCount: totalCount,
+      style: "font-weight: bold;"
+    };
+  }
+
+  async function onNodeSelect(node: any): Promise<void> {
+    if (node.data === "loadMore") {
+      await loadMore(node);
+    } else {
+      selectedNode.value = node;
+      onRowClick(node.data);
+    }
+  }
+
+  function onNodeDblClick($event: any, node: any) {
+    if (node.data !== "loadMore") directService.view(node.key);
+  }
+
+  async function loadMore(node: any) {
+    if (node.nextPage * pageSize.value < node.totalCount) {
+      const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
+      node.parentNode.children.pop();
+      children.result.forEach((child: any) => {
+        if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+      });
+      node.nextPage = node.nextPage + 1;
+      node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
+    } else if (node.nextPage * pageSize.value > node.totalCount) {
+      const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
+      node.parentNode.children.pop();
+      children.result.forEach((child: any) => {
+        if (!nodeHasChild(node.parentNode, child))
+          node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node.parentNode));
+      });
+    } else {
+      node.parentNode.children.pop();
+    }
+  }
+
+  async function onNodeExpand(node: any) {
+    if (isObjectHasKeys(node)) {
+      node.loading = true;
+      if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
+      const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
+      children.result.forEach((child: any) => {
+        if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+      });
+      if (children.totalCount >= pageSize.value) {
+        node.children.push(createLoadMoreNode(node, 2, children.totalCount));
+      }
+      node.loading = false;
+    }
+  }
+
+  function onNodeCollapse(node: any) {
+    node.children = [];
+    node.leaf = false;
+  }
+
+  function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
+    return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
+  }
+
+  function selectKey(selectedKey: string) {
+    Object.keys(selectedKeys.value).forEach(key => {
+      selectedKeys.value[key] = false;
+    });
+    selectedKeys.value[selectedKey] = true;
+  }
+
+  async function findPathToNode(iri: string, loading: Ref<boolean>, treeContainerId: string) {
+    loading.value = true;
+    const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
+
+    // Recursively expand
+    let n = root.value.find(c => path.find(p => p["@id"] === c.data));
+    let i = 0;
+    if (n) {
+      expandedKeys.value = {};
+      while (n && n.data != path[0]["@id"] && i++ < 50) {
+        await selectAndExpand(n);
+        // Find relevant child
+        n = await locateChildInLoadMore(n, path);
+      }
+      if (n && n.data === path[0]["@id"]) {
+        await selectAndExpand(n);
+
+        while (!n.children?.some(child => child.data === iri)) {
+          await loadMoreChildren(n);
+        }
+        for (const gc of n.children) {
+          if (gc.data === iri && gc.key) {
+            selectKey(gc.key);
+          }
+        }
+        selectedNode.value = n;
+      } else {
+        toast.add({
+          severity: "warn",
+          summary: "Unable to locate",
+          detail: "Unable to locate concept in the current hierarchy"
+        });
+      }
+    }
+    scrollToHighlighted(treeContainerId);
+    loading.value = false;
+  }
+
+  async function locateChildInLoadMore(n: TreeNode, path: TTIriRef[]): Promise<TreeNode | undefined> {
+    if (n.children && n.children.find(c => c.data === "loadMore")) {
+      const found = n.children.find(c => path.find(p => p["@id"] === c.data));
+      if (found) {
+        return n.children.find(c => path.find(p => p["@id"] === c.data));
+      } else {
+        await loadMoreChildren(n);
+        return await locateChildInLoadMore(n, path);
+      }
+    } else {
+      return n.children?.find(c => path.find(p => p["@id"] === c.data));
+    }
+  }
+
+  async function selectAndExpand(node: any) {
+    selectKey(node.key);
+    if (!node.children || node.children.length === 0) {
+      await onNodeExpand(node);
+    }
+    expandedKeys.value[node.key] = true;
+    expandedKeys.value = { ...expandedKeys.value };
+  }
+
+  function scrollToHighlighted(containerId: string) {
+    const container = document.getElementById(containerId) as HTMLElement;
+    const highlighted = container.getElementsByClassName("p-highlight")[0];
+    if (highlighted) highlighted.scrollIntoView();
+  }
+
+  async function loadMoreChildren(node: any) {
+    if (node.children[node.children.length - 1].data === "loadMore") {
+      await loadMore(node.children[node.children.length - 1]);
+    }
+  }
+
+  return {
+    selectedKeys,
+    selectedNode,
+    root,
+    expandedKeys,
+    createTreeNode,
+    createLoadMoreNode,
+    onNodeCollapse,
+    onNodeDblClick,
+    onNodeExpand,
+    onNodeSelect,
+    onRowClick,
+    loadMore,
+    loadMoreChildren,
+    locateChildInLoadMore,
+    findPathToNode,
+    scrollToHighlighted,
+    selectAndExpand,
+    selectKey,
+    nodeHasChild,
+    pageSize
+  };
+}
+
+export default setupTree;

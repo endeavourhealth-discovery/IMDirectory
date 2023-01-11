@@ -2,7 +2,7 @@
   <div class="layout-wrapper layout-static">
     <Toast />
     <ConfirmDialog />
-    <ReleaseNotes v-if="!loading" :appVersion="appVersion" repositoryName="IMDirectory" />
+    <ReleaseNotes v-if="!loading && showReleaseNotes" repositoryName="IMDirectory" />
     <div id="main-container">
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed, ComputedRef, watch } from "vue";
 import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
@@ -22,6 +22,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Env } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
+import semver from "semver";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -31,6 +32,8 @@ const router = useRouter();
 const toast = useToast();
 const store = useStore();
 
+const showReleaseNotes: ComputedRef<boolean> = computed(() => store.state.showReleaseNotes);
+
 const appVersion = __APP_VERSION__;
 
 const loading = ref(true);
@@ -38,8 +41,27 @@ const loading = ref(true);
 onMounted(async () => {
   loading.value = true;
   await store.dispatch("authenticateCurrentUser");
+  setShowReleaseNotes();
   loading.value = false;
 });
+
+function setShowReleaseNotes() {
+  const lastVersion = getLocalVersion("IMDirectory");
+  if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, appVersion)) {
+    store.commit("updateShowReleaseNotes", true);
+  } else if (semver.valid(lastVersion) && semver.gt(lastVersion, appVersion)) {
+    setLocalVersion("IMDirectory", appVersion);
+    store.commit("updateShowReleaseNotes", true);
+  } else store.commit("updateShowReleaseNotes", false);
+}
+
+function getLocalVersion(repoName: string): string | null {
+  return localStorage.getItem(repoName + "Version");
+}
+
+function setLocalVersion(repoName: string, versionNo: string) {
+  localStorage.setItem(repoName + "Version", versionNo);
+}
 
 async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
