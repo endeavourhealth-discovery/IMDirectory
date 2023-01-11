@@ -15,7 +15,7 @@ import { afterAll, it, vi } from "vitest";
 
 const mockDispatch = vi.fn();
 const mockState = {
-  recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", app: "/viewer/#/" }]
+  recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }]
 };
 const mockCommit = vi.fn();
 
@@ -74,7 +74,7 @@ describe("LandingPage.vue", async () => {
   });
 
   it("sets activity time", () => {
-    component.getByText("yesterday");
+    component.getByText("Viewed yesterday");
   });
 
   it("shows report table if in config", () => {
