@@ -60,14 +60,7 @@
       </TabPanel>
 
       <TabPanel header="Dataset">
-        <MultiSelect
-          class="multi-select"
-          v-model="selectSelectedProperties"
-          :options="fromProperties"
-          optionLabel="label"
-          placeholder="Select output properties"
-          display="chip"
-        />
+        <Dataset :select-properties="selectProperties" :option-properties="fromProperties" @on-update="onDatasetUpdate" />
       </TabPanel>
       <TabPanel header="Preview">
         <Button icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
@@ -84,7 +77,9 @@ import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/
 import { onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import {
+  DatasetObject,
   Query,
+  QueryRequest,
   TreeDialogActions,
   TreeSelectOption,
   TreeSelectOptionData,
@@ -94,14 +89,13 @@ import {
   UIProperty
 } from "@im-library/interfaces";
 import SelectTreeDialog from "./simpleQueryBuilder/SelectTreeDialog.vue";
-import { buildUIProperty, convertTreeTableItemToQuery, createTreeTableItem } from "@im-library/helpers/QuickQueryBuilders";
+import { addDatasetToQuery, buildUIProperty, convertTreeTableItemToQuery, createTreeTableItem } from "@im-library/helpers/QuickQueryBuilders";
 import Button from "primevue/button";
 import Calendar from "primevue/calendar";
 import Column from "primevue/column";
 import Dropdown from "primevue/dropdown";
 import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
-import MultiSelect from "primevue/multiselect";
 import TabPanel from "primevue/tabpanel";
 import TabView from "primevue/tabview";
 import TreeTable from "primevue/treetable";
@@ -116,6 +110,7 @@ import {
   getValueSelectionTree
 } from "@/composables/treeSelectDialog";
 import ListBoxDialog from "./simpleQueryBuilder/ListBoxDialog.vue";
+import Dataset from "./simpleQueryBuilder/Dataset.vue";
 
 const emit = defineEmits({ updateQuery: (payload: Query) => payload });
 
@@ -129,7 +124,7 @@ const showBPopDialog: Ref<boolean> = ref(false);
 const selectedType: Ref<TTAlias> = ref({} as TTAlias);
 const selectedBPop: Ref<TTAlias> = ref({} as TTAlias);
 const fromProperties: Ref<UIProperty[]> = ref([]);
-const selectSelectedProperties: Ref = ref();
+const selectProperties: Ref = ref();
 const showTestQueryResults: Ref<boolean> = ref(false);
 const imquery: Ref<Query> = ref({} as Query);
 
@@ -178,6 +173,12 @@ async function initTreeTableItems() {
   const topLogic = createTreeTableItem("and", "");
   treeTableItems.value.push(topLogic);
   expandLogic(topLogic.key!);
+}
+
+function onDatasetUpdate(dataset: DatasetObject) {
+  const query = convertTreeTableItemToQuery(selectedType.value, treeTableItems.value);
+  addDatasetToQuery(query, dataset);
+  emit("updateQuery", query);
 }
 
 function onTypeSelect(selected: any) {

@@ -1,6 +1,8 @@
 import { getColourFromType, getFAIconFromType } from "../helpers/ConceptTypeMethods";
 import {
+  DatasetObject,
   Query,
+  Select,
   TreeSelectOption,
   TreeSelectOptionData,
   TreeTableItem,
@@ -14,6 +16,49 @@ import {
 } from "../interfaces";
 import { SHACL } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+
+export function addDatasetToQuery(query: Query, dataset: DatasetObject) {
+  delete query.select;
+  delete query.direction;
+  delete query.orderBy;
+  delete query.groupBy;
+  delete query.limit;
+
+  if (dataset.selectedLimit) {
+    query.limit = dataset.selectedLimit;
+  }
+
+  if (dataset.selectedProperties) {
+    query.select = [];
+    for (const property of dataset.selectedProperties) {
+      const select = { property: {} } as Select;
+      select.property["@id"] = property.property["http://www.w3.org/ns/shacl#path"][0]["@id"];
+      select.property.name = property.property["http://www.w3.org/ns/shacl#path"][0].name;
+      query.select.push(select);
+    }
+  }
+
+  if (dataset.selectedGroupBy) {
+    query.groupBy = [];
+    for (const property of dataset.selectedGroupBy) {
+      const ttAlias = {} as TTAlias;
+      ttAlias["@id"] = property.property["http://www.w3.org/ns/shacl#path"][0]["@id"];
+      ttAlias.name = property.property["http://www.w3.org/ns/shacl#path"][0].name;
+      query.groupBy.push(ttAlias);
+    }
+  }
+
+  if (dataset.selectedOrderBy && dataset.selectedDirection) {
+    query.direction = dataset.selectedDirection;
+    query.orderBy = [];
+    for (const property of dataset.selectedOrderBy) {
+      const ttAlias = {} as TTAlias;
+      ttAlias["@id"] = property.property["http://www.w3.org/ns/shacl#path"][0]["@id"];
+      ttAlias.name = property.property["http://www.w3.org/ns/shacl#path"][0].name;
+      query.orderBy.push(ttAlias);
+    }
+  }
+}
 
 export function createTreeSelectOption(iri: string, name: string, type: TTIriRef[], hasChildren: boolean, optionData?: TreeSelectOptionData): TreeSelectOption {
   const data = optionData || createTreeSelectOptionData(iri, name, type);
@@ -169,5 +214,6 @@ export default {
   createTreeSelectOptionDataFromTTProperty,
   convertTreeTableItemToQuery,
   createTreeTableItem,
-  buildUIProperty
+  buildUIProperty,
+  addDatasetToQuery
 };
