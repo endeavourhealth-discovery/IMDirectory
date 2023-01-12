@@ -1,5 +1,5 @@
 <template>
-  <div class="nested-div">
+  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <template v-for="(item, index) in value.items">
       <div class="component-container">
@@ -16,14 +16,15 @@
             :focus="props.focus"
         >
         </component>
-        <span class="move-group hover-show">
-            <Button @click="deleteItem(index)" class="p-button-sm p-button-danger" icon="pi pi-times"/>
-        </span>
+        <div class="remove-group">
+            <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash"/>
+        </div>
       </div>
     </template>
-    <div class="add-group hover-show">
-      <Button type="button" class="p-button-success" label="Add" @click="toggleAdd" />
-      <Menu ref="menuAdd" :model="addOptions" :popup="true" />
+    <div class="add-group">
+        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" />
+        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Refinement" @click="addRefinement" />
+        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" />
     </div>
   </div>
 </template>
@@ -40,7 +41,6 @@ const props = defineProps({
 const selected = ref("AND");
 
 const menuBool = ref();
-const menuAdd = ref();
 
 const boolOptions = [
   {
@@ -57,27 +57,19 @@ const boolOptions = [
   }
 ];
 
-const addOptions = [
-  {
-    label: 'Add Concept',
-    command: () => addConcept()
-  },
-  {
-    label: 'Add Refinement',
-    command: () => addRefinement()
-  },
-  {
-    label: 'Add Group',
-    command: () => addGroup()
-  }
-];
+const hover = ref();
+function mouseover(event) {
+  event.stopPropagation();
+  hover.value = true;
+}
+
+function mouseout(event) {
+  event.stopPropagation();
+  hover.value = false;
+}
 
 function toggleBool(event :any) {
   menuBool.value.toggle(event);
-}
-
-function toggleAdd(event: any) {
-  menuAdd.value.toggle(event);
 }
 
 function add(item: any) {
@@ -107,7 +99,15 @@ function deleteItem(index: number) {
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@use "primevue/resources/themes/saga-blue/theme.css";
+
+.p-button-placeholder {
+  @extend .p-button-secondary;
+  @extend .p-button-outlined;
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
 
 .left-container {
   display: flex;
@@ -123,18 +123,9 @@ function deleteItem(index: number) {
   width: 100%;
 }
 
-.move-group {
+.remove-group {
   width: 2rem;
-}
-
-.hover-show {
   display: flex;
-  content-visibility: hidden;
-  min-height: 1.5rem;
-}
-
-.hover-show:hover {
-  content-visibility: visible;
 }
 
 .nested-div {
@@ -144,6 +135,11 @@ function deleteItem(index: number) {
   background-color: #ff8c0010;
   margin: 0.5rem;
   flex: 1;
+}
+
+.nested-div-hover {
+  @extend .nested-div;
+  border: #ff8c00 1px solid;
 }
 
 .component-container {
