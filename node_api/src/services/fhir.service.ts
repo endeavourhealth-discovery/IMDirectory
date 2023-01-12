@@ -8,7 +8,7 @@ export default class FhirService {
     }
 
     public async getValueSet(url: string, expand: boolean): Promise<any> {
-        const valueSet = new fhirR4.ValueSetContains();
+        const valueSet = new fhirR4.ValueSet();
         // valueSet.expansion.contains.contains = await this.getMembers(url, expand);
         // valueSet.compose.include.valueSet = await this.getSubsets(url);
 
