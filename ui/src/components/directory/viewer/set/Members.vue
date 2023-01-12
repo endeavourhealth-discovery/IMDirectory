@@ -62,13 +62,14 @@
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { TTIriRef } from "@im-library/interfaces";
 import { DataTypeCheckers } from "@im-library/helpers";
-import { EntityService, SetService } from "@/services";
+import { EntityService, SetService,  } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import FhirService from "@/services/FhirService";
 
 const { isObjectHasKeys } = DataTypeCheckers;
 
@@ -90,7 +91,8 @@ const downloadMenu = ref([
   { label: "Definition Only", command: () => download(false, false) },
   { label: "Core", command: () => download(true, false) },
   { label: "Core & Legacy", command: () => download(true, true) },
-  { label: "Core & Legacy (Flat)", command: () => download(true, true, true) }
+  { label: "Core & Legacy (Flat)", command: () => download(true, true, true) },
+  { label: "Fhir format", command: () => downloadFhir() }
 ]);
 const downloadMenu1 = ref([
   { label: "Definition Only", command: () => download(false, false) },
@@ -210,6 +212,10 @@ async function getPage(event: any) {
   let pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
   members.value = pagedNewMembers.result;
   loading.value = false;
+}
+
+async function downloadFhir() {
+  await FhirService.getValueSet("http://endhealth.info/im#VSET_355",false);
 }
 </script>
 
