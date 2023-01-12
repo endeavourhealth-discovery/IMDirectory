@@ -127,6 +127,7 @@ function recursevilyAddClauses(parentClause: Where, tableItem: TreeTableItem) {
 
 function createWhereFromTreeTableItem(tableItem: TreeTableItem): Where {
   const where = { property: tableItem.data.property } as Where;
+  console.log(tableItem.data.valueType);
   if (isObjectHasKeys(tableItem.data, ["valueType"]))
     if (tableItem.data?.valueType.name === "string" || tableItem.data.valueType.name === "integer") {
       where.value = { value: tableItem.data.value } as Value;

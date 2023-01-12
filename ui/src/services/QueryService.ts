@@ -3,6 +3,7 @@ import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeC
 import { mapToObject } from "@im-library/helpers/Transforms";
 import { QueryDisplay, QueryObject, TTIriRef, QueryRequest, AllowableChildProperty } from "@im-library/interfaces";
 import axios from "axios";
+import { PathDocument } from "@im-library/models/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -155,6 +156,15 @@ const QueryService = {
       });
     } catch (error) {
       return [] as AllowableChildProperty[];
+    }
+  },
+
+  async pathQuery(query: QueryRequest, controller?: AbortController): Promise<PathDocument> {
+    try {
+      if (controller) return await axios.post(Env.API + "api/query/public/pathQuery", query, { signal: controller.signal });
+      else return await axios.post(Env.API + "api/query/public/pathQuery", query);
+    } catch (error) {
+      return undefined as any;
     }
   }
 };

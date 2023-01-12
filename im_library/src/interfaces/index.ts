@@ -82,6 +82,7 @@ import { TreeTableItem } from "./quickQuery/TreeTableItem";
 import { TreeTableItemData } from "./quickQuery/TreeTableItemData";
 import { TreeDialogActions } from "./TreeDialogActions";
 import { DatasetObject } from "./quickQuery/DatasetObject";
+import { PathOption } from "./quickQuery/PathOption";
 
 export {
   type AccountItem,
@@ -167,5 +168,6 @@ export {
   type TreeTableItem,
   type TreeTableItemData,
   type TreeDialogActions,
-  type DatasetObject
+  type DatasetObject,
+  type PathOption
 };

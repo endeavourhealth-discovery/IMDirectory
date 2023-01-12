@@ -6,17 +6,17 @@ import { Query, QueryRequest, TreeSelectOption, TreeTableItemData, TTIriRef } fr
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { createTreeSelectOption, createTreeSelectOptionDataFromTTProperty } from "@im-library/helpers/QuickQueryBuilders";
 import { Ref } from "vue";
+import { PathDocument } from "@im-library/models/AutoGen";
 
-export async function getSuggestionPaths(source: TTIriRef, target: TTIriRef, depth?: number) {
-  const pathSusggestionQuery = {
+export async function getSuggestionPaths(source: TTIriRef, target: TTIriRef, depth?: number): Promise<PathDocument> {
+  const pathQueryRequest = {
     pathQuery: {
       source: source,
       target: target,
-      depth: depth || 5
+      depth: depth || 3
     }
   } as QueryRequest;
-  const queryResult = await QueryService.queryIM(pathSusggestionQuery);
-  return queryResult.entities;
+  return await QueryService.pathQuery(pathQueryRequest);
 }
 
 export function onSelect(selectedVariable: Ref<TreeSelectOption>, selectedValue: TreeSelectOption) {
@@ -27,9 +27,9 @@ export async function onValueExpand(option: TreeSelectOption) {
   option.children = await getChildrenSelectionTree(option.key!);
 }
 
-export function onValueFinalSelect(tableItem: TreeTableItemData, selectedNode: Ref<TreeSelectOption>) {
-  tableItem.value = { "@id": selectedNode.value.key, name: selectedNode.value.label } as TTIriRef;
-  tableItem.valueDisplay = selectedNode.value.label;
+export function onValueFinalSelect(tableItem: TreeTableItemData, selectedValue: Ref<TreeSelectOption>) {
+  tableItem.value = { "@id": selectedValue.value.key, name: selectedValue.value.label } as TTIriRef;
+  tableItem.valueDisplay = selectedValue.value.label;
 }
 
 export async function onPropertyExpand(option: TreeSelectOption) {

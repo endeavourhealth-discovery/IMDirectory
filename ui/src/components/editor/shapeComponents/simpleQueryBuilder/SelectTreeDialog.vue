@@ -26,9 +26,8 @@
       <Tree
         :value="suggestionNodes"
         selectionMode="single"
-        v-model:selectionKeys="selectedSuggestion"
-        @node-select="selectSuggestion($event as TreeSelectOption)"
-        @node-expand="expandSuggestion($event as TreeSelectOption)"
+        v-model:selectionKeys="selectedSuggestionKey"
+        @node-select="selectSuggestion($event as PathOption)"
         @dblclick="finalSelectSuggestion"
       ></Tree>
     </div>
@@ -43,13 +42,14 @@
 <script setup lang="ts">
 import EntityAutocomplete from "@/components/editor/shapeComponents/setDefinition/EntityAutocomplete.vue";
 import { getSuggestionPaths, buildSuggestionPathNodes } from "@/composables/treeSelectDialog";
-import { TreeDialogActions, TreeSelectOption, TreeTableItemData, TTAlias, TTIriRef } from "@im-library/interfaces";
+import { PathOption, TreeDialogActions, TreeSelectOption, TreeTableItemData, TTAlias, TTIriRef } from "@im-library/interfaces";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import Tree from "primevue/tree";
 import _ from "lodash";
 import { ref, PropType, watch, Ref } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { IM } from "@im-library/vocabulary";
 
 const props = defineProps({
   nodes: { type: Array as PropType<Array<TreeSelectOption>>, required: true },
@@ -65,12 +65,13 @@ const emit = defineEmits({
   onCloseDialog: () => true,
   onFilter: (selectType: string, searchTerm: string, tableItem: TreeTableItemData) => true
 });
-const selectedNode: Ref<TreeSelectOption> = ref({} as TreeSelectOption);
+const selectedNode: Ref<TreeSelectOption> = ref({} as any);
 const selectedKey = ref();
+const selectedSuggestionKey = ref();
 const showPropertyDialog = ref(false);
 const searchTerm: Ref<string> = ref("");
-const suggestionNodes: Ref<any[]> = ref([]);
-const selectedSuggestion: Ref<any> = ref();
+const suggestionNodes: Ref<PathOption[]> = ref([]);
+const selectedSuggestion: Ref<PathOption> = ref({} as PathOption);
 const selectedEntity: Ref<TTAlias> = ref({} as TTAlias);
 
 watch(
@@ -91,15 +92,6 @@ watch(
   }
 );
 
-watch(
-  () => selectedEntity.value["@id"],
-  async newValue => {
-    const source = { "@id": props.from } as TTIriRef;
-    const target = { "@id": newValue } as TTIriRef;
-    suggestionNodes.value = await getSuggestionPathNodes(source, target);
-  }
-);
-
 async function filter() {
   if (searchTerm) {
     emit("onFilter", props.selectType, searchTerm.value, props.tableItem);
@@ -107,23 +99,36 @@ async function filter() {
 }
 
 async function getSuggestionPathNodes(source: TTIriRef, target: TTIriRef, depth?: number) {
-  const suggestionPaths = await getSuggestionPaths(source, target);
-  return buildSuggestionPathNodes(suggestionPaths);
+  const suggestionPaths = [] as PathOption[];
+  const suggestionPathDocument = await getSuggestionPaths(source, target);
+  for (const path of suggestionPathDocument.paths) {
+    const label = path.items.map(item => item.name).join(" -> ");
+    const pathOption = { key: String(Math.floor(Math.random() * 1000000)), items: path.items, label: label } as PathOption;
+    suggestionPaths.push(pathOption);
+  }
+
+  return suggestionPaths;
 }
 
 function closeDialog() {
   emit("onCloseDialog");
 }
 
-function selectSuggestion(selectedValue: TreeSelectOption) {
-  console.log(selectedValue);
+function selectSuggestion(selectedValue: PathOption) {
+  selectedSuggestion.value = selectedValue;
 }
 
-function expandSuggestion(selectedValue: TreeSelectOption) {
-  console.log(selectedValue);
-}
+function finalSelectSuggestion() {
+  const typedRef = selectedSuggestion.value.items.slice(-1);
 
-function finalSelectSuggestion() {}
+  console.log(typedRef);
+  props.tableItem.property = { "@id": typedRef[0]["@id"], name: typedRef[0].name } as TTIriRef;
+  props.tableItem.propertyDisplay = typedRef[0].name;
+  props.tableItem.value = { "@id": selectedEntity.value["@id"], name: selectedEntity.value.name } as TTIriRef;
+  props.tableItem.valueDisplay = selectedEntity.value.name;
+  props.tableItem.valueType = { "@id": IM.VALUE_IRI, name: "Value" } as TTIriRef;
+  closeDialog();
+}
 
 function select(selectedValue: TreeSelectOption) {
   props.actions.onSelect(selectedNode, selectedValue);
@@ -134,7 +139,8 @@ function expand(option: TreeSelectOption) {
 }
 
 function finalSelect() {
-  props.actions.onFinalSelect(props.tableItem, selectedNode);
+  if (isObjectHasKeys(selectedEntity.value) && isObjectHasKeys(selectedSuggestion.value)) finalSelectSuggestion();
+  else props.actions.onFinalSelect(props.tableItem, selectedNode);
   closeDialog();
 }
 </script>
