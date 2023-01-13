@@ -53,9 +53,10 @@ import { defineComponent } from "vue";
 import Logic from "./builder/Logic.vue";
 import RefinementGroup from "./builder/RefinementGroup.vue";
 import FocusConcept from "./builder/FocusConcept.vue";
-import BoolGroup from './builder/BoolGroup.vue';
-import Concept from '@/components/directory/topbar/eclSearch/builder/Concept.vue';
-import RefinementX from '@/components/directory/topbar/eclSearch/builder/RefinementX.vue';
+import BoolGroup from "./builder/BoolGroup.vue";
+import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
+import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
+import SetService from "@/services/SetService";
 
 export default defineComponent({
   components: { Logic, RefinementGroup, FocusConcept, BoolGroup, Concept, RefinementX }
@@ -63,14 +64,15 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "vue";
+import { Ref, ref, watch, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 
 const props = defineProps({
-  showDialog: Boolean
+  showDialog: Boolean,
+  eclString: { type: String, required: false }
 });
 
 const emit = defineEmits({
@@ -80,17 +82,30 @@ const emit = defineEmits({
 
 const toast = useToast();
 
-const ecl: Ref<any> = ref({ "type": "BoolGroup", "operator": "AND" });
+const ecl: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
 const includeTerms = ref(true);
 
 watch(
-    () => [_.cloneDeep(ecl.value), includeTerms.value],
-    newValue => {
-      newGenerateQueryString();
-    }
-)
+  () => [_.cloneDeep(ecl.value), includeTerms.value],
+  newValue => {
+    newGenerateQueryString();
+  }
+);
 
 const queryString = ref("");
+
+onMounted(async () => {
+  await processEclString(props.eclString);
+  ecl.value = { type: "BoolGroup", operator: "AND" };
+});
+
+async function processEclString(eclString: string) {
+  const ecl =
+    "<  404684003 |Clinical finding| : {  363698007 |Finding site|  = <<  39057004 |Pulmonary valve structure| , 116676008 |Associated morphology|  = <<  415582006 |Stenosis| }, {  363698007 |Finding site|  = <<  53085002 |Right ventricular structure| , 116676008 |Associated morphology|  = <<  56246009 |Hypertrophy| }";
+  const result = await SetService.evaluateEcl(ecl);
+  console.log("isValidEcl");
+  console.log(result);
+}
 
 function submit(): void {
   emit("ECLSubmitted", queryString.value);
@@ -105,28 +120,22 @@ function newGenerateQueryString() {
 }
 
 function getBoolGroupECL(clause: any) {
-  if (clause.items && clause.items.length > 0)
-    return clause.items.map((i: any) => getClauseECL(i)).join("\n" + clause.operator + " ");
-  else
-    return "";
+  if (clause.items && clause.items.length > 0) return clause.items.map((i: any) => getClauseECL(i)).join("\n" + clause.operator + " ");
+  else return "";
 }
 
 function getClauseECL(clause: any) {
-  if (clause.type === "BoolGroup" && clause.items)
-    return "(" + getBoolGroupECL(clause) + ")";
-  else if (clause.type === "Concept")
-    return getConceptECL(clause);
-  else if (clause.type === "RefinementX")
-    return getRefinementECL(clause);
-  else
-    return "[???]";
+  if (clause.type === "BoolGroup" && clause.items) return "(" + getBoolGroupECL(clause) + ")";
+  else if (clause.type === "Concept") return getConceptECL(clause);
+  else if (clause.type === "RefinementX") return getRefinementECL(clause);
+  else return "[???]";
 }
 
 function getConceptECL(clause: any) {
   let result = getCodeTermECL(clause);
 
   if (clause.items && clause.items.length > 0) {
-    result += ' : ';
+    result += " : ";
     result += getBoolGroupECL(clause);
   }
 
@@ -138,10 +147,8 @@ function getCodeTermECL(clause: any) {
 
   if (clause.concept && clause.concept.code) {
     result += clause.concept.code;
-    if (includeTerms.value && clause.concept.name)
-      result += " | " + clause.concept.name + " | ";
-  } else
-    result += '[UNKNOWN CONCEPT]';
+    if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
+  } else result += "[UNKNOWN CONCEPT]";
 
   return result;
 }
