@@ -86,7 +86,7 @@ const includeTerms = ref(true);
 watch(
     () => [_.cloneDeep(ecl.value), includeTerms.value],
     newValue => {
-      newGenerateQueryString();
+      generateQueryString();
     }
 )
 
@@ -100,34 +100,36 @@ function closeBuilderDialog(): void {
   emit("closeDialog");
 }
 
-function newGenerateQueryString() {
-  queryString.value = getBoolGroupECL(ecl.value);
+function generateQueryString() {
+  queryString.value = getBoolGroupECL(ecl.value, true);
 }
 
-function getBoolGroupECL(clause: any) {
+function getBoolGroupECL(clause: any, root: boolean) {
   if (clause.items && clause.items.length > 0)
-    return clause.items.map((i: any) => getClauseECL(i)).join("\n" + clause.operator + " ");
+    return clause.items
+        .map((c: any, i: number) => getClauseECL(c, i == 0 ? root : false))
+        .join("\n" + clause.operator + " ");
   else
     return "";
 }
 
-function getClauseECL(clause: any) {
+function getClauseECL(clause: any, root: boolean) {
   if (clause.type === "BoolGroup" && clause.items)
-    return "(" + getBoolGroupECL(clause) + ")";
+    return "(" + getBoolGroupECL(clause, false) + ")";
   else if (clause.type === "Concept")
-    return getConceptECL(clause);
+    return getConceptECL(clause, false);
   else if (clause.type === "RefinementX")
-    return getRefinementECL(clause);
+    return getRefinementECL(clause, root);
   else
     return "[???]";
 }
 
-function getConceptECL(clause: any) {
+function getConceptECL(clause: any, root: boolean) {
   let result = getCodeTermECL(clause);
 
   if (clause.items && clause.items.length > 0) {
     result += ' : ';
-    result += getBoolGroupECL(clause);
+    result += getBoolGroupECL(clause, false);
   }
 
   return result;
@@ -146,8 +148,10 @@ function getCodeTermECL(clause: any) {
   return result;
 }
 
-function getRefinementECL(clause: any) {
-  let result = getCodeTermECL(clause.property);
+function getRefinementECL(clause: any, root: boolean) {
+  let result = (root) ? "* : " : "";
+
+  result += getCodeTermECL(clause.property);
 
   result += " " + clause.operator + " ";
 
