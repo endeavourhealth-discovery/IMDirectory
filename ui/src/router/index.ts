@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+const TestQueryUI = () => import("@/views/TestQueryUI.vue");
 const Directory = () => import("@/views/Directory.vue");
 const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.vue");
 const SearchResultsTable = () => import("@/components/directory/SearchResultsTable.vue");
@@ -185,6 +186,15 @@ const routes: Array<RouteRecordRaw> = [
     component: QuickQueryBuilder,
     meta: {
       requiresAuth: true,
+      requiresLicense: true
+    }
+  },
+  {
+    path: "/testQueryUI",
+    name: "TestQueryUI",
+    component: TestQueryUI,
+    meta: {
+      requiresAuth: false,
       requiresLicense: true
     }
   },
