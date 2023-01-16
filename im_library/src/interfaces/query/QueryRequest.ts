@@ -3,7 +3,6 @@ import { TTIriRef } from "../TTIriRef";
 import { Argument } from "./Argument";
 
 export interface QueryRequest {
-  iri: string;
   name: string;
   page: { pageNumber: number; pageSize: number };
   textSearch: string;

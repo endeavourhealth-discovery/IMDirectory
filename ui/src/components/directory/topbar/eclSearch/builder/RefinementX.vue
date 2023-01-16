@@ -53,7 +53,9 @@ async function searchProperty(term: string) {
     return;
 
   const req: QueryRequest = {
-    iri: 'http://endhealth.info/im#Query_AllowableProperties',
+    query: {
+      '@id': 'http://endhealth.info/im#Query_AllowableProperties'
+    },
     textSearch: term,
     argument: [{ parameter: 'this', valueIri: props.focus.iri }]
   } as QueryRequest;
@@ -83,7 +85,9 @@ async function searchValue(term: string) {
     return;
 
   const req: QueryRequest = {
-    iri: 'http://endhealth.info/im#Query_AllowableRanges',
+    query: {
+      '@id': 'http://endhealth.info/im#Query_AllowableRanges'
+    },
     textSearch: term,
     argument: [
       {parameter: 'this', valueIri: props.value.property.concept.iri}

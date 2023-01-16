@@ -1,5 +1,5 @@
 <template>
-  <div class="nested-div">
+  <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
     <div style="display:flex">
       <AutoComplete style="flex: 1" input-style="flex:1" field="name" dataKey="iri" v-model="value.concept" :suggestions="suggestions" @complete="search(value.concept)"></AutoComplete>
       <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value"></Dropdown>
@@ -19,14 +19,14 @@
             :focus="value.concept"
         >
         </component>
-        <span class="move-group hover-show">
-          <Button @click="deleteItem(index)" class="p-button-sm p-button-danger" icon="pi pi-times"/>
+        <span class="remove-group">
+          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash"/>
         </span>
       </div>
     </template>
-    <div class="add-group hover-show">
-      <Button type="button" class="p-button-success" label="Add" @click="toggle" />
-      <Menu ref="menu" :model="addOptions" :popup="true" />
+    <div class="add-group">
+        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Refinement" @click="addRefinement" />
+        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" />
     </div>
   </div>
 </template>
@@ -49,7 +49,6 @@ const store = useStore();
 const controller: Ref<AbortController> = ref({} as AbortController);
 const suggestions: Ref<any[]> = ref([]);
 const menuBool = ref();
-const menu = ref();
 
 const boolOptions = [
   {
@@ -81,23 +80,19 @@ const descendantOptions = [
   }
 ]
 
-const addOptions = [
-  {
-    label: 'Add Refinement',
-    command: () => addRefinement()
-  },
-  {
-    label: 'Add Group',
-    command: () => addGroup()
-  }
-];
-
-function toggleBool(event :any) {
-  menuBool.value.toggle(event);
+const hover = ref();
+function mouseover(event: Event) {
+  event.stopPropagation();
+  hover.value = true;
 }
 
-function toggle(event: any) {
-  menu.value.toggle(event);
+function mouseout(event: Event) {
+  event.stopPropagation();
+  hover.value = false;
+}
+
+function toggleBool(event: Event) {
+  menuBool.value.toggle(event);
 }
 
 function add(item: any) {
@@ -140,7 +135,16 @@ function deleteItem(index: number) {
 
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@use "primevue/resources/themes/saga-blue/theme.css";
+
+.p-button-placeholder {
+  @extend .p-button-secondary;
+  @extend .p-button-outlined;
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
+
 .left-container {
   display: flex;
   align-items: center;
@@ -160,6 +164,11 @@ function deleteItem(index: number) {
   flex: 1;
 }
 
+.nested-div-hover {
+  @extend .nested-div;
+  border: #ff8c00 1px solid;
+}
+
 Button {
   margin-right: 4px;
   height: 1.5rem;
@@ -170,18 +179,9 @@ Button {
   width: 100%;
 }
 
-.move-group {
+.remove-group {
   width: 2rem;
-}
-
-.hover-show {
   display: flex;
-  content-visibility: hidden;
-  min-height: 1.5rem;
-}
-
-.hover-show:hover {
-  content-visibility: visible;
 }
 
 </style>
