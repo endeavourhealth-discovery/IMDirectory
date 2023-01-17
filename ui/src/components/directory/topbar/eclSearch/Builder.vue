@@ -102,6 +102,7 @@ watch(
   () => props.eclString,
   newValue => {
     if (newValue && newValue !== queryString.value) createBuildFromEclString(newValue);
+    else if (!newValue) createDefaultBuild();
   }
 );
 
@@ -112,13 +113,17 @@ watch(
   }
 );
 
+function createDefaultBuild() {
+  build.value = { type: "BoolGroup", operator: "AND" };
+}
+
 function createBuildFromEclString(ecl: string) {
   try {
     loading.value = true;
     build.value = eclStringToBuilderObject(ecl);
     eclConversionError.value = { error: false, message: "" };
   } catch (err: any) {
-    build.value = { type: "BoolGroup", operator: "AND" };
+    createDefaultBuild();
     eclConversionError.value = { error: true, message: err.message };
   }
   emit("eclConversionError", eclConversionError.value);
@@ -210,6 +215,7 @@ function onCopyError(): void {
 #query-builder-container {
   width: 100%;
   flex: 1 1 auto;
+  overflow: auto;
 }
 
 #query-build {
