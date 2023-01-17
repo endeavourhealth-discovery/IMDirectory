@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@smile-cdr/fhirts": "^2.0.2",
     "@octokit/core": "4.1.0",
     "aws-sdk": "2.1290.0",
     "axios": "1.2.2",
