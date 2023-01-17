@@ -33,6 +33,8 @@ import { QueryRequest, SearchRequest } from "@im-library/interfaces";
 import { SortBy } from "@im-library/enums";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
+import { RDFS } from "@im-library/vocabulary";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   value: {
@@ -70,10 +72,20 @@ const operatorOptions = ["=", "!="];
 
 onMounted(async () => {
   if (props.value && props.value.property.concept && props.value.property.concept.iri) {
-    await searchProperty(props.value.property.concept.iri);
-    if (propertyResults.value.length) props.value.property.concept = propertyResults.value[0];
+    let name = "";
+    if (props.value.property.concept.name) name = props.value.property.concept.name;
+    else {
+      const result = await EntityService.getPartialEntity(props.value.property.concept.iri, [RDFS.LABEL]);
+      if (result && isObjectHasKeys(result, [RDFS.LABEL])) {
+        name = result[RDFS.LABEL];
+      }
+    }
+    if (name) {
+      await searchProperty(name);
+      if (propertyResults.value.length) props.value.property.concept = propertyResults.value[0];
+    } else throw new Error("Property iri does not exist");
   }
-  if (props.value && props.value.value.concept && props.value.value.concept.iri) {
+  if (props.value.property.concept.name && props.value.value.concept && props.value.value.concept.iri) {
     await searchValue(props.value.value.concept.iri);
     if (valueResults.value.length) props.value.value.concept = valueResults.value[0];
   }
