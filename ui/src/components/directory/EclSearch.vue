@@ -20,16 +20,24 @@
         data-testid="copy-to-clipboard-button"
       />
     </div>
+    <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
     <div class="button-container">
-      <Button label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
-      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
+      <Button :disabled="eclError" label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
+      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length || eclError" data-testid="search-button" />
     </div>
     <div class="results-container">
       <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
       <SearchResults :searchResults="searchResults" :loading="loading" />
     </div>
   </div>
-  <Builder :showDialog="showDialog" @ECLSubmitted="updateECL" @closeDialog="showDialog = false" :data-testid="'builder-visible-' + showDialog" />
+  <Builder
+    :showDialog="showDialog"
+    :eclString="queryString"
+    @eclSubmitted="updateECL"
+    @closeDialog="showDialog = false"
+    @eclConversionError="updateError"
+    :data-testid="'builder-visible-' + showDialog"
+  />
 </template>
 
 <script setup lang="ts">
@@ -52,6 +60,7 @@ const showDialog = ref(false);
 const searchResults: Ref<ConceptSummary[]> = ref([]);
 const totalCount = ref(0);
 const eclError = ref(false);
+const eclErrorMessage = ref("");
 const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
 
@@ -64,6 +73,11 @@ function updateECL(data: string): void {
 
 function showBuilder(): void {
   showDialog.value = true;
+}
+
+function updateError(errorUpdate: { error: boolean; message: string }): void {
+  eclError.value = errorUpdate.error;
+  eclErrorMessage.value = errorUpdate.message;
 }
 
 async function search(): Promise<void> {
@@ -148,7 +162,7 @@ function onCopyError(): void {
   display: flex;
   flex-flow: row;
   gap: 1rem;
-  margin: 0 0 1rem 0;
+  margin: 1rem 0 1rem 0;
 }
 
 .results-container {
@@ -157,11 +171,14 @@ function onCopyError(): void {
   overflow: auto;
 }
 
+.error-message {
+  color: #f44336;
+}
+
 .text-copy-container {
   width: 100%;
   display: flex;
   flex-flow: row;
   align-items: center;
-  margin: 0 0 1rem 0;
 }
 </style>

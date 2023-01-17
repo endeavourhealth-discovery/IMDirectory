@@ -1,5 +1,6 @@
 <template>
   <Dialog
+    v-if="!eclConversionError.error"
     :visible="showDialog"
     :modal="true"
     :closable="false"
@@ -19,9 +20,9 @@
     <div id="builder-string-container">
       <div id="query-builder-container">
         <div id="query-build">
-          <bool-group :value="ecl" style="width: 100%; margin: 0"></bool-group>
+          <bool-group :value="build" style="width: 100%; margin: 0"></bool-group>
         </div>
-        <small style="color: red" v-if="!ecl.items || ecl.items.length == 0">*Move pointer over panel above to add concepts, refinements and groups.</small>
+        <small style="color: red" v-if="!build.items || build.items.length == 0">*Move pointer over panel above to add concepts, refinements and groups.</small>
       </div>
       <div id="build-string-container">
         <h3>Output:</h3>
@@ -57,6 +58,7 @@ import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
 import SetService from "@/services/SetService";
+import { booleanLiteral } from "@babel/types";
 
 export default defineComponent({
   components: { Logic, RefinementGroup, FocusConcept, BoolGroup, Concept, RefinementX }
@@ -69,6 +71,7 @@ import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import { eclStringToBuilderObject } from "@im-library/helpers/EclStringToBuilderObject";
 
 const props = defineProps({
   showDialog: Boolean,
@@ -76,26 +79,54 @@ const props = defineProps({
 });
 
 const emit = defineEmits({
-  ECLSubmitted: (_payload: string) => true,
+  eclSubmitted: (_payload: string) => true,
+  eclConversionError: (_payload: { error: boolean; message: string }) => true,
   closeDialog: () => true
 });
 
 const toast = useToast();
 
-const ecl: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
+const build: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
 const includeTerms = ref(true);
+const queryString = ref("");
+const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
+const loading = ref(false);
+
+onMounted(() => {
+  if (props.eclString) {
+    createBuildFromEclString(props.eclString);
+  }
+});
 
 watch(
-  () => [_.cloneDeep(ecl.value), includeTerms.value],
+  () => props.eclString,
+  newValue => {
+    if (newValue && newValue !== queryString.value) createBuildFromEclString(newValue);
+  }
+);
+
+watch(
+  () => [_.cloneDeep(build.value), includeTerms.value],
   newValue => {
     generateQueryString();
   }
 );
 
-const queryString = ref("");
+function createBuildFromEclString(ecl: string) {
+  try {
+    loading.value = true;
+    build.value = eclStringToBuilderObject(ecl);
+    eclConversionError.value = { error: false, message: "" };
+  } catch (err: any) {
+    build.value = { type: "BoolGroup", operator: "AND" };
+    eclConversionError.value = { error: true, message: err.message };
+  }
+  emit("eclConversionError", eclConversionError.value);
+  loading.value = false;
+}
 
 function submit(): void {
-  emit("ECLSubmitted", queryString.value);
+  emit("eclSubmitted", queryString.value);
 }
 
 function closeBuilderDialog(): void {
@@ -103,7 +134,7 @@ function closeBuilderDialog(): void {
 }
 
 function generateQueryString() {
-  queryString.value = getBoolGroupECL(ecl.value, true);
+  queryString.value = getBoolGroupECL(build.value, true);
 }
 
 function getBoolGroupECL(clause: any, root: boolean) {
