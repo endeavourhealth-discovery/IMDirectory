@@ -89,7 +89,7 @@ async function search(): Promise<void> {
     searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
 
     searchRequest.statusFilter = [];
-    selectedFilters.value.status.forEach((status: EntityReferenceNode) => {
+    selectedFilters.value.status.forEach(status => {
       searchRequest.statusFilter.push(status["@id"]);
     });
 

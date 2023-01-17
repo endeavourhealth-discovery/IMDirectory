@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { EntityReferenceNode, FilterOptions } from "@im-library/interfaces";
+import { EntityReferenceNode, FilterOptions, TTIriRef } from "@im-library/interfaces";
 import { IM } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
@@ -74,11 +74,11 @@ const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefa
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
 const quickFiltersStatus = computed(() => store.state.quickFiltersStatus);
 
-const selectedStatus: Ref<EntityReferenceNode[]> = ref([]);
-const selectedSchemes: Ref<EntityReferenceNode[]> = ref([]);
-const selectedTypes: Ref<EntityReferenceNode[]> = ref([]);
-const selectedSortField: Ref<EntityReferenceNode> = ref({} as EntityReferenceNode);
-const selectedSortDirection: Ref<EntityReferenceNode> = ref({} as EntityReferenceNode);
+const selectedStatus: Ref<TTIriRef[]> = ref([]);
+const selectedSchemes: Ref<TTIriRef[]> = ref([]);
+const selectedTypes: Ref<TTIriRef[]> = ref([]);
+const selectedSortField: Ref<TTIriRef> = ref({} as TTIriRef);
+const selectedSortDirection: Ref<TTIriRef> = ref({} as TTIriRef);
 const includeLegacy = ref(false);
 
 watch(includeLegacy, newValue => setLegacy(newValue));
@@ -101,23 +101,21 @@ function resetSortDirection() {
 }
 
 function resetStatus() {
-  selectedStatus.value = filterOptions.value.status.filter((item: EntityReferenceNode) =>
-    filterDefaults.value.status.map((defaultOption: EntityReferenceNode) => defaultOption["@id"]).includes(item["@id"])
+  selectedStatus.value = filterOptions.value.status.filter(item =>
+    filterDefaults.value.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
   );
   checkForSearch();
 }
 
 function resetSchemes() {
-  selectedSchemes.value = filterOptions.value.schemes.filter((item: EntityReferenceNode) =>
-    filterDefaults.value.schemes.map((defaultOption: EntityReferenceNode) => defaultOption["@id"]).includes(item["@id"])
+  selectedSchemes.value = filterOptions.value.schemes.filter(item =>
+    filterDefaults.value.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
   );
   checkForSearch();
 }
 
 function resetTypes() {
-  selectedTypes.value = filterOptions.value.types.filter((item: EntityReferenceNode) =>
-    filterDefaults.value.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-  );
+  selectedTypes.value = filterOptions.value.types.filter(item => filterDefaults.value.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"]));
   checkForSearch();
 }
 
@@ -138,17 +136,15 @@ function updateStoreSelectedFilters(): void {
 
 function setDefaults(): void {
   if (!isArrayHasLength(selectedFilters.value.status) && !isArrayHasLength(selectedFilters.value.schemes) && !isArrayHasLength(selectedFilters.value.types)) {
-    selectedStatus.value = filterOptions.value.status.filter((item: EntityReferenceNode) =>
-      filterDefaults.value.status.map((defaultOption: EntityReferenceNode) => defaultOption["@id"]).includes(item["@id"])
+    selectedStatus.value = filterOptions.value.status.filter(item =>
+      filterDefaults.value.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
 
-    selectedSchemes.value = filterOptions.value.schemes.filter((item: EntityReferenceNode) =>
-      filterDefaults.value.schemes.map((defaultOption: EntityReferenceNode) => defaultOption["@id"]).includes(item["@id"])
+    selectedSchemes.value = filterOptions.value.schemes.filter(item =>
+      filterDefaults.value.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
     );
 
-    selectedTypes.value = filterOptions.value.types.filter((item: EntityReferenceNode) =>
-      filterDefaults.value.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-    );
+    selectedTypes.value = filterOptions.value.types.filter(item => filterDefaults.value.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"]));
 
     selectedSortField.value = filterDefaults.value.sortFields?.[0];
     selectedSortDirection.value = filterDefaults.value.sortDirections?.[0];
@@ -158,13 +154,11 @@ function setDefaults(): void {
     selectedSchemes.value = selectedFilters.value.schemes;
     selectedTypes.value = selectedFilters.value.types;
     selectedSortField.value =
-      filterOptions.value.sortFields.find((item: EntityReferenceNode) =>
-        filterDefaults.value.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-      ) || ({} as EntityReferenceNode);
+      filterOptions.value.sortFields.find(item => filterDefaults.value.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])) ||
+      ({} as TTIriRef);
     selectedSortDirection.value =
-      filterOptions.value.sortDirections.find((item: EntityReferenceNode) =>
-        filterDefaults.value.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-      ) || ({} as EntityReferenceNode);
+      filterOptions.value.sortDirections.find(item => filterDefaults.value.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])) ||
+      ({} as TTIriRef);
   }
 
   if (quickFiltersStatus.value.includeLegacy) {
@@ -176,7 +170,7 @@ function setLegacy(include: boolean): void {
   const emisScheme = selectedSchemes.value.findIndex(scheme => scheme["@id"] === IM.GRAPH_EMIS);
   if (include) {
     if (emisScheme === -1) {
-      const found = filterOptions.value.schemes.find((scheme: EntityReferenceNode) => scheme["@id"] === IM.GRAPH_EMIS);
+      const found = filterOptions.value.schemes.find(scheme => scheme["@id"] === IM.GRAPH_EMIS);
       if (found) selectedSchemes.value.push(found);
     }
   } else {

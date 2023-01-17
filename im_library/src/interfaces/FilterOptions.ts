@@ -1,9 +1,10 @@
 import { EntityReferenceNode } from "./EntityReferenceNode";
+import { TTIriRef } from "./TTIriRef";
 
 export interface FilterOptions {
-  status: EntityReferenceNode[];
-  schemes: EntityReferenceNode[];
-  types: EntityReferenceNode[];
-  sortFields: EntityReferenceNode[];
-  sortDirections: EntityReferenceNode[];
+  status: TTIriRef[];
+  schemes: TTIriRef[];
+  types: TTIriRef[];
+  sortFields: TTIriRef[];
+  sortDirections: TTIriRef[];
 }

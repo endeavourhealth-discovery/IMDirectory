@@ -210,19 +210,17 @@ export default createStore({
       ) {
         commit("updateFilterDefaults", filterDefaults);
         commit("updateFilterOptions", filterOptions);
-        const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) =>
+        const selectedStatus = state.filterOptions.status.filter(item =>
           filterDefaults.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
         );
-        const selectedSchemes = state.filterOptions.schemes.filter((item: EntityReferenceNode) =>
+        const selectedSchemes = state.filterOptions.schemes.filter(item =>
           filterDefaults.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
         );
-        const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) =>
-          filterDefaults.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
-        );
-        const selectedField = state.filterOptions.sortFields.filter((item: EntityReferenceNode) =>
+        const selectedTypes = state.filterOptions.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"]));
+        const selectedField = state.filterOptions.sortFields.filter(item =>
           filterDefaults.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
         );
-        const selectedDirection = state.filterOptions.sortDirections.filter((item: EntityReferenceNode) =>
+        const selectedDirection = state.filterOptions.sortDirections.filter(item =>
           filterDefaults.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
         );
 
