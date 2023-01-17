@@ -53,9 +53,10 @@ import { defineComponent } from "vue";
 import Logic from "./builder/Logic.vue";
 import RefinementGroup from "./builder/RefinementGroup.vue";
 import FocusConcept from "./builder/FocusConcept.vue";
-import BoolGroup from './builder/BoolGroup.vue';
-import Concept from '@/components/directory/topbar/eclSearch/builder/Concept.vue';
-import RefinementX from '@/components/directory/topbar/eclSearch/builder/RefinementX.vue';
+import BoolGroup from "./builder/BoolGroup.vue";
+import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
+import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
+import SetService from "@/services/SetService";
 
 export default defineComponent({
   components: { Logic, RefinementGroup, FocusConcept, BoolGroup, Concept, RefinementX }
@@ -63,14 +64,15 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "vue";
+import { Ref, ref, watch, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 
 const props = defineProps({
-  showDialog: Boolean
+  showDialog: Boolean,
+  eclString: { type: String, required: false }
 });
 
 const emit = defineEmits({
@@ -80,7 +82,7 @@ const emit = defineEmits({
 
 const toast = useToast();
 
-const ecl: Ref<any> = ref({ "type": "BoolGroup", "operator": "AND" });
+const ecl: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
 const includeTerms = ref(true);
 
 watch(
@@ -140,10 +142,8 @@ function getCodeTermECL(clause: any) {
 
   if (clause.concept && clause.concept.code) {
     result += clause.concept.code;
-    if (includeTerms.value && clause.concept.name)
-      result += " | " + clause.concept.name + " | ";
-  } else
-    result += '[UNKNOWN CONCEPT]';
+    if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
+  } else result += "[UNKNOWN CONCEPT]";
 
   return result;
 }

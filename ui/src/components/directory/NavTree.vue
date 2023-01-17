@@ -12,11 +12,7 @@
       :loading="loading"
     >
       <template #default="slotProps">
-        <div
-          class="tree-row"
-          @dblclick="onNodeDblClick($event, slotProps.node)"
-          @contextmenu="onNodeContext($event, slotProps.node)"
-        >
+        <div class="tree-row" @dblclick="onNodeDblClick($event, slotProps.node)" @contextmenu="onNodeContext($event, slotProps.node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
@@ -29,7 +25,7 @@
       </template>
     </Tree>
     <OverlaySummary ref="OS" />
-    <Dialog header="New folder" v-model:visible="newFolder" :modal="true">
+    <Dialog header="New folder" :visible="newFolder !== null" :modal="true">
       <InputText type="text" v-model="newFolderName" autofocus />
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" @click="newFolder = null" class="p-button-text" />
@@ -42,50 +38,53 @@
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { IMTreeNode, TTIriRef, EntityReferenceNode, ConceptSummary } from "@im-library/interfaces";
-import { DataTypeCheckers, ConceptTypeMethods } from "@im-library/helpers";
-import { DirectService, EntityService, Env, FilerService } from "@/services";
+import { TTIriRef } from "@im-library/interfaces";
+import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
-import rowClick from "@/composables/rowClick";
+import setupTree from "@/composables/setupTree";
 import createNew from "@/composables/createNew";
-const { isObjectHasKeys, isArrayHasLength, isObject } = DataTypeCheckers;
-const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
+import { TreeNode } from "primevue/tree";
+import { isArray } from "lodash";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 
 const toast = useToast();
 const confirm = useConfirm();
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
-const favourites = computed(() => store.state.favourites);
 const currentUser = computed(() => store.state.currentUser);
 const findInTreeIri = computed(() => store.state.findInTreeIri);
 
-const directService = new DirectService();
-
-const selectedKeys: Ref<any> = ref({});
-const selectedNode: Ref<IMTreeNode> = ref({} as IMTreeNode);
-const root: Ref<IMTreeNode[]> = ref([]);
 const loading = ref(true);
-const expandedKeys: Ref<any> = ref({});
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const overlayLocation: Ref<any> = ref({});
-const pageSize = ref(20);
 const items: Ref<any[]> = ref([]);
-const newFolder: Ref<null | IMTreeNode> = ref(null);
+const newFolder: Ref<null | TreeNode> = ref(null);
 const newFolderName = ref("");
 
 const menu = ref();
 const OS: Ref<any> = ref();
-const { onRowClick }: { onRowClick: Function } = rowClick();
 const { getCreateOptions }: { getCreateOptions: Function } = createNew();
+const {
+  selectedKeys,
+  selectedNode,
+  root,
+  expandedKeys,
+
+  createTreeNode,
+  onNodeCollapse,
+  onNodeDblClick,
+  onNodeExpand,
+  onNodeSelect,
+  findPathToNode
+} = setupTree();
 
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  if (conceptIri.value) await findPathToNode(conceptIri.value);
+  if (conceptIri.value) await findPathToNode(conceptIri.value, loading, "hierarchy-tree-bar-container");
   loading.value = false;
 });
 
@@ -98,12 +97,14 @@ onUnmounted(() => {
 watch(
   () => findInTreeIri.value,
   async () => {
-    if (findInTreeIri.value) await findPathToNode(findInTreeIri.value);
+    if (findInTreeIri.value) await findPathToNode(findInTreeIri.value, loading, "hierarchy-tree-bar-container");
   }
 );
 
 async function addParentFoldersToRoot() {
-  const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  let IMChildren: any[] = [];
+  const results = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  if (results && isArray(results)) IMChildren = results;
   for (let IMchild of IMChildren) {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
@@ -125,99 +126,6 @@ function byKey(a: any, b: any): number {
   else if (b.key > a.key) return -1;
 
   return 0;
-}
-
-function createTreeNode(
-  conceptName: string,
-  conceptIri: string,
-  conceptTypes: TTIriRef[],
-  hasChildren: boolean,
-  parent: IMTreeNode | null,
-  order?: number
-): IMTreeNode {
-  return {
-    key: conceptIri,
-    label: conceptName,
-    typeIcon: getFAIconFromType(conceptTypes),
-    color: getColourFromType(conceptTypes),
-    conceptTypes: conceptTypes,
-    data: conceptIri,
-    leaf: !hasChildren,
-    loading: false,
-    children: [] as IMTreeNode[],
-    order: order,
-    parentNode: parent
-  };
-}
-
-function createLoadMoreNode(parentNode: IMTreeNode, nextPage: number, totalCount: number): any {
-  return {
-    key: "loadMore" + parentNode.data,
-    label: "Load more...",
-    typeIcon: null,
-    color: null,
-    data: "loadMore",
-    leaf: true,
-    loading: false,
-    children: [] as IMTreeNode[],
-    parentNode: parentNode,
-    nextPage: nextPage,
-    totalCount: totalCount,
-    style: "font-weight: bold;"
-  };
-}
-
-function onNodeSelect(node: any): void {
-  if (node.data === "loadMore") {
-    loadMore(node);
-  } else {
-    selectedNode.value = node;
-    onRowClick(node.data);
-  }
-}
-
-function onNodeDblClick($event: any, node: any) {
-  if (node.data !== "loadMore") directService.view(node.key);
-}
-
-async function loadMore(node: any) {
-  if (node.nextPage * pageSize.value < node.totalCount) {
-    const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
-    node.parentNode.children.pop();
-    children.result.forEach((child: any) => {
-      if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-    });
-    node.nextPage = node.nextPage + 1;
-    node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
-  } else if (node.nextPage * pageSize.value > node.totalCount) {
-    const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
-    node.parentNode.children.pop();
-    children.result.forEach((child: any) => {
-      if (!nodeHasChild(node.parentNode, child))
-        node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node.parentNode));
-    });
-  } else {
-    node.parentNode.children.pop();
-  }
-}
-
-async function onNodeExpand(node: any) {
-  if (isObjectHasKeys(node)) {
-    node.loading = true;
-    const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
-    children.result.forEach((child: any) => {
-      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
-    });
-    if (children.totalCount >= pageSize.value) {
-      node.children.push(createLoadMoreNode(node, 2, children.totalCount));
-    }
-    node.loading = false;
-  }
-}
-
-function onNodeCollapse(node: any) {
-  node.children = [];
-  node.leaf = false;
 }
 
 async function onNodeContext(event: any, node: any) {
@@ -247,7 +155,7 @@ async function onNodeContext(event: any, node: any) {
   if (items.value.length > 0) menu.value.show(event);
 }
 
-function confirmMove(node: IMTreeNode) {
+function confirmMove(node: TreeNode) {
   if (selectedNode.value) {
     confirm.require({
       header: "Confirm move",
@@ -263,12 +171,12 @@ function confirmMove(node: IMTreeNode) {
   }
 }
 
-async function moveConcept(target: IMTreeNode) {
-  if (selectedNode.value && selectedNode.value.parentNode) {
+async function moveConcept(target: TreeNode) {
+  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
     try {
       await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
       toast.add({ severity: "success", summary: "Move", detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
-      selectedNode.value.parentNode.children = selectedNode.value.parentNode.children.filter((v, _i, _r) => v != selectedNode.value);
+      selectedNode.value.parentNode.children = selectedNode.value.parentNode.children.filter((v: TreeNode) => v != selectedNode.value);
       selectedNode.value.parentNode = target;
       target.children.push(selectedNode.value);
     } catch (e: any) {
@@ -277,7 +185,7 @@ async function moveConcept(target: IMTreeNode) {
   }
 }
 
-function confirmAdd(node: IMTreeNode) {
+function confirmAdd(node: TreeNode) {
   if (selectedNode.value) {
     confirm.require({
       header: "Confirm add",
@@ -293,8 +201,8 @@ function confirmAdd(node: IMTreeNode) {
   }
 }
 
-async function addConcept(target: IMTreeNode) {
-  if (selectedNode.value && selectedNode.value.parentNode) {
+async function addConcept(target: TreeNode) {
+  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
     try {
       await FilerService.addToFolder(selectedNode.value.key, target.key);
       toast.add({ severity: "success", summary: "Add", detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -306,7 +214,7 @@ async function addConcept(target: IMTreeNode) {
 }
 
 async function createFolder() {
-  if (!newFolder.value) return;
+  if (!newFolder.value || !newFolder.value.key) return;
 
   console.log("Create new folder " + newFolderName.value + " in " + newFolder.value.key);
   try {
@@ -315,96 +223,12 @@ async function createFolder() {
     console.log(iri);
     toast.add({ severity: "success", summary: "New folder", detail: 'New folder "' + newFolderName.value + '" created', life: 3000 });
     if (newFolder.value.children) {
-      newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" }], false, newFolder.value));
+      newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" } as TTIriRef], false, newFolder.value));
     }
   } catch (e) {
     toast.add({ severity: "error", summary: "New folder", detail: '"' + newFolderName.value + '" already exists', life: 3000 });
   }
   newFolder.value = null;
-}
-
-function nodeHasChild(node: IMTreeNode, child: EntityReferenceNode) {
-  return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
-}
-
-function selectKey(selectedKey: string) {
-  Object.keys(selectedKeys.value).forEach(key => {
-    selectedKeys.value[key] = false;
-  });
-  selectedKeys.value[selectedKey] = true;
-}
-
-async function findPathToNode(iri: string) {
-  loading.value = true;
-  const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
-
-  // Recursively expand
-  let n = root.value.find(c => path.find(p => p["@id"] === c.data));
-  let i = 0;
-  if (n) {
-    expandedKeys.value = {};
-    while (n && n.data != path[0]["@id"] && i++ < 50) {
-      await selectAndExpand(n);
-      // Find relevant child
-      n = await locateChildInLoadMore(n, path);
-    }
-    if (n && n.data === path[0]["@id"]) {
-      await selectAndExpand(n);
-
-      while (!n.children.some(child => child.data === iri)) {
-        await loadMoreChildren(n);
-      }
-      for (const gc of n.children) {
-        if (gc.data === iri) {
-          selectKey(gc.key);
-        }
-      }
-      selectedNode.value = n;
-    } else {
-      toast.add({
-        severity: "warn",
-        summary: "Unable to locate",
-        detail: "Unable to locate concept in the current hierarchy"
-      });
-    }
-  }
-  scrollToHighlighted();
-  loading.value = false;
-}
-
-async function locateChildInLoadMore(n: IMTreeNode, path: TTIriRef[]): Promise<IMTreeNode | undefined> {
-  if (n.children.find(c => c.data === "loadMore")) {
-    const found = n.children.find(c => path.find(p => p["@id"] === c.data));
-    if (found) {
-      return n.children.find(c => path.find(p => p["@id"] === c.data));
-    } else {
-      await loadMoreChildren(n);
-      return await locateChildInLoadMore(n, path);
-    }
-  } else {
-    return n.children.find(c => path.find(p => p["@id"] === c.data));
-  }
-}
-
-async function selectAndExpand(node: any) {
-  selectKey(node.key);
-  if (!node.children || node.children.length === 0) {
-    await onNodeExpand(node);
-  }
-  expandedKeys.value[node.key] = true;
-  expandedKeys.value = { ...expandedKeys.value };
-}
-
-function scrollToHighlighted() {
-  const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
-  const highlighted = container.getElementsByClassName("p-highlight")[0];
-  if (highlighted) highlighted.scrollIntoView();
-}
-
-async function loadMoreChildren(node: any) {
-  if (node.children[node.children.length - 1].data === "loadMore") {
-    await loadMore(node.children[node.children.length - 1]);
-  }
 }
 
 async function showOverlay(event: any, node: any): Promise<void> {

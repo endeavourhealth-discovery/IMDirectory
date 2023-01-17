@@ -85,6 +85,7 @@ import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/tree";
+import setupTree from "@/composables/setupTree";
 
 const store = useStore();
 const router = useRouter();
@@ -92,19 +93,33 @@ const toast = useToast();
 
 const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
 
+const {
+  selectedNode,
+  expandedKeys,
+  pageSize,
+  createTreeNode,
+  createLoadMoreNode,
+  loadMore,
+  loadMoreChildren,
+  locateChildInLoadMore,
+  onNodeExpand,
+  onNodeCollapse,
+  findPathToNode,
+  scrollToHighlighted,
+  selectAndExpand,
+  nodeHasChild
+} = setupTree();
+
 let selected: Ref<any> = ref({});
-let selectedNode: Ref<any> = ref({});
 let root: Ref<TreeNode[]> = ref([]);
 let loading = ref(true);
-let expandedKeys: Ref<any> = ref({});
 let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 let overlayLocation: Ref<any> = ref({});
-const pageSize: number = 20;
 
 const navTreeOP = ref();
 
 watch(treeIri, async () => {
-  if (treeIri) await findPathToNode(treeIri.value);
+  if (treeIri) await findPathToNode(treeIri.value, loading, "hierarchy-tree-bar-container");
 });
 
 onMounted(async () => {
@@ -120,7 +135,7 @@ onBeforeUnmount(() => {
 async function init() {
   loading.value = true;
   await addParentFoldersToRoot();
-  if (treeIri.value) await findPathToNode(treeIri.value);
+  if (treeIri.value) await findPathToNode(treeIri.value, loading, "hierarchy-tree-bar-container");
   loading.value = false;
 }
 
@@ -128,44 +143,13 @@ async function addParentFoldersToRoot() {
   const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
   for (let IMchild of IMChildren) {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
-    if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, IMchild.orderNumber));
+    if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null));
   }
   root.value.sort(byKey);
-  const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false);
+  const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "#e39a36";
   root.value.push(favNode);
-}
-
-function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, order?: number): TreeNode {
-  return {
-    key: conceptName,
-    label: conceptName,
-    typeIcon: getFAIconFromType(conceptTypes),
-    color: getColourFromType(conceptTypes),
-    data: conceptIri,
-    leaf: !hasChildren,
-    loading: false,
-    children: [] as TreeNode[],
-    order: order
-  };
-}
-
-function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: number): any {
-  return {
-    key: "loadMore" + parentNode.data,
-    label: "Load more...",
-    typeIcon: null,
-    color: null,
-    data: "loadMore",
-    leaf: true,
-    loading: false,
-    children: [] as TreeNode[],
-    parentNode: parentNode,
-    nextPage: nextPage,
-    totalCount: totalCount,
-    style: "font-weight: bold;"
-  };
 }
 
 function onNodeSelect(node: any): void {
@@ -178,127 +162,6 @@ function onNodeSelect(node: any): void {
     //   params: { selectedIri: node.data }
     // });
     store.commit("updateSelectedConceptIri", node.data);
-  }
-}
-
-async function loadMore(node: any) {
-  if (node.nextPage * pageSize < node.totalCount) {
-    const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize);
-    node.parentNode.children.pop();
-    children.result.forEach((child: any) => {
-      if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-    });
-    node.nextPage = node.nextPage + 1;
-    node.parentNode.children.push(createLoadMoreNode(node.parentNode, node.nextPage, node.totalCount));
-  } else if (node.nextPage * pageSize > node.totalCount) {
-    const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize);
-    node.parentNode.children.pop();
-    children.result.forEach((child: any) => {
-      if (!nodeHasChild(node.parentNode, child)) node.parentNode.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-    });
-  } else {
-    node.parentNode.children.pop();
-  }
-}
-
-async function onNodeExpand(node: any) {
-  if (isObjectHasKeys(node)) {
-    node.loading = true;
-    const children = await EntityService.getPagedChildren(node.data, 1, pageSize);
-    children.result.forEach((child: any) => {
-      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-    });
-    if (children.totalCount >= pageSize) {
-      node.children.push(createLoadMoreNode(node, 2, children.totalCount));
-    }
-    node.loading = false;
-  }
-}
-
-function onNodeCollapse(node: any) {
-  node.children = [];
-  node.leaf = false;
-}
-
-function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
-  return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
-}
-
-function selectKey(selectedKey: string) {
-  Object.keys(selected.value).forEach(key => {
-    selected.value[key] = false;
-  });
-  selected.value[selectedKey] = true;
-}
-
-async function findPathToNode(iri: string) {
-  loading.value = true;
-  const path = await EntityService.getPathBetweenNodes(iri, IM.MODULE_IM);
-  // Recursively expand
-  let n = root.value.find(c => path.find(p => p["@id"] === c.data));
-  let i = 0;
-  if (n) {
-    expandedKeys.value = {};
-    while (n && n.data != path[0]["@id"] && i++ < 50) {
-      await selectAndExpand(n);
-      // Find relevant child
-      n = await locateChildInLoadMore(n, path);
-    }
-    if (n && n.data === path[0]["@id"]) {
-      await selectAndExpand(n);
-
-      while (!n.children?.some(child => child.data === iri)) {
-        await loadMoreChildren(n);
-      }
-      for (const gc of n.children) {
-        if (gc.data === iri && gc.key) {
-          selectKey(gc.key);
-        }
-      }
-      selectedNode.value = n;
-    } else {
-      toast.add({
-        severity: "warn",
-        summary: "Unable to locate",
-        detail: "Unable to locate concept in the current hierarchy"
-      });
-    }
-  }
-  scrollToHighlighted();
-  loading.value = false;
-}
-
-async function locateChildInLoadMore(n: TreeNode, path: TTIriRef[]): Promise<TreeNode | undefined> {
-  if (n.children?.find(c => c.data === "loadMore")) {
-    const found = n.children.find(c => path.find(p => p["@id"] === c.data));
-    if (found) {
-      return n.children.find(c => path.find(p => p["@id"] === c.data));
-    } else {
-      await loadMoreChildren(n);
-      return await locateChildInLoadMore(n, path);
-    }
-  } else {
-    return n.children?.find(c => path.find(p => p["@id"] === c.data));
-  }
-}
-
-async function selectAndExpand(node: any) {
-  selectKey(node.key);
-  if (!node.children || node.children.length === 0) {
-    await onNodeExpand(node);
-  }
-  expandedKeys.value[node.key] = true;
-}
-
-function scrollToHighlighted() {
-  const container = document.getElementById("hierarchy-tree-bar-container") as HTMLElement;
-  const highlighted = container.getElementsByClassName("p-highlight")[0];
-  if (highlighted) highlighted.scrollIntoView();
-}
-
-async function loadMoreChildren(node: any) {
-  if (node.children[node.children.length - 1].data === "loadMore") {
-    await loadMore(node.children[node.children.length - 1]);
   }
 }
 

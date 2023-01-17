@@ -15,7 +15,7 @@ import { afterAll, it, vi } from "vitest";
 
 const mockDispatch = vi.fn();
 const mockState = {
-  recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", app: "/viewer/#/" }]
+  recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }]
 };
 const mockCommit = vi.fn();
 
@@ -27,19 +27,29 @@ vi.mock("vuex", () => ({
   })
 }));
 
+const mockPush = vi.fn();
+const mockGo = vi.fn();
+const mockRoute = { name: "Concept" };
+
+vi.mock("vue-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    go: mockGo
+  }),
+  useRoute: () => mockRoute
+}));
+
 describe("LandingPage.vue", async () => {
   let component;
   let getPartialSpy;
+  let getPartialsSpy;
   let getDashboardLayoutSpy;
   let directToSpy;
 
   beforeEach(async () => {
     vi.resetAllMocks();
-    getPartialSpy = vi
-      .spyOn(EntityService, "getPartialEntity")
-      .mockResolvedValueOnce(testData.ONTOLOGY_OVERVIEW)
-      .mockResolvedValueOnce(testData.CONCEPT_TYPES)
-      .mockResolvedValue(testData.ENTITY);
+    getPartialSpy = vi.spyOn(EntityService, "getPartialEntity").mockResolvedValueOnce(testData.ONTOLOGY_OVERVIEW).mockResolvedValueOnce(testData.CONCEPT_TYPES);
+    getPartialsSpy = vi.spyOn(EntityService, "getPartialEntities").mockResolvedValue([testData.ENTITY]);
     getDashboardLayoutSpy = vi.spyOn(ConfigService, "getDashboardLayout").mockResolvedValue(testData.DASHBOARD_LAYOUT);
     directToSpy = vi.spyOn(DirectService.prototype, "directTo");
     vi.useFakeTimers().setSystemTime(new Date("2022-09-23T12:18:59.78"));
@@ -48,45 +58,30 @@ describe("LandingPage.vue", async () => {
       global: {
         components: { ProgressSpinner, Card, DataTable, Column, Button, Chart },
         directives: { Tooltip: Tooltip },
-        plugins: [PrimeVue]
+        plugins: [PrimeVue],
+        stubs: {
+          ReportTable: { template: "<span>Test Report Table</span>" },
+          PieChartDashCard: { template: "<span>Test Pie Chart</span>" },
+          ActionButtons: true
+        }
       }
     });
     await flushPromises();
   });
 
-  // it("has recent activities", async () => {
-  //   component.getByText(testData.ENTITY["http://www.w3.org/2000/01/rdf-schema#label"]);
-  // });
-
-  it("sets activity time", () => {
-    component.getByText("yesterday");
+  it("has recent activities", async () => {
+    component.getByText(testData.ENTITY["http://www.w3.org/2000/01/rdf-schema#label"]);
   });
 
-  // it("updates store and routes on view", async () => {
-  //   vi.clearAllMocks();
-  //   const view = component.getAllByTestId("view-button")[0];
-  //   await fireEvent.click(view);
-  //   expect(mockCommit).toHaveBeenCalledTimes(1);
-  //   expect(mockCommit).toHaveBeenLastCalledWith("updateSelectedConceptIri", "http://snomed.info/sct#6081001");
-  //   expect(directToSpy).toHaveBeenCalledTimes(1);
-  //   expect(directToSpy).toHaveBeenLastCalledWith("/viewer/#/", "http://snomed.info/sct#6081001", "concept");
-  // });
+  it("sets activity time", () => {
+    component.getByText("Viewed yesterday");
+  });
 
-  // it("updates store and emits on info", async () => {
-  //   vi.clearAllMocks();
-  //   const info = component.getAllByTestId("info-button")[0];
-  //   await fireEvent.click(info);
-  //   expect(mockCommit).toHaveBeenCalledTimes(1);
-  //   expect(mockCommit).toHaveBeenLastCalledWith("updateSelectedConceptIri", mockState.searchResults[0].iri);
-  //   const emits = component.emitted();
-  //   expect(emits.openBar).toBeTruthy();
-  // });
+  it("shows report table if in config", () => {
+    component.getByText("Test Report Table");
+  });
 
-  // it("routes on edit", async () => {
-  //   vi.clearAllMocks();
-  //   const edit = component.getAllByTestId("edit-button")[0];
-  //   await fireEvent.click(edit);
-  //   expect(directToSpy).toHaveBeenCalledTimes(1);
-  //   expect(directToSpy).toHaveBeenLastCalledWith("/editor/#/", "http://snomed.info/sct#241193003", "editor");
-  // });
+  it("shows pie chart if in config", () => {
+    component.getByText("Test Pie Chart");
+  });
 });
