@@ -86,11 +86,11 @@ const ecl: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
 const includeTerms = ref(true);
 
 watch(
-    () => [_.cloneDeep(ecl.value), includeTerms.value],
-    newValue => {
-      generateQueryString();
-    }
-)
+  () => [_.cloneDeep(ecl.value), includeTerms.value],
+  newValue => {
+    generateQueryString();
+  }
+);
 
 const queryString = ref("");
 
@@ -108,29 +108,22 @@ function generateQueryString() {
 
 function getBoolGroupECL(clause: any, root: boolean) {
   if (clause.items && clause.items.length > 0)
-    return clause.items
-        .map((c: any, i: number) => getClauseECL(c, i == 0 ? root : false))
-        .join("\n" + clause.operator + " ");
-  else
-    return "";
+    return clause.items.map((c: any, i: number) => getClauseECL(c, i == 0 ? root : false)).join("\n" + clause.operator + " ");
+  else return "";
 }
 
 function getClauseECL(clause: any, root: boolean) {
-  if (clause.type === "BoolGroup" && clause.items)
-    return "(" + getBoolGroupECL(clause, false) + ")";
-  else if (clause.type === "Concept")
-    return getConceptECL(clause, false);
-  else if (clause.type === "RefinementX")
-    return getRefinementECL(clause, root);
-  else
-    return "[???]";
+  if (clause.type === "BoolGroup" && clause.items) return "{" + getBoolGroupECL(clause, false) + "}";
+  else if (clause.type === "Concept") return getConceptECL(clause, false);
+  else if (clause.type === "RefinementX") return getRefinementECL(clause, root);
+  else return "[???]";
 }
 
 function getConceptECL(clause: any, root: boolean) {
   let result = getCodeTermECL(clause);
 
   if (clause.items && clause.items.length > 0) {
-    result += ' : ';
+    result += " : ";
     result += getBoolGroupECL(clause, false);
   }
 
@@ -149,7 +142,7 @@ function getCodeTermECL(clause: any) {
 }
 
 function getRefinementECL(clause: any, root: boolean) {
-  let result = (root) ? "* : " : "";
+  let result = root ? "* : " : "";
 
   result += getCodeTermECL(clause.property);
 

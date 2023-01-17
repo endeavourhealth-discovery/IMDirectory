@@ -9,33 +9,27 @@
           <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
         </span>
 
-        <component
-            :is="item.type"
-            :value="item"
-            :parent="props.value"
-            :focus="props.focus"
-        >
-        </component>
+        <component :is="item.type" :value="item" :parent="props.value" :focus="props.focus"> </component>
         <div class="remove-group">
-            <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash"/>
+          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
         </div>
       </div>
     </template>
     <div class="add-group">
-        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" />
-        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Refinement" @click="addRefinement" />
-        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" />
+      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" />
+      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Refinement" @click="addRefinement" />
+      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue';
+import { ref } from "vue";
 
 const props = defineProps({
   value: { type: Object, required: true },
   parent: { type: Object, required: false },
-  focus: { type: Object, required: false },
+  focus: { type: Object, required: false }
 });
 
 const selected = ref("AND");
@@ -44,31 +38,31 @@ const menuBool = ref();
 
 const boolOptions = [
   {
-    label: 'AND',
-    command: () => props.value.operator = 'AND'
+    label: "AND",
+    command: () => (props.value.operator = "AND")
   },
   {
-    label: 'OR',
-    command: () => props.value.operator = 'OR'
+    label: "OR",
+    command: () => (props.value.operator = "OR")
   },
   {
-    label: 'NOT',
-    command: () => props.value.operator = 'MINUS'
+    label: "NOT",
+    command: () => (props.value.operator = "MINUS")
   }
 ];
 
 const hover = ref();
-function mouseover(event) {
+function mouseover(event: any) {
   event.stopPropagation();
   hover.value = true;
 }
 
-function mouseout(event) {
+function mouseout(event: any) {
   event.stopPropagation();
   hover.value = false;
 }
 
-function toggleBool(event :any) {
+function toggleBool(event: any) {
   menuBool.value.toggle(event);
 }
 
@@ -81,22 +75,21 @@ function add(item: any) {
 }
 
 function addConcept() {
-  add({ "type": "Concept", "descendants": "<<", "operator": "AND"});
+  add({ type: "Concept", descendants: "<<", operator: "AND" });
 }
 
 function addRefinement() {
-  add({ "type": "RefinementX", "property": {"descendants": "<<"}, "operator": "=", "value": {"descendants": "<<"}});
+  add({ type: "RefinementX", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
 }
 
 function addGroup() {
-  add({ "type": "BoolGroup", "operator": "AND"});
+  add({ type: "BoolGroup", operator: "AND" });
 }
 
 function deleteItem(index: number) {
   console.log("Deleting item " + index);
   props.value.items.splice(index, 1);
 }
-
 </script>
 
 <style scoped lang="scss">

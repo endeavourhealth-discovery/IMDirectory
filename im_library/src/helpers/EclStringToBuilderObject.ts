@@ -25,25 +25,23 @@ export function eclStringToBuilderObject(eclString: string) {
 
 export function splitEclByFocusConcept(ecl: string, builderParent: any, resultsArray?: string[]): string[] {
   let results: string[] = resultsArray ? resultsArray : [];
-  let lastIndex = 0;
-  const hasConjunction = ecl.match(/(AND|OR|MINUS)/);
-  if (hasConjunction) {
+  const hasConjunction = ecl.match(/ *[^=!] *(AND|OR|MINUS) *(<<!|<<|<!|<|>>!|>>|>!|>)? *[0-9]{8,9} +[^=! ]/);
+  const hasFinalConjunction = ecl.match(/ *[^=!] *(AND|OR|MINUS) *(<<!|<<|<!|<|>>!|>>|>!|>)? *[0-9]{8,9}$/);
+  if (isArrayHasLength(hasConjunction) || isArrayHasLength(hasFinalConjunction)) {
+    const conjunction = hasConjunction ? hasConjunction[0] : hasFinalConjunction ? hasFinalConjunction[0] : "";
     const currentConjunctionIndex = lowestNonNegativeNumber([
-      { id: "AND", number: ecl.indexOf("AND") },
-      { id: "OR", number: ecl.indexOf("OR") },
-      { id: "MINUS", number: ecl.indexOf("MINUS") }
+      { id: "AND", number: conjunction.indexOf("AND") },
+      { id: "OR", number: conjunction.indexOf("OR") },
+      { id: "MINUS", number: conjunction.indexOf("MINUS") }
     ]);
-    if (currentConjunctionIndex !== null && isFocusConceptConjunction(ecl.slice(currentConjunctionIndex.index, ecl.length))) {
-      if (currentConjunctionIndex.id === "AND") builderParent.operator = "AND";
-      else if (currentConjunctionIndex.id === "OR") builderParent.operator = "OR";
-      else if (currentConjunctionIndex.id === "MINUS") builderParent.operator = "MINUS";
-      const currentConjunction = ecl.slice(lastIndex, currentConjunctionIndex.index);
-      if (currentConjunction) results.push(currentConjunction.trim());
-      const remainder = ecl.slice(currentConjunctionIndex.index + length, ecl.length);
-      if (remainder && currentConjunctionIndex.index !== 0 && isFocusConceptConjunction(remainder))
-        results = splitEclByFocusConcept(remainder, builderParent, results);
-      else results.push(remainder.slice(0 + currentConjunctionIndex.id.length, remainder.length).trim());
-    }
+    const focusConcept = ecl.slice(0, ecl.indexOf(conjunction) + currentConjunctionIndex.index).trim();
+    const remainder = ecl.slice(ecl.indexOf(conjunction) + currentConjunctionIndex.index + currentConjunctionIndex.id.length, ecl.length).trim();
+    if (currentConjunctionIndex.id === "AND") builderParent.operator = "AND";
+    else if (currentConjunctionIndex.id === "OR") builderParent.operator = "OR";
+    else if (currentConjunctionIndex.id === "MINUS") builderParent.operator = "MINUS";
+    if (focusConcept) results.push(focusConcept.trim());
+    if (remainder && isFocusConceptConjunction(remainder)) results = splitEclByFocusConcept(remainder, builderParent, results);
+    else results.push(remainder.slice(0 + currentConjunctionIndex.id.length, remainder.length).trim());
   } else {
     results.push(ecl);
   }
@@ -52,7 +50,6 @@ export function splitEclByFocusConcept(ecl: string, builderParent: any, resultsA
 
 export function splitEclByRefinement(ecl: string, builderParent: any, resultsArray?: string[]): string[] {
   let results: string[] = resultsArray ? resultsArray : [];
-  let lastIndex = 0;
   const hasConjunction = ecl.match(/(AND|OR|MINUS|,)/);
   if (hasConjunction) {
     let currentConjunctionIndex = null;
@@ -81,19 +78,15 @@ export function splitEclByRefinement(ecl: string, builderParent: any, resultsArr
       let currentConjunction = "";
       let remainder = "";
       if (ecl.startsWith("{")) {
-        currentConjunction = ecl.slice(lastIndex, currentConjunctionIndex.index + 1);
-        remainder = ecl.slice(currentConjunctionIndex.index + 2, ecl.length);
+        currentConjunction = ecl.slice(0, currentConjunctionIndex.index + 1);
+        remainder = ecl.slice(currentConjunctionIndex.index + 1 + currentConjunctionIndex.id.length, ecl.length).trim();
       } else {
-        currentConjunction = ecl.slice(lastIndex, currentConjunctionIndex.index);
-        remainder = ecl.slice(currentConjunctionIndex.index + 1, ecl.length);
+        currentConjunction = ecl.slice(0, currentConjunctionIndex.index);
+        remainder = ecl.slice(currentConjunctionIndex.index + currentConjunctionIndex.id.length, ecl.length).trim();
       }
       if (currentConjunction) results.push(currentConjunction.trim());
       if (remainder && currentConjunctionIndex.index !== 0 && isRefinementConjunction(remainder)) {
         splitEclByRefinement(remainder.trim(), builderParent, results);
-        // for (const remainderResult of reminderResults) {
-        //   if (remainderResult && isRefinement(remainderResult)) results.push(remainderResult);
-        //   console.log(remainderResult);
-        // }
       } else results.push(remainder.slice(0 + currentConjunctionIndex.id.length, remainder.length).trim());
     } else {
       results.push(ecl);
@@ -122,8 +115,9 @@ export function isFocusConcept(ecl: string) {
 
 export function isFocusConceptConjunction(ecl: string): boolean {
   ecl = ecl.trim();
-  const matches = ecl.match(/^(AND|OR|MINUS)? *(<<!|<<|<!|<|>>!|>>|>!|>)? [0-9]{8,9}( :| AND| OR| MINUS|$)/);
-  return isArrayHasLength(matches);
+  const matches = ecl.match(/^(AND|OR|MINUS)? *(<<!|<<|<!|<|>>!|>>|>!|>)? [0-9]{8,9} +(:|AND|OR|MINUS)/);
+  const finalMatch = ecl.match(/^(AND|OR|MINUS)? *(<<!|<<|<!|<|>>!|>>|>!|>)? [0-9]{8,9}$/);
+  return isArrayHasLength(matches) || isArrayHasLength(finalMatch);
 }
 
 export function isRefinementConjunction(ecl: string): boolean {

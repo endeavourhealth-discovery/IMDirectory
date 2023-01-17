@@ -28,6 +28,20 @@ describe("eclStringToBuilderObject", () => {
       ]);
       expect(builderObject.operator).toBe("AND");
     });
+
+    it("splits ecl by focus concept handles nested logic", () => {
+      const builderObject = { type: "BoolGroup", operator: "OR", items: [] };
+      expect(
+        splitEclByFocusConcept(
+          "<  404684003 : {  363698007 = <<  39057004 OR 116676008 = <<  415582006 } AND {  363698007 = <<  53085002 OR 116676008 = <<  56246009 } AND << 763158003",
+          builderObject
+        )
+      ).toEqual([
+        "<  404684003 : {  363698007 = <<  39057004 OR 116676008 = <<  415582006 } AND {  363698007 = <<  53085002 OR 116676008 = <<  56246009 }",
+        "<< 763158003"
+      ]);
+      expect(builderObject.operator).toBe("AND");
+    });
   });
 
   describe("isFocusConcept", () => {
@@ -126,6 +140,20 @@ describe("eclStringToBuilderObject", () => {
         "{  363698007 = <<  39057004 , 116676008 = <<  415582006 }"
       ]);
       expect(parentObject.operator).toBe("AND");
+    });
+
+    it("handles long syntax", () => {
+      const parentObject = { type: "Concept", descendants: "", operator: "OR", concept: { iri: "" }, items: [] };
+      expect(
+        splitEclByRefinement(
+          "{  363698007 = <<  39057004 OR 116676008 = <<  415582006 } AND {  363698007 = <<  53085002 , 116676008 = <<  56246009 } AND {  363698007 = <<  39057004 AND 116676008 = <<  415582006 }",
+          parentObject
+        )
+      ).toEqual([
+        "{  363698007 = <<  39057004 OR 116676008 = <<  415582006 }",
+        "{  363698007 = <<  53085002 , 116676008 = <<  56246009 }",
+        "{  363698007 = <<  39057004 AND 116676008 = <<  415582006 }"
+      ]);
     });
   });
 
@@ -409,7 +437,7 @@ describe("eclStringToBuilderObject", () => {
 
     it("handles concept with grouped refinements", () => {
       const complexEclString =
-        "<  404684003 |Clinical finding| : { 363698007 |Finding site| = <<  39057004 |Pulmonary valve structure| , 116676008 |Associated morphology| = <<  415582006 |Stenosis| } , {  363698007 |Finding site| = <<  53085002 |Right ventricular structure| , 116676008 |Associated morphology| = <<  56246009 |Hypertrophy| }";
+        "<  404684003 |Clinical finding| : { 363698007 |Finding site| = <<  39057004 |Pulmonary valve structure| , 116676008 |Associated morphology| = <<  415582006 |Stenosis| } AND {  363698007 |Finding site| = <<  53085002 |Right ventricular structure| , 116676008 |Associated morphology| = <<  56246009 |Hypertrophy| }";
       expect(eclStringToBuilderObject(complexEclString)).toEqual({
         type: "BoolGroup",
         operator: "AND",
@@ -441,6 +469,61 @@ describe("eclStringToBuilderObject", () => {
               {
                 type: "BoolGroup",
                 operator: "AND",
+                items: [
+                  {
+                    type: "RefinementX",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#53085002" } }
+                  },
+                  {
+                    type: "RefinementX",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#56246009" } }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+    });
+
+    it("handles refinements with groups including or's", () => {
+      const ecl =
+        "<  404684003 |Clinical finding| : { 363698007 |Finding site| = <<  39057004 |Pulmonary valve structure| OR 116676008 |Associated morphology| = <<  415582006 |Stenosis| } AND {  363698007 |Finding site| = <<  53085002 |Right ventricular structure| OR 116676008 |Associated morphology| = <<  56246009 |Hypertrophy| }";
+      expect(eclStringToBuilderObject(ecl)).toEqual({
+        type: "BoolGroup",
+        operator: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<",
+            operator: "AND",
+            concept: { iri: "http://snomed.info/sct#404684003" },
+            items: [
+              {
+                type: "BoolGroup",
+                operator: "OR",
+                items: [
+                  {
+                    type: "RefinementX",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#39057004" } }
+                  },
+                  {
+                    type: "RefinementX",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#415582006" } }
+                  }
+                ]
+              },
+              {
+                type: "BoolGroup",
+                operator: "OR",
                 items: [
                   {
                     type: "RefinementX",
