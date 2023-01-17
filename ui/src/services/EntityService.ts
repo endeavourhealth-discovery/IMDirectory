@@ -11,7 +11,8 @@ import {
   DataModelProperty,
   ExportValueSet,
   SearchRequest,
-  ConceptSummary
+  ConceptSummary,
+  FilterOptions
 } from "@im-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
@@ -196,17 +197,43 @@ const EntityService = {
     }
   },
 
-  async getFilterOptions(): Promise<any> {
+  async getFilterOptions(): Promise<FilterOptions> {
     try {
-      const schemeOptions = await this.getNamespaces();
+      const schemeOptions = await this.getEntityChildren(IM.NAMESPACE + "Graph");
       const statusOptions = await this.getEntityChildren(IM.STATUS);
-      const typeOptions = (await this.getPartialEntities(EntityTypes, [RDFS.LABEL])).map(typeOption => {
-        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
-      });
+      const typeOptions = await this.getEntityChildren(IM.ENTITY_TYPES);
+      const sortFieldOptions = await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions");
+      const sortDirectionOptions = await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterOptions");
 
-      return { status: statusOptions, schemes: schemeOptions, types: typeOptions };
+      return {
+        status: statusOptions,
+        schemes: schemeOptions,
+        types: typeOptions,
+        sortFields: sortFieldOptions,
+        sortDirections: sortDirectionOptions
+      } as FilterOptions;
     } catch (error) {
-      return {} as any;
+      return {} as FilterOptions;
+    }
+  },
+
+  async getFilterDefaultOptions(): Promise<FilterOptions> {
+    try {
+      const schemeDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "SchemeFilterDefaultOptions");
+      const statusDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "StatusFilterDefaultOptions");
+      const typeDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "TypeFilterDefaultOptions");
+      const sortDefaultFieldOptions = await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterDefaultOptions");
+      const sortDefaultDirectionOptions = await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterDefaultOptions");
+
+      return {
+        status: statusDefaultOptions,
+        schemes: schemeDefaultOptions,
+        types: typeDefaultOptions,
+        sortFields: sortDefaultFieldOptions,
+        sortDirections: sortDefaultDirectionOptions
+      } as FilterOptions;
+    } catch (error) {
+      return {} as FilterOptions;
     }
   },
 

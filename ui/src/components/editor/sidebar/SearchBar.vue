@@ -17,15 +17,16 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch, computed } from "vue";
+import { Ref, ref, watch, computed, ComputedRef } from "vue";
 import { useStore } from "vuex";
-import Filters from "./Filters.vue";
+import Filters from "@/components/directory/topbar/Filters.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { EntityReferenceNode, Namespace, SearchRequest, TTIriRef } from "@im-library/interfaces";
-import { SortBy } from "@im-library/enums";
-import { isObject } from "@im-library/helpers/DataTypeCheckers";
+import { EntityReferenceNode, FilterOptions, Namespace, SearchRequest, TTIriRef } from "@im-library/interfaces";
+import { SortBy, SortDirection } from "@im-library/enums";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 import { isArray } from "lodash";
+import { IM } from "@im-library/vocabulary";
 
 const emit = defineEmits({
   openSearchPanel: () => true,
@@ -34,7 +35,7 @@ const emit = defineEmits({
 });
 
 const store = useStore();
-const selectedFilters = computed(() => store.state.selectedFilters);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
@@ -57,7 +58,7 @@ async function search(): Promise<void> {
     searchRequest.sortBy = SortBy.Usage;
     searchRequest.page = 1;
     searchRequest.size = 100;
-    searchRequest.schemeFilter = selectedFilters.value.schemes.map((scheme: Namespace) => scheme.iri);
+    searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
 
     searchRequest.statusFilter = [];
     selectedFilters.value.status.forEach((status: EntityReferenceNode) => {
@@ -69,9 +70,15 @@ async function search(): Promise<void> {
       searchRequest.typeFilter.push(type["@id"]);
     });
 
-    if (selectedFilters.value.sortField) {
-      searchRequest.sortField = selectedFilters.value.sortField;
-      searchRequest.sortDirection = selectedFilters.value.sortDirection;
+    if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
+      const sortField = selectedFilters.value.sortFields[0];
+      if (sortField["@id"] === IM.NAMESPACE + "Usage") searchRequest.sortField = "weighting";
+
+      if (isArrayHasLength(selectedFilters.value.sortDirections) && isObjectHasKeys(selectedFilters.value.sortDirections[0])) {
+        const sortDirection = selectedFilters.value.sortDirections[0];
+        if (sortDirection["@id"] === IM.NAMESPACE + "Descending") searchRequest.sortDirection = SortDirection.DESC;
+        if (sortDirection["@id"] === IM.NAMESPACE + "Ascending") searchRequest.sortDirection = SortDirection.ASC;
+      }
     }
 
     if (!isObject(controller.value)) {
