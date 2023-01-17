@@ -91,8 +91,7 @@ const downloadMenu = ref([
   { label: "Definition Only", command: () => download(false, false) },
   { label: "Core", command: () => download(true, false) },
   { label: "Core & Legacy", command: () => download(true, true) },
-  { label: "Core & Legacy (Flat)", command: () => download(true, true, true) },
-  { label: "Fhir format", command: () => downloadFhir() }
+  { label: "Core & Legacy (Flat)", command: () => download(true, true, true) }
 ]);
 const downloadMenu1 = ref([
   { label: "Definition Only", command: () => download(false, false) },
@@ -214,9 +213,6 @@ async function getPage(event: any) {
   loading.value = false;
 }
 
-async function downloadFhir() {
-  await FhirService.getValueSet("http://endhealth.info/im#VSET_355",false);
-}
 </script>
 
 <style scoped>
