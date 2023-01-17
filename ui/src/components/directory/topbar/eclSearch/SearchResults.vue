@@ -158,11 +158,10 @@ function downloadFile(data: any, fileName: string) {
 }
 
 function exportCSV(): void {
-  const heading = ["name", "iri"].join(",");
-  const body = props.searchResults.map((row: any) => [row.name, row.iri].join(",")).join("\n");
-  const csv = [heading, body].join("\n");
-  console.log(csv);
-  downloadFile(csv, "results.csv");
+  const heading = ["name", "iri", "code"].join(",");
+  const body = props.searchResults.map((row: any) => [row.name, row.iri, row.code].join(",")).join("\n");
+  const txt = [heading, body].join("\n");
+  downloadFile(txt, "results.txt");
 }
 
 function getPerspectiveByConceptType(conceptTypes: TTIriRef[]): string[] {
