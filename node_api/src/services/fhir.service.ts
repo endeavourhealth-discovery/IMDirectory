@@ -28,7 +28,9 @@ export default class FhirService {
             }
         }
 
-        result.expansion = expansion;
+        if(Object.keys(expansion.contains).length !== 0) {
+            result.expansion = expansion;
+        }
 
         const compose = await this.getCompose(subsets,def);
         if(compose != null && Object.keys(compose).length !== 0) {

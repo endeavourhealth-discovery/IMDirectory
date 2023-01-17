@@ -161,7 +161,11 @@ GET http://127.0.0.1:3000/node_api/github/public/latestRelease/?repositoryName=I
 
 ###
 
-GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?iri=http://endhealth.info/ceg/qry#CSET_EthnicCategoryCEG16&expand=true
+GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet/http:%2F%2Fendhealth.info%2Fceg%2Fqry%23CSET_EthnicCategoryCEG16
+
+###
+
+GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet/http:%2F%2Fendhealth.info%2Fceg%2Fqry%23CSET_EthnicCategoryCEG16/$expand
 
 ###
 

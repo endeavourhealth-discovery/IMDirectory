@@ -69,7 +69,6 @@ import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import FhirService from "@/services/FhirService";
 
 const { isObjectHasKeys } = DataTypeCheckers;
 
