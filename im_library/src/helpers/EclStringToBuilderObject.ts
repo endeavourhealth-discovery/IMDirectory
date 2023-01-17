@@ -143,7 +143,7 @@ function checkForNot(ecl: string) {
 
 function checkForCardinality(ecl: string) {
   ecl = ecl.trim();
-  return isArrayHasLength(ecl.match(/\[(0-9).*\]/));
+  return isArrayHasLength(ecl.match(/\[[0-9].*\]/));
 }
 
 export function isRefinement(ecl: string) {

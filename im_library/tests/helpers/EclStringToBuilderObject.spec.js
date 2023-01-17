@@ -163,18 +163,22 @@ describe("eclStringToBuilderObject", () => {
     });
 
     it("errors with member", () => {
-      expect(() => eclStringToBuilderObject("^ 700043003 |Example problem list concepts reference set|")).toThrowError();
+      expect(() => eclStringToBuilderObject("^ 700043003 |Example problem list concepts reference set|")).toThrowError(
+        "'^/memberOf' is not currently supported"
+      );
     });
 
     it("errors with cardinality", () => {
       expect(() =>
         eclStringToBuilderObject(" <  373873005 |Pharmaceutical / biologic product| : [1..3]  127489000 |Has active ingredient|  = <  105590001 |Substance|")
-      ).toThrowError();
+      ).toThrowError("Cardinality is not currently supported");
     });
 
     it("errors with reverse", () => {
       expect(() => {
-        eclStringToBuilderObject("    <  91723000 |Anatomical structure| : R  363698007 |Finding site|  = <  125605004 |Fracture of bone|").toThrowError();
+        eclStringToBuilderObject("    <  91723000 |Anatomical structure| : R  363698007 |Finding site|  = <  125605004 |Fracture of bone|").toThrowError(
+          "'R/reverseOf/.' is not currently supported"
+        );
       });
     });
 
@@ -182,7 +186,7 @@ describe("eclStringToBuilderObject", () => {
       expect(() => {
         eclStringToBuilderObject(
           "   descendantOf  404684003 |Clinical finding| : 116676008 |Associated morphology|  NOT = descendantOrSelfOf  26036001 |Obstruction|"
-        ).toThrowError();
+        ).toThrowError("'NOT' is currently not supported. Please use '!=' notation instead");
       });
     });
 
