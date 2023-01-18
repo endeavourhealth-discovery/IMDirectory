@@ -23,7 +23,7 @@
           <Button v-else-if="index === 1" type="button" :label="value.operator" @click="toggleBool" />
           <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
         </span>
-        <component v-if="!loading" :is="item.type" :value="item" :parent="value" :focus="value.concept" />
+        <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
         <div v-else><ProgressSpinner class="loading-icon" stroke-width="8" /></div>
         <span class="remove-group">
           <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
@@ -39,6 +39,8 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, PropType, watch } from "vue";
+import BoolGroup from "./BoolGroup.vue";
+import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
 import { SearchRequest } from "@im-library/interfaces";
 import { SortBy } from "@im-library/enums";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
@@ -153,6 +155,15 @@ function addGroup() {
 function deleteItem(index: number) {
   console.log("Deleting item " + index);
   props.value.items.splice(index, 1);
+}
+
+function getComponent(componentName: string) {
+  switch (componentName) {
+    case "BoolGroup":
+      return BoolGroup;
+    case "RefinementX":
+      return RefinementX;
+  }
 }
 </script>
 

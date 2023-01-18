@@ -8,8 +8,8 @@
           <Button v-else-if="index === 1" type="button" :label="value.operator" @click="toggleBool" />
           <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
         </span>
-
-        <component :is="item.type" :value="item" :parent="props.value" :focus="props.focus"> </component>
+        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" />
+        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus"> </component>
         <div class="remove-group">
           <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
         </div>
@@ -25,6 +25,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
+import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
 
 const props = defineProps({
   value: { type: Object, required: true },
@@ -89,6 +91,15 @@ function addGroup() {
 function deleteItem(index: number) {
   console.log("Deleting item " + index);
   props.value.items.splice(index, 1);
+}
+
+function getComponent(componentName: string) {
+  switch (componentName) {
+    case "Concept":
+      return Concept;
+    case "RefinementX":
+      return RefinementX;
+  }
 }
 </script>
 

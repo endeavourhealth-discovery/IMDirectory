@@ -81,13 +81,11 @@ import DataView from "primevue/dataview";
 import Steps from "primevue/steps";
 import Chip from "primevue/chip";
 import ToggleButton from "primevue/togglebutton";
+import Skeleton from "primevue/skeleton";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import "sweetalert2/dist/sweetalert2.min.css";
-import BoolGroup from '@/components/directory/topbar/eclSearch/builder/BoolGroup.vue';
-import Concept from '@/components/directory/topbar/eclSearch/builder/Concept.vue';
-import RefinementX from '@/components/directory/topbar/eclSearch/builder/RefinementX.vue';
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -163,11 +161,7 @@ const app = createApp(App)
   .component("Steps", Steps)
   .component("Chip", Chip)
   .component("ToggleButton", ToggleButton)
-  .component("BoolGroup", BoolGroup)
-  .component("Concept", Concept)
-  .component("RefinementX", RefinementX)
-;
-
+  .component("Skeleton", Skeleton);
 const vm = app.mount("#app");
 
 // Vue application exceptions
