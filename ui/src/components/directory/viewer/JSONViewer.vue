@@ -1,15 +1,18 @@
 <template>
-  <VueJsonPretty class="json" :path="'res'" :data="entityJSON.entity" />
+  <VueJsonPretty class="json" :path="'res'" :data="entityJSON.entity" @nodeClick="copy" />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { EntityService } from "@/services";
-import { DataTypeCheckers } from "@im-library/helpers";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
-const { isObjectHasKeys } = DataTypeCheckers;
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 
+const toast = useToast();
 const props = defineProps({ conceptIri: { type: String, required: true } });
 const entityJSON = ref({ entity: {}, predicates: {} });
 onMounted(async () => {
@@ -18,6 +21,11 @@ onMounted(async () => {
     entityJSON.value = response;
   }
 });
+
+async function copy() {
+  await navigator.clipboard.writeText(JSON.stringify(entityJSON.value.entity));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "JSON value copied to clipboard"));
+}
 </script>
 
 <style scoped></style>
