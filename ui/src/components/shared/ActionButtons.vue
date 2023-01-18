@@ -1,5 +1,13 @@
 <template>
   <Button
+    v-if="show('runQuery')"
+    icon="fa-solid fa-bolt"
+    :class="getClass()"
+    @click="runQuery(iri)"
+    v-tooltip.top="'Run query'"
+    data-testid="run-query-button"
+  />
+  <Button
     v-if="show('findInTree')"
     icon="fa-solid fa-sitemap"
     :class="getClass()"
@@ -40,16 +48,25 @@
     v-tooltip.left="'Favourite'"
     data-testid="favourite-button"
   />
+  <TestQueryResults
+    v-if="showTestQueryResults && isObjectHasKeys(imquery)"
+    :showDialog="showTestQueryResults"
+    :imquery="imquery"
+    @close-dialog="showTestQueryResults = false"
+  />
 </template>
 
 <script setup lang="ts">
 import { PropType, computed } from "vue";
 import findInTree from "@/composables/findInTree";
+import setupRunQuery from "@/composables/setupRunQuery";
 import { DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { State } from "@/store/stateType";
 import { Store, useStore } from "vuex";
+import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
 const directService = new DirectService();
+const { runQuery, showTestQueryResults, imquery } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
