@@ -61,13 +61,26 @@ const valueController: Ref<AbortController> = ref({} as AbortController);
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
 
-watch(selectedProperty, newValue => {
+watch(selectedProperty, async newValue => {
   props.value.property.concept = newValue;
+  if (newValue && newValue.name && props.value && props.value.value && props.value.value.concept && props.value.value.concept.iri) {
+    await searchValue(props.value.value.concept.iri);
+    if (valueResults.value.length) selectedValue.value = valueResults.value[0];
+  }
 });
 
 watch(selectedValue, newValue => {
   props.value.value.concept = newValue;
 });
+
+watch(
+  () => props.focus,
+  async newValue => {
+    if (newValue && newValue.iri) {
+      await processProps();
+    }
+  }
+);
 
 const descendantOptions = [
   {
@@ -87,7 +100,11 @@ const descendantOptions = [
 const operatorOptions = ["=", "!="];
 
 onMounted(async () => {
-  if (props.value && props.value.property.concept && props.value.property.concept.iri) {
+  await processProps();
+});
+
+async function processProps() {
+  if (props.value && props.value.property && props.value.property.concept && props.value.property.concept.iri) {
     loadingProperty.value = true;
     loadingValue.value = true;
     let name = "";
@@ -103,13 +120,20 @@ onMounted(async () => {
       if (propertyResults.value.length) selectedProperty.value = propertyResults.value[0];
     } else throw new Error("Property iri does not exist");
   }
-  if (props.value.property.concept.name && props.value.value.concept && props.value.value.concept.iri) {
+  if (
+    props.value &&
+    props.value.property &&
+    props.value.property.concept &&
+    props.value.property.concept.name &&
+    props.value.value.concept &&
+    props.value.value.concept.iri
+  ) {
     await searchValue(props.value.value.concept.iri);
     if (valueResults.value.length) selectedValue.value = valueResults.value[0];
   }
   loadingProperty.value = false;
   loadingValue.value = false;
-});
+}
 
 async function searchProperty(term: string) {
   loadingProperty.value = true;
