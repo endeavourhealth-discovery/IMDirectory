@@ -11,7 +11,6 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { copyConceptToClipboard } from "@im-library/helpers/CopyConceptToClipboard";
 
 const toast = useToast();
 const props = defineProps({ conceptIri: { type: String, required: true } });
