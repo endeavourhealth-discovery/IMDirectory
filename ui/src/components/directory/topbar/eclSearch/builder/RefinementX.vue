@@ -1,15 +1,18 @@
 <template>
   <div class="nested-div">
-    <div style="display: flex">
+    <div class="refinement-content-container">
       <AutoComplete
         style="flex: 1"
         input-style="flex:1"
         field="name"
         dataKey="iri"
-        v-model="value.property.concept"
+        v-model="selectedProperty"
         :suggestions="propertyResults"
         @complete="searchProperty($event.query)"
+        placeholder="search..."
+        :disabled="loadingProperty"
       />
+      <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
       <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
       <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
       <AutoComplete
@@ -17,17 +20,20 @@
         input-style="flex:1"
         field="name"
         dataKey="iri"
-        v-model="value.value.concept"
+        v-model="selectedValue"
         :suggestions="valueResults"
         @complete="searchValue($event.query)"
+        placeholder="search..."
+        :disabled="loadingValue || !selectedProperty"
       />
+      <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
       <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted } from "vue";
+import { ref, Ref, PropType, onMounted, watch } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { QueryRequest, SearchRequest } from "@im-library/interfaces";
 import { SortBy } from "@im-library/enums";
@@ -45,6 +51,8 @@ const props = defineProps({
   focus: { type: Object, required: false }
 });
 
+const selectedProperty: Ref<any | null> = ref(null);
+const selectedValue: Ref<any | null> = ref(null);
 const propertyResults: Ref<any[]> = ref([]);
 const valueResults: Ref<any[]> = ref([]);
 const store = useStore();
@@ -52,6 +60,14 @@ const propertyController: Ref<AbortController> = ref({} as AbortController);
 const valueController: Ref<AbortController> = ref({} as AbortController);
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
+
+watch(selectedProperty, newValue => {
+  props.value.property.concept = newValue;
+});
+
+watch(selectedValue, newValue => {
+  props.value.value.concept = newValue;
+});
 
 const descendantOptions = [
   {
@@ -72,6 +88,8 @@ const operatorOptions = ["=", "!="];
 
 onMounted(async () => {
   if (props.value && props.value.property.concept && props.value.property.concept.iri) {
+    loadingProperty.value = true;
+    loadingValue.value = true;
     let name = "";
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else {
@@ -82,13 +100,15 @@ onMounted(async () => {
     }
     if (name) {
       await searchProperty(name);
-      if (propertyResults.value.length) props.value.property.concept = propertyResults.value[0];
+      if (propertyResults.value.length) selectedProperty.value = propertyResults.value[0];
     } else throw new Error("Property iri does not exist");
   }
   if (props.value.property.concept.name && props.value.value.concept && props.value.value.concept.iri) {
     await searchValue(props.value.value.concept.iri);
-    if (valueResults.value.length) props.value.value.concept = valueResults.value[0];
+    if (valueResults.value.length) selectedValue.value = valueResults.value[0];
   }
+  loadingProperty.value = false;
+  loadingValue.value = false;
 });
 
 async function searchProperty(term: string) {
@@ -150,6 +170,7 @@ async function searchValue(term: string) {
         code: e['http://endhealth.info/im#code']
       };
     })*/
+  loadingValue.value = true;
   const searchRequest = {} as SearchRequest;
   searchRequest.termFilter = term;
   searchRequest.sortBy = SortBy.Usage;
@@ -162,6 +183,7 @@ async function searchValue(term: string) {
   }
   valueController.value = new AbortController();
   valueResults.value = await EntityService.advancedSearch(searchRequest, valueController.value);
+  loadingValue.value = false;
 }
 </script>
 
@@ -173,5 +195,18 @@ async function searchValue(term: string) {
   background-color: unset;
   margin: 0.5rem;
   flex: 1;
+}
+
+.refinement-content-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.loading-icon {
+  flex: 0 0 auto;
+  height: 1.5rem;
+  width: 1.5rem;
 }
 </style>

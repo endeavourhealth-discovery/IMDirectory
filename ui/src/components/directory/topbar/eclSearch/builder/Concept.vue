@@ -1,15 +1,18 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
-    <div style="display: flex">
+    <div class="concept-content-container">
       <AutoComplete
         style="flex: 1"
         input-style="flex:1"
         field="name"
         dataKey="iri"
-        v-model="value.concept"
+        v-model="selected"
         :suggestions="suggestions"
         @complete="search($event.query)"
+        placeholder="Search..."
+        :disabled="loading"
       />
+      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
       <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
@@ -21,7 +24,7 @@
           <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
         </span>
         <component v-if="!loading" :is="item.type" :value="item" :parent="value" :focus="value.concept" />
-        <div v-else><ProgressSpinner /></div>
+        <div v-else><ProgressSpinner class="loading-icon" stroke-width="8" /></div>
         <span class="remove-group">
           <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
         </span>
@@ -35,12 +38,13 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType } from "vue";
+import { Ref, ref, onMounted, PropType, watch } from "vue";
 import { SearchRequest } from "@im-library/interfaces";
 import { SortBy } from "@im-library/enums";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
 import { EntityService } from "@/services";
+import _ from "lodash";
 
 const props = defineProps({
   value: { type: Object as PropType<{ type: string; descendants: string; operator: string; items: any[]; concept: { iri: string } }>, required: true },
@@ -49,6 +53,7 @@ const props = defineProps({
 
 const store = useStore();
 
+const selected: Ref<any | null> = ref(null);
 const controller: Ref<AbortController> = ref({} as AbortController);
 const suggestions: Ref<any[]> = ref([]);
 const menuBool = ref();
@@ -88,9 +93,13 @@ onMounted(async () => {
   if (props.value && props.value.concept && props.value.concept.iri) {
     loading.value = true;
     await search(props.value.concept.iri);
-    props.value.concept = suggestions.value[0];
+    selected.value = suggestions.value[0];
     loading.value = false;
   }
+});
+
+watch(selected, newValue => {
+  props.value.concept = newValue;
 });
 
 const hover = ref();
@@ -157,6 +166,13 @@ function deleteItem(index: number) {
   border-style: dashed !important;
 }
 
+.concept-content-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 .left-container {
   display: flex;
   align-items: center;
@@ -185,6 +201,12 @@ Button {
   margin-right: 4px;
   height: 1.5rem;
   align-self: center;
+}
+
+.loading-icon {
+  flex: 0 0 auto;
+  height: 1.5rem;
+  width: 1.5rem;
 }
 
 .add-group {
