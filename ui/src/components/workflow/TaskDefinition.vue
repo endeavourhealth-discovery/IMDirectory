@@ -30,13 +30,13 @@
             <Panel header="Search filters" :toggleable="false">
               <div class="flex justify-content-between">
                 <MultiSelect
-                  v-model="selectedFilters.scheme"
+                  v-model="selectedFilters.schemes"
                   :options="filterOptions.schemes"
                   optionLabel="name"
                   optionValue="iri"
                   placeholder="Select scheme"
                 />
-                <MultiSelect v-model="selectedFilters.type" :options="filterOptions.types" optionLabel="name" optionValue="@id" placeholder="Select type" />
+                <MultiSelect v-model="selectedFilters.types" :options="filterOptions.types" optionLabel="name" optionValue="@id" placeholder="Select type" />
                 <MultiSelect
                   v-model="selectedFilters.status"
                   :options="filterOptions.status"
@@ -148,7 +148,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, Ref, ref, watch } from "vue";
+import { computed, ComputedRef, defineComponent, onMounted, Ref, ref, watch } from "vue";
 import ConfirmDialog from "primevue/confirmdialog";
 import { mapState, useStore } from "vuex";
 import { SortBy } from "@im-library/enums";
@@ -157,7 +157,7 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { DirectService, EntityService, Env } from "@/services";
-import { ConceptSummary, SearchRequest } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions, SearchRequest } from "@im-library/interfaces";
 import { useRoute, useRouter } from "vue-router";
 import TaskDefinition from "../editor/workflow/TaskDefinition.vue";
 
@@ -176,7 +176,7 @@ const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
-const filterOptions = computed(() => store.state.filterOptions);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => store.state.filterOptions);
 
 const directService = new DirectService();
 
@@ -197,7 +197,7 @@ const searchTerm = ref("");
 const loading = ref(true);
 const searching = ref(true);
 const saveLoading = ref(false);
-const selectedFilters: Ref<{ scheme: any[]; type: any[]; status: any[]; usage: any }> = ref({ scheme: [], type: [], status: [], usage: undefined });
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
 
 watch(taskIri, async newValue => {
   if (newValue) await setIriExists();
@@ -277,10 +277,10 @@ async function getUnmapped(limit?: number) {
   searching.value = true;
   const results = await EntityService.getUnmapped(
     undefined,
-    selectedFilters.value.status,
-    selectedFilters.value.scheme,
-    selectedFilters.value.type,
-    selectedFilters.value.usage,
+    selectedFilters.value.status.map(status => status["@id"]),
+    selectedFilters.value.schemes.map(scheme => scheme["@id"]),
+    selectedFilters.value.types.map(type => type["@id"]),
+    0,
     limit || 100
   );
 
@@ -357,9 +357,9 @@ async function search(): Promise<void> {
 }
 
 function setFilters(searchRequest: SearchRequest) {
-  searchRequest.schemeFilter = selectedFilters.value.scheme;
-  searchRequest.statusFilter = selectedFilters.value.status;
-  searchRequest.typeFilter = selectedFilters.value.type;
+  searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
+  searchRequest.statusFilter = selectedFilters.value.status.map(status => status["@id"]);
+  searchRequest.typeFilter = selectedFilters.value.types.map(type => type["@id"]);
 }
 
 async function fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {

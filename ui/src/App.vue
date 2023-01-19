@@ -94,7 +94,10 @@ async function setupAxiosInterceptors(axios: any) {
             ". Please contact an admin to change your account security clearance if you require access to this resource."
         });
         router.push({ name: "AccessDenied" }).then();
+      } else if (error.response.status === 500 && error.code === "ERR_BAD_RESPONSE") {
+        router.push({ name: "ServerOffline" }).then();
       } else {
+        console.log(error);
         return Promise.reject(error);
       }
     }

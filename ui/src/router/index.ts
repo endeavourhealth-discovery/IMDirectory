@@ -4,6 +4,7 @@ const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.v
 const SearchResultsTable = () => import("@/components/directory/SearchResultsTable.vue");
 const LandingPage = () => import("@/components/directory/LandingPage.vue");
 const EclSearch = () => import("@/components/directory/EclSearch.vue");
+const IMQuerySearch = () => import("@/components/directory/IMQuerySearch.vue");
 const Auth = () => import("@/views/Auth.vue");
 const Login = () => import("@/components/auth/Login.vue");
 const ConfirmCode = () => import("@/components/auth/ConfirmCode.vue");
@@ -24,6 +25,7 @@ const TaskViewer = () => import("@/components/workflow/TaskViewer.vue");
 const AccessDenied = () => import("@/components/shared/errorPages/AccessDenied.vue");
 const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.vue");
 const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
+const ServerOffline = () => import("@/components/shared/errorPages/ServerOffline.vue");
 const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
 import { EntityService, Env } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -70,6 +72,14 @@ const routes: Array<RouteRecordRaw> = [
         path: "eclSearch",
         name: "EclSearch",
         component: EclSearch,
+        meta: {
+          requiresLicense: true
+        }
+      },
+      {
+        path: "IMQuerySearch",
+        name: "IMQuerySearch",
+        component: IMQuerySearch,
         meta: {
           requiresLicense: true
         }
@@ -143,7 +153,8 @@ const routes: Array<RouteRecordRaw> = [
     name: "Creator",
     component: Creator,
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      requiresCreateRole: true
     },
     children: [{ path: "type", name: "TypeSelector", component: TypeSelector }]
   },
@@ -153,7 +164,8 @@ const routes: Array<RouteRecordRaw> = [
     component: Editor,
     meta: {
       requiresAuth: true,
-      requiresLicense: true
+      requiresLicense: true,
+      requiresEditRole: true
     },
     children: []
   },
@@ -193,9 +205,10 @@ const routes: Array<RouteRecordRaw> = [
     component: SnomedLicense
   },
   {
-    path: "/401",
+    path: "/401/:requiredRole?",
     name: "AccessDenied",
-    component: AccessDenied
+    component: AccessDenied,
+    props: true
   },
   {
     path: "/404",
@@ -206,6 +219,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/:pathMatch(.*)*",
     name: "PageNotFound",
     component: PageNotFound
+  },
+  {
+    path: "/500",
+    name: "ServerOffline",
+    component: ServerOffline
   }
 ];
 
@@ -242,6 +260,29 @@ router.beforeEach(async (to, from) => {
       router.push({ name: "Login" });
     }
   }
+
+  if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
+    const res = await store.dispatch("authenticateCurrentUser");
+    console.log("auth guard user authenticated: " + res.authenticated);
+    if (!res.authenticated) {
+      console.log("redirecting to login");
+      router.push({ name: "Login" });
+    } else if (!store.state.currentUser.roles.includes("create")) {
+      router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
+    }
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
+    const res = await store.dispatch("authenticateCurrentUser");
+    console.log("auth guard user authenticated: " + res.authenticated);
+    if (!res.authenticated) {
+      console.log("redirecting to login");
+      router.push({ name: "Login" });
+    } else if (!store.state.currentUser.roles.includes("edit")) {
+      router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
+    }
+  }
+
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
     console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
     if (store.state.snomedLicenseAccepted !== "true") {

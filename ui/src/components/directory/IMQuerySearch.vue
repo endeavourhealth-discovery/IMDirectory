@@ -1,0 +1,189 @@
+<template>
+  <div id="query-search-container">
+    <h3 class="title">IM language search</h3>
+    <h5 class="info">IMQuery definition:</h5>
+    <div class="text-copy-container">
+      <Textarea v-model="queryString" id="query-string-container" placeholder="Enter query definition here" data-testid="query-string" />
+      <Button
+        :disabled="!queryString.length"
+        icon="fa-solid fa-copy"
+        v-tooltip.left="'Copy to clipboard'"
+        v-clipboard:copy="copyToClipboard()"
+        v-clipboard:success="onCopy"
+        v-clipboard:error="onCopyError"
+        data-testid="copy-to-clipboard-button"
+      />
+    </div>
+    <div class="button-container">
+      <Button label="Format" @click="format" class="p-button-help" :disabled="!queryString.length" data-testid="search-button" />
+      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
+    </div>
+    <div class="results-container">
+      <SearchResultsTable :show-filters="false" />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { Ref, ref, watch } from "vue";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { ConceptSummary, Query, QueryRequest, Select } from "@im-library/interfaces";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { QueryService } from "@/services";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
+import { RDF, RDFS } from "@im-library/vocabulary";
+import SearchResultsTable from "./SearchResultsTable.vue";
+import store from "@/store";
+import Button from "primevue/button";
+import Textarea from "primevue/textarea";
+
+const toast = useToast();
+const queryString = ref("");
+const searchResults: Ref<ConceptSummary[]> = ref([]);
+const controller: Ref<AbortController> = ref({} as AbortController);
+
+async function search(): Promise<void> {
+  if (queryString.value) {
+    store.commit("updateSearchLoading", true);
+    if (!isObject(controller.value)) {
+      controller.value.abort();
+    }
+    controller.value = new AbortController();
+    const queryRequest = {} as QueryRequest;
+    try {
+      queryRequest.query = parseQuery();
+      addDefaultQuerySelect(queryRequest.query);
+      const result = await QueryService.queryIM(queryRequest);
+      searchResults.value = result.entities;
+      const queryResults = convertResultsToConceptSummaryList(result.entities);
+      store.commit("updateSearchResults", queryResults);
+    } catch (error) {
+      if (!(error instanceof SyntaxError) && !(error instanceof TypeError))
+        toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
+    }
+
+    store.commit("updateSearchLoading", false);
+  }
+}
+
+function parseQuery() {
+  try {
+    return JSON.parse(queryString.value);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      toast.add(new ToastOptions(ToastSeverity.WARN, "JSON is invalid: " + error.message));
+    }
+  }
+}
+
+function convertResultsToConceptSummaryList(entities: any[]) {
+  if (!isArrayHasLength(entities)) return [];
+  return entities.map(entity => {
+    return {
+      iri: entity["@id"],
+      name: entity[RDFS.LABEL],
+      match: entity[RDFS.LABEL],
+      entityType: entity[RDF.TYPE]
+    } as ConceptSummary;
+  });
+}
+
+function addDefaultQuerySelect(query: Query) {
+  if (!isArrayHasLength(query.select)) query.select = [];
+  const defaultProperties = [RDFS.LABEL, RDF.TYPE];
+  for (const property of defaultProperties) {
+    const select = {
+      property: {
+        "@id": property
+      }
+    } as Select;
+    query.select.push(select);
+  }
+}
+
+async function format() {
+  const parsed = parseQuery();
+  if (parsed) queryString.value = JSON.stringify(parsed, null, 2);
+}
+
+function copyToClipboard(): string {
+  return queryString.value;
+}
+
+function onCopy(): void {
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
+}
+
+function onCopyError(): void {
+  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
+}
+</script>
+
+<style scoped>
+#query-search-container {
+  height: 100%;
+  width: 100%;
+  /* overflow: auto; */
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#query-builder-container {
+  width: 100%;
+  flex-grow: 100;
+  overflow: auto;
+}
+
+#query-build {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 1rem;
+  margin: 0 0 1rem 0;
+}
+
+#next-option-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+}
+
+#query-string-container {
+  width: 100%;
+  height: 10rem;
+  overflow: auto;
+  flex-grow: 100;
+}
+
+.info {
+  align-self: flex-start;
+  margin: 0 0 0.5rem 0;
+}
+
+.button-container {
+  display: flex;
+  flex-flow: row;
+  gap: 1rem;
+  margin: 0 0 1rem 0;
+}
+
+.results-container {
+  width: 100%;
+  flex: 0 1 auto;
+  overflow: auto;
+}
+
+.text-copy-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  margin: 0 0 1rem 0;
+}
+</style>

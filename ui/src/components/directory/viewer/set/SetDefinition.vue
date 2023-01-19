@@ -17,7 +17,19 @@
           <Members :conceptIri="props.conceptIri" />
         </div>
       </AccordionTab>
-      <AccordionTab header="Definition">
+      <AccordionTab>
+        <template #header>
+          <div class="definition-header">
+            <span>Definition</span>
+            <Button
+              icon="pi pi-copy"
+              class="p-button-secondary p-button-outlined concept-button"
+              v-tooltip.top="'Copy definition'"
+              data-testid="copy-definition-button"
+              @click="onCopy"
+            />
+          </div>
+        </template>
         <div class="set-accordion-content" id="set-definition-container">
           <QuerySetDefinition :conceptIri="props.conceptIri" />
         </div>
@@ -34,8 +46,13 @@ import { EntityService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import QuerySetDefinition from "@/components/shared/query/QuerySetDefinition.vue";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
+const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();
 const subclassOf = ref();
@@ -56,6 +73,15 @@ onMounted(async () => {
     subclassOf.value = entity[RDFS.SUBCLASS_OF];
   }
 });
+
+async function onCopy(event: any) {
+  event.stopPropagation();
+  const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.DEFINITION]);
+  if (isObjectHasKeys(entity, [IM.DEFINITION])) {
+    await navigator.clipboard.writeText(entity[IM.DEFINITION]);
+    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Definition copied to clipboard"));
+  }
+}
 </script>
 
 <style scoped>
@@ -70,5 +96,17 @@ onMounted(async () => {
   display: flex;
   flex-flow: column nowrap;
   width: 100%;
+}
+
+.definition-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.concept-button:hover {
+  background-color: #6c757d !important;
+  color: #ffffff !important;
 }
 </style>

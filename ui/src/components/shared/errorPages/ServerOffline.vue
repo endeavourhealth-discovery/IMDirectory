@@ -1,13 +1,13 @@
 <template>
-  <div id="access-denied-container">
-    <font-awesome-icon icon="fa-solid fa-ban" class="error-icon" size="10x" />
-    <h1 class="error-code">403</h1>
-    <h2 class="error-header">Access Denied / Forbidden</h2>
+  <div id="server-offline-container">
+    <font-awesome-icon icon="fa-solid fa-bolt-lightning" class="error icon" size="6x" />
+    <font-awesome-icon icon="fa-solid fa-robot" class="error-icon" size="10x" />
+    <h1 class="error-code">500</h1>
+    <h2 class="error-header">Server error</h2>
     <p class="error-text">
-      <span>The page or resource you were trying to reach is forbidden.</span> <br />
-      <span v-if="requiredRole">Missing <Tag :value="requiredRole" severity="warning" :rounded="true" /> permissions required to access this resource.</span>
-      <br />
-      <span>Please contact an admin to request access to this resource.</span>
+      <span>The server was unable to process your request.</span> <br />
+      <span>The server may be offline or the client sent an invalid request. </span> <br />
+      <span>Please check the console for details on this error.</span>
     </p>
     <div class="button-container">
       <Button label="Back" @click="goBack" icon="fa-solid fa-arrow-left" />
@@ -19,11 +19,10 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 
-const props = defineProps({ requiredRole: { type: String, required: false } });
 const router = useRouter();
 
 function goBack() {
-  router.go(-2);
+  router.go(-1);
 }
 
 function goHome() {
@@ -32,7 +31,7 @@ function goHome() {
 </script>
 
 <style scoped>
-#access-denied-container {
+#server-offline-container {
   height: 100%;
   width: 100%;
   display: flex;

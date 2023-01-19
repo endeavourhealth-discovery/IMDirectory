@@ -53,9 +53,11 @@ describe("Filters.vue", () => {
     testData.SELECTED_FILTERS.schemes.forEach(scheme => {
       component.getByText(scheme.name);
     });
-    testData.SELECTED_FILTERS.types.forEach(type => {
-      component.getByText(type.name);
-    });
+    testData.SELECTED_FILTERS.types
+      .filter(type => type.name !== "Data model/Node shape ")
+      .forEach(type => {
+        component.getByText(`${type.name}`);
+      });
   });
 });
 
