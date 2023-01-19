@@ -1,34 +1,32 @@
 <template>
-  <div class="nested-div">
-    <div class="refinement-content-container">
-      <AutoComplete
-        style="flex: 1"
-        input-style="flex:1"
-        field="name"
-        dataKey="iri"
-        v-model="selectedProperty"
-        :suggestions="propertyResults"
-        @complete="searchProperty($event.query)"
-        placeholder="search..."
-        :disabled="loadingProperty"
-      />
-      <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
-      <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
-      <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
-      <AutoComplete
-        style="flex: 1"
-        input-style="flex:1"
-        field="name"
-        dataKey="iri"
-        v-model="selectedValue"
-        :suggestions="valueResults"
-        @complete="searchValue($event.query)"
-        placeholder="search..."
-        :disabled="loadingValue || !selectedProperty"
-      />
-      <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
-      <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
-    </div>
+  <div class="refinement-content-container nested-div">
+    <AutoComplete
+      style="flex: 1"
+      input-style="flex:1"
+      field="name"
+      dataKey="iri"
+      v-model="selectedProperty"
+      :suggestions="propertyResults"
+      @complete="searchProperty($event.query)"
+      placeholder="search..."
+      :disabled="loadingProperty"
+    />
+    <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
+    <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
+    <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
+    <AutoComplete
+      style="flex: 1"
+      input-style="flex:1"
+      field="name"
+      dataKey="iri"
+      v-model="selectedValue"
+      :suggestions="valueResults"
+      @complete="searchValue($event.query)"
+      placeholder="search..."
+      :disabled="loadingValue || !selectedProperty"
+    />
+    <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
+    <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
@@ -212,20 +210,20 @@ async function searchValue(term: string) {
 </script>
 
 <style scoped>
-.nested-div {
+.refinement-content-container {
   padding: 0;
-  border: none;
-  border-radius: 5px;
-  background-color: unset;
   margin: 0.5rem;
   flex: 1;
-}
-
-.refinement-content-container {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
+}
+
+.nested-div {
+  border: none;
+  background-color: unset;
+  border-radius: 5px;
 }
 
 .loading-icon {

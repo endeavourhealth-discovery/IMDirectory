@@ -9,7 +9,7 @@
           <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
         </span>
         <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" />
-        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus"> </component>
+        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" />
         <div class="remove-group">
           <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
         </div>
