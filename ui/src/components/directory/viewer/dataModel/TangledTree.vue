@@ -57,7 +57,7 @@ onMounted(() => {
 });
 
 async function getMultiselectMenu(d: any) {
-  let node = d.path[0]["__data__"] as any;
+  let node = d["target"]["__data__"] as any;
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
   const result = !node.id.startsWith(twinNode) ? await EntityService.getDataModelProperties(node.id) : [];
   if (result.length > 0) {
@@ -248,7 +248,7 @@ function renderChart() {
     .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
 
   nodeCircle.on("contextmenu", e => {
-    const node = e.path[0]["__data__"];
+    const node = e["target"]["__data__"];
     e.preventDefault();
     getMultiselectMenu(e);
     if (displayMenu.value) {
@@ -267,7 +267,7 @@ function renderChart() {
   let cardinality: any;
   selectedCircle
     .on("mouseover", (d: any) => {
-      const n = d.path[0]["__data__"];
+      const n = d["target"]["__data__"];
       cardRect = svg
         .append("rect")
         .attr("x", n.x + 30)
@@ -303,7 +303,7 @@ function renderChart() {
     .attr("stroke-width", 0.1)
     .style("font-size", 12)
     .on("mouseover", (d: any) => {
-      const n = d.path[0]["__data__"];
+      const n = d["target"]["__data__"];
       if (n.name.length > 26) {
         rect = svg
           .append("rect")

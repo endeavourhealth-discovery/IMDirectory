@@ -102,7 +102,7 @@ function onResize() {
 }
 
 async function getContextMenu(d: any) {
-  let node = d.path[0]["__data__"]["data"] as TTGraphData;
+  let node = d["target"]["__data__"]["data"] as TTGraphData;
   contextMenu.value = [] as { iri: string; label: string; command: (d: any) => void; disabled?: boolean }[];
   if (node.iri && !node.name.startsWith("middle-node")) {
     const bundle = await EntityService.getBundleByPredicateExclusions(node.iri, [IM.HAS_MEMBER]);
@@ -128,7 +128,7 @@ async function getContextMenu(d: any) {
         });
       });
   }
-  const parent = d.path[0]["__data__"]["parent"];
+  const parent = d["target"]["__data__"]["parent"];
   if (parent) {
     contextMenu.value.push({
       iri: "hide",
@@ -236,7 +236,7 @@ function drawGraph() {
     .on("dblclick", (d: any) => dblclick(d))
     .on("click", (d: any) => click(d))
     .on("mouseover", (d: any) => {
-      const name = d.path[0]["__data__"]["data"]["name"];
+      const name = d["target"]["__data__"]["data"]["name"];
       if (name !== undefined && typeof name === "string" && !name.startsWith("middle-node")) {
         div.transition().duration(200).style("opacity", 0.9);
         div
@@ -303,7 +303,7 @@ function getFODimensions(_d: any) {
 
 async function click(d: any) {
   if (d.metaKey || d.ctrlKey) {
-    const node = d.path[0]["__data__"]["data"] as TTGraphData;
+    const node = d["target"]["__data__"]["data"] as TTGraphData;
     navigate(node.iri);
   }
 }
@@ -323,7 +323,7 @@ function redrawGraph() {
 }
 
 async function dblclick(d: any) {
-  const node = d.path[0]["__data__"]["data"] as TTGraphData;
+  const node = d["target"]["__data__"]["data"] as TTGraphData;
   if (isArrayHasLength(node.children) || isArrayHasLength(node._children)) {
     toggleNodeByName(props.data, node.name);
     redrawGraph();
