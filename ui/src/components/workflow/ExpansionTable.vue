@@ -115,8 +115,6 @@ const router = useRouter();
 
 const directService = new DirectService();
 
-const filterOptions = computed(() => store.state.filterOptions);
-
 const selected: Ref<any[]> = ref([]);
 const expandedRows: Ref<any[]> = ref([]);
 const searchTerm = ref("");
