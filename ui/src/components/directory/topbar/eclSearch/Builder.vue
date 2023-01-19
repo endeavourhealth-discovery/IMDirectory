@@ -51,9 +51,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Logic from "./builder/Logic.vue";
-import RefinementGroup from "./builder/RefinementGroup.vue";
-import FocusConcept from "./builder/FocusConcept.vue";
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
@@ -61,7 +58,7 @@ import SetService from "@/services/SetService";
 import { booleanLiteral } from "@babel/types";
 
 export default defineComponent({
-  components: { Logic, RefinementGroup, FocusConcept, BoolGroup, Concept, RefinementX }
+  components: { BoolGroup, Concept, RefinementX }
 });
 </script>
 
