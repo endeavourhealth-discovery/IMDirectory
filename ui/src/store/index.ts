@@ -1,7 +1,6 @@
 import { createStore } from "vuex";
 import { AuthService } from "@/services";
-import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest } from "@im-library/interfaces";
-import { FilterDefaults } from "@im-library/config";
+import { EntityReferenceNode, Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest, FilterOptions } from "@im-library/interfaces";
 import { Avatars } from "@im-library/constants";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
@@ -27,25 +26,13 @@ export default createStore({
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
     snomedReturnUrl: "",
     authReturnUrl: "",
-    filterOptions: {
-      status: [] as EntityReferenceNode[],
-      schemes: [] as Namespace[],
-      types: [] as EntityReferenceNode[],
-      sortFields: [] as { label: string; value: any }[],
-      sortDirections: [] as { label: string; value: any }[]
-    },
-    selectedFilters: {
-      status: [] as EntityReferenceNode[],
-      schemes: [] as Namespace[],
-      types: [] as EntityReferenceNode[],
-      sortField: "",
-      sortDirection: ""
-    },
+    filterOptions: {} as FilterOptions,
+    selectedFilters: {} as FilterOptions,
     quickFiltersStatus: new Map<string, boolean>(),
     focusHierarchy: false,
     sidebarControlActivePanel: 0,
     hierarchySelectedFilters: [] as Namespace[],
-    filterDefaults: FilterDefaults,
+    filterDefaults: {} as FilterOptions,
     arrayObjectNameListboxWithLabelStartExpanded: [],
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
@@ -213,29 +200,37 @@ export default createStore({
       localStorage.setItem("favourites", JSON.stringify(favourites));
       state.favourites = favourites;
     },
-    async fetchFilterSettings({ commit, state }) {
-      const filterDefaults = await EntityService.getFilterOptions();
-      if (filterDefaults && isObjectHasKeys(filterDefaults, ["status", "schemes", "types", "sortFields", "sortDirections"])) {
-        commit("updateFilterOptions", {
-          status: filterDefaults.status,
-          schemes: filterDefaults.schemes,
-          types: filterDefaults.types,
-          sortFields: filterDefaults.sortFields,
-          sortDirections: filterDefaults.sortDirections
-        });
 
-        const selectedStatus = state.filterOptions.status.filter((item: EntityReferenceNode) => FilterDefaults.statusOptions.includes(item["@id"]));
-        const selectedSchemes = state.filterOptions.schemes.filter((item: Namespace) => FilterDefaults.schemeOptions.includes(item.iri));
-        const selectedTypes = state.filterOptions.types.filter((item: EntityReferenceNode) => FilterDefaults.typeOptions.includes(item["@id"]));
-        const selectedField = FilterDefaults.sortField;
-        const selectedDirection = FilterDefaults.sortDirection;
+    async fetchFilterSettings({ commit, state }) {
+      const filterOptions = await EntityService.getFilterOptions();
+      const filterDefaults = await EntityService.getFilterDefaultOptions();
+      if (
+        isObjectHasKeys(filterOptions, ["status", "schemes", "types", "sortFields", "sortDirections"]) &&
+        isObjectHasKeys(filterDefaults, ["status", "schemes", "types", "sortFields", "sortDirections"])
+      ) {
+        commit("updateFilterDefaults", filterDefaults);
+        commit("updateFilterOptions", filterOptions);
+        const selectedStatus = state.filterOptions.status.filter(item =>
+          filterDefaults.status.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+        );
+        const selectedSchemes = state.filterOptions.schemes.filter(item =>
+          filterDefaults.schemes.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+        );
+        const selectedTypes = state.filterOptions.types.filter(item => filterDefaults.types.map(defaultOption => defaultOption["@id"]).includes(item["@id"]));
+        const selectedField = state.filterOptions.sortFields.filter(item =>
+          filterDefaults.sortFields.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+        );
+        const selectedDirection = state.filterOptions.sortDirections.filter(item =>
+          filterDefaults.sortDirections.map(defaultOption => defaultOption["@id"]).includes(item["@id"])
+        );
+
         commit("updateSelectedFilters", {
           status: selectedStatus,
           schemes: selectedSchemes,
           types: selectedTypes,
-          sortField: selectedField,
-          sortDirection: selectedDirection
-        });
+          sortFields: selectedField,
+          sortDirections: selectedDirection
+        } as FilterOptions);
         commit("updateHierarchySelectedFilters", selectedSchemes);
       }
     },

@@ -10,7 +10,11 @@
         </h4>
       </div>
       <div class="concept-buttons-container">
-        <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="concept['@id']" :type="'conceptButton'" />
+        <ActionButtons
+          :buttons="hasQueryDefinition ? ['runQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
+          :iri="concept['@id']"
+          :type="'conceptButton'"
+        />
       </div>
     </div>
     <TextWithLabel label="Iri" :data="concept['@id']" :show="concept['@id'] ? true : false" />
@@ -43,9 +47,31 @@ import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjec
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import { IM, RDF } from "@im-library/vocabulary";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { computed, Ref, watch, ref, onMounted } from "vue";
+import { useStore } from "vuex";
+import { EntityService } from "@/services";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
+const store = useStore();
 const props = defineProps({ concept: { type: Object as any, required: true } });
+const conceptIri = computed(() => store.state.conceptIri);
+const hasQueryDefinition: Ref<boolean> = ref(false);
+
+onMounted(async () => {
+  hasQueryDefinition.value = await getHasQueryDefinition();
+});
+
+watch(conceptIri, async () => {
+  hasQueryDefinition.value = await getHasQueryDefinition();
+});
+
+async function getHasQueryDefinition() {
+  const entity = await EntityService.getPartialEntity(conceptIri.value, [RDF.TYPE, IM.DEFINITION]);
+  const hasDefinition = isObjectHasKeys(entity, [RDF.TYPE, IM.DEFINITION]);
+  const isQueryOrSet = isQuery(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]);
+  return hasDefinition && isQueryOrSet;
+}
 
 function getIcon(concept: any) {
   if (concept["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];

@@ -113,7 +113,7 @@
 import { computed, onMounted, ref, Ref, watch, PropType } from "vue";
 import { useStore } from "vuex";
 import _ from "lodash";
-import { ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService, Env } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
@@ -133,8 +133,8 @@ const emit = defineEmits({
 
 const store = useStore();
 const searchLoading = computed(() => store.state.searchLoading);
-const filterDefaults = computed(() => store.state.filterDefaults);
-const filterOptions = computed(() => store.state.filterOptions);
+const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 const favourites = computed(() => store.state.favourites);
 
 const directService = new DirectService();
@@ -221,14 +221,12 @@ function setFilterDefaults() {
   typeOptions.value = filterOptions.value.types.map((type: any) => type.name);
   statusOptions.value = filterOptions.value.status.map((item: any) => item.name);
   selectedSchemes.value = filterOptions.value.schemes
-    .filter((option: any) => filterDefaults.value.schemeOptions.includes(option.iri))
+    .filter((option: any) => filterDefaults.value.schemes.includes(option.iri))
     .map((scheme: any) => scheme.name);
   selectedStatus.value = filterOptions.value.status
-    .filter((option: any) => filterDefaults.value.statusOptions.includes(option["@id"]))
+    .filter((option: any) => filterDefaults.value.status.includes(option["@id"]))
     .map((status: any) => status.name);
-  selectedTypes.value = filterOptions.value.types
-    .filter((option: any) => filterDefaults.value.typeOptions.includes(option["@id"]))
-    .map((type: any) => type.name);
+  selectedTypes.value = filterOptions.value.types.filter((option: any) => filterDefaults.value.types.includes(option["@id"])).map((type: any) => type.name);
 }
 
 function setFiltersFromSearchResults() {
@@ -238,7 +236,7 @@ function setFiltersFromSearchResults() {
   (localSearchResults.value as ConceptSummary[]).forEach(searchResult => {
     schemes.push(searchResult.scheme?.name);
     searchResult.entityType.forEach((type: any) => {
-      if (filterDefaults.value.typeOptions.includes(type["@id"])) types.push(type.name);
+      if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type.name);
     });
     status.push(searchResult.status?.name);
   });

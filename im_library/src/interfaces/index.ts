@@ -71,7 +71,7 @@ import { Value } from "./query/Value.js";
 import { Where } from "./query/Where.js";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
-
+import { FilterOptions } from "./FilterOptions";
 export {
   type AccountItem,
   type Address,
@@ -145,5 +145,6 @@ export {
   type Value,
   type Where,
   type TangledTreeData,
-  type AllowableChildProperty
+  type AllowableChildProperty,
+  type FilterOptions
 };

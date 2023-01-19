@@ -11,7 +11,8 @@ import {
   DataModelProperty,
   ExportValueSet,
   SearchRequest,
-  ConceptSummary
+  ConceptSummary,
+  FilterOptions
 } from "@im-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
@@ -196,17 +197,63 @@ const EntityService = {
     }
   },
 
-  async getFilterOptions(): Promise<any> {
+  async getFilterOptions(): Promise<FilterOptions> {
     try {
-      const schemeOptions = await this.getNamespaces();
-      const statusOptions = await this.getEntityChildren(IM.STATUS);
-      const typeOptions = (await this.getPartialEntities(EntityTypes, [RDFS.LABEL])).map(typeOption => {
-        return { "@id": typeOption["@id"], name: typeOption[RDFS.LABEL] };
+      const schemeOptions = (await this.getEntityChildren(IM.NAMESPACE + "Graph")).map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+      const statusOptions = (await this.getEntityChildren(IM.STATUS)).map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+      const typeOptions = (await this.getEntityChildren(IM.ENTITY_TYPES)).map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+      const sortFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions")).map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+      const sortDirectionOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterOptions")).map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
 
-      return { status: statusOptions, schemes: schemeOptions, types: typeOptions };
+      return {
+        status: statusOptions,
+        schemes: schemeOptions,
+        types: typeOptions,
+        sortFields: sortFieldOptions,
+        sortDirections: sortDirectionOptions
+      } as FilterOptions;
     } catch (error) {
-      return {} as any;
+      return {} as FilterOptions;
+    }
+  },
+
+  async getFilterDefaultOptions(): Promise<FilterOptions> {
+    try {
+      const schemeDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "SchemeFilterDefaultOptions");
+      const statusDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "StatusFilterDefaultOptions");
+      const typeDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "TypeFilterDefaultOptions");
+      const sortDefaultFieldOptions = await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterDefaultOptions");
+      const sortDefaultDirectionOptions = await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterDefaultOptions");
+
+      return {
+        status: statusDefaultOptions.map(option => {
+          return { "@id": option["@id"], name: option.name } as TTIriRef;
+        }),
+        schemes: schemeDefaultOptions.map(option => {
+          return { "@id": option["@id"], name: option.name } as TTIriRef;
+        }),
+        types: typeDefaultOptions.map(option => {
+          return { "@id": option["@id"], name: option.name } as TTIriRef;
+        }),
+        sortFields: sortDefaultFieldOptions.map(option => {
+          return { "@id": option["@id"], name: option.name } as TTIriRef;
+        }),
+        sortDirections: sortDefaultDirectionOptions.map(option => {
+          return { "@id": option["@id"], name: option.name } as TTIriRef;
+        })
+      } as FilterOptions;
+    } catch (error) {
+      return {} as FilterOptions;
     }
   },
 

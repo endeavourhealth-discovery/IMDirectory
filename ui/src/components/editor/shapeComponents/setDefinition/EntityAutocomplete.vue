@@ -33,10 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { SearchRequest, TTAlias, TTIriRef } from "@im-library/interfaces";
-import { onMounted, PropType, Ref, ref, watch } from "vue";
+import { FilterOptions, SearchRequest, TTAlias, TTIriRef } from "@im-library/interfaces";
+import { onMounted, PropType, Ref, ref, watch, computed } from "vue";
 import { SortBy, SortDirection } from "@im-library/enums";
-import { FilterDefaults } from "@im-library/config";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 import {} from "@im-library/vocabulary";
@@ -53,6 +52,7 @@ const props = defineProps({
 const suggestions = ref();
 const abortController = ref(new AbortController());
 const selectedEntity: Ref<TTIriRef[]> = ref([] as TTIriRef[]);
+const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 
 watch(
   () => _.cloneDeep(props.ttAlias),
@@ -99,9 +99,9 @@ async function searchEntity(searchTerm: any): Promise<void> {
       searchRequest.size = 100;
       searchRequest.sortDirection = SortDirection.DESC;
       searchRequest.sortField = "weighting";
-      searchRequest.schemeFilter = FilterDefaults.schemeOptions;
-      searchRequest.typeFilter = FilterDefaults.typeOptions;
-      searchRequest.statusFilter = FilterDefaults.statusOptions;
+      searchRequest.schemeFilter = filterDefaults.value.schemes.map(scheme => scheme["@id"]);
+      searchRequest.typeFilter = filterDefaults.value.types.map(type => type["@id"]);
+      searchRequest.statusFilter = filterDefaults.value.status.map(status => status["@id"]);
       if (!isObject(abortController.value)) {
         abortController.value.abort();
       }
