@@ -62,7 +62,7 @@
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { TTIriRef } from "@im-library/interfaces";
 import { DataTypeCheckers } from "@im-library/helpers";
-import { EntityService, SetService } from "@/services";
+import { EntityService, SetService,  } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
@@ -211,6 +211,7 @@ async function getPage(event: any) {
   members.value = pagedNewMembers.result;
   loading.value = false;
 }
+
 </script>
 
 <style scoped>

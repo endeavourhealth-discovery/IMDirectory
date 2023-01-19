@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, PropType, Ref, ref } from "vue";
+import { computed, ComputedRef, onMounted, PropType, Ref, ref } from "vue";
 import SearchMiniOverlay from "../SearchMiniOverlay.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
@@ -30,8 +30,7 @@ import { ECLComponent, SortBy } from "@im-library/enums";
 import { DataTypeCheckers } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import { ECLComponentDetails, Namespace, EntityReferenceNode, TTIriRef, SearchRequest, ConceptSummary } from "@im-library/interfaces";
-import axios from "axios";
+import { ECLComponentDetails, EntityReferenceNode, TTIriRef, SearchRequest, ConceptSummary, FilterOptions } from "@im-library/interfaces";
 const { isArrayHasLength, isObjectHasKeys, isObject } = DataTypeCheckers;
 
 const props = defineProps({
@@ -44,8 +43,7 @@ const props = defineProps({
 const emit = defineEmits({ updateClicked: (_payload: ECLComponentDetails) => true });
 
 const store = useStore();
-const filterOptions = computed(() => store.state.filterOptions);
-const selectedFilters = computed(() => store.state.selectedFilters);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
 
 const loading = ref(false);
 const debounce = ref(0);
@@ -88,10 +86,10 @@ async function search(): Promise<void> {
     searchRequest.sortBy = SortBy.Usage;
     searchRequest.page = 1;
     searchRequest.size = 100;
-    searchRequest.schemeFilter = selectedFilters.value.schemes.map((scheme: Namespace) => scheme.iri);
+    searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
 
     searchRequest.statusFilter = [];
-    selectedFilters.value.status.forEach((status: EntityReferenceNode) => {
+    selectedFilters.value.status.forEach(status => {
       searchRequest.statusFilter.push(status["@id"]);
     });
 

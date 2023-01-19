@@ -16,7 +16,7 @@
                 <div class="grid justify-content-between">
                   <MultiSelect
                     class="col-3"
-                    v-model="selectedFilters.scheme"
+                    v-model="selectedFilters.schemes"
                     :options="filterOptions.schemes"
                     optionLabel="name"
                     optionValue="iri"
@@ -24,7 +24,7 @@
                   />
                   <MultiSelect
                     class="col-2"
-                    v-model="selectedFilters.type"
+                    v-model="selectedFilters.types"
                     :options="filterOptions.types"
                     optionLabel="name"
                     optionValue="@id"
@@ -142,9 +142,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, reactive, ref, Ref } from "vue";
+import { computed, ComputedRef, defineComponent, onMounted, reactive, ref, Ref } from "vue";
 import { mapState, useStore } from "vuex";
-import { FilterDefaults } from "@im-library/config";
 import { SortBy, ToastSeverity } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
@@ -155,7 +154,7 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
-import { Namespace, EntityReferenceNode, TTIriRef, ConceptSummary, SearchRequest } from "@im-library/interfaces";
+import { Namespace, EntityReferenceNode, TTIriRef, ConceptSummary, SearchRequest, FilterOptions } from "@im-library/interfaces";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
@@ -169,7 +168,7 @@ const toast = useToast();
 
 const directService = new DirectService();
 
-const filterOptions = computed(() => store.state.filterOptions);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => store.state.filterOptions);
 
 let actions: Ref<any[]> = ref([]);
 let taskIri = ref("");
@@ -187,12 +186,7 @@ let saveLoading = ref(false);
 let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 let controller: Ref<AbortController> = ref({} as AbortController);
 let hoveredItem = ref({} as any);
-const selectedFilters = reactive({
-  scheme: FilterDefaults.schemeOptions,
-  type: [IM.CONCEPT],
-  status: [],
-  usage: undefined
-});
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
 
 const summary_overlay = ref();
 
@@ -329,9 +323,9 @@ async function search(): Promise<void> {
 }
 
 function setFilters(searchRequest: SearchRequest) {
-  searchRequest.schemeFilter = selectedFilters.scheme;
-  searchRequest.statusFilter = selectedFilters.status;
-  searchRequest.typeFilter = selectedFilters.type;
+  searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
+  searchRequest.statusFilter = selectedFilters.value.status.map(status => status["@id"]);
+  searchRequest.typeFilter = selectedFilters.value.types.map(type => type["@id"]);
 }
 
 async function fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {

@@ -11,6 +11,7 @@ import SearchController from "./controllers/searchController";
 import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
 import ParserController from "./controllers/parserController";
+import FhirController from "@/controllers/fhirController";
 
 dotenv.config();
 
@@ -26,7 +27,8 @@ const app = new App({
     new SetController(),
     new EntityController(),
     new CognitoController(),
-    new ParserController()
+    new ParserController(),
+    new FhirController()
   ],
   middleWares: [bodyParser.json(), bodyParser.urlencoded({ extended: true })]
 });

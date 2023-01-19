@@ -51,20 +51,8 @@ describe("state", () => {
     expect(store.state.isLoggedIn).toBeFalsy();
     expect(store.state.snomedLicenseAccepted).toBeNull();
 
-    expect(store.state.selectedFilters).toEqual({
-      status: [],
-      schemes: [],
-      types: [],
-      sortDirection: "",
-      sortField: ""
-    });
-    expect(store.state.filterOptions).toStrictEqual({
-      status: [],
-      schemes: [],
-      types: [],
-      sortDirections: [],
-      sortFields: []
-    });
+    expect(store.state.selectedFilters).toEqual({});
+    expect(store.state.filterOptions).toStrictEqual({});
     expect(store.state.quickFiltersStatus).toEqual(new Map());
     expect(store.state.focusHierarchy).toBe(false);
     expect(store.state.hierarchySelectedFilters).toStrictEqual([]);
