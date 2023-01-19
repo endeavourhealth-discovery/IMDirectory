@@ -4,6 +4,7 @@ const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.v
 const SearchResultsTable = () => import("@/components/directory/SearchResultsTable.vue");
 const LandingPage = () => import("@/components/directory/LandingPage.vue");
 const EclSearch = () => import("@/components/directory/EclSearch.vue");
+const IMQuerySearch = () => import("@/components/directory/IMQuerySearch.vue");
 const Auth = () => import("@/views/Auth.vue");
 const Login = () => import("@/components/auth/Login.vue");
 const ConfirmCode = () => import("@/components/auth/ConfirmCode.vue");
@@ -71,6 +72,14 @@ const routes: Array<RouteRecordRaw> = [
         path: "eclSearch",
         name: "EclSearch",
         component: EclSearch,
+        meta: {
+          requiresLicense: true
+        }
+      },
+      {
+        path: "IMQuerySearch",
+        name: "IMQuerySearch",
+        component: IMQuerySearch,
         meta: {
           requiresLicense: true
         }
