@@ -2,9 +2,13 @@
 ![Version](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM/version.svg)
 ![Build Status](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM/build.svg)
 ![Unit Tests](https://s3.eu-west-2.amazonaws.com/endeavour-codebuild-output/badges/IM/unit-test.svg)
-[![Quality Gate (UI)](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IM::ui&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IM::ui)
-[![Quality Gate (Common)](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IM::im_library&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IM::im_library)
-[![Quality Gate (API)](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IM::node_api&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IM::node_api)
+
+## Sonar
+| Module | Status |
+|---|---|
+| UI | [![Quality Gate (UI)](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IM::ui&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IM::ui) |
+| Common | [![Quality Gate (Common)](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IM::im_library&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IM::im_library) |
+| API | [![Quality Gate (API)](https://sonarcloud.io/api/project_badges/measure?project=endeavourhealth-discovery_IM::node_api&metric=alert_status)](https://sonarcloud.io/dashboard?id=endeavourhealth-discovery_IM::node_api) |
 
 ## Setup
 
