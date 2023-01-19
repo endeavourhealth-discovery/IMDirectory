@@ -62,12 +62,9 @@ onMounted(async () => {
   hasQueryDefinition.value = await getHasQueryDefinition();
 });
 
-watch(
-  () => conceptIri.value,
-  async () => {
-    hasQueryDefinition.value = await getHasQueryDefinition();
-  }
-);
+watch(conceptIri, async () => {
+  hasQueryDefinition.value = await getHasQueryDefinition();
+});
 
 async function getHasQueryDefinition() {
   const entity = await EntityService.getPartialEntity(conceptIri.value, [RDF.TYPE, IM.DEFINITION]);

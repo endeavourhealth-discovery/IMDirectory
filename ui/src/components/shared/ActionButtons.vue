@@ -3,7 +3,7 @@
     v-if="show('runQuery')"
     icon="fa-solid fa-bolt"
     :class="getClass()"
-    @click="runQuery(iri)"
+    @click="onRunQuery(iri)"
     v-tooltip.top="'Run query'"
     data-testid="run-query-button"
   />
@@ -66,7 +66,7 @@ import { State } from "@/store/stateType";
 import { Store, useStore } from "vuex";
 import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
 const directService = new DirectService();
-const { runQuery, showTestQueryResults, imquery } = setupRunQuery();
+const { runQuery, runQueryFromIri, runQueryRequest, getQueryFromIri, queryResults, showTestQueryResults, imquery } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
@@ -101,6 +101,11 @@ function isFavourite(iri: string) {
 
 function updateFavourites(iri: string) {
   store.commit("updateFavourites", iri);
+}
+
+function onRunQuery(iri: string) {
+  getQueryFromIri(iri);
+  showTestQueryResults.value = true;
 }
 </script>
 
