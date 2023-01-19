@@ -1,6 +1,6 @@
 <template>
   <div id="search-results-main-container">
-    <div class="filters-container">
+    <div v-if="showFilters" class="filters-container">
       <div class="p-inputgroup">
         <span class="p-float-label">
           <MultiSelect id="status" v-model="selectedStatus" @change="filterResults" :options="statusOptions" display="chip" />
@@ -79,6 +79,10 @@ import rowClick from "@/composables/rowClick";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+
+const props = defineProps({
+  showFilters: { type: Boolean, required: false, default: true }
+});
 
 const store = useStore();
 const searchLoading = computed(() => store.state.searchLoading);

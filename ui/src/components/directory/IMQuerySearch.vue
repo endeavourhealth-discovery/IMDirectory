@@ -15,83 +15,84 @@
       />
     </div>
     <div class="button-container">
-      <!-- <Button label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" /> -->
       <Button label="Format" @click="format" class="p-button-help" :disabled="!queryString.length" data-testid="search-button" />
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
-      <!-- <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p> -->
-      <div v-for="iriRef of searchResults">
-        <IMViewerLink :iri="iriRef['@id']" :label="iriRef.name" />
-      </div>
+      <SearchResultsTable :show-filters="false" />
     </div>
   </div>
-  <!-- <Builder :showDialog="showDialog" @ECLSubmitted="updateECL" @closeDialog="showDialog = false" :data-testid="'builder-visible-' + showDialog" /> -->
 </template>
 
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
-// import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { ConceptSummary, Query, QueryRequest, Select, TTIriRef } from "@im-library/interfaces";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-// import { getLogger } from "@im-library/logger/LogConfig";
-import { EntityService, QueryService, SetService } from "@/services";
+import { ConceptSummary, Query, QueryRequest, Select } from "@im-library/interfaces";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { IM, RDFS } from "@im-library/vocabulary";
-import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
-import IMViewerLink from "../shared/IMViewerLink.vue";
-import { format } from "path";
+import { RDF, RDFS } from "@im-library/vocabulary";
+import SearchResultsTable from "./SearchResultsTable.vue";
+import store from "@/store";
+import Button from "primevue/button";
+import Textarea from "primevue/textarea";
 
 const toast = useToast();
-
 const queryString = ref("");
-const showDialog = ref(false);
-const searchResults: Ref<TTIriRef[]> = ref([]);
-const totalCount = ref(0);
-const eclError = ref(false);
-const loading = ref(false);
+const searchResults: Ref<ConceptSummary[]> = ref([]);
 const controller: Ref<AbortController> = ref({} as AbortController);
-
-watch(queryString, () => (eclError.value = false));
 
 async function search(): Promise<void> {
   if (queryString.value) {
-    loading.value = true;
+    store.commit("updateSearchLoading", true);
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
     controller.value = new AbortController();
     const queryRequest = {} as QueryRequest;
-    queryRequest.query = JSON.parse(queryString.value);
-    addDefaultQuerySelect(queryRequest.query);
-    const result = await QueryService.queryIM(queryRequest);
-    console.log(result);
-    searchResults.value = convertResultsToTTIriRef(result.entities);
-    // if (isObjectHasKeys(result, ["entities", "count", "page"])) {
-    //   searchResults.value = result.entities;
-    //   totalCount.value = result.count;
-    // } else {
-    //   eclError.value = true;
-    //   searchResults.value = [];
-    //   totalCount.value = 0;
-    // }
-    loading.value = false;
+    try {
+      queryRequest.query = parseQuery();
+      addDefaultQuerySelect(queryRequest.query);
+      const result = await QueryService.queryIM(queryRequest);
+      searchResults.value = result.entities;
+      const queryResults = convertResultsToConceptSummaryList(result.entities);
+      store.commit("updateSearchResults", queryResults);
+    } catch (error) {
+      if (!(error instanceof SyntaxError) && !(error instanceof TypeError))
+        toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
+    }
+
+    store.commit("updateSearchLoading", false);
   }
 }
 
-function convertResultsToTTIriRef(entities: any[]) {
+function parseQuery() {
+  try {
+    return JSON.parse(queryString.value);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      toast.add(new ToastOptions(ToastSeverity.WARN, "JSON is invalid: " + error.message));
+    }
+  }
+}
+
+function convertResultsToConceptSummaryList(entities: any[]) {
+  if (!isArrayHasLength(entities)) return [];
   return entities.map(entity => {
-    return { "@id": entity["@id"], name: entity[RDFS.LABEL] } as TTIriRef;
+    return {
+      iri: entity["@id"],
+      name: entity[RDFS.LABEL],
+      match: entity[RDFS.LABEL],
+      entityType: entity[RDF.TYPE]
+    } as ConceptSummary;
   });
 }
 
 function addDefaultQuerySelect(query: Query) {
   if (!isArrayHasLength(query.select)) query.select = [];
-  const defaultProperties = [RDFS.LABEL];
+  const defaultProperties = [RDFS.LABEL, RDF.TYPE];
   for (const property of defaultProperties) {
     const select = {
       property: {
@@ -103,7 +104,8 @@ function addDefaultQuerySelect(query: Query) {
 }
 
 async function format() {
-  queryString.value = JSON.stringify(JSON.parse(queryString.value), null, 2);
+  const parsed = parseQuery();
+  if (parsed) queryString.value = JSON.stringify(parsed, null, 2);
 }
 
 function copyToClipboard(): string {
