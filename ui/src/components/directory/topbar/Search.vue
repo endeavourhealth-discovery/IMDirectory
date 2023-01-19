@@ -48,6 +48,10 @@ const buttonActions = ref([
   {
     label: "ECL",
     command: () => toEclSearch()
+  },
+  {
+    label: "IMQuery",
+    command: () => toIMQuerySearch()
   }
 ]);
 
@@ -57,6 +61,10 @@ function openFiltersOverlay(event: any) {
 
 function toEclSearch() {
   router.push({ name: "EclSearch" });
+}
+
+function toIMQuerySearch() {
+  router.push({ name: "IMQuerySearch" });
 }
 
 async function search(): Promise<void> {
