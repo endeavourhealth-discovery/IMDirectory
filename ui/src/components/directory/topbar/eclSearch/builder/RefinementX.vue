@@ -9,7 +9,6 @@
       :suggestions="propertyResults"
       @complete="searchProperty($event.query)"
       placeholder="search..."
-      :disabled="loadingProperty"
     />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
@@ -23,7 +22,7 @@
       :suggestions="valueResults"
       @complete="searchValue($event.query)"
       placeholder="search..."
-      :disabled="loadingValue || !selectedProperty"
+      :disabled="!selectedProperty"
     />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
@@ -134,7 +133,6 @@ async function processProps() {
 }
 
 async function searchProperty(term: string) {
-  loadingProperty.value = true;
   if (!props.focus?.iri) return;
 
   const req: QueryRequest = {
@@ -160,7 +158,6 @@ async function searchProperty(term: string) {
         code: e["http://endhealth.info/im#code"]
       };
     });
-  loadingProperty.value = false;
 }
 
 async function searchValue(term: string) {
@@ -192,7 +189,6 @@ async function searchValue(term: string) {
         code: e['http://endhealth.info/im#code']
       };
     })*/
-  loadingValue.value = true;
   const searchRequest = {} as SearchRequest;
   searchRequest.termFilter = term;
   searchRequest.sortBy = SortBy.Usage;
@@ -205,7 +201,6 @@ async function searchValue(term: string) {
   }
   valueController.value = new AbortController();
   valueResults.value = await EntityService.advancedSearch(searchRequest, valueController.value);
-  loadingValue.value = false;
 }
 </script>
 
