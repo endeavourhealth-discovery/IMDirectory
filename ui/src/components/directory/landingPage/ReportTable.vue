@@ -62,8 +62,8 @@ function getReportTableData(): void {
 
 <style scoped>
 .dashcard-container {
-  flex: 1 0 auto;
   height: 100%;
+  width: calc(50% - 0.5rem);
 }
 .dashcard {
   width: 100%;

@@ -228,7 +228,7 @@ async function getCardsData(): Promise<void> {
   display: flex;
   flex-flow: row wrap;
   width: 100%;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   overflow: auto;
   padding: 1rem;
   gap: 1rem;
