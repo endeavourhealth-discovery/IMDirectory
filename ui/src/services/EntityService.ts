@@ -17,6 +17,7 @@ import {
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
+import { Query } from "@im-library/models";
 const api = Env.API;
 
 const EntityService = {
@@ -319,9 +320,9 @@ const EntityService = {
     }
   },
 
-  async getEcl(bundle: TTBundle): Promise<string> {
+  async getEcl(query: any): Promise<string> {
     try {
-      return await axios.post(api + "api/entity/public/ecl", bundle);
+      return await axios.post(api + "api/entity/public/ecl", query);
     } catch (error) {
       return "";
     }

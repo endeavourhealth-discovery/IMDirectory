@@ -29,7 +29,7 @@
               <SetDefinition :conceptIri="conceptIri" />
             </div>
           </TabPanel>
-          <TabPanel header="ECL" v-if="isValueSet(types) && isObjectHasKeys(concept['http://endhealth.info/im#definition'])">
+          <TabPanel header="ECL" v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])">
             <div class="concept-panel-content" id="ecl-container">
               <EclDefinition :definition="concept['http://endhealth.info/im#definition']" />
             </div>
