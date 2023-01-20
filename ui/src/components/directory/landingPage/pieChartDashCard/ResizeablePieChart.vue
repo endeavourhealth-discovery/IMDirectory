@@ -30,13 +30,7 @@ const loading = ref(true);
 const chartOptions: Ref<ChartOptions> = ref({
   plugins: {
     legend: {
-      position: "right",
-      onHover: function (e: any) {
-        e.native.target.style.cursor = "pointer";
-      },
-      onLeave: function (e: any) {
-        e.native.target.style.cursor = "default";
-      }
+      display: false
     }
   },
   maintainAspectRatio: true
@@ -58,16 +52,8 @@ const chartConceptTypes: Ref<PieChartData> = ref(
 
 onMounted(async () => {
   await nextTick();
-  window.addEventListener("resize", onResize);
   setChartData();
-  onResize();
 });
-
-onUnmounted(() => window.removeEventListener("resize", onResize));
-
-function onResize() {
-  setLegendOptions();
-}
 
 function setChartData(): void {
   loading.value = true;
@@ -89,41 +75,6 @@ function setChartColours(colourCount: number): void {
   const colours = palette("tol-rainbow", colourCount);
   chartConceptTypes.value.datasets[0].backgroundColor = colours.map((color: string) => "#" + color + "BB");
   chartConceptTypes.value.datasets[0].hoverBackgroundColor = colours.map((color: string) => "#" + color);
-}
-
-function setLegendOptions(): void {
-  chartOptions.value.plugins.legend.display = false;
-  const width = window.innerWidth;
-  if (width > 1750) {
-    chartOptions.value.plugins.legend.position = "right";
-    chartOptions.value.plugins.legend.labels = { boxWidth: 40, fontSize: 12 };
-  } else if (width > 1300) {
-    chartOptions.value.plugins.legend.position = "bottom";
-    chartOptions.value.plugins.legend.labels = { boxWidth: 20, fontSize: 10 };
-  } else if (width >= 1024) {
-    chartOptions.value.plugins.legend.position = "bottom";
-    chartOptions.value.plugins.legend.labels = { boxWidth: 10, fontSize: 8 };
-  } else if (width >= 892) {
-    chartOptions.value.plugins.legend.position = "right";
-    chartOptions.value.plugins.legend.labels = {
-      boxWidth: 40,
-      fontSize: 8
-    };
-  } else if (width >= 557) {
-    chartOptions.value.plugins.legend.position = "bottom";
-    chartOptions.value.plugins.legend.labels = {
-      boxWidth: 20,
-      fontSize: 6
-    };
-  } else if (width >= 0) {
-    chartOptions.value.plugins.legend.position = "bottom";
-    chartOptions.value.plugins.legend.labels = {
-      boxWidth: 10,
-      fontSize: 4
-    };
-  } else {
-    chartOptions.value.plugins.legend.display = false;
-  }
 }
 </script>
 

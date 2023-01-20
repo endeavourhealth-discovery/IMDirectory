@@ -101,5 +101,9 @@ function setChartSize(): void {
 .content {
   flex: 1 1 auto;
   overflow: hidden;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
 }
 </style>
