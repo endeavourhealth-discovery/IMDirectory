@@ -69,8 +69,8 @@ function setChartSize(): void {
 
 <style scoped>
 .dashcard-container {
-  flex: 1 0 auto;
   height: 100%;
+  width: calc(50% - 0.5rem);
 }
 
 .dash-pie {
@@ -83,6 +83,7 @@ function setChartSize(): void {
   height: 100%;
   display: flex;
   flex-flow: column nowrap;
+  box-shadow: none;
 }
 
 .title {
@@ -99,11 +100,6 @@ function setChartSize(): void {
 
 .content {
   flex: 1 1 auto;
-}
-
-.dashcard {
-  width: 100%;
-  box-shadow: none;
-  border-radius: none;
+  overflow: hidden;
 }
 </style>

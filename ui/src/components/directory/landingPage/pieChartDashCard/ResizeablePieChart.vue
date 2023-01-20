@@ -129,7 +129,6 @@ function setLegendOptions(): void {
 
 <style scoped>
 .chart-container {
-  position: relative;
   height: 100%;
   width: 100%;
 }
