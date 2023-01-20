@@ -10,7 +10,7 @@ import { TTBundle } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 
 const props = defineProps({
-  definition: { type: Object as PropType<TTBundle>, required: true }
+  definition: { type: String, required: true }
 });
 
 const eclString = ref("");
@@ -18,7 +18,7 @@ const eclString = ref("");
 onMounted(async () => await init());
 
 async function init() {
-  const result = await EntityService.getEcl(props.definition);
+  const result = await EntityService.getEcl(JSON.parse(props.definition));
   if (!result) eclString.value = "Error";
   else eclString.value = result;
 }
