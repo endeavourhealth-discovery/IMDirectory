@@ -15,6 +15,10 @@ const SetService = {
     }
   },
 
+  async evaluateEcl(ecl: string): Promise<any> {
+    return axios.post(Env.API + "api/set/public/evaluateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
+  },
+
   async getQueryFromECL(ecl: string): Promise<Query> {
     return axios.get(Env.API + "api/set/public/ecl/query", {
       params: { ecl: ecl }

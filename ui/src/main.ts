@@ -82,6 +82,7 @@ import DataView from "primevue/dataview";
 import Steps from "primevue/steps";
 import Chip from "primevue/chip";
 import ToggleButton from "primevue/togglebutton";
+import Skeleton from "primevue/skeleton";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -161,8 +162,8 @@ const app = createApp(App)
   .component("Tag", Tag)
   .component("Steps", Steps)
   .component("Chip", Chip)
-  .component("ToggleButton", ToggleButton);
-
+  .component("ToggleButton", ToggleButton)
+  .component("Skeleton", Skeleton);
 const vm = app.mount("#app");
 
 // Vue application exceptions

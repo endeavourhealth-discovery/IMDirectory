@@ -167,4 +167,8 @@ function setupExternalErrorHandler() {
 .p-overlaypanel {
   z-index: 1000;
 }
+
+.p-datatable-thead {
+  z-index: 0 !important;
+}
 </style>
