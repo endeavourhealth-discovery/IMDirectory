@@ -159,9 +159,9 @@ function downloadFile(data: any, fileName: string) {
 
 function exportCSV(): void {
   const heading = ["name", "iri", "code"].join(",");
-  const body = props.searchResults.map((row: any) => [row.name, row.iri, row.code].join(",")).join("\n");
-  const txt = [heading, body].join("\n");
-  downloadFile(txt, "results.txt");
+  const body = props.searchResults.map((row: any) => "\"" + ([row.name, row.iri, row.code]).join("\",\"") + "\"").join("\n");
+  const csv = [heading, body].join("\n");
+  downloadFile(csv, "results.csv");
 }
 
 function getPerspectiveByConceptType(conceptTypes: TTIriRef[]): string[] {
