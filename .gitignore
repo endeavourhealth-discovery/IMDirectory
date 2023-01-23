@@ -54,3 +54,6 @@ coverage
 # Ignore Gradle build output directory
 build
 .env
+
+# Ignore swagger output
+node_api/public/swagger_output.json
