@@ -1,17 +1,33 @@
 <template>
   <div v-if="!subsets.length">No subsets found.</div>
-  <div v-else v-for="(subset, index) in subsets" :key="index">
-    <IMViewerLink :iri="subset['@id']" :label="subset.name" />
-  </div>
+  <DataTable
+    v-else
+    :value="subsets"
+    showGridlines
+    :scrollable="true"
+    sortMode="single"
+    sortField="label"
+    :sortOrder="1"
+    class="p-datatable-sm"
+    scrollHeight="flex"
+    data-testid="table"
+    :lazy="true"
+  >
+    <Column field="member" header="Name">
+      <template #body="{ data }"><IMViewerLink :iri="data['@id']" :label="data.name" action="select" /></template>
+    </Column>
+  </DataTable>
 </template>
 
 <script setup lang="ts">
 import { onMounted, Ref, ref } from "@vue/runtime-core";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
+import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
 const subsets: Ref<{ "@id": string; name: string }[]> = ref([]);
+
 onMounted(async () => {
   const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_SUBSET]);
   if (entity[IM.HAS_SUBSET]) subsets.value = entity[IM.HAS_SUBSET].filter((subset: any) => subset["@id"] !== props.conceptIri);
