@@ -2,8 +2,9 @@ import Env from "@/services/env.service";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
 import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import { QueryDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { PropertyDisplay, QueryDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export default class EntityService {
   axios: any;
@@ -130,5 +131,27 @@ export default class EntityService {
     const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
     if (!entity[IM.DEFINITION]) return {} as QueryObject;
     return buildQueryObjectFromQuery(JSON.parse(entity[IM.DEFINITION]));
+  }
+
+  async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
+    const entity = (await this.getPartialEntity(iri, [SHACL.PROPERTY])).data;
+    const propertyList = [] as PropertyDisplay[];
+    if (isObjectHasKeys(entity, [SHACL.PROPERTY]) && isArrayHasLength(entity[SHACL.PROPERTY])) {
+      for (const ttproperty of entity[SHACL.PROPERTY]) {
+        const cardinality = `${ttproperty[SHACL.MINCOUNT] || 0} : ${ttproperty[SHACL.MAXCOUNT] || "*"}`;
+        const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE];
+        const group = ttproperty?.[SHACL.GROUP]?.[0];
+        const property = {
+          order: ttproperty[SHACL.ORDER],
+          property: ttproperty[SHACL.PATH][0],
+          type: type[0],
+          cardinality: cardinality
+        } as PropertyDisplay;
+        if (group) property.group = group;
+        propertyList.push(property);
+      }
+    }
+
+    return propertyList;
   }
 }
