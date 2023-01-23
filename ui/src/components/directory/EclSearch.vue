@@ -28,7 +28,7 @@
     <div class="filters-container">
       <div class="status-filter p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="filterResults" :options="statusOptions" display="chip" />
+          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="search" :options="statusOptions" display="chip" />
           <label for="status">Select status:</label>
         </span>
       </div>
@@ -53,7 +53,7 @@ import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary, EclSearchRequest, TTIriRef } from "@im-library/interfaces";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { SetService } from "@/services";
@@ -78,11 +78,13 @@ const eclError = ref(false);
 const eclErrorMessage = ref("");
 const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
-const selectedStatus: Ref<string[]> = ref([]);
+const selectedStatus: Ref<TTIriRef[]> = ref([]);
 
 watch(queryString, () => (eclError.value = false));
 
-watch(selectedStatus, () => (selectedStatus.value = selectedStatus.value.sort(byName)));
+watch(selectedStatus, async () => {
+  selectedStatus.value = selectedStatus.value.sort(byName);
+});
 
 onMounted(() => {
   setFilterDefaults();
@@ -109,7 +111,8 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    const result = await SetService.ECLSearch(queryString.value, false, 1000, controller.value);
+    const eclSearchRequest = { ecl: queryString.value, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
+    const result = await SetService.ECLSearch(eclSearchRequest, controller.value);
     if (isObjectHasKeys(result, ["entities", "count", "page"])) {
       searchResults.value = result.entities;
       totalCount.value = result.count;

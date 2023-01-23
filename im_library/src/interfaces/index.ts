@@ -11,6 +11,7 @@ import { DataModelProperty } from "./DataModelProperty";
 import { Dataset } from "./Dataset";
 import { DefinitionConfig } from "./DefinitionConfig";
 import { ECLComponentDetails } from "./ECLComponentDetails";
+import { EclSearchRequest } from "./EclSearchRequest";
 import { EntityReferenceNode } from "./EntityReferenceNode";
 import { ExportValueSet } from "./ExportValueSet";
 import { FilterDefaultsConfig } from "./FilterDefaultsConfig";
@@ -86,6 +87,7 @@ export {
   type Dataset,
   type DefinitionConfig,
   type ECLComponentDetails,
+  type EclSearchRequest,
   type EntityReferenceNode,
   type ExportValueSet,
   type FilterDefaultsConfig,
