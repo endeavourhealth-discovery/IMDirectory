@@ -1,12 +1,21 @@
 <template>
   <div id="properties-table-container" class="properties-table-wrapper">
     <DataTable
-        :value="dataModelPropsData"
-        :scrollable="true"
-        ref="propertiesTable"
-        :loading="loading"
-        scroll-height="flex"
-        data-testid="table">
+      v-if="isArrayHasLength(properties) && isObjectHasKeys(properties[0], ['group'])"
+      :value="properties"
+      :scrollable="true"
+      ref="propertiesTable"
+      :loading="loading"
+      scroll-height="flex"
+      data-testid="table"
+      rowGroupMode="subheader"
+      groupRowsBy="group.name"
+      :expandableRowGroups="true"
+      v-model:expandedRowGroups="expandedRowGroups"
+      sortMode="single"
+      sortField="group.name"
+      :sortOrder="1"
+    >
       <template #empty> No records found </template>
       <template #loading> Loading data. Please wait... </template>
       <template #header>
@@ -15,30 +24,63 @@
           <Button label="Download" @click="exportCSV()" />
         </div>
       </template>
-      <Column field="propertyDisplay" header="Name" :sortable="true">
-        <template #body="slotProps">
-          <div class="link" @click="directService.select(slotProps.data.propertyId)" data-testid="name">
-            {{ slotProps.data.propertyDisplay }}
+
+      <template #groupheader="{ data }">
+        <div v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</div>
+      </template>
+
+      <Column field="group.name" header="Group">
+        <template #body="{ data }"> {{ data.group.name }}</template>
+      </Column>
+
+      <Column field="property" header="Name">
+        <template #body="{ data }">
+          <div class="link" @click="directService.select(data.property['@id'])" data-testid="name">
+            {{ data.property.name || data.property["@id"] }}
           </div>
         </template>
       </Column>
-      <Column field="typeDisplay" header="Type" :sortable="true">
-        <template #body="slotProps">
-          <div class="link" @click="directService.select(slotProps.data.typeId)">
-            {{ slotProps.data.typeDisplay }}
-          </div>
-        </template>
-      </Column>
-      <Column field="inheritedDisplay" header="Inherited From" :sortable="true">
-        <template #body="slotProps">
-          <div class="link" @click="directService.select(slotProps.data.inheritedId)">
-            {{ slotProps.data.inheritedDisplay }}
+      <Column field="type" header="Type">
+        <template #body="{ data }">
+          <div class="link" @click="directService.select(data.type['@id'])">
+            {{ data.type.name || data.type["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="cardinality" header="Cardinality">
-        <template #body="slotProps">
-          {{ slotProps.data.cardinality }}
+        <template #body="{ data }">
+          {{ data.cardinality }}
+        </template>
+      </Column>
+    </DataTable>
+
+    <DataTable v-else :value="properties" :scrollable="true" ref="propertiesTable" :loading="loading" scroll-height="flex" data-testid="table">
+      <template #empty> No records found </template>
+      <template #loading> Loading data. Please wait... </template>
+      <template #header>
+        <div class="table-header">
+          Data model properties
+          <Button label="Download" @click="exportCSV()" />
+        </div>
+      </template>
+
+      <Column field="property" header="Name">
+        <template #body="{ data }">
+          <div class="link" @click="directService.select(data.property['@id'])" data-testid="name">
+            {{ data.property.name || data.property["@id"] }}
+          </div>
+        </template>
+      </Column>
+      <Column field="type" header="Type">
+        <template #body="{ data }">
+          <div class="link" @click="directService.select(data.type['@id'])">
+            {{ data.type.name || data.type["@id"] }}
+          </div>
+        </template>
+      </Column>
+      <Column field="cardinality" header="Cardinality">
+        <template #body="{ data }">
+          {{ data.cardinality }}
         </template>
       </Column>
     </DataTable>
@@ -46,19 +88,18 @@
 </template>
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { DataModelProperty, ProcessedDataModelProperty } from "@im-library/interfaces";
+import { PropertyDisplay } from "@im-library/interfaces";
 import { DirectService, EntityService } from "@/services";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
-
 const directService = new DirectService();
-
 const loading = ref(false);
-const dataModelPropsData: Ref<ProcessedDataModelProperty[]> = ref([]);
-
+const properties: Ref<PropertyDisplay[]> = ref([]);
 const propertiesTable = ref();
+const expandedRowGroups = ref();
 
 watch(
   () => props.conceptIri,
@@ -71,26 +112,31 @@ onMounted(async () => {
 
 async function getDataModelProps(iri: string): Promise<void> {
   loading.value = true;
-  const result = await EntityService.getDataModelProperties(iri);
-  dataModelPropsData.value = result.map((prop: DataModelProperty) => {
-    return {
-      propertyId: prop.property["@id"],
-      propertyName: prop.property.name,
-      propertyDisplay: prop.property.name,
-      typeId: prop.type ? prop.type["@id"] : "",
-      typeName: prop.type ? prop.type.name : "",
-      typeDisplay: prop.type ? prop.type.name || prop.type["@id"] : "",
-      inheritedId: prop.inheritedFrom["@id"],
-      inheritedName: prop.inheritedFrom.name,
-      inheritedDisplay: prop.inheritedFrom.name || "-",
-      cardinality: `${prop.minExclusive || prop.minInclusive || 0} : ${prop.maxExclusive || prop.maxInclusive || "*"}`
-    };
-  });
+  properties.value = await EntityService.getPropertiesDisplay(iri);
   loading.value = false;
 }
 
 function exportCSV(): void {
-  propertiesTable.value.exportCSV();
+  let csvValue;
+  const hasGroup = isArrayHasLength(properties.value) && isObjectHasKeys(properties.value[0], ["group"]);
+
+  csvValue = hasGroup
+    ? properties.value.map(property => {
+        return {
+          group: { name: property.group["@id"] },
+          property: property.property["@id"],
+          type: property.type["@id"],
+          cardinality: property.cardinality
+        };
+      })
+    : properties.value.map(property => {
+        return {
+          property: property.property["@id"],
+          type: property.type["@id"],
+          cardinality: property.cardinality
+        };
+      });
+  propertiesTable.value.exportCSV({}, csvValue);
 }
 </script>
 

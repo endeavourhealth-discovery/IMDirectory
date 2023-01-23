@@ -14,4 +14,6 @@ export class SHACL {
   public static NOT = SHACL.NAMESPACE + "not";
   public static PARAMETER = SHACL.NAMESPACE + "parameter";
   public static FUNCTION = SHACL.NAMESPACE + "function";
+  public static ORDER = SHACL.NAMESPACE + "order";
+  public static GROUP = SHACL.NAMESPACE + "group";
 }

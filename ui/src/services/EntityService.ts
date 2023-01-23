@@ -12,7 +12,8 @@ import {
   ExportValueSet,
   SearchRequest,
   ConceptSummary,
-  FilterOptions
+  FilterOptions,
+  PropertyDisplay
 } from "@im-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
@@ -563,6 +564,16 @@ const EntityService = {
       });
     } catch (error) {
       return [] as any[];
+    }
+  },
+
+  async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertiesDisplay", {
+        params: { iri: iri }
+      });
+    } catch (error) {
+      return [] as PropertyDisplay[];
     }
   }
 };
