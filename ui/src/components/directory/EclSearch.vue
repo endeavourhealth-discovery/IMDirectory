@@ -35,7 +35,7 @@
     </div>
     <div class="results-container">
       <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
-      <SearchResults :searchResults="filteredSearchResults" :loading="loading" />
+      <SearchResults :searchResults="filteredSearchResults" :totalRecords="totalCount" :loading="loading" />
     </div>
   </div>
   <Builder

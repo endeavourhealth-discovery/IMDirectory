@@ -11,7 +11,7 @@
       :paginator="true"
       paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
       :rowsPerPageOptions="[15, 25, 50]"
-      currentPageReportTemplate="Displaying {first} to {last} of {totalRecords} results"
+      :currentPageReportTemplate="currentReportTemplate"
       :rows="15"
       @page="scrollToTop"
       :loading="loading"
@@ -105,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch } from "vue";
+import { PropType, ref, Ref, watch, onMounted } from "vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
 import { DataTypeCheckers, ConceptTypeMethods, CopyConceptToClipboard } from "@im-library/helpers";
@@ -122,13 +122,25 @@ const { copyConceptToClipboard, conceptObjectToCopyString } = CopyConceptToClipb
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
-  loading: Boolean
+  totalRecords: { type: Number, required: false, default: 0 },
+  loading: { type: Boolean, required: true }
 });
 
 watch(
   () => _.cloneDeep(props.searchResults),
   newValue => (results.value = newValue)
 );
+
+watch(
+  () => _.cloneDeep(props.totalRecords),
+  newValue => {
+    if (newValue) currentReportTemplate.value = `Displaying {first} to {last} of ${newValue} results`;
+  }
+);
+
+onMounted(() => {
+  if (props.totalRecords) currentReportTemplate.value = `Displaying {first} to {last} of ${props.totalRecords} results`;
+});
 
 const toast = useToast();
 const directService = new DirectService();
@@ -137,6 +149,7 @@ const results: Ref<any[]> = ref([]);
 const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const copyMenuItems: Ref<any[]> = ref([]);
+const currentReportTemplate = ref("Displaying {first} to {last} of {totalRecords} results");
 
 const blockedIris = XmlSchemaDatatypes;
 const defaultPredicates = DefaultPredicateNames;
