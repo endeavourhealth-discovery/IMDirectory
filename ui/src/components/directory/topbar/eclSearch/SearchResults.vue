@@ -1,12 +1,6 @@
 <template>
   <div id="search-results-container" class="p-field">
-    <div v-if="loading" class="p-d-flex p-flex-row p-jc-center">
-      <div class="p-text-center">
-        <ProgressSpinner />
-      </div>
-    </div>
     <DataTable
-      v-else
       :value="searchResults"
       v-model:selection="selectedResult"
       @row-select="directService.select(selectedResult.iri, 'Folder')"
@@ -20,6 +14,7 @@
       currentPageReportTemplate="Displaying {first} to {last} of {totalRecords} results"
       :rows="15"
       @page="scrollToTop"
+      :loading="loading"
     >
       <template #empty> None </template>
       <template #loading> Loading... </template>
