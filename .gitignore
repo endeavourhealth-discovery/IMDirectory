@@ -55,5 +55,3 @@ coverage
 build
 .env
 
-# Ignore swagger output
-node_api/public/swagger_output.json
