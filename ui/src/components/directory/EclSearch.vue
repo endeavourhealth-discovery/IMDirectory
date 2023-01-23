@@ -25,9 +25,17 @@
       <Button :disabled="eclError" label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length || eclError" data-testid="search-button" />
     </div>
+    <div class="filters-container">
+      <div class="status-filter p-inputgroup">
+        <span class="p-float-label">
+          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="filterResults" :options="statusOptions" display="chip" />
+          <label for="status">Select status:</label>
+        </span>
+      </div>
+    </div>
     <div class="results-container">
       <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
-      <SearchResults :searchResults="searchResults" :loading="loading" />
+      <SearchResults :searchResults="filteredSearchResults" :loading="loading" />
     </div>
   </div>
   <Builder
@@ -41,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "vue";
+import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
@@ -52,19 +60,33 @@ import { SetService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import { useStore } from "vuex";
+import { byName } from "@im-library/helpers/Sorters";
 
 const toast = useToast();
+const store = useStore();
+
+const statusOptions = computed(() => store.state.filterOptions.status);
+const statusDefaults = computed(() => store.state.filterDefaults.status);
 
 const queryString = ref("");
 const showDialog = ref(false);
 const searchResults: Ref<ConceptSummary[]> = ref([]);
+const filteredSearchResults: Ref<ConceptSummary[]> = ref([]);
 const totalCount = ref(0);
 const eclError = ref(false);
 const eclErrorMessage = ref("");
 const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
+const selectedStatus: Ref<string[]> = ref([]);
 
 watch(queryString, () => (eclError.value = false));
+
+watch(selectedStatus, () => (selectedStatus.value = selectedStatus.value.sort(byName)));
+
+onMounted(() => {
+  setFilterDefaults();
+});
 
 function updateECL(data: string): void {
   queryString.value = data;
@@ -91,13 +113,25 @@ async function search(): Promise<void> {
     if (isObjectHasKeys(result, ["entities", "count", "page"])) {
       searchResults.value = result.entities;
       totalCount.value = result.count;
+      filterResults();
     } else {
       eclError.value = true;
       searchResults.value = [];
+      filteredSearchResults.value = [];
       totalCount.value = 0;
     }
     loading.value = false;
   }
+}
+
+function setFilterDefaults() {
+  selectedStatus.value = statusOptions.value.filter((option: any) => statusDefaults.value.find((item: any) => item["@id"] === option["@id"]));
+}
+
+function filterResults() {
+  filteredSearchResults.value = searchResults.value.filter(searchResult =>
+    selectedStatus.value.find((status: any) => status["@id"] === searchResult.status["@id"])
+  );
 }
 
 function copyToClipboard(): string {
@@ -173,6 +207,18 @@ function onCopyError(): void {
 
 .error-message {
   color: #f44336;
+}
+
+.filters-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.status-filter {
+  width: 20rem;
+  padding: 1.25rem 0.5rem 0.5rem 0.5rem;
+  justify-self: flex-start;
 }
 
 .text-copy-container {
