@@ -1,4 +1,4 @@
-import { TTBundle, TTGraphData } from "../interfaces";
+import { TTBundle, TTGraphData, TTIriRef } from "../interfaces";
 import { SHACL, OWL, IM, RDFS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
@@ -100,9 +100,27 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
 }
 
 function addProperties(firstNode: TTGraphData, entity: any, key: string) {
-  entity[key].forEach((nested: any) => {
-    addChild(firstNode, getPropertyName(nested), getPropertyIri(nested), nested[SHACL.PATH][0].name);
-  });
+  if (isObjectHasKeys(entity[key][0], [SHACL.GROUP])) {
+    entity[key].forEach((nested: any) => {
+      const groupRef: TTIriRef = nested[SHACL.GROUP][0];
+      let groupNode = firstNode.children.find(child => child.iri === groupRef["@id"]);
+      if (!groupNode) {
+        groupNode = {
+          name: groupRef.name,
+          iri: groupRef["@id"],
+          relToParent: "property group",
+          children: [],
+          _children: []
+        } as TTGraphData;
+        firstNode.children.push(groupNode);
+      }
+      addChild(groupNode, getPropertyName(nested), getPropertyIri(nested), nested[SHACL.PATH][0].name);
+    });
+  } else {
+    entity[key].forEach((nested: any) => {
+      addChild(firstNode, getPropertyName(nested), getPropertyIri(nested), nested[SHACL.PATH][0].name);
+    });
+  }
 }
 
 function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: any) {
