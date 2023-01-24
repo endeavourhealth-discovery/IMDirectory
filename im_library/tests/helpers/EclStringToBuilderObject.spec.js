@@ -330,7 +330,7 @@ describe("eclStringToBuilderObject", () => {
             },
             items: [
               {
-                type: "RefinementX",
+                type: "Refinement",
                 property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
                 operator: "=",
                 value: {
@@ -360,7 +360,7 @@ describe("eclStringToBuilderObject", () => {
             },
             items: [
               {
-                type: "RefinementX",
+                type: "Refinement",
                 property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
                 operator: "=",
                 value: {
@@ -390,7 +390,7 @@ describe("eclStringToBuilderObject", () => {
             },
             items: [
               {
-                type: "RefinementX",
+                type: "Refinement",
                 property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
                 operator: "=",
                 value: {
@@ -422,13 +422,13 @@ describe("eclStringToBuilderObject", () => {
             concept: { iri: "http://snomed.info/sct#404684003" },
             items: [
               {
-                type: "RefinementX",
+                type: "Refinement",
                 property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
                 operator: "=",
                 value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#39057004" } }
               },
               {
-                type: "RefinementX",
+                type: "Refinement",
                 property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
                 operator: "=",
                 value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#415582006" } }
@@ -457,13 +457,13 @@ describe("eclStringToBuilderObject", () => {
                 operator: "AND",
                 items: [
                   {
-                    type: "RefinementX",
+                    type: "Refinement",
                     property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
                     operator: "=",
                     value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#39057004" } }
                   },
                   {
-                    type: "RefinementX",
+                    type: "Refinement",
                     property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
                     operator: "=",
                     value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#415582006" } }
@@ -475,13 +475,13 @@ describe("eclStringToBuilderObject", () => {
                 operator: "AND",
                 items: [
                   {
-                    type: "RefinementX",
+                    type: "Refinement",
                     property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
                     operator: "=",
                     value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#53085002" } }
                   },
                   {
-                    type: "RefinementX",
+                    type: "Refinement",
                     property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
                     operator: "=",
                     value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#56246009" } }
@@ -512,13 +512,13 @@ describe("eclStringToBuilderObject", () => {
                 operator: "OR",
                 items: [
                   {
-                    type: "RefinementX",
+                    type: "Refinement",
                     property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
                     operator: "=",
                     value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#39057004" } }
                   },
                   {
-                    type: "RefinementX",
+                    type: "Refinement",
                     property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
                     operator: "=",
                     value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#415582006" } }
@@ -530,13 +530,13 @@ describe("eclStringToBuilderObject", () => {
                 operator: "OR",
                 items: [
                   {
-                    type: "RefinementX",
+                    type: "Refinement",
                     property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
                     operator: "=",
                     value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#53085002" } }
                   },
                   {
-                    type: "RefinementX",
+                    type: "Refinement",
                     property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
                     operator: "=",
                     value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#56246009" } }

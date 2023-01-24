@@ -53,12 +53,12 @@
 import { defineComponent } from "vue";
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
-import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
+import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import SetService from "@/services/SetService";
 import { booleanLiteral } from "@babel/types";
 
 export default defineComponent({
-  components: { BoolGroup, Concept, RefinementX }
+  components: { BoolGroup, Concept, Refinement }
 });
 </script>
 
@@ -148,7 +148,7 @@ function getBoolGroupECL(clause: any, root: boolean) {
 function getClauseECL(clause: any, root: boolean) {
   if (clause.type === "BoolGroup" && clause.items) return "{" + getBoolGroupECL(clause, false) + "}";
   else if (clause.type === "Concept") return getConceptECL(clause, false);
-  else if (clause.type === "RefinementX") return getRefinementECL(clause, root);
+  else if (clause.type === "Refinement") return getRefinementECL(clause, root);
   else return "[???]";
 }
 

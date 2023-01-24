@@ -41,7 +41,7 @@
 import { Ref, ref, onMounted, PropType, watch } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
-import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
+import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import { SearchRequest } from "@im-library/interfaces";
 import { SortBy } from "@im-library/enums";
@@ -147,7 +147,7 @@ async function search(term: string) {
 }
 
 function addRefinement() {
-  add({ type: "RefinementX", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+  add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
 }
 
 function addGroup() {
@@ -163,8 +163,8 @@ function getComponent(componentName: string) {
   switch (componentName) {
     case "BoolGroup":
       return BoolGroup;
-    case "RefinementX":
-      return RefinementX;
+    case "Refinement":
+      return Refinement;
   }
 }
 
@@ -172,7 +172,7 @@ function getSkeletonComponent(componentName: string) {
   switch (componentName) {
     case "BoolGroup":
       return BoolGroupSkeleton;
-    case "RefinementX":
+    case "Refinement":
       return RefinementSkeleton;
   }
 }
