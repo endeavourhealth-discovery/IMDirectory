@@ -67,7 +67,7 @@ export default class QueryService {
           subtypesQuery.textSearch = searchTerm;
         }
         suggestions = (await this.queryIM(subtypesQuery)).entities;
-        suggestions = this.convertTTEntitiesToTTIriRefs(suggestions);
+        suggestions = this.convertTTEntitiesToAlias(suggestions);
       }
       return suggestions;
     } catch (error) {
@@ -97,18 +97,18 @@ export default class QueryService {
     let suggestions = [] as any[];
     try {
       suggestions = (await this.queryIM(queryRequest)).entities;
-      return this.convertTTEntitiesToTTIriRefs(suggestions);
+      return this.convertTTEntitiesToAlias(suggestions);
     } catch (error) {
       return suggestions;
     }
   }
 
-  convertTTEntitiesToTTIriRefs(ttEntities: any[]) {
-    return ttEntities.map(ttEntity => this.convertTTEntityToTTIriRef(ttEntity));
+  convertTTEntitiesToAlias(ttEntities: any[]) {
+    return ttEntities.map(ttEntity => this.convertTTEntityToAlias(ttEntity));
   }
 
-  private convertTTEntityToTTIriRef(ttEntity: any) {
-    return { "@id": ttEntity["@id"], name: ttEntity[RDFS.LABEL] };
+  private convertTTEntityToAlias(ttEntity: any) {
+    return { iri: ttEntity["@id"], name: ttEntity[RDFS.LABEL], code: ttEntity[IM.CODE] };
   }
 
   public async getAllowableChildTypes(iri: string) {
