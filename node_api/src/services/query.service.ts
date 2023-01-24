@@ -1,7 +1,8 @@
 import Env from "@/services/env.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { QueryRequest, TTAlias } from "@im-library/interfaces";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 
 export default class QueryService {
   axios: any;
@@ -67,7 +68,7 @@ export default class QueryService {
           subtypesQuery.textSearch = searchTerm;
         }
         suggestions = (await this.queryIM(subtypesQuery)).entities;
-        suggestions = this.convertTTEntitiesToAlias(suggestions);
+        this.convertTTEntitiesToAlias(suggestions);
       }
       return suggestions;
     } catch (error) {
@@ -97,18 +98,15 @@ export default class QueryService {
     let suggestions = [] as any[];
     try {
       suggestions = (await this.queryIM(queryRequest)).entities;
-      return this.convertTTEntitiesToAlias(suggestions);
+      this.convertTTEntitiesToAlias(suggestions);
+      return suggestions;
     } catch (error) {
       return suggestions;
     }
   }
 
   convertTTEntitiesToAlias(ttEntities: any[]) {
-    return ttEntities.map(ttEntity => this.convertTTEntityToAlias(ttEntity));
-  }
-
-  private convertTTEntityToAlias(ttEntity: any) {
-    return { iri: ttEntity["@id"], name: ttEntity[RDFS.LABEL], code: ttEntity[IM.CODE] };
+    ttEntities.forEach(ttEntity => entityToAliasEntity(ttEntity));
   }
 
   public async getAllowableChildTypes(iri: string) {

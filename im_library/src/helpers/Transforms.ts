@@ -1,5 +1,5 @@
 import { TTIriRef, TTBundle } from "../interfaces";
-import { IM, RDFS } from "../vocabulary";
+import { IM, RDF, RDFS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
 
@@ -233,6 +233,37 @@ export function mapToObject(args: Map<any, any>) {
   return argsAsObject;
 }
 
+export function entityToAliasEntity(ttEntity: any) {
+  if (isObjectHasKeys(ttEntity, ["@id"])) {
+    ttEntity.iri = ttEntity["@id"];
+    delete ttEntity["@id"];
+  }
+  if (isObjectHasKeys(ttEntity, [RDFS.LABEL])) {
+    ttEntity.name = ttEntity[RDFS.LABEL];
+    delete ttEntity[RDFS.LABEL];
+  }
+  if (isObjectHasKeys(ttEntity, [IM.CODE])) {
+    ttEntity.code = ttEntity[IM.CODE];
+    delete ttEntity[IM.CODE];
+  }
+  if (isObjectHasKeys(ttEntity, [RDFS.COMMENT])) {
+    ttEntity.description = ttEntity[RDFS.COMMENT];
+    delete ttEntity[RDFS.COMMENT];
+  }
+  if (isObjectHasKeys(ttEntity, [IM.HAS_STATUS])) {
+    ttEntity.status = ttEntity[IM.HAS_STATUS];
+    delete ttEntity[IM.HAS_STATUS];
+  }
+  if (isObjectHasKeys(ttEntity, [IM.SCHEME])) {
+    ttEntity.scheme = ttEntity[IM.SCHEME];
+    delete ttEntity[IM.SCHEME];
+  }
+  if (isObjectHasKeys(ttEntity, [RDF.TYPE])) {
+    ttEntity.entityType = ttEntity[RDF.TYPE];
+    delete ttEntity[RDF.TYPE];
+  }
+}
+
 export default {
   bundleToText,
   ttArrayToString,
@@ -240,5 +271,6 @@ export default {
   ttNodeToString,
   ttValueToString,
   termToString,
-  mapToObject
+  mapToObject,
+  entityToAliasEntity
 };
