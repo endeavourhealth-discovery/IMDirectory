@@ -72,7 +72,6 @@ const statusOptions = computed(() => store.state.filterOptions.status);
 const queryString = ref("");
 const showDialog = ref(false);
 const searchResults: Ref<ConceptSummary[]> = ref([]);
-const filteredSearchResults: Ref<ConceptSummary[]> = ref([]);
 const totalCount = ref(0);
 const eclError = ref(false);
 const eclErrorMessage = ref("");
