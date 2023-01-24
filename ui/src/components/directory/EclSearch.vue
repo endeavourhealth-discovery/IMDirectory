@@ -35,7 +35,7 @@
     </div>
     <div class="results-container">
       <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
-      <SearchResults :searchResults="filteredSearchResults" :totalRecords="totalCount" :loading="loading" />
+      <SearchResults :searchResults="searchResults" :totalRecords="totalCount" :loading="loading" />
     </div>
   </div>
   <Builder
@@ -55,6 +55,7 @@ import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest, TTIriRef } from "@im-library/interfaces";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { IM } from "@im-library/vocabulary";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { SetService } from "@/services";
 import { useToast } from "primevue/usetoast";
@@ -67,7 +68,6 @@ const toast = useToast();
 const store = useStore();
 
 const statusOptions = computed(() => store.state.filterOptions.status);
-const statusDefaults = computed(() => store.state.filterDefaults.status);
 
 const queryString = ref("");
 const showDialog = ref(false);
@@ -116,11 +116,9 @@ async function search(): Promise<void> {
     if (isObjectHasKeys(result, ["entities", "count", "page"])) {
       searchResults.value = result.entities;
       totalCount.value = result.count;
-      filterResults();
     } else {
       eclError.value = true;
       searchResults.value = [];
-      filteredSearchResults.value = [];
       totalCount.value = 0;
     }
     loading.value = false;
@@ -128,13 +126,7 @@ async function search(): Promise<void> {
 }
 
 function setFilterDefaults() {
-  selectedStatus.value = statusOptions.value.filter((option: any) => statusDefaults.value.find((item: any) => item["@id"] === option["@id"]));
-}
-
-function filterResults() {
-  filteredSearchResults.value = searchResults.value.filter(searchResult =>
-    selectedStatus.value.find((status: any) => status["@id"] === searchResult.status["@id"])
-  );
+  selectedStatus.value = statusOptions.value.filter((option: any) => option["@id"] === IM.ACTIVE);
 }
 
 function copyToClipboard(): string {
