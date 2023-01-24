@@ -10,6 +10,7 @@ import { TangledTreeData } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import TangledTree from "./TangledTree.vue";
 import { useStore } from "vuex";
+import { getGroupsPropertiesTypes } from "@im-library/helpers/TangledTreeLayout";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -35,46 +36,11 @@ async function getDataModel(iri: string) {
   data.value.push([{ id: iri, parents: [], name: name || iri, type: "root" }]);
   await addPropertiesAndTypes(iri);
 }
+
 async function addPropertiesAndTypes(iri: any) {
-  const properties = [] as any;
-  const types = [] as any;
-
-  const result = await EntityService.getDataModelProperties(iri);
-
-  result.forEach((r: any) => {
-    properties.push({
-      id: r.property["@id"],
-      parents: [iri],
-      name: r.property.name || r.property["@id"],
-      type: "property",
-      cardinality: `${r.minExclusive || r.minInclusive || 0} : ${r.maxExclusive || r.maxInclusive || "*"}`
-    });
-    if (r.type["@id"] === iri) {
-      if (types.some((t: any) => t.id === twinNode + r.type["@id"])) {
-        const index = types.findIndex((t: any) => t.id === twinNode + r.type["@id"]);
-        types[index].parents.push(r.property["@id"]);
-      } else {
-        types.push({
-          id: twinNode + r.type["@id"],
-          parents: [r.property["@id"]],
-          name: r.type.name || r.type["@id"],
-          type: "type"
-        });
-      }
-    } else {
-      if (types.some((t: any) => t.id === r.type["@id"])) {
-        const index = types.findIndex((t: any) => t.id === r.type["@id"]);
-        types[index].parents.push(r.property["@id"]);
-      } else {
-        types.push({
-          id: r.type["@id"],
-          parents: [r.property["@id"]],
-          name: r.type.name || r.type["@id"],
-          type: "type"
-        });
-      }
-    }
-  });
+  const result = await EntityService.getPropertiesDisplay(iri);
+  const { groups, properties, types } = getGroupsPropertiesTypes(iri, twinNode, result);
+  if (groups.length) data.value.push(groups);
   data.value.push(properties);
   data.value.push(types);
 }
