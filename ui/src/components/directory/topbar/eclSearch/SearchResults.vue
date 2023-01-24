@@ -113,17 +113,15 @@
 import { PropType, ref, Ref, watch } from "vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
-import { DataTypeCheckers, ConceptTypeMethods, CopyConceptToClipboard } from "@im-library/helpers";
 import { DirectService } from "@/services";
-import { TTIriRef, ConceptSummary, SearchResponse } from "@im-library/interfaces";
-import { useRoute, useRouter } from "vue-router";
+import { TTIriRef, ConceptSummary } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
-import { useStore } from "vuex";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-const { isObjectHasKeys } = DataTypeCheckers;
-const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
-const { copyConceptToClipboard, conceptObjectToCopyString } = CopyConceptToClipboard;
+import setupDownloadFile from "@/composables/downloadFile";
+import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { conceptObjectToCopyString, copyConceptToClipboard } from "@im-library/helpers/CopyConceptToClipboard";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -137,6 +135,7 @@ watch(
 
 const toast = useToast();
 const directService = new DirectService();
+const { downloadFile } = setupDownloadFile(window, document);
 
 const results: Ref<any[]> = ref([]);
 const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
@@ -149,17 +148,9 @@ const defaultPredicates = DefaultPredicateNames;
 const op = ref();
 const copyMenu = ref();
 
-function downloadFile(data: any, fileName: string) {
-  const url = window.URL.createObjectURL(new Blob([data], { type: "application" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
-}
-
 function exportCSV(): void {
   const heading = ["name", "iri", "code"].join(",");
-  const body = props.searchResults.map((row: any) => "\"" + ([row.name, row.iri, row.code]).join("\",\"") + "\"").join("\n");
+  const body = props.searchResults.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
   const csv = [heading, body].join("\n");
   downloadFile(csv, "results.csv");
 }

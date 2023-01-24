@@ -39,7 +39,17 @@
       :autoLayout="true"
     >
       <template #empty> None </template>
-      <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
+      <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
+        <template #header>
+          Results
+          <Button
+            :disabled="!searchResults?.length"
+            class="p-button-sm p-button-text"
+            icon="pi pi-external-link"
+            @click="exportCSV()"
+            v-tooltip.right="'Download results table'"
+          />
+        </template>
         <template #body="slotProps">
           <div class="ml-2">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
@@ -49,9 +59,9 @@
           </div>
         </template>
       </Column>
-      <Column field="weighting" header="Usage" headerStyle="flex: 0 0 5rem;" bodyStyle="flex: 0 0 5rem; text-align: center;">
+      <Column field="code" header="Code">
         <template #body="slotProps">
-          <span class="break-all">{{ slotProps.data.weighting }}</span>
+          <span>{{ slotProps.data.code }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
@@ -72,13 +82,13 @@ import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import _ from "lodash";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
-import { DirectService, Env } from "@/services";
+import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import setupDownloadFile from "@/composables/downloadFile";
 
 const props = defineProps({
   showFilters: { type: Boolean, required: false, default: true }
@@ -90,6 +100,8 @@ const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptio
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
+
+const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
@@ -241,6 +253,13 @@ async function showOverlay(event: any, data: any): Promise<void> {
 
 function hideOverlay(event: any): void {
   OS.value.hideOverlay(event);
+}
+
+function exportCSV(): void {
+  const heading = ["name", "iri", "code"].join(",");
+  const body = localSearchResults.value.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+  const csv = [heading, body].join("\n");
+  downloadFile(csv, "results.csv");
 }
 </script>
 

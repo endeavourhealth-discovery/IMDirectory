@@ -16,6 +16,7 @@
     </div>
     <div v-else>No concepts found</div>
     <template #footer>
+      <Button label="Download" icon="pi pi-download" @click="exportCSV" class="p-button-help" />
       <Button label="OK" icon="pi pi-check" @click="close" autofocus />
     </template>
   </Dialog>
@@ -23,13 +24,14 @@
 
 <script setup lang="ts">
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces";
-import { onMounted, PropType, ref, Ref, watch } from "vue";
+import { onMounted, PropType, ref, Ref } from "vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import setupDownloadFile from "@/composables/downloadFile";
 
 const queryLoading: Ref<boolean> = ref(false);
-
+const { downloadFile } = setupDownloadFile(window, document);
 const testQueryResults: Ref<TTIriRef[]> = ref([]);
 
 const props = defineProps({
@@ -55,6 +57,13 @@ async function testQuery() {
     testQueryResults.value = await EntityService.getNames(result.entities.map(entity => entity["@id"]));
   }
   queryLoading.value = false;
+}
+
+function exportCSV(): void {
+  const heading = ["name", "iri"].join(",");
+  const body = testQueryResults.value.map((row: any) => '"' + [row.name, row["@id"]].join('","') + '"').join("\n");
+  const csv = [heading, body].join("\n");
+  downloadFile(csv, "results.csv");
 }
 </script>
 
