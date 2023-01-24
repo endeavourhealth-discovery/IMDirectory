@@ -3,11 +3,9 @@ import { Query, SearchResponse, SetQueryObject } from "@im-library/interfaces";
 import Env from "./Env";
 
 const SetService = {
-  async ECLSearch(searchString: string, includeLegacy: boolean, limit: number, controller: AbortController): Promise<SearchResponse> {
+  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<SearchResponse> {
     try {
-      return await axios.post(Env.API + "api/set/public/eclSearch", searchString, {
-        headers: { "Content-Type": "text/plain" },
-        params: { includeLegacy: includeLegacy, limit: limit },
+      return await axios.post(Env.API + "api/set/public/eclSearch", eclSearchRequest, {
         signal: controller.signal
       });
     } catch (error) {
