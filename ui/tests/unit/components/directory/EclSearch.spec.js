@@ -4,6 +4,7 @@ import { flushPromises } from "@vue/test-utils";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
+import MultiSelect from "primevue/multiselect";
 import testData from "./EclSearch.testData";
 import { SetService } from "@/services";
 import { expect, it } from "vitest";
@@ -13,11 +14,22 @@ import Tooltip from "primevue/tooltip";
 
 vi.mock("vuex", () => ({
   useStore: () => ({
-    dispatch: mockDispatch
+    dispatch: mockDispatch,
+    state: mockState
   })
 }));
 
 const mockDispatch = vi.fn();
+const mockState = {
+  filterOptions: {
+    status: [
+      { "@id": "http://endhealth.info/im#Active", name: "Active" },
+      { "@id": "http://endhealth.info/im#Draft", name: "Draft" },
+      { "@id": "http://endhealth.info/im#Inactive", name: "Inactive" },
+      { "@id": "http://endhealth.info/im#Unassigned", name: "Unassigned" }
+    ]
+  }
+};
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -52,7 +64,7 @@ describe("EclSearch.vue", async () => {
 
     component = render(ExpressionConstraintsSearch, {
       global: {
-        components: { Textarea, Button },
+        components: { Textarea, Button, MultiSelect },
         directives: {
           tooltip: Tooltip
         },
