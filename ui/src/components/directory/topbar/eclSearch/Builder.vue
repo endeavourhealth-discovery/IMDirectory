@@ -104,11 +104,13 @@ watch(
 );
 
 watch(
-  () => [_.cloneDeep(build.value), includeTerms.value],
-  newValue => {
+  () => _.cloneDeep(build.value),
+  () => {
     generateQueryString();
   }
 );
+
+watch(includeTerms, () => generateQueryString());
 
 function createDefaultBuild() {
   build.value = { type: "BoolGroup", operator: "AND" };

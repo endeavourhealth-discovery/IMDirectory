@@ -128,21 +128,33 @@ const QueryService = {
     }
   },
 
-  async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string): Promise<TTIriRef[]> {
+  async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<TTIriRef[]> {
     try {
-      return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowablePropertySuggestions", {
-        params: { iri: conceptIri, searchTerm: searchTerm }
-      });
+      if (controller)
+        return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowablePropertySuggestions", {
+          params: { iri: conceptIri, searchTerm: searchTerm },
+          signal: controller.signal
+        });
+      else
+        return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowablePropertySuggestions", {
+          params: { iri: conceptIri, searchTerm: searchTerm }
+        });
     } catch (error) {
       return [] as TTIriRef[];
     }
   },
 
-  async getAllowableRangeSuggestions(conceptIri: string, searchTerm?: string): Promise<TTIriRef[]> {
+  async getAllowableRangeSuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<TTIriRef[]> {
     try {
-      return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowableRangeSuggestions", {
-        params: { iri: conceptIri, searchTerm: searchTerm }
-      });
+      if (controller)
+        return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowableRangeSuggestions", {
+          params: { iri: conceptIri, searchTerm: searchTerm },
+          signal: controller.signal
+        });
+      else
+        return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowableRangeSuggestions", {
+          params: { iri: conceptIri, searchTerm: searchTerm }
+        });
     } catch (error) {
       return [] as TTIriRef[];
     }
