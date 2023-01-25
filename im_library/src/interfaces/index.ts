@@ -28,7 +28,6 @@ import { PropertyGroup } from "./PropertyGroup";
 import { PropertyShape } from "./PropertyShape";
 import { QueryComponentDetails } from "./QueryComponentDetails";
 import { QueryNextComponentSummary } from "./QueryNextComponentSummary";
-import { QueryRequest } from "./query/QueryRequest.js";
 import { RecentActivityItem } from "./RecentActivityItem";
 import { SearchRequest } from "./SearchRequest";
 import { SearchResponse } from "./SearchResponse";
@@ -52,14 +51,6 @@ import { Refinement } from "./queryBuilder/Refinement.js";
 import { SetQueryObject } from "./queryBuilder/SetQueryObject.js";
 import { SimplifiedType } from "./queryBuilder/SimplifiedType.js";
 import { GithubRelease } from "./GithubRelease";
-import { Argument } from "./query/Argument.js";
-import { Compare } from "./query/Compare.js";
-import { Query } from "./query/Query.js";
-import { Select } from "./query/Select.js";
-import { TTAlias } from "./query/TTAlias.js";
-import { TTContext } from "./query/TTContext.js";
-import { Value } from "./query/Value.js";
-import { Where } from "./query/Where.js";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
 import { FilterOptions } from "./FilterOptions";
@@ -95,7 +86,6 @@ export {
   type PropertyShape,
   type QueryComponentDetails,
   type QueryNextComponentSummary,
-  type QueryRequest,
   type RecentActivityItem,
   type SearchRequest,
   type SearchResponse,
@@ -119,14 +109,6 @@ export {
   type Refinement,
   type QueryDisplay,
   type GithubRelease,
-  type Argument,
-  type Compare,
-  type Query,
-  type Select,
-  type TTAlias,
-  type TTContext,
-  type Value,
-  type Where,
   type TangledTreeData,
   type AllowableChildProperty,
   type FilterOptions,

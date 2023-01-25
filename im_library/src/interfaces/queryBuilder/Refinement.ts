@@ -1,4 +1,4 @@
-import { TTAlias } from "../query/TTAlias";
+import { TTAlias } from "../../models/AutoGen";
 
 export interface Refinement {
   property: TTAlias;

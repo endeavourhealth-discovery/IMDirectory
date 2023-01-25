@@ -1,6 +1,6 @@
+import { Argument } from "../models/AutoGen";
 import { PropertyShape } from "./PropertyShape";
 import { TTIriRef } from "./TTIriRef";
-import { Argument } from "./query/Argument";
 
 export interface PropertyGroup {
   label: string;
