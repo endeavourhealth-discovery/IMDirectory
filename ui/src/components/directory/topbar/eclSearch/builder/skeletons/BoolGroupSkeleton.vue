@@ -40,7 +40,7 @@ function getSkeletonComponent(componentName: string) {
   switch (componentName) {
     case "Concept":
       return ConceptSkeleton;
-    case "RefinementX":
+    case "Refinement":
       return RefinementSkeleton;
     default:
       throw new Error(`No skeleton component found for: '${componentName}'`);

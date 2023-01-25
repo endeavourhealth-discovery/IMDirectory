@@ -73,7 +73,9 @@ import { Where } from "./query/Where.js";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
 import { FilterOptions } from "./FilterOptions";
+import { AliasEntity } from "./AliasEntity";
 import { PropertyDisplay } from "./PropertyDisplay";
+
 export {
   type AccountItem,
   type Address,
@@ -150,5 +152,6 @@ export {
   type TangledTreeData,
   type AllowableChildProperty,
   type FilterOptions,
+  type AliasEntity
   type PropertyDisplay
 };
