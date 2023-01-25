@@ -17,18 +17,12 @@ import { FiltersAsIris } from "./FiltersAsIris";
 import { FormGenerator } from "./FormGenerator";
 import GraphData from "./GraphData";
 import { HistoryItem } from "./HistoryItem";
-import { InstanceHistoryItem } from "./InstanceHistoryItem";
-import { InstanceSearchResult } from "./InstanceSearchResult";
-import { InstanceTreeItem } from "./InstanceTreeItem";
 import { IriCount } from "./IriCount";
 import { LoginItem } from "./LoginItem";
 import { MapItem } from "./MapItem";
-import { MapPin } from "./MapPin";
 import { MatchPattern } from "./MatchPattern";
-import { ModuleItem } from "./ModuleItem";
 import { Namespace } from "./Namespace";
 import { NextComponentSummary } from "./NextComponentSummary";
-import { ProcessedDataModelProperty } from "./ProcessedDataModelProperty";
 import { Property } from "./Property";
 import { PropertyGroup } from "./PropertyGroup";
 import { PropertyShape } from "./PropertyShape";
@@ -38,11 +32,9 @@ import { QueryRequest } from "./query/QueryRequest.js";
 import { RecentActivityItem } from "./RecentActivityItem";
 import { SearchRequest } from "./SearchRequest";
 import { SearchResponse } from "./SearchResponse";
-import { SimpleCount } from "./SimpleCount";
 import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
 import { TermCode } from "./TermCode";
-import { ToastType } from "./ToastType";
 import { TreeParent } from "./TreeParent";
 import { TTBundle } from "./TTBundle";
 import TTGraphData from "./TTGraphData";
@@ -92,18 +84,12 @@ export {
   type FormGenerator,
   type GraphData,
   type HistoryItem,
-  type InstanceHistoryItem,
-  type InstanceSearchResult,
-  type InstanceTreeItem,
   type IriCount,
   type LoginItem,
   type MapItem,
-  type MapPin,
   type MatchPattern,
-  type ModuleItem,
   type Namespace,
   type NextComponentSummary,
-  type ProcessedDataModelProperty,
   type Property,
   type PropertyGroup,
   type PropertyShape,
@@ -113,11 +99,9 @@ export {
   type RecentActivityItem,
   type SearchRequest,
   type SearchResponse,
-  type SimpleCount,
   type SimpleMap,
   type SimpleMapIri,
   type TermCode,
-  type ToastType,
   type TreeParent,
   type TTBundle,
   type TTGraphData,
