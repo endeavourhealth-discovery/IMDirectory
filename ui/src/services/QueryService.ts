@@ -1,7 +1,7 @@
 import Env from "./Env";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { mapToObject } from "@im-library/helpers/Transforms";
-import { QueryDisplay, QueryObject, TTIriRef, QueryRequest, AllowableChildProperty } from "@im-library/interfaces";
+import { QueryDisplay, QueryObject, TTIriRef, QueryRequest, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
 
 const QueryService = {
@@ -128,7 +128,7 @@ const QueryService = {
     }
   },
 
-  async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<TTIriRef[]> {
+  async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
     try {
       if (controller)
         return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowablePropertySuggestions", {
@@ -140,11 +140,11 @@ const QueryService = {
           params: { iri: conceptIri, searchTerm: searchTerm }
         });
     } catch (error) {
-      return [] as TTIriRef[];
+      return [] as AliasEntity[];
     }
   },
 
-  async getAllowableRangeSuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<TTIriRef[]> {
+  async getAllowableRangeSuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
     try {
       if (controller)
         return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowableRangeSuggestions", {
@@ -156,7 +156,7 @@ const QueryService = {
           params: { iri: conceptIri, searchTerm: searchTerm }
         });
     } catch (error) {
-      return [] as TTIriRef[];
+      return [] as AliasEntity[];
     }
   },
 
