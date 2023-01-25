@@ -9,7 +9,7 @@ export default class EclService {
 
   public async parseEcl(ecl: string): Promise<any> {
     try {
-      return await this.axios.post(Env.API + "api/ecl/public/parseEcl");
+      return await this.axios.post(Env.API + "api/ecl/public/parseEcl", ecl);
     } catch (error) {
       console.error(error);
       return {};
