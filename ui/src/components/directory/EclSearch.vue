@@ -57,7 +57,7 @@ import { ConceptSummary, EclSearchRequest, TTIriRef } from "@im-library/interfac
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { getLogger } from "@im-library/logger/LogConfig";
-import { SetService } from "@/services";
+import { EclService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
@@ -111,7 +111,7 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const eclSearchRequest = { ecl: queryString.value, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
-    const result = await SetService.ECLSearch(eclSearchRequest, controller.value);
+    const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
     if (isObjectHasKeys(result, ["entities", "count", "page"])) {
       searchResults.value = result.entities;
       totalCount.value = result.count;

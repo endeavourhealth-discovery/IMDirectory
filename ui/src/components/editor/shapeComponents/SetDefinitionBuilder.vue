@@ -16,7 +16,7 @@ import SetDefinitionECL from "./setDefinition/SetDefinitionECL.vue";
 import { PropertyGroup, Refinement, SetQueryObject, TTAlias, Query } from "@im-library/interfaces";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { SetService } from "@/services";
+import { EclService, SetService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
@@ -42,7 +42,7 @@ const value = props.value ? JSON.parse(props.value) : {};
 
 watch(ecl, async () => {
   if (builderMode.value === "ECL" && ecl.value) {
-    const eclQuery = await SetService.getQueryFromECL(ecl.value);
+    const eclQuery = await EclService.getQueryFromECL(ecl.value);
     if (eclQuery) {
       const constructedClauses = await SetService.getSetQueryObjectFromQuery(eclQuery);
       clauses.value = constructedClauses;
@@ -57,9 +57,9 @@ watch(
 
     const queryIsNotDefault = JSON.stringify(imquery.value) !== JSON.stringify({ where: { from: [{ includeSubtypes: true }] } });
     if (builderMode.value === "Form" && isValidQuery(clauses.value) && queryIsNotDefault) {
-      const convertedECL = await SetService.getECLFromQuery(imquery.value);
+      const convertedECL = await EclService.getECLFromQuery(imquery.value);
       if (convertedECL) {
-        const isValid = await SetService.isValidECL(convertedECL);
+        const isValid = await EclService.isValidECL(convertedECL);
         if (isValid) {
           ecl.value = convertedECL;
         }
@@ -107,7 +107,7 @@ function isValidQuery(clauses: SetQueryObject[]) {
 }
 
 async function updateECL(data: string): Promise<void> {
-  const isValid = await SetService.isValidECL(data);
+  const isValid = await EclService.isValidECL(data);
   if (isValid) ecl.value = data;
 }
 

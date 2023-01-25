@@ -321,14 +321,6 @@ const EntityService = {
     }
   },
 
-  async getEcl(query: any): Promise<string> {
-    try {
-      return await axios.post(api + "api/entity/public/ecl", query);
-    } catch (error) {
-      return "";
-    }
-  },
-
   async getPartialEntities(typeIris: string[], predicates: string[]): Promise<any[]> {
     try {
       return await axios.get(api + "api/entity/public/partials", { params: { iris: typeIris.join(","), predicates: predicates.join(",") } });
