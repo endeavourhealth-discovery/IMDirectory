@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import * as d3 from "d3";
 import { onMounted, PropType, reactive, ref, Ref, watch } from "vue";
-import { TangledTreeData } from "@im-library/interfaces";
+import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { TangledTreeLayout } from "@im-library/helpers";
 import _ from "lodash";
 import { EntityService } from "@/services";
@@ -59,20 +59,21 @@ onMounted(() => {
 async function getMultiselectMenu(d: any) {
   let node = d["target"]["__data__"] as any;
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
-  const result = !node.id.startsWith(twinNode) ? await EntityService.getDataModelProperties(node.id) : [];
+  const result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.id) : [];
   if (result.length > 0) {
-    result.forEach((r: any) => {
+    result.forEach((property: PropertyDisplay) => {
       multiselectMenu.value.push({
-        iri: r.property["@id"],
-        label: r.property.name,
-        result: r
+        iri: property.property["@id"],
+        label: property.property.name,
+        result: property
       });
     });
   }
   displayMenu.value = multiselectMenu.value.length !== 0;
 }
 
-function addNode(node: any, r: any, typeId: any) {
+function addNode(node: any, r: PropertyDisplay, typeId: any) {
+  console.log(r);
   if (chartData.value.length < node.level + 2) {
     chartData.value.push([
       {
@@ -80,13 +81,13 @@ function addNode(node: any, r: any, typeId: any) {
         parents: [node.id],
         name: r.property.name || r.property["@id"],
         type: "property",
-        cardinality: `${r.minExclusive || r.minInclusive || 0} : ${r.maxExclusive || r.maxInclusive || "*"}`
+        cardinality: r.cardinality
       }
     ]);
     chartData.value.push([
       {
         id: typeId,
-        parents: [r.property["@id"]],
+        parents: [r.property["@id"] as any],
         name: r.type.name || r.type["@id"],
         type: "type"
       }
@@ -98,15 +99,15 @@ function addNode(node: any, r: any, typeId: any) {
         parents: [node.id],
         name: r.property.name || r.property["@id"],
         type: "property",
-        cardinality: `${r.minExclusive || r.minInclusive || 0} : ${r.maxExclusive || r.maxInclusive || "*"}`
+        cardinality: r.cardinality
       });
       if (chartData.value[node.level + 2].some((t: any) => t.id === typeId)) {
         const findIndex = chartData.value[node.level + 2].findIndex((t: any) => t.id === typeId);
-        chartData.value[node.level + 2][findIndex].parents.push(r.property["@id"]);
+        chartData.value[node.level + 2][findIndex].parents?.push(r.property["@id"] as any);
       } else {
         chartData.value[node.level + 2].push({
           id: typeId,
-          parents: [r.property["@id"]],
+          parents: [r.property["@id"] as any],
           name: r.type.name || r.type["@id"],
           type: "type"
         });
@@ -148,24 +149,24 @@ function hideNode(node: any, parentId: any) {
       });
     }
   }
-
-  if (chartData.value[node.level][nodeIndex].parents.length === 1) {
+  const parents = chartData.value[node.level][nodeIndex].parents;
+  if (parents && parents.length === 1) {
     chartData.value[node.level].splice(nodeIndex, 1);
-  } else if (chartData.value[node.level][nodeIndex].parents.length > 1) {
-    const parentIndex = chartData.value[node.level][nodeIndex].parents.findIndex((p: any) => p.id === parentId);
-    chartData.value[node.level][nodeIndex].parents.splice(parentIndex, 1);
+  } else if (parents && parents.length > 1) {
+    const parentIndex = parents.findIndex((p: any) => p.id === parentId);
+    if (parentIndex) parents.splice(parentIndex, 1);
   }
   renderChart();
 }
 
 async function setSelected(iri: any) {
-  const result = (await EntityService.getDataModelProperties(iri)) || [];
+  const result = (await EntityService.getPropertiesDisplay(iri)) || [];
   if (result.length > 0) {
-    result.forEach((r: any) => {
+    result.forEach((property: PropertyDisplay) => {
       selected.value.push({
-        iri: r.property["@id"],
-        label: r.property.name,
-        result: r
+        iri: property.property["@id"],
+        label: property.property.name,
+        result: property
       });
     });
   }

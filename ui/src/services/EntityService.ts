@@ -500,16 +500,6 @@ const EntityService = {
     }
   },
 
-  async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
-    try {
-      return await axios.get(Env.API + "api/entity/public/dataModelProperties", {
-        params: { iri: iri }
-      });
-    } catch (error) {
-      return [] as DataModelProperty[];
-    }
-  },
-
   async getEntityMembers(iri: string, expandMembers?: boolean, expandSubsets?: boolean, limit?: number, withHyperlinks?: boolean): Promise<ExportValueSet> {
     try {
       return await axios.get(Env.API + "api/entity/public/members", {
