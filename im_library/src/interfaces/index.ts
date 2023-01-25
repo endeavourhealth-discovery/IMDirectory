@@ -152,6 +152,6 @@ export {
   type TangledTreeData,
   type AllowableChildProperty,
   type FilterOptions,
-  type AliasEntity
+  type AliasEntity,
   type PropertyDisplay
 };
