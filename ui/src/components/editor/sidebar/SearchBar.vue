@@ -21,7 +21,7 @@ import { Ref, ref, watch, computed, ComputedRef } from "vue";
 import { useStore } from "vuex";
 import Filters from "@/components/directory/topbar/Filters.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { EntityReferenceNode, FilterOptions, Namespace, SearchRequest, TTIriRef } from "@im-library/interfaces";
+import { FilterOptions, SearchRequest, TTIriRef } from "@im-library/interfaces";
 import { SortBy, SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";

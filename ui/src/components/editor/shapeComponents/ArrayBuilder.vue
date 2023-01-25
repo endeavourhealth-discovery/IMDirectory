@@ -37,18 +37,16 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent } from "vue";
-import { useStore } from "vuex";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { ComponentDetails, EntityReferenceNode, Namespace, PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces";
+import { ComponentDetails, PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
-import { isPropertyGroup, isPropertyShape, isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { QueryService, EntityService } from "@/services";
+import { isPropertyGroup, isPropertyShape } from "@im-library/helpers/TypeGuards";
+import { QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import axios from "axios";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },

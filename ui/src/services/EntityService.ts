@@ -8,7 +8,6 @@ import {
   GraphData,
   TermCode,
   Namespace,
-  DataModelProperty,
   ExportValueSet,
   SearchRequest,
   ConceptSummary,

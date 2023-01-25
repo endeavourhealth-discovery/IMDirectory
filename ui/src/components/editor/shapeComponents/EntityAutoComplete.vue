@@ -65,9 +65,8 @@
 <script setup lang="ts">
 import { PropType, watch, ref, Ref, onMounted, inject, onBeforeUnmount } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import axios from "axios";
 import _ from "lodash";
-import { ComponentType, SortBy, EditorMode } from "@im-library/enums";
+import { EditorMode } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
@@ -76,17 +75,7 @@ import { mapToObject } from "@im-library/helpers/Transforms";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import {
-  TTIriRef,
-  ComponentDetails,
-  Namespace,
-  EntityReferenceNode,
-  SearchRequest,
-  ConceptSummary,
-  PropertyShape,
-  QueryRequest,
-  Query
-} from "@im-library/interfaces";
+import { TTIriRef, ConceptSummary, PropertyShape, QueryRequest, Query } from "@im-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 const props = defineProps({

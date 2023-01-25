@@ -103,7 +103,6 @@ import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNo
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import axios from "axios";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPriority, byScheme } = Sorters;
 

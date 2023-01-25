@@ -1,4 +1,4 @@
-import { FilterDefaultsConfig, DefinitionConfig, DashboardLayout } from "@im-library/interfaces";
+import { DefinitionConfig, DashboardLayout } from "@im-library/interfaces";
 import Env from "./Env";
 import axios from "axios";
 

@@ -42,7 +42,7 @@ export default defineComponent({
 import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { ComponentDetails, EntityReferenceNode, Namespace, PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces";
+import { ComponentDetails, PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
