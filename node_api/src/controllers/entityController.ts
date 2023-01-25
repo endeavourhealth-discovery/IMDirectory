@@ -13,7 +13,17 @@ export default class EntityController {
 
   private initRoutes() {
     this.router.get("/public/detailsDisplay", (req, res, next) => this.getDetailsDisplay(req, res, next));
+    this.router.get("/public/propertiesDisplay", (req, res, next) => this.getPropertiesDisplay(req, res, next));
     this.router.get("/public/detailsDisplay/loadMore", (req, res, next) => this.loadMoreDetailsTab(req, res, next));
+  }
+
+  async getPropertiesDisplay(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.entityService.getPropertiesDisplay(req.query.iri as string);
+      res.send(data).end();
+    } catch (e) {
+      next(e);
+    }
   }
 
   async getDetailsDisplay(req: Request, res: Response, next: NextFunction) {

@@ -22,9 +22,11 @@ export default class FhirService {
         expansion.contains = [];
         expansion.contains = expansion.contains.concat(await this.getContains(members,def));
 
-        if (expand) {
+        if (expand && subsets) {
             for (const s of subsets) {
-                expansion.contains = expansion.contains?.concat((await this.getValueSet(s,expand)).expansion.contains);
+              const subset = await this.getValueSet(s,expand);
+              if (subset.expansion && subset.expansion.contains)
+                expansion.contains = expansion.contains.concat(subset.expansion.contains);
             }
         }
 

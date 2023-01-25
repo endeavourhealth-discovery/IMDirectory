@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "vue";
+import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, Query, QueryRequest, Select } from "@im-library/interfaces";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
@@ -33,7 +33,7 @@ import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import SearchResultsTable from "./SearchResultsTable.vue";
 import store from "@/store";
 import Button from "primevue/button";
@@ -85,14 +85,15 @@ function convertResultsToConceptSummaryList(entities: any[]) {
       iri: entity["@id"],
       name: entity[RDFS.LABEL],
       match: entity[RDFS.LABEL],
-      entityType: entity[RDF.TYPE]
+      entityType: entity[RDF.TYPE],
+      code: entity[IM.CODE]
     } as ConceptSummary;
   });
 }
 
 function addDefaultQuerySelect(query: Query) {
   if (!isArrayHasLength(query.select)) query.select = [];
-  const defaultProperties = [RDFS.LABEL, RDF.TYPE];
+  const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
   for (const property of defaultProperties) {
     const select = {
       property: {

@@ -61,21 +61,20 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { TTIriRef } from "@im-library/interfaces";
-import { DataTypeCheckers } from "@im-library/helpers";
-import { EntityService, SetService,  } from "@/services";
+import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-
-const { isObjectHasKeys } = DataTypeCheckers;
+import setupDownloadFile from "@/composables/downloadFile";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
-
+const { downloadFile } = setupDownloadFile(window, document);
 const toast = useToast();
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
@@ -176,14 +175,6 @@ function getFileName(label: string) {
   return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + ".xlsx";
 }
 
-function downloadFile(data: any, fileName: string) {
-  const url = window.URL.createObjectURL(new Blob([data], { type: "application" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  link.click();
-}
-
 function publish() {
   isPublishing.value = true;
   SetService.publish(props.conceptIri)
@@ -211,7 +202,6 @@ async function getPage(event: any) {
   members.value = pagedNewMembers.result;
   loading.value = false;
 }
-
 </script>
 
 <style scoped>
