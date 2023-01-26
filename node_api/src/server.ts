@@ -32,7 +32,7 @@ const app = new App({
     new FhirController(),
     new EclController()
   ],
-  middleWares: [bodyParser.json(), bodyParser.urlencoded({ extended: true })]
+  middleWares: [bodyParser.json({ type: "application/json" }), bodyParser.text({ type: "text/plain" }), bodyParser.urlencoded({ extended: true })]
 });
 
 if (import.meta.env.PROD) app.listen();

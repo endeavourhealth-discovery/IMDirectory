@@ -42,7 +42,7 @@ const EclService = {
   },
 
   async parseEcl(ecl: string): Promise<any> {
-    return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/parseEcl", { ecl: ecl }, { headers: { "Content-Type": "application/json" } });
+    return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/parseEcl", ecl, { headers: { "Content-Type": "text/plain" } });
   }
 };
 

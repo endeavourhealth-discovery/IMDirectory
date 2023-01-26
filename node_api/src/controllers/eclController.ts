@@ -16,7 +16,7 @@ export default class EclController {
   }
 
   async parseEcl(req: Request, res: Response, next: NextFunction) {
-    const ecl = req.body.ecl;
+    const ecl = req.body;
     try {
       const result = await this.eclService.parseEcl(ecl);
       return result;
