@@ -17,6 +17,20 @@ export default class FhirService {
         const members = await this.repo.getMembers(url);
         const subsets =  await this.repo.getSubsets(url);
         const def = await this.repo.getDefinition(url);
+        const details = await this.repo.getMetaData(url);
+
+        result.resourceType = "ValueSet";
+        result.language = "en"
+        result.url = url;
+        result.name = details[0].term.value;
+        result.title = details[0].term.value;
+        result.status = details[0].statusLabel.value.toLowerCase();
+        if(details[0].desc) {
+            result.description = details[0].desc.value;
+        }
+        if(details[0].version) {
+            result.version = details[0].version.value;
+        }
 
         const expansion= new fhirR4.ValueSetExpansion();
         expansion.contains = [];
@@ -55,7 +69,7 @@ export default class FhirService {
             }
             const entitiesFromDef = (await this.queryService.queryIM(queryRequest as any)).entities;
             for (const m of entitiesFromDef) {
-                const entity = await this.repo.getDetails(m["@id"]);
+                const entity = await this.repo.getMetaData(m["@id"]);
                 result.push(this.setValueSetContains(m["@id"], entity[0].term.value, entity[0].code.value, entity[0].scheme.value));
             }
         }

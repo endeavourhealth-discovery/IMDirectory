@@ -14,20 +14,20 @@ export default class FhirController {
 
   private initRoutes() {
 
-    this.router.get("/ValueSet", (req, res, next) => {
+    this.router.get("/ValueSet", async (req, res, next) => {
       /*
         #swagger.summary = 'Retrieves the specified value set'
         #swagger.parameters['url'] = { in: 'query', description: 'url/iri of the value set' }
       */
-      return this.getValueSet(req, res, next, false)
+      return await this.getValueSet(req, res, next, false)
     });
-    this.router.get("/ValueSet/[\$]expand", (req, res, next) => {
+    this.router.get("/ValueSet/[\$]expand", async (req, res, next) => {
       /*
         #swagger.path = '/ValueSet/$expand'
         #swagger.summary = 'Retrieves the specified value set and expands any subsets & members'
         #swagger.parameters['url'] = { in: 'query', description: 'url/iri of the value set' }
       */
-      return this.getValueSet(req, res, next, true)
+      return await this.getValueSet(req, res, next, true)
     });
   }
 

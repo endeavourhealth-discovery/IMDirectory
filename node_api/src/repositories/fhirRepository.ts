@@ -56,16 +56,23 @@ export default class FhirRepository {
         return (await axios.post<string>(Env.API + "api/set/public/query/ecl", query)).data;
     }
 
-    async getDetails(url:string) {
+    async getMetaData(url:string) {
         return await this.graph.execute("SELECT * where { \n" +
-            "    ?s ?imCode ?code ;\n" +
-            "       ?imScheme ?scheme ;\n" +
-            "       ?label ?term .\n" +
+            "   OPTIONAL{ ?s ?imCode ?code .} \n" +
+            "   ?s ?imScheme ?scheme ;\n" +
+            "      ?label ?term ;\n" +
+            "      ?imStatus ?status .\n" +
+            "   ?status ?label ?statusLabel .\n" +
+            "   OPTIONAL{ ?s  ?comment ?desc .}\n" +
+            "   OPTIONAL{ ?s  ?imVersion ?version .}\n" +
             "}", {
             s: iri(url),
             imCode: iri("http://endhealth.info/im#code"),
             imScheme: iri("http://endhealth.info/im#scheme"),
-            label: iri("http://www.w3.org/2000/01/rdf-schema#label")
+            label: iri("http://www.w3.org/2000/01/rdf-schema#label"),
+            imStatus: iri("http://endhealth.info/im#status"),
+            comment: iri("http://www.w3.org/2000/01/rdf-schema#comment"),
+            imVersion: iri("http://endhealth.info/im#version")
         });
 
     }

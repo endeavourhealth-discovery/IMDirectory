@@ -168,7 +168,7 @@ Content-Type: application/json
 
 ###
 
-GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet/http:%2F%2Fendhealth.info%2Fceg%2Fqry%23CSET_EthnicCategoryCEG16
+GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?url=http:%2F%2Fendhealth.info%2Fceg%2Fqry%23CSET_EthnicCategoryCEG16
 
 ###
 
@@ -176,16 +176,23 @@ GET https://dev.endhealth.co.uk/nodeapi/node_api/fhir/r4/ValueSet/$expand?url=ht
 
 ###
 
-GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?iri=http://endhealth.info/im#CSET_EthnicCategoryCEG16_A&expand=true
+GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet/$expand?url=http:%2F%2Fapiqcodes.org%2Fqcodes%23QPredict_331
 
 ###
 
-GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?iri=http://endhealth.info/im#CSET_Covid5&expand=true
-
+GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?url=http://apiqcodes.org/qcodes#QCodeGroup_21
 
 ###
 
-GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?iri=http://endhealth.info/im#VSET_FamilyHistory&expand=true
+GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?url=http://endhealth.info/im#CSET_EthnicCategoryCEG16_A&expand=true
+
+###
+
+GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?url=http://endhealth.info/im#CSET_Covid5&expand=true
+
+###
+
+GET http://127.0.0.1:3000/node_api/fhir/r4/ValueSet?url=http://endhealth.info/im#VSET_FamilyHistory&expand=true
 
 ###
 
