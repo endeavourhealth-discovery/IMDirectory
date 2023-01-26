@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, PropType, ref, Ref, computed } from "vue";
+import { PropType, ref, computed } from "vue";
 import { TermCode } from "@im-library/interfaces";
 import { DataTypeCheckers } from "@im-library/helpers";
 const { isArrayHasLength } = DataTypeCheckers;

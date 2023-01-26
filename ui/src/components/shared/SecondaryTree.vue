@@ -109,13 +109,11 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent, TTIriRef } from "@im-library/interfaces";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { DirectService, EntityService } from "@/services";
-import { useStore } from "vuex";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 
