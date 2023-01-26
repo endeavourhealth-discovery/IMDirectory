@@ -1,5 +1,4 @@
-import { EntityTypes } from "@im-library/config";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM } from "@im-library/vocabulary";
 import {
   EntityReferenceNode,
   FiltersAsIris,
@@ -17,7 +16,6 @@ import {
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
-import { Query } from "@im-library/models";
 const api = Env.API;
 
 const EntityService = {
