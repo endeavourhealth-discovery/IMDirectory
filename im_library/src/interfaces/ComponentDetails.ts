@@ -1,6 +1,5 @@
 import { ComponentType, EditorMode } from "../enums";
-import { PropertyGroup } from "./PropertyGroup";
-import { PropertyShape } from "./PropertyShape";
+import { PropertyGroup, PropertyShape } from "../models/AutoGen";
 
 export interface ComponentDetails {
   id: string;

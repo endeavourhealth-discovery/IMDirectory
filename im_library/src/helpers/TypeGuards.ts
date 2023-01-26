@@ -1,4 +1,5 @@
-import { PropertyGroup, PropertyShape, TTBundle, TTIriRef } from "../interfaces";
+import { TTBundle, TTIriRef } from "../interfaces";
+import { PropertyGroup, PropertyShape } from "../models/AutoGen";
 
 export function isTTIriRef(data: any): data is TTIriRef {
   if (data && (data as TTIriRef)["@id"] && (data as TTIriRef).name && Object.keys(data).length === 2) return true;

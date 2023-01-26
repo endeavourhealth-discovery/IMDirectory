@@ -1,6 +1,7 @@
 import { ComponentType } from "../enums/ComponentType";
-import { PropertyGroup, PropertyShape, NextComponentSummary, ComponentDetails } from "../interfaces";
+import { NextComponentSummary, ComponentDetails } from "../interfaces";
 import { EditorMode } from "../enums";
+import { PropertyGroup, PropertyShape } from "../models/AutoGen";
 
 export function generateNewComponent(
   type: ComponentType,

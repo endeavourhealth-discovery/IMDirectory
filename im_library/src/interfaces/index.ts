@@ -24,8 +24,6 @@ import { MatchPattern } from "./MatchPattern";
 import { Namespace } from "./Namespace";
 import { NextComponentSummary } from "./NextComponentSummary";
 import { Property } from "./Property";
-import { PropertyGroup } from "./PropertyGroup";
-import { PropertyShape } from "./PropertyShape";
 import { QueryComponentDetails } from "./QueryComponentDetails";
 import { QueryNextComponentSummary } from "./QueryNextComponentSummary";
 import { RecentActivityItem } from "./RecentActivityItem";
@@ -82,8 +80,6 @@ export {
   type Namespace,
   type NextComponentSummary,
   type Property,
-  type PropertyGroup,
-  type PropertyShape,
   type QueryComponentDetails,
   type QueryNextComponentSummary,
   type RecentActivityItem,
