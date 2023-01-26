@@ -131,8 +131,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, ref, Ref } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, ref, Ref } from "vue";
+import { useStore } from "vuex";
 import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";

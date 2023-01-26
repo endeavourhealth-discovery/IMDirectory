@@ -33,7 +33,6 @@ import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces";
-import axios from "axios";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyShape>, required: true },

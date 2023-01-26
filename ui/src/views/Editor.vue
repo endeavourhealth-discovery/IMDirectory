@@ -62,27 +62,23 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRouter, useRoute } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
-import { FormGenerator, PropertyGroup, PropertyShape, QueryRequest, TTIriRef } from "@im-library/interfaces";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces";
 import _ from "lodash";
-import axios from "axios";
 import Swal from "sweetalert2";
 import ConfirmDialog from "primevue/confirmdialog";
 import { setupEntity, setupShape } from "./EditorMethods";
 import { useStore } from "vuex";
 import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@im-library/enums";
-import { isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { hasValidIri, hasValidName, hasValidParents, hasValidStatus, hasValidTypes } from "@im-library/helpers/EntityValidator";
-import { iriToUrl } from "@im-library/helpers/Converters";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { DirectService, EntityService, Env } from "@/services";
 
 const router = useRouter();

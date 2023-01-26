@@ -1,4 +1,3 @@
-import { BuilderType } from "../enums/BuilderType";
 import { ComponentType } from "../enums/ComponentType";
 import { PropertyGroup, PropertyShape, NextComponentSummary, ComponentDetails } from "../interfaces";
 import { EditorMode } from "../enums";

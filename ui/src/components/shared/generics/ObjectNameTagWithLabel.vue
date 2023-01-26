@@ -7,10 +7,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, PropType } from "vue";
+import { computed, PropType } from "vue";
 import { TTIriRef } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { mapState, useStore } from "vuex";
+import { useStore } from "vuex";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { TagSeverity } from "@im-library/enums";
 

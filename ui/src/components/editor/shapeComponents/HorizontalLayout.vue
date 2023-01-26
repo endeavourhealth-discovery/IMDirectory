@@ -10,6 +10,7 @@
 import ArrayBuilder from "./ArrayBuilder.vue";
 import VerticalLayout from "./VerticalLayout.vue";
 import SetDefinitionBuilder from "./SetDefinitionBuilder.vue";
+import { PropertyGroup, PropertyShape } from "@im-library/interfaces";
 
 export default defineComponent({
   components: { ArrayBuilder, VerticalLayout, SetDefinitionBuilder }
@@ -17,7 +18,6 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/dist/types/interfaces";
 import { EditorMode } from "@im-library/enums";
 import { PropType, inject, ref, Ref, onMounted, defineComponent } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";

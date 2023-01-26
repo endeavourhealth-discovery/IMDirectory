@@ -143,7 +143,7 @@
 <script setup lang="ts">
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
-import { computed, defineComponent, Ref, ref, watch } from "vue";
+import { computed, Ref, ref, watch } from "vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyIsUsername, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import { PasswordStrength } from "@im-library/enums";

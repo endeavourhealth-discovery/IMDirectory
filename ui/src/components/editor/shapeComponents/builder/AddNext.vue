@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, PropType, ref, Ref, watch, onMounted } from "vue";
+import { PropType, ref, Ref, watch, onMounted } from "vue";
 import { NextComponentSummary, ComponentDetails, PropertyShape } from "@im-library/interfaces";
 import { ComponentType, EditorMode } from "@im-library/enums";
 

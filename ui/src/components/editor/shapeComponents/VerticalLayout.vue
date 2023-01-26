@@ -18,6 +18,7 @@ import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinit
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
+import { PropertyGroup, PropertyShape } from "@im-library/interfaces";
 
 export default defineComponent({
   components: {
@@ -37,7 +38,6 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/dist/types/interfaces";
 import { EditorMode } from "@im-library/enums";
 import { PropType, inject, ref, Ref, onMounted, defineComponent } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
