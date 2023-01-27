@@ -76,8 +76,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, Ref, ref, watch } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, Ref, ref, watch } from "vue";
+import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { PasswordStrength } from "@im-library/enums";
 import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";

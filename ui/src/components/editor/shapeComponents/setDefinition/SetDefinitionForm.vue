@@ -52,11 +52,12 @@
 </template>
 
 <script setup lang="ts">
-import { SetQueryObject, TTAlias, Refinement, AliasEntity } from "@im-library/interfaces";
+import { SetQueryObject, Refinement, AliasEntity } from "@im-library/interfaces";
 import { PropType, ref } from "vue";
 import AddByCodeList from "./AddByCodeList.vue";
 import EntityAutocomplete from "./EntityAutocomplete.vue";
 import { QueryService } from "@/services";
+import { TTAlias } from "@im-library/models/AutoGen";
 
 const defaultTTAlias = { includeSubtypes: true } as TTAlias;
 const includeOptions = [

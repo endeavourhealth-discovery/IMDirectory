@@ -1,4 +1,4 @@
-import { CustomAlert, User } from "@im-library/models";
+import { CustomAlert, User } from "@im-library/interfaces";
 import { Auth } from "aws-amplify";
 import axios from "axios";
 import Env from "./Env";
@@ -16,12 +16,12 @@ const AuthService = {
           "custom:avatar": userToRegister.avatar
         }
       });
-      return new CustomAlert(201, "User registered successfully");
+      return { status: 201, message: "User registered successfully" } as CustomAlert;
     } catch (err: any) {
       if (err.code === "UsernameExistsException") {
-        return new CustomAlert(409, "Username already exists", err);
+        return { status: 409, message: "Username already exists", error: err } as CustomAlert;
       } else {
-        return new CustomAlert(400, "User registration failed", err);
+        return { status: 400, message: "Username registration failed", error: err } as CustomAlert;
       }
     }
   },
@@ -33,49 +33,49 @@ const AuthService = {
   async confirmRegister(username: string, code: string): Promise<CustomAlert> {
     try {
       await Auth.confirmSignUp(username, code);
-      return new CustomAlert(200, "Register confirmation successful");
+      return { status: 200, message: "Register confirmation successful" } as CustomAlert;
     } catch (err: any) {
-      return new CustomAlert(403, "Failed register confirmation", err);
+      return { status: 403, message: "Failed register confirmation", error: err } as CustomAlert;
     }
   },
 
   async signIn(username: string, password: string): Promise<CustomAlert> {
     try {
       const user = await Auth.signIn(username, password);
-      const signedInUser = new User(
-        user.username,
-        user.attributes["custom:forename"],
-        user.attributes["custom:surname"],
-        user.attributes.email,
-        "",
-        user.attributes["custom:avatar"],
-        user.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-      );
-      signedInUser.setId(user.attributes.sub);
-      return new CustomAlert(200, "Login successful", undefined, signedInUser);
+      const signedInUser = {
+        id: user.attributes.sub,
+        username: user.username,
+        firstName: user.attributes["custom:forename"],
+        lastName: user.attributes["custom:surname"],
+        email: user.attributes.email,
+        password: "",
+        avatar: user.attributes["custom:avatar"],
+        roles: user.signInUserSession?.accessToken?.payload["cognito:groups"] || []
+      } as User;
+      return { status: 200, message: "Login successful", error: undefined, user: signedInUser } as CustomAlert;
     } catch (err: any) {
       if (err.code === "UserNotConfirmedException") {
-        return new CustomAlert(401, err.message, err); //message: "User is not confirmed."
+        return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
       }
-      return new CustomAlert(403, "Login failed. Check username and password are correct", err);
+      return { status: 403, message: "Login failed. Check username and password are correct", error: err } as CustomAlert;
     }
   },
 
   async resendConfirmationCode(username: string): Promise<CustomAlert> {
     try {
       await Auth.resendSignUp(username);
-      return new CustomAlert(200, "Code resent successfully");
+      return { status: 200, message: "Code resent successfully" } as CustomAlert;
     } catch (err: any) {
-      return new CustomAlert(400, "Error resending code", err);
+      return { status: 400, message: "Error resending code", error: err } as CustomAlert;
     }
   },
 
   async signOut(): Promise<CustomAlert> {
     try {
       await Auth.signOut({ global: true });
-      return new CustomAlert(200, "Logged out successfully");
+      return { status: 200, message: "Logged out successfully" } as CustomAlert;
     } catch (err: any) {
-      return new CustomAlert(400, "Error logging out from auth server", err);
+      return { status: 400, message: "Error logging out from auth server", error: err } as CustomAlert;
     }
   },
 
@@ -96,31 +96,31 @@ const AuthService = {
         };
         await Auth.updateUserAttributes(user, atts);
         const updateResults = await Auth.currentAuthenticatedUser();
-        const updatedUser = new User(
-          updateResults.username,
-          updateResults.attributes["custom:forename"],
-          updateResults.attributes["custom:surname"],
-          updateResults.attributes.email,
-          "",
-          updateResults.attributes["custom:avatar"],
-          updateResults.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-        );
-        updatedUser.setId(updateResults.attributes.sub);
-        return new CustomAlert(200, "User updated successfully", undefined, updatedUser);
+        const updatedUser = {
+          id: updateResults.attributes.sub,
+          username: updateResults.username,
+          firstName: updateResults.attributes["custom:forename"],
+          lastName: updateResults.attributes["custom:surname"],
+          email: updateResults.attributes.email,
+          password: "",
+          avatar: updateResults.attributes["custom:avatar"],
+          roles: updateResults.signInUserSession?.accessToken?.payload["cognito:groups"] || []
+        } as User;
+        return { status: 200, message: "User updated successfully", error: undefined, user: updatedUser } as CustomAlert;
       } else {
-        return new CustomAlert(403, "Authentication error with server");
+        return { status: 403, message: "Authentication error with server" } as CustomAlert;
       }
     } catch (err: any) {
-      return new CustomAlert(500, "Error authenticating current user", err);
+      return { status: 500, message: "Error authenticating current user", error: err } as CustomAlert;
     }
   },
 
   async verifyEmail(code: string) {
     try {
       const result = await Auth.verifyCurrentUserAttributeSubmit("email", code);
-      return new CustomAlert(200, "Email verified successfully", result);
+      return { status: 200, message: "Email verified successfully" } as CustomAlert;
     } catch (err: any) {
-      return new CustomAlert(500, "Error verifying email", err);
+      return { status: 500, message: "Error verifying email", error: err } as CustomAlert;
     }
   },
 
@@ -128,59 +128,58 @@ const AuthService = {
     try {
       const user = await Auth.currentAuthenticatedUser();
       await Auth.changePassword(user, oldPassword, newPassword);
-      return new CustomAlert(200, "Password successfully changed");
+      return { status: 200, message: "Password successfully changed" } as CustomAlert;
     } catch (err: any) {
-      return new CustomAlert(400, err.message, err);
+      return { status: 400, message: err.message, error: err } as CustomAlert;
     }
   },
 
   async forgotPassword(username: string): Promise<CustomAlert> {
     try {
       await Auth.forgotPassword(username);
-      return new CustomAlert(200, "Password reset request sent to server");
+      return { status: 200, message: "Password reset request sent to server" } as CustomAlert;
     } catch (err: any) {
-      return new CustomAlert(400, "Error resetting password from server", err);
+      return { status: 400, message: "Error resetting password from server", error: err } as CustomAlert;
     }
   },
 
   async forgotPasswordSubmit(username: string, code: string, newPassword: string): Promise<CustomAlert> {
     try {
       await Auth.forgotPasswordSubmit(username, code, newPassword);
-      return new CustomAlert(200, "Password reset successfully");
+      return { status: 200, message: "Password reset successfully" } as CustomAlert;
     } catch (err: any) {
       if (err.code === "ExpiredCodeException") {
-        return new CustomAlert(403, "Code has expired", err);
+        return { status: 403, message: "Code has expired", error: err } as CustomAlert;
       }
-      return new CustomAlert(400, "Error submitting password-reset credentials", err);
+      return { status: 400, message: "Error submitting password-reset credentials", error: err } as CustomAlert;
     }
   },
 
   async forgotUsername(email: string): Promise<CustomAlert> {
     try {
       await Auth.verifyCurrentUserAttribute(email);
-      return new CustomAlert(200, "Account recovery code sent");
+      return { status: 200, message: "Account recovery code sent" } as CustomAlert;
     } catch (err: any) {
-      return new CustomAlert(400, "Error submitting email", err);
+      return { status: 400, message: "Error submitting email", error: err } as CustomAlert;
     }
   },
 
   async getCurrentAuthenticatedUser(): Promise<CustomAlert> {
     try {
       const cognitoUser = await Auth.currentAuthenticatedUser();
-
-      const authenticatedUser = new User(
-        cognitoUser.username,
-        cognitoUser.attributes["custom:forename"],
-        cognitoUser.attributes["custom:surname"],
-        cognitoUser.attributes.email,
-        "",
-        cognitoUser.attributes["custom:avatar"],
-        cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-      );
-      authenticatedUser.setId(cognitoUser.attributes.sub);
-      return new CustomAlert(200, "User authenticated successfully", undefined, authenticatedUser);
+      const authenticatedUser = {
+        id: cognitoUser.attributes.sub,
+        username: cognitoUser.username,
+        firstName: cognitoUser.attributes["custom:forename"],
+        lastName: cognitoUser.attributes["custom:surname"],
+        email: cognitoUser.attributes.email,
+        password: "",
+        avatar: cognitoUser.attributes["custom:avatar"],
+        roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] || []
+      } as User;
+      return { status: 200, message: "User authenticated successfully", error: undefined, user: authenticatedUser } as CustomAlert;
     } catch (err: any) {
-      return new CustomAlert(403, "Error authenticating current user", err);
+      return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
     }
   }
 

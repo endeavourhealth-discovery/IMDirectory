@@ -1,7 +1,7 @@
 import { getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { AllowableChildProperty, IMTreeNode, TTIriRef } from "@im-library/interfaces";
-import { DirectService, EntityService, QueryService } from "@/services";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { AllowableChildProperty } from "@im-library/interfaces";
+import { DirectService, QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { Ref } from "vue";
@@ -9,7 +9,7 @@ import { Ref } from "vue";
 function createNew() {
   const directService = new DirectService();
 
-  async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<IMTreeNode>, node: IMTreeNode): Promise<any[]> {
+  async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode>, node: TreeNode): Promise<any[]> {
     const selectionWrapperCopy = [
       {
         label: "New",

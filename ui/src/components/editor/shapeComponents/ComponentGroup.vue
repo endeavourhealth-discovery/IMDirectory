@@ -23,7 +23,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch, computed, onMounted, defineComponent, inject } from "vue";
+import { PropType, ref, Ref, watch, onMounted, defineComponent, inject } from "vue";
 import _ from "lodash";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";

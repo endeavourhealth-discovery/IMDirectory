@@ -12,7 +12,6 @@
 
 <script setup lang="ts">
 import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
-import axios from "axios";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, Argument } from "@im-library/interfaces";
@@ -20,7 +19,6 @@ import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { QueryService } from "@/services";
-import { IM } from "@im-library/vocabulary";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyShape>, required: true },

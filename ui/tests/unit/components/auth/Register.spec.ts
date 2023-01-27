@@ -46,7 +46,15 @@ describe("register.vue empty", () => {
     AuthService.register = vi.fn().mockResolvedValue({ status: 201, message: "Register successful" });
     AuthService.isEmailRegistered = vi.fn().mockResolvedValue(false);
 
-    testUser = new User("DevTest", "John", "Doe", "devtest@ergo.co.uk", "12345678", Avatars[0], []);
+    testUser = {
+      username: "DevTest",
+      firstName: "John",
+      lastName: "Doe",
+      email: "devtest@ergo.co.uk",
+      password: "12345678",
+      avatar: Avatars[0],
+      roles: []
+    };
     component = render(Register, {
       global: {
         plugins: [PrimeVue],
@@ -74,8 +82,15 @@ describe("register.vue prefilled", () => {
     vi.clearAllMocks();
     AuthService.register = vi.fn().mockResolvedValue({ status: 201, message: "Register successful" });
     AuthService.isEmailRegistered = vi.fn().mockResolvedValue(false);
-
-    testUser = new User("DevTest", "John", "Doe", "devtest@ergo.co.uk", "12345678", Avatars[0], []);
+    testUser = {
+      username: "DevTest",
+      firstName: "John",
+      lastName: "Doe",
+      email: "devtest@ergo.co.uk",
+      password: "12345678",
+      avatar: Avatars[0],
+      roles: []
+    };
     component = render(Register, {
       global: {
         plugins: [PrimeVue],

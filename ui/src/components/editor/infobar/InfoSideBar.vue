@@ -53,11 +53,9 @@ import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
 import _ from "lodash";
 import { DefinitionConfig, TTIriRef } from "@im-library/interfaces";
-import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
 import { getContainerElementOptimalHeight } from "@im-library/helpers/ContainerDimensionGetters";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byOrder } from "@im-library/helpers/Sorters";
-import { Query } from "@im-library/models";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { ConfigService, EntityService } from "@/services";
 import { useRouter } from "vue-router";
@@ -92,7 +90,6 @@ let contentHeightValue = ref(0);
 let configs: Ref<DefinitionConfig[]> = ref([]);
 let conceptAsString = ref("");
 let terms: Ref<any[] | undefined> = ref([]);
-let profile = ref({} as Query.Profile);
 // let isQuery = ref(false);
 let children: Ref<any> = ref({});
 let totalCount = ref(0);
@@ -149,12 +146,6 @@ async function getConcept(iri: string): Promise<void> {
   concept.value["termCodes"] = await EntityService.getEntityTermCodes(iri);
 
   await hydrateDefinition();
-
-  if (isQuery(concept.value[RDF.TYPE])) {
-    profile.value = new Query.Profile(concept.value);
-  } else {
-    profile.value = {} as Query.Profile;
-  }
 }
 
 async function hydrateDefinition() {

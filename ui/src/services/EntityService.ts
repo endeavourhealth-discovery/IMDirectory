@@ -1,5 +1,4 @@
-import { EntityTypes } from "@im-library/config";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM } from "@im-library/vocabulary";
 import {
   EntityReferenceNode,
   FiltersAsIris,
@@ -8,7 +7,6 @@ import {
   GraphData,
   TermCode,
   Namespace,
-  DataModelProperty,
   ExportValueSet,
   SearchRequest,
   ConceptSummary,
@@ -18,7 +16,6 @@ import {
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
-import { Query } from "@im-library/models";
 const api = Env.API;
 
 const EntityService = {
@@ -497,16 +494,6 @@ const EntityService = {
       return await axios.post(api + "api/entity/update", entity);
     } catch (error) {
       return {};
-    }
-  },
-
-  async getDataModelProperties(iri: string): Promise<DataModelProperty[]> {
-    try {
-      return await axios.get(Env.API + "api/entity/public/dataModelProperties", {
-        params: { iri: iri }
-      });
-    } catch (error) {
-      return [] as DataModelProperty[];
     }
   },
 

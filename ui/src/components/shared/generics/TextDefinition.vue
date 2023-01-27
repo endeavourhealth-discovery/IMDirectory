@@ -26,8 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, computed, ref, onMounted, watch } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, ref, onMounted, watch } from "vue";
+import { useStore } from "vuex";
 import { TTBundle } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { bundleToText } from "@im-library/helpers/Transforms";

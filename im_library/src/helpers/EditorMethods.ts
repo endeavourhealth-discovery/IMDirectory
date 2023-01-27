@@ -1,5 +1,6 @@
 import { ComponentType } from "../enums";
-import { PropertyShape, TTIriRef, Argument } from "../interfaces";
+import { TTIriRef } from "../interfaces";
+import { Argument, PropertyShape } from "../models/AutoGen";
 import { IM } from "../vocabulary";
 import { isArrayHasLength } from "./DataTypeCheckers";
 
@@ -14,7 +15,7 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
         if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
           foundValueVariable = valueVariableMap.get(value + property.order);
         } else {
-          foundValueVariable = valueVariableMap.get(value);
+          foundValueVariable = valueVariableMap.get(value as any);
         }
         argResult[key] = foundValueVariable;
       } else {

@@ -11,9 +11,8 @@
 import { nextTick, onMounted, onUnmounted, PropType, Ref, ref, watch } from "vue";
 import palette from "google-palette";
 import _ from "lodash";
-import { ChartOptions } from "@im-library/interfaces";
+import { ChartOptions, PieChartData } from "@im-library/interfaces";
 import { setTooltips, rescaleData } from "@im-library/helpers/ChartRescale";
-import { PieChartData } from "@im-library/models";
 
 const props = defineProps({
   inputData: { type: Array as PropType<any[]>, required: true },
@@ -36,19 +35,17 @@ const chartOptions: Ref<ChartOptions> = ref({
   maintainAspectRatio: true
 });
 const realData: Ref<number[]> = ref([]);
-const chartConceptTypes: Ref<PieChartData> = ref(
-  new PieChartData(
-    [
-      {
-        data: [],
-        backgroundColor: [],
-        hoverBackgroundColor: [],
-        borderRadius: 1
-      }
-    ],
-    []
-  )
-);
+const chartConceptTypes: Ref<PieChartData> = ref({
+  datasets: [
+    {
+      data: [],
+      backgroundColor: [],
+      hoverBackgroundColor: [],
+      borderRadius: 1
+    }
+  ],
+  labels: []
+} as PieChartData);
 
 onMounted(async () => {
   await nextTick();

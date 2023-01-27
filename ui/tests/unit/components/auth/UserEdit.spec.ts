@@ -61,10 +61,16 @@ describe("userEdit.vue ___ user", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    testUser = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/003-man.png", []);
-
-    testUser.setId("9gkej864-l39k-9u87-4lau-w7777b3m5g09");
+    testUser = {
+      id: "9gkej864-l39k-9u87-4lau-w7777b3m5g09",
+      username: "testUser",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@ergosoft.co.uk",
+      password: "",
+      avatar: "colour/003-man.png",
+      roles: []
+    };
 
     AuthService.changePassword = vi.fn().mockResolvedValue({ status: 200, message: "Password change successful" });
 

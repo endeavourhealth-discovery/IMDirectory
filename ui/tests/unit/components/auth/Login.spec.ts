@@ -55,9 +55,16 @@ describe("login.vue with registeredUser", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    testUser = new User("devtest", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/001-man.png", []);
-
-    testUser.setId("9gkej864-l39k-9u87-4lau-w7777b3m5g09");
+    testUser = {
+      id: "9gkej864-l39k-9u87-4lau-w7777b3m5g09",
+      username: "devtest",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@ergosoft.co.uk",
+      password: "",
+      avatar: "colour/001-man.png",
+      roles: []
+    };
 
     AuthService.signIn = vi.fn().mockResolvedValue({ status: 200, message: "Login successful", user: testUser });
 

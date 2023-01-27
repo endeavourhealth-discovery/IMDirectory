@@ -88,7 +88,15 @@ describe("mutations", () => {
   });
 
   it("can updateCurrentUser", () => {
-    const testUser = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/003-man.png");
+    const testUser = {
+      username: "testUser",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@ergosoft.co.uk",
+      password: "",
+      avatar: "colour/003-man.png",
+      roles: []
+    };
     store.commit("updateCurrentUser", testUser);
     expect(store.state.currentUser).toEqual(testUser);
   });
@@ -187,7 +195,7 @@ describe("actions", () => {
   });
 
   it("can logoutCurrentUser ___ 200", async () => {
-    AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
+    AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "logout successful" });
     let result = false;
     await store.dispatch("logoutCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -195,23 +203,31 @@ describe("actions", () => {
     await flushPromises();
     expect(store.state.currentUser).toBe(null);
     expect(store.state.isLoggedIn).toBe(false);
-    expect(result).toEqual(new CustomAlert(200, "logout successful"));
+    expect(result).toEqual({ status: 200, message: "logout successful" });
   });
 
   it("can logoutCurrentUser ___ 400", async () => {
-    AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed 400"));
+    AuthService.signOut = vi.fn().mockResolvedValue({ status: 400, message: "logout failed 400" });
     let result = false;
     await store.dispatch("logoutCurrentUser").then(res => (result = res));
     await flushPromises();
     expect(AuthService.signOut).toBeCalledTimes(1);
     await flushPromises();
-    expect(result).toEqual(new CustomAlert(400, "logout failed 400"));
+    expect(result).toEqual({ status: 400, message: "logout failed 400" });
   });
 
   it("can authenticateCurrentUser___ 200 ___ avatar", async () => {
-    let testUser = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/003-man.png");
-    testUser.setId("8901-test");
-    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(200, "user authenticated", undefined, testUser));
+    let testUser = {
+      id: "8901-test",
+      username: "testUser",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@ergosoft.co.uk",
+      password: "",
+      avatar: "colour/003-man.png",
+      roles: []
+    };
+    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 200, message: "user authenticated", error: undefined, user: testUser });
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -223,9 +239,18 @@ describe("actions", () => {
   });
 
   it("can authenticateCurrentUser___ 200 ___ no avatar", async () => {
-    let testUser = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", "http://testimage.jpg");
-    testUser.setId("8901-test");
-    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(200, "user authenticated", undefined, testUser));
+    let testUser = {
+      id: "8901-test",
+      username: "testUser",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@ergosoft.co.uk",
+      password: "",
+      avatar: "http://testimage.jpg",
+      roles: []
+    };
+
+    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 200, message: "user authenticated", error: undefined, user: testUser });
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -238,8 +263,8 @@ describe("actions", () => {
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
-    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
-    AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(200, "logout successful"));
+    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 403, message: "user authenticated" });
+    AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "logout successful" });
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();
@@ -253,8 +278,8 @@ describe("actions", () => {
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
-    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue(new CustomAlert(403, "user authenticated"));
-    AuthService.signOut = vi.fn().mockResolvedValue(new CustomAlert(400, "logout failed"));
+    AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 403, message: "user authenticated" });
+    AuthService.signOut = vi.fn().mockResolvedValue({ status: 400, message: "logout failed" });
     let result = { authenticated: false };
     await store.dispatch("authenticateCurrentUser").then(res => (result = res));
     await flushPromises();

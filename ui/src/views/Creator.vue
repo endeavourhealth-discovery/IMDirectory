@@ -60,22 +60,19 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { onUnmounted, onBeforeUnmount, onMounted, computed, ref, Ref, watch, inject, defineComponent, PropType, provide, nextTick, ComputedRef } from "vue";
+import { onUnmounted, onMounted, computed, ref, Ref, watch, inject, defineComponent, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import _ from "lodash";
-import axios from "axios";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
 import { setupShape, setupEntity } from "./EditorMethods";
 import { useConfirm } from "primevue/useconfirm";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { FormGenerator, PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces";
-import { isFolder, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { TTIriRef } from "@im-library/interfaces";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { iriToUrl } from "@im-library/helpers/Converters";
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";

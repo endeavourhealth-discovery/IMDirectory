@@ -1,5 +1,5 @@
+import { PropertyGroup } from "../models/AutoGen";
 import { TTIriRef } from "./TTIriRef";
-import { PropertyGroup } from "./PropertyGroup";
 
 export interface FormGenerator {
   iri: string;

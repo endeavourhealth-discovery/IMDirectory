@@ -14,7 +14,6 @@ import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
-import { mapToObject } from "@im-library/helpers/Transforms";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";

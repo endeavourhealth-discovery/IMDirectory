@@ -142,19 +142,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, defineComponent, onMounted, reactive, ref, Ref } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
+import { useStore } from "vuex";
 import { SortBy, ToastSeverity } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ToastOptions } from "@im-library/models";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { EntityService, Env, DirectService } from "@/services";
-import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
-import { Namespace, EntityReferenceNode, TTIriRef, ConceptSummary, SearchRequest, FilterOptions } from "@im-library/interfaces";
+import { TTIriRef, ConceptSummary, SearchRequest, FilterOptions } from "@im-library/interfaces";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 

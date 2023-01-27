@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, Ref, ref } from "vue";
+import { computed, Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { PasswordStrength } from "@im-library/enums";

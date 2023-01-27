@@ -131,16 +131,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, ref, Ref } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, ref, Ref } from "vue";
+import { useStore } from "vuex";
 import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
 import { Avatars } from "@im-library/constants";
 import { PasswordStrength } from "@im-library/enums";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
-import { User } from "@im-library/models";
 import { useRouter } from "vue-router";
+import { User } from "@im-library/interfaces";
 
 const router = useRouter();
 const store = useStore();
@@ -197,8 +197,17 @@ function swalert(icon: SweetAlertIcon, title: string, text: string) {
 
 function handleFieldsVerified(handlePasswordChange: boolean) {
   const oldEmail = currentUser.value.email;
-  const updatedUser = new User(username.value, firstName.value, lastName.value, email1.value, "", selectedAvatar.value, []);
-  updatedUser.setId(currentUser.value.id);
+  const updatedUser = {
+    id: currentUser.value.id,
+    username: username.value,
+    firstName: firstName.value,
+    lastName: lastName.value,
+    email: email1.value,
+    password: "",
+    avatar: selectedAvatar.value,
+    roles: []
+  } as User;
+
   AuthService.updateUser(updatedUser).then(res => {
     if (res.status === 200) {
       if (!handlePasswordChange) {

@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
+import { onMounted, PropType, ref, Ref, watch } from "vue";
 import { ComponentType } from "@im-library/enums";
 import _ from "lodash";
 

@@ -1,7 +1,7 @@
 import { QueryDisplay } from "@im-library/interfaces";
 import { QueryDisplayType } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM } from "@im-library/vocabulary";
 import * as crypto from "crypto";
 
 export function buildQueryDisplayFromQuery(queryAPI: any) {

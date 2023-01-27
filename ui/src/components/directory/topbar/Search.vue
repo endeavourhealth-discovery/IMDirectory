@@ -25,7 +25,7 @@ import Filters from "./Filters.vue";
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { TTIriRef, Namespace, EntityReferenceNode, SearchRequest, FilterOptions } from "@im-library/interfaces";
+import { TTIriRef, SearchRequest, FilterOptions } from "@im-library/interfaces";
 import { SortBy, SortDirection } from "@im-library/enums";
 import { DataTypeCheckers } from "@im-library/helpers";
 import { useRouter } from "vue-router";
