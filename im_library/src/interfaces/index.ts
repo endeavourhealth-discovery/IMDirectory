@@ -115,7 +115,7 @@ export {
   type FilterOptions,
   type PieChartData,
   type User,
-  type CustomAlert
+  type CustomAlert,
   type AliasEntity,
   type PropertyDisplay
 };
