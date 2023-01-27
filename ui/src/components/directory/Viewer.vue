@@ -109,7 +109,6 @@ import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 
 import { DefinitionConfig, TTIriRef } from "@im-library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers, Sorters } from "@im-library/helpers";
-import { Query } from "@im-library/models";
 import { EntityService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import Details from "./viewer/Details.vue";
@@ -130,7 +129,6 @@ const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
 const header = ref("");
 
-const profile = ref({} as Query.Profile);
 const activeTab = ref(0);
 const showGraph = computed(() => isOfTypes(types.value, IM.CONCEPT, SHACL.NODESHAPE));
 const showMappings = computed(() => (isConcept(types.value) || isOfTypes(types.value, RDFS.CLASS)) && !isRecordModel(types.value));
