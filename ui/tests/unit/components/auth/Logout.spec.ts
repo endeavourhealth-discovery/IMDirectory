@@ -39,8 +39,15 @@ describe("Logout.vue", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    user = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", Avatars[0], []);
-
+    user = {
+      username: "testUser",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@ergosoft.co.uk",
+      password: "",
+      avatar: Avatars[0],
+      roles: []
+    };
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "Logout successful" });
 
     mockState.currentUser = user;
@@ -100,7 +107,7 @@ describe("Logout.vue", () => {
   });
 
   it("fires swal on unsuccessful store logout", async () => {
-    mockDispatch.mockResolvedValue(new CustomAlert(400, "logout failed"));
+    mockDispatch.mockResolvedValue({ status: 400, message: "logout failed" });
     const logout = component.getByTestId("logout-submit");
     await fireEvent.click(logout);
 

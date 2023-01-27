@@ -36,11 +36,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent } from "vue";
-import { mapState, useStore } from "vuex";
-import { CustomAlert } from "@im-library/models";
+import { computed } from "vue";
+import { useStore } from "vuex";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
+import { CustomAlert } from "@im-library/interfaces";
 
 const router = useRouter();
 const store = useStore();

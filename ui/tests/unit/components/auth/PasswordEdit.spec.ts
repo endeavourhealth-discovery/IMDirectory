@@ -36,14 +36,22 @@ vi.mock("vue-router", () => ({
 
 describe("PasswordEdit.vue with registeredUser", () => {
   let component: RenderResult;
-  const user = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", Avatars[0], []);
+  const user = {
+    username: "testUser",
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@ergosoft.co.uk",
+    password: "",
+    avatar: Avatars[0],
+    roles: []
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
     AuthService.changePassword = vi.fn().mockResolvedValue({ status: 200, message: "Password change successful" });
     mockState.currentUser = user;
     mockState.isLoggedIn = true;
-    mockDispatch.mockResolvedValue(new CustomAlert(200, "logout success"));
+    mockDispatch.mockResolvedValue({ status: 200, message: "logout success" });
     component = render(PasswordEdit, {
       global: {
         plugins: [PrimeVue],

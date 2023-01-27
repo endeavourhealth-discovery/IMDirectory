@@ -53,6 +53,9 @@ import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
 import { FilterOptions } from "./FilterOptions";
 import { PropertyDisplay } from "./PropertyDisplay";
+import { PieChartData } from "./PieChartData";
+import { User } from "./User";
+import { CustomAlert } from "./CustomAlert";
 export {
   type AccountItem,
   type Address,
@@ -108,5 +111,8 @@ export {
   type TangledTreeData,
   type AllowableChildProperty,
   type FilterOptions,
-  type PropertyDisplay
+  type PropertyDisplay,
+  type PieChartData,
+  type User,
+  type CustomAlert
 };

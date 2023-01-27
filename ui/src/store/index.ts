@@ -1,10 +1,10 @@
 import { createStore } from "vuex";
 import { AuthService } from "@/services";
-import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest, FilterOptions } from "@im-library/interfaces";
+import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest, FilterOptions, CustomAlert } from "@im-library/interfaces";
 import { Avatars } from "@im-library/constants";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
-import { CustomAlert, User } from "@im-library/models";
+import { User } from "@im-library/models";
 import { EntityService } from "@/services";
 import { getLogger } from "@im-library/logger/LogConfig";
 
@@ -243,7 +243,7 @@ export default createStore({
       }
     },
     async logoutCurrentUser({ commit }) {
-      let result = new CustomAlert(500, "Logout (store) failed");
+      let result = { status: 500, message: "Logout (store) failed" } as CustomAlert;
       await AuthService.signOut().then(res => {
         if (res.status === 200) {
           commit("updateCurrentUser", null);

@@ -20,7 +20,7 @@ describe("AuthService", () => {
       });
       await flushPromises();
       expect(Auth.signOut).toHaveBeenCalledTimes(1);
-      expect(promiseResult).toStrictEqual(new CustomAlert(200, "Logged out successfully"));
+      expect(promiseResult).toStrictEqual({ status: 200, message: "Logged out successfully" });
     });
 
     it("returns 400 with auth fail", async () => {
@@ -34,7 +34,7 @@ describe("AuthService", () => {
       });
       await flushPromises();
       expect(Auth.signOut).toHaveBeenCalledTimes(1);
-      expect(promiseResult).toStrictEqual(new CustomAlert(400, "Error logging out from auth server", err));
+      expect(promiseResult).toStrictEqual({ status: 400, message: "Error logging out from auth server", error: err });
     });
   });
 
@@ -61,10 +61,19 @@ describe("AuthService", () => {
         promiseResult = res;
       });
       await flushPromises();
-      const currentUser = new User("devtest", "John", "Doe", "john.doe@ergosoft.co.uk", "", "colour/002-man.png", []);
-      currentUser.setId("9gkej864-l39k-9u87-4lau-w7777b3m5g09");
+      const currentUser = {
+        id: "9gkej864-l39k-9u87-4lau-w7777b3m5g09",
+        username: "devtest",
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@ergosoft.co.uk",
+        password: "",
+        avatar: "colour/002-man.png",
+        roles: []
+      };
+
       expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
-      expect(promiseResult).toStrictEqual(new CustomAlert(200, "User authenticated successfully", undefined, currentUser));
+      expect(promiseResult).toStrictEqual({ status: 200, message: "User authenticated successfully", error: undefined, user: currentUser });
     });
 
     it("returns 400 with auth fail", async () => {
@@ -78,7 +87,7 @@ describe("AuthService", () => {
       });
       await flushPromises();
       expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
-      expect(promiseResult).toStrictEqual(new CustomAlert(403, "Error authenticating current user", err));
+      expect(promiseResult).toStrictEqual({ status: 403, message: "Error authenticating current user", error: err });
     });
   });
 });

@@ -148,9 +148,9 @@ import Swal, { SweetAlertResult } from "sweetalert2";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyIsUsername, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import { PasswordStrength } from "@im-library/enums";
 import { Avatars } from "@im-library/constants";
-import { User } from "@im-library/models";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { User } from "@im-library/interfaces";
 
 const emit = defineEmits({
   userCreated: (payload: User) => true
@@ -199,7 +199,16 @@ function updateFocused(key: string, value: boolean) {
 
 async function handleSubmit(): Promise<void> {
   if (allVerified.value) {
-    const user = new User(username.value, firstName.value, lastName.value, email1.value.toLowerCase(), password1.value, selectedAvatar.value, []);
+    const user = {
+      id: "",
+      username: username.value,
+      firstName: firstName.value,
+      lastName: lastName.value,
+      email: email1.value.toLowerCase(),
+      password: password1.value,
+      avatar: selectedAvatar.value,
+      roles: []
+    } as User;
     AuthService.register(user)
       .then(res => {
         if (res.status === 201) {

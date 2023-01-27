@@ -35,7 +35,15 @@ describe("userDetails.vue", () => {
   let component: RenderResult;
 
   beforeEach(() => {
-    const user = new User("testUser", "John", "Doe", "john.doe@ergosoft.co.uk", "", Avatars[0], []);
+    const user = {
+      username: "testUser",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@ergosoft.co.uk",
+      password: "",
+      avatar: Avatars[0],
+      roles: []
+    };
     vi.clearAllMocks();
     mockState.currentUser = user;
     mockState.isLoggedIn = true;

@@ -3,7 +3,6 @@ import ResizeablePieChart from "@/components/directory/landingPage/pieChartDashC
 import Card from "primevue/card";
 import Chart from "primevue/chart";
 import ProgressSpinner from "primevue/progressspinner";
-import { PieChartData } from "@im-library/models";
 import { setupServer } from "msw/node";
 import { render } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
