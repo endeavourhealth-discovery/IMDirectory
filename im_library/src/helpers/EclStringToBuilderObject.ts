@@ -219,7 +219,7 @@ function processConcept(concept: string, conceptRemainder: string, eclObject: an
 
 function processRefinement(refinement: string, refinementRemainder: string, eclObject: any) {
   const refinementObject = {
-    type: "RefinementX",
+    type: "Refinement",
     operator: "",
     property: { descendants: "", concept: { iri: "" } },
     value: { descendants: "", concept: { iri: "" } }

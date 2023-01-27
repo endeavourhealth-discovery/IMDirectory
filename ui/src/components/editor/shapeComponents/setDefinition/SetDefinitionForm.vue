@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { SetQueryObject, Refinement } from "@im-library/interfaces";
+import { SetQueryObject, Refinement, AliasEntity } from "@im-library/interfaces";
 import { PropType, ref } from "vue";
 import AddByCodeList from "./AddByCodeList.vue";
 import EntityAutocomplete from "./EntityAutocomplete.vue";
@@ -123,11 +123,23 @@ function addConcept(ttAlias?: TTAlias) {
 }
 
 async function getAllowablePropertySuggestions(iri: string, searchTerm: string) {
-  return await QueryService.getAllowablePropertySuggestions(iri, searchTerm);
+  const result = await QueryService.getAllowablePropertySuggestions(iri, searchTerm);
+  return convertAliasEntitiesToTTIriRefs(result);
 }
 
 async function getAllowableRangeSuggestions(iri: string, searchTerm: string) {
-  return await QueryService.getAllowableRangeSuggestions(iri, searchTerm);
+  console.log(iri, searchTerm);
+  const result = await QueryService.getAllowableRangeSuggestions(iri, searchTerm);
+  return convertAliasEntitiesToTTIriRefs(result);
+}
+
+function convertAliasEntitiesToTTIriRefs(aliasEntities: AliasEntity[]) {
+  return aliasEntities.map(aliasEntity => {
+    return {
+      "@id": aliasEntity.iri,
+      name: aliasEntity.name
+    };
+  });
 }
 </script>
 

@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
-import RefinementX from "@/components/directory/topbar/eclSearch/builder/RefinementX.vue";
+import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 
 const props = defineProps({
   value: { type: Object, required: true },
@@ -81,7 +81,7 @@ function addConcept() {
 }
 
 function addRefinement() {
-  add({ type: "RefinementX", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+  add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
 }
 
 function addGroup() {
@@ -97,8 +97,8 @@ function getComponent(componentName: string) {
   switch (componentName) {
     case "Concept":
       return Concept;
-    case "RefinementX":
-      return RefinementX;
+    case "Refinement":
+      return Refinement;
   }
 }
 </script>

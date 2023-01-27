@@ -1,7 +1,8 @@
 import Env from "@/services/env.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { QueryRequest, TTAlias } from "@im-library/interfaces";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { entityToAliasEntity } from "@im-library/helpers/Transforms";
+import { AliasEntity, QueryRequest, TTAlias } from "@im-library/interfaces";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 
 export default class QueryService {
   axios: any;
@@ -19,7 +20,7 @@ export default class QueryService {
     }
   }
 
-  public async getAllowableRangeSuggestions(iri: string, searchTerm?: string) {
+  public async getAllowableRangeSuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
     const allowableRangesQuery = {
       query: {
         "@id": "http://endhealth.info/im#Query_AllowableRanges"
@@ -52,7 +53,7 @@ export default class QueryService {
         activeOnly: true
       }
     } as QueryRequest;
-    let suggestions = [] as any[];
+    let suggestions = [] as AliasEntity[];
     try {
       const allowableRanges = await this.queryIM(allowableRangesQuery);
       if (allowableRanges.entities) {
@@ -67,7 +68,7 @@ export default class QueryService {
           subtypesQuery.textSearch = searchTerm;
         }
         suggestions = (await this.queryIM(subtypesQuery)).entities;
-        suggestions = this.convertTTEntitiesToTTIriRefs(suggestions);
+        this.convertTTEntitiesToAlias(suggestions);
       }
       return suggestions;
     } catch (error) {
@@ -75,7 +76,7 @@ export default class QueryService {
     }
   }
 
-  public async getAllowablePropertySuggestions(iri: string, searchTerm?: string) {
+  public async getAllowablePropertySuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
     const queryRequest = {
       query: {
         "@id": "http://endhealth.info/im#Query_AllowableProperties"
@@ -94,21 +95,18 @@ export default class QueryService {
       queryRequest.textSearch = searchTerm;
     }
 
-    let suggestions = [] as any[];
+    let suggestions = [] as AliasEntity[];
     try {
       suggestions = (await this.queryIM(queryRequest)).entities;
-      return this.convertTTEntitiesToTTIriRefs(suggestions);
+      this.convertTTEntitiesToAlias(suggestions);
+      return suggestions;
     } catch (error) {
       return suggestions;
     }
   }
 
-  convertTTEntitiesToTTIriRefs(ttEntities: any[]) {
-    return ttEntities.map(ttEntity => this.convertTTEntityToTTIriRef(ttEntity));
-  }
-
-  private convertTTEntityToTTIriRef(ttEntity: any) {
-    return { "@id": ttEntity["@id"], name: ttEntity[RDFS.LABEL] };
+  convertTTEntitiesToAlias(ttEntities: any[]) {
+    ttEntities.forEach(ttEntity => entityToAliasEntity(ttEntity));
   }
 
   public async getAllowableChildTypes(iri: string) {
@@ -124,9 +122,9 @@ export default class QueryService {
       query: {
         "@id": "http://endhealth.info/im#AllowableChildTypes"
       }
-    };
+    } as QueryRequest;
 
-    const response = await this.queryIM(queryRequest as any);
+    const response = await this.queryIM(queryRequest);
 
     if (!isObjectHasKeys(response)) return [];
     return response.entities;

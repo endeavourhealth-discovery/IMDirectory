@@ -11,6 +11,7 @@ phases:
       - echo $IP of CodeBuild Instance
       - echo Node install
       - rm /usr/local/bin/node
+      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
       - curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
       - sudo apt-get install nodejs
       - node -v
