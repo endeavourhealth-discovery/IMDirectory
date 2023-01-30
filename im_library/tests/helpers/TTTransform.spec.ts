@@ -2,8 +2,8 @@ import { transformTT } from "@/helpers/TTTransform";
 import { describe, expect, it } from "vitest";
 import { OntologiesFolderTTEntity, OntologiesFolderTransformed, EventTTEntity, EventTTEntityTransformed } from "./TTTransform.testData";
 
-describe("Converters", () => {
-  describe("iriToUrl", () => {
+describe("TTTransform", () => {
+  describe("transformTT", () => {
     it("WHEN ttEntity is empty object __ THEN return empty object", () => {
       expect(transformTT({})).toStrictEqual({});
     });
