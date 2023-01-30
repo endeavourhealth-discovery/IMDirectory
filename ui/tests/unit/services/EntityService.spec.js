@@ -122,14 +122,6 @@ describe("EntityService.ts ___ axios success", () => {
     expect(result).toBe("axios get return");
   });
 
-  it("can getEcl", async () => {
-    const testBundle = { entity: "testEntity", predicates: "testPredicates" };
-    const result = await EntityService.getEcl(testBundle);
-    expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(api + "api/entity/public/ecl", testBundle);
-    expect(result).toBe("axios post return");
-  });
-
   it("can getMatchedFrom", async () => {
     const result = await EntityService.getMatchedFrom("testString");
     expect(axios.get).toHaveBeenCalledTimes(1);
@@ -256,13 +248,5 @@ describe("EntityService.ts ___ axios fail", () => {
     expect(axios.get).toHaveBeenCalledTimes(1);
     expect(axios.get).toHaveBeenCalledWith(api + "api/entity/public/namespaces");
     expect(result).toStrictEqual([]);
-  });
-
-  it("can getEcl", async () => {
-    const testBundle = { entity: "testEntity", predicates: "testPredicates" };
-    const result = await EntityService.getEcl(testBundle);
-    expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post).toHaveBeenCalledWith(api + "api/entity/public/ecl", testBundle);
-    expect(result).toBe("");
   });
 });

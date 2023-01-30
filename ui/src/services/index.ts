@@ -10,6 +10,7 @@ import ClassService from "./ClassService";
 import GithubService from "./GithubService";
 import ProvService from "./ProvService";
 import ParserService from "./ParserService";
+import EclService from "./EclService";
 
 export {
   AuthService,
@@ -23,5 +24,6 @@ export {
   SetService,
   ClassService,
   GithubService,
-  ProvService
+  ProvService,
+  EclService
 };

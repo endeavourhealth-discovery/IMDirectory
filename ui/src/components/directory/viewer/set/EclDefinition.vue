@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { onMounted, PropType, ref } from "vue";
 import { TTBundle } from "@im-library/interfaces";
-import { EntityService } from "@/services";
+import { EclService } from "@/services";
 
 const props = defineProps({
   definition: { type: String, required: true }
@@ -18,7 +18,7 @@ const eclString = ref("");
 onMounted(async () => await init());
 
 async function init() {
-  const result = await EntityService.getEcl(JSON.parse(props.definition));
+  const result = await EclService.getEcl(JSON.parse(props.definition));
   if (!result) eclString.value = "Error";
   else eclString.value = result;
 }

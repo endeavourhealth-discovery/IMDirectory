@@ -6,7 +6,7 @@ import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
 import testData from "./EclSearch.testData";
-import { SetService } from "@/services";
+import { EclService, SetService } from "@/services";
 import { expect, it } from "vitest";
 import { fakerFactory } from "../../../../src/mocks/factory";
 import VueClipboard from "vue3-clipboard";
@@ -60,7 +60,7 @@ describe("EclSearch.vue", async () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    mockECLSearch = vi.spyOn(SetService, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    mockECLSearch = vi.spyOn(EclService, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
 
     component = render(ExpressionConstraintsSearch, {
       global: {

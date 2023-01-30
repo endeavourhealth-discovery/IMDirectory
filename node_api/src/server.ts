@@ -12,6 +12,7 @@ import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
 import ParserController from "./controllers/parserController";
 import FhirController from "@/controllers/fhirController";
+import EclController from "@/controllers/eclController";
 
 dotenv.config();
 
@@ -28,9 +29,10 @@ const app = new App({
     new EntityController(),
     new CognitoController(),
     new ParserController(),
-    new FhirController()
+    new FhirController(),
+    new EclController()
   ],
-  middleWares: [bodyParser.json(), bodyParser.urlencoded({ extended: true })]
+  middleWares: [bodyParser.json({ type: "application/json" }), bodyParser.text({ type: "text/plain" }), bodyParser.urlencoded({ extended: true })]
 });
 
 if (import.meta.env.PROD) app.listen();

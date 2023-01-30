@@ -3,36 +3,6 @@ import { Query, SearchResponse, SetQueryObject } from "@im-library/interfaces";
 import Env from "./Env";
 
 const SetService = {
-  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<SearchResponse> {
-    try {
-      return await axios.post(Env.API + "api/set/public/eclSearch", eclSearchRequest, {
-        signal: controller.signal
-      });
-    } catch (error) {
-      return {} as SearchResponse;
-    }
-  },
-
-  async evaluateEcl(ecl: string): Promise<any> {
-    return axios.post(Env.API + "api/set/public/evaluateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
-  },
-
-  async getQueryFromECL(ecl: string): Promise<Query> {
-    return axios.get(Env.API + "api/set/public/ecl/query", {
-      params: { ecl: ecl }
-    });
-  },
-
-  async isValidECL(ecl: string): Promise<boolean> {
-    return axios.get(Env.API + "api/set/public/ecl/validity", {
-      params: { ecl: ecl }
-    });
-  },
-
-  async getECLFromQuery(query: Query): Promise<string> {
-    return axios.post(Env.API + "api/set/public/query/ecl", query);
-  },
-
   async publish(conceptIri: string) {
     return axios.get(Env.API + "api/set/publish", {
       params: { iri: conceptIri }
