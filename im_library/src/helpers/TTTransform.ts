@@ -1,18 +1,28 @@
-import { isObjectHasKeys } from "./DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function transformTT(ttEntity: any) {
   if (!isObjectHasKeys(ttEntity)) return {};
   ttEntity = transformIris(ttEntity);
+  transformObjectRecursively(ttEntity);
+  return ttEntity;
+}
 
+function transformObjectRecursively(ttEntity: any) {
   for (const key of Object.keys(ttEntity)) {
     if (key.startsWith("http")) {
       const property = getNameFromIri(key);
       ttEntity[property] = ttEntity[key];
       delete ttEntity[key];
+
+      if (isArrayHasLength(ttEntity[property])) {
+        for (const nestedEntity of ttEntity[property]) {
+          transformObjectRecursively(nestedEntity);
+        }
+      } else if (isObjectHasKeys(ttEntity[property])) {
+        transformObjectRecursively(ttEntity[property]);
+      }
     }
   }
-
-  return ttEntity;
 }
 
 function transformIris(ttEntity: any) {

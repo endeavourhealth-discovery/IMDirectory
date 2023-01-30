@@ -1,6 +1,6 @@
 import { transformTT } from "@/helpers/TTTransform";
 import { describe, expect, it } from "vitest";
-import { OntologiesFolderTTEntity, OntologiesFolderTransformed } from "./TTTransform.testData";
+import { OntologiesFolderTTEntity, OntologiesFolderTransformed, EventTTEntity, EventTTEntityTransformed } from "./TTTransform.testData";
 
 describe("Converters", () => {
   describe("iriToUrl", () => {
@@ -10,6 +10,10 @@ describe("Converters", () => {
 
     it("WHEN ttEntity is populated __ THEN return a simple object without iri properties", () => {
       expect(transformTT(OntologiesFolderTTEntity)).toStrictEqual(OntologiesFolderTransformed);
+    });
+
+    it("WHEN ttEntity has nested objects __ THEN properties of nested object get transformed", () => {
+      expect(transformTT(EventTTEntity)).toStrictEqual(EventTTEntityTransformed);
     });
   });
 });
