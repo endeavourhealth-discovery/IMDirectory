@@ -77,14 +77,14 @@ async function setupAxiosInterceptors(axios: any) {
       return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
     },
     (error: any) => {
-      if (error.response.status === 403) {
+      if (error?.response?.status === 403) {
         toast.add({
           severity: "error",
           summary: "Access denied",
           detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
         });
         window.location.href = Env.AUTH_URL + "login?returnUrl=" + route.fullPath;
-      } else if (error.response.status === 401) {
+      } else if (error?.response?.status === 401) {
         toast.add({
           severity: "error",
           summary: "Access denied",
@@ -94,7 +94,7 @@ async function setupAxiosInterceptors(axios: any) {
             ". Please contact an admin to change your account security clearance if you require access to this resource."
         });
         router.push({ name: "AccessDenied" }).then();
-      } else if (error.response.status === 500 && error.code === "ERR_BAD_RESPONSE") {
+      } else if (error?.response?.status === 500 && error.code === "ERR_BAD_RESPONSE") {
         router.push({ name: "ServerOffline" }).then();
       } else {
         console.log(error);
