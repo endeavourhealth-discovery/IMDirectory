@@ -20,6 +20,23 @@ export const OntologiesFolderTransformed = {
   scheme: [{ iri: "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
 };
 
+export const customMap = {
+  "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": "rdfType",
+  "http://www.w3.org/2000/01/rdf-schema#label": "name",
+  "http://www.w3.org/2000/01/rdf-schema#comment": "description"
+};
+
+export const OntologiesFolderCustomTransformed = {
+  iri: "http://endhealth.info/im#HealthModelOntology",
+  rdfType: [{ iri: "http://endhealth.info/im#Folder", name: "Folder" }],
+  name: "Ontologies",
+  description: "A folder of ontologies, data models, and taxonomies",
+  status: [{ iri: "http://endhealth.info/im#Active", name: "Active" }],
+  order: 1,
+  isContainedIn: [{ iri: "http://endhealth.info/im#InformationModel", name: "Health Information Model" }],
+  scheme: [{ iri: "http://endhealth.info/im#", name: "Endeavour code scheme and graph" }]
+};
+
 export const EventTTEntity = {
   "@id": "http://endhealth.info/im#Event",
   "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [

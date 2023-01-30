@@ -1,6 +1,13 @@
 import { transformTT } from "@/helpers/TTTransform";
 import { describe, expect, it } from "vitest";
-import { OntologiesFolderTTEntity, OntologiesFolderTransformed, EventTTEntity, EventTTEntityTransformed } from "./TTTransform.testData";
+import {
+  OntologiesFolderTTEntity,
+  OntologiesFolderTransformed,
+  EventTTEntity,
+  EventTTEntityTransformed,
+  OntologiesFolderCustomTransformed,
+  customMap
+} from "./TTTransform.testData";
 
 describe("TTTransform", () => {
   describe("transformTT", () => {
@@ -14,6 +21,10 @@ describe("TTTransform", () => {
 
     it("WHEN ttEntity has nested objects __ THEN properties of nested object get transformed", () => {
       expect(transformTT(EventTTEntity)).toStrictEqual(EventTTEntityTransformed);
+    });
+
+    it("WHEN custom map along with ttEntity __ THEN use map for property names", () => {
+      expect(transformTT(OntologiesFolderTTEntity, customMap)).toStrictEqual(OntologiesFolderCustomTransformed);
     });
   });
 });
