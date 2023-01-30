@@ -7,6 +7,7 @@ import GraphTranslator from "./GraphTranslator";
 import Converters from "./Converters";
 import Sorters from "./Sorters";
 import Transforms from "./Transforms";
+import TTTransform from "./TTTransform";
 import UserMethods from "./UserMethods";
 import EditorBuilderJsonMethods from "./EditorBuilderJsonMethods";
 import EditorMethods from "./EditorMethods";
@@ -37,5 +38,6 @@ export {
   QueryBuilderMethods,
   UtililityMethods,
   TangledTreeLayout,
-  StringManipulators
+  StringManipulators,
+  TTTransform
 };
