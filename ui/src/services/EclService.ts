@@ -41,8 +41,8 @@ const EclService = {
     return axios.post(Env.API + "api/ecl/public/eclFromQuery", query);
   },
 
-  async parseEcl(ecl: string): Promise<any> {
-    return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/parseEcl", ecl, { headers: { "Content-Type": "text/plain" } });
+  async getBuildFromEcl(ecl: string): Promise<any> {
+    return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToBuilder", ecl, { headers: { "Content-Type": "text/plain" } });
   }
 };
 
