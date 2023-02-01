@@ -27,7 +27,8 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { ConceptSummary, Query, QueryRequest, Select } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
+import { Query, QueryRequest, Select } from "@im-library/models/AutoGen";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
@@ -52,6 +53,7 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const queryRequest = {} as QueryRequest;
+
     try {
       queryRequest.query = parseQuery();
       addDefaultQuerySelect(queryRequest.query);
@@ -96,9 +98,7 @@ function addDefaultQuerySelect(query: Query) {
   const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
   for (const property of defaultProperties) {
     const select = {
-      property: {
-        "@id": property
-      }
+      "@id": property
     } as Select;
     query.select.push(select);
   }
