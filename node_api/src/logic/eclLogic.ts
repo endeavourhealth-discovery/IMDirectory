@@ -14,7 +14,7 @@ export function eclToBuild(ecl: string) {
   parser.buildParseTrees = true;
   const tree = parser.ecl();
   const visitor = new ECLBuilderVisitor();
-  tree.accept(visitor);
+  const result = visitor.visit(tree);
   // const ctxExpression = tree.expressionconstraint();
   // console.log(ctxExpression);
   // const ctxRefinement = ctxExpression.refinedexpressionconstraint();
@@ -25,13 +25,13 @@ export function eclToBuild(ecl: string) {
   // console.log(conjunctionRefinement);
   // const ctxSubRefinement = ctxEclRefinement.subrefinement();
   // console.log(ctxSubRefinement);
-  console.log(visitor.Build);
-  console.log(JSON.parse(visitor.Build));
+  const resultAsJson = JSON.stringify(result);
+  console.log(resultAsJson);
   // let buildObject = {};
   // const builderEcl = new BuilderECLListener(buildObject);
   // const eclListener = new ECLListener();
   // antlr4.tree.ParseTreeWalker.DEFAULT.walk(eclListener, tree);
-  return true;
+  return resultAsJson;
 }
 
 export default { eclToBuild };
