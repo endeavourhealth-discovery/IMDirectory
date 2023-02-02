@@ -58,6 +58,7 @@ import AddByCodeList from "./AddByCodeList.vue";
 import EntityAutocomplete from "./EntityAutocomplete.vue";
 import { QueryService } from "@/services";
 import { TTAlias } from "@im-library/models/AutoGen";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const defaultTTAlias = { includeSubtypes: true } as TTAlias;
 const includeOptions = [
@@ -133,6 +134,7 @@ async function getAllowableRangeSuggestions(iri: string, searchTerm: string) {
 }
 
 function convertAliasEntitiesToTTIriRefs(aliasEntities: AliasEntity[]) {
+  if (!isArrayHasLength(aliasEntities)) return [];
   return aliasEntities.map(aliasEntity => {
     return {
       "@id": aliasEntity.iri,

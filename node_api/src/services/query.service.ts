@@ -2,7 +2,8 @@ import Env from "@/services/env.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity } from "@im-library/interfaces";
-import { From, QueryRequest, TTAlias } from "@im-library/models/AutoGen";
+import { From, QueryRequest, TTAlias, TTIriRef } from "@im-library/models/AutoGen";
+import { Console } from "console";
 
 export default class QueryService {
   axios: any;
@@ -34,36 +35,27 @@ export default class QueryService {
         }
       ]
     } as QueryRequest;
+
     const subtypesQuery = {
       query: {
-        name: "All subtypes of an entity, active only",
-        from: {
-          bool: "or",
-          from: [] as any[]
-        },
-        select: [
-          {
-            "@id": "http://endhealth.info/im#code"
-          },
-          {
-            "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-          }
-        ],
-        limit: 100,
-        activeOnly: true
-      }
+        "@id": "http://endhealth.info/im#Query_GetIsas"
+      },
+      argument: [
+        {
+          parameter: "this",
+          valueIriList: [] as TTIriRef[]
+        }
+      ]
     } as QueryRequest;
+
     let suggestions = [] as AliasEntity[];
     try {
       const allowableRanges = await this.queryIM(allowableRangesQuery);
       if (allowableRanges.entities) {
-        for (const entity of allowableRanges.entities) {
-          const from = {
-            includeSubtypes: true,
-            "@id": entity["@id"]
-          } as From;
-          subtypesQuery.query.from.from.push(from);
-        }
+        subtypesQuery.argument[0].valueIriList = allowableRanges.entities.map((entity: any) => {
+          return { "@id": entity["@id"] };
+        });
+
         if (searchTerm) {
           subtypesQuery.textSearch = searchTerm;
         }
@@ -89,7 +81,7 @@ export default class QueryService {
           }
         }
       ]
-    } as any as QueryRequest;
+    } as QueryRequest;
 
     if (searchTerm) {
       queryRequest.textSearch = searchTerm;
