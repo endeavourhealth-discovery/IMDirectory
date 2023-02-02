@@ -64,11 +64,9 @@ export default class QueryService {
           } as From;
           subtypesQuery.query.from.from.push(from);
         }
-        // TODO add searchTerm
-        // if (searchTerm) {
-        //   subtypesQuery.textSearch = searchTerm;
-        // }
-        JSON.stringify(subtypesQuery);
+        if (searchTerm) {
+          subtypesQuery.textSearch = searchTerm;
+        }
         suggestions = (await this.queryIM(subtypesQuery)).entities;
         this.convertTTEntitiesToAlias(suggestions);
       }
