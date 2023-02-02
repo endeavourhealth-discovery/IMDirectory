@@ -128,7 +128,6 @@ async function getAllowablePropertySuggestions(iri: string, searchTerm: string) 
 }
 
 async function getAllowableRangeSuggestions(iri: string, searchTerm: string) {
-  console.log(iri, searchTerm);
   const result = await QueryService.getAllowableRangeSuggestions(iri, searchTerm);
   return convertAliasEntitiesToTTIriRefs(result);
 }

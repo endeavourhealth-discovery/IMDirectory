@@ -1,8 +1,8 @@
 import Env from "@/services/env.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, QueryRequest, TTAlias } from "@im-library/interfaces";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { AliasEntity } from "@im-library/interfaces";
+import { From, QueryRequest, TTAlias } from "@im-library/models/AutoGen";
 
 export default class QueryService {
   axios: any;
@@ -37,19 +37,19 @@ export default class QueryService {
     const subtypesQuery = {
       query: {
         name: "All subtypes of an entity, active only",
-        from: [] as any[],
+        from: {
+          bool: "or",
+          from: [] as any[]
+        },
         select: [
           {
-            property: {
-              "@id": "http://endhealth.info/im#code"
-            }
+            "@id": "http://endhealth.info/im#code"
           },
           {
-            property: {
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-            }
+            "@id": "http://www.w3.org/2000/01/rdf-schema#label"
           }
         ],
+        limit: 100,
         activeOnly: true
       }
     } as QueryRequest;
@@ -61,12 +61,14 @@ export default class QueryService {
           const from = {
             includeSubtypes: true,
             "@id": entity["@id"]
-          };
-          subtypesQuery.query.from.push(from as TTAlias);
+          } as From;
+          subtypesQuery.query.from.from.push(from);
         }
-        if (searchTerm) {
-          subtypesQuery.textSearch = searchTerm;
-        }
+        // TODO add searchTerm
+        // if (searchTerm) {
+        //   subtypesQuery.textSearch = searchTerm;
+        // }
+        JSON.stringify(subtypesQuery);
         suggestions = (await this.queryIM(subtypesQuery)).entities;
         this.convertTTEntitiesToAlias(suggestions);
       }
@@ -89,7 +91,7 @@ export default class QueryService {
           }
         }
       ]
-    } as QueryRequest;
+    } as any as QueryRequest;
 
     if (searchTerm) {
       queryRequest.textSearch = searchTerm;
@@ -122,7 +124,7 @@ export default class QueryService {
       query: {
         "@id": "http://endhealth.info/im#AllowableChildTypes"
       }
-    } as QueryRequest;
+    } as any as QueryRequest;
 
     const response = await this.queryIM(queryRequest);
 
