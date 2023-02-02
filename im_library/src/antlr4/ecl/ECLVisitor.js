@@ -48,6 +48,12 @@ export default class ECLVisitor extends antlr4.tree.ParseTreeVisitor {
 	}
 
 
+	// Visit a parse tree produced by ECLParser#bracketcompoundexpressionconstraint.
+	visitBracketcompoundexpressionconstraint(ctx) {
+	  return this.visitChildren(ctx);
+	}
+
+
 	// Visit a parse tree produced by ECLParser#dottedexpressionconstraint.
 	visitDottedexpressionconstraint(ctx) {
 	  return this.visitChildren(ctx);
@@ -174,6 +180,12 @@ export default class ECLVisitor extends antlr4.tree.ParseTreeVisitor {
 	}
 
 
+	// Visit a parse tree produced by ECLParser#compoundrefinementset.
+	visitCompoundrefinementset(ctx) {
+	  return this.visitChildren(ctx);
+	}
+
+
 	// Visit a parse tree produced by ECLParser#conjunctionrefinementset.
 	visitConjunctionrefinementset(ctx) {
 	  return this.visitChildren(ctx);
@@ -186,20 +198,26 @@ export default class ECLVisitor extends antlr4.tree.ParseTreeVisitor {
 	}
 
 
+	// Visit a parse tree produced by ECLParser#bracketcompoundrefinementset.
+	visitBracketcompoundrefinementset(ctx) {
+	  return this.visitChildren(ctx);
+	}
+
+
 	// Visit a parse tree produced by ECLParser#subrefinement.
 	visitSubrefinement(ctx) {
 	  return this.visitChildren(ctx);
 	}
 
 
-	// Visit a parse tree produced by ECLParser#refinementgroup.
-	visitRefinementgroup(ctx) {
+	// Visit a parse tree produced by ECLParser#bracketsubrefinement.
+	visitBracketsubrefinement(ctx) {
 	  return this.visitChildren(ctx);
 	}
 
 
-	// Visit a parse tree produced by ECLParser#eclattributeset.
-	visitEclattributeset(ctx) {
+	// Visit a parse tree produced by ECLParser#compoundattributeset.
+	visitCompoundattributeset(ctx) {
 	  return this.visitChildren(ctx);
 	}
 
@@ -212,6 +230,12 @@ export default class ECLVisitor extends antlr4.tree.ParseTreeVisitor {
 
 	// Visit a parse tree produced by ECLParser#disjunctionattributeset.
 	visitDisjunctionattributeset(ctx) {
+	  return this.visitChildren(ctx);
+	}
+
+
+	// Visit a parse tree produced by ECLParser#bracketattributeset.
+	visitBracketattributeset(ctx) {
 	  return this.visitChildren(ctx);
 	}
 
@@ -230,6 +254,24 @@ export default class ECLVisitor extends antlr4.tree.ParseTreeVisitor {
 
 	// Visit a parse tree produced by ECLParser#eclattribute.
 	visitEclattribute(ctx) {
+	  return this.visitChildren(ctx);
+	}
+
+
+	// Visit a parse tree produced by ECLParser#eclattributestringvalue.
+	visitEclattributestringvalue(ctx) {
+	  return this.visitChildren(ctx);
+	}
+
+
+	// Visit a parse tree produced by ECLParser#eclattributenumbervalue.
+	visitEclattributenumbervalue(ctx) {
+	  return this.visitChildren(ctx);
+	}
+
+
+	// Visit a parse tree produced by ECLParser#eclattributeexpressionvalue.
+	visitEclattributeexpressionvalue(ctx) {
 	  return this.visitChildren(ctx);
 	}
 
@@ -266,12 +308,6 @@ export default class ECLVisitor extends antlr4.tree.ParseTreeVisitor {
 
 	// Visit a parse tree produced by ECLParser#reverseflag.
 	visitReverseflag(ctx) {
-	  return this.visitChildren(ctx);
-	}
-
-
-	// Visit a parse tree produced by ECLParser#eclattributename.
-	visitEclattributename(ctx) {
 	  return this.visitChildren(ctx);
 	}
 

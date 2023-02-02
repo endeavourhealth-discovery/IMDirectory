@@ -68,6 +68,15 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
+	// Enter a parse tree produced by ECLParser#bracketcompoundexpressionconstraint.
+	enterBracketcompoundexpressionconstraint(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#bracketcompoundexpressionconstraint.
+	exitBracketcompoundexpressionconstraint(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ECLParser#dottedexpressionconstraint.
 	enterDottedexpressionconstraint(ctx) {
 	}
@@ -257,6 +266,15 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
+	// Enter a parse tree produced by ECLParser#compoundrefinementset.
+	enterCompoundrefinementset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#compoundrefinementset.
+	exitCompoundrefinementset(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ECLParser#conjunctionrefinementset.
 	enterConjunctionrefinementset(ctx) {
 	}
@@ -275,6 +293,15 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
+	// Enter a parse tree produced by ECLParser#bracketcompoundrefinementset.
+	enterBracketcompoundrefinementset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#bracketcompoundrefinementset.
+	exitBracketcompoundrefinementset(ctx) {
+	}
+
+
 	// Enter a parse tree produced by ECLParser#subrefinement.
 	enterSubrefinement(ctx) {
 	}
@@ -284,21 +311,21 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by ECLParser#refinementgroup.
-	enterRefinementgroup(ctx) {
+	// Enter a parse tree produced by ECLParser#bracketsubrefinement.
+	enterBracketsubrefinement(ctx) {
 	}
 
-	// Exit a parse tree produced by ECLParser#refinementgroup.
-	exitRefinementgroup(ctx) {
+	// Exit a parse tree produced by ECLParser#bracketsubrefinement.
+	exitBracketsubrefinement(ctx) {
 	}
 
 
-	// Enter a parse tree produced by ECLParser#eclattributeset.
-	enterEclattributeset(ctx) {
+	// Enter a parse tree produced by ECLParser#compoundattributeset.
+	enterCompoundattributeset(ctx) {
 	}
 
-	// Exit a parse tree produced by ECLParser#eclattributeset.
-	exitEclattributeset(ctx) {
+	// Exit a parse tree produced by ECLParser#compoundattributeset.
+	exitCompoundattributeset(ctx) {
 	}
 
 
@@ -317,6 +344,15 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#disjunctionattributeset.
 	exitDisjunctionattributeset(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#bracketattributeset.
+	enterBracketattributeset(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#bracketattributeset.
+	exitBracketattributeset(ctx) {
 	}
 
 
@@ -344,6 +380,33 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#eclattribute.
 	exitEclattribute(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#eclattributestringvalue.
+	enterEclattributestringvalue(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#eclattributestringvalue.
+	exitEclattributestringvalue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#eclattributenumbervalue.
+	enterEclattributenumbervalue(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#eclattributenumbervalue.
+	exitEclattributenumbervalue(ctx) {
+	}
+
+
+	// Enter a parse tree produced by ECLParser#eclattributeexpressionvalue.
+	enterEclattributeexpressionvalue(ctx) {
+	}
+
+	// Exit a parse tree produced by ECLParser#eclattributeexpressionvalue.
+	exitEclattributeexpressionvalue(ctx) {
 	}
 
 
@@ -398,15 +461,6 @@ export default class ECLListener extends antlr4.tree.ParseTreeListener {
 
 	// Exit a parse tree produced by ECLParser#reverseflag.
 	exitReverseflag(ctx) {
-	}
-
-
-	// Enter a parse tree produced by ECLParser#eclattributename.
-	enterEclattributename(ctx) {
-	}
-
-	// Exit a parse tree produced by ECLParser#eclattributename.
-	exitEclattributename(ctx) {
 	}
 
 
