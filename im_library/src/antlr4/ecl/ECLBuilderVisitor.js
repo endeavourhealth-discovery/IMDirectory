@@ -262,6 +262,27 @@ export default class ECLBuilderVisitor extends ECLVisitor {
     return build;
   }
 
+  visitDisjunctionrefinementset(ctx) {
+    console.log("found disjunction refinement set");
+    console.log(ctx.getText());
+    let build = { type: "BoolGroup", test: "disjunction refinement set" };
+    const results = this.visitChildren(ctx);
+    if (results) {
+      for (const result of results) {
+        if (isObjectHasKeys(result, ["conjunction"])) {
+          if (build.conjunction && build.conjunction !== result.conjunction)
+            throw new Error("Conjunction differs from other conjunctions within refinement set. Logic requires bracketted conjunctions.");
+          else build.conjunction = result.conjunction;
+        }
+        if (isObjectHasKeys(result, ["type"]) && (result.type === "Refinement" || result.type === "BoolGroup")) {
+          if (build.items && _.isArray(build.items)) build.items.push(result);
+          else build.items = [result];
+        }
+      }
+    }
+    return build;
+  }
+
   visitConjunction(ctx) {
     console.log("found conjunction");
     console.log(ctx.getText());
