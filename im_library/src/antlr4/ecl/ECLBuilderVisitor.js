@@ -1,6 +1,7 @@
 import ECLVisitor from "./ECLVisitor";
 import { isObjectHasKeys } from "../../helpers/DataTypeCheckers";
 import _ from "lodash";
+import { IM, SNOMED } from "@im-library/vocabulary";
 
 export default class ECLBuilderVisitor extends ECLVisitor {
   constructor() {
@@ -213,7 +214,13 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitConceptid(ctx) {
     console.log("found concept id");
     console.log(ctx.getText());
-    return ctx.getText();
+    const code = ctx.getText();
+    let iri = code;
+    if (code.match(/^[0-9]+$/)) {
+      if (code.match(/1000252/g)) iri = IM.NAMESPACE + code;
+      else iri = SNOMED.NAMESPACE + code;
+    }
+    return iri;
   }
 
   visitWildcard(ctx) {
