@@ -1,7 +1,6 @@
 import { SetQueryObject } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM } from "@im-library/vocabulary";
-import { Query } from "@im-library/models/AutoGen";
+import { From, Query, TTAlias, Where } from "@im-library/models/AutoGen";
 
 export function buildSetQueryObjectFromQuery(value: Query) {
   if (!isObjectHasKeys(value)) {
@@ -13,94 +12,125 @@ export function buildSetQueryObjectFromQuery(value: Query) {
 }
 
 function recursivelyBuildSetQueryObject(value: Query, constructedClauses: SetQueryObject[]) {
-  if (isArrayHasLength(value?.where?.from)) {
-    for (const from of value.where.from) {
-      const clause = {
-        concept: from,
-        include: true,
-        refinements: []
-      } as SetQueryObject;
-      constructedClauses.push(clause);
-    }
+  if (isObjectHasKeys(value?.from, ["@id", "name"])) {
+    const clause = {
+      concept: { "@id": value.from["@id"], name: value.from.name, includeSubtypes: value.from.includeSubtypes } as TTAlias,
+      include: true,
+      refinements: []
+    } as SetQueryObject;
+
+    constructedClauses.push(clause);
+  } else if (isObjectHasKeys(value?.from, ["type"])) {
+    const clause = {
+      concept: { "@id": value.from.type["@id"], name: value.from.type.name, includeSubtypes: false } as TTAlias,
+      isType: true,
+      include: true,
+      refinements: []
+    } as SetQueryObject;
+
+    constructedClauses.push(clause);
   }
 
-  if (isArrayHasLength(value?.from)) {
-    for (const from of value.from) {
-      const clause = {
-        concept: from,
-        include: true,
-        refinements: []
-      } as SetQueryObject;
-      constructedClauses.push(clause);
-    }
-  }
-
-  if (isArrayHasLength(value?.where?.notExist?.from)) {
-    for (const from of value.where.notExist.from) {
-      const clause = {
-        concept: from,
-        include: false,
-        refinements: []
-      } as SetQueryObject;
-      constructedClauses.push(clause);
-    }
-  }
-
-  if (isArrayHasLength(value?.where?.and)) {
-    for (const and of value.where.and) {
-      if (!isArrayHasLength(constructedClauses)) constructedClauses.push({} as SetQueryObject);
-      constructedClauses[0].refinements.push({
-        property: and.property,
-        is: and.is
+  if (isObjectHasKeys(value?.from, ["where"])) {
+    const where = value.from.where;
+    if (isObjectHasKeys(where, ["bool", "where"]) && isArrayHasLength(where.where)) {
+      for (const condition of where.where) {
+        constructedClauses[constructedClauses.length - 1].refinements.push({
+          property: { "@id": condition["@id"], name: condition.name, includeSubtypes: condition.includeSubtypes } as TTAlias,
+          is: { "@id": condition.in[0]["@id"], name: condition.in[0].name, includeSubtypes: condition.in[0].includeSubtypes } as TTAlias
+        });
+      }
+    } else if (isObjectHasKeys(where, ["@id", "in"])) {
+      constructedClauses[constructedClauses.length - 1].refinements.push({
+        property: { "@id": where["@id"], name: where.name, includeSubtypes: where.includeSubtypes } as TTAlias,
+        is: { "@id": where.in[0]["@id"], name: where.in[0].name, includeSubtypes: where.in[0].includeSubtypes } as TTAlias
       });
     }
   }
 
-  if (isArrayHasLength(value?.where?.or)) {
-    for (const or of value.where.or) {
-      recursivelyBuildSetQueryObject(or as any, constructedClauses);
+  if (isObjectHasKeys(value.from, ["bool", "from"]) && isArrayHasLength(value.from.from)) {
+    for (const from of value.from.from) {
+      recursivelyBuildSetQueryObject({ from: from } as any, constructedClauses);
     }
-  }
-
-  if (isObjectHasKeys(value?.where?.where, ["property", "is"])) {
-    if (!isArrayHasLength(constructedClauses)) constructedClauses.push({} as SetQueryObject);
-    constructedClauses[0].refinements.push({
-      property: value?.where?.where.property,
-      is: value?.where?.where.is
-    });
   }
 }
 
 export function buildQueryFromSetQueryObject(clauses: SetQueryObject[]): any {
   const newQuery = {
-    where: {
-      from: [] as any[]
-    }
-  } as any;
+    from: {
+      bool: "or",
+      from: [] as From[]
+    } as From
+  } as Query;
 
   for (const clause of clauses) {
     if (clause.include) {
-      if (!isObjectHasKeys(newQuery.where, ["from"])) {
-        newQuery.where.from = [] as any;
+      if (clauses.length === 1) {
+        const from = !clause?.isType
+          ? ({
+              "@id": clause.concept["@id"],
+              name: clause.concept.name,
+              includeSubtypes: clause.concept.includeSubtypes
+            } as From)
+          : ({
+              type: { "@id": clause.concept["@id"], name: clause.concept.name }
+            } as From);
+        if (isArrayHasLength(clause.refinements)) addRefinements(clause, from);
+        newQuery.from = from;
+      } else {
+        const from = !clause?.isType
+          ? ({
+              "@id": clause.concept["@id"],
+              name: clause.concept.name,
+              includeSubtypes: clause.concept.includeSubtypes
+            } as From)
+          : ({
+              type: { "@id": clause.concept["@id"], name: clause.concept.name }
+            } as From);
+        if (isArrayHasLength(clause.refinements)) addRefinements(clause, from);
+        newQuery.from.from.push(from);
       }
-      newQuery.where.from.push(clause.concept);
-    } else if (!clause.include) {
-      if (!isObjectHasKeys(newQuery.where, ["notExists"])) {
-        newQuery.where.notExist = {
-          from: [] as any[]
-        };
-      }
-      newQuery.where.notExist.from.push(clause.concept);
-    }
-
-    if (isArrayHasLength(clause.refinements)) {
-      newQuery.where.pathTo = IM.ROLE_GROUP;
-      newQuery.where.and = [] as any[];
-    }
-
-    for (const refinement of clause.refinements) {
-      newQuery.where.and.push(refinement);
     }
   }
   return newQuery;
+}
+
+function addRefinements(clause: SetQueryObject, from: From) {
+  from.where = {
+    bool: "and",
+    where: [] as Where[]
+  } as Where;
+
+  for (const refinement of clause.refinements) {
+    if (clause.refinements.length === 1) {
+      from.where = {
+        "@id": refinement.property["@id"],
+        name: refinement.property.name,
+        includeSubtypes: refinement.property.includeSubtypes,
+        anyRoleGroup: true,
+        in: [
+          {
+            "@id": refinement.is["@id"],
+            name: refinement.is.name,
+            includeSubtypes: refinement.is.includeSubtypes
+          } as From
+        ]
+      } as Where;
+    } else {
+      const where = {
+        "@id": refinement.property["@id"],
+        name: refinement.property.name,
+        includeSubtypes: refinement.property.includeSubtypes,
+        anyRoleGroup: true,
+        in: [
+          {
+            "@id": refinement.is["@id"],
+            name: refinement.is.name,
+            includeSubtypes: refinement.is.includeSubtypes
+          } as From
+        ]
+      } as Where;
+      from.where.where.push(where);
+    }
+  }
 }

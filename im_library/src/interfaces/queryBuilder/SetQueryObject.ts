@@ -5,4 +5,5 @@ export interface SetQueryObject {
   include: boolean;
   concept: TTAlias;
   refinements: Refinement[];
+  isType?: boolean;
 }

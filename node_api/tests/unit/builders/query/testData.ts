@@ -19,6 +19,10 @@ export const CSET_EncFaceToFaceOnPremQueryDisplay = {
   ]
 };
 
+export const CSET_EncFaceToFaceOnPremSetQueryObject = [
+  { concept: { "@id": "http://endhealth.info/im#1691000252104", name: "Consultation on premise", includeSubtypes: true }, include: true, refinements: [] }
+];
+
 export const CSET_NELChis2021 = {
   from: {
     bool: "or",
@@ -36,10 +40,11 @@ export const CSET_NELChis2021 = {
       { "@id": "http://snomed.info/sct#591000119102", name: "Vaccine refused by patient (situation)", includeSubtypes: true },
       { "@id": "http://snomed.info/sct#384702009", name: "Anti-tetanus immunoglobulin injection (procedure)", includeSubtypes: true },
       {
-        type: { "@id": "http://endhealth.info/im#Concept" },
+        type: { "@id": "http://endhealth.info/im#Concept", name: undefined },
         where: {
           "@id": "http://snomed.info/sct#363589002",
-          in: [{ "@id": "http://snomed.info/sct#117103007", includeSubtypes: true }],
+          name: undefined,
+          in: [{ "@id": "http://snomed.info/sct#117103007", name: undefined, includeSubtypes: true }],
           anyRoleGroup: true,
           includeSubtypes: true
         }
@@ -355,6 +360,172 @@ export const CSET_NELChis2021QueryDisplay = {
   ]
 };
 
+export const CSET_NELChis2021SetQueryObject = [
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#312871001",
+      name: "Administration of vaccine product containing bacteria antigen (procedure)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  { concept: { "@id": "http://snomed.info/sct#713404003", name: "Vaccination given (situation)", includeSubtypes: true }, include: true, refinements: [] },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#49083007",
+      name: "Administration of vaccine product containing virus antigen (procedure)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#271498007", name: "Anti-rabies immunoglobulin injection (procedure)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#170461002", name: "Requires a course of gamma globulin (finding)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#1037211000000101",
+      name: "First hepatitis B vaccination given by other healthcare provider (finding)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#591000119102", name: "Vaccine refused by patient (situation)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#384702009", name: "Anti-tetanus immunoglobulin injection (procedure)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://endhealth.info/im#Concept", name: undefined, includeSubtypes: false },
+    include: true,
+    isType: true,
+    refinements: [
+      {
+        property: { "@id": "http://snomed.info/sct#363589002", name: undefined, includeSubtypes: true },
+        is: { "@id": "http://snomed.info/sct#117103007", name: undefined, includeSubtypes: true }
+      }
+    ]
+  },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#868671000000100",
+      name: "Rotavirus vaccination given by other health care provider (finding)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#413104004",
+      name: "Did not attend diphtheria, tetanus and acellular pertussis, polio and measles, mumps and rubella vaccine booster (finding)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  { concept: { "@id": "http://snomed.info/sct#709562004", name: "Gamma globulin given (situation)", includeSubtypes: true }, include: true, refinements: [] },
+  {
+    concept: { "@id": "http://snomed.info/sct#1411000119106", name: "Influenza vaccine needed (situation)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  { concept: { "@id": "http://snomed.info/sct#170533005", name: "Notification of mumps (procedure)", includeSubtypes: true }, include: true, refinements: [] },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#884901000000107",
+      name: "First intranasal pandemic influenza vaccination given by other healthcare provider (finding)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#1037271000000106",
+      name: "Second measles mumps and rubella vaccination given by other healthcare provider (finding)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#117103007", name: "Administration of human immune globulin product (procedure)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#271500008",
+      name: "Intravenous injection of anticytomegalovirus immunoglobulin (procedure)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#882761000000103",
+      name: "Booster meningitis C vaccination given by other healthcare provider (finding)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#908671000000105",
+      name: "Pertussis vaccination given by other healthcare provider (finding)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#1066171000000108", name: "Seasonal influenza vaccination given by midwife (situation)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#268503002", name: "Normal immunoglobulin given (situation)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#170459006", name: "Anti-D immunoglobulin given (situation)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: { "@id": "http://snomed.info/sct#275844006", name: "Gamma globulin administration (procedure)", includeSubtypes: true },
+    include: true,
+    refinements: []
+  },
+  {
+    concept: {
+      "@id": "http://snomed.info/sct#1037251000000102",
+      name: "First measles mumps and rubella vaccination given by other healthcare provider (finding)",
+      includeSubtypes: true
+    },
+    include: true,
+    refinements: []
+  }
+];
+
 export const CSET_EmailOnlineEncounter = {
   from: {
     bool: "or",
@@ -399,6 +570,11 @@ export const CSET_EmailOnlineEncounterQueryDisplay = {
     }
   ]
 };
+
+export const CSET_EmailOnlineEncounterSetQueryObject = [
+  { concept: { "@id": "http://endhealth.info/im#1681000252102", name: "Text message consultation", includeSubtypes: true }, include: true, refinements: [] },
+  { concept: { "@id": "http://endhealth.info/im#901000252100", name: "Email consultation", includeSubtypes: true }, include: true, refinements: [] }
+];
 
 export const CSET_OralNSAIDs = {
   from: {
@@ -508,3 +684,20 @@ export const CSET_OralNSAIDsQueryDisplay = {
     }
   ]
 };
+
+export const CSET_OralNSAIDsSetQueryObject = [
+  {
+    concept: { "@id": "http://snomed.info/sct#763158003", name: "Medicinal product (product)", includeSubtypes: true },
+    include: true,
+    refinements: [
+      {
+        property: { "@id": "http://snomed.info/sct#127489000", name: "Has active ingredient (attribute)", includeSubtypes: true },
+        is: { "@id": "http://snomed.info/sct#372665008", name: "Non-steroidal anti-inflammatory agent (substance)", includeSubtypes: true }
+      },
+      {
+        property: { "@id": "http://snomed.info/sct#411116001", name: "Has manufactured dose form (attribute)", includeSubtypes: true },
+        is: { "@id": "http://snomed.info/sct#385268001", name: "Oral dose form (dose form)", includeSubtypes: true }
+      }
+    ]
+  }
+];

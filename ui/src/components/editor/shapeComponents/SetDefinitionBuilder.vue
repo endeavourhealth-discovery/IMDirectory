@@ -13,12 +13,13 @@ import { onMounted, ref, watch, Ref, PropType, inject } from "vue";
 import "vue-json-pretty/lib/styles.css";
 import SetDefinitionForm from "./setDefinition/SetDefinitionForm.vue";
 import SetDefinitionECL from "./setDefinition/SetDefinitionECL.vue";
-import { PropertyGroup, Refinement, SetQueryObject, TTAlias, Query } from "@im-library/interfaces";
+import { Refinement, SetQueryObject } from "@im-library/interfaces";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EclService, SetService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { PropertyGroup, Query, TTAlias } from "@im-library/models/AutoGen";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },
