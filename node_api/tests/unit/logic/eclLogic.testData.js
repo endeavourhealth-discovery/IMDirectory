@@ -4,6 +4,8 @@ export default {
       "/* or group minus or group*/ (<<386725007 | Body temperature (observable entity) |   OR <<431314004 | Peripheral oxygen saturation (observable entity) |) MINUS (<<838441000000103 | Target body mass index (observable entity) |  OR <<838451000000100 | Target body mass index  | ) ",
     allergyToPenicillinsOrCephasporinsWithCausativeLactams:
       "/*allergy to penicillins or cephasporins with causative lactams*/	(<<91936005 | Allergy to Penicillin| or <<294532003):  << 246075003 |Causative agent (attribute)| = <<771577000| lactam (substance)|",
+    andGroupedWithSubsumptionAttributeValue:
+      "/*and grouped with subsumption attribute value*/	<<298705000 |Finding of region of thorax (finding)| and (<<301366005 |Pain of truncal structure (finding)| :{ 363698007 |Finding site (attribute)| =  <<51185008 |Thoracic structure (body structure)| })",
     oralNsaids: "/*oral nsaids*/<<763158003:<<127489000= <<372665008,<<411116001= 385268001",
     simpleAndDescendants: "/*simple and descendants*/	<298705000 and <301366005 |Pain of truncal structure (finding)|",
     simpleAndShouldBe0: "/*simple and should be 0*/	298705000 and 301366005 |Pain of truncal structure (finding)|"
@@ -78,6 +80,38 @@ export default {
           anyRoleGroup: true,
           includeSubtypes: true
         }
+      }
+    },
+    andGroupedWithSubsumptionAttributeValue: {
+      from: {
+        bool: "and",
+        from: [
+          {
+            "@id": "http://snomed.info/sct#298705000",
+            includeSubtypes: true,
+            excludeSelf: false
+          },
+          {
+            "@id": "http://snomed.info/sct#301366005",
+            includeSubtypes: true,
+            excludeSelf: false,
+            where: {
+              "@id": "http://endhealth.info/im#roleGroup",
+              where: [
+                {
+                  "@id": "http://snomed.info/sct#363698007",
+                  in: [
+                    {
+                      "@id": "http://snomed.info/sct#51185008",
+                      includeSubtypes: true,
+                      excludeSelf: false
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
       }
     },
     oralNsaids: {

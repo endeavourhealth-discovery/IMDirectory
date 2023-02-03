@@ -14,6 +14,10 @@ describe("eclLogic", () => {
       );
     });
 
+    it("converts andGroupedWithSubsumptionAttributeValue", () => {
+      expect(eclToIMQ(testData.ecl.andGroupedWithSubsumptionAttributeValue)).toEqual(testData.query.andGroupedWithSubsumptionAttributeValue);
+    });
+
     it("converts oral nsaids", () => {
       expect(eclToIMQ(testData.ecl.oralNsaids)).toEqual(testData.query.oralNsaids);
     });

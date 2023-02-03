@@ -246,7 +246,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitCompoundrefinementset(ctx) {
     console.log("found compound refinement set");
     console.log(ctx.getText());
-    if (ctx.children) return this.visitChildren(ctx)[0];
+    const results = this.visitChildren(ctx)[0];
+    if (ctx.children) return results;
   }
 
   visitConjunctionrefinementset(ctx) {
@@ -314,8 +315,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
     console.log(ctx.getText());
     if (ctx.children) {
       const results = this.visitChildren(ctx);
-      if (isObjectHasKeys(results[0], ["attribute"])) return { where: results[0].attribute };
-      else return results[0];
+      if (isObjectHasKeys(results[0], ["attribute"])) {
+        if (!results[0].attribute.bool) results[0].attribute.anyRoleGroup = true;
+        return { where: results[0].attribute };
+      } else return results[0];
     }
   }
 
@@ -340,7 +343,9 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result)) return result;
+          if (isObjectHasKeys(result)) {
+            return { where: { "@id": "http://endhealth.info/im#roleGroup", where: [result.attribute] } };
+          }
         }
       }
     }
@@ -349,28 +354,9 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitCompoundattributeset(ctx) {
     console.log("found compount attribute set");
     console.log(ctx.getText());
-    return this.visitChildren(ctx)[0];
-  }
-
-  visitConjunctionrefinementset(ctx) {
-    console.log("found conjunction refinement set");
-    console.log(ctx.getText());
-    let build = { where: {} };
-    const results = this.visitChildren(ctx);
-    if (results) {
-      for (const result of results) {
-        if (isObjectHasKeys(result, ["conjunction"])) {
-          if (build.where.bool && build.where.bool !== result.conjunction)
-            throw new Error("Conjunction differs from other conjunctions within refinement set. Logic requires bracketted conjunctions.");
-          else build.where.bool = result.conjunction;
-        }
-        if (isObjectHasKeys(result, ["where"])) {
-          if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result);
-          else build.where.where = [result];
-        }
-      }
-    }
-    return build;
+    const result = this.visitChildren(ctx)[0];
+    if (result?.where?.where) result.where.where.forEach(item => (item.anyRoleGroup = true));
+    return result;
   }
 
   visitConjunctionattributeset(ctx) {
@@ -451,8 +437,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["from"])) {
             build.attribute["@id"] = result.from["@id"];
-            build.attribute.anyRoleGroup = true;
-            build.attribute.includeSubtypes = result.from.includeSubtypes;
+            if (isObjectHasKeys(result.from, ["includeSubtypes"])) build.attribute.includeSubtypes = result.from.includeSubtypes;
           }
           if (isObjectHasKeys(result, ["value"])) {
             if (result.value.in) build.attribute.in = result.value.in;
