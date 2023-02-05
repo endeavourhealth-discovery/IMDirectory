@@ -141,7 +141,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
               build.from.excludeSelf = result.constraint.excludeSelf;
             }
           }
-          if (isObjectHasKeys(result, ["conceptReference"])) {
+          if (isObjectHasKeys(result, ["conceptReference"]) && result.conceptReference !== "*") {
             build.from["@id"] = result.conceptReference;
           }
         }
@@ -263,8 +263,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           else build.where.bool = result.conjunction;
         }
         if (isObjectHasKeys(result, ["where"])) {
-          if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result);
-          else build.where.where = [result];
+          if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result.where);
+          else build.where.where = [result.where];
         }
       }
     }
@@ -343,8 +343,12 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result)) {
+          if (isObjectHasKeys(result, ["attribute"])) {
             return { where: { "@id": "http://endhealth.info/im#roleGroup", where: [result.attribute] } };
+          } else if (isObjectHasKeys(result, ["where"])) {
+            result.where["@id"] = "http://endhealth.info/im#roleGroup";
+            if (result?.where?.where) result.where.where.forEach(item => delete item.anyRoleGroup);
+            return result;
           }
         }
       }
@@ -352,7 +356,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitCompoundattributeset(ctx) {
-    console.log("found compount attribute set");
+    console.log("found compound attribute set");
     console.log(ctx.getText());
     const result = this.visitChildren(ctx)[0];
     if (result?.where?.where) result.where.where.forEach(item => (item.anyRoleGroup = true));
