@@ -27,6 +27,7 @@ const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.v
 const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
 const ServerOffline = () => import("@/components/shared/errorPages/ServerOffline.vue");
 const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
+const Filer = () => import("@/views/Filer.vue");
 import { EntityService, Env } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import store from "@/store/index";
@@ -194,6 +195,15 @@ const routes: Array<RouteRecordRaw> = [
     path: "/mapper",
     name: "Mapper",
     component: Mapper,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true
+    }
+  },
+  {
+    path: "/filer",
+    name: "Filer",
+    component: Filer,
     meta: {
       requiresAuth: true,
       requiresLicense: true
