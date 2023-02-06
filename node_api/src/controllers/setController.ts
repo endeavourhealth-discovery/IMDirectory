@@ -1,6 +1,6 @@
 import { buildQueryFromSetQueryObject, buildSetQueryObjectFromQuery } from "@/builders/query/setQueryBuilder";
-import { Query, SetQueryObject } from "@im-library/interfaces";
-import axios from "axios";
+import { SetQueryObject } from "@im-library/interfaces";
+import { Query } from "@im-library/models/AutoGen";
 import express, { NextFunction, Request, Response } from "express";
 
 export default class SetController {

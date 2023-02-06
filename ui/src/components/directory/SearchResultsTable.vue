@@ -55,13 +55,15 @@
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
               <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
             </span>
-            <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{ slotProps.data.match }}</span>
+            <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{
+              slotProps.data.code ? slotProps.data.match + " | " + slotProps.data.code : slotProps.data.match
+            }}</span>
           </div>
         </template>
       </Column>
-      <Column field="code" header="Code">
+      <Column field="weighting" header="Usage">
         <template #body="slotProps">
-          <span>{{ slotProps.data.code }}</span>
+          <span>{{ slotProps.data.weighting }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">

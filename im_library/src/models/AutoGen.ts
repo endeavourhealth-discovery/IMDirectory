@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2022-10-25 09:47:11.
+// Generated using typescript-generator version 2.36.1070 on 2023-02-01 15:20:21.
 
 /**
  * Structure containing search request parameters and filters
@@ -54,35 +54,33 @@ export interface SearchResponse {
     entities: SearchResultSummary[];
 }
 
-export interface Argument {
-    parameter: string;
-    valueData: string;
-    valueVariable: string;
-    valueFrom: Compare;
-    valueIri: TTIriRef;
-    valueList: string[];
-}
-
 export interface Binding {
     predicateBinding: { [index: string]: string };
     predicateObject: { [index: string]: Binding };
 }
 
-export interface Compare {
-    alias: string;
-    property: TTAlias;
-    variable: string;
-}
-
-export interface Concept {
-    name: string;
-    description: string;
+export interface Concept extends Entity {
+    subClassOf: TTIriRef[];
     code: string;
-    scheme: TTIriRef;
     im1Id: string[];
     matchedFrom: Concept[];
     usage: number;
+}
+
+export interface ConceptSet extends Entity {
+    definition: Query;
+    hasMember: TTIriRef[];
+    usedIn: TTIriRef[];
+}
+
+export interface Entity {
     "@id": string;
+    type: TTIriRef[];
+    status: TTIriRef;
+    scheme: TTIriRef;
+    isContainedIn: TTIriRef[];
+    name: string;
+    description: string;
 }
 
 export interface FormGenerator {
@@ -99,47 +97,27 @@ export interface FormGenerator {
     iri: string;
 }
 
-export interface Function extends TTIriRef {
+export interface FunctionClause extends TTIriRef {
     argument: Argument[];
     conceptMap: { [index: string]: string };
     defaultValue: TTIriRef;
 }
 
-export interface MapGroup {
-    name: string;
-    source: TTAlias;
-    target: TTAlias;
-    rule: MapRule[];
-    extends: string;
+export interface FunctionRequest {
+    functionIri: string;
+    arguments: Argument[];
 }
 
-export interface MapRule {
-    source: MapRuleSource[];
-    target: MapRuleTransform[];
-}
-
-export interface MapRuleSource {
-    context: string;
-    type: string;
-    variable: string;
-    min: number;
-    max: number;
-    where: Where;
-    check: Where;
-}
-
-export interface MapRuleTransform {
-    context: string;
-    variable: string;
-    function: Function;
+export interface ModelDocument {
+    "@context": TTContext;
+    query: QueryEntity[];
+    folder: Entity[];
+    conceptSet: ConceptSet[];
+    function: FunctionClause[];
 }
 
 export interface NodeShape extends TTIriRef {
     property: PropertyShape[];
-}
-
-export interface OrderBy extends TTAlias {
-    direction: string;
 }
 
 export interface Page {
@@ -147,18 +125,8 @@ export interface Page {
     pageSize: number;
 }
 
-export interface PathQuery extends TTIriRef {
-    source: TTIriRef;
-    target: TTIriRef;
-    depth: number;
-}
-
-export interface Property {
-    path: string;
-    name: string;
-    inverse: boolean;
-    alias: string;
-    iri: string;
+export interface Path {
+    items: TTTypedRef[];
 }
 
 export interface PropertyGroup {
@@ -177,6 +145,7 @@ export interface PropertyGroup {
     function: TTIriRef;
     valueIri: TTIriRef;
     builderChild: boolean;
+    argument: Argument[];
 }
 
 export interface PropertyShape {
@@ -189,7 +158,6 @@ export interface PropertyShape {
     componentType: TTIriRef;
     path: TTIriRef;
     node: TTIriRef[];
-    function: TTIriRef;
     validation: TTIriRef;
     search: TTIriRef;
     select: TTIriRef[];
@@ -198,98 +166,145 @@ export interface PropertyShape {
     isIri: TTIriRef;
     isTextValue: string;
     isNumericValue: string;
+    forceIsValue: boolean;
+    builderChild: boolean;
     datatype: TTIriRef;
     clazz: TTIriRef;
     validationErrorMessage: string;
-    builderChild: boolean;
+    function: TTIriRef;
     expression: NodeShape;
 }
 
-export interface Query extends TTIriRef {
-    prefix: TTContext;
-    description: string;
-    from: TTAlias[];
-    where: Where;
-    select: Select[];
-    subQuery: Query[];
-    orderBy: TTAlias[];
-    direction: string;
-    limit: number;
-    groupBy: TTAlias[];
-    activeOnly: boolean;
-    usePrefixes: boolean;
+export interface TransformRequest {
+    transformMap: TTIriRef;
+    sourceFormat: string;
+    targetFormat: string;
+    source: { [index: string]: any[] };
 }
 
-export interface QueryDocument {
+export interface Argument {
+    parameter: string;
+    valueData: string;
+    valueVariable: string;
+    valueIri: TTIriRef;
+    valueIriList: TTIriRef[];
+    valueDataList: string[];
+    valueObject: any;
+}
+
+export interface Assignable {
+    value: string;
+    operator: Operator;
+    relativeTo: string;
+    unit: string;
+}
+
+export interface Case {
+    range: Range;
+    value: string;
+    outputData: string;
+    outputIri: TTIriRef;
+}
+
+export interface From extends TTAlias {
+    with: With;
+    bool: Bool;
+    from: From[];
+    where: Where;
+    type: TTAlias;
+}
+
+export interface Having {
+    aggregate: Aggregate;
+    property: TTAlias;
+    value: Value;
+}
+
+export interface OrderLimit extends TTAlias {
+    direction: string;
+}
+
+export interface PathDocument {
+    where: Where[];
+}
+
+export interface PathQuery extends TTIriRef {
+    source: TTIriRef;
+    target: TTIriRef;
+    depth: number;
+}
+
+export interface Query extends TTAlias {
+    from: From;
+    select: Select[];
+    groupBy: TTAlias[];
+    orderBy: OrderLimit[];
+    direction: string;
+    limit: number;
+    having: Having;
+    activeOnly: boolean;
+    usePrefixes: boolean;
     query: Query[];
+    context: TTContext;
+    caze: Case[];
+    case: Case[];
+}
+
+export interface QueryEntity extends Entity {
+    definition: Query;
 }
 
 export interface QueryRequest {
     name: string;
     page: Page;
     textSearch: string;
-    argument: { [index: string]: any };
+    argument: Argument[];
     query: Query;
     pathQuery: PathQuery;
     referenceDate: string;
 }
 
 export interface Range {
-    from: Value;
-    to: Value;
-    relativeTo: Compare;
+    from: Assignable;
+    to: Assignable;
 }
 
-export interface Select {
-    path: string;
-    property: TTAlias;
-    sum: boolean;
-    average: boolean;
-    argument: Argument[];
-    function: Function;
+export interface Select extends TTAlias {
+    case: Case[];
     select: Select[];
     where: Where;
-    orderBy: OrderBy[];
+    orderBy: OrderLimit[];
+    direction: string;
     limit: number;
     groupBy: TTAlias[];
-    max: boolean;
+    having: Having;
+    functionClause: FunctionClause;
+    function: FunctionClause;
 }
 
-export interface TransformMap extends TTIriRef {
-    description: string;
-    source: TTAlias[];
-    sourceFormat: TTIriRef;
-    target: TTAlias[];
-    import: TTAlias[];
-    group: MapGroup[];
+export interface Sortable {
+    count: number;
+    minimum: string;
+    maximum: string;
+    latest: string;
+    earliest: string;
 }
 
-export interface Value {
-    comparison: string;
-    value: string;
-    relativeTo: Compare;
+export interface Value extends Assignable {
 }
 
-export interface Where {
-    alias: string;
-    from: TTAlias[];
-    graph: string;
-    path: string;
-    notExist: Where;
-    not: boolean;
-    property: TTAlias;
-    in: TTAlias[];
+export interface Where extends TTAlias, Assignable {
+    notExist: boolean;
+    bool: Bool;
+    with: With;
+    where: Where[];
     range: Range;
-    and: Where[];
-    or: Where[];
-    function: Function;
-    argument: Argument[];
-    value: Value;
-    description: string;
-    is: TTAlias;
-    where: Where;
-    orderBy: OrderBy[];
-    limit: number;
+    in: From[];
+    notIn: From[];
+    anyRoleGroup: boolean;
+}
+
+export interface With extends Where, Sortable {
 }
 
 export interface SearchResultSummary {
@@ -309,25 +324,28 @@ export interface SearchResultSummary {
 
 export interface TTIriRef extends TTValue, Serializable {
     name: string;
+    description: string;
     "@id": string;
+}
+
+export interface TTContext extends Serializable {
+    prefixes: TTPrefix[];
+    nameSpaces: TTPrefix[];
+}
+
+export interface TTTypedRef extends TTIriRef {
+    type: TTIriRef;
 }
 
 export interface TTAlias extends TTIriRef {
     inverse: boolean;
     alias: string;
+    sourceType: SourceType;
+    id: string;
     variable: string;
     includeSupertypes: boolean;
     includeSubtypes: boolean;
-    includeMembers: boolean;
     excludeSelf: boolean;
-    isSet: boolean;
-    type: boolean;
-    isType: boolean;
-}
-
-export interface TTContext extends Serializable {
-    nameSpaces: TTPrefix[];
-    prefixes: TTPrefix[];
 }
 
 export interface SearchTermCode {
@@ -348,3 +366,17 @@ export interface TTPrefix {
     prefix: string;
     name: string;
 }
+
+export type ListMode = "ALL" | "FIRST" | "REST";
+
+export type TargetUpdateMode = "REPLACE" | "APPEND" | "ADDTOLIST";
+
+export type Aggregate = "SUM" | "COUNT" | "AVERAGE" | "MIN" | "MAX";
+
+export type Bool = "and" | "or" | "not";
+
+export type Comparison = "eq" | "gte" | "gt" | "lte" | "lt";
+
+export type Operator = "=" | ">=" | ">" | "<=";
+
+export type SourceType = "type" | "entity" | "set";

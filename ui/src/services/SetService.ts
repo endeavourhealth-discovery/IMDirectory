@@ -1,6 +1,7 @@
-import axios, { CancelToken } from "axios";
-import { Query, SearchResponse, SetQueryObject } from "@im-library/interfaces";
+import axios from "axios";
+import { SetQueryObject } from "@im-library/interfaces";
 import Env from "./Env";
+import { Query } from "@im-library/models/AutoGen";
 
 const SetService = {
   async publish(conceptIri: string) {
@@ -16,11 +17,11 @@ const SetService = {
     });
   },
 
-  async getSetQueryObjectFromQuery(query: Query) {
+  async getSetQueryObjectFromQuery(query: Query): Promise<SetQueryObject[]> {
     return axios.post(Env.VITE_NODE_API + "node_api/set/public/query/setQueryObject", query);
   },
 
-  async getQueryFromSetQueryObject(clauses: SetQueryObject[]) {
+  async getQueryFromSetQueryObject(clauses: SetQueryObject[]): Promise<Query> {
     return axios.post(Env.VITE_NODE_API + "node_api/set/public/setQueryObject/query", clauses);
   }
 };
