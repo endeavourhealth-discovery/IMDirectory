@@ -144,7 +144,7 @@ function generateQueryString() {
 
 function getBoolGroupECL(clause: any, root: boolean) {
   if (clause.items && clause.items.length > 0)
-    return clause.items.map((c: any, i: number) => getClauseECL(c, i == 0 ? root : false)).join("\n" + clause.operator + " ");
+    return clause.items.map((c: any, i: number) => getClauseECL(c, i == 0 ? root : false)).join("\n" + clause.conjunction + " ");
   else return "";
 }
 
@@ -167,11 +167,13 @@ function getConceptECL(clause: any, root: boolean) {
 }
 
 function getCodeTermECL(clause: any) {
-  let result = clause.descendants;
+  let result = clause.descendants ? clause.descendants : "";
 
   if (clause.concept && clause.concept.code) {
     result += clause.concept.code;
     if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
+  } else if (clause.concept.iri) {
+    result += clause.concept.iri.split("#")[1];
   } else result += "[UNKNOWN CONCEPT]";
 
   return result;

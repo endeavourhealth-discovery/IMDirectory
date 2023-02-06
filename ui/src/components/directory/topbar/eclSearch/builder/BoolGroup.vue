@@ -5,8 +5,8 @@
       <div class="component-container">
         <span class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index === 1" type="button" :label="value.operator" @click="toggleBool" />
-          <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
+          <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" />
+          <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary" disabled />
         </span>
         <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" />
         <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" />
@@ -41,15 +41,15 @@ const menuBool = ref();
 const boolOptions = [
   {
     label: "AND",
-    command: () => (props.value.operator = "AND")
+    command: () => (props.value.conjunction = "AND")
   },
   {
     label: "OR",
-    command: () => (props.value.operator = "OR")
+    command: () => (props.value.conjunction = "OR")
   },
   {
     label: "NOT",
-    command: () => (props.value.operator = "MINUS")
+    command: () => (props.value.conjunction = "MINUS")
   }
 ];
 
@@ -77,7 +77,7 @@ function add(item: any) {
 }
 
 function addConcept() {
-  add({ type: "Concept", descendants: "<<", operator: "AND" });
+  add({ type: "Concept", descendants: "<<", conjunction: "AND" });
 }
 
 function addRefinement() {
