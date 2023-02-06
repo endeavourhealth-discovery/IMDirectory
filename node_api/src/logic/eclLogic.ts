@@ -25,6 +25,15 @@ export function eclToIMQ(ecl: string) {
   return result;
 }
 
+export function validateEcl(ecl: string) {
+  try {
+    const tree = setupTree(ecl);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 function setupTree(ecl: string) {
   const chars = new InputStream(ecl, true);
   const lexer = new ECLLexer(chars);
@@ -35,4 +44,4 @@ function setupTree(ecl: string) {
   return tree;
 }
 
-export default { eclToBuild, eclToIMQ };
+export default { eclToBuild, eclToIMQ, validateEcl };

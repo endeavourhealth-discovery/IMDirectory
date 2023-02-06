@@ -5,7 +5,7 @@ import Env from "./Env";
 const EclService = {
   async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<SearchResponse> {
     try {
-      return await axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest, {
+      return await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclSearch", eclSearchRequest, {
         signal: controller.signal
       });
     } catch (error) {
@@ -21,8 +21,8 @@ const EclService = {
     }
   },
 
-  async evaluateEcl(ecl: string): Promise<any> {
-    return axios.post(Env.API + "api/ecl/public/evaluateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
+  async evaluateEclQuery(eclSearchRequest: any): Promise<any> {
+    return axios.post(Env.API + "api/ecl/public/evaluateEcl", eclSearchRequest, { headers: { "Content-Type": "application/json" } });
   },
 
   async getQueryFromECL(ecl: string): Promise<Query> {
@@ -32,9 +32,7 @@ const EclService = {
   },
 
   async isValidECL(ecl: string): Promise<boolean> {
-    return axios.get(Env.API + "api/ecl/public/validateEcl", {
-      params: { ecl: ecl }
-    });
+    return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/validateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
   },
 
   async getECLFromQuery(query: Query): Promise<string> {
