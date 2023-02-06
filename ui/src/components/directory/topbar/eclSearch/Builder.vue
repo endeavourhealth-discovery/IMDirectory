@@ -69,6 +69,7 @@ import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { eclStringToBuilderObject } from "@im-library/helpers/EclStringToBuilderObject";
+import EclService from "@/services/EclService";
 
 const props = defineProps({
   showDialog: Boolean,
@@ -116,10 +117,10 @@ function createDefaultBuild() {
   build.value = { type: "BoolGroup", operator: "AND" };
 }
 
-function createBuildFromEclString(ecl: string) {
+async function createBuildFromEclString(ecl: string) {
   try {
     loading.value = true;
-    build.value = eclStringToBuilderObject(ecl);
+    build.value = await EclService.getBuildFromEcl(ecl);
     eclConversionError.value = { error: false, message: "" };
   } catch (err: any) {
     createDefaultBuild();
