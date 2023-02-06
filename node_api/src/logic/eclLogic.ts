@@ -40,8 +40,16 @@ function setupTree(ecl: string) {
   const tokens = new CommonTokenStream(lexer);
   const parser = new ECLParser(tokens);
   parser.buildParseTrees = true;
+  parser.removeErrorListeners();
+  parser.addErrorListener(new EclParseErrorListener());
   const tree = parser.ecl();
   return tree;
+}
+
+class EclParseErrorListener extends antlr4.error.ErrorListener {
+  syntaxError(recogniser: any, offendingSymbol: any, line: any, column: any, msg: any, err: any) {
+    throw new Error(`${offendingSymbol} line ${line}, col ${column}: ${msg}`);
+  }
 }
 
 export default { eclToBuild, eclToIMQ, validateEcl };
