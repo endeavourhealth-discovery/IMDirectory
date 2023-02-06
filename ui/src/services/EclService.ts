@@ -1,15 +1,19 @@
-import { Query, SearchResponse } from "@im-library/interfaces";
+import { ConceptSummary, Query, SearchResponse } from "@im-library/interfaces";
+import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import axios from "axios";
 import Env from "./Env";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const EclService = {
-  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<SearchResponse> {
+  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<ConceptSummary[]> {
     try {
-      return await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclSearch", eclSearchRequest, {
+      const results = (await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclSearch", eclSearchRequest, {
         signal: controller.signal
-      });
+      })) as any[];
+      results.forEach((result: any) => entityToAliasEntity(result));
+      return results;
     } catch (error) {
-      return {} as SearchResponse;
+      return [] as any[];
     }
   },
 
@@ -26,9 +30,7 @@ const EclService = {
   },
 
   async getQueryFromECL(ecl: string): Promise<Query> {
-    return axios.get(Env.API + "api/ecl/public/queryFromEcl", {
-      params: { ecl: ecl }
-    });
+    return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToIMQ", ecl, { headers: { "Content-Type": "text/plain" } });
   },
 
   async isValidECL(ecl: string): Promise<boolean> {
@@ -36,11 +38,15 @@ const EclService = {
   },
 
   async getECLFromQuery(query: Query): Promise<string> {
-    return axios.post(Env.API + "api/ecl/public/eclFromQuery", query);
+    const result = await axios.post(Env.API + "api/ecl/public/eclFromQuery", query);
+    if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
+    else return result;
   },
 
   async getBuildFromEcl(ecl: string): Promise<any> {
-    return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToBuilder", ecl, { headers: { "Content-Type": "text/plain" } });
+    const result = await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToBuilder", ecl, { headers: { "Content-Type": "text/plain" } });
+    if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
+    else return result;
   }
 };
 

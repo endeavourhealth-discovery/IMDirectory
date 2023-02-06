@@ -11,17 +11,13 @@ export function eclToBuild(ecl: string) {
   const tree = setupTree(ecl);
   const visitor = new ECLBuilderVisitor();
   const result = visitor.visit(tree);
-  const resultAsJson = JSON.stringify(result);
-  console.log(resultAsJson);
-  return resultAsJson;
+  return result;
 }
 
 export function eclToIMQ(ecl: string) {
   const tree = setupTree(ecl);
   const visitor = new ECLToIMQVisitor();
   const result = visitor.visit(tree);
-  const resultAsJson = JSON.stringify(result);
-  console.log(resultAsJson);
   return result;
 }
 
@@ -48,7 +44,7 @@ function setupTree(ecl: string) {
 
 class EclParseErrorListener extends antlr4.error.ErrorListener {
   syntaxError(recogniser: any, offendingSymbol: any, line: any, column: any, msg: any, err: any) {
-    throw new Error(`${offendingSymbol} line ${line}, col ${column}: ${msg}`);
+    throw new Error(`Invalid ecl. ${offendingSymbol} line ${line}, col ${column}: ${msg}`);
   }
 }
 
