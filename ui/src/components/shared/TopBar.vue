@@ -51,6 +51,7 @@ import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useStore } from "vuex";
 import { DirectService, Env } from "@/services";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
@@ -142,6 +143,10 @@ function setAppMenuItems() {
     { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
     { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() }
   ];
+
+  if (isLoggedIn && isObjectHasKeys(currentUser.value, ["roles"]) && currentUser.value.roles.includes("IMAdmin")) {
+    appItems.value.push({ label: "Filer", icon: "fa-solid fa-upload", command: () => directService.file() });
+  }
 }
 
 function showReleaseNotes() {

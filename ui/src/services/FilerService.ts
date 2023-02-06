@@ -41,6 +41,10 @@ const FilerService = {
         crud
       }
     });
+  },
+
+  async fileDocument(document: any): Promise<any> {
+    return axios.post(api + "api/filer/file/document", document);
   }
 };
 

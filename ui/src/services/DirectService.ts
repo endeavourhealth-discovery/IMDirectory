@@ -1,5 +1,5 @@
 import { CreateComponentPublicInstance } from "vue";
-import { RouteLocationNormalizedLoaded, RouteParamsRaw, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
+import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
 import { Store, useStore } from "vuex";
 import Env from "./Env";
 
@@ -38,6 +38,10 @@ export default class DirectService {
         component.$confirm.close();
       }
     });
+  }
+
+  public file() {
+    this.directTo(Env.DIRECTORY_URL, "", "Filed", "filer");
   }
 
   public view(iri?: string) {
