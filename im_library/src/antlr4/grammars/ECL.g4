@@ -39,8 +39,8 @@ conjunctionattributeset : (subattributeset | bracketattributeset) (ws conjunctio
 disjunctionattributeset : (subattributeset | bracketattributeset) (ws disjunction ws (subattributeset | bracketattributeset))+;
 bracketattributeset: LEFT_PAREN ws compoundattributeset ws RIGHT_PAREN;
 subattributeset : eclattribute | bracketattributeset;
-eclattributegroup : cardinality? LEFT_CURLY_BRACE ws (compoundattributeset | eclattribute) ws RIGHT_CURLY_BRACE;
-eclattribute : cardinality? (reverseflag ws)? subexpressionconstraint ws (eclattributeexpressionvalue | eclattributenumbervalue | eclattributestringvalue);
+eclattributegroup : (cardinality ws)? LEFT_CURLY_BRACE ws (compoundattributeset | eclattribute) ws RIGHT_CURLY_BRACE;
+eclattribute : (cardinality ws)? (reverseflag ws)? subexpressionconstraint ws (eclattributeexpressionvalue | eclattributenumbervalue | eclattributestringvalue);
 eclattributestringvalue: stringcomparisonoperator ws qm stringvalue qm;
 eclattributenumbervalue: numericcomparisonoperator ws POUND numericvalue;
 eclattributeexpressionvalue: expressioncomparisonoperator ws (subexpressionconstraint | bracketcompoundexpressionconstraint);
