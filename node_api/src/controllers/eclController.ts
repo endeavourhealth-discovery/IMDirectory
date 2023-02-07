@@ -53,7 +53,6 @@ export default class EclController {
         delete eclSearchRequest.ecl;
       }
       const result = (await axios.post(Env.API + "api/ecl/public/evaluateEclQuery", eclSearchRequest)).data;
-      console.error(result);
       res.send(result).end();
     } catch (error) {
       next(error);
