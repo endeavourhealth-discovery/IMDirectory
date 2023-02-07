@@ -110,16 +110,11 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    const eclSearchRequest = { ecl: queryString.value, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
+    const eclQuery = await EclService.getQueryFromECL(queryString.value);
+    const eclSearchRequest = { eclQuery: eclQuery, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
     const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
-    if (isObjectHasKeys(result, ["entities", "count", "page"])) {
-      searchResults.value = result.entities;
-      totalCount.value = result.count;
-    } else {
-      eclError.value = true;
-      searchResults.value = [];
-      totalCount.value = 0;
-    }
+    searchResults.value = result;
+    totalCount.value = result.length;
     loading.value = false;
   }
 }
