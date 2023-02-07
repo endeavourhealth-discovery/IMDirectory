@@ -82,4 +82,395 @@ describe("eclLogic", () => {
       expect(eclToIMQ(testData.ecl.unionWithRefinement)).toEqual(testData.query.unionWithRefinement);
     });
   });
+
+  describe("eclToBuild", () => {
+    it("handles no string", () => {
+      expect(() => eclToBuild("")).toThrowError();
+    });
+
+    it("errors with member", () => {
+      expect(() => eclToBuild("^ 700043003 |Example problem list concepts reference set|")).toThrowError("'^/memberOf' is not currently supported");
+    });
+
+    it("errors with cardinality", () => {
+      expect(() =>
+        eclToBuild(" <  373873005 |Pharmaceutical / biologic product| : [1..3]  127489000 |Has active ingredient|  = <  105590001 |Substance|")
+      ).toThrowError("Cardinality is not currently supported");
+    });
+
+    it("errors with reverse", () => {
+      expect(() => {
+        eclToBuild("    <  91723000 |Anatomical structure| : R  363698007 |Finding site|  = <  125605004 |Fracture of bone|").toThrowError(
+          "'R/reverseOf/.' is not currently supported"
+        );
+      });
+    });
+
+    it("errors with NOT", () => {
+      expect(() => {
+        eclToBuild(
+          "   descendantOf  404684003 |Clinical finding| : 116676008 |Associated morphology|  NOT = descendantOrSelfOf  26036001 |Obstruction|"
+        ).toThrowError("'NOT' is currently not supported. Please use '!=' notation instead");
+      });
+    });
+
+    it("handles simple concept", () => {
+      expect(eclToBuild("<<  404684003")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<<",
+            conjunction: "AND",
+            concept: {
+              iri: "http://snomed.info/sct#404684003"
+            },
+            items: []
+          }
+        ]
+      });
+    });
+
+    it("ignores concept names", () => {
+      expect(eclToBuild("<<  404684003 |Clinical finding|")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<<",
+            conjunction: "AND",
+            concept: {
+              iri: "http://snomed.info/sct#404684003"
+            },
+            items: []
+          }
+        ]
+      });
+    });
+
+    it("ignores comments", () => {
+      expect(eclToBuild("/* test comment */<<  404684003 |Clinical finding|/* test comment*/")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<<",
+            conjunction: "AND",
+            concept: {
+              iri: "http://snomed.info/sct#404684003"
+            },
+            items: []
+          }
+        ]
+      });
+    });
+
+    it("ignores newline characters", () => {
+      expect(eclToBuild("<<  404684003 |Clinical finding|\n")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<<",
+            conjunction: "AND",
+            concept: {
+              iri: "http://snomed.info/sct#404684003"
+            },
+            items: []
+          }
+        ]
+      });
+    });
+
+    it("ignores tab characters", () => {
+      expect(eclToBuild("<<  404684003 |Clinical finding|\t")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<<",
+            conjunction: "AND",
+            concept: {
+              iri: "http://snomed.info/sct#404684003"
+            },
+            items: []
+          }
+        ]
+      });
+    });
+
+    it("handles * concept", () => {
+      expect(eclToBuild("*")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "",
+            conjunction: "AND",
+            concept: {
+              iri: "*"
+            },
+            items: []
+          }
+        ]
+      });
+    });
+
+    it("handles 'ANY' concept", () => {
+      expect(eclToBuild("*")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "",
+            conjunction: "AND",
+            concept: {
+              iri: "*"
+            },
+            items: []
+          }
+        ]
+      });
+    });
+
+    it("handles long format", () => {
+      expect(eclToBuild("descendantOf  19829001 |Disorder of lung| : 116676008 |Associated morphology|  =  79654002 |Edema|")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<",
+            conjunction: "AND",
+            concept: {
+              iri: "http://snomed.info/sct#19829001"
+            },
+            items: [
+              {
+                type: "Refinement",
+                property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                operator: "=",
+                value: {
+                  descendants: "",
+                  concept: {
+                    iri: "http://snomed.info/sct#79654002"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      });
+    });
+
+    it("handles concept with refinement", () => {
+      expect(eclToBuild("<  19829001 |Disorder of lung| : 116676008 |Associated morphology|  =  79654002 |Edema|")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<",
+            conjunction: "AND",
+            concept: {
+              iri: "http://snomed.info/sct#19829001"
+            },
+            items: [
+              {
+                type: "Refinement",
+                property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                operator: "=",
+                value: {
+                  descendants: "",
+                  concept: {
+                    iri: "http://snomed.info/sct#79654002"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      });
+    });
+
+    it("handles ANY concept with refinement", () => {
+      expect(eclToBuild("    * : 116676008 |Associated morphology|  =  79654002 |Edema|")).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "",
+            conjunction: "AND",
+            concept: {
+              iri: "*"
+            },
+            items: [
+              {
+                type: "Refinement",
+                property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                operator: "=",
+                value: {
+                  descendants: "",
+                  concept: {
+                    iri: "http://snomed.info/sct#79654002"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      });
+    });
+
+    it("handles concept with multiple refinements", () => {
+      expect(
+        eclToBuild(
+          "    <  404684003 |Clinical finding| : 363698007 |Finding site|  = <<  39057004 |Pulmonary valve structure| , 116676008 |Associated morphology|  = <<  415582006 |Stenosis|"
+        )
+      ).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<",
+            conjunction: "AND",
+            concept: { iri: "http://snomed.info/sct#404684003" },
+            items: [
+              {
+                type: "Refinement",
+                property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
+                operator: "=",
+                value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#39057004" } }
+              },
+              {
+                type: "Refinement",
+                property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                operator: "=",
+                value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#415582006" } }
+              }
+            ]
+          }
+        ]
+      });
+    });
+
+    it("handles concept with grouped refinements", () => {
+      const complexEclString =
+        "<  404684003 |Clinical finding| : { 363698007 |Finding site| = <<  39057004 |Pulmonary valve structure| , 116676008 |Associated morphology| = <<  415582006 |Stenosis| } AND {  363698007 |Finding site| = <<  53085002 |Right ventricular structure| , 116676008 |Associated morphology| = <<  56246009 |Hypertrophy| }";
+      expect(eclToBuild(complexEclString)).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<",
+            conjunction: "AND",
+            concept: { iri: "http://snomed.info/sct#404684003" },
+            items: [
+              {
+                type: "BoolGroup",
+                conjunction: "AND",
+                items: [
+                  {
+                    type: "Refinement",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#39057004" } }
+                  },
+                  {
+                    type: "Refinement",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#415582006" } }
+                  }
+                ]
+              },
+              {
+                type: "BoolGroup",
+                conjunction: "AND",
+                items: [
+                  {
+                    type: "Refinement",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#53085002" } }
+                  },
+                  {
+                    type: "Refinement",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#56246009" } }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+    });
+
+    it("handles refinements with groups including or's", () => {
+      const ecl =
+        "<  404684003 |Clinical finding| : { 363698007 |Finding site| = <<  39057004 |Pulmonary valve structure| OR 116676008 |Associated morphology| = <<  415582006 |Stenosis| } AND {  363698007 |Finding site| = <<  53085002 |Right ventricular structure| OR 116676008 |Associated morphology| = <<  56246009 |Hypertrophy| }";
+      expect(eclToBuild(ecl)).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<",
+            conjunction: "AND",
+            concept: { iri: "http://snomed.info/sct#404684003" },
+            items: [
+              {
+                type: "BoolGroup",
+                conjunction: "OR",
+                items: [
+                  {
+                    type: "Refinement",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#39057004" } }
+                  },
+                  {
+                    type: "Refinement",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#415582006" } }
+                  }
+                ]
+              },
+              {
+                type: "BoolGroup",
+                conjunction: "OR",
+                items: [
+                  {
+                    type: "Refinement",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#363698007" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#53085002" } }
+                  },
+                  {
+                    type: "Refinement",
+                    property: { descendants: "", concept: { iri: "http://snomed.info/sct#116676008" } },
+                    operator: "=",
+                    value: { descendants: "<<", concept: { iri: "http://snomed.info/sct#56246009" } }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+    });
+  });
 });

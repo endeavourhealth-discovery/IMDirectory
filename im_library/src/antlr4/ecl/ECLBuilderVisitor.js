@@ -32,6 +32,11 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
+          if (isObjectHasKeys(result, ["type"]) && result.type === "Concept") {
+            if (!isObjectHasKeys(result, ["items"])) result.items = [];
+            if (!isObjectHasKeys(result, ["operator"])) result.conjunction = "AND";
+            if (!isObjectHasKeys(result, ["descendants"])) result.descendants = "";
+          }
           if (isObjectHasKeys(result)) return result;
         }
       }
@@ -47,7 +52,11 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       for (const result of results) {
         if (isObjectHasKeys(result, ["type"])) {
           if (result.type === "Concept") build = result;
-          if (result.type === "Refinement" || result.type === "BoolGroup") build.items = [result];
+          if (result.type === "Refinement") build.items = [result];
+          if (result.type === "BoolGroup") {
+            build.conjunction = result.conjunction;
+            build.items = result.items;
+          }
         }
       }
     }
@@ -63,13 +72,13 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitConjunctionexpressionconstraint(ctx) {
     console.log("found conjunction expression constraint");
     console.log(ctx.getText());
-    let build = { type: "BoolGroup", test: "conjunction expression constraint" };
+    let build = { type: "BoolGroup" };
     if (ctx.children) {
       build.items = [];
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["conjunction"])) build.conjunction = result.conjunction;
+          if (isObjectHasKeys(result, ["conjunction"]) && !isObjectHasKeys(result, ["type"])) build.conjunction = result.conjunction;
           else if (isObjectHasKeys(result, ["type"]) && (result.type === "Concept" || result.type === "BoolGroup")) build.items.push(result);
         }
       }
@@ -80,13 +89,13 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitDisjunctionexpressionconstraint(ctx) {
     console.log("found disjunction expression constraint");
     console.log(ctx.getText());
-    let build = { type: "BoolGroup", test: "disjunction expression constraint" };
+    let build = { type: "BoolGroup" };
     if (ctx.children) {
       build.items = [];
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["conjunction"])) build.conjunction = result.conjunction;
+          if (isObjectHasKeys(result, ["conjunction"]) && !isObjectHasKeys(result, ["type"])) build.conjunction = result.conjunction;
           else if (isObjectHasKeys(result, ["type"]) && (result.type === "Concept" || result.type === "BoolGroup")) build.items.push(result);
         }
       }
@@ -97,13 +106,13 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitExclusionexpressionconstraint(ctx) {
     console.log("found exclusion expression constraint");
     console.log(ctx.getText());
-    let build = { type: "BoolGroup", test: "exclusion expression constraint" };
+    let build = { type: "BoolGroup" };
     if (ctx.children) {
       build.items = [];
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["conjunction"])) build.conjunction = result.conjunction;
+          if (isObjectHasKeys(result, ["conjunction"]) && !isObjectHasKeys(result, ["type"])) build.conjunction = result.conjunction;
           else if (isObjectHasKeys(result, ["type"]) && (result.type === "Concept" || result.type === "BoolGroup")) build.items.push(result);
         }
       }
@@ -131,7 +140,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["constraint"])) build.descendants = result.constraint;
+          if (isObjectHasKeys(result, ["constraint"])) build.descendants = result.constraint ? result.constraint : "";
           if (isObjectHasKeys(result, ["conceptReference"])) {
             build.concept = {};
             build.concept.iri = result.conceptReference;
@@ -244,11 +253,11 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitConjunctionrefinementset(ctx) {
     console.log("found conjunction refinement set");
     console.log(ctx.getText());
-    let build = { type: "BoolGroup", test: "conjunction refinement set" };
+    let build = { type: "BoolGroup" };
     const results = this.visitChildren(ctx);
     if (results) {
       for (const result of results) {
-        if (isObjectHasKeys(result, ["conjunction"])) {
+        if (isObjectHasKeys(result, ["conjunction"]) && !isObjectHasKeys(result, ["type"])) {
           if (build.conjunction && build.conjunction !== result.conjunction)
             throw new Error("Conjunction differs from other conjunctions within refinement set. Logic requires bracketted conjunctions.");
           else build.conjunction = result.conjunction;
@@ -265,11 +274,11 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitDisjunctionrefinementset(ctx) {
     console.log("found disjunction refinement set");
     console.log(ctx.getText());
-    let build = { type: "BoolGroup", test: "disjunction refinement set" };
+    let build = { type: "BoolGroup" };
     const results = this.visitChildren(ctx);
     if (results) {
       for (const result of results) {
-        if (isObjectHasKeys(result, ["conjunction"])) {
+        if (isObjectHasKeys(result, ["conjunction"]) && !isObjectHasKeys(result, ["type"])) {
           if (build.conjunction && build.conjunction !== result.conjunction)
             throw new Error("Conjunction differs from other conjunctions within refinement set. Logic requires bracketted conjunctions.");
           else build.conjunction = result.conjunction;
@@ -314,7 +323,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitMemberof(ctx) {
-    throw new Error("member of '^' is not currently supported.");
+    throw new Error("'^/memberOf' is not currently supported");
   }
 
   visitCardinality(ctx) {
@@ -343,7 +352,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitConjunctionattributeset(ctx) {
     console.log("found conjunction attribute set");
     console.log(ctx.getText());
-    let build = { type: "BoolGroup", test: "conjunction attribute set" };
+    let build = { type: "BoolGroup" };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
@@ -362,7 +371,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   visitDisjunctionattributeset(ctx) {
     console.log("found disjunction attribute set");
     console.log(ctx.getText());
-    let build = { type: "BoolGroup", test: "disjunction attribute set" };
+    let build = { type: "BoolGroup" };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
@@ -408,7 +417,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["type"]) && result.type === "Concept") build.property = { descendants: result.descendants, concept: result.concept };
+          if (isObjectHasKeys(result, ["type"]) && result.type === "Concept")
+            build.property = { descendants: result.descendants ? result.descendants : "", concept: result.concept };
           if (isObjectHasKeys(result, ["value"])) {
             build.value = result.value;
             build.operator = result.operator;
@@ -429,7 +439,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["operator"])) build.operator = result.operator;
           if (isObjectHasKeys(result, ["type"]) && result.type === "Concept") {
-            build.value.descendants = result.descendants;
+            build.value.descendants = result.descendants ? result.descendants : "";
             build.value.concept = result.concept;
           }
         }
