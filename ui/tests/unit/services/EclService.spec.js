@@ -1,6 +1,7 @@
 import { describe } from "vitest";
 import { EclService, Env } from "@/services";
 import axios from "axios";
+import { fakerFactory } from "../../../src/mocks/factory";
 
 describe("EclService ___ axios success", () => {
   beforeEach(() => {
@@ -10,17 +11,19 @@ describe("EclService ___ axios success", () => {
   });
 
   it("can get ECLSearch", async () => {
+    const fakerResults = [fakerFactory.conceptSummary.create()];
+    axios.post.mockResolvedValue(fakerResults);
     const controller = new AbortController();
-    const result = await EclService.ECLSearch({ ecl: "testString", includeLegacy: false, limit: 1000 }, controller);
+    const result = await EclService.ECLSearch({ eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 }, controller);
     expect(axios.post).toBeCalledTimes(1);
     expect(axios.post).toHaveBeenCalledWith(
-      Env.API + "api/ecl/public/eclSearch",
-      { ecl: "testString", includeLegacy: false, limit: 1000 },
+      Env.VITE_NODE_API + "node_api/ecl/public/eclSearch",
+      { eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 },
       {
         signal: controller.signal
       }
     );
-    expect(result).toBe("axios post return");
+    expect(result).toBe(fakerResults);
   });
 
   it("can getEcl", async () => {
@@ -41,16 +44,16 @@ describe("EclService.ts ___ axios fail", () => {
 
   it("can get ECLSearch", async () => {
     const controller = new AbortController();
-    const result = await EclService.ECLSearch({ ecl: "testString", includeLegacy: false, limit: 1000 }, controller);
+    const result = await EclService.ECLSearch({ eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 }, controller);
     expect(axios.post).toBeCalledTimes(1);
     expect(axios.post).toHaveBeenCalledWith(
-      Env.API + "api/ecl/public/eclSearch",
-      { ecl: "testString", includeLegacy: false, limit: 1000 },
+      Env.VITE_NODE_API + "node_api/ecl/public/eclSearch",
+      { eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 },
       {
         signal: controller.signal
       }
     );
-    expect(result).toStrictEqual({});
+    expect(result).toStrictEqual([]);
   });
 
   it("can getEcl", async () => {

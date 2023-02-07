@@ -54,6 +54,7 @@ vi.mock("primevue/usetoast", () => ({
 describe("EclSearch.vue", async () => {
   let component;
   let mockECLSearch;
+  let mockGetQueryFromECL;
   let docSpy;
   let windowSpy;
 
@@ -61,6 +62,7 @@ describe("EclSearch.vue", async () => {
     vi.resetAllMocks();
 
     mockECLSearch = vi.spyOn(EclService, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    mockGetQueryFromECL = vi.spyOn(EclService, "getQueryFromECL").mockResolvedValue({ from: { "@id": "testQuery" } });
 
     component = render(ExpressionConstraintsSearch, {
       global: {
@@ -108,7 +110,7 @@ describe("EclSearch.vue", async () => {
     for (let i = 1; i <= 1100; i++) {
       largeSearchResults.push(fakerFactory.conceptSummary.create());
     }
-    mockECLSearch.mockResolvedValue({ page: 1, count: largeSearchResults.length, entities: largeSearchResults });
+    mockECLSearch.mockResolvedValue(largeSearchResults);
     const textbox = component.getByTestId("query-string");
     await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
     component.getByDisplayValue("<< 10363601000001109 |UK product|");
