@@ -1,4 +1,4 @@
-const swaggerAutogen = require("swagger-autogen")();
+import swaggerAutogen from "swagger-autogen";
 
 const outputFile = "./public/swagger_output.json";
 const endpointsFiles = ["./src/controllers/fhirController.ts"];
