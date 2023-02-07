@@ -1,4 +1,4 @@
 *.d.ts
 *.d.ts.map
 tsconfig.tsbuildinfo
-./src/antlr4/grammars/.antlr/*
+**/.antlr/*
