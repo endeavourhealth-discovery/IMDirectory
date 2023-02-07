@@ -114,7 +114,7 @@ watch(
 watch(includeTerms, () => generateQueryString());
 
 function createDefaultBuild() {
-  build.value = { type: "BoolGroup", operator: "AND" };
+  build.value = { type: "BoolGroup", conjunction: "AND" };
 }
 
 async function createBuildFromEclString(ecl: string) {

@@ -85,7 +85,7 @@ function addRefinement() {
 }
 
 function addGroup() {
-  add({ type: "BoolGroup", operator: "AND" });
+  add({ type: "BoolGroup", conjunction: "AND" });
 }
 
 function deleteItem(index: number) {

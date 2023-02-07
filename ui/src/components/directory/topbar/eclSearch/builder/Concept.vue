@@ -20,8 +20,8 @@
       <div style="display: flex">
         <span class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index === 1" type="button" :label="value.operator" @click="toggleBool" />
-          <Button v-else-if="index > 1" type="button" :label="value.operator" class="p-button-secondary" disabled />
+          <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" />
+          <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary" disabled />
         </span>
         <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
         <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
@@ -51,7 +51,7 @@ import { EntityService } from "@/services";
 import _ from "lodash";
 
 const props = defineProps({
-  value: { type: Object as PropType<{ type: string; descendants: string; operator: string; items: any[]; concept: { iri: string } }>, required: true },
+  value: { type: Object as PropType<{ type: string; descendants: string; conjunction: string; items: any[]; concept: { iri: string } }>, required: true },
   parent: { type: Object as PropType<any>, required: false }
 });
 
@@ -66,15 +66,15 @@ const loading = ref(false);
 const boolOptions = [
   {
     label: "AND",
-    command: () => (props.value.operator = "AND")
+    command: () => (props.value.conjunction = "AND")
   },
   {
     label: "OR",
-    command: () => (props.value.operator = "OR")
+    command: () => (props.value.conjunction = "OR")
   },
   {
     label: "NOT",
-    command: () => (props.value.operator = "MINUS")
+    command: () => (props.value.conjunction = "MINUS")
   }
 ];
 
@@ -151,7 +151,7 @@ function addRefinement() {
 }
 
 function addGroup() {
-  add({ type: "BoolGroup", operator: "AND" });
+  add({ type: "BoolGroup", conjunction: "AND" });
 }
 
 function deleteItem(index: number) {
