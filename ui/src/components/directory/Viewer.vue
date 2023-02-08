@@ -84,6 +84,11 @@
               <Provenance :conceptIri="conceptIri" />
             </div>
           </TabPanel>
+          <TabPanel header="Query display">
+            <div class="concept-panel-content" id="provenance-container">
+              <QueryDisplay :conceptIri="conceptIri"/>
+            </div>
+          </TabPanel>
         </TabView>
       </div>
     </div>
@@ -118,6 +123,7 @@ import { useRouter } from "vue-router";
 import setupConcept from "@/composables/setupConcept";
 import setupConfig from "@/composables/setupConfig";
 import setupTerms from "@/composables/setupTerms";
+import QueryDisplay from "./viewer/QueryDisplay.vue";
 const { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
 const { isObjectHasKeys } = DataTypeCheckers;
 
