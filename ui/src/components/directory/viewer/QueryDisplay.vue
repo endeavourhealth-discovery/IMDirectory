@@ -1,42 +1,29 @@
 <template>
-  <div class="card">
-    <OrganizationChart :value="APLCVDStatinsv1_0SearchPID" :collapsible="true" class="company" selectionMode="single">
-      <template #query="{ node }">
-        <div class="node-header ui-corner-top">{{ node.data.name }}</div>
-        <div class="node-content">
-          <div>{{ node.data.description }}</div>
-        </div>
-      </template>
-      <template #operatorWhere="{ node }">
-        <div class="node-content">
-          <div v-if="node.data.description">{{ node.data.description }}</div>
-          <div v-else>{{ node.data.id }} {{ node.data.operator }} {{ node.data.relativeTo }}</div>
-        </div>
-      </template>
-      <template #notExistWhere="{ node }">
-        <div class="node-content">
-          <div v-if="node.data.description">{{ node.data.description }}</div>
-          <div v-else>{{ node.data.id }} not exists</div>
-        </div>
-      </template>
-      <template #in="{ node }">
-        <div class="node-content">
-          <div v-if="node.data.description">
-            {{ node.data.description }}
-            <div v-if="node.data.in.length > 1">see more...</div>
-          </div>
-          <div v-else>
-            <div v-for="inItem in node.data.in">{{ inItem.name }}</div>
-          </div>
-        </div>
-      </template>
+  <div class="query-display-container">
+    <Tree :value="nodes" :expanded-keys="expandedKeys">
       <template #default="{ node }">
-        <div class="node-header ui-corner-top">{{ node.data.name }}</div>
-        <div class="node-content">
-          <div>{{ node.data.description }}</div>
+        <div v-if="node.data?.description">
+          <div v-tooltip="node.data.description">
+            {{ node.label }}
+          </div>
+        </div>
+        <div v-else>{{ node.label }}</div>
+      </template>
+      <template #query="{ node }">
+        <div v-tooltip="node.data.description">
+          <b>{{ node.label }}</b>
         </div>
       </template>
-    </OrganizationChart>
+      <template #from="{ node }">
+        <div v-tooltip="node.data.sourceType">
+          {{ node.label }}
+        </div>
+      </template>
+      <template #where="{ node }">
+        <div v-if="node.data.in?.length > 1">{{ node.data.description }} see more...</div>
+        <div v-else>{{ node.data.description }}</div>
+      </template>
+    </Tree>
   </div>
 </template>
 
@@ -47,177 +34,9 @@ import { onMounted, watch, Ref, ref } from "vue";
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
-
+const expandedKeys: Ref<any> = ref({});
 const definition: Ref<any> = ref();
-const Q_RegisteredGMS: Ref<any> = ref({
-  key: "0",
-  type: "query",
-  data: {
-    name: "Patients registered for GMS services on the reference date",
-    description: "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date"
-  },
-  children: [
-    {
-      key: "0_0",
-      type: "from",
-      data: { name: "Patient" },
-      children: [
-        {
-          key: "0_0_0",
-          type: "where",
-          data: { name: "gpRegistration" },
-          children: [
-            {
-              key: "0_0_0_0",
-              type: "where",
-              data: { name: "patientType" },
-              children: [
-                {
-                  key: "0_0_0_0_0",
-                  type: "in",
-                  data: { in: [{ name: "Regular GMS patient" }] }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          key: "0_0_1",
-          type: "operatorWhere",
-          data: { id: "effectiveDate", operator: "<=", relativeTo: "$referenceDate" }
-        },
-        {
-          key: "0_0_2",
-          type: "or",
-          data: { name: "or" },
-          children: [
-            {
-              key: "0_0_2_0",
-              type: "notExistWhere",
-              data: { notExist: true, id: "endDate" }
-            },
-            {
-              key: "0_0_2_1",
-              type: "operatorWhere",
-              data: { id: "endDate", operator: ">", relativeTo: "$referenceDate" }
-            }
-          ]
-        }
-      ]
-    }
-  ]
-});
-
-const APLCVDStatinsv1_0SearchPID: Ref<any> = ref({
-  key: "0",
-  type: "from",
-  data: {
-    name: "Patients registered for GMS services on the reference date",
-    description: "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date"
-  },
-  children: [
-    {
-      key: "0_0",
-      type: "where",
-      data: { name: "gpCurrentRegistration" },
-      children: [
-        {
-          key: "0_0_0",
-          type: "where",
-          data: { name: "gpPatientType" },
-          children: [
-            {
-              key: "0_0_0_0_0",
-              type: "in",
-              data: { in: [{ name: "Regular GMS patient" }] }
-            }
-          ]
-        },
-        {
-          key: "0_0_1",
-          type: "operatorWhere",
-          data: {
-            id: "age",
-            description: "age >= 18 YEAR",
-            operator: ">=",
-            value: "18",
-            unit: "YEAR"
-          }
-        },
-        {
-          key: "0_0_2",
-          type: "where",
-          data: { name: "gpCurrentRegistration" },
-          children: [
-            {
-              key: "0_0_2_0",
-              type: "where",
-              data: { name: "gpRegisteredStatus" },
-              children: [
-                {
-                  key: "0_0_2_0_0",
-                  type: "in",
-                  data: { in: [{ name: "Patient registered (finding)" }] }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          key: "0_0_2",
-          type: "where",
-          data: { name: "gpCurrentRegistration" },
-          children: [
-            {
-              key: "0_0_2_0",
-              type: "where",
-              data: { description: "gpGMSRegistrationDate <= -1 YEAR" }
-            }
-          ]
-        },
-        {
-          key: "0_0_2",
-          type: "where",
-          data: { name: "observation" },
-          children: [
-            {
-              key: "0_0_2_0",
-              type: "where",
-              data: { name: "concept" },
-              children: [
-                {
-                  key: "0_0_2_0_0",
-                  type: "in",
-                  data: {
-                    description: "Ischaemic heart disease",
-                    in: [
-                      {
-                        "@id": "http://snomed.info/sct#414545008",
-                        name: "Ischemic heart disease (disorder)"
-                      },
-                      {
-                        "@id": "http://snomed.info/sct#57054005",
-                        name: "Acute myocardial infarction (disorder)"
-                      },
-                      {
-                        "@id": "http://snomed.info/sct#414545008",
-                        name: "Ischemic heart disease (disorder)"
-                      },
-                      {
-                        "@id": "http://snomed.info/sct#20059004",
-                        name: "Occlusion of cerebral artery (disorder)"
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-});
+const nodes: Ref<any[]> = ref([]);
 
 watch(
   () => props.conceptIri,
@@ -228,12 +47,129 @@ watch(
 
 onMounted(async () => {
   await getDefinition(props.conceptIri);
+  getNodes();
+  expandAll();
 });
 
 async function getDefinition(iri: string) {
   const responseEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
   definition.value = responseEntity[IM.DEFINITION];
 }
+
+function getNodes() {
+  nodes.value = [
+    {
+      key: "0",
+      label: "Patients registered for GMS services on the reference date",
+      type: "query",
+      data: {
+        "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+        name: "Patients registered for GMS services on the reference date",
+        description: "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date."
+      },
+      children: [
+        {
+          key: "0-0",
+          label: "Patient",
+          type: "from",
+          data: {
+            "@id": "http://endhealth.info/im#Patient",
+            name: "Patient",
+            sourceType: "type"
+          },
+          children: [
+            {
+              key: "0-0-0",
+              label: "gpRegistration",
+              type: "default",
+              data: { id: "gpRegistration", description: "Points to entries for the registration episodes" },
+              children: [
+                {
+                  key: "0-0-1",
+                  label: "patientType",
+                  type: "where",
+                  data: {
+                    id: "patientType",
+                    description: "patientType = Regular GMS patient",
+                    in: [
+                      {
+                        "@id": "http://endhealth.info/im#2751000252106",
+                        name: "Regular GMS patient"
+                      }
+                    ]
+                  }
+                },
+                {
+                  key: "0-0-2",
+                  label: "effectiveDate",
+                  type: "where",
+                  data: {
+                    id: "effectiveDate",
+                    operator: "<=",
+                    relativeTo: "$referenceDate",
+                    description: "effectiveDate <= $referenceDate"
+                  }
+                },
+                {
+                  key: "0-0-3",
+                  label: "or",
+                  children: [
+                    {
+                      key: "0-0-3-0",
+                      label: "endDate",
+                      type: "where",
+                      data: { notExist: true, id: "endDate", description: "endDate does not exist" }
+                    },
+                    {
+                      key: "0-0-3-1",
+                      label: "endDate",
+                      type: "where",
+                      data: {
+                        id: "endDate",
+                        operator: ">",
+                        relativeTo: "$referenceDate",
+                        description: "endDate > $referenceDate"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ];
+}
+
+function expandAll() {
+  for (let node of nodes.value) {
+    expandNode(node);
+  }
+
+  expandedKeys.value = { ...expandedKeys.value };
+}
+
+function collapseAll() {
+  expandedKeys.value = {};
+}
+
+function expandNode(node: any) {
+  if (node.children && node.children.length) {
+    expandedKeys.value[node.key] = true;
+
+    for (let child of node.children) {
+      expandNode(child);
+    }
+  }
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.query-display-container {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  height: 100%;
+}
+</style>
