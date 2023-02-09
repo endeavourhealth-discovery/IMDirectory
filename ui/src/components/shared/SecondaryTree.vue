@@ -297,7 +297,7 @@ async function setExpandedParentParents(): Promise<void> {
 
 async function onNodeSelect(node: any): Promise<void> {
   if (node.data === "loadMore") {
-    await loadMore(node);
+    if (!node.loading) await loadMore(node);
   } else {
   }
   await nextTick();
