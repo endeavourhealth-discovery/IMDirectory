@@ -63,7 +63,7 @@ function setupTree() {
 
   async function onNodeSelect(node: any): Promise<void> {
     if (node.data === "loadMore") {
-      await loadMore(node);
+      if (!node.loading) await loadMore(node);
     } else {
       selectedNode.value = node;
       onRowClick(node.data);
@@ -75,6 +75,7 @@ function setupTree() {
   }
 
   async function loadMore(node: any) {
+    node.loading = true;
     if (node.nextPage * pageSize.value < node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
@@ -93,6 +94,7 @@ function setupTree() {
     } else {
       node.parentNode.children.pop();
     }
+    node.loading = false;
   }
 
   async function onNodeExpand(node: any) {
