@@ -19,7 +19,7 @@ interface DisplayQuery {
 export function buildDisplayQuery(query: any) {
   const nodes = [] as DisplayQuery[];
   buildRecursively(query, nodes, "query");
-  console.log(JSON.stringify(nodes));
+  if (!nodes[0].label && !isObjectHasKeys(nodes[0].data, ["name"]) && !isObjectHasKeys(nodes[0].data, ["description"])) return nodes[0].children;
   return nodes;
 }
 

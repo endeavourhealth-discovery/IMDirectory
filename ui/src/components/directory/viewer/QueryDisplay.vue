@@ -9,6 +9,9 @@
       <template #where="{ node }">
         {{ node.data.description || node.label }}
       </template>
+      <template #with="{ node }">
+        {{ node.data.description || node.label }}
+      </template>
     </Tree>
   </div>
 </template>
@@ -43,7 +46,6 @@ async function init() {
   definition.value = await getDefinition(props.conceptIri);
   const summarisedQuery = summariseQuery(definition.value);
   nodes.value = getNodes(summarisedQuery);
-  // console.log(JSON.stringify(nodes.value));
   expandAll();
 }
 
@@ -55,89 +57,6 @@ async function getDefinition(iri: string) {
 
 function getNodes(query: Query) {
   return buildDisplayQuery(query);
-  // nodes.value = [
-  //   {
-  //     key: "0",
-  //     label: "Patients registered for GMS services on the reference date",
-  //     type: "query",
-  //     data: {
-  //       "@id": "http://endhealth.info/im#Q_RegisteredGMS",
-  //       name: "Patients registered for GMS services on the reference date",
-  //       description: "For any registration period,a registration start date before the reference date and no end date,or an end date after the reference date."
-  //     },
-  //     children: [
-  //       {
-  //         key: "0-0",
-  //         label: "Patient",
-  //         type: "from",
-  //         data: {
-  //           "@id": "http://endhealth.info/im#Patient",
-  //           name: "Patient",
-  //           sourceType: "type"
-  //         },
-  //         children: [
-  //           {
-  //             key: "0-0-0",
-  //             label: "gpRegistration",
-  //             type: "default",
-  //             data: { id: "gpRegistration", description: "Points to entries for the registration episodes" },
-  //             children: [
-  //               {
-  //                 key: "0-0-1",
-  //                 label: "patientType",
-  //                 type: "where",
-  //                 data: {
-  //                   id: "patientType",
-  //                   description: "patientType = Regular GMS patient",
-  //                   in: [
-  //                     {
-  //                       "@id": "http://endhealth.info/im#2751000252106",
-  //                       name: "Regular GMS patient"
-  //                     }
-  //                   ]
-  //                 }
-  //               },
-  //               {
-  //                 key: "0-0-2",
-  //                 label: "effectiveDate",
-  //                 type: "where",
-  //                 data: {
-  //                   id: "effectiveDate",
-  //                   operator: "<=",
-  //                   relativeTo: "$referenceDate",
-  //                   description: "effectiveDate <= $referenceDate"
-  //                 }
-  //               },
-  //               {
-  //                 key: "0-0-3",
-  //                 label: "or",
-  //                 children: [
-  //                   {
-  //                     key: "0-0-3-0",
-  //                     label: "endDate",
-  //                     type: "where",
-  //                     data: { notExist: true, id: "endDate", description: "endDate does not exist" }
-  //                   },
-  //                   {
-  //                     key: "0-0-3-1",
-  //                     label: "endDate",
-  //                     type: "where",
-  //                     data: {
-  //                       id: "endDate",
-  //                       operator: ">",
-  //                       relativeTo: "$referenceDate",
-  //                       description: "endDate > $referenceDate"
-  //                     }
-  //                   }
-  //                 ]
-  //               }
-  //             ]
-  //           }
-  //         ]
-  //       }
-  //     ]
-  //   }
-  // ];
 }
 
 function expandAll() {
@@ -153,7 +72,15 @@ function collapseAll() {
 }
 
 function expandNode(node: any) {
-  if (node.children && node.children.length) {
+  const label: string = node.data?.description || node.label;
+  const hasSingleIn = label && label.includes(" is ");
+  const hasSeeMore = label && label.includes("see more...");
+  if (hasSingleIn && !hasSeeMore) {
+    node._children = [...node.children];
+    delete node.children;
+  }
+
+  if (node.children && node.children.length && !hasSeeMore) {
     expandedKeys.value[node.key] = true;
 
     for (let child of node.children) {
