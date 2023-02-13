@@ -12,11 +12,6 @@
           <SubsetDisplay :conceptIri="props.conceptIri" />
         </div>
       </AccordionTab>
-      <AccordionTab header="Direct Members">
-        <div class="set-accordion-content" id="members-container">
-          <Members :conceptIri="props.conceptIri" />
-        </div>
-      </AccordionTab>
       <AccordionTab>
         <template #header>
           <div class="definition-header">
@@ -32,6 +27,11 @@
         </template>
         <div class="set-accordion-content" id="set-definition-container">
           <QuerySetDefinition :conceptIri="props.conceptIri" />
+        </div>
+      </AccordionTab>
+      <AccordionTab header="Direct Members">
+        <div class="set-accordion-content" id="members-container">
+          <Members :conceptIri="props.conceptIri" />
         </div>
       </AccordionTab>
     </Accordion>
