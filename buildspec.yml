@@ -5,11 +5,16 @@ phases:
   install:
     runtime-versions:
       java: corretto11
-      nodejs: 14
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
       - echo $IP of CodeBuild Instance
+      - echo Node install
+      - rm /usr/local/bin/node
+      - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+      - curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+      - sudo apt-get install nodejs
+      - node -v
   build:
     commands:
       - chmod +x aws_scripts/build.sh
@@ -23,4 +28,7 @@ artifacts:
   files:
     - appspec.yml
     - aws_scripts/cleanup
-    - dist/**/*
+    - aws_scripts/deploy
+    - ui/dist/**/*
+    - node_api/dist/**/*
+    - node_api/package.json

@@ -1,0 +1,48 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "FHIR Value set API",
+    "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource"
+  },
+  "host": "localhost:3000",
+  "basePath": "/node_api/fhir/r4",
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/fhir+json"
+  ],
+  "paths": {
+    "/ValueSet": {
+      "get": {
+        "summary": "Retrieves the specified value set",
+        "description": "",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "description": "url/iri of the value set",
+            "type": "string"
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/ValueSet/$expand": {
+      "get": {
+        "summary": "Retrieves the specified value set and expands any subsets & members",
+        "description": "",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "description": "url/iri of the value set",
+            "type": "string"
+          }
+        ],
+        "responses": {}
+      }
+    }
+  }
+}

@@ -5,42 +5,30 @@
  * Learn more about Gradle by exploring our samples at https://docs.gradle.org/6.7.1/samples
  */
 plugins {
+    id 'groovy-gradle-plugin'
     id 'org.siouan.frontend-jdk11'
-    id "org.sonarqube" version "3.3"
 }
 
-def sonarLogin= System.getenv('SONAR_LOGIN')
-
-sonarqube {
-    properties {
-        property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.projectKey', 'endeavourhealth-discovery_IMDirectory'
-        property 'sonar.projectName', 'IMDirectory'
-        property 'sonar.organization', 'endeavourhealth-discovery'
-        property 'sonar.login', sonarLogin
-        property 'sonar.sources', 'src'
-        property 'sonar.exclusions', '**/aws-exports.js,**/main.ts'
-        property 'sonar.tests', 'tests'
-        property 'sonar.test.inclusions', '**/*.spec.ts,**/*.spec.js'
-        property 'sonar.javascript.lcov.reportPaths', 'coverage/lcov.info'
-    }
+repositories {
+    // Use the plugin portal to apply community plugins in convention plugins.
+    gradlePluginPortal()
 }
+
+
 
 clean.doLast {
-    file('coverage').deleteDir()
-    file('dist').deleteDir()
-}
-
-
-frontend {
-    nodeVersion = '18.4.0'
-    assembleScript = 'run build'
-    checkScript = 'run test:coverage'
-    installScript = 'install --legacy-peer-deps'
+    file('ui/coverage').deleteDir()
+    file('ui/dist').deleteDir()
+    file('node_api/coverage').deleteDir()
+    file('node_api/dist').deleteDir()
 }
 
 println 'Build environment = [' + env + ']'
 
-if (env == 'prod') {
-    check.finalizedBy 'sonarqube'
-}
+/*if (env == 'prod') {
+    subprojects {
+        apply plugin: 'org.sonarqube'
+
+        check.finalizedBy 'sonar'
+    }
+}*/

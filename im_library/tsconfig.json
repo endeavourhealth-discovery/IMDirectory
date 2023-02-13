@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "esModuleInterop": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": true,
+    "rootDir": ".",
+    "composite": true,
+    "outDir": ".",
+    "moduleResolution": "Node"
+  },
+  "references": [],
+  "include": ["./src/**/*.ts", "./src/**/*.js", "./src/typings/*.d.ts"],
+  "exclude": ["node_modules"]
+}
