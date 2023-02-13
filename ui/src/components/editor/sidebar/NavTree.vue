@@ -154,7 +154,7 @@ async function addParentFoldersToRoot() {
 
 function onNodeSelect(node: any): void {
   if (node.data === "loadMore") {
-    loadMore(node);
+    if (!node.loading) loadMore(node);
   } else {
     selectedNode.value = node;
     // router.push({

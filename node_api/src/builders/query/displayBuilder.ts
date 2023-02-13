@@ -89,7 +89,8 @@ function addSingleFrom(queryAPI: any, queryUI: any) {
 }
 
 function addSingleType(queryAPI: any, queryUI: any) {
-  const parent = buildQueryDisplayItem(queryAPI.type.name || queryAPI.type["@id"], QueryDisplayType.From, queryAPI.type, false);
+  const label = queryAPI.type?.name || queryAPI.type?.["@id"] || queryAPI.name || queryAPI["@id"];
+  const parent = buildQueryDisplayItem(label, QueryDisplayType.From, queryAPI.type || queryAPI, false);
   queryUI.children?.push(parent);
   return parent;
 }
