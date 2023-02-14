@@ -155,6 +155,15 @@ onMounted(async () => {
     for (const aggregate of conceptAggregates.value) {
       await createTree(aggregate.concept, aggregate.children);
     }
+    if (root.value.length < superiorsCount.value) {
+      root.value.push(
+        createLoadMoreNode(
+          createTreeNode(dialogRef.value.data.focus.iri, dialogRef.value.data.focus.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+          1,
+          superiorsCount.value
+        )
+      );
+    }
     if (dialogRef.value.data.currentValue) {
       await findSelected(dialogRef.value.data.currentValue.iri);
     }
@@ -206,15 +215,6 @@ async function createTree(concept: any, children: EntityReferenceNode[]): Promis
     selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
   }
   root.value.push(selectedConcept);
-  if (root.value.length < superiorsCount.value) {
-    root.value.push(
-      createLoadMoreNode(
-        createTreeNode(dialogRef.value.data.focus.iri, dialogRef.value.data.focus.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
-        1,
-        superiorsCount.value
-      )
-    );
-  }
   if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
     expandedKeys.value[selectedConcept.key] = true;
   }
