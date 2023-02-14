@@ -47,7 +47,7 @@ export default class DirectService {
   }
 
   public view(iri?: string) {
-    if (iri) this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "folder");
+    if (iri) this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "directory/folder");
     else this.directTo(Env.DIRECTORY_URL);
   }
 
