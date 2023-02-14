@@ -43,9 +43,9 @@ const routes: Array<RouteRecordRaw> = [
     component: Directory,
     meta: { requiredLicense: true },
     redirect: { name: "LandingPage" },
-    alias: "/",
     children: [
       {
+        alias: "/",
         path: "landingPage",
         name: "LandingPage",
         component: LandingPage,
