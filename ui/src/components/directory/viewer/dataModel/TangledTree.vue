@@ -383,8 +383,13 @@ function renderChart() {
     })
     .on("click", (d: any) => {
       const n = d["target"]["__data__"];
-      directService.select(n.id);
-  });
+      if(n.id.startsWith(twinNode)) {
+        const iri = n.id.slice(15);
+        directService.select(iri);
+      } else {
+        directService.select(n.id);
+      }
+    });
 }
 </script>
 
