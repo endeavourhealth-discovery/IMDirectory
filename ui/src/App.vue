@@ -2,6 +2,7 @@
   <div class="layout-wrapper layout-static">
     <Toast />
     <ConfirmDialog />
+    <DynamicDialog class="dynamic-dialog" />
     <ReleaseNotes v-if="!loading && showReleaseNotes" repositoryName="IMDirectory" />
     <div id="main-container">
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
@@ -161,11 +162,16 @@ function setupExternalErrorHandler() {
 }
 
 .p-menu-overlay {
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .p-overlaypanel {
-  z-index: 1000;
+  z-index: 2000;
+}
+
+.p-dialog-header-icons {
+  flex: 1 0 auto;
+  justify-content: flex-end;
 }
 
 .p-datatable-thead {

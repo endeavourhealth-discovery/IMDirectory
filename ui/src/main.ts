@@ -83,6 +83,8 @@ import Steps from "primevue/steps";
 import Chip from "primevue/chip";
 import ToggleButton from "primevue/togglebutton";
 import Skeleton from "primevue/skeleton";
+import DialogService from "primevue/dialogservice";
+import DynamicDialog from "primevue/dynamicdialog";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -102,6 +104,7 @@ const app = createApp(App)
   .use(PrimeVue, { ripple: true })
   .use(ConfirmationService)
   .use(ToastService)
+  .use(DialogService)
   .use(VueClipboard, {
     autoSetContainer: true,
     appendToBody: true
@@ -163,7 +166,8 @@ const app = createApp(App)
   .component("Steps", Steps)
   .component("Chip", Chip)
   .component("ToggleButton", ToggleButton)
-  .component("Skeleton", Skeleton);
+  .component("Skeleton", Skeleton)
+  .component("DynamicDialog", DynamicDialog);
 const vm = app.mount("#app");
 
 // Vue application exceptions
