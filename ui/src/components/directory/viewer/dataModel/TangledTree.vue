@@ -231,7 +231,7 @@ function change(event: any) {
     event.value.forEach((p: any) => {
       let isExist = false;
       chartData.value.forEach((d: any) => {
-        const result = d.some((n: any) => n.id == p.result.type["@id"]);
+        const result = d[0]?.level !== chartData.value.length - 1 && d.some((n: any) => n.id == p.result.type["@id"]);
         if (result) isExist = true;
       });
       if (isExist) {
