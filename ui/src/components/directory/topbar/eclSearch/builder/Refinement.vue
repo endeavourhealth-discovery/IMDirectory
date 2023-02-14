@@ -11,6 +11,7 @@
       placeholder="search..."
       :disabled="loadingProperty || !focus?.iri"
     />
+    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
@@ -25,18 +26,22 @@
       placeholder="search..."
       :disabled="!selectedProperty || loadingValue"
     />
+    <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted, watch } from "vue";
+import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
+import { useDialog } from "primevue/usedialog";
 import { RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import EclTree from "../EclTree.vue";
+import Button from "primevue/button";
 
 const props = defineProps({
   value: {
@@ -46,6 +51,8 @@ const props = defineProps({
   parent: { type: Object, required: false },
   focus: { type: Object, required: false }
 });
+
+let treeDialog = useDialog();
 
 const selectedProperty: Ref<any | null> = ref(null);
 const selectedValue: Ref<any | null> = ref(null);
@@ -161,6 +168,51 @@ async function findIriName(iri: string) {
   if (result && isObjectHasKeys(result, [RDFS.LABEL])) {
     return result[RDFS.LABEL];
   } else return "";
+}
+
+function openTree(type: string) {
+  const dialogProps = {
+    style: { width: "80vw", height: "80vh" },
+    closable: false,
+    maximizable: true,
+    modal: true,
+    contentStyle: { flex: "1 1 auto", display: "flex" },
+    dismissableMask: true,
+    autoZIndex: false
+  };
+  if (type === "property") {
+    const dialogRef = treeDialog.open(EclTree, {
+      props: dialogProps,
+      templates: {
+        footer: () => {
+          return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+        }
+      },
+      data: { focus: { iri: props.focus?.iri, name: props.focus?.name }, type: "property", currentValue: props.value.property.concept },
+      onClose(options) {
+        if (options?.data?.type === "property") {
+          selectedProperty.value = options.data.entity;
+          selectedValue.value = null;
+        } else if (options?.data?.type === "value") selectedValue.value = options.data.entity;
+      }
+    });
+  } else if (type === "value") {
+    const dialogRef = treeDialog.open(EclTree, {
+      props: dialogProps,
+      templates: {
+        footer: () => {
+          return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+        }
+      },
+      data: { focus: { iri: selectedProperty.value.iri, name: selectedProperty.value.name }, type: "value", currentValue: props.value.value.concept },
+      onClose(options) {
+        if (options?.data?.type === "property") {
+          selectedProperty.value = options.data.entity;
+          selectedValue.value = null;
+        } else if (options?.data?.type === "value") selectedValue.value = options.data.entity;
+      }
+    });
+  } else throw new Error("Unknown type encountered trying to open eclTree");
 }
 </script>
 
