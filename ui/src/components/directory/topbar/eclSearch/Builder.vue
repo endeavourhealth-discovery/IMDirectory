@@ -13,6 +13,7 @@
     }"
     id="ecl-builder-dialog"
     :contentStyle="{ flexGrow: '100', display: 'flex' }"
+    :auto-z-index="false"
   >
     <template #header>
       <h3>ECL Builder:</h3>
@@ -174,6 +175,7 @@ function getCodeTermECL(clause: any) {
     if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
   } else if (clause.concept && clause.concept.iri) {
     result += clause.concept.iri.split("#")[1];
+    if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
   } else result += "[UNKNOWN CONCEPT]";
 
   return result;
@@ -227,7 +229,6 @@ function onCopyError(): void {
   align-items: flex-start;
   gap: 1rem;
   flex: 1 1 auto;
-  overflow: auto;
   font-size: 12px;
 }
 
