@@ -20,9 +20,10 @@ import { onMounted, PropType, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { TangledTreeLayout } from "@im-library/helpers";
 import _ from "lodash";
-import { EntityService } from "@/services";
+import {DirectService, EntityService} from "@/services";
 
 const { constructTangleLayout } = TangledTreeLayout;
+const directService = new DirectService();
 
 const props = defineProps({
   data: { type: Array as PropType<Array<TangledTreeData[]>>, required: true },
@@ -378,6 +379,15 @@ function renderChart() {
       if (rect && fullName) {
         rect.remove();
         fullName.remove();
+      }
+    })
+    .on("click", (d: any) => {
+      const n = d["target"]["__data__"];
+      if(n.id.startsWith(twinNode)) {
+        const iri = n.id.slice(15);
+        directService.select(iri);
+      } else {
+        directService.select(n.id);
       }
     });
 }
