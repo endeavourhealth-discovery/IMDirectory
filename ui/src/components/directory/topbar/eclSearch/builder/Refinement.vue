@@ -59,8 +59,8 @@ const selectedValue: Ref<any | null> = ref(null);
 const propertyResults: Ref<any[]> = ref([]);
 const valueResults: Ref<any[]> = ref([]);
 const store = useStore();
-const propertyController: Ref<AbortController> = ref({} as AbortController);
-const valueController: Ref<AbortController> = ref({} as AbortController);
+const propertyController: Ref<AbortController | undefined> = ref(undefined);
+const valueController: Ref<AbortController | undefined> = ref(undefined);
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
 
@@ -111,6 +111,11 @@ onMounted(async () => {
   await processProps();
 });
 
+onBeforeUnmount(() => {
+  if (propertyController.value) propertyController.value.abort();
+  if (valueController.value) valueController.value.abort();
+});
+
 async function processProps() {
   if (props.value && props.value.property && props.value.property.concept && props.value.property.concept.iri) {
     loadingProperty.value = true;
@@ -140,9 +145,8 @@ async function processProps() {
 async function searchProperty(term: string) {
   if (!props.focus?.iri) return;
 
-  if (propertyController.value && propertyController.value.abort) {
-    propertyController.value.abort();
-  }
+  if (propertyController.value) propertyController.value.abort();
+
   propertyController.value = new AbortController();
 
   const matches = await QueryService.getAllowablePropertySuggestions(props.focus.iri, term, propertyController.value);
@@ -154,9 +158,8 @@ async function searchProperty(term: string) {
 async function searchValue(term: string) {
   if (!selectedProperty.value.iri) return;
 
-  if (valueController.value && valueController.value.abort) {
-    valueController.value.abort();
-  }
+  if (valueController.value) valueController.value.abort();
+
   valueController.value = new AbortController();
   const matches = await QueryService.getAllowableRangeSuggestions(selectedProperty.value.iri, term, valueController.value);
   if (!matches) valueResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
