@@ -10,12 +10,11 @@
         dataKey="iri"
         v-model="selectedSearchResult"
         :suggestions="filteredSearchOptions"
-        @complete="debounceFunction(search, 600, [$event])"
-        :placeholder="loadingSearchOptions ? 'loading search options...' : 'search...'"
-        :disabled="loadingSearchOptions"
+        @complete="debounceFunction(search, 600, [$event.query])"
+        placeholder="search..."
+        :disabled="loading"
         @blur="searchResultsLimited = false"
       />
-      <ProgressSpinner v-if="loadingSearchOptions" class="loading-icon" stroke-width="8" />
     </div>
     <div
       v-if="dialogRef?.options?.data?.focus?.name && dialogRef.options.data.type"
@@ -150,7 +149,6 @@ const loading = ref(false);
 const totalCount = ref(0);
 const superiorsCount = ref(0);
 const pageSize = ref(20);
-const loadingSearchOptions = ref(true);
 const selectedSearchResult: Ref<null | AliasEntity> = ref(null);
 const searchOptions: Ref<AliasEntity[]> = ref([]);
 const filteredSearchOptions: Ref<AliasEntity[]> = ref([]);
@@ -200,7 +198,6 @@ onMounted(async () => {
     if (dialogRef.value.data.currentValue) {
       await findSelected(dialogRef.value.data.currentValue.iri);
     }
-    await getSearchOptions();
   }
 });
 
@@ -383,28 +380,25 @@ async function findInTreeAndSelect(iri: string, pathToNode: TTIriRef[]) {
   scrollToHighlighted("ecl-tree-bar-container");
 }
 
-async function getSearchOptions() {
-  loadingSearchOptions.value = true;
+async function search(selected: any) {
   if (controller.value) controller.value.abort();
   controller.value = new AbortController();
   if (dialogRef.value.data.type === "property") {
-    searchOptions.value = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, undefined, controller.value);
+    const results = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, selected, controller.value);
+    if (results && results.length) {
+      if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
+      else filteredSearchOptions.value = results;
+    } else filteredSearchOptions.value = [];
+    searchResultsLimited.value = results.length > 100;
   } else if (dialogRef.value.data.type === "value") {
-    searchOptions.value = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, undefined, controller.value);
+    const results = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, selected, controller.value);
+    if (results && results.length) {
+      if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
+      else filteredSearchOptions.value = results;
+    } else filteredSearchOptions.value = [];
+    searchResultsLimited.value = results.length > 100;
   }
   controller.value = undefined;
-  filteredSearchOptions.value = searchOptions.value;
-  loadingSearchOptions.value = false;
-}
-
-function search(selected: any) {
-  let filteredItems = FilterService.filter(searchOptions.value, ["name"], selected.query, FilterMatchMode.CONTAINS);
-  filteredItems = filteredItems.sort(byName);
-  if (filteredItems && filteredItems.length) {
-    if (filteredItems.length > 100) filteredSearchOptions.value = filteredItems.slice(0, 100);
-    else filteredSearchOptions.value = filteredItems;
-  } else filteredSearchOptions.value = [];
-  searchResultsLimited.value = filteredItems.length > 100;
 }
 
 function hidePopup(event: any): void {
