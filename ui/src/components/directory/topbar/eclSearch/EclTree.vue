@@ -1,5 +1,22 @@
 <template>
   <div class="flex flex-column justify-contents-start" id="ecl-tree-bar-container">
+    <div class="search-container">
+      <small v-if="searchResultsLimited" class="limited-results">Results limited to first 100. Please refine your search for more accuracy.</small>
+      <AutoComplete
+        forceSelection
+        style="flex: 1"
+        input-style="flex: 1"
+        optionLabel="name"
+        dataKey="iri"
+        v-model="selectedSearchResult"
+        :suggestions="filteredSearchOptions"
+        @complete="debounceFunction(search, 600, [$event])"
+        :placeholder="loadingSearchOptions ? 'loading search options...' : 'search...'"
+        :disabled="loadingSearchOptions"
+        @blur="searchResultsLimited = false"
+      />
+      <ProgressSpinner v-if="loadingSearchOptions" class="loading-icon" stroke-width="8" />
+    </div>
     <div
       v-if="dialogRef?.options?.data?.focus?.name && dialogRef.options.data.type"
       id="parent-container"
@@ -88,13 +105,17 @@
 import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent, TTIriRef } from "@im-library/interfaces";
+import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent, TTIriRef, AliasEntity } from "@im-library/interfaces";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 import { toTitleCase } from "@im-library/helpers/StringManipulators";
 import { useToast } from "primevue/usetoast";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { FilterService, FilterMatchMode } from "primevue/api";
+import setupDebounce from "@/composables/setupDebounce";
+import { byName } from "@im-library/helpers/Sorters";
 
 const {
   root,
@@ -119,6 +140,8 @@ const toast = useToast();
 
 const dialogRef = inject("dialogRef");
 
+const { debounce, debounceFunction } = setupDebounce();
+
 const rootConceptIri = ref("");
 const conceptAggregates: Ref<ConceptAggregate[]> = ref([]);
 const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
@@ -127,6 +150,12 @@ const loading = ref(false);
 const totalCount = ref(0);
 const superiorsCount = ref(0);
 const pageSize = ref(20);
+const loadingSearchOptions = ref(true);
+const selectedSearchResult: Ref<null | AliasEntity> = ref(null);
+const searchOptions: Ref<AliasEntity[]> = ref([]);
+const filteredSearchOptions: Ref<AliasEntity[]> = ref([]);
+const controller: Ref<AbortController | undefined> = ref(undefined);
+const searchResultsLimited = ref(false);
 
 const altTreeOP = ref();
 
@@ -148,6 +177,10 @@ watch(loading, newValue => {
   if (newValue) hidePopup(overlayLocation.value);
 });
 
+watch(selectedSearchResult, async newValue => {
+  if (newValue && newValue.iri) await findSelected(newValue.iri);
+});
+
 onMounted(async () => {
   setRootConceptIri();
   if (rootConceptIri.value) {
@@ -167,6 +200,7 @@ onMounted(async () => {
     if (dialogRef.value.data.currentValue) {
       await findSelected(dialogRef.value.data.currentValue.iri);
     }
+    await getSearchOptions();
   }
 });
 
@@ -174,6 +208,7 @@ onBeforeUnmount(() => {
   if (isObject(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
     hidePopup(overlayLocation.value);
   }
+  if (controller.value) controller.value.abort();
   dialogRef.value.close();
 });
 
@@ -290,22 +325,28 @@ async function showPopup(event: any, iri?: string, node?: any): Promise<void> {
 }
 
 async function findSelected(selectedIri: string) {
-  selectedKeys.value = {};
-  loading.value = true;
-  const found = root.value.find(node => node.data === selectedIri);
-  if (found) {
-    selectedKeys.value[selectedIri] = true;
-    loading.value = false;
-    return;
-  } else {
-    for (const rootNode of root.value) {
-      if (selectedKeys.value[selectedIri]) return;
-      const pathToNode = await EntityService.getPathBetweenNodes(selectedIri, rootNode.data);
-      if (isArrayHasLength(pathToNode)) await findInTreeAndSelect(selectedIri, pathToNode);
+  if (selectedIri) {
+    selectedKeys.value = {};
+    loading.value = true;
+    const found = root.value.find(node => node.data === selectedIri);
+    if (found) {
+      selectedKeys.value[selectedIri] = true;
+      loading.value = false;
+      return;
+    } else {
+      for (const rootNode of root.value) {
+        if (selectedKeys.value[selectedIri]) return;
+        const pathToNode = await EntityService.getPathBetweenNodes(selectedIri, rootNode.data);
+        if (isArrayHasLength(pathToNode)) {
+          await findInTreeAndSelect(selectedIri, pathToNode);
+          loading.value = false;
+          return;
+        }
+      }
+      if (!selectedKeys.value[selectedIri]) throw new Error("Unable to find selected item within tree");
     }
-    if (!selectedKeys.value[selectedIri]) throw new Error("Unable to find selected item within tree");
+    loading.value = false;
   }
-  loading.value = false;
 }
 
 async function findInTreeAndSelect(iri: string, pathToNode: TTIriRef[]) {
@@ -342,6 +383,30 @@ async function findInTreeAndSelect(iri: string, pathToNode: TTIriRef[]) {
   scrollToHighlighted("ecl-tree-bar-container");
 }
 
+async function getSearchOptions() {
+  loadingSearchOptions.value = true;
+  if (controller.value) controller.value.abort();
+  controller.value = new AbortController();
+  if (dialogRef.value.data.type === "property") {
+    searchOptions.value = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, undefined, controller.value);
+  } else if (dialogRef.value.data.type === "value") {
+    searchOptions.value = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, undefined, controller.value);
+  }
+  controller.value = undefined;
+  filteredSearchOptions.value = searchOptions.value;
+  loadingSearchOptions.value = false;
+}
+
+function search(selected: any) {
+  let filteredItems = FilterService.filter(searchOptions.value, ["name"], selected.query, FilterMatchMode.CONTAINS);
+  filteredItems = filteredItems.sort(byName);
+  if (filteredItems && filteredItems.length) {
+    if (filteredItems.length > 100) filteredSearchOptions.value = filteredItems.slice(0, 100);
+    else filteredSearchOptions.value = filteredItems;
+  } else filteredSearchOptions.value = [];
+  searchResultsLimited.value = filteredItems.length > 100;
+}
+
 function hidePopup(event: any): void {
   const x = altTreeOP.value as any;
   x.hide(event);
@@ -359,6 +424,11 @@ async function selectItem(iri: string): Promise<void> {
 </script>
 
 <style scoped>
+.search-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
 .tree-root {
   overflow: auto;
   border: 0;
@@ -371,7 +441,6 @@ async function selectItem(iri: string): Promise<void> {
 
 #ecl-tree-bar-container {
   flex: 1 1 auto;
-  border-top: 1px solid #dee2e6;
 }
 
 .p-progress-spinner {
@@ -393,5 +462,18 @@ async function selectItem(iri: string): Promise<void> {
 
 .tree-node-label {
   word-break: break-all;
+}
+
+.loading-icon {
+  flex: 0 0 auto;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.limited-results {
+  width: 100%;
+  height: 1rem;
+  padding: 0 0 0.25rem 0;
+  color: #e24c4c;
 }
 </style>
