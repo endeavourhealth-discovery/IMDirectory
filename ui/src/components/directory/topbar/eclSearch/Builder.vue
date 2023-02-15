@@ -21,7 +21,8 @@
     <div id="builder-string-container">
       <div id="query-builder-container">
         <div id="query-build">
-          <BoolGroup :value="build" style="width: 100%; margin: 0" />
+          <ProgressSpinner v-if="loading" />
+          <BoolGroup v-else :value="build" style="width: 100%; margin: 0" />
         </div>
         <small style="color: red" v-if="!build.items || build.items.length == 0">*Move pointer over panel above to add concepts, refinements and groups.</small>
       </div>
