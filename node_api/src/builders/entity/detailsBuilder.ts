@@ -135,6 +135,7 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
         if (roleKey !== IM.NAMESPACE + "groupNumber")
           propertyNode.children?.push({
             key: key + "." + roleKey,
+            iri:roleKey,
             label: predicates[roleKey],
             data: roleGroup[roleKey]?.[0],
             type: "property"
@@ -165,6 +166,7 @@ function addProperty(treeNode: any, entity: any, predicates: any, key: string) {
         } else {
           propertyNode.children?.push({
             key: key + "." + propertyKey,
+            iri:propertyKey,
             label: predicates[propertyKey],
             data: property[propertyKey]?.[0],
             type: "property"

@@ -39,9 +39,9 @@
           <IMViewerLink v-else :iri="node.value['@id']" :label="from.label" />
         </div>
       </template>
-      <template #property="{ node }"> {{ node.label }}: <IMViewerLink :iri="node.data['@id']" :label="node.data.name" /> </template>
+      <template #property="{ node }"> <IMViewerLink :iri="node.iri" :label="node.label" />: <IMViewerLink :iri="node.data['@id']" :label="node.data.name" /> </template>
       <template #link="{ node }">
-        <IMViewerLink :iri="node.key!" :label="node.label" />
+        <IMViewerLink :iri="node.key" :label="node.label" />
       </template>
       <template #loadMore="{ node }">
         <b>{{ node.label }}...</b>
