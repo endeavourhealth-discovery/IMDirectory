@@ -10,7 +10,7 @@
         dataKey="iri"
         v-model="selectedSearchResult"
         :suggestions="filteredSearchOptions"
-        @complete="debounceFunction(search, 600, [$event.query])"
+        @complete="search($event.query)"
         placeholder="search..."
         :disabled="loading"
         @blur="searchResultsLimited = false"
@@ -112,9 +112,7 @@ import { TreeNode } from "primevue/tree";
 import { toTitleCase } from "@im-library/helpers/StringManipulators";
 import { useToast } from "primevue/usetoast";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { FilterService, FilterMatchMode } from "primevue/api";
 import setupDebounce from "@/composables/setupDebounce";
-import { byName } from "@im-library/helpers/Sorters";
 
 const {
   root,
@@ -135,11 +133,11 @@ const {
   selectedNode
 } = setupTree();
 
+const { debounceFunction } = setupDebounce();
+
 const toast = useToast();
 
 const dialogRef = inject("dialogRef");
-
-const { debounce, debounceFunction } = setupDebounce();
 
 const rootConceptIri = ref("");
 const conceptAggregates: Ref<ConceptAggregate[]> = ref([]);
@@ -380,25 +378,27 @@ async function findInTreeAndSelect(iri: string, pathToNode: TTIriRef[]) {
   scrollToHighlighted("ecl-tree-bar-container");
 }
 
-async function search(selected: any) {
-  if (controller.value) controller.value.abort();
-  controller.value = new AbortController();
-  if (dialogRef.value.data.type === "property") {
-    const results = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, selected, controller.value);
-    if (results && results.length) {
-      if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
-      else filteredSearchOptions.value = results;
-    } else filteredSearchOptions.value = [];
-    searchResultsLimited.value = results.length > 100;
-  } else if (dialogRef.value.data.type === "value") {
-    const results = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, selected, controller.value);
-    if (results && results.length) {
-      if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
-      else filteredSearchOptions.value = results;
-    } else filteredSearchOptions.value = [];
-    searchResultsLimited.value = results.length > 100;
-  }
-  controller.value = undefined;
+async function search(selected: string) {
+  if (selected.length > 2) {
+    if (controller.value) controller.value.abort();
+    controller.value = new AbortController();
+    if (dialogRef.value.data.type === "property") {
+      const results = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, selected, controller.value);
+      if (results && results.length) {
+        if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
+        else filteredSearchOptions.value = results;
+      } else filteredSearchOptions.value = [];
+      searchResultsLimited.value = results.length > 100;
+    } else if (dialogRef.value.data.type === "value") {
+      const results = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, selected, controller.value);
+      if (results && results.length) {
+        if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
+        else filteredSearchOptions.value = results;
+      } else filteredSearchOptions.value = [];
+      searchResultsLimited.value = results.length > 100;
+    }
+    controller.value = undefined;
+  } else filteredSearchOptions.value = [];
 }
 
 function hidePopup(event: any): void {

@@ -46,7 +46,7 @@
     </div>
     <template #footer>
       <Button label="Cancel" icon="pi pi-times" class="p-button-secondary" @click="closeBuilderDialog" />
-      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" />
+      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" :disabled="isValidEcl" />
     </template>
   </Dialog>
 </template>
@@ -92,17 +92,17 @@ const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
   if (props.eclString) {
-    createBuildFromEclString(props.eclString);
-  }
+    await createBuildFromEclString(props.eclString);
+  } else createDefaultBuild();
 });
 
 watch(
   () => props.eclString,
   newValue => {
-    if (newValue && newValue !== queryString.value) createBuildFromEclString(newValue);
-    else if (!newValue) createDefaultBuild();
+    if (newValue) createBuildFromEclString(newValue);
+    else createDefaultBuild();
   }
 );
 
@@ -172,8 +172,13 @@ function getCodeTermECL(clause: any) {
   let result = clause.descendants ? clause.descendants : "";
 
   if (clause.concept && clause.concept.code) {
-    result += clause.concept.code;
-    if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
+    if (clause.concept.code === "any") {
+      result += "*";
+      if (includeTerms.value) result += " | ANY | ";
+    } else {
+      result += clause.concept.code;
+      if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
+    }
   } else if (clause.concept && clause.concept.iri) {
     result += clause.concept.iri.split("#")[1];
     if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
@@ -192,6 +197,10 @@ function getRefinementECL(clause: any, root: boolean) {
   result += getCodeTermECL(clause.value);
 
   return result;
+}
+
+function isValidEcl() {
+  return queryString.value && !queryString.value.includes("UNKNOWN CONCEPT");
 }
 
 function copyToClipboard(): string {

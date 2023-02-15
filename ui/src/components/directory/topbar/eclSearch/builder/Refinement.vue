@@ -1,6 +1,7 @@
 <template>
   <div class="refinement-content-container nested-div">
     <AutoComplete
+      :forceSelection="true"
       style="flex: 1"
       input-style="flex:1"
       field="name"
@@ -10,12 +11,14 @@
       @complete="searchProperty($event.query)"
       placeholder="search..."
       :disabled="loadingProperty || !focus?.iri"
+      :optionDisabled="disableOption"
     />
     <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <AutoComplete
+      :forceSelection="true"
       style="flex: 1"
       input-style="flex:1"
       field="name"
@@ -86,7 +89,7 @@ watch(
   async newValue => {
     if (newValue && newValue.iri) {
       await processProps();
-    }
+    } else clearAll();
   }
 );
 
@@ -142,28 +145,47 @@ async function processProps() {
   loadingValue.value = false;
 }
 
+function clearAll() {
+  selectedProperty.value = null;
+  selectedValue.value = null;
+}
+
 async function searchProperty(term: string) {
   if (!props.focus?.iri) return;
+  if (term.length > 2) {
+    if (term.toLowerCase() === "any") {
+      propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
+    } else {
+      if (propertyController.value) propertyController.value.abort();
 
-  if (propertyController.value) propertyController.value.abort();
+      propertyController.value = new AbortController();
 
-  propertyController.value = new AbortController();
+      const matches = await QueryService.getAllowablePropertySuggestions(props.focus.iri, term, propertyController.value);
 
-  const matches = await QueryService.getAllowablePropertySuggestions(props.focus.iri, term, propertyController.value);
-
-  if (!matches) propertyResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
-  else propertyResults.value = matches;
+      if (!matches) propertyResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
+      else propertyResults.value = matches;
+    }
+  } else if (term === "*") {
+    propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
+  } else propertyResults.value = [{ iri: null, name: "3 character minimum", code: "UNKNOWN" }];
 }
 
 async function searchValue(term: string) {
   if (!selectedProperty.value.iri) return;
+  if (term.length > 2) {
+    if (term.toLowerCase() === "any") {
+      valueResults.value = [{ iri: "any", name: "ANY", code: "any" }];
+    } else {
+      if (valueController.value) valueController.value.abort();
 
-  if (valueController.value) valueController.value.abort();
-
-  valueController.value = new AbortController();
-  const matches = await QueryService.getAllowableRangeSuggestions(selectedProperty.value.iri, term, valueController.value);
-  if (!matches) valueResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
-  else valueResults.value = matches;
+      valueController.value = new AbortController();
+      const matches = await QueryService.getAllowableRangeSuggestions(selectedProperty.value.iri, term, valueController.value);
+      if (!matches) valueResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
+      else valueResults.value = matches;
+    }
+  } else if (term === "*") {
+    valueResults.value = [{ iri: "any", name: "ANY", code: "any" }];
+  } else valueResults.value = [{ iri: null, name: "3 character minimum", code: "UNKNOWN" }];
 }
 
 async function findIriName(iri: string) {
@@ -171,6 +193,10 @@ async function findIriName(iri: string) {
   if (result && isObjectHasKeys(result, [RDFS.LABEL])) {
     return result[RDFS.LABEL];
   } else return "";
+}
+
+function disableOption(data: any) {
+  return data.code === "UNKNOWN";
 }
 
 function openTree(type: string) {
