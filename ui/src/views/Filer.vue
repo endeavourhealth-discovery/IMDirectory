@@ -39,15 +39,15 @@ async function onAdvancedUpload(event: any) {
     try {
       const ttDocument = await getTTDocument(file);
 
-      await saveTTDocument(ttDocument);
+      await saveTTDocument(ttDocument,true);
     } catch (error) {
       toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
     }
   }
 }
 
-async function saveTTDocument(ttDocument: any) {
-  const response = await FilerService.fileDocument(ttDocument);
+async function saveTTDocument(ttDocument: any, withTransaction: any) {
+  const response = await FilerService.fileDocument(ttDocument,withTransaction);
   console.log(response);
 }
 
