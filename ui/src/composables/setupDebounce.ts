@@ -18,6 +18,6 @@ function setupDebounce() {
       }, timeOut);
   }
 
-  return { debounceFunction, debounce };
+  return { debounceFunction };
 }
 export default setupDebounce;

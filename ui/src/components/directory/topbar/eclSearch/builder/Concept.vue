@@ -2,6 +2,7 @@
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
     <div class="concept-content-container">
       <AutoComplete
+        :forceSelection="true"
         style="flex: 1"
         input-style="flex:1"
         field="name"
@@ -10,6 +11,7 @@
         :suggestions="suggestions"
         @complete="search($event.query)"
         placeholder="Search..."
+        :optionDisabled="disableOption"
         :disabled="loading"
       />
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
@@ -43,22 +45,26 @@ import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import { SearchRequest } from "@im-library/interfaces";
+import { ConceptSummary, SearchRequest } from "@im-library/interfaces";
 import { SortBy } from "@im-library/enums";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
 import { EntityService } from "@/services";
 import _ from "lodash";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
-  value: { type: Object as PropType<{ type: string; descendants: string; conjunction: string; items: any[]; concept: { iri: string } }>, required: true },
+  value: {
+    type: Object as PropType<{ type: string; descendants: string; conjunction: string; items: any[]; concept: { iri: string } | undefined }>,
+    required: true
+  },
   parent: { type: Object as PropType<any>, required: false }
 });
 
 const store = useStore();
 
-const selected: Ref<any | null> = ref(null);
-const controller: Ref<AbortController> = ref({} as AbortController);
+const selected: Ref<ConceptSummary | null> = ref(null);
+const controller: Ref<AbortController | undefined> = ref(undefined);
 const suggestions: Ref<any[]> = ref([]);
 const menuBool = ref();
 const loading = ref(false);
@@ -97,13 +103,14 @@ onMounted(async () => {
   if (props.value && props.value.concept && props.value.concept.iri) {
     loading.value = true;
     await search(props.value.concept.iri);
-    selected.value = suggestions.value[0];
+    if (isArrayHasLength(suggestions.value)) selected.value = suggestions.value.find(result => result.iri === props.value.concept.iri);
     loading.value = false;
   }
 });
 
-watch(selected, newValue => {
-  props.value.concept = newValue;
+watch(selected, (newValue, oldValue) => {
+  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") props.value.concept = newValue;
+  else props.value.concept = undefined;
 });
 
 const hover = ref();
@@ -130,20 +137,31 @@ function add(item: any) {
 }
 
 async function search(term: string) {
-  console.log("SEARCH");
-  console.log(term);
-  const searchRequest = {} as SearchRequest;
-  searchRequest.termFilter = term;
-  searchRequest.sortBy = SortBy.Usage;
-  searchRequest.page = 1;
-  searchRequest.size = 100;
-  searchRequest.schemeFilter = ["http://snomed.info/sct#"];
+  if (term.length > 2) {
+    if (term.toLowerCase() === "any") {
+      suggestions.value = [{ iri: "any", name: "ANY", code: "any" }];
+    } else {
+      const searchRequest = {} as SearchRequest;
+      searchRequest.termFilter = term;
+      searchRequest.sortBy = SortBy.Usage;
+      searchRequest.page = 1;
+      searchRequest.size = 100;
+      searchRequest.schemeFilter = ["http://snomed.info/sct#"];
 
-  if (controller.value && controller.value.abort) {
-    controller.value.abort();
-  }
-  controller.value = new AbortController();
-  suggestions.value = await EntityService.advancedSearch(searchRequest, controller.value);
+      if (controller.value) {
+        controller.value.abort();
+      }
+      controller.value = new AbortController();
+      suggestions.value = await EntityService.advancedSearch(searchRequest, controller.value);
+      controller.value = undefined;
+    }
+  } else if (term === "*") {
+    suggestions.value = [{ iri: "any", name: "ANY", code: "any" }];
+  } else suggestions.value = [{ iri: null, name: "3 character minumum", code: "UNKNOWN" }];
+}
+
+function disableOption(data: any) {
+  return data.code === "UNKNOWN";
 }
 
 function addRefinement() {

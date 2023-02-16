@@ -10,21 +10,16 @@
         dataKey="iri"
         v-model="selectedSearchResult"
         :suggestions="filteredSearchOptions"
-        @complete="debounceFunction(search, 600, [$event])"
-        :placeholder="loadingSearchOptions ? 'loading search options...' : 'search...'"
-        :disabled="loadingSearchOptions"
+        @complete="search($event.query)"
+        placeholder="search..."
+        :disabled="loading"
         @blur="searchResultsLimited = false"
       />
-      <ProgressSpinner v-if="loadingSearchOptions" class="loading-icon" stroke-width="8" />
     </div>
-    <div
-      v-if="dialogRef?.options?.data?.focus?.name && dialogRef.options.data.type"
-      id="parent-container"
-      class="flex flex-column justify-contents-start align-items-start"
-    >
+    <div v-if="hasFocus && hasType" id="parent-container" class="flex flex-column justify-contents-start align-items-start">
       <p>
-        {{ toTitleCase(dialogRef.options.data.type) }} options for {{ dialogRef.options.data.type === "property" ? "concept" : "property" }}:
-        {{ dialogRef.options.data.focus.name }}
+        {{ toTitleCase(getType) }} options for {{ getType === "property" ? "concept" : "property" }}:
+        {{ getFocus.name }}
       </p>
     </div>
     <Tree
@@ -102,10 +97,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
+import { onMounted, ref, Ref, watch, inject, onBeforeUnmount, computed } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent, TTIriRef, AliasEntity } from "@im-library/interfaces";
+import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TTIriRef, AliasEntity } from "@im-library/interfaces";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import setupTree from "@/composables/setupTree";
@@ -113,9 +108,6 @@ import { TreeNode } from "primevue/tree";
 import { toTitleCase } from "@im-library/helpers/StringManipulators";
 import { useToast } from "primevue/usetoast";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { FilterService, FilterMatchMode } from "primevue/api";
-import setupDebounce from "@/composables/setupDebounce";
-import { byName } from "@im-library/helpers/Sorters";
 
 const {
   root,
@@ -124,9 +116,9 @@ const {
   createLoadMoreNode,
   createTreeNode,
   onNodeCollapse,
-  onNodeDblClick,
+
   onNodeExpand,
-  onRowClick,
+
   loadMore,
   selectAndExpand,
   scrollToHighlighted,
@@ -138,9 +130,7 @@ const {
 
 const toast = useToast();
 
-const dialogRef = inject("dialogRef");
-
-const { debounce, debounceFunction } = setupDebounce();
+const dialogRef: Ref<any> | undefined = inject("dialogRef");
 
 const rootConceptIri = ref("");
 const conceptAggregates: Ref<ConceptAggregate[]> = ref([]);
@@ -150,28 +140,36 @@ const loading = ref(false);
 const totalCount = ref(0);
 const superiorsCount = ref(0);
 const pageSize = ref(20);
-const loadingSearchOptions = ref(true);
 const selectedSearchResult: Ref<null | AliasEntity> = ref(null);
-const searchOptions: Ref<AliasEntity[]> = ref([]);
 const filteredSearchOptions: Ref<AliasEntity[]> = ref([]);
 const controller: Ref<AbortController | undefined> = ref(undefined);
 const searchResultsLimited = ref(false);
 
 const altTreeOP = ref();
 
-watch(
-  () => dialogRef.value.data.focus.iri,
-  async newValue => {
-    selectedKeys.value = {};
-    expandedKeys.value = {};
-    if (newValue) {
-      await getConceptAggregates(newValue);
-      for (const aggregate of conceptAggregates.value) {
-        await createTree(aggregate.concept, aggregate.children);
-      }
+const hasFocus = computed(() => {
+  return dialogRef && dialogRef.value && dialogRef.value.data && dialogRef.value.data.focus ? true : false;
+});
+const hasType = computed(() => {
+  return dialogRef && dialogRef.value && dialogRef.value.data && dialogRef.value.data.type ? true : false;
+});
+const hasCurrentValue = computed(() => {
+  return dialogRef && dialogRef.value && dialogRef.value.data && dialogRef.value.data.currentValue ? true : false;
+});
+const getFocus = computed(() => (hasFocus.value ? dialogRef?.value.data.focus : undefined));
+const getType = computed(() => (hasType.value ? dialogRef?.value.data.type : undefined));
+const getCurrentValue = computed(() => (hasCurrentValue.value ? dialogRef?.value.data.currentValue : undefined));
+
+watch(getFocus, async newValue => {
+  selectedKeys.value = {};
+  expandedKeys.value = {};
+  if (newValue && newValue.iri) {
+    await getConceptAggregates();
+    for (const aggregate of conceptAggregates.value) {
+      await createTree(aggregate.concept, aggregate.children);
     }
   }
-);
+});
 
 watch(loading, newValue => {
   if (newValue) hidePopup(overlayLocation.value);
@@ -183,24 +181,23 @@ watch(selectedSearchResult, async newValue => {
 
 onMounted(async () => {
   setRootConceptIri();
-  if (rootConceptIri.value) {
-    await getConceptAggregates(rootConceptIri.value);
+  if (rootConceptIri.value && hasFocus.value) {
+    await getConceptAggregates();
     for (const aggregate of conceptAggregates.value) {
       await createTree(aggregate.concept, aggregate.children);
     }
     if (root.value.length < superiorsCount.value) {
       root.value.push(
         createLoadMoreNode(
-          createTreeNode(dialogRef.value.data.focus.iri, dialogRef.value.data.focus.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+          createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
           1,
           superiorsCount.value
         )
       );
     }
-    if (dialogRef.value.data.currentValue) {
-      await findSelected(dialogRef.value.data.currentValue.iri);
+    if (hasCurrentValue.value) {
+      await findSelected(getCurrentValue.value.iri);
     }
-    await getSearchOptions();
   }
 });
 
@@ -209,32 +206,28 @@ onBeforeUnmount(() => {
     hidePopup(overlayLocation.value);
   }
   if (controller.value) controller.value.abort();
-  dialogRef.value.close();
+  if (dialogRef) dialogRef.value.close();
 });
 
 function setRootConceptIri() {
-  if (dialogRef.value && isObjectHasKeys(dialogRef.value, ["data"]) && isObjectHasKeys(dialogRef.value.data, ["focus"]))
-    rootConceptIri.value = dialogRef.value.data.focus.iri;
+  if (hasFocus.value) rootConceptIri.value = getFocus.value.iri;
 }
 
-async function getConceptAggregates(iri: string): Promise<void> {
+async function getConceptAggregates(): Promise<void> {
   loading.value = true;
   let superiors = [];
-  if (dialogRef.value.data.type === "property") {
+  if (getType.value === "property") {
     const results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, 1, pageSize.value);
     superiors = results.result;
     superiorsCount.value = results.totalCount;
-  } else {
+  } else if (getType.value === "value") {
     const results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, 1, pageSize.value);
     superiors = results.result;
     superiorsCount.value = results.totalCount;
   }
   for (const superior of superiors) {
     let superiorAggregate = { concept: {}, parents: [], children: [] } as ConceptAggregate;
-    superiorAggregate.concept = await EntityService.getPartialEntity(superior["@id"], [RDF.TYPE, RDFS.LABEL]);
-    const pagedChildren = await EntityService.getPagedChildren(superior["@id"], 1, pageSize.value);
-    totalCount.value = pagedChildren.totalCount;
-    superiorAggregate.children = pagedChildren.result;
+    superiorAggregate.concept = superior;
     conceptAggregates.value.push(superiorAggregate);
   }
   loading.value = false;
@@ -242,7 +235,7 @@ async function getConceptAggregates(iri: string): Promise<void> {
 
 async function createTree(concept: any, children: EntityReferenceNode[]): Promise<void> {
   loading.value = true;
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept[IM.IRI], concept[RDF.TYPE], concept.hasChildren, null, undefined);
+  const selectedConcept = createTreeNode(concept.name, concept["@id"], concept.type, concept.hasChildren, null, concept.orderNumber);
   children.forEach((child: EntityReferenceNode) => {
     selectedConcept.children?.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, selectedConcept, child.orderNumber));
   });
@@ -275,7 +268,7 @@ async function rootLoadMore(node: any) {
   node.loading = true;
   if (node.nextPage * superiorsCount.value < node.totalCount) {
     let results;
-    if (dialogRef.value.data.type === "property") {
+    if (getType.value === "property") {
       results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
     } else {
       results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
@@ -287,14 +280,14 @@ async function rootLoadMore(node: any) {
     node.nextPage = node.nextPage + 1;
     root.value.push(
       createLoadMoreNode(
-        createTreeNode(dialogRef.value.data.focus.iri, dialogRef.value.data.focus.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
         node.nextPage,
         node.totalCount
       )
     );
   } else if (node.nextPage * pageSize.value > node.totalCount) {
     let results;
-    if (dialogRef.value.data.type === "property") {
+    if (getType.value === "property") {
       results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
     } else {
       results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
@@ -383,28 +376,27 @@ async function findInTreeAndSelect(iri: string, pathToNode: TTIriRef[]) {
   scrollToHighlighted("ecl-tree-bar-container");
 }
 
-async function getSearchOptions() {
-  loadingSearchOptions.value = true;
-  if (controller.value) controller.value.abort();
-  controller.value = new AbortController();
-  if (dialogRef.value.data.type === "property") {
-    searchOptions.value = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, undefined, controller.value);
-  } else if (dialogRef.value.data.type === "value") {
-    searchOptions.value = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, undefined, controller.value);
-  }
-  controller.value = undefined;
-  filteredSearchOptions.value = searchOptions.value;
-  loadingSearchOptions.value = false;
-}
-
-function search(selected: any) {
-  let filteredItems = FilterService.filter(searchOptions.value, ["name"], selected.query, FilterMatchMode.CONTAINS);
-  filteredItems = filteredItems.sort(byName);
-  if (filteredItems && filteredItems.length) {
-    if (filteredItems.length > 100) filteredSearchOptions.value = filteredItems.slice(0, 100);
-    else filteredSearchOptions.value = filteredItems;
+async function search(selected: string) {
+  if (selected.length > 2) {
+    if (controller.value) controller.value.abort();
+    controller.value = new AbortController();
+    if (getType.value === "property") {
+      const results = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, selected, controller.value);
+      if (results && results.length) {
+        if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
+        else filteredSearchOptions.value = results;
+      } else filteredSearchOptions.value = [];
+      searchResultsLimited.value = results.length > 100;
+    } else if (getType.value === "value") {
+      const results = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, selected, controller.value);
+      if (results && results.length) {
+        if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
+        else filteredSearchOptions.value = results;
+      } else filteredSearchOptions.value = [];
+      searchResultsLimited.value = results.length > 100;
+    }
+    controller.value = undefined;
   } else filteredSearchOptions.value = [];
-  searchResultsLimited.value = filteredItems.length > 100;
 }
 
 function hidePopup(event: any): void {
@@ -419,7 +411,7 @@ function getConceptTypes(types: TTIriRef[]): string {
 
 async function selectItem(iri: string): Promise<void> {
   const entity = await EntityService.getEntitySummary(iri);
-  dialogRef.value.close({ entity: { iri: entity.iri, code: entity.code, name: entity.name }, type: dialogRef.value.data.type });
+  if (dialogRef) dialogRef.value.close({ entity: { iri: entity.iri, code: entity.code, name: entity.name }, type: getType.value });
 }
 </script>
 
