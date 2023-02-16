@@ -1,5 +1,4 @@
-import { TTIriRef } from "../interfaces";
-import { Where } from "../models/AutoGen";
+import { TTAlias, Where } from "../models/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 interface DisplayQuery {
@@ -27,6 +26,8 @@ export function buildDisplayQuery(query: any) {
 function buildRecursively(query: any, type: string, parent: DisplayQuery) {
   if ("where" === type || "with" === type) {
     addWhere(query, type, parent);
+  } else if ("select" === type) {
+    addSelect(query, type, parent);
   } else if (isObjectHasKeys(query)) {
     addObject(query, type, parent);
   } else if (isArrayHasLength(query)) {
@@ -38,7 +39,7 @@ function buildRecursively(query: any, type: string, parent: DisplayQuery) {
 
 // adders
 function addObject(query: any, type: string, parent: DisplayQuery) {
-  const label = query.name || query.id || query.bool || query.description || query.variable || getNameFromIriRef(query);
+  const label = query.name || query.id || query.bool || query.description || query.variable || getNameFromRef(query);
   let displayQuery;
   if (label && label !== "and") {
     displayQuery = createDisplayQuery(parent, label, type, query);
@@ -103,6 +104,19 @@ function addWhere(query: any, type: string, parent: DisplayQuery) {
   }
 }
 
+function addSelect(query: any, type: string, parent: DisplayQuery) {
+  if (isArrayHasLength(query)) {
+    const child = createDisplayQuery(parent, type, type, query);
+    parent.children.push(child);
+    for (const item of query) {
+      buildRecursively(item, type, child);
+    }
+  } else {
+    const label = getNameFromRef(query);
+    addItem(label, query, type, parent);
+  }
+}
+
 function addInItems(label: string, query: any, type: string, parent: DisplayQuery) {
   const child = createDisplayQuery(parent, label, type, query);
   parent.children.push(child);
@@ -132,12 +146,14 @@ function getKey(parent: DisplayQuery) {
   return parent.key + parent.children.length;
 }
 
-function getNameFromIriRef(ref: TTIriRef) {
+function getNameFromRef(ref: TTAlias) {
   if (isObjectHasKeys(ref, ["name"])) {
     return ref.name;
   } else if (isObjectHasKeys(ref, ["@id"])) {
     const splits = ref["@id"].split("#");
     return splits[1] || splits[0];
+  } else if (isObjectHasKeys(ref, ["id"])) {
+    return ref.id;
   }
   return "";
 }
