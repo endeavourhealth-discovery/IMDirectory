@@ -161,7 +161,7 @@ export const SMIPopulation = {
             ]
           },
           {
-            description: "age >= 18 YEAR",
+            description: "age >= 18 (YEAR)",
             id: "age",
             operator: ">=",
             value: "18",
@@ -223,7 +223,7 @@ export const SMIPopulation = {
                 { description: "GMSpatient", id: "gpPatientType", in: [{ "@id": "http://endhealth.info/im#2751000252106", name: "Regular GMS patient" }] }
               ]
             },
-            { description: "age >= 18 YEAR", id: "age", operator: ">=", value: "18", unit: "YEAR" },
+            { description: "age >= 18 (YEAR)", id: "age", operator: ">=", value: "18", unit: "YEAR" },
             {
               description: "observation",
               id: "observation",
@@ -264,9 +264,9 @@ export const SMIPopulation = {
         },
         {
           key: "101",
-          label: "age >= 18 YEAR",
+          label: "age >= 18 (YEAR)",
           type: "where",
-          data: { description: "age >= 18 YEAR", id: "age", operator: ">=", value: "18", unit: "YEAR" },
+          data: { description: "age >= 18 (YEAR)", id: "age", operator: ">=", value: "18", unit: "YEAR" },
           children: []
         },
         {
@@ -4999,7 +4999,7 @@ export const Priority1 = {
                 },
                 {
                   key: "100151",
-                  label: "effectiveDate <= $referenceDate by 6 MONTH",
+                  label: "effectiveDate <= $referenceDate 6 (MONTH)",
                   type: "where",
                   data: {
                     description: "effectiveDate <= 6 MONTH",
@@ -5189,7 +5189,7 @@ export const Priority1 = {
                 },
                 {
                   key: "100171",
-                  label: "effectiveDate <= $referenceDate by 6 MONTH",
+                  label: "effectiveDate <= $referenceDate 6 (MONTH)",
                   type: "where",
                   data: {
                     description: "effectiveDate <= 6 MONTH",
@@ -5547,7 +5547,7 @@ export const Priority1 = {
                 },
                 {
                   key: "100201",
-                  label: "effectiveDate <= $referenceDate by 6 MONTH",
+                  label: "effectiveDate <= $referenceDate 6 (MONTH)",
                   type: "where",
                   data: {
                     description: "effectiveDate <= 6 MONTH",
@@ -5771,7 +5771,7 @@ export const Priority1 = {
             },
             {
               key: "10023",
-              label: "effectiveDate <= $referenceDate by 6 MONTH",
+              label: "effectiveDate <= $referenceDate 6 (MONTH)",
               type: "where",
               data: { id: "effectiveDate", operator: "<=", value: "6", unit: "MONTH", relativeTo: "$referenceDate" },
               children: []
@@ -5986,7 +5986,7 @@ export const Priority1 = {
             },
             {
               key: "10026",
-              label: "effectiveDate <= $referenceDate by 6 MONTH",
+              label: "effectiveDate <= $referenceDate 6 (MONTH)",
               type: "where",
               data: { id: "effectiveDate", operator: "<=", value: "6", unit: "MONTH", relativeTo: "$referenceDate" },
               children: []
@@ -6086,7 +6086,7 @@ export const Priority1 = {
             },
             {
               key: "10029",
-              label: "age >= 18 YEAR",
+              label: "age >= 18 (YEAR)",
               type: "where",
               data: { description: "Age years >18", id: "age", operator: ">=", value: "18", unit: "YEAR" },
               children: []
@@ -6196,7 +6196,7 @@ export const Priority1 = {
             },
             {
               key: "10031",
-              label: "effectiveDate <= $referenceDate by 6 MONTH",
+              label: "effectiveDate <= $referenceDate 6 (MONTH)",
               type: "where",
               data: { id: "effectiveDate", operator: "<=", value: "6", unit: "MONTH", relativeTo: "$referenceDate" },
               children: []
@@ -6326,7 +6326,7 @@ export const Priority1 = {
             },
             {
               key: "10033",
-              label: "age >= 40 YEAR",
+              label: "age >= 40 (YEAR)",
               type: "where",
               data: { description: "Age years >40", id: "age", operator: ">=", value: "40", unit: "YEAR" },
               children: []
@@ -6436,7 +6436,7 @@ export const Priority1 = {
             },
             {
               key: "10035",
-              label: "effectiveDate <= $referenceDate by 6 MONTH",
+              label: "effectiveDate <= $referenceDate 6 (MONTH)",
               type: "where",
               data: { id: "effectiveDate", operator: "<=", value: "6", unit: "MONTH", relativeTo: "$referenceDate" },
               children: []
@@ -6601,7 +6601,7 @@ export const Priority1 = {
                 },
                 {
                   key: "100371",
-                  label: "effectiveDate <= $referenceDate by 18 MONTH",
+                  label: "effectiveDate <= $referenceDate 18 (MONTH)",
                   type: "where",
                   data: { id: "effectiveDate", operator: "<=", value: "18", unit: "MONTH", relativeTo: "$referenceDate" },
                   children: []

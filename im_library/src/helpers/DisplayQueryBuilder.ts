@@ -81,20 +81,16 @@ function addWhere(query: any, type: string, parent: DisplayQuery) {
         const label = id + ": " + query.in[0].name;
         addItem(label, query, type, parent);
       }
-    } else if (isObjectHasKeys(query, ["operator", "unit", "value", "relativeTo"])) {
-      const label = `${id} ${query.operator} ${query.relativeTo} by ${query.value} ${query.unit}`;
-      addItem(label, query, type, parent);
-    } else if (isObjectHasKeys(query, ["operator", "unit", "value"])) {
-      const label = `${id} ${query.operator} ${query.value} ${query.unit}`;
-      addItem(label, query, type, parent);
-    } else if (isObjectHasKeys(query, ["operator", "value"])) {
-      const label = `${id} ${query.operator} ${query.value}`;
-      addItem(label, query, type, parent);
-    } else if (isObjectHasKeys(query, ["operator", "relativeTo"])) {
-      const label = `${id} ${query.operator} ${query.relativeTo}`;
+    } else if (isComparisonWhere(query)) {
+      const label = id + " " + getComparisonLabel(query);
       addItem(label, query, type, parent);
     } else if (isObjectHasKeys(query, ["notExist"])) {
       const label = `${id} does not exist`;
+      addItem(label, query, type, parent);
+    } else if (isObjectHasKeys(query, ["range"])) {
+      const from = " from " + getComparisonLabel(query.range.from);
+      const to = " to " + getComparisonLabel(query.range.from);
+      const label = id + " " + from + to;
       addItem(label, query, type, parent);
     } else {
       addObject(query, type, parent);
@@ -128,6 +124,7 @@ function addInItems(label: string, query: any, type: string, parent: DisplayQuer
 function addItem(label: string, query: any, type: string, parent: DisplayQuery) {
   const child = createDisplayQuery(parent, label, type, query);
   parent.children.push(child);
+  return child;
 }
 
 // builder
@@ -158,6 +155,15 @@ function getNameFromRef(ref: TTAlias) {
   return "";
 }
 
+function getComparisonLabel(query: any) {
+  let label = "";
+  if (query.operator) label += query.operator;
+  if (query.relativeTo) label += " " + query.relativeTo;
+  if (query.value) label += " " + query.value;
+  if (query.unit) label += " (" + query.unit + ")";
+  return label;
+}
+
 // checks
 function hasBool(where: any, value?: string) {
   if (value) return isObjectHasKeys(where, ["bool"]) && value === where.bool;
@@ -175,6 +181,15 @@ function isLeafWhere(where: any) {
 function isPrimitiveType(object: any) {
   const primitiveTypes = ["string", "number", "boolean"];
   return primitiveTypes.includes(typeof object);
+}
+
+function isComparisonWhere(where: Where) {
+  return (
+    isObjectHasKeys(where, ["operator", "unit", "value", "relativeTo"]) ||
+    isObjectHasKeys(where, ["operator", "unit", "value"]) ||
+    isObjectHasKeys(where, ["operator", "value"]) ||
+    isObjectHasKeys(where, ["operator", "relativeTo"])
+  );
 }
 
 export default { buildDisplayQuery };
