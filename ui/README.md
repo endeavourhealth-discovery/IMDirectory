@@ -9,7 +9,18 @@
 
 **The proxy expects the IMAPI to be running on localhost:8080**
 
+### Fontawesome
+
+Information Model (v2) uses FontAwesome Pro. Before running the install script you will need to run the following within your terminal using a valid [FONT-AWESOME-PACKAGE-TOKEN](https://fontawesome.com/sessions/sign-in?next=%2Faccount%23pro-package-tokens):
+
+```console
+npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+npm config set "//npm.fontawesome.com/:_authToken" FONT-AWESOME-PACKAGE-TOKEN
 ```
+
+### Install
+
+```console
 npm install
 ```
 
@@ -33,25 +44,25 @@ Files should contain:
 
 ### Compiles and hot-reloads for development
 
-```
+```console
 npm run dev
 ```
 
 ### Compiles and minifies for production
 
-```
+```console
 npm run build
 ```
 
 ### Preview production build
 
-```
+```console
 npm run serve
 ```
 
 ### Lints and fixes files
 
-```
+```console
 npm run lint
 ```
 
