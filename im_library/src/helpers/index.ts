@@ -18,7 +18,6 @@ import UtililityMethods from "./UtilityMethods";
 import TangledTreeLayout from "./TangledTreeLayout";
 import StringManipulators from "./StringManipulators";
 import DisplayQueryBuilder from "./DisplayQueryBuilder";
-import QuerySummariser from "./QuerySummariser";
 
 export {
   ChartRescale,
@@ -40,6 +39,5 @@ export {
   UtililityMethods,
   TangledTreeLayout,
   StringManipulators,
-  DisplayQueryBuilder,
-  QuerySummariser
+  DisplayQueryBuilder
 };

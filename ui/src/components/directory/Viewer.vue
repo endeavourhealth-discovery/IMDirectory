@@ -46,7 +46,7 @@
           </TabPanel>
           <TabPanel v-if="isQuery(types)" header="Query">
             <div class="concept-panel-content" id="query-container">
-              <QueryDefinition :conceptIri="conceptIri" />
+              <QueryDisplay :conceptIri="conceptIri" />
             </div>
           </TabPanel>
           <TabPanel header="Contents">
@@ -84,11 +84,6 @@
               <Provenance :conceptIri="conceptIri" />
             </div>
           </TabPanel>
-          <TabPanel header="Query display">
-            <div class="concept-panel-content" id="provenance-container">
-              <QueryDisplay :conceptIri="conceptIri"/>
-            </div>
-          </TabPanel>
         </TabView>
       </div>
     </div>
@@ -99,7 +94,6 @@
 import { computed, onMounted, Ref, ref, reactive } from "vue";
 import DataModel from "./viewer/dataModel/DataModel.vue";
 import SetDefinition from "./viewer/set/SetDefinition.vue";
-import QueryDefinition from "./viewer/QueryDefinition.vue";
 import Content from "./viewer/Content.vue";
 import EntityChart from "./viewer/EntityChart.vue";
 import Graph from "./viewer/graph/Graph.vue";

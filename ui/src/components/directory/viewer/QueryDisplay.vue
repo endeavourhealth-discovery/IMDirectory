@@ -6,12 +6,6 @@
           {{ node.label }}
         </div>
       </template>
-      <template #where="{ node }">
-        {{ node.data.description || node.label }}
-      </template>
-      <template #with="{ node }">
-        {{ node.data.description || node.label }}
-      </template>
     </Tree>
   </div>
 </template>
@@ -20,7 +14,6 @@
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { buildDisplayQuery } from "@im-library/helpers/DisplayQueryBuilder";
-import { summariseQuery } from "@im-library/helpers/QuerySummariser";
 import { Query } from "@im-library/models/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { onMounted, watch, Ref, ref } from "vue";
@@ -44,8 +37,7 @@ onMounted(async () => {
 
 async function init() {
   definition.value = await getDefinition(props.conceptIri);
-  const summarisedQuery = summariseQuery(definition.value);
-  nodes.value = getNodes(summarisedQuery);
+  nodes.value = getNodes(definition.value);
   expandAll();
 }
 
@@ -72,15 +64,7 @@ function collapseAll() {
 }
 
 function expandNode(node: any) {
-  const label: string = node.data?.description || node.label;
-  const hasSingleIn = label && label.includes(" is ");
-  const hasSeeMore = label && label.includes("see more...");
-  if (hasSingleIn && !hasSeeMore) {
-    node._children = [...node.children];
-    delete node.children;
-  }
-
-  if (node.children && node.children.length && !hasSeeMore) {
+  if (node.children && node.children.length) {
     expandedKeys.value[node.key] = true;
 
     for (let child of node.children) {
