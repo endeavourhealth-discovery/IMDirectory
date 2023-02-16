@@ -46,7 +46,7 @@
     </div>
     <template #footer>
       <Button label="Cancel" icon="pi pi-times" class="p-button-secondary" @click="closeBuilderDialog" />
-      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" :disabled="isValidEcl" />
+      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
 </template>
@@ -65,7 +65,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted } from "vue";
+import { Ref, ref, watch, onMounted, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
@@ -85,6 +85,10 @@ const emit = defineEmits({
 });
 
 const toast = useToast();
+
+const isValidEcl = computed(() => {
+  return queryString.value && !queryString.value.includes("UNKNOWN CONCEPT") ? true : false;
+});
 
 const build: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
 const includeTerms = ref(true);
@@ -197,10 +201,6 @@ function getRefinementECL(clause: any, root: boolean) {
   result += getCodeTermECL(clause.value);
 
   return result;
-}
-
-function isValidEcl() {
-  return queryString.value && !queryString.value.includes("UNKNOWN CONCEPT");
 }
 
 function copyToClipboard(): string {
