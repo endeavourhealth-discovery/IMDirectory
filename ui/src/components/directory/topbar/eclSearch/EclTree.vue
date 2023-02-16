@@ -1,13 +1,25 @@
 <template>
   <div class="flex flex-column justify-contents-start" id="ecl-tree-bar-container">
-    <div
-      v-if="dialogRef?.options?.data?.focus?.name && dialogRef.options.data.type"
-      id="parent-container"
-      class="flex flex-column justify-contents-start align-items-start"
-    >
+    <div class="search-container">
+      <small v-if="searchResultsLimited" class="limited-results">Results limited to first 100. Please refine your search for more accuracy.</small>
+      <AutoComplete
+        forceSelection
+        style="flex: 1"
+        input-style="flex: 1"
+        optionLabel="name"
+        dataKey="iri"
+        v-model="selectedSearchResult"
+        :suggestions="filteredSearchOptions"
+        @complete="search($event.query)"
+        placeholder="search..."
+        :disabled="loading"
+        @blur="searchResultsLimited = false"
+      />
+    </div>
+    <div v-if="hasFocus && hasType" id="parent-container" class="flex flex-column justify-contents-start align-items-start">
       <p>
-        {{ toTitleCase(dialogRef.options.data.type) }} options for {{ dialogRef.options.data.type === "property" ? "concept" : "property" }}:
-        {{ dialogRef.options.data.focus.name }}
+        {{ toTitleCase(getType) }} options for {{ getType === "property" ? "concept" : "property" }}:
+        {{ getFocus.name }}
       </p>
     </div>
     <Tree
@@ -85,16 +97,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
+import { onMounted, ref, Ref, watch, inject, onBeforeUnmount, computed } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent, TTIriRef } from "@im-library/interfaces";
+import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TTIriRef, AliasEntity } from "@im-library/interfaces";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 import { toTitleCase } from "@im-library/helpers/StringManipulators";
 import { useToast } from "primevue/usetoast";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 
 const {
   root,
@@ -103,9 +116,9 @@ const {
   createLoadMoreNode,
   createTreeNode,
   onNodeCollapse,
-  onNodeDblClick,
+
   onNodeExpand,
-  onRowClick,
+
   loadMore,
   selectAndExpand,
   scrollToHighlighted,
@@ -117,7 +130,7 @@ const {
 
 const toast = useToast();
 
-const dialogRef = inject("dialogRef");
+const dialogRef: Ref<any> | undefined = inject("dialogRef");
 
 const rootConceptIri = ref("");
 const conceptAggregates: Ref<ConceptAggregate[]> = ref([]);
@@ -127,45 +140,63 @@ const loading = ref(false);
 const totalCount = ref(0);
 const superiorsCount = ref(0);
 const pageSize = ref(20);
+const selectedSearchResult: Ref<null | AliasEntity> = ref(null);
+const filteredSearchOptions: Ref<AliasEntity[]> = ref([]);
+const controller: Ref<AbortController | undefined> = ref(undefined);
+const searchResultsLimited = ref(false);
 
 const altTreeOP = ref();
 
-watch(
-  () => dialogRef.value.data.focus.iri,
-  async newValue => {
-    selectedKeys.value = {};
-    expandedKeys.value = {};
-    if (newValue) {
-      await getConceptAggregates(newValue);
-      for (const aggregate of conceptAggregates.value) {
-        await createTree(aggregate.concept, aggregate.children);
-      }
+const hasFocus = computed(() => {
+  return dialogRef && dialogRef.value && dialogRef.value.data && dialogRef.value.data.focus ? true : false;
+});
+const hasType = computed(() => {
+  return dialogRef && dialogRef.value && dialogRef.value.data && dialogRef.value.data.type ? true : false;
+});
+const hasCurrentValue = computed(() => {
+  return dialogRef && dialogRef.value && dialogRef.value.data && dialogRef.value.data.currentValue ? true : false;
+});
+const getFocus = computed(() => (hasFocus.value ? dialogRef?.value.data.focus : undefined));
+const getType = computed(() => (hasType.value ? dialogRef?.value.data.type : undefined));
+const getCurrentValue = computed(() => (hasCurrentValue.value ? dialogRef?.value.data.currentValue : undefined));
+
+watch(getFocus, async newValue => {
+  selectedKeys.value = {};
+  expandedKeys.value = {};
+  if (newValue && newValue.iri) {
+    await getConceptAggregates();
+    for (const aggregate of conceptAggregates.value) {
+      await createTree(aggregate.concept, aggregate.children);
     }
   }
-);
+});
 
 watch(loading, newValue => {
   if (newValue) hidePopup(overlayLocation.value);
 });
 
+watch(selectedSearchResult, async newValue => {
+  if (newValue && newValue.iri) await findSelected(newValue.iri);
+});
+
 onMounted(async () => {
   setRootConceptIri();
-  if (rootConceptIri.value) {
-    await getConceptAggregates(rootConceptIri.value);
+  if (rootConceptIri.value && hasFocus.value) {
+    await getConceptAggregates();
     for (const aggregate of conceptAggregates.value) {
       await createTree(aggregate.concept, aggregate.children);
     }
     if (root.value.length < superiorsCount.value) {
       root.value.push(
         createLoadMoreNode(
-          createTreeNode(dialogRef.value.data.focus.iri, dialogRef.value.data.focus.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+          createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
           1,
           superiorsCount.value
         )
       );
     }
-    if (dialogRef.value.data.currentValue) {
-      await findSelected(dialogRef.value.data.currentValue.iri);
+    if (hasCurrentValue.value) {
+      await findSelected(getCurrentValue.value.iri);
     }
   }
 });
@@ -174,32 +205,29 @@ onBeforeUnmount(() => {
   if (isObject(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
     hidePopup(overlayLocation.value);
   }
-  dialogRef.value.close();
+  if (controller.value) controller.value.abort();
+  if (dialogRef) dialogRef.value.close();
 });
 
 function setRootConceptIri() {
-  if (dialogRef.value && isObjectHasKeys(dialogRef.value, ["data"]) && isObjectHasKeys(dialogRef.value.data, ["focus"]))
-    rootConceptIri.value = dialogRef.value.data.focus.iri;
+  if (hasFocus.value) rootConceptIri.value = getFocus.value.iri;
 }
 
-async function getConceptAggregates(iri: string): Promise<void> {
+async function getConceptAggregates(): Promise<void> {
   loading.value = true;
   let superiors = [];
-  if (dialogRef.value.data.type === "property") {
+  if (getType.value === "property") {
     const results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, 1, pageSize.value);
     superiors = results.result;
     superiorsCount.value = results.totalCount;
-  } else {
+  } else if (getType.value === "value") {
     const results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, 1, pageSize.value);
     superiors = results.result;
     superiorsCount.value = results.totalCount;
   }
   for (const superior of superiors) {
     let superiorAggregate = { concept: {}, parents: [], children: [] } as ConceptAggregate;
-    superiorAggregate.concept = await EntityService.getPartialEntity(superior["@id"], [RDF.TYPE, RDFS.LABEL]);
-    const pagedChildren = await EntityService.getPagedChildren(superior["@id"], 1, pageSize.value);
-    totalCount.value = pagedChildren.totalCount;
-    superiorAggregate.children = pagedChildren.result;
+    superiorAggregate.concept = superior;
     conceptAggregates.value.push(superiorAggregate);
   }
   loading.value = false;
@@ -207,7 +235,7 @@ async function getConceptAggregates(iri: string): Promise<void> {
 
 async function createTree(concept: any, children: EntityReferenceNode[]): Promise<void> {
   loading.value = true;
-  const selectedConcept = createTreeNode(concept[RDFS.LABEL], concept[IM.IRI], concept[RDF.TYPE], concept.hasChildren, null, undefined);
+  const selectedConcept = createTreeNode(concept.name, concept["@id"], concept.type, concept.hasChildren, null, concept.orderNumber);
   children.forEach((child: EntityReferenceNode) => {
     selectedConcept.children?.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, selectedConcept, child.orderNumber));
   });
@@ -240,7 +268,7 @@ async function rootLoadMore(node: any) {
   node.loading = true;
   if (node.nextPage * superiorsCount.value < node.totalCount) {
     let results;
-    if (dialogRef.value.data.type === "property") {
+    if (getType.value === "property") {
       results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
     } else {
       results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
@@ -252,14 +280,14 @@ async function rootLoadMore(node: any) {
     node.nextPage = node.nextPage + 1;
     root.value.push(
       createLoadMoreNode(
-        createTreeNode(dialogRef.value.data.focus.iri, dialogRef.value.data.focus.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
         node.nextPage,
         node.totalCount
       )
     );
   } else if (node.nextPage * pageSize.value > node.totalCount) {
     let results;
-    if (dialogRef.value.data.type === "property") {
+    if (getType.value === "property") {
       results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
     } else {
       results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
@@ -290,22 +318,28 @@ async function showPopup(event: any, iri?: string, node?: any): Promise<void> {
 }
 
 async function findSelected(selectedIri: string) {
-  selectedKeys.value = {};
-  loading.value = true;
-  const found = root.value.find(node => node.data === selectedIri);
-  if (found) {
-    selectedKeys.value[selectedIri] = true;
-    loading.value = false;
-    return;
-  } else {
-    for (const rootNode of root.value) {
-      if (selectedKeys.value[selectedIri]) return;
-      const pathToNode = await EntityService.getPathBetweenNodes(selectedIri, rootNode.data);
-      if (isArrayHasLength(pathToNode)) await findInTreeAndSelect(selectedIri, pathToNode);
+  if (selectedIri) {
+    selectedKeys.value = {};
+    loading.value = true;
+    const found = root.value.find(node => node.data === selectedIri);
+    if (found) {
+      selectedKeys.value[selectedIri] = true;
+      loading.value = false;
+      return;
+    } else {
+      for (const rootNode of root.value) {
+        if (selectedKeys.value[selectedIri]) return;
+        const pathToNode = await EntityService.getPathBetweenNodes(selectedIri, rootNode.data);
+        if (isArrayHasLength(pathToNode)) {
+          await findInTreeAndSelect(selectedIri, pathToNode);
+          loading.value = false;
+          return;
+        }
+      }
+      if (!selectedKeys.value[selectedIri]) throw new Error("Unable to find selected item within tree");
     }
-    if (!selectedKeys.value[selectedIri]) throw new Error("Unable to find selected item within tree");
+    loading.value = false;
   }
-  loading.value = false;
 }
 
 async function findInTreeAndSelect(iri: string, pathToNode: TTIriRef[]) {
@@ -342,6 +376,29 @@ async function findInTreeAndSelect(iri: string, pathToNode: TTIriRef[]) {
   scrollToHighlighted("ecl-tree-bar-container");
 }
 
+async function search(selected: string) {
+  if (selected.length > 2) {
+    if (controller.value) controller.value.abort();
+    controller.value = new AbortController();
+    if (getType.value === "property") {
+      const results = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, selected, controller.value);
+      if (results && results.length) {
+        if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
+        else filteredSearchOptions.value = results;
+      } else filteredSearchOptions.value = [];
+      searchResultsLimited.value = results.length > 100;
+    } else if (getType.value === "value") {
+      const results = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, selected, controller.value);
+      if (results && results.length) {
+        if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
+        else filteredSearchOptions.value = results;
+      } else filteredSearchOptions.value = [];
+      searchResultsLimited.value = results.length > 100;
+    }
+    controller.value = undefined;
+  } else filteredSearchOptions.value = [];
+}
+
 function hidePopup(event: any): void {
   const x = altTreeOP.value as any;
   x.hide(event);
@@ -354,11 +411,16 @@ function getConceptTypes(types: TTIriRef[]): string {
 
 async function selectItem(iri: string): Promise<void> {
   const entity = await EntityService.getEntitySummary(iri);
-  dialogRef.value.close({ entity: { iri: entity.iri, code: entity.code, name: entity.name }, type: dialogRef.value.data.type });
+  if (dialogRef) dialogRef.value.close({ entity: { iri: entity.iri, code: entity.code, name: entity.name }, type: getType.value });
 }
 </script>
 
 <style scoped>
+.search-container {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
 .tree-root {
   overflow: auto;
   border: 0;
@@ -371,7 +433,6 @@ async function selectItem(iri: string): Promise<void> {
 
 #ecl-tree-bar-container {
   flex: 1 1 auto;
-  border-top: 1px solid #dee2e6;
 }
 
 .p-progress-spinner {
@@ -393,5 +454,18 @@ async function selectItem(iri: string): Promise<void> {
 
 .tree-node-label {
   word-break: break-all;
+}
+
+.loading-icon {
+  flex: 0 0 auto;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+.limited-results {
+  width: 100%;
+  height: 1rem;
+  padding: 0 0 0.25rem 0;
+  color: #e24c4c;
 }
 </style>

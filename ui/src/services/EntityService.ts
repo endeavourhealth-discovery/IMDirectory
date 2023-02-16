@@ -144,10 +144,10 @@ const EntityService = {
     }
   },
 
-  async advancedSearch(request: SearchRequest, controller: AbortController): Promise<ConceptSummary[]> {
+  async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<ConceptSummary[]> {
     try {
       return await axios.post(api + "api/entity/public/search", request, {
-        signal: controller.signal
+        signal: controller?.signal
       });
     } catch (error) {
       return [] as ConceptSummary[];
