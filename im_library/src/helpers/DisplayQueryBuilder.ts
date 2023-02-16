@@ -1,3 +1,4 @@
+import { TTIriRef } from "../interfaces";
 import { Where } from "../models/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
@@ -37,9 +38,9 @@ function buildRecursively(query: any, type: string, parent: DisplayQuery) {
 
 // adders
 function addObject(query: any, type: string, parent: DisplayQuery) {
-  const label = query.name || query.id || query.bool || query.description;
+  const label = query.name || query.id || query.bool || query.description || query.variable || getNameFromIriRef(query);
   let displayQuery;
-  if (label) {
+  if (label && label !== "and") {
     displayQuery = createDisplayQuery(parent, label, type, query);
     parent.children.push(displayQuery);
   }
@@ -53,21 +54,14 @@ function addWhere(query: any, type: string, parent: DisplayQuery) {
     for (const where of query.where) {
       buildRecursively(where, "where", parent);
     }
-  } else if (isLeafWhere(query)) {
-    if (isObjectHasKeys(query, ["id", "in", "latest", "count"])) {
+  } else if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
+    const id = query.id || query["@id"];
+    if (isObjectHasKeys(query, ["in", "latest", "count"])) {
       if (isArrayHasLength(query.in) && query.in.length > 1) {
-        const label = "Latest " + query.id + " from";
+        const label = "Latest " + id + " from";
         addInItems(label, query, type, parent);
       } else {
-        const label = "Latest " + query.id + ": " + query.in[0].name;
-        addItem(label, query, type, parent);
-      }
-    } else if (isObjectHasKeys(query, ["id", "in"])) {
-      if (isArrayHasLength(query.in) && query.in.length > 1) {
-        const label = query.id + " from";
-        addInItems(label, query, type, parent);
-      } else {
-        const label = query.id + ": " + query.in[0].name;
+        const label = "Latest " + id + ": " + query.in[0].name;
         addItem(label, query, type, parent);
       }
     } else if (hasBool(query, "not") && isObjectHasKeys(query, ["bool", "in"])) {
@@ -78,20 +72,28 @@ function addWhere(query: any, type: string, parent: DisplayQuery) {
         const label = `Not from ${query.in[0].name}`;
         addItem(label, query, type, parent);
       }
-    } else if (isObjectHasKeys(query, ["id", "operator", "unit", "value", "relativeTo"])) {
-      const label = `${query.id} ${query.operator} ${query.relativeTo} by ${query.value} ${query.unit}`;
+    } else if (isObjectHasKeys(query, ["in"])) {
+      if (isArrayHasLength(query.in) && query.in.length > 1) {
+        const label = id + " from";
+        addInItems(label, query, type, parent);
+      } else {
+        const label = id + ": " + query.in[0].name;
+        addItem(label, query, type, parent);
+      }
+    } else if (isObjectHasKeys(query, ["operator", "unit", "value", "relativeTo"])) {
+      const label = `${id} ${query.operator} ${query.relativeTo} by ${query.value} ${query.unit}`;
       addItem(label, query, type, parent);
-    } else if (isObjectHasKeys(query, ["id", "operator", "unit", "value"])) {
-      const label = `${query.id} ${query.operator} ${query.value} ${query.unit}`;
+    } else if (isObjectHasKeys(query, ["operator", "unit", "value"])) {
+      const label = `${id} ${query.operator} ${query.value} ${query.unit}`;
       addItem(label, query, type, parent);
-    } else if (isObjectHasKeys(query, ["id", "operator", "value"])) {
-      const label = `${query.id} ${query.operator} ${query.value}`;
+    } else if (isObjectHasKeys(query, ["operator", "value"])) {
+      const label = `${id} ${query.operator} ${query.value}`;
       addItem(label, query, type, parent);
-    } else if (isObjectHasKeys(query, ["id", "operator", "relativeTo"])) {
-      const label = `${query.id} ${query.operator} ${query.relativeTo}`;
+    } else if (isObjectHasKeys(query, ["operator", "relativeTo"])) {
+      const label = `${id} ${query.operator} ${query.relativeTo}`;
       addItem(label, query, type, parent);
-    } else if (isObjectHasKeys(query, ["id", "notExist"])) {
-      const label = `${query.id} does not exist`;
+    } else if (isObjectHasKeys(query, ["notExist"])) {
+      const label = `${id} does not exist`;
       addItem(label, query, type, parent);
     } else {
       addObject(query, type, parent);
@@ -128,6 +130,16 @@ function createDisplayQuery(parent: DisplayQuery, label: string, type?: string, 
 
 function getKey(parent: DisplayQuery) {
   return parent.key + parent.children.length;
+}
+
+function getNameFromIriRef(ref: TTIriRef) {
+  if (isObjectHasKeys(ref, ["name"])) {
+    return ref.name;
+  } else if (isObjectHasKeys(ref, ["@id"])) {
+    const splits = ref["@id"].split("#");
+    return splits[1] || splits[0];
+  }
+  return "";
 }
 
 // checks
