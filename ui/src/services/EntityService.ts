@@ -1,4 +1,4 @@
-import { IM } from "@im-library/vocabulary";
+import { IM, SNOMED } from "@im-library/vocabulary";
 import {
   EntityReferenceNode,
   FiltersAsIris,
@@ -144,10 +144,10 @@ const EntityService = {
     }
   },
 
-  async advancedSearch(request: SearchRequest, controller: AbortController): Promise<ConceptSummary[]> {
+  async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<ConceptSummary[]> {
     try {
       return await axios.post(api + "api/entity/public/search", request, {
-        signal: controller.signal
+        signal: controller?.signal
       });
     } catch (error) {
       return [] as ConceptSummary[];
@@ -554,6 +554,28 @@ const EntityService = {
       });
     } catch (error) {
       return [] as PropertyDisplay[];
+    }
+  },
+
+  async getSuperiorPropertiesPaged(conceptIri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
+    try {
+      return await axios.get(Env.API + "api/entity/public/superiorPropertiesPaged", {
+        params: { conceptIri: conceptIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+        signal: controller?.signal
+      });
+    } catch (error) {
+      return { result: [], totalCount: 0 } as any;
+    }
+  },
+
+  async getSuperiorPropertyValuesPaged(propertyIri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
+    try {
+      return await axios.get(Env.API + "api/entity/public/superiorPropertyValuesPaged", {
+        params: { propertyIri: propertyIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+        signal: controller?.signal
+      });
+    } catch (error) {
+      return { result: [], totalCount: 0 } as any;
     }
   }
 };

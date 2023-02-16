@@ -1,6 +1,7 @@
 <template>
   <div class="refinement-content-container nested-div">
     <AutoComplete
+      :forceSelection="true"
       style="flex: 1"
       input-style="flex:1"
       field="name"
@@ -10,11 +11,14 @@
       @complete="searchProperty($event.query)"
       placeholder="search..."
       :disabled="loadingProperty || !focus?.iri"
+      :optionDisabled="disableOption"
     />
+    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <AutoComplete
+      :forceSelection="true"
       style="flex: 1"
       input-style="flex:1"
       field="name"
@@ -25,18 +29,22 @@
       placeholder="search..."
       :disabled="!selectedProperty || loadingValue"
     />
+    <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted, watch } from "vue";
+import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
+import { useDialog } from "primevue/usedialog";
 import { RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import EclTree from "../EclTree.vue";
+import Button from "primevue/button";
 
 const props = defineProps({
   value: {
@@ -47,13 +55,15 @@ const props = defineProps({
   focus: { type: Object, required: false }
 });
 
+let treeDialog = useDialog();
+
 const selectedProperty: Ref<any | null> = ref(null);
 const selectedValue: Ref<any | null> = ref(null);
 const propertyResults: Ref<any[]> = ref([]);
 const valueResults: Ref<any[]> = ref([]);
 const store = useStore();
-const propertyController: Ref<AbortController> = ref({} as AbortController);
-const valueController: Ref<AbortController> = ref({} as AbortController);
+const propertyController: Ref<AbortController | undefined> = ref(undefined);
+const valueController: Ref<AbortController | undefined> = ref(undefined);
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
 
@@ -79,7 +89,7 @@ watch(
   async newValue => {
     if (newValue && newValue.iri) {
       await processProps();
-    }
+    } else clearAll();
   }
 );
 
@@ -102,6 +112,11 @@ const operatorOptions = ["=", "!="];
 
 onMounted(async () => {
   await processProps();
+});
+
+onBeforeUnmount(() => {
+  if (propertyController.value) propertyController.value.abort();
+  if (valueController.value) valueController.value.abort();
 });
 
 async function processProps() {
@@ -130,30 +145,47 @@ async function processProps() {
   loadingValue.value = false;
 }
 
+function clearAll() {
+  selectedProperty.value = null;
+  selectedValue.value = null;
+}
+
 async function searchProperty(term: string) {
   if (!props.focus?.iri) return;
+  if (term.length > 2) {
+    if (term.toLowerCase() === "any") {
+      propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
+    } else {
+      if (propertyController.value) propertyController.value.abort();
 
-  if (propertyController.value && propertyController.value.abort) {
-    propertyController.value.abort();
-  }
-  propertyController.value = new AbortController();
+      propertyController.value = new AbortController();
 
-  const matches = await QueryService.getAllowablePropertySuggestions(props.focus.iri, term, propertyController.value);
+      const matches = await QueryService.getAllowablePropertySuggestions(props.focus.iri, term, propertyController.value);
 
-  if (!matches) propertyResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
-  else propertyResults.value = matches;
+      if (!matches) propertyResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
+      else propertyResults.value = matches;
+    }
+  } else if (term === "*") {
+    propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
+  } else propertyResults.value = [{ iri: null, name: "3 character minimum", code: "UNKNOWN" }];
 }
 
 async function searchValue(term: string) {
   if (!selectedProperty.value.iri) return;
+  if (term.length > 2) {
+    if (term.toLowerCase() === "any") {
+      valueResults.value = [{ iri: "any", name: "ANY", code: "any" }];
+    } else {
+      if (valueController.value) valueController.value.abort();
 
-  if (valueController.value && valueController.value.abort) {
-    valueController.value.abort();
-  }
-  valueController.value = new AbortController();
-  const matches = await QueryService.getAllowableRangeSuggestions(selectedProperty.value.iri, term, valueController.value);
-  if (!matches) valueResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
-  else valueResults.value = matches;
+      valueController.value = new AbortController();
+      const matches = await QueryService.getAllowableRangeSuggestions(selectedProperty.value.iri, term, valueController.value);
+      if (!matches) valueResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
+      else valueResults.value = matches;
+    }
+  } else if (term === "*") {
+    valueResults.value = [{ iri: "any", name: "ANY", code: "any" }];
+  } else valueResults.value = [{ iri: null, name: "3 character minimum", code: "UNKNOWN" }];
 }
 
 async function findIriName(iri: string) {
@@ -161,6 +193,55 @@ async function findIriName(iri: string) {
   if (result && isObjectHasKeys(result, [RDFS.LABEL])) {
     return result[RDFS.LABEL];
   } else return "";
+}
+
+function disableOption(data: any) {
+  return data.code === "UNKNOWN";
+}
+
+function openTree(type: string) {
+  const dialogProps = {
+    style: { width: "80vw", height: "80vh" },
+    closable: false,
+    maximizable: true,
+    modal: true,
+    contentStyle: { flex: "1 1 auto", display: "flex" },
+    dismissableMask: true,
+    autoZIndex: false
+  };
+  if (type === "property") {
+    const dialogRef = treeDialog.open(EclTree, {
+      props: dialogProps,
+      templates: {
+        footer: () => {
+          return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+        }
+      },
+      data: { focus: { iri: props.focus?.iri, name: props.focus?.name }, type: "property", currentValue: props.value.property.concept },
+      onClose(options) {
+        if (options?.data?.type === "property") {
+          selectedProperty.value = options.data.entity;
+          selectedValue.value = null;
+        } else if (options?.data?.type === "value") selectedValue.value = options.data.entity;
+      }
+    });
+  } else if (type === "value") {
+    const dialogRef = treeDialog.open(EclTree, {
+      props: dialogProps,
+      templates: {
+        footer: () => {
+          return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+        }
+      },
+      data: { focus: { iri: selectedProperty.value.iri, name: selectedProperty.value.name }, type: "value", currentValue: props.value.value.concept },
+      onClose(options) {
+        if (options?.data?.type === "property") {
+          selectedProperty.value = options.data.entity;
+          selectedValue.value = null;
+        } else if (options?.data?.type === "value") selectedValue.value = options.data.entity;
+      }
+    });
+  } else throw new Error("Unknown type encountered trying to open eclTree");
 }
 </script>
 
