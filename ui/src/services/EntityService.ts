@@ -557,6 +557,14 @@ const EntityService = {
     }
   },
 
+  async isValidProperty(entityIri: string, propertyIri: string) {
+    return await axios.get(Env.API + "api/entity/isValidProperty", { params: { entity: entityIri, property: propertyIri } });
+  },
+
+  async isValidPropertyValue(propertyIri: string, valueIri: string) {
+    return await axios.get(Env.API + "api/entity/isValidPropertyValue", { params: { property: propertyIri, value: valueIri } });
+  },
+
   async getSuperiorPropertiesPaged(conceptIri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
     try {
       return await axios.get(Env.API + "api/entity/public/superiorPropertiesPaged", {
