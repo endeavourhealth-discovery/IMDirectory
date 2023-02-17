@@ -15,11 +15,13 @@ import { fas } from "@fortawesome/pro-solid-svg-icons";
 import { fat } from "@fortawesome/pro-thin-svg-icons";
 import { fasr } from "@fortawesome/sharp-regular-svg-icons";
 import { fass } from "@fortawesome/sharp-solid-svg-icons";
+import { fab } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
 
 dom.watch();
 
-library.add(fad, fal, far, fas, fat, fasr, fass);
+library.add(fad, fal, far, fas, fat, fasr, fass, fab);
 
 import "primevue/resources/themes/saga-blue/theme.css"; //theme
 
