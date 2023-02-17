@@ -39,14 +39,18 @@
           <IMViewerLink v-else :iri="node.value['@id']" :label="from.label" />
         </div>
       </template>
-      <template #property="{ node }"> {{ node.label }}: <IMViewerLink :iri="node.data['@id']" :label="node.data.name" /> </template>
+      <template #property="{ node }">
+        <span @mouseover="showOverlay($event, node.iri)" @mouseleave="hideOverlay($event)"><IMViewerLink :iri="node.iri" :label="node.label" />: </span>
+        <span @mouseover="showOverlay($event, node.data['@id'])" @mouseleave="hideOverlay($event)"><IMViewerLink :iri="node.data['@id']" :label="node.data.name" /></span>
+      </template>
       <template #link="{ node }">
-        <IMViewerLink :iri="node.key!" :label="node.label" />
+        <IMViewerLink :iri="node.key" :label="node.label" />
       </template>
       <template #loadMore="{ node }">
         <b>{{ node.label }}...</b>
       </template>
     </Tree>
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
@@ -57,10 +61,12 @@ import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
+const OS: Ref<any> = ref();
 const definition: Ref<any> = ref();
 const expandedKeys: Ref<any> = ref({});
 const selectedKeys: Ref<any> = ref({});
@@ -117,6 +123,14 @@ async function onSelect(node: TreeNode) {
 async function onExpand(node: TreeNode) {
   const hasLoadMore = node.children?.some(child => child.key === IM.NAMESPACE + "loadMore");
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
+}
+
+async function showOverlay(event: any, iri: any): Promise<void> {
+  await OS.value.showOverlay(event, iri);
+}
+
+function hideOverlay(event: any): void {
+  OS.value.hideOverlay(event);
 }
 </script>
 

@@ -96,6 +96,19 @@ function handleSubmit(): void {
             router.push({ name: "ConfirmCode" });
           }
         });
+      } else if (res.status === 403 && res.message === "NEW_PASSWORD_REQUIRED") {
+        Swal.fire({
+          icon: "warning",
+          title: "New password required",
+          text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+          showCloseButton: false,
+          showCancelButton: false,
+          confirmButtonText: "Reset password"
+        }).then((result: SweetAlertResult) => {
+          if (result.isConfirmed) {
+            router.push({ name: "ForgotPassword" });
+          }
+        });
       } else {
         Swal.fire({
           icon: "error",

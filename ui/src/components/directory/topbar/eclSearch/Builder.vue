@@ -13,6 +13,7 @@
     }"
     id="ecl-builder-dialog"
     :contentStyle="{ flexGrow: '100', display: 'flex' }"
+    :auto-z-index="false"
   >
     <template #header>
       <h3>ECL Builder:</h3>
@@ -20,7 +21,8 @@
     <div id="builder-string-container">
       <div id="query-builder-container">
         <div id="query-build">
-          <BoolGroup :value="build" style="width: 100%; margin: 0" />
+          <ProgressSpinner v-if="loading" />
+          <BoolGroup v-else :value="build" style="width: 100%; margin: 0" />
         </div>
         <small style="color: red" v-if="!build.items || build.items.length == 0">*Move pointer over panel above to add concepts, refinements and groups.</small>
       </div>
@@ -44,7 +46,7 @@
     </div>
     <template #footer>
       <Button label="Cancel" icon="pi pi-times" class="p-button-secondary" @click="closeBuilderDialog" />
-      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" />
+      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
 </template>
@@ -63,7 +65,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted } from "vue";
+import { Ref, ref, watch, onMounted, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
@@ -84,23 +86,27 @@ const emit = defineEmits({
 
 const toast = useToast();
 
+const isValidEcl = computed(() => {
+  return queryString.value && !queryString.value.includes("UNKNOWN CONCEPT") ? true : false;
+});
+
 const build: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
 const includeTerms = ref(true);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
   if (props.eclString) {
-    createBuildFromEclString(props.eclString);
-  }
+    await createBuildFromEclString(props.eclString);
+  } else createDefaultBuild();
 });
 
 watch(
   () => props.eclString,
   newValue => {
-    if (newValue && newValue !== queryString.value) createBuildFromEclString(newValue);
-    else if (!newValue) createDefaultBuild();
+    if (newValue) createBuildFromEclString(newValue);
+    else createDefaultBuild();
   }
 );
 
@@ -170,10 +176,16 @@ function getCodeTermECL(clause: any) {
   let result = clause.descendants ? clause.descendants : "";
 
   if (clause.concept && clause.concept.code) {
-    result += clause.concept.code;
-    if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
+    if (clause.concept.code === "any") {
+      result += "*";
+      if (includeTerms.value) result += " | ANY | ";
+    } else {
+      result += clause.concept.code;
+      if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
+    }
   } else if (clause.concept && clause.concept.iri) {
     result += clause.concept.iri.split("#")[1];
+    if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
   } else result += "[UNKNOWN CONCEPT]";
 
   return result;
@@ -227,7 +239,6 @@ function onCopyError(): void {
   align-items: flex-start;
   gap: 1rem;
   flex: 1 1 auto;
-  overflow: auto;
   font-size: 12px;
 }
 
