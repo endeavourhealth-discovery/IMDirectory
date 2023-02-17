@@ -6614,3 +6614,168 @@ export const Priority1 = {
     }
   ]
 };
+
+export const Aged1664 = {
+  definition: {
+    from: {
+      "@id": "urn:uuid:a39c5aba-eed4-477b-bce2-3eeeb720a3ad",
+      name: "Currently Registered Patients Aged 16+",
+      sourceType: "set",
+      description: "Currently Registered Patients Aged 16+",
+      where: {
+        where: [
+          {
+            description: "age from >= 16 YEARto > 65 YEAR",
+            id: "age",
+            range: {
+              from: {
+                operator: ">=",
+                value: "16",
+                unit: "YEAR",
+                relativeTo: null
+              },
+              to: {
+                operator: ">",
+                value: "65",
+                unit: "YEAR",
+                relativeTo: null
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  nodes: [
+    {
+      key: "10",
+      label: "Currently Registered Patients Aged 16+",
+      type: "query",
+      data: {
+        "@id": "urn:uuid:a39c5aba-eed4-477b-bce2-3eeeb720a3ad",
+        name: "Currently Registered Patients Aged 16+",
+        sourceType: "set",
+        description: "Currently Registered Patients Aged 16+",
+        where: {
+          where: [
+            {
+              description: "age from >= 16 YEARto > 65 YEAR",
+              id: "age",
+              range: {
+                from: { operator: ">=", value: "16", unit: "YEAR", relativeTo: null },
+                to: { operator: ">", value: "65", unit: "YEAR", relativeTo: null }
+              }
+            }
+          ]
+        }
+      },
+      children: [
+        {
+          key: "100",
+          label: "age  from >= 16 (YEAR) to >= 16 (YEAR)",
+          type: "where",
+          data: {
+            description: "age from >= 16 YEARto > 65 YEAR",
+            id: "age",
+            range: { from: { operator: ">=", value: "16", unit: "YEAR", relativeTo: null }, to: { operator: ">", value: "65", unit: "YEAR", relativeTo: null } }
+          },
+          children: []
+        }
+      ]
+    }
+  ]
+};
+
+export const Query_AllowableProperties = {
+  definition: {
+    name: "Allowable Properties for a concept",
+    description: "'using property domains get the allowable properties from the supertypes of this concept",
+    from: {
+      where: {
+        bool: "and",
+        where: [
+          {
+            "@id": "http://www.w3.org/2000/01/rdf-schema#domain",
+            in: [
+              {
+                includeSupertypes: true,
+                variable: "$this"
+              }
+            ]
+          },
+          {
+            "@id": "http://endhealth.info/im#scheme",
+            in: [
+              {
+                "@id": "http://endhealth.info/im#"
+              },
+              {
+                "@id": "http://snomed.info/sct#"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    select: [
+      {
+        "@id": "http://endhealth.info/im#code"
+      },
+      {
+        "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+      }
+    ],
+    activeOnly: true
+  },
+  nodes: [
+    {
+      key: "10",
+      label: "Allowable Properties for a concept",
+      type: "query",
+      data: {
+        name: "Allowable Properties for a concept",
+        description: "'using property domains get the allowable properties from the supertypes of this concept",
+        from: {
+          where: {
+            bool: "and",
+            where: [
+              { "@id": "http://www.w3.org/2000/01/rdf-schema#domain", in: [{ includeSupertypes: true, variable: "$this" }] },
+              { "@id": "http://endhealth.info/im#scheme", in: [{ "@id": "http://endhealth.info/im#" }, { "@id": "http://snomed.info/sct#" }] }
+            ]
+          }
+        },
+        select: [{ "@id": "http://endhealth.info/im#code" }, { "@id": "http://www.w3.org/2000/01/rdf-schema#label" }],
+        activeOnly: true
+      },
+      children: [
+        {
+          key: "100",
+          label: "domain",
+          type: "from",
+          data: { "@id": "http://www.w3.org/2000/01/rdf-schema#domain", in: [{ includeSupertypes: true, variable: "$this" }] },
+          children: [{ key: "1000", label: "$this", type: "in", data: { includeSupertypes: true, variable: "$this" }, children: [] }]
+        },
+        {
+          key: "101",
+          label: "scheme",
+          type: "from",
+          data: { "@id": "http://endhealth.info/im#scheme", in: [{ "@id": "http://endhealth.info/im#" }, { "@id": "http://snomed.info/sct#" }] },
+          children: [
+            { key: "1010", label: "http://endhealth.info/im", type: "in", data: { "@id": "http://endhealth.info/im#" }, children: [] },
+            { key: "1011", label: "http://snomed.info/sct", type: "in", data: { "@id": "http://snomed.info/sct#" }, children: [] }
+          ]
+        },
+        {
+          key: "102",
+          label: "select",
+          type: "select",
+          data: [{ "@id": "http://endhealth.info/im#code" }, { "@id": "http://www.w3.org/2000/01/rdf-schema#label" }],
+          children: [
+            { key: "1020", label: "code", type: "select", data: { "@id": "http://endhealth.info/im#code" }, children: [] },
+            { key: "1021", label: "label", type: "select", data: { "@id": "http://www.w3.org/2000/01/rdf-schema#label" }, children: [] }
+          ]
+        }
+      ]
+    }
+  ]
+};

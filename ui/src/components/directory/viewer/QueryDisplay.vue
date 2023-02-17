@@ -2,9 +2,7 @@
   <div class="query-display-container">
     <Tree :value="nodes" :expanded-keys="expandedKeys">
       <template #default="{ node }">
-        <div v-tooltip="node.data">
-          {{ node.label }}
-        </div>
+        {{ node.label }}
       </template>
     </Tree>
   </div>

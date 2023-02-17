@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildDisplayQuery } from "@/helpers/DisplayQueryBuilder";
-import { Q_RegisteredGMS, SMIPopulation, Priority1, Priority3a, Priority3b } from "./DisplayQueryBuilder.testData";
+import { Q_RegisteredGMS, SMIPopulation, Priority1, Priority3a, Priority3b, Aged1664, Query_AllowableProperties } from "./DisplayQueryBuilder.testData";
 
 describe("DisplayQueryBuilder.ts ___", () => {
   describe("buildDisplayQuery", () => {
@@ -35,6 +35,22 @@ describe("DisplayQueryBuilder.ts ___", () => {
     it("can convert Priority3b definition to DisplayQuery nodes", () => {
       const nodes = buildDisplayQuery(Priority3b.definition);
       expect(nodes).toEqual(Priority3b.nodes);
+    });
+  });
+
+  describe("buildDisplayQuery", () => {
+    it("can convert Aged1664 definition to DisplayQuery nodes", () => {
+      const nodes = buildDisplayQuery(Aged1664.definition);
+      expect(nodes).toEqual(Aged1664.nodes);
+    });
+  });
+
+  describe("buildDisplayQuery", () => {
+    it("can convert Aged1664 definition to DisplayQuery nodes", () => {
+      const nodes = buildDisplayQuery(Query_AllowableProperties.definition);
+      console.log(JSON.stringify(nodes));
+
+      expect(nodes).toEqual(Query_AllowableProperties.nodes);
     });
   });
 });

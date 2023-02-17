@@ -1,21 +1,6 @@
+import { DisplayQuery } from "../interfaces";
 import { TTAlias, Where } from "../models/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-
-interface DisplayQuery {
-  key: string;
-  label: string;
-  data: any;
-  type: string;
-  children: DisplayQuery[];
-  icon?: string;
-  style?: any;
-  styleClass?: string;
-  selectable?: boolean;
-  leaf?: boolean;
-  expandedIcon?: string;
-  collapsedIcon?: string;
-  [key: string]: any;
-}
 
 export function buildDisplayQuery(query: any) {
   const parentNode = { key: "1", children: [] as DisplayQuery[] } as DisplayQuery;
