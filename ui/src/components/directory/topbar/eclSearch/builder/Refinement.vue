@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h } from "vue";
+import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h, computed } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
@@ -67,15 +67,26 @@ const valueController: Ref<AbortController | undefined> = ref(undefined);
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
 
+const hasProperty = computed(() => {
+  return props.value.property.concept.iri;
+});
+const hasValue = computed(() => {
+  return props.value.value.concept.iri;
+});
+const hasFocus = computed(() => {
+  return isObjectHasKeys(props, ["focus"]) && isObjectHasKeys(props.focus, ["iri"]);
+});
+
 watch(selectedProperty, async newValue => {
   props.value.property.concept = newValue;
-  if (!loadingValue.value && newValue?.name && props.value?.value?.concept?.iri) {
+  if (!loadingValue.value && newValue?.name && hasValue.value) {
     let name = "";
     if (props.value.value.concept.name) name = props.value.value.concept.name;
     else name = await findIriName(props.value.value.concept.iri);
     if (name) {
       await searchValue(name);
       if (isArrayHasLength(valueResults.value)) selectedValue.value = valueResults.value.find(result => result.iri === props.value.value.concept.iri);
+      else selectedValue.value = null;
     } else throw new Error("Value iri does not exist");
   }
 });
@@ -120,26 +131,27 @@ onBeforeUnmount(() => {
 });
 
 async function processProps() {
-  if (props.value && props.value.property && props.value.property.concept && props.value.property.concept.iri) {
+  if (hasProperty.value) {
     loadingProperty.value = true;
     loadingValue.value = true;
     let name = "";
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else name = await findIriName(props.value.property.concept.iri);
     if (name) {
-      await searchProperty(name);
-      if (isArrayHasLength(propertyResults.value))
-        selectedProperty.value = propertyResults.value.find(result => result.iri === props.value.property.concept.iri);
+      if (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri)) {
+        selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
+      } else selectedProperty.value = null;
     } else throw new Error("Property iri does not exist");
   }
   loadingProperty.value = false;
-  if (props.value && selectedProperty.value && props.value.value.concept && props.value.value.concept.iri) {
+  if (hasValue.value && selectedProperty.value) {
     let name = "";
     if (props.value.value.concept.name) name = props.value.value.concept.name;
     else name = await findIriName(props.value.value.concept.iri);
     if (name) {
-      await searchValue(name);
-      if (isArrayHasLength(valueResults.value)) selectedValue.value = valueResults.value.find(result => result.iri === props.value.value.concept.iri);
+      if (await EntityService.isValidPropertyValue(selectedProperty.value.iri, props.value.value.concept.iri)) {
+        selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri);
+      } else selectedValue.value = null;
     } else throw new Error("Value iri does not exist");
   }
   loadingValue.value = false;
@@ -151,7 +163,7 @@ function clearAll() {
 }
 
 async function searchProperty(term: string) {
-  if (!props.focus?.iri) return;
+  if (!hasFocus.value) return;
   if (term.length > 2) {
     if (term.toLowerCase() === "any") {
       propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
@@ -160,7 +172,7 @@ async function searchProperty(term: string) {
 
       propertyController.value = new AbortController();
 
-      const matches = await QueryService.getAllowablePropertySuggestions(props.focus.iri, term, propertyController.value);
+      const matches = await QueryService.getAllowablePropertySuggestions(props.focus?.iri, term, propertyController.value);
 
       if (!matches) propertyResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
       else propertyResults.value = matches;
