@@ -46,7 +46,7 @@
           </TabPanel>
           <TabPanel v-if="isQuery(types)" header="Query">
             <div class="concept-panel-content" id="query-container">
-              <QueryDefinition :conceptIri="conceptIri" />
+              <QueryDisplay :conceptIri="conceptIri" />
             </div>
           </TabPanel>
           <TabPanel header="Contents">
@@ -94,7 +94,6 @@
 import { computed, onMounted, Ref, ref, reactive } from "vue";
 import DataModel from "./viewer/dataModel/DataModel.vue";
 import SetDefinition from "./viewer/set/SetDefinition.vue";
-import QueryDefinition from "./viewer/QueryDefinition.vue";
 import Content from "./viewer/Content.vue";
 import EntityChart from "./viewer/EntityChart.vue";
 import Graph from "./viewer/graph/Graph.vue";
@@ -118,6 +117,7 @@ import { useRouter } from "vue-router";
 import setupConcept from "@/composables/setupConcept";
 import setupConfig from "@/composables/setupConfig";
 import setupTerms from "@/composables/setupTerms";
+import QueryDisplay from "./viewer/QueryDisplay.vue";
 const { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
 const { isObjectHasKeys } = DataTypeCheckers;
 

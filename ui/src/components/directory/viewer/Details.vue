@@ -41,7 +41,9 @@
       </template>
       <template #property="{ node }">
         <span @mouseover="showOverlay($event, node.iri)" @mouseleave="hideOverlay($event)"><IMViewerLink :iri="node.iri" :label="node.label" />: </span>
-        <span @mouseover="showOverlay($event, node.data['@id'])" @mouseleave="hideOverlay($event)"><IMViewerLink :iri="node.data['@id']" :label="node.data.name" /></span>
+        <span @mouseover="showOverlay($event, node.data['@id'])" @mouseleave="hideOverlay($event)"
+          ><IMViewerLink :iri="node.data['@id']" :label="node.data.name"
+        /></span>
       </template>
       <template #link="{ node }">
         <IMViewerLink :iri="node.key" :label="node.label" />
@@ -90,7 +92,9 @@ const collapseAll = () => {
   expandedKeys.value = {};
 };
 const expandNode = (node: TreeNode) => {
-  if (node.children && node.children.length) {
+  const hasExpandToSeeMore = (node.label as string).includes("(expand to see more...)");
+
+  if (node.children && node.children.length && !hasExpandToSeeMore) {
     expandedKeys.value[node.key!] = true;
 
     for (let child of node.children) {
@@ -100,7 +104,7 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  definition.value = (await EntityService.getEntityDetailsDisplay(props.conceptIri)).filter((c:any) => c.key !== IM.IS_A);
+  definition.value = (await EntityService.getEntityDetailsDisplay(props.conceptIri)).filter((c: any) => c.key !== IM.IS_A);
 }
 
 async function onSelect(node: TreeNode) {
