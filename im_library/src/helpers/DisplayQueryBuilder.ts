@@ -22,12 +22,23 @@ function buildRecursively(query: any, type: string, parent: DisplayQuery) {
   }
 }
 
+function buildDQInstance(parent: DisplayQuery, label: string, type?: string, data?: any): DisplayQuery {
+  label = label === "or" ? "any of" : label;
+  return {
+    key: getKey(parent),
+    label: label,
+    type: type,
+    data: data,
+    children: []
+  };
+}
+
 // adders
 function addObject(query: any, type: string, parent: DisplayQuery) {
   const label = query.name || query.id || query.bool || query.description || query.variable || getNameFromRef(query);
   let displayQuery;
   if (label && label !== "and") {
-    displayQuery = createDisplayQuery(parent, label, type, query);
+    displayQuery = buildDQInstance(parent, label, type, query);
     parent.children.push(displayQuery);
   }
   for (const key of Object.keys(query)) {
@@ -42,30 +53,8 @@ function addWhere(query: any, type: string, parent: DisplayQuery) {
     }
   } else if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
     const id = query.id || query["@id"];
-    if (isObjectHasKeys(query, ["in", "latest", "count"])) {
-      if (isArrayHasLength(query.in) && query.in.length > 1) {
-        const label = "Latest " + id + " from";
-        addInItems(label, query, type, parent);
-      } else {
-        const label = "Latest " + id + ": " + query.in[0].name;
-        addItem(label, query, type, parent);
-      }
-    } else if (hasBool(query, "not") && isObjectHasKeys(query, ["bool", "in"])) {
-      if (isArrayHasLength(query.in) && query.in.length > 1) {
-        const label = "Not from";
-        addInItems(label, query, type, parent);
-      } else {
-        const label = `Not from ${query.in[0].name}`;
-        addItem(label, query, type, parent);
-      }
-    } else if (isObjectHasKeys(query, ["in"])) {
-      if (isArrayHasLength(query.in) && query.in.length > 1) {
-        const label = id + " from";
-        addInItems(label, query, type, parent);
-      } else {
-        const label = id + ": " + query.in[0].name;
-        addItem(label, query, type, parent);
-      }
+    if (isObjectHasKeys(query, ["in"])) {
+      addInClause(id, query, type, parent);
     } else if (isComparisonWhere(query)) {
       const label = id + " " + getComparisonLabel(query);
       addItem(label, query, type, parent);
@@ -87,19 +76,25 @@ function addWhere(query: any, type: string, parent: DisplayQuery) {
 
 function addSelect(query: any, type: string, parent: DisplayQuery) {
   if (isArrayHasLength(query)) {
-    const child = createDisplayQuery(parent, type, type, query);
+    const child = buildDQInstance(parent, type, type, query);
     parent.children.push(child);
     for (const item of query) {
       buildRecursively(item, type, child);
     }
   } else {
     const label = getNameFromRef(query);
-    addItem(label, query, type, parent);
+    const child = addItem(label, query, type, parent);
+    if (isObjectHasKeys(query, ["where"])) {
+      buildRecursively(query.where, "where", child);
+    }
+    if (isObjectHasKeys(query, ["with"])) {
+      buildRecursively(query.with, "with", child);
+    }
   }
 }
 
 function addInItems(label: string, query: any, type: string, parent: DisplayQuery) {
-  const child = createDisplayQuery(parent, label, type, query);
+  const child = buildDQInstance(parent, label, type, query);
   parent.children.push(child);
   for (const inItem of query.in) {
     addItem(inItem.name, query, type, child);
@@ -107,21 +102,30 @@ function addInItems(label: string, query: any, type: string, parent: DisplayQuer
 }
 
 function addItem(label: string, query: any, type: string, parent: DisplayQuery) {
-  const child = createDisplayQuery(parent, label, type, query);
+  const child = buildDQInstance(parent, label, type, query);
   parent.children.push(child);
   return child;
 }
 
-// builder
-function createDisplayQuery(parent: DisplayQuery, label: string, type?: string, data?: any): DisplayQuery {
-  label = label === "or" ? "any of" : label;
-  return {
-    key: getKey(parent),
-    label: label,
-    type: type,
-    data: data,
-    children: []
-  };
+function addInClause(id: string, query: any, type: string, parent: DisplayQuery) {
+  let label = getInLabel(id, query, type, parent);
+  if (isArrayHasLength(query.in) && query.in.length > 1) {
+    label += query.valueLabel ? ": " + query.valueLabel + " (expand to see more...)" : " from";
+    addInItems(label, query, type, parent);
+  } else {
+    label += ": " + (query.valueLabel || query.in[0].name);
+    addItem(label, query, type, parent);
+  }
+}
+
+// getters
+function getInLabel(id: string, query: any, type: string, parent: DisplayQuery) {
+  let label = "";
+  if (isObjectHasKeys(query, ["in", "latest", "count"])) label += "Latest " + id;
+  else if (hasBool(query, "not") && isObjectHasKeys(query, ["bool", "in"])) label += "Not from";
+  else label += id;
+
+  return label;
 }
 
 function getKey(parent: DisplayQuery) {
@@ -149,7 +153,7 @@ function getComparisonLabel(query: any) {
   return label;
 }
 
-// checks
+// checkers
 function hasBool(where: any, value?: string) {
   if (value) return isObjectHasKeys(where, ["bool"]) && value === where.bool;
   return isObjectHasKeys(where, ["bool"]);
