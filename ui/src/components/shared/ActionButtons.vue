@@ -48,6 +48,13 @@
     v-tooltip.left="'Favourite'"
     data-testid="favourite-button"
   />
+  <TestQueryParams
+    v-if="showTestQueryParams"
+    :showDialog="showTestQueryParams"
+    :imquery="imquery"
+    :params="params"
+    @close-dialog="showTestQueryParams = false"
+  />
   <TestQueryResults
     v-if="showTestQueryResults && isObjectHasKeys(imquery)"
     :showDialog="showTestQueryResults"
@@ -65,8 +72,21 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { State } from "@/store/stateType";
 import { Store, useStore } from "vuex";
 import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
+import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryParams.vue";
 const directService = new DirectService();
-const { runQuery, runQueryFromIri, runQueryRequest, getQueryFromIri, queryResults, showTestQueryResults, imquery } = setupRunQuery();
+const {
+  hasParams,
+  findParams,
+  runQuery,
+  runQueryFromIri,
+  runQueryRequest,
+  getQueryFromIri,
+  params,
+  queryResults,
+  showTestQueryResults,
+  imquery,
+  showTestQueryParams
+} = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
@@ -103,9 +123,14 @@ function updateFavourites(iri: string) {
   store.commit("updateFavourites", iri);
 }
 
-function onRunQuery(iri: string) {
-  getQueryFromIri(iri);
-  showTestQueryResults.value = true;
+async function onRunQuery(iri: string) {
+  if (await hasParams(iri)) {
+    findParams(JSON.stringify(imquery.value));
+    showTestQueryParams.value = true;
+  } else {
+    getQueryFromIri(iri);
+    showTestQueryResults.value = true;
+  }
 }
 </script>
 

@@ -23,12 +23,13 @@
 </template>
 
 <script setup lang="ts">
-import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces";
 import { onMounted, PropType, ref, Ref } from "vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import setupDownloadFile from "@/composables/downloadFile";
+import { Query, QueryRequest } from "@im-library/models/AutoGen";
 
 const queryLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
