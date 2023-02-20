@@ -9,6 +9,12 @@
     <div id="topbar-end">
       <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
       <Button
+        icon="fa-duotone fa-arrow-down-up-across-line"
+        class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
+        @click="openAdminMenu"
+      />
+      <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
+      <Button
         icon="pi pi-th-large"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
@@ -50,7 +56,10 @@
 import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useStore } from "vuex";
-import { DirectService, Env } from "@/services";
+import { useToast } from "primevue/usetoast";
+import TieredMenu from 'primevue/tieredmenu';
+import { DirectService, Env, FilerService, DataModelService } from "@/services";
+
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const store = useStore();
@@ -63,6 +72,8 @@ const loginItems: Ref<LoginItem[]> = ref([]);
 const accountItems: Ref<AccountItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
 
+const toast = useToast();
+const adminMenu = ref();
 const userMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
@@ -138,15 +149,72 @@ function setUserMenuItems(): void {
   ];
 }
 
+function openAdminMenu(event: any): void {
+  adminMenu.value.toggle(event);
+}
+
+function isLoggedInWithRole(role: String): boolean {
+  return isLoggedIn.value && currentUser.value && currentUser.value.roles.includes(role);
+}
+
+function getAdminItems(): any[] {
+  return [
+    {
+      label: "Filing Documents",
+      icon: "fa-duotone fa-files",
+      items: [
+        {
+          label: "Download Changes",
+          icon: "fa-duotone fa-file-arrow-down",
+          disabled: !isLoggedInWithRole('IMAdmin'),
+          command: () => downloadChanges()
+        },  {
+          label: "Upload Document",
+          icon: "fa-duotone fa-file-arrow-up",
+          disabled: !(isLoggedInWithRole('create') || isLoggedInWithRole('edit')),
+          command: () => directService.file()
+        }
+      ]
+    },
+    {
+      label: "Code Downloads",
+      icon: "fa-duotone fa-code",
+      items: [
+        {
+          label: "Download Java",
+          icon: "fa-brands fa-java",
+          command: () => downloadJava()
+        }
+      ]
+    }
+  ];
+}
+
+async function downloadChanges() {
+  toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
+  let blob = await FilerService.downloadDeltas();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "deltas.zip";
+  link.click();
+}
+
+async function downloadJava() {
+  toast.add({ severity: "info", summary: "Preparing download", detail: "Generating Java files for download...", life: 3000 });
+  let blob = await DataModelService.generateJava();
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "DmCodeGen.zip";
+  link.click();
+}
+
 function setAppMenuItems() {
   appItems.value = [
     { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
     { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() }
   ];
-
-  if (isLoggedIn && isObjectHasKeys(currentUser.value, ["roles"]) && currentUser.value.roles.includes("IMAdmin")) {
-    appItems.value.push({ label: "Filer", icon: "fa-solid fa-upload", command: () => directService.file() });
-  }
 }
 
 function showReleaseNotes() {
@@ -205,6 +273,10 @@ function showReleaseNotes() {
 
 .app-overlay-panel {
   z-index: 1;
+}
+
+.p-submenu-list {
+  left: -100%;
 }
 
 .p-tooltip {
