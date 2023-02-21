@@ -49,7 +49,8 @@ export default createStore({
     editorHasChanges: false as boolean,
     findInEditorTreeIri: "",
     refreshEditorTree: false as boolean,
-    showReleaseNotes: false as boolean
+    showReleaseNotes: false as boolean,
+    fontAwesomePro: false
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -186,6 +187,9 @@ export default createStore({
     },
     updateShowReleaseNotes(state, bool) {
       state.showReleaseNotes = bool;
+    },
+    updateFontAwesomePro(state, bool) {
+      state.fontAwesomePro = bool;
     }
   },
   actions: {

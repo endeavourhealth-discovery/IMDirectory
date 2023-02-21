@@ -10,7 +10,7 @@
     "install-all": "npm install && run-p install-library install-api install-ui",
     "install-library": "cd im_library && npm install",
     "install-api": "cd node_api && npm install",
-    "install-ui": "cd ui && npm install",
+    "install-ui": "cd ui && npm install && npm run install-fontawesome",
     "test:unit": "cd im_library && npx vitest run && cd ../node_api && npx vitest run && cd ../ui && npx vitest run",
     "test:coverage": "cd im_library && npx vitest run --coverage && cd ../node_api && npx vitest run --coverage && cd ../ui && npx vitest run --coverage"
   },

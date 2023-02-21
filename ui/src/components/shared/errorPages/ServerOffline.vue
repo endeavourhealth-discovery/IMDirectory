@@ -1,7 +1,7 @@
 <template>
   <div id="server-offline-container">
-    <font-awesome-icon icon="fa-solid fa-bolt-lightning" class="error icon" size="6x" />
-    <font-awesome-icon icon="fa-solid fa-robot" class="error-icon" size="10x" />
+    <IMFontAwesomeIcon freeIcon="fa-solid fa-bolt-lightning" proIcon="fa-regular fa-bolt" size="10x" />
+    <IMFontAwesomeIcon freeIcon="fa-solid fa-robot" proIcon="fa-regular fa-user-robot-xmarks" style="color: #ef4444" size="10x" />
     <h1 class="error-code">500</h1>
     <h2 class="error-header">Server error</h2>
     <p class="error-text">

@@ -8,20 +8,32 @@ import { worker } from "./mocks/browser";
 
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
-import { fad } from "@fortawesome/pro-duotone-svg-icons";
-import { fal } from "@fortawesome/pro-light-svg-icons";
-import { far } from "@fortawesome/pro-regular-svg-icons";
-import { fas } from "@fortawesome/pro-solid-svg-icons";
-import { fat } from "@fortawesome/pro-thin-svg-icons";
-import { fasr } from "@fortawesome/sharp-regular-svg-icons";
-import { fass } from "@fortawesome/sharp-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+library.add(fab);
+
+if (import.meta.env.VITE_FONT_AWESOME_PACKAGE_TOKEN) {
+  console.log("pro");
+  const proPath = "@fortawesome/pro-";
+  const sharpPath = "@fortawesome/sharp-";
+  import(/*@vite-ignore */ "@fortawesome/pro-duotone-svg-icons").then(module => library.add(module.fad));
+  import(/*@vite-ignore */ "@fortawesome/pro-light-svg-icons").then(module => library.add(module.fal));
+  import(/*@vite-ignore */ "@fortawesome/pro-regular-svg-icons").then(module => library.add(module.far));
+  import(/*@vite-ignore */ "@fortawesome/pro-solid-svg-icons").then(module => library.add(module.fas));
+  import(/*@vite-ignore */ "@fortawesome/pro-thin-svg-icons").then(module => library.add(module.fat));
+  import(/*@vite-ignore */ "@fortawesome/sharp-regular-svg-icons").then(module => library.add(module.fasr));
+  import(/*@vite-ignore */ "@fortawesome/sharp-solid-svg-icons").then(module => library.add(module.fass));
+  store.commit("updateFontAwesomePro", true);
+} else {
+  console.log("free");
+  const freePath = "@fortawesome/free-";
+  import(/*@vite-ignore */ "@fortawesome/free-regular-svg-icons").then(module => library.add(module.far));
+  import(/*@vite-ignore */ "@fortawesome/free-solid-svg-icons").then(module => library.add(module.fas));
+}
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 dom.watch();
-
-library.add(fad, fal, far, fas, fat, fasr, fass, fab);
 
 import "primevue/resources/themes/saga-blue/theme.css"; //theme
 
@@ -119,6 +131,7 @@ const app = createApp(App)
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
   .component("font-awesome-icon", FontAwesomeIcon)
+  .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)
   .component("TabView", TabView)
