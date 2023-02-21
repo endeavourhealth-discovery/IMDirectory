@@ -12,38 +12,41 @@ export function buildSetQueryObjectFromQuery(value: Query) {
 }
 
 function recursivelyBuildSetQueryObject(value: Query, constructedClauses: SetQueryObject[]) {
-  if (isObjectHasKeys(value?.from, ["@id", "name"])) {
+  if (isObjectHasKeys(value?.from, ["@id"]) || isObjectHasKeys(value?.from, ["@type"])) {
     const clause = {
-      concept: { "@id": value.from["@id"], name: value.from.name, includeSubtypes: value.from.includeSubtypes } as TTAlias,
+      concept: { name: value.from.name || value.from["@id"] || value.from["@type"] } as TTAlias,
       include: true,
       refinements: []
     } as SetQueryObject;
-
-    constructedClauses.push(clause);
-  } else if (isObjectHasKeys(value?.from, ["type"])) {
-    const clause = {
-      concept: { "@id": value.from.type["@id"], name: value.from.type.name, includeSubtypes: false } as TTAlias,
-      isType: true,
-      include: true,
-      refinements: []
-    } as SetQueryObject;
+    if (isObjectHasKeys(value?.from, ["@id"])) clause.concept["@id"] = value.from["@id"];
+    else if (isObjectHasKeys(value?.from, ["@type"])) clause.concept["@type"] = value.from["@type"];
+    addInclusionProperties(value.from, clause.concept);
 
     constructedClauses.push(clause);
   }
-
   if (isObjectHasKeys(value?.from, ["where"])) {
     const where = value.from.where;
     if (isObjectHasKeys(where, ["bool", "where"]) && isArrayHasLength(where.where)) {
       for (const condition of where.where) {
+        const property = { "@id": condition["@id"], name: condition.name } as TTAlias;
+        const is = { "@id": condition.in[0]["@id"], name: condition.in[0].name } as TTAlias;
+        addInclusionProperties(condition, property);
+        addInclusionProperties(condition.in[0], is);
+
         constructedClauses[constructedClauses.length - 1].refinements.push({
-          property: { "@id": condition["@id"], name: condition.name, includeSubtypes: condition.includeSubtypes } as TTAlias,
-          is: { "@id": condition.in[0]["@id"], name: condition.in[0].name, includeSubtypes: condition.in[0].includeSubtypes } as TTAlias
+          property: property,
+          is: is
         });
       }
     } else if (isObjectHasKeys(where, ["@id", "in"])) {
+      const property = { "@id": where["@id"], name: where.name } as TTAlias;
+      const is = { "@id": where.in[0]["@id"], name: where.in[0].name } as TTAlias;
+      addInclusionProperties(where, property);
+      addInclusionProperties(where.in[0], is);
+
       constructedClauses[constructedClauses.length - 1].refinements.push({
-        property: { "@id": where["@id"], name: where.name, includeSubtypes: where.includeSubtypes } as TTAlias,
-        is: { "@id": where.in[0]["@id"], name: where.in[0].name, includeSubtypes: where.in[0].includeSubtypes } as TTAlias
+        property: property,
+        is: is
       });
     }
   }
@@ -65,29 +68,15 @@ export function buildQueryFromSetQueryObject(clauses: SetQueryObject[]): any {
 
   for (const clause of clauses) {
     if (clause.include) {
+      const from = {} as From;
+      if (clause.concept["@id"]) from["@id"] = clause.concept["@id"];
+      else if (clause.concept["@type"]) from["@type"] = clause.concept["@type"];
+      from.name = clause.concept.name;
+      addInclusionProperties(clause.concept, from);
+      if (isArrayHasLength(clause.refinements)) addRefinements(clause, from);
       if (clauses.length === 1) {
-        const from = !clause?.isType
-          ? ({
-              "@id": clause.concept["@id"],
-              name: clause.concept.name,
-              includeSubtypes: clause.concept.includeSubtypes
-            } as From)
-          : ({
-              type: { "@id": clause.concept["@id"], name: clause.concept.name }
-            } as From);
-        if (isArrayHasLength(clause.refinements)) addRefinements(clause, from);
         newQuery.from = from;
       } else {
-        const from = !clause?.isType
-          ? ({
-              "@id": clause.concept["@id"],
-              name: clause.concept.name,
-              includeSubtypes: clause.concept.includeSubtypes
-            } as From)
-          : ({
-              type: { "@id": clause.concept["@id"], name: clause.concept.name }
-            } as From);
-        if (isArrayHasLength(clause.refinements)) addRefinements(clause, from);
         newQuery.from.from.push(from);
       }
     }
@@ -102,35 +91,33 @@ function addRefinements(clause: SetQueryObject, from: From) {
   } as Where;
 
   for (const refinement of clause.refinements) {
+    const where = {
+      "@id": refinement.property["@id"],
+      name: refinement.property.name,
+      anyRoleGroup: true,
+      in: [
+        {
+          "@id": refinement.is["@id"],
+          name: refinement.is.name
+        } as From
+      ]
+    } as Where;
+
+    addInclusionProperties(refinement.property, where);
+    addInclusionProperties(refinement.is, where.in[where.in.length - 1]);
+
     if (clause.refinements.length === 1) {
-      from.where = {
-        "@id": refinement.property["@id"],
-        name: refinement.property.name,
-        includeSubtypes: refinement.property.includeSubtypes,
-        anyRoleGroup: true,
-        in: [
-          {
-            "@id": refinement.is["@id"],
-            name: refinement.is.name,
-            includeSubtypes: refinement.is.includeSubtypes
-          } as From
-        ]
-      } as Where;
+      from.where = where;
     } else {
-      const where = {
-        "@id": refinement.property["@id"],
-        name: refinement.property.name,
-        includeSubtypes: refinement.property.includeSubtypes,
-        anyRoleGroup: true,
-        in: [
-          {
-            "@id": refinement.is["@id"],
-            name: refinement.is.name,
-            includeSubtypes: refinement.is.includeSubtypes
-          } as From
-        ]
-      } as Where;
+      from.where.bool = clause.include ? "and" : "not";
       from.where.where.push(where);
     }
+  }
+}
+
+function addInclusionProperties(addFrom: any, addTo: any) {
+  const includeProperties = ["descendantsOrSelfOf", "descendants", "ancsestorsOrSelf"];
+  for (const property of includeProperties) {
+    if (isObjectHasKeys(addFrom, [property])) (addTo as any)[property] = (addFrom as any)[property];
   }
 }
