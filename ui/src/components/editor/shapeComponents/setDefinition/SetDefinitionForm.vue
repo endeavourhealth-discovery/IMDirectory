@@ -87,13 +87,11 @@ function closeDialog() {
 function selectSubTypeOption(ttAlias: any) {
   const selected = (ttAlias as any).includeSubtypes as string;
   if (selected) ttAlias[selected] = true;
-  console.log(selected);
 
   const unselected = includeSubtypesOptions.filter(option => option !== selected);
   for (const option of unselected) {
     delete ttAlias[option];
   }
-  console.log(ttAlias);
 }
 
 function addRefinement(index: number) {
