@@ -15,21 +15,27 @@ library.add(fab);
 
 if (import.meta.env.VITE_FONT_AWESOME_PACKAGE_TOKEN) {
   console.log("pro");
-  const proPath = "@fortawesome/pro-";
-  const sharpPath = "@fortawesome/sharp-";
-  import(/*@vite-ignore */ "@fortawesome/pro-duotone-svg-icons").then(module => library.add(module.fad));
-  import(/*@vite-ignore */ "@fortawesome/pro-light-svg-icons").then(module => library.add(module.fal));
-  import(/*@vite-ignore */ "@fortawesome/pro-regular-svg-icons").then(module => library.add(module.far));
-  import(/*@vite-ignore */ "@fortawesome/pro-solid-svg-icons").then(module => library.add(module.fas));
-  import(/*@vite-ignore */ "@fortawesome/pro-thin-svg-icons").then(module => library.add(module.fat));
-  import(/*@vite-ignore */ "@fortawesome/sharp-regular-svg-icons").then(module => library.add(module.fasr));
-  import(/*@vite-ignore */ "@fortawesome/sharp-solid-svg-icons").then(module => library.add(module.fass));
+  const duotone = "pro-duotone-svg-icons";
+  const light = "pro-light-svg-icons";
+  const regular = "pro-regular-svg-icons";
+  const solid = "pro-solid-svg-icons";
+  const thin = "pro-thin-svg-icons";
+  const sharpRegular = "sharp-regular-svg-icons";
+  const sharpSolid = "sharp-solid-svg-icons";
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${duotone}`).then(module => library.add(module.fad));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${light}`).then(module => library.add(module.fal));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${thin}`).then(module => library.add(module.fat));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpRegular}`).then(module => library.add(module.fasr));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpSolid}`).then(module => library.add(module.fass));
   store.commit("updateFontAwesomePro", true);
 } else {
   console.log("free");
-  const freePath = "@fortawesome/free-";
-  import(/*@vite-ignore */ "@fortawesome/free-regular-svg-icons").then(module => library.add(module.far));
-  import(/*@vite-ignore */ "@fortawesome/free-solid-svg-icons").then(module => library.add(module.fas));
+  const regular = "free-regular-svg-icons";
+  const solid = "free-solid-svg-icons";
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas));
 }
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 

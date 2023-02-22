@@ -15,10 +15,10 @@
     "test:e2e:ci": "start-server-and-test preview http://localhost:8082 cypress:run",
     "lint": "eslint --fix",
     "format": "prettier --write",
-    "install-fontawesome": "if-env FONT_AWESOME_NPM_AUTH_TOKEN= && npm run install-fontawesome-free || npm run install-fontawesome-pro",
-    "install-fontawesome-pro": "npm install --no-save @fortawesome/fontawesome-pro @fortawesome/pro-duotone-svg-icons @fortawesome/pro-light-svg-icons @fortawesome/pro-regular-svg-icons @fortawesome/pro-solid-svg-icons @fortawesome/pro-thin-svg-icons @fortawesome/sharp-regular-svg-icons @fortawesome/sharp-solid-svg-icons",
-    "install-fontawesome-free": "npm install --no-save @fortawesome/free-regular-svg-icons @fortawesome/free-solid-svg-icons",
-    "install-fontawesome-shared": "npm install @fortawesome/fontawesome-svg-core @fortawesome/vue-fontawesome @fortawesome/free-brands-svg-icons"
+    "install-fontawesome": "npm run install-fontawesome-shared && if-env FONT_AWESOME_NPM_AUTH_TOKEN= && npm run install-fontawesome-free || npm run install-fontawesome-pro",
+    "install-fontawesome-pro": "npm config set \"@fortawesome:registry\" https://npm.fontawesome.com/ && npm config set \"//npm.fontawesome.com/:_authToken\" ${FONT_AWESOME_NPM_AUTH_TOKEN} && npm install --no-save @fortawesome/fontawesome-pro @fortawesome/pro-duotone-svg-icons @fortawesome/pro-light-svg-icons @fortawesome/pro-regular-svg-icons @fortawesome/pro-solid-svg-icons @fortawesome/pro-thin-svg-icons @fortawesome/sharp-regular-svg-icons @fortawesome/sharp-solid-svg-icons",
+    "install-fontawesome-free": "npm config delete \"@fortawesome:registry\" && npm config delete \"//npm.fontawesome.com/:_authToken\" && npm install --no-save @fortawesome/free-regular-svg-icons @fortawesome/free-solid-svg-icons",
+    "install-fontawesome-shared": "npm config delete \"@fortawesome:registry\" && npm config delete \"//npm.fontawesome.com/:_authToken\" && npm install --no-save @fortawesome/fontawesome-svg-core @fortawesome/vue-fontawesome @fortawesome/free-brands-svg-icons"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.3.0",

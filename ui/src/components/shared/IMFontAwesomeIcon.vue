@@ -57,7 +57,7 @@ const props = defineProps({
 const store = useStore();
 const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
-const getIcon = computed(() => (fontAwesomePro ? props.proIcon : props.freeIcon));
+const getIcon = computed(() => (fontAwesomePro.value ? props.proIcon : props.freeIcon));
 </script>
 
 <style scoped></style>
