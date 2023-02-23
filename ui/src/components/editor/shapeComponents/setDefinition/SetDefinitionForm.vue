@@ -4,13 +4,7 @@
       <Button icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" @click="removeClause(clauseIndex)" />
       <Dropdown v-model="included.include" :options="includeOptions" option-label="name" option-value="value" placeholder="Include or exclude" />
       <EntityAutocomplete :ttAlias="included.concept" />
-      <Dropdown
-        v-model="included.concept.includeSubtypes"
-        :options="includeSubtypesOptions"
-        option-label="name"
-        option-value="value"
-        placeholder="Include subtypes"
-      />
+      <Dropdown v-model="included.concept.includeSubtypes" :options="includeSubtypesOptions" @change="selectSubTypeOption(included.concept)" />
     </li>
 
     <div v-for="(refinement, refinementIndex) of included.refinements">
@@ -21,22 +15,10 @@
           :parentClauseIri="included.concept['@id']"
           :get-suggestions-method="getAllowablePropertySuggestions"
         />
-        <Dropdown
-          v-model="refinement.property.includeSubtypes"
-          :options="includeSubtypesOptions"
-          option-label="name"
-          option-value="value"
-          placeholder="Include subtypes"
-        />
+        <Dropdown v-model="refinement.property.includeSubtypes" :options="includeSubtypesOptions" @change="selectSubTypeOption(refinement.property)" />
         <i class="icon pi pi-arrow-right" />
         <EntityAutocomplete :ttAlias="refinement.is" :parentClauseIri="refinement.property['@id']" :get-suggestions-method="getAllowableRangeSuggestions" />
-        <Dropdown
-          v-model="refinement.is.includeSubtypes"
-          :options="includeSubtypesOptions"
-          option-label="name"
-          option-value="value"
-          placeholder="Include subtypes"
-        />
+        <Dropdown v-model="refinement.is.includeSubtypes" :options="includeSubtypesOptions" @change="selectSubTypeOption(refinement.is)" />
       </ul>
     </div>
     <ul class="refinement-button">
@@ -60,15 +42,13 @@ import { QueryService } from "@/services";
 import { TTAlias } from "@im-library/models/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
-const defaultTTAlias = { includeSubtypes: true } as TTAlias;
+const defaultTTAlias = {} as TTAlias;
 const includeOptions = [
   { name: "include", value: true },
   { name: "exclude", value: false }
 ];
-const includeSubtypesOptions = [
-  { name: "include subtypes", value: true },
-  { name: "exclude subtypes", value: false }
-];
+
+const includeSubtypesOptions = ["", "descendantsOrSelf", "descendants", "ancsestorsOrSelf"];
 
 const addButtonActions = ref([
   {
@@ -93,7 +73,7 @@ const showAddByFile = ref(false);
 
 function addCodeList(selectedCodes: any[]) {
   for (const selectedCode of selectedCodes) {
-    const newTTAlias = { "@id": selectedCode["@id"], name: selectedCode.name, includeSubtypes: true } as TTAlias;
+    const newTTAlias = { "@id": selectedCode["@id"], name: selectedCode.name } as TTAlias;
     addConcept(newTTAlias);
   }
   closeDialog();
@@ -102,6 +82,16 @@ function addCodeList(selectedCodes: any[]) {
 function closeDialog() {
   showAddByList.value = false;
   showAddByFile.value = false;
+}
+
+function selectSubTypeOption(ttAlias: any) {
+  const selected = (ttAlias as any).includeSubtypes as string;
+  if (selected) ttAlias[selected] = true;
+
+  const unselected = includeSubtypesOptions.filter(option => option !== selected);
+  for (const option of unselected) {
+    delete ttAlias[option];
+  }
 }
 
 function addRefinement(index: number) {

@@ -204,7 +204,7 @@ const EntityService = {
       const statusOptions = (await this.getEntityChildren(IM.STATUS)).map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
-      const typeOptions = (await this.getEntityChildren(IM.ENTITY_TYPES)).map(option => {
+      const typeOptions = (await this.getEntityChildren(IM.NAMESPACE + "TypeFilterOptions")).map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
       const sortFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions")).map(option => {
@@ -555,6 +555,14 @@ const EntityService = {
     } catch (error) {
       return [] as PropertyDisplay[];
     }
+  },
+
+  async isValidProperty(entityIri: string, propertyIri: string) {
+    return await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: entityIri, property: propertyIri } });
+  },
+
+  async isValidPropertyValue(propertyIri: string, valueIri: string) {
+    return await axios.get(Env.API + "api/entity/public/isValidPropertyValue", { params: { property: propertyIri, value: valueIri } });
   },
 
   async getSuperiorPropertiesPaged(conceptIri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
