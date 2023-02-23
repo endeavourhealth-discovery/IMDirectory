@@ -1,6 +1,6 @@
 describe("The Home Page", () => {
   beforeEach(() => {
-    cy.intercept("GET", "http://localhost:8080/api/config/public/xmlSchemaDataTypes", {
+    cy.intercept("GET", "http://localhost:3000/node_api/config/public/xmlSchemaDataTypes", {
       statusCode: 200,
       body: [
         "http://www.w3.org/2001/XMLSchema#string",
@@ -49,7 +49,7 @@ describe("The Home Page", () => {
         "http://www.w3.org/2001/XMLSchema#gMonth"
       ]
     });
-    cy.intercept("GET", "http://localhost:8080/api/config/public/filterDefaults", {
+    cy.intercept("GET", "http://localhost:3000/node_api/config/public/filterDefaults", {
       statusCode: 200,
       body: {
         schemeOptions: ["http://endhealth.info/im#", "http://snomed.info/sct#"],
