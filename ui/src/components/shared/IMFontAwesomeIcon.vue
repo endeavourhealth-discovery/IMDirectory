@@ -21,7 +21,6 @@
     :inverse="inverse"
     :counter="counter"
     :value="value"
-    v-bind="$attrs"
   />
 </template>
 
