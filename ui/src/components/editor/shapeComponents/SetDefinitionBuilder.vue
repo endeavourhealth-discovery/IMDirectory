@@ -5,7 +5,7 @@
         <Textarea
           v-model="ecl"
           id="ecl-string-container"
-          placeholder="Enter ECL text here..."
+          :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
           :class="eclError ? 'p-invalid' : ''"
           data-testid="ecl-string"
           :disabled="loading"
@@ -36,13 +36,9 @@
 
 <script setup lang="ts">
 import { onMounted, ref, watch, Ref, PropType, inject } from "vue";
-import "vue-json-pretty/lib/styles.css";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import SetDefinitionECL from "./setDefinition/SetDefinitionECL.vue";
-import { Refinement, SetQueryObject } from "@im-library/interfaces";
 import { EditorMode } from "@im-library/enums";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EclService, SetService } from "@/services";
+import { EclService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyGroup, Query, TTAlias } from "@im-library/models/AutoGen";
