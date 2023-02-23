@@ -57,7 +57,7 @@ import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
-import TieredMenu from 'primevue/tieredmenu';
+import TieredMenu from "primevue/tieredmenu";
 import { DirectService, Env, FilerService, DataModelService } from "@/services";
 
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -166,12 +166,13 @@ function getAdminItems(): any[] {
         {
           label: "Download Changes",
           icon: "fa-duotone fa-file-arrow-down",
-          disabled: !isLoggedInWithRole('IMAdmin'),
+          disabled: !isLoggedInWithRole("IMAdmin"),
           command: () => downloadChanges()
-        },  {
+        },
+        {
           label: "Upload Document",
           icon: "fa-duotone fa-file-arrow-up",
-          disabled: !(isLoggedInWithRole('create') || isLoggedInWithRole('edit')),
+          disabled: !(isLoggedInWithRole("create") || isLoggedInWithRole("edit")),
           command: () => directService.file()
         }
       ]
@@ -213,7 +214,8 @@ async function downloadJava() {
 function setAppMenuItems() {
   appItems.value = [
     { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() }
+    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
+    { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }
 

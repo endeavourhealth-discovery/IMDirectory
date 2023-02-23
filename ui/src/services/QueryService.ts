@@ -1,8 +1,8 @@
 import Env from "./Env";
-import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { mapToObject } from "@im-library/helpers/Transforms";
-import { QueryDisplay, QueryObject, TTIriRef, QueryRequest, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { QueryDisplay, QueryObject, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
+import { PathDocument, QueryRequest } from "@im-library/models/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -167,6 +167,14 @@ const QueryService = {
       });
     } catch (error) {
       return [] as AllowableChildProperty[];
+    }
+  },
+
+  async getPathSuggestions(queryRequest: QueryRequest): Promise<PathDocument> {
+    try {
+      return await axios.post(Env.VITE_NODE_API + "node_api/query/public/pathQuery", queryRequest);
+    } catch (error) {
+      return {} as PathDocument;
     }
   }
 };
