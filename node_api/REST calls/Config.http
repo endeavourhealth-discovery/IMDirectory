@@ -1,0 +1,29 @@
+###
+
+GET http://localhost:3000/node_api/config/public/componentLayout?name=summary
+
+###
+
+GET http://localhost:3000/node_api/config/public/componentLayout?name=definition
+
+###
+
+GET http://localhost:3000/node_api/config/public/componentLayout?name=definition
+
+###
+
+GET http://localhost:3000/node_api/config/public/filterDefaults
+
+###
+
+GET http://localhost:3000/node_api/config/public/defaultPredicateNames
+
+###
+
+GET http://localhost:3000/node_api/config/public/xmlSchemaDataTypes
+
+###
+
+GET http://localhost:3000/node_api/config/public/graphExcludePredicates
+
+###
