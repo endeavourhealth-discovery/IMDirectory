@@ -172,7 +172,7 @@ const QueryService = {
 
   async getPathSuggestions(queryRequest: QueryRequest): Promise<PathDocument> {
     try {
-      return await axios.post(Env.VITE_NODE_API + "node_api/query/public/pathQuery", queryRequest);
+      return await axios.post(Env.API + "api/query/public/pathQuery", queryRequest);
     } catch (error) {
       return {} as PathDocument;
     }

@@ -17,8 +17,13 @@
         </template>
       </Tree>
     </div>
-    <Dialog header="Header" v-model:visible="addDefaultDialog" :breakpoints="{ '960px': '75vw', '640px': '90vw' }" :style="{ width: '50vw' }">
-      <p>{{ focusedNode.key }} - default</p>
+    <Dialog
+      :header="focusedNode.key + '- default'"
+      v-model:visible="addDefaultDialog"
+      :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
+      :style="{ width: '50vw' }"
+    >
+      <PropertyValue :node="focusedNode" />
       <template #footer>
         <Button label="Cancel" icon="fa-solid fa-ban" @click="addDefaultDialog = false" class="p-button-text" />
         <Button label="Save" icon="fa-solid fa-check" @click="addDefaultDialog = false" autofocus />
@@ -39,8 +44,9 @@ import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
 import { TreeNode } from "primevue/tree";
 import { Query } from "@im-library/models/AutoGen";
-import { QueryService } from "@/services";
-
+import PropertyValue from "@/components/query/PropertyValue.vue";
+import { useStore } from "vuex";
+const store = useStore();
 const addNode = {
   key: "0",
   type: "add",
@@ -49,11 +55,7 @@ const addNode = {
 const addDefaultDialog: Ref<boolean> = ref(false);
 const addComplexDialog: Ref<boolean> = ref(false);
 const nodes: Ref<TreeNode[]> = ref([{ ...addNode }]);
-const searchTerm: Ref<string> = ref("");
 const expandedKeys = ref<any>({});
-const loading = ref(false);
-const controller: Ref<AbortController> = ref({} as AbortController);
-const debounce = ref(0);
 const query: Ref<Query> = ref({} as Query);
 const focusedNode: Ref<TreeNode> = ref({});
 
@@ -63,7 +65,7 @@ onMounted(async () => {
 
 function addDefault(node: TreeNode) {
   focusedNode.value = node;
-  addComplexDialog.value = true;
+  addDefaultDialog.value = true;
 }
 
 function addComplex(node: TreeNode) {
@@ -93,40 +95,11 @@ function collapseAll() {
   expandedKeys.value = {};
 }
 
-function debounceForSearch(): void {
-  clearTimeout(debounce.value);
-  debounce.value = window.setTimeout(() => {
-    search();
-  }, 600);
-}
+onMounted(async () => {
+  await store.dispatch("fetchFilterSettings");
+});
 
-async function search(): Promise<void> {
-  if (searchTerm.value.length > 2) {
-    loading.value = true;
-
-    loading.value = false;
-  }
-}
-
-async function getSuggestions() {
-  const queryRequest = {
-    query: {
-      pathQuery: {
-        name: "paths from patient to Atenolol",
-        source: {
-          "@id": "http://endhealth.info/im#Patient"
-        },
-        target: {
-          "@id": "http://snomed.info/sct#387506000"
-        },
-        depth: 3
-      }
-    }
-  };
-
-  const result = await QueryService.getPathSuggestions(queryRequest);
-  console.log(result);
-}
+//
 </script>
 
 <style scoped lang="scss">
