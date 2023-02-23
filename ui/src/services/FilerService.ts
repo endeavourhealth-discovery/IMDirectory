@@ -43,10 +43,10 @@ const FilerService = {
     });
   },
 
-  async fileDocument(document: any, withTransaction: any): Promise<any> {
+  async fileDocument(document: any, withoutTransaction?: any): Promise<any> {
     return axios.post(api + "api/filer/file/document", document, {
       params: {
-        withTransaction
+        withoutTransaction
       }
     });
   }
