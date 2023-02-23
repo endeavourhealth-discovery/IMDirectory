@@ -1,17 +1,36 @@
 <template>
   <div class="set-definition-container">
-    <SelectButton v-model="builderMode" :options="builderModeOptions" class="set-definition-mode-select" />
-    <div class="set-definition-builder">
-      <SetDefinitionForm v-if="builderMode === 'Form'" :clauses="clauses" />
-      <SetDefinitionECL v-else="builderMode === 'ECL'" :ecl="ecl" @updateECL="updateECL" />
+    <div class="ecl-container">
+      <div class="text-copy-container">
+        <Textarea v-model="ecl" id="ecl-string-container" placeholder="Enter ECL text here..." :class="eclError ? 'p-invalid' : ''" data-testid="ecl-string" />
+      </div>
+      <div class="button-container">
+        <Button :disabled="eclError" label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
+        <Button
+          icon="fa-solid fa-copy"
+          label="Copy to clipboard"
+          v-clipboard:copy="copyToClipboard()"
+          v-clipboard:success="onCopy"
+          v-clipboard:error="onCopyError"
+          data-testid="copy-to-clipboard-button"
+        />
+      </div>
     </div>
+    <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
   </div>
+  <Builder
+    :showDialog="showDialog"
+    :eclString="ecl"
+    @eclSubmitted="updateECL"
+    @closeDialog="$event => (showDialog = false)"
+    @eclConversionError="updateError"
+  />
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, watch, Ref, PropType, inject } from "vue";
 import "vue-json-pretty/lib/styles.css";
-import SetDefinitionForm from "./setDefinition/SetDefinitionForm.vue";
+import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import SetDefinitionECL from "./setDefinition/SetDefinitionECL.vue";
 import { Refinement, SetQueryObject } from "@im-library/interfaces";
 import { EditorMode } from "@im-library/enums";
@@ -20,57 +39,45 @@ import { EclService, SetService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyGroup, Query, TTAlias } from "@im-library/models/AutoGen";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: [Object, String] as PropType<any | String>, required: false }
+  value: { type: String, required: false }
 });
 
-const builderMode: Ref<string> = ref("Form");
-const imquery: Ref<Query> = ref({} as Query);
+const toast = useToast();
+
 const ecl: Ref<string> = ref("");
-const defaultTTAlias = {} as TTAlias;
-const clauses: Ref<SetQueryObject[]> = ref([]);
-const builderModeOptions: Ref<string[]> = ref(["Form", "ECL"]);
+const eclAsQuery: Ref<Query | undefined> = ref();
+const showDialog = ref(false);
+const eclError = ref(false);
+const eclErrorMessage = ref("");
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
 
 const key = props.shape.path["@id"];
-const value = props.value ? JSON.parse(props.value) : {};
+
+watch(
+  () => props.value,
+  async (newValue, oldValue) => {
+    if (newValue && newValue !== oldValue) ecl.value = await EclService.getECLFromQuery(JSON.parse(newValue));
+  }
+);
 
 watch(ecl, async () => {
-  if (builderMode.value === "ECL" && ecl.value) {
-    const eclQuery = await EclService.getQueryFromECL(ecl.value);
-    if (eclQuery) {
-      const constructedClauses = await SetService.getSetQueryObjectFromQuery(eclQuery);
-      clauses.value = constructedClauses;
-    }
+  if (await EclService.isValidECL(ecl.value)) {
+    eclAsQuery.value = await EclService.getQueryFromECL(ecl.value);
   }
 });
 
 watch(
-  () => _.cloneDeep(clauses.value),
-  async () => {
-    imquery.value = await SetService.getQueryFromSetQueryObject(clauses.value);
-
-    const queryIsNotDefault = JSON.stringify(imquery.value) !== JSON.stringify({ where: { from: [{ includeSubtypes: true }] } });
-    if (builderMode.value === "Form" && isValidQuery(clauses.value) && queryIsNotDefault) {
-      const convertedECL = await EclService.getECLFromQuery(imquery.value);
-      if (convertedECL) {
-        const isValid = await EclService.isValidECL(convertedECL);
-        if (isValid) {
-          ecl.value = convertedECL;
-        }
-      }
-    }
-  }
-);
-
-watch(
-  () => _.cloneDeep(imquery.value),
+  () => _.cloneDeep(eclAsQuery.value),
   async () => {
     updateEntity();
     updateValidity();
@@ -78,12 +85,12 @@ watch(
 );
 
 onMounted(async () => {
-  addClause();
-  if (isObjectHasKeys(value)) {
-    const setQueryObject = await SetService.getSetQueryObjectFromQuery(value);
-    if (isArrayHasLength(setQueryObject)) clauses.value = setQueryObject;
-  }
+  if (props.value) ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value));
 });
+
+function showBuilder(): void {
+  showDialog.value = true;
+}
 
 async function updateValidity() {
   if (validityUpdate) {
@@ -94,17 +101,9 @@ async function updateValidity() {
 function updateEntity() {
   if (entityUpdate) {
     const result = {} as any;
-    result[key] = JSON.stringify(imquery.value);
+    result[key] = JSON.stringify(eclAsQuery.value);
     entityUpdate(result);
   }
-}
-
-function isValidQuery(clauses: SetQueryObject[]) {
-  const conceptHasId = clauses.every(clause => isObjectHasKeys(clause?.concept, ["@id"]));
-  const refinementsHaveIds = clauses.every(clause =>
-    clause.refinements.every(refinement => isObjectHasKeys(refinement.property, ["@id"]) && isObjectHasKeys(refinement.is, ["@id"]))
-  );
-  return conceptHasId && refinementsHaveIds;
 }
 
 async function updateECL(data: string): Promise<void> {
@@ -112,33 +111,65 @@ async function updateECL(data: string): Promise<void> {
   if (isValid) ecl.value = data;
 }
 
-function addClause() {
-  const newObject = {
-    include: true,
-    concept: { ...defaultTTAlias },
-    refinements: [] as Refinement[]
-  } as SetQueryObject;
-  clauses.value.push(newObject);
+function copyToClipboard(): string {
+  return ecl.value;
+}
+
+function onCopy(): void {
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
+}
+
+function onCopyError(): void {
+  toast.add(new ToastOptions(ToastSeverity.ERROR, "Value copied to clipboard"));
+}
+
+function updateError(errorUpdate: { error: boolean; message: string }): void {
+  eclError.value = errorUpdate.error;
+  eclErrorMessage.value = errorUpdate.message;
 }
 </script>
 
 <style scoped>
-.set-definition-builder {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  overflow: auto;
-}
-
 .set-definition-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: center;
-  overflow: auto;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 1rem;
 }
 
-.set-definition-mode-select {
-  align-self: center;
-  padding: 2rem;
+.ecl-container {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#ecl-string-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  flex-grow: 100;
+}
+
+.text-copy-container {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  margin: 0 0 1rem 0;
+}
+
+.button-container {
+  display: flex;
+  flex-flow: row;
+  gap: 1rem;
+  margin: 1rem 0 1rem 0;
 }
 </style>
