@@ -68,10 +68,10 @@ const loadingProperty = ref(false);
 const loadingValue = ref(false);
 
 const hasProperty = computed(() => {
-  return props.value.property.concept.iri;
+  return props.value?.property?.concept?.iri;
 });
 const hasValue = computed(() => {
-  return props.value.value.concept.iri;
+  return props.value?.value?.concept?.iri;
 });
 const hasFocus = computed(() => {
   return isObjectHasKeys(props, ["focus"]) && isObjectHasKeys(props.focus, ["iri"]);

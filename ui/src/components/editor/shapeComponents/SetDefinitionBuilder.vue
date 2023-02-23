@@ -30,7 +30,7 @@ const props = defineProps({
 const builderMode: Ref<string> = ref("Form");
 const imquery: Ref<Query> = ref({} as Query);
 const ecl: Ref<string> = ref("");
-const defaultTTAlias = { includeSubtypes: true } as TTAlias;
+const defaultTTAlias = {} as TTAlias;
 const clauses: Ref<SetQueryObject[]> = ref([]);
 const builderModeOptions: Ref<string[]> = ref(["Form", "ECL"]);
 
