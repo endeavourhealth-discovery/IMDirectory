@@ -199,7 +199,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log("found descendantOf");
       console.log(ctx.getText());
     }
-    return "descendants";
+    return "descendantsOf";
   }
 
   visitDescendantorselfof(ctx) {
@@ -207,7 +207,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log("found descendantOrSelfOf");
       console.log(ctx.getText());
     }
-    return "descendantsOrSelf";
+    return "descendantsOrSelfOf";
   }
 
   visitAncestorof(ctx) {
@@ -215,7 +215,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log("found ancestorOf");
       console.log(ctx.getText());
     }
-    return "ancestors";
+    return "ancestorsOf";
   }
 
   visitAncestororselfof(ctx) {
@@ -223,7 +223,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log("found ancestorOrSelfOf");
       console.log(ctx.getText());
     }
-    return "ancestorsOrSelf";
+    throw new Error("AncestorOrSelfOf '>>' is not currently supported");
   }
 
   visitChildof(ctx) {
@@ -516,8 +516,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["from"])) {
             build.attribute["@id"] = result.from["@id"];
-            if (isObjectHasKeys(result.from, ["descendants"])) build.attribute.descendants = result.from.descendants;
-            if (isObjectHasKeys(result.from, ["descendantsOrSelf"])) build.attribute.descendantsOrSelf = result.from.descendantsOrSelf;
+            if (isObjectHasKeys(result.from, ["descendantsOf"])) build.attribute.descendantsOf = result.from.descendantsOf;
+            if (isObjectHasKeys(result.from, ["descendantsOrSelfOf"])) build.attribute.descendantsOrSelfOf = result.from.descendantsOrSelfOf;
           }
           if (isObjectHasKeys(result, ["value"])) {
             if (result.value.in) build.attribute.in = result.value.in;
