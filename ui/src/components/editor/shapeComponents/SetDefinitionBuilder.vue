@@ -2,7 +2,14 @@
   <div class="set-definition-container">
     <div class="ecl-container">
       <div class="text-copy-container">
-        <Textarea v-model="ecl" id="ecl-string-container" placeholder="Enter ECL text here..." :class="eclError ? 'p-invalid' : ''" data-testid="ecl-string" />
+        <Textarea
+          v-model="ecl"
+          id="ecl-string-container"
+          placeholder="Enter ECL text here..."
+          :class="eclError ? 'p-invalid' : ''"
+          data-testid="ecl-string"
+          :disabled="loading"
+        />
       </div>
       <div class="button-container">
         <Button :disabled="eclError" label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
@@ -56,6 +63,7 @@ const eclAsQuery: Ref<Query | undefined> = ref();
 const showDialog = ref(false);
 const eclError = ref(false);
 const eclErrorMessage = ref("");
+const loading = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
@@ -66,14 +74,18 @@ const key = props.shape.path["@id"];
 watch(
   () => props.value,
   async (newValue, oldValue) => {
+    loading.value = true;
     if (newValue && newValue !== oldValue) ecl.value = await EclService.getECLFromQuery(JSON.parse(newValue));
+    loading.value = false;
   }
 );
 
-watch(ecl, async () => {
-  if (await EclService.isValidECL(ecl.value)) {
-    eclAsQuery.value = await EclService.getQueryFromECL(ecl.value);
+watch(ecl, async newValue => {
+  loading.value = true;
+  if (await EclService.isValidECL(newValue)) {
+    eclAsQuery.value = await EclService.getQueryFromECL(newValue);
   }
+  loading.value = false;
 });
 
 watch(
@@ -85,7 +97,11 @@ watch(
 );
 
 onMounted(async () => {
-  if (props.value) ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value));
+  if (props.value) {
+    loading.value = true;
+    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value));
+    loading.value = false;
+  }
 });
 
 function showBuilder(): void {
@@ -109,6 +125,7 @@ function updateEntity() {
 async function updateECL(data: string): Promise<void> {
   const isValid = await EclService.isValidECL(data);
   if (isValid) ecl.value = data;
+  showDialog.value = false;
 }
 
 function copyToClipboard(): string {
