@@ -15,11 +15,7 @@ export default class ConfigController {
 
     private initRoutes() {
         this.router.get("/public/componentLayout", async (req, res, next) => this.getComponentLayout(req, res, next));
-        this.router.get("/public/filterDefaults", async (req, res, next) => this.getFilterDefaults(req, res, next));
         this.router.get("/public/dashboardLayout", async (req, res, next) => this.getDashboardLayout(req, res, next));
-        this.router.get("/public/defaultPredicateNames", async (req, res, next) => this.getDefaultPredicateNames(req, res, next));
-        this.router.get("/public/xmlSchemaDataTypes", async (req, res, next) => this.getXMLSchemaDataTypes(req, res, next));
-        this.router.get("/public/graphExcludePredicates", async (req, res, next) => this.getGraphExcludePredicates(req, res, next));
     }
 
     async getComponentLayout(req: Request, res: Response, next: NextFunction) {
@@ -38,16 +34,6 @@ export default class ConfigController {
         }
     }
 
-    //No usage
-    async getFilterDefaults(req: Request, res: Response, next: NextFunction) {
-        try{
-            const data = await this.configService.getConfig(CONFIG.FILTER_DEFAULTS);
-            res.send(data).end();
-        } catch (e) {
-            next(e);
-        }
-    }
-
     async getDashboardLayout(req: Request, res: Response, next: NextFunction) {
         try{
             if(req.query.name === "conceptDashboard") {
@@ -61,33 +47,4 @@ export default class ConfigController {
         }
     }
 
-    //No usage
-    async getDefaultPredicateNames(req: Request, res: Response, next: NextFunction) {
-        try{
-            const data = await this.configService.getConfig(CONFIG.DEFAULT_PREDICATE_NAMES);
-            res.send(data).end();
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    //No usage
-    async getXMLSchemaDataTypes(req: Request, res: Response, next: NextFunction) {
-        try{
-            const data = await this.configService.getConfig(CONFIG.XML_SCHEMA_DATATYPES);
-            res.send(data).end();
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    //No usage
-    async getGraphExcludePredicates(req: Request, res: Response, next: NextFunction) {
-        try{
-            const data = await this.configService.getConfig(CONFIG.GRAPH_EXCLUDE_PREDICATES);
-            res.send(data).end();
-        } catch (e) {
-            next(e);
-        }
-    }
 }
