@@ -1,5 +1,5 @@
 <template>
-  <font-awesome-icon
+  <FontAwesomeIcon
     :icon="getIcon"
     :size="size"
     :fixedWidth="fixedWidth"
@@ -25,16 +25,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, PropType } from "vue";
 import { useStore } from "vuex";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const props = defineProps({
   proIcon: { type: String, required: false },
-  icon: { type: String, required: true },
-  size: { type: String, required: false },
+  icon: { type: String || (Array as PropType<string[]>), required: true },
+  size: {
+    type: String,
+    required: false,
+    validator(value: string) {
+      return ["2xs", "xs", "sm", "lg", "xl", "2xl", "1x", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"].includes(value);
+    }
+  },
   fixedWidth: { type: Boolean, required: false, default: false },
-  rotation: { type: String, required: false },
-  flip: { type: String, required: false },
+  rotation: {
+    type: String || Number,
+    required: false,
+    validator(value: string) {
+      return [90, 180, 270, "90", "180", "270"].includes(value);
+    }
+  },
+  flip: {
+    type: String,
+    required: false,
+    validator(value: string) {
+      return ["horizontal", "vertical", "both"].includes(value);
+    }
+  },
   beat: { type: Boolean, required: false },
   beatFade: { type: Boolean, required: false },
   bounce: { type: Boolean, required: false },
@@ -44,7 +63,13 @@ const props = defineProps({
   spinReverse: { type: Boolean, required: false },
   spinPulse: { type: Boolean, required: false },
   border: { type: Boolean, required: false },
-  pull: { type: String, required: false },
+  pull: {
+    type: String,
+    required: false,
+    validator(value: string) {
+      return ["right", "left"].includes(value);
+    }
+  },
   transform: { type: String, required: false },
   mask: { type: String, required: false },
   swapOpacity: { type: Boolean, required: false },

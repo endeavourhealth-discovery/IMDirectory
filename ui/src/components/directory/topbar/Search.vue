@@ -6,7 +6,7 @@
     </SplitButton>
     <Button
       id="filter-button"
-      icon="pi pi-sliders-h"
+      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
@@ -36,6 +36,7 @@ const { isObject } = DataTypeCheckers;
 const router = useRouter();
 const store = useStore();
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");

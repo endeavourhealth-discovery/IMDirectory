@@ -1,6 +1,6 @@
 <template>
   <div id="page-not-found-container">
-    <font-awesome-icon icon="fa-solid fa-circle-exclamation" class="error-icon" size="10x" />
+    <IMFontAwesomeIcon icon="fa-solid fa-circle-exclamation" class="error-icon" size="10x" />
     <h1 class="error-code">404</h1>
     <h2 class="error-header">Page not found</h2>
     <p class="error-text"><span>The page you are looking for could not be found. It might have been removed or is temporarily unavailable.</span> <br /></p>
