@@ -36,12 +36,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h, computed } from "vue";
+import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h, computed, ComputedRef, inject } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useDialog } from "primevue/usedialog";
 import { RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import EclTree from "../EclTree.vue";
 import Button from "primevue/button";
 import { useToast } from "primevue/usetoast";
@@ -50,7 +51,13 @@ import _ from "lodash";
 
 const props = defineProps({
   value: {
-    type: Object as PropType<{ type: string; operator: string; property: { concept: any; descendants: string }; value: { concept: any; descendants: string } }>,
+    type: Object as PropType<{
+      type: string;
+      operator: string;
+      property: { concept: any; descendants: string };
+      value: { concept: any; descendants: string };
+      ecl?: string;
+    }>,
     required: true
   },
   parent: { type: Object, required: false },
@@ -61,6 +68,10 @@ const toast = useToast();
 
 let treeDialog = useDialog();
 
+const includeTerms = inject("includeTerms") as Ref<boolean>;
+
+watch(includeTerms, () => (props.value.ecl = generateEcl()));
+
 const selectedProperty: Ref<any | null> = ref(null);
 const selectedValue: Ref<any | null> = ref(null);
 const propertyResults: Ref<any[]> = ref([]);
@@ -70,19 +81,9 @@ const valueController: Ref<AbortController | undefined> = ref(undefined);
 const loadingProperty = ref(false);
 const loadingValue = ref(false);
 
-const hasProperty = computed(() => {
-  return props.value?.property?.concept?.iri;
-});
-const hasValue = computed(() => {
-  return props.value?.value?.concept?.iri;
-});
-const hasFocus = computed(() => {
-  return isObjectHasKeys(props, ["focus"]) && isObjectHasKeys(props.focus, ["iri"]);
-});
-
 watch(selectedProperty, async newValue => {
-  props.value.property.concept = newValue;
-  if (!loadingValue.value && newValue?.name && hasValue.value) {
+  updateProperty(newValue);
+  if (!loadingValue.value && newValue?.name && hasValue()) {
     let name = "";
     if (props.value.value.concept.name) name = props.value.value.concept.name;
     else name = await findIriName(props.value.value.concept.iri);
@@ -95,7 +96,7 @@ watch(selectedProperty, async newValue => {
 });
 
 watch(selectedValue, newValue => {
-  props.value.value.concept = newValue;
+  updateValue(newValue);
 });
 
 watch(
@@ -134,17 +135,18 @@ onBeforeUnmount(() => {
 });
 
 async function processProps() {
-  if (hasProperty.value) {
+  if (hasProperty()) {
     loadingProperty.value = true;
     loadingValue.value = true;
     let name = "";
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else name = await findIriName(props.value.property.concept.iri);
     if (name) {
-      if (hasProperty.value && (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri))) {
+      if (hasProperty() && (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri))) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
       } else {
-        selectedProperty.value = null;
+        updateProperty(null);
+        updateValue(null);
         props.value.property.concept = null;
         props.value.value.concept = null;
         toast.add({
@@ -158,15 +160,15 @@ async function processProps() {
     } else throw new Error("Property iri does not exist");
   }
   loadingProperty.value = false;
-  if (hasValue.value && selectedProperty.value) {
+  if (hasValue() && selectedProperty.value) {
     let name = "";
     if (props.value.value.concept.name) name = props.value.value.concept.name;
     else name = await findIriName(props.value.value.concept.iri);
     if (name) {
-      if (hasValue.value && (await EntityService.isValidPropertyValue(selectedProperty.value.iri, props.value.value.concept.iri))) {
+      if (hasValue() && (await EntityService.isValidPropertyValue(selectedProperty.value.iri, props.value.value.concept.iri))) {
         selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri);
       } else {
-        selectedValue.value = null;
+        updateValue(null);
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property value",
@@ -186,7 +188,7 @@ function clearAll() {
 }
 
 async function searchProperty(term: string) {
-  if (!hasFocus.value) return;
+  if (!hasFocus()) return;
   if (term.length > 2) {
     if (term.toLowerCase() === "any") {
       propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
@@ -228,6 +230,26 @@ async function findIriName(iri: string) {
   if (result && isObjectHasKeys(result, [RDFS.LABEL])) {
     return result[RDFS.LABEL];
   } else return "";
+}
+
+function generateEcl(): string {
+  let ecl = "";
+  if (hasProperty()) ecl += builderConceptToEcl(props.value.property, includeTerms.value);
+  else ecl += "[ UNKNOWN PROPERTY ]";
+  if (props.value.operator) ecl += " " + props.value.operator + " ";
+  if (hasValue()) ecl += builderConceptToEcl(props.value.value, includeTerms.value);
+  else ecl += "[ UNKNOWN VALUE ]";
+  return ecl;
+}
+
+function updateProperty(property: any) {
+  props.value.property.concept = property;
+  props.value.ecl = generateEcl();
+}
+
+function updateValue(value: any) {
+  props.value.value.concept = value;
+  props.value.ecl = generateEcl();
 }
 
 function disableOption(data: any) {
@@ -277,6 +299,21 @@ function openTree(type: string) {
       }
     });
   } else throw new Error("Unknown type encountered trying to open eclTree");
+}
+
+function hasProperty(): boolean {
+  if (isObjectHasKeys(props.value.property, ["concept", "descendants"]) && isObjectHasKeys(props.value.property.concept, ["iri"])) return true;
+  else return false;
+}
+
+function hasValue(): boolean {
+  if (isObjectHasKeys(props.value.value, ["concept", "descendants"]) && isObjectHasKeys(props.value.value.concept, ["iri"])) return true;
+  else return false;
+}
+
+function hasFocus(): boolean {
+  if (isObjectHasKeys(props, ["focus"]) && isObjectHasKeys(props.focus, ["iri"])) return true;
+  else return false;
 }
 </script>
 
