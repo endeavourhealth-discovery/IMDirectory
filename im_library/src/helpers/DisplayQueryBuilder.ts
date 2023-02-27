@@ -52,7 +52,7 @@ function addWhere(query: any, type: string, parent: DisplayQuery) {
       buildRecursively(where, "where", parent);
     }
   } else if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
-    const id = query.id || query["@id"];
+    const id = query.id || query.name || query["@id"];
     if (isObjectHasKeys(query, ["in"])) {
       addInClause(id, query, type, parent);
     } else if (isComparisonWhere(query)) {
@@ -112,6 +112,10 @@ function addInClause(id: string, query: any, type: string, parent: DisplayQuery)
   if (isArrayHasLength(query.in) && query.in.length > 1) {
     label += query.valueLabel ? ": " + query.valueLabel + " (expand to see more...)" : " from";
     addInItems(label, query, type, parent);
+  } else if (isObjectHasKeys(query.in[0], ["where"])) {
+    label += " from";
+    const child = addItem(label, query, type, parent);
+    addWhere(query.in[0].where, "where", child);
   } else {
     label += ": " + (query.valueLabel || query.in[0].name);
     addItem(label, query, type, parent);

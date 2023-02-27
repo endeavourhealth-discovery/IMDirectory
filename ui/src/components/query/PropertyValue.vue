@@ -1,7 +1,27 @@
 <template>
-  <AutoComplete v-model="selectedDataModel" :suggestions="dataModelSuggestions" @complete="debounceForSearch($event, 'dataModel')" optionLabel="name" />
-  <AutoComplete v-model="selectedEntity" :suggestions="entitySuggestions" @complete="debounceForSearch($event)" optionLabel="name" />
-  <Listbox v-model="selectedSuggestion" :options="cities" optionLabel="name" style="width: 15rem" />
+  <Card>
+    <template #content>
+      <AutoComplete
+        v-model="selectedDataModel"
+        :suggestions="dataModelSuggestions"
+        @complete="debounceForSearch($event, 'dataModel')"
+        optionLabel="name"
+        placeholder="Select data model"
+      />
+      <AutoComplete
+        v-model="selectedEntity"
+        :suggestions="entitySuggestions"
+        @complete="debounceForSearch($event)"
+        optionLabel="name"
+        placeholder="Select property or value"
+      />
+      <Listbox v-model="selectedSuggestion" :options="pathSuggestions" optionLabel="label" />
+    </template>
+    <template #footer>
+      <Button label="Cancel" icon="fa-solid fa-ban" @click="onClose" class="p-button-text" />
+      <Button label="Save" icon="fa-solid fa-check" @click="onSave" autofocus />
+    </template>
+  </Card>
 </template>
 
 <script setup lang="ts">
@@ -10,15 +30,19 @@ import EntityService from "@/services/EntityService";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { useStore } from "vuex";
 import { TreeNode } from "primevue/tree";
-import { PathDocument, QueryRequest, Where } from "@im-library/models/AutoGen";
+import { From, Query, Where } from "@im-library/models/AutoGen";
 import { QueryService } from "@/services";
 import _ from "lodash";
 import { SHACL } from "@im-library/vocabulary";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+
 const store = useStore();
 const props = defineProps({
-  node: { type: Object as PropType<TreeNode>, required: true }
+  node: { type: Object as PropType<TreeNode>, required: true },
+  query: { type: Object as PropType<Query>, required: true }
 });
+
+const emit = defineEmits({ onClose: () => true });
 
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 const abortController = ref(new AbortController());
@@ -26,15 +50,15 @@ const debounce = ref(0);
 const loading = ref(false);
 const entitySuggestions: Ref<ConceptSummary[]> = ref([]);
 const dataModelSuggestions: Ref<ConceptSummary[]> = ref([]);
-const selectedDataModel: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const selectedEntity: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const selectedSuggestion: Ref<any> = ref();
-const pathDocument: Ref<PathDocument> = ref({} as PathDocument);
+const selectedDataModel: Ref<ConceptSummary> = ref() as any;
+const selectedEntity: Ref<ConceptSummary> = ref() as any;
+const selectedSuggestion: Ref<{ label: string; where: Where }> = ref({} as { label: string; where: Where });
+const pathSuggestions: Ref<{ label: string; where: Where }[]> = ref([]);
 
 watch(
   () => selectedEntity.value,
   async () => {
-    await getPathSuggestions();
+    pathSuggestions.value = await getPathSuggestions();
   }
 );
 
@@ -72,43 +96,84 @@ async function searchDataModel(searchTerm: any): Promise<void> {
 }
 
 async function getPathSuggestions() {
+  const pathSuggestions = [] as { label: string; where: Where }[];
   if (isObjectHasKeys(selectedEntity.value, ["iri"]) && isObjectHasKeys(selectedDataModel.value, ["iri"])) {
     const queryRequest = {
       pathQuery: {
         name: "paths from patient to Atenolol",
         source: {
-          "@id": "http://endhealth.info/im#Patient"
+          "@id": selectedDataModel.value.iri
         },
         target: {
-          "@id": "http://snomed.info/sct#387506000"
+          "@id": selectedEntity.value.iri
         },
-        depth: 3
+        depth: 2
       }
-    } as QueryRequest;
-
-    //   const qr = {
-    //     pathQuery:
-    //   } as QueryRequest;
+    };
 
     const result = await QueryService.getPathSuggestions(queryRequest);
-    console.log(result);
     for (const where of result.where) {
-      let label = "";
+      const pathSuggestion = { label: "", where: where };
+      buildPathSuggestionName(pathSuggestion, where);
+      pathSuggestions.push(pathSuggestion);
     }
+  }
+  return pathSuggestions;
+}
 
-    return result.where;
+function buildPathSuggestionName(pathSuggestion: { label: string }, where: Where) {
+  const name = getName(where);
+  console.log(name);
+  if (name.toUpperCase() !== "concept".toUpperCase()) pathSuggestion.label += name;
+  if (isObjectHasKeys(where, ["where"])) {
+    if (name.toUpperCase() !== "concept".toUpperCase()) pathSuggestion.label += " / ";
+    if (isObject(where.where)) {
+      buildPathSuggestionName(pathSuggestion, where.where as any);
+    } else if (isArrayHasLength(where.where)) {
+      for (const nestedWhere of where.where) {
+        buildPathSuggestionName(pathSuggestion, nestedWhere);
+      }
+    }
+  }
+  if (isObjectHasKeys(where, ["in"])) {
+    for (const inItem of where.in) {
+      if (isObjectHasKeys(inItem, ["where"])) {
+        buildPathSuggestionName(pathSuggestion, inItem as any);
+      } else {
+        console.log("here");
+        pathSuggestion.label += " -> " + getName(inItem as any);
+      }
+    }
   }
 }
 
-function getPathSuggestionName(label: string, where: Where) {
-  label += where.name || where.id || where["@id"] || where["@type"] || where.se;
-  if (isObjectHasKeys(where, ["where"])) {
-    for (const nestedWhere of where.where) {
-      getPathSuggestionName(label, nestedWhere);
-    }
-  } else if(isObjectHasKeys(where, ["where"])) {
+function getName(where: Where) {
+  return where.name || where.id || getNameFromIri(where["@id"]) || getNameFromIri(where["@type"]) || getNameFromIri(where["@set"]);
+}
 
+function getNameFromIri(iri: string) {
+  if (!iri) return "";
+  const splits = iri.split("#");
+  return splits[1] || splits[0];
+}
+
+function onClose() {
+  emit("onClose");
+}
+
+function onSave() {
+  const newFrom = { "@id": selectedDataModel.value.iri, name: selectedDataModel.value.name, where: selectedSuggestion.value.where } as From;
+  if (isObjectHasKeys(props.query.from)) {
+    const oldFrom = { ...props.query.from };
+    delete (props.query as any).from;
+    props.query.from = { bool: "or", from: [] as From[] } as From;
+    props.query.from.from.push(oldFrom);
+    props.query.from.from.push(newFrom);
+  } else {
+    props.query.from = newFrom;
   }
+
+  emit("onClose");
 }
 </script>
 
