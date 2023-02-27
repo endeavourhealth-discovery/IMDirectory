@@ -26,7 +26,11 @@
             "type": "string"
           }
         ],
-        "responses": {}
+        "responses": {
+          "200": {
+            "description": "Valuset successfully obtained - https://hl7.org/fhir/valueset.html#resource"
+          }
+        }
       }
     },
     "/ValueSet/$expand": {
@@ -41,7 +45,11 @@
             "type": "string"
           }
         ],
-        "responses": {}
+        "responses": {
+          "200": {
+            "description": "Valuset successfully obtained and expanded - https://hl7.org/fhir/valueset.html#resource"
+          }
+        }
       }
     }
   }
