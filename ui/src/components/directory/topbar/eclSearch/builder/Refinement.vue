@@ -39,12 +39,14 @@
 import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h, computed } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { useStore } from "vuex";
 import { useDialog } from "primevue/usedialog";
 import { RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EclTree from "../EclTree.vue";
 import Button from "primevue/button";
+import { useToast } from "primevue/usetoast";
+import { ToastSeverity } from "@im-library/enums";
+import _ from "lodash";
 
 const props = defineProps({
   value: {
@@ -55,13 +57,14 @@ const props = defineProps({
   focus: { type: Object, required: false }
 });
 
+const toast = useToast();
+
 let treeDialog = useDialog();
 
 const selectedProperty: Ref<any | null> = ref(null);
 const selectedValue: Ref<any | null> = ref(null);
 const propertyResults: Ref<any[]> = ref([]);
 const valueResults: Ref<any[]> = ref([]);
-const store = useStore();
 const propertyController: Ref<AbortController | undefined> = ref(undefined);
 const valueController: Ref<AbortController | undefined> = ref(undefined);
 const loadingProperty = ref(false);
@@ -96,8 +99,8 @@ watch(selectedValue, newValue => {
 });
 
 watch(
-  () => props.focus,
-  async newValue => {
+  () => _.cloneDeep(props.focus),
+  async (newValue, oldValue) => {
     if (newValue && newValue.iri) {
       await processProps();
     } else clearAll();
@@ -138,9 +141,20 @@ async function processProps() {
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else name = await findIriName(props.value.property.concept.iri);
     if (name) {
-      if (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri)) {
+      if (hasProperty.value && (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri))) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
-      } else selectedProperty.value = null;
+      } else {
+        selectedProperty.value = null;
+        props.value.property.concept = null;
+        props.value.value.concept = null;
+        toast.add({
+          severity: ToastSeverity.ERROR,
+          summary: "Invalid property",
+          detail: `Property "${name ? name : props.value.property.concept.iri}" is not valid for concept "${
+            props.focus?.name ? props.focus.name : props.focus?.iri
+          }"`
+        });
+      }
     } else throw new Error("Property iri does not exist");
   }
   loadingProperty.value = false;
@@ -149,9 +163,18 @@ async function processProps() {
     if (props.value.value.concept.name) name = props.value.value.concept.name;
     else name = await findIriName(props.value.value.concept.iri);
     if (name) {
-      if (await EntityService.isValidPropertyValue(selectedProperty.value.iri, props.value.value.concept.iri)) {
+      if (hasValue.value && (await EntityService.isValidPropertyValue(selectedProperty.value.iri, props.value.value.concept.iri))) {
         selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri);
-      } else selectedValue.value = null;
+      } else {
+        selectedValue.value = null;
+        toast.add({
+          severity: ToastSeverity.ERROR,
+          summary: "Invalid property value",
+          detail: `Value "${name ? name : props.value.value.concept.iri}" is not valid for property "${
+            props.value.property.concept.name ? props.value.property.concept.name : props.value.property.concept.iri
+          }"`
+        });
+      }
     } else throw new Error("Value iri does not exist");
   }
   loadingValue.value = false;
