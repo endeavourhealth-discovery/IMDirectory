@@ -29,8 +29,8 @@ import { computed } from "vue";
 import { useStore } from "vuex";
 
 const props = defineProps({
-  proIcon: { type: String, required: true },
-  freeIcon: { type: String, required: true },
+  proIcon: { type: String, required: false },
+  icon: { type: String, required: true },
   size: { type: String, required: false },
   fixedWidth: { type: Boolean, required: false, default: false },
   rotation: { type: String, required: false },
@@ -56,7 +56,7 @@ const props = defineProps({
 const store = useStore();
 const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
-const getIcon = computed(() => (fontAwesomePro.value ? props.proIcon : props.freeIcon));
+const getIcon = computed(() => (fontAwesomePro.value ? (props.proIcon ? props.proIcon : props.icon) : props.icon));
 </script>
 
 <style scoped></style>
