@@ -367,7 +367,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log("found exclusion");
       console.log(ctx.getText());
     }
-    return { conjunction: ctx.getText() };
+    return { conjunction: "MINUS" };
   }
 
   visitSubrefinement(ctx) {
