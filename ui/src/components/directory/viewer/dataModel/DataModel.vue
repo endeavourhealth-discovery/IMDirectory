@@ -40,7 +40,7 @@ async function getDataModel(iri: string) {
 async function addPropertiesAndTypes(iri: any) {
   const result = await EntityService.getPropertiesDisplay(iri);
   const { groups, properties, types } = getGroupsPropertiesTypes(iri, twinNode, result);
-  if (groups.length) data.value.push(groups)
+  if (groups.length) data.value.push(groups.sort((a:TangledTreeData, b:TangledTreeData) => a.name.localeCompare(b.name)))
   else {
     data.value.push(properties);
     data.value.push(types);
