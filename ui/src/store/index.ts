@@ -49,7 +49,8 @@ export default createStore({
     editorHasChanges: false as boolean,
     findInEditorTreeIri: "",
     refreshEditorTree: false as boolean,
-    showReleaseNotes: false as boolean
+    showReleaseNotes: false as boolean,
+    eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string)
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -186,6 +187,11 @@ export default createStore({
     },
     updateShowReleaseNotes(state, bool) {
       state.showReleaseNotes = bool;
+    },
+    updateEclEditorSavedString(state, ecl) {
+      state.eclEditorSavedString = ecl;
+      if (ecl) localStorage.setItem("eclEditorSavedString", ecl);
+      else localStorage.removeItem("eclEditorSavedString");
     }
   },
   actions: {

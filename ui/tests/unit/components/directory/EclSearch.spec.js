@@ -15,11 +15,13 @@ import Tooltip from "primevue/tooltip";
 vi.mock("vuex", () => ({
   useStore: () => ({
     dispatch: mockDispatch,
-    state: mockState
+    state: mockState,
+    commit: mockCommit
   })
 }));
 
 const mockDispatch = vi.fn();
+const mockCommit = vi.fn();
 const mockState = {
   filterOptions: {
     status: [
