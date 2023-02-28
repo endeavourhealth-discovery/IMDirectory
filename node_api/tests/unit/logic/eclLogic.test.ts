@@ -81,6 +81,10 @@ describe("eclLogic", () => {
     it("converts unionWithRefinement", () => {
       expect(eclToIMQ(testData.ecl.unionWithRefinement)).toEqual(testData.query.unionWithRefinement);
     });
+
+    it("converts minusWithGroups", () => {
+      expect(eclToIMQ(testData.ecl.minusWithGroups)).toEqual(testData.query.minusWithGroups);
+    });
   });
 
   describe("eclToBuild", () => {
@@ -112,6 +116,88 @@ describe("eclLogic", () => {
           "   descendantOf  404684003 |Clinical finding| : 116676008 |Associated morphology|  NOT = descendantOrSelfOf  26036001 |Obstruction|"
         ).toThrowError("'NOT' is currently not supported. Please use '!=' notation instead");
       });
+    });
+
+    it("converts allergyToPenicillinsOrCephasporinsWithCausativeLactams", () => {
+      expect(eclToBuild(testData.ecl.allergyToPenicillinsOrCephasporinsWithCausativeLactams)).toEqual(
+        testData.builder.allergyToPenicillinsOrCephasporinsWithCausativeLactams
+      );
+    });
+
+    it("converts andGroupedWithSubsumptionAttributeValue", () => {
+      expect(eclToBuild(testData.ecl.andGroupedWithSubsumptionAttributeValue)).toEqual(testData.builder.andGroupedWithSubsumptionAttributeValue);
+    });
+
+    it("converts andNoAttributeGroup", () => {
+      expect(eclToBuild(testData.ecl.andNoAttributeGroup)).toEqual(testData.builder.andNoAttributeGroup);
+    });
+
+    it("converts andWithRefinementOfSecondConcept", () => {
+      expect(eclToBuild(testData.ecl.andWithRefinementOfSecondConcept)).toEqual(testData.builder.andWithRefinementOfSecondConcept);
+    });
+
+    it("converts andWithSubsumptionPropertyValue", () => {
+      expect(eclToBuild(testData.ecl.andWithSubsumptionPropertyValue)).toEqual(testData.builder.andWithSubsumptionPropertyValue);
+    });
+
+    it("converts bracketedAnd", () => {
+      expect(eclToBuild(testData.ecl.bracketedAnd)).toEqual(testData.builder.bracketedAnd);
+    });
+
+    it("converts descendantsAndSelf", () => {
+      expect(eclToBuild(testData.ecl.descendantsAndSelf)).toEqual(testData.builder.descendantsAndSelf);
+    });
+
+    it("converts descendantsNotSelf", () => {
+      expect(eclToBuild(testData.ecl.descendantsNotSelf)).toEqual(testData.builder.descendantsNotSelf);
+    });
+
+    it("converts mergedGroupError", () => {
+      expect(eclToBuild(testData.ecl.mergedGroupError)).toEqual(testData.builder.mergedGroupError);
+    });
+
+    it("converts minusAConcept", () => {
+      expect(eclToBuild(testData.ecl.minusAConcept)).toEqual(testData.builder.minusAConcept);
+    });
+
+    it("converts minusAWildCardRefined", () => {
+      expect(eclToBuild(testData.ecl.minusAWildCardRefined)).toEqual(testData.builder.minusAWildCardRefined);
+    });
+
+    it("converts orGroupMinusOrGroup", () => {
+      expect(eclToBuild(testData.ecl.orGroupMinusOrGroup)).toEqual(testData.builder.orGroupMinusOrGroup);
+    });
+
+    it("converts oralNsaids", () => {
+      expect(eclToBuild(testData.ecl.oralNsaids)).toEqual(testData.builder.oralNsaids);
+    });
+
+    it("converts simpleAndDescendants", () => {
+      expect(eclToBuild(testData.ecl.simpleAndDescendants)).toEqual(testData.builder.simpleAndDescendants);
+    });
+
+    it("converts simpleAndShouldBe0", () => {
+      expect(eclToBuild(testData.ecl.simpleAndShouldBe0)).toEqual(testData.builder.simpleAndShouldBe0);
+    });
+
+    it("converts singleConcept", () => {
+      expect(eclToBuild(testData.ecl.singleConcept)).toEqual(testData.builder.singleConcept);
+    });
+
+    it("converts twoAttributeGroups", () => {
+      expect(eclToBuild(testData.ecl.twoAttributeGroups)).toEqual(testData.builder.twoAttributeGroups);
+    });
+
+    it("converts ungroupedButSeparateGroups", () => {
+      expect(eclToBuild(testData.ecl.ungroupedButSeparateGroups)).toEqual(testData.builder.ungroupedButSeparateGroups);
+    });
+
+    it("converts unionWithRefinement", () => {
+      expect(eclToBuild(testData.ecl.unionWithRefinement)).toEqual(testData.builder.unionWithRefinement);
+    });
+
+    it("converts minusWithGroups", () => {
+      expect(eclToBuild(testData.ecl.minusWithGroups)).toEqual(testData.builder.minusWithGroups);
     });
 
     it("handles simple concept", () => {
