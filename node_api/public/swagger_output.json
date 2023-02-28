@@ -5,7 +5,6 @@
     "title": "FHIR Value set API",
     "description": "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource"
   },
-  "host": "localhost:3000",
   "basePath": "/node_api/fhir/r4",
   "schemes": [
     "http"
@@ -44,5 +43,8 @@
         "responses": {}
       }
     }
-  }
+  },
+  "scheme": [
+    "http"
+  ]
 }
