@@ -8,7 +8,7 @@ const doc = {
     title: "FHIR Value set API",
     description: "API for retrieving (optionally expanded) IM value sets as a FHIR R4 resource"
   },
-  host: process.env.HOSTNAME,
+  host: process.env.SWAGGER_HOSTNAME,
   basePath: "/node_api/fhir/r4",
   produces: ["application/fhir+json"] // by default: ['application/json']
 };
