@@ -14,7 +14,11 @@
       @node-expand="onExpand"
     >
       <template #default="{ node }">
-        <div v-if="node.value">{{ node.label + " - " + node.value }}</div>
+        <div v-if="tabPredicates.includes(node.key!)">
+          <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
+        </div>
+
+        <div v-else-if="node.value">{{ node.label + " - " + node.value }}</div>
         <div v-else>{{ node.label }}</div>
       </template>
       <template #propertyIs="{ node }">
@@ -61,13 +65,16 @@ import { EntityService } from "@/services";
 import { TreeNode } from "primevue/tree";
 import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { IM } from "@im-library/vocabulary";
+import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
+const emit = defineEmits({ onOpenTab: (payload: string) => payload });
+
+const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
 const OS: Ref<any> = ref();
 const definition: Ref<any> = ref();
 const expandedKeys: Ref<any> = ref({});
@@ -135,6 +142,10 @@ async function showOverlay(event: any, iri: any): Promise<void> {
 
 function hideOverlay(event: any): void {
   OS.value.hideOverlay(event);
+}
+
+function openTab(predicate: string) {
+  emit("onOpenTab", predicate);
 }
 </script>
 
