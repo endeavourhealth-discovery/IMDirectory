@@ -8,11 +8,11 @@ import {
   TermCode,
   Namespace,
   ExportValueSet,
-  SearchRequest,
   ConceptSummary,
   FilterOptions,
   PropertyDisplay
 } from "@im-library/interfaces";
+import { SearchRequest } from "@im-library/models/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
@@ -204,7 +204,7 @@ const EntityService = {
       const statusOptions = (await this.getEntityChildren(IM.STATUS)).map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
-      const typeOptions = (await this.getEntityChildren(IM.ENTITY_TYPES)).map(option => {
+      const typeOptions = (await this.getEntityChildren(IM.NAMESPACE + "TypeFilterOptions")).map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
       const sortFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions")).map(option => {

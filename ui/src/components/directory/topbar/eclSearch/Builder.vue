@@ -67,7 +67,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted, computed } from "vue";
+import { Ref, ref, watch, onMounted, computed, provide, readonly } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
@@ -97,6 +97,8 @@ const includeTerms = ref(true);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
+
+provide("includeTerms", readonly(includeTerms));
 
 onMounted(async () => {
   if (props.eclString) {
@@ -147,62 +149,7 @@ function closeBuilderDialog(): void {
 }
 
 function generateQueryString() {
-  queryString.value = getBoolGroupECL(build.value, true);
-}
-
-function getBoolGroupECL(clause: any, root: boolean) {
-  if (clause && clause.items && clause.items.length > 0)
-    return clause.items.map((c: any, i: number) => getClauseECL(c, i == 0 ? root : false)).join("\n" + clause.conjunction + " ");
-  else return "";
-}
-
-function getClauseECL(clause: any, root: boolean) {
-  if (clause && clause.type === "BoolGroup" && clause.items) return "{" + getBoolGroupECL(clause, false) + "}";
-  else if (clause.type === "Concept") return getConceptECL(clause, false);
-  else if (clause.type === "Refinement") return getRefinementECL(clause, root);
-  else return "[???]";
-}
-
-function getConceptECL(clause: any, root: boolean) {
-  let result = getCodeTermECL(clause);
-
-  if (clause.items && clause.items.length > 0) {
-    result += " : ";
-    result += getBoolGroupECL(clause, false);
-  }
-
-  return result;
-}
-
-function getCodeTermECL(clause: any) {
-  let result = clause.descendants ? clause.descendants : "";
-
-  if (clause.concept && clause.concept.code) {
-    if (clause.concept.code === "any") {
-      result += "*";
-      if (includeTerms.value) result += " | ANY | ";
-    } else {
-      result += clause.concept.code;
-      if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
-    }
-  } else if (clause.concept && clause.concept.iri) {
-    result += clause.concept.iri.split("#")[1];
-    if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
-  } else result += "[UNKNOWN CONCEPT]";
-
-  return result;
-}
-
-function getRefinementECL(clause: any, root: boolean) {
-  let result = root ? "* : " : "";
-
-  result += getCodeTermECL(clause.property);
-
-  result += " " + clause.operator + " ";
-
-  result += getCodeTermECL(clause.value);
-
-  return result;
+  queryString.value = build.value.ecl;
 }
 
 function copyToClipboard(): string {

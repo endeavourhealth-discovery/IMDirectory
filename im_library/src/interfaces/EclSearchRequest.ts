@@ -1,4 +1,3 @@
-import { SortBy } from "../enums/SortBy";
 import { SortDirection } from "../enums/SortDirection";
 import { Query } from "../models/AutoGen";
 import { TTIriRef } from "./TTIriRef";

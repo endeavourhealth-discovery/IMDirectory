@@ -73,7 +73,8 @@ import { PropertyShape, TTIriRef } from "@im-library/interfaces";
 import _ from "lodash";
 import Swal from "sweetalert2";
 import ConfirmDialog from "primevue/confirmdialog";
-import { setupEntity, setupShape } from "./EditorMethods";
+import { setupEditorEntity } from "@/composables/setupEditorEntity";
+import { setupEditorShape } from "@/composables/setupEditorShape";
 import { useStore } from "vuex";
 import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@im-library/enums";
@@ -90,8 +91,8 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEntity();
-const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupShape();
+const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
+const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupEditorShape();
 
 const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
 

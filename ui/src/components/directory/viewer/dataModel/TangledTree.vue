@@ -254,6 +254,12 @@ function renderChart() {
     svgDoc.innerHTML = "";
   }
 
+  chartData.value.forEach((d:any) => {
+    if(d[0]?.type === "group") {
+      d.sort((a:TangledTreeData, b:TangledTreeData) => a.name.localeCompare(b.name));
+    }
+  })
+
   const tangleLayout = constructTangleLayout(chartData.value, options);
 
   const w = tangleLayout.layout.width ? tangleLayout.layout.width + 300 : 1000;

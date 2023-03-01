@@ -1,10 +1,10 @@
 import { createStore } from "vuex";
 import { AuthService } from "@/services";
-import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, SearchRequest, FilterOptions, CustomAlert } from "@im-library/interfaces";
+import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, FilterOptions, CustomAlert, User } from "@im-library/interfaces";
+import { SearchRequest } from "@im-library/models/AutoGen";
 import { Avatars } from "@im-library/constants";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
-import { User } from "@im-library/models";
 import { EntityService } from "@/services";
 import { getLogger } from "@im-library/logger/LogConfig";
 
@@ -51,6 +51,7 @@ export default createStore({
     refreshEditorTree: false as boolean,
     showReleaseNotes: false as boolean,
     fontAwesomePro: false
+    eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string)
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -190,6 +191,11 @@ export default createStore({
     },
     updateFontAwesomePro(state, bool) {
       state.fontAwesomePro = bool;
+    },
+    updateEclEditorSavedString(state, ecl) {
+      state.eclEditorSavedString = ecl;
+      if (ecl) localStorage.setItem("eclEditorSavedString", ecl);
+      else localStorage.removeItem("eclEditorSavedString");
     }
   },
   actions: {
