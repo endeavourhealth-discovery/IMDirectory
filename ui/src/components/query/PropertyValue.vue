@@ -1,27 +1,25 @@
 <template>
-  <Card>
-    <template #content>
-      <AutoComplete
-        v-model="selectedDataModel"
-        :suggestions="dataModelSuggestions"
-        @complete="debounceForSearch($event, 'dataModel')"
-        optionLabel="name"
-        placeholder="Select data model"
-      />
-      <AutoComplete
-        v-model="selectedEntity"
-        :suggestions="entitySuggestions"
-        @complete="debounceForSearch($event)"
-        optionLabel="name"
-        placeholder="Select property or value"
-      />
-      <Listbox v-model="selectedSuggestion" :options="pathSuggestions" optionLabel="label" />
-    </template>
-    <template #footer>
-      <Button label="Cancel" icon="fa-solid fa-ban" @click="onClose" class="p-button-text" />
-      <Button label="Save" icon="fa-solid fa-check" @click="onSave" autofocus />
-    </template>
-  </Card>
+  <div class="content">
+    <AutoComplete
+      v-model="selectedDataModel"
+      :suggestions="dataModelSuggestions"
+      @complete="debounceForSearch($event, 'dataModel')"
+      optionLabel="name"
+      placeholder="Select data model"
+    />
+    <AutoComplete
+      v-model="selectedEntity"
+      :suggestions="entitySuggestions"
+      @complete="debounceForSearch($event)"
+      optionLabel="name"
+      placeholder="Select property or value"
+    />
+    <Listbox v-model="selectedSuggestion" :options="pathSuggestions" optionLabel="label" />
+  </div>
+  <div class="footer">
+    <Button label="Cancel" icon="fa-solid fa-ban" @click="onClose" class="p-button-text" />
+    <Button label="Save" icon="fa-solid fa-check" @click="onSave" autofocus />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -177,4 +175,12 @@ function onSave() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.content {
+  padding-bottom: 1rem;
+}
+.footer {
+  display: flex;
+  justify-content: end;
+}
+</style>

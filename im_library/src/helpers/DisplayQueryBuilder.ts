@@ -97,7 +97,7 @@ function addInItems(label: string, query: any, type: string, parent: DisplayQuer
   const child = buildDQInstance(parent, label, type, query);
   parent.children.push(child);
   for (const inItem of query.in) {
-    addItem(inItem.name, query, type, child);
+    addItem(inItem.name, inItem, "whereIn", child);
   }
 }
 
