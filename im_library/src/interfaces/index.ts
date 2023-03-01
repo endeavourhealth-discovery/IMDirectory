@@ -27,7 +27,6 @@ import { Property } from "./Property";
 import { QueryComponentDetails } from "./QueryComponentDetails";
 import { QueryNextComponentSummary } from "./QueryNextComponentSummary";
 import { RecentActivityItem } from "./RecentActivityItem";
-import { SearchRequest } from "./SearchRequest";
 import { SearchResponse } from "./SearchResponse";
 import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
@@ -89,7 +88,6 @@ export {
   type QueryComponentDetails,
   type QueryNextComponentSummary,
   type RecentActivityItem,
-  type SearchRequest,
   type SearchResponse,
   type SimpleMap,
   type SimpleMapIri,
