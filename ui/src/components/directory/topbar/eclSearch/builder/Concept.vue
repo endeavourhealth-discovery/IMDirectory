@@ -45,8 +45,8 @@ import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import { ConceptSummary, SearchRequest } from "@im-library/interfaces";
-import { SortBy } from "@im-library/enums";
+import { ConceptSummary } from "@im-library/interfaces";
+import { SearchRequest } from "@im-library/models/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
 import { EntityService } from "@/services";
@@ -154,7 +154,7 @@ async function search(term: string) {
     } else {
       const searchRequest = {} as SearchRequest;
       searchRequest.termFilter = term;
-      searchRequest.sortBy = SortBy.Usage;
+      searchRequest.sortField = "weighting";
       searchRequest.page = 1;
       searchRequest.size = 100;
       searchRequest.schemeFilter = ["http://snomed.info/sct#"];

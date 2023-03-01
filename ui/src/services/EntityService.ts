@@ -8,11 +8,11 @@ import {
   TermCode,
   Namespace,
   ExportValueSet,
-  SearchRequest,
   ConceptSummary,
   FilterOptions,
   PropertyDisplay
 } from "@im-library/interfaces";
+import { SearchRequest } from "@im-library/models/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
