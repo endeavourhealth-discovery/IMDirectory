@@ -22,7 +22,8 @@
 import { onMounted, ref, watch, Ref } from "vue";
 import QueryTree from "./queryDefinition/QueryTree.vue";
 import "vue-json-pretty/lib/styles.css";
-import { QueryObject, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces";
+import { QueryObject, QueryRequest, TTIriRef } from "@im-library/interfaces";
+import { SearchRequest } from "@im-library/models/AutoGen";
 import PropertyInput from "./queryDefinition/PropertyInput.vue";
 import _ from "lodash";
 import { Query } from "@im-library/models/AutoGen";
