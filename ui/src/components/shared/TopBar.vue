@@ -9,13 +9,13 @@
     <div id="topbar-end">
       <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
       <Button
-        icon="fa-duotone fa-arrow-down-up-across-line"
+        :icon="fontAwesomePro ? 'fa-duotone fa-arrow-down-up-across-line' : 'fa-solid fa-cloud-arrow-down'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
       />
       <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
       <Button
-        icon="pi pi-th-large"
+        :icon="fontAwesomePro ? 'fa-regular fa-grid-2' : 'pi pi-th-large'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
       />
@@ -32,7 +32,7 @@
       </OverlayPanel>
       <Button
         v-if="!isLoggedIn"
-        icon="pi pi-user"
+        :icon="fontAwesomePro ? 'fa-duotone fa-user' : 'fa-regular fa-user'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openUserMenu"
         aria-haspopup="true"
@@ -66,6 +66,7 @@ const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
 const isLoggedIn = computed(() => store.state.isLoggedIn);
 const authReturnUrl = computed(() => store.state.authReturnUrl);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -161,17 +162,17 @@ function getAdminItems(): any[] {
   return [
     {
       label: "Filing Documents",
-      icon: "fa-duotone fa-files",
+      icon: fontAwesomePro ? "fa-duotone fa-files" : "fa-solid fa-file",
       items: [
         {
           label: "Download Changes",
-          icon: "fa-duotone fa-file-arrow-down",
+          icon: fontAwesomePro ? "fa-duotone fa-file-arrow-down" : "fa-solid fa-file-arrow-up",
           disabled: !isLoggedInWithRole("IMAdmin"),
           command: () => downloadChanges()
         },
         {
           label: "Upload Document",
-          icon: "fa-duotone fa-file-arrow-up",
+          icon: fontAwesomePro ? "fa-duotone fa-file-arrow-up" : "fa-solid fa-file-arrow-down",
           disabled: !(isLoggedInWithRole("create") || isLoggedInWithRole("edit")),
           command: () => directService.file()
         }
@@ -179,7 +180,7 @@ function getAdminItems(): any[] {
     },
     {
       label: "Code Downloads",
-      icon: "fa-duotone fa-code",
+      icon: fontAwesomePro ? "fa-duotone fa-code" : "fa-solid fa-code",
       items: [
         {
           label: "Download Java",

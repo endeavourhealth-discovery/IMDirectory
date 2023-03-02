@@ -19,4 +19,5 @@ export interface State {
   term: string;
   instanceIri: string;
   hierarchySelectedFilters: Namespace[];
+  fontAwesomePro: boolean;
 }

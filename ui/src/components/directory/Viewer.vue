@@ -8,10 +8,10 @@
     </div>
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
-        <TabView :lazy="true" :active-index="activeTab" id="info-side-bar-tabs">
+        <TabView :lazy="true" v-model:active-index="activeTab" id="info-side-bar-tabs">
           <TabPanel header="Details">
             <div class="concept-panel-content" id="details-container">
-              <Details :conceptIri="conceptIri" />
+              <Details :conceptIri="conceptIri" @on-open-tab="onOpenTab" />
             </div>
           </TabPanel>
           <TabPanel v-if="terms" header="Terms">
@@ -190,6 +190,23 @@ async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
     result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
   }
   concept.value["inferred"] = result;
+}
+
+function onOpenTab(predicate: string) {
+  switch (predicate) {
+    case SHACL.PROPERTY:
+      activeTab.value = tabMap.get("Properties") || 0;
+      break;
+    case IM.DEFINITION:
+      if (isQuery(types.value)) {
+        activeTab.value = tabMap.get("Query") || 0;
+      } else if (isValueSet(types.value)) {
+        activeTab.value = tabMap.get("Set") || 0;
+      }
+      break;
+    default:
+      break;
+  }
 }
 </script>
 <style scoped>

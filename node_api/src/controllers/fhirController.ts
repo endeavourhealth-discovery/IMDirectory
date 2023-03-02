@@ -18,6 +18,9 @@ export default class FhirController {
       /*
         #swagger.summary = 'Retrieves the specified value set'
         #swagger.parameters['url'] = { in: 'query', description: 'url/iri of the value set' }
+        #swagger.responses[200] = {
+          description: 'Valuset successfully obtained - https://hl7.org/fhir/valueset.html#resource'
+        }
       */
       return await this.getValueSet(req, res, next, false)
     });
@@ -26,6 +29,9 @@ export default class FhirController {
         #swagger.path = '/ValueSet/$expand'
         #swagger.summary = 'Retrieves the specified value set and expands any subsets & members'
         #swagger.parameters['url'] = { in: 'query', description: 'url/iri of the value set' }
+        #swagger.responses[200] = {
+          description: 'Valuset successfully obtained and expanded - https://hl7.org/fhir/valueset.html#resource'
+        }
       */
       return await this.getValueSet(req, res, next, true)
     });
