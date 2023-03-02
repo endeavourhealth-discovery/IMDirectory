@@ -50,7 +50,7 @@ export default createStore({
     findInEditorTreeIri: "",
     refreshEditorTree: false as boolean,
     showReleaseNotes: false as boolean,
-    fontAwesomePro: false
+    fontAwesomePro: false,
     eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string)
   },
   mutations: {
