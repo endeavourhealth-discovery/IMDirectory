@@ -13,27 +13,20 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 library.add(fab);
 
 try {
-  const duotone = "pro-duotone-svg-icons";
-  const light = "pro-light-svg-icons";
-  const regular = "pro-regular-svg-icons";
-  const solid = "pro-solid-svg-icons";
-  const thin = "pro-thin-svg-icons";
-  const sharpRegular = "sharp-regular-svg-icons";
-  const sharpSolid = "sharp-solid-svg-icons";
   await Promise.all([
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${duotone}`).then(module => library.add(module.fad)),
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${light}`).then(module => library.add(module.fal)),
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far)),
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas)),
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${thin}`).then(module => library.add(module.fat)),
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpRegular}`).then(module => library.add(module.fasr)),
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpSolid}`).then(module => library.add(module.fass))
+    import(/*@vite-ignore */ `../node_modules/@fortawesome/pro-duotone-svg-icons/index.js`).then(module => library.add(module.fad)),
+    import(/*@vite-ignore */ `../node_modules/@fortawesome/pro-light-svg-icons/index.js`).then(module => library.add(module.fal)),
+    import(/*@vite-ignore */ `../node_modules/@fortawesome/pro-regular-svg-icons/index.js`).then(module => library.add(module.far)),
+    import(/*@vite-ignore */ `../node_modules/@fortawesome/pro-solid-svg-icons/index.js`).then(module => library.add(module.fas)),
+    import(/*@vite-ignore */ `../node_modules/@fortawesome/pro-thin-svg-icons/index.js`).then(module => library.add(module.fat)),
+    import(/*@vite-ignore */ `../node_modules/@fortawesome/sharp-regular-svg-icons/index.js`).then(module => library.add(module.fasr)),
+    import(/*@vite-ignore */ `../node_modules/@fortawesome/sharp-solid-svg-icons/index.js`).then(module => library.add(module.fass))
   ]);
   store.commit("updateFontAwesomePro", true);
 } catch (err) {
   await Promise.all([
-    import("@fortawesome/free-regular-svg-icons").then(module => library.add(module.far)),
-    import("@fortawesome/free-solid-svg-icons").then(module => library.add(module.fas))
+    import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far)),
+    import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas))
   ]);
   store.commit("updateFontAwesomePro", false);
 }
