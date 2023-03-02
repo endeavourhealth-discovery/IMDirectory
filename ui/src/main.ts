@@ -8,20 +8,36 @@ import { worker } from "./mocks/browser";
 
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
-import { fad } from "@fortawesome/pro-duotone-svg-icons";
-import { fal } from "@fortawesome/pro-light-svg-icons";
-import { far } from "@fortawesome/pro-regular-svg-icons";
-import { fas } from "@fortawesome/pro-solid-svg-icons";
-import { fat } from "@fortawesome/pro-thin-svg-icons";
-import { fasr } from "@fortawesome/sharp-regular-svg-icons";
-import { fass } from "@fortawesome/sharp-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+library.add(fab);
+
+try {
+  const duotone = "pro-duotone-svg-icons";
+  const light = "pro-light-svg-icons";
+  const regular = "pro-regular-svg-icons";
+  const solid = "pro-solid-svg-icons";
+  const thin = "pro-thin-svg-icons";
+  const sharpRegular = "sharp-regular-svg-icons";
+  const sharpSolid = "sharp-solid-svg-icons";
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${duotone}`).then(module => library.add(module.fad));
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${light}`).then(module => library.add(module.fal));
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far));
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas));
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${thin}`).then(module => library.add(module.fat));
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpRegular}`).then(module => library.add(module.fasr));
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpSolid}`).then(module => library.add(module.fass));
+  store.commit("updateFontAwesomePro", true);
+} catch (err) {
+  const regular = "free-regular-svg-icons";
+  const solid = "free-solid-svg-icons";
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far));
+  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas));
+  store.commit("updateFontAwesomePro", false);
+}
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 dom.watch();
-
-library.add(fad, fal, far, fas, fat, fasr, fass, fab);
 
 import "primevue/resources/themes/saga-blue/theme.css"; //theme
 
@@ -118,7 +134,7 @@ const app = createApp(App)
   })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
-  .component("font-awesome-icon", FontAwesomeIcon)
+  .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)
   .component("TabView", TabView)

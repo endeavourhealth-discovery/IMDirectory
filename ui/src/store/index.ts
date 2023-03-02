@@ -50,6 +50,7 @@ export default createStore({
     findInEditorTreeIri: "",
     refreshEditorTree: false as boolean,
     showReleaseNotes: false as boolean,
+    fontAwesomePro: false
     eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string)
   },
   mutations: {
@@ -187,6 +188,9 @@ export default createStore({
     },
     updateShowReleaseNotes(state, bool) {
       state.showReleaseNotes = bool;
+    },
+    updateFontAwesomePro(state, bool) {
+      state.fontAwesomePro = bool;
     },
     updateEclEditorSavedString(state, ecl) {
       state.eclEditorSavedString = ecl;

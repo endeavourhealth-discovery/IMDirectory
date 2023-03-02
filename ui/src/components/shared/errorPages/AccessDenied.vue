@@ -1,6 +1,6 @@
 <template>
   <div id="access-denied-container">
-    <font-awesome-icon icon="fa-solid fa-ban" class="error-icon" size="10x" />
+    <IMFontAwesomeIcon icon="fa-solid fa-ban" class="error-icon" size="10x" />
     <h1 class="error-code">403</h1>
     <h2 class="error-header">Access Denied / Forbidden</h2>
     <p class="error-text">
