@@ -31,11 +31,9 @@ try {
   ]);
   store.commit("updateFontAwesomePro", true);
 } catch (err) {
-  const regular = "free-regular-svg-icons";
-  const solid = "free-solid-svg-icons";
   await Promise.all([
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far)),
-    import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas))
+    import("@fortawesome/free-regular-svg-icons").then(module => library.add(module.far)),
+    import("@fortawesome/free-solid-svg-icons").then(module => library.add(module.fas))
   ]);
   store.commit("updateFontAwesomePro", false);
 }
