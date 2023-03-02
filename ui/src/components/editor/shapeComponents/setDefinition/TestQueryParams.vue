@@ -20,9 +20,10 @@
 
 <script setup lang="ts">
 import { PropType, ref, Ref } from "vue";
-import { Query, QueryRequest } from "@im-library/models/AutoGen";
+import { Query, QueryRequest, Argument } from "@im-library/models/AutoGen";
 import AutoComplete from "primevue/autocomplete";
 import { QueryService } from "@/services";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const queryLoading: Ref<boolean> = ref(false);
 
@@ -39,14 +40,30 @@ function close() {
   emit("closeDialog");
 }
 
-function search() {}
+function search() {
+  console.log(isArrayHasLength("test"));
+}
 
 async function run() {
-  const queryString = JSON.stringify(props.imquery);
+  const queryRequest = { argument: [] as Argument[], query: props.imquery } as QueryRequest;
+
   for (const param of props.params) {
-    queryString.replaceAll("$" + param.name, param.value);
+    if ("text" === param.name) {
+      queryRequest.textSearch = param.value;
+    } else {
+      const argument = {
+        parameter: param.name
+      } as Argument;
+
+      if (isArrayHasLength(param.value)) {
+        argument.valueIriList = param.value;
+      } else {
+        argument.valueIri = param.value;
+      }
+      queryRequest.argument.push(argument);
+    }
   }
-  const results = await QueryService.queryIM({ query: JSON.parse(queryString) } as QueryRequest);
+  const results = await QueryService.queryIM(queryRequest);
   console.log(results);
   emit("onResults", results);
 }
