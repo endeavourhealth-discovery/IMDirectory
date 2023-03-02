@@ -214,8 +214,8 @@ async function downloadJava() {
 function setAppMenuItems() {
   appItems.value = [
     { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
-    { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
+    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() }
+    // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }
 
