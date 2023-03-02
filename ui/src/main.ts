@@ -20,19 +20,19 @@ try {
   const thin = "pro-thin-svg-icons";
   const sharpRegular = "sharp-regular-svg-icons";
   const sharpSolid = "sharp-solid-svg-icons";
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${duotone}`).then(module => library.add(module.fad));
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${light}`).then(module => library.add(module.fal));
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far));
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas));
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${thin}`).then(module => library.add(module.fat));
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpRegular}`).then(module => library.add(module.fasr));
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpSolid}`).then(module => library.add(module.fass));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${duotone}`).then(module => library.add(module.fad));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${light}`).then(module => library.add(module.fal));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${thin}`).then(module => library.add(module.fat));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpRegular}`).then(module => library.add(module.fasr));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${sharpSolid}`).then(module => library.add(module.fass));
   store.commit("updateFontAwesomePro", true);
 } catch (err) {
   const regular = "free-regular-svg-icons";
   const solid = "free-solid-svg-icons";
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far));
-  await import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${regular}`).then(module => library.add(module.far));
+  import(/*@vite-ignore */ `../node_modules/@fortawesome/${solid}`).then(module => library.add(module.fas));
   store.commit("updateFontAwesomePro", false);
 }
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
