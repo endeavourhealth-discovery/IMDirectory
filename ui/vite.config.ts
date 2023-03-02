@@ -13,6 +13,8 @@ export default defineConfig({
       plugins: [esbuildCommonjs(["google-palette"])]
     }
   },
+  build: { target: "esnext" },
+
   resolve: {
     dedupe: ["vue"],
     alias: {
