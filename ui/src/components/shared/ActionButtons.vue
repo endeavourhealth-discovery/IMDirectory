@@ -76,7 +76,7 @@ import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryPa
 const directService = new DirectService();
 const {
   hasParams,
-  findParams,
+  getParams,
   runQuery,
   runQueryFromIri,
   runQueryRequest,
@@ -125,7 +125,7 @@ function updateFavourites(iri: string) {
 
 async function onRunQuery(iri: string) {
   if (await hasParams(iri)) {
-    findParams(JSON.stringify(imquery.value));
+    getParams(iri);
     showTestQueryParams.value = true;
   } else {
     getQueryFromIri(iri);

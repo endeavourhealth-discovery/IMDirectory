@@ -29,7 +29,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import setupDownloadFile from "@/composables/downloadFile";
-import { Query, QueryRequest } from "@im-library/models/AutoGen";
+import { Query } from "@im-library/models/AutoGen";
 
 const queryLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
@@ -53,7 +53,7 @@ function close() {
 
 async function testQuery() {
   queryLoading.value = true;
-  const result = await QueryService.queryIM({ query: props.imquery } as QueryRequest);
+  const result = await QueryService.queryIM({ query: props.imquery });
   if (isArrayHasLength(result.entities)) {
     testQueryResults.value = await EntityService.getNames(result.entities.map(entity => entity["@id"]));
   }
