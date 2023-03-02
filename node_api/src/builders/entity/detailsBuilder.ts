@@ -1,9 +1,9 @@
 import * as crypto from "crypto";
-import { buildQueryObjectFromQuery } from "../query/objectBuilder";
 import { buildQueryDisplayFromQuery } from "../query/displayBuilder";
 import { TTBundle, TTIriRef } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { buildDisplayQuery } from "@im-library/helpers/DisplayQueryBuilder";
 
 export function buildDetails(definition: TTBundle, types?: TTIriRef[]): any[] {
   const treeNode = { children: [] as any[] };
@@ -56,8 +56,8 @@ function addIriLink(treeNode: any, item: TTIriRef) {
 function addDefinition(treeNode: any, entity: any, predicates: any, key: string, types: TTIriRef[]) {
   const isQuery = types.some(type => type["@id"] === IM.QUERY);
   const definition = JSON.parse(entity[IM.DEFINITION]);
-  const definitionValue = isQuery ? buildQueryObjectFromQuery(definition) : buildQueryDisplayFromQuery(definition);
-  const definitionNode = { key: key, label: predicates[key] || key, children: definitionValue.children };
+  const definitionValue = isQuery ? buildDisplayQuery(definition) : buildQueryDisplayFromQuery(definition);
+  const definitionNode = { key: key, label: predicates[key] || key, children: definitionValue };
   treeNode.children.push(definitionNode);
 }
 

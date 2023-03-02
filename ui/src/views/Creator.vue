@@ -67,7 +67,8 @@ import TopBar from "@/components/shared/TopBar.vue";
 import _ from "lodash";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
-import { setupShape, setupEntity } from "./EditorMethods";
+import { setupEditorEntity } from "@/composables/setupEditorEntity";
+import { setupEditorShape } from "@/composables/setupEditorShape";
 import { useConfirm } from "primevue/useconfirm";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -107,8 +108,8 @@ function onShowSidebar() {
   store.commit("updateFindInEditorTreeIri", "");
 }
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEntity();
-const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupShape();
+const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
+const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupEditorShape();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);

@@ -149,4 +149,8 @@ export class IM {
   public static PROV_AGENT = IM.NAMESPACE + "provenanceAgent";
   public static EFFECTIVE_DATE = IM.NAMESPACE + "effectiveDate";
   public static PROV_USED = IM.NAMESPACE + "usedEntity";
+
+  // Config
+  public static HAS_CONFIG = IM.NAMESPACE + "hasConfig";
+
 }

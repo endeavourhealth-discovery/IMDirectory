@@ -8,10 +8,10 @@
     </div>
     <div v-else id="concept-content-dialogs-container">
       <div id="concept-panel-container">
-        <TabView :lazy="true" :active-index="activeTab" id="info-side-bar-tabs">
+        <TabView :lazy="true" v-model:active-index="activeTab" id="info-side-bar-tabs">
           <TabPanel header="Details">
             <div class="concept-panel-content" id="details-container">
-              <Details :conceptIri="conceptIri" />
+              <Details :conceptIri="conceptIri" @on-open-tab="onOpenTab" />
             </div>
           </TabPanel>
           <TabPanel v-if="terms" header="Terms">
@@ -46,7 +46,7 @@
           </TabPanel>
           <TabPanel v-if="isQuery(types)" header="Query">
             <div class="concept-panel-content" id="query-container">
-              <QueryDefinition :conceptIri="conceptIri" />
+              <QueryDisplay :conceptIri="conceptIri" />
             </div>
           </TabPanel>
           <TabPanel header="Contents">
@@ -94,7 +94,6 @@
 import { computed, onMounted, Ref, ref, reactive } from "vue";
 import DataModel from "./viewer/dataModel/DataModel.vue";
 import SetDefinition from "./viewer/set/SetDefinition.vue";
-import QueryDefinition from "./viewer/QueryDefinition.vue";
 import Content from "./viewer/Content.vue";
 import EntityChart from "./viewer/EntityChart.vue";
 import Graph from "./viewer/graph/Graph.vue";
@@ -118,6 +117,7 @@ import { useRouter } from "vue-router";
 import setupConcept from "@/composables/setupConcept";
 import setupConfig from "@/composables/setupConfig";
 import setupTerms from "@/composables/setupTerms";
+import QueryDisplay from "./viewer/QueryDisplay.vue";
 const { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
 const { isObjectHasKeys } = DataTypeCheckers;
 
@@ -190,6 +190,23 @@ async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
     result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
   }
   concept.value["inferred"] = result;
+}
+
+function onOpenTab(predicate: string) {
+  switch (predicate) {
+    case SHACL.PROPERTY:
+      activeTab.value = tabMap.get("Properties") || 0;
+      break;
+    case IM.DEFINITION:
+      if (isQuery(types.value)) {
+        activeTab.value = tabMap.get("Query") || 0;
+      } else if (isValueSet(types.value)) {
+        activeTab.value = tabMap.get("Set") || 0;
+      }
+      break;
+    default:
+      break;
+  }
 }
 </script>
 <style scoped>

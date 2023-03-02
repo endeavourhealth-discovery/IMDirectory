@@ -27,7 +27,6 @@ import { Property } from "./Property";
 import { QueryComponentDetails } from "./QueryComponentDetails";
 import { QueryNextComponentSummary } from "./QueryNextComponentSummary";
 import { RecentActivityItem } from "./RecentActivityItem";
-import { SearchRequest } from "./SearchRequest";
 import { SearchResponse } from "./SearchResponse";
 import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
@@ -57,6 +56,7 @@ import { PropertyDisplay } from "./PropertyDisplay";
 import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
+import { DisplayQuery } from "./DisplayQuery";
 
 export {
   type AccountItem,
@@ -88,7 +88,6 @@ export {
   type QueryComponentDetails,
   type QueryNextComponentSummary,
   type RecentActivityItem,
-  type SearchRequest,
   type SearchResponse,
   type SimpleMap,
   type SimpleMapIri,
@@ -117,5 +116,6 @@ export {
   type User,
   type CustomAlert,
   type AliasEntity,
-  type PropertyDisplay
+  type PropertyDisplay,
+  type DisplayQuery
 };

@@ -24,15 +24,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, inject, Ref, watch } from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import _ from "lodash";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   value: { type: Object, required: true },
   parent: { type: Object, required: false },
   focus: { type: Object, required: false }
 });
+
+watch(
+  () => _.cloneDeep(props.value),
+  () => (props.value.ecl = generateEcl())
+);
+
+const includeTerms = inject("includeTerms") as Ref<boolean>;
+watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const selected = ref("AND");
 
@@ -100,6 +110,19 @@ function getComponent(componentName: string) {
     case "Refinement":
       return Refinement;
   }
+}
+
+function generateEcl(): string {
+  let ecl = "";
+  if (isArrayHasLength(props.value.items)) {
+    for (const [index, item] of props.value.items.entries()) {
+      if (props.focus || props.value.conjunction === "MINUS") ecl += "( ";
+      ecl += item.ecl;
+      if (props.focus || props.value.conjunction === "MINUS") ecl += " ) ";
+      if (index + 1 !== props.value.items.length) ecl += "\n" + props.value.conjunction + " ";
+    }
+  }
+  return ecl.replace(/  +/g, " ");
 }
 </script>
 

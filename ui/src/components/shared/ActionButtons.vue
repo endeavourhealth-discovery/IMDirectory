@@ -1,7 +1,7 @@
 <template>
   <Button
     v-if="show('runQuery')"
-    icon="fa-solid fa-bolt"
+    :icon="'fa-solid fa-bolt'"
     :class="getClass()"
     @click="onRunQuery(iri)"
     v-tooltip.top="'Run query'"
@@ -9,7 +9,7 @@
   />
   <Button
     v-if="show('findInTree')"
-    icon="fa-solid fa-sitemap"
+    :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
     :class="getClass()"
     @click="locateInTree($event, iri)"
     v-tooltip.top="'Find in tree'"
@@ -17,7 +17,7 @@
   />
   <Button
     v-if="show('view')"
-    icon="pi pi-fw pi-external-link"
+    :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
     :class="getClass()"
     @click="directService.view(iri)"
     v-tooltip.top="'View'"
@@ -25,7 +25,7 @@
   />
   <Button
     v-if="show('edit')"
-    icon="fa-solid fa-pen-to-square"
+    :icon="fontAwesomePro ? 'fa-duotone fa-pen-to-square' : 'fa-solid fa-pen-to-square'"
     :class="getClass()"
     @click="directService.edit(iri)"
     v-tooltip.top="'Edit'"
@@ -34,7 +34,7 @@
   <Button
     v-if="show('favourite') && isFavourite(iri)"
     style="color: #e39a36"
-    icon="pi pi-fw pi-star-fill"
+    icon="'fa-solid fa-star'"
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Unfavourite'"
@@ -42,7 +42,7 @@
   />
   <Button
     v-else-if="show('favourite') && !isFavourite(iri)"
-    icon="pi pi-fw pi-star"
+    icon="fa-regular fa-star"
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Favourite'"
@@ -90,6 +90,7 @@ const {
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const props = defineProps({
   buttons: { type: Array as PropType<Array<string>>, required: true },

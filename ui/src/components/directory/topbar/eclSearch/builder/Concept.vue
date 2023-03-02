@@ -40,28 +40,39 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch } from "vue";
+import { Ref, ref, onMounted, PropType, watch, inject } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import { ConceptSummary, SearchRequest } from "@im-library/interfaces";
-import { SortBy } from "@im-library/enums";
+import { ConceptSummary } from "@im-library/interfaces";
+import { SearchRequest } from "@im-library/models/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useStore } from "vuex";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 
 const props = defineProps({
   value: {
-    type: Object as PropType<{ type: string; descendants: string; conjunction: string; items: any[]; concept: { iri: string } | undefined }>,
+    type: Object as PropType<{ type: string; descendants: string; conjunction: string; items: any[]; concept: { iri: string } | undefined; ecl?: string }>,
     required: true
   },
   parent: { type: Object as PropType<any>, required: false }
 });
 
+watch(
+  () => _.cloneDeep(props.value),
+  () => {
+    props.value.ecl = generateEcl();
+  }
+);
+
 const store = useStore();
+
+const includeTerms = inject("includeTerms") as Ref<boolean>;
+watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const selected: Ref<ConceptSummary | null> = ref(null);
 const controller: Ref<AbortController | undefined> = ref(undefined);
@@ -103,14 +114,14 @@ onMounted(async () => {
   if (props.value && props.value.concept && props.value.concept.iri) {
     loading.value = true;
     await search(props.value.concept.iri);
-    if (isArrayHasLength(suggestions.value)) selected.value = suggestions.value.find(result => result.iri === props.value.concept.iri);
+    if (isArrayHasLength(suggestions.value)) selected.value = suggestions.value.find(result => result.iri === props.value.concept?.iri);
     loading.value = false;
   }
 });
 
 watch(selected, (newValue, oldValue) => {
-  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") props.value.concept = newValue;
-  else props.value.concept = undefined;
+  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") updateConcept(newValue);
+  else updateConcept(undefined);
 });
 
 const hover = ref();
@@ -143,7 +154,7 @@ async function search(term: string) {
     } else {
       const searchRequest = {} as SearchRequest;
       searchRequest.termFilter = term;
-      searchRequest.sortBy = SortBy.Usage;
+      searchRequest.sortField = "weighting";
       searchRequest.page = 1;
       searchRequest.size = 100;
       searchRequest.schemeFilter = ["http://snomed.info/sct#"];
@@ -193,6 +204,24 @@ function getSkeletonComponent(componentName: string) {
     case "Refinement":
       return RefinementSkeleton;
   }
+}
+
+function generateEcl(): string {
+  let ecl = "";
+  ecl += builderConceptToEcl(props.value, includeTerms.value);
+  if (isArrayHasLength(props.value.items)) {
+    ecl += " : \n";
+    for (const [index, item] of props.value.items.entries()) {
+      ecl += item.ecl;
+      if (index + 1 !== props.value.items.length) ecl += " \n" + props.value.conjunction + " ";
+    }
+  }
+  return ecl;
+}
+
+function updateConcept(concept: any) {
+  props.value.concept = concept;
+  props.value.ecl = generateEcl();
 }
 </script>
 

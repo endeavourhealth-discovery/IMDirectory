@@ -68,6 +68,7 @@ const toast = useToast();
 const store = useStore();
 
 const statusOptions = computed(() => store.state.filterOptions.status);
+const savedEcl = computed(() => store.state.eclEditorSavedString);
 
 const queryString = ref("");
 const showDialog = ref(false);
@@ -79,7 +80,10 @@ const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 
-watch(queryString, () => (eclError.value = false));
+watch(queryString, () => {
+  eclError.value = false;
+  store.commit("updateEclEditorSavedString", queryString.value);
+});
 
 watch(selectedStatus, async () => {
   selectedStatus.value = selectedStatus.value.sort(byName);
@@ -87,6 +91,7 @@ watch(selectedStatus, async () => {
 
 onMounted(() => {
   setFilterDefaults();
+  if (savedEcl.value) queryString.value = savedEcl.value;
 });
 
 function updateECL(data: string): void {

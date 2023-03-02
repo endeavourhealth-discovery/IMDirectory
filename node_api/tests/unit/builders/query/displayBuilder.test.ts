@@ -31,15 +31,13 @@ test("WHEN Query with type where __ THEN transform to QueryDisplay with where co
   const queryDisplay = buildQueryDisplayFromQuery(CSET_NELChis2021);
   expect(queryDisplay.children.length).toEqual(1);
   expect(queryDisplay.children[0].label).toEqual("any of");
-  expect(queryDisplay.children[0].children.length).toEqual(25);
-  expect(queryDisplay.children[0].children[0].label).toEqual("Administration of vaccine product containing bacteria antigen (procedure)");
-  expect(queryDisplay.children[0].children[1].label).toEqual("Vaccination given (situation)");
-  expect(queryDisplay.children[0].children[8].label).toEqual("http://endhealth.info/im#Concept");
-  expect(queryDisplay.children[0].children[8].children.length).toEqual(1);
-  expect(queryDisplay.children[0].children[8].children[0].label).toEqual("http://snomed.info/sct#363589002");
-  expect(queryDisplay.children[0].children[8].children[0].type).toEqual("propertyIs");
-  expect(queryDisplay.children[0].children[8].children[0].value.property.name).toEqual("http://snomed.info/sct#363589002");
-  expect(queryDisplay.children[0].children[8].children[0].value.is.name).toEqual("http://snomed.info/sct#117103007");
+  expect(queryDisplay.children[0].children.length).toEqual(3);
+  expect(queryDisplay.children[0].children[0].label).toEqual("Concept");
+  expect(queryDisplay.children[0].children[0].children.length).toEqual(1);
+  expect(queryDisplay.children[0].children[0].children[0].label).toEqual("Associated procedure (attribute)");
+  expect(queryDisplay.children[0].children[0].children[0].type).toEqual("propertyIs");
+  expect(queryDisplay.children[0].children[0].children[0].value.property.name).toEqual("Associated procedure (attribute)");
+  expect(queryDisplay.children[0].children[0].children[0].value.is.name).toEqual("Administration of human immune globulin product (procedure)");
 });
 
 test("WHEN Query with single from __ THEN transform to QueryDisplay with must be a", () => {

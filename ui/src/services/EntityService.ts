@@ -8,14 +8,16 @@ import {
   TermCode,
   Namespace,
   ExportValueSet,
-  SearchRequest,
   ConceptSummary,
   FilterOptions,
   PropertyDisplay
 } from "@im-library/interfaces";
+import { SearchRequest } from "@im-library/models/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
+import { SortBy, SortDirection } from "@im-library/enums";
+import { isObject } from "@im-library/helpers/DataTypeCheckers";
 const api = Env.API;
 
 const EntityService = {
@@ -204,7 +206,7 @@ const EntityService = {
       const statusOptions = (await this.getEntityChildren(IM.STATUS)).map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
-      const typeOptions = (await this.getEntityChildren(IM.ENTITY_TYPES)).map(option => {
+      const typeOptions = (await this.getEntityChildren(IM.NAMESPACE + "TypeFilterOptions")).map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
       const sortFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions")).map(option => {
@@ -557,6 +559,14 @@ const EntityService = {
     }
   },
 
+  async isValidProperty(entityIri: string, propertyIri: string) {
+    return await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: entityIri, property: propertyIri } });
+  },
+
+  async isValidPropertyValue(propertyIri: string, valueIri: string) {
+    return await axios.get(Env.API + "api/entity/public/isValidPropertyValue", { params: { property: propertyIri, value: valueIri } });
+  },
+
   async getSuperiorPropertiesPaged(conceptIri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
     try {
       return await axios.get(Env.API + "api/entity/public/superiorPropertiesPaged", {
@@ -576,6 +586,29 @@ const EntityService = {
       });
     } catch (error) {
       return { result: [], totalCount: 0 } as any;
+    }
+  },
+
+  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<ConceptSummary[]> {
+    try {
+      const searchRequest = {} as SearchRequest;
+      searchRequest.termFilter = searchTerm;
+      searchRequest.sortBy = SortBy.Usage;
+      searchRequest.page = 1;
+      searchRequest.size = 100;
+      searchRequest.sortDirection = SortDirection.DESC;
+      searchRequest.sortField = "weighting";
+      searchRequest.schemeFilter = filterOptions.schemes.map(scheme => scheme["@id"]);
+      searchRequest.typeFilter = filterOptions.types.map(type => type["@id"]);
+      searchRequest.statusFilter = filterOptions.status.map(status => status["@id"]);
+      if (!isObject(abortController)) {
+        abortController.abort();
+      }
+
+      abortController = new AbortController();
+      return await EntityService.advancedSearch(searchRequest, abortController);
+    } catch (error) {
+      return [] as ConceptSummary[];
     }
   }
 };

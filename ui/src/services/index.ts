@@ -1,5 +1,6 @@
 import AuthService from "./AuthService";
 import ConfigService from "./ConfigService";
+import DataModelService from "./DataModelService";
 import DirectService from "./DirectService";
 import EntityService from "./EntityService";
 import FilerService from "./FilerService";
@@ -15,6 +16,7 @@ import EclService from "./EclService";
 export {
   AuthService,
   ConfigService,
+  DataModelService,
   DirectService,
   EntityService,
   FilerService,
