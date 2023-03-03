@@ -20,7 +20,8 @@ import { onMounted, PropType, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { TangledTreeLayout } from "@im-library/helpers";
 import _ from "lodash";
-import {DirectService, EntityService} from "@/services";
+import { DirectService, EntityService } from "@/services";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const { constructTangleLayout } = TangledTreeLayout;
 const directService = new DirectService();
@@ -61,16 +62,16 @@ async function getMultiselectMenu(d: any) {
   let node = d["target"]["__data__"] as any;
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
   let result;
-  if(node.type === "group") {
+  if (node.type === "group") {
     result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.parents[0].id) : [];
   } else {
     result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.id) : [];
   }
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
-      if(r.group ) {
-        if(node.type === "group") {
-          if(node.id === r.group["@id"]) {
+      if (r.group) {
+        if (node.type === "group") {
+          if (node.id === r.group["@id"]) {
             multiselectMenu.value.push({
               iri: r.property["@id"],
               label: r.property.name,
@@ -78,7 +79,7 @@ async function getMultiselectMenu(d: any) {
             });
           }
         } else {
-          if(!multiselectMenu.value.some((n:any) => n.iri === r.group["@id"])) {
+          if (!multiselectMenu.value.some((n: any) => n.iri === r.group["@id"])) {
             multiselectMenu.value.push({
               iri: r.group["@id"],
               label: r.group.name,
@@ -99,25 +100,23 @@ async function getMultiselectMenu(d: any) {
 }
 
 function addNode(node: any, r: PropertyDisplay, typeId: any) {
-  if(r.group && node.type !== "group") {
-    if(chartData.value.length < node.level + 1) {
+  if (r.group && node.type !== "group") {
+    if (chartData.value.length < node.level + 1) {
       chartData.value.push([
         {
           id: r.group["@id"],
           parents: [node.id as any],
           name: r.group.name || r.group["@id"],
-          type: "group",
+          type: "group"
         }
       ]);
     } else {
-      chartData.value[node.level + 1]?.push(
-        {
-          id: r.group["@id"],
-          parents: [node.id as any],
-          name: r.group.name || r.group["@id"],
-          type: "group",
-        }
-      );
+      chartData.value[node.level + 1]?.push({
+        id: r.group["@id"],
+        parents: [node.id as any],
+        name: r.group.name || r.group["@id"],
+        type: "group"
+      });
     }
   } else {
     if (chartData.value.length < node.level + 2) {
@@ -149,7 +148,7 @@ function addNode(node: any, r: PropertyDisplay, typeId: any) {
         });
         if (chartData.value[node.level + 2].some((t: any) => t.id === typeId)) {
           const findIndex = chartData.value[node.level + 2].findIndex((t: any) => t.id === typeId);
-          if(!chartData.value[node.level + 2][findIndex].parents?.some((p:any) => p.id === r.property["@id"])) {
+          if (!chartData.value[node.level + 2][findIndex].parents?.some((p: any) => p.id === r.property["@id"])) {
             chartData.value[node.level + 2][findIndex].parents?.push(r.property["@id"] as any);
           }
         } else {
@@ -168,7 +167,8 @@ function addNode(node: any, r: PropertyDisplay, typeId: any) {
 
 function hideAll(node: any) {
   if (chartData.value.length > node.level + 1) {
-    const childIdes = chartData.value[node.level + 1].map((n: any, i: any) => {
+    const childIdes = chartData.value[node.level + 1]
+      .map((n: any, i: any) => {
         if (n.parents.some((p: any) => p.id === node.id)) return chartData.value[node.level + 1][i].id;
       })
       .filter(item => item !== undefined);
@@ -205,8 +205,8 @@ async function setSelected(iri: any) {
   const result = (await EntityService.getPropertiesDisplay(iri)) || [];
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
-      if(r.group) {
-        if(!selected.value.some((n:any) => n.iri === r.group["@id"])) {
+      if (r.group) {
+        if (!selected.value.some((n: any) => n.iri === r.group["@id"])) {
           selected.value.push({
             iri: r.group["@id"],
             label: r.group.name,
@@ -254,11 +254,11 @@ function renderChart() {
     svgDoc.innerHTML = "";
   }
 
-  chartData.value.forEach((d:any) => {
-    if(d[0]?.type === "group") {
-      d.sort((a:TangledTreeData, b:TangledTreeData) => a.name.localeCompare(b.name));
+  chartData.value.forEach((d: any) => {
+    if (d[0]?.type === "group") {
+      d.sort((a: TangledTreeData, b: TangledTreeData) => a.name.localeCompare(b.name));
     }
-  })
+  });
 
   const tangleLayout = constructTangleLayout(chartData.value, options);
 
@@ -305,6 +305,23 @@ function renderChart() {
     .attr("stroke", "white")
     .attr("stroke-width", 7)
     .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
+
+  nodeCircle.on("click", e => {
+    const node = e["target"]["__data__"];
+    e.preventDefault();
+    toggleSubProperties(e);
+    if (selectedNode.value !== node) {
+      selectedNode.value = node;
+      selected.value = (nodeMap.get(node.id) as any) || [];
+    }
+  });
+
+  // nodeCircle.on("mouseover", (d: any) => {
+  //   nodeCircle.attr("stroke", "black");
+  // });
+  // nodeCircle.on("mouseout", (_d: any) => {
+  //   nodeCircle.attr("stroke", "white");
+  // });
 
   nodeCircle.on("contextmenu", e => {
     const node = e["target"]["__data__"];
@@ -389,13 +406,26 @@ function renderChart() {
     })
     .on("click", (d: any) => {
       const n = d["target"]["__data__"];
-      if(n.id.startsWith(twinNode)) {
+      if (n.id.startsWith(twinNode)) {
         const iri = n.id.slice(15);
         directService.select(iri);
       } else {
         directService.select(n.id);
       }
     });
+}
+
+async function toggleSubProperties(data: any) {
+  const node = data["target"]["__data__"];
+  await getMultiselectMenu(data);
+  const allValidSelections = !hasSubPropertiesOpen(node) ? multiselectMenu.value.filter(selection => !selection.disabled) : [];
+  change({ value: allValidSelections });
+}
+
+function hasSubPropertiesOpen(node: any) {
+  if (!isArrayHasLength(chartData.value[node.level + 1])) return false;
+  const found = chartData.value[node.level + 1].find(item => item.parents?.find(parent => parent.id === node.id));
+  return !!found;
 }
 </script>
 
