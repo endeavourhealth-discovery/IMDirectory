@@ -316,12 +316,13 @@ function renderChart() {
     }
   });
 
-  // nodeCircle.on("mouseover", (d: any) => {
-  //   nodeCircle.attr("stroke", "black");
-  // });
-  // nodeCircle.on("mouseout", (_d: any) => {
-  //   nodeCircle.attr("stroke", "white");
-  // });
+  nodeCircle
+    .on("mouseover", (d: any) => {
+      d3.select(d.srcElement).style("cursor", "pointer").attr("stroke-width", 14).attr("stroke", "grey");
+    })
+    .on("mouseout", (d: any) => {
+      d3.select(d.srcElement).attr("stroke-width", 7).attr("stroke", "white");
+    });
 
   nodeCircle.on("contextmenu", e => {
     const node = e["target"]["__data__"];
@@ -379,6 +380,7 @@ function renderChart() {
     .attr("stroke-width", 0.1)
     .style("font-size", 12)
     .on("mouseover", (d: any) => {
+      d3.select(d.srcElement).style("cursor", "pointer");
       const n = d["target"]["__data__"];
       if (n.name.length > 26) {
         rect = svg
