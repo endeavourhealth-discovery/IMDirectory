@@ -8,7 +8,17 @@
   >
     <div v-for="param in params">
       <div v-if="'string' === param.type">{{ param.name }}: <InputText v-tooltip="param.desc" type="text" v-model="param.value" /></div>
-      <div v-else-if="'IrirRef' === param.type">{{ param.name }} : <AutoComplete v-tooltip="param.desc" v-model="param.value" @complete="search" /></div>
+      <div v-else-if="'IrirRef' === param.type">
+        {{ param.name }} :
+        <AutoComplete
+          :multiple="param.maxCount > 1"
+          v-tooltip="param.desc"
+          :suggestions="suggestions"
+          option-label="name"
+          v-model="param.value"
+          @complete="debounceForSearch"
+        />
+      </div>
     </div>
     {{ props.params }}
     <template #footer>
@@ -19,53 +29,71 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref } from "vue";
-import { Query, QueryRequest, Argument } from "@im-library/models/AutoGen";
+import { PropType, ref, Ref, computed, onMounted } from "vue";
+import { QueryRequest, Argument, TTIriRef } from "@im-library/models/AutoGen";
 import AutoComplete from "primevue/autocomplete";
-import { QueryService } from "@/services";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { EntityService } from "@/services";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { useStore } from "vuex";
+
+const store = useStore();
+const controller: Ref<AbortController> = ref({} as AbortController);
 
 const queryLoading: Ref<boolean> = ref(false);
+const debounce = ref(0);
+const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
+const suggestions: Ref<ConceptSummary[]> = ref([]);
 
 const props = defineProps({
   params: { type: Object as PropType<{ name: string; desc: string; type: string; minCount: number; maxCount: number; value: any }[]>, required: true },
-  imquery: { type: Object as PropType<Query>, required: true },
+  queryRequest: { type: Object as PropType<QueryRequest>, required: true },
   showDialog: { type: Boolean, required: true }
 });
 
-const emit = defineEmits({ closeDialog: () => true, onResults: (payload: any) => payload });
+const emit = defineEmits({ closeDialog: () => true, onParamsPopulated: () => true });
 const internalShowDialog = ref(true);
 
 function close() {
   emit("closeDialog");
 }
 
-function search() {
-  console.log(isArrayHasLength("test"));
+async function search(searchTerm: any) {
+  if (!isObject(controller.value)) {
+    controller.value.abort();
+  }
+  controller.value = new AbortController();
+  suggestions.value = await EntityService.simpleSearch(searchTerm.query, filterDefaults.value, controller.value);
+}
+
+function debounceForSearch(searchTerm: any): void {
+  clearTimeout(debounce.value);
+  debounce.value = window.setTimeout(() => {
+    search(searchTerm);
+  }, 600);
 }
 
 async function run() {
-  const queryRequest = { argument: [] as Argument[], query: props.imquery } as QueryRequest;
-
+  props.queryRequest.argument = [];
   for (const param of props.params) {
     if ("text" === param.name) {
-      queryRequest.textSearch = param.value;
+      if (param.value) props.queryRequest.textSearch = param.value;
     } else {
       const argument = {
         parameter: param.name
       } as Argument;
 
       if (isArrayHasLength(param.value)) {
-        argument.valueIriList = param.value;
+        argument.valueIriList = (param.value as []).map((summary: ConceptSummary) => {
+          return { "@id": summary.iri, name: summary.name } as TTIriRef;
+        });
       } else {
-        argument.valueIri = param.value;
+        argument.valueIri = { "@id": param.value.iri, name: param.value.name } as TTIriRef;
       }
-      queryRequest.argument.push(argument);
+      props.queryRequest.argument.push(argument);
     }
   }
-  const results = await QueryService.queryIM(queryRequest);
-  console.log(results);
-  emit("onResults", results);
+  emit("onParamsPopulated");
 }
 </script>
 

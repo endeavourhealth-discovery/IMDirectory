@@ -49,16 +49,17 @@
     data-testid="favourite-button"
   />
   <TestQueryParams
-    v-if="showTestQueryParams"
+    v-if="showTestQueryParams && isObjectHasKeys(queryRequest)"
     :showDialog="showTestQueryParams"
-    :imquery="imquery"
+    :query-request="queryRequest"
     :params="params"
+    @on-params-populated="onParamsPopulated"
     @close-dialog="showTestQueryParams = false"
   />
   <TestQueryResults
-    v-if="showTestQueryResults && isObjectHasKeys(imquery)"
+    v-if="showTestQueryResults && isObjectHasKeys(queryRequest)"
     :showDialog="showTestQueryResults"
-    :imquery="imquery"
+    :query-request="queryRequest"
     @close-dialog="showTestQueryResults = false"
   />
 </template>
@@ -73,20 +74,9 @@ import { State } from "@/store/stateType";
 import { Store, useStore } from "vuex";
 import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryParams.vue";
+import { Query } from "@im-library/models/AutoGen";
 const directService = new DirectService();
-const {
-  hasParams,
-  getParams,
-  runQuery,
-  runQueryFromIri,
-  runQueryRequest,
-  getQueryFromIri,
-  params,
-  queryResults,
-  showTestQueryResults,
-  imquery,
-  showTestQueryParams
-} = setupRunQuery();
+const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
@@ -125,13 +115,18 @@ function updateFavourites(iri: string) {
 }
 
 async function onRunQuery(iri: string) {
+  queryRequest.value.query = { "@id": iri } as Query;
   if (await hasParams(iri)) {
     getParams(iri);
     showTestQueryParams.value = true;
   } else {
-    getQueryFromIri(iri);
     showTestQueryResults.value = true;
   }
+}
+
+async function onParamsPopulated() {
+  showTestQueryParams.value = false;
+  showTestQueryResults.value = true;
 }
 </script>
 

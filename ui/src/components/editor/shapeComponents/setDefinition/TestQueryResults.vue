@@ -30,22 +30,23 @@ import { EntityService, QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import setupDownloadFile from "@/composables/downloadFile";
 import { byName } from "@im-library/helpers/Sorters";
-import { Query } from "@im-library/models/AutoGen";
+import { QueryRequest } from "@im-library/models/AutoGen";
 
 const queryLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
 const testQueryResults: Ref<TTIriRef[]> = ref([]);
 
 const props = defineProps({
-  imquery: { type: Object as PropType<Query>, required: true },
-  showDialog: { type: Boolean, required: true }
+  queryRequest: { type: Object as PropType<QueryRequest>, required: true },
+  showDialog: { type: Boolean, required: true },
+  results: { type: Array<TTIriRef>, required: false }
 });
 
 const emit = defineEmits({ closeDialog: () => true });
 const internalShowDialog = ref(true);
 
 onMounted(async () => {
-  if (props.imquery) await testQuery();
+  if (props.queryRequest) await testQuery();
 });
 
 function close() {
@@ -54,7 +55,7 @@ function close() {
 
 async function testQuery() {
   queryLoading.value = true;
-  const result = await QueryService.queryIM({ query: props.imquery });
+  const result = await QueryService.queryIM(props.queryRequest);
   if (isArrayHasLength(result.entities)) {
     const results = await EntityService.getNames(result.entities.map(entity => entity["@id"]));
     if (results) testQueryResults.value = results.sort(byName);

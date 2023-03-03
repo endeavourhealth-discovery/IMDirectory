@@ -16,7 +16,7 @@ import { SearchRequest } from "@im-library/models/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
-import { SortBy, SortDirection } from "@im-library/enums";
+import { SortDirection } from "@im-library/enums";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
 const api = Env.API;
 
@@ -593,7 +593,6 @@ const EntityService = {
     try {
       const searchRequest = {} as SearchRequest;
       searchRequest.termFilter = searchTerm;
-      searchRequest.sortBy = SortBy.Usage;
       searchRequest.page = 1;
       searchRequest.size = 100;
       searchRequest.sortDirection = SortDirection.DESC;
@@ -609,6 +608,16 @@ const EntityService = {
       return await EntityService.advancedSearch(searchRequest, abortController);
     } catch (error) {
       return [] as ConceptSummary[];
+    }
+  },
+
+  async hasPredicates(subjectIri: string, predicateIris: string[]) {
+    try {
+      return await axios.get(api + "api/entity/public/hasPredicates", {
+        params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
+      });
+    } catch (error) {
+      return false;
     }
   }
 };
