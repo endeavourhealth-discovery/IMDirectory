@@ -13,7 +13,6 @@ describe("DisplayQueryBuilder.ts ___", () => {
   describe("buildDisplayQuery", () => {
     it("can convert SMIPopulation definition to DisplayQuery nodes", () => {
       const nodes = buildDisplayQuery(SMIPopulation.definition);
-      console.log(JSON.stringify(nodes));
       expect(nodes).toEqual(SMIPopulation.nodes);
     });
   });
@@ -21,7 +20,6 @@ describe("DisplayQueryBuilder.ts ___", () => {
   describe("buildDisplayQuery", () => {
     it("can convert Priority3a definition to DisplayQuery nodes", () => {
       const nodes = buildDisplayQuery(Priority3a.definition);
-      console.log(JSON.stringify(nodes));
       expect(nodes).toEqual(Priority3a.nodes);
     });
   });
