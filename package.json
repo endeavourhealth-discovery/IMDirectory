@@ -6,7 +6,7 @@
     "dev-library": "cd im_library && npm run dev",
     "dev-api": "cd node_api && npm run dev",
     "dev-ui": "cd ui && npm run dev",
-    "clean-install-all": "npm install && rimraf ui/node_modules && rimraf node_api/node_modules && rimraf im_library/node_modules && rimraf node_modules && npm run install-all",
+    "clean-install-all": "npm install && rimraf ui/node_modules && rimraf ui/package-lock.json && rimraf node_api/node_modules && rimraf node_api/package-lock.json && rimraf im_library/node_modules && rimraf im_library/package-lock.json && rimraf node_modules && rimraf package-lock.json && npm run install-all",
     "install-all": "npm install && run-p install-library install-api install-ui",
     "install-library": "cd im_library && npm install",
     "install-api": "cd node_api && npm install",

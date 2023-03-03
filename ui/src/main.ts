@@ -12,25 +12,31 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(fab);
 
-// #v-ifdef VITE_FAPRO_KEY
-  console.log("FontAwesome pro")
-  await Promise.all([
-    import("@fortawesome/pro-duotone-svg-icons/index.js").then(module => library.add(module.fad)),
-    import("@fortawesome/pro-light-svg-icons/index.js").then(module => library.add(module.fal)),
-    import("@fortawesome/pro-regular-svg-icons/index.js").then(module => library.add(module.far)),
-    import("@fortawesome/pro-solid-svg-icons/index.js").then(module => library.add(module.fas)),
-    import("@fortawesome/pro-thin-svg-icons/index.js").then(module => library.add(module.fat)),
-    import("@fortawesome/sharp-regular-svg-icons/index.js").then(module => library.add(module.fasr)),
-    import("@fortawesome/sharp-solid-svg-icons/index.js").then(module => library.add(module.fass))
-  ]);
-  store.commit("updateFontAwesomePro", true);
-// #v-else
-  console.log("FontAwesome free")
-  await Promise.all([
-    import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far)),
-    import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas))
-  ]);
-  store.commit("updateFontAwesomePro", false);
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
+await Promise.all([
+  /*@ts-ignore*/
+  import(/*@vite-ignore*/ "@fortawesome/pro-duotone-svg-icons/index.js").then(module => library.add(module.fad)),
+  /*@ts-ignore*/
+  import(/*@vite-ignore*/ "@fortawesome/pro-light-svg-icons/index.js").then(module => library.add(module.fal)),
+  /*@ts-ignore*/
+  import(/*@vite-ignore*/ "@fortawesome/pro-regular-svg-icons/index.js").then(module => library.add(module.far)),
+  /*@ts-ignore*/
+  import(/*@vite-ignore*/ "@fortawesome/pro-solid-svg-icons/index.js").then(module => library.add(module.fas)),
+  /*@ts-ignore*/
+  import(/*@vite-ignore*/ "@fortawesome/pro-thin-svg-icons/index.js").then(module => library.add(module.fat)),
+  /*@ts-ignore*/
+  import(/*@vite-ignore*/ "@fortawesome/sharp-regular-svg-icons/index.js").then(module => library.add(module.fasr)),
+  /*@ts-ignore*/
+  import(/*@vite-ignore*/ "@fortawesome/sharp-solid-svg-icons/index.js").then(module => library.add(module.fass))
+]);
+store.commit("updateFontAwesomePro", true);
+// #v-endif
+// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
+await Promise.all([
+  import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far)),
+  import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas))
+]);
+store.commit("updateFontAwesomePro", false);
 // #v-endif
 
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
