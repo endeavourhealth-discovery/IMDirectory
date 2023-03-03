@@ -25,6 +25,8 @@ npm config set "@fortawesome:registry" https://npm.fontawesome.com/
 npm config set "//npm.fontawesome.com/:_authToken" FONT-AWESOME-PACKAGE-TOKEN
 ```
 
+And add the environment variable `VITE_FONT_AWESOME_PACKAGE_TOKEN` withinthe ui package .env files
+
 ### Install
 
 Run the following terminal command in the project root:
