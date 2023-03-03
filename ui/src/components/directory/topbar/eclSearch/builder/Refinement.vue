@@ -29,7 +29,7 @@
       placeholder="search..."
       :disabled="!selectedProperty || loadingValue"
     />
-    <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" />
+    <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" class="tree-button" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
@@ -145,10 +145,9 @@ async function processProps() {
       if (hasProperty() && (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri))) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
       } else {
+        selectedProperty.value = null;
         updateProperty(null);
         updateValue(null);
-        props.value.property.concept = null;
-        props.value.value.concept = null;
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
@@ -168,6 +167,7 @@ async function processProps() {
       if (hasValue() && (await EntityService.isValidPropertyValue(selectedProperty.value.iri, props.value.value.concept.iri))) {
         selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri);
       } else {
+        selectedValue.value = null;
         updateValue(null);
         toast.add({
           severity: ToastSeverity.ERROR,
@@ -341,6 +341,8 @@ function hasFocus(): boolean {
 }
 
 .tree-button {
-  height: 2.357rem;
+  height: 2.357rem !important;
+  width: 2.357rem !important;
+  padding: 0.5rem !important;
 }
 </style>

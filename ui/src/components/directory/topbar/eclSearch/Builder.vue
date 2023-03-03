@@ -60,6 +60,7 @@ import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import SetService from "@/services/SetService";
 import { booleanLiteral } from "@babel/types";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -145,11 +146,11 @@ function submit(): void {
 }
 
 function closeBuilderDialog(): void {
-  emit("closeDialog");
+  build.value = emit("closeDialog");
 }
 
 function generateQueryString() {
-  queryString.value = build.value.ecl;
+  if (isObjectHasKeys(build.value, ["ecl"])) queryString.value = build.value.ecl;
 }
 
 function copyToClipboard(): string {

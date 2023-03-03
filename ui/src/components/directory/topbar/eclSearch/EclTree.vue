@@ -101,13 +101,14 @@ import { onMounted, ref, Ref, watch, inject, onBeforeUnmount, computed } from "v
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TTIriRef, AliasEntity } from "@im-library/interfaces";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 import { toTitleCase } from "@im-library/helpers/StringManipulators";
 import { useToast } from "primevue/usetoast";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { SearchRequest } from "@im-library/models/AutoGen";
 
 const {
   root,
@@ -181,7 +182,7 @@ watch(selectedSearchResult, async newValue => {
 
 onMounted(async () => {
   setRootConceptIri();
-  if (rootConceptIri.value && hasFocus.value) {
+  if (rootConceptIri.value) {
     await getConceptAggregates();
     for (const aggregate of conceptAggregates.value) {
       await createTree(aggregate.concept, aggregate.children);
@@ -189,7 +190,7 @@ onMounted(async () => {
     if (root.value.length < superiorsCount.value) {
       root.value.push(
         createLoadMoreNode(
-          createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+          createTreeNode(rootConceptIri.value, rootConceptIri.value, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
           1,
           superiorsCount.value
         )
@@ -211,6 +212,7 @@ onBeforeUnmount(() => {
 
 function setRootConceptIri() {
   if (hasFocus.value) rootConceptIri.value = getFocus.value.iri;
+  else if (getType.value === "concept") rootConceptIri.value = "http://endhealth.info/im#HealthModelOntology";
 }
 
 async function getConceptAggregates(): Promise<void> {
@@ -223,6 +225,10 @@ async function getConceptAggregates(): Promise<void> {
   } else if (getType.value === "value") {
     const results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, 1, pageSize.value);
     superiors = results.result;
+    superiorsCount.value = results.totalCount;
+  } else if (getType.value === "concept") {
+    const results = await EntityService.getPagedChildren(rootConceptIri.value, 1, pageSize.value);
+    superiors = results.result.filter((result: any) => result["@id"] !== "http://endhealth.info/im#CodeBasedTaxonomies");
     superiorsCount.value = results.totalCount;
   }
   for (const superior of superiors) {
@@ -270,8 +276,10 @@ async function rootLoadMore(node: any) {
     let results;
     if (getType.value === "property") {
       results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
-    } else {
+    } else if (getType.value === "value") {
       results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
+    } else if (getType.value === "concept") {
+      results = await EntityService.getPagedChildren(rootConceptIri.value, node.nextPage, pageSize.value);
     }
     root.value.pop();
     results.result.forEach((superior: any) => {
@@ -289,8 +297,10 @@ async function rootLoadMore(node: any) {
     let results;
     if (getType.value === "property") {
       results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
-    } else {
+    } else if (getType.value === "value") {
       results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
+    } else if (getType.value === "concept") {
+      results = await EntityService.getPagedChildren(rootConceptIri.value, node.nextPage, pageSize.value);
     }
     root.value.pop();
     results.result.forEach((superior: any) => {
@@ -394,6 +404,20 @@ async function search(selected: string) {
         else filteredSearchOptions.value = results;
       } else filteredSearchOptions.value = [];
       searchResultsLimited.value = results.length > 100;
+    } else if (getType.value === "concept") {
+      let searchRequest = {} as SearchRequest;
+      searchRequest.termFilter = selected;
+      searchRequest.sortField = "weighting";
+      searchRequest.page = 1;
+      searchRequest.size = 100;
+      searchRequest.schemeFilter = [SNOMED.NAMESPACE, IM.NAMESPACE];
+      searchRequest.statusFilter = [IM.ACTIVE];
+      searchRequest.typeFilter = [IM.CONCEPT];
+      const results = await EntityService.advancedSearch(searchRequest, controller.value);
+      if (results && results.length) {
+        filteredSearchOptions.value = results;
+        searchResultsLimited.value = results.length === 100;
+      } else filteredSearchOptions.value = [];
     }
     controller.value = undefined;
   } else filteredSearchOptions.value = [];
@@ -401,7 +425,7 @@ async function search(selected: string) {
 
 function hidePopup(event: any): void {
   const x = altTreeOP.value as any;
-  x.hide(event);
+  if (x) x.hide(event);
   overlayLocation.value = {} as any;
 }
 
