@@ -80,6 +80,7 @@
     "start-server-and-test": "1.15.2",
     "typescript": "4.9.4",
     "vite": "4.0.4",
+    "vite-plugin-conditional-compiler": "^0.0.6",
     "vitest": "0.26.3"
   },
   "optionalDependencies": {

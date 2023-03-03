@@ -2,9 +2,10 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import { esbuildCommonjs } from "@originjs/vite-plugin-commonjs";
 import * as path from "path";
+import ConditionalCompile from "vite-plugin-conditional-compiler";
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [ConditionalCompile(), vue()],
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
   },
