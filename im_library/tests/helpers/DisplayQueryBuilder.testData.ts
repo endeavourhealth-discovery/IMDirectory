@@ -363,35 +363,15 @@ export const SMIPopulation = {
                 {
                   key: "10200",
                   label: "Unknown code set",
-                  type: "with",
-                  data: {
-                    description: "Latest null",
-                    id: "concept",
-                    in: [
-                      { "@id": "urn:uuid:837c474c-f6af-4a05-83ad-7c4ee7557e11", name: "Unknown code set" },
-                      { "@id": "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c", name: "Unknown code set" }
-                    ],
-                    valueLabel: "SMI",
-                    latest: "effectiveDate",
-                    count: 1
-                  },
+                  type: "whereIn",
+                  data: { "@id": "urn:uuid:837c474c-f6af-4a05-83ad-7c4ee7557e11", name: "Unknown code set" },
                   children: []
                 },
                 {
                   key: "10201",
                   label: "Unknown code set",
-                  type: "with",
-                  data: {
-                    description: "Latest null",
-                    id: "concept",
-                    in: [
-                      { "@id": "urn:uuid:837c474c-f6af-4a05-83ad-7c4ee7557e11", name: "Unknown code set" },
-                      { "@id": "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c", name: "Unknown code set" }
-                    ],
-                    valueLabel: "SMI",
-                    latest: "effectiveDate",
-                    count: 1
-                  },
+                  type: "whereIn",
+                  data: { "@id": "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c", name: "Unknown code set" },
                   children: []
                 }
               ]
@@ -983,35 +963,15 @@ export const Priority3a = {
                     {
                       key: "102000",
                       label: "Unknown code set",
-                      type: "with",
-                      data: {
-                        description: "Latest null",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:be880ad6-5dab-48c2-8e94-d5c5219afb4f", name: "Unknown code set" },
-                          { "@id": "urn:uuid:aafda1f0-02fc-45bc-bd6f-b899efe9547d", name: "Unknown code set" }
-                        ],
-                        valueLabel: "Hypertension",
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:be880ad6-5dab-48c2-8e94-d5c5219afb4f", name: "Unknown code set" },
                       children: []
                     },
                     {
                       key: "102001",
                       label: "Unknown code set",
-                      type: "with",
-                      data: {
-                        description: "Latest null",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:be880ad6-5dab-48c2-8e94-d5c5219afb4f", name: "Unknown code set" },
-                          { "@id": "urn:uuid:aafda1f0-02fc-45bc-bd6f-b899efe9547d", name: "Unknown code set" }
-                        ],
-                        valueLabel: "Hypertension",
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:aafda1f0-02fc-45bc-bd6f-b899efe9547d", name: "Unknown code set" },
                       children: []
                     }
                   ]
@@ -1077,35 +1037,15 @@ export const Priority3a = {
                     {
                       key: "102100",
                       label: "Unknown code set",
-                      type: "with",
-                      data: {
-                        description: "Latest null",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:4ecec7ee-f42f-4418-acc3-ba4f16264c95", name: "Unknown code set" },
-                          { "@id": "urn:uuid:bd8458fb-abb7-469b-91e5-ce888b5b0f3d", name: "Unknown code set" }
-                        ],
-                        valueLabel: "Diabetes (resovled)",
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:4ecec7ee-f42f-4418-acc3-ba4f16264c95", name: "Unknown code set" },
                       children: []
                     },
                     {
                       key: "102101",
                       label: "Unknown code set",
-                      type: "with",
-                      data: {
-                        description: "Latest null",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:4ecec7ee-f42f-4418-acc3-ba4f16264c95", name: "Unknown code set" },
-                          { "@id": "urn:uuid:bd8458fb-abb7-469b-91e5-ce888b5b0f3d", name: "Unknown code set" }
-                        ],
-                        valueLabel: "Diabetes (resovled)",
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:bd8458fb-abb7-469b-91e5-ce888b5b0f3d", name: "Unknown code set" },
                       children: []
                     }
                   ]
@@ -1163,65 +1103,29 @@ export const Priority3a = {
                     {
                       key: "102200",
                       label: "Unknown code set",
-                      type: "where",
-                      data: {
-                        description: "concept is : Unknown code set, , , .. ",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:22575230-a13e-431d-983c-3fee668bf452", name: "Unknown code set" },
-                          { "@id": "urn:uuid:8aa2198a-efca-4d1a-9bcf-1fd6117ef87d", name: "Unknown code set" },
-                          { "@id": "urn:uuid:1ee3788a-0e92-4a69-890a-0b5daff494b4", name: "Unknown code set" },
-                          { "@id": "urn:uuid:8a030be6-be7a-49eb-b187-6575dfdd32c0", name: "Unknown code set" }
-                        ]
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:22575230-a13e-431d-983c-3fee668bf452", name: "Unknown code set" },
                       children: []
                     },
                     {
                       key: "102201",
                       label: "Unknown code set",
-                      type: "where",
-                      data: {
-                        description: "concept is : Unknown code set, , , .. ",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:22575230-a13e-431d-983c-3fee668bf452", name: "Unknown code set" },
-                          { "@id": "urn:uuid:8aa2198a-efca-4d1a-9bcf-1fd6117ef87d", name: "Unknown code set" },
-                          { "@id": "urn:uuid:1ee3788a-0e92-4a69-890a-0b5daff494b4", name: "Unknown code set" },
-                          { "@id": "urn:uuid:8a030be6-be7a-49eb-b187-6575dfdd32c0", name: "Unknown code set" }
-                        ]
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:8aa2198a-efca-4d1a-9bcf-1fd6117ef87d", name: "Unknown code set" },
                       children: []
                     },
                     {
                       key: "102202",
                       label: "Unknown code set",
-                      type: "where",
-                      data: {
-                        description: "concept is : Unknown code set, , , .. ",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:22575230-a13e-431d-983c-3fee668bf452", name: "Unknown code set" },
-                          { "@id": "urn:uuid:8aa2198a-efca-4d1a-9bcf-1fd6117ef87d", name: "Unknown code set" },
-                          { "@id": "urn:uuid:1ee3788a-0e92-4a69-890a-0b5daff494b4", name: "Unknown code set" },
-                          { "@id": "urn:uuid:8a030be6-be7a-49eb-b187-6575dfdd32c0", name: "Unknown code set" }
-                        ]
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:1ee3788a-0e92-4a69-890a-0b5daff494b4", name: "Unknown code set" },
                       children: []
                     },
                     {
                       key: "102203",
                       label: "Unknown code set",
-                      type: "where",
-                      data: {
-                        description: "concept is : Unknown code set, , , .. ",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:22575230-a13e-431d-983c-3fee668bf452", name: "Unknown code set" },
-                          { "@id": "urn:uuid:8aa2198a-efca-4d1a-9bcf-1fd6117ef87d", name: "Unknown code set" },
-                          { "@id": "urn:uuid:1ee3788a-0e92-4a69-890a-0b5daff494b4", name: "Unknown code set" },
-                          { "@id": "urn:uuid:8a030be6-be7a-49eb-b187-6575dfdd32c0", name: "Unknown code set" }
-                        ]
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:8a030be6-be7a-49eb-b187-6575dfdd32c0", name: "Unknown code set" },
                       children: []
                     }
                   ]
@@ -1263,29 +1167,15 @@ export const Priority3a = {
                     {
                       key: "102300",
                       label: "Unknown code set",
-                      type: "where",
-                      data: {
-                        description: "concept is : Unknown code set, ",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:15bd20c8-c92f-496c-8560-896299a632e5", name: "Unknown code set" },
-                          { "@id": "urn:uuid:c97f55a2-fe6e-4da2-8865-a95b7cc80f4f", name: "Unknown code set" }
-                        ]
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:15bd20c8-c92f-496c-8560-896299a632e5", name: "Unknown code set" },
                       children: []
                     },
                     {
                       key: "102301",
                       label: "Unknown code set",
-                      type: "where",
-                      data: {
-                        description: "concept is : Unknown code set, ",
-                        id: "concept",
-                        in: [
-                          { "@id": "urn:uuid:15bd20c8-c92f-496c-8560-896299a632e5", name: "Unknown code set" },
-                          { "@id": "urn:uuid:c97f55a2-fe6e-4da2-8865-a95b7cc80f4f", name: "Unknown code set" }
-                        ]
-                      },
+                      type: "whereIn",
+                      data: { "@id": "urn:uuid:c97f55a2-fe6e-4da2-8865-a95b7cc80f4f", name: "Unknown code set" },
                       children: []
                     }
                   ]
@@ -1336,96 +1226,36 @@ export const Priority3a = {
                     {
                       key: "102400",
                       label: "Body mass index (observable entity)",
-                      type: "with",
-                      data: {
-                        description: "Latest Body mass index ....",
-                        id: "concept",
-                        in: [
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" }
-                        ],
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
                       children: []
                     },
                     {
                       key: "102401",
                       label: "Body mass index (observable entity)",
-                      type: "with",
-                      data: {
-                        description: "Latest Body mass index ....",
-                        id: "concept",
-                        in: [
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" }
-                        ],
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
                       children: []
                     },
                     {
                       key: "102402",
                       label: "Body mass index (observable entity)",
-                      type: "with",
-                      data: {
-                        description: "Latest Body mass index ....",
-                        id: "concept",
-                        in: [
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" }
-                        ],
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
                       children: []
                     },
                     {
                       key: "102403",
                       label: "Body mass index (observable entity)",
-                      type: "with",
-                      data: {
-                        description: "Latest Body mass index ....",
-                        id: "concept",
-                        in: [
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" }
-                        ],
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
                       children: []
                     },
                     {
                       key: "102404",
                       label: "Body mass index (observable entity)",
-                      type: "with",
-                      data: {
-                        description: "Latest Body mass index ....",
-                        id: "concept",
-                        in: [
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
-                          { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" }
-                        ],
-                        latest: "effectiveDate",
-                        count: 1
-                      },
+                      type: "whereIn",
+                      data: { "@id": "http://snomed.info/sct#60621009", name: "Body mass index (observable entity)" },
                       children: []
                     }
                   ]
