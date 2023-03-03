@@ -162,6 +162,7 @@ function generateEcl(): string {
   background-color: #ff8c0010;
   margin: 0.5rem;
   flex: 1;
+  overflow: auto;
 }
 
 .nested-div-hover {

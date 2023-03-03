@@ -13,7 +13,7 @@
       :disabled="loadingProperty || !focus?.iri"
       :optionDisabled="disableOption"
     />
-    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" />
+    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
@@ -338,5 +338,9 @@ function hasFocus(): boolean {
   flex: 0 0 auto;
   height: 1.5rem;
   width: 1.5rem;
+}
+
+.tree-button {
+  height: 2.357rem;
 }
 </style>

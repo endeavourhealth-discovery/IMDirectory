@@ -14,6 +14,7 @@
         :optionDisabled="disableOption"
         :disabled="loading"
       />
+      <Button :disabled="!value.concept?.iri" icon="fa-solid fa-sitemap" @click="openTree('concept')" />
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
       <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     </div>
@@ -40,10 +41,12 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch, inject } from "vue";
+import { Ref, ref, onMounted, PropType, watch, inject, h } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import EclTree from "../EclTree.vue";
+import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/models/AutoGen";
@@ -53,10 +56,18 @@ import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
+import { useDialog } from "primevue/usedialog";
 
 const props = defineProps({
   value: {
-    type: Object as PropType<{ type: string; descendants: string; conjunction: string; items: any[]; concept: { iri: string } | undefined; ecl?: string }>,
+    type: Object as PropType<{
+      type: string;
+      descendants: string;
+      conjunction: string;
+      items: any[];
+      concept: { iri: string; name?: string } | undefined;
+      ecl?: string;
+    }>,
     required: true
   },
   parent: { type: Object as PropType<any>, required: false }
@@ -70,6 +81,7 @@ watch(
 );
 
 const store = useStore();
+let treeDialog = useDialog();
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
@@ -222,6 +234,32 @@ function generateEcl(): string {
 function updateConcept(concept: any) {
   props.value.concept = concept;
   props.value.ecl = generateEcl();
+}
+
+function openTree(type: string) {
+  const dialogProps = {
+    style: { width: "80vw", height: "80vh" },
+    closable: false,
+    maximizable: true,
+    modal: true,
+    contentStyle: { flex: "1 1 auto", display: "flex" },
+    dismissableMask: true,
+    autoZIndex: false
+  };
+  const dialogRef = treeDialog.open(EclTree, {
+    props: dialogProps,
+    templates: {
+      footer: () => {
+        return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+      }
+    },
+    data: { type: "concept", currentValue: props.value.concept },
+    onClose(options) {
+      if (options?.data?.type === "concept") {
+        selected.value = options.data.entity;
+      }
+    }
+  });
 }
 </script>
 

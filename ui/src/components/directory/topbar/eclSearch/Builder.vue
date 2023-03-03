@@ -179,9 +179,11 @@ function onCopyError(): void {
   width: 100%;
   flex: 1 1 auto;
   overflow: auto;
+  display: flex;
 }
 
 #query-build {
+  width: 100%;
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
@@ -189,6 +191,7 @@ function onCopyError(): void {
   gap: 1rem;
   flex: 1 1 auto;
   font-size: 12px;
+  overflow: auto;
 }
 
 #build-string-container {
