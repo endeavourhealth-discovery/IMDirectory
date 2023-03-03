@@ -48,10 +48,18 @@
     v-tooltip.left="'Favourite'"
     data-testid="favourite-button"
   />
+  <TestQueryParams
+    v-if="showTestQueryParams && isObjectHasKeys(queryRequest)"
+    :showDialog="showTestQueryParams"
+    :query-request="queryRequest"
+    :params="params"
+    @on-params-populated="onParamsPopulated"
+    @close-dialog="showTestQueryParams = false"
+  />
   <TestQueryResults
-    v-if="showTestQueryResults && isObjectHasKeys(imquery)"
+    v-if="showTestQueryResults && isObjectHasKeys(queryRequest)"
     :showDialog="showTestQueryResults"
-    :imquery="imquery"
+    :query-request="queryRequest"
     @close-dialog="showTestQueryResults = false"
   />
 </template>
@@ -65,8 +73,10 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { State } from "@/store/stateType";
 import { Store, useStore } from "vuex";
 import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
+import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryParams.vue";
+import { Query } from "@im-library/models/AutoGen";
 const directService = new DirectService();
-const { runQuery, runQueryFromIri, runQueryRequest, getQueryFromIri, queryResults, showTestQueryResults, imquery } = setupRunQuery();
+const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
@@ -104,8 +114,18 @@ function updateFavourites(iri: string) {
   store.commit("updateFavourites", iri);
 }
 
-function onRunQuery(iri: string) {
-  getQueryFromIri(iri);
+async function onRunQuery(iri: string) {
+  queryRequest.value.query = { "@id": iri } as Query;
+  if (await hasParams(iri)) {
+    getParams(iri);
+    showTestQueryParams.value = true;
+  } else {
+    showTestQueryResults.value = true;
+  }
+}
+
+async function onParamsPopulated() {
+  showTestQueryParams.value = false;
   showTestQueryResults.value = true;
 }
 </script>

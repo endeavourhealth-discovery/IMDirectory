@@ -67,6 +67,10 @@ export default class DirectService {
     this.directTo(Env.DIRECTORY_URL, iri || "", "Edited", "editor");
   }
 
+  public query() {
+    this.directTo(Env.DIRECTORY_URL, "", "Queried", "query");
+  }
+
   public create(typeIri?: string, propertyIri?: string, valueIri?: string) {
     if (!typeIri && !propertyIri && !valueIri) {
       window.open(Env.DIRECTORY_URL + "creator");

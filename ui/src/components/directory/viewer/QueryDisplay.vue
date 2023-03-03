@@ -62,7 +62,7 @@ function collapseAll() {
 }
 
 function expandNode(node: any) {
-  const hasExpandToSeeMore = (node.label as string).includes("(expand to see more...)");
+  const hasExpandToSeeMore = node.label ? (node.label as string).includes("(expand to see more...)") : false;
   if (node.children && node.children.length && !hasExpandToSeeMore) {
     expandedKeys.value[node.key] = true;
 
