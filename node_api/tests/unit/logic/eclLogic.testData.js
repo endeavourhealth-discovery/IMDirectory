@@ -34,7 +34,7 @@ export default {
     minusWithGroups:
       "(<<763158003 | Medicinal product (product) | : <<127489000 | Has active ingredient (attribute) | = <<372695000 | Diuretic (substance) |    AND 8940601000001102 = 8940901000001109AND 8940001000001105 = 8940201000001104)    MINUS (<<763158003 | Medicinal product (product) | : 8940601000001102 = 8941001000001100)",
     orRefinement:
-      "<<763158003 | Medicinal Product| : <<27489000|has active ingredient| = << 698090000 |Apixaban (substance) | OR <<27489000|has active ingredient| =<<442031002 | Rivaroxaban (product) |",
+      "<<763158003 | Medicinal Product| : <<127489000|has active ingredient| = << 698090000 |Apixaban (substance) | OR <<127489000|has active ingredient| =<<442031002 | Rivaroxaban (product) |",
     multipleOrRefinement:
       "<<763158003 | Medicinal Product |: <<127489000|has active ingredient |= <<698090000 | Apixaban (substance) | OR <<127489000|has active ingredient| = <<442031002 | Rivaroxaban (substance)| OR <<127489000|has active ingredient|= << 698871007| Dabigatran (substance)| OR <<127489000|has active ingredient|= << 712778008| Edoxaban (substance)| OR <<127489000|has active ingredient|= << 387260007| Phenindione (substance) | OR <<127489000|has active ingredient|= << 59488002 | Warfarin sodium (substance) | OR <<127489000|has active ingredient|= << 372756006| Warfarin (substance)|"
   },
@@ -643,7 +643,7 @@ export default {
             {
               anyRoleGroup: true,
 
-              "@id": "http://snomed.info/sct#27489000",
+              "@id": "http://snomed.info/sct#127489000",
               descendantsOrSelfOf: true,
               in: [
                 {
@@ -654,11 +654,99 @@ export default {
             },
             {
               anyRoleGroup: true,
-              "@id": "http://snomed.info/sct#27489000",
+              "@id": "http://snomed.info/sct#127489000",
               descendantsOrSelfOf: true,
               in: [
                 {
                   "@id": "http://snomed.info/sct#442031002",
+                  descendantsOrSelfOf: true
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    multipeOrRefinement: {
+      from: {
+        "@id": "http://snomed.info/sct#763158003",
+        descendantsOrSelfOf: true,
+        where: {
+          bool: "or",
+          where: [
+            {
+              "@id": "http://snomed.info/sct#127489000",
+              anyRoleGroup: true,
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#698090000",
+                  descendantsOrSelfOf: true
+                }
+              ]
+            },
+            {
+              "@id": "http://snomed.info/sct#127489000",
+              anyRoleGroup: true,
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#442031002",
+                  descendantsOrSelfOf: true
+                }
+              ]
+            },
+            {
+              "@id": "http://snomed.info/sct#127489000",
+              anyRoleGroup: true,
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#698871007",
+                  descendantsOrSelfOf: true
+                }
+              ]
+            },
+            {
+              "@id": "http://snomed.info/sct#127489000",
+              anyRoleGroup: true,
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#712778008",
+                  descendantsOrSelfOf: true
+                }
+              ]
+            },
+            {
+              "@id": "http://snomed.info/sct#127489000",
+              anyRoleGroup: true,
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#387260007",
+                  descendantsOrSelfOf: true
+                }
+              ]
+            },
+            {
+              "@id": "http://snomed.info/sct#127489000",
+              anyRoleGroup: true,
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#59488002",
+                  descendantsOrSelfOf: true
+                }
+              ]
+            },
+            {
+              "@id": "http://snomed.info/sct#127489000",
+              anyRoleGroup: true,
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#372756006",
                   descendantsOrSelfOf: true
                 }
               ]
@@ -1352,6 +1440,182 @@ export default {
                   iri: "http://snomed.info/sct#8941001000001100"
                 },
                 descendants: ""
+              }
+            }
+          ],
+          type: "Concept"
+        }
+      ],
+      type: "BoolGroup"
+    },
+    orRefinement: {
+      conjunction: "AND",
+      items: [
+        {
+          concept: {
+            iri: "http://snomed.info/sct#763158003"
+          },
+          conjunction: "AND",
+          descendants: "<<",
+          items: [
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#698090000"
+                },
+                descendants: "<<"
+              }
+            },
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#442031002"
+                },
+                descendants: "<<"
+              }
+            }
+          ],
+          type: "Concept"
+        }
+      ],
+      type: "BoolGroup"
+    },
+    multipleOrRefinement: {
+      conjunction: "AND",
+      items: [
+        {
+          concept: {
+            iri: "http://snomed.info/sct#763158003"
+          },
+          conjunction: "AND",
+          descendants: "<<",
+          items: [
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#698090000"
+                },
+                descendants: "<<"
+              }
+            },
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#442031002"
+                },
+                descendants: "<<"
+              }
+            },
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#698871007"
+                },
+                descendants: "<<"
+              }
+            },
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#712778008"
+                },
+                descendants: "<<"
+              }
+            },
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#387260007"
+                },
+                descendants: "<<"
+              }
+            },
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#59488002"
+                },
+                descendants: "<<"
+              }
+            },
+            {
+              operator: "=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#127489000"
+                },
+                descendants: "<<"
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#372756006"
+                },
+                descendants: "<<"
               }
             }
           ],
