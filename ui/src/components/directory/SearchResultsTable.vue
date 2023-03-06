@@ -44,8 +44,8 @@
           Results
           <Button
             :disabled="!searchResults?.length"
-            class="p-button-sm p-button-text"
-            icon="pi pi-external-link"
+            class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
+            :icon="fontAwesomePro ? 'fa-duotone fa-fw fa-file-arrow-down' : 'fa-solid fa-fw fa-file-arrow-down'"
             @click="exportCSV()"
             v-tooltip.right="'Download results table'"
           />
@@ -102,6 +102,7 @@ const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptio
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
