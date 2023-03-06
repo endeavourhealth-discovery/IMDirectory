@@ -14,6 +14,7 @@
         :optionDisabled="disableOption"
         :disabled="loading"
       />
+      <Button :disabled="!value.concept?.iri" icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
       <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     </div>
@@ -22,28 +23,36 @@
       <div style="display: flex">
         <span class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" />
-          <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary" disabled />
+          <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" class="builder-button" />
+          <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary builder-button" disabled />
         </span>
         <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
         <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
         <span class="remove-group">
-          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
+          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" class="builder-button" />
         </span>
       </div>
     </template>
     <div class="add-group">
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Refinement" @click="addRefinement" />
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" />
+      <Button
+        type="button"
+        :class="[hover ? 'p-button-success' : 'p-button-placeholder']"
+        label="Add Refinement"
+        @click="addRefinement"
+        class="builder-button"
+      />
+      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" class="builder-button" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch, inject } from "vue";
+import { Ref, ref, onMounted, PropType, watch, inject, h } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import EclTree from "../EclTree.vue";
+import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/models/AutoGen";
@@ -53,10 +62,18 @@ import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
+import { useDialog } from "primevue/usedialog";
 
 const props = defineProps({
   value: {
-    type: Object as PropType<{ type: string; descendants: string; conjunction: string; items: any[]; concept: { iri: string } | undefined; ecl?: string }>,
+    type: Object as PropType<{
+      type: string;
+      descendants: string;
+      conjunction: string;
+      items: any[];
+      concept: { iri: string; name?: string } | undefined;
+      ecl?: string;
+    }>,
     required: true
   },
   parent: { type: Object as PropType<any>, required: false }
@@ -70,6 +87,7 @@ watch(
 );
 
 const store = useStore();
+let treeDialog = useDialog();
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
@@ -212,7 +230,8 @@ function generateEcl(): string {
   if (isArrayHasLength(props.value.items)) {
     ecl += " : \n";
     for (const [index, item] of props.value.items.entries()) {
-      ecl += item.ecl;
+      if (item.ecl) ecl += item.ecl;
+      else ecl += "[ INVALID REFINEMENT ]";
       if (index + 1 !== props.value.items.length) ecl += " \n" + props.value.conjunction + " ";
     }
   }
@@ -222,6 +241,32 @@ function generateEcl(): string {
 function updateConcept(concept: any) {
   props.value.concept = concept;
   props.value.ecl = generateEcl();
+}
+
+function openTree(type: string) {
+  const dialogProps = {
+    style: { width: "80vw", height: "80vh" },
+    closable: false,
+    maximizable: true,
+    modal: true,
+    contentStyle: { flex: "1 1 auto", display: "flex" },
+    dismissableMask: true,
+    autoZIndex: false
+  };
+  const dialogRef = treeDialog.open(EclTree, {
+    props: dialogProps,
+    templates: {
+      footer: () => {
+        return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+      }
+    },
+    data: { type: "concept", currentValue: props.value.concept },
+    onClose(options) {
+      if (options?.data?.type === "concept") {
+        selected.value = options.data.entity;
+      }
+    }
+  });
 }
 </script>
 
@@ -266,7 +311,7 @@ function updateConcept(concept: any) {
   border: #ff8c00 1px solid;
 }
 
-Button {
+.builder-button {
   margin-right: 4px;
   height: 1.5rem;
   align-self: center;
@@ -285,5 +330,11 @@ Button {
 .remove-group {
   width: 2rem;
   display: flex;
+}
+
+.tree-button {
+  height: 2.357rem !important;
+  width: 2.357rem !important;
+  padding: 0.5rem !important;
 }
 </style>

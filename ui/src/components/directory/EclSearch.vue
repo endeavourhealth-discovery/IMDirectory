@@ -44,6 +44,7 @@
     @eclSubmitted="updateECL"
     @closeDialog="showDialog = false"
     @eclConversionError="updateError"
+    :key="builderKey"
     :data-testid="'builder-visible-' + showDialog"
   />
 </template>
@@ -79,6 +80,7 @@ const eclErrorMessage = ref("");
 const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
+const builderKey = ref(0);
 
 watch(queryString, () => {
   eclError.value = false;
@@ -100,6 +102,7 @@ function updateECL(data: string): void {
 }
 
 function showBuilder(): void {
+  builderKey.value = Math.round(Math.random() * 1000);
   showDialog.value = true;
 }
 
