@@ -89,6 +89,10 @@ describe("eclLogic", () => {
     it("converts orRefinement", () => {
       expect(eclToIMQ(testData.ecl.orRefinement)).toEqual(testData.query.orRefinement);
     });
+
+    it("converts multipleOrRefinement", () => {
+      expect(eclToIMQ(testData.ecl.multipleOrRefinement)).toEqual(testData.query.multipeOrRefinement);
+    });
   });
 
   describe("eclToBuild", () => {
@@ -202,6 +206,14 @@ describe("eclLogic", () => {
 
     it("converts minusWithGroups", () => {
       expect(eclToBuild(testData.ecl.minusWithGroups)).toEqual(testData.builder.minusWithGroups);
+    });
+
+    it("converts orRefinement", () => {
+      expect(eclToBuild(testData.ecl.orRefinement)).toEqual(testData.builder.orRefinement);
+    });
+
+    it("converts multipleOrRefinement", () => {
+      expect(eclToBuild(testData.ecl.multipleOrRefinement)).toEqual(testData.builder.multipleOrRefinement);
     });
 
     it("handles simple concept", () => {
