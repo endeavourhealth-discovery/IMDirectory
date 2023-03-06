@@ -81,6 +81,14 @@ describe("eclLogic", () => {
     it("converts unionWithRefinement", () => {
       expect(eclToIMQ(testData.ecl.unionWithRefinement)).toEqual(testData.query.unionWithRefinement);
     });
+
+    it("converts minusWithGroups", () => {
+      expect(eclToIMQ(testData.ecl.minusWithGroups)).toEqual(testData.query.minusWithGroups);
+    });
+
+    it("converts orRefinement", () => {
+      expect(eclToIMQ(testData.ecl.orRefinement)).toEqual(testData.query.orRefinement);
+    });
   });
 
   describe("eclToBuild", () => {
