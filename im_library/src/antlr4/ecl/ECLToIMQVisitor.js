@@ -468,7 +468,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
               throw new Error("Conjunction differs from other conjunctions within attribute set. Logic requires bracketted conjunctions.");
             else build.where.bool = result.conjunction;
           }
-          if (isObjectHasKeys(result, ["where"])) {
+          if (isObjectHasKeys(result, ["attribute"])) {
             if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result);
             else build.where.where = [result];
           }
