@@ -17,17 +17,17 @@ await Promise.all([
   /*@ts-ignore*/
   import(/*@vite-ignore*/ "@fortawesome/pro-duotone-svg-icons/index.js").then(module => library.add(module.fad)),
   /*@ts-ignore*/
-  import(/*@vite-ignore*/ "@fortawesome/pro-light-svg-icons/index.js").then(module => library.add(module.fal)),
+  // import(/*@vite-ignore*/ "@fortawesome/pro-light-svg-icons/index.js").then(module => library.add(module.fal)),
   /*@ts-ignore*/
   import(/*@vite-ignore*/ "@fortawesome/pro-regular-svg-icons/index.js").then(module => library.add(module.far)),
   /*@ts-ignore*/
-  import(/*@vite-ignore*/ "@fortawesome/pro-solid-svg-icons/index.js").then(module => library.add(module.fas)),
+  import(/*@vite-ignore*/ "@fortawesome/pro-solid-svg-icons/index.js").then(module => library.add(module.fas))
   /*@ts-ignore*/
-  import(/*@vite-ignore*/ "@fortawesome/pro-thin-svg-icons/index.js").then(module => library.add(module.fat)),
+  // import(/*@vite-ignore*/ "@fortawesome/pro-thin-svg-icons/index.js").then(module => library.add(module.fat)),
   /*@ts-ignore*/
-  import(/*@vite-ignore*/ "@fortawesome/sharp-regular-svg-icons/index.js").then(module => library.add(module.fasr)),
+  // import(/*@vite-ignore*/ "@fortawesome/sharp-regular-svg-icons/index.js").then(module => library.add(module.fasr)),
   /*@ts-ignore*/
-  import(/*@vite-ignore*/ "@fortawesome/sharp-solid-svg-icons/index.js").then(module => library.add(module.fass))
+  // import(/*@vite-ignore*/ "@fortawesome/sharp-solid-svg-icons/index.js").then(module => library.add(module.fass))
 ]);
 store.commit("updateFontAwesomePro", true);
 // #v-endif
