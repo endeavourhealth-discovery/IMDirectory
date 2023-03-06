@@ -34,7 +34,7 @@ export default {
     minusWithGroups:
       "(<<763158003 | Medicinal product (product) | : <<127489000 | Has active ingredient (attribute) | = <<372695000 | Diuretic (substance) |    AND 8940601000001102 = 8940901000001109AND 8940001000001105 = 8940201000001104)    MINUS (<<763158003 | Medicinal product (product) | : 8940601000001102 = 8941001000001100)",
     orRefinement:
-      "<<763158003 | Medicinal Product| : <<27489000|has active ingredient| = << 698090000 |Apixaban (substance) | OR <<27489000|has active ingredient| =<<442031002 | Rivaroxaban (product) |",
+      "<<763158003 | Medicinal Product| : <<127489000|has active ingredient| = << 698090000 |Apixaban (substance) | OR <<127489000|has active ingredient| =<<442031002 | Rivaroxaban (product) |",
     multipleOrRefinement:
       "<<763158003 | Medicinal Product |: <<127489000|has active ingredient |= <<698090000 | Apixaban (substance) | OR <<127489000|has active ingredient| = <<442031002 | Rivaroxaban (substance)| OR <<127489000|has active ingredient|= << 698871007| Dabigatran (substance)| OR <<127489000|has active ingredient|= << 712778008| Edoxaban (substance)| OR <<127489000|has active ingredient|= << 387260007| Phenindione (substance) | OR <<127489000|has active ingredient|= << 59488002 | Warfarin sodium (substance) | OR <<127489000|has active ingredient|= << 372756006| Warfarin (substance)|"
   },
@@ -624,20 +624,22 @@ export default {
         from: [
           {
             "@id": "http://snomed.info/sct#763158003",
-            descendantsOrSelfOf: true,
+            excludeSelf: false,
+            includeSubtypes: true,
             where: {
               bool: "and",
               where: [
                 {
                   "@id": "http://snomed.info/sct#127489000",
                   anyRoleGroup: true,
-                  descendantsOrSelfOf: true,
                   in: [
                     {
                       "@id": "http://snomed.info/sct#372695000",
-                      descendantsOrSelfOf: true
+                      excludeSelf: false,
+                      includeSubtypes: true
                     }
-                  ]
+                  ],
+                  includeSubtypes: true
                 },
                 {
                   "@id": "http://snomed.info/sct#8940601000001102",
@@ -665,7 +667,8 @@ export default {
             from: [
               {
                 "@id": "http://snomed.info/sct#763158003",
-                descendantsOrSelfOf: true,
+                excludeSelf: false,
+                includeSubtypes: true,
                 where: {
                   "@id": "http://snomed.info/sct#8940601000001102",
                   anyRoleGroup: true,
@@ -684,32 +687,35 @@ export default {
     orRefinement: {
       from: {
         "@id": "http://snomed.info/sct#763158003",
-        descendantsOrSelfOf: true,
+        excludeSelf: false,
+        includeSubtypes: true,
         where: {
           bool: "or",
           where: [
             {
               anyRoleGroup: true,
 
-              "@id": "http://snomed.info/sct#27489000",
-              descendantsOrSelfOf: true,
+              "@id": "http://snomed.info/sct#127489000",
               in: [
                 {
                   "@id": "http://snomed.info/sct#698090000",
-                  descendantsOrSelfOf: true
+                  excludeSelf: false,
+                  includeSubtypes: true
                 }
-              ]
+              ],
+              includeSubtypes: true
             },
             {
               anyRoleGroup: true,
-              "@id": "http://snomed.info/sct#27489000",
-              descendantsOrSelfOf: true,
+              "@id": "http://snomed.info/sct#127489000",
               in: [
                 {
                   "@id": "http://snomed.info/sct#442031002",
-                  descendantsOrSelfOf: true
+                  excludeSelf: false,
+                  includeSubtypes: true
                 }
-              ]
+              ],
+              includeSubtypes: true
             }
           ]
         }
