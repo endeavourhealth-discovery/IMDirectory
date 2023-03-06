@@ -8,8 +8,8 @@
           <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" />
           <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary" disabled />
         </span>
-        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" />
-        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" />
+        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" :groupWithin="groupWithin" />
+        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :groupWithin="groupWithin" />
         <div class="remove-group">
           <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
         </div>
@@ -18,7 +18,13 @@
     <div class="add-group">
       <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" />
       <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Refinement" @click="addRefinement" />
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" />
+      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" />
+      <Button
+        type="button"
+        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithin ? 'p-button-danger' : 'p-button-help']"
+        :label="groupWithin ? 'Finish Grouping' : 'Group within'"
+        @click="groupWithin = !groupWithin"
+      />
     </div>
   </div>
 </template>
@@ -45,6 +51,7 @@ const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const selected = ref("AND");
+const groupWithin = ref(false);
 
 const menuBool = ref();
 
@@ -124,6 +131,8 @@ function generateEcl(): string {
   }
   return ecl.replace(/  +/g, " ");
 }
+
+function enableGroupWithin(): void {}
 </script>
 
 <style scoped lang="scss">
