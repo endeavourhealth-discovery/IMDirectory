@@ -12,9 +12,9 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(fab);
 
-import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
 addFontAwesomeProIcons(library);
 store.commit("updateFontAwesomePro", true);
 // #v-endif

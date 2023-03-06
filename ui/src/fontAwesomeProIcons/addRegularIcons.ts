@@ -1,18 +1,19 @@
 import {Library} from '@fortawesome/fontawesome-svg-core';
 
+import { faXmark } from "@fortawesome/pro-regular-svg-icons/faXmark";
+import { faAngleLeft } from "@fortawesome/pro-regular-svg-icons/faAngleLeft";
+import { faAngleRight } from "@fortawesome/pro-regular-svg-icons/faAngleRight";
+import { faStar } from "@fortawesome/pro-regular-svg-icons/faStar";
+import { faGrid2 } from "@fortawesome/pro-regular-svg-icons/faGrid2";
+import { faUser } from "@fortawesome/pro-regular-svg-icons/faUser";
+
 export default function addRegularIcons(library: Library) {
-  // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
-    /*@ts-ignore*/
-    import(/*@vite-ignore*/ "@fortawesome/pro-regular-svg-icons/faXmark").then(({ faXmark }) => library.add(faXmark));
-    /*@ts-ignore*/
-    import(/*@vite-ignore*/ "@fortawesome/pro-regular-svg-icons/faAngleLeft").then(({ faAngleLeft }) => library.add(faAngleLeft));
-    /*@ts-ignore*/
-    import(/*@vite-ignore*/ "@fortawesome/pro-regular-svg-icons/faAngleRight").then(({ faAngleRight }) => library.add(faAngleRight));
-    /*@ts-ignore*/
-    import(/*@vite-ignore*/ "@fortawesome/pro-regular-svg-icons/faStar").then(({ faStar }) => library.add(faStar));
-    /*@ts-ignore*/
-    import(/*@vite-ignore*/ "@fortawesome/pro-regular-svg-icons/faGrid2").then(({ faGrid2 }) => library.add(faGrid2));
-    /*@ts-ignore*/
-    import(/*@vite-ignore*/ "@fortawesome/pro-regular-svg-icons/faUser").then(({ faUser }) => library.add(faUser));
-  // #v-endif
+  library.add(
+    faXmark,
+    faAngleLeft,
+    faAngleRight,
+    faStar,
+    faGrid2,
+    faUser
+  );
 }
