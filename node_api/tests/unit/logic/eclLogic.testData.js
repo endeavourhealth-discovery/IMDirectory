@@ -1455,7 +1455,7 @@ export default {
           concept: {
             iri: "http://snomed.info/sct#763158003"
           },
-          conjunction: "AND",
+          conjunction: "OR",
           descendants: "<<",
           items: [
             {
@@ -1503,7 +1503,7 @@ export default {
           concept: {
             iri: "http://snomed.info/sct#763158003"
           },
-          conjunction: "AND",
+          conjunction: "OR",
           descendants: "<<",
           items: [
             {
