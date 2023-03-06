@@ -13,7 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "types": ["vite/client", "google-palette", "vitest/globals"],
+    "types": ["vite/client", "vitest/globals"],
     "paths": {
       "@/*": ["src/*"],
       "@im-library/*": ["../im_library/src/*"]
@@ -21,7 +21,6 @@
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "outDir": "./dist"
   },
-  "references": [{ "path": "../im_library/tsconfig.json", "prepend": true }],
   "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.js"],
   "exclude": ["node_modules"]
 }
