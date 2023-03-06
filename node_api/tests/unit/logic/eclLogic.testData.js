@@ -642,29 +642,26 @@ export default {
           where: [
             {
               anyRoleGroup: true,
-              attribute: {
-                "@id": "http://snomed.info/sct#27489000",
-                descendantsOrSelfOf: true,
-                in: [
-                  {
-                    "@id": "http://snomed.info/sct#698090000",
-                    descendantsOrSelfOf: true
-                  }
-                ]
-              }
+
+              "@id": "http://snomed.info/sct#27489000",
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#698090000",
+                  descendantsOrSelfOf: true
+                }
+              ]
             },
             {
               anyRoleGroup: true,
-              attribute: {
-                "@id": "http://snomed.info/sct#27489000",
-                descendantsOrSelfOf: true,
-                in: [
-                  {
-                    "@id": "http://snomed.info/sct#442031002",
-                    descendantsOrSelfOf: true
-                  }
-                ]
-              }
+              "@id": "http://snomed.info/sct#27489000",
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#442031002",
+                  descendantsOrSelfOf: true
+                }
+              ]
             }
           ]
         }

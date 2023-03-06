@@ -469,8 +469,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
             else build.where.bool = result.conjunction;
           }
           if (isObjectHasKeys(result, ["attribute"])) {
-            if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result);
-            else build.where.where = [result];
+            if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result.attribute);
+            else build.where.where = [result.attribute];
           }
         }
       }
