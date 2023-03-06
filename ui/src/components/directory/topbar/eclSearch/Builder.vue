@@ -181,6 +181,7 @@ function onCopyError(): void {
   flex: 1 1 auto;
   overflow: auto;
   display: flex;
+  flex-flow: column nowrap;
 }
 
 #query-build {
