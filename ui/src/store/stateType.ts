@@ -1,5 +1,4 @@
-import { User } from "../models/user/User";
-import { Namespace } from "@/models/Namespace";
+import { User, Namespace } from "@im-library/interfaces";
 
 export interface State {
   loading: Map<string, boolean>;

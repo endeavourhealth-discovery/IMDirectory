@@ -1,8 +1,9 @@
-import { ConceptSummary, Query, SearchResponse } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import axios from "axios";
 import Env from "./Env";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { Query } from "@im-library/models/AutoGen";
 
 const EclService = {
   async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<ConceptSummary[]> {
@@ -38,13 +39,13 @@ const EclService = {
   },
 
   async getECLFromQuery(query: Query): Promise<any> {
-    const result = await axios.post(Env.API + "api/ecl/public/eclFromQuery", query);
+    const result: any = await axios.post(Env.API + "api/ecl/public/eclFromQuery", query);
     if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
     else return result;
   },
 
   async getBuildFromEcl(ecl: string): Promise<any> {
-    const result = await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToBuilder", ecl, { headers: { "Content-Type": "text/plain" } });
+    const result: any = await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToBuilder", ecl, { headers: { "Content-Type": "text/plain" } });
     if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
     else return result;
   }
