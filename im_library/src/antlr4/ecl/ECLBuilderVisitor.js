@@ -40,7 +40,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["type"]) && result.type === "Concept") {
             if (!isObjectHasKeys(result, ["items"])) result.items = [];
-            if (!isObjectHasKeys(result, ["operator"])) result.conjunction = "AND";
+            if (!isObjectHasKeys(result, ["conjunction"])) result.conjunction = "AND";
             if (!isObjectHasKeys(result, ["descendants"])) result.descendants = "";
           }
           if (isObjectHasKeys(result)) return result;
@@ -411,7 +411,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitCompoundattributeset(ctx) {
     if (showLogs) {
-      console.log("found compount attribute set");
+      console.log("found compound attribute set");
       console.log(ctx.getText());
     }
     return this.visitChildren(ctx)[0];
