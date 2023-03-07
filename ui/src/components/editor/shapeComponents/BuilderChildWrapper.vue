@@ -1,14 +1,6 @@
 <template>
   <div class="builder-child">
     <div class="builder-child-wrapper">
-      <AddDeleteButtons
-        :show="{ minus: showButtons.minus, plus: false }"
-        :position="position"
-        :options="nextComponentOptions"
-        @deleteClicked="deleteClicked"
-        @addNextClicked="addNextClicked"
-      />
-
       <div class="builder-child-container" :id="id">
         <component
           :is="processComponentType(shape.componentType)"
@@ -20,6 +12,15 @@
         />
         <UpDownButtons :show="{ up: showButtons.up, down: showButtons.down }" :position="position" @moveUpClicked="upClicked" @moveDownClicked="downClicked" />
       </div>
+
+      <AddDeleteButtons
+          :show="{ minus: showButtons.minus, plus: false }"
+          :position="position"
+          :options="nextComponentOptions"
+          @deleteClicked="deleteClicked"
+          @addNextClicked="addNextClicked"
+      />
+
     </div>
     <div class="indented-add-button">
       <AddDeleteButtons
@@ -39,6 +40,7 @@ import EntityAutoComplete from "./EntityAutoComplete.vue";
 import ComponentGroup from "./ComponentGroup.vue";
 import ArrayBuilderWithDropdown from "./ArrayBuilderWithDropdown.vue";
 import PropertyBuilder from "./PropertyBuilder.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { EntitySearch, EntityAutoComplete, ComponentGroup, ArrayBuilderWithDropdown, PropertyBuilder }
@@ -47,10 +49,10 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { PropType, defineComponent } from "vue";
-import _ from "lodash";
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
-import { ComponentDetails, PropertyShape } from "@im-library/interfaces";
+import { PropertyShape } from "@im-library/models/AutoGen";
+import { ComponentDetails } from "@im-library/interfaces";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import {} from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";

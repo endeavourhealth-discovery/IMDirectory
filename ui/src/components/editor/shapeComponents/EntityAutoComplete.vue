@@ -71,12 +71,11 @@ import {EditorMode} from "@im-library/enums";
 import {getNamesAsStringFromTypes} from "@im-library/helpers/ConceptTypeMethods";
 import {isArrayHasLength, isObject, isObjectHasKeys} from "@im-library/helpers/DataTypeCheckers";
 import {processArguments} from "@im-library/helpers/EditorMethods";
-import {mapToObject} from "@im-library/helpers/Transforms";
 import {isTTIriRef} from "@im-library/helpers/TypeGuards";
-import {QueryService, EntityService} from "@/services";
-import {IM, RDF, RDFS, SHACL} from "@im-library/vocabulary";
+import {EntityService, QueryService} from "@/services";
+import {IM, RDF, RDFS} from "@im-library/vocabulary";
 import {PropertyShape} from "@im-library/models/AutoGen";
-import {ConceptSummary, TTIriRef, Query, QueryRequest } from "@im-library/interfaces";
+import {ConceptSummary, Query, QueryRequest, TTIriRef} from "@im-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 const props = defineProps({
@@ -191,8 +190,7 @@ async function getAutocompleteOptions() {
     let queryRequest = {} as QueryRequest;
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
-      const args = processArguments(props.shape, valueVariableMap?.value);
-      queryRequest.argument=[args[0]];
+      queryRequest.argument=processArguments(props.shape, valueVariableMap?.value);
       query["@id"] = props.shape.select[0]["@id"];
       queryRequest.query = query;
     } else {
