@@ -585,6 +585,18 @@ const EntityService = {
     } catch (error) {
       return { result: [], totalCount: 0 } as any;
     }
+  },
+
+  async getPropertyType(url: string): Promise<any> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyType", {
+        params: {
+          url: url
+        }
+      });
+    } catch (error) {
+      return [] as any;
+    }
   }
 };
 

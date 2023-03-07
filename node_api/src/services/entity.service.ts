@@ -1,15 +1,19 @@
 import Env from "@/services/env.service";
-import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
-import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import { PropertyDisplay, QueryDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import {buildDetails} from "@/builders/entity/detailsBuilder";
+import {buildQueryDisplayFromQuery} from "@/builders/query/displayBuilder";
+import {buildQueryObjectFromQuery} from "@/builders/query/objectBuilder";
+import {PropertyDisplay, QueryDisplay, QueryObject, TTBundle, TTIriRef} from "@im-library/interfaces";
+import {IM, RDF, RDFS, SHACL} from "@im-library/vocabulary";
+import {isArrayHasLength, isObjectHasKeys} from "@im-library/helpers/DataTypeCheckers";
+import EntityRepository from "@/repositories/entityRepository";
 
 export default class EntityService {
   axios: any;
 
+  private entityRepository: EntityRepository;
+
   constructor(axios: any) {
+    this.entityRepository = new EntityRepository();
     this.axios = axios;
   }
 
@@ -153,5 +157,14 @@ export default class EntityService {
     }
 
     return propertyList;
+  }
+
+  async getPropertyType(iri: string): Promise<any> {
+    const data = await this.entityRepository.getPropertyType(iri);
+    return [{
+      "@id": data[0].type.value,
+      "http://www.w3.org/2000/01/rdf-schema#label": data[0].tname.value
+    }];
+
   }
 }
