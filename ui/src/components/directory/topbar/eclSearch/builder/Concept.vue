@@ -28,7 +28,11 @@
         </span>
         <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
         <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
-        <span class="remove-group">
+        <span class="right-container">
+          <div v-if="groupWithinConcept" class="group-checkbox">
+            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+            <label :for="'group' + index">Group</label>
+          </div>
           <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" class="builder-button" />
         </span>
       </div>
@@ -41,7 +45,14 @@
         @click="addRefinement"
         class="builder-button"
       />
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" class="builder-button" />
+      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" class="builder-button" />
+      <Button
+        type="button"
+        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
+        :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
+        @click="processGroup"
+        class="builder-button"
+      />
     </div>
   </div>
 </template>
@@ -57,7 +68,6 @@ import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/models/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { useStore } from "vuex";
 import { EntityService } from "@/services";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -86,7 +96,13 @@ watch(
   }
 );
 
-const store = useStore();
+watch(
+  () => _.cloneDeep(props.value.concept),
+  async (newValue, oldValue) => {
+    if (newValue !== oldValue) await init();
+  }
+);
+
 let treeDialog = useDialog();
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
@@ -97,6 +113,8 @@ const controller: Ref<AbortController | undefined> = ref(undefined);
 const suggestions: Ref<any[]> = ref([]);
 const menuBool = ref();
 const loading = ref(false);
+const groupWithinConcept = ref(false);
+const group: Ref<number[]> = ref([]);
 
 const boolOptions = [
   {
@@ -129,18 +147,27 @@ const descendantOptions = [
 ];
 
 onMounted(async () => {
+  await init();
+});
+
+watch(selected, (newValue, oldValue) => {
+  console.log(newValue);
+  console.log(oldValue);
+  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") {
+    console.log("here");
+    updateConcept(newValue);
+  } else if (undefined) updateConcept(undefined);
+  else return;
+});
+
+async function init() {
   if (props.value && props.value.concept && props.value.concept.iri) {
     loading.value = true;
     await search(props.value.concept.iri);
     if (isArrayHasLength(suggestions.value)) selected.value = suggestions.value.find(result => result.iri === props.value.concept?.iri);
     loading.value = false;
   }
-});
-
-watch(selected, (newValue, oldValue) => {
-  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") updateConcept(newValue);
-  else updateConcept(undefined);
-});
+}
 
 const hover = ref();
 function mouseover(event: Event) {
@@ -268,6 +295,18 @@ function openTree(type: string) {
     }
   });
 }
+
+function processGroup() {
+  if (groupWithinConcept.value && group.value.length) {
+    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
+    for (const index of group.value.sort((a, b) => a - b).reverse()) {
+      const item = props.value.items.splice(index, 1)[0];
+      newGroup.items.push(item);
+    }
+    props.value.items.push(newGroup);
+  }
+  groupWithinConcept.value = !groupWithinConcept.value;
+}
 </script>
 
 <style scoped lang="scss">
@@ -327,9 +366,17 @@ function openTree(type: string) {
   width: 100%;
 }
 
-.remove-group {
-  width: 2rem;
+.group-checkbox {
   display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
 }
 
 .tree-button {

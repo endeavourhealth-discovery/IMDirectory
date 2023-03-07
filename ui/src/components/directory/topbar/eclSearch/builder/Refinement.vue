@@ -64,6 +64,23 @@ const props = defineProps({
   focus: { type: Object, required: false }
 });
 
+watch(
+  () => _.cloneDeep(props.value),
+  async (newValue, oldValue) => {
+    if (newValue?.property?.concept?.iri !== oldValue.property.concept.iri) await processProps();
+    if (newValue?.value?.concept?.iri !== oldValue.value.concept.iri) await processProps();
+  }
+);
+
+watch(
+  () => _.cloneDeep(props.focus),
+  async (newValue, oldValue) => {
+    if (newValue && newValue.iri) {
+      await processProps();
+    } else clearAll();
+  }
+);
+
 const toast = useToast();
 
 let treeDialog = useDialog();
@@ -99,15 +116,6 @@ watch(selectedValue, newValue => {
   updateValue(newValue);
 });
 
-watch(
-  () => _.cloneDeep(props.focus),
-  async (newValue, oldValue) => {
-    if (newValue && newValue.iri) {
-      await processProps();
-    } else clearAll();
-  }
-);
-
 const descendantOptions = [
   {
     label: "only",
@@ -135,14 +143,14 @@ onBeforeUnmount(() => {
 });
 
 async function processProps() {
-  if (hasProperty()) {
+  if (hasProperty() && hasFocus()) {
     loadingProperty.value = true;
     loadingValue.value = true;
     let name = "";
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else name = await findIriName(props.value.property.concept.iri);
     if (name) {
-      if (hasProperty() && (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri))) {
+      if (hasProperty() && hasFocus() && (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri))) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
       } else {
         selectedProperty.value = null;

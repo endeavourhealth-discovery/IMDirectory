@@ -8,9 +8,13 @@
           <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" />
           <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary" disabled />
         </span>
-        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" :groupWithin="groupWithin" />
-        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :groupWithin="groupWithin" />
-        <div class="remove-group">
+        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" />
+        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" />
+        <div class="right-container">
+          <div v-if="groupWithinBoolGroup" class="group-checkbox">
+            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+            <label :for="'group' + index">Group</label>
+          </div>
           <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
         </div>
       </div>
@@ -21,9 +25,9 @@
       <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" />
       <Button
         type="button"
-        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithin ? 'p-button-danger' : 'p-button-help']"
-        :label="groupWithin ? 'Finish Grouping' : 'Group within'"
-        @click="groupWithin = !groupWithin"
+        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
+        :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
+        @click="processGroup"
       />
     </div>
   </div>
@@ -51,7 +55,8 @@ const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const selected = ref("AND");
-const groupWithin = ref(false);
+const groupWithinBoolGroup = ref(false);
+const group: Ref<number[]> = ref([]);
 
 const menuBool = ref();
 
@@ -132,7 +137,17 @@ function generateEcl(): string {
   return ecl.replace(/  +/g, " ");
 }
 
-function enableGroupWithin(): void {}
+function processGroup() {
+  if (groupWithinBoolGroup.value && group.value.length) {
+    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
+    for (const index of group.value.sort((a, b) => a - b).reverse()) {
+      const item = props.value.items.splice(index, 1)[0];
+      newGroup.items.push(item);
+    }
+    props.value.items.push(newGroup);
+  }
+  groupWithinBoolGroup.value = !groupWithinBoolGroup.value;
+}
 </script>
 
 <style scoped lang="scss">
@@ -159,9 +174,17 @@ function enableGroupWithin(): void {}
   width: 100%;
 }
 
-.remove-group {
-  width: 2rem;
+.right-container {
   display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.group-checkbox {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
 }
 
 .nested-div {
