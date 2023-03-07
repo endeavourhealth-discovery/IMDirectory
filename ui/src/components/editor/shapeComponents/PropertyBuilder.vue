@@ -4,7 +4,7 @@
       <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
       <i class="icon pi pi-arrow-right" />
       <EntityAutoComplete :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
-      <ToggleButton v-model="inheritedFrom" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <ToggleButton v-model="isInherited" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
       <ToggleButton v-model="required" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
       <ToggleButton v-model="unique" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
     </div>
@@ -47,6 +47,7 @@ const required = ref(false);
 const unique = ref(false);
 const loading = ref(true);
 const invalid = ref(false);
+let isInherited = false;
 
 watch(
   [propertyPath, propertyRange, inheritedFrom, required, unique],
@@ -92,10 +93,7 @@ watch(propertyPath, newValue => {
 watch(
   () => _.cloneDeep(props.value),
   (newValue, oldValue) => {
-    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
-      processProps();
-      updateAll();
-    }
+    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) processProps();
   }
 );
 
@@ -104,6 +102,7 @@ onMounted(async () => {
   processProps();
   loading.value = false;
   await updateAll();
+  console.trace();
 });
 
 function processProps() {
@@ -132,8 +131,10 @@ function processProps() {
       isObjectHasKeys(props.value, ["http://endhealth.info/im#inheritedFrom"]) &&
       _.isArray(props.value["http://endhealth.info/im#inheritedFrom"]) &&
       props.value["http://endhealth.info/im#inheritedFrom"].length === 1
-    )
+    ) {
       inheritedFrom.value = props.value["http://endhealth.info/im#inheritedFrom"][0];
+      isInherited = true;
+    }
     if (isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#minCount"]) && typeof props.value["http://www.w3.org/ns/shacl#minCount"] === "number")
       required.value = props.value["http://www.w3.org/ns/shacl#minCount"] > 0;
     else required.value = false;
