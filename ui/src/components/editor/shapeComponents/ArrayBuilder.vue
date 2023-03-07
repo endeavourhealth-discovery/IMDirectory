@@ -29,6 +29,7 @@
 
 <script lang="ts">
 import BuilderChildWrapper from "./BuilderChildWrapper.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { BuilderChildWrapper }
@@ -39,14 +40,15 @@ export default defineComponent({
 import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { ComponentDetails, PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces";
+import { ComponentDetails, TTIriRef } from "@im-library/interfaces";
+import { PropertyGroup, PropertyShape } from "@im-library/models/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
 import { isPropertyGroup, isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },
@@ -125,6 +127,7 @@ function createBuild() {
   let position = 0;
   props.value.forEach(item => {
     build.value.push(processChild(item, position));
+    updateButtons();
     position++;
   });
   if (!isArrayHasLength(build.value)) {
@@ -185,9 +188,17 @@ function setButtonsByTypeAndPath(position: number, isNewItem: boolean): { minus:
     return addButtonOnlyIfLast(position, isNewItem);
   } else if (path === IM.ROLE_GROUP) {
     return addButtonOnlyIfLast(position, isNewItem);
+  } else if (path === SHACL.PROPERTY) {
+    return addButtonOnlyIfLastWithUpDown(position, isNewItem);
   } else {
     return { minus: true, plus: true, up: true, down: true };
   }
+}
+
+function addButtonOnlyIfLastWithUpDown(position: number, isNewItem: boolean) {
+  if (isNewItem && position !== build.value.length) return { minus: true, plus: false, up: true, down: true };
+  else if (!isNewItem && position !== build.value.length - 1) return { minus: true, plus: false, up: true, down: true };
+  else return { minus: true, plus: true, up: true, down: true };
 }
 
 function addButtonOnlyIfLast(position: number, isNewItem: boolean) {
@@ -207,7 +218,6 @@ function generateBuildAsJson() {
       jsonBuild.push(item.json);
     }
   });
-  // return build.value.map(item => item.json);
   return jsonBuild;
 }
 
@@ -279,8 +289,14 @@ function moveItemUp(item: ComponentDetails) {
   if (item.position === 0) return;
   const found = build.value.find(o => o.position === item.position);
   if (found) {
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      found.showButtons.plus = false;
+    }
     build.value.splice(item.position, 1);
     build.value.splice(item.position - 1, 0, found);
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      build.value[build.value.length - 1].showButtons.plus = true;
+    }
   }
   updatePositions(build.value);
 }
@@ -289,8 +305,14 @@ function moveItemDown(item: ComponentDetails) {
   if (item.position === build.value.length - 1) return;
   const found = build.value.find(o => o.position === item.position);
   if (found) {
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      build.value[build.value.length - 1].showButtons.plus = false;
+    }
     build.value.splice(item.position, 1);
     build.value.splice(item.position + 1, 0, found);
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      build.value[build.value.length - 1].showButtons.plus = true;
+    }
     updatePositions(build.value);
   }
 }

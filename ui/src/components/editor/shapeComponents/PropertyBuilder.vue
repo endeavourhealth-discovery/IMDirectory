@@ -4,15 +4,16 @@
       <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
       <i class="icon pi pi-arrow-right" />
       <EntityAutoComplete :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
-      <Tag v-if="inheritedFrom" value="Inherited" />
-      <ToggleButton v-model="required" onLabel="Required" offLabel="Not required" onIcon="pi pi-check" offIcon="pi pi-times" />
-      <ToggleButton v-model="unique" onLabel="Unique" offLabel="Not unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <ToggleButton v-model="inheritedFrom" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <ToggleButton v-model="required" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <ToggleButton v-model="unique" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropertyShape, TTIriRef, Property } from "@im-library/interfaces";
+import { PropertyShape } from "@im-library/models/AutoGen";
+import { TTIriRef, Property } from "@im-library/interfaces";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import _ from "lodash";
@@ -91,7 +92,10 @@ watch(propertyPath, newValue => {
 watch(
   () => _.cloneDeep(props.value),
   (newValue, oldValue) => {
-    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) processProps();
+    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
+      processProps();
+      updateAll();
+    }
   }
 );
 

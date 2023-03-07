@@ -17,6 +17,7 @@
           :disabled="invalidAssociatedProperty || disabled"
           class="search-input"
           @drop.prevent
+          style="width: 300px"
         >
           <template #item="slotProps">
             <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, slotProps.item)" @mouseleave="hideOptionsOverlay($event)">
@@ -63,19 +64,19 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, watch, ref, Ref, onMounted, inject, onBeforeUnmount } from "vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import {inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch} from "vue";
+import {AbortController} from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
-import { EditorMode } from "@im-library/enums";
-import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { processArguments } from "@im-library/helpers/EditorMethods";
-import { byName } from "@im-library/helpers/Sorters";
-import { mapToObject } from "@im-library/helpers/Transforms";
-import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { TTIriRef, ConceptSummary, PropertyShape, QueryRequest, Query } from "@im-library/interfaces";
+import {EditorMode} from "@im-library/enums";
+import {getNamesAsStringFromTypes} from "@im-library/helpers/ConceptTypeMethods";
+import {isArrayHasLength, isObject, isObjectHasKeys} from "@im-library/helpers/DataTypeCheckers";
+import {processArguments} from "@im-library/helpers/EditorMethods";
+import {mapToObject} from "@im-library/helpers/Transforms";
+import {isTTIriRef} from "@im-library/helpers/TypeGuards";
+import {QueryService, EntityService} from "@/services";
+import {IM, RDF, RDFS, SHACL} from "@im-library/vocabulary";
+import {PropertyShape} from "@im-library/models/AutoGen";
+import {ConceptSummary, TTIriRef, Query, QueryRequest } from "@im-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 const props = defineProps({
@@ -191,8 +192,7 @@ async function getAutocompleteOptions() {
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
       const args = processArguments(props.shape, valueVariableMap?.value);
-      const replacedArgs = mapToObject(args);
-      queryRequest.argument = replacedArgs;
+      queryRequest.argument=[args[0]];
       query["@id"] = props.shape.select[0]["@id"];
       queryRequest.query = query;
     } else {
@@ -203,11 +203,19 @@ async function getAutocompleteOptions() {
     }
     controller.value = new AbortController();
     if (controller.value) {
-      const result = await QueryService.queryIM(queryRequest, controller.value);
-      if (result && isObjectHasKeys(result, ["entities"])) {
-        autocompleteOptions.value = convertToConceptSummary(result.entities).sort(byName);
+      if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_AllowableRanges") {
+        const propIri = queryRequest.argument[0].valueIri["@id"];
+        if(propIri) {
+          const data:TTIriRef[] = await EntityService.getPropertyType(propIri);
+          if(data) {
+            autocompleteOptions.value = convertToConceptSummary(data);
+          }
+        }
       } else {
-        autocompleteOptions.value = [];
+        const result = await QueryService.queryIM(queryRequest, controller.value);
+        if (result && isObjectHasKeys(result, ["entities"])) {
+          autocompleteOptions.value = convertToConceptSummary(result.entities);
+        }
       }
     }
   }
