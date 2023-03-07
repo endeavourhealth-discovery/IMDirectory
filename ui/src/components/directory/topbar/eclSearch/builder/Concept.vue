@@ -26,7 +26,7 @@
           <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" class="builder-button" />
           <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary builder-button" disabled />
         </span>
-        <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
+        <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
         <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
         <span class="right-container">
           <div v-if="groupWithinConcept" class="group-checkbox">
@@ -151,10 +151,7 @@ onMounted(async () => {
 });
 
 watch(selected, (newValue, oldValue) => {
-  console.log(newValue);
-  console.log(oldValue);
   if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") {
-    console.log("here");
     updateConcept(newValue);
   } else if (undefined) updateConcept(undefined);
   else return;
@@ -306,6 +303,19 @@ function processGroup() {
     props.value.items.push(newGroup);
   }
   groupWithinConcept.value = !groupWithinConcept.value;
+}
+
+function unGroupItems(groupedItems: any) {
+  const foundItem = props.value.items.find(item => _.isEqual(item, groupedItems));
+  if (foundItem) {
+    props.value.items.splice(
+      props.value.items.findIndex(item => _.isEqual(item, groupedItems)),
+      1
+    );
+    for (const groupedItem of groupedItems.items) {
+      props.value.items.push(groupedItem);
+    }
+  }
 }
 </script>
 
