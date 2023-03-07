@@ -7,6 +7,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
 import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
@@ -39,13 +40,12 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropertyGroup, PropertyShape } from "@im-library/interfaces";
+import { PropertyGroup, PropertyShape } from "@im-library/models/AutoGen";
 import { ref, Ref, watch, inject, onMounted, PropType, defineComponent } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },
