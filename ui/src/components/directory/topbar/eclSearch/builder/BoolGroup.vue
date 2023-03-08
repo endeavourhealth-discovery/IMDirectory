@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, watch } from "vue";
+import { ref, inject, Ref, watch, onMounted } from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _ from "lodash";
@@ -113,7 +113,16 @@ function addConcept() {
 }
 
 function addRefinement() {
-  add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
+  if (!props.value.items || props.value.items?.length === 0) {
+    const anyConcept = {
+      type: "Concept",
+      descendants: "<<",
+      concept: { iri: "any", name: "ANY", code: "any" },
+      conjunction: "AND",
+      items: [{ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } }]
+    };
+    add(anyConcept);
+  } else add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
 }
 
 function addGroup() {
