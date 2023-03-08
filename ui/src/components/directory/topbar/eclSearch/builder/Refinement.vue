@@ -157,7 +157,11 @@ async function processProps() {
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else name = await findIriName(props.value.property.concept.iri);
     if (name) {
-      if (hasProperty() && hasFocus() && (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri))) {
+      if (
+        hasProperty() &&
+        hasFocus() &&
+        (props.focus?.iri === "any" || (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri)))
+      ) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
       } else {
         selectedProperty.value = null;
