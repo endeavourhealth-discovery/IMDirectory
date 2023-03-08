@@ -157,6 +157,7 @@ function processGroup() {
     props.value.items.push(newGroup);
   }
   groupWithinBoolGroup.value = !groupWithinBoolGroup.value;
+  group.value = [];
 }
 
 function requestUnGroupItems() {
