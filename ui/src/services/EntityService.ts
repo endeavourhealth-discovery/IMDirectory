@@ -587,11 +587,12 @@ const EntityService = {
     }
   },
 
-  async getPropertyType(url: string): Promise<any> {
+  async getPropertyType(modelIri: string, propIri: string): Promise<any> {
     try {
       return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyType", {
         params: {
-          url: url
+          modelIri: modelIri,
+          propIri: propIri
         }
       });
     } catch (error) {

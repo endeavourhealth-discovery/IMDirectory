@@ -159,8 +159,8 @@ export default class EntityService {
     return propertyList;
   }
 
-  async getPropertyType(iri: string): Promise<any> {
-    const data = await this.entityRepository.getPropertyType(iri);
+  async getPropertyType(modelIri: string, propIri: string): Promise<any> {
+    const data = await this.entityRepository.getPropertyType(modelIri, propIri);
     return [{
       "@id": data[0].type.value,
       "http://www.w3.org/2000/01/rdf-schema#label": data[0].tname.value

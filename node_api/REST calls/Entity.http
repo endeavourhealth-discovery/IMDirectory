@@ -1,3 +1,7 @@
-GET http://localhost:3000/node_api/entity/public/propertyType?url=http://www.w3.org/ns/shacl#parameter
+GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://endhealth.info/im#AdministrationNote&propIri=http://endhealth.info/im#concept
+
+###
+
+GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://endhealth.info/im#AdministrationNote&propIri=http://endhealth.info/im#text
 
 ###

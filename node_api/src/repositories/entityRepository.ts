@@ -8,11 +8,11 @@ export default class EntityRepository {
         this.graph = new GraphdbService();
     }
 
-    public async getPropertyType(propIri: string): Promise<any> {
+    public async getPropertyType(modelIri: string,propIri: string): Promise<any> {
         const qry =
             "PREFIX sh:" + iri("http://www.w3.org/ns/shacl#") +
             "select distinct ?type ?tname where {" +
-            "?entity sh:property ?o ." +
+            "?modelIri sh:property ?o ." +
             "?o sh:path ?property ." +
             "?o (sh:class|sh:node|sh:datatype) ?type ." +
             "?type rdfs:label ?tname ." +
@@ -21,6 +21,7 @@ export default class EntityRepository {
 
         return await this.graph.execute(qry, {
             shNamespace: iri("http://www.w3.org/ns/shacl#"),
+            modelIri: iri(modelIri),
             propIri: iri(propIri)
         });
     }

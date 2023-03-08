@@ -76,6 +76,7 @@ import {IM, RDF, RDFS} from "@im-library/vocabulary";
 import {PropertyShape} from "@im-library/models/AutoGen";
 import {ConceptSummary, Query, QueryRequest, TTIriRef} from "@im-library/interfaces";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import router from "@/router";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyShape>, required: true },
@@ -203,7 +204,7 @@ async function getAutocompleteOptions() {
       if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_AllowableRanges") {
         const propIri = queryRequest.argument[0].valueIri["@id"];
         if(propIri) {
-          const data:TTIriRef[] = await EntityService.getPropertyType(propIri);
+          const data:TTIriRef[] = await EntityService.getPropertyType(router.currentRoute.value.params.selectedIri as string, propIri);
           if(data) {
             autocompleteOptions.value = convertToConceptSummary(data);
           }

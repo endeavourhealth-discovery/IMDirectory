@@ -28,7 +28,7 @@ export default class EntityController {
   }
   async getPropertyType(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await this.entityService.getPropertyType(req.query.url as string);
+      const data = await this.entityService.getPropertyType(req.query.modelIri as string, req.query.propIri as string);
       res.send(data).end();
     } catch (e) {
       next(e);

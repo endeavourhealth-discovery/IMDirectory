@@ -102,7 +102,6 @@ onMounted(async () => {
   processProps();
   loading.value = false;
   await updateAll();
-  console.trace();
 });
 
 function processProps() {
