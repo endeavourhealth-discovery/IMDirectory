@@ -1,10 +1,10 @@
 <template>
   <div class="property-builder">
     <div class="content-container">
+      <ToggleButton v-model="isInherited" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" disabled/>
       <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
       <i class="icon pi pi-arrow-right" />
       <EntityAutoComplete :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
-      <ToggleButton v-model="isInherited" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
       <ToggleButton v-model="required" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
       <ToggleButton v-model="unique" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
     </div>

@@ -5,3 +5,7 @@ GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://en
 GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://endhealth.info/im#AdministrationNote&propIri=http://endhealth.info/im#text
 
 ###
+
+GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://endhealth.info/im#AdministrationNote&propIri=http://endhealth.info/im#usedEntity
+
+###
