@@ -303,6 +303,7 @@ function processGroup() {
     props.value.items.push(newGroup);
   }
   groupWithinConcept.value = !groupWithinConcept.value;
+  group.value = [];
 }
 
 function unGroupItems(groupedItems: any) {
