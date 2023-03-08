@@ -5,8 +5,7 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    Under construction
-    <!-- TODO -->
+    <div id="query-main-container"></div>
   </div>
 </template>
 
@@ -26,5 +25,12 @@ import TopBar from "@/components/shared/TopBar.vue";
 .title {
   font-size: 2rem;
   white-space: nowrap;
+}
+
+#query-main-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  background-color: #ffffff;
 }
 </style>
