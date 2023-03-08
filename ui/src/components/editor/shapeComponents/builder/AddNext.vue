@@ -9,7 +9,8 @@
 
 <script setup lang="ts">
 import { PropType, ref, Ref, watch, onMounted } from "vue";
-import { NextComponentSummary, ComponentDetails, PropertyShape } from "@im-library/interfaces";
+import { NextComponentSummary, ComponentDetails } from "@im-library/interfaces";
+import { PropertyShape } from "@im-library/models/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 
 const props = defineProps({

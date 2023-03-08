@@ -12,7 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropertyShape, TTIriRef, Property } from "@im-library/interfaces";
+import { Property } from "@im-library/interfaces";
+import { PropertyShape, TTIriRef } from "@im-library/models/AutoGen";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import _ from "lodash";

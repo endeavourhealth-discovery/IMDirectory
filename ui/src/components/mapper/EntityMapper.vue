@@ -153,7 +153,9 @@ import { EntityService, Env, DirectService } from "@/services";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
-import { TTIriRef, ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/models/AutoGen";
+
 import { SearchRequest } from "@im-library/models/AutoGen";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";

@@ -60,7 +60,8 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { EntityReferenceNode, FilterOptions, TTIriRef } from "@im-library/interfaces";
+import { EntityReferenceNode, FilterOptions } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/models/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
