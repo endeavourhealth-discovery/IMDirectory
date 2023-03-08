@@ -36,7 +36,9 @@ export default {
     orRefinement:
       "<<763158003 | Medicinal Product| : <<127489000|has active ingredient| = << 698090000 |Apixaban (substance) | OR <<127489000|has active ingredient| =<<442031002 | Rivaroxaban (product) |",
     multipleOrRefinement:
-      "<<763158003 | Medicinal Product |: <<127489000|has active ingredient |= <<698090000 | Apixaban (substance) | OR <<127489000|has active ingredient| = <<442031002 | Rivaroxaban (substance)| OR <<127489000|has active ingredient|= << 698871007| Dabigatran (substance)| OR <<127489000|has active ingredient|= << 712778008| Edoxaban (substance)| OR <<127489000|has active ingredient|= << 387260007| Phenindione (substance) | OR <<127489000|has active ingredient|= << 59488002 | Warfarin sodium (substance) | OR <<127489000|has active ingredient|= << 372756006| Warfarin (substance)|"
+      "<<763158003 | Medicinal Product |: <<127489000|has active ingredient |= <<698090000 | Apixaban (substance) | OR <<127489000|has active ingredient| = <<442031002 | Rivaroxaban (substance)| OR <<127489000|has active ingredient|= << 698871007| Dabigatran (substance)| OR <<127489000|has active ingredient|= << 712778008| Edoxaban (substance)| OR <<127489000|has active ingredient|= << 387260007| Phenindione (substance) | OR <<127489000|has active ingredient|= << 59488002 | Warfarin sodium (substance) | OR <<127489000|has active ingredient|= << 372756006| Warfarin (substance)|",
+    refinementConjunctionWithGroup:
+      "<< 763158003 | Medicinal product (product) | : << 127489000 | Has active ingredient (attribute) | = << 387207008 | Ibuprofen (substance) | AND ( << 411116001 | Has manufactured dose form (attribute) | = << 763820000 | Gastro-resistant oral suspension (dose form) | OR  << 411116001 | Has manufactured dose form (attribute) | = << 421701006 | Soluble tablet (qualifier value) | )"
   },
   query: {
     orGroupMinusOrGroup: {
@@ -748,6 +750,55 @@ export default {
                 {
                   "@id": "http://snomed.info/sct#372756006",
                   descendantsOrSelfOf: true
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    refinementConjunctionWithGroup: {
+      from: {
+        "@id": "http://snomed.info/sct#763158003",
+        descendantsOrSelfOf: true,
+        where: {
+          bool: "and",
+          where: [
+            {
+              "@id": "http://snomed.info/sct#127489000",
+              anyRoleGroup: true,
+              descendantsOrSelfOf: true,
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#387207008",
+                  descendantsOrSelfOf: true
+                }
+              ]
+            },
+            {
+              bool: "or",
+              where: [
+                {
+                  "@id": "http://snomed.info/sct#411116001",
+                  anyRoleGroup: true,
+                  descendantsOrSelfOf: true,
+                  in: [
+                    {
+                      "@id": "http://snomed.info/sct#763820000",
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                },
+                {
+                  "@id": "http://snomed.info/sct#411116001",
+                  anyRoleGroup: true,
+                  descendantsOrSelfOf: true,
+                  in: [
+                    {
+                      "@id": "http://snomed.info/sct#421701006",
+                      descendantsOrSelfOf: true
+                    }
+                  ]
                 }
               ]
             }
