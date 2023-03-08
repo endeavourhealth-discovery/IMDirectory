@@ -184,6 +184,6 @@ function addNextClicked(item: any): void {
 }
 
 .builder-child {
-  align-self: center;
+  align-self: flex-start;
 }
 </style>

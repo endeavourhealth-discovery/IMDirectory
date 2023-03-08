@@ -17,7 +17,6 @@
           :disabled="invalidAssociatedProperty || disabled"
           class="search-input"
           @drop.prevent
-          style="width: 300px"
         >
           <template #item="slotProps">
             <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, slotProps.item)" @mouseleave="hideOptionsOverlay($event)">
@@ -339,7 +338,7 @@ function hideOptionsOverlay(event: any): void {
 }
 
 .search-input {
-  width: 25rem;
+  width: 20rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

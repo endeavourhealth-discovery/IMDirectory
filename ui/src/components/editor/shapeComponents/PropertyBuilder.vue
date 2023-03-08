@@ -237,7 +237,6 @@ function defaultValidity() {
 .content-container {
   display: flex;
   flex-flow: row wrap;
-  /* border: solid 1px; */
   align-items: baseline;
 }
 

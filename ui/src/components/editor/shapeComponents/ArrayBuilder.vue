@@ -343,13 +343,12 @@ function moveItemDown(item: ComponentDetails) {
   flex-flow: column;
 }
 .children-container {
-  padding: 1rem;
+  padding-left: 1rem;
   border-radius: 3px;
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
-  gap: 1rem;
   overflow: auto;
 }
 
