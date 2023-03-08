@@ -300,7 +300,7 @@ function processGroup() {
       const item = props.value.items.splice(index, 1)[0];
       newGroup.items.push(item);
     }
-    props.value.items.push(newGroup);
+    props.value.items.splice(group.value.sort()[0], 0, newGroup);
   }
   groupWithinConcept.value = !groupWithinConcept.value;
   group.value = [];
@@ -308,13 +308,11 @@ function processGroup() {
 
 function unGroupItems(groupedItems: any) {
   const foundItem = props.value.items.find(item => _.isEqual(item, groupedItems));
+  const foundItemIndex = props.value.items.findIndex(item => _.isEqual(item, groupedItems));
   if (foundItem) {
-    props.value.items.splice(
-      props.value.items.findIndex(item => _.isEqual(item, groupedItems)),
-      1
-    );
+    props.value.items.splice(foundItemIndex, 1);
     for (const groupedItem of groupedItems.items) {
-      props.value.items.push(groupedItem);
+      props.value.items.splice(foundItemIndex, 0, groupedItem);
     }
   }
 }
