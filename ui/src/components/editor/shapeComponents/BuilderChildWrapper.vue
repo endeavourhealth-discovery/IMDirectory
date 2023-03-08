@@ -1,5 +1,10 @@
 <template>
   <div class="builder-child">
+    <div>
+      <AddTitle
+          :show="showTitles"
+      />
+    </div>
     <div class="builder-child-wrapper">
       <div class="builder-child-container" :id="id">
         <component
@@ -56,6 +61,7 @@ import { ComponentDetails } from "@im-library/interfaces";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import {} from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
+import AddTitle from "@/components/editor/shapeComponents/AddTitle.vue";
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -64,7 +70,8 @@ const props = defineProps({
   showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean; up: boolean; down: boolean }>, required: true },
   shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
-  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true }
+  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true },
+  showTitles: {type: Boolean}
 });
 
 const emit = defineEmits({
@@ -86,7 +93,8 @@ function createEntity(data?: any): ComponentDetails {
       json: data,
       showButtons: props.showButtons,
       shape: props.shape,
-      mode: props.mode
+      mode: props.mode,
+      showTitles: props.showTitles
     };
   else {
     return {
@@ -97,7 +105,8 @@ function createEntity(data?: any): ComponentDetails {
       json: {},
       showButtons: props.showButtons,
       shape: props.shape,
-      mode: props.mode
+      mode: props.mode,
+      showTitles: props.showTitles
     };
   }
 }

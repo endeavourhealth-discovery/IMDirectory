@@ -242,6 +242,6 @@ function defaultValidity() {
 }
 
 .p-togglebutton {
-  margin-right: 1rem;
+  margin-right: 2.5rem;
 }
 </style>
