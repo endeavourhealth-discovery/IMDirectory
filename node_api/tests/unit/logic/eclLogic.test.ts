@@ -93,6 +93,10 @@ describe("eclLogic", () => {
     it("converts multipleOrRefinement", () => {
       expect(eclToIMQ(testData.ecl.multipleOrRefinement)).toEqual(testData.query.multipeOrRefinement);
     });
+
+    it("converts refinementConjunctionWithGroup", () => {
+      expect(eclToIMQ(testData.ecl.refinementConjunctionWithGroup)).toEqual(testData.query.refinementConjunctionWithGroup);
+    });
   });
 
   describe("eclToBuild", () => {
@@ -214,6 +218,80 @@ describe("eclLogic", () => {
 
     it("converts multipleOrRefinement", () => {
       expect(eclToBuild(testData.ecl.multipleOrRefinement)).toEqual(testData.builder.multipleOrRefinement);
+    });
+
+    it("converts", () => {
+      expect(eclToBuild(testData.ecl.refinementConjunctionWithGroup)).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            type: "Concept",
+            descendants: "<<",
+            concept: {
+              iri: "http://snomed.info/sct#763158003"
+            },
+            conjunction: "AND",
+            items: [
+              {
+                type: "Refinement",
+                property: {
+                  descendants: "<<",
+                  concept: {
+                    iri: "http://snomed.info/sct#127489000"
+                  }
+                },
+                value: {
+                  descendants: "<<",
+                  concept: {
+                    iri: "http://snomed.info/sct#387207008"
+                  }
+                },
+                operator: "="
+              },
+
+              {
+                type: "BoolGroup",
+                items: [
+                  {
+                    type: "Refinement",
+                    property: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#411116001"
+                      }
+                    },
+                    value: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#763820000"
+                      }
+                    },
+                    operator: "="
+                  },
+                  {
+                    type: "Refinement",
+                    property: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#411116001"
+                      }
+                    },
+                    value: {
+                      descendants: "<<",
+                      concept: {
+                        iri: "http://snomed.info/sct#421701006"
+                      }
+                    },
+                    operator: "="
+                  }
+                ],
+                conjunction: "OR"
+              }
+            ]
+          }
+        ]
+      });
     });
 
     it("handles simple concept", () => {
