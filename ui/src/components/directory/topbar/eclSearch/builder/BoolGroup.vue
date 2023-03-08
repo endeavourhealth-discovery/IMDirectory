@@ -8,9 +8,13 @@
           <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" />
           <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary" disabled />
         </span>
-        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" />
+        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" />
         <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" />
-        <div class="remove-group">
+        <div class="right-container">
+          <div v-if="groupWithinBoolGroup" class="group-checkbox">
+            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+            <label :for="'group' + index">Group</label>
+          </div>
           <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
         </div>
       </div>
@@ -18,7 +22,20 @@
     <div class="add-group">
       <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" />
       <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Refinement" @click="addRefinement" />
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" />
+      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" />
+      <Button
+        type="button"
+        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
+        :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
+        @click="processGroup"
+      />
+      <Button
+        v-if="!rootBool"
+        type="button"
+        :class="[hover ? 'p-button-warning' : 'p-button-placeholder', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-warning']"
+        label="Ungroup"
+        @click="requestUnGroupItems"
+      />
     </div>
   </div>
 </template>
@@ -33,7 +50,8 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 const props = defineProps({
   value: { type: Object, required: true },
   parent: { type: Object, required: false },
-  focus: { type: Object, required: false }
+  focus: { type: Object, required: false },
+  rootBool: { type: Boolean, default: false }
 });
 
 watch(
@@ -41,10 +59,14 @@ watch(
   () => (props.value.ecl = generateEcl())
 );
 
+const emit = defineEmits({ unGroupItems: payload => true });
+
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const selected = ref("AND");
+const groupWithinBoolGroup = ref(false);
+const group: Ref<number[]> = ref([]);
 
 const menuBool = ref();
 
@@ -124,6 +146,35 @@ function generateEcl(): string {
   }
   return ecl.replace(/  +/g, " ");
 }
+
+function processGroup() {
+  if (groupWithinBoolGroup.value && group.value.length) {
+    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
+    for (const index of group.value.sort((a, b) => a - b).reverse()) {
+      const item = props.value.items.splice(index, 1)[0];
+      newGroup.items.push(item);
+    }
+    props.value.items.push(newGroup);
+  }
+  groupWithinBoolGroup.value = !groupWithinBoolGroup.value;
+}
+
+function requestUnGroupItems() {
+  emit("unGroupItems", props.value);
+}
+
+function unGroupItems(groupedItems: any) {
+  const foundItem = props.value.items.find((item: any) => _.isEqual(item, groupedItems));
+  if (foundItem) {
+    props.value.items.splice(
+      props.value.items.findIndex((item: any) => _.isEqual(item, groupedItems)),
+      1
+    );
+    for (const groupedItem of groupedItems.items) {
+      props.value.items.push(groupedItem);
+    }
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -150,9 +201,17 @@ function generateEcl(): string {
   width: 100%;
 }
 
-.remove-group {
-  width: 2rem;
+.right-container {
   display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.group-checkbox {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
 }
 
 .nested-div {
