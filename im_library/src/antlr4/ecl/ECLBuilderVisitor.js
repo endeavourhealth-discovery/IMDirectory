@@ -3,7 +3,7 @@ import { isObjectHasKeys } from "../../helpers/DataTypeCheckers";
 import _ from "lodash";
 import { IM, SNOMED } from "@im-library/vocabulary";
 
-const showLogs = false;
+const showLogs = true;
 
 export default class ECLBuilderVisitor extends ECLVisitor {
   constructor() {
@@ -178,16 +178,23 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log("found bracket compound expression constraint");
       console.log(ctx.getText());
     }
+    let build = { type: "BoolGroup" };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["type"]) && (result.type === "Concept" || result.type === "BoolGroup")) {
-            return result;
+            if (_.isArray(build.items)) build.items.push(result);
+            else build.items = [result];
           }
         }
       }
     }
+    console.error(build);
+    if (!build.items) {
+      console.error(build);
+    } else if (build.items.length > 1) return build;
+    else return build.items[0];
   }
 
   visitConstraintoperator(ctx) {
