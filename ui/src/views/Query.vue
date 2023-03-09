@@ -19,7 +19,7 @@ import RecursiveTableBox from "../components/query/RecursiveTableBox.vue";
 import { QueryData } from "@im-library/interfaces";
 
 const selected = ref([] as any[]);
-const data: Ref<QueryData[]> = ref([queryData] as any as QueryData[]);
+const data: Ref<QueryData[]> = ref(queryData as QueryData[]);
 </script>
 
 <style scoped lang="scss">
