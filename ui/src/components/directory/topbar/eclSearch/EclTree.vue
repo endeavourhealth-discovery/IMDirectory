@@ -191,7 +191,7 @@ onMounted(async () => {
     if (root.value.length < superiorsCount.value) {
       root.value.push(
         createLoadMoreNode(
-          createTreeNode(rootConceptIri.value, rootConceptIri.value, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+          createTreeNode(rootConceptIri.value, rootConceptIri.value, [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null),
           1,
           superiorsCount.value
         )
@@ -289,7 +289,7 @@ async function rootLoadMore(node: any) {
     node.nextPage = node.nextPage + 1;
     root.value.push(
       createLoadMoreNode(
-        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null),
         node.nextPage,
         node.totalCount
       )

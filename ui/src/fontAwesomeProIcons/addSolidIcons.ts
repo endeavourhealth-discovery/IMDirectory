@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {Library} from '@fortawesome/fontawesome-svg-core';
 
 import { faDiagramProject} from "@fortawesome/pro-solid-svg-icons/faDiagramProject";

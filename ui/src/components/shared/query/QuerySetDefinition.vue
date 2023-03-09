@@ -38,11 +38,11 @@ import { ref, watch } from "vue";
 import { QueryService } from "@/services";
 import { QueryDisplay } from "@im-library/interfaces";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import {TreeNode} from 'primevue/tree';
+
 const props = defineProps({ conceptIri: { type: String, required: true } });
 
 const loading = ref<boolean>(false);
-const queryDisplay: Ref<TreeNode[]> = ref([] as TreeNode[]);
+const queryDisplay: Ref<QueryDisplay[]> = ref([] as QueryDisplay[]);
 const expandedKeys = ref<any>({});
 
 onMounted(async () => {

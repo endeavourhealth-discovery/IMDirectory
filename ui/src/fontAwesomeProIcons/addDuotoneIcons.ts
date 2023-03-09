@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {Library} from '@fortawesome/fontawesome-svg-core';
 import { faHouseChimney } from "@fortawesome/pro-duotone-svg-icons/faHouseChimney";
 import { faSliders } from "@fortawesome/pro-duotone-svg-icons/faSliders";

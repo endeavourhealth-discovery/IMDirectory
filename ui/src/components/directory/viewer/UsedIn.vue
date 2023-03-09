@@ -44,7 +44,7 @@ import { RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 const { isObjectHasKeys } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "../components/directory/viewer/OverlaySummary.vue";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }

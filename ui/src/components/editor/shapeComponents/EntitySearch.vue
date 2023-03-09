@@ -169,7 +169,7 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
     selectedResult.value = data;
     searchTerm.value = data.name;
   } else {
-    selectedResult.value = { "@id": data.iri, name: data.name };
+    selectedResult.value = { "@id": data.iri, name: data.name } as TTIriRef;
     searchTerm.value = data.name;
   }
   if (!props.shape.builderChild && key.value) {
@@ -216,7 +216,7 @@ function dropReceived(event: any) {
   const data = event.dataTransfer.getData("text/plain");
   if (data) {
     const json = JSON.parse(data);
-    const iriRef = { "@id": json.data, name: json.label };
+    const iriRef = { "@id": json.data, name: json.label } as TTIriRef;
     updateSelectedResult(iriRef);
   }
 }

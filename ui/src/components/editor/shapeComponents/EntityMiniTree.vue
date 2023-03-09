@@ -156,7 +156,7 @@ function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: 
 
 function onNodeSelect(node: any): void {
   selectedNode.value = node;
-  emit("treeNodeSelected", { "@id": node.data, name: node.label });
+  emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
 }
 
 async function loadMore(node: any) {

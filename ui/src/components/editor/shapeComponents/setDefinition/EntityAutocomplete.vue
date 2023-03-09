@@ -65,7 +65,7 @@ onMounted(() => {
 });
 
 function populateTTAlias() {
-  if (isObjectHasKeys(props.ttAlias, ["@id", "name"])) selectedEntity.value = [{ "@id": props.ttAlias["@id"], name: props.ttAlias.name }];
+  if (isObjectHasKeys(props.ttAlias, ["@id", "name"])) selectedEntity.value = [{ "@id": props.ttAlias["@id"], name: props.ttAlias.name } as TTIriRef];
 }
 
 function handleChange(event: any) {

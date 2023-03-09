@@ -81,7 +81,7 @@ export default defineComponent({
 
     onNodeSelect(node: any): void {
       this.selectedNode = node;
-      this.$emit("treeNodeSelected", { "@id": node.data, name: node.label });
+      this.$emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
     },
 
     async onNodeExpand(node: any) {

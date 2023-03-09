@@ -4,7 +4,7 @@ import { TTIriRef } from "@im-library/models/AutoGen";
 const node_api = Env.VITE_NODE_API;
 
 const ProvService = {
-  async getProvHistory(iri: string) {
+  async getProvHistory(iri: string): Promise<TTIriRef[]> {
     try {
       return await axios.get(node_api + "node_api/prov/public/history", {
         params: { url: iri }

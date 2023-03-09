@@ -59,6 +59,7 @@ import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
+import { TreeNode } from "./TreeNode";
 
 export {
   type AccountItem,
@@ -121,5 +122,6 @@ export {
   type PropertyDisplay,
   type PropertyShape,
   type PropertyGroup,
-  type DisplayQuery
+  type DisplayQuery,
+  type TreeNode
 };

@@ -254,8 +254,8 @@ function updateValueVariableMap(data: ConceptSummary) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, summaryToTTIriRef(data));
 }
 
-function summaryToTTIriRef(summary: ConceptSummary) {
-  return { "@id": summary.iri, name: summary.name };
+function summaryToTTIriRef(summary: ConceptSummary): TTIriRef {
+  return { "@id": summary.iri, name: summary.name } as TTIriRef;
 }
 
 function updateEntity(value: ConceptSummary) {

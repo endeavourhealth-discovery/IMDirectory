@@ -117,7 +117,7 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     const result = await QueryService.queryIM(queryRequest);
     if (result)
       return result.entities.map((item: any) => {
-        return { "@id": item["@id"], name: item[RDFS.LABEL] };
+        return { "@id": item["@id"], name: item[RDFS.LABEL] } as TTIriRef;
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
