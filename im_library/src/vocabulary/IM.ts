@@ -6,6 +6,7 @@ export class IM {
   public static ID = IM.NAMESPACE + "id";
   public static CONCEPT_SET_GROUP = IM.NAMESPACE + "ConceptSetGroup";
   public static CODE = IM.NAMESPACE + "code";
+  public static OLD_CODE = IM.NAMESPACE + "oldCode";
   public static SCHEME = IM.NAMESPACE + "scheme";
   public static STATUS = IM.NAMESPACE + "Status";
   public static HAS_STATUS = IM.NAMESPACE + "status";
