@@ -22,11 +22,11 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { QueryData } from "@im-library/interfaces";
+import { TableQuery } from "@im-library/interfaces";
 
 const props = defineProps({
-  queryData: { type: Array<QueryData>, required: true },
-  selected: { type: Array<QueryData>, required: true },
+  queryData: { type: Array<TableQuery>, required: true },
+  selected: { type: Array<TableQuery>, required: true },
   level: { type: Number, required: false, default: 0 }
 });
 
@@ -35,7 +35,7 @@ const select = (character: any, level: number) => {
   props.selected.splice(level + 1);
 };
 
-const isSelected = (queryData: QueryData) => {
+const isSelected = (queryData: TableQuery) => {
   if (!props.selected || !props.selected.length || !props.selected.some(char => char.name === queryData.name)) {
     return false;
   }

@@ -16,10 +16,10 @@ import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref } from "vue";
 import { queryData } from "./query-json";
 import RecursiveTableBox from "../components/query/RecursiveTableBox.vue";
-import { QueryData } from "@im-library/interfaces";
+import { TableQuery } from "@im-library/interfaces";
 
 const selected = ref([] as any[]);
-const data: Ref<QueryData[]> = ref(queryData as QueryData[]);
+const data: Ref<TableQuery[]> = ref(queryData as TableQuery[]);
 </script>
 
 <style scoped lang="scss">

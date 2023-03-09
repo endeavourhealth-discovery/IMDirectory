@@ -57,7 +57,7 @@ import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
-import { QueryData } from "./query/QueryData";
+import { TableQuery } from "./query/TableQuery";
 
 export {
   type AccountItem,
@@ -119,5 +119,5 @@ export {
   type AliasEntity,
   type PropertyDisplay,
   type DisplayQuery,
-  type QueryData
+  type TableQuery
 };
