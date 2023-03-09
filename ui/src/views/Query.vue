@@ -5,13 +5,21 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    <div id="query-main-container"></div>
+    <div id="query-main-container">
+      <RecursiveTableBox :query-data="data" :selected="selected" :level="0" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-// TODO
+import { ref, Ref } from "vue";
+import { queryData } from "./query-json";
+import RecursiveTableBox from "../components/query/RecursiveTableBox.vue";
+import { QueryData } from "@im-library/interfaces";
+
+const selected = ref([] as any[]);
+const data: Ref<QueryData[]> = ref([queryData] as any as QueryData[]);
 </script>
 
 <style scoped lang="scss">
@@ -32,5 +40,8 @@ import TopBar from "@/components/shared/TopBar.vue";
   width: 100%;
   overflow: auto;
   background-color: #ffffff;
+  display: flex;
+  flex-flow: row;
+  border: 2px solid #b89241;
 }
 </style>
