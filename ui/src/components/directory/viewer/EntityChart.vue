@@ -64,6 +64,7 @@ import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import { GraphData } from "@im-library/interfaces";
 import { DirectService, EntityService } from "@/services";
 import { useStore } from "vuex";
+import {OrganizationChartNode} from 'primevue/organizationchart';
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -72,7 +73,7 @@ const props = defineProps({
 const directService = new DirectService();
 
 const loading = ref(false);
-const graph: Ref<GraphData> = ref({} as GraphData);
+const graph: Ref<OrganizationChartNode> = ref({} as OrganizationChartNode);
 
 watch(
   () => props.conceptIri,

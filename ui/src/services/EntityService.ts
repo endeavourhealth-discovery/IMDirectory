@@ -18,6 +18,7 @@ import axios from "axios";
 import { TreeNode } from "primevue/tree";
 import { SortDirection } from "@im-library/enums";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
+import {OrganizationChartNode} from 'primevue/organizationchart';
 const api = Env.API;
 
 const EntityService = {
@@ -284,11 +285,11 @@ const EntityService = {
     }
   },
 
-  async getEntityGraph(iri: string): Promise<GraphData> {
+  async getEntityGraph(iri: string): Promise<OrganizationChartNode> {
     try {
       return await axios.get(api + "api/entity/public/graph", { params: { iri: iri } });
     } catch (error) {
-      return {} as GraphData;
+      return {} as OrganizationChartNode;
     }
   },
 

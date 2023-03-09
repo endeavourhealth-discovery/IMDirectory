@@ -53,6 +53,8 @@ import AllowableChildProperty from "./AllowableChildProperty";
 import { FilterOptions } from "./FilterOptions";
 import { AliasEntity } from "./AliasEntity";
 import { PropertyDisplay } from "./PropertyDisplay";
+import { PropertyShape } from "./PropertyShape";
+import { PropertyGroup } from "./PropertyGroup";
 import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
@@ -117,5 +119,7 @@ export {
   type CustomAlert,
   type AliasEntity,
   type PropertyDisplay,
+  type PropertyShape,
+  type PropertyGroup,
   type DisplayQuery
 };
