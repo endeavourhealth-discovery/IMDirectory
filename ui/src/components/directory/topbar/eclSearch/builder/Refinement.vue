@@ -1,7 +1,6 @@
 <template>
   <div class="refinement-content-container nested-div">
     <AutoComplete
-      :forceSelection="true"
       style="flex: 1"
       input-style="flex:1"
       field="name"
@@ -18,7 +17,6 @@
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <AutoComplete
-      :forceSelection="true"
       style="flex: 1"
       input-style="flex:1"
       field="name"
@@ -27,7 +25,7 @@
       :suggestions="valueResults"
       @complete="searchValue($event.query)"
       placeholder="search..."
-      :disabled="!selectedProperty || loadingValue"
+      :disabled="!selectedProperty || (typeof selectedProperty == 'string') || loadingValue"
     />
     <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" class="tree-button" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
@@ -207,6 +205,7 @@ function clearAll() {
 }
 
 async function searchProperty(term: string) {
+  selectedValue.value = null;
   if (!hasFocus()) return;
   if (term.length > 2) {
     if (term.toLowerCase() === "any") {
