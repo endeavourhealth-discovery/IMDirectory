@@ -30,7 +30,8 @@ import { PropType, watch, onMounted, ref, Ref, inject } from "vue";
 import SearchMiniOverlay from "@/components/editor/shapeComponents/SearchMiniOverlay.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
-import { TTIriRef, ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/models/AutoGen"
 import { EditorMode } from "@im-library/enums";
 import {} from "@im-library/models";
 import { isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";

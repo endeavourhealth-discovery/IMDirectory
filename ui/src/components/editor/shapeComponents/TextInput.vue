@@ -11,7 +11,7 @@
 import { ref, watch, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { PropertyShape } from "@im-library/interfaces";
+import { PropertyShape } from "@im-library/models/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
