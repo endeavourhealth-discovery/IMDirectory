@@ -3,7 +3,6 @@ import {
   EntityReferenceNode,
   FiltersAsIris,
   TTBundle,
-  TTIriRef,
   GraphData,
   TermCode,
   Namespace,
@@ -12,7 +11,7 @@ import {
   FilterOptions,
   PropertyDisplay
 } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/models/AutoGen";
+import { TTIriRef, SearchRequest } from "@im-library/models/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";

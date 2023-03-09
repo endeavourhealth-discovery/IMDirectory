@@ -83,7 +83,8 @@
 import { defineComponent, PropType, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { ConceptSummary, TTIriRef } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/models/AutoGen";
 
 const store = useStore();
 
