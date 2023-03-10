@@ -3,7 +3,7 @@ import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import axios from "axios";
 import Env from "./Env";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Query } from "@im-library/models/AutoGen";
+import { Query } from "@im-library/interfaces/AutoGen";
 
 const EclService = {
   async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<ConceptSummary[]> {

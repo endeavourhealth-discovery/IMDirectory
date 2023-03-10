@@ -76,7 +76,7 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/models/AutoGen";
+import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 const props = defineProps({

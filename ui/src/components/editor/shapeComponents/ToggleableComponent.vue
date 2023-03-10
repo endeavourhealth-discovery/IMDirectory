@@ -29,7 +29,7 @@ export default defineComponent({
 <script setup lang="ts">
 import { PropType, watch, onMounted, ref, inject, defineComponent } from "vue";
 import _ from "lodash";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/models/AutoGen";
+import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { EditorMode } from "@im-library/enums";

@@ -101,7 +101,7 @@ import { onMounted, ref, Ref, watch, inject, onBeforeUnmount, computed } from "v
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, AliasEntity } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import setupTree from "@/composables/setupTree";
@@ -109,7 +109,7 @@ import { TreeNode } from "primevue/tree";
 import { toTitleCase } from "@im-library/helpers/StringManipulators";
 import { useToast } from "primevue/usetoast";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { SearchRequest } from "@im-library/models/AutoGen";
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
 
 const {
   root,

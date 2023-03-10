@@ -110,7 +110,7 @@ import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
 import { DirectService } from "@/services";
 import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
