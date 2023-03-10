@@ -1,7 +1,6 @@
 import { eclToBuild, eclToIMQ, validateEcl } from "@/logic/eclLogic";
 import Env from "@/services/env.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { HttpResponse } from "aws-sdk";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
 
@@ -25,7 +24,7 @@ export default class EclController {
     try {
       const result = eclToBuild(ecl);
       res.send(result).end();
-    } catch (err: unknown) {
+    } catch (err: any) {
       res.status(200);
       res.send({ err: err.message }).end();
     }
@@ -36,7 +35,7 @@ export default class EclController {
     try {
       const result = eclToIMQ(ecl);
       res.send(result).end();
-    } catch (error) {
+    } catch (error: any) {
       res.status(200);
       res.send({ err: error.message }).end();
     }
@@ -54,7 +53,7 @@ export default class EclController {
       }
       const result = (await axios.post(Env.API + "api/ecl/public/evaluateEclQuery", eclSearchRequest)).data;
       res.send(result).end();
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   }

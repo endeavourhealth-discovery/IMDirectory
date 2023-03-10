@@ -1,4 +1,4 @@
-import { TTIriRef } from "./TTIriRef";
+import { TTIriRef } from "../models/AutoGen";
 
 export interface Property {
   "http://www.w3.org/ns/shacl#path": TTIriRef[];

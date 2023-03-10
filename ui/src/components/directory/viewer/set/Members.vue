@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
-import { TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/models/AutoGen";
 import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

@@ -424,7 +424,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log(ctx.getText());
     }
     const result = this.visitChildren(ctx)[0];
-    if (result?.where?.where) result.where.where.forEach(item => (item.anyRoleGroup = true));
+    if (result?.where?.where)
+      result.where.where.forEach(item => {
+        if (!item.bool) item.anyRoleGroup = true;
+      });
     return result;
   }
 
@@ -446,6 +449,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           if (isObjectHasKeys(result, ["attribute"])) {
             if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result.attribute);
             else build.where.where = [result.attribute];
+          }
+          if (isObjectHasKeys(result, ["bracketAttributeSet"])) {
+            if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result.bracketAttributeSet.where);
+            else build.where.where = [result.bracketAttributeSet.where];
           }
         }
       }
@@ -472,6 +479,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
             if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result.attribute);
             else build.where.where = [result.attribute];
           }
+          if (isObjectHasKeys(result, ["bracketAttributeSet"])) {
+            if (build.where.where && _.isArray(build.where.where)) build.where.where.push(result.bracketAttributeSet.where);
+            else build.where.where = [result.bracketAttributeSet.where];
+          }
         }
       }
     }
@@ -483,17 +494,18 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log("found bracket attribute set");
       console.log(ctx.getText());
     }
-    let build = { type: "BoolGroup" };
+    let build = { bracketAttributeSet: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result)) {
-            build.items = [result];
+            build.bracketAttributeSet = result;
           }
         }
       }
     }
+    return build;
   }
 
   visitSubattributeset(ctx) {

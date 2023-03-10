@@ -100,7 +100,8 @@
 import { onMounted, ref, Ref, watch, inject, onBeforeUnmount, computed } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TTIriRef, AliasEntity } from "@im-library/interfaces";
+import { ConceptAggregate, ConceptSummary, EntityReferenceNode, AliasEntity } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/models/AutoGen";
 import { IM, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import setupTree from "@/composables/setupTree";

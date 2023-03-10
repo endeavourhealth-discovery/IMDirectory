@@ -22,7 +22,7 @@
       <div id="query-builder-container">
         <div id="query-build">
           <ProgressSpinner v-if="loading" />
-          <BoolGroup v-else :value="build" style="width: 100%; margin: 0" />
+          <BoolGroup v-else :value="build" style="width: 100%; margin: 0" :rootBool="true" />
         </div>
         <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
           >*Move pointer over panel above to add concepts, refinements and groups.</small
@@ -181,6 +181,7 @@ function onCopyError(): void {
   flex: 1 1 auto;
   overflow: auto;
   display: flex;
+  flex-flow: column nowrap;
 }
 
 #query-build {

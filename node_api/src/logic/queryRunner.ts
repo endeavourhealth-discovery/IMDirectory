@@ -10,7 +10,7 @@ import { ConditionList } from "../model/sql/ConditionList";
 import { Condition } from "../model/sql/Condition";
 */
 
-import { Query /*, Match, Select, Function, PropertyValue, Argument*/ } from "@im-library/dist/types/models/AutoGen";
+import { Query /*, Match, Select, Function, PropertyValue, Argument*/ } from "@im-library/models/AutoGen";
 import dataModelMap from "./dataModelMap.json";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 
