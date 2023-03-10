@@ -2,7 +2,7 @@ import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { QueryDisplay, QueryObject, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, QueryRequest } from "@im-library/models/AutoGen";
+import { PathDocument, QueryRequest } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {

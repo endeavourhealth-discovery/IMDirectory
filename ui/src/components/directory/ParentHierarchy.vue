@@ -28,7 +28,7 @@ import { onMounted, ref, Ref, watch, computed } from "vue";
 import { Converters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 const { iriToUrl } = Converters;

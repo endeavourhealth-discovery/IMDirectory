@@ -74,7 +74,7 @@ import { State } from "@/store/stateType";
 import { Store, useStore } from "vuex";
 import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryParams.vue";
-import { Query } from "@im-library/models/AutoGen";
+import { Query } from "@im-library/interfaces/AutoGen";
 const directService = new DirectService();
 const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();

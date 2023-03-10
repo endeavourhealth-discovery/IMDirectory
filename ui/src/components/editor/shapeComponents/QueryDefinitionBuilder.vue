@@ -23,7 +23,7 @@ import { onMounted, ref, watch, Ref } from "vue";
 import QueryTree from "./queryDefinition/QueryTree.vue";
 import "vue-json-pretty/lib/styles.css";
 import { QueryObject } from "@im-library/interfaces";
-import { SearchRequest, Query, QueryRequest, TTIriRef } from "@im-library/models/AutoGen";
+import { SearchRequest, Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import PropertyInput from "./queryDefinition/PropertyInput.vue";
 import _ from "lodash";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";

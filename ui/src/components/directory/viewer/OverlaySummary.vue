@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import { ref, Ref } from "vue";
 

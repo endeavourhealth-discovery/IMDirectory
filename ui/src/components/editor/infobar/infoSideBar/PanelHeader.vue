@@ -10,7 +10,7 @@
 <script setup lang="ts">
 import { PropType, ref, Ref, watch } from "vue";
 import _ from "lodash";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 
 const props = defineProps({

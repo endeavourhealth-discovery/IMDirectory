@@ -66,7 +66,7 @@ import EclTree from "../EclTree.vue";
 import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/models/AutoGen";
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EntityService } from "@/services";
 import _ from "lodash";

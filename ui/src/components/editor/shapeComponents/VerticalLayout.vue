@@ -18,7 +18,7 @@ import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinit
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
-import { PropertyGroup, PropertyShape } from "@im-library/models/AutoGen";
+import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
 
 export default defineComponent({
   components: {

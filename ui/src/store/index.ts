@@ -1,7 +1,7 @@
 import { createStore } from "vuex";
 import { AuthService } from "@/services";
 import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, FilterOptions, CustomAlert, User } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/models/AutoGen";
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { Avatars } from "@im-library/constants";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";

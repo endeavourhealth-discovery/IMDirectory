@@ -26,7 +26,7 @@ import { computed, ComputedRef, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef } from "@im-library/models/AutoGen";
+import { SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { DataTypeCheckers } from "@im-library/helpers";
 import { useRouter } from "vue-router";
