@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @vite-ignore
 import {Library} from '@fortawesome/fontawesome-svg-core';
 
 import { faXmark } from "@fortawesome/pro-regular-svg-icons/faXmark";

@@ -64,16 +64,16 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
-import { ConceptSummary, EntityReferenceNode, TreeNode } from "@im-library/interfaces";
+import { onMounted, PropType, ref, Ref } from "vue";
+import { ConceptSummary, EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/models/AutoGen";
-import axios from "axios";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
+import {TreeNode} from 'primevue/tree';
 
 const props = defineProps({
   selectedEntity: { type: Object as PropType<TTIriRef>, required: true }
@@ -199,7 +199,7 @@ function onNodeCollapse(node: any) {
 }
 
 function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
-  return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
+  return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
 }
 
 function selectKey(selectedKey: string) {
@@ -221,17 +221,17 @@ async function findPathToNode(iri: string) {
     while (n && n.data != path[0]["@id"] && i++ < 50) {
       await selectAndExpand(n);
       // Find relevant child
-      n = n.children.find(c => path.find(p => p["@id"] === c.data));
+      n = n.children?.find(c => path.find(p => p["@id"] === c.data));
     }
     if (n && n.data === path[0]["@id"]) {
       await selectAndExpand(n);
 
-      while (!n.children.some(child => child.data === iri)) {
+      while (!n.children?.some(child => child.data === iri)) {
         await loadMoreChildren(n);
       }
       for (const gc of n.children) {
         if (gc.data === iri) {
-          selectKey(gc.key);
+          selectKey(gc.key!);
         }
       }
       selectedNode.value = n;

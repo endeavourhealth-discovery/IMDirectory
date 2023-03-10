@@ -99,7 +99,7 @@ function addRefinements(clause: SetQueryObject, from: From) {
         {
           "@id": refinement.is["@id"],
           name: refinement.is.name
-        } as From
+        } as TTAlias
       ]
     } as Where;
 

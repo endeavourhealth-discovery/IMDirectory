@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @vite-ignore
 import {Library} from '@fortawesome/fontawesome-svg-core';
 
 import { faDiagramProject} from "@fortawesome/pro-solid-svg-icons/faDiagramProject";

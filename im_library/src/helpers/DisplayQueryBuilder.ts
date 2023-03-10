@@ -142,8 +142,6 @@ function getNameFromRef(ref: TTAlias) {
   } else if (isObjectHasKeys(ref, ["@id"])) {
     const splits = ref["@id"].split("#");
     return splits[1] || splits[0];
-  } else if (isObjectHasKeys(ref, ["id"])) {
-    return ref.id;
   }
   return "";
 }
