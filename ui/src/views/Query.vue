@@ -13,13 +13,23 @@
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import { ref, Ref } from "vue";
-import { queryData } from "./query-json";
+import { ref, Ref, onMounted } from "vue";
+import { queryData, queryDefinition } from "./query-json";
 import RecursiveTableBox from "../components/query/RecursiveTableBox.vue";
 import { TableQuery } from "@im-library/interfaces";
+import { buildTableQuery } from "@im-library/helpers/TableQueryBuilder";
+import { Query } from "@im-library/models/AutoGen";
 
 const selected = ref([] as any[]);
 const data: Ref<TableQuery[]> = ref(queryData as TableQuery[]);
+
+function getTableQuery() {
+  buildTableQuery(queryDefinition as any);
+}
+
+onMounted(() => {
+  getTableQuery();
+});
 </script>
 
 <style scoped lang="scss">

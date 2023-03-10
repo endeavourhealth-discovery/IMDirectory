@@ -1,22 +1,69 @@
 export const queryData = [
   {
-    name: "Patient"
+    label: "Patient",
+    data: { "@id": "http://endhealth.info/im#Patient" }
   },
   {
-    name: "Registered for gms",
-    title: `<div>isSubsetOf: Q_RegisteredGMS</div>`
+    label: "Registered for gms",
+    data: {
+      description: "Registered for gms",
+      "@id": "http://endhealth.info/im#isSubsetOf",
+      in: [
+        {
+          name: "Registered for GMS services on reference date",
+          "@set": "http://example.org/qry#Q_RegisteredGMS"
+        }
+      ],
+      valueLabel: "Registered for GMS on reference date"
+    }
   },
   {
-    name: "aged between 65 and 70",
-    title: "<div>from: age >= 65 to: age > 70</div>"
-  },
-  {
-    name: "latest BP in last 6 months is > 150",
-    title: "<div>Home or office based systolic in the last 6 months is > 150</div>",
+    label: "aged between 65 and 70 or diabetic",
+    bool: "or",
     children: [
       {
-        name: "Home or office based systolic in the last 6 months is > 150",
-        title: `
+        label: "aged between 65 and 70",
+        data: {
+          description: "aged between 65 and 70",
+          "@id": "http://endhealth.info/im#age",
+          range: {
+            from: {
+              operator: ">=",
+              value: "65",
+              unit: null,
+              relativeTo: null
+            },
+            to: {
+              operator: ">",
+              value: "70",
+              unit: null,
+              relativeTo: null
+            }
+          }
+        }
+      },
+      {
+        label: "Diabetic",
+        data: {
+          description: "Diabetic",
+          "@id": "http://endhealth.info/im#observation",
+          where: [
+            {
+              "@id": "http://endhealth.info/im#concept",
+              in: [{ "@set": "http://example.org/qry#Q_Diabetics" }]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    label: "latest BP in last 6 months is > 150",
+    data: "<div>Home or office based systolic in the last 6 months is > 150</div>",
+    children: [
+      {
+        label: "Home or office based systolic in the last 6 months is > 150",
+        data: `
                 <div>Home or office based Systolic</div>
                 <div>Last 6 months</div>
                 <div>orderBy effectiveDate</div>
@@ -24,16 +71,16 @@ export const queryData = [
               `,
         children: [
           {
-            name: "Home or office based Systolic",
-            title: `
+            label: "Home or office based Systolic",
+            data: `
                     <div>concept: </div>
                     <div>Systolic blood pressure</div>
                     <div>Home systolic blood pressure</div>
                   `
           },
           {
-            name: "Last 6 months",
-            title: `
+            label: "Last 6 months",
+            data: `
                     effectiveDate >= LastBp by -6 MONTHS
                   `
           }
@@ -42,22 +89,22 @@ export const queryData = [
     ]
   },
   {
-    name: "not followed by screening invite or is hypertensive",
-    title: `
+    label: "not followed by screening invite or is hypertensive",
+    data: `
             <div>Invited for screening after high BP</div>
             <div>Hypertensive</div>
           `,
     children: [
       {
-        name: "Invited for screening after high BP",
-        title: `
+        label: "Invited for screening after high BP",
+        data: `
                 <div>concept: InvitedForScreening</div>
                 <div>effectiveDate >= LatBP</div>
               `
       },
       {
-        name: "Hypertensive",
-        title: `
+        label: "Hypertensive",
+        data: `
                   <div>observation: Hypertensives</div>
                 `
       }
@@ -84,6 +131,7 @@ export const queryDefinition = {
       },
       {
         bool: "or",
+        description: "aged between 65 and 70 or diabetic",
         where: [
           {
             description: "aged between 65 and 70",

@@ -1,5 +1,8 @@
+import { Bool } from "../../models/AutoGen";
 export interface TableQuery {
-  name: string;
-  title: string;
+  label: string;
+  bool: Bool;
+  data: any;
+  parent: TableQuery;
   children: TableQuery[];
 }

@@ -3,13 +3,13 @@
     <template v-if="isArrayHasLength(queryData)" v-for="child of queryData" :key="child.name">
       <li :class="{ selected: isSelected(child) }" @click="select(child, level)">
         <div class="name">
-          {{ child.name }}
+          {{ child.label }}
         </div>
 
         <template v-if="isSelected(child)">
           <teleport to="#query-main-container">
             <recursive-table-box v-if="child.children" :query-data="child.children" :selected="selected" :level="level + 1" @selected="select" />
-            <div v-else class="leaf"><div v-html="child.title"></div></div>
+            <div v-else class="leaf">{{ child.data }}</div>
           </teleport>
         </template>
       </li>
@@ -36,10 +36,10 @@ const select = (character: any, level: number) => {
 };
 
 const isSelected = (queryData: TableQuery) => {
-  if (!props.selected || !props.selected.length || !props.selected.some(char => char.name === queryData.name)) {
+  if (!props.selected || !props.selected.length || !props.selected.some(sel => sel.label === queryData.label)) {
     return false;
   }
-  return props.selected[props.level]?.name === queryData.name;
+  return props.selected[props.level]?.label === queryData.label;
 };
 
 function add() {
