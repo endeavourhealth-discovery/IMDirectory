@@ -52,16 +52,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           }
           if (isObjectHasKeys(result, ["compoundExpressionConstraint"])) {
             const compoundExpressionConstraint = result.compoundExpressionConstraint;
-            // if (!isObjectHasKeys(compoundExpressionConstraint, ["items"])) compoundExpressionConstraint.items = [];
-            // if (!isObjectHasKeys(compoundExpressionConstraint, ["conjunction"])) compoundExpressionConstraint.conjunction = "AND";
-            // if (!isObjectHasKeys(compoundExpressionConstraint, ["descendants"])) compoundExpressionConstraint.descendants = "";
             build.expressionConstraint = compoundExpressionConstraint;
           }
           if (isObjectHasKeys(result, ["dottedExpressionConstraint"])) {
             const dottedExpressionConstraint = result.dottedExpressionConstraint;
-            // if (!isObjectHasKeys(dottedExpressionConstraint, ["items"])) dottedExpressionConstraint.items = [];
-            // if (!isObjectHasKeys(dottedExpressionConstraint, ["conjunction"])) dottedExpressionConstraint.conjunction = "AND";
-            // if (!isObjectHasKeys(dottedExpressionConstraint, ["descendants"])) dottedExpressionConstraint.descendants = "";
             build.expressionConstraint = dottedExpressionConstraint;
           }
           if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
@@ -529,7 +523,6 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         for (const result of results) {
           if (isObjectHasKeys(result, ["subAttributeSet"])) {
             const subAttributeSet = result.subAttributeSet;
-
             build.conjunctionAttributeSet.items.push(subAttributeSet);
           }
           if (isObjectHasKeys(result, ["bracketAttributeSet"])) {
