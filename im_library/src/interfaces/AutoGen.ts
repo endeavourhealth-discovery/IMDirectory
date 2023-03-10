@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-03-10 11:51:38.
+// Generated using typescript-generator version 2.36.1070 on 2023-03-10 14:07:34.
 
 /**
  * Structure containing search request parameters and filters
@@ -175,7 +175,6 @@ export interface PropertyShape {
     validationErrorMessage: string;
     function: TTIriRef;
     expression: NodeShape;
-    subProperty: PropertyShape[];
 }
 
 export interface TransformRequest {
@@ -197,9 +196,9 @@ export interface Argument {
 
 export interface Assignable {
     value: string;
-    unit: string;
-    relativeTo: string;
     operator: Operator;
+    relativeTo: string;
+    unit: string;
 }
 
 export interface Case {
@@ -362,8 +361,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes: TTPrefix[];
     nameSpaces: TTPrefix[];
+    prefixes: TTPrefix[];
 }
 
 export interface TTTypedRef extends TTIriRef {

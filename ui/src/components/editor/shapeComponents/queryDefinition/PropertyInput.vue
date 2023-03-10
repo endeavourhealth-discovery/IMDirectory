@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { SimplifiedType, QueryObject, FieldDto } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ClassService } from "@/services";
 import { computed, onMounted, PropType, ref } from "vue";

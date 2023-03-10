@@ -73,7 +73,7 @@ import { getColourFromType, getFAIconFromType } from "@im-library/helpers/Concep
 import { useStore } from "vuex";
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService, Env, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";

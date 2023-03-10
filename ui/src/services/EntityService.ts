@@ -11,7 +11,7 @@ import {
   FilterOptions,
   PropertyDisplay
 } from "@im-library/interfaces";
-import { TTIriRef, SearchRequest } from "@im-library/models/AutoGen";
+import { TTIriRef, SearchRequest } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";

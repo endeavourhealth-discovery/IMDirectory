@@ -32,7 +32,7 @@ import { QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/models/AutoGen";
+import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyShape>, required: true },

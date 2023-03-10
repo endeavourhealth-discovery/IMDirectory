@@ -81,7 +81,7 @@
 <script setup lang="ts">
 import { PropType, ref, Ref } from "vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
 
 const props = defineProps({

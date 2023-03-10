@@ -22,7 +22,7 @@ import { useStore } from "vuex";
 import Filters from "@/components/directory/topbar/Filters.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef } from "@im-library/models/AutoGen";
+import { SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";

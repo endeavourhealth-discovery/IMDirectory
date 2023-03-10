@@ -1,9 +1,8 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { QueryObject, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
+import { QueryDisplay, QueryObject, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, QueryRequest } from "@im-library/models/AutoGen";
-import {TreeNode} from 'primevue/tree';
+import { PathDocument, QueryRequest } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -93,11 +92,11 @@ const QueryService = {
     }
   },
 
-  async getSetQueryDisplay(query: any): Promise<TreeNode> {
+  async getSetQueryDisplay(query: any): Promise<QueryDisplay> {
     try {
       return await axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", query);
     } catch (error) {
-      return {} as TreeNode;
+      return {} as QueryDisplay;
     }
   },
 
@@ -109,13 +108,13 @@ const QueryService = {
     }
   },
 
-  async getQueryDefinitionDisplay(conceptIri: string): Promise<TreeNode> {
+  async getQueryDefinitionDisplay(conceptIri: string): Promise<QueryDisplay> {
     try {
       return await axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDefinitionDisplay", {
         params: { iri: conceptIri }
       });
     } catch (error) {
-      return {} as TreeNode;
+      return {} as QueryDisplay;
     }
   },
 

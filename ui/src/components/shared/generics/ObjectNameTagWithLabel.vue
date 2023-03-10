@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { computed, PropType } from "vue";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useStore } from "vuex";
 import { getLogger } from "@im-library/logger/LogConfig";

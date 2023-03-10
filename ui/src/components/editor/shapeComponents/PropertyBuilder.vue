@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { PropertyShape, TTIriRef } from "@im-library/models/AutoGen";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import _ from "lodash";

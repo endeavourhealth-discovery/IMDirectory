@@ -38,7 +38,7 @@
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";

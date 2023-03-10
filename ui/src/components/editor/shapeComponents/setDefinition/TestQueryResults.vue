@@ -29,7 +29,7 @@ import { EntityService, QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import setupDownloadFile from "@/composables/downloadFile";
 import { byName } from "@im-library/helpers/Sorters";
-import { QueryRequest, TTIriRef } from "@im-library/models/AutoGen";
+import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 
 const queryLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);

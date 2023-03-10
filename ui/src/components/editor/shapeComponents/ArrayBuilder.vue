@@ -40,7 +40,7 @@ import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/models/AutoGen";
+import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";

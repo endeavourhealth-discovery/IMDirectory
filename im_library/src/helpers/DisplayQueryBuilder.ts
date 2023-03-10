@@ -1,5 +1,5 @@
 import { DisplayQuery } from "../interfaces";
-import { TTAlias, Where } from "../models/AutoGen";
+import { TTAlias, Where } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function buildDisplayQuery(query: any) {
