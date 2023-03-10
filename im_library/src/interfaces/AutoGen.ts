@@ -166,6 +166,8 @@ export interface PropertyShape {
     argument: Argument[];
     valueVariable: string;
     isIri: TTIriRef;
+
+    subProperty: PropertyShape[];
     isTextValue: string;
     isNumericValue: string;
     forceIsValue: boolean;
