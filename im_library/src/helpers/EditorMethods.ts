@@ -1,6 +1,6 @@
 import { ComponentType } from "../enums";
 import { TTIriRef } from "../interfaces";
-import { Argument, PropertyShape } from "../models/AutoGen";
+import { Argument, PropertyShape } from "../interfaces/AutoGen";
 import { IM } from "../vocabulary";
 import { isArrayHasLength } from "./DataTypeCheckers";
 

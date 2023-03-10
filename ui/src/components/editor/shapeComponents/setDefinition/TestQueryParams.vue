@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { PropType, ref, Ref, computed, onMounted } from "vue";
-import { QueryRequest, Argument, TTIriRef } from "@im-library/models/AutoGen";
+import { QueryRequest, Argument, TTIriRef } from "@im-library/interfaces/AutoGen";
 import AutoComplete from "primevue/autocomplete";
 import { EntityService } from "@/services";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";

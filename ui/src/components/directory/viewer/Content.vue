@@ -55,7 +55,7 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import { useStore } from "vuex";
 import _ from "lodash";
-import { TTIriRef } from "@im-library/models/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, Env, DirectService } from "@/services";

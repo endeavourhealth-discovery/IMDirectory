@@ -1,4 +1,4 @@
-import { TTIriRef } from "../models/AutoGen";
+import { TTIriRef } from "../interfaces/AutoGen";
 
 export interface ConceptSummary {
   name: string;

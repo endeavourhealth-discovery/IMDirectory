@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-03-02 16:37:26.
+// Generated using typescript-generator version 2.36.1070 on 2023-03-10 14:07:34.
 
 /**
  * Structure containing search request parameters and filters
@@ -131,12 +131,6 @@ export interface Path {
     target: TTTypedRef;
 }
 
-export interface PathQuery extends TTIriRef {
-    source: TTIriRef;
-    target: TTIriRef;
-    depth: number;
-}
-
 export interface PropertyGroup {
     label: string;
     comment: string;
@@ -202,9 +196,9 @@ export interface Argument {
 
 export interface Assignable {
     value: string;
-    unit: string;
-    relativeTo: string;
     operator: Operator;
+    relativeTo: string;
+    unit: string;
 }
 
 export interface Case {
@@ -243,6 +237,12 @@ export interface OrderLimit extends TTAlias {
 
 export interface PathDocument {
     where: Where[];
+}
+
+export interface PathQuery extends TTIriRef {
+    source: TTIriRef;
+    target: TTIriRef;
+    depth: number;
 }
 
 export interface Query extends TTAlias {
@@ -291,14 +291,6 @@ export interface Select extends TTAlias {
     function: FunctionClause;
 }
 
-export interface Sortable {
-    count: number;
-    minimum: string;
-    maximum: string;
-    earliest: string;
-    latest: string;
-}
-
 export interface Update extends TTAlias {
     from: From;
     delete: Delete[];
@@ -308,18 +300,21 @@ export interface Value extends Assignable {
 }
 
 export interface Where extends TTAlias, Assignable {
-    notExist: boolean;
     bool: Bool;
     with: With;
     where: Where[];
     range: Range;
-    in: From[];
-    notIn: From[];
+    in: TTAlias[];
+    notIn: TTAlias[];
     anyRoleGroup: boolean;
     valueLabel: string;
 }
 
-export interface With extends Where, Sortable {
+export interface With extends Where {
+    orderBy: TTAlias;
+    direction: Order;
+    count: number;
+    then: Where;
 }
 
 export interface EntityDocument {
@@ -366,8 +361,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes: TTPrefix[];
     nameSpaces: TTPrefix[];
+    prefixes: TTPrefix[];
 }
 
 export interface TTTypedRef extends TTIriRef {
@@ -379,7 +374,6 @@ export interface TTAlias extends TTIriRef {
     alias: string;
     "@type": string;
     "@set": string;
-    id: string;
     variable: string;
     ancestorsOf: boolean;
     descendantsOrSelfOf: boolean;
@@ -410,3 +404,5 @@ export type Bool = "and" | "or" | "not";
 export type Comparison = "eq" | "gte" | "gt" | "lte" | "lt";
 
 export type Operator = "=" | ">=" | ">" | "<=" | "startsWith" | "contains";
+
+export type Order = "ascending" | "descending";

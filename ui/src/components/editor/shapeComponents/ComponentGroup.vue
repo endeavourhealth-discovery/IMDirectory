@@ -29,7 +29,7 @@ import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/models/AutoGen";
+import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },

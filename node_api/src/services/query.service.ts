@@ -2,7 +2,7 @@ import Env from "@/services/env.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity } from "@im-library/interfaces";
-import { From, QueryRequest, TTAlias, TTIriRef } from "@im-library/models/AutoGen";
+import { From, QueryRequest, TTAlias, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { Console } from "console";
 
 export default class QueryService {
