@@ -25,7 +25,7 @@
       :suggestions="valueResults"
       @complete="searchValue($event.query)"
       placeholder="search..."
-      :disabled="!selectedProperty || (typeof selectedProperty == 'string') || loadingValue"
+      :disabled="!selectedProperty || typeof selectedProperty == 'string' || loadingValue"
     />
     <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" class="tree-button" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />

@@ -109,11 +109,11 @@ function add(item: any) {
 }
 
 function addConcept() {
-  add({ type: "Concept", descendants: "<<", conjunction: "AND" });
+  add({ type: "Concept", descendants: "<<", conjunction: "AND", concept: { iri: "" } });
 }
 
 function addRefinement() {
-  if (!props.value.items || props.value.items?.length === 0) {
+  if ((!props.value.items || props.value.items?.length === 0) && !props.focus) {
     const anyConcept = {
       type: "Concept",
       descendants: "<<",
