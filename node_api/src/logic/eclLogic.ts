@@ -1,7 +1,5 @@
 import ECLLexer from "@im-library/antlr4/ecl/ECLLexer";
 import ECLParser from "@im-library/antlr4/ecl/ECLParser";
-import BuilderECLListener from "@im-library/antlr4/ecl/BuilderECLListener";
-import ECLListener from "@im-library/antlr4/ecl/ECLListener";
 import antlr4 from "antlr4";
 import ECLBuilderVisitor from "@im-library/antlr4/ecl/ECLBuilderVisitor";
 import ECLToIMQVisitor from "@im-library/antlr4/ecl/ECLToIMQVisitor";
