@@ -1,5 +1,6 @@
 // @ts-nocheck
 // @vite-ignore
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import {Library} from '@fortawesome/fontawesome-svg-core';
 
 import { faDiagramProject} from "@fortawesome/pro-solid-svg-icons/faDiagramProject";
@@ -76,3 +77,4 @@ export default function addSolidIcons(library: Library) {
     faLightbulb
   );
 }
+// #v-endif

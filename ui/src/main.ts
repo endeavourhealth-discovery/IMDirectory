@@ -14,13 +14,11 @@ library.add(fab);
 
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
-console.log("Loading FAPro....")
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
 addFontAwesomeProIcons(library);
 store.commit("updateFontAwesomePro", true);
 // #v-endif
 // #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
-console.log("Loading FAFree....")
 import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
 import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
 store.commit("updateFontAwesomePro", false);
