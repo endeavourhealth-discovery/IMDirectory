@@ -1,6 +1,6 @@
 import setupTree from "./SetupTree";
 
-export default function validateEcl(ecl: string) {
+export function validateEcl(ecl: string) {
   try {
     const tree = setupTree(ecl);
     return true;

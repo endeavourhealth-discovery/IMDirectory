@@ -1,7 +1,5 @@
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import eclToBuild from "@im-library/helpers/Ecl/EclToBuild";
-import eclToIMQ from "@im-library/helpers/Ecl/EclToIMQ";
-import validateEcl from "@im-library/helpers/Ecl/ValidateEcl";
+import { eclToIMQ, eclToBuild, validateEcl } from "@im-library/helpers";
 import { EclSearchRequest } from "@im-library/interfaces";
 import Env from "./env.service";
 
