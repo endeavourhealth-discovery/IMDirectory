@@ -1,30 +1,44 @@
 <template>
-  <ul class="children-list">
-    <template v-if="isArrayHasLength(queryData)" v-for="child of queryData" :key="child.name">
-      <li :class="{ selected: isSelected(child) }" @click="select(child, level)">
-        <div class="name">
-          {{ child.label }}
-        </div>
+  <div class="table-query-container">
+    <div class="bool-tag">
+      <Tag :severity="severity as any" :value="bool || 'and'"></Tag>
+    </div>
+    <ul class="children-list">
+      <template v-if="isArrayHasLength(queryData)" v-for="child of queryData" :key="child.name">
+        <li :class="{ selected: isSelected(child) }" @click="select(child, level)">
+          <div class="name">
+            {{ child.label }}
+          </div>
 
-        <template v-if="isSelected(child)">
-          <teleport to="#query-main-container">
-            <recursive-table-box v-if="child.children" :query-data="child.children" :selected="selected" :level="level + 1" @selected="select" />
-            <div v-else class="leaf">{{ child.data }}</div>
-          </teleport>
-        </template>
+          <template v-if="isSelected(child)">
+            <teleport to="#query-main-container">
+              <recursive-table-box
+                v-if="child.children && child.children.length"
+                :bool="child.bool"
+                :query-data="child.children"
+                :selected="selected"
+                :level="level + 1"
+                @selected="select"
+              />
+              <div v-else class="leaf">{{ child.data }}</div>
+            </teleport>
+          </template>
+        </li>
+      </template>
+      <li class="add-button-container">
+        <div class="add-button" @click="add">Add +</div>
       </li>
-    </template>
-    <li class="add-button-container">
-      <div class="add-button" @click="add">Add +</div>
-    </li>
-  </ul>
+    </ul>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TableQuery } from "@im-library/interfaces";
+import { ComputedRef, computed } from "vue";
 
 const props = defineProps({
+  bool: { type: String, required: true },
   queryData: { type: Array<TableQuery>, required: true },
   selected: { type: Array<TableQuery>, required: true },
   level: { type: Number, required: false, default: 0 }
@@ -45,13 +59,39 @@ const isSelected = (queryData: TableQuery) => {
 function add() {
   console.log("add");
 }
+
+const severity: ComputedRef<string> = computed(() => getSeverity());
+
+function getSeverity() {
+  switch (props.bool) {
+    case "and":
+      return "warning";
+    case "or":
+      return "info";
+    case "not":
+      return "danger";
+
+    default:
+      return "warning";
+  }
+}
 </script>
 
 <style scoped>
-.children-list {
+.table-query-container {
+  display: flex;
+  flex-flow: column;
   border-right: 1px solid #b89241;
   min-height: 25vh;
-  width: 200px;
+  min-width: 200px;
+}
+
+.bool-tag {
+  display: flex;
+  justify-content: center;
+}
+
+.children-list {
   margin: 0;
   padding: 0;
   position: relative;

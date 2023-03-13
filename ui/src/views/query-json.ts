@@ -113,8 +113,6 @@ export const queryData = [
 ];
 
 export const queryDefinition = {
-  "@id": "http://endhealth.info/im#Q_TestQuery",
-  name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
   from: {
     "@id": "http://endhealth.info/im#Patient",
     where: [
