@@ -19,6 +19,9 @@ import TangledTreeLayout from "./TangledTreeLayout";
 import StringManipulators from "./StringManipulators";
 import DisplayQueryBuilder from "./DisplayQueryBuilder";
 import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
+import eclToBuild from "./Ecl/EclToBuild";
+import eclToIMQ from "./Ecl/EclToIMQ";
+import validateEcl from "./Ecl/ValidateEcl";
 
 export {
   ChartRescale,
@@ -41,5 +44,8 @@ export {
   TangledTreeLayout,
   StringManipulators,
   DisplayQueryBuilder,
-  EclBuilderConceptToEcl
+  EclBuilderConceptToEcl,
+  eclToBuild,
+  eclToIMQ,
+  validateEcl
 };
