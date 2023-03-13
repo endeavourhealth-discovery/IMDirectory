@@ -1,4 +1,4 @@
-import eclToBuild from "../../../src/helpers/Ecl/EclToBuild";
+import { eclToBuild } from "../../../src/helpers/Ecl/EclToBuild";
 import eclTestData from "./ecl.testData";
 import buildTestData from "./build.testData";
 
