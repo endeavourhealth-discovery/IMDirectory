@@ -97,6 +97,10 @@ describe("eclLogic", () => {
     it("converts refinementConjunctionWithGroup", () => {
       expect(eclToIMQ(testData.ecl.refinementConjunctionWithGroup)).toEqual(testData.query.refinementConjunctionWithGroup);
     });
+
+    it("converts startGroupedConceptWithRefinement", () => {
+      expect(eclToIMQ(testData.ecl.startGroupedConceptWithRefinement)).toEqual(testData.query.startGroupedConceptWithRefinement);
+    });
   });
 
   describe("eclToBuild", () => {
@@ -220,7 +224,52 @@ describe("eclLogic", () => {
       expect(eclToBuild(testData.ecl.multipleOrRefinement)).toEqual(testData.builder.multipleOrRefinement);
     });
 
-    it("converts", () => {
+    it("converts startGroupedConceptWithRefinement", () => {
+      expect(eclToBuild(testData.ecl.startGroupedConceptWithRefinement)).toEqual({
+        type: "BoolGroup",
+        conjunction: "AND",
+        items: [
+          {
+            concept: {
+              type: "BoolGroup",
+              items: [
+                {
+                  type: "Concept",
+                  descendants: "<<",
+                  concept: {
+                    iri: "http://snomed.info/sct#763158003"
+                  }
+                }
+              ],
+              conjunction: "AND"
+            },
+            descendants: "",
+            conjunction: "AND",
+            type: "Concept",
+            items: [
+              {
+                type: "Refinement",
+                property: {
+                  descendants: "<<",
+                  concept: {
+                    iri: "http://snomed.info/sct#127489000"
+                  }
+                },
+                value: {
+                  descendants: "<<",
+                  concept: {
+                    iri: "http://snomed.info/sct#387207008"
+                  }
+                },
+                operator: "="
+              }
+            ]
+          }
+        ]
+      });
+    });
+
+    it("converts refinementConjunctionWithGroup", () => {
       expect(eclToBuild(testData.ecl.refinementConjunctionWithGroup)).toEqual({
         type: "BoolGroup",
         conjunction: "AND",
@@ -251,7 +300,7 @@ describe("eclLogic", () => {
               },
 
               {
-                type: "BoolGroup",
+                conjunction: "OR",
                 items: [
                   {
                     type: "Refinement",
@@ -286,7 +335,7 @@ describe("eclLogic", () => {
                     operator: "="
                   }
                 ],
-                conjunction: "OR"
+                type: "BoolGroup"
               }
             ]
           }
