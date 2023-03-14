@@ -6,7 +6,7 @@
       </template>
     </TopBar>
     <div id="query-main-container">
-      <RecursiveTableBox :bool="'and'" :query-data="data" :selected="selected" :level="0" />
+      <RecursiveTableQuery :bool="'and'" :query-data="data" :selected="selected" :level="0" />
     </div>
   </div>
 </template>
@@ -15,7 +15,7 @@
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
 import { queryDefinition } from "./query-json";
-import RecursiveTableBox from "../components/query/RecursiveTableBox.vue";
+import RecursiveTableQuery from "../components/query/RecursiveTableQuery.vue";
 import { TableQuery } from "@im-library/interfaces";
 import { buildTableQuery } from "@im-library/helpers/TableQueryBuilder";
 

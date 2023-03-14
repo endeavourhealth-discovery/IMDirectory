@@ -12,7 +12,7 @@
 
           <template v-if="isSelected(child)">
             <teleport to="#query-main-container">
-              <recursive-table-box
+              <RecursiveTableQuery
                 v-if="child.children && child.children.length"
                 :bool="child.bool"
                 :query-data="child.children"
@@ -20,7 +20,7 @@
                 :level="level + 1"
                 @selected="select"
               />
-              <div v-else class="leaf">{{ child.data }}</div>
+              <LeafTableQuery v-else :value="child.data" />
             </teleport>
           </template>
         </li>
@@ -36,6 +36,7 @@
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TableQuery } from "@im-library/interfaces";
 import { ComputedRef, computed } from "vue";
+import LeafTableQuery from "./LeafTableQuery.vue";
 
 const props = defineProps({
   bool: { type: String, required: true },
@@ -108,11 +109,6 @@ function getSeverity() {
 }
 .children-list li.selected {
   background-color: rgba(0, 0, 0, 0.1);
-}
-
-.leaf {
-  display: flex;
-  padding: 0.5em 1em;
 }
 
 .add-button {
