@@ -12,7 +12,7 @@
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { buildDisplayQuery } from "@im-library/helpers/DisplayQueryBuilder";
-import { Query } from "@im-library/models/AutoGen";
+import { Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { onMounted, watch, Ref, ref } from "vue";
 const props = defineProps({
@@ -62,7 +62,7 @@ function collapseAll() {
 }
 
 function expandNode(node: any) {
-  const hasExpandToSeeMore = (node.label as string).includes("(expand to see more...)");
+  const hasExpandToSeeMore = node.label ? (node.label as string).includes("(expand to see more...)") : false;
   if (node.children && node.children.length && !hasExpandToSeeMore) {
     expandedKeys.value[node.key] = true;
 

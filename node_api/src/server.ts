@@ -2,7 +2,6 @@
 import App from "./app";
 import * as dotenv from "dotenv";
 import QueryController from "./controllers/queryController";
-import SetController from "./controllers/setController";
 import ValidationController from "./controllers/validationController";
 import GithubController from "./controllers/githubController";
 import bodyParser from "body-parser";
@@ -27,7 +26,6 @@ const app = new App({
     new ValidationController(),
     new GithubController(),
     new SearchController(),
-    new SetController(),
     new EntityController(),
     new CognitoController(),
     new ParserController(),

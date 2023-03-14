@@ -1,5 +1,5 @@
 import { DisplayQuery } from "../interfaces";
-import { TTAlias, Where } from "../models/AutoGen";
+import { TTAlias, Where } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function buildDisplayQuery(query: any) {
@@ -52,7 +52,7 @@ function addWhere(query: any, type: string, parent: DisplayQuery) {
       buildRecursively(where, "where", parent);
     }
   } else if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
-    const id = query.id || query["@id"];
+    const id = query.id || query.name || query["@id"];
     if (isObjectHasKeys(query, ["in"])) {
       addInClause(id, query, type, parent);
     } else if (isComparisonWhere(query)) {
@@ -97,7 +97,7 @@ function addInItems(label: string, query: any, type: string, parent: DisplayQuer
   const child = buildDQInstance(parent, label, type, query);
   parent.children.push(child);
   for (const inItem of query.in) {
-    addItem(inItem.name, query, type, child);
+    addItem(inItem.name, inItem, "whereIn", child);
   }
 }
 
@@ -112,6 +112,10 @@ function addInClause(id: string, query: any, type: string, parent: DisplayQuery)
   if (isArrayHasLength(query.in) && query.in.length > 1) {
     label += query.valueLabel ? ": " + query.valueLabel + " (expand to see more...)" : " from";
     addInItems(label, query, type, parent);
+  } else if (isObjectHasKeys(query.in[0], ["where"])) {
+    label += " from";
+    const child = addItem(label, query, type, parent);
+    addWhere(query.in[0].where, "where", child);
   } else {
     label += ": " + (query.valueLabel || query.in[0].name);
     addItem(label, query, type, parent);
@@ -138,8 +142,6 @@ function getNameFromRef(ref: TTAlias) {
   } else if (isObjectHasKeys(ref, ["@id"])) {
     const splits = ref["@id"].split("#");
     return splits[1] || splits[0];
-  } else if (isObjectHasKeys(ref, ["id"])) {
-    return ref.id;
   }
   return "";
 }

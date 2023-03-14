@@ -28,8 +28,8 @@
     <Dialog header="New folder" :visible="newFolder !== null" :modal="true">
       <InputText type="text" v-model="newFolderName" autofocus />
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" @click="newFolder = null" class="p-button-text" />
-        <Button label="Create" icon="pi pi-check" @click="createFolder" />
+        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
+        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" @click="createFolder" />
       </template>
     </Dialog>
   </div>
@@ -38,7 +38,7 @@
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
@@ -57,6 +57,7 @@ const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
 const currentUser = computed(() => store.state.currentUser);
 const findInTreeIri = computed(() => store.state.findInTreeIri);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const loading = ref(true);
 const overlayLocation: Ref<any> = ref({});

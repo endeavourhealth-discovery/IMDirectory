@@ -69,7 +69,7 @@ import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRouter, useRoute } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
-import { PropertyShape, TTIriRef } from "@im-library/interfaces";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 import Swal from "sweetalert2";
 import ConfirmDialog from "primevue/confirmdialog";

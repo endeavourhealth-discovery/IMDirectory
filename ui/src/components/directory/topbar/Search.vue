@@ -6,7 +6,7 @@
     </SplitButton>
     <Button
       id="filter-button"
-      icon="pi pi-sliders-h"
+      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
@@ -25,8 +25,8 @@ import Filters from "./Filters.vue";
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { TTIriRef, FilterOptions } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/models/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { DataTypeCheckers } from "@im-library/helpers";
 import { useRouter } from "vue-router";
@@ -37,6 +37,7 @@ const { isObject } = DataTypeCheckers;
 const router = useRouter();
 const store = useStore();
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");

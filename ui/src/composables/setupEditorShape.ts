@@ -1,12 +1,14 @@
 import { computed, Ref, ref } from "vue";
-import { PropertyGroup} from "@im-library/models/AutoGen";
-import { FormGenerator, TTIriRef } from "@im-library/interfaces";
+import { FormGenerator } from "@im-library/interfaces";
+
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
 import { useRoute, useRouter } from "vue-router";
+import { PropertyGroup } from "@im-library/interfaces/AutoGen";
 
 export function setupEditorShape() {
   const router = useRouter();

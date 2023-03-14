@@ -76,7 +76,8 @@ import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } fr
 import { useStore } from "vuex";
 import axios from "axios";
 import { useToast } from "primevue/usetoast";
-import { TTIriRef, EntityReferenceNode, ConceptSummary } from "@im-library/interfaces";
+import { EntityReferenceNode, ConceptSummary } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";

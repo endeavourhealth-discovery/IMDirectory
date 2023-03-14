@@ -1,7 +1,6 @@
 <template>
   <div class="refinement-content-container nested-div">
     <AutoComplete
-      :forceSelection="true"
       style="flex: 1"
       input-style="flex:1"
       field="name"
@@ -13,12 +12,11 @@
       :disabled="loadingProperty || !focus?.iri"
       :optionDisabled="disableOption"
     />
-    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" />
+    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <AutoComplete
-      :forceSelection="true"
       style="flex: 1"
       input-style="flex:1"
       field="name"
@@ -27,9 +25,9 @@
       :suggestions="valueResults"
       @complete="searchValue($event.query)"
       placeholder="search..."
-      :disabled="!selectedProperty || loadingValue"
+      :disabled="!selectedProperty || typeof selectedProperty == 'string' || loadingValue"
     />
-    <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" />
+    <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" class="tree-button" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
@@ -63,6 +61,30 @@ const props = defineProps({
   parent: { type: Object, required: false },
   focus: { type: Object, required: false }
 });
+
+watch(
+  () => _.cloneDeep(props.value),
+  async (newValue, oldValue) => {
+    if (newValue) {
+      if (!oldValue) await processProps();
+      else {
+        if (newValue?.property?.concept?.iri !== oldValue?.property?.concept?.iri) await processProps();
+        if (newValue?.value?.concept?.iri !== oldValue?.value?.concept?.iri) await processProps();
+      }
+    } else {
+      clearAll();
+    }
+  }
+);
+
+watch(
+  () => _.cloneDeep(props.focus),
+  async (newValue, oldValue) => {
+    if (newValue && newValue.iri) {
+      await processProps();
+    } else clearAll();
+  }
+);
 
 const toast = useToast();
 
@@ -99,15 +121,6 @@ watch(selectedValue, newValue => {
   updateValue(newValue);
 });
 
-watch(
-  () => _.cloneDeep(props.focus),
-  async (newValue, oldValue) => {
-    if (newValue && newValue.iri) {
-      await processProps();
-    } else clearAll();
-  }
-);
-
 const descendantOptions = [
   {
     label: "only",
@@ -135,20 +148,23 @@ onBeforeUnmount(() => {
 });
 
 async function processProps() {
-  if (hasProperty()) {
+  if (hasProperty() && hasFocus()) {
     loadingProperty.value = true;
     loadingValue.value = true;
     let name = "";
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else name = await findIriName(props.value.property.concept.iri);
     if (name) {
-      if (hasProperty() && (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri))) {
+      if (
+        hasProperty() &&
+        hasFocus() &&
+        (props.focus?.iri === "any" || (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri)))
+      ) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
       } else {
+        selectedProperty.value = null;
         updateProperty(null);
         updateValue(null);
-        props.value.property.concept = null;
-        props.value.value.concept = null;
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property",
@@ -160,14 +176,15 @@ async function processProps() {
     } else throw new Error("Property iri does not exist");
   }
   loadingProperty.value = false;
-  if (hasValue() && selectedProperty.value) {
+  if (hasValue() && selectedProperty.value?.iri) {
     let name = "";
     if (props.value.value.concept.name) name = props.value.value.concept.name;
     else name = await findIriName(props.value.value.concept.iri);
     if (name) {
-      if (hasValue() && (await EntityService.isValidPropertyValue(selectedProperty.value.iri, props.value.value.concept.iri))) {
+      if (hasValue() && selectedProperty.value?.iri && (await EntityService.isValidPropertyValue(selectedProperty.value.iri, props.value.value.concept.iri))) {
         selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri);
       } else {
+        selectedValue.value = null;
         updateValue(null);
         toast.add({
           severity: ToastSeverity.ERROR,
@@ -188,6 +205,7 @@ function clearAll() {
 }
 
 async function searchProperty(term: string) {
+  selectedValue.value = null;
   if (!hasFocus()) return;
   if (term.length > 2) {
     if (term.toLowerCase() === "any") {
@@ -338,5 +356,11 @@ function hasFocus(): boolean {
   flex: 0 0 auto;
   height: 1.5rem;
   width: 1.5rem;
+}
+
+.tree-button {
+  height: 2.357rem !important;
+  width: 2.357rem !important;
+  padding: 0.5rem !important;
 }
 </style>

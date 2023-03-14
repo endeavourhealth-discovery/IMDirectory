@@ -16,12 +16,16 @@
 
 ### Fontawesome
 
-Information Model (v2) uses FontAwesome Pro. Before running the install script you will need to run the following within your terminal using a valid [FONT-AWESOME-PACKAGE-TOKEN](https://fontawesome.com/sessions/sign-in?next=%2Faccount%23pro-package-tokens):
+Information Model (v2) optionally uses FontAwesome Pro. To use FontAwesome Pro add a valid [FONT-AWESOME-PACKAGE-TOKEN](https://fontawesome.com/sessions/sign-in?next=%2Faccount%23pro-package-tokens) to the npm config prior to running the install script:
+
+Terminal
 
 ```console
 npm config set "@fortawesome:registry" https://npm.fontawesome.com/
 npm config set "//npm.fontawesome.com/:_authToken" FONT-AWESOME-PACKAGE-TOKEN
 ```
+
+And add the environment variable `VITE_FONT_AWESOME_PACKAGE_TOKEN` withinthe ui package .env files
 
 ### Install
 

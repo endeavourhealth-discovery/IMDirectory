@@ -157,7 +157,7 @@ import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { DirectService, EntityService, Env } from "@/services";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/models/AutoGen";
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import TaskDefinition from "../editor/workflow/TaskDefinition.vue";
 

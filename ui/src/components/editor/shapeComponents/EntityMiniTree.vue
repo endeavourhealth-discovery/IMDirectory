@@ -65,7 +65,8 @@
 
 <script setup lang="ts">
 import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
-import { ConceptSummary, EntityReferenceNode, TreeNode, TTIriRef } from "@im-library/interfaces";
+import { ConceptSummary, EntityReferenceNode, TreeNode } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import axios from "axios";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";

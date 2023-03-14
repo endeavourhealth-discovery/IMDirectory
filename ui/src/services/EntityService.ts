@@ -3,7 +3,6 @@ import {
   EntityReferenceNode,
   FiltersAsIris,
   TTBundle,
-  TTIriRef,
   GraphData,
   TermCode,
   Namespace,
@@ -12,10 +11,12 @@ import {
   FilterOptions,
   PropertyDisplay
 } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/models/AutoGen";
+import { TTIriRef, SearchRequest } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
+import { SortDirection } from "@im-library/enums";
+import { isObject } from "@im-library/helpers/DataTypeCheckers";
 const api = Env.API;
 
 const EntityService = {
@@ -584,6 +585,38 @@ const EntityService = {
       });
     } catch (error) {
       return { result: [], totalCount: 0 } as any;
+    }
+  },
+
+  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<ConceptSummary[]> {
+    try {
+      const searchRequest = {} as SearchRequest;
+      searchRequest.termFilter = searchTerm;
+      searchRequest.page = 1;
+      searchRequest.size = 100;
+      searchRequest.sortDirection = SortDirection.DESC;
+      searchRequest.sortField = "weighting";
+      searchRequest.schemeFilter = filterOptions.schemes.map(scheme => scheme["@id"]);
+      searchRequest.typeFilter = filterOptions.types.map(type => type["@id"]);
+      searchRequest.statusFilter = filterOptions.status.map(status => status["@id"]);
+      if (!isObject(abortController)) {
+        abortController.abort();
+      }
+
+      abortController = new AbortController();
+      return await EntityService.advancedSearch(searchRequest, abortController);
+    } catch (error) {
+      return [] as ConceptSummary[];
+    }
+  },
+
+  async hasPredicates(subjectIri: string, predicateIris: string[]) {
+    try {
+      return await axios.get(api + "api/entity/public/hasPredicates", {
+        params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
+      });
+    } catch (error) {
+      return false;
     }
   },
 

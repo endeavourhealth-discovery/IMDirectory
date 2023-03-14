@@ -1,7 +1,7 @@
 import { ComponentType } from "../enums/ComponentType";
 import { NextComponentSummary, ComponentDetails } from "../interfaces";
 import { EditorMode } from "../enums";
-import { PropertyGroup, PropertyShape } from "../models/AutoGen";
+import { PropertyGroup, PropertyShape } from "../interfaces/AutoGen";
 import {SHACL} from "../vocabulary";
 
 export function generateNewComponent(

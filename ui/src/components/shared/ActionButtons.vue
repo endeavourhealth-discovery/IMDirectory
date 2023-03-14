@@ -1,7 +1,7 @@
 <template>
   <Button
     v-if="show('runQuery')"
-    icon="fa-solid fa-bolt"
+    :icon="'fa-solid fa-bolt'"
     :class="getClass()"
     @click="onRunQuery(iri)"
     v-tooltip.top="'Run query'"
@@ -9,7 +9,7 @@
   />
   <Button
     v-if="show('findInTree')"
-    icon="fa-solid fa-sitemap"
+    :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
     :class="getClass()"
     @click="locateInTree($event, iri)"
     v-tooltip.top="'Find in tree'"
@@ -17,7 +17,7 @@
   />
   <Button
     v-if="show('view')"
-    icon="pi pi-fw pi-external-link"
+    :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
     :class="getClass()"
     @click="directService.view(iri)"
     v-tooltip.top="'View'"
@@ -25,7 +25,7 @@
   />
   <Button
     v-if="show('edit')"
-    icon="fa-solid fa-pen-to-square"
+    :icon="fontAwesomePro ? 'fa-duotone fa-pen-to-square' : 'fa-solid fa-pen-to-square'"
     :class="getClass()"
     @click="directService.edit(iri)"
     v-tooltip.top="'Edit'"
@@ -34,7 +34,7 @@
   <Button
     v-if="show('favourite') && isFavourite(iri)"
     style="color: #e39a36"
-    icon="pi pi-fw pi-star-fill"
+    icon="'fa-solid fa-star'"
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Unfavourite'"
@@ -42,16 +42,24 @@
   />
   <Button
     v-else-if="show('favourite') && !isFavourite(iri)"
-    icon="pi pi-fw pi-star"
+    icon="fa-regular fa-star"
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Favourite'"
     data-testid="favourite-button"
   />
+  <TestQueryParams
+    v-if="showTestQueryParams && isObjectHasKeys(queryRequest)"
+    :showDialog="showTestQueryParams"
+    :query-request="queryRequest"
+    :params="params"
+    @on-params-populated="onParamsPopulated"
+    @close-dialog="showTestQueryParams = false"
+  />
   <TestQueryResults
-    v-if="showTestQueryResults && isObjectHasKeys(imquery)"
+    v-if="showTestQueryResults && isObjectHasKeys(queryRequest)"
     :showDialog="showTestQueryResults"
-    :imquery="imquery"
+    :query-request="queryRequest"
     @close-dialog="showTestQueryResults = false"
   />
 </template>
@@ -65,11 +73,14 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { State } from "@/store/stateType";
 import { Store, useStore } from "vuex";
 import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
+import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryParams.vue";
+import { Query } from "@im-library/interfaces/AutoGen";
 const directService = new DirectService();
-const { runQuery, runQueryFromIri, runQueryRequest, getQueryFromIri, queryResults, showTestQueryResults, imquery } = setupRunQuery();
+const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const props = defineProps({
   buttons: { type: Array as PropType<Array<string>>, required: true },
@@ -103,8 +114,18 @@ function updateFavourites(iri: string) {
   store.commit("updateFavourites", iri);
 }
 
-function onRunQuery(iri: string) {
-  getQueryFromIri(iri);
+async function onRunQuery(iri: string) {
+  queryRequest.value.query = { "@id": iri } as Query;
+  if (await hasParams(iri)) {
+    getParams(iri);
+    showTestQueryParams.value = true;
+  } else {
+    showTestQueryResults.value = true;
+  }
+}
+
+async function onParamsPopulated() {
+  showTestQueryParams.value = false;
   showTestQueryResults.value = true;
 }
 </script>

@@ -66,15 +66,17 @@
 import {inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch} from "vue";
 import {AbortController} from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
-import {EditorMode} from "@im-library/enums";
-import {getNamesAsStringFromTypes} from "@im-library/helpers/ConceptTypeMethods";
-import {isArrayHasLength, isObject, isObjectHasKeys} from "@im-library/helpers/DataTypeCheckers";
-import {processArguments} from "@im-library/helpers/EditorMethods";
-import {isTTIriRef} from "@im-library/helpers/TypeGuards";
-import {EntityService, QueryService} from "@/services";
-import {IM, RDF, RDFS} from "@im-library/vocabulary";
-import {PropertyShape} from "@im-library/models/AutoGen";
-import {ConceptSummary, Query, QueryRequest, TTIriRef} from "@im-library/interfaces";
+import { EditorMode } from "@im-library/enums";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { processArguments } from "@im-library/helpers/EditorMethods";
+import { byName } from "@im-library/helpers/Sorters";
+import { mapToObject } from "@im-library/helpers/Transforms";
+import { isTTIriRef } from "@im-library/helpers/TypeGuards";
+import { QueryService } from "@/services";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { ConceptSummary } from "@im-library/interfaces";
+import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import router from "@/router";
 

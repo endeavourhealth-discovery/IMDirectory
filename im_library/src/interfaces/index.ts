@@ -45,7 +45,6 @@ import { GenericType } from "./queryBuilder/GenericType.js";
 import { QueryDisplay } from "./queryBuilder/QueryDisplay.js";
 import { QueryObject } from "./queryBuilder/QueryObject.js";
 import { Refinement } from "./queryBuilder/Refinement.js";
-import { SetQueryObject } from "./queryBuilder/SetQueryObject.js";
 import { SimplifiedType } from "./queryBuilder/SimplifiedType.js";
 import { GithubRelease } from "./GithubRelease";
 import TangledTreeData from "./TangledTreeData";
@@ -103,7 +102,6 @@ export {
   type FieldDto,
   type GenericType,
   type QueryObject,
-  type SetQueryObject,
   type FieldUI,
   type SimplifiedType,
   type Refinement,

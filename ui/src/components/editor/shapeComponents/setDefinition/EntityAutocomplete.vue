@@ -33,8 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { FilterOptions, TTIriRef } from "@im-library/interfaces";
-import { SearchRequest, TTAlias } from "@im-library/models/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchRequest, TTAlias, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { onMounted, PropType, Ref, ref, watch, computed } from "vue";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";

@@ -17,7 +17,7 @@ phases:
       - node -v
       - export NODE_OPTIONS=--max-old-space-size=4096
       - npm config set "@fortawesome:registry" https://npm.fontawesome.com/
-      - npm config set "//npm.fontawesome.com/:_authToken" $FONT_AWESOME_KEY
+      - npm config set "//npm.fontawesome.com/:_authToken" $VITE_FONT_AWESOME_PACKAGE_TOKEN
   build:
     commands:
       - chmod +x aws_scripts/build.sh

@@ -8,20 +8,25 @@ import { worker } from "./mocks/browser";
 
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
-import { fad } from "@fortawesome/pro-duotone-svg-icons";
-import { fal } from "@fortawesome/pro-light-svg-icons";
-import { far } from "@fortawesome/pro-regular-svg-icons";
-import { fas } from "@fortawesome/pro-solid-svg-icons";
-import { fat } from "@fortawesome/pro-thin-svg-icons";
-import { fasr } from "@fortawesome/sharp-regular-svg-icons";
-import { fass } from "@fortawesome/sharp-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
+library.add(fab);
+
+
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
+addFontAwesomeProIcons(library);
+store.commit("updateFontAwesomePro", true);
+// #v-endif
+// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
+import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
+store.commit("updateFontAwesomePro", false);
+// #v-endif
+
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 dom.watch();
-
-library.add(fad, fal, far, fas, fat, fasr, fass, fab);
 
 import "primevue/resources/themes/saga-blue/theme.css"; //theme
 
@@ -118,7 +123,7 @@ const app = createApp(App)
   })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
-  .component("font-awesome-icon", FontAwesomeIcon)
+  .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)
   .component("TabView", TabView)

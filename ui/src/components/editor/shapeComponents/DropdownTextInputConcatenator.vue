@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { inject, PropType, ref, Ref, watch, onMounted } from "vue";
-import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces";
+import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";

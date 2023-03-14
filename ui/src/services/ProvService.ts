@@ -1,6 +1,6 @@
 import Env from "./Env";
 import axios from "axios";
-import { TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 const node_api = Env.VITE_NODE_API;
 
 const ProvService = {

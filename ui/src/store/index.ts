@@ -1,7 +1,7 @@
 import { createStore } from "vuex";
 import { AuthService } from "@/services";
 import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, FilterOptions, CustomAlert, User } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/models/AutoGen";
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { Avatars } from "@im-library/constants";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
@@ -50,6 +50,7 @@ export default createStore({
     findInEditorTreeIri: "",
     refreshEditorTree: false as boolean,
     showReleaseNotes: false as boolean,
+    fontAwesomePro: false,
     eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string)
   },
   mutations: {
@@ -187,6 +188,9 @@ export default createStore({
     },
     updateShowReleaseNotes(state, bool) {
       state.showReleaseNotes = bool;
+    },
+    updateFontAwesomePro(state, bool) {
+      state.fontAwesomePro = bool;
     },
     updateEclEditorSavedString(state, ecl) {
       state.eclEditorSavedString = ecl;
