@@ -12,13 +12,15 @@ import EditorBuilderJsonMethods from "./EditorBuilderJsonMethods";
 import EditorMethods from "./EditorMethods";
 import TypeGuards from "./TypeGuards";
 import EntityValidator from "./EntityValidator";
-import EclSearchBuilderMethods from "./EclSearchBuilderMethods";
 import QueryBuilderMethods from "./QueryBuilderMethods";
 import UtililityMethods from "./UtilityMethods";
 import TangledTreeLayout from "./TangledTreeLayout";
 import StringManipulators from "./StringManipulators";
 import DisplayQueryBuilder from "./DisplayQueryBuilder";
 import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
+import { eclToBuild } from "./Ecl/EclToBuild";
+import { eclToIMQ } from "./Ecl/EclToIMQ";
+import { validateEcl } from "./Ecl/ValidateEcl";
 
 export {
   ChartRescale,
@@ -35,11 +37,13 @@ export {
   EditorBuilderJsonMethods,
   TypeGuards,
   EntityValidator,
-  EclSearchBuilderMethods,
   QueryBuilderMethods,
   UtililityMethods,
   TangledTreeLayout,
   StringManipulators,
   DisplayQueryBuilder,
-  EclBuilderConceptToEcl
+  EclBuilderConceptToEcl,
+  eclToBuild,
+  eclToIMQ,
+  validateEcl
 };

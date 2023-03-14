@@ -6,7 +6,7 @@ compoundexpressionconstraint : conjunctionexpressionconstraint | disjunctionexpr
 conjunctionexpressionconstraint : (subexpressionconstraint | bracketcompoundexpressionconstraint) (ws conjunction ws (subexpressionconstraint | bracketcompoundexpressionconstraint))+;
 disjunctionexpressionconstraint : (subexpressionconstraint | bracketcompoundexpressionconstraint) (ws disjunction ws (subexpressionconstraint | bracketcompoundexpressionconstraint))+;
 exclusionexpressionconstraint : (subexpressionconstraint | bracketcompoundexpressionconstraint) ws exclusion ws  (subexpressionconstraint | bracketcompoundexpressionconstraint);
-bracketcompoundexpressionconstraint : LEFT_PAREN ws (refinedexpressionconstraint | compoundexpressionconstraint) ws RIGHT_PAREN;
+bracketcompoundexpressionconstraint : LEFT_PAREN ws (refinedexpressionconstraint | compoundexpressionconstraint | subexpressionconstraint) ws RIGHT_PAREN;
 dottedexpressionconstraint : subexpressionconstraint (ws dottedexpressionattribute)+;
 dottedexpressionattribute : dot ws subexpressionconstraint;
 subexpressionconstraint : (constraintoperator ws)? (memberof ws)? eclfocusconcept ;
