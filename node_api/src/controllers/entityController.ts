@@ -16,6 +16,7 @@ export default class EntityController {
     this.router.get("/public/propertiesDisplay", (req, res, next) => this.getPropertiesDisplay(req, res, next));
     this.router.get("/public/detailsDisplay/loadMore", (req, res, next) => this.loadMoreDetailsTab(req, res, next));
     this.router.get("/public/propertyType", (req, res, next) => this.getPropertyType(req, res, next));
+    this.router.get("/public/propertyRange", (req, res, next) => this.getPropertyRange(req, res, next));
   }
 
   async getPropertiesDisplay(req: Request, res: Response, next: NextFunction) {
@@ -34,6 +35,16 @@ export default class EntityController {
       next(e);
     }
   }
+
+  async getPropertyRange(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.entityService.getPropertyRange(req.query.propIri as string);
+      res.send(data).end();
+    } catch (e) {
+      next(e);
+    }
+  }
+
 
 
   async getDetailsDisplay(req: Request, res: Response, next: NextFunction) {

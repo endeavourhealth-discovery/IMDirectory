@@ -167,4 +167,37 @@ export default class EntityService {
     }];
 
   }
+
+  async getPropertyRange(propIri: string): Promise<any> {
+    const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
+    const data = (await this.entityRepository.getPropertyRange(propIri))[0];
+    if(data.type) {
+      return [{
+        "@id": data.type.value,
+        "http://www.w3.org/2000/01/rdf-schema#label": data.name.value
+      }];
+    } else if(data.objectProperty.id === isTrue) {
+      const results = [{
+        "@id": "http://endhealth.info/im#Concept",
+        "http://www.w3.org/2000/01/rdf-schema#label": "Terminology concept"
+      }];
+      const suggestions = await this.entityRepository.getRangeSuggestionsForObjectProperty(propIri)
+      suggestions.map((d: any) => {
+       results.push({
+          "@id": d.type.value,
+          "http://www.w3.org/2000/01/rdf-schema#label": d.name.value
+        });
+      });
+      return results;
+    } else if(data.dataProperty.id === isTrue) {
+      const dataTypes =  await this.entityRepository.getDataTypes();
+      return dataTypes.map((d: any) => {
+        return {
+          "@id": d.datatype.value,
+          "http://www.w3.org/2000/01/rdf-schema#label": d.datatypeName ? d.datatypeName.value : ""
+        };
+      });
+    }
+    return {};
+  }
 }

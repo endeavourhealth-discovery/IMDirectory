@@ -1,3 +1,5 @@
+#Get property type
+
 GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://endhealth.info/im#AdministrationNote&propIri=http://endhealth.info/im#concept
 
 ###
@@ -6,6 +8,24 @@ GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://en
 
 ###
 
-GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://endhealth.info/im#AdministrationNote&propIri=http://endhealth.info/im#usedEntity
+GET http://localhost:3000/node_api/entity/public/propertyType?modelIri=http://endhealth.info/im#ProvenanceActivity&propIri=http://endhealth.info/im#usedEntity
+
+###
+
+#Get property range
+
+GET http://localhost:3000/node_api/entity/public/propertyRange?propIri=http://endhealth.info/im#gpRegistration
+
+###
+
+GET http://localhost:3000/node_api/entity/public/propertyRange?propIri=http://endhealth.info/im#address
+
+###
+
+GET http://localhost:3000/node_api/entity/public/propertyRange?propIri=http://endhealth.info/im#addressLine
+
+###
+
+GET http://localhost:3000/node_api/entity/public/propertyRange?propIri=http://endhealth.info/im#usedEntity
 
 ###
