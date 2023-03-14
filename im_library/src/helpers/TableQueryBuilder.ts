@@ -65,15 +65,14 @@ function addWhere(query: any, type: string, parent: TableQuery) {
       buildRecursively(where, "where", parent);
     }
   } else if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
-    const label = query.description;
     if (isObjectHasKeys(query, ["in"])) {
-      addInClause(label, query, type, parent);
+      addInClause(query.description, query, type, parent);
     } else if (isComparisonWhere(query)) {
-      addItem(label, query, type, parent);
+      addItem(query.description, query, type, parent);
     } else if (isObjectHasKeys(query, ["notExist"])) {
-      addItem(label, query, type, parent);
+      addItem(query.description, query, type, parent);
     } else if (isObjectHasKeys(query, ["range"])) {
-      addItem(label, query, type, parent);
+      addItem(query.description, query, type, parent);
     } else {
       addObject(query, type, parent);
     }
@@ -115,29 +114,18 @@ function addItem(label: string, query: any, type: string, parent: TableQuery) {
   return child;
 }
 
-function addInClause(id: string, query: any, type: string, parent: TableQuery) {
-  let label = getInLabel(id, query, type, parent);
+function addInClause(label: string, query: any, type: string, parent: TableQuery) {
   if (isArrayHasLength(query.in) && query.in.length > 1) {
     addInItems(label, query, type, parent);
   } else if (isObjectHasKeys(query.in[0], ["where"])) {
-    label += " from";
     const child = addItem(label, query, type, parent);
     addWhere(query.in[0].where, "where", child);
   } else {
-    label += ": " + (query.valueLabel || query.in[0].name);
     addItem(label, query, type, parent);
   }
 }
 
 // getters
-function getInLabel(id: string, query: any, type: string, parent: TableQuery) {
-  let label = "";
-  if (isObjectHasKeys(query, ["in", "latest", "count"])) label += "Latest " + id;
-  else if (hasBool(query, "not") && isObjectHasKeys(query, ["bool", "in"])) label += "Not from";
-  else label += id;
-
-  return label;
-}
 
 function getKey(parent: TableQuery) {
   return parent.key + parent.children.length;

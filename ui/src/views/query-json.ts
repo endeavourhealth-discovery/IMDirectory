@@ -1,7 +1,7 @@
 export const queryData = [
   {
     label: "Patient",
-    data: { "@id": "http://endhealth.info/im#Patient" }
+    data: { "@id": "http://endhealth.info/im#Patient", name: "Patient" }
   },
   {
     label: "Registered for gms",
@@ -119,35 +119,17 @@ export const queryDefinition = {
       {
         description: "Registered for gms",
         "@id": "http://endhealth.info/im#isSubsetOf",
-        in: [
-          {
-            name: "Registered for GMS services on reference date",
-            "@set": "http://example.org/qry#Q_RegisteredGMS"
-          }
-        ],
+        in: [{ name: "Registered for GMS services on reference date", "@set": "http://example.org/qry#Q_RegisteredGMS" }],
         valueLabel: "Registered for GMS on reference date"
       },
       {
+        description: "aged 65 to 70 or diabetic",
         bool: "or",
-        description: "aged between 65 and 70 or diabetic",
         where: [
           {
             description: "aged between 65 and 70",
             "@id": "http://endhealth.info/im#age",
-            range: {
-              from: {
-                operator: ">=",
-                value: "65",
-                unit: null,
-                relativeTo: null
-              },
-              to: {
-                operator: ">",
-                value: "70",
-                unit: null,
-                relativeTo: null
-              }
-            }
+            range: { from: { operator: ">=", value: "65", unit: null, relativeTo: null }, to: { operator: ">", value: "70", unit: null, relativeTo: null } }
           },
           {
             description: "Diabetic",
@@ -155,7 +137,7 @@ export const queryDefinition = {
             where: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                in: [{ "@set": "http://example.org/qry#Q_Diabetics" }]
+                in: [{ "@set": "http://example.org/qry#Q_Diabetics" }, { "@id": "http://snomed.info/sct#714628002", descendantsOf: true }]
               }
             ]
           }
@@ -173,14 +155,8 @@ export const queryDefinition = {
               "@id": "http://endhealth.info/im#concept",
               name: "concept",
               in: [
-                {
-                  "@id": "http://snomed.info/sct#271649006",
-                  name: "Systolic blood pressure"
-                },
-                {
-                  "@id": "http://endhealth.info/emis#1994021000006104",
-                  name: "Home systolic blood pressure"
-                }
+                { "@id": "http://snomed.info/sct#271649006", name: "Systolic blood pressure" },
+                { "@id": "http://endhealth.info/emis#1994021000006104", name: "Home systolic blood pressure" }
               ],
               valueLabel: "Office or home systolic blood pressure"
             },
@@ -196,12 +172,7 @@ export const queryDefinition = {
             }
           ],
           orderBy: { "@id": "http://endhealth.info/im#effectiveDate" },
-          then: {
-            description: ">150",
-            "@id": "http://endhealth.info/im#numericValue",
-            operator: ">",
-            value: "150"
-          }
+          then: { description: ">150", "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150" }
         }
       },
       {
@@ -216,19 +187,8 @@ export const queryDefinition = {
                 description: "Invited for Screening after high BP",
                 bool: "and",
                 where: [
-                  {
-                    "@id": "http://endhealth.info/im#concept",
-                    in: [
-                      {
-                        "@set": "http://endhealth.info/im#InvitedForScreening"
-                      }
-                    ]
-                  },
-                  {
-                    "@id": "http://endhealth.info/im#effectiveDate",
-                    operator: ">=",
-                    relativeTo: "LastBP"
-                  }
+                  { "@id": "http://endhealth.info/im#concept", in: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }] },
+                  { "@id": "http://endhealth.info/im#effectiveDate", operator: ">=", relativeTo: "LastBP" }
                 ]
               }
             ]
@@ -236,17 +196,7 @@ export const queryDefinition = {
           {
             description: "Hypertensive",
             "@id": "http://endhealth.info/im#observation",
-            where: [
-              {
-                "@id": "http://endhealth.info/im#concept",
-                in: [
-                  {
-                    name: "Hypertensives",
-                    "@set": "http://example.org/qry#Hypertensives"
-                  }
-                ]
-              }
-            ]
+            where: [{ "@id": "http://endhealth.info/im#concept", in: [{ name: "Hypertensives", "@set": "http://example.org/qry#Hypertensives" }] }]
           }
         ]
       }

@@ -18,7 +18,9 @@ import { queryDefinition } from "./query-json";
 import RecursiveTableQuery from "../components/query/RecursiveTableQuery.vue";
 import { TableQuery } from "@im-library/interfaces";
 import { buildTableQuery } from "@im-library/helpers/TableQueryBuilder";
+import { useStore } from "vuex";
 
+const store = useStore();
 const selected = ref([] as any[]);
 const data: Ref<TableQuery[]> = ref({} as TableQuery[]);
 
@@ -28,7 +30,9 @@ function getTableQuery() {
   data.value = tableQuery;
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await store.dispatch("fetchFilterSettings");
+
   getTableQuery();
 });
 </script>

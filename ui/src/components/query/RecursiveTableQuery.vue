@@ -7,7 +7,7 @@
       <template v-if="isArrayHasLength(queryData)" v-for="child of queryData" :key="child.name">
         <li :class="{ selected: isSelected(child) }" @click="select(child, level)">
           <div class="name">
-            {{ child.label }}
+            {{ child.data.description || child.data.name || child.label }}
           </div>
 
           <template v-if="isSelected(child)">
