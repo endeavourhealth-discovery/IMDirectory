@@ -9,7 +9,7 @@
       :suggestions="propertyResults"
       @complete="searchProperty($event.query)"
       placeholder="search..."
-      :disabled="loadingProperty || !focus?.iri"
+      :disabled="loadingProperty || !hasFocus(focus)"
       :optionDisabled="disableOption"
     />
     <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
@@ -80,7 +80,7 @@ watch(
 watch(
   () => _.cloneDeep(props.focus),
   async (newValue, oldValue) => {
-    if (newValue && newValue.iri) {
+    if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
       await processProps();
     } else clearAll();
   }
@@ -158,20 +158,35 @@ async function processProps() {
       if (
         hasProperty() &&
         hasFocus() &&
+        isAliasIriRef(props.focus) &&
         (props.focus?.iri === "any" || (await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri)))
+      ) {
+        selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
+      } else if (
+        hasProperty() &&
+        hasFocus() &&
+        isBoolGroup(props.focus) &&
+        (await EntityService.isValidPropertyBoolFocus(props.focus, props.value.property.concept.iri))
       ) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
       } else {
         selectedProperty.value = null;
         updateProperty(null);
         updateValue(null);
-        toast.add({
-          severity: ToastSeverity.ERROR,
-          summary: "Invalid property",
-          detail: `Property "${name ? name : props.value.property.concept.iri}" is not valid for concept "${
-            props.focus?.name ? props.focus.name : props.focus?.iri
-          }"`
-        });
+        if (isAliasIriRef(props.focus))
+          toast.add({
+            severity: ToastSeverity.ERROR,
+            summary: "Invalid property",
+            detail: `Property "${name ? name : props.value.property.concept.iri}" is not valid for concept "${
+              props.focus?.name ? props.focus.name : props.focus?.iri
+            }"`
+          });
+        else
+          toast.add({
+            severity: ToastSeverity.ERROR,
+            summary: "Invalid property",
+            detail: `Property "${name ? name : props.value.property.concept.iri}" is not valid for focus "${props.focus}"`
+          });
       }
     } else throw new Error("Property iri does not exist");
   }
@@ -215,7 +230,9 @@ async function searchProperty(term: string) {
 
       propertyController.value = new AbortController();
 
-      const matches = await QueryService.getAllowablePropertySuggestions(props.focus?.iri, term, propertyController.value);
+      let matches = [];
+      if (isAliasIriRef(props.focus)) matches = await QueryService.getAllowablePropertySuggestions(props.focus?.iri, term, propertyController.value);
+      else if (isBoolGroup(props.focus)) matches = await QueryService.getAllowablePropertySuggestionsBoolFocus(props.focus, term, propertyController.value);
 
       if (!matches) propertyResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
       else propertyResults.value = matches;
@@ -330,7 +347,17 @@ function hasValue(): boolean {
 }
 
 function hasFocus(): boolean {
-  if (isObjectHasKeys(props, ["focus"]) && isObjectHasKeys(props.focus, ["iri"])) return true;
+  if (isObjectHasKeys(props, ["focus"]) && (isAliasIriRef(props.focus) || isBoolGroup(props.focus))) return true;
+  else return false;
+}
+
+function isAliasIriRef(data: any): data is { iri: string; name?: string } {
+  if (data && isObjectHasKeys(data as { iri: string; name?: string }, ["iri"])) return true;
+  else return false;
+}
+
+function isBoolGroup(data: any): data is { conjunction: string; items: any[]; type: string; ecl?: string } {
+  if (data && (data as { conjunction: string; items: any[]; type: string; ecl?: string }).type === "BoolGroup") return true;
   else return false;
 }
 </script>

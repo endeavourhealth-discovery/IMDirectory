@@ -15,6 +15,7 @@ export default class EntityController {
     this.router.get("/public/detailsDisplay", (req, res, next) => this.getDetailsDisplay(req, res, next));
     this.router.get("/public/propertiesDisplay", (req, res, next) => this.getPropertiesDisplay(req, res, next));
     this.router.get("/public/detailsDisplay/loadMore", (req, res, next) => this.loadMoreDetailsTab(req, res, next));
+    this.router.post("/public/isValidPropertyBoolFocus", (req, res, next) => this.isValidPropertyBoolFocus(req, res, next));
   }
 
   async getPropertiesDisplay(req: Request, res: Response, next: NextFunction) {
@@ -46,6 +47,14 @@ export default class EntityController {
       res.send(data).end();
     } catch (e) {
       next(e);
+    }
+  }
+
+  async isValidPropertyBoolFocus(req: Request, res: Response, next: NextFunction) {
+    try {
+      res.send(true);
+    } catch (error) {
+      res.send(false);
     }
   }
 }

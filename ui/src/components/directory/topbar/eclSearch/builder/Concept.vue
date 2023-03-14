@@ -1,42 +1,34 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
-    <div class="concept-content-container">
-      <AutoComplete
-        :forceSelection="true"
-        style="flex: 1"
-        input-style="flex:1"
-        field="name"
-        dataKey="iri"
-        v-model="selected"
-        :suggestions="suggestions"
-        @complete="search($event.query)"
-        placeholder="Search..."
-        :optionDisabled="disableOption"
-        :disabled="loading"
-      />
-      <Button :disabled="!value.concept?.iri" icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
-      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-      <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
+    <div class="focus-container">
+      <div v-if="isAliasIriRef(value.concept)" class="concept-container">
+        <ConceptSelector :value="value" :parent="value" />
+      </div>
+      <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
+        <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
+      </div>
+      <div v-else class="add-focus-buttons-container">
+        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" class="builder-button" />
+        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" class="builder-button" />
+      </div>
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
-    <template v-for="(item, index) in value.items">
-      <div style="display: flex">
-        <span class="left-container">
-          <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" class="builder-button" />
-          <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary builder-button" disabled />
-        </span>
-        <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
-        <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
-        <span class="right-container">
-          <div v-if="groupWithinConcept" class="group-checkbox">
-            <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
-            <label :for="'group' + index">Group</label>
-          </div>
-          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" class="builder-button" />
-        </span>
-      </div>
-    </template>
+    <div v-for="(item, index) in value.items" class="refinement-container">
+      <span class="left-container">
+        <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
+        <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" class="builder-button" />
+        <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary builder-button" disabled />
+      </span>
+      <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
+      <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
+      <span class="right-container">
+        <div v-if="groupWithinConcept" class="group-checkbox">
+          <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+          <label :for="'group' + index">Group</label>
+        </div>
+        <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" class="builder-button" />
+      </span>
+    </div>
     <div class="add-group">
       <Button
         type="button"
@@ -62,15 +54,16 @@ import { Ref, ref, onMounted, PropType, watch, inject, h } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import ConceptSelector from "./ConceptSelector.vue";
 import EclTree from "../EclTree.vue";
 import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary, TTIriRef } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EntityService } from "@/services";
 import _ from "lodash";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useDialog } from "primevue/usedialog";
 
@@ -81,7 +74,7 @@ const props = defineProps({
       descendants: string;
       conjunction: string;
       items: any[];
-      concept: { iri: string; name?: string } | undefined;
+      concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
       ecl?: string;
     }>,
     required: true
@@ -131,38 +124,19 @@ const boolOptions = [
   }
 ];
 
-const descendantOptions = [
-  {
-    label: "only",
-    value: ""
-  },
-  {
-    label: "plus descendants",
-    value: "<<"
-  },
-  {
-    label: "descendants only",
-    value: "<"
-  }
-];
-
 onMounted(async () => {
   await init();
 });
 
-watch(selected, (newValue, oldValue) => {
-  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") {
-    updateConcept(newValue);
-  } else if (undefined) updateConcept(undefined);
-  else return;
-});
-
 async function init() {
-  if (props.value && props.value.concept && props.value.concept.iri) {
-    loading.value = true;
-    await search(props.value.concept.iri);
-    if (isArrayHasLength(suggestions.value)) selected.value = suggestions.value.find(result => result.iri === props.value.concept?.iri);
-    loading.value = false;
+  if (props.value && props.value.concept) {
+    if (isAliasIriRef(props.value.concept)) {
+      loading.value = true;
+      await search(props.value.concept.iri);
+      if (isArrayHasLength(suggestions.value))
+        selected.value = suggestions.value.find(result => result.iri === (props.value.concept as { iri: string; name?: string }).iri);
+      loading.value = false;
+    }
   }
 }
 
@@ -225,6 +199,10 @@ function addGroup() {
   add({ type: "BoolGroup", conjunction: "AND" });
 }
 
+function addConcept() {
+  props.value.concept = { iri: "" };
+}
+
 function deleteItem(index: number) {
   console.log("Deleting item " + index);
   props.value.items.splice(index, 1);
@@ -236,6 +214,8 @@ function getComponent(componentName: string) {
       return BoolGroup;
     case "Refinement":
       return Refinement;
+    case "Concept":
+      return ConceptSelector;
   }
 }
 
@@ -250,7 +230,19 @@ function getSkeletonComponent(componentName: string) {
 
 function generateEcl(): string {
   let ecl = "";
-  ecl += builderConceptToEcl(props.value, includeTerms.value);
+  if (isAliasIriRef(props.value.concept)) ecl += builderConceptToEcl(props.value, includeTerms.value);
+  else if (isBoolGroup(props.value.concept)) {
+    if (isArrayHasLength(props.value.concept.items)) {
+      ecl += "( ";
+      for (const [index, item] of props.value.concept.items.entries()) {
+        if (props.value.concept.conjunction === "MINUS") ecl += "( ";
+        ecl += item.ecl;
+        if (props.value.concept.conjunction === "MINUS") ecl += " ) ";
+        if (index + 1 !== props.value.concept.items.length) ecl += "\n" + props.value.concept.conjunction + " ";
+      }
+      ecl += " ) ";
+    }
+  }
   if (isArrayHasLength(props.value.items)) {
     ecl += " : \n";
     for (const [index, item] of props.value.items.entries()) {
@@ -260,37 +252,6 @@ function generateEcl(): string {
     }
   }
   return ecl;
-}
-
-function updateConcept(concept: any) {
-  props.value.concept = concept;
-  props.value.ecl = generateEcl();
-}
-
-function openTree(type: string) {
-  const dialogProps = {
-    style: { width: "80vw", height: "80vh" },
-    closable: false,
-    maximizable: true,
-    modal: true,
-    contentStyle: { flex: "1 1 auto", display: "flex" },
-    dismissableMask: true,
-    autoZIndex: false
-  };
-  const dialogRef = treeDialog.open(EclTree, {
-    props: dialogProps,
-    templates: {
-      footer: () => {
-        return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
-      }
-    },
-    data: { type: "concept", currentValue: props.value.concept },
-    onClose(options) {
-      if (options?.data?.type === "concept") {
-        selected.value = options.data.entity;
-      }
-    }
-  });
 }
 
 function processGroup() {
@@ -316,6 +277,16 @@ function unGroupItems(groupedItems: any) {
     }
   }
 }
+
+function isAliasIriRef(data: any): data is { iri: string; name?: string } {
+  if (data && isObjectHasKeys(data as { iri: string; name?: string }, ["iri"])) return true;
+  else return false;
+}
+
+function isBoolGroup(data: any): data is { conjunction: string; items: any[]; type: string; ecl?: string } {
+  if (data && (data as { conjunction: string; items: any[]; type: string; ecl?: string }).type === "BoolGroup") return true;
+  else return false;
+}
 </script>
 
 <style scoped lang="scss">
@@ -328,11 +299,30 @@ function unGroupItems(groupedItems: any) {
   border-style: dashed !important;
 }
 
-.concept-content-container {
+.focus-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.concept-container {
+  flex: 1 0 auto;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
+}
+
+.focus-group-container {
+  flex: 1 0 auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.refinement-container {
+  display: flex;
+  margin: 0 0 0 4rem;
 }
 
 .left-container {

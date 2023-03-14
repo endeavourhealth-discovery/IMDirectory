@@ -134,7 +134,7 @@ const toast = useToast();
 
 const dialogRef: Ref<any> | undefined = inject("dialogRef");
 
-const rootConceptIri = ref("");
+const focus: Ref<{ iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined> = ref();
 const conceptAggregates: Ref<ConceptAggregate[]> = ref([]);
 const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const overlayLocation: Ref = ref({});
@@ -165,7 +165,7 @@ const getCurrentValue = computed(() => (hasCurrentValue.value ? dialogRef?.value
 watch(getFocus, async newValue => {
   selectedKeys.value = {};
   expandedKeys.value = {};
-  if (newValue && newValue.iri) {
+  if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
     await getConceptAggregates();
     for (const aggregate of conceptAggregates.value) {
       await createTree(aggregate.concept, aggregate.children);
@@ -183,18 +183,14 @@ watch(selectedSearchResult, async newValue => {
 
 onMounted(async () => {
   setRootConceptIri();
-  if (rootConceptIri.value) {
+  if (focus.value) {
     await getConceptAggregates();
     for (const aggregate of conceptAggregates.value) {
       await createTree(aggregate.concept, aggregate.children);
     }
     if (root.value.length < superiorsCount.value) {
       root.value.push(
-        createLoadMoreNode(
-          createTreeNode(rootConceptIri.value, rootConceptIri.value, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
-          1,
-          superiorsCount.value
-        )
+        createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" }], false, null), 1, superiorsCount.value)
       );
     }
     if (hasCurrentValue.value) {
@@ -212,23 +208,28 @@ onBeforeUnmount(() => {
 });
 
 function setRootConceptIri() {
-  if (hasFocus.value) rootConceptIri.value = getFocus.value.iri;
-  else if (getType.value === "concept") rootConceptIri.value = "http://endhealth.info/im#HealthModelOntology";
+  if (!hasFocus.value) {
+    if (getType.value === "concept") focus.value = { iri: "http://endhealth.info/im#HealthModelOntology" };
+  } else focus.value = dialogRef?.value.data.focus;
 }
 
 async function getConceptAggregates(): Promise<void> {
   loading.value = true;
-  let superiors = [];
+  let superiors: any[] = [];
   if (getType.value === "property") {
-    const results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, 1, pageSize.value);
+    let results = { result: [], totalCount: 0 };
+    if (isAliasIriRef(focus.value)) results = await EntityService.getSuperiorPropertiesPaged(focus.value.iri, 1, pageSize.value);
+    if (isBoolGroup(focus.value)) results = await EntityService.getSuperiorPropertiesBoolFocusPaged(focus.value, 1, pageSize.value);
     superiors = results.result;
     superiorsCount.value = results.totalCount;
   } else if (getType.value === "value") {
-    const results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, 1, pageSize.value);
+    let results = { result: [], totalCount: 0 };
+    if (isAliasIriRef(focus.value)) results = await EntityService.getSuperiorPropertyValuesPaged(focus.value.iri, 1, pageSize.value);
     superiors = results.result;
     superiorsCount.value = results.totalCount;
   } else if (getType.value === "concept") {
-    const results = await EntityService.getPagedChildren(rootConceptIri.value, 1, pageSize.value);
+    let results = { result: [], totalCount: 0 };
+    if (isAliasIriRef(focus.value)) results = await EntityService.getPagedChildren(focus.value.iri, 1, pageSize.value);
     superiors = results.result.filter((result: any) => result["@id"] !== "http://endhealth.info/im#CodeBasedTaxonomies");
     superiorsCount.value = results.totalCount;
   }
@@ -263,7 +264,7 @@ function containsChild(nodeChildren: TreeNode[], child: EntityReferenceNode): bo
 async function onNodeSelect(node: any): Promise<void> {
   if (node.data === "loadMore") {
     if (!node.loading) {
-      if (node.parentNode.data !== rootConceptIri.value) await loadMore(node);
+      if (!node.parentNode.parent) await loadMore(node);
       else await rootLoadMore(node);
     }
   } else {
@@ -276,11 +277,12 @@ async function rootLoadMore(node: any) {
   if (node.nextPage * superiorsCount.value < node.totalCount) {
     let results;
     if (getType.value === "property") {
-      results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
+      if (isAliasIriRef(focus.value)) results = await EntityService.getSuperiorPropertiesPaged(focus.value.iri, node.nextPage, pageSize.value);
+      if (isBoolGroup(focus.value)) results = await EntityService.getSuperiorPropertiesBoolFocusPaged(focus.value, node.nextPage, pageSize.value);
     } else if (getType.value === "value") {
-      results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
+      if (isAliasIriRef(focus.value)) results = await EntityService.getSuperiorPropertyValuesPaged(focus.value.iri, node.nextPage, pageSize.value);
     } else if (getType.value === "concept") {
-      results = await EntityService.getPagedChildren(rootConceptIri.value, node.nextPage, pageSize.value);
+      if (isAliasIriRef(focus.value)) results = await EntityService.getPagedChildren(focus.value.iri, node.nextPage, pageSize.value);
     }
     root.value.pop();
     results.result.forEach((superior: any) => {
@@ -297,11 +299,12 @@ async function rootLoadMore(node: any) {
   } else if (node.nextPage * pageSize.value > node.totalCount) {
     let results;
     if (getType.value === "property") {
-      results = await EntityService.getSuperiorPropertiesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
+      if (isAliasIriRef(focus.value)) results = await EntityService.getSuperiorPropertiesPaged(focus.value.iri, node.nextPage, pageSize.value);
+      else if (isBoolGroup(focus.value)) results = await EntityService.getSuperiorPropertiesBoolFocusPaged(focus.value, node.nextPage, pageSize.value);
     } else if (getType.value === "value") {
-      results = await EntityService.getSuperiorPropertyValuesPaged(rootConceptIri.value, node.nextPage, pageSize.value);
+      if (isAliasIriRef(focus.value)) results = await EntityService.getSuperiorPropertyValuesPaged(focus.value.iri, node.nextPage, pageSize.value);
     } else if (getType.value === "concept") {
-      results = await EntityService.getPagedChildren(rootConceptIri.value, node.nextPage, pageSize.value);
+      if (isAliasIriRef(focus.value)) results = await EntityService.getPagedChildren(focus.value.iri, node.nextPage, pageSize.value);
     }
     root.value.pop();
     results.result.forEach((superior: any) => {
@@ -392,14 +395,17 @@ async function search(selected: string) {
     if (controller.value) controller.value.abort();
     controller.value = new AbortController();
     if (getType.value === "property") {
-      const results = await QueryService.getAllowablePropertySuggestions(rootConceptIri.value, selected, controller.value);
+      let results: any[] = [];
+      if (isAliasIriRef(focus.value)) results = await QueryService.getAllowablePropertySuggestions(focus.value.iri, selected, controller.value);
+      if (isBoolGroup(focus.value)) results = await QueryService.getAllowablePropertySuggestionsBoolFocus(focus.value, selected, controller.value);
       if (results && results.length) {
         if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
         else filteredSearchOptions.value = results;
       } else filteredSearchOptions.value = [];
       searchResultsLimited.value = results.length > 100;
     } else if (getType.value === "value") {
-      const results = await QueryService.getAllowableRangeSuggestions(rootConceptIri.value, selected, controller.value);
+      let results: any[] = [];
+      if (isAliasIriRef(focus.value)) results = await QueryService.getAllowableRangeSuggestions(focus.value.iri, selected, controller.value);
       if (results && results.length) {
         if (results.length > 100) filteredSearchOptions.value = results.slice(0, 100);
         else filteredSearchOptions.value = results;
@@ -437,6 +443,16 @@ function getConceptTypes(types: TTIriRef[]): string {
 async function selectItem(iri: string): Promise<void> {
   const entity = await EntityService.getEntitySummary(iri);
   if (dialogRef) dialogRef.value.close({ entity: { iri: entity.iri, code: entity.code, name: entity.name }, type: getType.value });
+}
+
+function isAliasIriRef(data: any): data is { iri: string; name?: string } {
+  if (data && isObjectHasKeys(data as { iri: string; name?: string }, ["iri"])) return true;
+  else return false;
+}
+
+function isBoolGroup(data: any): data is { conjunction: string; items: any[]; type: string; ecl?: string } {
+  if (data && (data as { conjunction: string; items: any[]; type: string; ecl?: string }).type === "BoolGroup") return true;
+  else return false;
 }
 </script>
 

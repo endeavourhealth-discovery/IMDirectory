@@ -144,6 +144,18 @@ const QueryService = {
     }
   },
 
+  async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
+    try {
+      return await axios.post(
+        Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestionsBoolFocus",
+        { focus: focus, searchTerm: searchTerm },
+        { signal: controller?.signal }
+      );
+    } catch (error) {
+      return [] as AliasEntity[];
+    }
+  },
+
   async getAllowableRangeSuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
     try {
       if (controller)
