@@ -70,10 +70,8 @@ import { EditorMode } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { byName } from "@im-library/helpers/Sorters";
-import { mapToObject } from "@im-library/helpers/Transforms";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { QueryService } from "@/services";
+import { QueryService, EntityService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
@@ -207,8 +205,11 @@ async function getAutocompleteOptions() {
         const propIri = queryRequest.argument[0].valueIri["@id"];
         if(propIri) {
           const data:TTIriRef[] = await EntityService.getPropertyType(router.currentRoute.value.params.selectedIri as string, propIri);
-          if(data) {
+          if(data.length !== 0) {
             autocompleteOptions.value = convertToConceptSummary(data);
+          } else {
+            const range:TTIriRef[] = await EntityService.getPropertyRange(propIri);
+            autocompleteOptions.value = convertToConceptSummary(range);
           }
         }
       } else {

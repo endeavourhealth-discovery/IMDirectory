@@ -149,14 +149,15 @@ function processProps() {
 }
 
 async function updatePath(data: any) {
+  props.value["http://www.w3.org/ns/shacl#path"][0] = {"@id" : data["@id"]} as TTIriRef;
   await getRange(data["@id"]);
 }
 
 async function getRange(iri: string) {
   const rangeIri = await EntityService.getPartialEntity(iri, [RDFS.RANGE]);
   let result;
-  if (rangeIri && isObjectHasKeys(rangeIri, [RDFS.RANGE])) result = await EntityService.getPartialEntity(rangeIri[RDFS.RANGE][0]["@id"], [RDFS.LABEL]);
-  if (result) propertyRange.value = { "@id": result["@id"], name: result[RDFS.LABEL] };
+  if (rangeIri) result = (await EntityService.getPropertyRange(iri))[0];
+  if (result) propertyRange.value = { "@id": result["@id"], name: result[RDFS.LABEL] } as TTIriRef;
 }
 
 function updateRange(data: any) {
