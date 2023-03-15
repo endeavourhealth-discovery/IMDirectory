@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsc --noEmit --watch",
+    "tsc": "tsc --noEmit",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix",

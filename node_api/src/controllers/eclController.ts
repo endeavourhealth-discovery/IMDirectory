@@ -1,4 +1,4 @@
-import { eclToBuild, eclToIMQ, validateEcl } from "@/logic/eclLogic";
+import EclService from "@/services/ecl.service";
 import Env from "@/services/env.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import axios from "axios";
@@ -7,9 +7,11 @@ import express, { NextFunction, Request, Response } from "express";
 export default class EclController {
   public path = "/node_api/ecl";
   public router = express.Router();
+  private eclService;
 
   constructor() {
     this.initRoutes();
+    this.eclService = new EclService(axios);
   }
 
   private initRoutes() {
@@ -22,7 +24,7 @@ export default class EclController {
   async eclToBuild(req: Request, res: Response, next: NextFunction) {
     const ecl = req.body;
     try {
-      const result = eclToBuild(ecl);
+      const result = this.eclService.eclToBuild(ecl);
       res.send(result).end();
     } catch (err: any) {
       res.status(200);
@@ -33,7 +35,7 @@ export default class EclController {
   async eclToIMQ(req: Request, res: Response, next: NextFunction) {
     const ecl = req.body;
     try {
-      const result = eclToIMQ(ecl);
+      const result = this.eclService.eclToIMQ(ecl);
       res.send(result).end();
     } catch (error: any) {
       res.status(200);
@@ -44,14 +46,7 @@ export default class EclController {
   async eclSearch(req: Request, res: Response, next: NextFunction) {
     const eclSearchRequest = req.body;
     try {
-      if (typeof eclSearchRequest.ecl === "string") {
-        eclSearchRequest.eclQuery = eclToIMQ(eclSearchRequest.ecl);
-        delete eclSearchRequest.ecl;
-      } else if (isObjectHasKeys(eclSearchRequest.ecl)) {
-        eclSearchRequest.eclQuery = eclSearchRequest.ecl;
-        delete eclSearchRequest.ecl;
-      }
-      const result = (await axios.post(Env.API + "api/ecl/public/evaluateEclQuery", eclSearchRequest)).data;
+      const result = await this.eclService.eclSearch(eclSearchRequest);
       res.send(result).end();
     } catch (error: any) {
       next(error);
@@ -59,7 +54,7 @@ export default class EclController {
   }
 
   async validateEcl(req: Request, res: Response, next: NextFunction) {
-    const result = validateEcl(req.body);
-    res.send(result).end;
+    const result = this.eclService.validateEcl(req.body);
+    res.send(result).end();
   }
 }
