@@ -38,7 +38,7 @@ const testQueryResults: Ref<TTIriRef[]> = ref([]);
 const props = defineProps({
   queryRequest: { type: Object as PropType<QueryRequest>, required: true },
   showDialog: { type: Boolean, required: true },
-  results: { type: Array<TTIriRef>, required: false }
+  results: { type: Array as PropType<TTIriRef[]>, required: false }
 });
 
 const emit = defineEmits({ closeDialog: () => true });

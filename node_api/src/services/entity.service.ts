@@ -2,9 +2,10 @@ import Env from "@/services/env.service";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
 import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import { PropertyDisplay, QueryDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
+import { PropertyDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import {TreeNode} from 'primevue/tree';
 
 export default class EntityService {
   axios: any;
@@ -121,9 +122,9 @@ export default class EntityService {
     }
   }
 
-  async getQueryDefinitionDisplayByIri(iri: string): Promise<QueryDisplay> {
+  async getQueryDefinitionDisplayByIri(iri: string): Promise<TreeNode> {
     const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
-    if (!entity[IM.DEFINITION]) return {} as QueryDisplay;
+    if (!entity[IM.DEFINITION]) return {} as TreeNode;
     return buildQueryDisplayFromQuery(JSON.parse(entity[IM.DEFINITION]));
   }
 

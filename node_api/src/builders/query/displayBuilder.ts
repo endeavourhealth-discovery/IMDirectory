@@ -1,27 +1,27 @@
-import { QueryDisplay } from "@im-library/interfaces";
 import { QueryDisplayType } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import * as crypto from "crypto";
+import {TreeNode} from 'primevue/tree';
 
 export function buildQueryDisplayFromQuery(queryAPI: any) {
-  const queryUI = {} as QueryDisplay;
-  queryUI.children = [] as QueryDisplay[];
+  const queryUI = {} as TreeNode;
+  queryUI.children = [] as TreeNode[];
   buildQueryDisplay(queryAPI, queryUI);
   return queryUI;
 }
 
-export function buildQueryDisplayItem(label: string, type?: any, value?: any, selectable?: boolean): QueryDisplay {
+export function buildQueryDisplayItem(label: string, type?: any, value?: any, selectable?: boolean): TreeNode {
   return {
-    key: Number(crypto.randomBytes(64).readBigUInt64BE()),
+    key: Number(crypto.randomBytes(64).readBigUInt64BE()).toString(),
     label: label,
     type: type,
     value: value,
-    children: [] as QueryDisplay[],
+    children: [] as TreeNode[],
     selectable: selectable
-  } as QueryDisplay;
+  } as TreeNode;
 }
 
-function buildQueryDisplay(queryAPI: any, queryUI: QueryDisplay) {
+function buildQueryDisplay(queryAPI: any, queryUI: TreeNode) {
   if (isObjectHasKeys(queryAPI, ["from"])) {
     if (hasOrList(queryAPI.from)) {
       addOrList(queryAPI, queryUI);
@@ -68,7 +68,7 @@ function addWhere(queryAPI: any, queryUI: any) {
   parent.children?.push(where);
 }
 
-function addCondition(whereDisplay: QueryDisplay, where: any) {
+function addCondition(whereDisplay: TreeNode, where: any) {
   if (isArrayHasLength(where)) {
     for (const whereItem of where) {
       addCondition(whereDisplay, whereItem);
