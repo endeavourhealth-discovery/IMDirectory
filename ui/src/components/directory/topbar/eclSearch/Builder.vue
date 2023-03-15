@@ -58,8 +58,6 @@ import { defineComponent } from "vue";
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import SetService from "@/services/SetService";
-import { booleanLiteral } from "@babel/types";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export default defineComponent({
