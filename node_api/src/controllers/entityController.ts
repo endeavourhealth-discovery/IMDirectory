@@ -52,9 +52,10 @@ export default class EntityController {
 
   async isValidPropertyBoolFocus(req: Request, res: Response, next: NextFunction) {
     try {
-      res.send(true);
+      const result = await this.entityService.isValidPropertyBoolFocus(req.body.focus, req.body.propertyIri);
+      res.send(result).end();
     } catch (error) {
-      res.send(false);
+      res.send(false).end();
     }
   }
 }
