@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-03-10 14:07:34.
+// Generated using typescript-generator version 2.36.1070 on 2023-03-14 09:29:42.
 
 /**
  * Structure containing search request parameters and filters
@@ -177,6 +177,7 @@ export interface PropertyShape {
     validationErrorMessage: string;
     function: TTIriRef;
     expression: NodeShape;
+    subProperty: PropertyShape[];
 }
 
 export interface TransformRequest {
@@ -221,10 +222,10 @@ export interface Delete {
 
 export interface From extends TTAlias {
     graph: TTAlias;
-    with: With;
-    bool: Bool;
     from: From[];
-    where: Where;
+    where: Where[];
+    boolFrom: Bool;
+    boolWhere: Bool;
 }
 
 export interface Having {
@@ -323,7 +324,10 @@ export interface EntityDocument {
     id: number;
     iri: string;
     name: string;
+    length: number;
+    preferredName: string;
     code: string;
+    matchTerm: string[];
     key: string[];
     scheme: TTIriRef;
     entityType: TTIriRef[];
@@ -363,8 +367,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces: TTPrefix[];
     prefixes: TTPrefix[];
+    nameSpaces: TTPrefix[];
 }
 
 export interface TTTypedRef extends TTIriRef {
