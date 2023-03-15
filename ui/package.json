@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "run-p dev:tsc dev:vite",
     "dev:tsc": "vue-tsc --noEmit --watch",
+    "tsc": "vue-tsc --noEmit",
     "dev:vite": "vite --port 8082",
     "dev:mocked": "vite --mode mock  --port 8082 ",
     "preview": "vite preview --port 8082",

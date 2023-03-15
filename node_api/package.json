@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "run-p swagger-autogen dev:tsc dev:vite",
     "dev:tsc": "tsc --noEmit --watch",
+    "tsc": "tsc --noEmit",
     "dev:vite": "vite",
     "debug": "run-p debug:build debug:run",
     "debug:build": "vite build --sourcemap --watch",
