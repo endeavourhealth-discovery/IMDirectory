@@ -1,9 +1,9 @@
 <template>
   <div v-if="editMode">
-    <div v-for="entity in value[property]">
+    <div v-for="(entity, index) in value[property]">
       <EntitySearch :entity-value="entity" @on-change="onChange($event, entity)" />
-      <Button @click="add" icon="fa-solid fa-plus" severity="danger" text rounded aria-label="Cancel" />
-      <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded aria-label="Cancel" />
+      <Button @click="add" icon="fa-solid fa-plus" severity="danger" text rounded />
+      <Button @click="cancel" icon="fa-solid fa-check" severity="danger" text rounded />
     </div>
   </div>
   <div v-else @dblclick="edit">
@@ -31,12 +31,12 @@ function edit() {
 }
 
 function cancel() {
-  props.value[props.property] = props.value[props.property].filter((inItem: TTAlias) => isObjectHasKeys(inItem, ["@id"]));
+  props.value[props.property] = props.value[props.property].filter((inItem: TTAlias) => inItem.name);
   emit("onEdit", props.property);
 }
 
 function add() {
-  props.value[props.property].push({});
+  props.value[props.property].push({ name: "" });
 }
 
 function onChange(cSummaries: ConceptSummary[], entity: TTAlias) {

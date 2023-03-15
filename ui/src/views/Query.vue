@@ -8,6 +8,7 @@
     <div id="query-main-container">
       <RecursiveTableQuery :bool="'and'" :query-data="data" :selected="selected" :level="0" />
     </div>
+    {{ query }}
   </div>
 </template>
 
@@ -23,9 +24,11 @@ import { useStore } from "vuex";
 const store = useStore();
 const selected = ref([] as any[]);
 const data: Ref<TableQuery[]> = ref({} as TableQuery[]);
+const query: Ref<any> = ref();
 
 function getTableQuery() {
-  const tableQuery = buildTableQuery(queryDefinition as any);
+  query.value = { ...queryDefinition };
+  const tableQuery = buildTableQuery(query.value);
   console.log(tableQuery);
   data.value = tableQuery;
 }

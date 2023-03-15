@@ -1,14 +1,13 @@
 <template>
   <div v-if="editMode" @keyup.enter="enterValue">
     <EntitySearch :entity-value="(value as any)" @on-change="onChange" />
-    <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded aria-label="Cancel" />
+    <Button @click="cancel" icon="fa-solid fa-check" severity="danger" text rounded aria-label="Cancel" />
   </div>
   <div v-else @dblclick="edit">{{ value[property] }}</div>
 </template>
 
 <script setup lang="ts">
 import { ConceptSummary } from "@im-library/interfaces";
-import { TTAlias } from "@im-library/interfaces/AutoGen";
 import { ref, Ref, onMounted } from "vue";
 import EntitySearch from "../EntitySearch.vue";
 

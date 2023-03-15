@@ -1,10 +1,10 @@
 <template>
-  <AutoComplete :multiple="true" option-label="name" v-model="selected" :suggestions="suggestions" @complete="debounceForSearch" @change="change"> </AutoComplete>
+  <AutoComplete :multiple="true" option-label="name" v-model="selected" :suggestions="suggestions" @complete="debounceForSearch" @change="change" />
 </template>
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { TTAlias } from "@im-library/interfaces/AutoGen";
 import { onMounted, PropType, Ref, ref, computed } from "vue";
@@ -23,7 +23,8 @@ const debounce = ref(0);
 const emit = defineEmits({ onChange: (payload: ConceptSummary[]) => payload });
 
 onMounted(async () => {
-  const cSummary = { name: props.entityValue.name, iri: props.entityValue["@id"] || props.entityValue["@set"] || props.entityValue["@type"] } as ConceptSummary;
+  const iri = props.entityValue["@id"] || props.entityValue["@set"] || props.entityValue["@type"];
+  const cSummary = { name: props.entityValue.name || iri, iri: iri } as ConceptSummary;
   selected.value.push(cSummary);
 });
 

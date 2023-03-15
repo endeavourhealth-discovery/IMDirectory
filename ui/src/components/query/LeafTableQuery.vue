@@ -1,16 +1,18 @@
 <template>
   <div class="leaf">
     <div v-for="property in Object.keys(value)">
-      <TableQueryIri
-        v-if="'@id' === property || '@set' === property || '@type' === property"
-        :value="value"
-        :property="property"
-        :edit-mode="editModeSet.has(property)"
-        @on-edit="edit"
-      />
-      <TableQueryIn v-else-if="'in' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
-      <TableQueryRange v-else-if="'range' === property" :range-value="value[property]" />
-      <TableQueryDefault v-else-if="'name' !== property" :value="value" :property="property" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+      <div v-if="'where' !== property">
+        <TableQueryIri
+          v-if="'@id' === property || '@set' === property || '@type' === property"
+          :value="value"
+          :property="property"
+          :edit-mode="editModeSet.has(property)"
+          @on-edit="edit"
+        />
+        <TableQueryIn v-else-if="'in' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+        <TableQueryRange v-else-if="'range' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+        <TableQueryDefault v-else-if="'name' !== property" :value="value" :property="property" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+      </div>
     </div>
   </div>
 </template>

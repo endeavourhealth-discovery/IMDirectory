@@ -14,7 +14,6 @@ function joinFromWhere(parentNode: TableQuery) {
   if ("query" === parentNode.type) {
     const from = { ...parentNode };
     delete from.children;
-    delete from.data.where;
     parentNode.children.unshift(from);
   }
   return parentNode.children;
