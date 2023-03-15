@@ -33,7 +33,7 @@ const props = defineProps({
   proIcon: { type: String, required: false },
   icon: { type: String || (Array as PropType<string[]>), required: true },
   size: {
-    type: String,
+    type: String as PropType<'2xs' | 'xs' | 'sm' | 'lg' | 'xl' | '2xl' | '1x' | '2x' | '3x' | '4x' | '5x' | '6x' | '7x' | '8x' | '9x' | '10x'>,
     required: false,
     validator(value: string) {
       return ["2xs", "xs", "sm", "lg", "xl", "2xl", "1x", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"].includes(value);
@@ -41,14 +41,14 @@ const props = defineProps({
   },
   fixedWidth: { type: Boolean, required: false, default: false },
   rotation: {
-    type: String || Number,
+    type: String as PropType<"90" | "180" | "270" | undefined> || Number as PropType< 90 | 180 | 270>,
     required: false,
     validator(value: string) {
       return [90, 180, 270, "90", "180", "270"].includes(value);
     }
   },
   flip: {
-    type: String,
+    type: String as PropType<"horizontal" | "vertical" | "both" | undefined>,
     required: false,
     validator(value: string) {
       return ["horizontal", "vertical", "both"].includes(value);
@@ -64,7 +64,7 @@ const props = defineProps({
   spinPulse: { type: Boolean, required: false },
   border: { type: Boolean, required: false },
   pull: {
-    type: String,
+    type: String as PropType<"left" | "right" | undefined>,
     required: false,
     validator(value: string) {
       return ["right", "left"].includes(value);

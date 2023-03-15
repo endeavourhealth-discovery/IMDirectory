@@ -51,10 +51,8 @@
           />
         </template>
         <template #body="slotProps">
-          <div class="ml-2">
-            <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
-              <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
-            </span>
+          <div class="datatable-flex-cell">
+              <i v-if="slotProps.data.icon" :style="'color: ' + slotProps.data.colour" :class="slotProps.data.icon" class="recent-icon" aria-hidden="true" />
             <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{
               slotProps.data.code ? slotProps.data.match + " | " + slotProps.data.code : slotProps.data.match
             }}</span>
@@ -316,5 +314,24 @@ label {
 
 .break-word {
   word-break: normal;
+}
+
+.recent-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+  padding: 5px;
+}
+
+.datatable-flex-cell {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 0;
+  flex: 1 1 0;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 </style>

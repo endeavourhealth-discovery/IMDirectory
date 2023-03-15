@@ -58,8 +58,6 @@ import { defineComponent } from "vue";
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import SetService from "@/services/SetService";
-import { booleanLiteral } from "@babel/types";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export default defineComponent({
@@ -73,7 +71,6 @@ import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { eclStringToBuilderObject } from "@im-library/helpers/EclStringToBuilderObject";
 import EclService from "@/services/EclService";
 
 const props = defineProps({

@@ -3,7 +3,6 @@
     "target": "esnext",
     "esModuleInterop": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
     "declarationMap": true,
     "rootDir": ".",
     "composite": true,

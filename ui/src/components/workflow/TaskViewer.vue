@@ -31,14 +31,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onUnmounted, ref, Ref, watch } from "vue";
-import ConfirmDialog from "primevue/confirmdialog";
+import { computed, onUnmounted, ref, Ref, watch } from "vue";
 import ExpansionTable from "./ExpansionTable.vue";
 import ParentHeader from "./ParentHeader.vue";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
 import { useRoute, useRouter } from "vue-router";
+
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 

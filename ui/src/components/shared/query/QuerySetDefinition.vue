@@ -36,12 +36,13 @@
 import { onMounted, Ref } from "vue";
 import { ref, watch } from "vue";
 import { QueryService } from "@/services";
-import { QueryDisplay } from "@im-library/interfaces";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
+import {TreeNode} from 'primevue/tree';
+
 const props = defineProps({ conceptIri: { type: String, required: true } });
 
 const loading = ref<boolean>(false);
-const queryDisplay: Ref<QueryDisplay[]> = ref([] as QueryDisplay[]);
+const queryDisplay: Ref<TreeNode[]> = ref([] as TreeNode[]);
 const expandedKeys = ref<any>({});
 
 onMounted(async () => {
@@ -55,9 +56,9 @@ watch(
   }
 );
 
-async function getQueryDisplay() {
+async function getQueryDisplay(): Promise<TreeNode[]> {
   const queryDefinition = await QueryService.getQueryDefinitionDisplay(props.conceptIri);
-  return queryDefinition.children || ([] as QueryDisplay[]);
+  return queryDefinition.children || ([] as TreeNode[]);
 }
 
 function expandAll() {
@@ -69,8 +70,8 @@ function expandAll() {
   expandedKeys.value = { ...expandedKeys.value };
 }
 
-function expandNode(node: QueryDisplay) {
-  expandedKeys.value[node.key] = true;
+function expandNode(node: TreeNode) {
+  expandedKeys.value[node.key!] = true;
   if (node.children && node.children.length) {
     for (let child of node.children) {
       expandNode(child);

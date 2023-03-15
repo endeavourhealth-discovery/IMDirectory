@@ -50,7 +50,7 @@
         /></span>
       </template>
       <template #link="{ node }">
-        <IMViewerLink :iri="node.key" :label="node.label" />
+        <IMViewerLink :iri="node.key!" :label="node.label" />
       </template>
       <template #loadMore="{ node }">
         <b>{{ node.label }}...</b>
