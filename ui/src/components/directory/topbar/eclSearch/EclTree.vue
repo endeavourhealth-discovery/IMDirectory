@@ -193,7 +193,7 @@ onMounted(async () => {
         createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" }], false, null), 1, superiorsCount.value)
       );
     }
-    if (hasCurrentValue.value) {
+    if (hasCurrentValue.value && isArrayHasLength(root.value.length)) {
       await findSelected(getCurrentValue.value.iri);
     }
   }
