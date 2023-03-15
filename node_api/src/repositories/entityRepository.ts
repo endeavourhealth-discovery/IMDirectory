@@ -44,9 +44,10 @@ export default class EntityRepository {
     public async getDataTypes(): Promise<any> {
         const qry =
             "PREFIX sh:" + iri("http://www.w3.org/ns/shacl#") +
-            "SELECT DISTINCT ?datatype WHERE {" +
+            "PREFIX rdfs:" + iri("http://www.w3.org/2000/01/rdf-schema#") +
+            "SELECT DISTINCT ?datatype ?datatypeName WHERE {" +
             "?s sh:datatype ?datatype ." +
-            "OPTIONAL{?datatype rdfs:Label ?datatypeName .}" +
+            "OPTIONAL{?datatype rdfs:label ?datatypeName .}" +
             "}";
 
         return await this.graph.execute(qry);

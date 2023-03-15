@@ -161,11 +161,13 @@ export default class EntityService {
 
   async getPropertyType(modelIri: string, propIri: string): Promise<any> {
     const data = await this.entityRepository.getPropertyType(modelIri, propIri);
-    return [{
-      "@id": data[0].type.value,
-      "http://www.w3.org/2000/01/rdf-schema#label": data[0].tname.value
-    }];
-
+    if(data[0] && data[0].type) {
+      return [{
+        "@id": data[0].type?.value,
+        "http://www.w3.org/2000/01/rdf-schema#label": data[0].tname.value
+      }];
+    }
+    return [];
   }
 
   async getPropertyRange(propIri: string): Promise<any> {
@@ -194,7 +196,7 @@ export default class EntityService {
       return dataTypes.map((d: any) => {
         return {
           "@id": d.datatype.value,
-          "http://www.w3.org/2000/01/rdf-schema#label": d.datatypeName ? d.datatypeName.value : ""
+          "http://www.w3.org/2000/01/rdf-schema#label": d.datatypeName ? d.datatypeName.value : d.datatype.value
         };
       });
     }

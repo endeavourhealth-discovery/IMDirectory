@@ -631,6 +631,18 @@ const EntityService = {
     } catch (error) {
       return [] as any;
     }
+  },
+
+  async getPropertyRange(propIri: string): Promise<any> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyRange", {
+        params: {
+          propIri: propIri
+        }
+      });
+    } catch (error) {
+      return [] as any;
+    }
   }
 };
 
