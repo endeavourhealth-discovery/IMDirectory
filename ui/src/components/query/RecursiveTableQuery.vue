@@ -84,7 +84,8 @@ function getSeverity() {
   flex-flow: column;
   border-right: 1px solid #b89241;
   min-height: 25vh;
-  min-width: 200px;
+  min-width: 20%;
+  max-width: 30%;
 }
 
 .bool-tag {

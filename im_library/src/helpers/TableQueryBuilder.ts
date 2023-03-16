@@ -5,27 +5,20 @@ import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 export function buildTableQuery(query: any) {
   const parentNode = { key: "1", children: [] as TableQuery[] } as TableQuery;
   buildRecursively(query, "query", parentNode);
-  const children = joinFromWhere(parentNode.children[0]);
-  return children;
-}
-
-function joinFromWhere(parentNode: TableQuery) {
-  console.log(parentNode);
-  if ("query" === parentNode.type) {
-    const from = { ...parentNode };
-    delete from.children;
-    parentNode.children.unshift(from);
-  }
   return parentNode.children;
 }
 
 function buildRecursively(query: any, type: string, parent: TableQuery) {
-  if ("where" === type || "with" === type) {
+  if ("from" === type) {
+    addFrom(query, type, parent);
+  } else if ("where" === type || "with" === type) {
     addWhere(query, type, parent);
   } else if ("select" === type) {
     addSelect(query, type, parent);
   } else if (isObjectHasKeys(query)) {
-    addObject(query, type, parent);
+    for (const key of Object.keys(query)) {
+      if (!isPrimitiveType(query[key])) buildRecursively(query[key], key, parent);
+    }
   } else if (isArrayHasLength(query)) {
     for (const nested of query) {
       buildRecursively(nested, type, parent);
@@ -38,7 +31,7 @@ function buildDQInstance(parent: TableQuery, label: string, type?: string, data?
     key: getKey(parent),
     label: label,
     parent: parent,
-    type: type,
+    type: type || "",
     data: data,
     bool: data?.bool,
     children: []
@@ -58,12 +51,16 @@ function addObject(query: any, type: string, parent: TableQuery) {
   }
 }
 
+function addFrom(query: any, type: string, parent: TableQuery) {
+  const label = query.name || query["@id"];
+  addItem(label, query, type, parent);
+  if (isObjectHasKeys(query, ["where"])) {
+    buildRecursively(query.where, "where", parent);
+  }
+}
+
 function addWhere(query: any, type: string, parent: TableQuery) {
-  if (isAnd(query)) {
-    for (const where of query.where) {
-      buildRecursively(where, "where", parent);
-    }
-  } else if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
+  if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
     if (isObjectHasKeys(query, ["in"])) {
       addInClause(query.description, query, type, parent);
     } else if (isComparisonWhere(query)) {
