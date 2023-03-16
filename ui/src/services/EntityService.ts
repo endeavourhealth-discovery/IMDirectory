@@ -559,11 +559,15 @@ const EntityService = {
     }
   },
 
-  async isValidProperty(entityIri: string, propertyIri: string) {
+  async isValidProperty(entityIri: string, propertyIri: string): Promise<boolean> {
     return await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: entityIri, property: propertyIri } });
   },
 
-  async isValidPropertyValue(propertyIri: string, valueIri: string) {
+  async isValidPropertyBoolFocus(focus: any, propertyIri: string): Promise<boolean> {
+    return await axios.post(Env.VITE_NODE_API + "node_api/entity/public/isValidPropertyBoolFocus", { focus: focus, propertyIri: propertyIri });
+  },
+
+  async isValidPropertyValue(propertyIri: string, valueIri: string): Promise<boolean> {
     return await axios.get(Env.API + "api/entity/public/isValidPropertyValue", { params: { property: propertyIri, value: valueIri } });
   },
 
@@ -573,6 +577,18 @@ const EntityService = {
         params: { conceptIri: conceptIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
         signal: controller?.signal
       });
+    } catch (error) {
+      return { result: [], totalCount: 0 } as any;
+    }
+  },
+
+  async getSuperiorPropertiesBoolFocusPaged(focus: any, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
+    try {
+      return await axios.post(
+        Env.VITE_NODE_API + "node_api/entity/public/superiorPropertiesBoolFocusPaged",
+        { focus: focus, pageIndex: pageIndex, pageSize: pageSize, filters: filters },
+        { signal: controller?.signal }
+      );
     } catch (error) {
       return { result: [], totalCount: 0 } as any;
     }

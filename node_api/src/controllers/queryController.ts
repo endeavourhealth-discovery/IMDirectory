@@ -27,6 +27,7 @@ export default class QueryController {
     this.router.get("/public/queryDefinitionDisplay", (req, res, next) => this.getQueryDefinitionDisplay(req, res, next));
     this.router.get("/public/queryObjectDisplay", (req, res, next) => this.getQueryObjectByIri(req, res, next));
     this.router.get("/public/allowablePropertySuggestions", (req, res, next) => this.getAllowablePropertySuggestions(req, res, next));
+    this.router.get("/public/allowablePropertySuggestionsBoolFocus", (req, res, next) => this.getAllowablePropertySuggestionsBoolFocus(req, res, next));
     this.router.get("/public/allowableRangeSuggestions", (req, res, next) => this.getAllowableRangeSuggestions(req, res, next));
     this.router.get("/public/allowableChildTypes", (req, res, next) => this.getAllowableChildTypes(req, res, next));
   }
@@ -97,6 +98,17 @@ export default class QueryController {
   async getAllowablePropertySuggestions(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await this.queryService.getAllowablePropertySuggestions(req.query.iri as string, req.query.searchTerm as string);
+      res.send(data).end();
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAllowablePropertySuggestionsBoolFocus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const focus: any = req.body.focus;
+      const searchTerm: string = req.body.searchTerm;
+      const data = await this.queryService.getAllowablePropertySuggestionsBoolFocus(focus, searchTerm);
       res.send(data).end();
     } catch (error) {
       next(error);
