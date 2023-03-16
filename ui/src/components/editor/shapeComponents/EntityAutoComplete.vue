@@ -212,7 +212,7 @@ async function getAutocompleteOptions() {
       } else {
         const result = await QueryService.queryIM(queryRequest, controller.value);
         if (result && isObjectHasKeys(result, ["entities"])) {
-          autocompleteOptions.value = convertToConceptSummary(result.entities);
+          autocompleteOptions.value = convertToConceptSummary(result.entities).sort((a:any ,b:any) => a.name.toString().toLowerCase().localeCompare(b.name.toString().toLowerCase()));
         }
       }
     }
