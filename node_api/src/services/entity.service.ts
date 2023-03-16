@@ -4,7 +4,7 @@ import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
 import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import { EclSearchRequest, PropertyDisplay, QueryDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
+import { AliasEntity, EclSearchRequest, PropertyDisplay, QueryDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -176,5 +176,28 @@ export default class EntityService {
       }
     }
     return found;
+  }
+
+  async getSuperiorPropertiesBoolFocusPaged(focus: any, pageIndex?: number, pageSize?: number, filters?: string[]) {
+    let query;
+    let superiors = { result: [], totalCount: 0 };
+    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    if (query) {
+      const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
+      const results = await this.eclService.eclSearch(eclSearchRequest);
+      if (isArrayHasLength(results)) {
+        superiors = (
+          await this.axios.get(Env.API + "api/entity/public/superiorPropertiesBoolFocusPaged", {
+            params: {
+              conceptIris: results.map((result: any) => result["@id"]).join(","),
+              pageIndex: pageIndex,
+              pageSize: pageSize,
+              schemeFilters: filters?.join(",")
+            }
+          })
+        ).data;
+      }
+    }
+    return superiors;
   }
 }
