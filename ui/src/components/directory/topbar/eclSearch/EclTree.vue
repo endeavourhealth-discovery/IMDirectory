@@ -110,6 +110,7 @@ import { toTitleCase } from "@im-library/helpers/StringManipulators";
 import { useToast } from "primevue/usetoast";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
+import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 
 const {
   root,
@@ -190,7 +191,7 @@ onMounted(async () => {
     }
     if (root.value.length < superiorsCount.value) {
       root.value.push(
-        createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" }], false, null), 1, superiorsCount.value)
+        createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null), 1, superiorsCount.value)
       );
     }
     if (hasCurrentValue.value && isArrayHasLength(root.value.length)) {
@@ -291,7 +292,7 @@ async function rootLoadMore(node: any) {
     node.nextPage = node.nextPage + 1;
     root.value.push(
       createLoadMoreNode(
-        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null),
         node.nextPage,
         node.totalCount
       )
@@ -443,16 +444,6 @@ function getConceptTypes(types: TTIriRef[]): string {
 async function selectItem(iri: string): Promise<void> {
   const entity = await EntityService.getEntitySummary(iri);
   if (dialogRef) dialogRef.value.close({ entity: { iri: entity.iri, code: entity.code, name: entity.name }, type: getType.value });
-}
-
-function isAliasIriRef(data: any): data is { iri: string; name?: string } {
-  if (data && isObjectHasKeys(data as { iri: string; name?: string }, ["iri"])) return true;
-  else return false;
-}
-
-function isBoolGroup(data: any): data is { conjunction: string; items: any[]; type: string; ecl?: string } {
-  if (data && (data as { conjunction: string; items: any[]; type: string; ecl?: string }).type === "BoolGroup") return true;
-  else return false;
 }
 </script>
 

@@ -31,6 +31,7 @@ import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useDialog } from "primevue/usedialog";
+import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 
 const props = defineProps({
   value: {
@@ -180,11 +181,6 @@ function openTree(type: string) {
       }
     }
   });
-}
-
-function isAliasIriRef(data: any): data is { iri: string; name?: string } {
-  if (data && isObjectHasKeys(data as { iri: string; name?: string }, ["iri"])) return true;
-  else return false;
 }
 </script>
 

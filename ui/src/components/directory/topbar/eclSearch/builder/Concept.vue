@@ -66,6 +66,7 @@ import _ from "lodash";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useDialog } from "primevue/usedialog";
+import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 
 const props = defineProps({
   value: {
@@ -276,16 +277,6 @@ function unGroupItems(groupedItems: any) {
       props.value.items.splice(foundItemIndex, 0, groupedItem);
     }
   }
-}
-
-function isAliasIriRef(data: any): data is { iri: string; name?: string } {
-  if (data && isObjectHasKeys(data as { iri: string; name?: string }, ["iri"])) return true;
-  else return false;
-}
-
-function isBoolGroup(data: any): data is { conjunction: string; items: any[]; type: string; ecl?: string } {
-  if (data && (data as { conjunction: string; items: any[]; type: string; ecl?: string }).type === "BoolGroup") return true;
-  else return false;
 }
 </script>
 
