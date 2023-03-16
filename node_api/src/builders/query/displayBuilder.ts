@@ -1,7 +1,7 @@
 import { QueryDisplayType } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import * as crypto from "crypto";
-import {TreeNode} from 'primevue/tree';
+import { TreeNode } from "primevue/tree";
 
 export function buildQueryDisplayFromQuery(queryAPI: any) {
   const queryUI = {} as TreeNode;
@@ -34,7 +34,7 @@ function buildQueryDisplay(queryAPI: any, queryUI: TreeNode) {
 }
 
 function hasOrList(queryObject: any) {
-  return isObjectHasKeys(queryObject, ["from", "bool"]) && queryObject.bool === "or";
+  return isObjectHasKeys(queryObject, ["from", "boolFrom"]) && queryObject.boolFrom === "or";
 }
 
 function hasWhere(queryObject: any) {
@@ -61,21 +61,23 @@ function addOrList(queryAPI: any, queryUI: any) {
 function addWhere(queryAPI: any, queryUI: any) {
   const parent = addSingleFrom(queryAPI, queryUI);
   const where = buildQueryDisplayItem("with");
-  if (hasWhere(queryAPI.from.where)) {
-    addCondition(where, queryAPI.from.where.where);
+  if (hasWhere(queryAPI.from)) {
+    addCondition(where, queryAPI.from.where);
   }
 
   parent.children?.push(where);
 }
 
 function addCondition(whereDisplay: TreeNode, where: any) {
-  if (isArrayHasLength(where)) {
+  if (isObjectHasKeys(where, ["bool"])) {
+    addCondition(whereDisplay, where.where);
+  } else if (isArrayHasLength(where)) {
     for (const whereItem of where) {
       addCondition(whereDisplay, whereItem);
     }
   } else {
-    const property = { "@id": where["@id"], name: where.name || where["@id"], includeSubtypes: where.includeSubtypes };
-    const is = { "@id": where.in[0]["@id"], name: where.in[0].name || where.in[0]["@id"], includeSubtypes: where.in[0].includeSubtypes };
+    const property = { "@id": where["@id"], name: where.name || where["@id"], descendantsOrSelfOf: where.descendantsOrSelfOf };
+    const is = { "@id": where.in[0]["@id"], name: where.in[0].name || where.in[0]["@id"], descendantsOrSelfOf: where.in[0].descendantsOrSelfOf };
     const propertyIs = { property: property, is: is };
     whereDisplay.children?.push(buildQueryDisplayItem(where.name || where["@id"], QueryDisplayType.PropertyIs, propertyIs, false));
   }
