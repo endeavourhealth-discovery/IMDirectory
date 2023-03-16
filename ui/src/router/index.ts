@@ -210,15 +210,15 @@ const routes: Array<RouteRecordRaw> = [
       requiresLicense: true
     }
   },
-  {
-    path: "/query",
-    name: "Query",
-    component: Query,
-    meta: {
-      requiresAuth: true,
-      requiresLicense: true
-    }
-  },
+  // {
+  //   path: "/query",
+  //   name: "Query",
+  //   component: Query,
+  //   meta: {
+  //     requiresAuth: true,
+  //     requiresLicense: true
+  //   }
+  // },
   {
     path: "/snomedLicense",
     name: "License",
