@@ -3,6 +3,7 @@ export const Q_TestQuery = {
   name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
   from: {
     "@id": "http://endhealth.info/im#Patient",
+    name: "Patient",
     where: [
       {
         description: "Registered for gms",
@@ -43,6 +44,7 @@ export const Q_TestQuery = {
             where: [
               {
                 "@id": "http://endhealth.info/im#concept",
+                name: "Concept",
                 in: [
                   {
                     "@set": "http://example.org/qry#Q_Diabetics"

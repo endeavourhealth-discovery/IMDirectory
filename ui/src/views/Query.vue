@@ -24,7 +24,7 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
-// import { queryDefinition } from "./query-json";
+import { Q_TestQuery } from "../../../im_library/tests/helpers/TableQuery.testData";
 import RecursiveTableQuery from "../components/query/RecursiveTableQuery.vue";
 import { TableQuery } from "@im-library/interfaces";
 import { buildTableQuery } from "@im-library/helpers/TableQueryBuilder";
@@ -40,8 +40,7 @@ const query: Ref<any> = ref();
 const visibleDialog: Ref<boolean> = ref(false);
 
 function getTableQuery() {
-  // query.value = { ...queryDefinition };
-  query.value = {};
+  query.value = { ...Q_TestQuery };
   const tableQuery = buildTableQuery(query.value);
   console.log(tableQuery);
   data.value = tableQuery;
