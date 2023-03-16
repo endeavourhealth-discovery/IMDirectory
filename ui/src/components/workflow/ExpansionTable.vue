@@ -85,6 +85,7 @@ import { DirectService, Env, EntityService } from "@/services";
 import { FilterMatchMode, FilterMatchModeOptions } from "primevue/api";
 import { mapState, useStore } from "vuex";
 import { useRouter } from "vue-router";
+import DataTable, {DataTableFilterMeta, DataTableFilterMetaData, DataTableOperatorFilterMetaData} from 'primevue/datatable';
 
 const props = defineProps({
   contents: { type: Array, required: true },
@@ -118,7 +119,7 @@ const directService = new DirectService();
 const selected: Ref<any[]> = ref([]);
 const expandedRows: Ref<any[]> = ref([]);
 const searchTerm = ref("");
-const filters: Ref<{ scheme: { value: any; matchMode: string } }> = ref({ scheme: { value: null, matchMode: FilterMatchMode.IN } });
+const filters: Ref<DataTableFilterMeta> = ref({ scheme: { value: null, matchMode: FilterMatchMode.IN } as DataTableFilterMetaData });
 
 function view(iri: string) {
   directService.directTo(Env.VIEWER_URL, iri, "concept");

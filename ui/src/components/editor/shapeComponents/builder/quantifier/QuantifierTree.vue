@@ -27,12 +27,13 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/runtime-core";
-import { EntityReferenceNode, TreeNode } from "@im-library/interfaces";
+import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
+import {TreeNode} from 'primevue/tree';
 
 export default defineComponent({
   name: "QuantifierTree",
@@ -81,7 +82,7 @@ export default defineComponent({
 
     onNodeSelect(node: any): void {
       this.selectedNode = node;
-      this.$emit("treeNodeSelected", { "@id": node.data, name: node.label });
+      this.$emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
     },
 
     async onNodeExpand(node: any) {
@@ -96,7 +97,7 @@ export default defineComponent({
     },
 
     nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
-      return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
+      return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
     },
 
     selectKey(selectedKey: string) {
@@ -123,28 +124,28 @@ export default defineComponent({
       if (n) {
         this.expandedKeys = {};
         while (n && n.data != path[0]["@id"] && i++ < 50) {
-          this.selectKey(n.key);
+          this.selectKey(n.key!);
           if (!n.children || n.children.length == 0) {
             await this.onNodeExpand(n);
           }
-          this.expandedKeys[n.key] = true;
+          this.expandedKeys[n.key!] = true;
 
           // Find relevant child
-          n = n.children.find(c => path.find(p => p["@id"] === c.data));
+          n = n.children?.find(c => path.find(p => p["@id"] === c.data));
         }
 
         if (n && n.data === path[0]["@id"]) {
-          this.selectKey(n.key);
+          this.selectKey(n.key!);
           // Expand node if necessary
           if (!n.children || n.children.length == 0) {
             await this.onNodeExpand(n);
           }
-          for (const gc of n.children) {
+          for (const gc of n.children!) {
             if (gc.data === iri) {
-              this.selectKey(gc.key);
+              this.selectKey(gc.key!);
             }
           }
-          this.expandedKeys[n.key] = true;
+          this.expandedKeys[n.key!] = true;
           this.selectedNode = n;
         } else {
           this.$toast.add({

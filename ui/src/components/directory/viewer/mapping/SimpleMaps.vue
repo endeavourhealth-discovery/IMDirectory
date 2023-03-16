@@ -50,7 +50,7 @@ import { SimpleMap } from "@im-library/interfaces";
 
 const props = defineProps({
   data: {
-    type: Object as () => SimpleMap,
+    type: Array,
     required: true
   }
 });

@@ -1,3 +1,5 @@
+// @ts-nocheck
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import {Library} from '@fortawesome/fontawesome-svg-core';
 
 import { faXmark } from "@fortawesome/pro-regular-svg-icons/faXmark";
@@ -17,3 +19,4 @@ export default function addRegularIcons(library: Library) {
     faUser
   );
 }
+// #v-endif
