@@ -1,3 +1,5 @@
+// @ts-nocheck
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import {Library} from '@fortawesome/fontawesome-svg-core';
 import { faHouseChimney } from "@fortawesome/pro-duotone-svg-icons/faHouseChimney";
 import { faSliders } from "@fortawesome/pro-duotone-svg-icons/faSliders";
@@ -26,3 +28,4 @@ export default function addDuotoneIcons(library: Library) {
     faCode
   );
 }
+// #v-endif

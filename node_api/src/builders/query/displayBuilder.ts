@@ -1,27 +1,27 @@
-import { QueryDisplay } from "@im-library/interfaces";
 import { QueryDisplayType } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import * as crypto from "crypto";
+import { TreeNode } from "primevue/tree";
 
 export function buildQueryDisplayFromQuery(queryAPI: any) {
-  const queryUI = {} as QueryDisplay;
-  queryUI.children = [] as QueryDisplay[];
+  const queryUI = {} as TreeNode;
+  queryUI.children = [] as TreeNode[];
   buildQueryDisplay(queryAPI, queryUI);
   return queryUI;
 }
 
-export function buildQueryDisplayItem(label: string, type?: any, value?: any, selectable?: boolean): QueryDisplay {
+export function buildQueryDisplayItem(label: string, type?: any, value?: any, selectable?: boolean): TreeNode {
   return {
-    key: Number(crypto.randomBytes(64).readBigUInt64BE()),
+    key: Number(crypto.randomBytes(64).readBigUInt64BE()).toString(),
     label: label,
     type: type,
     value: value,
-    children: [] as QueryDisplay[],
+    children: [] as TreeNode[],
     selectable: selectable
-  } as QueryDisplay;
+  } as TreeNode;
 }
 
-function buildQueryDisplay(queryAPI: any, queryUI: QueryDisplay) {
+function buildQueryDisplay(queryAPI: any, queryUI: TreeNode) {
   if (isObjectHasKeys(queryAPI, ["from"])) {
     if (hasOrList(queryAPI.from)) {
       addOrList(queryAPI, queryUI);
@@ -34,7 +34,7 @@ function buildQueryDisplay(queryAPI: any, queryUI: QueryDisplay) {
 }
 
 function hasOrList(queryObject: any) {
-  return isObjectHasKeys(queryObject, ["from", "bool"]) && queryObject.bool === "or";
+  return isObjectHasKeys(queryObject, ["from", "boolFrom"]) && queryObject.boolFrom === "or";
 }
 
 function hasWhere(queryObject: any) {
@@ -61,21 +61,23 @@ function addOrList(queryAPI: any, queryUI: any) {
 function addWhere(queryAPI: any, queryUI: any) {
   const parent = addSingleFrom(queryAPI, queryUI);
   const where = buildQueryDisplayItem("with");
-  if (hasWhere(queryAPI.from.where)) {
-    addCondition(where, queryAPI.from.where.where);
+  if (hasWhere(queryAPI.from)) {
+    addCondition(where, queryAPI.from.where);
   }
 
   parent.children?.push(where);
 }
 
-function addCondition(whereDisplay: QueryDisplay, where: any) {
-  if (isArrayHasLength(where)) {
+function addCondition(whereDisplay: TreeNode, where: any) {
+  if (isObjectHasKeys(where, ["bool"])) {
+    addCondition(whereDisplay, where.where);
+  } else if (isArrayHasLength(where)) {
     for (const whereItem of where) {
       addCondition(whereDisplay, whereItem);
     }
   } else {
-    const property = { "@id": where["@id"], name: where.name || where["@id"], includeSubtypes: where.includeSubtypes };
-    const is = { "@id": where.in[0]["@id"], name: where.in[0].name || where.in[0]["@id"], includeSubtypes: where.in[0].includeSubtypes };
+    const property = { "@id": where["@id"], name: where.name || where["@id"], descendantsOrSelfOf: where.descendantsOrSelfOf };
+    const is = { "@id": where.in[0]["@id"], name: where.in[0].name || where.in[0]["@id"], descendantsOrSelfOf: where.in[0].descendantsOrSelfOf };
     const propertyIs = { property: property, is: is };
     whereDisplay.children?.push(buildQueryDisplayItem(where.name || where["@id"], QueryDisplayType.PropertyIs, propertyIs, false));
   }

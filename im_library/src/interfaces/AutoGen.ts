@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-03-10 14:07:34.
+// Generated using typescript-generator version 2.36.1070 on 2023-03-15 16:16:39.
 
 /**
  * Structure containing search request parameters and filters
@@ -175,6 +175,7 @@ export interface PropertyShape {
     validationErrorMessage: string;
     function: TTIriRef;
     expression: NodeShape;
+    subProperty: PropertyShape[];
 }
 
 export interface TransformRequest {
@@ -218,11 +219,12 @@ export interface Delete {
 }
 
 export interface From extends TTAlias {
+    exclude: boolean;
     graph: TTAlias;
-    with: With;
-    bool: Bool;
+    boolFrom: Bool;
+    boolWhere: Bool;
     from: From[];
-    where: Where;
+    where: Where[];
 }
 
 export interface Having {
@@ -300,10 +302,12 @@ export interface Value extends Assignable {
 }
 
 export interface Where extends TTAlias, Assignable {
+    exclude: boolean;
     bool: Bool;
     with: With;
     where: Where[];
     range: Range;
+    isNull: boolean;
     in: TTAlias[];
     notIn: TTAlias[];
     anyRoleGroup: boolean;
@@ -321,7 +325,10 @@ export interface EntityDocument {
     id: number;
     iri: string;
     name: string;
+    length: number;
+    preferredName: string;
     code: string;
+    matchTerm: string[];
     key: string[];
     scheme: TTIriRef;
     entityType: TTIriRef[];
@@ -343,6 +350,7 @@ export interface SearchResultSummary {
     entityType: TTIriRef[];
     weighting: number;
     match: string;
+    preferredName: string;
     key: string[];
     isA: TTIriRef[];
     termCode: SearchTermCode[];
@@ -361,8 +369,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces: TTPrefix[];
     prefixes: TTPrefix[];
+    nameSpaces: TTPrefix[];
 }
 
 export interface TTTypedRef extends TTIriRef {
@@ -399,7 +407,7 @@ export type TargetUpdateMode = "REPLACE" | "APPEND" | "ADDTOLIST";
 
 export type Aggregate = "SUM" | "COUNT" | "AVERAGE" | "MIN" | "MAX";
 
-export type Bool = "and" | "or" | "not";
+export type Bool = "and" | "or";
 
 export type Comparison = "eq" | "gte" | "gt" | "lte" | "lt";
 

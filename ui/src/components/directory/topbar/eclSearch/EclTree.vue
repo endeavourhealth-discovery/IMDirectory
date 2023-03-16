@@ -190,7 +190,7 @@ onMounted(async () => {
     }
     if (root.value.length < superiorsCount.value) {
       root.value.push(
-        createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" }], false, null), 1, superiorsCount.value)
+        createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null), 1, superiorsCount.value)
       );
     }
     if (hasCurrentValue.value && isArrayHasLength(root.value.length)) {
@@ -291,7 +291,7 @@ async function rootLoadMore(node: any) {
     node.nextPage = node.nextPage + 1;
     root.value.push(
       createLoadMoreNode(
-        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" }], false, null),
+        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null),
         node.nextPage,
         node.totalCount
       )

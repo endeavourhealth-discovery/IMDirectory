@@ -42,9 +42,9 @@ import { DataTypeCheckers, ConceptTypeMethods } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
 import { RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 const { isObjectHasKeys } = DataTypeCheckers;
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }

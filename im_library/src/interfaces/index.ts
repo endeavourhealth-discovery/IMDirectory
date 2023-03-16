@@ -38,14 +38,13 @@ import { TTIriRef } from "./TTIriRef";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
 import { ValueSetMember } from "./ValueSetMember";
-import { Field } from "./queryBuilder/Field.js";
-import { FieldDto } from "./queryBuilder/FieldDto.js";
-import { FieldUI } from "./queryBuilder/FieldUI.js";
-import { GenericType } from "./queryBuilder/GenericType.js";
-import { QueryDisplay } from "./queryBuilder/QueryDisplay.js";
-import { QueryObject } from "./queryBuilder/QueryObject.js";
-import { Refinement } from "./queryBuilder/Refinement.js";
-import { SimplifiedType } from "./queryBuilder/SimplifiedType.js";
+import { Field } from "./queryBuilder/Field";
+import { FieldDto } from "./queryBuilder/FieldDto";
+import { FieldUI } from "./queryBuilder/FieldUI";
+import { GenericType } from "./queryBuilder/GenericType";
+import { QueryObject } from "./queryBuilder/QueryObject";
+import { Refinement } from "./queryBuilder/Refinement";
+import { SimplifiedType } from "./queryBuilder/SimplifiedType";
 import { GithubRelease } from "./GithubRelease";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
@@ -56,6 +55,7 @@ import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
+import { TableQuery } from "./query/TableQuery";
 
 export {
   type AccountItem,
@@ -105,7 +105,6 @@ export {
   type FieldUI,
   type SimplifiedType,
   type Refinement,
-  type QueryDisplay,
   type GithubRelease,
   type TangledTreeData,
   type AllowableChildProperty,
@@ -115,5 +114,6 @@ export {
   type CustomAlert,
   type AliasEntity,
   type PropertyDisplay,
-  type DisplayQuery
+  type DisplayQuery,
+  type TableQuery
 };
