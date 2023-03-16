@@ -207,9 +207,6 @@ async function getAutocompleteOptions() {
           const data:TTIriRef[] = await EntityService.getPropertyType(router.currentRoute.value.params.selectedIri as string, propIri);
           if(data.length !== 0) {
             autocompleteOptions.value = convertToConceptSummary(data);
-          } else {
-            const range:TTIriRef[] = await EntityService.getPropertyRange(propIri);
-            autocompleteOptions.value = convertToConceptSummary(range);
           }
         }
       } else {
@@ -218,6 +215,12 @@ async function getAutocompleteOptions() {
           autocompleteOptions.value = convertToConceptSummary(result.entities);
         }
       }
+    }
+  }
+  else {
+    if(props.shape.argument[0].valueIri["@id"]) {
+      const range:TTIriRef[] = await EntityService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
+      autocompleteOptions.value = convertToConceptSummary(range);
     }
   }
 }
@@ -249,7 +252,7 @@ async function itemSelected(value: ConceptSummary) {
       updateEntity(value);
       await updateValidity(value);
     } else {
-      emit("updateClicked", summaryToTTIriRef(value));
+      emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
     updateValueVariableMap(value);
   }
