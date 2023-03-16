@@ -35,14 +35,17 @@ import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 
 const props = defineProps({
   value: {
-    type: Object as PropType<{
-      type: string;
-      descendants: string;
-      conjunction: string;
-      items: any[];
-      concept: { iri: string; name?: string } | undefined;
-      ecl?: string;
-    }>,
+    type: Object as PropType<
+      | {
+          type: string;
+          descendants: string;
+          conjunction: string;
+          items: any[];
+          concept: { iri: string; name?: string } | undefined;
+          ecl?: string;
+        }
+      | any
+    >,
     required: true
   },
   parent: { type: Object as PropType<any>, required: false }
