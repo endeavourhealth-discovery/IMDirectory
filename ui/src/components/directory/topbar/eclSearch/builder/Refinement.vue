@@ -13,7 +13,7 @@
       :optionDisabled="disableOption"
       :class="!isValidProperty ? 'p-invalid' : ''"
     />
-    <Button :disabled="!focus || !isAliasIriRef(focus)" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
+    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
@@ -323,7 +323,22 @@ function openTree(type: string) {
         onClose(options) {
           if (options?.data?.type === "property") {
             selectedProperty.value = options.data.entity;
-            selectedValue.value = null;
+          } else if (options?.data?.type === "value") selectedValue.value = options.data.entity;
+        }
+      });
+    }
+    if (isBoolGroup(props.focus)) {
+      const dialogRef = treeDialog.open(EclTree, {
+        props: dialogProps,
+        templates: {
+          footer: () => {
+            return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+          }
+        },
+        data: { focus: props.focus, type: "property", currentValue: props.value.property.concept },
+        onClose(options) {
+          if (options?.data?.type === "property") {
+            selectedProperty.value = options.data.entity;
           } else if (options?.data?.type === "value") selectedValue.value = options.data.entity;
         }
       });
