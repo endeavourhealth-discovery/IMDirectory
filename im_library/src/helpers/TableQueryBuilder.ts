@@ -26,21 +26,23 @@ function buildRecursively(query: any, type: string, parent: TableQuery) {
   }
 }
 
-function buildDQInstance(parent: TableQuery, label: string, type?: string, data?: any): TableQuery {
+function buildDQInstance(parent: TableQuery, label: string, type: string, data: any): TableQuery {
   return {
     key: getKey(parent),
     label: label,
     parent: parent,
-    type: type || "",
+    type: type,
     data: data,
-    bool: data?.bool,
+    bool: data.bool,
     children: []
   };
 }
 
 // adders
 function addObject(query: any, type: string, parent: TableQuery) {
-  const label = query.description || query.name || query.bool || query.variable || getNameFromRef(query);
+  console.log(query["@id"]);
+  const label = query.description || query.name || query.bool || query.variable || getNameFromRef(query) || query["@id"];
+  console.log(label);
   let tableQuery;
   if (label && label !== "and") {
     tableQuery = buildDQInstance(parent, label, type, query);
@@ -61,14 +63,15 @@ function addFrom(query: any, type: string, parent: TableQuery) {
 
 function addWhere(query: any, type: string, parent: TableQuery) {
   if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
+    const label = query.description || query["@id"];
     if (isObjectHasKeys(query, ["in"])) {
-      addInClause(query.description, query, type, parent);
+      addInClause(label, query, type, parent);
     } else if (isComparisonWhere(query)) {
-      addItem(query.description, query, type, parent);
+      addItem(label, query, type, parent);
     } else if (isObjectHasKeys(query, ["notExist"])) {
-      addItem(query.description, query, type, parent);
+      addItem(label, query, type, parent);
     } else if (isObjectHasKeys(query, ["range"])) {
-      addItem(query.description, query, type, parent);
+      addItem(label, query, type, parent);
     } else {
       addObject(query, type, parent);
     }
@@ -111,13 +114,11 @@ function addItem(label: string, query: any, type: string, parent: TableQuery) {
 }
 
 function addInClause(label: string, query: any, type: string, parent: TableQuery) {
-  if (isArrayHasLength(query.in) && query.in.length > 1) {
-    addInItems(label, query, type, parent);
-  } else if (isObjectHasKeys(query.in[0], ["where"])) {
-    const child = addItem(label, query, type, parent);
-    addWhere(query.in[0].where, "where", child);
-  } else {
-    addItem(label, query, type, parent);
+  const inParent = addItem(label, query, type, parent);
+  for (const inItem of query.in) {
+    if (isObjectHasKeys(inItem, ["where"])) {
+      addWhere(inItem, "where", inParent);
+    }
   }
 }
 
