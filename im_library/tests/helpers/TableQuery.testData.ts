@@ -47,10 +47,12 @@ export const Q_TestQuery = {
                 name: "Concept",
                 in: [
                   {
-                    "@set": "http://example.org/qry#Q_Diabetics"
+                    "@set": "http://example.org/qry#Q_Diabetics",
+                    name: "Diabetic"
                   },
                   {
                     "@id": "http://snomed.info/sct#714628002",
+                    name: "Prediabetes (finding)",
                     descendantsOf: true
                   }
                 ]
@@ -134,6 +136,7 @@ export const Q_TestQuery = {
         where: [
           {
             "@id": "http://endhealth.info/im#concept",
+            name: "Concept",
             in: [
               {
                 name: "Hypertensives",

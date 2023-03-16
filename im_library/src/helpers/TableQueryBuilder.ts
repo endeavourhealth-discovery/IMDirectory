@@ -62,7 +62,7 @@ function addFrom(query: any, type: string, parent: TableQuery) {
 }
 
 function addWhere(query: any, type: string, parent: TableQuery) {
-  if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
+  if (isObjectHasKeys(query, ["@id"])) {
     const label = query.description || query["@id"];
     if (isObjectHasKeys(query, ["in"])) {
       addInClause(label, query, type, parent);
@@ -99,14 +99,6 @@ function addSelect(query: any, type: string, parent: TableQuery) {
   }
 }
 
-function addInItems(label: string, query: any, type: string, parent: TableQuery) {
-  const child = buildDQInstance(parent, label, type, query);
-  parent.children.push(child);
-  for (const inItem of query.in) {
-    addItem(inItem.name, inItem, "whereIn", child);
-  }
-}
-
 function addItem(label: string, query: any, type: string, parent: TableQuery) {
   const child = buildDQInstance(parent, label, type, query);
   parent.children.push(child);
@@ -123,7 +115,6 @@ function addInClause(label: string, query: any, type: string, parent: TableQuery
 }
 
 // getters
-
 function getKey(parent: TableQuery) {
   return parent.key + parent.children.length;
 }
@@ -139,18 +130,6 @@ function getNameFromRef(ref: TTAlias) {
 }
 
 // checkers
-function hasBool(where: any, value?: string) {
-  if (value) return isObjectHasKeys(where, ["bool"]) && value === where.bool;
-  return isObjectHasKeys(where, ["bool"]);
-}
-
-function isAnd(where: Where) {
-  return hasBool(where, "and") && isArrayHasLength(where.where);
-}
-
-function isLeafWhere(where: any) {
-  return !isArrayHasLength(where) && !isObjectHasKeys(where, ["where", "with"]);
-}
 
 function isPrimitiveType(object: any) {
   const primitiveTypes = ["string", "number", "boolean"];
