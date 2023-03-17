@@ -1,13 +1,14 @@
 <template>
   <div class="table-query-container">
     <div class="bool-tag">
-      <Tag :severity="severity as any" :value="bool || 'and'"></Tag>
+      <Tag v-if="bool" :severity="(severity as any)" :value="bool"></Tag>
     </div>
     <ul class="children-list">
       <template v-if="isArrayHasLength(queryData)" v-for="child of queryData" :key="child.name">
-        <li :class="{ selected: isSelected(child) }" @click="select(child, level)">
-          <div class="name">
-            {{ child.data.description || child.data.name || child.label }}
+        <li :class="{ selected: isSelected(child) }" @click="select(child, level)" @dblclick="editDialog = true">
+          <div>
+            <Tag v-if="child.data.exclude" severity="danger" :value="'exclude'"></Tag>
+            {{ child.data.description }}
           </div>
 
           <template v-if="isSelected(child)">
@@ -21,6 +22,9 @@
                 @selected="select"
               />
               <LeafTableQuery v-else :value="child.data" />
+              <Dialog v-model:visible="editDialog" modal :header="child.data.description" :style="{ width: '50vw' }">
+                <LeafTableQuery :value="child.data" />
+              </Dialog>
             </teleport>
           </template>
         </li>
@@ -35,7 +39,7 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TableQuery } from "@im-library/interfaces";
-import { ComputedRef, computed } from "vue";
+import { ComputedRef, computed, ref, Ref } from "vue";
 import LeafTableQuery from "./LeafTableQuery.vue";
 
 const props = defineProps({
@@ -44,6 +48,8 @@ const props = defineProps({
   selected: { type: Array<TableQuery>, required: true },
   level: { type: Number, required: false, default: 0 }
 });
+
+const editDialog: Ref<boolean> = ref(false);
 
 const select = (character: any, level: number) => {
   props.selected[level] = character;

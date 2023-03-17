@@ -1,9 +1,10 @@
 <template>
   <div v-if="editMode">
-    <div v-for="(entity, index) in value[property]">
-      <EntitySearch :entity-value="entity" @on-change="onChange($event, entity)" />
-      <Button @click="add" icon="fa-solid fa-plus" severity="danger" text rounded />
-      <Button @click="cancel" icon="fa-solid fa-check" severity="danger" text rounded />
+    <div v-for="entity in selected">
+      <EntitySearch :entity-value="entity" @on-change="onChange" />
+      <Button @click="add" icon="fa-solid fa-plus" severity="success" text rounded />
+      <Button @click="updateValue" icon="fa-solid fa-check" severity="info" text rounded />
+      <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded />
     </div>
   </div>
   <div v-else @dblclick="edit">
@@ -17,7 +18,7 @@
 import EntitySearch from "../EntitySearch.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTAlias } from "@im-library/interfaces/AutoGen";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { Ref, ref, onMounted } from "vue";
 const emit = defineEmits({ onEdit: (payload: string) => payload });
 
 const props = defineProps({
@@ -26,25 +27,37 @@ const props = defineProps({
   value: { type: Object, required: true }
 });
 
+const selected: Ref<TTAlias[]> = ref({} as TTAlias[]);
+
 function edit() {
   emit("onEdit", props.property);
 }
 
 function cancel() {
-  props.value[props.property] = props.value[props.property].filter((inItem: TTAlias) => inItem.name);
+  emit("onEdit", props.property);
+}
+
+function updateValue() {
+  props.value[props.property] = selected.value.filter((inItem: TTAlias) => inItem.name);
   emit("onEdit", props.property);
 }
 
 function add() {
-  props.value[props.property].push({ name: "" });
+  selected.value.push({ name: "" } as TTAlias);
 }
 
-function onChange(cSummaries: ConceptSummary[], entity: TTAlias) {
-  if (cSummaries.length) {
-    entity["@id"] = cSummaries[0].iri;
-    entity.name = cSummaries[0].name;
+function onChange(cSummaries: ConceptSummary[]) {
+  for (const cSummary of cSummaries) {
+    selected.value.push({
+      "@id": cSummary.iri,
+      name: cSummary.name
+    } as TTAlias);
   }
 }
+
+onMounted(() => {
+  selected.value = [...props.value[props.property]];
+});
 </script>
 
 <style scoped></style>

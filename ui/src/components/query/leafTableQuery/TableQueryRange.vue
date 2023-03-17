@@ -2,38 +2,39 @@
   <div v-if="editMode">
     <div class="p-inputgroup flex-1 range-row">
       from:
-      <Dropdown v-model="range.from.operator" :options="operatorOptions" placeholder="Select opearator" class="w-full md:w-14rem" />
-      <InputText v-model="range.from.value" placeholder="Value" />
-      <InputText v-model="range.from.unit" placeholder="Unit" />
+      <Dropdown v-model="editRange.from.operator" :options="operatorOptions" placeholder="Select opearator" class="w-full md:w-14rem" />
+      <InputText v-model="editRange.from.value" placeholder="Value" />
+      <InputText v-model="editRange.from.unit" placeholder="Unit" />
       than
-      <InputText v-model="range.from.relativeTo" placeholder="Relative to" />
+      <InputText v-model="editRange.from.relativeTo" placeholder="Relative to" />
     </div>
     <div class="p-inputgroup flex-1 range-row">
       to:
-      <Dropdown v-model="range.to.operator" :options="operatorOptions" placeholder="Select opearator" class="w-full md:w-14rem" />
-      <InputText v-model="range.to.value" placeholder="Value" />
-      <InputText v-model="range.to.unit" placeholder="Unit" />
+      <Dropdown v-model="editRange.to.operator" :options="operatorOptions" placeholder="Select opearator" class="w-full md:w-14rem" />
+      <InputText v-model="editRange.to.value" placeholder="Value" />
+      <InputText v-model="editRange.to.unit" placeholder="Unit" />
       than
-      <InputText v-model="range.to.relativeTo" placeholder="Relative to" />
+      <InputText v-model="editRange.to.relativeTo" placeholder="Relative to" />
     </div>
-    <Button @click="cancel" icon="fa-solid fa-check" severity="danger" text rounded aria-label="Cancel" />
+    <Button @click="enterValue" icon="fa-solid fa-check" severity="info" text rounded />
+    <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded />
   </div>
   <div v-else @dblclick="edit">
     from
-    <span v-if="range.from.operator">{{ range.from.operator }}</span>
-    <span v-if="range.from.value">{{ range.from.value }}</span>
-    <span v-if="range.from.unit">{{ range.from.unit }}</span>
-    <span v-if="range.from.relativeTo">than {{ range.from.relativeTo }}</span>
+    <span v-if="editRange.from.operator">{{ editRange.from.operator }}</span>
+    <span v-if="editRange.from.value">{{ editRange.from.value }}</span>
+    <span v-if="editRange.from.unit">{{ editRange.from.unit }}</span>
+    <span v-if="editRange.from.relativeTo">than {{ editRange.from.relativeTo }}</span>
     to
-    <span v-if="range.to.operator">{{ range.to.operator }}</span>
-    <span v-if="range.to.value">{{ range.to.value }}</span>
-    <span v-if="range.to.unit">{{ range.to.unit }}</span>
-    <span v-if="range.to.relativeTo">than {{ range.to.relativeTo }}</span>
+    <span v-if="editRange.to.operator">{{ editRange.to.operator }}</span>
+    <span v-if="editRange.to.value">{{ editRange.to.value }}</span>
+    <span v-if="editRange.to.unit">{{ editRange.to.unit }}</span>
+    <span v-if="editRange.to.relativeTo">than {{ editRange.to.relativeTo }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed, ComputedRef, onMounted, Ref } from "vue";
+import { ref, onMounted, Ref } from "vue";
 import { Range } from "@im-library/interfaces/AutoGen";
 const emit = defineEmits({ onEdit: (payload: string) => payload });
 
@@ -42,7 +43,7 @@ const props = defineProps({
   property: { type: String, required: true },
   value: { type: Object, required: true }
 });
-const range: ComputedRef<Range> = computed(() => props.value[props.property]);
+const editRange: Ref<Range> = ref({} as Range);
 const operatorOptions = ["=", ">=", ">", "<=", "startsWith", "contains"];
 
 function edit() {
@@ -52,6 +53,14 @@ function edit() {
 function cancel() {
   emit("onEdit", props.property);
 }
+
+function enterValue() {
+  props.value[props.property] = { ...editRange.value };
+}
+
+onMounted(() => {
+  editRange.value = { ...props.value[props.property] };
+});
 </script>
 
 <style scoped>

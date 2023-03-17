@@ -1,9 +1,10 @@
 <template>
   <div v-if="editMode" @keyup.enter="enterValue">
     <EntitySearch :entity-value="(value as any)" @on-change="onChange" />
-    <Button @click="cancel" icon="fa-solid fa-check" severity="danger" text rounded aria-label="Cancel" />
+    <Button @click="enterValue" icon="fa-solid fa-check" severity="info" text rounded />
+    <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded />
   </div>
-  <div v-else @dblclick="edit">{{ value[property] }}</div>
+  <div v-else @dblclick="edit">{{ value.name || value[property] }}</div>
 </template>
 
 <script setup lang="ts">

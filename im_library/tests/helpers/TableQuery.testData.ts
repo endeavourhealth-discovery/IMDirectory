@@ -8,6 +8,7 @@ export const Q_TestQuery = {
       {
         description: "Registered for gms",
         "@id": "http://endhealth.info/im#isSubsetOf",
+        name: "is subset of",
         in: [
           {
             name: "Registered for GMS services on reference date",
@@ -87,6 +88,7 @@ export const Q_TestQuery = {
             {
               description: "Last 6 months",
               "@id": "http://endhealth.info/im#effectiveDate",
+              name: "effective date",
               alias: "LastBP",
               operator: ">=",
               value: "-6",
@@ -96,11 +98,13 @@ export const Q_TestQuery = {
             }
           ],
           orderBy: {
-            "@id": "http://endhealth.info/im#effectiveDate"
+            "@id": "http://endhealth.info/im#effectiveDate",
+            name: "effective date"
           },
           then: {
             description: ">150",
             "@id": "http://endhealth.info/im#numericValue",
+            name: "numeric value",
             operator: ">",
             value: "150"
           }
@@ -124,6 +128,7 @@ export const Q_TestQuery = {
           {
             description: "after high BP",
             "@id": "http://endhealth.info/im#effectiveDate",
+            name: "effective date",
             operator: ">=",
             relativeTo: "LastBP"
           }

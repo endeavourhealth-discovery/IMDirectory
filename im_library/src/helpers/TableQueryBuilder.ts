@@ -1,5 +1,5 @@
 import { TableQuery } from "../interfaces/query/TableQuery";
-import { TTAlias, Where } from "../interfaces/AutoGen";
+import { TTAlias, Where, OrderLimit } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function buildTableQuery(query: any) {
@@ -11,10 +11,12 @@ export function buildTableQuery(query: any) {
 function buildRecursively(query: any, type: string, parent: TableQuery) {
   if ("from" === type) {
     addFrom(query, type, parent);
-  } else if ("where" === type || "with" === type) {
+  } else if ("where" === type || "with" === type || "then" === type) {
     addWhere(query, type, parent);
   } else if ("select" === type) {
     addSelect(query, type, parent);
+  } else if ("orderBy" === type) {
+    addOrderBy(query, type, parent);
   } else if (isObjectHasKeys(query)) {
     for (const key of Object.keys(query)) {
       if (!isPrimitiveType(query[key])) buildRecursively(query[key], key, parent);
@@ -40,9 +42,7 @@ function buildDQInstance(parent: TableQuery, label: string, type: string, data: 
 
 // adders
 function addObject(query: any, type: string, parent: TableQuery) {
-  console.log(query["@id"]);
-  const label = query.description || query.name || query.bool || query.variable || getNameFromRef(query) || query["@id"];
-  console.log(label);
+  const label = query.description || query.name || query.bool || query.variable || getNameFromRef(query);
   let tableQuery;
   if (label && label !== "and") {
     tableQuery = buildDQInstance(parent, label, type, query);
@@ -50,6 +50,18 @@ function addObject(query: any, type: string, parent: TableQuery) {
   }
   for (const key of Object.keys(query)) {
     if (!isPrimitiveType(query[key])) buildRecursively(query[key], tableQuery ? key : type, tableQuery ? tableQuery : parent);
+  }
+}
+function addOrderBy(orderBy: TTAlias | OrderLimit[], type: string, parent: TableQuery) {
+  if (isObjectHasKeys(orderBy)) {
+    const orderByObject = orderBy as TTAlias;
+    if (!isObjectHasKeys(orderByObject.description)) orderByObject.description = orderByObject.name;
+    const label = `${type} ${orderByObject.name || orderByObject["@id"]}`;
+    addItem(label, orderBy, type, parent);
+  } else if (isArrayHasLength(orderBy)) {
+    for (const orderByItem of orderBy as OrderLimit[]) {
+      addOrderBy(orderByItem, type, parent);
+    }
   }
 }
 
@@ -63,7 +75,8 @@ function addFrom(query: any, type: string, parent: TableQuery) {
 
 function addWhere(query: any, type: string, parent: TableQuery) {
   if (isObjectHasKeys(query, ["@id"])) {
-    const label = query.description || query["@id"];
+    if (!isObjectHasKeys(query, ["description"])) query.description = query.name;
+    const label = query.description;
     if (isObjectHasKeys(query, ["in"])) {
       addInClause(label, query, type, parent);
     } else if (isComparisonWhere(query)) {

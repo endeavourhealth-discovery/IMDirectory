@@ -42,7 +42,6 @@ const visibleDialog: Ref<boolean> = ref(false);
 function getTableQuery() {
   query.value = { ...Q_TestQuery };
   const tableQuery = buildTableQuery(query.value);
-  console.log(tableQuery);
   data.value = tableQuery;
 }
 
