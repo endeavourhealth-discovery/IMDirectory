@@ -81,7 +81,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         }
         if (isObjectHasKeys(result, ["eclRefinement"])) {
           const eclRefinement = result.eclRefinement;
-          if (isObjectHasKeys(eclRefinement, ["boolWhere"])) query.refinedExpressionConstraint.from.where = [eclRefinement];
+          if (isObjectHasKeys(eclRefinement, ["bool"])) query.refinedExpressionConstraint.from.where = [eclRefinement];
           else query.refinedExpressionConstraint.from.where = eclRefinement.where;
         }
       }
@@ -160,7 +160,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
               query.exclusionExpressionConstraint.from.push(result.subExpressionConstraint);
               first = false;
             } else {
-              query.exclusionExpressionConstraint.from.push({ exclusion: true, from: [result.subExpressionConstraint] });
+              query.exclusionExpressionConstraint.from.push({ exclude: true, from: [result.subExpressionConstraint] });
             }
           }
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
@@ -175,25 +175,25 @@ export default class ECLBuilderVisitor extends ECLVisitor {
               if (isObjectHasKeys(result.bracketCompoundExpressionConstraint.from)) {
                 if (result.bracketCompoundExpressionConstraint.boolFrom) {
                   query.exclusionExpressionConstraint.from.push({
-                    exclusion: true,
+                    exclude: true,
                     boolFrom: result.bracketCompoundExpressionConstraint.boolFrom,
                     from: [result.bracketCompoundExpressionConstraint.from]
                   });
                 } else {
                   query.exclusionExpressionConstraint.from.push({
-                    exclusion: true,
+                    exclude: true,
                     from: [result.bracketCompoundExpressionConstraint.from]
                   });
                 }
               } else if (_.isArray(result.bracketCompoundExpressionConstraint.from)) {
                 if (result.bracketCompoundExpressionConstraint.boolFrom) {
                   query.exclusionExpressionConstraint.from.push({
-                    exclusion: true,
+                    exclude: true,
                     boolFrom: result.bracketCompoundExpressionConstraint.boolFrom,
                     from: result.bracketCompoundExpressionConstraint.from
                   });
                 } else {
-                  query.exclusionExpressionConstraint.from.push({ exclusion: true, from: result.bracketCompoundExpressionConstraint.from });
+                  query.exclusionExpressionConstraint.from.push({ exclude: true, from: result.bracketCompoundExpressionConstraint.from });
                 }
               }
             }
@@ -412,7 +412,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         }
         if (isObjectHasKeys(result, ["conjunction"])) {
           const conjunction = result.conjunction;
-          query.conjunctionRefinementSet.boolWhere = conjunction;
+          query.conjunctionRefinementSet.bool = conjunction;
         }
       }
     }
@@ -438,7 +438,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         }
         if (isObjectHasKeys(result, ["disjunction"])) {
           const disjunction = result.disjunction;
-          query.disjunctionRefinementSet.boolWhere = disjunction;
+          query.disjunctionRefinementSet.bool = disjunction;
         }
       }
     }
@@ -480,7 +480,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       if (isObjectHasKeys(result, ["eclAttributeGroup"])) return { subRefinement: result.eclAttributeGroup };
       if (isObjectHasKeys(result, ["bracketSubRefinement"])) return { subRefinement: result.bracketSubRefinement };
       if (isObjectHasKeys(result, ["eclAttribute"])) {
-        if (!result.eclAttribute.boolWhere) result.eclAttribute.anyRoleGroup = true;
+        if (!result.eclAttribute.bool) result.eclAttribute.anyRoleGroup = true;
         return { subRefinement: result.eclAttribute };
       }
     }
@@ -534,14 +534,14 @@ export default class ECLBuilderVisitor extends ECLVisitor {
     if (isObjectHasKeys(result, ["conjunctionAttributeSet"])) {
       if (result.conjunctionAttributeSet.where)
         result.conjunctionAttributeSet.where.forEach(item => {
-          if (!item.boolWhere) item.anyRoleGroup = true;
+          if (!item.bool) item.anyRoleGroup = true;
         });
       return { compoundAttributeSet: result.conjunctionAttributeSet };
     }
     if (isObjectHasKeys(result, ["disjunctionAttributeSet"])) {
       if (result.disjunctionAttributeSet.where)
         result.disjunctionAttributeSet.where.forEach(item => {
-          if (!item.boolWhere) item.anyRoleGroup = true;
+          if (!item.bool) item.anyRoleGroup = true;
         });
       return { compoundAttributeSet: result.disjunctionAttributeSet };
     }
@@ -567,7 +567,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           }
           if (isObjectHasKeys(result, ["conjunction"])) {
             const conjunction = result.conjunction;
-            query.conjunctionAttributeSet.boolWhere = conjunction;
+            query.conjunctionAttributeSet.bool = conjunction;
           }
         }
       }
@@ -595,7 +595,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           }
           if (isObjectHasKeys(result, ["disjunction"])) {
             const disjunction = result.disjunction;
-            query.disjunctionAttributeSet.boolWhere = disjunction;
+            query.disjunctionAttributeSet.bool = disjunction;
           }
         }
       }

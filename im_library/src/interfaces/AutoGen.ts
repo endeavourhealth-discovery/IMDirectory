@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-03-15 16:16:39.
+// Generated using typescript-generator version 2.36.1070 on 2023-03-17 13:09:39.
 
 /**
  * Structure containing search request parameters and filters
@@ -222,9 +222,9 @@ export interface From extends TTAlias {
     exclude: boolean;
     graph: TTAlias;
     boolFrom: Bool;
-    boolWhere: Bool;
     from: From[];
     where: Where[];
+    bool: Bool;
 }
 
 export interface Having {
