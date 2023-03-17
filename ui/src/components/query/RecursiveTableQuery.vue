@@ -15,7 +15,6 @@
             <teleport to="#query-main-container">
               <RecursiveTableQuery
                 v-if="child.children && child.children.length"
-                :bool="child.bool"
                 :query-data="child.children"
                 :selected="selected"
                 :level="level + 1"
@@ -39,14 +38,22 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TableQuery } from "@im-library/interfaces";
+import { Bool } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, computed, ref, Ref } from "vue";
 import LeafTableQuery from "./LeafTableQuery.vue";
 
 const props = defineProps({
-  bool: { type: String, required: true },
   queryData: { type: Array<TableQuery>, required: true },
   selected: { type: Array<TableQuery>, required: true },
   level: { type: Number, required: false, default: 0 }
+});
+
+const bool: ComputedRef<Bool> = computed(() => {
+  try {
+    return props.selected[props.level - 1].data?.bool;
+  } catch (error) {
+    return "and";
+  }
 });
 
 const editDialog: Ref<boolean> = ref(false);
@@ -70,13 +77,11 @@ function add() {
 const severity: ComputedRef<string> = computed(() => getSeverity());
 
 function getSeverity() {
-  switch (props.bool) {
+  switch (bool.value) {
     case "and":
       return "warning";
     case "or":
       return "info";
-    case "not":
-      return "danger";
 
     default:
       return "warning";

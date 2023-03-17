@@ -2,8 +2,8 @@
   <div v-if="editMode">
     <div v-for="entity in selected">
       <EntitySearch :entity-value="entity" @on-change="onChange" />
-      <Button @click="add" icon="fa-solid fa-plus" severity="success" text rounded />
-      <Button @click="updateValue" icon="fa-solid fa-check" severity="info" text rounded />
+      <Button @click="add" icon="fa-solid fa-plus" severity="info" text rounded />
+      <Button @click="updateValue" icon="fa-solid fa-check" severity="success" text rounded />
       <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded />
     </div>
   </div>

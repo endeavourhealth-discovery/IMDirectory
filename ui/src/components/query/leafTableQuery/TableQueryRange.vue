@@ -16,10 +16,10 @@
       than
       <InputText v-model="editRange.to.relativeTo" placeholder="Relative to" />
     </div>
-    <Button @click="enterValue" icon="fa-solid fa-check" severity="info" text rounded />
+    <Button @click="enterValue" icon="fa-solid fa-check" severity="success" text rounded />
     <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded />
   </div>
-  <div v-else @dblclick="edit">
+  <div v-else-if="editRange.from" @dblclick="edit">
     from
     <span v-if="editRange.from.operator">{{ editRange.from.operator }}</span>
     <span v-if="editRange.from.value">{{ editRange.from.value }}</span>
@@ -56,6 +56,7 @@ function cancel() {
 
 function enterValue() {
   props.value[props.property] = { ...editRange.value };
+  emit("onEdit", props.property);
 }
 
 onMounted(() => {

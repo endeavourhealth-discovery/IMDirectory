@@ -1,16 +1,15 @@
 <template>
   <div v-if="editMode" @keyup.enter="enterValue">
-    <EntitySearch :entity-value="(value as any)" @on-change="onChange" />
+    {{ property }}: <Dropdown type="text" v-model="editValue" :options="operators" />
     <Button @click="enterValue" icon="fa-solid fa-check" severity="success" text rounded />
     <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded />
   </div>
-  <div v-else @dblclick="edit">{{ value.name || value[property] }}</div>
+  <div v-else @dblclick="edit">{{ property }}: {{ value[property] }}</div>
 </template>
 
 <script setup lang="ts">
-import { ConceptSummary } from "@im-library/interfaces";
+import Dropdown from "primevue/dropdown";
 import { ref, Ref, onMounted } from "vue";
-import EntitySearch from "../EntitySearch.vue";
 
 const props = defineProps({
   editMode: { type: Boolean, required: true },
@@ -20,6 +19,7 @@ const props = defineProps({
 
 const emit = defineEmits({ onEdit: (payload: string) => payload });
 const editValue: Ref<string> = ref("");
+const operators = ["=", ">=", ">", "<=", "startsWith", "contains"];
 
 function enterValue() {
   props.value[props.property] = editValue.value;
@@ -32,14 +32,6 @@ function edit() {
 
 function cancel() {
   emit("onEdit", props.property);
-}
-
-function onChange(cSummaries: ConceptSummary[]) {
-  if (cSummaries.length) {
-    props.value["@id"] = cSummaries[0].iri;
-    props.value.name = cSummaries[0].name;
-    editValue.value = props.value[props.property];
-  }
 }
 
 onMounted(() => {

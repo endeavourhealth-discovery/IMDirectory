@@ -11,6 +11,10 @@
         />
         <TableQueryIn v-else-if="'in' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
         <TableQueryRange v-else-if="'range' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+        <TableQueryOperator v-else-if="'operator' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+        <TableQueryBoolean v-else-if="'exclude' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+        <TableQueryLogicBool v-else-if="'bool' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+
         <TableQueryDefault v-else-if="'name' !== property" :value="value" :property="property" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
       </div>
     </div>
@@ -19,10 +23,13 @@
 
 <script setup lang="ts">
 import { ref, Ref } from "vue";
+import TableQueryBoolean from "./leafTableQuery/TableQueryBoolean.vue";
 import TableQueryDefault from "./leafTableQuery/TableQueryDefault.vue";
 import TableQueryIn from "./leafTableQuery/TableQueryIn.vue";
 import TableQueryIri from "./leafTableQuery/TableQueryIri.vue";
+import TableQueryOperator from "./leafTableQuery/TableQueryOperator.vue";
 import TableQueryRange from "./leafTableQuery/TableQueryRange.vue";
+import TableQueryLogicBool from "./leafTableQuery/TableQueryLogicBool.vue";
 
 const props = defineProps({
   value: { type: Object, required: true }

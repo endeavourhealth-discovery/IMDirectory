@@ -1,7 +1,7 @@
 <template>
   <div v-if="editMode" @keyup.enter="enterValue">
     {{ property }}: <InputText type="text" v-model="editValue" />
-    <Button @click="enterValue" icon="fa-solid fa-check" severity="info" text rounded />
+    <Button @click="enterValue" icon="fa-solid fa-check" severity="success" text rounded />
     <Button @click="cancel" icon="fa-solid fa-x" severity="danger" text rounded />
   </div>
   <div v-else @dblclick="edit">{{ property }}: {{ value[property] }}</div>
