@@ -66,7 +66,7 @@ function addOrderBy(orderBy: TTAlias | OrderLimit[], type: string, parent: Table
 }
 
 function addFrom(from: From, type: string, parent: TableQuery) {
-  if (!isObjectHasKeys(from["description"])) from.description = from.name;
+  if (!isObjectHasKeys(from, ["description"])) from.description = from.name;
   const label = from.description;
   addItem(label, from, type, parent);
   if (isObjectHasKeys(from, ["where"])) {

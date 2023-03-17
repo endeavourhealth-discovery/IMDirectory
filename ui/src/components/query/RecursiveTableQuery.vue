@@ -29,8 +29,11 @@
         </li>
       </template>
       <li class="add-button-container">
-        <Button class="add-button" severity="secondary" label="Add" />
+        <Button class="add-button" severity="success" label="Add" @click="addDialog = true" />
       </li>
+      <Dialog v-model:visible="addDialog" modal header="Add clause" :style="{ width: '50vw' }">
+        <AddTableQuery :query-data="queryData" :selected="selected" :level="level + 1" @on-cancel="addDialog = false" />
+      </Dialog>
     </ul>
   </div>
 </template>
@@ -41,6 +44,7 @@ import { TableQuery } from "@im-library/interfaces";
 import { Bool } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, computed, ref, Ref } from "vue";
 import LeafTableQuery from "./LeafTableQuery.vue";
+import AddTableQuery from "./AddTableQuery.vue";
 
 const props = defineProps({
   queryData: { type: Array<TableQuery>, required: true },
@@ -57,6 +61,7 @@ const bool: ComputedRef<Bool> = computed(() => {
 });
 
 const editDialog: Ref<boolean> = ref(false);
+const addDialog: Ref<boolean> = ref(false);
 
 const select = (character: any, level: number) => {
   props.selected[level] = character;
@@ -69,10 +74,6 @@ const isSelected = (queryData: TableQuery) => {
   }
   return props.selected[props.level]?.label === queryData.label;
 };
-
-function add() {
-  console.log("add");
-}
 
 const severity: ComputedRef<string> = computed(() => getSeverity());
 

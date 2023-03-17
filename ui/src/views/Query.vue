@@ -23,7 +23,7 @@
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
-import { ref, Ref, onMounted } from "vue";
+import { ref, Ref, onMounted, watch } from "vue";
 import { Q_TestQuery } from "../../../im_library/tests/helpers/TableQuery.testData";
 import RecursiveTableQuery from "../components/query/RecursiveTableQuery.vue";
 import { TableQuery } from "@im-library/interfaces";
@@ -32,12 +32,21 @@ import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import _ from "lodash";
 const toast = useToast();
 const store = useStore();
 const selected = ref([] as any[]);
 const data: Ref<TableQuery[]> = ref({} as TableQuery[]);
 const query: Ref<any> = ref();
 const visibleDialog: Ref<boolean> = ref(false);
+
+watch(
+  () => _.cloneDeep(query.value),
+  () => {
+    const tableQuery = buildTableQuery(query.value);
+    data.value = tableQuery;
+  }
+);
 
 function getTableQuery() {
   query.value = { ...Q_TestQuery };
@@ -47,7 +56,6 @@ function getTableQuery() {
 
 onMounted(async () => {
   await store.dispatch("fetchFilterSettings");
-
   getTableQuery();
 });
 
