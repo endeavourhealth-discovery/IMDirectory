@@ -38,7 +38,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
@@ -298,14 +298,18 @@ function getNextComponentOptions() {
 function moveItemUp(item: ComponentDetails) {
   if (item.position === 0) return;
   const found = build.value.find(o => o.position === item.position);
-  if (found) {
+  if (found && found.showButtons) {
     if (props.shape.path["@id"] === SHACL.PROPERTY) {
       found.showButtons.plus = false;
     }
     build.value.splice(item.position, 1);
     build.value.splice(item.position - 1, 0, found);
     if (props.shape.path["@id"] === SHACL.PROPERTY) {
-      build.value[build.value.length - 1].showButtons.plus = true;
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if(lastItem.showButtons) {
+        lastItem.showButtons.plus = true;
+      }
     }
   }
   updatePositions(build.value);
@@ -316,12 +320,20 @@ function moveItemDown(item: ComponentDetails) {
   const found = build.value.find(o => o.position === item.position);
   if (found) {
     if (props.shape.path["@id"] === SHACL.PROPERTY) {
-      build.value[build.value.length - 1].showButtons.plus = false;
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if(lastItem.showButtons) {
+        lastItem.showButtons.plus = false;
+      }
     }
     build.value.splice(item.position, 1);
     build.value.splice(item.position + 1, 0, found);
     if (props.shape.path["@id"] === SHACL.PROPERTY) {
-      build.value[build.value.length - 1].showButtons.plus = true;
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if(lastItem.showButtons) {
+        lastItem.showButtons.plus = true;
+      }
     }
     updatePositions(build.value);
   }

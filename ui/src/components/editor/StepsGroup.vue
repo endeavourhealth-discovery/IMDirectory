@@ -41,7 +41,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
-import { ref, Ref, watch, inject, onMounted, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, inject, onMounted, PropType } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";

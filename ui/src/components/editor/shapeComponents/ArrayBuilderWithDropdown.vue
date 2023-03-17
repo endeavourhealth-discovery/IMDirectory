@@ -32,6 +32,7 @@
 
 <script lang="ts">
 import BuilderDropdownChildWrapper from "./BuilderDropdownChildWrapper.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { BuilderDropdownChildWrapper }
@@ -39,7 +40,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
@@ -152,7 +153,8 @@ function createDefaultBuild() {
             undefined,
             property,
             { minus: true, plus: true, up: true, down: true },
-            props.mode
+            props.mode,
+              false
           )
         );
       });
@@ -166,7 +168,8 @@ function createDefaultBuild() {
             undefined,
             subGroup,
             { minus: true, plus: true, up: true, down: true },
-            props.mode
+            props.mode,
+              false
           )
         );
       });
@@ -187,7 +190,8 @@ async function processChild(child: any, position: number) {
         up: true,
         down: true
       },
-      props.mode
+      props.mode,
+        false
     );
   } else {
     return generateNewComponent(
@@ -201,7 +205,8 @@ async function processChild(child: any, position: number) {
         up: true,
         down: true
       },
-      props.mode
+      props.mode,
+        false
     );
   }
 }
@@ -275,7 +280,7 @@ function addItemWrapper(data: { selectedType: ComponentType; position: number; v
   if (data.selectedType !== ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER;
   }
-  if (shape) addItem(data, build.value, { minus: true, plus: true, up: true, down: true }, shape, props.mode);
+  if (shape) addItem(data, build.value, { minus: true, plus: true, up: true, down: true }, shape, props.mode,false);
 }
 
 function deleteItem(data: ComponentDetails): void {

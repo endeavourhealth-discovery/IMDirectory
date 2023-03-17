@@ -53,7 +53,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, defineComponent } from "vue";
+import { PropType } from "vue";
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
 import { ComponentDetails } from "@im-library/interfaces";

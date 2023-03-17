@@ -13,7 +13,7 @@
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { PropertyShape } from "@im-library/models/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
@@ -149,7 +149,7 @@ function processProps() {
 }
 
 async function updatePath(data: any) {
-  if(Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
+  if(props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
     props.value["http://www.w3.org/ns/shacl#path"][0] = {"@id" : data["@id"]} as TTIriRef;
   }
 }
