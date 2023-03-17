@@ -1,5 +1,5 @@
 import { TableQuery } from "../interfaces/query/TableQuery";
-import { TTAlias, Where, OrderLimit } from "../interfaces/AutoGen";
+import { TTAlias, Where, OrderLimit, From } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function buildTableQuery(query: any) {
@@ -55,7 +55,7 @@ function addObject(query: any, type: string, parent: TableQuery) {
 function addOrderBy(orderBy: TTAlias | OrderLimit[], type: string, parent: TableQuery) {
   if (isObjectHasKeys(orderBy)) {
     const orderByObject = orderBy as TTAlias;
-    if (!isObjectHasKeys(orderByObject.description)) orderByObject.description = orderByObject.name;
+    if (!isObjectHasKeys(orderByObject["description"])) orderByObject.description = "order by " + orderByObject.name;
     const label = `${type} ${orderByObject.name || orderByObject["@id"]}`;
     addItem(label, orderBy, type, parent);
   } else if (isArrayHasLength(orderBy)) {
@@ -65,17 +65,18 @@ function addOrderBy(orderBy: TTAlias | OrderLimit[], type: string, parent: Table
   }
 }
 
-function addFrom(query: any, type: string, parent: TableQuery) {
-  const label = query.name || query["@id"];
-  addItem(label, query, type, parent);
-  if (isObjectHasKeys(query, ["where"])) {
-    buildRecursively(query.where, "where", parent);
+function addFrom(from: From, type: string, parent: TableQuery) {
+  if (!isObjectHasKeys(from["description"])) from.description = from.name;
+  const label = from.description;
+  addItem(label, from, type, parent);
+  if (isObjectHasKeys(from, ["where"])) {
+    buildRecursively(from.where, "where", parent);
   }
 }
 
 function addWhere(query: any, type: string, parent: TableQuery) {
   if (isObjectHasKeys(query, ["@id"])) {
-    if (!isObjectHasKeys(query, ["description"])) query.description = query.name;
+    if (!isObjectHasKeys(query, ["description"])) query.description = "where" === type ? query.name : type + " " + query.name;
     const label = query.description;
     if (isObjectHasKeys(query, ["in"])) {
       addInClause(label, query, type, parent);

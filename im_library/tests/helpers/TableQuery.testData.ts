@@ -42,6 +42,7 @@ export const Q_TestQuery = {
           {
             description: "Diabetic",
             "@id": "http://endhealth.info/im#observation",
+            name: "observation",
             where: [
               {
                 "@id": "http://endhealth.info/im#concept",
@@ -65,6 +66,7 @@ export const Q_TestQuery = {
       {
         description: "latest BP in last 6 months is >150",
         "@id": "http://endhealth.info/im#observation",
+        name: "observation",
         with: {
           description: "Home or office based systolic in the last 6 months is >150",
           bool: "and",
@@ -114,6 +116,7 @@ export const Q_TestQuery = {
         exclude: true,
         description: "High BP not followed by screening invite",
         "@id": "http://endhealth.info/im#observation",
+        name: "observation",
         bool: "and",
         where: [
           {
@@ -138,6 +141,7 @@ export const Q_TestQuery = {
         exclude: true,
         description: "not hypertensive",
         "@id": "http://endhealth.info/im#observation",
+        name: "observation",
         where: [
           {
             "@id": "http://endhealth.info/im#concept",

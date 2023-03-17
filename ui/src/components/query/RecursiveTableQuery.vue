@@ -29,7 +29,7 @@
         </li>
       </template>
       <li class="add-button-container">
-        <div class="add-button" @click="add">Add +</div>
+        <Button class="add-button" severity="secondary" label="Add" />
       </li>
     </ul>
   </div>
@@ -104,6 +104,11 @@ function getSeverity() {
   justify-content: center;
 }
 
+.add-button-container {
+  display: flex;
+  justify-content: center;
+}
+
 .children-list {
   margin: 0;
   padding: 0;
@@ -127,7 +132,7 @@ function getSeverity() {
   display: none;
 }
 
-.children-list:hover .add-button {
+.table-query-container:hover .add-button {
   display: block;
 }
 </style>
