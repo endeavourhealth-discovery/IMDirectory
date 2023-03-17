@@ -11,7 +11,7 @@
     <TestQueryResults
       v-if="showTestQueryResults"
       :showDialog="showTestQueryResults"
-      :imquery="JSON.parse(editorEntity[IM.DEFINITION])"
+      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
       @close-dialog="showTestQueryResults = false"
     />
     <div id="creator-main-container">

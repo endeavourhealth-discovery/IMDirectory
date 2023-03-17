@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsc --watch",
+    "dev": "tsc --noEmit --watch",
+    "tsc": "tsc --noEmit",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix",
     "format": "prettier --write",
-    "build": "tsc"
+    "build": "tsc --noEmit"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "1.0.3",

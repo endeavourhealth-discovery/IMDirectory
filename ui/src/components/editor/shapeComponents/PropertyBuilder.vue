@@ -183,7 +183,7 @@ async function createProperty() {
 
 async function setRange(property: Property) {
   if (propertyRange.value) {
-    if (XmlSchemaDatatypes.find(p => p === propertyRange.value["@id"])) {
+    if (XmlSchemaDatatypes.find(p => propertyRange.value && p === propertyRange.value["@id"])) {
       property["http://www.w3.org/ns/shacl#datatype"] = [propertyRange.value];
     } else {
       const type = await EntityService.getPartialEntity(propertyRange.value["@id"], [RDF.TYPE]);

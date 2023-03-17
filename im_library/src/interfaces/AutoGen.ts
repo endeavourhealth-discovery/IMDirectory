@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-03-14 09:29:42.
+// Generated using typescript-generator version 2.36.1070 on 2023-03-17 13:09:39.
 
 /**
  * Structure containing search request parameters and filters
@@ -219,11 +219,12 @@ export interface Delete {
 }
 
 export interface From extends TTAlias {
+    exclude: boolean;
     graph: TTAlias;
+    boolFrom: Bool;
     from: From[];
     where: Where[];
-    boolFrom: Bool;
-    boolWhere: Bool;
+    bool: Bool;
 }
 
 export interface Having {
@@ -301,10 +302,12 @@ export interface Value extends Assignable {
 }
 
 export interface Where extends TTAlias, Assignable {
+    exclude: boolean;
     bool: Bool;
     with: With;
     where: Where[];
     range: Range;
+    isNull: boolean;
     in: TTAlias[];
     notIn: TTAlias[];
     anyRoleGroup: boolean;
@@ -347,6 +350,7 @@ export interface SearchResultSummary {
     entityType: TTIriRef[];
     weighting: number;
     match: string;
+    preferredName: string;
     key: string[];
     isA: TTIriRef[];
     termCode: SearchTermCode[];
@@ -403,7 +407,7 @@ export type TargetUpdateMode = "REPLACE" | "APPEND" | "ADDTOLIST";
 
 export type Aggregate = "SUM" | "COUNT" | "AVERAGE" | "MIN" | "MAX";
 
-export type Bool = "and" | "or" | "not";
+export type Bool = "and" | "or";
 
 export type Comparison = "eq" | "gte" | "gt" | "lte" | "lt";
 

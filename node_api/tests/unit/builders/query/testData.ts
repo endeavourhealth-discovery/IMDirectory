@@ -31,33 +31,35 @@ export const CSET_EncFaceToFaceOnPremSetQueryObject = [
 
 export const CSET_NELChis2021 = {
   from: {
-    bool: "or",
+    boolFrom: "or",
     from: [
       {
         "@type": "http://endhealth.info/im#Concept",
         name: "Concept",
-        where: {
-          "@id": "http://snomed.info/sct#363589002",
-          name: "Associated procedure (attribute)",
-          in: [
-            {
-              "@id": "http://snomed.info/sct#117103007",
-              name: "Administration of human immune globulin product (procedure)",
-              descendantsOrSelfOf: true
-            }
-          ],
-          anyRoleGroup: true,
-          descendantsOrSelfOf: true
-        }
+        where: [
+          {
+            "@id": "http://snomed.info/sct#363589002",
+            name: "Associated procedure (attribute)",
+            in: [
+              {
+                "@id": "http://snomed.info/sct#117103007",
+                name: "Administration of human immune globulin product (procedure)",
+                descendantsOrSelfOf: true
+              }
+            ],
+            anyRoleGroup: true,
+            descendantsOrSelfOf: true
+          }
+        ]
       },
       {
-        "@id": "http://snomed.info/sct#275844006",
-        name: "Gamma globulin administration (procedure)",
+        "@id": "http://snomed.info/sct#868671000000100",
+        name: "Rotavirus vaccination given by other health care provider (finding)",
         descendantsOrSelfOf: true
       },
       {
-        "@id": "http://snomed.info/sct#1037251000000102",
-        name: "First measles mumps and rubella vaccination given by other healthcare provider (finding)",
+        "@id": "http://snomed.info/sct#413104004",
+        name: "Did not attend diphtheria, tetanus and acellular pertussis, polio and measles, mumps and rubella vaccine booster (finding)",
         descendantsOrSelfOf: true
       }
     ]
@@ -144,7 +146,7 @@ export const CSET_NELChis2021SetQueryObject = [
 
 export const CSET_EmailOnlineEncounter = {
   from: {
-    bool: "or",
+    boolFrom: "or",
     from: [
       {
         "@id": "http://endhealth.info/im#1681000252102",
@@ -200,37 +202,39 @@ export const CSET_OralNSAIDs = {
   from: {
     "@id": "http://snomed.info/sct#763158003",
     name: "Medicinal product (product)",
-    where: {
-      bool: "and",
-      where: [
-        {
-          "@id": "http://snomed.info/sct#127489000",
-          name: "Has active ingredient (attribute)",
-          descendantsOrSelfOf: true,
-          in: [
-            {
-              "@id": "http://snomed.info/sct#372665008",
-              name: "Non-steroidal anti-inflammatory agent (substance)",
-              descendantsOrSelfOf: true
-            }
-          ],
-          anyRoleGroup: true
-        },
-        {
-          "@id": "http://snomed.info/sct#411116001",
-          name: "Has manufactured dose form (attribute)",
-          in: [
-            {
-              "@id": "http://snomed.info/sct#385268001",
-              name: "Oral dose form (dose form)",
-              descendantsOrSelfOf: true
-            }
-          ],
-          anyRoleGroup: true,
-          descendantsOrSelfOf: true
-        }
-      ]
-    },
+    where: [
+      {
+        bool: "and",
+        where: [
+          {
+            "@id": "http://snomed.info/sct#127489000",
+            name: "Has active ingredient (attribute)",
+            in: [
+              {
+                "@id": "http://snomed.info/sct#372665008",
+                name: "Non-steroidal anti-inflammatory agent (substance)",
+                descendantsOrSelfOf: true
+              }
+            ],
+            anyRoleGroup: true,
+            descendantsOrSelfOf: true
+          },
+          {
+            "@id": "http://snomed.info/sct#411116001",
+            name: "Has manufactured dose form (attribute)",
+            in: [
+              {
+                "@id": "http://snomed.info/sct#385268001",
+                name: "Oral dose form (dose form)",
+                descendantsOrSelfOf: true
+              }
+            ],
+            anyRoleGroup: true,
+            descendantsOrSelfOf: true
+          }
+        ]
+      }
+    ],
     descendantsOrSelfOf: true
   }
 };
