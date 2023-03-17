@@ -48,7 +48,11 @@ onMounted(() => {
 });
 
 function addNextClicked(event: any) {
-  (optionsMenu.value as any).toggle(event);
+  if(props.options?.length === 1) {
+    selected.value = props.options[0];
+  } else {
+    (optionsMenu.value as any).toggle(event);
+  }
 }
 
 function deleteClicked() {
