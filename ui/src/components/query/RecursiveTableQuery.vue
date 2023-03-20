@@ -20,9 +20,9 @@
                 :level="level + 1"
                 @selected="select"
               />
-              <LeafTableQuery v-else :value="child.data" />
+              <LeafTableQuery v-else :value="child.data" :objectType="child.type"/>
               <Dialog v-model:visible="editDialog" modal :header="child.data.description" :style="{ width: '50vw' }">
-                <LeafTableQuery :value="child.data" />
+                <LeafTableQuery :value="child.data" :objectType="child.type" />
               </Dialog>
             </teleport>
           </template>

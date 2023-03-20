@@ -18,6 +18,12 @@
         <TableQueryDefault v-else-if="'name' !== property" :value="value" :property="property" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
       </div>
     </div>
+    <div>
+      <Button class="add-button" severity="success" label="Add" @click="addPropertyDialog = true" />
+    </div>
+    <Dialog v-model:visible="addPropertyDialog" modal header="Add rule" :style="{ width: '50vw' }">
+      <AddProperty :value="value" :objectType="objectType" @on-close="addPropertyDialog = false" />
+    </Dialog>
   </div>
 </template>
 
@@ -30,11 +36,13 @@ import TableQueryIri from "./leafTableQuery/TableQueryIri.vue";
 import TableQueryOperator from "./leafTableQuery/TableQueryOperator.vue";
 import TableQueryRange from "./leafTableQuery/TableQueryRange.vue";
 import TableQueryLogicBool from "./leafTableQuery/TableQueryLogicBool.vue";
+import AddProperty from "./leafTableQuery/AddProperty.vue";
 
 const props = defineProps({
-  value: { type: Object, required: true }
+  value: { type: Object, required: true },
+  objectType: { type: String, required: true }
 });
-
+const addPropertyDialog: Ref<boolean> = ref(false);
 const editModeSet: Ref<Set<string>> = ref(new Set());
 
 function edit(property: string) {
@@ -48,5 +56,13 @@ function edit(property: string) {
   display: flex;
   flex-flow: column;
   padding: 0.5em 1em;
+}
+
+.add-button {
+  display: none;
+}
+
+.leaf:hover .add-button {
+  display: block;
 }
 </style>
