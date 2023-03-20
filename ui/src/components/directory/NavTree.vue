@@ -7,7 +7,6 @@
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
-      @node-collapse="onNodeCollapse"
       class="tree-root"
       :loading="loading"
     >
@@ -75,7 +74,6 @@ const {
   expandedKeys,
 
   createTreeNode,
-  onNodeCollapse,
   onNodeDblClick,
   onNodeExpand,
   onNodeSelect,

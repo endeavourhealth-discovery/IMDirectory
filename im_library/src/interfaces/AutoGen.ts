@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-03-17 13:09:39.
+// Generated using typescript-generator version 2.36.1070 on 2023-03-20 11:32:44.
 
 /**
  * Structure containing search request parameters and filters
@@ -304,7 +304,6 @@ export interface Value extends Assignable {
 export interface Where extends TTAlias, Assignable {
     exclude: boolean;
     bool: Bool;
-    with: With;
     where: Where[];
     range: Range;
     isNull: boolean;
@@ -312,9 +311,6 @@ export interface Where extends TTAlias, Assignable {
     notIn: TTAlias[];
     anyRoleGroup: boolean;
     valueLabel: string;
-}
-
-export interface With extends Where {
     orderBy: TTAlias;
     direction: Order;
     count: number;
@@ -369,8 +365,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes: TTPrefix[];
     nameSpaces: TTPrefix[];
+    prefixes: TTPrefix[];
 }
 
 export interface TTTypedRef extends TTIriRef {
