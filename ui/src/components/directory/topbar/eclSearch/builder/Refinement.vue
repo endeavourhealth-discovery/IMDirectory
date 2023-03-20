@@ -177,7 +177,7 @@ onBeforeUnmount(() => {
 });
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === "any") isValidProperty.value = true;
+  if (props.focus?.iri === "any" || props.focus?.iri === "*") isValidProperty.value = true;
   else if (isAliasIriRef(props.focus) && hasProperty()) {
     isValidProperty.value = await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri);
   } else if (isBoolGroup(props.focus) && hasProperty() && props.focus.ecl) {

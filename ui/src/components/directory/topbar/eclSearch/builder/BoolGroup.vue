@@ -4,12 +4,12 @@
     <template v-for="(item, index) in value.items">
       <div class="component-container">
         <div class="minus-container">
-          <Tag v-if="value.exclude" severity="danger" value="Minus" />
+          <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button" />
         </div>
         <span class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index === 1" type="button" class="builder-button" :label="value.conjunction" @click="toggleBool" />
-          <Button v-else-if="index > 1" type="button" class="builder-button p-button-secondary" :label="value.conjunction" disabled />
+          <Button v-else-if="index === 1" type="button" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
+          <Button v-else-if="index > 1" type="button" class="builder-button conjunction-button p-button-secondary" :label="value.conjunction" disabled />
         </span>
         <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
         <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
@@ -223,7 +223,7 @@ function unGroupItems(groupedItems: any) {
   align-items: center;
 }
 
-.left-container > * {
+.conjunction-button {
   width: 4rem;
   margin: 0;
 }

@@ -93,11 +93,15 @@ watch(selected, (newValue, oldValue) => {
 async function init() {
   if (props.value && props.value.concept) {
     if (isAliasIriRef(props.value.concept)) {
-      loading.value = true;
-      await search(props.value.concept.iri);
-      if (isArrayHasLength(suggestions.value))
-        selected.value = suggestions.value.find(result => result.iri === (props.value.concept as { iri: string; name?: string }).iri);
-      loading.value = false;
+      if (props.value.concept.iri === "*") {
+        selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
+      } else {
+        loading.value = true;
+        await search(props.value.concept.iri);
+        if (isArrayHasLength(suggestions.value))
+          selected.value = suggestions.value.find(result => result.iri === (props.value.concept as { iri: string; name?: string }).iri);
+        loading.value = false;
+      }
     }
   }
 }
