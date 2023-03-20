@@ -51,6 +51,7 @@ function edit() {
 }
 
 function cancel() {
+  editRange.value = { ...props.value[props.property] };
   emit("onEdit", props.property);
 }
 

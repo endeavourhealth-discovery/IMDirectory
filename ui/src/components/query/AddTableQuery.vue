@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { TableQuery } from "@im-library/interfaces";
-import { Where, With } from "@im-library/interfaces/AutoGen";
+import { Where } from "@im-library/interfaces/AutoGen";
 import { onMounted, Ref, ref } from "vue";
 
 const props = defineProps({
@@ -18,7 +18,7 @@ const props = defineProps({
 });
 onMounted(async () => {});
 
-const clause: Ref<Where | With> = ref({} as any);
+const clause: Ref<Where> = ref({} as any);
 const emit = defineEmits({ onCancel: () => true });
 
 function cancel() {

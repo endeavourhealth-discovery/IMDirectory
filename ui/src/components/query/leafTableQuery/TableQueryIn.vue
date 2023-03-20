@@ -34,6 +34,7 @@ function edit() {
 }
 
 function cancel() {
+  selected.value = [...props.value[props.property]];
   emit("onEdit", props.property);
 }
 

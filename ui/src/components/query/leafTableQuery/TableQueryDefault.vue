@@ -29,6 +29,7 @@ function edit() {
 }
 
 function cancel() {
+  editValue.value = props.value[props.property];
   emit("onEdit", props.property);
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="leaf">
-    <div v-for="property in Object.keys(value)">
+    <div class="property-value" v-for="property in Object.keys(value)">
       <div v-if="'where' !== property">
         <TableQueryIri
           v-if="'@id' === property || '@set' === property || '@type' === property"
@@ -16,6 +16,22 @@
         <TableQueryLogicBool v-else-if="'bool' === property" :property="property" :value="value" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
 
         <TableQueryDefault v-else-if="'name' !== property" :value="value" :property="property" :edit-mode="editModeSet.has(property)" @on-edit="edit" />
+      </div>
+      <div class="action-button-container" v-if="!editModeSet.has(property)">
+        <Button
+          icon="fa-solid fa-pen-to-square"
+          class="p-button-rounded p-button-text p-button-plain action-button"
+          v-tooltip.top="'Edit'"
+          data-testid="edit-button"
+          @click="edit(property)"
+        />
+        <Button
+          icon="fa-solid fa-trash"
+          class="p-button-rounded p-button-text p-button-plain action-button"
+          v-tooltip.top="'Remove'"
+          data-testid="edit-button"
+          @click="remove(property)"
+        />
       </div>
     </div>
     <div>
@@ -49,6 +65,10 @@ function edit(property: string) {
   if (!editModeSet.value.has(property)) editModeSet.value.add(property);
   else editModeSet.value.delete(property);
 }
+
+function remove(property: string) {
+  delete props.value[property];
+}
 </script>
 
 <style scoped>
@@ -62,7 +82,29 @@ function edit(property: string) {
   display: none;
 }
 
+.action-button {
+  display: none;
+}
+
+.property-value:hover .action-button {
+  display: block;
+}
+
 .leaf:hover .add-button {
   display: block;
+}
+
+.leaf:hover .add-button {
+  display: block;
+}
+
+.property-value {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.action-button-container {
+  display: flex;
 }
 </style>

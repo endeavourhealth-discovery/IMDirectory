@@ -1,5 +1,5 @@
 <template>
-  <Listbox v-model="selected" :options="properties" multiple />
+  <Listbox v-model="selected" :options="properties" multiple option-label="name" />
   <div class="button-bar">
     <Button class="button-bar-button" severity="secondary" label="Cancel" @click="cancel" />
     <Button class="button-bar-button" label="OK" @click="add" />
@@ -29,7 +29,9 @@ onMounted(async () => {
 
 function add() {
   for (const field of selected.value) {
-    if (field.secondType === "java.util.List") props.value[field.name] = [];
+    if ("iri" === field.name) {
+      props.value["@id"] = "iri";
+    } else if (field.secondType === "java.util.List") props.value[field.name] = [];
     else props.value[field.name] = "";
   }
 
