@@ -1,6 +1,7 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
     <div class="focus-container">
+      <Tag v-if="value.exclude" value="Minus" severity="danger" />
       <div v-if="isAliasIriRef(value.concept)" class="concept-container">
         <ConceptSelector :value="value" :parent="value" />
       </div>
@@ -15,7 +16,7 @@
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <div v-for="(item, index) in value.items" class="refinement-container">
       <span class="left-container">
-        <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
+        <div v-if="index === 0" class="spacer">&nbsp;</div>
         <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" class="builder-button" />
         <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary builder-button" disabled />
       </span>
@@ -45,27 +46,33 @@
         @click="processGroup"
         class="builder-button"
       />
+      <Button
+        v-if="index && index > 0"
+        type="button"
+        :class="[hover ? 'p-button-danger' : 'p-button-placeholder']"
+        :label="value.exclude ? 'Include' : 'Exclude'"
+        @click="toggleExclude"
+        class="builder-button"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch, inject, h } from "vue";
+import { Ref, ref, onMounted, PropType, watch, inject } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import ConceptSelector from "./ConceptSelector.vue";
-import EclTree from "../EclTree.vue";
 import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import { ConceptSummary, TTIriRef } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EntityService } from "@/services";
 import _ from "lodash";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
-import { useDialog } from "primevue/usedialog";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 
 const props = defineProps({
@@ -77,10 +84,12 @@ const props = defineProps({
       items: any[];
       concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
       ecl?: string;
+      exclude?: boolean;
     }>,
     required: true
   },
-  parent: { type: Object as PropType<any>, required: false }
+  parent: { type: Object as PropType<any>, required: false },
+  index: { type: Number, required: false }
 });
 
 watch(
@@ -96,8 +105,6 @@ watch(
     if (newValue !== oldValue) await init();
   }
 );
-
-let treeDialog = useDialog();
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
@@ -118,10 +125,6 @@ const boolOptions = [
   {
     label: "OR",
     command: () => (props.value.conjunction = "OR")
-  },
-  {
-    label: "NOT",
-    command: () => (props.value.conjunction = "MINUS")
   }
 ];
 
@@ -131,12 +134,14 @@ onMounted(async () => {
 
 async function init() {
   if (props.value && props.value.concept) {
-    if (isAliasIriRef(props.value.concept)) {
+    if (isAliasIriRef(props.value.concept) && props.value.concept.iri) {
       loading.value = true;
       await search(props.value.concept.iri);
       if (isArrayHasLength(suggestions.value))
         selected.value = suggestions.value.find(result => result.iri === (props.value.concept as { iri: string; name?: string }).iri);
       loading.value = false;
+    } else {
+      props.value.ecl = generateEcl();
     }
   }
 }
@@ -154,6 +159,10 @@ function mouseout(event: Event) {
 
 function toggleBool(event: Event) {
   menuBool.value.toggle(event);
+}
+
+function toggleExclude() {
+  props.value.exclude = !props.value.exclude;
 }
 
 function add(item: any) {
@@ -186,10 +195,6 @@ async function search(term: string) {
   } else if (term === "*") {
     suggestions.value = [{ iri: "any", name: "ANY", code: "any" }];
   } else suggestions.value = [{ iri: null, name: "3 character minumum", code: "UNKNOWN" }];
-}
-
-function disableOption(data: any) {
-  return data.code === "UNKNOWN";
 }
 
 function addRefinement() {
@@ -234,12 +239,12 @@ function generateEcl(): string {
   if (isAliasIriRef(props.value.concept)) ecl += builderConceptToEcl(props.value, includeTerms.value);
   else if (isBoolGroup(props.value.concept)) {
     if (isArrayHasLength(props.value.concept.items)) {
+      if (props.value.exclude) ecl += "MINUS ";
       ecl += "( ";
       for (const [index, item] of props.value.concept.items.entries()) {
-        if (props.value.concept.conjunction === "MINUS") ecl += "( ";
-        ecl += item.ecl;
-        if (props.value.concept.conjunction === "MINUS") ecl += " ) ";
-        if (index + 1 !== props.value.concept.items.length) ecl += "\n" + props.value.concept.conjunction + " ";
+        if (index !== 0 && !item.exclude) ecl += props.value.concept.conjunction + " ";
+        if (item.ecl) ecl += item.ecl;
+        if (index + 1 !== props.value.concept.items.length) ecl += "\n";
       }
       ecl += " ) ";
     }
@@ -294,7 +299,7 @@ function unGroupItems(groupedItems: any) {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .concept-container {
@@ -313,7 +318,6 @@ function unGroupItems(groupedItems: any) {
 
 .refinement-container {
   display: flex;
-  margin: 0 0 0 4rem;
 }
 
 .left-container {
@@ -341,7 +345,6 @@ function unGroupItems(groupedItems: any) {
 }
 
 .builder-button {
-  margin-right: 4px;
   height: 1.5rem;
   align-self: center;
 }
@@ -354,6 +357,10 @@ function unGroupItems(groupedItems: any) {
 
 .add-group {
   width: 100%;
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
+  gap: 4px;
 }
 
 .group-checkbox {
