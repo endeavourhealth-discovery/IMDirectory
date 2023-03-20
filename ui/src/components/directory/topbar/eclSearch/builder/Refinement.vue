@@ -11,7 +11,7 @@
       placeholder="search..."
       :disabled="loadingProperty || !hasFocus()"
       :optionDisabled="disableOption"
-      :class="!isValidProperty ? 'p-invalid' : ''"
+      :class="!isValidProperty && hasProperty() ? 'p-invalid' : ''"
     />
     <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
@@ -27,7 +27,7 @@
       @complete="searchValue($event.query)"
       placeholder="search..."
       :disabled="!selectedProperty || typeof selectedProperty == 'string' || loadingValue"
-      :class="!isValidPropertyValue ? 'p-invalid' : ''"
+      :class="!isValidPropertyValue && hasValue() ? 'p-invalid' : ''"
     />
     <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" class="tree-button" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h, computed, ComputedRef, inject } from "vue";
+import { ref, Ref, PropType, onMounted, watch, onBeforeUnmount, h, inject } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useDialog } from "primevue/usedialog";
@@ -69,11 +69,16 @@ watch(
   () => _.cloneDeep(props.value),
   async (newValue, oldValue) => {
     if (newValue) {
-      if (!oldValue) await processProps();
-      else {
+      loadingProperty.value = true;
+      loadingValue.value = true;
+      if (!oldValue) {
+        await processProps();
+      } else {
         if (newValue?.property?.concept?.iri !== oldValue?.property?.concept?.iri) await processProps();
         if (newValue?.value?.concept?.iri !== oldValue?.value?.concept?.iri) await processProps();
       }
+      loadingProperty.value = false;
+      loadingValue.value = false;
     }
   }
 );
@@ -82,7 +87,11 @@ watch(
   () => _.cloneDeep(props.focus),
   async (newValue, oldValue) => {
     if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
+      loadingProperty.value = true;
+      loadingValue.value = true;
       await processProps();
+      loadingProperty.value = false;
+      loadingValue.value = false;
     }
   }
 );
@@ -124,11 +133,15 @@ watch(selectedValue, newValue => {
 });
 
 watch([() => _.cloneDeep(props.focus), () => _.cloneDeep(props.value.property.concept)], async () => {
+  loadingProperty.value = true;
   await updateIsValidProperty();
+  loadingProperty.value = false;
 });
 
 watch([selectedProperty, () => _.cloneDeep(props.value.value.concept)], async () => {
+  loadingValue.value = true;
   await updateIsValidPropertyValue();
+  loadingValue.value = false;
 });
 
 const descendantOptions = [
@@ -149,9 +162,13 @@ const descendantOptions = [
 const operatorOptions = ["=", "!="];
 
 onMounted(async () => {
+  loadingProperty.value = true;
+  loadingValue.value = true;
   await updateIsValidProperty();
   await updateIsValidPropertyValue();
   await processProps();
+  loadingProperty.value = false;
+  loadingValue.value = false;
 });
 
 onBeforeUnmount(() => {
@@ -160,7 +177,7 @@ onBeforeUnmount(() => {
 });
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === "any") isValidProperty.value = true;
+  if (props.focus?.iri === "any" || props.focus?.iri === "*") isValidProperty.value = true;
   else if (isAliasIriRef(props.focus) && hasProperty()) {
     isValidProperty.value = await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri);
   } else if (isBoolGroup(props.focus) && hasProperty() && props.focus.ecl) {
@@ -176,8 +193,6 @@ async function updateIsValidPropertyValue(): Promise<void> {
 
 async function processProps() {
   if (hasProperty() && hasFocus()) {
-    loadingProperty.value = true;
-    loadingValue.value = true;
     let name = "";
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else name = await findIriName(props.value.property.concept.iri);
@@ -205,7 +220,6 @@ async function processProps() {
       }
     } else throw new Error("Property iri does not exist");
   }
-  loadingProperty.value = false;
   if (hasValue() && hasProperty()) {
     let name = "";
     if (props.value.value.concept.name) name = props.value.value.concept.name;
@@ -227,7 +241,6 @@ async function processProps() {
       }
     } else throw new Error("Value iri does not exist");
   }
-  loadingValue.value = false;
 }
 
 async function searchProperty(term: string) {
