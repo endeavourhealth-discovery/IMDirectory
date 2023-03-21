@@ -167,16 +167,32 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       console.log("found exclusion expression constraint");
       console.log(ctx.getText());
     }
-    let build = { exclusionExpressionConstraint: { type: "BoolGroup" } };
+    let build = { exclusionExpressionConstraint: { type: "BoolGroup", conjunction: "AND" } };
     if (ctx.children) {
       build.exclusionExpressionConstraint.items = [];
       const results = this.visitChildren(ctx);
       if (results) {
+        let first = true;
+        let conjunction;
         for (const result of results) {
-          if (isObjectHasKeys(result, ["exclusion"])) build.exclusionExpressionConstraint.conjunction = result.exclusion;
-          if (isObjectHasKeys(result, ["subExpressionConstraint"])) build.exclusionExpressionConstraint.items.push(result.subExpressionConstraint);
+          if (isObjectHasKeys(result, ["exclusion"])) conjunction = result.exclusion;
+          if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
+            if (first) {
+              build.exclusionExpressionConstraint.items.push(result.subExpressionConstraint);
+              first = false;
+            } else {
+              result.subExpressionConstraint.exclude = true;
+              build.exclusionExpressionConstraint.items.push(result.subExpressionConstraint);
+            }
+          }
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"]))
-            build.exclusionExpressionConstraint.items.push(result.bracketCompoundExpressionConstraint);
+            if (first) {
+              build.exclusionExpressionConstraint.items.push(result.bracketCompoundExpressionConstraint);
+              first = false;
+            } else {
+              result.bracketCompoundExpressionConstraint.exclude = true;
+              build.exclusionExpressionConstraint.items.push(result.bracketCompoundExpressionConstraint);
+            }
         }
       }
     }

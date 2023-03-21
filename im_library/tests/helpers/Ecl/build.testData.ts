@@ -359,7 +359,7 @@ export default {
     type: "BoolGroup"
   },
   minusAConcept: {
-    conjunction: "MINUS",
+    conjunction: "AND",
     items: [
       {
         conjunction: "AND",
@@ -407,7 +407,8 @@ export default {
           iri: "http://snomed.info/sct#426396005"
         },
         descendants: "<<",
-        type: "Concept"
+        type: "Concept",
+        exclude: true
       }
     ],
     type: "BoolGroup"
@@ -472,6 +473,7 @@ export default {
       },
       {
         type: "BoolGroup",
+        exclude: true,
         items: [
           {
             type: "Concept",
@@ -507,10 +509,10 @@ export default {
         conjunction: "AND"
       }
     ],
-    conjunction: "MINUS"
+    conjunction: "AND"
   },
   orGroupMinusOrGroup: {
-    conjunction: "MINUS",
+    conjunction: "AND",
     items: [
       {
         conjunction: "OR",
@@ -534,6 +536,7 @@ export default {
       },
       {
         conjunction: "OR",
+        exclude: true,
         items: [
           {
             concept: {
@@ -866,6 +869,7 @@ export default {
       },
       {
         type: "BoolGroup",
+        exclude: true,
         items: [
           {
             type: "Concept",
@@ -896,7 +900,7 @@ export default {
         conjunction: "AND"
       }
     ],
-    conjunction: "MINUS"
+    conjunction: "AND"
   },
   orRefinement: {
     conjunction: "AND",
