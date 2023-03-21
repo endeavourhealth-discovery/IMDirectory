@@ -136,7 +136,7 @@
     </div>
   </div>
   <div class="button-bar">
-    <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" @click="$router.go(-1)" />
+    <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="$router.go(-1)" />
     <Button :loading="saveLoading" icon="pi pi-check" label="Save mappings" class="save-button" @click="saveMappings" />
   </div>
 </template>

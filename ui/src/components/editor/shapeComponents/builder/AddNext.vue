@@ -1,7 +1,7 @@
 <template>
   <div class="add-next-container">
     <template v-for="option of options" :key="option">
-      <Button icon="fa-solid fa-plus" :label="option" class="p-button-rounded p-button-outlined p-button-danger add-next-button" @click="addItem(option)">
+      <Button icon="fa-solid fa-plus" :label="option" severity="danger" class="p-button-rounded p-button-outlined add-next-button" @click="addItem(option)">
       </Button>
     </template>
   </div>

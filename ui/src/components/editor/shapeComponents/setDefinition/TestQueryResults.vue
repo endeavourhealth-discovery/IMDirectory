@@ -16,7 +16,7 @@
     </div>
     <div v-else>No concepts found</div>
     <template #footer>
-      <Button label="Download" icon="pi pi-download" @click="exportCSV" class="p-button-help" />
+      <Button label="Download" icon="pi pi-download" @click="exportCSV" severity="help" />
       <Button label="OK" icon="pi pi-check" @click="close" autofocus />
     </template>
   </Dialog>

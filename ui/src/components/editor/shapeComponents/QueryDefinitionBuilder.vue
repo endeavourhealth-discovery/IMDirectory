@@ -12,7 +12,7 @@
         />
       </div>
       <div class="property-component">
-        <Button icon="pi pi-plus" label="Add" class="p-button-success one-rem-margin" @click="addProperty" />
+        <Button icon="pi pi-plus" label="Add" severity="success" class="one-rem-margin" @click="addProperty" />
       </div>
     </div>
   </div>

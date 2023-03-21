@@ -3,57 +3,40 @@
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <template v-for="(item, index) in value.items">
       <div class="component-container">
-        <div class="minus-container">
-          <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button" />
-        </div>
         <span class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index === 1" type="button" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
-          <Button v-else-if="index > 1" type="button" class="builder-button conjunction-button p-button-secondary" :label="value.conjunction" disabled />
+          <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" />
+          <Button v-else-if="index > 1" type="button" :label="value.conjunction" severity="secondary" disabled />
         </span>
-        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
-        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
+        <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" />
+        <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" />
         <div class="right-container">
           <div v-if="groupWithinBoolGroup" class="group-checkbox">
             <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
             <label :for="'group' + index">Group</label>
           </div>
-          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
+          <Button @click="deleteItem(index)" :severity="hover && 'danger'" :class="!hover && 'p-button-placeholder'" icon="pi pi-trash" />
         </div>
       </div>
     </template>
     <div class="add-group">
-      <Button type="button" class="builder-button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" />
+      <Button type="button" :severity="hover && 'success'" :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" />
+      <Button type="button" :severity="hover && 'success'" :class="!hover && 'p-button-placeholder'" label="Add Refinement" @click="addRefinement" />
+      <Button type="button" :severity="hover && 'success'" :class="!hover && 'p-button-placeholder'" label="Add New Group" @click="addGroup" />
       <Button
         type="button"
-        class="builder-button"
-        :class="[hover ? 'p-button-success' : 'p-button-placeholder']"
-        label="Add Refinement"
-        @click="addRefinement"
-      />
-      <Button type="button" class="builder-button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" />
-      <Button
-        type="button"
-        class="builder-button"
-        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
+        :severity="groupWithinBoolGroup ? 'danger' : (hover && 'help')"
+        :class="!hover && 'p-button-placeholder'"
         :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
       />
       <Button
         v-if="!rootBool"
         type="button"
-        class="builder-button"
-        :class="[hover ? 'p-button-warning' : 'p-button-placeholder', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-warning']"
+        :severity="groupWithinBoolGroup ? 'danger' : (hover && 'warning')"
+        :class="!hover && 'p-button-placeholder'"
         label="Ungroup"
         @click="requestUnGroupItems"
-      />
-      <Button
-        v-if="index && index > 0 && isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept'"
-        type="button"
-        :class="[hover ? 'p-button-danger' : 'p-button-placeholder']"
-        :label="value.exclude ? 'Include' : 'Exclude'"
-        @click="toggleExclude"
-        class="builder-button"
       />
     </div>
   </div>
@@ -65,14 +48,12 @@ import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { isArray } from "@vue/shared";
 
 const props = defineProps({
   value: { type: Object, required: true },
   parent: { type: Object, required: false },
   focus: { type: Object, required: false },
-  rootBool: { type: Boolean, default: false },
-  index: { type: Number, required: false }
+  rootBool: { type: Boolean, default: false }
 });
 
 watch(
@@ -99,6 +80,10 @@ const boolOptions = [
   {
     label: "OR",
     command: () => (props.value.conjunction = "OR")
+  },
+  {
+    label: "NOT",
+    command: () => (props.value.conjunction = "MINUS")
   }
 ];
 
@@ -115,10 +100,6 @@ function mouseout(event: any) {
 
 function toggleBool(event: any) {
   menuBool.value.toggle(event);
-}
-
-function toggleExclude() {
-  props.value.exclude = !props.value.exclude;
 }
 
 function add(item: any) {
@@ -167,14 +148,12 @@ function getComponent(componentName: string) {
 function generateEcl(): string {
   let ecl = "";
   if (isArrayHasLength(props.value.items)) {
-    if (props.value.exclude) ecl += "MINUS ";
-    if (props.parent) ecl += "( ";
     for (const [index, item] of props.value.items.entries()) {
-      if (index !== 0 && !item.exclude) ecl += props.value.conjunction + " ";
-      if (item.ecl) ecl += item.ecl;
-      if (index + 1 !== props.value.items.length) ecl += "\n";
+      if (props.focus || props.value.conjunction === "MINUS") ecl += "( ";
+      ecl += item.ecl;
+      if (props.focus || props.value.conjunction === "MINUS") ecl += " ) ";
+      if (index + 1 !== props.value.items.length) ecl += "\n" + props.value.conjunction + " ";
     }
-    if (props.parent) ecl += " )";
   }
   return ecl.replace(/  +/g, " ");
 }
@@ -223,23 +202,13 @@ function unGroupItems(groupedItems: any) {
   align-items: center;
 }
 
-.conjunction-button {
+.left-container > * {
   width: 4rem;
   margin: 0;
 }
 
 .add-group {
   width: 100%;
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  gap: 4px;
-}
-
-.minus-container {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
 }
 
 .right-container {
@@ -274,7 +243,8 @@ function unGroupItems(groupedItems: any) {
   display: flex;
 }
 
-.builder-button {
+Button {
+  margin-right: 4px;
   height: 1.5rem;
   align-self: center;
 }

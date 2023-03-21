@@ -69,7 +69,7 @@
 
     <Column v-if="removableRows" headerStyle="width: 3rem">
       <template #body="{ data }">
-        <Button icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" @click="remove(data)" />
+        <Button icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
       </template>
     </Column>
   </DataTable>

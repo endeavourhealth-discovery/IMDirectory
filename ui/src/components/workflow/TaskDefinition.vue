@@ -141,7 +141,7 @@
       </template>
     </Card>
     <div class="button-bar">
-      <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" @click="goToTaskViewer" />
+      <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="goToTaskViewer" />
       <Button :loading="saveLoading" icon="pi pi-check" label="Save" class="save-button" @click="save" />
     </div>
   </div>

@@ -33,16 +33,17 @@
             <SideBar :editorEntity="editorEntity" />
           </div>
           <Button
-            class="p-button-rounded p-button-info p-button-outlined sidebar-toggle"
+            class="p-button-rounded p-button-outlined sidebar-toggle"
+            severity="info"
             :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
             @click="onShowSidebar"
           />
         </div>
         <div class="button-bar" id="creator-button-bar">
           <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" />
-          <Button icon="pi pi-refresh" label="Reset" class="p-button-warning" @click="refreshCreator" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
-          <Button icon="pi pi-check" label="Create" class="p-button-success save-button" @click="submit" />
+          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshCreator" />
+          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
+          <Button icon="pi pi-check" label="Create" severity="success" save-button" @click="submit" />
           <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" />
         </div>
       </div>

@@ -14,9 +14,7 @@
         <div class="tree-row" @dblclick="onNodeDblClick($event, slotProps.node)" @contextmenu="onNodeContext($event, slotProps.node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
-            </div>
+            <i :style="'color:' + slotProps.node.color" :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
           <span @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">{{ slotProps.node.label }}</span>
@@ -74,6 +72,7 @@ const {
   expandedKeys,
 
   createTreeNode,
+  onNodeCollapse,
   onNodeDblClick,
   onNodeExpand,
   onNodeSelect,

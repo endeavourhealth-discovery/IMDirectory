@@ -2,6 +2,7 @@
   <Button
     v-if="show('runQuery')"
     :icon="'fa-solid fa-bolt'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="onRunQuery(iri)"
     v-tooltip.top="'Run query'"
@@ -10,6 +11,7 @@
   <Button
     v-if="show('findInTree')"
     :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="locateInTree($event, iri)"
     v-tooltip.top="'Find in tree'"
@@ -18,6 +20,7 @@
   <Button
     v-if="show('view')"
     :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="directService.view(iri)"
     v-tooltip.top="'View'"
@@ -26,6 +29,7 @@
   <Button
     v-if="show('edit')"
     :icon="fontAwesomePro ? 'fa-duotone fa-pen-to-square' : 'fa-solid fa-pen-to-square'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="directService.edit(iri)"
     v-tooltip.top="'Edit'"
@@ -34,7 +38,8 @@
   <Button
     v-if="show('favourite') && isFavourite(iri)"
     style="color: #e39a36"
-    icon="'fa-solid fa-star'"
+    icon="fa-solid fa-star'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Unfavourite'"
@@ -43,6 +48,7 @@
   <Button
     v-else-if="show('favourite') && !isFavourite(iri)"
     icon="fa-regular fa-star"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Favourite'"
@@ -100,6 +106,12 @@ function getClass() {
     default:
       return activityRowButton;
   }
+}
+function getSeverity() {
+  if (props.type == "conceptButton") {
+    return "secondary";
+  }
+  return undefined;
 }
 
 function show(button: string) {
