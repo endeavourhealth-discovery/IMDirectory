@@ -219,20 +219,20 @@ async function getConceptAggregates(): Promise<void> {
   let superiors: any[] = [];
   if (getType.value === "property") {
     let results = { result: [], totalCount: 0 };
-    if (isAliasIriRef(focus.value)) results = await EntityService.getSuperiorPropertiesPaged(focus.value.iri, 1, pageSize.value);
+    if (isAliasIriRef(focus.value) && focus.value.iri) results = await EntityService.getSuperiorPropertiesPaged(focus.value.iri, 1, pageSize.value);
     if (isBoolGroup(focus.value)) results = await EntityService.getSuperiorPropertiesBoolFocusPaged(focus.value, 1, pageSize.value);
-    superiors = results.result;
+    if (results && isArrayHasLength(results.result)) superiors = results.result;
     superiorsCount.value = results.totalCount;
   } else if (getType.value === "value") {
     let results = { result: [], totalCount: 0 };
-    if (isAliasIriRef(focus.value)) results = await EntityService.getSuperiorPropertyValuesPaged(focus.value.iri, 1, pageSize.value);
-    superiors = results.result;
+    if (isAliasIriRef(focus.value) && focus.value.iri) results = await EntityService.getSuperiorPropertyValuesPaged(focus.value.iri, 1, pageSize.value);
+    if (results && isArrayHasLength(results.result)) superiors = results.result;
     superiorsCount.value = results.totalCount;
   } else if (getType.value === "concept") {
     let results = { result: [], totalCount: 0 };
-    if (isAliasIriRef(focus.value)) results = await EntityService.getPagedChildren(focus.value.iri, 1, pageSize.value);
+    if (isAliasIriRef(focus.value) && focus.value.iri) results = await EntityService.getPagedChildren(focus.value.iri, 1, pageSize.value);
     superiors = results.result.filter((result: any) => result["@id"] !== "http://endhealth.info/im#CodeBasedTaxonomies");
-    superiorsCount.value = results.totalCount;
+    superiorsCount.value = superiors.length < pageSize.value ? superiors.length : results.totalCount;
   }
   for (const superior of superiors) {
     let superiorAggregate = { concept: {}, parents: [], children: [] } as ConceptAggregate;

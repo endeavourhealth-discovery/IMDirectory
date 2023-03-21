@@ -13,7 +13,7 @@
       :optionDisabled="disableOption"
       :class="!isValidProperty && hasProperty() ? 'p-invalid' : ''"
     />
-    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
+    <Button :disabled="!hasFocus()" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
@@ -387,7 +387,7 @@ function hasValue(): boolean {
 }
 
 function hasFocus(): boolean {
-  if (isObjectHasKeys(props, ["focus"]) && (isAliasIriRef(props.focus) || isBoolGroup(props.focus))) return true;
+  if (isObjectHasKeys(props, ["focus"]) && ((isAliasIriRef(props.focus) && props.focus.iri) || isBoolGroup(props.focus))) return true;
   else return false;
 }
 </script>
