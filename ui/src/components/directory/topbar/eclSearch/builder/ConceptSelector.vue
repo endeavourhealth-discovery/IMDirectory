@@ -13,7 +13,7 @@
       :optionDisabled="disableOption"
       :disabled="loading"
     />
-    <Button :disabled="!value.concept?.iri" icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
+    <Button icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
@@ -93,7 +93,7 @@ watch(selected, (newValue, oldValue) => {
 async function init() {
   if (props.value && props.value.concept) {
     if (isAliasIriRef(props.value.concept)) {
-      if (props.value.concept.iri === "*") {
+      if (props.value.concept.iri === "*" || props.value.concept.iri === "any") {
         selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
       } else {
         loading.value = true;
