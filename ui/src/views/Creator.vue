@@ -43,7 +43,7 @@
           <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" />
           <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshCreator" />
           <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
-          <Button icon="pi pi-check" label="Create" severity="success" save-button" @click="submit" />
+          <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
           <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" />
         </div>
       </div>
@@ -52,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import TypeSelector from "@/components/creator/TypeSelector.vue";
+import { defineComponent } from "vue";import TypeSelector from "@/components/creator/TypeSelector.vue";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
 
 export default defineComponent({
@@ -61,7 +61,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { onUnmounted, onMounted, computed, ref, Ref, watch, inject, defineComponent, PropType, provide, nextTick, ComputedRef } from "vue";
+import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";

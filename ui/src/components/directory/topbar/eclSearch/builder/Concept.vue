@@ -42,7 +42,7 @@
       <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" class="builder-button" />
       <Button
           type="button"
-          :severity="groupWithinConcept && 'danger'"
+          :severity="groupWithinConcept ? 'danger' : undefined"
           :class="hover || !groupWithinConcept ? 'p-button-help' : 'p-button-placeholder'"
           :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
           @click="processGroup"
