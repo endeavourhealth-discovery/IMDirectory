@@ -38,7 +38,7 @@
   <Button
     v-if="show('favourite') && isFavourite(iri)"
     style="color: #e39a36"
-    icon="fa-solid fa-star'"
+    icon="fa-solid fa-star"
     :severity="getSeverity()"
     :class="getClass()"
     @click="updateFavourites(iri)"
