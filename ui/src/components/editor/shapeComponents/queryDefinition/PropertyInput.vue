@@ -1,7 +1,7 @@
 <template>
   <div class="property-value-container">
     <div class="property-name-container">
-      <Button icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" @click="removeProperty" />
+      <Button icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="removeProperty" />
       <Dropdown v-model="propertyName" :options="classProperties" placeholder="Select property to add" optionLabel="name" @change="onSelect" />
     </div>
     <div v-if="props.property.type" class="property-value-container">

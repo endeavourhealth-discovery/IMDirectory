@@ -47,7 +47,7 @@
       </div>
     </div>
     <template #footer>
-      <Button label="Cancel" icon="pi pi-times" class="p-button-secondary" @click="closeBuilderDialog" />
+      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="closeBuilderDialog" />
       <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
