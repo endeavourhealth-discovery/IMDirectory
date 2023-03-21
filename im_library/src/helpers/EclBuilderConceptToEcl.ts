@@ -1,6 +1,7 @@
 export function builderConceptToEcl(builderConcept: any, includeTerms: boolean) {
-  let ecl = builderConcept.descendants ? builderConcept.descendants + " " : "";
-
+  let ecl = "";
+  if (builderConcept.exclude) ecl += "MINUS ";
+  if (builderConcept.descendants) ecl += builderConcept.descendants + " ";
   if (builderConcept.concept && builderConcept.concept.code) {
     if (builderConcept.concept.code === "any") {
       ecl += "*";
