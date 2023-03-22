@@ -1,5 +1,12 @@
 import { render, fireEvent, within } from "@testing-library/vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
+import PrimeVue from "primevue/config";
+const mockAdd = vi.fn();
+vi.mock("primevue/usetoast", () => ({
+  useToast: () => ({
+    add: mockAdd
+  })
+}));
 
 describe("TextWithLabel.vue", () => {
   let component;
@@ -8,7 +15,8 @@ describe("TextWithLabel.vue", () => {
     vi.resetAllMocks();
 
     component = render(TextWithLabel, {
-      props: { label: "Name", data: "Scoliosis", size: "50%", show: true }
+      props: { label: "Name", data: "Scoliosis", size: "50%", show: true },
+      plugins: [PrimeVue]
     });
   });
 
