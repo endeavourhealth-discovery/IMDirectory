@@ -8,6 +8,7 @@
     </div>
     <div id="topbar-end">
       <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
+      <Button :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'" @click="changeTheme()" />
       <Button
         :icon="fontAwesomePro ? 'fa-duotone fa-arrow-down-up-across-line' : 'fa-solid fa-cloud-arrow-down'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
@@ -61,6 +62,7 @@ import TieredMenu from "primevue/tieredmenu";
 import { DirectService, Env, FilerService, DataModelService } from "@/services";
 
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { usePrimeVue } from "primevue/config";
 
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
@@ -73,6 +75,7 @@ const loginItems: Ref<LoginItem[]> = ref([]);
 const accountItems: Ref<AccountItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
 
+const PrimeVue: any = usePrimeVue();
 const toast = useToast();
 const adminMenu = ref();
 const userMenu = ref();
@@ -222,6 +225,10 @@ function setAppMenuItems() {
 
 function showReleaseNotes() {
   store.commit("updateShowReleaseNotes", true);
+}
+
+function changeTheme() {
+  PrimeVue.changeTheme("saga-blue", "saga-orange", "theme-link", () => {});
 }
 </script>
 
