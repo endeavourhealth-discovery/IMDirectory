@@ -8,13 +8,7 @@ export const Q_TestQuery = {
       {
         description: "Registered for gms",
         "@id": "http://endhealth.info/im#isSubsetOf",
-        name: "is subset of",
-        in: [
-          {
-            name: "Registered for GMS services on reference date",
-            "@set": "http://example.org/qry#Q_RegisteredGMS"
-          }
-        ],
+        in: [{ name: "Registered for GMS services on reference date", "@set": "http://example.org/qry#Q_RegisteredGMS" }],
         valueLabel: "Registered for GMS on reference date"
       },
       {
@@ -24,40 +18,16 @@ export const Q_TestQuery = {
           {
             description: "aged between 65 and 70",
             "@id": "http://endhealth.info/im#age",
-            range: {
-              from: {
-                operator: ">=",
-                value: "65",
-                unit: null,
-                relativeTo: null
-              },
-              to: {
-                operator: ">",
-                value: "70",
-                unit: null,
-                relativeTo: null
-              }
-            }
+            range: { from: { operator: ">=", value: "65", unit: "YEARS" }, to: { operator: ">", value: "70", unit: "YEARS" } }
           },
           {
             description: "Diabetic",
             "@id": "http://endhealth.info/im#observation",
-            name: "observation",
             where: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                name: "Concept",
-                in: [
-                  {
-                    "@set": "http://example.org/qry#Q_Diabetics",
-                    name: "Diabetic"
-                  },
-                  {
-                    "@id": "http://snomed.info/sct#714628002",
-                    name: "Prediabetes (finding)",
-                    descendantsOf: true
-                  }
-                ]
+                name: "concept",
+                in: [{ "@set": "http://example.org/qry#Q_Diabetics" }, { "@id": "http://snomed.info/sct#714628002", descendantsOf: true }]
               }
             ]
           }
@@ -66,94 +36,52 @@ export const Q_TestQuery = {
       {
         description: "latest BP in last 6 months is >150",
         "@id": "http://endhealth.info/im#observation",
-        name: "observation",
-        with: {
-          description: "Home or office based systolic in the last 6 months is >150",
-          bool: "and",
-          where: [
-            {
-              description: "Home or office based Systolic",
-              "@id": "http://endhealth.info/im#concept",
-              name: "concept",
-              in: [
-                {
-                  "@id": "http://snomed.info/sct#271649006",
-                  name: "Systolic blood pressure"
-                },
-                {
-                  "@id": "http://endhealth.info/emis#1994021000006104",
-                  name: "Home systolic blood pressure"
-                }
-              ],
-              valueLabel: "Office or home systolic blood pressure"
-            },
-            {
-              description: "Last 6 months",
-              "@id": "http://endhealth.info/im#effectiveDate",
-              name: "effective date",
-              alias: "LastBP",
-              operator: ">=",
-              value: "-6",
-              unit: "MONTHS",
-              relativeTo: "$referenceDate",
-              valueLabel: "last 6 months"
-            }
-          ],
-          orderBy: {
-            "@id": "http://endhealth.info/im#effectiveDate",
-            name: "effective date"
+        bool: "and",
+        where: [
+          {
+            description: "Home or office based Systolic",
+            "@id": "http://endhealth.info/im#concept",
+            name: "concept",
+            in: [
+              { "@id": "http://snomed.info/sct#271649006", name: "Systolic blood pressure" },
+              { "@id": "http://endhealth.info/emis#1994021000006104", name: "Home systolic blood pressure" }
+            ],
+            valueLabel: "Office or home systolic blood pressure"
           },
-          then: {
-            description: ">150",
-            "@id": "http://endhealth.info/im#numericValue",
-            name: "numeric value",
-            operator: ">",
-            value: "150"
+          {
+            description: "Last 6 months",
+            "@id": "http://endhealth.info/im#effectiveDate",
+            alias: "LastBP",
+            operator: ">=",
+            value: "-6",
+            unit: "MONTHS",
+            relativeTo: "$referenceDate",
+            valueLabel: "last 6 months"
           }
-        }
+        ],
+        orderBy: { "@id": "http://endhealth.info/im#effectiveDate" },
+        then: { description: ">150", "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150" }
       },
       {
         exclude: true,
         description: "High BP not followed by screening invite",
         "@id": "http://endhealth.info/im#observation",
-        name: "observation",
         bool: "and",
         where: [
           {
             description: "Invited for Screening after BP",
             "@id": "http://endhealth.info/im#concept",
-            in: [
-              {
-                "@set": "http://endhealth.info/im#InvitedForScreening"
-              }
-            ]
+            name: "concept",
+            in: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }]
           },
-          {
-            description: "after high BP",
-            "@id": "http://endhealth.info/im#effectiveDate",
-            name: "effective date",
-            operator: ">=",
-            relativeTo: "LastBP"
-          }
+          { description: "after high BP", "@id": "http://endhealth.info/im#effectiveDate", operator: ">=", relativeTo: "LastBP" }
         ]
       },
       {
         exclude: true,
         description: "not hypertensive",
         "@id": "http://endhealth.info/im#observation",
-        name: "observation",
-        where: [
-          {
-            "@id": "http://endhealth.info/im#concept",
-            name: "Concept",
-            in: [
-              {
-                name: "Hypertensives",
-                "@set": "http://example.org/qry#Hypertensives"
-              }
-            ]
-          }
-        ]
+        where: [{ name: "concept", "@id": "http://endhealth.info/im#concept", in: [{ name: "Hypertensives", "@set": "http://example.org/qry#Hypertensives" }] }]
       }
     ]
   }

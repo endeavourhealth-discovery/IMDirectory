@@ -1,12 +1,12 @@
 <template>
   <div class="table-query-container">
-    <div class="bool-tag">
+    <div class="bool-tag unselectable">
       <Tag v-if="bool" :severity="(severity as any)" :value="bool"></Tag>
     </div>
     <ul class="children-list">
       <template v-if="isArrayHasLength(queryData)" v-for="child of queryData" :key="child.name">
         <li :class="{ selected: isSelected(child) }" @click="select(child, level)" @dblclick="editDialog = true">
-          <div>
+          <div class="unselectable">
             <Tag v-if="child.data.exclude" severity="danger" :value="'exclude'"></Tag>
             {{ child.data.description }}
           </div>
@@ -16,11 +16,12 @@
               <RecursiveTableQuery
                 v-if="child.children && child.children.length"
                 :query-data="child.children"
+                :from="from"
                 :selected="selected"
                 :level="level + 1"
                 @selected="select"
               />
-              <LeafTableQuery v-else :value="child.data" :objectType="child.type" />
+              <!-- <LeafTableQuery v-else :value="child.data" :objectType="child.type" /> -->
               <Dialog v-model:visible="editDialog" modal :header="child.data.description" :style="{ width: '50vw' }">
                 <LeafTableQuery :value="child.data" :objectType="child.type" />
               </Dialog>
@@ -32,7 +33,7 @@
         <Button class="add-button" severity="success" label="Add" @click="addDialog = true" />
       </li>
       <Dialog v-model:visible="addDialog" modal header="Add clause" :style="{ width: '50vw' }">
-        <AddTableQuery :query-data="queryData" :selected="selected" :level="level + 1" @on-cancel="addDialog = false" />
+        <AddTableQuery :from="from" :query-data="queryData" :selected="selected" :level="level + 1" @on-cancel="addDialog = false" />
       </Dialog>
     </ul>
   </div>
@@ -42,12 +43,13 @@
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TableQuery } from "@im-library/interfaces";
 import { Bool } from "@im-library/interfaces/AutoGen";
-import { ComputedRef, computed, ref, Ref } from "vue";
+import { ComputedRef, computed, ref, Ref, PropType } from "vue";
 import LeafTableQuery from "./LeafTableQuery.vue";
 import AddTableQuery from "./AddTableQuery.vue";
 
 const props = defineProps({
   queryData: { type: Array<TableQuery>, required: true },
+  from: { type: Object as PropType<TableQuery>, required: true },
   selected: { type: Array<TableQuery>, required: true },
   level: { type: Number, required: false, default: 0 }
 });
@@ -135,5 +137,15 @@ function getSeverity() {
 
 .table-query-container:hover .add-button {
   display: block;
+}
+
+.unselectable {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }
 </style>

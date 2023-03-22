@@ -2,8 +2,8 @@ import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { QueryObject, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, QueryRequest } from "@im-library/interfaces/AutoGen";
-import {TreeNode} from 'primevue/tree';
+import { PathDocument, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { TreeNode } from "primevue/tree";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -188,6 +188,14 @@ const QueryService = {
       return await axios.post(Env.API + "api/query/public/pathQuery", queryRequest);
     } catch (error) {
       return {} as PathDocument;
+    }
+  },
+
+  async getLabeledQuery(query: Query): Promise<Query> {
+    try {
+      return await axios.post(Env.API + "api/query/public/labelQuery", query);
+    } catch (error) {
+      return {} as Query;
     }
   }
 };

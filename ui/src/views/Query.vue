@@ -6,7 +6,7 @@
       </template>
     </TopBar>
     <div id="query-main-container">
-      <RecursiveTableQuery :bool="'and'" :query-data="data" :selected="selected" :level="0" />
+      <RecursiveTableQuery :bool="'and'" :query-data="data" :selected="selected" :level="0" :from="data[0]"/>
     </div>
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -33,6 +33,8 @@ import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import _ from "lodash";
+import { EntityService, QueryService } from "@/services";
+import { IM } from "@im-library/vocabulary";
 const toast = useToast();
 const store = useStore();
 const selected = ref([] as any[]);
@@ -48,7 +50,10 @@ watch(
   }
 );
 
-function getTableQuery() {
+async function getTableQuery() {
+  // const entity = await EntityService.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
+  // const query = JSON.parse(entity[IM.DEFINITION]);
+  // query.value = await QueryService.getLabeledQuery(query);
   query.value = { ...Q_TestQuery };
   const tableQuery = buildTableQuery(query.value);
   data.value = tableQuery;
@@ -56,7 +61,7 @@ function getTableQuery() {
 
 onMounted(async () => {
   await store.dispatch("fetchFilterSettings");
-  getTableQuery();
+  await getTableQuery();
 });
 
 async function copy() {
