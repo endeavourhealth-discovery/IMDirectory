@@ -18,39 +18,43 @@
             <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
             <label :for="'group' + index">Group</label>
           </div>
-          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
+          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']" icon="pi pi-trash" />
         </div>
       </div>
     </template>
     <div class="add-group">
-      <Button type="button" class="builder-button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" />
       <Button
-        type="button"
         class="builder-button"
-        :class="[hover ? 'p-button-success' : 'p-button-placeholder']"
-        label="Add Refinement"
-        @click="addRefinement"
+        :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+        label="Add Concept"
+        @click="addConcept"
       />
-      <Button type="button" class="builder-button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" />
+      <Button :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']" label="Add Refinement" @click="addRefinement" />
       <Button
-        type="button"
         class="builder-button"
-        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
+        :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+        label="Add New Group"
+        @click="addGroup"
+      />
+      <Button
+        class="builder-button"
+        :class="[hover ? 'p-button-help' : 'p-button-secondary p-button-outlined hover-button', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
         :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
       />
       <Button
         v-if="!rootBool"
-        type="button"
         class="builder-button"
-        :class="[hover ? 'p-button-warning' : 'p-button-placeholder', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-warning']"
+        :class="[
+          hover ? 'p-button-warning' : 'p-button-secondary p-button-outlined hover-button',
+          groupWithinBoolGroup ? 'p-button-danger' : 'p-button-warning'
+        ]"
         label="Ungroup"
         @click="requestUnGroupItems"
       />
       <Button
         v-if="index && index > 0 && isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept'"
-        type="button"
-        :class="[hover ? 'p-button-danger' : 'p-button-placeholder']"
+        :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
         class="builder-button"
@@ -209,15 +213,6 @@ function unGroupItems(groupedItems: any) {
 </script>
 
 <style scoped lang="scss">
-@use "primevue/resources/themes/saga-blue/theme.css";
-
-.p-button-placeholder {
-  @extend .p-button-secondary;
-  @extend .p-button-outlined;
-  color: #00000030 !important;
-  border-style: dashed !important;
-}
-
 .left-container {
   display: flex;
   align-items: center;
@@ -263,6 +258,14 @@ function unGroupItems(groupedItems: any) {
   margin: 0.5rem;
   flex: 1;
   overflow: auto;
+
+  > .add-group,
+  > .component-container {
+    .hover-button {
+      color: #00000030 !important;
+      border-style: dashed !important;
+    }
+  }
 }
 
 .nested-div-hover {

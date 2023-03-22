@@ -9,8 +9,20 @@
         <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
       </div>
       <div v-else class="add-focus-buttons-container">
-        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" class="builder-button" />
-        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" class="builder-button" />
+        <Button
+          type="button"
+          :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+          label="Add Concept"
+          @click="addConcept"
+          class="builder-button"
+        />
+        <Button
+          type="button"
+          :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+          label="Add Group"
+          @click="addGroup"
+          class="builder-button"
+        />
       </div>
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
@@ -27,21 +39,32 @@
           <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
           <label :for="'group' + index">Group</label>
         </div>
-        <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" class="builder-button" />
+        <Button
+          @click="deleteItem(index)"
+          :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']"
+          icon="pi pi-trash"
+          class="builder-button"
+        />
       </span>
     </div>
     <div class="add-group">
       <Button
         type="button"
-        :class="[hover ? 'p-button-success' : 'p-button-placeholder']"
+        :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
         label="Add Refinement"
         @click="addRefinement"
         class="builder-button"
       />
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" class="builder-button" />
       <Button
         type="button"
-        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
+        :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+        label="Add New Group"
+        @click="addGroup"
+        class="builder-button"
+      />
+      <Button
+        type="button"
+        :class="[hover ? 'p-button-help' : 'p-button-secondary p-button-outlined hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
         :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
         class="builder-button"
@@ -49,7 +72,7 @@
       <Button
         v-if="index && index > 0"
         type="button"
-        :class="[hover ? 'p-button-danger' : 'p-button-placeholder']"
+        :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
         class="builder-button"
@@ -239,15 +262,6 @@ function unGroupItems(groupedItems: any) {
 </script>
 
 <style scoped lang="scss">
-@use "primevue/resources/themes/saga-blue/theme.css";
-
-.p-button-placeholder {
-  @extend .p-button-secondary;
-  @extend .p-button-outlined;
-  color: #00000030 !important;
-  border-style: dashed !important;
-}
-
 .focus-container {
   display: flex;
   flex-flow: row nowrap;
@@ -290,6 +304,14 @@ function unGroupItems(groupedItems: any) {
   background-color: #ff8c0010;
   margin: 0.5rem;
   flex: 1;
+
+  > .add-group,
+  > .component-container {
+    .hover-button {
+      color: #00000030 !important;
+      border-style: dashed !important;
+    }
+  }
 }
 
 .nested-div-hover {
