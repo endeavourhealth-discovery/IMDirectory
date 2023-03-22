@@ -4,7 +4,7 @@
     <span
       class="data break-text"
       v-tooltip="'Copy to clipboard'"
-      v-clipboard:copy="copyToClipboard()"
+      v-clipboard:copy="copyToClipboard"
       v-clipboard:success="onCopy"
       v-clipboard:error="onCopyError"
     >
