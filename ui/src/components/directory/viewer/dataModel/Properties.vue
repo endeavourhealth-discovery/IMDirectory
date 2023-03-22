@@ -26,7 +26,7 @@
       </template>
 
       <template #groupheader="{ data }">
-        <div v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</div>
+        <span v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</span>
       </template>
 
       <Column field="group.name" header="Group">
