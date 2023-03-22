@@ -218,10 +218,8 @@ async function processProps() {
     else name = await findIriName(props.value.value.concept.iri);
     if (name) {
       selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri);
+      await updateIsValidPropertyValue();
       if (!isValidPropertyValue.value) {
-        console.log(isValidPropertyValue.value);
-        console.log(props.value.value.concept);
-        console.log(props.value.property.concept);
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property value",
