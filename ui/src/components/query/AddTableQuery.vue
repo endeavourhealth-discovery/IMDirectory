@@ -1,7 +1,16 @@
 <template>
   <div class="property-value">
-    Property: <InputText type="text" v-model="selectedProperty.label" @click="propertySelectDialog = true" /> Value:
-    <InputText type="text" v-model="selectedValue.label" @click="valueSelectDialog = true" />
+    <div class="property-select-container">Property:<InputText type="text" v-model="selectedProperty.label" @click="propertySelectDialog = true" /></div>
+    <div class="value-select-container">
+      Value: <InputText
+        v-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#class'])"
+        type="text"
+        v-model="selectedValueTreeNode.label"
+        @click="valueSelectDialog = true"
+      />
+      <InputText v-else-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#datatype'])" type="text" v-model="selectedValueString" />
+      <EntitySearch v-else :entity-value="selectedValueTTAlias" @on-change="onValueSelect" />
+    </div>
   </div>
 
   <Dialog v-model:visible="propertySelectDialog" modal header="Add clause" :style="{ width: '50vw' }">
@@ -15,15 +24,7 @@
     />
   </Dialog>
   <Dialog v-model:visible="valueSelectDialog" modal header="Add clause" :style="{ width: '50vw' }">
-    Value select
-    <!-- <ValueSelect
-      :from="from"
-      :query-data="queryData"
-      :selected="selected"
-      :level="level + 1"
-      @on-cancel="propertySelectDialog = false"
-      @on-select="onPropertySelect"
-    /> -->
+    <ValueSelect :selectedProperty="selectedProperty" @on-cancel="valueSelectDialog = false" @on-select="onValueTreeNodeSelect" />
   </Dialog>
   <div class="footer-actions">
     <Button class="action-button" severity="secondary" label="Cancel" @click="cancel"></Button>
@@ -32,11 +33,14 @@
 </template>
 
 <script setup lang="ts">
-import { TableQuery } from "@im-library/interfaces";
-import { Where } from "@im-library/interfaces/AutoGen";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { ConceptSummary, TableQuery } from "@im-library/interfaces";
+import { TTAlias, Where } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
-import PropertySelect from "./PropertySelect.vue";
+import PropertySelect from "./addTableQuery/PropertySelect.vue";
+import ValueSelect from "./addTableQuery/ValueSelect.vue";
+import EntitySearch from "./EntitySearch.vue";
 
 const props = defineProps({
   queryData: { type: Array<TableQuery>, required: true },
@@ -47,7 +51,10 @@ const props = defineProps({
 
 const where: Ref<Where> = ref({} as Where);
 const selectedProperty: TreeNode = ref({});
-const selectedValue: TreeNode = ref({});
+const selectedValueTreeNode: Ref<TreeNode> = ref({});
+const selectedValueString: Ref<string> = ref("");
+const selectedValueTTAlias: Ref<TTAlias> = ref({} as TTAlias);
+
 const propertySelectDialog = ref(false);
 const valueSelectDialog = ref(false);
 const emit = defineEmits({ onCancel: () => true });
@@ -57,6 +64,15 @@ function cancel() {
 }
 function onPropertySelect(selectedNode: TreeNode) {
   selectedProperty.value = selectedNode;
+}
+function onValueTreeNodeSelect(selectedNode: TreeNode) {
+  selectedValueTreeNode.value = selectedNode;
+}
+function onValueSelect(cSummaries: ConceptSummary[]) {
+  if (cSummaries.length) {
+    selectedValueTTAlias.value["@id"] = cSummaries[0].iri;
+    selectedValueTTAlias.value.name = cSummaries[0].name;
+  }
 }
 function add() {
   try {
@@ -74,5 +90,16 @@ function add() {
 .footer-actions {
   display: flex;
   justify-content: end;
+}
+
+.property-value {
+  display: flex;
+  align-items: center;
+}
+
+.value-select-container {
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
 }
 </style>
