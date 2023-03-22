@@ -131,7 +131,23 @@ function setupExternalErrorHandler() {
 }
 </script>
 
+<style lang="scss">
+@import "primeicons/primeicons.css";
+@import "@/assets/layout/flags/flags.css";
+@import "@/assets/layout/sass/_main.scss";
+@import "sweetalert2/dist/sweetalert2.min.css";
+</style>
+
 <style scoped>
+.layout-wrapper {
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  height: 100vh;
+  width: 100vw;
+}
+
 #main-container {
   width: 100vw;
   height: 100vh;
