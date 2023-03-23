@@ -366,7 +366,7 @@ function stopSimulation() {
     svgPan.value.destroy();
   }
   d3.select("#force-layout-graph").selectAll("div").remove();
-  d3.selectAll("g").remove();
+  d3.select("#force-layout-graph").selectAll("g").remove();
   if (isObjectHasKeys(simulation.value, ["stop"])) {
     simulation.value.stop();
   }
