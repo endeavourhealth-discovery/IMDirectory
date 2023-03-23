@@ -9,8 +9,8 @@
         <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
       </div>
       <div v-else class="add-focus-buttons-container">
-        <Button type="button" :severity="hover && 'success'"  :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" class="builder-button" />
-        <Button type="button" :severity="hover && 'success'"  :class="!hover && 'p-button-placeholder'" label="Add Group" @click="addGroup" class="builder-button" />
+        <Button type="button" :severity="hover ? 'success' : undefined"  :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" class="builder-button" />
+        <Button type="button" :severity="hover ? 'success' : undefined"  :class="!hover && 'p-button-placeholder'" label="Add Group" @click="addGroup" class="builder-button" />
       </div>
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
@@ -27,23 +27,30 @@
           <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
           <label :for="'group' + index">Group</label>
         </div>
-        <Button @click="deleteItem(index)" :severity="hover && 'success'"  :class="!hover && 'p-button-placeholder'" icon="pi pi-trash" class="builder-button" />
+        <Button @click="deleteItem(index)" :severity="hover ? 'danger' : undefined"  :class="!hover && 'p-button-placeholder'" icon="pi pi-trash" class="builder-button" />
       </span>
     </div>
     <div class="add-group">
       <Button
           type="button"
-          :severity="hover && 'success'"
+          :severity="hover ? 'success' : undefined"
           :class="!hover && 'p-button-placeholder'"
           label="Add Refinement"
           @click="addRefinement"
           class="builder-button"
       />
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" class="builder-button" />
       <Button
           type="button"
-          :severity="groupWithinConcept ? 'danger' : undefined"
-          :class="hover || !groupWithinConcept ? 'p-button-help' : 'p-button-placeholder'"
+          :severity="hover ? 'success' : undefined"
+          :class="!hover && 'p-button-placeholder'"
+          label="Add New Group"
+          @click="addGroup"
+          class="builder-button"
+      />
+      <Button
+          type="button"
+          :severity="(groupWithinConcept ? 'danger' : undefined) || (!groupWithinConcept ? 'help' : undefined)"
+          :class="!hover && 'p-button-placeholder'"
           :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
           @click="processGroup"
           class="builder-button"
@@ -51,7 +58,7 @@
       <Button
           v-if="index && index > 0"
           type="button"
-          :severity="hover && 'danger'"
+          :severity="hover ? 'danger' : undefined"
           :class="!hover && 'p-button-placeholder'"
           :label="value.exclude ? 'Include' : 'Exclude'"
           @click="toggleExclude"
