@@ -204,7 +204,7 @@ function onCopyError(): void {
 }
 
 .error-message {
-  color: #f44336;
+  color: var(--red-500);
 }
 
 .filters-container {

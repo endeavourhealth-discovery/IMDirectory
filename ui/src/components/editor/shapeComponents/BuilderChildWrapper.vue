@@ -144,9 +144,9 @@ function addNextClicked(item: any): void {
 
 .label {
   cursor: pointer;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   padding: 0.25rem;
 }
 
@@ -155,7 +155,7 @@ function addNextClicked(item: any): void {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 
 .search-input {

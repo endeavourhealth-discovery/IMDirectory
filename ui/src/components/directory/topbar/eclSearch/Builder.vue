@@ -201,8 +201,8 @@ function onCopyError(): void {
 }
 
 .output-string {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--surface-a);
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
   padding: 1rem;
   margin: 0;

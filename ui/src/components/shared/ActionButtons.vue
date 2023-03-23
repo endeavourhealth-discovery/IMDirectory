@@ -37,7 +37,7 @@
   />
   <Button
     v-if="show('favourite') && isFavourite(iri)"
-    style="color: #e39a36"
+    style="color: var(--yellow-500)"
     icon="fa-solid fa-star"
     :severity="getSeverity()"
     :class="getClass()"
@@ -144,8 +144,8 @@ async function onParamsPopulated() {
 
 <style scoped>
 .activity-row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--text-color) !important;
+  color: var(--surface-a) !important;
   z-index: 999;
 }
 
@@ -155,12 +155,12 @@ async function onParamsPopulated() {
 }
 
 .concept-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--text-color) !important;
+  color: var(--surface-a) !important;
 }
 
 .concept-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+  background-color: var(--yellow-500) !important;
+  color: var(--surface-a) !important;
 }
 </style>

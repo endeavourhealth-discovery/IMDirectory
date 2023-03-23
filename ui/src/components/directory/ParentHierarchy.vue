@@ -110,8 +110,8 @@ function setBackForwardDisables() {
 }
 
 .padding-container {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background: var(--surface-a);
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
   overflow: a;
 }
@@ -139,6 +139,6 @@ function setBackForwardDisables() {
   border: none;
   padding: 0;
   margin: 0;
-  background-color: #f8f9fa;
+  background-color: var(--surface-a);
 }
 </style>

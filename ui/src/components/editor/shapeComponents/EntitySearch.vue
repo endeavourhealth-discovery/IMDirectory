@@ -31,7 +31,7 @@ import SearchMiniOverlay from "@/components/editor/shapeComponents/SearchMiniOve
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
 import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen"
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import {} from "@im-library/models";
 import { isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
@@ -245,9 +245,9 @@ function dropReceived(event: any) {
 
 .label {
   cursor: pointer;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   padding: 0.25rem;
 }
 
@@ -256,7 +256,7 @@ function dropReceived(event: any) {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 
 .search-input {

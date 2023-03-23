@@ -341,7 +341,7 @@ async function setCopyMenuItems(): Promise<void> {
 }
 
 .row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--surface-b) !important;
+  color: var(--text-color) !important;
 }
 </style>

@@ -90,7 +90,7 @@ function handleClick(data: any) {
   flex: 0 1 auto;
   width: 100%;
   overflow: auto;
-  border: 1px #dee2e6 solid;
+  border: 1px var(--surface-border) solid;
   border-radius: 3px;
 }
 </style>

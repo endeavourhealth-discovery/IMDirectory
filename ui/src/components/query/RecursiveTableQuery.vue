@@ -82,7 +82,7 @@ function getSeverity() {
 .table-query-container {
   display: flex;
   flex-flow: column;
-  border-right: 1px solid #b89241;
+  border-right: 1px solid var(--yellow-300);
   min-height: 25vh;
   min-width: 20%;
   max-width: 30%;

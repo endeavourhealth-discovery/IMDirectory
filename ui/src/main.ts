@@ -88,6 +88,7 @@ import ToggleButton from "primevue/togglebutton";
 import Skeleton from "primevue/skeleton";
 import DialogService from "primevue/dialogservice";
 import DynamicDialog from "primevue/dynamicdialog";
+import Image from "primevue/image";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -169,7 +170,8 @@ const app = createApp(App)
   .component("Chip", Chip)
   .component("ToggleButton", ToggleButton)
   .component("Skeleton", Skeleton)
-  .component("DynamicDialog", DynamicDialog);
+  .component("DynamicDialog", DynamicDialog)
+  .component("Image", Image);
 const vm = app.mount("#app");
 
 // Vue application exceptions

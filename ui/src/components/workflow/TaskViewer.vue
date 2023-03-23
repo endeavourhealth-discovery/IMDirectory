@@ -137,7 +137,7 @@ function onNodeSelect(node: any) {
 .tree-bar-container {
   display: flex;
   flex-flow: column nowrap;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .task-viewer-container {
@@ -148,7 +148,7 @@ function onNodeSelect(node: any) {
   justify-content: flex-start;
   overflow: auto;
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .tab-container {
@@ -175,7 +175,7 @@ function onNodeSelect(node: any) {
 }
 
 .viewer-main-container {
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .title {
