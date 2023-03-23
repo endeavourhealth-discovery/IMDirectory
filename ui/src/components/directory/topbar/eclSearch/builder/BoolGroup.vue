@@ -57,7 +57,7 @@
       <Button
           v-if="index && index > 0 && isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept'"
           type="button"
-          :severity="hover && 'danger'"
+          :severity="hover ? 'danger' : undefined"
           :class="!hover && 'p-button-placeholder'"
           :label="value.exclude ? 'Include' : 'Exclude'"
           @click="toggleExclude"
