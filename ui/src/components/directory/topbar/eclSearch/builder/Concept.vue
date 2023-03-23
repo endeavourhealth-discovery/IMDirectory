@@ -10,13 +10,17 @@
       </div>
       <div v-else class="add-focus-buttons-container">
         <Button
-          :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="hover ? false : true"
+          :class="!hover && 'hover-button'"
           label="Add Concept"
           @click="addConcept"
           class="builder-button"
         />
         <Button
-          :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="hover ? false : true"
+          :class="!hover && 'hover-button'"
           label="Add Group"
           @click="addGroup"
           class="builder-button"
@@ -39,7 +43,9 @@
         </div>
         <Button
           @click="deleteItem(index)"
-          :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']"
+          :severity="hover ? 'danger' : 'secondary'"
+          :outlined="!hover"
+          :class="!hover && 'hover-button'"
           icon="pi pi-trash"
           class="builder-button"
         />
@@ -47,26 +53,34 @@
     </div>
     <div class="add-group">
       <Button
-        :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
         label="Add Refinement"
         @click="addRefinement"
         class="builder-button"
       />
       <Button
-        :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
         label="Add New Group"
         @click="addGroup"
         class="builder-button"
       />
       <Button
-        :class="[hover ? 'p-button-help' : 'p-button-secondary p-button-outlined hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
+        :severity="hover ? 'help' : 'secondary'"
+        :outlined="!hover"
+        :class="[!hover && 'hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
         :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
         class="builder-button"
       />
       <Button
         v-if="index && index > 0"
-        :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']"
+        :severity="hover ? 'danger' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
         class="builder-button"
@@ -255,7 +269,7 @@ function unGroupItems(groupedItems: any) {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
 .focus-container {
   display: flex;
   flex-flow: row nowrap;
@@ -277,6 +291,29 @@ function unGroupItems(groupedItems: any) {
   flex-flow: column nowrap;
 }
 
+.nested-div {
+  padding: 0.5rem;
+  border: #ff8c0030 1px solid;
+  border-radius: 5px;
+  background-color: #ff8c0010;
+  margin: 0.5rem;
+  flex: 1;
+}
+
+.nested-div:deep(.hover-button) {
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
+
+.nested-div-hover {
+  padding: 0.5rem;
+  border-radius: 5px;
+  background-color: #ff8c0010;
+  margin: 0.5rem;
+  flex: 1;
+  border: #ff8c00 1px solid;
+}
+
 .refinement-container {
   display: flex;
 }
@@ -289,28 +326,6 @@ function unGroupItems(groupedItems: any) {
 .conjunction-button {
   width: 4rem;
   margin: 0;
-}
-
-.nested-div {
-  padding: 0.5rem;
-  border: #ff8c0030 1px solid;
-  border-radius: 5px;
-  background-color: #ff8c0010;
-  margin: 0.5rem;
-  flex: 1;
-
-  > .add-group,
-  > .component-container {
-    .hover-button {
-      color: #00000030 !important;
-      border-style: dashed !important;
-    }
-  }
-}
-
-.nested-div-hover {
-  @extend .nested-div;
-  border: #ff8c00 1px solid;
 }
 
 .builder-button {
@@ -327,7 +342,7 @@ function unGroupItems(groupedItems: any) {
 .add-group {
   width: 100%;
   display: flex;
-  flex-flow: row;
+  flex-flow: row wrap;
   justify-content: flex-start;
   gap: 4px;
 }

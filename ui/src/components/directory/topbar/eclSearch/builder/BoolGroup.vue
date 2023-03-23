@@ -8,8 +8,8 @@
         </div>
         <span class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index === 1" type="button" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
-          <Button v-else-if="index > 1" type="button" class="builder-button conjunction-button" severity="secondary" :label="value.conjunction" disabled />
+          <Button v-else-if="index === 1" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
+          <Button v-else-if="index > 1" class="builder-button conjunction-button" severity="secondary" :label="value.conjunction" disabled />
         </span>
         <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
         <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
@@ -18,44 +18,72 @@
             <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
             <label :for="'group' + index">Group</label>
           </div>
-          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']" icon="pi pi-trash" />
+          <Button
+            @click="deleteItem(index)"
+            class="builder-button"
+            :severity="hover ? 'danger' : 'secondary'"
+            :outlined="!hover"
+            :class="!hover && 'hover-button'"
+            icon="pi pi-trash"
+          />
         </div>
       </div>
     </template>
     <div class="add-group">
-      <Button type="button" class="builder-button" :severity="'success'" :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" />
       <Button
         class="builder-button"
-        :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
         label="Add Concept"
         @click="addConcept"
       />
-      <Button :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']" label="Add Refinement" @click="addRefinement" />
       <Button
         class="builder-button"
-        :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add Concept"
+        @click="addConcept"
+      />
+      <Button
+        class="builder-button"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add Refinement"
+        @click="addRefinement"
+      />
+      <Button
+        class="builder-button"
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
         label="Add New Group"
         @click="addGroup"
       />
       <Button
         class="builder-button"
-        :class="[hover ? 'p-button-help' : 'p-button-secondary p-button-outlined hover-button', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
+        :severity="hover ? 'help' : 'secondary'"
+        :outlined="!hover"
+        :class="[!hover && 'hover-button', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-help']"
         :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
       />
       <Button
         v-if="!rootBool"
         class="builder-button"
-        :class="[
-          hover ? 'p-button-warning' : 'p-button-secondary p-button-outlined hover-button',
-          groupWithinBoolGroup ? 'p-button-danger' : 'p-button-warning'
-        ]"
+        :severity="hover ? 'warning' : 'secondary'"
+        :outlined="!hover"
+        :class="[!hover && 'hover-button', groupWithinBoolGroup ? 'p-button-danger' : 'p-button-warning']"
         label="Ungroup"
         @click="requestUnGroupItems"
       />
       <Button
         v-if="index && index > 0 && isArrayHasLength(value.items) && value.items.length && value.items[0].type === 'Concept'"
-        :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']"
+        :severity="hover ? 'danger' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"
         class="builder-button"
@@ -213,7 +241,29 @@ function unGroupItems(groupedItems: any) {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped>
+.nested-div {
+  padding: 0.5rem;
+  border: #ff8c0030 1px solid;
+  border-radius: 5px;
+  background-color: #ff8c0010;
+  margin: 0.5rem;
+  flex: 1;
+}
+
+.nested-div:deep(.hover-button) {
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
+
+.nested-div-hover {
+  padding: 0.5rem;
+  border-radius: 5px;
+  background-color: #ff8c0010;
+  margin: 0.5rem;
+  flex: 1;
+  border: #ff8c00 1px solid;
+}
 .left-container {
   display: flex;
   align-items: center;
@@ -227,7 +277,7 @@ function unGroupItems(groupedItems: any) {
 .add-group {
   width: 100%;
   display: flex;
-  flex-flow: row;
+  flex-flow: row wrap;
   justify-content: flex-start;
   gap: 4px;
 }
@@ -249,29 +299,6 @@ function unGroupItems(groupedItems: any) {
   flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
-}
-
-.nested-div {
-  padding: 0.5rem;
-  border: #ff8c0030 1px solid;
-  border-radius: 5px;
-  background-color: #ff8c0010;
-  margin: 0.5rem;
-  flex: 1;
-  overflow: auto;
-
-  > .add-group,
-  > .component-container {
-    .hover-button {
-      color: #00000030 !important;
-      border-style: dashed !important;
-    }
-  }
-}
-
-.nested-div-hover {
-  @extend .nested-div;
-  border: #ff8c00 1px solid;
 }
 
 .component-container {
