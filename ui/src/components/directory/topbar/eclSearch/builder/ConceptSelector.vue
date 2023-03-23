@@ -13,14 +13,14 @@
       :optionDisabled="disableOption"
       :disabled="loading"
     />
-    <Button icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
+    <Button :disabled="!value.concept?.iri" icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch, h } from "vue";
+import { Ref, ref, onMounted, PropType, watch, inject, h } from "vue";
 import EclTree from "../EclTree.vue";
 import Button from "primevue/button";
 import { ConceptSummary } from "@im-library/interfaces";
@@ -28,7 +28,8 @@ import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EntityService } from "@/services";
 import _ from "lodash";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useDialog } from "primevue/usedialog";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 
@@ -51,6 +52,13 @@ const props = defineProps({
 });
 
 watch(
+  () => _.cloneDeep(props.value),
+  () => {
+    props.value.ecl = generateEcl();
+  }
+);
+
+watch(
   () => _.cloneDeep(props.value.concept),
   async (newValue, oldValue) => {
     if (newValue !== oldValue) await init();
@@ -58,6 +66,9 @@ watch(
 );
 
 let treeDialog = useDialog();
+
+const includeTerms = inject("includeTerms") as Ref<boolean>;
+watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const selected: Ref<ConceptSummary | null> = ref(null);
 const controller: Ref<AbortController | undefined> = ref(undefined);
@@ -93,15 +104,11 @@ watch(selected, (newValue, oldValue) => {
 async function init() {
   if (props.value && props.value.concept) {
     if (isAliasIriRef(props.value.concept)) {
-      if (props.value.concept.iri === "*" || props.value.concept.iri === "any") {
-        selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
-      } else {
-        loading.value = true;
-        await search(props.value.concept.iri);
-        if (isArrayHasLength(suggestions.value))
-          selected.value = suggestions.value.find(result => result.iri === (props.value.concept as { iri: string; name?: string }).iri);
-        loading.value = false;
-      }
+      loading.value = true;
+      await search(props.value.concept.iri);
+      if (isArrayHasLength(suggestions.value))
+        selected.value = suggestions.value.find(result => result.iri === (props.value.concept as { iri: string; name?: string }).iri);
+      loading.value = false;
     }
   }
 }
@@ -134,8 +141,23 @@ function disableOption(data: any) {
   return data.code === "UNKNOWN";
 }
 
+function generateEcl(): string {
+  let ecl = "";
+  ecl += builderConceptToEcl(props.value, includeTerms.value);
+  if (isArrayHasLength(props.value.items)) {
+    ecl += " : \n";
+    for (const [index, item] of props.value.items.entries()) {
+      if (item.ecl) ecl += item.ecl;
+      else ecl += "[ INVALID REFINEMENT ]";
+      if (index + 1 !== props.value.items.length) ecl += " \n" + props.value.conjunction + " ";
+    }
+  }
+  return ecl;
+}
+
 function updateConcept(concept: any) {
   props.value.concept = concept;
+  props.value.ecl = generateEcl();
 }
 
 function openTree(type: string) {

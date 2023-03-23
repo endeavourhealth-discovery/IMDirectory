@@ -10,14 +10,12 @@
       </div>
       <div v-else class="add-focus-buttons-container">
         <Button
-          type="button"
           :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
           label="Add Concept"
           @click="addConcept"
           class="builder-button"
         />
         <Button
-          type="button"
           :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
           label="Add Group"
           @click="addGroup"
@@ -29,8 +27,8 @@
     <div v-for="(item, index) in value.items" class="refinement-container">
       <span class="left-container">
         <div v-if="index === 0" class="spacer">&nbsp;</div>
-        <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
-        <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary builder-button conjunction-button" disabled />
+        <Button v-else-if="index === 1" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
+        <Button v-else-if="index > 1" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
       </span>
       <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
       <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
@@ -49,21 +47,18 @@
     </div>
     <div class="add-group">
       <Button
-        type="button"
         :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
         label="Add Refinement"
         @click="addRefinement"
         class="builder-button"
       />
       <Button
-        type="button"
         :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"
         label="Add New Group"
         @click="addGroup"
         class="builder-button"
       />
       <Button
-        type="button"
         :class="[hover ? 'p-button-help' : 'p-button-secondary p-button-outlined hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
         :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
         @click="processGroup"
@@ -71,7 +66,6 @@
       />
       <Button
         v-if="index && index > 0"
-        type="button"
         :class="[hover ? 'p-button-danger' : 'p-button-secondary p-button-outlined hover-button']"
         :label="value.exclude ? 'Include' : 'Exclude'"
         @click="toggleExclude"

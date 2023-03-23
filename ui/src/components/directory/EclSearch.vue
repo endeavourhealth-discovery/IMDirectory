@@ -22,7 +22,7 @@
     </div>
     <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
     <div class="button-container">
-      <Button :disabled="eclError" label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
+      <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" />
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length || eclError" data-testid="search-button" />
     </div>
     <div class="filters-container">

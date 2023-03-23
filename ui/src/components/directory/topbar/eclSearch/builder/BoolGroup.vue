@@ -9,7 +9,7 @@
         <span class="left-container">
           <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
           <Button v-else-if="index === 1" type="button" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
-          <Button v-else-if="index > 1" type="button" class="builder-button conjunction-button p-button-secondary" :label="value.conjunction" disabled />
+          <Button v-else-if="index > 1" type="button" class="builder-button conjunction-button" severity="secondary" :label="value.conjunction" disabled />
         </span>
         <BoolGroup v-if="item.type === 'BoolGroup'" :value="item" :parent="props.value" :focus="props.focus" @unGroupItems="unGroupItems" :index="index" />
         <component v-else :is="getComponent(item.type)" :value="item" :parent="props.value" :focus="props.focus" :index="index" />
@@ -23,6 +23,7 @@
       </div>
     </template>
     <div class="add-group">
+      <Button type="button" class="builder-button" :severity="'success'" :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" />
       <Button
         class="builder-button"
         :class="[hover ? 'p-button-success' : 'p-button-secondary p-button-outlined hover-button']"

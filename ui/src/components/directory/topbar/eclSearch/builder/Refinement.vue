@@ -11,9 +11,9 @@
       placeholder="search..."
       :disabled="loadingProperty || !hasFocus()"
       :optionDisabled="disableOption"
-      :class="!isValidProperty && hasProperty() ? 'p-invalid' : ''"
+      :class="!isValidProperty ? 'p-invalid' : ''"
     />
-    <Button :disabled="!hasFocus()" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
+    <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
@@ -27,7 +27,7 @@
       @complete="searchValue($event.query)"
       placeholder="search..."
       :disabled="!selectedProperty || typeof selectedProperty == 'string' || loadingValue"
-      :class="!isValidPropertyValue && hasValue() ? 'p-invalid' : ''"
+      :class="!isValidPropertyValue ? 'p-invalid' : ''"
     />
     <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" class="tree-button" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted, watch, onBeforeUnmount, h, inject } from "vue";
+import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h, computed, ComputedRef, inject } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useDialog } from "primevue/usedialog";
@@ -69,16 +69,11 @@ watch(
   () => _.cloneDeep(props.value),
   async (newValue, oldValue) => {
     if (newValue) {
-      loadingProperty.value = true;
-      loadingValue.value = true;
-      if (!oldValue) {
-        await processProps();
-      } else {
+      if (!oldValue) await processProps();
+      else {
         if (newValue?.property?.concept?.iri !== oldValue?.property?.concept?.iri) await processProps();
         if (newValue?.value?.concept?.iri !== oldValue?.value?.concept?.iri) await processProps();
       }
-      loadingProperty.value = false;
-      loadingValue.value = false;
     }
   }
 );
@@ -133,15 +128,11 @@ watch(selectedValue, newValue => {
 });
 
 watch([() => _.cloneDeep(props.focus), () => _.cloneDeep(props.value.property.concept)], async () => {
-  loadingProperty.value = true;
   await updateIsValidProperty();
-  loadingProperty.value = false;
 });
 
 watch([selectedProperty, () => _.cloneDeep(props.value.value.concept)], async () => {
-  loadingValue.value = true;
   await updateIsValidPropertyValue();
-  loadingValue.value = false;
 });
 
 const descendantOptions = [
@@ -177,7 +168,7 @@ onBeforeUnmount(() => {
 });
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === "any" || props.focus?.iri === "*") isValidProperty.value = true;
+  if (props.focus?.iri === "any") isValidProperty.value = true;
   else if (isAliasIriRef(props.focus) && hasProperty()) {
     isValidProperty.value = await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri);
   } else if (isBoolGroup(props.focus) && hasProperty() && props.focus.ecl) {
@@ -199,6 +190,7 @@ async function processProps() {
     if (name) {
       if (hasProperty() && hasFocus()) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
+        await updateIsValidProperty();
         if (!isValidProperty.value) {
           if (isAliasIriRef(props.focus))
             toast.add({
@@ -226,10 +218,8 @@ async function processProps() {
     else name = await findIriName(props.value.value.concept.iri);
     if (name) {
       selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri);
+      await updateIsValidPropertyValue();
       if (!isValidPropertyValue.value) {
-        console.log(isValidPropertyValue.value);
-        console.log(props.value.value.concept);
-        console.log(props.value.property.concept);
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property value",
@@ -387,7 +377,7 @@ function hasValue(): boolean {
 }
 
 function hasFocus(): boolean {
-  if (isObjectHasKeys(props, ["focus"]) && ((isAliasIriRef(props.focus) && props.focus.iri) || isBoolGroup(props.focus))) return true;
+  if (isObjectHasKeys(props, ["focus"]) && (isAliasIriRef(props.focus) || isBoolGroup(props.focus))) return true;
   else return false;
 }
 </script>

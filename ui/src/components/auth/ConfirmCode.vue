@@ -28,7 +28,8 @@
       <template #footer>
         <small
           >Not received a code? <br /><Button
-            class="p-button-secondary p-button-sm code-request"
+            class="p-button-sm code-request"
+            severity="secondary"
             type="submit"
             data-testid="confirm-code-not-received-button"
             label="Request a new code"
