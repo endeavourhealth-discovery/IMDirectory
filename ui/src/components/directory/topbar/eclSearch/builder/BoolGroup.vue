@@ -18,29 +18,29 @@
             <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
             <label :for="'group' + index">Group</label>
           </div>
-          <Button @click="deleteItem(index)" :severity="hover && 'danger'" :class="!hover && 'p-button-placeholder'" icon="pi pi-trash" />
+          <Button @click="deleteItem(index)" :severity="hover ? 'danger' : undefined" :class="!hover && 'p-button-placeholder'" icon="pi pi-trash" />
         </div>
       </div>
     </template>
     <div class="add-group">
-      <Button type="button" class="builder-button" :severity="hover && 'success'" :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" />
+      <Button type="button" class="builder-button" :severity="hover ? 'success' : undefined" :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" />
       <Button
           type="button"
           class="builder-button"
-          :severity="hover && 'success'"
-          :class="!hover && 'p-button-placeholder'"
+          :severity="hover ? 'success' : undefined"
+          :class="!hover ? 'p-button-placeholder' : ''"
           label="Add Refinement"
           @click="addRefinement"
       />
       <Button type="button" class="builder-button"
-              :severity="hover && 'success'"
-              :class="!hover && 'p-button-placeholder'"
+              :severity="hover ? 'success' : undefined"
+              :class="!hover ? 'p-button-placeholder' : ''"
               label="Add New Group"
               @click="addGroup" />
       <Button
           type="button"
           class="builder-button"
-          :severity="groupWithinBoolGroup ? 'danger' : (hover && 'help')"
+          :severity="(groupWithinBoolGroup ? 'danger' : undefined) || (hover ? 'help' : undefined)"
           :class="!hover && 'p-button-placeholder'"
           :label="groupWithinBoolGroup ? 'Finish Grouping' : 'Group within'"
           @click="processGroup"
@@ -49,7 +49,7 @@
           v-if="!rootBool"
           type="button"
           class="builder-button"
-          :severity="groupWithinBoolGroup ? 'danger' : (hover && 'warning')"
+          :severity="(groupWithinBoolGroup ? 'danger' : undefined) || (hover ? 'warning' : undefined)"
           :class="!hover && 'p-button-placeholder'"
           label="Ungroup"
           @click="requestUnGroupItems"
