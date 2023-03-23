@@ -82,7 +82,11 @@ watch(
   () => _.cloneDeep(props.focus),
   async (newValue, oldValue) => {
     if (newValue && ((isAliasIriRef(newValue) && newValue.iri) || isBoolGroup(newValue))) {
+      loadingProperty.value = true;
+      loadingValue.value = true;
       await processProps();
+      loadingProperty.value = false;
+      loadingValue.value = false;
     }
   }
 );
@@ -149,9 +153,13 @@ const descendantOptions = [
 const operatorOptions = ["=", "!="];
 
 onMounted(async () => {
+  loadingProperty.value = true;
+  loadingValue.value = true;
   await updateIsValidProperty();
   await updateIsValidPropertyValue();
   await processProps();
+  loadingProperty.value = false;
+  loadingValue.value = false;
 });
 
 onBeforeUnmount(() => {
@@ -176,14 +184,13 @@ async function updateIsValidPropertyValue(): Promise<void> {
 
 async function processProps() {
   if (hasProperty() && hasFocus()) {
-    loadingProperty.value = true;
-    loadingValue.value = true;
     let name = "";
     if (props.value.property.concept.name) name = props.value.property.concept.name;
     else name = await findIriName(props.value.property.concept.iri);
     if (name) {
       if (hasProperty() && hasFocus()) {
         selectedProperty.value = await EntityService.getEntitySummary(props.value.property.concept.iri);
+        await updateIsValidProperty();
         if (!isValidProperty.value) {
           if (isAliasIriRef(props.focus))
             toast.add({
@@ -205,17 +212,14 @@ async function processProps() {
       }
     } else throw new Error("Property iri does not exist");
   }
-  loadingProperty.value = false;
   if (hasValue() && hasProperty()) {
     let name = "";
     if (props.value.value.concept.name) name = props.value.value.concept.name;
     else name = await findIriName(props.value.value.concept.iri);
     if (name) {
       selectedValue.value = await EntityService.getEntitySummary(props.value.value.concept.iri);
+      await updateIsValidPropertyValue();
       if (!isValidPropertyValue.value) {
-        console.log(isValidPropertyValue.value);
-        console.log(props.value.value.concept);
-        console.log(props.value.property.concept);
         toast.add({
           severity: ToastSeverity.ERROR,
           summary: "Invalid property value",
@@ -227,7 +231,6 @@ async function processProps() {
       }
     } else throw new Error("Value iri does not exist");
   }
-  loadingValue.value = false;
 }
 
 async function searchProperty(term: string) {
