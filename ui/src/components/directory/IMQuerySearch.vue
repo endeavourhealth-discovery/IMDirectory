@@ -15,7 +15,7 @@
       />
     </div>
     <div class="button-container">
-      <Button label="Format" @click="format" class="p-button-help" :disabled="!queryString.length" data-testid="search-button" />
+      <Button label="Format" @click="format" severity="help" :disabled="!queryString.length" data-testid="search-button" />
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
@@ -27,7 +27,8 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { ConceptSummary, Query, QueryRequest, Select } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
+import { Query, QueryRequest, Select } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
@@ -52,6 +53,7 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const queryRequest = {} as QueryRequest;
+
     try {
       queryRequest.query = parseQuery();
       addDefaultQuerySelect(queryRequest.query);
@@ -96,9 +98,7 @@ function addDefaultQuerySelect(query: Query) {
   const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
   for (const property of defaultProperties) {
     const select = {
-      property: {
-        "@id": property
-      }
+      "@id": property
     } as Select;
     query.select.push(select);
   }

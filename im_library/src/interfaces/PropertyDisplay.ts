@@ -1,4 +1,4 @@
-import { TTIriRef } from "./TTIriRef";
+import { TTIriRef } from "../interfaces/AutoGen";
 
 export interface PropertyDisplay {
   order: number;

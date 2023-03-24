@@ -2,9 +2,10 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import { esbuildCommonjs } from "@originjs/vite-plugin-commonjs";
 import * as path from "path";
+import ConditionalCompile from "vite-plugin-conditional-compiler";
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [ConditionalCompile(), vue()],
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
   },
@@ -13,6 +14,8 @@ export default defineConfig({
       plugins: [esbuildCommonjs(["google-palette"])]
     }
   },
+  build: { target: "esnext" },
+
   resolve: {
     dedupe: ["vue"],
     alias: {
@@ -38,7 +41,7 @@ export default defineConfig({
     port: 8082,
     proxy: {
       "/nodeapi": {
-        target: "http://127.0.0.1:3000",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
         ws: true,

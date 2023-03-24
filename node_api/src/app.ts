@@ -1,6 +1,6 @@
 import express, { Application, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
-import * as swaggerFile from "@/../public/swagger_output.json"
+import * as swaggerFile from "@/../public/swagger_output.json";
 import cors from "cors";
 import * as https from "https";
 import * as fs from "fs";
@@ -22,7 +22,7 @@ class App {
       })
     );
 
-    this.app.use('/doc', swaggerUi.serve, swaggerUi.setup(swaggerFile))
+    this.app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
     this.app.options("*", cors());
 

@@ -1,5 +1,5 @@
 import { EntityReferenceNode } from "./EntityReferenceNode";
-import { TTIriRef } from "./TTIriRef";
+import { TTIriRef } from "../interfaces/AutoGen";
 
 export interface FilterOptions {
   status: TTIriRef[];

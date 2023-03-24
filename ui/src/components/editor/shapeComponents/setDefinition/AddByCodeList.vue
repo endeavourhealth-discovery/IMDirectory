@@ -17,9 +17,12 @@
         :maxFileSize="1000000"
       >
         <template #content>
-          <ul v-if="uploadedFiles && uploadedFiles[0]">
-            <li v-for="file of uploadedFiles[0]" :key="file">{{ file.name }} - {{ file.size }} bytes</li>
-          </ul>
+          <template v-for="file of uploadedFiles">
+            <span>{{ file.name }} - {{ file.size }} bytes</span>
+            <ul>
+              <li v-for="row of file.data">{{ row }}</li>
+            </ul>
+          </template>
         </template>
         <template #empty>
           <p>Drag and drop files here to upload.</p>
@@ -60,7 +63,17 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { EntityService, ParserService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import * as d3 from "d3";
-import { DSVRowArray } from "d3";
+import { DSVRowArray, DSVRowString } from "d3";
+import { entityToAliasEntity } from "@im-library/helpers/Transforms";
+
+const props = defineProps({
+  showAddByList: { type: Boolean, required: true },
+  showAddByFile: { type: Boolean, required: true }
+});
+const emit = defineEmits({
+  addCodeList: (_payload: any) => true,
+  closeDialog: () => true
+});
 
 class TextProcessingError extends Error {
   constructor() {
@@ -83,10 +96,8 @@ const isValidUpload: ComputedRef<boolean> = computed(() => validateUpload());
 const hasValidEntities: ComputedRef<boolean> = computed(() => validateEntities());
 const entities: Ref<any[]> = ref([]);
 const showResultTable: Ref<boolean> = ref(false);
-const props = defineProps({ showAddByList: { type: Boolean, required: true }, showAddByFile: { type: Boolean, required: true } });
-const emit = defineEmits({ addCodeList: (_payload: any) => true, closeDialog: () => true });
 const showDialog = computed(() => props.showAddByList || props.showAddByFile);
-const uploadedFiles: Ref<DSVRowArray[]> = ref([]);
+const uploadedFiles: Ref<{ name: string; size: string; data: DSVRowArray<string> }[]> = ref([]);
 const headers: Ref<{ data: string; label: string }[]> = ref([]);
 const selectedColumn: Ref<{ data: string; label: string }> = ref({} as { data: string; label: string });
 const processing: Ref<boolean> = ref(false);
@@ -99,12 +110,13 @@ async function onAdvancedUpload(event: any) {
   let rowArray: DSVRowArray = {} as DSVRowArray;
   if ((file.name as string).endsWith(".csv")) rowArray = await d3.csv(url);
   else if ((file.name as string).endsWith(".tsv")) rowArray = await d3.tsv(url);
-
   const firstObject = rowArray[0];
-  for (const column of Object.keys(firstObject)) {
-    headers.value.push({ label: column + " - e.g. " + firstObject[column], data: column });
+  if (firstObject) {
+    for (const column of Object.keys(firstObject)) {
+      headers.value.push({ label: column + " - e.g. " + firstObject[column], data: column });
+    }
   }
-  uploadedFiles.value.push(rowArray);
+  uploadedFiles.value.push({ name: file.name, size: file.size, data: rowArray });
 }
 
 function closeDialog() {
@@ -117,13 +129,11 @@ function closeDialog() {
 
 function add() {
   const validEntities = entities.value.filter(entity => entity.statusCode === CODE_STATUS.VALID);
-  console.log("filtered");
-  const mapped = validEntities.map(entity => {
-    entity.name = entity[RDFS.LABEL];
-    return entity;
+  validEntities.forEach(entity => {
+    entityToAliasEntity(entity);
+    delete entity.statusCode;
   });
-  console.log(mapped);
-  emit("addCodeList", mapped);
+  emit("addCodeList", validEntities);
 }
 
 async function processText() {
@@ -146,7 +156,7 @@ async function processText() {
 async function processUpload() {
   processing.value = true;
   try {
-    const codeList: string[] = await ParserService.getListFromFile(uploadedFiles.value[0], selectedColumn.value.data);
+    const codeList: string[] = await ParserService.getListFromFile(uploadedFiles.value[0].data, selectedColumn.value.data);
     entities.value = await getValidatedEntities(codeList);
     if (isArrayHasLength(entities.value)) showResultTable.value = true;
   } catch (error) {

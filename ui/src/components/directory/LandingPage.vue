@@ -20,10 +20,10 @@
             <template #empty> No recent activity </template>
             <Column field="name" header="Name">
               <template #body="{ data }">
-                <div class="result-icon-container" :style="data.color">
-                  <i :class="data.icon" class="recent-icon" aria-hidden="true" />
+                <div class="datatable-flex-cell">
+                  <i :class="data.icon" class="recent-icon" :style="data.color" aria-hidden="true" />
+                  {{ data.name }}
                 </div>
-                {{ data.name }}
               </template>
             </Column>
             <Column field="latestActivity" header="Latest activity">
@@ -72,7 +72,8 @@ import { computed, Ref, ref, watch, onMounted } from "vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { useStore } from "vuex";
 import _, { isArray } from "lodash";
-import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
+import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService, Env, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
@@ -239,5 +240,17 @@ async function getCardsData(): Promise<void> {
   height: 1.25rem;
   font-size: 1.25rem;
   padding: 5px;
+}
+
+.datatable-flex-cell {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 0;
+  flex: 1 1 0;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 </style>

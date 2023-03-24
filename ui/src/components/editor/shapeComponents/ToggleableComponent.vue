@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import EntitySearch from "./EntitySearch.vue";
 export default defineComponent({
   components: { EntitySearch }
@@ -27,9 +28,8 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, watch, onMounted, ref, inject, defineComponent } from "vue";
-import _ from "lodash";
-import { TTIriRef, PropertyGroup, PropertyShape } from "@im-library/interfaces";
+import { PropType, watch, onMounted, ref, inject } from "vue";
+import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { EditorMode } from "@im-library/enums";

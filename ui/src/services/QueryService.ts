@@ -1,8 +1,9 @@
 import Env from "./Env";
-import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { mapToObject } from "@im-library/helpers/Transforms";
-import { QueryDisplay, QueryObject, TTIriRef, QueryRequest, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { QueryObject, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
+import { PathDocument, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { TreeNode } from "primevue/tree";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -92,35 +93,35 @@ const QueryService = {
     }
   },
 
-  async getSetQueryDisplay(query: any): Promise<QueryDisplay> {
+  async getSetQueryDisplay(query: any): Promise<TreeNode> {
     try {
-      return await axios.post(Env.VITE_NODE_API + "/node_api/query/public/queryDisplay", query);
+      return await axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", query);
     } catch (error) {
-      return {} as QueryDisplay;
+      return {} as TreeNode;
     }
   },
 
   async getQueryObject(query: any): Promise<QueryObject> {
     try {
-      return await axios.post(Env.VITE_NODE_API + "/node_api/query/public/queryObject", query);
+      return await axios.post(Env.VITE_NODE_API + "node_api/query/public/queryObject", query);
     } catch (error) {
       return {} as QueryObject;
     }
   },
 
-  async getQueryDefinitionDisplay(conceptIri: string): Promise<QueryDisplay> {
+  async getQueryDefinitionDisplay(conceptIri: string): Promise<TreeNode> {
     try {
-      return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/queryDefinitionDisplay", {
+      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDefinitionDisplay", {
         params: { iri: conceptIri }
       });
     } catch (error) {
-      return {} as QueryDisplay;
+      return {} as TreeNode;
     }
   },
 
   async getQueryObjectByIri(conceptIri: string): Promise<QueryObject> {
     try {
-      return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/queryObjectDisplay", {
+      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/queryObjectDisplay", {
         params: { iri: conceptIri }
       });
     } catch (error) {
@@ -131,14 +132,26 @@ const QueryService = {
   async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
     try {
       if (controller)
-        return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowablePropertySuggestions", {
+        return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
           params: { iri: conceptIri, searchTerm: searchTerm },
           signal: controller.signal
         });
       else
-        return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowablePropertySuggestions", {
+        return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
           params: { iri: conceptIri, searchTerm: searchTerm }
         });
+    } catch (error) {
+      return [] as AliasEntity[];
+    }
+  },
+
+  async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
+    try {
+      return await axios.post(
+        Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestionsBoolFocus",
+        { focus: focus, searchTerm: searchTerm },
+        { signal: controller?.signal }
+      );
     } catch (error) {
       return [] as AliasEntity[];
     }
@@ -147,12 +160,12 @@ const QueryService = {
   async getAllowableRangeSuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
     try {
       if (controller)
-        return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowableRangeSuggestions", {
+        return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableRangeSuggestions", {
           params: { iri: conceptIri, searchTerm: searchTerm },
           signal: controller.signal
         });
       else
-        return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowableRangeSuggestions", {
+        return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableRangeSuggestions", {
           params: { iri: conceptIri, searchTerm: searchTerm }
         });
     } catch (error) {
@@ -162,11 +175,27 @@ const QueryService = {
 
   async getAllowableChildTypes(conceptIri: string): Promise<AllowableChildProperty[]> {
     try {
-      return await axios.get(Env.VITE_NODE_API + "/node_api/query/public/allowableChildTypes", {
+      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableChildTypes", {
         params: { iri: conceptIri }
       });
     } catch (error) {
       return [] as AllowableChildProperty[];
+    }
+  },
+
+  async getPathSuggestions(queryRequest: QueryRequest): Promise<PathDocument> {
+    try {
+      return await axios.post(Env.API + "api/query/public/pathQuery", queryRequest);
+    } catch (error) {
+      return {} as PathDocument;
+    }
+  },
+
+  async getLabeledQuery(query: Query): Promise<Query> {
+    try {
+      return await axios.post(Env.API + "api/query/public/labelQuery", query);
+    } catch (error) {
+      return {} as Query;
     }
   }
 };

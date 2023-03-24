@@ -1,14 +1,20 @@
 import Env from "@/services/env.service";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { eclToIMQ } from "@im-library/helpers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, QueryRequest, TTAlias } from "@im-library/interfaces";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
+import { From, QueryRequest, TTAlias, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { IM } from "@im-library/vocabulary";
+import { Console } from "console";
+import EclService from "./ecl.service";
 
 export default class QueryService {
   axios: any;
+  eclService: EclService;
 
   constructor(axios: any) {
     this.axios = axios;
+    this.eclService = new EclService(axios);
   }
 
   public async queryIM(query: QueryRequest, controller?: AbortController) {
@@ -34,36 +40,27 @@ export default class QueryService {
         }
       ]
     } as QueryRequest;
+
     const subtypesQuery = {
       query: {
-        name: "All subtypes of an entity, active only",
-        from: [] as any[],
-        select: [
-          {
-            property: {
-              "@id": "http://endhealth.info/im#code"
-            }
-          },
-          {
-            property: {
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-            }
-          }
-        ],
-        activeOnly: true
-      }
+        "@id": "http://endhealth.info/im#Query_GetIsas"
+      },
+      argument: [
+        {
+          parameter: "this",
+          valueIriList: [] as TTIriRef[]
+        }
+      ]
     } as QueryRequest;
+
     let suggestions = [] as AliasEntity[];
     try {
       const allowableRanges = await this.queryIM(allowableRangesQuery);
       if (allowableRanges.entities) {
-        for (const entity of allowableRanges.entities) {
-          const from = {
-            includeSubtypes: true,
-            "@id": entity["@id"]
-          };
-          subtypesQuery.query.from.push(from as TTAlias);
-        }
+        subtypesQuery.argument[0].valueIriList = allowableRanges.entities.map((entity: any) => {
+          return { "@id": entity["@id"] };
+        });
+
         if (searchTerm) {
           subtypesQuery.textSearch = searchTerm;
         }
@@ -105,6 +102,43 @@ export default class QueryService {
     }
   }
 
+  public async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string): Promise<AliasEntity[]> {
+    let query;
+    let suggestions = [] as AliasEntity[];
+    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    if (query) {
+      const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
+      const results = await this.eclService.eclSearch(eclSearchRequest);
+      if (isArrayHasLength(results)) {
+        for (const result of results) {
+          const queryRequest = {
+            query: {
+              "@id": "http://endhealth.info/im#Query_AllowableProperties"
+            },
+            argument: [
+              {
+                parameter: "this",
+                valueIri: {
+                  "@id": result["@id"]
+                }
+              }
+            ]
+          } as QueryRequest;
+
+          if (searchTerm) {
+            queryRequest.textSearch = searchTerm;
+          }
+          try {
+            const queryResults = (await this.queryIM(queryRequest)).entities;
+            this.convertTTEntitiesToAlias(queryResults);
+            suggestions.concat(queryRequest);
+          } catch (error) {}
+        }
+      }
+    }
+    return suggestions;
+  }
+
   convertTTEntitiesToAlias(ttEntities: any[]) {
     ttEntities.forEach(ttEntity => entityToAliasEntity(ttEntity));
   }
@@ -122,7 +156,7 @@ export default class QueryService {
       query: {
         "@id": "http://endhealth.info/im#AllowableChildTypes"
       }
-    } as QueryRequest;
+    } as any as QueryRequest;
 
     const response = await this.queryIM(queryRequest);
 

@@ -22,7 +22,7 @@
     </div>
     <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
     <div class="button-container">
-      <Button :disabled="eclError" label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
+      <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" />
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length || eclError" data-testid="search-button" />
     </div>
     <div class="filters-container">
@@ -44,6 +44,7 @@
     @eclSubmitted="updateECL"
     @closeDialog="showDialog = false"
     @eclConversionError="updateError"
+    :key="builderKey"
     :data-testid="'builder-visible-' + showDialog"
   />
 </template>
@@ -53,11 +54,12 @@ import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { ConceptSummary, EclSearchRequest, TTIriRef } from "@im-library/interfaces";
+import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { getLogger } from "@im-library/logger/LogConfig";
-import { SetService } from "@/services";
+import { EclService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
@@ -68,6 +70,7 @@ const toast = useToast();
 const store = useStore();
 
 const statusOptions = computed(() => store.state.filterOptions.status);
+const savedEcl = computed(() => store.state.eclEditorSavedString);
 
 const queryString = ref("");
 const showDialog = ref(false);
@@ -78,8 +81,12 @@ const eclErrorMessage = ref("");
 const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
+const builderKey = ref(0);
 
-watch(queryString, () => (eclError.value = false));
+watch(queryString, () => {
+  eclError.value = false;
+  store.commit("updateEclEditorSavedString", queryString.value);
+});
 
 watch(selectedStatus, async () => {
   selectedStatus.value = selectedStatus.value.sort(byName);
@@ -87,6 +94,7 @@ watch(selectedStatus, async () => {
 
 onMounted(() => {
   setFilterDefaults();
+  if (savedEcl.value) queryString.value = savedEcl.value;
 });
 
 function updateECL(data: string): void {
@@ -95,6 +103,7 @@ function updateECL(data: string): void {
 }
 
 function showBuilder(): void {
+  builderKey.value = Math.round(Math.random() * 1000);
   showDialog.value = true;
 }
 
@@ -110,16 +119,11 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    const eclSearchRequest = { ecl: queryString.value, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
-    const result = await SetService.ECLSearch(eclSearchRequest, controller.value);
-    if (isObjectHasKeys(result, ["entities", "count", "page"])) {
-      searchResults.value = result.entities;
-      totalCount.value = result.count;
-    } else {
-      eclError.value = true;
-      searchResults.value = [];
-      totalCount.value = 0;
-    }
+    const eclQuery = await EclService.getQueryFromECL(queryString.value);
+    const eclSearchRequest = { eclQuery: eclQuery, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
+    const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
+    searchResults.value = result;
+    totalCount.value = result.length;
     loading.value = false;
   }
 }

@@ -141,7 +141,7 @@
       </template>
     </Card>
     <div class="button-bar">
-      <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" @click="goToTaskViewer" />
+      <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="goToTaskViewer" />
       <Button :loading="saveLoading" icon="pi pi-check" label="Save" class="save-button" @click="save" />
     </div>
   </div>
@@ -151,13 +151,13 @@
 import { computed, ComputedRef, defineComponent, onMounted, Ref, ref, watch } from "vue";
 import ConfirmDialog from "primevue/confirmdialog";
 import { mapState, useStore } from "vuex";
-import { SortBy } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { DirectService, EntityService, Env } from "@/services";
-import { ConceptSummary, FilterOptions, SearchRequest } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import TaskDefinition from "../editor/workflow/TaskDefinition.vue";
 
@@ -341,7 +341,7 @@ async function search(): Promise<void> {
     searchResults.value = [];
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchTerm.value;
-    searchRequest.sortBy = SortBy.Usage;
+    searchRequest.sortField = "weighting";
     searchRequest.page = 1;
     searchRequest.size = 100;
     setFilters(searchRequest);

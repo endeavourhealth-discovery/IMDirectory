@@ -219,7 +219,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
             showCancelButton: false,
             allowOutsideClick: false,
             allowEscapeKey: false,
-            inputValidator: (value: boolean) => {
+            inputValidator: (value: string) => {
               if (!value) return "Please enter the 6-digit code";
               else return null;
             }

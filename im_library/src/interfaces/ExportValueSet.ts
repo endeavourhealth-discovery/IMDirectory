@@ -1,4 +1,4 @@
-import { TTIriRef } from "./TTIriRef";
+import { TTIriRef } from "../interfaces/AutoGen";
 import { ValueSetMember } from "./ValueSetMember";
 
 export interface ExportValueSet {

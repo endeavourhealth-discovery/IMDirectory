@@ -2,7 +2,6 @@
 import App from "./app";
 import * as dotenv from "dotenv";
 import QueryController from "./controllers/queryController";
-import SetController from "./controllers/setController";
 import ValidationController from "./controllers/validationController";
 import GithubController from "./controllers/githubController";
 import bodyParser from "body-parser";
@@ -12,6 +11,9 @@ import EntityController from "./controllers/entityController";
 import CognitoController from "./controllers/cognitoController";
 import ParserController from "./controllers/parserController";
 import FhirController from "@/controllers/fhirController";
+import EclController from "@/controllers/eclController";
+import ConfigController from "@/controllers/configController";
+import ProvController from "@/controllers/provController";
 
 dotenv.config();
 
@@ -24,13 +26,15 @@ const app = new App({
     new ValidationController(),
     new GithubController(),
     new SearchController(),
-    new SetController(),
     new EntityController(),
     new CognitoController(),
     new ParserController(),
-    new FhirController()
+    new FhirController(),
+    new EclController(),
+    new ConfigController(),
+    new ProvController()
   ],
-  middleWares: [bodyParser.json(), bodyParser.urlencoded({ extended: true })]
+  middleWares: [bodyParser.json({ type: "application/json" }), bodyParser.text({ type: "text/plain" }), bodyParser.urlencoded({ extended: true })]
 });
 
 if (import.meta.env.PROD) app.listen();

@@ -12,18 +12,14 @@
           <SubsetDisplay :conceptIri="props.conceptIri" />
         </div>
       </AccordionTab>
-      <AccordionTab header="Direct Members">
-        <div class="set-accordion-content" id="members-container">
-          <Members :conceptIri="props.conceptIri" />
-        </div>
-      </AccordionTab>
       <AccordionTab>
         <template #header>
           <div class="definition-header">
             <span>Definition</span>
             <Button
               icon="pi pi-copy"
-              class="p-button-secondary p-button-outlined concept-button"
+              severity="secondary"
+              class="p-button-outlined concept-button"
               v-tooltip.top="'Copy definition'"
               data-testid="copy-definition-button"
               @click="onCopy"
@@ -32,6 +28,11 @@
         </template>
         <div class="set-accordion-content" id="set-definition-container">
           <QuerySetDefinition :conceptIri="props.conceptIri" />
+        </div>
+      </AccordionTab>
+      <AccordionTab header="Direct Members">
+        <div class="set-accordion-content" id="members-container">
+          <Members :conceptIri="props.conceptIri" />
         </div>
       </AccordionTab>
     </Accordion>

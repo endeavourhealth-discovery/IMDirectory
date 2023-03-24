@@ -34,9 +34,9 @@ export class GraphdbService {
     }
   }
 
-  public async execute(sparql: string, bindings?: any): Promise<any[]> {
+  public async execute(sparql: string, bindings?: any, isConfig?: boolean): Promise<any[]> {
     try {
-      const client = await this.getRepo();
+      const client = await this.getRepo(isConfig);
 
       const stmt = new GetQueryPayload().setQuery(sparql).setQueryType(QueryType.SELECT).setResponseType(RDFMimeType.SPARQL_RESULTS_JSON);
 
@@ -62,16 +62,16 @@ export class GraphdbService {
     }
   }
 
-  private async getRepo() {
+  private async getRepo(isConfig?: boolean) {
     if (this.repo == null) {
-      await this.connect();
+      await this.connect(isConfig);
       this.repo.registerParser(new SparqlJsonResultParser());
     }
 
     return this.repo;
   }
 
-  private async connect() {
+  private async connect(isConfig?: boolean) {
     const timeout = Env.GRAPH_TIMEOUT || 30000;
     this.serverConfig = new ServerClientConfig(Env.GRAPH_HOST)
       .setTimeout(timeout)
@@ -83,11 +83,11 @@ export class GraphdbService {
     this.server = new ServerClient(this.serverConfig);
 
     this.repoConfig = new RepositoryClientConfig(Env.GRAPH_HOST)
-      .setEndpoints([Env.GRAPH_HOST + "/repositories/" + Env.GRAPH_REPO])
+      .setEndpoints([Env.GRAPH_HOST + "/repositories/" + (isConfig ? Env.GRAPH_REPO_CONFIG : Env.GRAPH_REPO)])
       .setReadTimeout(timeout)
       .setWriteTimeout(timeout);
 
-    this.repo = await this.server.getRepository(Env.GRAPH_REPO, this.repoConfig);
+    this.repo = await this.server.getRepository((isConfig ? Env.GRAPH_REPO_CONFIG : Env.GRAPH_REPO), this.repoConfig);
   }
 }
 

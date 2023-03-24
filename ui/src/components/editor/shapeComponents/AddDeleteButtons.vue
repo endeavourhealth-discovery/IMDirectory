@@ -1,8 +1,8 @@
 <template>
   <div class="switch-button-container">
     <div class="buttons-container">
-      <Button v-if="show.minus" icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" @click="deleteClicked" />
-      <Button v-if="show.plus" icon="pi pi-plus" label="Add" class="p-button-success" @click="addNextClicked" />
+      <Button v-if="show.minus" icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="deleteClicked" />
+      <Button v-if="show.plus" icon="pi pi-plus" label="Add" severity="success" @click="addNextClicked" />
     </div>
     <Menu ref="optionsMenu" :model="menuOptions" :popup="true" />
   </div>

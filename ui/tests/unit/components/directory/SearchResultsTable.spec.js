@@ -80,8 +80,8 @@ describe("SearchResultsTable.vue", () => {
   });
 
   it("displays first page of search results", () => {
-    component.getByText(mockState.searchResults[0].name);
-    component.getByText(mockState.searchResults[19].name);
+    component.getByText(mockState.searchResults[0].name + " | " + mockState.searchResults[0].code);
+    component.getByText(mockState.searchResults[19].name + " | " + mockState.searchResults[19].code);
     const aboveLimit = component.queryByText(mockState.searchResults[20].name);
     expect(aboveLimit).toBeFalsy();
   });
@@ -94,7 +94,7 @@ describe("SearchResultsTable.vue", () => {
 
   it("identifies favourites", () => {
     const rows = component.getAllByRole("row");
-    const favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[0].name))[0];
+    const favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[0].name + " | " + mockState.searchResults[0].code))[0];
     const buttons = within(favourite).getAllByRole("button");
     const favButton = buttons.filter(button => button.classList.contains("row-button-fav"));
     expect(favButton).toBeTruthy();
@@ -104,7 +104,7 @@ describe("SearchResultsTable.vue", () => {
     const buttons = component.getAllByRole("button");
     const paginatorButtons = buttons.filter(button => button.classList.contains("p-paginator-page"));
     await fireEvent.click(paginatorButtons[1]);
-    component.getByText(mockState.searchResults[20].name);
+    component.getByText(mockState.searchResults[20].name + " | " + mockState.searchResults[20].code);
   });
 
   it("routes on edit", async () => {
@@ -118,7 +118,7 @@ describe("SearchResultsTable.vue", () => {
   it("can unfavourite", async () => {
     vi.clearAllMocks();
     let rows = component.getAllByRole("row");
-    let favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[0].name))[0];
+    let favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[0].name + " | " + mockState.searchResults[0].code))[0];
     let favButton = within(favourite).getByTestId("unfavourite-button");
     await fireEvent.click(favButton);
     expect(mockCommit).toHaveBeenCalledTimes(1);
@@ -128,7 +128,7 @@ describe("SearchResultsTable.vue", () => {
   it("can favourite", async () => {
     vi.clearAllMocks();
     let rows = component.getAllByRole("row");
-    let favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[1].name))[0];
+    let favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[1].name + " | " + mockState.searchResults[1].code))[0];
     let favButton = within(favourite).getByTestId("favourite-button");
     await fireEvent.click(favButton);
     expect(mockCommit).toHaveBeenCalledTimes(1);

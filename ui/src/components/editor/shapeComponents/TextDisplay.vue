@@ -14,7 +14,7 @@
 import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { PropertyShape, Argument } from "@im-library/interfaces";
+import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
@@ -101,7 +101,7 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
     const args = processArguments(property, valueVariableMap?.value);
     if (props.shape.argument.find((a: Argument) => a.valueVariable)) {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
-      if (valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
+      if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
         const result = await QueryService.runFunction(property.function["@id"], args);
         if (result) return result;
       } else return "";

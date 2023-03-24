@@ -11,7 +11,7 @@
       <span class="p-float-label">
         <MultiSelect id="status" v-model="selectedStatus" @change="checkForSearch" :options="filterOptions.status" optionLabel="name" display="chip" />
         <label for="status">Select status:</label>
-        <Button icon="pi pi-undo" class="p-button-secondary" @click="resetStatus" v-tooltip="'Reset status filters'" />
+        <Button icon="pi pi-undo" severity="secondary" @click="resetStatus" v-tooltip="'Reset status filters'" />
       </span>
     </div>
   </div>
@@ -21,7 +21,7 @@
       <span class="p-float-label">
         <MultiSelect id="scheme" v-model="selectedSchemes" @change="checkForSearch" :options="filterOptions.schemes" optionLabel="name" display="chip" />
         <label for="scheme">Select scheme:</label>
-        <Button icon="pi pi-undo" class="p-button-secondary" @click="resetSchemes" v-tooltip="'Reset scheme filters'" />
+        <Button icon="pi pi-undo" severity="secondary" @click="resetSchemes" v-tooltip="'Reset scheme filters'" />
       </span>
     </div>
   </div>
@@ -31,7 +31,7 @@
       <span class="p-float-label">
         <MultiSelect id="conceptType" v-model="selectedTypes" @change="checkForSearch" :options="filterOptions.types" optionLabel="name" display="chip" />
         <label for="conceptType">Select concept type:</label>
-        <Button icon="pi pi-undo" class="p-button-secondary" @click="resetTypes" v-tooltip="'Reset type filters'" />
+        <Button icon="pi pi-undo" severity="secondary" @click="resetTypes" v-tooltip="'Reset type filters'" />
       </span>
     </div>
   </div>
@@ -41,7 +41,7 @@
       <span class="p-float-label">
         <Dropdown id="sortField" v-model="selectedSortField" @change="checkForSearch" :options="filterOptions.sortFields" optionLabel="name" />
         <label for="sortField">Select sort field:</label>
-        <Button icon="pi pi-undo" class="p-button-secondary" @click="resetSortField" v-tooltip="'Reset sort field filters'" />
+        <Button icon="pi pi-undo" severity="secondary" @click="resetSortField" v-tooltip="'Reset sort field filters'" />
       </span>
     </div>
   </div>
@@ -51,7 +51,7 @@
       <span class="p-float-label">
         <Dropdown id="sortDirection" v-model="selectedSortDirection" @change="checkForSearch" :options="filterOptions.sortDirections" optionLabel="name" />
         <label for="sortDirection">Select sort direction:</label>
-        <Button icon="pi pi-undo" class="p-button-secondary" @click="resetSortDirection" v-tooltip="'Reset sort direction filters'" />
+        <Button icon="pi pi-undo" severity="secondary" @click="resetSortDirection" v-tooltip="'Reset sort direction filters'" />
       </span>
     </div>
   </div>
@@ -60,7 +60,8 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { EntityReferenceNode, FilterOptions, TTIriRef } from "@im-library/interfaces";
+import { EntityReferenceNode, FilterOptions } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 

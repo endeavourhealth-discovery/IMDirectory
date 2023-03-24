@@ -8,7 +8,7 @@ export default class ToastOptions {
   summary: string;
   detail: string;
   life: number;
-  log: Logger;
+  log: Logger = {} as Logger;
 
   constructor(severity: ToastSeverity, message: string, error?: Error | string | unknown) {
     this.severity = severity;

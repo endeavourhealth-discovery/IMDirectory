@@ -42,7 +42,8 @@
             <div class="button-container">
               <Button
                 icon="pi pi-copy"
-                class="p-button-rounded p-button-text p-button-secondary row-button"
+                severity="secondary"
+                class="p-button-rounded p-button-text row-button"
                 v-clipboard:copy="copyConceptToClipboardVueWrapper(slotProps.data)"
                 v-clipboard:success="onCopy"
                 v-clipboard:error="onCopyError"
@@ -109,7 +110,8 @@ import { PropType, ref, Ref, watch, onMounted } from "vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
 import { DirectService } from "@/services";
-import { TTIriRef, ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";

@@ -44,24 +44,24 @@
           Results
           <Button
             :disabled="!searchResults?.length"
-            class="p-button-sm p-button-text"
-            icon="pi pi-external-link"
+            class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
+            :icon="fontAwesomePro ? 'fa-duotone fa-fw fa-file-arrow-down' : 'fa-solid fa-fw fa-file-arrow-down'"
             @click="exportCSV()"
             v-tooltip.right="'Download results table'"
           />
         </template>
         <template #body="slotProps">
-          <div class="ml-2">
-            <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
-              <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
-            </span>
-            <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{ slotProps.data.match }}</span>
+          <div class="datatable-flex-cell">
+              <i v-if="slotProps.data.icon" :style="'color: ' + slotProps.data.colour" :class="slotProps.data.icon" class="recent-icon" aria-hidden="true" />
+            <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{
+              slotProps.data.code ? slotProps.data.match + " | " + slotProps.data.code : slotProps.data.match
+            }}</span>
           </div>
         </template>
       </Column>
-      <Column field="code" header="Code">
+      <Column field="weighting" header="Usage">
         <template #body="slotProps">
-          <span>{{ slotProps.data.code }}</span>
+          <span>{{ slotProps.data.weighting }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
@@ -100,6 +100,7 @@ const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptio
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 const searchResults = computed(() => store.state.searchResults);
 const favourites = computed(() => store.state.favourites);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
@@ -313,5 +314,24 @@ label {
 
 .break-word {
   word-break: normal;
+}
+
+.recent-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+  padding: 5px;
+}
+
+.datatable-flex-cell {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 0;
+  flex: 1 1 0;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 </style>

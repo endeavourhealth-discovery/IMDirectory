@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsc --watch",
+    "dev": "tsc --noEmit --watch",
+    "tsc": "tsc --noEmit",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix",
     "format": "prettier --write",
-    "build": "tsc"
+    "build": "tsc --noEmit"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "1.0.3",
+    "@types/antlr4": "4.11.2",
     "@types/d3": "7.4.0",
     "@types/lodash": "4.14.191",
     "@types/node": "18.11.18",
@@ -22,6 +24,7 @@
     "vitest": "0.26.3"
   },
   "dependencies": {
+    "antlr4": "4.11.0",
     "d3": "7.8.0",
     "google-palette": "1.1.0",
     "lodash": "4.17.21",

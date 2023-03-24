@@ -1,5 +1,5 @@
 import { CreateComponentPublicInstance } from "vue";
-import { RouteLocationNormalizedLoaded, RouteParamsRaw, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
+import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
 import { Store, useStore } from "vuex";
 import Env from "./Env";
 
@@ -16,11 +16,13 @@ export default class DirectService {
     this._message = "You will be directed to a different application. Are you sure you want to proceed?";
   }
 
-  public directTo(app: string, iri: string, action: string, appRoute?: string) {
+  public directTo(app: string, iri?: string, action?: string, appRoute?: string) {
     if (iri) {
       if (appRoute) window.open(app + appRoute + "/" + encodeURIComponent(iri));
       else window.open(app + encodeURIComponent(iri));
       this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), action: action });
+    } else if (appRoute) {
+      window.open(app + appRoute);
     } else {
       window.open(app);
     }
@@ -40,8 +42,13 @@ export default class DirectService {
     });
   }
 
+  public file() {
+    this.directTo(Env.DIRECTORY_URL, "", "Filed", "filer");
+  }
+
   public view(iri?: string) {
-    this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "folder");
+    if (iri) this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "directory/folder");
+    else this.directTo(Env.DIRECTORY_URL);
   }
 
   public select(iri: string, routeName?: string) {
@@ -58,6 +65,10 @@ export default class DirectService {
 
   public edit(iri?: string) {
     this.directTo(Env.DIRECTORY_URL, iri || "", "Edited", "editor");
+  }
+
+  public query() {
+    this.directTo(Env.DIRECTORY_URL, "", "Queried", "query");
   }
 
   public create(typeIri?: string, propertyIri?: string, valueIri?: string) {

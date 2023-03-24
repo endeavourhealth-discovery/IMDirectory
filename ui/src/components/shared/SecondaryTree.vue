@@ -111,7 +111,8 @@
 import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent, TTIriRef } from "@im-library/interfaces";
+import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
@@ -297,7 +298,7 @@ async function setExpandedParentParents(): Promise<void> {
 
 async function onNodeSelect(node: any): Promise<void> {
   if (node.data === "loadMore") {
-    await loadMore(node);
+    if (!node.loading) await loadMore(node);
   } else {
   }
   await nextTick();

@@ -1,9 +1,9 @@
-import { SortBy } from "../enums/SortBy";
 import { SortDirection } from "../enums/SortDirection";
-import { TTIriRef } from "./TTIriRef";
+import { Query, TTIriRef } from "../interfaces/AutoGen";
 
 export interface EclSearchRequest {
-  ecl: string;
+  eclQuery?: Query;
+  eclString?: string;
   includeLegacy: boolean;
   limit: number;
   statusFilter?: TTIriRef[];

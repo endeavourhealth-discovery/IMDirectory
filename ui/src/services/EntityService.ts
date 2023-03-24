@@ -1,21 +1,23 @@
-import { IM } from "@im-library/vocabulary";
+import { IM, SNOMED } from "@im-library/vocabulary";
 import {
   EntityReferenceNode,
   FiltersAsIris,
   TTBundle,
-  TTIriRef,
   GraphData,
   TermCode,
   Namespace,
   ExportValueSet,
-  SearchRequest,
   ConceptSummary,
   FilterOptions,
   PropertyDisplay
 } from "@im-library/interfaces";
+import { TTIriRef, SearchRequest } from "@im-library/interfaces/AutoGen";
 import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
+import { SortDirection } from "@im-library/enums";
+import { isObject } from "@im-library/helpers/DataTypeCheckers";
+import {OrganizationChartNode} from 'primevue/organizationchart';
 const api = Env.API;
 
 const EntityService = {
@@ -144,10 +146,10 @@ const EntityService = {
     }
   },
 
-  async advancedSearch(request: SearchRequest, controller: AbortController): Promise<ConceptSummary[]> {
+  async advancedSearch(request: SearchRequest, controller?: AbortController): Promise<ConceptSummary[]> {
     try {
       return await axios.post(api + "api/entity/public/search", request, {
-        signal: controller.signal
+        signal: controller?.signal
       });
     } catch (error) {
       return [] as ConceptSummary[];
@@ -204,7 +206,7 @@ const EntityService = {
       const statusOptions = (await this.getEntityChildren(IM.STATUS)).map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
-      const typeOptions = (await this.getEntityChildren(IM.ENTITY_TYPES)).map(option => {
+      const typeOptions = (await this.getEntityChildren(IM.NAMESPACE + "TypeFilterOptions")).map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
       });
       const sortFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions")).map(option => {
@@ -282,11 +284,11 @@ const EntityService = {
     }
   },
 
-  async getEntityGraph(iri: string): Promise<GraphData> {
+  async getEntityGraph(iri: string): Promise<OrganizationChartNode> {
     try {
       return await axios.get(api + "api/entity/public/graph", { params: { iri: iri } });
     } catch (error) {
-      return {} as GraphData;
+      return {} as OrganizationChartNode;
     }
   },
 
@@ -315,14 +317,6 @@ const EntityService = {
       return await axios.get(api + "api/entity/public/namespaces");
     } catch (error) {
       return [] as Namespace[];
-    }
-  },
-
-  async getEcl(query: any): Promise<string> {
-    try {
-      return await axios.post(api + "api/entity/public/ecl", query);
-    } catch (error) {
-      return "";
     }
   },
 
@@ -562,6 +556,84 @@ const EntityService = {
       });
     } catch (error) {
       return [] as PropertyDisplay[];
+    }
+  },
+
+  async isValidProperty(entityIri: string, propertyIri: string): Promise<boolean> {
+    return await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: entityIri, property: propertyIri } });
+  },
+
+  async isValidPropertyBoolFocus(focus: any, propertyIri: string): Promise<boolean> {
+    return await axios.post(Env.VITE_NODE_API + "node_api/entity/public/isValidPropertyBoolFocus", { focus: focus, propertyIri: propertyIri });
+  },
+
+  async isValidPropertyValue(propertyIri: string, valueIri: string): Promise<boolean> {
+    return await axios.get(Env.API + "api/entity/public/isValidPropertyValue", { params: { property: propertyIri, value: valueIri } });
+  },
+
+  async getSuperiorPropertiesPaged(conceptIri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
+    try {
+      return await axios.get(Env.API + "api/entity/public/superiorPropertiesPaged", {
+        params: { conceptIri: conceptIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+        signal: controller?.signal
+      });
+    } catch (error) {
+      return { result: [], totalCount: 0 } as any;
+    }
+  },
+
+  async getSuperiorPropertiesBoolFocusPaged(focus: any, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
+    try {
+      return await axios.post(
+        Env.VITE_NODE_API + "node_api/entity/public/superiorPropertiesBoolFocusPaged",
+        { focus: focus, pageIndex: pageIndex, pageSize: pageSize, filters: filters },
+        { signal: controller?.signal }
+      );
+    } catch (error) {
+      return { result: [], totalCount: 0 } as any;
+    }
+  },
+
+  async getSuperiorPropertyValuesPaged(propertyIri: string, pageIndex: number, pageSize: number, filters?: FiltersAsIris, controller?: AbortController) {
+    try {
+      return await axios.get(Env.API + "api/entity/public/superiorPropertyValuesPaged", {
+        params: { propertyIri: propertyIri, page: pageIndex, size: pageSize, schemeIris: filters?.schemes.join(",") },
+        signal: controller?.signal
+      });
+    } catch (error) {
+      return { result: [], totalCount: 0 } as any;
+    }
+  },
+
+  async simpleSearch(searchTerm: string, filterOptions: FilterOptions, abortController: AbortController): Promise<ConceptSummary[]> {
+    try {
+      const searchRequest = {} as SearchRequest;
+      searchRequest.termFilter = searchTerm;
+      searchRequest.page = 1;
+      searchRequest.size = 100;
+      searchRequest.sortDirection = SortDirection.DESC;
+      searchRequest.sortField = "weighting";
+      searchRequest.schemeFilter = filterOptions.schemes.map(scheme => scheme["@id"]);
+      searchRequest.typeFilter = filterOptions.types.map(type => type["@id"]);
+      searchRequest.statusFilter = filterOptions.status.map(status => status["@id"]);
+      if (!isObject(abortController)) {
+        abortController.abort();
+      }
+
+      abortController = new AbortController();
+      return await EntityService.advancedSearch(searchRequest, abortController);
+    } catch (error) {
+      return [] as ConceptSummary[];
+    }
+  },
+
+  async hasPredicates(subjectIri: string, predicateIris: string[]) {
+    try {
+      return await axios.get(api + "api/entity/public/hasPredicates", {
+        params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
+      });
+    } catch (error) {
+      return false;
     }
   }
 };

@@ -12,7 +12,7 @@
     <TestQueryResults
       v-if="showTestQueryResults"
       :showDialog="showTestQueryResults"
-      :imquery="JSON.parse(editorEntity[IM.DEFINITION])"
+      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
       @close-dialog="showTestQueryResults = false"
     />
     <div id="editor-main-container">
@@ -32,17 +32,18 @@
             <SideBar :editorEntity="editorEntity" />
           </div>
           <Button
-            class="p-button-rounded p-button-info p-button-outlined sidebar-toggle"
+            class="p-button-rounded p-button-outlined sidebar-toggle"
             :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
             @click="onShowSidebar"
+            severity="info"
             data-testid="show-sidebar-button"
           />
         </div>
         <div class="button-bar" id="editor-button-bar">
           <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" data-testid="back-button" />
-          <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" @click="router.go(-1)" data-testid="cancel-button" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
-          <Button icon="pi pi-refresh" label="Reset" class="p-button-warning" @click="refreshEditor" data-testid="refresh-button" />
+          <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="router.go(-1)" data-testid="cancel-button" />
+          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
+          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshEditor" data-testid="refresh-button" />
           <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
           <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" data-testid="forward-button" />
         </div>
@@ -69,11 +70,12 @@ import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRouter, useRoute } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
-import { PropertyShape, TTIriRef } from "@im-library/interfaces";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 import Swal from "sweetalert2";
 import ConfirmDialog from "primevue/confirmdialog";
-import { setupEntity, setupShape } from "./EditorMethods";
+import { setupEditorEntity } from "@/composables/setupEditorEntity";
+import { setupEditorShape } from "@/composables/setupEditorShape";
 import { useStore } from "vuex";
 import "vue-json-pretty/lib/styles.css";
 import { EditorMode } from "@im-library/enums";
@@ -90,8 +92,8 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEntity();
-const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupShape();
+const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
+const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupEditorShape();
 
 const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
 

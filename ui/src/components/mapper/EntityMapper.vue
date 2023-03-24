@@ -136,7 +136,7 @@
     </div>
   </div>
   <div class="button-bar">
-    <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" @click="$router.go(-1)" />
+    <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="$router.go(-1)" />
     <Button :loading="saveLoading" icon="pi pi-check" label="Save mappings" class="save-button" @click="saveMappings" />
   </div>
 </template>
@@ -144,7 +144,7 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
 import { useStore } from "vuex";
-import { SortBy, ToastSeverity } from "@im-library/enums";
+import { ToastSeverity } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ToastOptions } from "@im-library/models";
@@ -153,7 +153,10 @@ import { EntityService, Env, DirectService } from "@/services";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
-import { TTIriRef, ConceptSummary, SearchRequest, FilterOptions } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
+
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
@@ -288,7 +291,7 @@ async function prepareSearchRequest(term: string) {
   searchResults.value = [];
   const searchRequest = {} as SearchRequest;
   searchRequest.termFilter = term;
-  searchRequest.sortBy = SortBy.Usage;
+  searchRequest.sortField = "weighting";
   searchRequest.page = 1;
   searchRequest.size = 100;
   setFilters(searchRequest);
@@ -306,7 +309,7 @@ async function search(): Promise<void> {
     searchResults.value = [];
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchTerm.value;
-    searchRequest.sortBy = SortBy.Usage;
+    searchRequest.sortField = "weighting";
     searchRequest.page = 1;
     searchRequest.size = 100;
     setFilters(searchRequest);

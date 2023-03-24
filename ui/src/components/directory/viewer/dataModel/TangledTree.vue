@@ -20,9 +20,11 @@ import { onMounted, PropType, reactive, ref, Ref, watch } from "vue";
 import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { TangledTreeLayout } from "@im-library/helpers";
 import _ from "lodash";
-import { EntityService } from "@/services";
+import { DirectService, EntityService } from "@/services";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const { constructTangleLayout } = TangledTreeLayout;
+const directService = new DirectService();
 
 const props = defineProps({
   data: { type: Array as PropType<Array<TangledTreeData[]>>, required: true },
@@ -59,58 +61,104 @@ onMounted(() => {
 async function getMultiselectMenu(d: any) {
   let node = d["target"]["__data__"] as any;
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
-  const result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.id) : [];
+  let result;
+  if (node.type === "group") {
+    result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.parents[0].id) : [];
+  } else {
+    result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.id) : [];
+  }
   if (result.length > 0) {
-    result.forEach((property: PropertyDisplay) => {
-      multiselectMenu.value.push({
-        iri: property.property["@id"],
-        label: property.property.name,
-        result: property
-      });
+    result.forEach((r: PropertyDisplay) => {
+      if (r.group) {
+        if (node.type === "group") {
+          if (node.id === r.group["@id"]) {
+            multiselectMenu.value.push({
+              iri: r.property["@id"],
+              label: r.property.name,
+              result: r
+            });
+          }
+        } else {
+          if (!multiselectMenu.value.some((n: any) => n.iri === r.group["@id"])) {
+            multiselectMenu.value.push({
+              iri: r.group["@id"],
+              label: r.group.name,
+              result: r
+            });
+          }
+        }
+      } else {
+        multiselectMenu.value.push({
+          iri: r.property["@id"],
+          label: r.property.name,
+          result: r
+        });
+      }
     });
   }
   displayMenu.value = multiselectMenu.value.length !== 0;
 }
 
 function addNode(node: any, r: PropertyDisplay, typeId: any) {
-  console.log(r);
-  if (chartData.value.length < node.level + 2) {
-    chartData.value.push([
-      {
-        id: r.property["@id"],
-        parents: [node.id],
-        name: r.property.name || r.property["@id"],
-        type: "property",
-        cardinality: r.cardinality
-      }
-    ]);
-    chartData.value.push([
-      {
-        id: typeId,
-        parents: [r.property["@id"] as any],
-        name: r.type.name || r.type["@id"],
-        type: "type"
-      }
-    ]);
-  } else {
-    if (!chartData.value[node.level + 1].some((d: any) => d.id === r.property["@id"])) {
-      chartData.value[node.level + 1].push({
-        id: r.property["@id"],
-        parents: [node.id],
-        name: r.property.name || r.property["@id"],
-        type: "property",
-        cardinality: r.cardinality
+  if (r.group && node.type !== "group") {
+    if (chartData.value.length < node.level + 1) {
+      chartData.value.push([
+        {
+          id: r.group["@id"],
+          parents: [node.id as any],
+          name: r.group.name || r.group["@id"],
+          type: "group"
+        }
+      ]);
+    } else {
+      chartData.value[node.level + 1]?.push({
+        id: r.group["@id"],
+        parents: [node.id as any],
+        name: r.group.name || r.group["@id"],
+        type: "group"
       });
-      if (chartData.value[node.level + 2].some((t: any) => t.id === typeId)) {
-        const findIndex = chartData.value[node.level + 2].findIndex((t: any) => t.id === typeId);
-        chartData.value[node.level + 2][findIndex].parents?.push(r.property["@id"] as any);
-      } else {
-        chartData.value[node.level + 2].push({
+    }
+  } else {
+    if (chartData.value.length < node.level + 2) {
+      chartData.value.push([
+        {
+          id: r.property["@id"],
+          parents: [node.id],
+          name: r.property.name || r.property["@id"],
+          type: "property",
+          cardinality: r.cardinality
+        }
+      ]);
+      chartData.value.push([
+        {
           id: typeId,
           parents: [r.property["@id"] as any],
           name: r.type.name || r.type["@id"],
           type: "type"
+        }
+      ]);
+    } else {
+      if (!chartData.value[node.level + 1].some((d: any) => d.id === r.property["@id"])) {
+        chartData.value[node.level + 1].push({
+          id: r.property["@id"],
+          parents: [node.id],
+          name: r.property.name || r.property["@id"],
+          type: "property",
+          cardinality: r.cardinality
         });
+        if (chartData.value[node.level + 2].some((t: any) => t.id === typeId)) {
+          const findIndex = chartData.value[node.level + 2].findIndex((t: any) => t.id === typeId);
+          if (!chartData.value[node.level + 2][findIndex].parents?.some((p: any) => p.id === r.property["@id"])) {
+            chartData.value[node.level + 2][findIndex].parents?.push(r.property["@id"] as any);
+          }
+        } else {
+          chartData.value[node.level + 2].push({
+            id: typeId,
+            parents: [r.property["@id"] as any],
+            name: r.type.name || r.type["@id"],
+            type: "type"
+          });
+        }
       }
     }
   }
@@ -149,25 +197,29 @@ function hideNode(node: any, parentId: any) {
       });
     }
   }
-  const parents = chartData.value[node.level][nodeIndex].parents;
-  if (parents && parents.length === 1) {
-    chartData.value[node.level].splice(nodeIndex, 1);
-  } else if (parents && parents.length > 1) {
-    const parentIndex = parents.findIndex((p: any) => p.id === parentId);
-    if (parentIndex) parents.splice(parentIndex, 1);
-  }
+  chartData.value[node.level].splice(nodeIndex, 1);
   renderChart();
 }
 
 async function setSelected(iri: any) {
   const result = (await EntityService.getPropertiesDisplay(iri)) || [];
   if (result.length > 0) {
-    result.forEach((property: PropertyDisplay) => {
-      selected.value.push({
-        iri: property.property["@id"],
-        label: property.property.name,
-        result: property
-      });
+    result.forEach((r: PropertyDisplay) => {
+      if (r.group) {
+        if (!selected.value.some((n: any) => n.iri === r.group["@id"])) {
+          selected.value.push({
+            iri: r.group["@id"],
+            label: r.group.name,
+            result: r
+          });
+        }
+      } else {
+        selected.value.push({
+          iri: r.property["@id"],
+          label: r.property.name,
+          result: r
+        });
+      }
     });
   }
   nodeMap.set(iri, selected.value);
@@ -179,7 +231,7 @@ function change(event: any) {
     event.value.forEach((p: any) => {
       let isExist = false;
       chartData.value.forEach((d: any) => {
-        const result = d.some((n: any) => n.id == p.result.type["@id"]);
+        const result = d[0]?.level !== chartData.value.length - 1 && d.some((n: any) => n.id == p.result.type["@id"]);
         if (result) isExist = true;
       });
       if (isExist) {
@@ -198,9 +250,15 @@ function change(event: any) {
 
 function renderChart() {
   const svgDoc = document.getElementById("data-model-svg");
-  if (svgDoc != null) {
+  if (svgDoc) {
     svgDoc.innerHTML = "";
   }
+
+  chartData.value.forEach((d: any) => {
+    if (d[0]?.type === "group") {
+      d.sort((a: TangledTreeData, b: TangledTreeData) => a.name.localeCompare(b.name));
+    }
+  });
 
   const tangleLayout = constructTangleLayout(chartData.value, options);
 
@@ -247,6 +305,24 @@ function renderChart() {
     .attr("stroke", "white")
     .attr("stroke-width", 7)
     .attr("d", (n: any) => `M${n.x} ${n.y} L${n.x} ${n.y}`);
+
+  nodeCircle.on("click", e => {
+    const node = e["target"]["__data__"];
+    e.preventDefault();
+    toggleSubProperties(e);
+    if (selectedNode.value !== node) {
+      selectedNode.value = node;
+      selected.value = (nodeMap.get(node.id) as any) || [];
+    }
+  });
+
+  nodeCircle
+    .on("mouseover", (d: any) => {
+      d3.select(d.srcElement).style("cursor", "pointer").attr("stroke-width", 14).attr("stroke", "grey");
+    })
+    .on("mouseout", (d: any) => {
+      d3.select(d.srcElement).attr("stroke-width", 7).attr("stroke", "white");
+    });
 
   nodeCircle.on("contextmenu", e => {
     const node = e["target"]["__data__"];
@@ -299,11 +375,12 @@ function renderChart() {
     .append("text")
     .attr("x", (n: any) => n.x + 4)
     .attr("y", (n: any) => n.y - n.height / 2 - 4)
-    .text((d: any) => (d.name.length < 26 ? d.name : d.name.slice(0, 25) + "..."))
+    .text((d: any) => (d.name?.length < 26 ? d.name : d.name?.slice(0, 25) + "..."))
     .attr("stroke", "black")
     .attr("stroke-width", 0.1)
     .style("font-size", 12)
     .on("mouseover", (d: any) => {
+      d3.select(d.srcElement).style("cursor", "pointer");
       const n = d["target"]["__data__"];
       if (n.name.length > 26) {
         rect = svg
@@ -328,7 +405,29 @@ function renderChart() {
         rect.remove();
         fullName.remove();
       }
+    })
+    .on("click", (d: any) => {
+      const n = d["target"]["__data__"];
+      if (n.id.startsWith(twinNode)) {
+        const iri = n.id.slice(15);
+        directService.select(iri);
+      } else {
+        directService.select(n.id);
+      }
     });
+}
+
+async function toggleSubProperties(data: any) {
+  const node = data["target"]["__data__"];
+  await getMultiselectMenu(data);
+  const allValidSelections = !hasSubPropertiesOpen(node) ? multiselectMenu.value.filter(selection => !selection.disabled) : [];
+  change({ value: allValidSelections });
+}
+
+function hasSubPropertiesOpen(node: any) {
+  if (!isArrayHasLength(chartData.value[node.level + 1])) return false;
+  const found = chartData.value[node.level + 1].find(item => item.parents?.find(parent => parent.id === node.id));
+  return !!found;
 }
 </script>
 

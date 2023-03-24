@@ -10,7 +10,7 @@
 import ArrayBuilder from "./ArrayBuilder.vue";
 import VerticalLayout from "./VerticalLayout.vue";
 import SetDefinitionBuilder from "./SetDefinitionBuilder.vue";
-import { PropertyGroup, PropertyShape } from "@im-library/interfaces";
+import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
 
 export default defineComponent({
   components: { ArrayBuilder, VerticalLayout, SetDefinitionBuilder }

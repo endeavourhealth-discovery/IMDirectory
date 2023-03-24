@@ -6,7 +6,7 @@ import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
 import testData from "./EclSearch.testData";
-import { SetService } from "@/services";
+import { EclService, SetService } from "@/services";
 import { expect, it } from "vitest";
 import { fakerFactory } from "../../../../src/mocks/factory";
 import VueClipboard from "vue3-clipboard";
@@ -15,11 +15,13 @@ import Tooltip from "primevue/tooltip";
 vi.mock("vuex", () => ({
   useStore: () => ({
     dispatch: mockDispatch,
-    state: mockState
+    state: mockState,
+    commit: mockCommit
   })
 }));
 
 const mockDispatch = vi.fn();
+const mockCommit = vi.fn();
 const mockState = {
   filterOptions: {
     status: [
@@ -54,13 +56,15 @@ vi.mock("primevue/usetoast", () => ({
 describe("EclSearch.vue", async () => {
   let component;
   let mockECLSearch;
+  let mockGetQueryFromECL;
   let docSpy;
   let windowSpy;
 
   beforeEach(async () => {
     vi.resetAllMocks();
 
-    mockECLSearch = vi.spyOn(SetService, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    mockECLSearch = vi.spyOn(EclService, "ECLSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    mockGetQueryFromECL = vi.spyOn(EclService, "getQueryFromECL").mockResolvedValue({ from: { "@id": "testQuery" } });
 
     component = render(ExpressionConstraintsSearch, {
       global: {
@@ -108,7 +112,7 @@ describe("EclSearch.vue", async () => {
     for (let i = 1; i <= 1100; i++) {
       largeSearchResults.push(fakerFactory.conceptSummary.create());
     }
-    mockECLSearch.mockResolvedValue({ page: 1, count: largeSearchResults.length, entities: largeSearchResults });
+    mockECLSearch.mockResolvedValue(largeSearchResults);
     const textbox = component.getByTestId("query-string");
     await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
     component.getByDisplayValue("<< 10363601000001109 |UK product|");

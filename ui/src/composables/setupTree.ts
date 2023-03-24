@@ -1,7 +1,8 @@
 import { DirectService, EntityService } from "@/services";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EntityReferenceNode, TTIriRef } from "@im-library/interfaces";
+import { EntityReferenceNode } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { ref, Ref } from "vue";
@@ -63,7 +64,7 @@ function setupTree() {
 
   async function onNodeSelect(node: any): Promise<void> {
     if (node.data === "loadMore") {
-      await loadMore(node);
+      if (!node.loading) await loadMore(node);
     } else {
       selectedNode.value = node;
       onRowClick(node.data);
@@ -75,6 +76,7 @@ function setupTree() {
   }
 
   async function loadMore(node: any) {
+    node.loading = true;
     if (node.nextPage * pageSize.value < node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
@@ -93,6 +95,7 @@ function setupTree() {
     } else {
       node.parentNode.children.pop();
     }
+    node.loading = false;
   }
 
   async function onNodeExpand(node: any) {
@@ -189,8 +192,10 @@ function setupTree() {
 
   function scrollToHighlighted(containerId: string) {
     const container = document.getElementById(containerId) as HTMLElement;
-    const highlighted = container.getElementsByClassName("p-highlight")[0];
-    if (highlighted) highlighted.scrollIntoView();
+    if (container) {
+      const highlighted = container.getElementsByClassName("p-highlight")[0];
+      if (highlighted) highlighted.scrollIntoView();
+    }
   }
 
   async function loadMoreChildren(node: any) {
