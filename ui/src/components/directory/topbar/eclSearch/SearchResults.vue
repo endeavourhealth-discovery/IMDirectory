@@ -42,7 +42,8 @@
             <div class="button-container">
               <Button
                 icon="pi pi-copy"
-                class="p-button-rounded p-button-text p-button-secondary row-button"
+                severity="secondary"
+                class="p-button-rounded p-button-text row-button"
                 v-clipboard:copy="copyConceptToClipboardVueWrapper(slotProps.data)"
                 v-clipboard:success="onCopy"
                 v-clipboard:error="onCopyError"

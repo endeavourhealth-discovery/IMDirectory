@@ -9,7 +9,7 @@
     <div id="topbar-end">
       <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
       <Button
-        :icon="fontAwesomePro ? 'fa-duotone fa-arrow-down-up-across-line' : 'fa-solid fa-cloud-arrow-down'"
+        :icon="fontAwesomePro ? 'fa-duotone fa-arrow-down-up-across-line' : 'fa-solid fa-arrow-down-up-across-line'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
       />

@@ -50,7 +50,7 @@ const pathOptions: Ref<any[]> = ref([]);
 const canGoBack = ref(false);
 const canGoForward = ref(false);
 
-const home = { icon: fontAwesomePro ? "fa-duotone fa-house-chimney" : "pi pi-home", to: "/" };
+const home = { icon: fontAwesomePro.value ? "fa-duotone fa-house-chimney" : "fa-solid fa-house", to: "/" };
 
 const pathOverlayMenu = ref();
 

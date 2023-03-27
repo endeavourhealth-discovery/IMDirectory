@@ -9,8 +9,8 @@
         <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
       </div>
       <div v-else class="add-focus-buttons-container">
-        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Concept" @click="addConcept" class="builder-button" />
-        <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" class="builder-button" />
+        <Button type="button" :severity="hover ? 'success' : undefined"  :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" class="builder-button" />
+        <Button type="button" :severity="hover ? 'success' : undefined"  :class="!hover && 'p-button-placeholder'" label="Add Group" @click="addGroup" class="builder-button" />
       </div>
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
@@ -18,7 +18,7 @@
       <span class="left-container">
         <div v-if="index === 0" class="spacer">&nbsp;</div>
         <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
-        <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary builder-button conjunction-button" disabled />
+        <Button v-else-if="index > 1" type="button" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
       </span>
       <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
       <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
@@ -27,32 +27,42 @@
           <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
           <label :for="'group' + index">Group</label>
         </div>
-        <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" class="builder-button" />
+        <Button @click="deleteItem(index)" :severity="hover ? 'danger' : undefined"  :class="!hover && 'p-button-placeholder'" icon="pi pi-trash" class="builder-button" />
       </span>
     </div>
     <div class="add-group">
       <Button
-        type="button"
-        :class="[hover ? 'p-button-success' : 'p-button-placeholder']"
-        label="Add Refinement"
-        @click="addRefinement"
-        class="builder-button"
-      />
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add New Group" @click="addGroup" class="builder-button" />
-      <Button
-        type="button"
-        :class="[hover ? 'p-button-help' : 'p-button-placeholder', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
-        :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
-        @click="processGroup"
-        class="builder-button"
+          type="button"
+          :severity="hover ? 'success' : undefined"
+          :class="!hover && 'p-button-placeholder'"
+          label="Add Refinement"
+          @click="addRefinement"
+          class="builder-button"
       />
       <Button
-        v-if="index && index > 0"
-        type="button"
-        :class="[hover ? 'p-button-danger' : 'p-button-placeholder']"
-        :label="value.exclude ? 'Include' : 'Exclude'"
-        @click="toggleExclude"
-        class="builder-button"
+          type="button"
+          :severity="hover ? 'success' : undefined"
+          :class="!hover && 'p-button-placeholder'"
+          label="Add New Group"
+          @click="addGroup"
+          class="builder-button"
+      />
+      <Button
+          type="button"
+          :severity="(groupWithinConcept ? 'danger' : undefined) || (!groupWithinConcept ? 'help' : undefined)"
+          :class="!hover && 'p-button-placeholder'"
+          :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
+          @click="processGroup"
+          class="builder-button"
+      />
+      <Button
+          v-if="index && index > 0"
+          type="button"
+          :severity="hover ? 'danger' : undefined"
+          :class="!hover && 'p-button-placeholder'"
+          :label="value.exclude ? 'Include' : 'Exclude'"
+          @click="toggleExclude"
+          class="builder-button"
       />
     </div>
   </div>
@@ -89,17 +99,17 @@ const props = defineProps({
 });
 
 watch(
-  () => _.cloneDeep(props.value),
-  () => {
-    props.value.ecl = generateEcl();
-  }
+    () => _.cloneDeep(props.value),
+    () => {
+      props.value.ecl = generateEcl();
+    }
 );
 
 watch(
-  () => _.cloneDeep(props.value.concept),
-  async (newValue, oldValue) => {
-    if (newValue !== oldValue) await init();
-  }
+    () => _.cloneDeep(props.value.concept),
+    async (newValue, oldValue) => {
+      if (newValue !== oldValue) await init();
+    }
 );
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;

@@ -18,7 +18,8 @@
             <span>Definition</span>
             <Button
               icon="pi pi-copy"
-              class="p-button-secondary p-button-outlined concept-button"
+              severity="secondary"
+              class="p-button-outlined concept-button"
               v-tooltip.top="'Copy definition'"
               data-testid="copy-definition-button"
               @click="onCopy"

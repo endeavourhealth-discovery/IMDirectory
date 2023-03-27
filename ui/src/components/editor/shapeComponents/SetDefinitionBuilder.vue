@@ -18,7 +18,7 @@
       <div class="button-container">
         <Button label="Import" @click="toggleMenuOptions" aria-haspopup="true" aria-controls="import_menu" />
         <Menu id="import_menu" ref="importMenu" :model="buttonOptions" :popup="true" />
-        <Button :disabled="eclError" label="ECL builder" @click="showBuilder" class="p-button-help" data-testid="builder-button" />
+        <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" />
         <Button
           icon="fa-solid fa-copy"
           label="Copy to clipboard"

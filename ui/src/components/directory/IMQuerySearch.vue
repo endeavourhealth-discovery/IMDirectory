@@ -15,7 +15,7 @@
       />
     </div>
     <div class="button-container">
-      <Button label="Format" @click="format" class="p-button-help" :disabled="!queryString.length" data-testid="search-button" />
+      <Button label="Format" @click="format" severity="help" :disabled="!queryString.length" data-testid="search-button" />
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
