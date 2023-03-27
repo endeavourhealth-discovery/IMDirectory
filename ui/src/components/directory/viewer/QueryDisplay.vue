@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { buildDisplayQuery } from "@im-library/helpers/DisplayQueryBuilder";
 import { Query } from "@im-library/interfaces/AutoGen";
@@ -42,7 +42,8 @@ async function init() {
 async function getDefinition(iri: string) {
   const responseEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
   if (!isObjectHasKeys(responseEntity, [IM.DEFINITION])) return "";
-  return JSON.parse(responseEntity[IM.DEFINITION]);
+  const labeledQuery = await QueryService.getLabeledQuery(JSON.parse(responseEntity[IM.DEFINITION]));
+  return labeledQuery;
 }
 
 function getNodes(query: Query) {
