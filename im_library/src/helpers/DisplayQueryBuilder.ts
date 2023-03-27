@@ -97,7 +97,7 @@ function addInItems(label: string, query: any, type: string, parent: DisplayQuer
   const child = buildDQInstance(parent, label, type, query);
   parent.children.push(child);
   for (const inItem of query.in) {
-    addItem(inItem.name, inItem, "whereIn", child);
+    addItem(getNameFromRef(inItem), inItem, "whereIn", child);
   }
 }
 
@@ -141,6 +141,12 @@ function getNameFromRef(ref: TTAlias) {
     return ref.name;
   } else if (isObjectHasKeys(ref, ["@id"])) {
     const splits = ref["@id"].split("#");
+    return splits[1] || splits[0];
+  } else if (isObjectHasKeys(ref, ["@set"])) {
+    const splits = ref["@set"].split("#");
+    return splits[1] || splits[0];
+  } else if (isObjectHasKeys(ref, ["@type"])) {
+    const splits = ref["@type"].split("#");
     return splits[1] || splits[0];
   }
   return "";
