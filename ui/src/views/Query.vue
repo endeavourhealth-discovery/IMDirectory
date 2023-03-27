@@ -5,9 +5,7 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    <div id="query-main-container">
-      <RecursiveTableQuery :bool="'and'" :query-data="data" :selected="selected" :level="0" />
-    </div>
+    <TextQuery :textQuery="textQuery" :parent="undefined"></TextQuery>
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -23,29 +21,22 @@
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
+import { textQuery } from "./textQuery";
 import { ref, Ref, onMounted } from "vue";
-// import { queryDefinition } from "./query-json";
-import RecursiveTableQuery from "../components/query/RecursiveTableQuery.vue";
-import { TableQuery } from "@im-library/interfaces";
-import { buildTableQuery } from "@im-library/helpers/TableQueryBuilder";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import TextQuery from "@/components/query/TextQuery.vue";
+import { ITextQuery } from "@im-library/interfaces";
 const toast = useToast();
 const store = useStore();
 const selected = ref([] as any[]);
-const data: Ref<TableQuery[]> = ref({} as TableQuery[]);
+const data: Ref<ITextQuery[]> = ref([]);
 const query: Ref<any> = ref();
 const visibleDialog: Ref<boolean> = ref(false);
 
-function getTableQuery() {
-  // query.value = { ...queryDefinition };
-  query.value = {};
-  const tableQuery = buildTableQuery(query.value);
-  console.log(tableQuery);
-  data.value = tableQuery;
-}
+function getTableQuery() {}
 
 onMounted(async () => {
   await store.dispatch("fetchFilterSettings");
