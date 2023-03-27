@@ -22,7 +22,6 @@ export default defineConfig({
           @use "./node_modules/primevue/resources/primevue.min.css";
           @use "./node_modules/primeflex/primeflex.css";
           @import "./src/assets/layout/sass/_mixins.scss";
-          @import "./src/assets/layout/_variables.scss";
         `
       }
     }
