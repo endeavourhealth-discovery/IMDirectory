@@ -48,6 +48,12 @@
         <img class="avatar-icon" alt="avatar icon" :src="getUrl(currentUser.avatar)" style="min-width: 1.75rem" />
       </Button>
       <Menu ref="userMenu" :model="getItems()" :popup="true" />
+      <Button
+          v-tooltip="'Context help'"
+          :icon="fontAwesomePro ? 'fa-duotone fa-question' : 'fa-solid fa-question'"
+          class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
+          @click="help"
+      />
     </div>
   </div>
 </template>
@@ -61,8 +67,10 @@ import TieredMenu from "primevue/tieredmenu";
 import { DirectService, Env, FilerService, DataModelService } from "@/services";
 
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import {useRoute} from 'vue-router';
 
 const store = useStore();
+const route = useRoute();
 const currentUser = computed(() => store.state.currentUser);
 const isLoggedIn = computed(() => store.state.isLoggedIn);
 const authReturnUrl = computed(() => store.state.authReturnUrl);
@@ -222,6 +230,11 @@ function setAppMenuItems() {
 
 function showReleaseNotes() {
   store.commit("updateShowReleaseNotes", true);
+}
+
+function help() {
+  const url = 'https://wiki.endeavourhealth.org/index.php?title=IMHelp_' + route?.meta?.helpContext;
+  window.open(url, 'blank');
 }
 </script>
 

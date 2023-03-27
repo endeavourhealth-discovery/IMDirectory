@@ -42,7 +42,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/directory",
     name: "Directory",
     component: Directory,
-    meta: { requiredLicense: true },
+    meta: { requiredLicense: true, helpContext: "directory" },
     redirect: { name: "LandingPage" },
     children: [
       {
@@ -51,7 +51,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "LandingPage",
         component: LandingPage,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          helpContext: "landingPage"
         }
       },
       {
@@ -67,7 +68,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "Search",
         component: SearchResultsTable,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          helpContext: "search"
         }
       },
       {
@@ -75,7 +77,8 @@ const routes: Array<RouteRecordRaw> = [
         name: "EclSearch",
         component: EclSearch,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          helpContext: "eclSearch"
         }
       },
       {
