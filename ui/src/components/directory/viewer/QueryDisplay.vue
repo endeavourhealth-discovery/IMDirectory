@@ -2,7 +2,7 @@
   <div class="query-display-container">
     <Tree :value="nodes" :expanded-keys="expandedKeys">
       <template #default="{ node }">
-        {{ node.label }}
+        {{ node.data.exclude ? "exclude " + node.label : node.label }}
       </template>
     </Tree>
   </div>
@@ -12,6 +12,7 @@
 import { EntityService, QueryService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { buildDisplayQuery } from "@im-library/helpers/DisplayQueryBuilder";
+import { DisplayQuery } from "@im-library/interfaces";
 import { Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { onMounted, watch, Ref, ref } from "vue";
@@ -62,7 +63,7 @@ function collapseAll() {
   expandedKeys.value = {};
 }
 
-function expandNode(node: any) {
+function expandNode(node: DisplayQuery) {
   const hasExpandToSeeMore = node.label ? (node.label as string).includes("(expand to see more...)") : false;
   if (node.children && node.children.length && !hasExpandToSeeMore) {
     expandedKeys.value[node.key] = true;

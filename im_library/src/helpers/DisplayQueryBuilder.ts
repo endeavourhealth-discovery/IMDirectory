@@ -49,6 +49,7 @@ function addObject(query: any, type: string, parent: DisplayQuery) {
 function addWhere(query: any, type: string, parent: DisplayQuery) {
   if (isAnd(query)) {
     for (const where of query.where) {
+      if (query.exclude) where.exclude = true;
       buildRecursively(where, "where", parent);
     }
   } else if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
@@ -117,7 +118,7 @@ function addInClause(id: string, query: any, type: string, parent: DisplayQuery)
     const child = addItem(label, query, type, parent);
     addWhere(query.in[0].where, "where", child);
   } else {
-    label += ": " + (query.valueLabel || query.in[0].name);
+    label += ": " + (query.valueLabel || getNameFromRef(query.in[0]));
     addItem(label, query, type, parent);
   }
 }
