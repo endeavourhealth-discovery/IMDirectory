@@ -153,12 +153,12 @@ function updateFavourites(iri: string) {
 }
 
 .concept-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--text-color) !important;
+  color: var(--surface-a) !important;
 }
 
 .concept-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+  background-color: var(--yellow-500) !important;
+  color: var(--surface-a) !important;
 }
 </style>

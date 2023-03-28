@@ -216,13 +216,13 @@ function hideOverlay(event: any): void {
 }
 
 .row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--surface-border) !important;
+  color: var(--surface-a) !important;
 }
 
 .row-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+  background-color: var(--yellow-500) !important;
+  color: var(--surface-a) !important;
 }
 
 .content-wrapper {

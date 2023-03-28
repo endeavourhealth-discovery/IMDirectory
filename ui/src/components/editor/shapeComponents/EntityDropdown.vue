@@ -140,6 +140,6 @@ function defaultValidation(data: TTIriRef) {
   height: 2rem;
 }
 .invalid {
-  border-color: #e24c4c;
+  border-color: var(--red-500);
 }
 </style>

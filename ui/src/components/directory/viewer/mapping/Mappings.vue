@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-contents-center align-items-center loading -container" v-if="loading">
+  <div class="flex flex-row justify-contents-center align-items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
   <OrganizationChart v-else :value="data" data-testid="mappings">
@@ -326,29 +326,38 @@ function handleMatchedToToggle(event: any, data: any) {
 <style scoped>
 td,
 th {
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   padding: 0.5rem;
   text-align: left;
   overflow-wrap: break-word;
 }
 
 tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: var(--surface-a);
 }
 
 th[scope="col"] {
-  background-color: #f8f9fa;
-  color: #495057;
+  background-color: var(--surface-a);
+  color: var(--text-color);
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid rgb(200, 200, 200);
+  border: 2px solid var(--surface-border);
 }
 
 .p-organizationchart {
   height: 100%;
   width: 100%;
   overflow: auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  height: 20rem;
+  width: 100%;
 }
 </style>

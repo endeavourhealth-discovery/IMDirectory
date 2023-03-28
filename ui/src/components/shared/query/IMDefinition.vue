@@ -24,7 +24,7 @@
     </div>
   </template>
   <template v-if="type == 'property'">
-    <div class="pathTo ">
+    <div class="pathTo">
       <span class="ml10"> {{ data?.select?.entityType?.name }} </span>
       <Property class="ml10" :modelValue="definition"> </Property>
     </div>
@@ -79,6 +79,6 @@ export default defineComponent({
   margin-left: 5px;
   min-width: 14px;
   min-height: 14px;
-  color: #1d4ed8;
+  color: var(--blue-500);
 }
 </style>

@@ -122,6 +122,7 @@ async function search(): Promise<void> {
 }
 
 .search-container {
+  flex: 1 1 auto;
   padding: 0 0.2rem;
   display: flex;
   flex-flow: row nowrap;
@@ -130,9 +131,8 @@ async function search(): Promise<void> {
 
 #autocomplete-search {
   font-size: 1rem;
-  background: #dee2e6;
   border: none;
-  width: 30rem;
+  flex: 1 1 auto;
   height: 2.25rem;
 }
 

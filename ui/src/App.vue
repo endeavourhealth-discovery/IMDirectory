@@ -24,15 +24,18 @@ import { Env } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
+import { usePrimeVue } from "primevue/config";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
+const PrimeVue: any = usePrimeVue();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const store = useStore();
 
+const currentTheme = computed(() => store.state.currentTheme);
 const showReleaseNotes: ComputedRef<boolean> = computed(() => store.state.showReleaseNotes);
 
 const appVersion = __APP_VERSION__;
@@ -42,9 +45,17 @@ const loading = ref(true);
 onMounted(async () => {
   loading.value = true;
   await store.dispatch("authenticateCurrentUser");
+  if (currentTheme.value) {
+    if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
+  } else store.commit("updateCurrentTheme", "saga-blue");
   setShowReleaseNotes();
   loading.value = false;
 });
+
+function changeTheme(newTheme: string) {
+  PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
+  store.commit("updateCurrentTheme", newTheme);
+}
 
 function setShowReleaseNotes() {
   const lastVersion = getLocalVersion("IMDirectory");
@@ -131,7 +142,23 @@ function setupExternalErrorHandler() {
 }
 </script>
 
+<style lang="scss">
+@import "primeicons/primeicons.css";
+@import "@/assets/layout/flags/flags.css";
+@import "@/assets/layout/sass/_main.scss";
+@import "sweetalert2/dist/sweetalert2.min.css";
+</style>
+
 <style scoped>
+.layout-wrapper {
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  height: 100vh;
+  width: 100vw;
+}
+
 #main-container {
   width: 100vw;
   height: 100vh;
@@ -140,6 +167,7 @@ function setupExternalErrorHandler() {
   flex-flow: column nowrap;
   justify-content: flex-start;
   overflow: auto;
+  background-color: var(--surface-ground);
 }
 .loading-container {
   width: 100%;
@@ -148,6 +176,9 @@ function setupExternalErrorHandler() {
 </style>
 
 <style>
+.swal2-popup {
+  background-color: var(--surface-a);
+}
 .p-toast-message-text {
   width: calc(100% - 4rem);
 }

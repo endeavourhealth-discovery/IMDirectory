@@ -155,6 +155,7 @@ function openTab(predicate: string) {
   flex-flow: column nowrap;
   width: 100%;
   height: 100%;
+  background-color: var(--surface-a);
 }
 .tree-container {
   height: 100vh;

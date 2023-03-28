@@ -107,7 +107,7 @@ async function onCopy(event: any) {
 }
 
 .concept-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--highlight-bg) !important;
+  color: var(--text-color) !important;
 }
 </style>

@@ -19,14 +19,14 @@
                 v-if="codeVerified"
                 data-testid="forgot-password-submit-verified"
                 class="pi pi-check-circle"
-                style="color: #439446; font-size: 2em"
+                style="color: var(--green-500); font-size: 2em"
                 aria-hidden="true"
               />
               <i
                 v-if="!codeVerified && code !== ''"
                 data-testid="forgot-password-submit-unverified"
                 class="pi pi-times-circle"
-                style="color: #e60017; font-size: 2em"
+                style="color: var(--red-500); font-size: 2em"
                 aria-hidden="true"
               />
             </div>
