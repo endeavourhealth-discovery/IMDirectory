@@ -6,10 +6,10 @@
     <template #NONE>
       <p class="text-centered">None</p>
     </template>
-    <template #default="slotProps">
+    <template #default="slotProps: any">
       <span>{{ slotProps.node.name }}</span>
     </template>
-    <template #PROPERTIES="slotProps">
+    <template #PROPERTIES="slotProps: any">
       <table aria-label="graph semantic properties table" data-testid="properties">
         <thead>
           <tr>
@@ -27,7 +27,7 @@
         </tbody>
       </table>
     </template>
-    <template #ISA="slotProps">
+    <template #ISA="slotProps: any">
       <table aria-label="graph isa's table" data-testid="isA">
         <thead>
           <tr>
@@ -41,7 +41,7 @@
         </tbody>
       </table>
     </template>
-    <template #SUBTYPE="slotProps">
+    <template #SUBTYPE="slotProps: any">
       <table aria-label="graph subtypes table" data-testid="subtype">
         <thead>
           <tr>

@@ -10,7 +10,7 @@
       <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
       <Button :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
-        <template #item="{ item }">
+        <template #item="{ item }: any">
           <div class="theme-row p-link">
             <Image class="theme-icon p-menuitem-icon" v-if="item.image" :src="item.image" alt="icon" width="30" />
             <span class="p-menuitem-text">{{ item.label }}</span>

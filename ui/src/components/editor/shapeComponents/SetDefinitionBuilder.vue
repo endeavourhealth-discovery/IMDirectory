@@ -35,7 +35,7 @@
     :showDialog="showDialog"
     :eclString="ecl"
     @eclSubmitted="updateECL"
-    @closeDialog="$event => (showDialog = false)"
+    @closeDialog="() => (showDialog = false)"
     @eclConversionError="updateError"
   />
   <AddByCodeList :showAddByFile="showAddByFileDialog" :showAddByList="showAddByCodeListDialog" @closeDialog="closeAddByDialog" @addCodeList="processCodeList" />

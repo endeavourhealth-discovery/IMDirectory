@@ -29,7 +29,7 @@
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >
-      <template #option="slotProps">
+      <template #option="slotProps: any">
         <div class="data-name" data-testid="row-text">
           {{ slotProps.option?.name || slotProps.option?.["@id"] }}
         </div>

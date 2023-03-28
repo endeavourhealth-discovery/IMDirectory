@@ -50,7 +50,7 @@
             v-tooltip.right="'Download results table'"
           />
         </template>
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <div class="datatable-flex-cell">
             <i v-if="slotProps.data.icon" :style="'color: ' + slotProps.data.colour" :class="slotProps.data.icon" class="recent-icon" aria-hidden="true" />
             <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{
@@ -60,12 +60,12 @@
         </template>
       </Column>
       <Column field="weighting" header="Usage">
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <span>{{ slotProps.data.weighting }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <div class="buttons-container">
             <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="slotProps.data.iri" />
           </div>

@@ -9,7 +9,7 @@
     @dragover.prevent
     @drop="dropReceived"
   >
-    <template #item="slotProps">
+    <template #item="slotProps: any">
       <div class="autocomplete-suggestion">
         {{ slotProps.item.name }} - {{ slotProps.item["@id"] }}
         <Button
@@ -20,7 +20,7 @@
         />
       </div>
     </template>
-    <template #chip="slotProps">
+    <template #chip="slotProps: any">
       <div v-tooltip.right="slotProps.value['@id']">{{ slotProps.value.name }}</div>
     </template>
   </AutoComplete>

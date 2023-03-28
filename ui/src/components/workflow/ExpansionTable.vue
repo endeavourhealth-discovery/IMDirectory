@@ -37,7 +37,7 @@
     <Column v-if="drag" :rowReorder="true" headerStyle="width: 3rem" />
     <Column v-if="selectable" selectionMode="multiple" headerStyle="width: 3em" />
     <Column field="name" header="Name">
-      <template #body="{ data }">
+      <template #body="{ data }: any">
         <span :style="'color: ' + getColourFromType(data.type)" class="p-mx-1 type-icon">
           <i :class="getFAIconFromType(data.type)" aria-hidden="true" />
         </span>
@@ -45,12 +45,12 @@
       </template>
     </Column>
     <Column field="iri" header="Iri">
-      <template #body="{ data }">
+      <template #body="{ data }: any">
         {{ data.iri }}
       </template>
     </Column>
     <Column v-if="showActions" :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
-      <template #body="{ data }">
+      <template #body="{ data }: any">
         <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data.iri)" v-tooltip.top="'View'" />
         <Button
           icon="pi pi-fw pi-info-circle"
@@ -68,7 +68,7 @@
     </Column>
 
     <Column v-if="removableRows" headerStyle="width: 3rem">
-      <template #body="{ data }">
+      <template #body="{ data }: any">
         <Button icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
       </template>
     </Column>

@@ -10,7 +10,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="slotProps: any">
         <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">

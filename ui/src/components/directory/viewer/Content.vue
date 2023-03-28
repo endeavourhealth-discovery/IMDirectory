@@ -24,7 +24,7 @@
       <template #empty> No records found. </template>
 
       <Column field="name" header="Name">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div>
             <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
               <i :class="data.icon" aria-hidden="true" />
@@ -34,12 +34,12 @@
         </template>
       </Column>
       <Column field="type" header="Type">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <span>{{ getTypesDisplay(data.type) }}</span>
         </template>
       </Column>
       <Column :exportable="false" style="justify-content: flex-end">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="buttons-container">
             <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" />
           </div>

@@ -11,7 +11,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="slotProps: any">
         <div
           class="tree-row grabbable"
           @mouseover="showOverlay($event, slotProps.node)"

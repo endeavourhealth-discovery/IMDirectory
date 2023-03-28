@@ -57,7 +57,7 @@
               <template #empty> No results found. </template>
               <template #loading> Loading results. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="hover-name" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -65,7 +65,7 @@
               </Column>
               <Column field="usage" header="Usage"> </Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
                       icon="pi pi-fw pi-eye"
@@ -104,7 +104,7 @@
               <template #empty> No results found. </template>
               <template #loading> Loading results. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="hover-name" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -112,7 +112,7 @@
               </Column>
               <Column field="usage" header="Usage"> </Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
                       icon="pi pi-fw pi-eye"
