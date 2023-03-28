@@ -59,14 +59,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, onMounted } from "vue";
+import {computed, ref, Ref, onMounted } from 'vue';
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
-import TieredMenu from "primevue/tieredmenu";
 import { DirectService, Env, FilerService, DataModelService } from "@/services";
 
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import {useRoute} from 'vue-router';
 
 const store = useStore();
@@ -90,6 +88,12 @@ const directService = new DirectService();
 onMounted(() => {
   setUserMenuItems();
   setAppMenuItems();
+  document.body.onkeydown = (e: KeyboardEvent) => {
+    if(e.keyCode == 112) {
+      help();
+      e.preventDefault();
+    }
+  };
 });
 
 function toLandingPage() {
