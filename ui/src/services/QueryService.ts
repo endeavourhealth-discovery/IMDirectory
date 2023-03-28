@@ -183,6 +183,16 @@ const QueryService = {
     }
   },
 
+  async getPropertyRange(propIri: string): Promise<any[]> {
+    try {
+      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/propertyRange", {
+        params: { propIri: propIri }
+      });
+    } catch (error) {
+      return [] as any;
+    }
+  },
+
   async getPathSuggestions(queryRequest: QueryRequest): Promise<PathDocument> {
     try {
       return await axios.post(Env.API + "api/query/public/pathQuery", queryRequest);

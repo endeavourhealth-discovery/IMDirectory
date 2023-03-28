@@ -71,12 +71,11 @@ import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethod
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { QueryService, EntityService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { QueryService } from "@/services";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import router from "@/router";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyShape>, required: true },
@@ -144,7 +143,9 @@ async function init() {
   loading.value = true;
   if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path["@id"];
   getAssociatedProperty();
-  await getAutocompleteOptions();
+  if(autocompleteOptions.value.length === 0) {
+    await getAutocompleteOptions();
+  }
   if (props.value && isTTIriRef(props.value)) {
     const found = autocompleteOptions.value.find(option => option.name === props.value?.name);
     if (found) selectedResult.value = found;
@@ -201,17 +202,14 @@ async function getAutocompleteOptions() {
     }
     controller.value = new AbortController();
     if (controller.value) {
-      if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_AllowableRanges") {
-        const propIri = queryRequest.argument[0].valueIri["@id"];
-        if(propIri) {
-          const data:TTIriRef[] = await EntityService.getPropertyType(router.currentRoute.value.params.selectedIri as string, propIri);
-          if(data.length !== 0) {
-            autocompleteOptions.value = convertToConceptSummary(data);
+      const result = await QueryService.queryIM(queryRequest, controller.value);
+      if (result && isObjectHasKeys(result, ["entities"])) {
+        if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_DMPropertyRange") {
+          const range = result.entities[0][SHACL.PROPERTY] ? result.entities[0][SHACL.PROPERTY][0][SHACL.NODE] || result.entities[0][SHACL.PROPERTY][0][SHACL.CLASS] || result.entities[0][SHACL.PROPERTY][0][SHACL.DATATYPE] : {};
+          if(Object.keys(range).length !== 0) {
+            autocompleteOptions.value = convertToConceptSummary(range);
           }
-        }
-      } else {
-        const result = await QueryService.queryIM(queryRequest, controller.value);
-        if (result && isObjectHasKeys(result, ["entities"])) {
+        } else {
           autocompleteOptions.value = convertToConceptSummary(result.entities).sort((a:any ,b:any) => a.name.toString().toLowerCase().localeCompare(b.name.toString().toLowerCase()));
         }
       }
@@ -219,7 +217,7 @@ async function getAutocompleteOptions() {
   }
   else {
     if(props.shape.argument[0].valueIri["@id"]) {
-      const range:TTIriRef[] = await EntityService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
+      const range = await QueryService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
       autocompleteOptions.value = convertToConceptSummary(range);
     }
   }

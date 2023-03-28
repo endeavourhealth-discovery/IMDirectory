@@ -24,6 +24,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import router from "@/router";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyShape>, required: true },
@@ -80,8 +81,8 @@ const propertyRangeShape: Ref<PropertyShape> = ref({
   order: 1,
   componentType: { "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT },
   path: props.shape.path,
-  select: [{ name: "Search for concepts", "@id": "http://endhealth.info/im#Query_AllowableRanges" }],
-  argument: [{ valueIri: { "@id": propertyPath.value["@id"] }, parameter: "this" }],
+  select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_DMPropertyRange" }],
+  argument: [{ valueIri: { "@id": propertyPath.value["@id"] }, parameter: "that" },{ valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "this" }],
   builderChild: true
 } as PropertyShape);
 
