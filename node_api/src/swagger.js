@@ -1,5 +1,4 @@
 import swaggerAutogen from "swagger-autogen";
-import * as https from "https";
 
 const outputFile = "./public/swagger_output.json";
 const endpointsFiles = ["./src/controllers/fhirController.ts"];
