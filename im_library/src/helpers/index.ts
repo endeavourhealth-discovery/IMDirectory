@@ -22,6 +22,9 @@ import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
 import { eclToBuild } from "./Ecl/EclToBuild";
 import { eclToIMQ } from "./Ecl/EclToIMQ";
 import { validateEcl } from "./Ecl/ValidateEcl";
+import { dateNow } from "./Datetime/DateNow";
+import { timeNow } from "./Datetime/TimeNow";
+import { timeNow12Hr } from "./Datetime/TimeNow12Hr";
 
 export {
   ChartRescale,
@@ -47,5 +50,8 @@ export {
   eclToBuild,
   eclToIMQ,
   validateEcl,
-  TTTransform
+  TTTransform,
+  dateNow,
+  timeNow,
+  timeNow12Hr
 };
