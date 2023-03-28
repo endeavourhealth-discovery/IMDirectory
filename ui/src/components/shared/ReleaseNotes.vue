@@ -233,7 +233,7 @@ function keyToRepoName(key: string): string {
 .release-container {
   width: calc(100% - 1rem);
   padding: 0.5rem;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
 }
 

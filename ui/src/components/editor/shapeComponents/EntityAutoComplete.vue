@@ -328,9 +328,9 @@ function hideOptionsOverlay(event: any): void {
 
 .label {
   cursor: pointer;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   padding: 0.25rem;
 }
 
@@ -339,7 +339,7 @@ function hideOptionsOverlay(event: any): void {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 
 .search-input {
@@ -356,7 +356,7 @@ function hideOptionsOverlay(event: any): void {
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

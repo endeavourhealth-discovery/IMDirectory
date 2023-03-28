@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row justify-contents-center align-items-center loading -container" v-if="loading">
+  <div class="loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
   <OrganizationChart v-else :value="graph" :collapsible="true" data-testid="orgChart">
@@ -64,7 +64,7 @@ import { RouteRecordName, useRoute, useRouter } from "vue-router";
 import { GraphData } from "@im-library/interfaces";
 import { DirectService, EntityService } from "@/services";
 import { useStore } from "vuex";
-import {OrganizationChartNode} from 'primevue/organizationchart';
+import { OrganizationChartNode } from "primevue/organizationchart";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -101,7 +101,7 @@ async function getGraph(iri: string): Promise<void> {
 <style scoped>
 td,
 th {
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   padding: 0.5rem;
   overflow-wrap: break-word;
   text-align: left;
@@ -112,22 +112,31 @@ td {
 }
 
 tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: var(--surface-a);
 }
 
 th[scope="col"] {
-  background-color: #f8f9fa;
-  color: #495057;
+  background-color: var(--surface-a);
+  color: var(--text-color);
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid rgb(200, 200, 200);
+  border: 2px solid var(--surface-border);
 }
 
 .p-organizationchart {
   height: 100%;
   width: 100%;
   overflow: auto;
+}
+
+.loading-container {
+  height: 20rem;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 </style>

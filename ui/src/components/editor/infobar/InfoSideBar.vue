@@ -257,7 +257,7 @@ function setContentHeight(): void {
 .concept-panel-content {
   height: 100%;
   overflow: auto;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .copy-container {

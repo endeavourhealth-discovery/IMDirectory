@@ -1,5 +1,8 @@
 <template>
-  <div id="ecl-definition-container">
+  <div v-if="loading">
+    <ProgressSpinner />
+  </div>
+  <div v-else id="ecl-definition-container">
     <span class="ecl-text" data-testid="eclString">{{ eclString }}</span>
   </div>
 </template>
@@ -14,18 +17,30 @@ const props = defineProps({
 });
 
 const eclString = ref("");
+const loading = ref(true);
 
 onMounted(async () => await init());
 
 async function init() {
+  loading.value = true;
   const result = await EclService.getEcl(JSON.parse(props.definition));
   if (!result) eclString.value = "Error";
   else eclString.value = result;
+  loading.value = false;
 }
 </script>
 
 <style scoped>
 .ecl-text {
   white-space: break-spaces;
+}
+
+.loading-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 20rem;
 }
 </style>

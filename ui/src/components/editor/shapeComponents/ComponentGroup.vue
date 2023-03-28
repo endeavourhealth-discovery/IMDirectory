@@ -101,6 +101,6 @@ function setProperties(shape: PropertyGroup) {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 </style>

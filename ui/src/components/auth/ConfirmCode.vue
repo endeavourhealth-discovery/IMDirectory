@@ -175,21 +175,21 @@ function requestCode() {
 }
 
 .password-check {
-  color: #439446;
+  color: var(--green-500);
   font-size: 2em;
 }
 
 .password-times {
-  color: #e60017;
+  color: var(--red-500);
   font-size: 2em;
 }
 
 .invalid {
-  border-color: #e24c4c;
+  border-color: var(--red-400);
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-400);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

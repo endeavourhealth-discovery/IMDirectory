@@ -3,17 +3,17 @@
     <div class="search-container">
       <small v-if="searchResultsLimited" class="limited-results">Results limited to first 100. Please refine your search for more accuracy.</small>
       <AutoComplete
-          forceSelection
-          style="flex: 1"
-          input-style="flex: 1"
-          optionLabel="name"
-          dataKey="iri"
-          v-model="selectedSearchResult"
-          :suggestions="filteredSearchOptions"
-          @complete="search($event.query)"
-          placeholder="search..."
-          :disabled="loading"
-          @blur="searchResultsLimited = false"
+        forceSelection
+        style="flex: 1"
+        input-style="flex: 1"
+        optionLabel="name"
+        dataKey="iri"
+        v-model="selectedSearchResult"
+        :suggestions="filteredSearchOptions"
+        @complete="search($event.query)"
+        placeholder="search..."
+        :disabled="loading"
+        @blur="searchResultsLimited = false"
       />
     </div>
     <div v-if="hasFocus && hasType" id="parent-container" class="flex flex-column justify-contents-start align-items-start">
@@ -23,15 +23,15 @@
       </p>
     </div>
     <Tree
-        :value="root"
-        selectionMode="single"
-        v-model:selectionKeys="selectedKeys"
-        :expandedKeys="expandedKeys"
-        @node-select="onNodeSelect"
-        @node-expand="onNodeExpand"
-        @node-collapse="onNodeCollapse"
-        class="tree-root"
-        :loading="loading"
+      :value="root"
+      selectionMode="single"
+      v-model:selectionKeys="selectedKeys"
+      :expandedKeys="expandedKeys"
+      @node-select="onNodeSelect"
+      @node-expand="onNodeExpand"
+      @node-collapse="onNodeCollapse"
+      class="tree-root"
+      :loading="loading"
     >
       <template #default="slotProps">
         <div v-if="slotProps.node.data === 'loadMore'" class="tree-row">
@@ -46,11 +46,11 @@
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
           <span
-              class="tree-node-label"
-              data-testid="row-label"
-              @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
-              @mouseleave="hidePopup($event)"
-          >{{ slotProps.node.label }}</span
+            class="tree-node-label"
+            data-testid="row-label"
+            @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
+            @mouseleave="hidePopup($event)"
+            >{{ slotProps.node.label }}</span
           >
         </div>
       </template>
@@ -191,7 +191,7 @@ onMounted(async () => {
     }
     if (root.value.length < superiorsCount.value) {
       root.value.push(
-          createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null), 1, superiorsCount.value)
+        createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null), 1, superiorsCount.value)
       );
     }
     if (hasCurrentValue.value && isArrayHasLength(root.value.length)) {
@@ -291,11 +291,11 @@ async function rootLoadMore(node: any) {
     });
     node.nextPage = node.nextPage + 1;
     root.value.push(
-        createLoadMoreNode(
-            createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null),
-            node.nextPage,
-            node.totalCount
-        )
+      createLoadMoreNode(
+        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null),
+        node.nextPage,
+        node.totalCount
+      )
     );
   } else if (node.nextPage * pageSize.value > node.totalCount) {
     let results;
@@ -498,6 +498,6 @@ async function selectItem(iri: string): Promise<void> {
   width: 100%;
   height: 1rem;
   padding: 0 0 0.25rem 0;
-  color: #e24c4c;
+  color: var(--red-500);
 }
 </style>

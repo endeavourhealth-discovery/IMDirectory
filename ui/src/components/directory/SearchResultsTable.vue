@@ -52,7 +52,7 @@
         </template>
         <template #body="slotProps">
           <div class="datatable-flex-cell">
-              <i v-if="slotProps.data.icon" :style="'color: ' + slotProps.data.colour" :class="slotProps.data.icon" class="recent-icon" aria-hidden="true" />
+            <i v-if="slotProps.data.icon" :style="'color: ' + slotProps.data.colour" :class="slotProps.data.icon" class="recent-icon" aria-hidden="true" />
             <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{
               slotProps.data.code ? slotProps.data.match + " | " + slotProps.data.code : slotProps.data.match
             }}</span>
@@ -273,7 +273,7 @@ label {
   height: 100%;
   flex: 1 1 auto;
   overflow: auto;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
   flex-flow: column nowrap;
 }

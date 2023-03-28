@@ -304,11 +304,11 @@ async function verifyEmailIsNotRegistered(email: string): Promise<void> {
   cursor: pointer;
 }
 .email-check {
-  color: #439446;
+  color: var(--green-500);
   font-size: 2em;
 }
 .email-times {
-  color: #e60017;
+  color: var(--red-500);
   font-size: 2em;
 }
 </style>

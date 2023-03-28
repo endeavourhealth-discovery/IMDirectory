@@ -79,7 +79,7 @@
             />
             <Button
               v-if="isFavourite(slotProps.data.iri)"
-              style="color: #e39a36"
+              style="color: var(--yellow-500)"
               icon="pi pi-fw pi-star-fill"
               class="p-button-rounded p-button-text row-button-fav"
               @click="updateFavourites(slotProps)"
@@ -310,7 +310,7 @@ label {
   height: 100%;
   width: 100%;
   overflow: auto;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
   flex-flow: column nowrap;
 }
@@ -354,12 +354,12 @@ label {
 }
 
 .row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--surface-a) !important;
+  color: var(--text-color) !important;
 }
 
 .row-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+  background-color: var(--yellow-500) !important;
+  color: var(--text-color) !important;
 }
 </style>

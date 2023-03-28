@@ -51,7 +51,8 @@ export default createStore({
     refreshEditorTree: false as boolean,
     showReleaseNotes: false as boolean,
     fontAwesomePro: false,
-    eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string)
+    eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string),
+    currentTheme: localStorage.getItem("currentTheme") as string
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -196,6 +197,10 @@ export default createStore({
       state.eclEditorSavedString = ecl;
       if (ecl) localStorage.setItem("eclEditorSavedString", ecl);
       else localStorage.removeItem("eclEditorSavedString");
+    },
+    updateCurrentTheme(state, theme) {
+      state.currentTheme = theme;
+      localStorage.setItem("currentTheme", theme);
     }
   },
   actions: {

@@ -365,7 +365,7 @@ function moveItemDown(item: ComponentDetails) {
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

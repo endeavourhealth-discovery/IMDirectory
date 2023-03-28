@@ -409,11 +409,11 @@ function buildEntity() {
   height: calc(100vh - 11.6rem);
   padding: 2.5rem 1rem 1rem 1rem;
   row-gap: 1.75rem;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .definition-main-container {
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .button-bar {
@@ -421,11 +421,11 @@ function buildEntity() {
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
   width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--surface-border);
+  border-left: 1px solid var(--surface-border);
+  border-right: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
@@ -449,8 +449,8 @@ function buildEntity() {
 }
 
 .row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--text-color) !important;
+  color: var(--surface-a) !important;
   z-index: 2;
 }
 

@@ -149,7 +149,7 @@ async function addParentFoldersToRoot() {
   root.value.sort(byKey);
   const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
-  favNode.color = "#e39a36";
+  favNode.color = "var(--yellow-500)";
   root.value.push(favNode);
 }
 

@@ -72,7 +72,7 @@ function getUrl(item: string): string {
 
 #selected-avatar {
   width: 10rem;
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   border-radius: 50%;
 }
 
@@ -90,6 +90,6 @@ function getUrl(item: string): string {
 
 .avatar-popup div div .p-button {
   margin: 2px;
-  border-right: 1px solid #ced4da !important;
+  border-right: 1px solid var(--surface-border) !important;
 }
 </style>

@@ -361,7 +361,7 @@ function getConceptTypes(types: TTIriRef[]): string {
   padding: 2rem 2rem 0 2rem;
   overflow: auto;
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   height: calc(100vh - 8rem);
 }
 .button-bar {
@@ -369,11 +369,11 @@ function getConceptTypes(types: TTIriRef[]): string {
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
   width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--surface-border);
+  border-left: 1px solid var(--surface-border);
+  border-right: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
   flex-flow: row;
   justify-content: flex-end;

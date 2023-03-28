@@ -349,7 +349,7 @@ function navigate(event: any, iri: string): void {
 
 #secondary-tree-bar-container {
   flex: 1 1 auto;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--surface-border);
 }
 
 .p-progress-spinner {

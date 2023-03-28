@@ -193,6 +193,6 @@ function defaultValidity(data: TTIriRef[]) {
 }
 
 .invalid {
-  border-color: #e24c4c;
+  border-color: var(--red-500);
 }
 </style>
