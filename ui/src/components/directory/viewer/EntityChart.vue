@@ -60,10 +60,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { GraphData } from "@im-library/interfaces";
 import { DirectService, EntityService } from "@/services";
-import { useStore } from "vuex";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
 const props = defineProps({

@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
+import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent } from "@im-library/interfaces";

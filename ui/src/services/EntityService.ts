@@ -1,9 +1,8 @@
-import { IM, SNOMED } from "@im-library/vocabulary";
+import { IM } from "@im-library/vocabulary";
 import {
   EntityReferenceNode,
   FiltersAsIris,
   TTBundle,
-  GraphData,
   TermCode,
   Namespace,
   ExportValueSet,

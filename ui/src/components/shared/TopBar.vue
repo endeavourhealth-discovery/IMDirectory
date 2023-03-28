@@ -66,16 +66,13 @@ import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
-import TieredMenu from "primevue/tieredmenu";
 import { DirectService, Env, FilerService, DataModelService } from "@/services";
 
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { usePrimeVue } from "primevue/config";
 
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
 const isLoggedIn = computed(() => store.state.isLoggedIn);
-const authReturnUrl = computed(() => store.state.authReturnUrl);
 const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 const currentTheme = computed(() => store.state.currentTheme);
 

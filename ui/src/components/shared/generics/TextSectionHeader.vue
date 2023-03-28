@@ -7,7 +7,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent } from "@vue/runtime-core";
 
 const props = defineProps({
   label: { type: String, required: true },

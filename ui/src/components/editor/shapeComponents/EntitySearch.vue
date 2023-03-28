@@ -33,7 +33,6 @@ import _ from "lodash";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
-import {} from "@im-library/models";
 import { isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { processArguments } from "@im-library/helpers/EditorMethods";

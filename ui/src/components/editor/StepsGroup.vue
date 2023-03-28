@@ -19,6 +19,7 @@ import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDef
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import VerticalLayout from "./shapeComponents/VerticalLayout.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: {
@@ -40,12 +41,11 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
-import { ref, Ref, watch, inject, onMounted, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, inject, onMounted, PropType } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },

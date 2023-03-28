@@ -1,4 +1,4 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import ObjectNameWithLabel from "@/components/shared/generics/ObjectNameWithLabel.vue";
 
 describe("ObjectNameWithLabel.vue", () => {

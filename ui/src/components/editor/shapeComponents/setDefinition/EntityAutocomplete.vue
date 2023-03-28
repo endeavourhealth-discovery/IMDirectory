@@ -39,7 +39,6 @@ import { onMounted, PropType, Ref, ref, watch, computed } from "vue";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
-import {} from "@im-library/vocabulary";
 import _ from "lodash";
 import { useStore } from "vuex";
 

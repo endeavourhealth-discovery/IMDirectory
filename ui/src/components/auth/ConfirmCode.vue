@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { useStore } from "vuex";
 import { AuthService } from "@/services";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 

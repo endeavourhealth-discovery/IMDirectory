@@ -1,9 +1,7 @@
-import { shallowMount } from "@vue/test-utils";
 import ResizeablePieChart from "@/components/directory/landingPage/pieChartDashCard/ResizeablePieChart.vue";
 import Card from "primevue/card";
 import Chart from "primevue/chart";
 import ProgressSpinner from "primevue/progressspinner";
-import { setupServer } from "msw/node";
 import { render } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import testData from "./ResizablePieChart.testData";

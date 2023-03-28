@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, computed, onMounted } from "vue";
+import { PropType, ref, Ref, computed } from "vue";
 import { QueryRequest, Argument, TTIriRef } from "@im-library/interfaces/AutoGen";
 import AutoComplete from "primevue/autocomplete";
 import { EntityService } from "@/services";

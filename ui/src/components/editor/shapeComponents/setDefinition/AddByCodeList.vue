@@ -58,12 +58,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, Ref, ref, watch } from "vue";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { computed, ComputedRef, Ref, ref } from "vue";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, ParserService } from "@/services";
-import { RDFS } from "@im-library/vocabulary";
 import * as d3 from "d3";
-import { DSVRowArray, DSVRowString } from "d3";
+import { DSVRowArray } from "d3";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 
 const props = defineProps({

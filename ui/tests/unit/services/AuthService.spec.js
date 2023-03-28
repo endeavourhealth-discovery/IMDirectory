@@ -1,9 +1,7 @@
 import { flushPromises } from "@vue/test-utils";
 import { Auth } from "aws-amplify";
 import { AuthService } from "@/services";
-import { User, CustomAlert } from "@im-library/models";
 import { describe } from "vitest";
-import { setupServer } from "msw/node";
 
 describe("AuthService", () => {
   describe("signOut", () => {

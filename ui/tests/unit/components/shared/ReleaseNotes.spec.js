@@ -1,5 +1,5 @@
 import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
-import { render, fireEvent, within, getAllByTestId } from "@testing-library/vue";
+import { render, fireEvent } from "@testing-library/vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";

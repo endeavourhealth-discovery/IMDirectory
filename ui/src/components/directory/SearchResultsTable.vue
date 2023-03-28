@@ -80,7 +80,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import _ from "lodash";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";

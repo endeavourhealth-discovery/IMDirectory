@@ -1,4 +1,4 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import PrimeVue from "primevue/config";
 const mockAdd = vi.fn();

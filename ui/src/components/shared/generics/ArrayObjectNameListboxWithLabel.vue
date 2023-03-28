@@ -41,7 +41,6 @@
 <script setup lang="ts">
 import { DirectService } from "@/services";
 import { computed, onMounted, PropType, ref, Ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getLogger } from "@im-library/logger/LogConfig";

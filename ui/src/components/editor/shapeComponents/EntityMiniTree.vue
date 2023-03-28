@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
+import { onMounted, PropType, ref, Ref } from "vue";
 import { ConceptSummary, EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";

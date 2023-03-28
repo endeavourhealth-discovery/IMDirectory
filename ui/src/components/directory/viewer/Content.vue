@@ -58,11 +58,11 @@ import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { EntityService, Env, DirectService } from "@/services";
+import { EntityService, DirectService } from "@/services";
 import rowClick from "@/composables/rowClick";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
+const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength } = DataTypeCheckers;
 
 const store = useStore();

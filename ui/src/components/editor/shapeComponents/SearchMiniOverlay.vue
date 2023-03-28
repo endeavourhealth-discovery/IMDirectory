@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, PropType, ref, watch } from "vue";
+import { PropType, ref } from "vue";
 import { useStore } from "vuex";
 import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { ConceptSummary } from "@im-library/interfaces";

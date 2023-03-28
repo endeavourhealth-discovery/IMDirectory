@@ -60,7 +60,6 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
 
 export default defineComponent({
   components: { ReportTable, PieChartDashCard }
@@ -75,7 +74,7 @@ import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
-import { EntityService, Env, ConfigService } from "@/services";
+import { EntityService, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;

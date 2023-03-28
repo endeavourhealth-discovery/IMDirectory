@@ -76,16 +76,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, Ref } from "vue";
-import VueJsonPretty from "vue-json-pretty";
-import { isValueSet, getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getContainerElementOptimalHeight } from "@im-library/helpers/ContainerDimensionGetters";
+import { ref, Ref } from "vue";
+import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { DirectService, Env, EntityService } from "@/services";
-import { FilterMatchMode, FilterMatchModeOptions } from "primevue/api";
-import { mapState, useStore } from "vuex";
+import { FilterMatchMode } from "primevue/api";
+import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import DataTable, {DataTableFilterMeta, DataTableFilterMetaData, DataTableOperatorFilterMetaData} from 'primevue/datatable';
+import DataTable, {DataTableFilterMeta, DataTableFilterMetaData } from 'primevue/datatable';
 
 const props = defineProps({
   contents: { type: Array, required: true },

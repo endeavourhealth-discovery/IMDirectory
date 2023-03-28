@@ -1,7 +1,6 @@
 import { shallowMount } from "@vue/test-utils";
 import Auth from "@/views/Auth.vue";
 import ButtonBar from "@/components/auth/ButtonBar.vue";
-import { setupServer } from "msw/node";
 
 describe("Auth.vue", () => {
   let wrapper;

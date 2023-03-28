@@ -51,7 +51,6 @@
 import { onMounted, onUnmounted, Ref, ref, watch } from "vue";
 import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
-import _ from "lodash";
 import { DefinitionConfig } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getContainerElementOptimalHeight } from "@im-library/helpers/ContainerDimensionGetters";
