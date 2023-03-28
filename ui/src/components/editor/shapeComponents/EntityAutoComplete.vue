@@ -343,7 +343,7 @@ function hideOptionsOverlay(event: any): void {
 }
 
 .search-input {
-  width: 20rem;
+  width: 19rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

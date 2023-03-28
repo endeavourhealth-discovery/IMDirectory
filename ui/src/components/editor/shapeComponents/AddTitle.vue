@@ -1,10 +1,10 @@
 <template>
   <div v-if="show" class="title-container">
-    <h6 class="title-center" id="inherited" >Inherited</h6>
-    <h6 class="title-center" id="property" >Property</h6>
-    <h6 class="title-center" id="prop-type" >Type</h6>
-    <h6 class="title-center" id="required" >Required</h6>
-    <h6 class="title-center" id="unique" >Unique</h6>
+    <h5 class="title-center" id="inherited" >Inherited</h5>
+    <h5 class="title-center" id="property" >Property</h5>
+    <h5 class="title-center" id="prop-type" >Type</h5>
+    <h5 class="title-center" id="required" >Required</h5>
+    <h5 class="title-center" id="unique" >Unique</h5>
   </div>
 </template>
 
