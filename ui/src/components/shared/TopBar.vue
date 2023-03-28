@@ -237,7 +237,11 @@ function showReleaseNotes() {
 }
 
 function help() {
-  const url = 'https://wiki.endeavourhealth.org/index.php?title=IMHelp_' + route?.meta?.helpContext;
+  let url = 'https://wiki.endeavourhealth.org/index.php?title=IMHelp';
+
+  if (route?.meta?.helpContext)
+    url += "/" + route?.meta?.helpContext;
+
   window.open(url, 'blank');
 }
 </script>

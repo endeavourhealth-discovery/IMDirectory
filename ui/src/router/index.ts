@@ -42,7 +42,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/directory",
     name: "Directory",
     component: Directory,
-    meta: { requiredLicense: true, helpContext: "directory" },
+    meta: { requiredLicense: true },
     redirect: { name: "LandingPage" },
     children: [
       {
