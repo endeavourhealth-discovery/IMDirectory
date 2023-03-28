@@ -49,6 +49,7 @@ function addObject(query: any, type: string, parent: DisplayQuery) {
 function addWhere(query: any, type: string, parent: DisplayQuery) {
   if (isAnd(query)) {
     for (const where of query.where) {
+      if (query.exclude) where.exclude = true;
       buildRecursively(where, "where", parent);
     }
   } else if (isLeafWhere(query) && (isObjectHasKeys(query, ["@id"]) || isObjectHasKeys(query, ["id"]) || isObjectHasKeys(query, ["bool", "in"]))) {
@@ -97,7 +98,7 @@ function addInItems(label: string, query: any, type: string, parent: DisplayQuer
   const child = buildDQInstance(parent, label, type, query);
   parent.children.push(child);
   for (const inItem of query.in) {
-    addItem(inItem.name, inItem, "whereIn", child);
+    addItem(getNameFromRef(inItem), inItem, "whereIn", child);
   }
 }
 
@@ -117,7 +118,7 @@ function addInClause(id: string, query: any, type: string, parent: DisplayQuery)
     const child = addItem(label, query, type, parent);
     addWhere(query.in[0].where, "where", child);
   } else {
-    label += ": " + (query.valueLabel || query.in[0].name);
+    label += ": " + (query.valueLabel || getNameFromRef(query.in[0]));
     addItem(label, query, type, parent);
   }
 }
@@ -141,6 +142,12 @@ function getNameFromRef(ref: TTAlias) {
     return ref.name;
   } else if (isObjectHasKeys(ref, ["@id"])) {
     const splits = ref["@id"].split("#");
+    return splits[1] || splits[0];
+  } else if (isObjectHasKeys(ref, ["@set"])) {
+    const splits = ref["@set"].split("#");
+    return splits[1] || splits[0];
+  } else if (isObjectHasKeys(ref, ["@type"])) {
+    const splits = ref["@type"].split("#");
     return splits[1] || splits[0];
   }
   return "";
