@@ -3,7 +3,6 @@ import { timeNow } from "../../helpers/Datetime/TimeNow";
 
 export default class ApiError extends Error {
   status: number;
-  message: string;
   timestamp: string;
   debugMessage?: string;
   code?: string;
@@ -12,9 +11,8 @@ export default class ApiError extends Error {
   constructor(status: number, message: string, debugMessage?: string, code?: string, subErrors?: any[]) {
     super(message);
     this.status = status;
-    this.message = message;
     this.timestamp = this.currentDateTime();
-    this.debugMessage = debugMessage;
+    this.debugMessage = debugMessage ? debugMessage : message;
     this.code = code;
     this.subErrors = subErrors;
   }
@@ -24,7 +22,7 @@ export default class ApiError extends Error {
   }
 
   public setMessage(message: string) {
-    this.message = message;
+    super.message = message;
   }
 
   public setDebugMessage(debugMessage: string) {
