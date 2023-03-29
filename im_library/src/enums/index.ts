@@ -8,6 +8,7 @@ import { SortDirection } from "./SortDirection";
 import { QueryDisplayType } from "./QueryBuilder";
 import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
+import { ErrorType } from "./ErrorType";
 
 export {
   BuilderType,
@@ -19,5 +20,6 @@ export {
   SortDirection,
   QueryDisplayType,
   ToastSeverity,
-  TagSeverity
+  TagSeverity,
+  ErrorType
 };
