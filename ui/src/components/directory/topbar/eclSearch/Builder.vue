@@ -128,7 +128,7 @@ function createDefaultBuild() {
 async function createBuildFromEclString(ecl: string) {
   try {
     loading.value = true;
-    build.value = await EclService.getBuildFromEcl(ecl);
+    build.value = await EclService.getBuildFromEcl(ecl, true);
     eclConversionError.value = { error: false, message: "" };
   } catch (err: any) {
     createDefaultBuild();
