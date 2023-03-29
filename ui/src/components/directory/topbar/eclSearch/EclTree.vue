@@ -218,13 +218,13 @@ async function getConceptAggregates(): Promise<void> {
   loading.value = true;
   let superiors: any[] = [];
   if (getType.value === "property") {
-    let results = { result: [], totalCount: 0 };
+    let results = { result: [] as any[], totalCount: 0 };
     if (isAliasIriRef(focus.value) && focus.value.iri) results = await EntityService.getSuperiorPropertiesPaged(focus.value.iri, 1, pageSize.value);
     if (isBoolGroup(focus.value)) results = await EntityService.getSuperiorPropertiesBoolFocusPaged(focus.value, 1, pageSize.value);
     if (results && isArrayHasLength(results.result)) superiors = results.result;
     superiorsCount.value = results.totalCount;
   } else if (getType.value === "value") {
-    let results = { result: [], totalCount: 0 };
+    let results = { result: [] as any[], totalCount: 0 };
     if (isAliasIriRef(focus.value) && focus.value.iri) results = await EntityService.getSuperiorPropertyValuesPaged(focus.value.iri, 1, pageSize.value);
     if (results && isArrayHasLength(results.result)) superiors = results.result;
     superiorsCount.value = results.totalCount;

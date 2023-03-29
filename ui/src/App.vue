@@ -109,6 +109,8 @@ async function setupAxiosInterceptors(axios: any) {
         router.push({ name: "AccessDenied" }).then();
       } else if (error?.response?.status === 500 && error.code === "ERR_BAD_RESPONSE") {
         router.push({ name: "ServerOffline" }).then();
+      } else if (error.code === "ERR_CANCELED") {
+        return;
       } else {
         console.log(error);
         return Promise.reject(error);
