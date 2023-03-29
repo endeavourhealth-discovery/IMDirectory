@@ -1,10 +1,11 @@
-import express, { Application } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import swaggerUi from "swagger-ui-express";
 import * as swaggerFile from "@/../public/swagger_output.json";
 import cors from "cors";
 import * as https from "https";
 import * as fs from "fs";
 import Env from "@/services/env.service";
+import errorHandler from "./middlewares/errorHandler.middleware";
 
 class App {
   public app: Application;
@@ -28,6 +29,8 @@ class App {
 
     appInit.middleWares.forEach(m => this.app.use(m));
     appInit.controllers.forEach(c => this.app.use(c.path, c.router));
+
+    this.app.use(errorHandler);
   }
 
   public listen() {

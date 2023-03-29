@@ -5,6 +5,14 @@ import store from "./store";
 import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
+import axios from "axios";
+
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    raw?: boolean;
+    silent?: boolean;
+  }
+}
 
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
