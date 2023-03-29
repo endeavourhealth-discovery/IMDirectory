@@ -44,7 +44,7 @@ const EclService = {
     else return result;
   },
 
-  async getBuildFromEcl(ecl: string, raw: boolean = true): Promise<any> {
+  async getBuildFromEcl(ecl: string, raw: boolean = false): Promise<any> {
     return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToBuilder", ecl, { raw: raw, headers: { "Content-Type": "text/plain" } });
   }
 };
