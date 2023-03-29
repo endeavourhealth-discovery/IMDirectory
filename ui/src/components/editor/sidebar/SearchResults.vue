@@ -58,14 +58,14 @@
         <template #body="slotProps">
           <div class="buttons-container">
             <Button
-              :icon="'fa-solid fa-sitemap'"
+                :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
               class="p-button-rounded p-button-text p-button-plain row-button"
               @click="locateInTree($event, slotProps.data.iri)"
               v-tooltip.top="'Find in tree'"
               data-testid="select-button"
             />
             <Button
-              icon="pi pi-fw pi-external-link"
+                :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
               class="p-button-rounded p-button-text p-button-plain row-button"
               @click="directService.view(slotProps.data.iri)"
               v-tooltip.top="'View in new tab'"
@@ -80,7 +80,7 @@
             <Button
               v-if="isFavourite(slotProps.data.iri)"
               style="color: #e39a36"
-              icon="pi pi-fw pi-star-fill"
+              icon="fa-solid fa-star"
               class="p-button-rounded p-button-text row-button-fav"
               @click="updateFavourites(slotProps)"
               v-tooltip.left="'Unfavourite'"
@@ -88,7 +88,7 @@
             />
             <Button
               v-else
-              icon="pi pi-fw pi-star"
+              icon="fa-regular fa-star"
               class="p-button-rounded p-button-text p-button-plain row-button"
               @click="updateFavourites(slotProps)"
               v-tooltip.left="'Favourite'"
@@ -136,6 +136,7 @@ const searchLoading = computed(() => store.state.searchLoading);
 const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptions);
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 const favourites = computed(() => store.state.favourites);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const directService = new DirectService();
 
@@ -156,7 +157,7 @@ const rClickOptions: Ref<any[]> = ref([
   },
   {
     label: "View in new tab",
-    icon: "pi pi-fw pi-external-link",
+    icon: fontAwesomePro ? "fa-duotone fa-up-right-from-square" : "fa-solid fa-up-right-from-square",
     command: () => directService.view((selected.value as any).iri)
   },
   {
@@ -164,7 +165,7 @@ const rClickOptions: Ref<any[]> = ref([
   },
   {
     label: "Favourite",
-    icon: "pi pi-fw pi-star",
+    icon: "fa-regular fa-star",
     command: () => updateFavourites()
   }
 ]);

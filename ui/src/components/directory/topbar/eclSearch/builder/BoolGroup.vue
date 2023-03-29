@@ -18,7 +18,8 @@
             <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
             <label :for="'group' + index">Group</label>
           </div>
-          <Button @click="deleteItem(index)" :severity="hover ? 'danger' : undefined" :class="!hover && 'p-button-placeholder'" icon="pi pi-trash" />
+          <Button @click="deleteItem(index)" :severity="hover ? 'danger' : undefined" :class="!hover && 'p-button-placeholder'"
+                  :icon="fontAwesomePro ? 'fa-duotone fa-trash-can' : 'fa-solid fa-trash-can'" />
         </div>
       </div>
     </template>
@@ -68,12 +69,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, watch, onMounted } from "vue";
+import {ref, inject, Ref, watch, onMounted, computed} from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isArray } from "@vue/shared";
+import {useStore} from "vuex";
 
 const props = defineProps({
   value: { type: Object, required: true },
@@ -88,6 +90,7 @@ watch(
     () => (props.value.ecl = generateEcl())
 );
 
+const store = useStore();
 const emit = defineEmits({ unGroupItems: payload => true });
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
@@ -96,6 +99,8 @@ watch(includeTerms, () => (props.value.ecl = generateEcl()));
 const selected = ref("AND");
 const groupWithinBoolGroup = ref(false);
 const group: Ref<number[]> = ref([]);
+
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const menuBool = ref();
 

@@ -1,7 +1,7 @@
 <template>
   <div class="property-value-container">
     <div class="property-name-container">
-      <Button icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="removeProperty" />
+      <Button icon="fa-solid fa-xmark" severity="danger" class="p-button-rounded p-button-text" @click="removeProperty" />
       <Dropdown v-model="propertyName" :options="classProperties" placeholder="Select property to add" optionLabel="name" @change="onSelect" />
     </div>
     <div v-if="props.property.type" class="property-value-container">
@@ -20,7 +20,10 @@
         :parentType="parentType"
         :include-properties="includeProperties"
       /> -->
-      <Button v-else-if="!property.value && property.label" icon="pi pi-pencil" label="Edit value" @click="addValue" />
+      <Button v-else-if="!property.value && property.label"
+              :icon="fontAwesomePro ? 'fa-duotone fa-pencil' : 'fa-solid fa-pencil'"
+              label="Edit value"
+              @click="addValue" />
     </div>
   </div>
 </template>
@@ -31,6 +34,7 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ClassService } from "@/services";
 import { computed, onMounted, PropType, ref } from "vue";
+import { useStore } from "vuex";
 // import FullQueryBuilderEntityAutocomplete from "./FullQueryBuilderEntityAutocomplete.vue";
 // import EntityAutocompleteWithInclusions from "./EntityAutocompleteWithInclusions.vue";
 // import PropertyIs from "./PropertyIs.vue";
@@ -50,6 +54,8 @@ const propertyName = ref<FieldDto>();
 const classProperties = ref<FieldDto[]>([]);
 
 const SIMPLE_TYPES = ["java.lang.String", "boolean", "org.endeavourhealth.imapi.model.tripletree.TTAlias"];
+
+const store = useStore();
 
 const isTextInput = computed(() => {
   return isOfClassType(props.property, "java.lang.String");
@@ -98,6 +104,8 @@ const isPropertyIs = computed(() => {
 const isType = computed(() => {
   return props.property.label === "type" && isIriRef;
 });
+
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 function isOfClassType(queryOjbect: QueryObject, firstType: string, secondType?: string) {
   if (!isObjectHasKeys(queryOjbect.type, ["firstType"])) return false;

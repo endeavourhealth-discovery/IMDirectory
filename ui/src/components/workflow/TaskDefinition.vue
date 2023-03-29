@@ -45,7 +45,7 @@
                   placeholder="Select status"
                 />
                 <InputText v-model="searchTerm" placeholder="Keyword Search" />
-                <Button :loading="loading" icon="pi pi-search" label="Search" class="save-button" @click="search()" />
+                <Button :loading="loading" icon="fa-solid fa-magnifying-glass" label="Search" class="save-button" @click="search()" />
               </div>
             </Panel>
           </div>
@@ -75,13 +75,13 @@
                 <template #body="{ data }">
                   <div class="buttons-container">
                     <Button
-                      icon="pi pi-fw pi-eye"
+                      icon="fa-regular fa-eye"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="view(data.iri)"
                       v-tooltip.top="'View'"
                     />
                     <Button
-                      icon="pi pi-fw pi-info-circle"
+                      icon="fa-solid fa-circle-info"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="showInfo(data.iri)"
                       v-tooltip.top="'Info'"
@@ -93,8 +93,8 @@
           </div>
           <div class="col">
             <div class="flex flex-column align-items-center">
-              <Button class="pick-button" icon="pi pi-arrow-right" @click="addSelectedTasks" />
-              <Button class="pick-button" icon="pi pi-arrow-left" @click="removeSelectedTasks" />
+              <Button class="pick-button" icon="fa-solid fa-arrow-right" @click="addSelectedTasks" />
+              <Button class="pick-button" icon="fa-solid fa-arrow-left" @click="removeSelectedTasks" />
             </div>
           </div>
           <div class="col-5">
@@ -121,13 +121,13 @@
                 <template #body="{ data }">
                   <div class="buttons-container">
                     <Button
-                      icon="pi pi-fw pi-eye"
+                      icon="fa-ragular fa-eye"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="view(data.iri)"
                       v-tooltip.top="'View'"
                     />
                     <Button
-                      icon="pi pi-fw pi-info-circle"
+                      icon="fa-solid fa-circle-info"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="showInfo(data.iri)"
                       v-tooltip.top="'Info'"
@@ -141,8 +141,8 @@
       </template>
     </Card>
     <div class="button-bar">
-      <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="goToTaskViewer" />
-      <Button :loading="saveLoading" icon="pi pi-check" label="Save" class="save-button" @click="save" />
+      <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="goToTaskViewer" />
+      <Button :loading="saveLoading" icon="fa-solid fa-check" label="Save" class="save-button" @click="save" />
     </div>
   </div>
 </template>

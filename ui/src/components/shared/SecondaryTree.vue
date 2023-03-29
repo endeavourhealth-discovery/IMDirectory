@@ -6,7 +6,7 @@
         :key="altParent.iri"
         :label="altParent.name"
         :disabled="loading || altParent.name === ''"
-        icon="pi pi-chevron-up"
+        icon="fa-solid fa-chevron-up"
         @click="expandParents(altParent.listPosition)"
         @mouseenter="showPopup($event, altParent.iri)"
         @mouseleave="hidePopup($event)"
@@ -18,7 +18,7 @@
       <Button
         :label="currentParent?.name"
         :disabled="loading || !currentParent"
-        icon="pi pi-chevron-up"
+        icon="fa-solid fa-chevron-up"
         @click="expandParents(parentPosition)"
         @mouseenter="showPopup($event, currentParent?.iri)"
         @mouseleave="hidePopup($event)"

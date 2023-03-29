@@ -51,8 +51,8 @@
                 @focus="updateFocused('email1', true)"
                 @blur="updateFocused('email1', false)"
               />
-              <i v-if="email1Verified && focused.get('email1') === false" class="pi pi-check-circle email-check" aria-hidden="true" />
-              <i v-if="!email1Verified && focused.get('email1') === false" class="pi pi-times-circle email-times" aria-hidden="true" />
+              <i v-if="email1Verified && focused.get('email1') === false" class="fa-solid fa-circle-check email-check" aria-hidden="true" />
+              <i v-if="!email1Verified && focused.get('email1') === false" class="fa-solid fa-circle-xmark email-times" aria-hidden="true" />
             </div>
           </div>
           <div class="field">

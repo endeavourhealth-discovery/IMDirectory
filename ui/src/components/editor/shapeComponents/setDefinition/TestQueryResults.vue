@@ -16,8 +16,8 @@
     </div>
     <div v-else>No concepts found</div>
     <template #footer>
-      <Button label="Download" icon="pi pi-download" @click="exportCSV" severity="help" />
-      <Button label="OK" icon="pi pi-check" @click="close" autofocus />
+      <Button label="Download" icon="fa-solid fa-download" @click="exportCSV" severity="help" />
+      <Button label="OK" icon="fa-solid fa-check" @click="close" autofocus />
     </template>
   </Dialog>
 </template>

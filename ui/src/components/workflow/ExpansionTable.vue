@@ -29,7 +29,7 @@
       <div class="flex justify-content-center align-items-center">
         <h5 class="m-0">{{ title }}</h5>
         <span v-if="inputSearch" class="p-input-icon-left">
-          <i class="pi pi-search" />
+          <i class="fa-solid fa-magnifying-glass" />
           <InputText v-model="searchTerm" type="text" placeholder="Search" @input="search" />
         </span>
       </div>
@@ -51,15 +51,15 @@
     </Column>
     <Column v-if="showActions" :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
       <template #body="{ data }">
-        <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data.iri)" v-tooltip.top="'View'" />
+        <Button icon="fa-regular fa-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data.iri)" v-tooltip.top="'View'" />
         <Button
-          icon="pi pi-fw pi-info-circle"
+          icon="fa-solid fa-circle-info"
           class="p-button-rounded p-button-text p-button-plain row-button"
           @click="showInfo(data.iri)"
           v-tooltip.top="'Info'"
         />
         <Button
-          icon="pi pi-fw pi-play"
+          icon="fa-solid-play"
           class="p-button-rounded p-button-text p-button-plain row-button"
           @click="starMapping(data.iri)"
           v-tooltip.left="'Start task'"
@@ -69,7 +69,7 @@
 
     <Column v-if="removableRows" headerStyle="width: 3rem">
       <template #body="{ data }">
-        <Button icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
+        <Button icon="fa-solid fa-xmark" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
       </template>
     </Column>
   </DataTable>

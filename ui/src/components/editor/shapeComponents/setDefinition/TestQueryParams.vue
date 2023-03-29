@@ -21,8 +21,8 @@
       </div>
     </div>
     <template #footer>
-      <Button label="Cancel" icon="fa-duotone fa-ban" @click="close" severity="secondary" />
-      <Button label="Run" icon="pi pi-check" @click="run" autofocus />
+      <Button label="Cancel" icon="fa-solid fa-ban" @click="close" severity="secondary" />
+      <Button label="Run" icon="fa-solid fa-check" @click="run" autofocus />
     </template>
   </Dialog>
 </template>

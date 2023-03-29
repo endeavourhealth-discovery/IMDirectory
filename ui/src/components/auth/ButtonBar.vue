@@ -4,11 +4,14 @@
       data-testid="button-bar-back-button"
       class="back-button"
       label="Back"
-      icon="pi pi-arrow-circle-left"
+      :icon="fontAwesomePro ? 'fa-duotone fa-circle-arrow-left' : 'fa-solid fa-circle-arrow-left'"
       iconPos="left"
       v-on:click.prevent="clickedBack"
     />
-    <Button data-testid="button-bar-home-button" class="home-button" icon="pi pi-home" v-on:click.prevent="homeClicked" />
+    <Button data-testid="button-bar-home-button"
+            class="home-button"
+            :icon="fontAwesomePro ? 'fa-duotone fa-house-chimney' : 'fa-solid fa-house-chimney'"
+            v-on:click.prevent="homeClicked" />
   </div>
 </template>
 
@@ -21,6 +24,7 @@ const store = useStore();
 const router = useRouter();
 
 const previousAppUrl = computed(() => store.state.previousAppUrl);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 function clickedBack(): void {
   router.back();

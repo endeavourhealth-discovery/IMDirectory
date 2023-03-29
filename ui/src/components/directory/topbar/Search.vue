@@ -6,7 +6,7 @@
     </SplitButton>
     <Button
       id="filter-button"
-      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
+      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'fa-solid fa-sliders'"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
       @click="openFiltersOverlay"
       data-testid="filters-open-button"

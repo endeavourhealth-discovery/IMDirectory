@@ -4,7 +4,7 @@
       <strong class="label">{{ label }}</strong>
       <span>&nbsp;({{ data.length }})</span>
       <Button
-        :icon="buttonExpanded ? 'pi pi-minus' : 'pi pi-plus'"
+        :icon="buttonExpanded ? 'fa-solid fa-minus' : 'fa-solid fa-plus'"
         class="p-button-rounded p-button-text p-button-primary p-button-sm expand-button"
         @click="setButtonExpanded"
         v-styleclass="{

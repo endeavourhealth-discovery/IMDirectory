@@ -24,7 +24,7 @@
           <Button
             :disabled="!searchResults?.length"
             class="p-button-sm p-button-text"
-            icon="pi pi-external-link"
+            :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
             @click="exportCSV()"
             v-tooltip.right="'Download results table'"
           />
@@ -41,7 +41,7 @@
             </div>
             <div class="button-container">
               <Button
-                icon="pi pi-copy"
+                icon="fa-solid fa-copy"
                 severity="secondary"
                 class="p-button-rounded p-button-text row-button"
                 v-clipboard:copy="copyConceptToClipboardVueWrapper(slotProps.data)"
@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch, onMounted } from "vue";
+import {PropType, ref, Ref, watch, onMounted, computed} from "vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
 import { DirectService } from "@/services";
@@ -119,6 +119,7 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { conceptObjectToCopyString, copyConceptToClipboard } from "@im-library/helpers/CopyConceptToClipboard";
+import {useStore} from "vuex";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -143,6 +144,7 @@ onMounted(() => {
 });
 
 const toast = useToast();
+const store = useStore();
 const directService = new DirectService();
 const { downloadFile } = setupDownloadFile(window, document);
 
@@ -154,6 +156,8 @@ const currentReportTemplate = ref("Displaying {first} to {last} of {totalRecords
 
 const blockedIris = XmlSchemaDatatypes;
 const defaultPredicates = DefaultPredicateNames;
+
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const op = ref();
 const copyMenu = ref();

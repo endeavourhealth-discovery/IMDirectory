@@ -4,7 +4,7 @@
       <strong class="label" data-testid="label">{{ label }}</strong>
       <span v-if="getCount()" data-testid="count">&nbsp;({{ getCount() }})</span>
       <Button
-        :icon="buttonExpanded ? 'pi pi-minus' : 'pi pi-plus'"
+        :icon="buttonExpanded ? 'fa-solid fa-minus' : 'fa-solid fa-plus'"
         class="p-button-rounded p-button-text p-button-primary p-button-sm expand-button"
         :id="'expand-button-' + label"
         @click="setButtonExpanded()"

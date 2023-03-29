@@ -1,8 +1,8 @@
 <template>
   <div class="details-container">
     <div style="margin-bottom: 1em">
-      <Button class="details-tree-button" icon="pi pi-plus" label="Expand All" @click="expandAll" />
-      <Button class="details-tree-button p-button-secondary" icon="pi pi-minus" label="Collapse All" @click="collapseAll" />
+      <Button class="details-tree-button" icon="fa-solid fa-plus" label="Expand All" @click="expandAll" />
+      <Button class="details-tree-button p-button-secondary" icon="fa-solid fa-minus" label="Collapse All" @click="collapseAll" />
     </div>
     <Tree
       v-model:selectionKeys="selectedKeys"

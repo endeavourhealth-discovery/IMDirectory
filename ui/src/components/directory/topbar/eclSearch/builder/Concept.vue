@@ -27,7 +27,8 @@
           <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
           <label :for="'group' + index">Group</label>
         </div>
-        <Button @click="deleteItem(index)" :severity="hover ? 'danger' : undefined"  :class="!hover && 'p-button-placeholder'" icon="pi pi-trash" class="builder-button" />
+        <Button @click="deleteItem(index)" :severity="hover ? 'danger' : undefined"  :class="!hover && 'p-button-placeholder'"
+                :icon="fontAwesomePro ? 'fa-duotone fa-trash-can' : 'fa-solid fa-trash-can'"  />
       </span>
     </div>
     <div class="add-group">
@@ -69,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch, inject } from "vue";
+import {Ref, ref, onMounted, PropType, watch, inject, computed} from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
@@ -80,6 +81,10 @@ import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
+import { Store, useStore } from "vuex";
+
+const store = useStore();
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const props = defineProps({
   value: {

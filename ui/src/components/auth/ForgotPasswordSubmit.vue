@@ -18,14 +18,14 @@
               <i
                 v-if="codeVerified"
                 data-testid="forgot-password-submit-verified"
-                class="pi pi-check-circle"
+                class="fa-solid fa-circle-check"
                 style="color: #439446; font-size: 2em"
                 aria-hidden="true"
               />
               <i
                 v-if="!codeVerified && code !== ''"
                 data-testid="forgot-password-submit-unverified"
-                class="pi pi-times-circle"
+                class="fa-solid fa-circle-xmark"
                 style="color: #e60017; font-size: 2em"
                 aria-hidden="true"
               />

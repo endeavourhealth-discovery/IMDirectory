@@ -37,13 +37,13 @@
             <i
               v-if="email1Verified && focused.get('email1') === false"
               data-testid="register-email1-verified"
-              class="pi pi-check-circle email-check"
+              class="fa-solid fa-circle-check email-check"
               aria-hidden="true"
             />
             <i
               v-if="!email1Verified && focused.get('email1') === false"
               data-testid="register-email1-unverified"
-              class="pi pi-times-circle email-times"
+              class="fa-solid fa-circle-xmark email-times"
               aria-hidden="true"
             />
           </div>

@@ -9,7 +9,7 @@
         <div class="title-container">
           <p class="app-name">{{ key }}</p>
           <Button
-            :icon="showApp[key] ? 'pi pi-minus' : 'pi pi-plus'"
+            :icon="showApp[key] ? 'fa-solid fa-xmark' : 'fa-solid fa-plus'"
             class="p-button-rounded p-button-text p-button-primary p-button-sm expand-button"
             :id="'expand-button-' + key"
             @click="expandAppClicked(key, !showApp[key])"

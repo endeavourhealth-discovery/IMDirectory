@@ -25,8 +25,8 @@
     <Dialog header="New folder" :visible="newFolder !== null" :modal="true">
       <InputText type="text" v-model="newFolderName" autofocus />
       <template #footer>
-        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
-        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" @click="createFolder" />
+        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'fa-solid fa-xmark'" @click="newFolder = null" class="p-button-text" />
+        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'fa-solid fa-check'" @click="createFolder" />
       </template>
     </Dialog>
   </div>
@@ -158,7 +158,7 @@ function confirmMove(node: TreeNode) {
     confirm.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         moveConcept(node);
       },
@@ -188,7 +188,7 @@ function confirmAdd(node: TreeNode) {
     confirm.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         addConcept(node);
       },

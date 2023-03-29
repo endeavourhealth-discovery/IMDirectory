@@ -7,13 +7,13 @@
       </div>
       <div class="col-2 header-button-group p-buttonset">
         <Button
-          :icon="fontAwesomePro ? 'fa-regular fa-angle-left' : 'pi pi-angle-left'"
+          :icon="fontAwesomePro ? 'fa-regular fa-angle-left' : 'fa-solid fa-angle-left'"
           :disabled="canGoBack"
           class="go-back p-button-rounded p-button-text p-button-plain"
           @click="goBack"
         />
         <Button
-          :icon="fontAwesomePro ? 'fa-regular fa-angle-right' : 'pi pi-angle-right'"
+          :icon="fontAwesomePro ? 'fa-regular fa-angle-right' : 'fa-solid fa-angle-right'"
           :disabled="canGoForward"
           class="go-forward p-button-rounded p-button-text p-button-plain"
           @click="goForward"

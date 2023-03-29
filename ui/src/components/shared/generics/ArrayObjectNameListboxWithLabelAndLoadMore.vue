@@ -5,7 +5,7 @@
       <span v-if="totalCount" data-testid="total-count">&nbsp;({{ totalCount }})</span>
       <span v-else data-testid="count">&nbsp;({{ listboxData.length }})</span>
       <Button
-        :icon="buttonExpanded ? 'pi pi-minus' : 'pi pi-plus'"
+        :icon="buttonExpanded ? 'fa-solid fa-minus' : 'fa-solid fa-plus'"
         class="p-button-rounded p-button-text p-button-primary p-button-sm expand-button"
         :id="'expand-button-' + id"
         @click="setButtonExpanded"

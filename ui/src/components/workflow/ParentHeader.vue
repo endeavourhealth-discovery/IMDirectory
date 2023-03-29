@@ -11,20 +11,20 @@
       </div>
       <div class="concept-buttons-container">
         <Button
-          icon="pi pi-fw pi-eye"
+          icon="fa-regular fa-eye"
           severity="secondary"
           class="p-button-outlined concept-button"
           @click="view(concept['@id'])"
           v-tooltip.left="'Open in Viewer'"
         />
         <Button
-          icon="pi pi-fw pi-info-circle"
+          icon="fa-solid fa-circle-info"
           severity="secondary"
           class="p-button-outlined concept-button"
           @click="showInfo(concept['@id'])"
           v-tooltip.left="'Show summary panel'"
         />
-        <Button icon="pi pi-fw pi-pencil" severity="secondary" class="p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
+        <Button :icon="fontAwesomePro ? 'fa-duotone fa-pencil' : 'fa-regular fa-pencil'" severity="secondary" class="p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
         <!-- <Button
           icon="pi pi-fw pi-play"
           class="p-button-secondary p-button-outlined concept-button"
@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, ref, Ref, watch } from "vue";
+import {computed, defineComponent, onMounted, ref, Ref, watch} from "vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { DirectService, EntityService, Env } from "@/services";
@@ -66,6 +66,7 @@ watch(
 const router = useRouter();
 const store = useStore();
 
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 const directService = new DirectService();
 
 const concept: Ref<any> = ref({});

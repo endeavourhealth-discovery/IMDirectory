@@ -320,7 +320,7 @@ function openTree(type: string) {
         props: dialogProps,
         templates: {
           footer: () => {
-            return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+            return [h(Button, { label: "Close", icon: "fa-solid fa-xmark", onClick: () => dialogRef.close() })];
           }
         },
         data: { focus: { iri: props.focus?.iri, name: props.focus?.name }, type: "property", currentValue: props.value.property.concept },
@@ -336,7 +336,7 @@ function openTree(type: string) {
         props: dialogProps,
         templates: {
           footer: () => {
-            return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+            return [h(Button, { label: "Close", icon: "fa-solid fa-xmark", onClick: () => dialogRef.close() })];
           }
         },
         data: { focus: props.focus, type: "property", currentValue: props.value.property.concept },
@@ -352,7 +352,7 @@ function openTree(type: string) {
       props: dialogProps,
       templates: {
         footer: () => {
-          return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+          return [h(Button, { label: "Close", icon: "fa-solid fa-xmark", onClick: () => dialogRef.close() })];
         }
       },
       data: { focus: { iri: selectedProperty.value.iri, name: selectedProperty.value.name }, type: "value", currentValue: props.value.value.concept },
