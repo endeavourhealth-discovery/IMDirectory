@@ -5,13 +5,20 @@ import store from "./store";
 import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
+import axios from "axios";
+
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    raw?: boolean;
+    silent?: boolean;
+  }
+}
 
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(fab);
-
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";

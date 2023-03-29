@@ -132,7 +132,8 @@ async function createBuildFromEclString(ecl: string) {
     eclConversionError.value = { error: false, message: "" };
   } catch (err: any) {
     createDefaultBuild();
-    eclConversionError.value = { error: true, message: err.message };
+    if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };
+    else eclConversionError.value = { error: true, message: err.message };
   }
   emit("eclConversionError", eclConversionError.value);
   loading.value = false;

@@ -78,6 +78,7 @@ async function setupAxiosInterceptors(axios: any) {
       return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
     },
     (error: any) => {
+      if (error?.response?.config?.raw) return Promise.reject(error);
       if (error?.response?.status === 403) {
         toast.add({
           severity: "error",
