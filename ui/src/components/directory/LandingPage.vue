@@ -60,9 +60,10 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
+import ActionButtons from "../shared/ActionButtons.vue";
 
 export default defineComponent({
-  components: { ReportTable, PieChartDashCard }
+  components: { ReportTable, PieChartDashCard, ActionButtons }
 });
 </script>
 
