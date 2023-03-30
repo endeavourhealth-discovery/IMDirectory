@@ -15,7 +15,7 @@
       />
     </div>
     <div class="button-container">
-      <Button label="Format" @click="format" class="p-button-help" :disabled="!queryString.length" data-testid="search-button" />
+      <Button label="Format" @click="format" severity="help" :disabled="!queryString.length" data-testid="search-button" />
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
@@ -28,7 +28,7 @@
 import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary } from "@im-library/interfaces";
-import { Query, QueryRequest, Select } from "@im-library/models/AutoGen";
+import { Query, QueryRequest, Select } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";

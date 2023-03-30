@@ -37,7 +37,7 @@
     <Column v-if="drag" :rowReorder="true" headerStyle="width: 3rem" />
     <Column v-if="selectable" selectionMode="multiple" headerStyle="width: 3em" />
     <Column field="name" header="Name">
-      <template #body="{ data }">
+      <template #body="{ data }: any">
         <span :style="'color: ' + getColourFromType(data.type)" class="p-mx-1 type-icon">
           <i :class="getFAIconFromType(data.type)" aria-hidden="true" />
         </span>
@@ -45,12 +45,12 @@
       </template>
     </Column>
     <Column field="iri" header="Iri">
-      <template #body="{ data }">
+      <template #body="{ data }: any">
         {{ data.iri }}
       </template>
     </Column>
     <Column v-if="showActions" :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
-      <template #body="{ data }">
+      <template #body="{ data }: any">
         <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data.iri)" v-tooltip.top="'View'" />
         <Button
           icon="pi pi-fw pi-info-circle"
@@ -68,23 +68,21 @@
     </Column>
 
     <Column v-if="removableRows" headerStyle="width: 3rem">
-      <template #body="{ data }">
-        <Button icon="pi pi-times" class="p-button-rounded p-button-danger p-button-text" @click="remove(data)" />
+      <template #body="{ data }: any">
+        <Button icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
       </template>
     </Column>
   </DataTable>
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, Ref } from "vue";
-import VueJsonPretty from "vue-json-pretty";
-import { isValueSet, getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getContainerElementOptimalHeight } from "@im-library/helpers/ContainerDimensionGetters";
+import { ref, Ref } from "vue";
+import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { DirectService, Env, EntityService } from "@/services";
-import { FilterMatchMode, FilterMatchModeOptions } from "primevue/api";
-import { mapState, useStore } from "vuex";
+import { FilterMatchMode } from "primevue/api";
+import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import DataTable, {DataTableFilterMeta, DataTableFilterMetaData } from 'primevue/datatable';
 
 const props = defineProps({
   contents: { type: Array, required: true },
@@ -118,7 +116,7 @@ const directService = new DirectService();
 const selected: Ref<any[]> = ref([]);
 const expandedRows: Ref<any[]> = ref([]);
 const searchTerm = ref("");
-const filters: Ref<{ scheme: { value: any; matchMode: string } }> = ref({ scheme: { value: null, matchMode: FilterMatchMode.IN } });
+const filters: Ref<DataTableFilterMeta> = ref({ scheme: { value: null, matchMode: FilterMatchMode.IN } as DataTableFilterMetaData });
 
 function view(iri: string) {
   directService.directTo(Env.VIEWER_URL, iri, "concept");

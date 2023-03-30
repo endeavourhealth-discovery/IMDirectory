@@ -1,8 +1,9 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import App from "@/App.vue";
 import Toast from "primevue/toast";
 import ProgressSpinner from "primevue/progressspinner";
 import ConfirmDialog from "primevue/confirmdialog";
+import DynamicDialog from "primevue/dynamicdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import { expect, vi } from "vitest";
@@ -47,7 +48,7 @@ describe("App.vue", () => {
     vi.resetAllMocks();
     component = render(App, {
       global: {
-        components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu },
+        components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu, DynamicDialog },
         stubs: { "router-link": true, "router-view": true, ReleaseNotes: true },
         plugins: [PrimeVue]
       }

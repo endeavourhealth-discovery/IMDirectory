@@ -6,7 +6,7 @@
     </SplitButton>
     <Button
       id="filter-button"
-      icon="pi pi-sliders-h"
+      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
@@ -25,8 +25,9 @@ import Filters from "./Filters.vue";
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { TTIriRef, SearchRequest, FilterOptions } from "@im-library/interfaces";
-import { SortBy, SortDirection } from "@im-library/enums";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { SortDirection } from "@im-library/enums";
 import { DataTypeCheckers } from "@im-library/helpers";
 import { useRouter } from "vue-router";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -36,6 +37,7 @@ const { isObject } = DataTypeCheckers;
 const router = useRouter();
 const store = useStore();
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
@@ -75,7 +77,7 @@ async function search(): Promise<void> {
     store.commit("updateSearchLoading", true);
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;
-    searchRequest.sortBy = SortBy.Usage;
+    searchRequest.sortField = "weighting";
     searchRequest.page = 1;
     searchRequest.size = 100;
     searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
@@ -120,18 +122,22 @@ async function search(): Promise<void> {
 }
 
 .search-container {
+  flex: 1 0 auto;
   padding: 0 0.2rem;
   display: flex;
   flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
   gap: 0.2rem;
+  overflow: auto;
 }
 
 #autocomplete-search {
   font-size: 1rem;
-  background: #dee2e6;
   border: none;
-  width: 30rem;
+  max-width: 25rem;
   height: 2.25rem;
+  flex: 1 1 auto;
 }
 
 .fa-icon {

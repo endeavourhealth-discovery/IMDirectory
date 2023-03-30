@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { inject, PropType, ref, Ref, watch, onMounted } from "vue";
-import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces";
+import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -104,20 +104,20 @@ async function getDropdownOptions() {
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
-function updateEntity(data: TTIriRef) {
+function updateEntity(data: string) {
   const result = {} as any;
   result[key] = data;
   if (entityUpdate) entityUpdate(result);
 }
 
-function updateValueVariableMap(data: TTIriRef) {
+function updateValueVariableMap(data: string) {
   if (!props.shape.valueVariable) return;
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-async function updateValidity(data: TTIriRef) {
+async function updateValidity(data: string) {
   if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
     invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
   } else {
@@ -126,7 +126,7 @@ async function updateValidity(data: TTIriRef) {
   if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
 }
 
-function defaultValidation(data: TTIriRef) {
+function defaultValidation(data: string) {
   return true;
 }
 </script>

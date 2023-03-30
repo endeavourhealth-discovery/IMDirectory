@@ -63,15 +63,15 @@
       </div>
     </div>
     <template #footer>
-      <Button class="p-button-warning" label="Decline" icon="pi pi-times" @click="submitDecline" data-testid="decline-button" />
+      <Button severity="warning" label="Decline" icon="pi pi-times" @click="submitDecline" data-testid="decline-button" />
       <Button label="Agree" icon="pi pi-check" @click="submitAgree" data-testid="agree-button" />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, } from "vue";
+import { useStore } from "vuex";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 

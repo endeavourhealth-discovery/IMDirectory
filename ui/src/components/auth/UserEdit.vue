@@ -219,7 +219,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
             showCancelButton: false,
             allowOutsideClick: false,
             allowEscapeKey: false,
-            inputValidator: (value: boolean) => {
+            inputValidator: (value: string) => {
               if (!value) return "Please enter the 6-digit code";
               else return null;
             }
@@ -374,11 +374,11 @@ function checkForChanges(): boolean {
   padding: 0 2em;
 }
 .email-check {
-  color: #439446;
+  color: var(--green-500);
   font-size: 2em;
 }
 .email-times {
-  color: #e60017;
+  color: var(--red-500);
   font-size: 2em;
 }
 </style>

@@ -5,8 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent } from "@vue/runtime-core";
-
 const props = defineProps({
   size: { type: String, default: "100%" },
   show: { type: Boolean }

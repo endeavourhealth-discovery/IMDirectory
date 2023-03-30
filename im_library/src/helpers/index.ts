@@ -7,16 +7,24 @@ import GraphTranslator from "./GraphTranslator";
 import Converters from "./Converters";
 import Sorters from "./Sorters";
 import Transforms from "./Transforms";
+import TTTransform from "./TTTransform";
 import UserMethods from "./UserMethods";
 import EditorBuilderJsonMethods from "./EditorBuilderJsonMethods";
 import EditorMethods from "./EditorMethods";
 import TypeGuards from "./TypeGuards";
 import EntityValidator from "./EntityValidator";
-import EclSearchBuilderMethods from "./EclSearchBuilderMethods";
 import QueryBuilderMethods from "./QueryBuilderMethods";
 import UtililityMethods from "./UtilityMethods";
 import TangledTreeLayout from "./TangledTreeLayout";
 import StringManipulators from "./StringManipulators";
+import DisplayQueryBuilder from "./DisplayQueryBuilder";
+import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
+import { eclToBuild } from "./Ecl/EclToBuild";
+import { eclToIMQ } from "./Ecl/EclToIMQ";
+import { validateEcl } from "./Ecl/ValidateEcl";
+import { dateNow } from "./Datetime/DateNow";
+import { timeNow } from "./Datetime/TimeNow";
+import { timeNow12Hr } from "./Datetime/TimeNow12Hr";
 
 export {
   ChartRescale,
@@ -33,9 +41,17 @@ export {
   EditorBuilderJsonMethods,
   TypeGuards,
   EntityValidator,
-  EclSearchBuilderMethods,
   QueryBuilderMethods,
   UtililityMethods,
   TangledTreeLayout,
-  StringManipulators
+  StringManipulators,
+  DisplayQueryBuilder,
+  EclBuilderConceptToEcl,
+  eclToBuild,
+  eclToIMQ,
+  validateEcl,
+  TTTransform,
+  dateNow,
+  timeNow,
+  timeNow12Hr
 };

@@ -1,3 +1,4 @@
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { CustomAlert, User } from "@im-library/interfaces";
 import { Auth } from "aws-amplify";
 import axios from "axios";
@@ -42,6 +43,9 @@ const AuthService = {
   async signIn(username: string, password: string): Promise<CustomAlert> {
     try {
       const user = await Auth.signIn(username, password);
+      if (isObjectHasKeys(user, ["challengeName"])) {
+        return { status: 403, message: user.challengeName, error: undefined, user: { username: user.username } as User };
+      }
       const signedInUser = {
         id: user.attributes.sub,
         username: user.username,

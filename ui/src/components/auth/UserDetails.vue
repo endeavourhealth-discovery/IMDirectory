@@ -33,9 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent } from "vue";
+import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { mapState, useStore } from "vuex";
+import { useStore } from "vuex";
 
 const router = useRouter();
 const store = useStore();

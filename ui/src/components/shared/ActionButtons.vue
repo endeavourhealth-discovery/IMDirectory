@@ -1,7 +1,8 @@
 <template>
   <Button
     v-if="show('runQuery')"
-    icon="fa-solid fa-bolt"
+    :icon="'fa-solid fa-bolt'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="onRunQuery(iri)"
     v-tooltip.top="'Run query'"
@@ -9,7 +10,8 @@
   />
   <Button
     v-if="show('findInTree')"
-    icon="fa-solid fa-sitemap"
+    :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="locateInTree($event, iri)"
     v-tooltip.top="'Find in tree'"
@@ -17,7 +19,8 @@
   />
   <Button
     v-if="show('view')"
-    icon="pi pi-fw pi-external-link"
+    :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="directService.view(iri)"
     v-tooltip.top="'View'"
@@ -25,7 +28,8 @@
   />
   <Button
     v-if="show('edit')"
-    icon="fa-solid fa-pen-to-square"
+    :icon="fontAwesomePro ? 'fa-duotone fa-pen-to-square' : 'fa-solid fa-pen-to-square'"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="directService.edit(iri)"
     v-tooltip.top="'Edit'"
@@ -33,8 +37,9 @@
   />
   <Button
     v-if="show('favourite') && isFavourite(iri)"
-    style="color: #e39a36"
-    icon="pi pi-fw pi-star-fill"
+    style="color: var(--yellow-500)"
+    icon="fa-solid fa-star"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Unfavourite'"
@@ -42,16 +47,25 @@
   />
   <Button
     v-else-if="show('favourite') && !isFavourite(iri)"
-    icon="pi pi-fw pi-star"
+    icon="fa-regular fa-star"
+    :severity="getSeverity()"
     :class="getClass()"
     @click="updateFavourites(iri)"
     v-tooltip.left="'Favourite'"
     data-testid="favourite-button"
   />
+  <TestQueryParams
+    v-if="showTestQueryParams && isObjectHasKeys(queryRequest)"
+    :showDialog="showTestQueryParams"
+    :query-request="queryRequest"
+    :params="params"
+    @on-params-populated="onParamsPopulated"
+    @close-dialog="showTestQueryParams = false"
+  />
   <TestQueryResults
-    v-if="showTestQueryResults && isObjectHasKeys(imquery)"
+    v-if="showTestQueryResults && isObjectHasKeys(queryRequest)"
     :showDialog="showTestQueryResults"
-    :imquery="imquery"
+    :query-request="queryRequest"
     @close-dialog="showTestQueryResults = false"
   />
 </template>
@@ -65,11 +79,14 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { State } from "@/store/stateType";
 import { Store, useStore } from "vuex";
 import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
+import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryParams.vue";
+import { Query } from "@im-library/interfaces/AutoGen";
 const directService = new DirectService();
-const { runQuery, runQueryFromIri, runQueryRequest, getQueryFromIri, queryResults, showTestQueryResults, imquery } = setupRunQuery();
+const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const store: Store<State> = useStore();
 const favourites = computed(() => store.state.favourites);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const props = defineProps({
   buttons: { type: Array as PropType<Array<string>>, required: true },
@@ -90,6 +107,12 @@ function getClass() {
       return activityRowButton;
   }
 }
+function getSeverity() {
+  if (props.type == "conceptButton") {
+    return "secondary";
+  }
+  return undefined;
+}
 
 function show(button: string) {
   return props.buttons.includes(button);
@@ -103,16 +126,26 @@ function updateFavourites(iri: string) {
   store.commit("updateFavourites", iri);
 }
 
-function onRunQuery(iri: string) {
-  getQueryFromIri(iri);
+async function onRunQuery(iri: string) {
+  queryRequest.value.query = { "@id": iri } as Query;
+  if (await hasParams(iri)) {
+    getParams(iri);
+    showTestQueryParams.value = true;
+  } else {
+    showTestQueryResults.value = true;
+  }
+}
+
+async function onParamsPopulated() {
+  showTestQueryParams.value = false;
   showTestQueryResults.value = true;
 }
 </script>
 
 <style scoped>
 .activity-row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--text-color) !important;
+  color: var(--surface-a) !important;
   z-index: 999;
 }
 
@@ -122,12 +155,12 @@ function onRunQuery(iri: string) {
 }
 
 .concept-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--text-color) !important;
+  color: var(--surface-a) !important;
 }
 
 .concept-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+  background-color: var(--yellow-500) !important;
+  color: var(--surface-a) !important;
 }
 </style>

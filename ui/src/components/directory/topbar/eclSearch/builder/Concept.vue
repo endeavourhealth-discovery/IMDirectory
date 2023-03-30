@@ -1,67 +1,145 @@
 <template>
   <div :class="[hover ? 'nested-div-hover' : 'nested-div']" @mouseover="mouseover" @mouseout="mouseout">
-    <div class="concept-content-container">
-      <AutoComplete
-        style="flex: 1"
-        input-style="flex:1"
-        field="name"
-        dataKey="iri"
-        v-model="selected"
-        :suggestions="suggestions"
-        @complete="search($event.query)"
-        placeholder="Search..."
-        :disabled="loading"
-      />
-      <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-      <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
+    <div class="focus-container">
+      <Tag v-if="value.exclude" value="NOT" severity="danger" class="builder-button conjunction-button" />
+      <div v-if="isAliasIriRef(value.concept)" class="concept-container">
+        <ConceptSelector :value="value" :parent="value" />
+      </div>
+      <div v-else-if="isBoolGroup(value.concept)" class="focus-group-container">
+        <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
+      </div>
+      <div v-else class="add-focus-buttons-container">
+        <Button
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="hover ? false : true"
+          :class="!hover && 'hover-button'"
+          label="Add Concept"
+          @click="addConcept"
+          class="builder-button"
+        />
+        <Button
+          :severity="hover ? 'success' : 'secondary'"
+          :outlined="hover ? false : true"
+          :class="!hover && 'hover-button'"
+          label="Add Group"
+          @click="addGroup"
+          class="builder-button"
+        />
+      </div>
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
-    <template v-for="(item, index) in value.items">
-      <div style="display: flex">
-        <span class="left-container">
-          <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
-          <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" />
-          <Button v-else-if="index > 1" type="button" :label="value.conjunction" class="p-button-secondary" disabled />
-        </span>
-        <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
-        <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
-        <span class="remove-group">
-          <Button @click="deleteItem(index)" :class="[hover ? 'p-button-danger' : 'p-button-placeholder']" icon="pi pi-trash" />
-        </span>
-      </div>
-    </template>
+    <div v-for="(item, index) in value.items" class="refinement-container">
+      <span class="left-container">
+        <div v-if="index === 0" class="spacer">&nbsp;</div>
+        <Button v-else-if="index === 1" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
+        <Button v-else-if="index > 1" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
+      </span>
+      <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
+      <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
+      <span class="right-container">
+        <div v-if="groupWithinConcept" class="group-checkbox">
+          <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
+          <label :for="'group' + index">Group</label>
+        </div>
+        <Button
+          @click="deleteItem(index)"
+          :severity="hover ? 'danger' : 'secondary'"
+          :outlined="!hover"
+          :class="!hover && 'hover-button'"
+          icon="pi pi-trash"
+          class="builder-button"
+        />
+      </span>
+    </div>
     <div class="add-group">
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Refinement" @click="addRefinement" />
-      <Button type="button" :class="[hover ? 'p-button-success' : 'p-button-placeholder']" label="Add Group" @click="addGroup" />
+      <Button
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add Refinement"
+        @click="addRefinement"
+        class="builder-button"
+      />
+      <Button
+        :severity="hover ? 'success' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        label="Add New Group"
+        @click="addGroup"
+        class="builder-button"
+      />
+      <Button
+        :severity="hover ? 'help' : 'secondary'"
+        :outlined="!hover"
+        :class="[!hover && 'hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
+        :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
+        @click="processGroup"
+        class="builder-button"
+      />
+      <Button
+        v-if="index && index > 0"
+        :severity="hover ? 'danger' : 'secondary'"
+        :outlined="!hover"
+        :class="!hover && 'hover-button'"
+        :label="value.exclude ? 'Include' : 'Exclude'"
+        @click="toggleExclude"
+        class="builder-button"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch } from "vue";
+import { Ref, ref, onMounted, PropType, watch, inject } from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
+import ConceptSelector from "./ConceptSelector.vue";
+import Button from "primevue/button";
 import RefinementSkeleton from "./skeletons/RefinementSkeleton.vue";
-import { SearchRequest } from "@im-library/interfaces";
-import { SortBy } from "@im-library/enums";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { useStore } from "vuex";
-import { EntityService } from "@/services";
 import _ from "lodash";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
+import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 
 const props = defineProps({
-  value: { type: Object as PropType<{ type: string; descendants: string; conjunction: string; items: any[]; concept: { iri: string } }>, required: true },
-  parent: { type: Object as PropType<any>, required: false }
+  value: {
+    type: Object as PropType<{
+      type: string;
+      descendants: string;
+      conjunction: string;
+      items: any[];
+      concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
+      ecl?: string;
+      exclude?: boolean;
+    }>,
+    required: true
+  },
+  parent: { type: Object as PropType<any>, required: false },
+  index: { type: Number, required: false }
 });
 
-const store = useStore();
+watch(
+  () => _.cloneDeep(props.value),
+  () => {
+    props.value.ecl = generateEcl();
+  }
+);
 
-const selected: Ref<any | null> = ref(null);
-const controller: Ref<AbortController> = ref({} as AbortController);
-const suggestions: Ref<any[]> = ref([]);
+watch(
+  () => _.cloneDeep(props.value.concept),
+  async (newValue, oldValue) => {
+    if (newValue !== oldValue) await init();
+  }
+);
+
+const includeTerms = inject("includeTerms") as Ref<boolean>;
+watch(includeTerms, () => (props.value.ecl = generateEcl()));
+
 const menuBool = ref();
 const loading = ref(false);
+const groupWithinConcept = ref(false);
+const group: Ref<number[]> = ref([]);
 
 const boolOptions = [
   {
@@ -71,40 +149,18 @@ const boolOptions = [
   {
     label: "OR",
     command: () => (props.value.conjunction = "OR")
-  },
-  {
-    label: "NOT",
-    command: () => (props.value.conjunction = "MINUS")
-  }
-];
-
-const descendantOptions = [
-  {
-    label: "only",
-    value: ""
-  },
-  {
-    label: "plus descendants",
-    value: "<<"
-  },
-  {
-    label: "descendants only",
-    value: "<"
   }
 ];
 
 onMounted(async () => {
-  if (props.value && props.value.concept && props.value.concept.iri) {
-    loading.value = true;
-    await search(props.value.concept.iri);
-    selected.value = suggestions.value[0];
-    loading.value = false;
-  }
+  await init();
 });
 
-watch(selected, newValue => {
-  props.value.concept = newValue;
-});
+async function init() {
+  if (props.value && props.value.concept) {
+    props.value.ecl = generateEcl();
+  }
+}
 
 const hover = ref();
 function mouseover(event: Event) {
@@ -121,6 +177,10 @@ function toggleBool(event: Event) {
   menuBool.value.toggle(event);
 }
 
+function toggleExclude() {
+  props.value.exclude = !props.value.exclude;
+}
+
 function add(item: any) {
   if (!props.value.items) {
     props.value.items = [item];
@@ -129,29 +189,16 @@ function add(item: any) {
   }
 }
 
-async function search(term: string) {
-  console.log("SEARCH");
-  console.log(term);
-  const searchRequest = {} as SearchRequest;
-  searchRequest.termFilter = term;
-  searchRequest.sortBy = SortBy.Usage;
-  searchRequest.page = 1;
-  searchRequest.size = 100;
-  searchRequest.schemeFilter = ["http://snomed.info/sct#"];
-
-  if (controller.value && controller.value.abort) {
-    controller.value.abort();
-  }
-  controller.value = new AbortController();
-  suggestions.value = await EntityService.advancedSearch(searchRequest, controller.value);
-}
-
 function addRefinement() {
   add({ type: "Refinement", property: { descendants: "<<" }, operator: "=", value: { descendants: "<<" } });
 }
 
 function addGroup() {
   add({ type: "BoolGroup", conjunction: "AND" });
+}
+
+function addConcept() {
+  props.value.concept = { iri: "" };
 }
 
 function deleteItem(index: number) {
@@ -165,6 +212,8 @@ function getComponent(componentName: string) {
       return BoolGroup;
     case "Refinement":
       return Refinement;
+    case "Concept":
+      return ConceptSelector;
   }
 }
 
@@ -176,33 +225,70 @@ function getSkeletonComponent(componentName: string) {
       return RefinementSkeleton;
   }
 }
-</script>
 
-<style scoped lang="scss">
-@use "primevue/resources/themes/saga-blue/theme.css";
-
-.p-button-placeholder {
-  @extend .p-button-secondary;
-  @extend .p-button-outlined;
-  color: #00000030 !important;
-  border-style: dashed !important;
+function generateEcl(): string {
+  let ecl = "";
+  if (isAliasIriRef(props.value.concept)) ecl += builderConceptToEcl(props.value, includeTerms.value);
+  else if (isBoolGroup(props.value.concept)) {
+    if (props.value.concept.ecl) ecl += props.value.concept.ecl;
+    else ecl += "[ UNKNOWN CONCEPT ]";
+  }
+  if (isArrayHasLength(props.value.items)) {
+    ecl += " : \n";
+    for (const [index, item] of props.value.items.entries()) {
+      if (item.ecl) ecl += item.ecl;
+      else ecl += "[ INVALID REFINEMENT ]";
+      if (index + 1 !== props.value.items.length) ecl += " \n" + props.value.conjunction + " ";
+    }
+  }
+  return ecl;
 }
 
-.concept-content-container {
+function processGroup() {
+  if (groupWithinConcept.value && group.value.length) {
+    const newGroup: { type: string; conjunction: string; items: any[] } = { type: "BoolGroup", conjunction: "AND", items: [] };
+    for (const index of group.value.sort((a, b) => a - b).reverse()) {
+      const item = props.value.items.splice(index, 1)[0];
+      newGroup.items.push(item);
+    }
+    props.value.items.splice(group.value.sort()[0], 0, newGroup);
+  }
+  groupWithinConcept.value = !groupWithinConcept.value;
+  group.value = [];
+}
+
+function unGroupItems(groupedItems: any) {
+  const foundItem = props.value.items.find(item => _.isEqual(item, groupedItems));
+  const foundItemIndex = props.value.items.findIndex(item => _.isEqual(item, groupedItems));
+  if (foundItem) {
+    props.value.items.splice(foundItemIndex, 1);
+    for (const groupedItem of groupedItems.items) {
+      props.value.items.splice(foundItemIndex, 0, groupedItem);
+    }
+  }
+}
+</script>
+
+<style scoped>
+.focus-container {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
 }
 
-.left-container {
+.concept-container {
+  flex: 1 0 auto;
   display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
   align-items: center;
 }
 
-.left-container > * {
-  width: 4rem;
-  margin: 0;
+.focus-group-container {
+  flex: 1 0 auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .nested-div {
@@ -214,13 +300,35 @@ function getSkeletonComponent(componentName: string) {
   flex: 1;
 }
 
+.nested-div:deep(.hover-button) {
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
+
 .nested-div-hover {
-  @extend .nested-div;
+  padding: 0.5rem;
+  border-radius: 5px;
+  background-color: #ff8c0010;
+  margin: 0.5rem;
+  flex: 1;
   border: #ff8c00 1px solid;
 }
 
-Button {
-  margin-right: 4px;
+.refinement-container {
+  display: flex;
+}
+
+.left-container {
+  display: flex;
+  align-items: center;
+}
+
+.conjunction-button {
+  width: 4rem;
+  margin: 0;
+}
+
+.builder-button {
   height: 1.5rem;
   align-self: center;
 }
@@ -233,10 +341,28 @@ Button {
 
 .add-group {
   width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  gap: 4px;
 }
 
-.remove-group {
-  width: 2rem;
+.group-checkbox {
   display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.right-container {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.tree-button {
+  height: 2.357rem !important;
+  width: 2.357rem !important;
+  padding: 0.5rem !important;
 }
 </style>

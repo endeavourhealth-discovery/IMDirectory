@@ -7,17 +7,14 @@
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
-      @node-collapse="onNodeCollapse"
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="slotProps: any">
         <div class="tree-row" @dblclick="onNodeDblClick($event, slotProps.node)" @contextmenu="onNodeContext($event, slotProps.node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
-            </div>
+            <i :style="'color:' + slotProps.node.color" :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
           </span>
           <ProgressSpinner v-if="slotProps.node.loading" />
           <span @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">{{ slotProps.node.label }}</span>
@@ -28,8 +25,8 @@
     <Dialog header="New folder" :visible="newFolder !== null" :modal="true">
       <InputText type="text" v-model="newFolderName" autofocus />
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" @click="newFolder = null" class="p-button-text" />
-        <Button label="Create" icon="pi pi-check" @click="createFolder" />
+        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
+        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" @click="createFolder" />
       </template>
     </Dialog>
   </div>
@@ -38,7 +35,7 @@
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
-import { TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
@@ -57,6 +54,7 @@ const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);
 const currentUser = computed(() => store.state.currentUser);
 const findInTreeIri = computed(() => store.state.findInTreeIri);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const loading = ref(true);
 const overlayLocation: Ref<any> = ref({});
@@ -112,7 +110,7 @@ async function addParentFoldersToRoot() {
   root.value.sort(byKey);
   const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null);
   favNode.typeIcon = ["fa-solid", "fa-star"];
-  favNode.color = "#e39a36";
+  favNode.color = "var(--yellow-500)";
   root.value.push(favNode);
 }
 

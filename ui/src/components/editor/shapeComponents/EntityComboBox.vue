@@ -32,7 +32,7 @@ import { QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces";
+import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyShape>, required: true },
@@ -117,7 +117,7 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     const result = await QueryService.queryIM(queryRequest);
     if (result)
       return result.entities.map((item: any) => {
-        return { "@id": item["@id"], name: item[RDFS.LABEL] };
+        return { "@id": item["@id"], name: item[RDFS.LABEL] } as TTIriRef;
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
@@ -193,6 +193,6 @@ function defaultValidity(data: TTIriRef[]) {
 }
 
 .invalid {
-  border-color: #e24c4c;
+  border-color: var(--red-500);
 }
 </style>

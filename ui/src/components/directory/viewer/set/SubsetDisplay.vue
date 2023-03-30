@@ -14,7 +14,7 @@
     :lazy="true"
   >
     <Column field="member" header="Name">
-      <template #body="{ data }"><IMViewerLink :iri="data['@id']" :label="data.name" action="select" /></template>
+      <template #body="{ data }: any"><IMViewerLink :iri="data['@id']" :label="data.name" action="select" /></template>
     </Column>
   </DataTable>
 </template>

@@ -23,7 +23,7 @@
     >
       <Column field="scheme" header="Scheme" />
       <Column field="name" header="Name" style="flex: 0 0 65%">
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <span
             data-testid="col-name"
             style="width: 100%; height: 100%; display: flex; align-items: center"
@@ -34,7 +34,7 @@
         </template>
       </Column>
       <Column field="code" header="Code" style="flex: 0 0 35%; word-break: break-all" data-testid="col-code" />
-      <template #groupheader="slotProps">
+      <template #groupheader="slotProps: any">
         <span style="font-weight: 700; color: rgba(51, 153, 255, 0.8)" data-testid="col-scheme">
           {{ slotProps.data.scheme }}
         </span>
@@ -50,7 +50,7 @@ import { SimpleMap } from "@im-library/interfaces";
 
 const props = defineProps({
   data: {
-    type: Object as () => SimpleMap,
+    type: Array,
     required: true
   }
 });

@@ -13,6 +13,7 @@
     }"
     id="ecl-builder-dialog"
     :contentStyle="{ flexGrow: '100', display: 'flex' }"
+    :auto-z-index="false"
   >
     <template #header>
       <h3>ECL Builder:</h3>
@@ -20,9 +21,12 @@
     <div id="builder-string-container">
       <div id="query-builder-container">
         <div id="query-build">
-          <BoolGroup :value="build" style="width: 100%; margin: 0" />
+          <ProgressSpinner v-if="loading" />
+          <BoolGroup v-else :value="build" :rootBool="true" />
         </div>
-        <small style="color: red" v-if="!build.items || build.items.length == 0">*Move pointer over panel above to add concepts, refinements and groups.</small>
+        <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
+          >*Move pointer over panel above to add concepts, refinements and groups.</small
+        >
       </div>
       <div id="build-string-container">
         <h3>Output:</h3>
@@ -43,8 +47,8 @@
       </div>
     </div>
     <template #footer>
-      <Button label="Cancel" icon="pi pi-times" class="p-button-secondary" @click="closeBuilderDialog" />
-      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" />
+      <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="closeBuilderDialog" />
+      <Button label="OK" icon="pi pi-check" class="p-button-primary" @click="submit" :disabled="!isValidEcl" />
     </template>
   </Dialog>
 </template>
@@ -54,8 +58,6 @@ import { defineComponent } from "vue";
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import SetService from "@/services/SetService";
-import { booleanLiteral } from "@babel/types";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -63,13 +65,13 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { Ref, ref, watch, onMounted } from "vue";
+import { Ref, ref, watch, onMounted, computed, provide, readonly } from "vue";
 import { useToast } from "primevue/usetoast";
 import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { eclStringToBuilderObject } from "@im-library/helpers/EclStringToBuilderObject";
 import EclService from "@/services/EclService";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   showDialog: Boolean,
@@ -89,18 +91,25 @@ const includeTerms = ref(true);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
+const isValidEcl = ref(false);
 
-onMounted(() => {
+watch(queryString, async () => {
+  isValidEcl.value = await EclService.isValidECL(queryString.value);
+});
+
+provide("includeTerms", readonly(includeTerms));
+
+onMounted(async () => {
   if (props.eclString) {
-    createBuildFromEclString(props.eclString);
-  }
+    await createBuildFromEclString(props.eclString);
+  } else createDefaultBuild();
 });
 
 watch(
   () => props.eclString,
   newValue => {
-    if (newValue && newValue !== queryString.value) createBuildFromEclString(newValue);
-    else if (!newValue) createDefaultBuild();
+    if (newValue) createBuildFromEclString(newValue);
+    else createDefaultBuild();
   }
 );
 
@@ -120,11 +129,12 @@ function createDefaultBuild() {
 async function createBuildFromEclString(ecl: string) {
   try {
     loading.value = true;
-    build.value = await EclService.getBuildFromEcl(ecl);
+    build.value = await EclService.getBuildFromEcl(ecl, true);
     eclConversionError.value = { error: false, message: "" };
   } catch (err: any) {
     createDefaultBuild();
-    eclConversionError.value = { error: true, message: err.message };
+    if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };
+    else eclConversionError.value = { error: true, message: err.message };
   }
   emit("eclConversionError", eclConversionError.value);
   loading.value = false;
@@ -135,60 +145,11 @@ function submit(): void {
 }
 
 function closeBuilderDialog(): void {
-  emit("closeDialog");
+  build.value = emit("closeDialog");
 }
 
 function generateQueryString() {
-  queryString.value = getBoolGroupECL(build.value, true);
-}
-
-function getBoolGroupECL(clause: any, root: boolean) {
-  if (clause && clause.items && clause.items.length > 0)
-    return clause.items.map((c: any, i: number) => getClauseECL(c, i == 0 ? root : false)).join("\n" + clause.conjunction + " ");
-  else return "";
-}
-
-function getClauseECL(clause: any, root: boolean) {
-  if (clause && clause.type === "BoolGroup" && clause.items) return "{" + getBoolGroupECL(clause, false) + "}";
-  else if (clause.type === "Concept") return getConceptECL(clause, false);
-  else if (clause.type === "Refinement") return getRefinementECL(clause, root);
-  else return "[???]";
-}
-
-function getConceptECL(clause: any, root: boolean) {
-  let result = getCodeTermECL(clause);
-
-  if (clause.items && clause.items.length > 0) {
-    result += " : ";
-    result += getBoolGroupECL(clause, false);
-  }
-
-  return result;
-}
-
-function getCodeTermECL(clause: any) {
-  let result = clause.descendants ? clause.descendants : "";
-
-  if (clause.concept && clause.concept.code) {
-    result += clause.concept.code;
-    if (includeTerms.value && clause.concept.name) result += " | " + clause.concept.name + " | ";
-  } else if (clause.concept && clause.concept.iri) {
-    result += clause.concept.iri.split("#")[1];
-  } else result += "[UNKNOWN CONCEPT]";
-
-  return result;
-}
-
-function getRefinementECL(clause: any, root: boolean) {
-  let result = root ? "* : " : "";
-
-  result += getCodeTermECL(clause.property);
-
-  result += " " + clause.operator + " ";
-
-  result += getCodeTermECL(clause.value);
-
-  return result;
+  if (isObjectHasKeys(build.value, ["ecl"])) queryString.value = build.value.ecl;
 }
 
 function copyToClipboard(): string {
@@ -218,17 +179,25 @@ function onCopyError(): void {
   width: 100%;
   flex: 1 1 auto;
   overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 #query-build {
+  width: 100%;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
   gap: 1rem;
   flex: 1 1 auto;
-  overflow: auto;
   font-size: 12px;
+  overflow: auto;
+}
+
+#query-build > .nested-div,
+.nested-div-hover {
+  min-width: calc(100% - 1rem);
 }
 
 #build-string-container {
@@ -239,8 +208,8 @@ function onCopyError(): void {
 }
 
 .output-string {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--surface-a);
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
   padding: 1rem;
   margin: 0;

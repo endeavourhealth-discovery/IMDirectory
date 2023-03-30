@@ -11,7 +11,7 @@
     <TestQueryResults
       v-if="showTestQueryResults"
       :showDialog="showTestQueryResults"
-      :imquery="JSON.parse(editorEntity[IM.DEFINITION])"
+      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
       @close-dialog="showTestQueryResults = false"
     />
     <div id="creator-main-container">
@@ -22,7 +22,7 @@
           </div>
           <div v-else class="steps-content">
             <Steps :model="stepsItems" :readonly="false" @click="stepsClicked" />
-            <router-view v-slot="{ Component }">
+            <router-view v-slot="{ Component }: any">
               <keep-alive>
                 <component :is="Component" :shape="groups.length ? groups[currentStep - 1] : undefined" :mode="EditorMode.CREATE" />
               </keep-alive>
@@ -33,16 +33,17 @@
             <SideBar :editorEntity="editorEntity" />
           </div>
           <Button
-            class="p-button-rounded p-button-info p-button-outlined sidebar-toggle"
+            class="p-button-rounded p-button-outlined sidebar-toggle"
+            severity="info"
             :label="showSidebar ? 'hide sidebar' : 'show sidebar'"
             @click="onShowSidebar"
           />
         </div>
         <div class="button-bar" id="creator-button-bar">
           <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" />
-          <Button icon="pi pi-refresh" label="Reset" class="p-button-warning" @click="refreshCreator" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" class="p-button-help" @click="testQuery" />
-          <Button icon="pi pi-check" label="Create" class="p-button-success save-button" @click="submit" />
+          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshCreator" />
+          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
+          <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
           <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" />
         </div>
       </div>
@@ -51,7 +52,7 @@
 </template>
 
 <script lang="ts">
-import TypeSelector from "@/components/creator/TypeSelector.vue";
+import { defineComponent } from "vue";import TypeSelector from "@/components/creator/TypeSelector.vue";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
 
 export default defineComponent({
@@ -60,23 +61,24 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { onUnmounted, onMounted, computed, ref, Ref, watch, inject, defineComponent, PropType, provide, nextTick, ComputedRef } from "vue";
+import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import _ from "lodash";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
-import { setupShape, setupEntity } from "./EditorMethods";
+import { setupEditorEntity } from "@/composables/setupEditorEntity";
+import { setupEditorShape } from "@/composables/setupEditorShape";
 import { useConfirm } from "primevue/useconfirm";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { DirectService, EntityService, Env, FilerService } from "@/services";
+import { DirectService, EntityService, FilerService } from "@/services";
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
@@ -107,8 +109,8 @@ function onShowSidebar() {
   store.commit("updateFindInEditorTreeIri", "");
 }
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEntity();
-const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupShape();
+const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
+const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupEditorShape();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);

@@ -1,6 +1,6 @@
 <template>
   <div id="access-denied-container">
-    <font-awesome-icon icon="fa-solid fa-ban" class="error-icon" size="10x" />
+    <IMFontAwesomeIcon icon="fa-solid fa-ban" class="error-icon" size="10x" />
     <h1 class="error-code">403</h1>
     <h2 class="error-header">Access Denied / Forbidden</h2>
     <p class="error-text">
@@ -41,17 +41,17 @@ function goHome() {
   align-items: center;
 }
 .error-icon {
-  color: #ef4444;
+  color: var(--red-500);
 }
 
 .error-code {
-  color: black;
+  color: var(--text-color);
   font-size: 6rem;
   margin: 1.5 rem 0 0.5rem 0;
 }
 
 .error-header {
-  color: #6c757d;
+  color: var(--text-color);
   margin: 0.5rem;
 }
 

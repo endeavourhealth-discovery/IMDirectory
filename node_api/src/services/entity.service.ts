@@ -1,16 +1,22 @@
 import Env from "@/services/env.service";
+import EclService from "./ecl.service";
+import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
 import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import { PropertyDisplay, QueryDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
+import { EclSearchRequest, PropertyDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
+import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import {TreeNode} from 'primevue/tree';
 
 export default class EntityService {
   axios: any;
+  eclService: EclService;
 
   constructor(axios: any) {
     this.axios = axios;
+    this.eclService = new EclService(axios);
   }
 
   public async getPartialEntity(iri: string, predicates: string[]): Promise<any> {
@@ -121,9 +127,9 @@ export default class EntityService {
     }
   }
 
-  async getQueryDefinitionDisplayByIri(iri: string): Promise<QueryDisplay> {
+  async getQueryDefinitionDisplayByIri(iri: string): Promise<TreeNode> {
     const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
-    if (!entity[IM.DEFINITION]) return {} as QueryDisplay;
+    if (!entity[IM.DEFINITION]) return {} as TreeNode;
     return buildQueryDisplayFromQuery(JSON.parse(entity[IM.DEFINITION]));
   }
 
@@ -153,5 +159,46 @@ export default class EntityService {
     }
 
     return propertyList;
+  }
+
+  async isValidPropertyBoolFocus(focus: any, propertyIri: string) {
+    let query;
+    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
+    const results = await this.eclService.eclSearch(eclSearchRequest);
+    let found = false;
+    let counter = 0;
+    if (isArrayHasLength(results)) {
+      while (found != true && counter < results.length) {
+        const conceptIri = results[counter]["@id"];
+        const result = (await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: conceptIri, property: propertyIri } })).data;
+        if (result) found = result;
+        counter++;
+      }
+    }
+    return found;
+  }
+
+  async getSuperiorPropertiesBoolFocusPaged(focus: any, pageIndex?: number, pageSize?: number, filters?: string[]) {
+    let query;
+    let superiors = { result: [], totalCount: 0 };
+    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    if (query) {
+      const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
+      const results = await this.eclService.eclSearch(eclSearchRequest);
+      if (isArrayHasLength(results)) {
+        superiors = (
+          await this.axios.get(Env.API + "api/entity/public/superiorPropertiesBoolFocusPaged", {
+            params: {
+              conceptIris: results.map((result: any) => result["@id"]).join(","),
+              pageIndex: pageIndex,
+              pageSize: pageSize,
+              schemeFilters: filters?.join(",")
+            }
+          })
+        ).data;
+      }
+    }
+    return superiors;
   }
 }

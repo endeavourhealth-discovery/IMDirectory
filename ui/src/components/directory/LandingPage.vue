@@ -15,25 +15,27 @@
             dataKey="dateTime"
             :scrollable="true"
             scrollHeight="flex"
-            class="p-datatable-sm"
+            class="p-datatable-sm activity-datatable"
           >
             <template #empty> No recent activity </template>
             <Column field="name" header="Name">
-              <template #body="{ data }">
-                <div class="result-icon-container" :style="data.color">
-                  <i :class="data.icon" class="recent-icon" aria-hidden="true" />
+              <template #body="{ data }: any">
+                <div class="activity-name-icon-container">
+                  <i :class="data.icon" class="recent-icon" :style="data.color" aria-hidden="true" />
+                  <span class="activity-name">{{ data.name }}</span>
                 </div>
-                {{ data.name }}
               </template>
             </Column>
             <Column field="latestActivity" header="Latest activity">
-              <template #body="{ data }">
-                <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
+              <template #body="{ data }: any">
+                <span class="activity-message" v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</span>
               </template>
             </Column>
-            <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
-              <template #body="{ data }">
-                <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
+            <Column :exportable="false">
+              <template #body="{ data }: any">
+                <div class="action-buttons-container">
+                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
+                </div>
               </template>
             </Column>
           </DataTable>
@@ -60,10 +62,10 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
+import ActionButtons from "../shared/ActionButtons.vue";
 
 export default defineComponent({
-  components: { ReportTable, PieChartDashCard }
+  components: { ReportTable, PieChartDashCard, ActionButtons }
 });
 </script>
 
@@ -72,9 +74,10 @@ import { computed, Ref, ref, watch, onMounted } from "vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { useStore } from "vuex";
 import _, { isArray } from "lodash";
-import { TTIriRef, RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
+import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
-import { EntityService, Env, ConfigService } from "@/services";
+import { EntityService, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
@@ -201,8 +204,12 @@ async function getCardsData(): Promise<void> {
   overflow: auto;
 }
 
+.activity-datatable {
+  width: 100%;
+}
+
 .activity-container {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   overflow: auto;
@@ -228,7 +235,7 @@ async function getCardsData(): Promise<void> {
   display: flex;
   flex-flow: row wrap;
   width: 100%;
-  flex: 1 1 auto;
+  flex: 0 0 50%;
   overflow: auto;
   padding: 1rem;
   gap: 1rem;
@@ -239,5 +246,24 @@ async function getCardsData(): Promise<void> {
   height: 1.25rem;
   font-size: 1.25rem;
   padding: 5px;
+}
+
+.action-buttons-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.activity-name-icon-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: auto;
+}
+
+.activity-name {
+  flex: 0 1 auto;
 }
 </style>

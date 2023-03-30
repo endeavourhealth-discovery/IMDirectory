@@ -10,7 +10,7 @@
         <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
       </div>
       <SelectButton data-testid="avatar-button-options" v-model="newAvatar" :options="avatarOptions">
-        <template #option="slotProps">
+        <template #option="slotProps: any">
           <img class="avatar-select avatar-icon" :src="getUrl(slotProps.option)" alt="avatar icon" />
         </template>
       </SelectButton>
@@ -72,7 +72,7 @@ function getUrl(item: string): string {
 
 #selected-avatar {
   width: 10rem;
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   border-radius: 50%;
 }
 
@@ -90,6 +90,6 @@ function getUrl(item: string): string {
 
 .avatar-popup div div .p-button {
   margin: 2px;
-  border-right: 1px solid #ced4da !important;
+  border-right: 1px solid var(--surface-border) !important;
 }
 </style>

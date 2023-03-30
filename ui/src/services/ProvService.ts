@@ -1,17 +1,13 @@
 import Env from "./Env";
 import axios from "axios";
-import { TTIriRef } from "@im-library/interfaces";
-const api = Env.API;
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
+const node_api = Env.VITE_NODE_API;
 
 const ProvService = {
-  async getProvHistory(iri: string) {
-    try {
-      return await axios.get(api + "api/prov/public/history", {
-        params: { iri: iri }
-      });
-    } catch (error) {
-      return [] as TTIriRef[];
-    }
+  async getProvHistory(iri: string): Promise<TTIriRef[]> {
+    return axios.get(node_api + "node_api/prov/public/history", {
+      params: { url: iri }
+    });
   }
 };
 

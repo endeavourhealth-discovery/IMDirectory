@@ -1,5 +1,4 @@
 import { rest } from "msw";
-import { Env } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { fakerFactory } from "./factory";
 

@@ -4,13 +4,6 @@
       <template #content>
         <div id="topbar-content-container">
           <Search />
-          <Button
-            v-if="isLoggedIn && currentUser && currentUser.roles.includes('IMAdmin')"
-            icon="pi pi-cog"
-            class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
-            @click="openAdminMenu"
-          />
-          <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
         </div>
       </template>
     </TopBar>
@@ -28,8 +21,7 @@ import { computed, onMounted, ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import Search from "@/components/directory/topbar/Search.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
-import { useRoute, useRouter } from "vue-router";
-import { Env, FilerService } from "@/services";
+import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 
@@ -40,7 +32,6 @@ const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
 const isLoggedIn = computed(() => store.state.isLoggedIn);
 
-const adminMenu = ref();
 const loading = ref(true);
 
 onMounted(async () => {
@@ -50,29 +41,6 @@ onMounted(async () => {
   loading.value = false;
 });
 
-function openAdminMenu(event: any): void {
-  adminMenu.value.toggle(event);
-}
-
-function getAdminItems(): any[] {
-  return [
-    {
-      label: "Download changes",
-      icon: "fa-solid fa-fw fa-cloud-arrow-down",
-      command: () => downloadChanges()
-    }
-  ];
-}
-
-async function downloadChanges() {
-  toast.add({ severity: "info", summary: "Preparing download", detail: "Zipping delta files for download...", life: 3000 });
-  let blob = await FilerService.downloadDeltas();
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "deltas.zip";
-  link.click();
-}
 </script>
 
 <style scoped>

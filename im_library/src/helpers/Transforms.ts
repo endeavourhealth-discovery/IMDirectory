@@ -225,7 +225,7 @@ function removeGroupNumber(arr: any[]) {
   }
 }
 
-export function mapToObject(args: Map<any, any>) {
+export function mapToObject(args: any[]) {
   const argsAsObject = {} as any;
   args.forEach((value, key) => {
     argsAsObject[key] = value;

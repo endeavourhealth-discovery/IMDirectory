@@ -12,7 +12,7 @@
         />
       </div>
       <div class="property-component">
-        <Button icon="pi pi-plus" label="Add" class="p-button-success one-rem-margin" @click="addProperty" />
+        <Button icon="pi pi-plus" label="Add" severity="success" class="one-rem-margin" @click="addProperty" />
       </div>
     </div>
   </div>
@@ -22,15 +22,14 @@
 import { onMounted, ref, watch, Ref } from "vue";
 import QueryTree from "./queryDefinition/QueryTree.vue";
 import "vue-json-pretty/lib/styles.css";
-import { QueryObject, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces";
+import { QueryObject } from "@im-library/interfaces";
+import { SearchRequest, Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import PropertyInput from "./queryDefinition/PropertyInput.vue";
 import _ from "lodash";
-import { Query } from "@im-library/models/AutoGen";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
-import { ToastMessageOptions } from "primevue/toast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 

@@ -6,26 +6,39 @@
         <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
       </div>
       <div class="col-2 header-button-group p-buttonset">
-        <Button icon="pi pi-angle-left" :disabled="canGoBack" class="go-back p-button-rounded p-button-text p-button-plain" @click="goBack" />
-        <Button icon="pi pi-angle-right" :disabled="canGoForward" class="go-forward p-button-rounded p-button-text p-button-plain" @click="goForward" />
+        <Button
+          :icon="fontAwesomePro ? 'fa-regular fa-angle-left' : 'pi pi-angle-left'"
+          :disabled="canGoBack"
+          class="go-back p-button-rounded p-button-text p-button-plain"
+          @click="goBack"
+        />
+        <Button
+          :icon="fontAwesomePro ? 'fa-regular fa-angle-right' : 'pi pi-angle-right'"
+          :disabled="canGoForward"
+          class="go-forward p-button-rounded p-button-text p-button-plain"
+          @click="goForward"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch } from "vue";
+import { onMounted, ref, Ref, watch, computed } from "vue";
 import { Converters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import { TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 const { iriToUrl } = Converters;
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
 
 const router = useRouter();
 const route = useRoute();
+const store = useStore();
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 watch(
   () => props.conceptIri,
@@ -37,7 +50,7 @@ const pathOptions: Ref<any[]> = ref([]);
 const canGoBack = ref(false);
 const canGoForward = ref(false);
 
-const home = { icon: "pi pi-home", to: "/" };
+const home = { icon: fontAwesomePro.value ? "fa-duotone fa-house-chimney" : "fa-solid fa-house", to: "/" };
 
 const pathOverlayMenu = ref();
 
@@ -97,8 +110,8 @@ function setBackForwardDisables() {
 }
 
 .padding-container {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
+  background: var(--surface-a);
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
   overflow: a;
 }
@@ -126,6 +139,6 @@ function setBackForwardDisables() {
   border: none;
   padding: 0;
   margin: 0;
-  background-color: #f8f9fa;
+  background-color: var(--surface-a);
 }
 </style>

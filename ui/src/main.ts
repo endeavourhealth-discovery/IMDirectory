@@ -1,28 +1,39 @@
-import { createApp, Plugin, ComponentPublicInstance } from "vue";
+import { createApp, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
+import axios from "axios";
+
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    raw?: boolean;
+    silent?: boolean;
+  }
+}
 
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
-import { fas } from "@fortawesome/free-solid-svg-icons";
-import { far } from "@fortawesome/free-regular-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { fab } from "@fortawesome/free-brands-svg-icons";
+
+library.add(fab);
+
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
+addFontAwesomeProIcons(library);
+store.commit("updateFontAwesomePro", true);
+// #v-endif
+// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
+import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
+store.commit("updateFontAwesomePro", false);
+// #v-endif
+
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 dom.watch();
-
-library.add(fas as any, far as any);
-
-import "primevue/resources/themes/saga-blue/theme.css"; //theme
-
-import "primevue/resources/primevue.min.css"; //core css
-import "primeicons/primeicons.css"; //icons
-import "primeflex/primeflex.css";
-import "./assets/layout/layout.scss";
-import "./assets/layout/flags/flags.css";
 
 // PrimeVue Components
 import Card from "primevue/card";
@@ -83,10 +94,12 @@ import Steps from "primevue/steps";
 import Chip from "primevue/chip";
 import ToggleButton from "primevue/togglebutton";
 import Skeleton from "primevue/skeleton";
+import DialogService from "primevue/dialogservice";
+import DynamicDialog from "primevue/dynamicdialog";
+import Image from "primevue/image";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
-import "sweetalert2/dist/sweetalert2.min.css";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -99,16 +112,17 @@ if (import.meta.env.MODE === "mock") {
 const app = createApp(App)
   .use(store)
   .use(router)
-  .use(PrimeVue, { ripple: true })
+  .use(PrimeVue, { ripple: true, local: { dateFormat: "dd/mm/yyyy" } })
   .use(ConfirmationService)
   .use(ToastService)
+  .use(DialogService)
   .use(VueClipboard, {
     autoSetContainer: true,
     appendToBody: true
   })
   .directive("tooltip", Tooltip)
   .directive("styleclass", StyleClass)
-  .component("font-awesome-icon", FontAwesomeIcon)
+  .component("IMFontAwesomeIcon", IMFontAwesomeIcon)
   .component("Card", Card)
   .component("ProgressSpinner", ProgressSpinner)
   .component("TabView", TabView)
@@ -163,7 +177,9 @@ const app = createApp(App)
   .component("Steps", Steps)
   .component("Chip", Chip)
   .component("ToggleButton", ToggleButton)
-  .component("Skeleton", Skeleton);
+  .component("Skeleton", Skeleton)
+  .component("DynamicDialog", DynamicDialog)
+  .component("Image", Image);
 const vm = app.mount("#app");
 
 // Vue application exceptions

@@ -1,12 +1,11 @@
-import { render, fireEvent, within, RenderResult, getByAltText, getByText, getAllByRole, getByRole, getByTestId } from "@testing-library/vue";
-import { flushPromises } from "@vue/test-utils";
+import { render, fireEvent, within, RenderResult } from "@testing-library/vue";
 import { vi } from "vitest";
 import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import Button from "primevue/button";
 import SelectButton from "primevue/selectbutton";
 import OverlayPanel from "primevue/overlaypanel";
 import PrimeVue from "primevue/config";
-
+import { describe, beforeEach, expect, it } from "vitest";
 describe("AvatarWithSelector.vue", () => {
   let component: RenderResult;
 

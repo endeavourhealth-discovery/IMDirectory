@@ -1,5 +1,5 @@
 import TextDefinition from "@/components/shared/generics/TextDefinition.vue";
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render, within } from "@testing-library/vue";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";
 import ProgressSpinner from "primevue/progressspinner";

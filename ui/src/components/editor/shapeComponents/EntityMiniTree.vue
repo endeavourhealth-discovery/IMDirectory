@@ -10,7 +10,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="slotProps: any">
         <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
@@ -64,15 +64,16 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
-import { ConceptSummary, EntityReferenceNode, TreeNode, TTIriRef } from "@im-library/interfaces";
-import axios from "axios";
+import { onMounted, PropType, ref, Ref } from "vue";
+import { ConceptSummary, EntityReferenceNode } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
+import {TreeNode} from 'primevue/tree';
 
 const props = defineProps({
   selectedEntity: { type: Object as PropType<TTIriRef>, required: true }
@@ -155,7 +156,7 @@ function createLoadMoreNode(parentNode: TreeNode, nextPage: number, totalCount: 
 
 function onNodeSelect(node: any): void {
   selectedNode.value = node;
-  emit("treeNodeSelected", { "@id": node.data, name: node.label });
+  emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
 }
 
 async function loadMore(node: any) {
@@ -198,7 +199,7 @@ function onNodeCollapse(node: any) {
 }
 
 function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
-  return !!node.children.find(nodeChild => child["@id"] === nodeChild.data);
+  return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
 }
 
 function selectKey(selectedKey: string) {
@@ -220,17 +221,17 @@ async function findPathToNode(iri: string) {
     while (n && n.data != path[0]["@id"] && i++ < 50) {
       await selectAndExpand(n);
       // Find relevant child
-      n = n.children.find(c => path.find(p => p["@id"] === c.data));
+      n = n.children?.find(c => path.find(p => p["@id"] === c.data));
     }
     if (n && n.data === path[0]["@id"]) {
       await selectAndExpand(n);
 
-      while (!n.children.some(child => child.data === iri)) {
+      while (!n.children?.some(child => child.data === iri)) {
         await loadMoreChildren(n);
       }
-      for (const gc of n.children) {
+      for (const gc of n.children!) {
         if (gc.data === iri) {
-          selectKey(gc.key);
+          selectKey(gc.key!);
         }
       }
       selectedNode.value = n;

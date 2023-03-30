@@ -29,6 +29,7 @@
 
 <script lang="ts">
 import BuilderChildWrapper from "./BuilderChildWrapper.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { BuilderChildWrapper }
@@ -36,10 +37,11 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
-import { ComponentDetails, PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces";
+import { ComponentDetails } from "@im-library/interfaces";
+import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
@@ -322,7 +324,7 @@ function moveItemDown(item: ComponentDetails) {
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

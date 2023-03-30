@@ -2,15 +2,28 @@ import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import { esbuildCommonjs } from "@originjs/vite-plugin-commonjs";
 import * as path from "path";
+import ConditionalCompile from "vite-plugin-conditional-compiler";
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [ConditionalCompile(), vue()],
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version)
   },
   optimizeDeps: {
     esbuildOptions: {
       plugins: [esbuildCommonjs(["google-palette"])]
+    }
+  },
+  build: { target: "esnext" },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `
+          @use "./node_modules/primevue/resources/primevue.min.css";
+          @use "./node_modules/primeflex/primeflex.css";
+          @import "./src/assets/layout/sass/_mixins.scss";
+        `
+      }
     }
   },
   resolve: {

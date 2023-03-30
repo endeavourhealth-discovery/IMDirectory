@@ -25,30 +25,30 @@
         </div>
       </template>
 
-      <template #groupheader="{ data }">
-        <div v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</div>
+      <template #groupheader="{ data }: any">
+        <span v-if="isObjectHasKeys(data, ['group'])">{{ data.group.name }}</span>
       </template>
 
       <Column field="group.name" header="Group">
-        <template #body="{ data }"> {{ data.group.name }}</template>
+        <template #body="{ data }: any"> {{ data.group.name }}</template>
       </Column>
 
       <Column field="property" header="Name">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="link" @click="directService.select(data.property['@id'])" data-testid="name">
             {{ data.property.name || data.property["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="link" @click="directService.select(data.type['@id'])">
             {{ data.type.name || data.type["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="cardinality" header="Cardinality">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           {{ data.cardinality }}
         </template>
       </Column>
@@ -65,21 +65,21 @@
       </template>
 
       <Column field="property" header="Name">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="link" @click="directService.select(data.property['@id'])" data-testid="name">
             {{ data.property.name || data.property["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="link" @click="directService.select(data.type['@id'])">
             {{ data.type.name || data.type["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="cardinality" header="Cardinality">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           {{ data.cardinality }}
         </template>
       </Column>

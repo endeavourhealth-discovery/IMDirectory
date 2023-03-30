@@ -2,6 +2,7 @@ import router from "@/router/index";
 import App from "@/App.vue";
 import Toast from "primevue/toast";
 import ConfirmDialog from "primevue/confirmdialog";
+import DynamicDialog from "primevue/dynamicdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import ProgressSpinner from "primevue/progressspinner";
@@ -10,7 +11,6 @@ import { flushPromises, shallowMount } from "@vue/test-utils";
 import PrimeVue from "primevue/config";
 import TopBar from "@/components/shared/TopBar.vue";
 import { vi } from "vitest";
-import { setupServer } from "msw/node";
 import { render } from "@testing-library/vue";
 import { nextTick } from "vue";
 
@@ -39,7 +39,7 @@ describe("router", () => {
 
       component = render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu, DynamicDialog },
           plugins: [router, store, PrimeVue],
           stubs: { SnomedLicense: { template: "<span>Test Snomed License</span>" }, Directory: true, ReleaseNotes: true }
         }
@@ -69,7 +69,7 @@ describe("router", () => {
 
       wrapper = shallowMount(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu, DynamicDialog },
           plugins: [router, store]
         }
       });
@@ -98,7 +98,7 @@ describe("router", () => {
 
       wrapper = shallowMount(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog },
           plugins: [router, store]
         }
       });
@@ -129,7 +129,7 @@ describe("router", () => {
 
       wrapper = shallowMount(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button },
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, DynamicDialog },
           plugins: [router, store]
         }
       });

@@ -1,4 +1,4 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import LandingPage from "@/components/directory/LandingPage.vue";
 import ProgressSpinner from "primevue/progressspinner";
 import PrimeVue from "primevue/config";
@@ -11,7 +11,7 @@ import Tooltip from "primevue/tooltip";
 import testData from "./LandingPage.testData";
 import { EntityService, ConfigService, DirectService } from "@/services";
 import { flushPromises } from "@vue/test-utils";
-import { afterAll, it, vi } from "vitest";
+import { it, vi } from "vitest";
 
 const mockDispatch = vi.fn();
 const mockState = {

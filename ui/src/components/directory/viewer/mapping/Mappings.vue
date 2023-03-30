@@ -1,27 +1,27 @@
 <template>
-  <div class="flex flex-row justify-contents-center align-items-center loading -container" v-if="loading">
+  <div class="flex flex-row justify-contents-center align-items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
   <OrganizationChart v-else :value="data" data-testid="mappings">
-    <template #hasMap="slotProps">
+    <template #hasMap="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #oneOf="slotProps">
+    <template #oneOf="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #comboOf="slotProps">
+    <template #comboOf="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #someOf="slotProps">
+    <template #someOf="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #matchedFrom="slotProps">
+    <template #matchedFrom="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #matchedTo="slotProps">
+    <template #matchedTo="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #childList="slotProps">
+    <template #childList="slotProps: any">
       <table aria-label="Concept map children" data-testid="hasMap">
         <thead>
           <tr>
@@ -42,7 +42,7 @@
         </tbody>
       </table>
     </template>
-    <template #matchedFromList="slotProps">
+    <template #matchedFromList="slotProps: any">
       <SimpleMaps
         v-if="slotProps.node.data.mapItems.length"
         :data="slotProps.node.data.mapItems"
@@ -51,7 +51,7 @@
       />
       <span v-else>None</span>
     </template>
-    <template #matchedToList="slotProps">
+    <template #matchedToList="slotProps: any">
       <SimpleMaps
         v-if="slotProps.node.data.mapItems.length"
         :data="slotProps.node.data.mapItems"
@@ -326,29 +326,38 @@ function handleMatchedToToggle(event: any, data: any) {
 <style scoped>
 td,
 th {
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   padding: 0.5rem;
   text-align: left;
   overflow-wrap: break-word;
 }
 
 tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: var(--surface-a);
 }
 
 th[scope="col"] {
-  background-color: #f8f9fa;
-  color: #495057;
+  background-color: var(--surface-a);
+  color: var(--text-color);
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid rgb(200, 200, 200);
+  border: 2px solid var(--surface-border);
 }
 
 .p-organizationchart {
   height: 100%;
   width: 100%;
   overflow: auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  height: 20rem;
+  width: 100%;
 }
 </style>

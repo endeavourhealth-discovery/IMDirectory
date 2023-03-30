@@ -4,11 +4,11 @@ import { ECLComponent } from "./ECLComponent";
 import { EditorMode } from "./EditorMode";
 import { PasswordStrength } from "./PasswordStrength";
 import { QueryComponentType } from "./QueryComponentType";
-import { SortBy } from "./SortBy";
 import { SortDirection } from "./SortDirection";
 import { QueryDisplayType } from "./QueryBuilder";
 import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
+import { ErrorType } from "./ErrorType";
 
 export {
   BuilderType,
@@ -17,9 +17,9 @@ export {
   EditorMode,
   PasswordStrength,
   QueryComponentType,
-  SortBy,
   SortDirection,
   QueryDisplayType,
   ToastSeverity,
-  TagSeverity
+  TagSeverity,
+  ErrorType
 };

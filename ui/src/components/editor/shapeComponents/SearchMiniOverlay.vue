@@ -17,7 +17,7 @@
       <template #empty> None </template>
       <template #loading> Loading... </template>
       <Column field="name" header="Results">
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <div class="result-container" @mouseenter="showDetailsOverlay($event, slotProps.data)" @mouseleave="hideDetailsOverlay()">
             <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
               <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon fa-fw" />
@@ -80,10 +80,11 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, PropType, ref, watch } from "vue";
+import { PropType, ref } from "vue";
 import { useStore } from "vuex";
 import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { ConceptSummary, TTIriRef } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 const store = useStore();
 

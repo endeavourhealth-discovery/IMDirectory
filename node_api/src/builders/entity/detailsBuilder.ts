@@ -1,6 +1,4 @@
 import * as crypto from "crypto";
-import { buildQueryObjectFromQuery } from "../query/objectBuilder";
-import { buildQueryDisplayFromQuery } from "../query/displayBuilder";
 import { TTBundle, TTIriRef } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
@@ -54,10 +52,7 @@ function addIriLink(treeNode: any, item: TTIriRef) {
 }
 
 function addDefinition(treeNode: any, entity: any, predicates: any, key: string, types: TTIriRef[]) {
-  const isQuery = types.some(type => type["@id"] === IM.QUERY);
-  const definition = JSON.parse(entity[IM.DEFINITION]);
-  const definitionValue = isQuery ? buildQueryObjectFromQuery(definition) : buildQueryDisplayFromQuery(definition);
-  const definitionNode = { key: key, label: predicates[key] || key, children: definitionValue.children };
+  const definitionNode = { key: key, label: predicates[key] || key };
   treeNode.children.push(definitionNode);
 }
 
@@ -135,6 +130,7 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
         if (roleKey !== IM.NAMESPACE + "groupNumber")
           propertyNode.children?.push({
             key: key + "." + roleKey,
+            iri: roleKey,
             label: predicates[roleKey],
             data: roleGroup[roleKey]?.[0],
             type: "property"
@@ -147,30 +143,4 @@ function addRoleGroup(treeNode: any, entity: any, predicates: any, key: string) 
 function addProperty(treeNode: any, entity: any, predicates: any, key: string) {
   const newTreeNode = { key: key, label: predicates[key] || entity[key]?.path?.[0]?.name || key, children: [] as any[] };
   treeNode.children?.push(newTreeNode);
-  if (isArrayHasLength(entity[key])) {
-    for (const property of entity[key]) {
-      const propertyNode = {
-        key: property?.[SHACL.PATH]?.[0]?.["@id"] || key,
-        label: property?.[SHACL.PATH]?.[0]?.name || predicates[key] || key,
-        children: [] as any[]
-      };
-      newTreeNode.children?.push(propertyNode);
-
-      for (const propertyKey of Object.keys(property)) {
-        if (SHACL.NAMESPACE + "order" === propertyKey) {
-          propertyNode.children?.push({
-            key: key + "." + propertyKey,
-            label: predicates[propertyKey] + ": " + property[propertyKey]
-          });
-        } else {
-          propertyNode.children?.push({
-            key: key + "." + propertyKey,
-            label: predicates[propertyKey],
-            data: property[propertyKey]?.[0],
-            type: "property"
-          });
-        }
-      }
-    }
-  }
 }

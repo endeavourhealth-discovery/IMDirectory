@@ -9,7 +9,7 @@
     @dragover.prevent
     @drop="dropReceived"
   >
-    <template #item="slotProps">
+    <template #item="slotProps: any">
       <div class="autocomplete-suggestion">
         {{ slotProps.item.name }} - {{ slotProps.item["@id"] }}
         <Button
@@ -20,7 +20,7 @@
         />
       </div>
     </template>
-    <template #chip="slotProps">
+    <template #chip="slotProps: any">
       <div v-tooltip.right="slotProps.value['@id']">{{ slotProps.value.name }}</div>
     </template>
   </AutoComplete>
@@ -33,12 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import { FilterOptions, SearchRequest, TTAlias, TTIriRef } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchRequest, TTAlias, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { onMounted, PropType, Ref, ref, watch, computed } from "vue";
-import { SortBy, SortDirection } from "@im-library/enums";
+import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
-import {} from "@im-library/vocabulary";
 import _ from "lodash";
 import { useStore } from "vuex";
 
@@ -64,7 +64,7 @@ onMounted(() => {
 });
 
 function populateTTAlias() {
-  if (isObjectHasKeys(props.ttAlias, ["@id", "name"])) selectedEntity.value = [{ "@id": props.ttAlias["@id"], name: props.ttAlias.name }];
+  if (isObjectHasKeys(props.ttAlias, ["@id", "name"])) selectedEntity.value = [{ "@id": props.ttAlias["@id"], name: props.ttAlias.name } as TTIriRef];
 }
 
 function handleChange(event: any) {
@@ -94,7 +94,7 @@ async function searchEntity(searchTerm: any): Promise<void> {
     } else {
       const searchRequest = {} as SearchRequest;
       searchRequest.termFilter = searchTerm.query;
-      searchRequest.sortBy = SortBy.Usage;
+      searchRequest.sortField = "weighting";
       searchRequest.page = 1;
       searchRequest.size = 100;
       searchRequest.sortDirection = SortDirection.DESC;

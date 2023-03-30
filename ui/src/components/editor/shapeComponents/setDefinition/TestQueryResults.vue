@@ -16,34 +16,36 @@
     </div>
     <div v-else>No concepts found</div>
     <template #footer>
-      <Button label="Download" icon="pi pi-download" @click="exportCSV" class="p-button-help" />
+      <Button label="Download" icon="pi pi-download" @click="exportCSV" severity="help" />
       <Button label="OK" icon="pi pi-check" @click="close" autofocus />
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces";
 import { onMounted, PropType, ref, Ref } from "vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import setupDownloadFile from "@/composables/downloadFile";
+import { byName } from "@im-library/helpers/Sorters";
+import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 
 const queryLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
 const testQueryResults: Ref<TTIriRef[]> = ref([]);
 
 const props = defineProps({
-  imquery: { type: Object as PropType<Query>, required: true },
-  showDialog: { type: Boolean, required: true }
+  queryRequest: { type: Object as PropType<QueryRequest>, required: true },
+  showDialog: { type: Boolean, required: true },
+  results: { type: Array as PropType<TTIriRef[]>, required: false }
 });
 
 const emit = defineEmits({ closeDialog: () => true });
 const internalShowDialog = ref(true);
 
 onMounted(async () => {
-  if (props.imquery) await testQuery();
+  if (props.queryRequest) await testQuery();
 });
 
 function close() {
@@ -52,9 +54,10 @@ function close() {
 
 async function testQuery() {
   queryLoading.value = true;
-  const result = await QueryService.queryIM({ query: props.imquery } as QueryRequest);
+  const result = await QueryService.queryIM(props.queryRequest);
   if (isArrayHasLength(result.entities)) {
-    testQueryResults.value = await EntityService.getNames(result.entities.map(entity => entity["@id"]));
+    const results = await EntityService.getNames(result.entities.map(entity => entity["@id"]));
+    if (results) testQueryResults.value = results.sort(byName);
   }
   queryLoading.value = false;
 }

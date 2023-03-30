@@ -10,7 +10,7 @@
 import ArrayBuilder from "./ArrayBuilder.vue";
 import VerticalLayout from "./VerticalLayout.vue";
 import SetDefinitionBuilder from "./SetDefinitionBuilder.vue";
-import { PropertyGroup, PropertyShape } from "@im-library/interfaces";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { ArrayBuilder, VerticalLayout, SetDefinitionBuilder }
@@ -19,10 +19,11 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { EditorMode } from "@im-library/enums";
-import { PropType, inject, ref, Ref, onMounted, defineComponent } from "vue";
+import { PropType, inject, ref, Ref, onMounted } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },

@@ -11,7 +11,7 @@
           :loading="loading"
           class="task-tree-container"
         >
-          <template #default="slotProps">
+          <template #default="slotProps: any">
             <span :style="'color: ' + slotProps.node.colour" class="p-mx-1 type-icon">
               <i :class="slotProps.node.treeIcon" aria-hidden="true" />
             </span>
@@ -31,14 +31,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onUnmounted, ref, Ref, watch } from "vue";
-import ConfirmDialog from "primevue/confirmdialog";
+import { computed, onUnmounted, ref, Ref, watch } from "vue";
 import ExpansionTable from "./ExpansionTable.vue";
 import ParentHeader from "./ParentHeader.vue";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
 import { useRoute, useRouter } from "vue-router";
+
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -137,7 +137,7 @@ function onNodeSelect(node: any) {
 .tree-bar-container {
   display: flex;
   flex-flow: column nowrap;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .task-viewer-container {
@@ -148,7 +148,7 @@ function onNodeSelect(node: any) {
   justify-content: flex-start;
   overflow: auto;
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .tab-container {
@@ -175,7 +175,7 @@ function onNodeSelect(node: any) {
 }
 
 .viewer-main-container {
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .title {

@@ -1,4 +1,4 @@
-import { TTIriRef } from "./TTIriRef";
+import { TTIriRef } from "../interfaces/AutoGen";
 
 export default interface AllowableChildProperty {
   "@id": string;

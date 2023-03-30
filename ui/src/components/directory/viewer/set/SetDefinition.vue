@@ -18,7 +18,8 @@
             <span>Definition</span>
             <Button
               icon="pi pi-copy"
-              class="p-button-secondary p-button-outlined concept-button"
+              severity="secondary"
+              class="p-button-outlined concept-button"
               v-tooltip.top="'Copy definition'"
               data-testid="copy-definition-button"
               @click="onCopy"
@@ -106,7 +107,7 @@ async function onCopy(event: any) {
 }
 
 .concept-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--highlight-bg) !important;
+  color: var(--text-color) !important;
 }
 </style>

@@ -12,17 +12,19 @@
       <div class="concept-buttons-container">
         <Button
           icon="pi pi-fw pi-eye"
-          class="p-button-secondary p-button-outlined concept-button"
+          severity="secondary"
+          class="p-button-outlined concept-button"
           @click="view(concept['@id'])"
           v-tooltip.left="'Open in Viewer'"
         />
         <Button
           icon="pi pi-fw pi-info-circle"
-          class="p-button-secondary p-button-outlined concept-button"
+          severity="secondary"
+          class="p-button-outlined concept-button"
           @click="showInfo(concept['@id'])"
           v-tooltip.left="'Show summary panel'"
         />
-        <Button icon="pi pi-fw pi-pencil" class="p-button-secondary p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
+        <Button icon="pi pi-fw pi-pencil" severity="secondary" class="p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
         <!-- <Button
           icon="pi pi-fw pi-play"
           class="p-button-secondary p-button-outlined concept-button"
@@ -43,9 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, ref, Ref, watch } from "vue";
+import { onMounted, ref, Ref, watch } from "vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { DirectService, EntityService, Env } from "@/services";
 import { IM, RDF } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
@@ -151,12 +152,12 @@ function updateFavourites(iri: string) {
 }
 
 .concept-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--text-color) !important;
+  color: var(--surface-a) !important;
 }
 
 .concept-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+  background-color: var(--yellow-500) !important;
+  color: var(--surface-a) !important;
 }
 </style>

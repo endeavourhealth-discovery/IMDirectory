@@ -1,5 +1,5 @@
-import APIError from "./APIError";
-import * as AutoGen from "./AutoGen";
+import ApiError from "./customErrors/ApiError";
 import ToastOptions from "./ToastOptions";
+import CustomError from "./customErrors/CustomError";
 
-export { APIError, AutoGen, ToastOptions };
+export { ApiError, ToastOptions, CustomError };

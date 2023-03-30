@@ -6,6 +6,20 @@
     "dev-library": "cd im_library && npm run dev",
     "dev-api": "cd node_api && npm run dev",
     "dev-ui": "cd ui && npm run dev",
+
+    "debug": "run-p dev-library debug-api dev-ui",
+    "debug-api": "cd node_api && npm run debug",
+
+    "tsc": "run-p tsc-library tsc-api tsc-ui",
+    "tsc-library": "cd im_library && npm run tsc",
+    "tsc-api": "cd node_api && npm run tsc",
+    "tsc-ui": "cd ui && npm run tsc",
+
+    "build": "run-p build-library build-api build-ui",
+    "build-library": "cd im_library && npm run build",
+    "build-api": "cd node_api && npm run build",
+    "build-ui": "cd ui && npm run build",
+
     "clean-install-all": "npm install && rimraf ui/node_modules && rimraf node_api/node_modules && rimraf im_library/node_modules && rimraf node_modules && npm run install-all",
     "install-all": "npm install && run-p install-library install-api install-ui",
     "install-library": "cd im_library && npm install",
@@ -16,6 +30,6 @@
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5",
-    "rimraf": "^3.0.2"
+    "rimraf": "4.4.1"
   }
 }

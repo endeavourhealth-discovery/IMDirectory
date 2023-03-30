@@ -31,7 +31,7 @@ clean.doLast {
 }
 
 frontend {
-    nodeVersion = '18.4.0'
+    nodeDistributionProvided = true
     assembleScript = 'run build'
     checkScript = 'run test:coverage'
     installScript = 'install --legacy-peer-deps'

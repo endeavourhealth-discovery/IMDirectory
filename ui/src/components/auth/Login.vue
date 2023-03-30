@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, ref } from "vue";
+import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
@@ -94,6 +94,19 @@ function handleSubmit(): void {
           if (result.isConfirmed) {
             store.commit("updateRegisteredUsername", username.value);
             router.push({ name: "ConfirmCode" });
+          }
+        });
+      } else if (res.status === 403 && res.message === "NEW_PASSWORD_REQUIRED") {
+        Swal.fire({
+          icon: "warning",
+          title: "New password required",
+          text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+          showCloseButton: false,
+          showCancelButton: false,
+          confirmButtonText: "Reset password"
+        }).then((result: SweetAlertResult) => {
+          if (result.isConfirmed) {
+            router.push({ name: "ForgotPassword" });
           }
         });
       } else {

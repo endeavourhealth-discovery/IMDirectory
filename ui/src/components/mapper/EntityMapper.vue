@@ -57,7 +57,7 @@
               <template #empty> No results found. </template>
               <template #loading> Loading results. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="hover-name" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -65,7 +65,7 @@
               </Column>
               <Column field="usage" header="Usage"> </Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
                       icon="pi pi-fw pi-eye"
@@ -104,7 +104,7 @@
               <template #empty> No results found. </template>
               <template #loading> Loading results. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="hover-name" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -112,7 +112,7 @@
               </Column>
               <Column field="usage" header="Usage"> </Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
                       icon="pi pi-fw pi-eye"
@@ -136,7 +136,7 @@
     </div>
   </div>
   <div class="button-bar">
-    <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" @click="$router.go(-1)" />
+    <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="$router.go(-1)" />
     <Button :loading="saveLoading" icon="pi pi-check" label="Save mappings" class="save-button" @click="saveMappings" />
   </div>
 </template>
@@ -144,7 +144,7 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
 import { useStore } from "vuex";
-import { SortBy, ToastSeverity } from "@im-library/enums";
+import { ToastSeverity } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ToastOptions } from "@im-library/models";
@@ -153,7 +153,10 @@ import { EntityService, Env, DirectService } from "@/services";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
-import { TTIriRef, ConceptSummary, SearchRequest, FilterOptions } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
+
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 
@@ -288,7 +291,7 @@ async function prepareSearchRequest(term: string) {
   searchResults.value = [];
   const searchRequest = {} as SearchRequest;
   searchRequest.termFilter = term;
-  searchRequest.sortBy = SortBy.Usage;
+  searchRequest.sortField = "weighting";
   searchRequest.page = 1;
   searchRequest.size = 100;
   setFilters(searchRequest);
@@ -306,7 +309,7 @@ async function search(): Promise<void> {
     searchResults.value = [];
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchTerm.value;
-    searchRequest.sortBy = SortBy.Usage;
+    searchRequest.sortField = "weighting";
     searchRequest.page = 1;
     searchRequest.size = 100;
     setFilters(searchRequest);
@@ -358,7 +361,7 @@ function getConceptTypes(types: TTIriRef[]): string {
   padding: 2rem 2rem 0 2rem;
   overflow: auto;
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   height: calc(100vh - 8rem);
 }
 .button-bar {
@@ -366,11 +369,11 @@ function getConceptTypes(types: TTIriRef[]): string {
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
   width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--surface-border);
+  border-left: 1px solid var(--surface-border);
+  border-right: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
   flex-flow: row;
   justify-content: flex-end;

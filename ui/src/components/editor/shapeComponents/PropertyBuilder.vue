@@ -12,7 +12,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropertyShape, TTIriRef, Property } from "@im-library/interfaces";
+import { Property } from "@im-library/interfaces";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import _ from "lodash";
@@ -151,7 +152,7 @@ async function getRange(iri: string) {
   const rangeIri = await EntityService.getPartialEntity(iri, [RDFS.RANGE]);
   let result;
   if (rangeIri && isObjectHasKeys(rangeIri, [RDFS.RANGE])) result = await EntityService.getPartialEntity(rangeIri[RDFS.RANGE][0]["@id"], [RDFS.LABEL]);
-  if (result) propertyRange.value = { "@id": result["@id"], name: result[RDFS.LABEL] };
+  if (result) propertyRange.value = { "@id": result["@id"], name: result[RDFS.LABEL] } as TTIriRef;
 }
 
 function updateRange(data: any) {
@@ -183,7 +184,7 @@ async function createProperty() {
 
 async function setRange(property: Property) {
   if (propertyRange.value) {
-    if (XmlSchemaDatatypes.find(p => p === propertyRange.value["@id"])) {
+    if (XmlSchemaDatatypes.find(p => propertyRange.value && p === propertyRange.value["@id"])) {
       property["http://www.w3.org/ns/shacl#datatype"] = [propertyRange.value];
     } else {
       const type = await EntityService.getPartialEntity(propertyRange.value["@id"], [RDF.TYPE]);

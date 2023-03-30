@@ -50,7 +50,7 @@
       </template>
       <template #loading> Loading data. Please wait... </template>
       <Column field="member" header="Name">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <IMViewerLink :iri="data['@id']" :label="data.name" action="select" />
         </template>
       </Column>
@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
-import { TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
