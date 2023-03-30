@@ -1,13 +1,13 @@
 <template>
   <Dialog
-    :header="queryLoading ? 'Results' : 'Results: ' + params.length"
+    header="Parameters"
     v-model:visible="internalShowDialog"
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
     :style="{ width: '50vw' }"
     :closable="false"
   >
     <div v-for="param in params">
-      <div v-if="'string' === param.type">{{ param.name }}: <InputText v-tooltip="param.desc" type="text" v-model="param.value" /></div>
+      <div v-if="'string' === param.type" class="parameter-input">{{ param.name }}: <InputText v-tooltip="param.desc" type="text" v-model="param.value" /></div>
       <div v-else-if="'IrirRef' === param.type">
         {{ param.name }} :
         <AutoComplete
@@ -96,4 +96,8 @@ async function run() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.parameter-input {
+  padding-top: 0.2rem;
+}
+</style>

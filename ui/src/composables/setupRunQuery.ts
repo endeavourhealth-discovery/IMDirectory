@@ -15,6 +15,7 @@ function setupRunQuery() {
   }
 
   async function getParams(iri: string) {
+    params.value = [];
     const entity = await EntityService.getPartialEntity(iri, [SHACL.PARAMETER]);
     for (const param of entity[SHACL.PARAMETER]) {
       params.value.push({
