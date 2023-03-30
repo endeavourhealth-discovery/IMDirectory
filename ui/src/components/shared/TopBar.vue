@@ -10,7 +10,7 @@
       <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
       <Button :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
-        <template #item="{ item }">
+        <template #item="{ item }: any">
           <div class="theme-row p-link">
             <Image class="theme-icon p-menuitem-icon" v-if="item.image" :src="item.image" alt="icon" width="30" />
             <span class="p-menuitem-text">{{ item.label }}</span>
@@ -66,16 +66,13 @@ import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
-import TieredMenu from "primevue/tieredmenu";
 import { DirectService, Env, FilerService, DataModelService } from "@/services";
 
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { usePrimeVue } from "primevue/config";
 
 const store = useStore();
 const currentUser = computed(() => store.state.currentUser);
 const isLoggedIn = computed(() => store.state.isLoggedIn);
-const authReturnUrl = computed(() => store.state.authReturnUrl);
 const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 const currentTheme = computed(() => store.state.currentTheme);
 

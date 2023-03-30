@@ -58,7 +58,6 @@ import { defineComponent } from "vue";
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -72,6 +71,7 @@ import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import EclService from "@/services/EclService";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   showDialog: Boolean,

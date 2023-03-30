@@ -1,13 +1,11 @@
-import { mount } from "@vue/test-utils";
 import UserDetails from "@/components/auth/UserDetails.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import { Avatars } from "@im-library/constants";
-import { User } from "@im-library/models";
 import PrimeVue from "primevue/config";
-import { vi } from "vitest";
-import { fireEvent, render, RenderResult } from "@testing-library/vue";
+import { vi, describe, beforeEach, it, expect } from "vitest";
+import { render, RenderResult } from "@testing-library/vue";
 
 const mockDispatch = vi.fn();
 const mockState = {} as any;

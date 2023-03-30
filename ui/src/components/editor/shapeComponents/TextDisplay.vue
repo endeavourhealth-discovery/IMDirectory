@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
+import { ref, watch, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";

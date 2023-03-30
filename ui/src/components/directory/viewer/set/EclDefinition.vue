@@ -8,8 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, PropType, ref } from "vue";
-import { TTBundle } from "@im-library/interfaces";
+import { onMounted,  ref } from "vue";
 import { EclService } from "@/services";
 
 const props = defineProps({

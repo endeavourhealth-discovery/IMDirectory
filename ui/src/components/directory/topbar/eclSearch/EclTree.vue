@@ -33,7 +33,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="slotProps: any">
         <div v-if="slotProps.node.data === 'loadMore'" class="tree-row">
           <ProgressSpinner v-if="slotProps.node.loading" />
           <span class="tree-node-label">{{ slotProps.node.label }}</span>

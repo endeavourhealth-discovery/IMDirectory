@@ -64,7 +64,7 @@
               <template #empty> No results found. </template>
               <template #loading> Loading results. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="hover-name" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -72,7 +72,7 @@
               </Column>
               <Column field="usage" header="Usage"> </Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
                       icon="pi pi-fw pi-eye"
@@ -110,7 +110,7 @@
               <template #empty> No actions added. </template>
               <template #loading> Loading contents. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -118,7 +118,7 @@
               </Column>
               <Column field="usage" header="Usage"></Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
                       icon="pi pi-fw pi-eye"
@@ -148,9 +148,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, defineComponent, onMounted, Ref, ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, Ref, ref, watch } from "vue";
 import ConfirmDialog from "primevue/confirmdialog";
-import { mapState, useStore } from "vuex";
+import { useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import "vue-json-pretty/lib/styles.css";
@@ -159,7 +159,6 @@ import { DirectService, EntityService, Env } from "@/services";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
-import TaskDefinition from "../editor/workflow/TaskDefinition.vue";
 
 const props = defineProps({
   data: { type: Object, required: true }

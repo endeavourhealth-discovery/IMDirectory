@@ -2,14 +2,12 @@ vi.resetModules();
 
 import Card from "primevue/card";
 import Button from "primevue/button";
-import { mount, flushPromises } from "@vue/test-utils";
 import ConfirmCode from "@/components/auth/ConfirmCode.vue";
 import InputText from "primevue/inputtext";
 import Dialog from "primevue/dialog";
 import { AuthService } from "@/services";
-import Swal from "sweetalert2";
 import { vi } from "vitest";
-import { findByText, fireEvent, render, RenderResult } from "@testing-library/vue";
+import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 
 window.scrollTo = vi.fn() as any;

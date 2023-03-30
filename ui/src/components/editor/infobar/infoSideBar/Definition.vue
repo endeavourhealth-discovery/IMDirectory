@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import TermsTable from "@/components/editor/infobar/infoSideBar/TermsTable.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { TermsTable }
@@ -28,7 +29,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref } from "vue";
+import { onMounted, PropType, ref, Ref } from "vue";
 import { DefinitionConfig } from "@im-library/interfaces";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";

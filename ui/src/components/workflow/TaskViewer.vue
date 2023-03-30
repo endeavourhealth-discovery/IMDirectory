@@ -11,7 +11,7 @@
           :loading="loading"
           class="task-tree-container"
         >
-          <template #default="slotProps">
+          <template #default="slotProps: any">
             <span :style="'color: ' + slotProps.node.colour" class="p-mx-1 type-icon">
               <i :class="slotProps.node.treeIcon" aria-hidden="true" />
             </span>

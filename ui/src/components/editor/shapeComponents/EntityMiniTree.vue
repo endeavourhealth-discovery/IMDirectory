@@ -10,7 +10,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="slotProps: any">
         <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
           <span v-if="!slotProps.node.loading">
             <div :style="'color:' + slotProps.node.color">
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
+import { onMounted, PropType, ref, Ref } from "vue";
 import { ConceptSummary, EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";

@@ -1,6 +1,5 @@
 import { EntityService, Env } from "@/services";
 import axios from "axios";
-import { setupServer } from "msw/node";
 
 const api = Env.API;
 

@@ -29,6 +29,7 @@
 
 <script lang="ts">
 import BuilderChildWrapper from "./BuilderChildWrapper.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { BuilderChildWrapper }
@@ -36,7 +37,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";

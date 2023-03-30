@@ -22,7 +22,7 @@
 import { computed, onMounted, onUnmounted, PropType, ref, Ref, watch } from "vue";
 import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
+import { RouteRecordName, useRoute } from "vue-router";
 import _ from "lodash";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
@@ -30,7 +30,6 @@ import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
-import axios from "axios";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";

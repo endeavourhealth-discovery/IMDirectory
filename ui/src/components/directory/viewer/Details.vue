@@ -13,7 +13,7 @@
       @node-select="onSelect"
       @node-expand="onExpand"
     >
-      <template #default="{ node }">
+      <template #default="{ node }: any">
         <div v-if="tabPredicates.includes(node.key!)">
           <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
         </div>
@@ -21,7 +21,7 @@
         <div v-else-if="node.value">{{ node.label + " - " + node.value }}</div>
         <div v-else>{{ node.label }}</div>
       </template>
-      <template #propertyIs="{ node }">
+      <template #propertyIs="{ node }: any">
         <IMViewerLink
           :iri="node.value.property['@id']"
           :label="node.value.property.includeSubtypes ? node.value.property.name + '*' : node.value.property.name"
@@ -29,30 +29,30 @@
         =
         <IMViewerLink :iri="node.value.is['@id']" :label="node.value.is.includeSubtypes ? node.value.is.name + '*' : node.value.is.name" />
       </template>
-      <template #string="{ node }">{{ node.value }}</template>
-      <template #iri="{ node }"> {{ node.label }} <IMViewerLink :iri="node.value" /></template>
-      <template #boolean="{ node }">{{ node.label }}</template>
-      <template #from="{ node }">
+      <template #string="{ node }: any">{{ node.value }}</template>
+      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" /></template>
+      <template #boolean="{ node }: any">{{ node.label }}</template>
+      <template #from="{ node }: any">
         <IMViewerLink v-if="node.value.includeSubtypes" :iri="node.value['@id']" :label="node.label + '*'" />
         <IMViewerLink v-else :iri="node.value['@id']" :label="node.label" />
       </template>
 
-      <template #simpleOr="{ node }">
+      <template #simpleOr="{ node }: any">
         <div v-for="(from, index) in node.value" :key="index">
           <IMViewerLink v-if="from.includeSubtypes" :iri="from['@id']" :label="from.label + '*'" />
           <IMViewerLink v-else :iri="node.value['@id']" :label="from.label" />
         </div>
       </template>
-      <template #property="{ node }">
+      <template #property="{ node }: any">
         <span @mouseover="showOverlay($event, node.iri)" @mouseleave="hideOverlay($event)"><IMViewerLink :iri="node.iri" :label="node.label" />: </span>
         <span @mouseover="showOverlay($event, node.data['@id'])" @mouseleave="hideOverlay($event)"
           ><IMViewerLink :iri="node.data['@id']" :label="node.data.name"
         /></span>
       </template>
-      <template #link="{ node }">
+      <template #link="{ node }: any">
         <IMViewerLink :iri="node.key!" :label="node.label" />
       </template>
-      <template #loadMore="{ node }">
+      <template #loadMore="{ node }: any">
         <b>{{ node.label }}...</b>
       </template>
     </Tree>

@@ -17,7 +17,7 @@
 import EntitySearch from "../EntitySearch.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTAlias } from "@im-library/interfaces/AutoGen";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+
 const emit = defineEmits({ onEdit: (payload: string) => payload });
 
 const props = defineProps({
