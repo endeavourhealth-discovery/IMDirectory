@@ -1,10 +1,8 @@
 import store from "@/store/index";
 import { flushPromises } from "@vue/test-utils";
 import { AuthService } from "@/services";
-import { User, CustomAlert } from "@im-library/models";
 import { EntityService } from "@/services";
 import { beforeEach, describe, vi } from "vitest";
-import { setupServer } from "msw/node";
 import testData from "./index.testData";
 
 describe("state", () => {

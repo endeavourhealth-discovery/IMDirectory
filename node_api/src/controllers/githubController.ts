@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from "express";
-import AuthMiddleware from "@/middlewares/auth.middleware";
 import { Octokit } from "@octokit/core";
 import GithubRelease from "@/model/github/GithubRelease";
 import Env from "@/services/env.service";

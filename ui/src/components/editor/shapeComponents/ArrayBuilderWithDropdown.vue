@@ -32,6 +32,7 @@
 
 <script lang="ts">
 import BuilderDropdownChildWrapper from "./BuilderDropdownChildWrapper.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { BuilderDropdownChildWrapper }
@@ -39,7 +40,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";

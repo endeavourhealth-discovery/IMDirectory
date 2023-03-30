@@ -3,7 +3,6 @@ import { shallowMount } from "@vue/test-utils";
 import { ECLComponent } from "@im-library/enums";
 import Button from "primevue/button";
 import { vi } from "vitest";
-import { setupServer } from "msw/node";
 
 describe("AddDeleteButtons.vue", () => {
   let wrapper;

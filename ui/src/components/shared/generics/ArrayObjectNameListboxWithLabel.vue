@@ -29,7 +29,7 @@
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >
-      <template #option="slotProps">
+      <template #option="slotProps: any">
         <div class="data-name" data-testid="row-text">
           {{ slotProps.option?.name || slotProps.option?.["@id"] }}
         </div>
@@ -41,7 +41,6 @@
 <script setup lang="ts">
 import { DirectService } from "@/services";
 import { computed, onMounted, PropType, ref, Ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getLogger } from "@im-library/logger/LogConfig";

@@ -56,9 +56,8 @@ import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
-import { getLogger } from "@im-library/logger/LogConfig";
 import { EclService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";

@@ -13,7 +13,6 @@
 <script setup lang="ts">
 import { ProvService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import axios from "axios";
 import { onMounted, ref, Ref } from "vue";
 
 const props = defineProps({

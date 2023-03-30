@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { ref, onMounted, defineComponent } from "vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "HeroIcon",

@@ -1,6 +1,5 @@
 import {GraphdbService, iri} from "@/services/graphdb.service";
 import { IM, RDFS } from "@im-library/vocabulary";
-import { DefinitionConfig, DashboardLayout } from "@im-library/interfaces";
 export default class ConfigRepository {
     private graph: GraphdbService;
 

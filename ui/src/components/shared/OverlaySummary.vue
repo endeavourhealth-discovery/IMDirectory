@@ -32,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 

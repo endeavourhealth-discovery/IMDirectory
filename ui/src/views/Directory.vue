@@ -21,8 +21,7 @@ import { computed, onMounted, ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import Search from "@/components/directory/topbar/Search.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
-import { useRoute, useRouter } from "vue-router";
-import { Env, FilerService, DataModelService } from "@/services";
+import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useStore } from "vuex";
 

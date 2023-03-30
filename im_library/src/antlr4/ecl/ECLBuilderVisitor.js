@@ -1,6 +1,5 @@
 import ECLVisitor from "./ECLVisitor";
 import { isObjectHasKeys } from "../../helpers/DataTypeCheckers";
-import _ from "lodash";
 import { IM, SNOMED } from "../../vocabulary";
 
 const showLogs = false;

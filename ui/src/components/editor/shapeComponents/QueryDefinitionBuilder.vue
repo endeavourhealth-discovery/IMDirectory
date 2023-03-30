@@ -30,7 +30,6 @@ import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers
 import { EntityService, QueryService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
-import { ToastMessageOptions } from "primevue/toast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 

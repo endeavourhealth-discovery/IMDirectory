@@ -93,12 +93,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, watch, onMounted } from "vue";
+import { ref, inject, Ref, watch } from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { isArray } from "@vue/shared";
 
 const props = defineProps({
   value: { type: Object, required: true },

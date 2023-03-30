@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef, watch } from "vue";
+import { onMounted, ref, computed, ComputedRef } from "vue";
 import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";

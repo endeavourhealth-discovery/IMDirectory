@@ -1,10 +1,9 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import Logout from "@/components/auth/Logout.vue";
 import { AuthService } from "@/services";
 import { Avatars } from "@im-library/constants";
-import { User, CustomAlert } from "@im-library/models";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";

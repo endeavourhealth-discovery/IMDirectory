@@ -30,7 +30,7 @@
           />
         </template>
 
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <div class="result-container" @mouseenter="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay()">
             <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
               <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon" aria-hidden="true" />

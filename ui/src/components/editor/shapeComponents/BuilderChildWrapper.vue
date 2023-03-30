@@ -39,6 +39,7 @@ import EntityAutoComplete from "./EntityAutoComplete.vue";
 import ComponentGroup from "./ComponentGroup.vue";
 import ArrayBuilderWithDropdown from "./ArrayBuilderWithDropdown.vue";
 import PropertyBuilder from "./PropertyBuilder.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { EntitySearch, EntityAutoComplete, ComponentGroup, ArrayBuilderWithDropdown, PropertyBuilder }
@@ -46,14 +47,12 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, defineComponent } from "vue";
-import _ from "lodash";
+import { PropType } from "vue";
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
 import { ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
-import {} from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 const props = defineProps({

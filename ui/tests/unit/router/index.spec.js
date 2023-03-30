@@ -11,7 +11,6 @@ import { flushPromises, shallowMount } from "@vue/test-utils";
 import PrimeVue from "primevue/config";
 import TopBar from "@/components/shared/TopBar.vue";
 import { vi } from "vitest";
-import { setupServer } from "msw/node";
 import { render } from "@testing-library/vue";
 import { nextTick } from "vue";
 

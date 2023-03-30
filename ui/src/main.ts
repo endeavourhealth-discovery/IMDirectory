@@ -1,4 +1,4 @@
-import { createApp, Plugin, ComponentPublicInstance } from "vue";
+import { createApp, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
 import store from "./store";

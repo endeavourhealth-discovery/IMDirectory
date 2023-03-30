@@ -39,13 +39,13 @@
 
     <DataTable class="code-list-result-table" v-if="showResultTable" :value="entities" responsiveLayout="scroll">
       <Column field="code" header="Code">
-        <template #body="{ data }"> {{ data["http://endhealth.info/im#code"] }}</template>
+        <template #body="{ data }: any"> {{ data["http://endhealth.info/im#code"] }}</template>
       </Column>
       <Column field="name" header="Name">
-        <template #body="{ data }">{{ data["http://www.w3.org/2000/01/rdf-schema#label"] }} </template>
+        <template #body="{ data }: any">{{ data["http://www.w3.org/2000/01/rdf-schema#label"] }} </template>
       </Column>
       <Column field="statusCode" header="Code status">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <Tag :value="data.statusCode" :severity="getSeverity(data.statusCode)" :icon="getIcon(data.statusCode)" />
         </template>
       </Column>
@@ -58,12 +58,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, Ref, ref, watch } from "vue";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { computed, ComputedRef, Ref, ref } from "vue";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, ParserService } from "@/services";
-import { RDFS } from "@im-library/vocabulary";
 import * as d3 from "d3";
-import { DSVRowArray, DSVRowString } from "d3";
+import { DSVRowArray } from "d3";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 
 const props = defineProps({

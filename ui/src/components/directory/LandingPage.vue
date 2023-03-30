@@ -19,7 +19,7 @@
           >
             <template #empty> No recent activity </template>
             <Column field="name" header="Name">
-              <template #body="{ data }">
+              <template #body="{ data }: any">
                 <div class="datatable-flex-cell">
                   <i :class="data.icon" class="recent-icon" :style="data.color" aria-hidden="true" />
                   {{ data.name }}
@@ -27,12 +27,12 @@
               </template>
             </Column>
             <Column field="latestActivity" header="Latest activity">
-              <template #body="{ data }">
+              <template #body="{ data }: any">
                 <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
               </template>
             </Column>
             <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
-              <template #body="{ data }">
+              <template #body="{ data }: any">
                 <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
               </template>
             </Column>
@@ -60,10 +60,10 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
+import ActionButtons from "../shared/ActionButtons.vue";
 
 export default defineComponent({
-  components: { ReportTable, PieChartDashCard }
+  components: { ReportTable, PieChartDashCard, ActionButtons }
 });
 </script>
 
@@ -75,7 +75,7 @@ import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
-import { EntityService, Env, ConfigService } from "@/services";
+import { EntityService, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;

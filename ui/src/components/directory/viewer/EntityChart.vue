@@ -6,10 +6,10 @@
     <template #NONE>
       <p class="text-centered">None</p>
     </template>
-    <template #default="slotProps">
+    <template #default="slotProps: any">
       <span>{{ slotProps.node.name }}</span>
     </template>
-    <template #PROPERTIES="slotProps">
+    <template #PROPERTIES="slotProps: any">
       <table aria-label="graph semantic properties table" data-testid="properties">
         <thead>
           <tr>
@@ -27,7 +27,7 @@
         </tbody>
       </table>
     </template>
-    <template #ISA="slotProps">
+    <template #ISA="slotProps: any">
       <table aria-label="graph isa's table" data-testid="isA">
         <thead>
           <tr>
@@ -41,7 +41,7 @@
         </tbody>
       </table>
     </template>
-    <template #SUBTYPE="slotProps">
+    <template #SUBTYPE="slotProps: any">
       <table aria-label="graph subtypes table" data-testid="subtype">
         <thead>
           <tr>
@@ -60,10 +60,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { GraphData } from "@im-library/interfaces";
 import { DirectService, EntityService } from "@/services";
-import { useStore } from "vuex";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
 const props = defineProps({

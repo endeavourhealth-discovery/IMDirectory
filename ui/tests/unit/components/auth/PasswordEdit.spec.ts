@@ -1,13 +1,11 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
 import InlineMessage from "primevue/inlinemessage";
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import PasswordEdit from "@/components/auth/PasswordEdit.vue";
 import InputText from "primevue/inputtext";
 import { AuthService } from "@/services";
 import { Avatars } from "@im-library/constants";
-import { PasswordStrength } from "@im-library/enums";
-import { User, CustomAlert } from "@im-library/models";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";

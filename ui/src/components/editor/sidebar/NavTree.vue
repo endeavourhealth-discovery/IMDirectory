@@ -11,7 +11,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="slotProps: any">
         <div
           class="tree-row grabbable"
           @mouseover="showOverlay($event, slotProps.node)"
@@ -74,13 +74,10 @@
 <script setup lang="ts">
 import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
-import axios from "axios";
 import { useToast } from "primevue/usetoast";
-import { EntityReferenceNode, ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import _ from "lodash";
+import { ConceptSummary } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";

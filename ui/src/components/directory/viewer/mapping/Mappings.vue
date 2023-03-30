@@ -3,25 +3,25 @@
     <ProgressSpinner />
   </div>
   <OrganizationChart v-else :value="data" data-testid="mappings">
-    <template #hasMap="slotProps">
+    <template #hasMap="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #oneOf="slotProps">
+    <template #oneOf="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #comboOf="slotProps">
+    <template #comboOf="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #someOf="slotProps">
+    <template #someOf="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #matchedFrom="slotProps">
+    <template #matchedFrom="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #matchedTo="slotProps">
+    <template #matchedTo="slotProps: any">
       <span>{{ slotProps.node.data.label }}</span>
     </template>
-    <template #childList="slotProps">
+    <template #childList="slotProps: any">
       <table aria-label="Concept map children" data-testid="hasMap">
         <thead>
           <tr>
@@ -42,7 +42,7 @@
         </tbody>
       </table>
     </template>
-    <template #matchedFromList="slotProps">
+    <template #matchedFromList="slotProps: any">
       <SimpleMaps
         v-if="slotProps.node.data.mapItems.length"
         :data="slotProps.node.data.mapItems"
@@ -51,7 +51,7 @@
       />
       <span v-else>None</span>
     </template>
-    <template #matchedToList="slotProps">
+    <template #matchedToList="slotProps: any">
       <SimpleMaps
         v-if="slotProps.node.data.mapItems.length"
         :data="slotProps.node.data.mapItems"

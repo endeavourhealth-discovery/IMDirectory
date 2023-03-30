@@ -1,4 +1,3 @@
-import { flushPromises, mount } from "@vue/test-utils";
 import UserEdit from "@/components/auth/UserEdit.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
@@ -9,12 +8,10 @@ import OverlayPanel from "primevue/overlaypanel";
 import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import { AuthService } from "@/services";
 import { setupServer } from "msw/node";
-import { Avatars } from "@im-library/constants";
-import { PasswordStrength } from "@im-library/enums";
 import { User } from "@im-library/models";
 import PrimeVue from "primevue/config";
 import { afterAll, beforeAll, vi } from "vitest";
-import { fireEvent, render, RenderResult } from "@testing-library/vue";
+import { render, RenderResult } from "@testing-library/vue";
 import { RequestHandler } from "msw";
 
 const mockDispatch = vi.fn();

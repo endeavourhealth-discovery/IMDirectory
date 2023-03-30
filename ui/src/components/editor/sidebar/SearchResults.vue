@@ -40,7 +40,7 @@
     >
       <template #empty><div style="flex: 0 1 14rem">None</div></template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <div class="ml-2">
             <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
               <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
@@ -50,12 +50,12 @@
         </template>
       </Column>
       <Column field="weighting" header="Usage" headerStyle="flex: 0 0 5rem;" bodyStyle="flex: 0 0 5rem; text-align: center;">
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <span class="break-all">{{ slotProps.data.weighting }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="slotProps">
+        <template #body="slotProps: any">
           <div class="buttons-container">
             <Button
               :icon="'fa-solid fa-sitemap'"
@@ -112,13 +112,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch, PropType } from "vue";
 import { useStore } from "vuex";
-import _ from "lodash";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
-import { DirectService, Env } from "@/services";
+import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
-import { emit } from "process";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 

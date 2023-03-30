@@ -37,7 +37,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="slotProps: any">
         <div v-if="slotProps.node.data === 'loadMore'" class="tree-row">
           <ProgressSpinner v-if="slotProps.node.loading" />
           <span class="tree-node-label">{{ slotProps.node.label }}</span>
@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
+import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent } from "@im-library/interfaces";

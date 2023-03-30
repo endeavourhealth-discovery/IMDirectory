@@ -1,10 +1,10 @@
-import { computed, Ref, ref } from "vue";
+import { Ref, ref } from "vue";
 import { FormGenerator } from "@im-library/interfaces";
 
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
 import { useRoute, useRouter } from "vue-router";

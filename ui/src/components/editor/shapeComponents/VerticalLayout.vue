@@ -18,7 +18,7 @@ import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinit
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
-import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: {
@@ -39,10 +39,11 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { EditorMode } from "@im-library/enums";
-import { PropType, inject, ref, Ref, onMounted, defineComponent } from "vue";
+import { PropType, inject, ref, Ref, onMounted } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },

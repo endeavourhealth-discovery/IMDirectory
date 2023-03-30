@@ -1,6 +1,6 @@
 import { EntityService, QueryService } from "@/services";
-import { Query, QueryRequest, TTAlias } from "@im-library/interfaces/AutoGen";
-import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { RDFS, SHACL } from "@im-library/vocabulary";
 import { Ref, ref } from "vue";
 
 function setupRunQuery() {

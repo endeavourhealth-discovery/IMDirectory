@@ -23,7 +23,7 @@
       <template #empty> No records found. </template>
       <template #loading> Loading data. Please wait. </template>
       <Column field="name" filter-field="name" header="Name">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div>
             <span :style="'color:' + data.colour" class="p-mx-1 type-icon">
               <i :class="data.icon" aria-hidden="true" />
