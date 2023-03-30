@@ -56,6 +56,7 @@ import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
 import { ITextQuery } from "./query/TextQuery";
+import { TTProperty } from "./TTProperty";
 
 export {
   type AccountItem,
@@ -115,5 +116,6 @@ export {
   type AliasEntity,
   type PropertyDisplay,
   type DisplayQuery,
-  type ITextQuery
+  type ITextQuery,
+  type TTProperty
 };

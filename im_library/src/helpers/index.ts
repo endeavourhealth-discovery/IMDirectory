@@ -22,6 +22,7 @@ import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
 import { eclToBuild } from "./Ecl/EclToBuild";
 import { eclToIMQ } from "./Ecl/EclToIMQ";
 import { validateEcl } from "./Ecl/ValidateEcl";
+import PropertyTreeNodeBuilder from "./PropertyTreeNodeBuilder";
 
 export {
   ChartRescale,
@@ -47,5 +48,6 @@ export {
   eclToBuild,
   eclToIMQ,
   validateEcl,
-  TTTransform
+  TTTransform,
+  PropertyTreeNodeBuilder
 };
