@@ -86,15 +86,16 @@ const emit = defineEmits({
 
 const toast = useToast();
 
-const isValidEcl = computed(() => {
-  return queryString.value && !queryString.value.includes("UNKNOWN CONCEPT") ? true : false;
-});
-
 const build: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
 const includeTerms = ref(true);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
+const isValidEcl = ref(false);
+
+watch(queryString, async () => {
+  isValidEcl.value = await EclService.isValidECL(queryString.value);
+});
 
 provide("includeTerms", readonly(includeTerms));
 
@@ -192,6 +193,11 @@ function onCopyError(): void {
   flex: 1 1 auto;
   font-size: 12px;
   overflow: auto;
+}
+
+#query-build > .nested-div,
+.nested-div-hover {
+  min-width: calc(100% - 1rem);
 }
 
 #build-string-container {
