@@ -15,25 +15,27 @@
             dataKey="dateTime"
             :scrollable="true"
             scrollHeight="flex"
-            class="p-datatable-sm"
+            class="p-datatable-sm activity-datatable"
           >
             <template #empty> No recent activity </template>
             <Column field="name" header="Name">
               <template #body="{ data }: any">
-                <div class="datatable-flex-cell">
+                <div class="activity-name-icon-container">
                   <i :class="data.icon" class="recent-icon" :style="data.color" aria-hidden="true" />
-                  {{ data.name }}
+                  <span class="activity-name">{{ data.name }}</span>
                 </div>
               </template>
             </Column>
             <Column field="latestActivity" header="Latest activity">
               <template #body="{ data }: any">
-                <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
+                <span class="activity-message" v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</span>
               </template>
             </Column>
-            <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
+            <Column :exportable="false">
               <template #body="{ data }: any">
-                <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
+                <div class="action-buttons-container">
+                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
+                </div>
               </template>
             </Column>
           </DataTable>
@@ -202,8 +204,12 @@ async function getCardsData(): Promise<void> {
   overflow: auto;
 }
 
+.activity-datatable {
+  width: 100%;
+}
+
 .activity-container {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   overflow: auto;
@@ -229,7 +235,7 @@ async function getCardsData(): Promise<void> {
   display: flex;
   flex-flow: row wrap;
   width: 100%;
-  flex: 1 1 auto;
+  flex: 0 0 50%;
   overflow: auto;
   padding: 1rem;
   gap: 1rem;
@@ -242,15 +248,22 @@ async function getCardsData(): Promise<void> {
   padding: 5px;
 }
 
-.datatable-flex-cell {
-  display: -webkit-box;
-  display: -ms-flexbox;
+.action-buttons-container {
   display: flex;
-  -webkit-box-flex: 1;
-  -ms-flex: 1 1 0;
-  flex: 1 1 0;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
+  flex-flow: row nowrap;
+  justify-content: center;
   align-items: center;
+}
+
+.activity-name-icon-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: auto;
+}
+
+.activity-name {
+  flex: 0 1 auto;
 }
 </style>

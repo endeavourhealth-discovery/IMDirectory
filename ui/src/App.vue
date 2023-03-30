@@ -195,20 +195,8 @@ function setupExternalErrorHandler() {
   word-wrap: break-word;
 }
 
-.p-menu-overlay {
-  z-index: 2000;
-}
-
-.p-overlaypanel {
-  z-index: 2000;
-}
-
 .p-dialog-header-icons {
   flex: 1 0 auto;
   justify-content: flex-end;
-}
-
-.p-datatable-thead {
-  z-index: 0 !important;
 }
 </style>
