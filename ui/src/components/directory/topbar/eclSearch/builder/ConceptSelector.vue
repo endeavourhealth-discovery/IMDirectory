@@ -15,7 +15,7 @@
     />
     <Button :disabled="!value.concept?.iri" icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
+    <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
@@ -70,7 +70,7 @@ let treeDialog = useDialog();
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
-const selected: Ref<ConceptSummary | null> = ref(null);
+const selected: Ref<ConceptSummary | null | string> = ref(null);
 const controller: Ref<AbortController | undefined> = ref(undefined);
 const suggestions: Ref<any[]> = ref([]);
 const loading = ref(false);
@@ -95,10 +95,10 @@ onMounted(async () => {
 });
 
 watch(selected, (newValue, oldValue) => {
-  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") {
+  if (typeof newValue === "string" || newValue === null) return;
+  else if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") {
     updateConcept(newValue);
-  } else if (undefined) updateConcept(undefined);
-  else return;
+  }
 });
 
 async function init() {
