@@ -93,7 +93,15 @@
         </div>
         <div class="field">
           <label for="fieldPassword1">Password</label>
-          <InputText data-testid="register-password1" id="fieldPassword1" type="password" maxlength="50" aria-describedby="password-help" v-model="password1" />
+          <InputText
+            data-testid="register-password1"
+            id="fieldPassword1"
+            type="password"
+            maxlength="50"
+            aria-describedby="password-help"
+            v-model="password1"
+            :class="passwordStrength === 'fail' && !focused.get('password1') && 'p-invalid'"
+          />
           <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
