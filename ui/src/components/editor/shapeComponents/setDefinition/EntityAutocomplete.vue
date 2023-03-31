@@ -9,19 +9,14 @@
     @dragover.prevent
     @drop="dropReceived"
   >
-    <template #item="slotProps: any">
+    <template #item="{ item }: any">
       <div class="autocomplete-suggestion">
-        {{ slotProps.item.name }} - {{ slotProps.item["@id"] }}
-        <Button
-          icon="fa-solid fa-sitemap"
-          class="find-in-tree-button p-button-sm p-button-text"
-          v-tooltip="'Find in tree'"
-          @click="findInTree(slotProps.item['@id'])"
-        />
+        {{ item.name }} - {{ item["@id"] }}
+        <Button icon="fa-solid fa-sitemap" class="find-in-tree-button p-button-sm p-button-text" v-tooltip="'Find in tree'" @click="findInTree(item['@id'])" />
       </div>
     </template>
-    <template #chip="slotProps: any">
-      <div v-tooltip.right="slotProps.value['@id']">{{ slotProps.value.name }}</div>
+    <template #chip="{ value }: any">
+      <div v-tooltip.right="value['@id']">{{ value.name }}</div>
     </template>
   </AutoComplete>
   <Button

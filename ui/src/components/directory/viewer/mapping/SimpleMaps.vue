@@ -23,20 +23,20 @@
     >
       <Column field="scheme" header="Scheme" />
       <Column field="name" header="Name" style="flex: 0 0 65%">
-        <template #body="slotProps: any">
+        <template #body="{ data }: any">
           <span
             data-testid="col-name"
             style="width: 100%; height: 100%; display: flex; align-items: center"
-            @mouseenter="toggle($event, slotProps.data)"
-            @mouseleave="toggle($event, slotProps.data)"
-            >{{ slotProps.data.name }}</span
+            @mouseenter="toggle($event, data)"
+            @mouseleave="toggle($event, data)"
+            >{{ data.name }}</span
           >
         </template>
       </Column>
       <Column field="code" header="Code" style="flex: 0 0 35%; word-break: break-all" data-testid="col-code" />
-      <template #groupheader="slotProps: any">
+      <template #groupheader="{ data }: any">
         <span style="font-weight: 700; color: rgba(51, 153, 255, 0.8)" data-testid="col-scheme">
-          {{ slotProps.data.scheme }}
+          {{ data.scheme }}
         </span>
       </template>
       <template #empty> No simple maps found. </template>

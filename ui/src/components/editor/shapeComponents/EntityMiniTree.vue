@@ -10,15 +10,15 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
-        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw"></i>
+      <template #default="{ node }: any">
+        <div class="tree-row" @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">
+          <span v-if="!node.loading">
+            <div :style="'color:' + node.color">
+              <i :class="node.typeIcon" class="fa-fw"></i>
             </div>
           </span>
           <ProgressSpinner v-else />
-          <span>{{ slotProps.node.label }}</span>
+          <span>{{ node.label }}</span>
         </div>
       </template>
     </Tree>

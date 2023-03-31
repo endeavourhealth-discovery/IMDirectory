@@ -10,15 +10,15 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
+      <template #default="{ node }: any">
         <div class="tree-row">
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw"></i>
+          <span v-if="!node.loading">
+            <div :style="'color:' + node.color">
+              <i :class="node.typeIcon" class="fa-fw"></i>
             </div>
           </span>
           <ProgressSpinner v-else />
-          <span>{{ slotProps.node.label }}</span>
+          <span>{{ node.label }}</span>
         </div>
       </template>
     </Tree>
@@ -33,7 +33,7 @@ import { getColourFromType, getFAIconFromType } from "@im-library/helpers/Concep
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
-import {TreeNode} from 'primevue/tree';
+import { TreeNode } from "primevue/tree";
 
 export default defineComponent({
   name: "QuantifierTree",

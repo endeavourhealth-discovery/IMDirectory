@@ -10,8 +10,8 @@
         <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
       </div>
       <SelectButton data-testid="avatar-button-options" v-model="newAvatar" :options="avatarOptions">
-        <template #option="slotProps: any">
-          <img class="avatar-select avatar-icon" :src="getUrl(slotProps.option)" alt="avatar icon" />
+        <template #option="{ option }: any">
+          <img class="avatar-select avatar-icon" :src="getUrl(option)" alt="avatar icon" />
         </template>
       </SelectButton>
     </OverlayPanel>
