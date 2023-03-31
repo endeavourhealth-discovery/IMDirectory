@@ -10,7 +10,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="{ node }">
+      <template #default="{ node }: any">
         <div class="tree-row" @dblclick="onNodeDblClick($event, node)" @contextmenu="onNodeContext($event, node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">

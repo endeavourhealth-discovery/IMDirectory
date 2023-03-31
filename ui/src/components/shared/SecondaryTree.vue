@@ -37,7 +37,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="{ node }">
+      <template #default="{ node }: any">
         <div v-if="node.data === 'loadMore'" class="tree-row">
           <ProgressSpinner v-if="node.loading" />
           <span class="tree-node-label">{{ node.label }}</span>

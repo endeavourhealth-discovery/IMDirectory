@@ -6,10 +6,10 @@
     <template #NONE>
       <p class="text-centered">None</p>
     </template>
-    <template #default="{ node }">
+    <template #default="{ node }: any">
       <span>{{ node.name }}</span>
     </template>
-    <template #PROPERTIES="{ node }">
+    <template #PROPERTIES="{ node }: any">
       <table aria-label="graph semantic properties table" data-testid="properties">
         <thead>
           <tr>
@@ -27,7 +27,7 @@
         </tbody>
       </table>
     </template>
-    <template #ISA="{ node }">
+    <template #ISA="{ node }: any">
       <table aria-label="graph isa's table" data-testid="isA">
         <thead>
           <tr>
@@ -41,7 +41,7 @@
         </tbody>
       </table>
     </template>
-    <template #SUBTYPE="{ node }">
+    <template #SUBTYPE="{ node }: any">
       <table aria-label="graph subtypes table" data-testid="subtype">
         <thead>
           <tr>

@@ -10,7 +10,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="{ node }">
+      <template #default="{ node }: any">
         <div class="tree-row" @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">
           <span v-if="!node.loading">
             <div :style="'color:' + node.color">

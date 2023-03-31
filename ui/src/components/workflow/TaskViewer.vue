@@ -11,7 +11,7 @@
           :loading="loading"
           class="task-tree-container"
         >
-          <template #default="{ node }">
+          <template #default="{ node }: any">
             <span :style="'color: ' + node.colour" class="p-mx-1 type-icon">
               <i :class="node.treeIcon" aria-hidden="true" />
             </span>

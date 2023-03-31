@@ -3,25 +3,25 @@
     <ProgressSpinner />
   </div>
   <OrganizationChart v-else :value="data" data-testid="mappings">
-    <template #hasMap="{ node }">
+    <template #hasMap="{ node }: any">
       <span>{{ node.data.label }}</span>
     </template>
-    <template #oneOf="{ node }">
+    <template #oneOf="{ node }: any">
       <span>{{ node.data.label }}</span>
     </template>
-    <template #comboOf="{ node }">
+    <template #comboOf="{ node }: any">
       <span>{{ node.data.label }}</span>
     </template>
-    <template #someOf="{ node }">
+    <template #someOf="{ node }: any">
       <span>{{ node.data.label }}</span>
     </template>
-    <template #matchedFrom="{ node }">
+    <template #matchedFrom="{ node }: any">
       <span>{{ node.data.label }}</span>
     </template>
-    <template #matchedTo="{ node }">
+    <template #matchedTo="{ node }: any">
       <span>{{ node.data.label }}</span>
     </template>
-    <template #childList="{ node }">
+    <template #childList="{ node }: any">
       <table aria-label="Concept map children" data-testid="hasMap">
         <thead>
           <tr>
@@ -42,11 +42,11 @@
         </tbody>
       </table>
     </template>
-    <template #matchedFromList="{ node }">
+    <template #matchedFromList="{ node }: any">
       <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedFromToggle" data-testid="matchedFrom" />
       <span v-else>None</span>
     </template>
-    <template #matchedToList="{ node }">
+    <template #matchedToList="{ node }: any">
       <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedToToggle" data-testid="matchedTo" />
       <span v-else>None</span>
     </template>

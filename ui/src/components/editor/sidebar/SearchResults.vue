@@ -40,7 +40,7 @@
     >
       <template #empty><div style="flex: 0 1 14rem">None</div></template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="ml-2">
             <span :style="'color: ' + data.colour" class="p-mx-1">
               <i v-if="data.icon" :class="data.icon" aria-hidden="true" />
@@ -50,12 +50,12 @@
         </template>
       </Column>
       <Column field="weighting" header="Usage" headerStyle="flex: 0 0 5rem;" bodyStyle="flex: 0 0 5rem; text-align: center;">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <span class="break-all">{{ data.weighting }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="buttons-container">
             <Button
               :icon="'fa-solid fa-sitemap'"

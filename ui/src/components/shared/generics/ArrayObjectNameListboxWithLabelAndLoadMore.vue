@@ -30,7 +30,7 @@
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >
-      <template #option="{ option }">
+      <template #option="{ option }: any">
         <div class="data-name" data-testid="row-text">
           {{ option?.name || option?.["@id"] }}
         </div>

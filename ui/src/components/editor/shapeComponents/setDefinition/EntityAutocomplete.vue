@@ -9,13 +9,13 @@
     @dragover.prevent
     @drop="dropReceived"
   >
-    <template #item="{ item }">
+    <template #item="{ item }: any">
       <div class="autocomplete-suggestion">
         {{ item.name }} - {{ item["@id"] }}
         <Button icon="fa-solid fa-sitemap" class="find-in-tree-button p-button-sm p-button-text" v-tooltip="'Find in tree'" @click="findInTree(item['@id'])" />
       </div>
     </template>
-    <template #chip="{ value }">
+    <template #chip="{ value }: any">
       <div v-tooltip.right="value['@id']">{{ value.name }}</div>
     </template>
   </AutoComplete>

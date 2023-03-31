@@ -17,7 +17,7 @@
       <template #empty> None </template>
       <template #loading> Loading... </template>
       <Column field="name" header="Results">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="result-container" @mouseenter="showDetailsOverlay($event, data)" @mouseleave="hideDetailsOverlay()">
             <div class="result-icon-container" :style="getColorByConceptType(data.entityType)">
               <i :class="getPerspectiveByConceptType(data.entityType)" class="result-icon fa-fw" />

@@ -30,7 +30,7 @@
           />
         </template>
 
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="result-container" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
             <div class="result-icon-container" :style="getColorByConceptType(data.entityType)">
               <i :class="getPerspectiveByConceptType(data.entityType)" class="result-icon" aria-hidden="true" />

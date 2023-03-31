@@ -19,14 +19,14 @@
     <DataTable :value="data" :paginator="data.length > 5 ? true : false" :rows="5" id="term-codes-table" class="hidden">
       <template #empty> No records found </template>
       <Column field="name" header="Name" :sortable="true">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div>
             {{ data.name }}
           </div>
         </template>
       </Column>
       <Column field="code" header="Code" :sortable="true">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div>
             {{ data.code || "None" }}
           </div>

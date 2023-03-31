@@ -11,7 +11,7 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="{ node }">
+      <template #default="{ node }: any">
         <div
           class="tree-row grabbable"
           @mouseover="showOverlay($event, node)"
