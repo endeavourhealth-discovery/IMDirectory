@@ -17,16 +17,16 @@
       <template #empty> None </template>
       <template #loading> Loading... </template>
       <Column field="name" header="Results">
-        <template #body="slotProps: any">
-          <div class="result-container" @mouseenter="showDetailsOverlay($event, slotProps.data)" @mouseleave="hideDetailsOverlay()">
-            <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
-              <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon fa-fw" />
+        <template #body="{ data }">
+          <div class="result-container" @mouseenter="showDetailsOverlay($event, data)" @mouseleave="hideDetailsOverlay()">
+            <div class="result-icon-container" :style="getColorByConceptType(data.entityType)">
+              <i :class="getPerspectiveByConceptType(data.entityType)" class="result-icon fa-fw" />
             </div>
             <div class="result-text-container">
-              {{ slotProps.data.name }}<br />
-              <small style="color: lightgrey">{{ slotProps.data.name }}</small>
+              {{ data.name }}<br />
+              <small style="color: lightgrey">{{ data.name }}</small>
             </div>
-            <Button :disabled="!slotProps.data.iri" icon="fa-solid fa-sitemap" @click="findInTree(slotProps.data.iri)" />
+            <Button :disabled="!data.iri" icon="fa-solid fa-sitemap" @click="findInTree(data.iri)" />
           </div>
         </template>
       </Column>

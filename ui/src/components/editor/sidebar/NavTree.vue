@@ -11,22 +11,22 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
+      <template #default="{ node }">
         <div
           class="tree-row grabbable"
-          @mouseover="showOverlay($event, slotProps.node)"
+          @mouseover="showOverlay($event, node)"
           @mouseleave="hideOverlay($event)"
           draggable="true"
-          @dragstart="dragStart($event, slotProps.node)"
+          @dragstart="dragStart($event, node)"
         >
           <i class="fa-solid fa-grip-vertical drag-icon grabbable"></i>
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
+          <span v-if="!node.loading">
+            <div :style="'color:' + node.color">
+              <i :class="node.typeIcon" class="fa-fw" aria-hidden="true"></i>
             </div>
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span>{{ slotProps.node.label }}</span>
+          <ProgressSpinner v-if="node.loading" />
+          <span>{{ node.label }}</span>
         </div>
       </template>
     </Tree>

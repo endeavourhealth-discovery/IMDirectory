@@ -50,24 +50,24 @@
             v-tooltip.right="'Download results table'"
           />
         </template>
-        <template #body="slotProps: any">
+        <template #body="{ data }">
           <div class="datatable-flex-cell">
-            <i v-if="slotProps.data.icon" :style="'color: ' + slotProps.data.colour" :class="slotProps.data.icon" class="recent-icon" aria-hidden="true" />
-            <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{
-              slotProps.data.code ? slotProps.data.match + " | " + slotProps.data.code : slotProps.data.match
+            <i v-if="data.icon" :style="'color: ' + data.colour" :class="data.icon" class="recent-icon" aria-hidden="true" />
+            <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{
+              data.code ? data.match + " | " + data.code : data.match
             }}</span>
           </div>
         </template>
       </Column>
       <Column field="weighting" header="Usage">
-        <template #body="slotProps: any">
-          <span>{{ slotProps.data.weighting }}</span>
+        <template #body="{ data }">
+          <span>{{ data.weighting }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="slotProps: any">
+        <template #body="{ data }">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="slotProps.data.iri" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" />
           </div>
         </template>
       </Column>

@@ -3,25 +3,25 @@
     <ProgressSpinner />
   </div>
   <OrganizationChart v-else :value="data" data-testid="mappings">
-    <template #hasMap="slotProps: any">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #hasMap="{ node }">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #oneOf="slotProps: any">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #oneOf="{ node }">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #comboOf="slotProps: any">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #comboOf="{ node }">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #someOf="slotProps: any">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #someOf="{ node }">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #matchedFrom="slotProps: any">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #matchedFrom="{ node }">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #matchedTo="slotProps: any">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #matchedTo="{ node }">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #childList="slotProps: any">
+    <template #childList="{ node }">
       <table aria-label="Concept map children" data-testid="hasMap">
         <thead>
           <tr>
@@ -31,7 +31,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="mapItem of slotProps.node.data.mapItems"
+            v-for="mapItem of node.data.mapItems"
             :key="mapItem"
             @mouseenter="toggle($event, mapItem, 'opMap')"
             @mouseleave="toggle($event, mapItem, 'opMap')"
@@ -42,22 +42,12 @@
         </tbody>
       </table>
     </template>
-    <template #matchedFromList="slotProps: any">
-      <SimpleMaps
-        v-if="slotProps.node.data.mapItems.length"
-        :data="slotProps.node.data.mapItems"
-        @toggleOverlay="handleMatchedFromToggle"
-        data-testid="matchedFrom"
-      />
+    <template #matchedFromList="{ node }">
+      <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedFromToggle" data-testid="matchedFrom" />
       <span v-else>None</span>
     </template>
-    <template #matchedToList="slotProps: any">
-      <SimpleMaps
-        v-if="slotProps.node.data.mapItems.length"
-        :data="slotProps.node.data.mapItems"
-        @toggleOverlay="handleMatchedToToggle"
-        data-testid="matchedTo"
-      />
+    <template #matchedToList="{ node }">
+      <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedToToggle" data-testid="matchedTo" />
       <span v-else>None</span>
     </template>
     <template #default>

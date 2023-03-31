@@ -10,14 +10,14 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
-        <div class="tree-row" @dblclick="onNodeDblClick($event, slotProps.node)" @contextmenu="onNodeContext($event, slotProps.node)">
+      <template #default="{ node }">
+        <div class="tree-row" @dblclick="onNodeDblClick($event, node)" @contextmenu="onNodeContext($event, node)">
           <ContextMenu ref="menu" :model="items" />
-          <span v-if="!slotProps.node.loading">
-            <i :style="'color:' + slotProps.node.color" :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
+          <span v-if="!node.loading">
+            <i :style="'color:' + node.color" :class="node.typeIcon" class="fa-fw" aria-hidden="true"></i>
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">{{ slotProps.node.label }}</span>
+          <ProgressSpinner v-if="node.loading" />
+          <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
         </div>
       </template>
     </Tree>

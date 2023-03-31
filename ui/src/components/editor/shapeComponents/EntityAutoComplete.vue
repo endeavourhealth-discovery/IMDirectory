@@ -18,9 +18,9 @@
           class="search-input"
           @drop.prevent
         >
-          <template #item="slotProps: any">
-            <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, slotProps.item)" @mouseleave="hideOptionsOverlay($event)">
-              <span>{{ slotProps.item.name }}</span>
+          <template #item="{ item }">
+            <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, item)" @mouseleave="hideOptionsOverlay($event)">
+              <span>{{ item.name }}</span>
             </div>
           </template>
         </AutoComplete>

@@ -6,10 +6,10 @@
     <template #NONE>
       <p class="text-centered">None</p>
     </template>
-    <template #default="slotProps: any">
-      <span>{{ slotProps.node.name }}</span>
+    <template #default="{ node }">
+      <span>{{ node.name }}</span>
     </template>
-    <template #PROPERTIES="slotProps: any">
+    <template #PROPERTIES="{ node }">
       <table aria-label="graph semantic properties table" data-testid="properties">
         <thead>
           <tr>
@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="prop of slotProps.node.leafNodes" :key="prop">
+          <tr v-for="prop of node.leafNodes" :key="prop">
             <td @click="directService.select(prop.iri)">{{ prop.name }}</td>
             <td @click="directService.select(prop.valueTypeIri)">
               {{ prop.valueTypeName || getTypeFromIri(prop.valueTypeIri) }}
@@ -27,7 +27,7 @@
         </tbody>
       </table>
     </template>
-    <template #ISA="slotProps: any">
+    <template #ISA="{ node }">
       <table aria-label="graph isa's table" data-testid="isA">
         <thead>
           <tr>
@@ -35,13 +35,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="isa of slotProps.node.leafNodes" :key="isa">
+          <tr v-for="isa of node.leafNodes" :key="isa">
             <td @click="directService.select(isa.iri)">{{ isa.name }}</td>
           </tr>
         </tbody>
       </table>
     </template>
-    <template #SUBTYPE="slotProps: any">
+    <template #SUBTYPE="{ node }">
       <table aria-label="graph subtypes table" data-testid="subtype">
         <thead>
           <tr>
@@ -49,7 +49,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="subtype of slotProps.node.leafNodes" :key="subtype">
+          <tr v-for="subtype of node.leafNodes" :key="subtype">
             <td @click="directService.select(subtype.iri)">{{ subtype.name }}</td>
           </tr>
         </tbody>

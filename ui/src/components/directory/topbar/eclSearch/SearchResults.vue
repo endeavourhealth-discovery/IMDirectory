@@ -30,21 +30,21 @@
           />
         </template>
 
-        <template #body="slotProps: any">
-          <div class="result-container" @mouseenter="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay()">
-            <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
-              <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon" aria-hidden="true" />
+        <template #body="{ data }">
+          <div class="result-container" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
+            <div class="result-icon-container" :style="getColorByConceptType(data.entityType)">
+              <i :class="getPerspectiveByConceptType(data.entityType)" class="result-icon" aria-hidden="true" />
             </div>
             <div class="result-text-container">
-              {{ slotProps.data.name }}<br />
-              <small style="color: lightgrey">{{ slotProps.data.name }}</small>
+              {{ data.name }}<br />
+              <small style="color: lightgrey">{{ data.name }}</small>
             </div>
             <div class="button-container">
               <Button
                 icon="pi pi-copy"
                 severity="secondary"
                 class="p-button-rounded p-button-text row-button"
-                v-clipboard:copy="copyConceptToClipboardVueWrapper(slotProps.data)"
+                v-clipboard:copy="copyConceptToClipboardVueWrapper(data)"
                 v-clipboard:success="onCopy"
                 v-clipboard:error="onCopyError"
                 v-tooltip.right="'Copy concept summary to clipboard \n (right click to copy individual properties)'"

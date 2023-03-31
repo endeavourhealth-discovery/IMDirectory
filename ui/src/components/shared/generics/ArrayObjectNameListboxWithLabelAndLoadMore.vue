@@ -30,9 +30,9 @@
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >
-      <template #option="slotProps: any">
+      <template #option="{ option }">
         <div class="data-name" data-testid="row-text">
-          {{ slotProps.option?.name || slotProps.option?.["@id"] }}
+          {{ option?.name || option?.["@id"] }}
         </div>
       </template>
       <template #footer>

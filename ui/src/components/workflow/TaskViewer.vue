@@ -11,11 +11,11 @@
           :loading="loading"
           class="task-tree-container"
         >
-          <template #default="slotProps: any">
-            <span :style="'color: ' + slotProps.node.colour" class="p-mx-1 type-icon">
-              <i :class="slotProps.node.treeIcon" aria-hidden="true" />
+          <template #default="{ node }">
+            <span :style="'color: ' + node.colour" class="p-mx-1 type-icon">
+              <i :class="node.treeIcon" aria-hidden="true" />
             </span>
-            <span>{{ slotProps.node.label }}</span>
+            <span>{{ node.label }}</span>
           </template>
         </Tree>
         <Button label="Create task" @click="createTask" />
