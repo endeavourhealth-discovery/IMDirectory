@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, inject, reactive, nextTick } from "vue";
+import { onMounted, Ref, ref, reactive, nextTick } from "vue";
 import { GithubService } from "@/services";
 import { GithubRelease } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";

@@ -13,7 +13,6 @@ import PrimeVue from "primevue/config";
 import { DirectService } from "@/services";
 import { expect, it, vi } from "vitest";
 import testData from "./SearchResultsTable.testData";
-import { nextTick } from "vue";
 
 Object.assign(navigator, {
   clipboard: {

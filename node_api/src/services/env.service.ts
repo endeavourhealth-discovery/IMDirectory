@@ -1,5 +1,3 @@
-import * as process from "process";
-
 const Env = {
   API: process.env.VITE_API || "http://localhost:8080/",
   GIT_TOKEN: process.env.GIT_TOKEN || null,
@@ -18,7 +16,5 @@ const Env = {
   ALLOWED_HOSTS: process.env.ALLOWED_HOSTS || "*",
   NODE_ENV: process.env.NODE_ENV || "development"
 };
-
-Object.freeze(Env);
 
 export default Env;

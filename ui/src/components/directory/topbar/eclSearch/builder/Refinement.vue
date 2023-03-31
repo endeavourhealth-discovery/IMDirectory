@@ -12,6 +12,7 @@
       :disabled="loadingProperty || !hasFocus()"
       :optionDisabled="disableOption"
       :class="!isValidProperty ? 'p-invalid' : ''"
+      :forceSelection="true"
     />
     <Button :disabled="!focus" icon="fa-solid fa-sitemap" @click="openTree('property')" class="tree-button" />
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
@@ -28,6 +29,7 @@
       placeholder="search..."
       :disabled="!selectedProperty || typeof selectedProperty == 'string' || loadingValue"
       :class="!isValidPropertyValue ? 'p-invalid' : ''"
+      :forceSelection="true"
     />
     <Button :disabled="!selectedProperty" icon="fa-solid fa-sitemap" @click="openTree('value')" class="tree-button" />
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
@@ -36,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, PropType, onMounted, watch, provide, onBeforeUnmount, h, computed, ComputedRef, inject } from "vue";
+import { ref, Ref, PropType, onMounted, watch, onBeforeUnmount, h, inject } from "vue";
 import { EntityService, QueryService } from "@/services";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { useDialog } from "primevue/usedialog";
@@ -111,6 +113,7 @@ const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
 
 watch(selectedProperty, async newValue => {
+  if (typeof newValue === "string" || newValue === null) return;
   if (newValue) updateProperty(newValue);
   if (!loadingValue.value && newValue?.name && hasValue()) {
     let name = "";
@@ -124,6 +127,7 @@ watch(selectedProperty, async newValue => {
 });
 
 watch(selectedValue, newValue => {
+  if (typeof newValue === "string" || newValue === null) return;
   if (newValue) updateValue(newValue);
 });
 
@@ -246,9 +250,7 @@ async function searchProperty(term: string) {
       let matches: any[] = [];
       if (isAliasIriRef(props.focus)) matches = await QueryService.getAllowablePropertySuggestions(props.focus?.iri, term, propertyController.value);
       else if (isBoolGroup(props.focus)) matches = await QueryService.getAllowablePropertySuggestionsBoolFocus(props.focus, term, propertyController.value);
-
-      if (!matches) propertyResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
-      else propertyResults.value = matches;
+      propertyResults.value = matches;
     }
   } else if (term === "*") {
     propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
@@ -264,9 +266,7 @@ async function searchValue(term: string) {
       if (valueController.value) valueController.value.abort();
 
       valueController.value = new AbortController();
-      const matches = await QueryService.getAllowableRangeSuggestions(selectedProperty.value.iri, term, valueController.value);
-      if (!matches) valueResults.value = [{ iri: null, name: "No matches", code: "UNKNOWN" }];
-      else valueResults.value = matches;
+      valueResults.value = await QueryService.getAllowableRangeSuggestions(selectedProperty.value.iri, term, valueController.value);
     }
   } else if (term === "*") {
     valueResults.value = [{ iri: "any", name: "ANY", code: "any" }];

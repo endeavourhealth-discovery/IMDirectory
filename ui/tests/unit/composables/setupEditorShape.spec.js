@@ -1,9 +1,7 @@
-import { afterAll, afterEach, expect, vi } from "vitest";
+import { expect, vi } from "vitest";
 import { EntityService } from "@/services";
-import { IM } from "@im-library/vocabulary";
-import { fakerFactory } from "@/mocks/factory";
 import testData from "./setupEditorShape.testData";
-import { createTestStore, createTestRouter, mountComposable } from "../TestMethods";
+import { createTestRouter, mountComposable } from "../TestMethods";
 
 import { setupEditorShape } from "@/composables/setupEditorShape";
 

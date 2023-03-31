@@ -6,10 +6,10 @@
     <template #NONE>
       <p class="text-centered">None</p>
     </template>
-    <template #default="slotProps">
-      <span>{{ slotProps.node.name }}</span>
+    <template #default="{ node }: any">
+      <span>{{ node.name }}</span>
     </template>
-    <template #PROPERTIES="slotProps">
+    <template #PROPERTIES="{ node }: any">
       <table aria-label="graph semantic properties table" data-testid="properties">
         <thead>
           <tr>
@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="prop of slotProps.node.leafNodes" :key="prop">
+          <tr v-for="prop of node.leafNodes" :key="prop">
             <td @click="directService.select(prop.iri)">{{ prop.name }}</td>
             <td @click="directService.select(prop.valueTypeIri)">
               {{ prop.valueTypeName || getTypeFromIri(prop.valueTypeIri) }}
@@ -27,7 +27,7 @@
         </tbody>
       </table>
     </template>
-    <template #ISA="slotProps">
+    <template #ISA="{ node }: any">
       <table aria-label="graph isa's table" data-testid="isA">
         <thead>
           <tr>
@@ -35,13 +35,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="isa of slotProps.node.leafNodes" :key="isa">
+          <tr v-for="isa of node.leafNodes" :key="isa">
             <td @click="directService.select(isa.iri)">{{ isa.name }}</td>
           </tr>
         </tbody>
       </table>
     </template>
-    <template #SUBTYPE="slotProps">
+    <template #SUBTYPE="{ node }: any">
       <table aria-label="graph subtypes table" data-testid="subtype">
         <thead>
           <tr>
@@ -49,7 +49,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="subtype of slotProps.node.leafNodes" :key="subtype">
+          <tr v-for="subtype of node.leafNodes" :key="subtype">
             <td @click="directService.select(subtype.iri)">{{ subtype.name }}</td>
           </tr>
         </tbody>
@@ -60,10 +60,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { GraphData } from "@im-library/interfaces";
 import { DirectService, EntityService } from "@/services";
-import { useStore } from "vuex";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
 const props = defineProps({

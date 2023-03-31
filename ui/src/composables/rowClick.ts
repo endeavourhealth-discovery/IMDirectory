@@ -1,6 +1,4 @@
-import { DefinitionConfig, EntityReferenceNode } from "@im-library/interfaces";
-import { DirectService, EntityService } from "@/services";
-import { IM } from "@im-library/vocabulary";
+import { DirectService } from "@/services";
 import { ref, Ref } from "vue";
 
 function rowClick() {

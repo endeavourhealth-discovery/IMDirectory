@@ -43,14 +43,6 @@
         :severity="hover ? 'success' : 'secondary'"
         :outlined="!hover"
         :class="!hover && 'hover-button'"
-        label="Add Concept"
-        @click="addConcept"
-      />
-      <Button
-        class="builder-button"
-        :severity="hover ? 'success' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
         label="Add Refinement"
         @click="addRefinement"
       />
@@ -93,12 +85,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, Ref, watch, onMounted } from "vue";
+import { ref, inject, Ref, watch } from "vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { isArray } from "@vue/shared";
 
 const props = defineProps({
   value: { type: Object, required: true },
@@ -248,7 +239,9 @@ function unGroupItems(groupedItems: any) {
   border-radius: 5px;
   background-color: #ff8c0010;
   margin: 0.5rem;
-  flex: 1;
+  flex: 1 0 auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 
 .nested-div:deep(.hover-button) {
@@ -261,8 +254,10 @@ function unGroupItems(groupedItems: any) {
   border-radius: 5px;
   background-color: #ff8c0010;
   margin: 0.5rem;
-  flex: 1;
+  flex: 1 0 auto;
   border: #ff8c00 1px solid;
+  display: flex;
+  flex-flow: column nowrap;
 }
 .left-container {
   display: flex;
@@ -302,7 +297,9 @@ function unGroupItems(groupedItems: any) {
 }
 
 .component-container {
+  flex: 0 1 auto;
   display: flex;
+  flex-flow: row nowrap;
 }
 
 .builder-button {

@@ -70,8 +70,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, watch } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, } from "vue";
+import { useStore } from "vuex";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 

@@ -4,27 +4,19 @@ import axios from "axios";
 
 const ConfigService = {
   async getComponentLayout(name: string): Promise<DefinitionConfig[]> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/config/public/componentLayout", {
-        params: {
-          name: name
-        }
-      });
-    } catch (error) {
-      return [] as DefinitionConfig[];
-    }
+    return await axios.get(Env.VITE_NODE_API + "node_api/config/public/componentLayout", {
+      params: {
+        name: name
+      }
+    });
   },
 
   async getDashboardLayout(name: string): Promise<DashboardLayout[]> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/config/public/dashboardLayout", {
-        params: {
-          name: name
-        }
-      });
-    } catch (error) {
-      return [] as DashboardLayout[];
-    }
+    return await axios.get(Env.VITE_NODE_API + "node_api/config/public/dashboardLayout", {
+      params: {
+        name: name
+      }
+    });
   }
 };
 

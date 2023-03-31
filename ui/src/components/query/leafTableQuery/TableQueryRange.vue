@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed, ComputedRef, onMounted, Ref } from "vue";
+import { computed, ComputedRef } from "vue";
 import { Range } from "@im-library/interfaces/AutoGen";
 const emit = defineEmits({ onEdit: (payload: string) => payload });
 

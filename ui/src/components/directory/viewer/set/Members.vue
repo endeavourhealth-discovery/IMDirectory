@@ -50,7 +50,7 @@
       </template>
       <template #loading> Loading data. Please wait... </template>
       <Column field="member" header="Name">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <IMViewerLink :iri="data['@id']" :label="data.name" action="select" />
         </template>
       </Column>

@@ -22,7 +22,7 @@
           </div>
           <div v-else class="steps-content">
             <Steps :model="stepsItems" :readonly="false" @click="stepsClicked" />
-            <router-view v-slot="{ Component }">
+            <router-view v-slot="{ Component }: any">
               <keep-alive>
                 <component :is="Component" :shape="groups.length ? groups[currentStep - 1] : undefined" :mode="EditorMode.CREATE" />
               </keep-alive>
@@ -78,7 +78,7 @@ import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeC
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { DirectService, EntityService, Env, FilerService } from "@/services";
+import { DirectService, EntityService, FilerService } from "@/services";
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 

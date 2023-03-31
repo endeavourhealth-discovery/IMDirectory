@@ -3,9 +3,8 @@ import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
-import { From, QueryRequest, TTAlias, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { QueryRequest,TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS } from "@im-library/vocabulary";
-import { Console } from "console";
 import EclService from "./ecl.service";
 
 export default class QueryService {

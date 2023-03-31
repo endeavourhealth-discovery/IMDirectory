@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef, watch } from "vue";
+import { onMounted, ref, computed, ComputedRef } from "vue";
 import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
@@ -109,8 +109,10 @@ async function setupAxiosInterceptors(axios: any) {
         router.push({ name: "AccessDenied" }).then();
       } else if (error?.response?.status === 500 && error.code === "ERR_BAD_RESPONSE") {
         router.push({ name: "ServerOffline" }).then();
+      } else if (error.code === "ERR_CANCELED") {
+        return;
       } else {
-        console.log(error);
+        console.error(error);
         return Promise.reject(error);
       }
     }
@@ -193,20 +195,8 @@ function setupExternalErrorHandler() {
   word-wrap: break-word;
 }
 
-.p-menu-overlay {
-  z-index: 2000;
-}
-
-.p-overlaypanel {
-  z-index: 2000;
-}
-
 .p-dialog-header-icons {
   flex: 1 0 auto;
   justify-content: flex-end;
-}
-
-.p-datatable-thead {
-  z-index: 0 !important;
 }
 </style>

@@ -1,12 +1,11 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render, fireEvent } from "@testing-library/vue";
 import ExpressionConstraintsSearch from "@/components/directory/EclSearch.vue";
 import { flushPromises } from "@vue/test-utils";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
 import testData from "./EclSearch.testData";
-import { EclService, SetService } from "@/services";
+import { EclService } from "@/services";
 import { expect, it } from "vitest";
 import { fakerFactory } from "../../../../src/mocks/factory";
 import VueClipboard from "vue3-clipboard";

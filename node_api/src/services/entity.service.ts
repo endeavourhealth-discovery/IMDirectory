@@ -4,7 +4,7 @@ import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
 import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import { AliasEntity, EclSearchRequest, PropertyDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
+import { EclSearchRequest, PropertyDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
