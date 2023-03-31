@@ -9,16 +9,12 @@ import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import {TreeNode} from 'primevue/tree';
-import EntityRepository from "@/repositories/entityRepository";
 
 export default class EntityService {
   axios: any;
   eclService: EclService;
 
-  private entityRepository: EntityRepository;
-
   constructor(axios: any) {
-    this.entityRepository = new EntityRepository();
     this.axios = axios;
     this.eclService = new EclService(axios);
   }
@@ -204,49 +200,5 @@ export default class EntityService {
       }
     }
     return superiors;
-  }
-
-  async getPropertyType(modelIri: string, propIri: string): Promise<any> {
-    const data = await this.entityRepository.getPropertyType(modelIri, propIri);
-    if(data[0] && data[0].type) {
-      return [{
-        "@id": data[0].type?.value,
-        "http://www.w3.org/2000/01/rdf-schema#label": data[0].tname.value
-      }];
-    }
-    return [];
-  }
-
-  async getPropertyRange(propIri: string): Promise<any> {
-    const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
-    const data = (await this.entityRepository.getPropertyRange(propIri))[0];
-    if(data.type) {
-      return [{
-        "@id": data.type.value,
-        "http://www.w3.org/2000/01/rdf-schema#label": data.name.value
-      }];
-    } else if(data.objectProperty.id === isTrue) {
-      const results = [{
-        "@id": "http://endhealth.info/im#Concept",
-        "http://www.w3.org/2000/01/rdf-schema#label": "Terminology concept"
-      }];
-      const suggestions = await this.entityRepository.getRangeSuggestionsForObjectProperty(propIri)
-      suggestions.map((d: any) => {
-        results.push({
-          "@id": d.type.value,
-          "http://www.w3.org/2000/01/rdf-schema#label": d.name.value
-        });
-      });
-      return results;
-    } else if(data.dataProperty.id === isTrue) {
-      const dataTypes =  await this.entityRepository.getDataTypes();
-      return dataTypes.map((d: any) => {
-        return {
-          "@id": d.datatype.value,
-          "http://www.w3.org/2000/01/rdf-schema#label": d.datatypeName ? d.datatypeName.value : d.datatype.value
-        };
-      });
-    }
-    return {};
   }
 }

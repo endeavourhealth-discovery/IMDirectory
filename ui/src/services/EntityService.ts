@@ -449,31 +449,6 @@ const EntityService = {
       params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
     });
   },
-
-  async getPropertyType(modelIri: string, propIri: string): Promise<any> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyType", {
-        params: {
-          modelIri: modelIri,
-          propIri: propIri
-        }
-      });
-    } catch (error) {
-      return [] as any;
-    }
-  },
-
-  async getPropertyRange(propIri: string): Promise<any> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyRange", {
-        params: {
-          propIri: propIri
-        }
-      });
-    } catch (error) {
-      return [] as any;
-    }
-  }
 };
 
 if (process.env.NODE_ENV !== "test") Object.freeze(EntityService);
