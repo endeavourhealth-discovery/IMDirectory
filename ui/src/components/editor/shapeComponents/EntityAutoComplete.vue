@@ -136,7 +136,7 @@ onBeforeUnmount(() => {
 });
 
 watch(selectedResult, (newValue, oldValue) => {
-  if (newValue && !_.isEqual(newValue, oldValue)) {
+  if (newValue && typeof newValue !== "string" && !_.isEqual(newValue, oldValue)) {
     itemSelected(newValue);
   }
 });

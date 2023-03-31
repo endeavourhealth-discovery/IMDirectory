@@ -112,7 +112,7 @@ async function setupAxiosInterceptors(axios: any) {
       } else if (error.code === "ERR_CANCELED") {
         return;
       } else {
-        console.log(error);
+        console.error(error);
         return Promise.reject(error);
       }
     }
