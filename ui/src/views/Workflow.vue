@@ -25,6 +25,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import InfoSideBar from "@/components/editor/infobar/InfoSideBar.vue";
+import TopBar from "@/components/shared/TopBar.vue";
 
 let showInfo = ref(false);
 let selectedConceptIri = ref("");

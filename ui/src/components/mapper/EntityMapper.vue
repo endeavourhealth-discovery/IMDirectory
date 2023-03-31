@@ -145,7 +145,6 @@
 import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
 import { useStore } from "vuex";
 import { ToastSeverity } from "@im-library/enums";
-import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ToastOptions } from "@im-library/models";
 import { IM, RDFS } from "@im-library/vocabulary";
@@ -154,11 +153,11 @@ import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
-
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
+import OverlaySummary from "../shared/OverlaySummary.vue";
+import SecondaryTree from "../shared/SecondaryTree.vue";
 
 const emit = defineEmits({
   showDetails: (_payload: string) => true
@@ -171,8 +170,8 @@ const toast = useToast();
 const directService = new DirectService();
 
 const filterOptions: ComputedRef<FilterOptions> = computed(() => store.state.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 
-let actions: Ref<any[]> = ref([]);
 let taskIri = ref("");
 let taskName = ref("");
 let searching = ref(false);
@@ -185,7 +184,6 @@ let selectedMappings: Ref<any[]> = ref([]);
 let mappings: Ref<any[]> = ref([]);
 let loading = ref(false);
 let saveLoading = ref(false);
-let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 let controller: Ref<AbortController> = ref({} as AbortController);
 let hoveredItem = ref({} as any);
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
@@ -307,17 +305,11 @@ async function search(): Promise<void> {
   searching.value = true;
   if (searchTerm.value.length > 0) {
     searchResults.value = [];
-    const searchRequest = {} as SearchRequest;
-    searchRequest.termFilter = searchTerm.value;
-    searchRequest.sortField = "weighting";
-    searchRequest.page = 1;
-    searchRequest.size = 100;
-    setFilters(searchRequest);
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    await fetchSearchResults(searchRequest, controller.value);
+    await fetchSearchResults(controller.value);
   } else {
     await getMappingSuggestions(taskIri.value, taskName.value);
   }
@@ -330,8 +322,8 @@ function setFilters(searchRequest: SearchRequest) {
   searchRequest.typeFilter = selectedFilters.value.types.map(type => type["@id"]);
 }
 
-async function fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {
-  const result = await EntityService.advancedSearch(searchRequest, controller);
+async function fetchSearchResults(controller: AbortController) {
+  const result = await EntityService.simpleSearch(searchTerm.value, filterDefaults.value, controller);
   if (result && isArrayHasLength(result)) {
     searchResults.value = result.map(item => {
       return { iri: item.iri, name: item.name, type: item.entityType, scheme: item.scheme, status: item.status, usage: item.weighting };
@@ -340,10 +332,6 @@ async function fetchSearchResults(searchRequest: SearchRequest, controller: Abor
     searchResults.value = [];
   }
   suggestions.value = searchResults.value;
-}
-
-function getConceptTypes(types: TTIriRef[]): string {
-  return getNamesAsStringFromTypes(types);
 }
 </script>
 

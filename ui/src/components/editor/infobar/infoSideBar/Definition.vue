@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import TermsTable from "@/components/editor/infobar/infoSideBar/TermsTable.vue";
+import TermsTable from "@/components/directory/viewer/TermsTable.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
