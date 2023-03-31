@@ -14,12 +14,8 @@ export default class CognitoService {
   }
 
   public async isEmailRegistered(email: string) {
-    try {
-      const params = { UserPoolId: this.config.userPoolId, AttributesToGet: ["email"], Filter: 'email = "' + email + '"' };
-      const results = await this.cognitoIdentity.listUsers(params).promise();
-      return results.Users?.length !== 0;
-    } catch (error) {
-      console.error(JSON.stringify(error));
-    }
+    const params = { UserPoolId: this.config.userPoolId, AttributesToGet: ["email"], Filter: 'email = "' + email + '"' };
+    const results = await this.cognitoIdentity.listUsers(params).promise();
+    return results.Users?.length !== 0;
   }
 }
