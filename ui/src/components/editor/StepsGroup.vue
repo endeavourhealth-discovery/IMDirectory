@@ -20,7 +20,7 @@ import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDef
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import VerticalLayout from "./shapeComponents/VerticalLayout.vue";
-import { defineComponent } from "vue";
+
 
 export default defineComponent({
   components: {
