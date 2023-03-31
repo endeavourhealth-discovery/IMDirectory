@@ -7,6 +7,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
 import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
@@ -19,7 +20,7 @@ import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDef
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import VerticalLayout from "./shapeComponents/VerticalLayout.vue";
-import { defineComponent } from "vue";
+
 
 export default defineComponent({
   components: {

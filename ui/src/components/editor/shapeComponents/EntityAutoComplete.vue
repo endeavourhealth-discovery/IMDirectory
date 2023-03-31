@@ -63,18 +63,16 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, watch, ref, Ref, onMounted, inject, onBeforeUnmount } from "vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import {inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch} from "vue";
+import {AbortController} from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
 import { EditorMode } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { byName } from "@im-library/helpers/Sorters";
-import { mapToObject } from "@im-library/helpers/Transforms";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -145,7 +143,9 @@ async function init() {
   loading.value = true;
   if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path["@id"];
   getAssociatedProperty();
-  await getAutocompleteOptions();
+  if(autocompleteOptions.value.length === 0) {
+    await getAutocompleteOptions();
+  }
   if (props.value && isTTIriRef(props.value)) {
     const found = autocompleteOptions.value.find(option => option.name === props.value?.name);
     if (found) selectedResult.value = found;
@@ -191,9 +191,7 @@ async function getAutocompleteOptions() {
     let queryRequest = {} as QueryRequest;
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
-      const args = processArguments(props.shape, valueVariableMap?.value);
-      const replacedArgs = mapToObject(args);
-      queryRequest.argument = replacedArgs;
+      queryRequest.argument=processArguments(props.shape, valueVariableMap?.value);
       query["@id"] = props.shape.select[0]["@id"];
       queryRequest.query = query;
     } else {
@@ -204,12 +202,26 @@ async function getAutocompleteOptions() {
     }
     controller.value = new AbortController();
     if (controller.value) {
-      const result = await QueryService.queryIM(queryRequest, controller.value);
-      if (result && isObjectHasKeys(result, ["entities"])) {
-        autocompleteOptions.value = convertToConceptSummary(result.entities).sort(byName);
-      } else {
-        autocompleteOptions.value = [];
+      if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_DMPropertyRange" && queryRequest.argument[1].valueIri["@id"]) {
+        const result = await QueryService.queryIM(queryRequest, controller.value);
+        if (result && isObjectHasKeys(result, ["entities"])) {
+          const range = result.entities[0][SHACL.PROPERTY] ? result.entities[0][SHACL.PROPERTY][0][SHACL.NODE] || result.entities[0][SHACL.PROPERTY][0][SHACL.CLASS] || result.entities[0][SHACL.PROPERTY][0][SHACL.DATATYPE] : {};
+          if(Object.keys(range).length !== 0) {
+            autocompleteOptions.value = convertToConceptSummary(range);
+          }
+        }
+      } else if(queryRequest.query["@id"] !== "http://endhealth.info/im#Query_DMPropertyRange") {
+        const result = await QueryService.queryIM(queryRequest, controller.value);
+        if (result && isObjectHasKeys(result, ["entities"])) {
+          autocompleteOptions.value = convertToConceptSummary(result.entities).sort((a:any ,b:any) => a.name.toString().toLowerCase().localeCompare(b.name.toString().toLowerCase()));
+        }
       }
+    }
+  }
+  else {
+    if(props.shape.argument[0].valueIri["@id"]) {
+      const range = await QueryService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
+      autocompleteOptions.value = convertToConceptSummary(range);
     }
   }
 }
@@ -231,7 +243,7 @@ function searchOptions(event: any) {
   if (!event.query.trim().length) {
     getAutocompleteOptions();
   } else {
-    autocompleteOptions.value = autocompleteOptions.value.filter(option => option.name.toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase()));
+    autocompleteOptions.value = autocompleteOptions.value.filter(option => option.name.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase()));
   }
 }
 
@@ -241,7 +253,7 @@ async function itemSelected(value: ConceptSummary) {
       updateEntity(value);
       await updateValidity(value);
     } else {
-      emit("updateClicked", summaryToTTIriRef(value));
+      emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
     updateValueVariableMap(value);
   }
@@ -334,7 +346,7 @@ function hideOptionsOverlay(event: any): void {
 }
 
 .search-input {
-  width: 25rem;
+  width: 19rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

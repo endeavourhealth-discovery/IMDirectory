@@ -1,14 +1,11 @@
 <template>
   <div class="builder-child">
-    <div class="builder-child-wrapper">
-      <AddDeleteButtons
-        :show="{ minus: showButtons.minus, plus: false }"
-        :position="position"
-        :options="nextComponentOptions"
-        @deleteClicked="deleteClicked"
-        @addNextClicked="addNextClicked"
+    <div>
+      <AddTitle
+          :show="showTitles"
       />
-
+    </div>
+    <div class="builder-child-wrapper">
       <div class="builder-child-container" :id="id">
         <component
           :is="processComponentType(shape.componentType)"
@@ -20,6 +17,15 @@
         />
         <UpDownButtons :show="{ up: showButtons.up, down: showButtons.down }" :position="position" @moveUpClicked="upClicked" @moveDownClicked="downClicked" />
       </div>
+
+      <AddDeleteButtons
+          :show="{ minus: showButtons.minus, plus: false }"
+          :position="position"
+          :options="nextComponentOptions"
+          @deleteClicked="deleteClicked"
+          @addNextClicked="addNextClicked"
+      />
+
     </div>
     <div class="indented-add-button">
       <AddDeleteButtons
@@ -54,6 +60,7 @@ import { ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
+import AddTitle from "@/components/editor/shapeComponents/AddTitle.vue";
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -62,7 +69,8 @@ const props = defineProps({
   showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean; up: boolean; down: boolean }>, required: true },
   shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
-  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true }
+  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true },
+  showTitles: {type: Boolean}
 });
 
 const emit = defineEmits({
@@ -84,7 +92,8 @@ function createEntity(data?: any): ComponentDetails {
       json: data,
       showButtons: props.showButtons,
       shape: props.shape,
-      mode: props.mode
+      mode: props.mode,
+      showTitles: props.showTitles
     };
   else {
     return {
@@ -95,7 +104,8 @@ function createEntity(data?: any): ComponentDetails {
       json: {},
       showButtons: props.showButtons,
       shape: props.shape,
-      mode: props.mode
+      mode: props.mode,
+      showTitles: props.showTitles
     };
   }
 }
@@ -173,6 +183,6 @@ function addNextClicked(item: any): void {
 }
 
 .builder-child {
-  align-self: center;
+  align-self: flex-start;
 }
 </style>

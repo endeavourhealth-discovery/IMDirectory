@@ -2,6 +2,7 @@ import { ComponentType } from "../enums/ComponentType";
 import { NextComponentSummary, ComponentDetails } from "../interfaces";
 import { EditorMode } from "../enums";
 import { PropertyGroup, PropertyShape } from "../interfaces/AutoGen";
+import {SHACL} from "../vocabulary";
 
 export function generateNewComponent(
   type: ComponentType,
@@ -9,7 +10,8 @@ export function generateNewComponent(
   data: any,
   shape: PropertyShape | PropertyGroup,
   showButtons: { minus: boolean; plus: boolean; up: boolean; down: boolean },
-  mode: EditorMode
+  mode: EditorMode,
+  showTitles: boolean
 ): ComponentDetails {
   return {
     id: type + "_" + position,
@@ -19,7 +21,8 @@ export function generateNewComponent(
     json: {},
     showButtons: showButtons,
     shape: shape,
-    mode: mode
+    mode: mode,
+    showTitles: showTitles
   };
 }
 
@@ -88,9 +91,10 @@ export function addItem(
   build: ComponentDetails[],
   showButtons: { minus: boolean; plus: boolean; up: boolean; down: boolean },
   shape: PropertyGroup | PropertyShape,
-  mode: EditorMode
+  mode: EditorMode,
+  showTitles: boolean
 ) {
-  const newComponent = generateNewComponent(itemToAdd.selectedType, itemToAdd.position, itemToAdd.value, shape, showButtons, mode);
+  const newComponent = generateNewComponent(itemToAdd.selectedType, itemToAdd.position, itemToAdd.value, shape, showButtons, mode, showTitles);
   if (!newComponent) return;
   build.splice(itemToAdd.position, 0, newComponent);
   updatePositions(build);

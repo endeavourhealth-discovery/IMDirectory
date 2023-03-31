@@ -89,6 +89,18 @@ GET http://localhost:3000/node_api/query/public/getSQL?iri=http://endhealth.info
 
 ###
 
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http:%2F%2Fendhealth.info%2Fim%23concept
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http:%2F%2Fendhealth.info%2Fim%23address
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http:%2F%2Fendhealth.info%2Fim%23addressLine
+
+###
+
 GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A6d517466-813b-46a8-b848-aaf5a4fbdcbf
 
 ###

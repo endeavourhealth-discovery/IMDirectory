@@ -448,7 +448,7 @@ const EntityService = {
     return axios.get(api + "api/entity/public/hasPredicates", {
       params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
     });
-  }
+  },
 };
 
 if (process.env.NODE_ENV !== "test") Object.freeze(EntityService);

@@ -30,6 +30,7 @@ export default class QueryController {
     this.router.get("/public/allowablePropertySuggestionsBoolFocus", (req, res, next) => this.getAllowablePropertySuggestionsBoolFocus(req, res, next));
     this.router.get("/public/allowableRangeSuggestions", (req, res, next) => this.getAllowableRangeSuggestions(req, res, next));
     this.router.get("/public/allowableChildTypes", (req, res, next) => this.getAllowableChildTypes(req, res, next));
+    this.router.get("/public/propertyRange", (req, res, next) => this.getPropertyRange(req, res, next));
   }
   async getAllowableChildTypes(req: Request, res: Response, next: NextFunction) {
     try {
@@ -121,6 +122,15 @@ export default class QueryController {
       res.send(data).end();
     } catch (error) {
       next(error);
+    }
+  }
+
+  async getPropertyRange(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.queryService.getPropertyRange(req.query.propIri as string);
+      res.send(data).end();
+    } catch (e) {
+      next(e);
     }
   }
 }
