@@ -21,10 +21,12 @@
               v-model="firstName"
               @focus="updateFocused('firstName', true)"
               @blur="updateFocused('firstName', false)"
+              :class="(!firstName || !firstNameVerified) && 'p-invalid'"
             />
-            <InlineMessage v-if="!firstNameVerified && focused.get('firstName') === false" severity="error">
+            <InlineMessage v-if="!firstNameVerified && firstName && !focused.get('firstName')" severity="error">
               First name contains unexpected characters. A-Z and hyphens only allowed e.g."Mary-Anne".
             </InlineMessage>
+            <InlineMessage v-if="!firstName" severity="error"> First name is required. </InlineMessage>
           </div>
           <div class="field">
             <label for="lastName">Last name</label>
@@ -35,10 +37,12 @@
               v-model="lastName"
               @focus="updateFocused('lastName', true)"
               @blur="updateFocused('lastName', false)"
+              :class="(!lastName || !lastNameVerified) && 'p-invalid'"
             />
-            <InlineMessage v-if="!lastNameVerified && focused.get('lastName') === false" severity="error">
+            <InlineMessage v-if="!lastNameVerified && lastName && !focused.get('lastName')" severity="error">
               Last name contains unexpected characters. A-Z, apostropies and hyphens only allowed e.g."O'Keith-Smith".
             </InlineMessage>
+            <InlineMessage v-if="!lastName" severity="error"> Last name is required. </InlineMessage>
           </div>
           <div class="field">
             <label for="email1">Email address</label>
@@ -50,10 +54,12 @@
                 v-model="email1"
                 @focus="updateFocused('email1', true)"
                 @blur="updateFocused('email1', false)"
+                :class="(!email1Verified || !email1) && !focused.get('email1') && 'p-invalid'"
               />
-              <i v-if="email1Verified && focused.get('email1') === false" class="pi pi-check-circle email-check" aria-hidden="true" />
-              <i v-if="!email1Verified && focused.get('email1') === false" class="pi pi-times-circle email-times" aria-hidden="true" />
+              <i v-if="email1Verified" class="pi pi-check-circle email-check" aria-hidden="true" />
+              <i v-if="!email1Verified && email1" class="pi pi-times-circle email-times" aria-hidden="true" />
             </div>
+            <InlineMessage v-if="!email1" severity="error"> Email is required. </InlineMessage>
           </div>
           <div class="field">
             <label for="email2">Confirm email address</label>
@@ -64,8 +70,9 @@
               v-model="email2"
               @focus="updateFocused('email2', true)"
               @blur="updateFocused('email2', false)"
+              :class="!emailsMatch && !focused.get('email2') && 'p-invalid'"
             />
-            <InlineMessage v-if="!emailsMatch && focused.get('email2') === false" severity="error"> Email addresses do not match! </InlineMessage>
+            <InlineMessage v-if="!emailsMatch && !focused.get('email2')" severity="error"> Email addresses do not match! </InlineMessage>
           </div>
           <div v-if="showPasswordEdit" class="field">
             <label for="passwordOld">Current password</label>
@@ -73,7 +80,13 @@
           </div>
           <div v-if="showPasswordEdit" class="field">
             <label for="passwordNew1">New password</label>
-            <InputText data-testid="user-edit-password-new1" id="passwordNew1" type="password" v-model="passwordNew1" />
+            <InputText
+              data-testid="user-edit-password-new1"
+              id="passwordNew1"
+              type="password"
+              v-model="passwordNew1"
+              :class="passwordStrength === 'fail' && !focused.get('passwordNew1') && 'p-invalid'"
+            />
             <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
@@ -92,6 +105,7 @@
               v-model="passwordNew2"
               @focus="updateFocused('password2', true)"
               @blur="updateFocused('password2', false)"
+              :class="!passwordsMatch && passwordNew2 && !focused.get('passwordNew2') && 'p-invalid'"
             />
             <InlineMessage v-if="!passwordsMatch && focused.get('password2') === false" severity="error"> New passwords do not match </InlineMessage>
           </div>
@@ -156,7 +170,6 @@ let passwordOld = ref("");
 let passwordNew1 = ref("");
 let passwordNew2 = ref("");
 let selectedAvatar = ref(Avatars[0]);
-let avatarOptions = [...Avatars];
 let showPasswordEdit = ref(false);
 let focused: Ref<Map<string, boolean>> = ref(new Map());
 
