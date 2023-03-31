@@ -39,9 +39,9 @@ const QueryService = {
     });
   },
 
-  async queryIM(query: QueryRequest, controller?: AbortController): Promise<{ entities: any[]; "@context": any }> {
-    if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal });
-    else return await axios.post(Env.API + "api/query/public/queryIM", query);
+  async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
+    if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal, raw: raw });
+    else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
   },
 
   async checkValidation(validationIri: string, data: any): Promise<boolean> {
