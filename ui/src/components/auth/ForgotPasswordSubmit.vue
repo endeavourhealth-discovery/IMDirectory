@@ -32,8 +32,18 @@
                 @blur="updateFocused('code', false)"
                 :class="!codeVerified && code && !focused.get('code') && 'p-invalid'"
               />
-              <IMFontAwesomeIcon v-if="codeVerified" icon="fa-regular fa-circle-check" style="color: var(--green-500); font-size: 2em" />
-              <IMFontAwesomeIcon v-if="!codeVerified && code" icon="fa-regular fa-circle-xmark" style="color: var(--red-500); font-size: 2em" />
+              <IMFontAwesomeIcon
+                v-if="codeVerified"
+                icon="fa-regular fa-circle-check"
+                style="color: var(--green-500); font-size: 2em"
+                data-testid="forgot-password-submit-verified"
+              />
+              <IMFontAwesomeIcon
+                v-if="!codeVerified && code"
+                icon="fa-regular fa-circle-xmark"
+                style="color: var(--red-500); font-size: 2em"
+                data-testid="forgot-password-submit-unverified"
+              />
             </div>
             <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
           </div>

@@ -35,8 +35,18 @@
               @blur="updateFocused('email1', false)"
               :class="!emailIsNotRegistered && email1Verified && !focused.get('email1') && 'p-invalid'"
             />
-            <IMFontAwesomeIcon v-if="email1Verified && emailIsNotRegistered" icon="fa-regular fa-circle-check" class="email-check" />
-            <IMFontAwesomeIcon v-if="(!email1Verified && email1) || !emailIsNotRegistered" icon="fa-regular fa-circle-xmark" class="email-times" />
+            <IMFontAwesomeIcon
+              v-if="email1Verified && emailIsNotRegistered"
+              icon="fa-regular fa-circle-check"
+              class="email-check"
+              data-testid="register-email1-verified"
+            />
+            <IMFontAwesomeIcon
+              v-if="(!email1Verified && email1) || !emailIsNotRegistered"
+              icon="fa-regular fa-circle-xmark"
+              class="email-times"
+              data-testid="register-email1-unverified"
+            />
           </div>
           <InlineMessage v-if="!emailIsNotRegistered && email1 && email1Verified" severity="error">Email address is already registered</InlineMessage>
         </div>
@@ -95,7 +105,7 @@
             maxlength="50"
             aria-describedby="password-help"
             v-model="password1"
-            :class="passwordStrength === 'fail' && !focused.get('password1') && 'p-invalid'"
+            :class="passwordStrength === 'fail' && password1 && !focused.get('password1') && 'p-invalid'"
           />
           <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
           <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
