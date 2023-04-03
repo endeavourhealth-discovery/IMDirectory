@@ -3,6 +3,7 @@ import { TreeNode } from "../interfaces/TreeNode";
 import { IM, SHACL } from "../vocabulary";
 import { getFAIconFromType } from "./ConceptTypeMethods";
 import { isObjectHasKeys } from "./DataTypeCheckers";
+import { getNameFromRef } from "./TTTransform";
 
 export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
   const dataModelProperties = entity[SHACL.PROPERTY];
@@ -30,7 +31,7 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
 
   return {
     key: getKey(parent),
-    label: property["http://www.w3.org/ns/shacl#path"][0].name,
+    label: getNameFromRef(property["http://www.w3.org/ns/shacl#path"][0] as any),
     data: property,
     type: type,
     icon: getFAIconFromType([imtype]) as any,

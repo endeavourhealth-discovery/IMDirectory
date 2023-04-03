@@ -1,15 +1,17 @@
 <template>
   <div>{{ from.data["@id"] }}</div>
   <div>{{ textQuery.type }}</div>
-  <div>{{ textQuery.data }}</div>
+  <!-- <div>{{ textQuery.data }}</div> -->
+  <Textarea v-model="jsonString" class="json-string" />
+
   <div class="desc-wrapper">Description: <InputText type="text" v-model="description" /></div>
 
   <div class="property-wrapper">
     <PropertySelect :from="from" :property="property" />
     <div v-if="textQuery.data.isNull">is Null</div>
-    <ValueSelect v-else :selected-property="property" :from="from" :selected="textQuery" />
+    <ValueSelect v-else-if="!textQuery.data.range" :selected-property="property" :from="from" :selectedValue="value" />
   </div>
-
+  <RangeSelect v-if="!textQuery.data.in && !textQuery.data.notIn" :selected-property="property" :from="from" :selected-range="textQuery.data.range" />
   <div class="footer-actions">
     <Button class="action-button" severity="secondary" label="Cancel" @click="cancel"></Button>
     <Button class="action-button" label="Save" @click="save"></Button>
@@ -25,6 +27,7 @@ import ValueSelect from "./editTextQuery/ValueSelect.vue";
 import { buildPropertyTreeNode } from "@im-library/helpers/PropertyTreeNodeBuilder";
 import { EntityService } from "@/services";
 import { RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import RangeSelect from "./editTextQuery/RangeSelect.vue";
 
 const emit = defineEmits({ onCancel: () => true });
 
@@ -34,10 +37,13 @@ const props = defineProps({
 });
 const description: Ref<string> = ref("");
 const property: Ref<TreeNode> = ref({});
+const value: Ref<TreeNode> = ref({});
+const jsonString = ref("");
 
 onMounted(async () => {
   description.value = props.textQuery.display;
   property.value = await getPropertyTreeNode();
+  jsonString.value = JSON.stringify(props.textQuery.data, null, 2);
 });
 
 async function getPropertyTreeNode() {
@@ -45,11 +51,13 @@ async function getPropertyTreeNode() {
   let ttproperty: TTProperty | undefined = (dataModelentity[SHACL.PROPERTY] as []).find(ttProperty => ttProperty[SHACL.PATH] === props.textQuery.data["@id"]);
   if (!ttproperty) {
     const propEntity = await EntityService.getPartialEntity(props.textQuery.data["@id"], []);
-    console.log(propEntity);
-    ttproperty = { "http://www.w3.org/ns/shacl#path": props.textQuery.data["@id"], "http://www.w3.org/ns/shacl#class": propEntity[RDFS.RANGE] } as TTProperty;
+    ttproperty = {
+      "http://www.w3.org/ns/shacl#path": [{ "@id": props.textQuery.data["@id"] }],
+      "http://www.w3.org/ns/shacl#class": propEntity[RDFS.RANGE]
+    } as TTProperty;
   }
-  console.log(ttproperty);
-  return buildPropertyTreeNode(ttproperty);
+  const node = buildPropertyTreeNode(ttproperty);
+  return node;
 }
 
 function cancel() {
@@ -80,5 +88,10 @@ function save() {
 .property-wrapper {
   display: flex;
   align-items: center;
+}
+
+.json-string {
+  width: 100%;
+  height: 20rem;
 }
 </style>

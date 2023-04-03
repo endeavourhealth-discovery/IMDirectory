@@ -13,7 +13,7 @@
       :expanded-keys="expandedKeys"
       @node-expand="expandNode"
     >
-      <template #default="{ node }">
+      <template #default="{ node }: { node: TreeNode }">
         {{ node.label }}
       </template>
     </Tree>
@@ -37,7 +37,8 @@ import { onMounted, PropType, Ref, ref } from "vue";
 import EntitySearch from "./EntitySearch.vue";
 
 const props = defineProps({
-  selectedProperty: { type: Object as PropType<TreeNode>, required: true }
+  selectedProperty: { type: Object as PropType<TreeNode>, required: true },
+  selectedValue: { type: Object as PropType<TreeNode>, required: true }
 });
 const visible: Ref<boolean> = ref(false);
 const selectedKey = ref(undefined);
@@ -45,11 +46,10 @@ const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
 const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
 const entityValue: Ref<TTAlias> = ref({} as TTAlias);
-const emit = defineEmits({ onCancel: () => true, onSelect: (payload: any) => payload });
 
 onMounted(async () => {
   // TODO get tree from set/query
-  const classIri = (props.selectedProperty.data as TTProperty)["http://www.w3.org/ns/shacl#class"]![0]["@id"];
+  const classIri = props.selectedProperty.data[SHACL.CLASS][0]["@id"];
   nodes.value = await getTreeNodes(classIri, { children: [] });
 });
 
@@ -90,13 +90,8 @@ async function expandNode(node: TreeNode) {
   }
 }
 
-function cancel() {
-  emit("onCancel");
-}
-
 function select() {
-  emit("onSelect", selectedNode.value);
-  emit("onCancel");
+  selectedNode.value;
 }
 </script>
 
