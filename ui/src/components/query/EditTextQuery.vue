@@ -1,17 +1,22 @@
 <template>
   <div>{{ from.data["@id"] }}</div>
   <div>{{ textQuery.type }}</div>
-  <!-- <div>{{ textQuery.data }}</div> -->
-  <Textarea v-model="jsonString" class="json-string" />
+  <SimpleJsonEditor :text-query="textQuery" />
 
   <div class="desc-wrapper">Description: <InputText type="text" v-model="description" /></div>
 
   <div class="property-wrapper">
     <PropertySelect :from="from" :property="property" />
     <div v-if="textQuery.data.isNull">is Null</div>
-    <ValueSelect v-else-if="!textQuery.data.range" :selected-property="property" :from="from" :selectedValue="value" />
+    <ValueSelect v-else-if="!textQuery.data.range && !textQuery.data.operator" :selected-property="property" :from="from" :selectedValue="value" />
   </div>
-  <RangeSelect v-if="!textQuery.data.in && !textQuery.data.notIn" :selected-property="property" :from="from" :selected-range="textQuery.data.range" />
+  <ComparisonSelect v-if="textQuery.data.operator" :selected-comparison="textQuery.data" />
+  <RangeSelect
+    v-if="!textQuery.data.in && !textQuery.data.notIn && textQuery.data.range"
+    :selected-property="property"
+    :from="from"
+    :selected-range="textQuery.data.range"
+  />
   <div class="footer-actions">
     <Button class="action-button" severity="secondary" label="Cancel" @click="cancel"></Button>
     <Button class="action-button" label="Save" @click="save"></Button>
@@ -28,6 +33,8 @@ import { buildPropertyTreeNode } from "@im-library/helpers/PropertyTreeNodeBuild
 import { EntityService } from "@/services";
 import { RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import RangeSelect from "./editTextQuery/RangeSelect.vue";
+import ComparisonSelect from "./editTextQuery/ComparisonSelect.vue";
+import SimpleJsonEditor from "./editTextQuery/SimpleJsonEditor.vue";
 
 const emit = defineEmits({ onCancel: () => true });
 
@@ -38,12 +45,10 @@ const props = defineProps({
 const description: Ref<string> = ref("");
 const property: Ref<TreeNode> = ref({});
 const value: Ref<TreeNode> = ref({});
-const jsonString = ref("");
 
 onMounted(async () => {
   description.value = props.textQuery.display;
   property.value = await getPropertyTreeNode();
-  jsonString.value = JSON.stringify(props.textQuery.data, null, 2);
 });
 
 async function getPropertyTreeNode() {
