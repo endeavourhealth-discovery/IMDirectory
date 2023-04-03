@@ -19,8 +19,13 @@
       <Column field="name" header="Results">
         <template #body="{ data }: any">
           <div class="result-container" @mouseenter="showDetailsOverlay($event, data)" @mouseleave="hideDetailsOverlay()">
-            <div class="result-icon-container" :style="getColorByConceptType(data.entityType)">
-              <i :class="getPerspectiveByConceptType(data.entityType)" class="result-icon fa-fw" />
+            <div class="result-icon-container">
+              <IMFontAwesomeIcon
+                :icon="getPerspectiveByConceptType(data.entityType)"
+                fixed-width
+                class="result-icon"
+                :style="getColorByConceptType(data.entityType)"
+              />
             </div>
             <div class="result-text-container">
               {{ data.name }}<br />
@@ -82,6 +87,7 @@
 <script setup lang="ts">
 import { PropType, ref } from "vue";
 import { useStore } from "vuex";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";

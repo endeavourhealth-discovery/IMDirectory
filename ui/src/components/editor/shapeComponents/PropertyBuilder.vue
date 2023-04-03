@@ -1,9 +1,9 @@
 <template>
   <div class="property-builder">
     <div class="content-container">
-      <ToggleButton v-model="isInherited" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" disabled/>
+      <ToggleButton v-model="isInherited" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" disabled />
       <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
-      <i class="icon pi pi-arrow-right" />
+      <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
       <EntityAutoComplete :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
       <ToggleButton v-model="required" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
       <ToggleButton v-model="unique" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
@@ -15,6 +15,7 @@
 import { Property } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import _ from "lodash";
@@ -82,7 +83,10 @@ const propertyRangeShape: Ref<PropertyShape> = ref({
   componentType: { "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT },
   path: props.shape.path,
   select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_DMPropertyRange" }],
-  argument: [{ valueIri: { "@id": propertyPath.value["@id"] }, parameter: "that" },{ valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "this" }],
+  argument: [
+    { valueIri: { "@id": propertyPath.value["@id"] }, parameter: "that" },
+    { valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "this" }
+  ],
   builderChild: true
 } as PropertyShape);
 
@@ -150,8 +154,8 @@ function processProps() {
 }
 
 async function updatePath(data: any) {
-  if(props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
-    props.value["http://www.w3.org/ns/shacl#path"][0] = {"@id" : data["@id"]} as TTIriRef;
+  if (props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
+    props.value["http://www.w3.org/ns/shacl#path"][0] = { "@id": data["@id"] } as TTIriRef;
   }
 }
 

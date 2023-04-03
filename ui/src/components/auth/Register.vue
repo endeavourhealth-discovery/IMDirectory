@@ -35,13 +35,8 @@
               @blur="updateFocused('email1', false)"
               :class="!emailIsNotRegistered && email1Verified && !focused.get('email1') && 'p-invalid'"
             />
-            <i v-if="email1Verified && emailIsNotRegistered" data-testid="register-email1-verified" class="pi pi-check-circle email-check" aria-hidden="true" />
-            <i
-              v-if="(!email1Verified && email1) || !emailIsNotRegistered"
-              data-testid="register-email1-unverified"
-              class="pi pi-times-circle email-times"
-              aria-hidden="true"
-            />
+            <IMFontAwesomeIcon v-if="email1Verified && emailIsNotRegistered" icon="fa-regular fa-circle-check" class="email-check" />
+            <IMFontAwesomeIcon v-if="(!email1Verified && email1) || !emailIsNotRegistered" icon="fa-regular fa-circle-xmark" class="email-times" />
           </div>
           <InlineMessage v-if="!emailIsNotRegistered && email1 && email1Verified" severity="error">Email address is already registered</InlineMessage>
         </div>
@@ -152,6 +147,7 @@
 <script setup lang="ts">
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { computed, Ref, ref, watch } from "vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyIsUsername, checkPasswordStrength } from "@im-library/helpers/UserMethods";

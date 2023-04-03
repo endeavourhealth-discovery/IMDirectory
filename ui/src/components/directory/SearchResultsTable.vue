@@ -52,10 +52,10 @@
         </template>
         <template #body="{ data }: any">
           <div class="datatable-flex-cell">
-            <i v-if="data.icon" :style="'color: ' + data.colour" :class="data.icon" class="recent-icon" aria-hidden="true" />
-            <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{
-              data.code ? data.match + " | " + data.code : data.match
-            }}</span>
+            <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
+            <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
+              {{ data.code ? data.match + " | " + data.code : data.match }}
+            </span>
           </div>
         </template>
       </Column>
@@ -85,6 +85,7 @@ import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import setupDownloadFile from "@/composables/downloadFile";
