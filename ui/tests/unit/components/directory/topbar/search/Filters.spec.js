@@ -1,4 +1,4 @@
-import { flushPromises, shallowMount } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import Filters from "@/components/directory/topbar/Filters.vue";
 import MultiSelect from "primevue/multiselect";
 import InputSwitch from "primevue/inputswitch";
@@ -6,7 +6,6 @@ import Tooltip from "primevue/tooltip";
 import Button from "primevue/button";
 import Dropdown from "primevue/dropdown";
 import testData from "./Filters.testData";
-import { setupServer } from "msw/node";
 import { render } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { beforeEach, describe, it, vi } from "vitest";

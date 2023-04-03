@@ -1,4 +1,4 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import App from "@/App.vue";
 import Toast from "primevue/toast";
 import ProgressSpinner from "primevue/progressspinner";

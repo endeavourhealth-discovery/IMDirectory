@@ -7,7 +7,6 @@
 
 <script setup lang="ts">
 import { PropType } from "vue";
-import _ from "lodash";
 
 const props = defineProps({
   position: { type: Number, required: true },

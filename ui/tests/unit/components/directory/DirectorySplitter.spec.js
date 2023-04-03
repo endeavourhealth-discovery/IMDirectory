@@ -1,5 +1,5 @@
-import { render, fireEvent, within } from "@testing-library/vue";
-import { beforeEach, describe, expect, it } from "vitest";
+import { render } from "@testing-library/vue";
+import { beforeEach, describe, it } from "vitest";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";

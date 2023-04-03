@@ -35,7 +35,7 @@
     :showDialog="showDialog"
     :eclString="ecl"
     @eclSubmitted="updateECL"
-    @closeDialog="$event => (showDialog = false)"
+    @closeDialog="() => (showDialog = false)"
     @eclConversionError="updateError"
   />
   <AddByCodeList :showAddByFile="showAddByFileDialog" :showAddByList="showAddByCodeListDialog" @closeDialog="closeAddByDialog" @addCodeList="processCodeList" />
@@ -49,7 +49,7 @@ import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyGroup, Query, TTAlias } from "@im-library/interfaces/AutoGen";
+import { PropertyGroup, Query } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";

@@ -11,11 +11,11 @@
           :loading="loading"
           class="task-tree-container"
         >
-          <template #default="slotProps">
-            <span :style="'color: ' + slotProps.node.colour" class="p-mx-1 type-icon">
-              <i :class="slotProps.node.treeIcon" aria-hidden="true" />
+          <template #default="{ node }: any">
+            <span :style="'color: ' + node.colour" class="p-mx-1 type-icon">
+              <i :class="node.treeIcon" aria-hidden="true" />
             </span>
-            <span>{{ slotProps.node.label }}</span>
+            <span>{{ node.label }}</span>
           </template>
         </Tree>
         <Button label="Create task" @click="createTask" />
@@ -137,7 +137,7 @@ function onNodeSelect(node: any) {
 .tree-bar-container {
   display: flex;
   flex-flow: column nowrap;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .task-viewer-container {
@@ -148,7 +148,7 @@ function onNodeSelect(node: any) {
   justify-content: flex-start;
   overflow: auto;
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .tab-container {
@@ -175,7 +175,7 @@ function onNodeSelect(node: any) {
 }
 
 .viewer-main-container {
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .title {

@@ -40,49 +40,49 @@
     >
       <template #empty><div style="flex: 0 1 14rem">None</div></template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
-        <template #body="slotProps">
+        <template #body="{ data }: any">
           <div class="ml-2">
-            <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
-              <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
+            <span :style="'color: ' + data.colour" class="p-mx-1">
+              <i v-if="data.icon" :class="data.icon" aria-hidden="true" />
             </span>
-            <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{ slotProps.data.match }}</span>
+            <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.match }}</span>
           </div>
         </template>
       </Column>
       <Column field="weighting" header="Usage" headerStyle="flex: 0 0 5rem;" bodyStyle="flex: 0 0 5rem; text-align: center;">
-        <template #body="slotProps">
-          <span class="break-all">{{ slotProps.data.weighting }}</span>
+        <template #body="{ data }: any">
+          <span class="break-all">{{ data.weighting }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="slotProps">
+        <template #body="{ data }: any">
           <div class="buttons-container">
             <Button
               :icon="'fa-solid fa-sitemap'"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="locateInTree($event, slotProps.data.iri)"
+              @click="locateInTree($event, data.iri)"
               v-tooltip.top="'Find in tree'"
               data-testid="select-button"
             />
             <Button
               icon="pi pi-fw pi-external-link"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.view(slotProps.data.iri)"
+              @click="directService.view(data.iri)"
               v-tooltip.top="'View in new tab'"
             />
             <Button
               icon="fa-solid fa-pen-to-square"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.edit(slotProps.data.iri)"
+              @click="directService.edit(data.iri)"
               v-tooltip.top="'Edit'"
               data-testid="edit-button"
             />
             <Button
-              v-if="isFavourite(slotProps.data.iri)"
-              style="color: #e39a36"
+              v-if="isFavourite(data.iri)"
+              style="color: var(--yellow-500)"
               icon="pi pi-fw pi-star-fill"
               class="p-button-rounded p-button-text row-button-fav"
-              @click="updateFavourites(slotProps)"
+              @click="updateFavourites(data)"
               v-tooltip.left="'Unfavourite'"
               data-testid="unfavourite-button"
             />
@@ -90,7 +90,7 @@
               v-else
               icon="pi pi-fw pi-star"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="updateFavourites(slotProps)"
+              @click="updateFavourites(data)"
               v-tooltip.left="'Favourite'"
               data-testid="favourite-button"
             />
@@ -98,7 +98,7 @@
               class="p-button-rounded p-button-text p-button-plain row-button drag-icon grabbable"
               icon="fa-solid fa-grip-vertical"
               draggable="true"
-              @dragstart="dragStart($event, slotProps.data.iri)"
+              @dragstart="dragStart($event, data.iri)"
             />
           </div>
         </template>
@@ -112,13 +112,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch, PropType } from "vue";
 import { useStore } from "vuex";
-import _ from "lodash";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
-import { DirectService, Env } from "@/services";
+import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
-import { emit } from "process";
 const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -183,8 +181,8 @@ onMounted(() => init());
 
 const isLoading = computed(() => loading.value || searchLoading.value);
 
-function updateFavourites(row?: any) {
-  if (row) selected.value = row.data;
+function updateFavourites(data?: any) {
+  if (data) selected.value = data;
   store.commit("updateFavourites", selected.value.iri);
 }
 
@@ -310,7 +308,7 @@ label {
   height: 100%;
   width: 100%;
   overflow: auto;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
   flex-flow: column nowrap;
 }
@@ -354,12 +352,12 @@ label {
 }
 
 .row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--surface-a) !important;
+  color: var(--text-color) !important;
 }
 
 .row-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+  background-color: var(--yellow-500) !important;
+  color: var(--text-color) !important;
 }
 </style>

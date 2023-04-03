@@ -97,11 +97,11 @@ function processEntityValue(property: PropertyShape | PropertyGroup) {
 }
 
 .toggleable-entity-search:deep(.label-container) {
-  border-color: red;
+  border-color: var(--red-500);
 }
 
 .label {
   font-size: 1rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 </style>

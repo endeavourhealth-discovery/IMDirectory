@@ -4,7 +4,7 @@
       <svg id="force-layout-svg">
         <defs id="defs">
           <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="25" refY="6" orient="auto-start-reverse">
-            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: #781c81"></path>
+            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--purple-500)"></path>
           </marker>
         </defs>
       </svg>
@@ -22,7 +22,7 @@
 import { computed, onMounted, onUnmounted, PropType, ref, Ref, watch } from "vue";
 import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
+import { RouteRecordName, useRoute } from "vue-router";
 import _ from "lodash";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
@@ -30,7 +30,6 @@ import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
-import axios from "axios";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
@@ -69,11 +68,11 @@ const width = ref(400);
 const force = ref(-5000);
 const radius = ref(16);
 const colour = ref({
-  activeNode: { fill: "#e3f2fd", stroke: "#AAAAAA" },
-  inactiveNode: { fill: "#781c81", stroke: "#AAAAAA" },
+  activeNode: { fill: "var(--background-a)", stroke: "#AAAAAA" },
+  inactiveNode: { fill: "var(--purple-500)", stroke: "#AAAAAA" },
   centerNode: {
-    fill: "#e39a36",
-    stroke: "#ffffff"
+    fill: "var(--yellow-500)",
+    stroke: "var(--text-color)"
   },
   font: {},
   path: { fill: "", stroke: "#AAAAAA" }
@@ -412,7 +411,7 @@ function zoomOut() {
   opacity: 33%;
   padding: 0.25rem !important;
   width: auto !important;
-  background-color: black !important;
+  background-color: var(--surface-b) !important;
 }
 
 .svg-pan-zoom-control:hover {
@@ -455,8 +454,8 @@ function zoomOut() {
   width: 120px;
   padding: 2px;
   font: 12px sans-serif;
-  background-color: black;
-  color: #fff;
+  background-color: var(--surface-b);
+  color: var(--text-color);
   border: 0px;
   border-radius: 8px;
   pointer-events: none;

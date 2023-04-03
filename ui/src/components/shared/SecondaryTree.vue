@@ -37,32 +37,28 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
-        <div v-if="slotProps.node.data === 'loadMore'" class="tree-row">
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span class="tree-node-label">{{ slotProps.node.label }}</span>
+      <template #default="{ node }: any">
+        <div v-if="node.data === 'loadMore'" class="tree-row">
+          <ProgressSpinner v-if="node.loading" />
+          <span class="tree-node-label">{{ node.label }}</span>
         </div>
         <div
           v-else
           class="tree-row"
-          @click="navigate($event, slotProps.node.data)"
-          @dblclick="onNodeDblClick($event, slotProps.node)"
+          @click="navigate($event, node.data)"
+          @dblclick="onNodeDblClick($event, node)"
           v-tooltip.top="'CTRL+click to navigate'"
           data-testid="row"
         >
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true" />
+          <span v-if="!node.loading">
+            <div :style="'color:' + node.color">
+              <i :class="node.typeIcon" class="fa-fw" aria-hidden="true" />
             </div>
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span
-            class="tree-node-label"
-            data-testid="row-label"
-            @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
-            @mouseleave="hidePopup($event)"
-            >{{ slotProps.node.label }}</span
-          >
+          <ProgressSpinner v-if="node.loading" />
+          <span class="tree-node-label" data-testid="row-label" @mouseover="showPopup($event, node.data, node)" @mouseleave="hidePopup($event)">{{
+            node.label
+          }}</span>
         </div>
       </template>
     </Tree>
@@ -108,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
+import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent } from "@im-library/interfaces";
@@ -349,7 +345,7 @@ function navigate(event: any, iri: string): void {
 
 #secondary-tree-bar-container {
   flex: 1 1 auto;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--surface-border);
 }
 
 .p-progress-spinner {

@@ -3,17 +3,17 @@
     <div class="search-container">
       <small v-if="searchResultsLimited" class="limited-results">Results limited to first 100. Please refine your search for more accuracy.</small>
       <AutoComplete
-          forceSelection
-          style="flex: 1"
-          input-style="flex: 1"
-          optionLabel="name"
-          dataKey="iri"
-          v-model="selectedSearchResult"
-          :suggestions="filteredSearchOptions"
-          @complete="search($event.query)"
-          placeholder="search..."
-          :disabled="loading"
-          @blur="searchResultsLimited = false"
+        forceSelection
+        style="flex: 1"
+        input-style="flex: 1"
+        optionLabel="name"
+        dataKey="iri"
+        v-model="selectedSearchResult"
+        :suggestions="filteredSearchOptions"
+        @complete="search($event.query)"
+        placeholder="search..."
+        :disabled="loading"
+        @blur="searchResultsLimited = false"
       />
     </div>
     <div v-if="hasFocus && hasType" id="parent-container" class="flex flex-column justify-contents-start align-items-start">
@@ -23,35 +23,31 @@
       </p>
     </div>
     <Tree
-        :value="root"
-        selectionMode="single"
-        v-model:selectionKeys="selectedKeys"
-        :expandedKeys="expandedKeys"
-        @node-select="onNodeSelect"
-        @node-expand="onNodeExpand"
-        @node-collapse="onNodeCollapse"
-        class="tree-root"
-        :loading="loading"
+      :value="root"
+      selectionMode="single"
+      v-model:selectionKeys="selectedKeys"
+      :expandedKeys="expandedKeys"
+      @node-select="onNodeSelect"
+      @node-expand="onNodeExpand"
+      @node-collapse="onNodeCollapse"
+      class="tree-root"
+      :loading="loading"
     >
-      <template #default="slotProps">
-        <div v-if="slotProps.node.data === 'loadMore'" class="tree-row">
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span class="tree-node-label">{{ slotProps.node.label }}</span>
+      <template #default="{ node }: any">
+        <div v-if="node.data === 'loadMore'" class="tree-row">
+          <ProgressSpinner v-if="node.loading" />
+          <span class="tree-node-label">{{ node.label }}</span>
         </div>
         <div v-else class="tree-row" @click="onNodeSelect($event)" data-testid="row">
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true" />
+          <span v-if="!node.loading">
+            <div :style="'color:' + node.color">
+              <i :class="node.typeIcon" class="fa-fw" aria-hidden="true" />
             </div>
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span
-              class="tree-node-label"
-              data-testid="row-label"
-              @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
-              @mouseleave="hidePopup($event)"
-          >{{ slotProps.node.label }}</span
-          >
+          <ProgressSpinner v-if="node.loading" />
+          <span class="tree-node-label" data-testid="row-label" @mouseover="showPopup($event, node.data, node)" @mouseleave="hidePopup($event)">{{
+            node.label
+          }}</span>
         </div>
       </template>
     </Tree>
@@ -191,7 +187,7 @@ onMounted(async () => {
     }
     if (root.value.length < superiorsCount.value) {
       root.value.push(
-          createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null), 1, superiorsCount.value)
+        createLoadMoreNode(createTreeNode("loadMore", "loadMore", [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null), 1, superiorsCount.value)
       );
     }
     if (hasCurrentValue.value && isArrayHasLength(root.value.length)) {
@@ -218,13 +214,13 @@ async function getConceptAggregates(): Promise<void> {
   loading.value = true;
   let superiors: any[] = [];
   if (getType.value === "property") {
-    let results = { result: [], totalCount: 0 };
+    let results = { result: [] as any[], totalCount: 0 };
     if (isAliasIriRef(focus.value) && focus.value.iri) results = await EntityService.getSuperiorPropertiesPaged(focus.value.iri, 1, pageSize.value);
     if (isBoolGroup(focus.value)) results = await EntityService.getSuperiorPropertiesBoolFocusPaged(focus.value, 1, pageSize.value);
     if (results && isArrayHasLength(results.result)) superiors = results.result;
     superiorsCount.value = results.totalCount;
   } else if (getType.value === "value") {
-    let results = { result: [], totalCount: 0 };
+    let results = { result: [] as any[], totalCount: 0 };
     if (isAliasIriRef(focus.value) && focus.value.iri) results = await EntityService.getSuperiorPropertyValuesPaged(focus.value.iri, 1, pageSize.value);
     if (results && isArrayHasLength(results.result)) superiors = results.result;
     superiorsCount.value = results.totalCount;
@@ -291,11 +287,11 @@ async function rootLoadMore(node: any) {
     });
     node.nextPage = node.nextPage + 1;
     root.value.push(
-        createLoadMoreNode(
-            createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null),
-            node.nextPage,
-            node.totalCount
-        )
+      createLoadMoreNode(
+        createTreeNode(getFocus.value.iri, getFocus.value.name, [{ "@id": IM.CONCEPT, name: "Concept" } as TTIriRef], false, null),
+        node.nextPage,
+        node.totalCount
+      )
     );
   } else if (node.nextPage * pageSize.value > node.totalCount) {
     let results;
@@ -498,6 +494,6 @@ async function selectItem(iri: string): Promise<void> {
   width: 100%;
   height: 1rem;
   padding: 0 0 0.25rem 0;
-  color: #e24c4c;
+  color: var(--red-500);
 }
 </style>

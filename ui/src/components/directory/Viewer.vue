@@ -108,7 +108,7 @@ import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 
 import { DefinitionConfig } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { ConceptTypeMethods, DataTypeCheckers, Sorters } from "@im-library/helpers";
+import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import Details from "./viewer/Details.vue";
@@ -260,7 +260,7 @@ function onOpenTab(predicate: string) {
 .concept-panel-content {
   height: 100%;
   overflow: auto;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
 }
 

@@ -81,7 +81,7 @@ function getReportTableData(): void {
 .description {
   font-weight: 400;
   margin-bottom: 0.5rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 
 .content {

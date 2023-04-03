@@ -10,7 +10,6 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -85,11 +84,11 @@ function defaultValidation(string: string) {
 }
 
 .invalid {
-  border-color: #e24c4c;
+  border-color: var(--red-500);
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

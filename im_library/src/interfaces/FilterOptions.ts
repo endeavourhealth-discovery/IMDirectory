@@ -1,4 +1,3 @@
-import { EntityReferenceNode } from "./EntityReferenceNode";
 import { TTIriRef } from "../interfaces/AutoGen";
 
 export interface FilterOptions {

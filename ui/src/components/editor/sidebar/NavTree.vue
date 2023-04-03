@@ -11,22 +11,22 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
+      <template #default="{ node }: any">
         <div
           class="tree-row grabbable"
-          @mouseover="showOverlay($event, slotProps.node)"
+          @mouseover="showOverlay($event, node)"
           @mouseleave="hideOverlay($event)"
           draggable="true"
-          @dragstart="dragStart($event, slotProps.node)"
+          @dragstart="dragStart($event, node)"
         >
           <i class="fa-solid fa-grip-vertical drag-icon grabbable"></i>
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
+          <span v-if="!node.loading">
+            <div :style="'color:' + node.color">
+              <i :class="node.typeIcon" class="fa-fw" aria-hidden="true"></i>
             </div>
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span>{{ slotProps.node.label }}</span>
+          <ProgressSpinner v-if="node.loading" />
+          <span>{{ node.label }}</span>
         </div>
       </template>
     </Tree>
@@ -74,13 +74,10 @@
 <script setup lang="ts">
 import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
-import axios from "axios";
 import { useToast } from "primevue/usetoast";
-import { EntityReferenceNode, ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import _ from "lodash";
+import { ConceptSummary } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
@@ -149,7 +146,7 @@ async function addParentFoldersToRoot() {
   root.value.sort(byKey);
   const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
-  favNode.color = "#e39a36";
+  favNode.color = "var(--yellow-500)";
   root.value.push(favNode);
 }
 

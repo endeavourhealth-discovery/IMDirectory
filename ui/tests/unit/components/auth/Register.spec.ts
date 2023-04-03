@@ -1,4 +1,3 @@
-import { flushPromises, mount } from "@vue/test-utils";
 import Register from "@/components/auth/Register.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
@@ -9,7 +8,6 @@ import OverlayPanel from "primevue/overlaypanel";
 import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import { AuthService } from "@/services";
 import { Avatars } from "@im-library/constants";
-import { PasswordStrength } from "@im-library/enums";
 import { User } from "@im-library/models";
 import PrimeVue from "primevue/config";
 import { describe, vi, beforeEach, it, expect } from "vitest";

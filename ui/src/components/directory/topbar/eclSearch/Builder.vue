@@ -22,7 +22,7 @@
       <div id="query-builder-container">
         <div id="query-build">
           <ProgressSpinner v-if="loading" />
-          <BoolGroup v-else :value="build" style="width: 100%; margin: 0" :rootBool="true" />
+          <BoolGroup v-else :value="build" :rootBool="true" />
         </div>
         <small style="color: red" v-if="(!build.items || build.items.length == 0) && !loading"
           >*Move pointer over panel above to add concepts, refinements and groups.</small
@@ -58,7 +58,6 @@ import { defineComponent } from "vue";
 import BoolGroup from "./builder/BoolGroup.vue";
 import Concept from "@/components/directory/topbar/eclSearch/builder/Concept.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export default defineComponent({
   components: { BoolGroup, Concept, Refinement }
@@ -72,6 +71,7 @@ import _ from "lodash";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import EclService from "@/services/EclService";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   showDialog: Boolean,
@@ -86,15 +86,16 @@ const emit = defineEmits({
 
 const toast = useToast();
 
-const isValidEcl = computed(() => {
-  return queryString.value && !queryString.value.includes("UNKNOWN CONCEPT") ? true : false;
-});
-
 const build: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
 const includeTerms = ref(true);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
 const loading = ref(false);
+const isValidEcl = ref(false);
+
+watch(queryString, async () => {
+  isValidEcl.value = await EclService.isValidECL(queryString.value);
+});
 
 provide("includeTerms", readonly(includeTerms));
 
@@ -128,11 +129,12 @@ function createDefaultBuild() {
 async function createBuildFromEclString(ecl: string) {
   try {
     loading.value = true;
-    build.value = await EclService.getBuildFromEcl(ecl);
+    build.value = await EclService.getBuildFromEcl(ecl, true);
     eclConversionError.value = { error: false, message: "" };
   } catch (err: any) {
     createDefaultBuild();
-    eclConversionError.value = { error: true, message: err.message };
+    if (err?.response?.data) eclConversionError.value = { error: true, message: err.response.data.debugMessage };
+    else eclConversionError.value = { error: true, message: err.message };
   }
   emit("eclConversionError", eclConversionError.value);
   loading.value = false;
@@ -185,12 +187,17 @@ function onCopyError(): void {
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: flex-start;
   gap: 1rem;
   flex: 1 1 auto;
   font-size: 12px;
   overflow: auto;
+}
+
+#query-build > .nested-div,
+.nested-div-hover {
+  min-width: calc(100% - 1rem);
 }
 
 #build-string-container {
@@ -201,8 +208,8 @@ function onCopyError(): void {
 }
 
 .output-string {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--surface-a);
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
   padding: 1rem;
   margin: 0;

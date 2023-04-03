@@ -1,14 +1,11 @@
 <template>
   <div class="builder-child">
-    <div class="builder-child-wrapper">
-      <AddDeleteButtons
-        :show="{ minus: showButtons.minus, plus: false }"
-        :position="position"
-        :options="nextComponentOptions"
-        @deleteClicked="deleteClicked"
-        @addNextClicked="addNextClicked"
+    <div>
+      <AddTitle
+          :show="showTitles"
       />
-
+    </div>
+    <div class="builder-child-wrapper">
       <div class="builder-child-container" :id="id">
         <component
           :is="processComponentType(shape.componentType)"
@@ -20,6 +17,15 @@
         />
         <UpDownButtons :show="{ up: showButtons.up, down: showButtons.down }" :position="position" @moveUpClicked="upClicked" @moveDownClicked="downClicked" />
       </div>
+
+      <AddDeleteButtons
+          :show="{ minus: showButtons.minus, plus: false }"
+          :position="position"
+          :options="nextComponentOptions"
+          @deleteClicked="deleteClicked"
+          @addNextClicked="addNextClicked"
+      />
+
     </div>
     <div class="indented-add-button">
       <AddDeleteButtons
@@ -39,6 +45,7 @@ import EntityAutoComplete from "./EntityAutoComplete.vue";
 import ComponentGroup from "./ComponentGroup.vue";
 import ArrayBuilderWithDropdown from "./ArrayBuilderWithDropdown.vue";
 import PropertyBuilder from "./PropertyBuilder.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { EntitySearch, EntityAutoComplete, ComponentGroup, ArrayBuilderWithDropdown, PropertyBuilder }
@@ -46,15 +53,14 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, defineComponent } from "vue";
-import _ from "lodash";
+import { PropType } from "vue";
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
 import { ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
-import {} from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
+import AddTitle from "@/components/editor/shapeComponents/AddTitle.vue";
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -63,7 +69,8 @@ const props = defineProps({
   showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean; up: boolean; down: boolean }>, required: true },
   shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
-  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true }
+  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true },
+  showTitles: {type: Boolean}
 });
 
 const emit = defineEmits({
@@ -85,7 +92,8 @@ function createEntity(data?: any): ComponentDetails {
       json: data,
       showButtons: props.showButtons,
       shape: props.shape,
-      mode: props.mode
+      mode: props.mode,
+      showTitles: props.showTitles
     };
   else {
     return {
@@ -96,7 +104,8 @@ function createEntity(data?: any): ComponentDetails {
       json: {},
       showButtons: props.showButtons,
       shape: props.shape,
-      mode: props.mode
+      mode: props.mode,
+      showTitles: props.showTitles
     };
   }
 }
@@ -144,9 +153,9 @@ function addNextClicked(item: any): void {
 
 .label {
   cursor: pointer;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   padding: 0.25rem;
 }
 
@@ -155,7 +164,7 @@ function addNextClicked(item: any): void {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 
 .search-input {
@@ -174,6 +183,6 @@ function addNextClicked(item: any): void {
 }
 
 .builder-child {
-  align-self: center;
+  align-self: flex-start;
 }
 </style>

@@ -18,7 +18,6 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 
 const props = defineProps({
@@ -140,6 +139,6 @@ function defaultValidation(data: TTIriRef) {
   height: 2rem;
 }
 .invalid {
-  border-color: #e24c4c;
+  border-color: var(--red-500);
 }
 </style>

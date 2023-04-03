@@ -1,6 +1,6 @@
 import { EntityService, QueryService } from "@/services";
-import { Query, QueryRequest, TTAlias } from "@im-library/interfaces/AutoGen";
-import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { RDFS, SHACL } from "@im-library/vocabulary";
 import { Ref, ref } from "vue";
 
 function setupRunQuery() {
@@ -15,6 +15,7 @@ function setupRunQuery() {
   }
 
   async function getParams(iri: string) {
+    params.value = [];
     const entity = await EntityService.getPartialEntity(iri, [SHACL.PARAMETER]);
     for (const param of entity[SHACL.PARAMETER]) {
       params.value.push({

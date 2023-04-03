@@ -1,8 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import axios from "axios";
-import Env from "@/services/env.service";
 import SearchService from "@/services/search.service";
-import { IM, RDFS } from "@im-library/vocabulary";
 
 export default class SearchController {
   public path = "/";

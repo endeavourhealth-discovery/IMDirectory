@@ -30,9 +30,9 @@
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >
-      <template #option="slotProps">
+      <template #option="{ option }: any">
         <div class="data-name" data-testid="row-text">
-          {{ slotProps.option?.name || slotProps.option?.["@id"] }}
+          {{ option?.name || option?.["@id"] }}
         </div>
       </template>
       <template #footer>
@@ -50,9 +50,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
+import { useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
 import { DirectService } from "@/services";

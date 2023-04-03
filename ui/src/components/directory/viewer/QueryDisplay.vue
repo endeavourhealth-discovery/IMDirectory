@@ -1,7 +1,7 @@
 <template>
   <div class="query-display-container">
     <Tree :value="nodes" :expanded-keys="expandedKeys">
-      <template #default="{ node }">
+      <template #default="{ node }: any">
         {{ node.data.exclude ? "exclude " + node.label : node.label }}
       </template>
     </Tree>

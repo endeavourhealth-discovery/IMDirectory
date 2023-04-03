@@ -1,15 +1,15 @@
 <template>
-  <div class="flex flex-row justify-contents-center align-items-center loading -container" v-if="loading">
+  <div class="loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
   <OrganizationChart v-else :value="graph" :collapsible="true" data-testid="orgChart">
     <template #NONE>
       <p class="text-centered">None</p>
     </template>
-    <template #default="slotProps">
-      <span>{{ slotProps.node.name }}</span>
+    <template #default="{ node }: any">
+      <span>{{ node.name }}</span>
     </template>
-    <template #PROPERTIES="slotProps">
+    <template #PROPERTIES="{ node }: any">
       <table aria-label="graph semantic properties table" data-testid="properties">
         <thead>
           <tr>
@@ -18,7 +18,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="prop of slotProps.node.leafNodes" :key="prop">
+          <tr v-for="prop of node.leafNodes" :key="prop">
             <td @click="directService.select(prop.iri)">{{ prop.name }}</td>
             <td @click="directService.select(prop.valueTypeIri)">
               {{ prop.valueTypeName || getTypeFromIri(prop.valueTypeIri) }}
@@ -27,7 +27,7 @@
         </tbody>
       </table>
     </template>
-    <template #ISA="slotProps">
+    <template #ISA="{ node }: any">
       <table aria-label="graph isa's table" data-testid="isA">
         <thead>
           <tr>
@@ -35,13 +35,13 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="isa of slotProps.node.leafNodes" :key="isa">
+          <tr v-for="isa of node.leafNodes" :key="isa">
             <td @click="directService.select(isa.iri)">{{ isa.name }}</td>
           </tr>
         </tbody>
       </table>
     </template>
-    <template #SUBTYPE="slotProps">
+    <template #SUBTYPE="{ node }: any">
       <table aria-label="graph subtypes table" data-testid="subtype">
         <thead>
           <tr>
@@ -49,7 +49,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="subtype of slotProps.node.leafNodes" :key="subtype">
+          <tr v-for="subtype of node.leafNodes" :key="subtype">
             <td @click="directService.select(subtype.iri)">{{ subtype.name }}</td>
           </tr>
         </tbody>
@@ -60,11 +60,8 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { GraphData } from "@im-library/interfaces";
 import { DirectService, EntityService } from "@/services";
-import { useStore } from "vuex";
-import {OrganizationChartNode} from 'primevue/organizationchart';
+import { OrganizationChartNode } from "primevue/organizationchart";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -101,7 +98,7 @@ async function getGraph(iri: string): Promise<void> {
 <style scoped>
 td,
 th {
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   padding: 0.5rem;
   overflow-wrap: break-word;
   text-align: left;
@@ -112,22 +109,31 @@ td {
 }
 
 tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: var(--surface-a);
 }
 
 th[scope="col"] {
-  background-color: #f8f9fa;
-  color: #495057;
+  background-color: var(--surface-a);
+  color: var(--text-color);
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid rgb(200, 200, 200);
+  border: 2px solid var(--surface-border);
 }
 
 .p-organizationchart {
   height: 100%;
   width: 100%;
   overflow: auto;
+}
+
+.loading-container {
+  height: 20rem;
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 </style>

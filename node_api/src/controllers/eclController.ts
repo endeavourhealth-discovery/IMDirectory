@@ -1,6 +1,4 @@
 import EclService from "@/services/ecl.service";
-import Env from "@/services/env.service";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
 
@@ -26,9 +24,8 @@ export default class EclController {
     try {
       const result = this.eclService.eclToBuild(ecl);
       res.send(result).end();
-    } catch (err: any) {
-      res.status(200);
-      res.send({ err: err.message }).end();
+    } catch (error: any) {
+      next(error);
     }
   }
 
@@ -38,8 +35,7 @@ export default class EclController {
       const result = this.eclService.eclToIMQ(ecl);
       res.send(result).end();
     } catch (error: any) {
-      res.status(200);
-      res.send({ err: error.message }).end();
+      next(error);
     }
   }
 

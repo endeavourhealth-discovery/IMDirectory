@@ -15,6 +15,7 @@
           :shape="item.shape"
           :mode="mode"
           :nextComponentOptions="getNextComponentOptions()"
+          :showTitles=item.showTitles
           @deleteClicked="deleteItem"
           @addClicked="addItemWrapper"
           @updateClicked="updateItemWrapper"
@@ -29,6 +30,7 @@
 
 <script lang="ts">
 import BuilderChildWrapper from "./BuilderChildWrapper.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { BuilderChildWrapper }
@@ -36,7 +38,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
@@ -47,7 +49,7 @@ import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
 import { isPropertyGroup, isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },
@@ -126,6 +128,7 @@ function createBuild() {
   let position = 0;
   props.value.forEach(item => {
     build.value.push(processChild(item, position));
+    updateButtons();
     position++;
   });
   if (!isArrayHasLength(build.value)) {
@@ -146,7 +149,8 @@ function createDefaultBuild() {
             undefined,
             property,
             setButtonsByTypeAndPath(property.order - 1, true),
-            props.mode
+            props.mode,
+            props.shape.path["@id"] === SHACL.PROPERTY
           )
         );
       });
@@ -159,7 +163,8 @@ function createDefaultBuild() {
             undefined,
             subGroup,
             setButtonsByTypeAndPath(subGroup.order - 1, true),
-            props.mode
+            props.mode,
+            props.shape.path["@id"] === SHACL.PROPERTY
           )
         );
       });
@@ -173,8 +178,15 @@ function processChild(child: any, position: number) {
     child,
     isObjectHasKeys(props.shape, ["property"]) ? props.shape.property[0] : props.shape.subGroup[0],
     setButtonsByTypeAndPath(position, true),
-    props.mode
+    props.mode,
+    setTitleOnlyIfFirst(position, true)
   );
+}
+
+function setTitleOnlyIfFirst(position: number, isNewItem: boolean): any {
+  if(props.shape.path["@id"] === SHACL.PROPERTY) {
+    return isNewItem && position === 0;
+  }
 }
 
 function setButtonsByTypeAndPath(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
@@ -186,9 +198,17 @@ function setButtonsByTypeAndPath(position: number, isNewItem: boolean): { minus:
     return addButtonOnlyIfLast(position, isNewItem);
   } else if (path === IM.ROLE_GROUP) {
     return addButtonOnlyIfLast(position, isNewItem);
+  } else if (path === SHACL.PROPERTY) {
+    return addButtonOnlyIfLastWithUpDown(position, isNewItem);
   } else {
     return { minus: true, plus: true, up: true, down: true };
   }
+}
+
+function addButtonOnlyIfLastWithUpDown(position: number, isNewItem: boolean) {
+  if (isNewItem && position !== build.value.length) return { minus: true, plus: false, up: true, down: true };
+  else if (!isNewItem && position !== build.value.length - 1) return { minus: true, plus: false, up: true, down: true };
+  else return { minus: true, plus: true, up: true, down: true };
 }
 
 function addButtonOnlyIfLast(position: number, isNewItem: boolean) {
@@ -208,7 +228,6 @@ function generateBuildAsJson() {
       jsonBuild.push(item.json);
     }
   });
-  // return build.value.map(item => item.json);
   return jsonBuild;
 }
 
@@ -244,7 +263,7 @@ function addItemWrapper(data: { selectedType: ComponentType; position: number; v
   if (data.selectedType !== ComponentType.BUILDER_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_CHILD_WRAPPER;
   }
-  if (shape) addItem(data, build.value, setButtonsByTypeAndPath(data.position, true), shape, props.mode);
+  if (shape) addItem(data, build.value, setButtonsByTypeAndPath(data.position, true), shape, props.mode, false);
   updateButtons();
 }
 
@@ -279,9 +298,19 @@ function getNextComponentOptions() {
 function moveItemUp(item: ComponentDetails) {
   if (item.position === 0) return;
   const found = build.value.find(o => o.position === item.position);
-  if (found) {
+  if (found && found.showButtons) {
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      found.showButtons.plus = false;
+    }
     build.value.splice(item.position, 1);
     build.value.splice(item.position - 1, 0, found);
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if(lastItem.showButtons) {
+        lastItem.showButtons.plus = true;
+      }
+    }
   }
   updatePositions(build.value);
 }
@@ -290,8 +319,22 @@ function moveItemDown(item: ComponentDetails) {
   if (item.position === build.value.length - 1) return;
   const found = build.value.find(o => o.position === item.position);
   if (found) {
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if(lastItem.showButtons) {
+        lastItem.showButtons.plus = false;
+      }
+    }
     build.value.splice(item.position, 1);
     build.value.splice(item.position + 1, 0, found);
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if(lastItem.showButtons) {
+        lastItem.showButtons.plus = true;
+      }
+    }
     updatePositions(build.value);
   }
 }
@@ -312,18 +355,17 @@ function moveItemDown(item: ComponentDetails) {
   flex-flow: column;
 }
 .children-container {
-  padding: 1rem;
+  padding-left: 1rem;
   border-radius: 3px;
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
-  gap: 1rem;
   overflow: auto;
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

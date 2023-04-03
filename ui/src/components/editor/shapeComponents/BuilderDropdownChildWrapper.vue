@@ -15,6 +15,7 @@
 import EntitySearch from "./EntitySearch.vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import ComponentGroup from "./ComponentGroup.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { EntitySearch, EntityAutoComplete, ComponentGroup }
@@ -22,13 +23,11 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, defineComponent } from "vue";
-import _ from "lodash";
+import { PropType } from "vue";
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import { ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
-import {} from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 const props = defineProps({
@@ -111,9 +110,9 @@ function addNextClicked(item: any): void {
 
 .label {
   cursor: pointer;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--suface-a);
   padding: 0.25rem;
 }
 
@@ -122,7 +121,7 @@ function addNextClicked(item: any): void {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 
 .search-input {

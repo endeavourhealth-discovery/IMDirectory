@@ -8,7 +8,7 @@
 
     <div :class="showInfo ? 'main-container' : ''">
       <div :class="showInfo ? 'main-view' : ''">
-        <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component }: any">
           <keep-alive>
             <component :is="Component" @showDetails="showDetails" @updateSelected="updateSelected" />
           </keep-alive>
@@ -25,6 +25,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import InfoSideBar from "@/components/editor/infobar/InfoSideBar.vue";
+import TopBar from "@/components/shared/TopBar.vue";
 
 let showInfo = ref(false);
 let selectedConceptIri = ref("");

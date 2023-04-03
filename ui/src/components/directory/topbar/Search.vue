@@ -122,18 +122,22 @@ async function search(): Promise<void> {
 }
 
 .search-container {
+  flex: 1 0 auto;
   padding: 0 0.2rem;
   display: flex;
   flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
   gap: 0.2rem;
+  overflow: auto;
 }
 
 #autocomplete-search {
   font-size: 1rem;
-  background: #dee2e6;
   border: none;
-  width: 30rem;
+  max-width: 25rem;
   height: 2.25rem;
+  flex: 1 1 auto;
 }
 
 .fa-icon {

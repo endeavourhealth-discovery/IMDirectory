@@ -1,7 +1,7 @@
 import { createStore } from "vuex";
 import { defineComponent } from "vue";
 import { mount } from "@vue/test-utils";
-import { createRouter, createWebHashHistory, RouteComponent, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import { vi } from "vitest";
 
 export function createTestStore(mockState?: any, mockCommit?: any, mockDispatch?: any) {

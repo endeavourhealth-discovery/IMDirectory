@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref, inject, reactive, nextTick } from "vue";
+import { onMounted, Ref, ref, reactive, nextTick } from "vue";
 import { GithubService } from "@/services";
 import { GithubRelease } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -233,7 +233,7 @@ function keyToRepoName(key: string): string {
 .release-container {
   width: calc(100% - 1rem);
   padding: 0.5rem;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
 }
 

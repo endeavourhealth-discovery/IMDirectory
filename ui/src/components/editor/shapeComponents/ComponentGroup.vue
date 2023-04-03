@@ -15,7 +15,7 @@ import EntityDropdown from "./EntityDropdown.vue";
 import EntitySearch from "./EntitySearch.vue";
 import TextInput from "./TextInput.vue";
 import TextDisplay from "./TextDisplay.vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { EntityAutoComplete, EntityComboBox, EntityDropdown, EntitySearch, TextDisplay, TextInput }
@@ -23,13 +23,13 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch, onMounted, defineComponent, inject } from "vue";
-import _ from "lodash";
+import { PropType, ref, Ref, watch, onMounted, inject } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyGroup>, required: true },
@@ -101,6 +101,6 @@ function setProperties(shape: PropertyGroup) {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 </style>

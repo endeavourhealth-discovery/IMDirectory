@@ -51,7 +51,6 @@
 import { onMounted, onUnmounted, Ref, ref, watch } from "vue";
 import Definition from "./infoSideBar/Definition.vue";
 import PanelHeader from "./infoSideBar/PanelHeader.vue";
-import _ from "lodash";
 import { DefinitionConfig } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getContainerElementOptimalHeight } from "@im-library/helpers/ContainerDimensionGetters";
@@ -61,6 +60,8 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { ConfigService, EntityService } from "@/services";
 import { useRouter } from "vue-router";
 import { getLogger } from "@im-library/logger/LogConfig";
+import TermCodeTable from "@/components/shared/TermCodeTable.vue";
+import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 
 const log = getLogger("components.editor.infobar.InfoSideBar");
 
@@ -257,7 +258,7 @@ function setContentHeight(): void {
 .concept-panel-content {
   height: 100%;
   overflow: auto;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .copy-container {

@@ -56,7 +56,7 @@ async function init() {
 }
 
 .datatable-container {
-  flex: 0 2 auto;
+  flex: 0 1 auto;
   overflow: auto;
   padding: 0.5rem;
 }

@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, ref } from "vue";
+import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";

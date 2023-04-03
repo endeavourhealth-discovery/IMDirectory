@@ -1,19 +1,20 @@
 <template>
   <div class="property-builder">
     <div class="content-container">
+      <ToggleButton v-model="isInherited" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" disabled/>
       <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
       <i class="icon pi pi-arrow-right" />
       <EntityAutoComplete :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
-      <Tag v-if="inheritedFrom" value="Inherited" />
-      <ToggleButton v-model="required" onLabel="Required" offLabel="Not required" onIcon="pi pi-check" offIcon="pi pi-times" />
-      <ToggleButton v-model="unique" onLabel="Unique" offLabel="Not unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <ToggleButton v-model="required" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <ToggleButton v-model="unique" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import _ from "lodash";
@@ -23,6 +24,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import router from "@/router";
 
 const props = defineProps({
   shape: { type: Object as PropType<PropertyShape>, required: true },
@@ -47,6 +49,7 @@ const required = ref(false);
 const unique = ref(false);
 const loading = ref(true);
 const invalid = ref(false);
+let isInherited = false;
 
 watch(
   [propertyPath, propertyRange, inheritedFrom, required, unique],
@@ -78,8 +81,8 @@ const propertyRangeShape: Ref<PropertyShape> = ref({
   order: 1,
   componentType: { "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT },
   path: props.shape.path,
-  select: [{ name: "Search for concepts", "@id": "http://endhealth.info/im#Query_AllowableRanges" }],
-  argument: [{ valueIri: { "@id": propertyPath.value["@id"] }, parameter: "this" }],
+  select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_DMPropertyRange" }],
+  argument: [{ valueIri: { "@id": propertyPath.value["@id"] }, parameter: "that" },{ valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "this" }],
   builderChild: true
 } as PropertyShape);
 
@@ -129,8 +132,10 @@ function processProps() {
       isObjectHasKeys(props.value, ["http://endhealth.info/im#inheritedFrom"]) &&
       _.isArray(props.value["http://endhealth.info/im#inheritedFrom"]) &&
       props.value["http://endhealth.info/im#inheritedFrom"].length === 1
-    )
+    ) {
       inheritedFrom.value = props.value["http://endhealth.info/im#inheritedFrom"][0];
+      isInherited = true;
+    }
     if (isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#minCount"]) && typeof props.value["http://www.w3.org/ns/shacl#minCount"] === "number")
       required.value = props.value["http://www.w3.org/ns/shacl#minCount"] > 0;
     else required.value = false;
@@ -145,14 +150,9 @@ function processProps() {
 }
 
 async function updatePath(data: any) {
-  await getRange(data["@id"]);
-}
-
-async function getRange(iri: string) {
-  const rangeIri = await EntityService.getPartialEntity(iri, [RDFS.RANGE]);
-  let result;
-  if (rangeIri && isObjectHasKeys(rangeIri, [RDFS.RANGE])) result = await EntityService.getPartialEntity(rangeIri[RDFS.RANGE][0]["@id"], [RDFS.LABEL]);
-  if (result) propertyRange.value = { "@id": result["@id"], name: result[RDFS.LABEL] } as TTIriRef;
+  if(props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
+    props.value["http://www.w3.org/ns/shacl#path"][0] = {"@id" : data["@id"]} as TTIriRef;
+  }
 }
 
 function updateRange(data: any) {
@@ -233,11 +233,10 @@ function defaultValidity() {
 .content-container {
   display: flex;
   flex-flow: row wrap;
-  /* border: solid 1px; */
   align-items: baseline;
 }
 
 .p-togglebutton {
-  margin-right: 1rem;
+  margin-right: 2.5rem;
 }
 </style>

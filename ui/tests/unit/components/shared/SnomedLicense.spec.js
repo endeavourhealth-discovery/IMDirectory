@@ -5,7 +5,6 @@ import { expect, vi } from "vitest";
 import { render, fireEvent } from "@testing-library/vue";
 import { createStore } from "vuex";
 import { flushPromises } from "@vue/test-utils";
-import { nextTick } from "vue";
 import SnomedLicense from "@/components/shared/SnomedLicense.vue";
 
 const store = createStore({

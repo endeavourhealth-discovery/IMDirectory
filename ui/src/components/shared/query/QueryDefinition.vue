@@ -52,14 +52,14 @@ export default defineComponent({
   overflow-y: auto;
   padding: 1.5rem;
   margin-bottom: 3rem;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   /* background-image: linear-gradient(to right, var(--tw-gradient-stops)); */
   /* transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform; */
   transition-duration: 700ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 0.75rem;
   border-width: 1px;
-  border-color: #d1d5db;
+  border-color: var(--surface-border);
 }
 
 .query-definition.edit {

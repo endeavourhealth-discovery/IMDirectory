@@ -19,16 +19,16 @@
     <DataTable :value="data" :paginator="data.length > 5 ? true : false" :rows="5" id="term-codes-table" class="hidden">
       <template #empty> No records found </template>
       <Column field="name" header="Name" :sortable="true">
-        <template #body="slotProps">
+        <template #body="{ data }: any">
           <div>
-            {{ slotProps.data.name }}
+            {{ data.name }}
           </div>
         </template>
       </Column>
       <Column field="code" header="Code" :sortable="true">
-        <template #body="slotProps">
+        <template #body="{ data }: any">
           <div>
-            {{ slotProps.data.code || "None" }}
+            {{ data.code || "None" }}
           </div>
         </template>
       </Column>

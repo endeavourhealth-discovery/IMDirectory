@@ -1,8 +1,7 @@
-import { render, fireEvent, within, RenderResult, getByAltText, getByText, getAllByRole } from "@testing-library/vue";
+import { render, fireEvent, RenderResult } from "@testing-library/vue";
 import { vi } from "vitest";
 import ButtonBar from "@/components/auth/ButtonBar.vue";
 import Button from "primevue/button";
-import { Env } from "@/services";
 
 const mockDispatch = vi.fn();
 const mockState = { previousAppUrl: "testUrl" };

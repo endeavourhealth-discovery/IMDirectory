@@ -15,7 +15,7 @@
     />
     <Button :disabled="!value.concept?.iri" icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-    <Dropdown style="width: 12rem" v-model="value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
+    <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
@@ -28,7 +28,7 @@ import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EntityService } from "@/services";
 import _ from "lodash";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useDialog } from "primevue/usedialog";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
@@ -70,7 +70,7 @@ let treeDialog = useDialog();
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
-const selected: Ref<ConceptSummary | null> = ref(null);
+const selected: Ref<ConceptSummary | null | string> = ref(null);
 const controller: Ref<AbortController | undefined> = ref(undefined);
 const suggestions: Ref<any[]> = ref([]);
 const loading = ref(false);
@@ -95,10 +95,10 @@ onMounted(async () => {
 });
 
 watch(selected, (newValue, oldValue) => {
-  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") {
+  if (typeof newValue === "string" || newValue === null) return;
+  else if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") {
     updateConcept(newValue);
-  } else if (undefined) updateConcept(undefined);
-  else return;
+  }
 });
 
 async function init() {
@@ -188,22 +188,6 @@ function openTree(type: string) {
 </script>
 
 <style scoped lang="scss">
-@use "primevue/resources/themes/saga-blue/theme.css";
-
-.p-button-placeholder {
-  @extend .p-button-secondary;
-  @extend .p-button-outlined;
-  color: #00000030 !important;
-  border-style: dashed !important;
-}
-
-.focus-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-
 .concept-container {
   flex: 1 0 auto;
   display: flex;
@@ -212,67 +196,10 @@ function openTree(type: string) {
   align-items: center;
 }
 
-.focus-group-container {
-  flex: 1 0 auto;
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.refinement-container {
-  display: flex;
-}
-
-.left-container {
-  display: flex;
-  align-items: center;
-}
-
-.left-container > * {
-  width: 4rem;
-  margin: 0;
-}
-
-.nested-div {
-  padding: 0.5rem;
-  border: #ff8c0030 1px solid;
-  border-radius: 5px;
-  background-color: #ff8c0010;
-  margin: 0.5rem;
-  flex: 1;
-}
-
-.nested-div-hover {
-  @extend .nested-div;
-  border: #ff8c00 1px solid;
-}
-
-.builder-button {
-  margin-right: 4px;
-  height: 1.5rem;
-  align-self: center;
-}
-
 .loading-icon {
   flex: 0 0 auto;
   height: 1.5rem;
   width: 1.5rem;
-}
-
-.add-group {
-  width: 100%;
-}
-
-.group-checkbox {
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
-}
-
-.right-container {
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
 }
 
 .tree-button {

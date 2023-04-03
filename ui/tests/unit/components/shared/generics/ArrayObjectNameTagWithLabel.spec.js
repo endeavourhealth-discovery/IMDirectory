@@ -1,7 +1,6 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
 import Tag from "primevue/tag";
-import LoggerService from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { expect } from "vitest";
 

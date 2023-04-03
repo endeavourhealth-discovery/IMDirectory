@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent } from "vue";
+import { computed } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({

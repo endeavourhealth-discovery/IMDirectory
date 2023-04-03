@@ -23,7 +23,7 @@
           </div>
           <div v-else class="steps-content">
             <Steps :model="stepsItems" :readonly="false" @click="stepsClicked" />
-            <router-view v-slot="{ Component }">
+            <router-view v-slot="{ Component }: any">
               <component :is="Component" :shape="groups.length ? groups[currentStep] : undefined" :mode="EditorMode.EDIT" />
             </router-view>
           </div>

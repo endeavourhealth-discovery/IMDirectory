@@ -3,9 +3,8 @@ import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
-import { From, QueryRequest, TTAlias, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM } from "@im-library/vocabulary";
-import { Console } from "console";
+import { QueryRequest,TTIriRef } from "@im-library/interfaces/AutoGen";
+import { IM, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 
 export default class QueryService {
@@ -162,5 +161,43 @@ export default class QueryService {
 
     if (!isObjectHasKeys(response)) return [];
     return response.entities;
+  }
+
+  async getPropertyRange(propIri: string): Promise<any> {
+    const queryRequest = {
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": propIri
+          }
+        }
+      ],
+      query: {
+        "@id": "http://endhealth.info/im#Query_PropertyRange"
+      }
+    } as any as QueryRequest;
+
+    const response = await this.queryIM(queryRequest);
+
+    if(isObjectHasKeys(response,["entities"]) && isObjectHasKeys(response.entities[0],[RDFS.RANGE])) {
+      return response.entities[0][RDFS.RANGE];
+    } else {
+      queryRequest.query = {"@id": "http://endhealth.info/im#Query_ObjectPropertyRangeSuggestions"} as any;
+      const suggestions = await this.queryIM(queryRequest);
+      if(isObjectHasKeys(suggestions,["entities"])){
+        suggestions.entities.push({
+          "@id": "http://endhealth.info/im#Concept",
+          "http://www.w3.org/2000/01/rdf-schema#label": "Terminology concept"
+        });
+        return suggestions.entities;
+      } else {
+        const request = { query:{"@id": "http://endhealth.info/im#Query_DataPropertyRangeSuggestions"} } as QueryRequest;
+        const dataTypes = await this.queryIM(request);
+        if(isObjectHasKeys(dataTypes, ["entities"]) && dataTypes.entities.length !== 0) {
+          return dataTypes.entities;
+        } else return [];
+      }
+    }
   }
 }

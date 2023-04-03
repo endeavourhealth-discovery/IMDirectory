@@ -1,27 +1,27 @@
 <template>
-  <div class="flex flex-row justify-contents-center align-items-center loading -container" v-if="loading">
+  <div class="flex flex-row justify-contents-center align-items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
   <OrganizationChart v-else :value="data" data-testid="mappings">
-    <template #hasMap="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #hasMap="{ node }: any">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #oneOf="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #oneOf="{ node }: any">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #comboOf="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #comboOf="{ node }: any">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #someOf="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #someOf="{ node }: any">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #matchedFrom="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #matchedFrom="{ node }: any">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #matchedTo="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
+    <template #matchedTo="{ node }: any">
+      <span>{{ node.data.label }}</span>
     </template>
-    <template #childList="slotProps">
+    <template #childList="{ node }: any">
       <table aria-label="Concept map children" data-testid="hasMap">
         <thead>
           <tr>
@@ -31,7 +31,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="mapItem of slotProps.node.data.mapItems"
+            v-for="mapItem of node.data.mapItems"
             :key="mapItem"
             @mouseenter="toggle($event, mapItem, 'opMap')"
             @mouseleave="toggle($event, mapItem, 'opMap')"
@@ -42,22 +42,12 @@
         </tbody>
       </table>
     </template>
-    <template #matchedFromList="slotProps">
-      <SimpleMaps
-        v-if="slotProps.node.data.mapItems.length"
-        :data="slotProps.node.data.mapItems"
-        @toggleOverlay="handleMatchedFromToggle"
-        data-testid="matchedFrom"
-      />
+    <template #matchedFromList="{ node }: any">
+      <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedFromToggle" data-testid="matchedFrom" />
       <span v-else>None</span>
     </template>
-    <template #matchedToList="slotProps">
-      <SimpleMaps
-        v-if="slotProps.node.data.mapItems.length"
-        :data="slotProps.node.data.mapItems"
-        @toggleOverlay="handleMatchedToToggle"
-        data-testid="matchedTo"
-      />
+    <template #matchedToList="{ node }: any">
+      <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedToToggle" data-testid="matchedTo" />
       <span v-else>None</span>
     </template>
     <template #default>
@@ -326,29 +316,38 @@ function handleMatchedToToggle(event: any, data: any) {
 <style scoped>
 td,
 th {
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   padding: 0.5rem;
   text-align: left;
   overflow-wrap: break-word;
 }
 
 tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: var(--surface-a);
 }
 
 th[scope="col"] {
-  background-color: #f8f9fa;
-  color: #495057;
+  background-color: var(--surface-a);
+  color: var(--text-color);
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid rgb(200, 200, 200);
+  border: 2px solid var(--surface-border);
 }
 
 .p-organizationchart {
   height: 100%;
   width: 100%;
   overflow: auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  height: 20rem;
+  width: 100%;
 }
 </style>

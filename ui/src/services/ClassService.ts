@@ -4,27 +4,19 @@ import axios from "axios";
 const api = Env.API;
 const ClassService = {
   async getClassProperties(className: string): Promise<Field[]> {
-    try {
-      return await axios.get(api + "api/class/public/classProperties", {
-        params: {
-          className: className
-        }
-      });
-    } catch (error) {
-      return [] as Field[];
-    }
+    return await axios.get(api + "api/class/public/classProperties", {
+      params: {
+        className: className
+      }
+    });
   },
 
   async getClassFields(className: string): Promise<FieldDto[]> {
-    try {
-      return await axios.get(api + "api/class/public/classFields", {
-        params: {
-          className: className
-        }
-      });
-    } catch (error) {
-      return [] as FieldDto[];
-    }
+    return await axios.get(api + "api/class/public/classFields", {
+      params: {
+        className: className
+      }
+    });
   }
 };
 
