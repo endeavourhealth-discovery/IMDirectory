@@ -29,7 +29,7 @@
       <div class="flex justify-content-center align-items-center">
         <h5 class="m-0">{{ title }}</h5>
         <span v-if="inputSearch" class="p-input-icon-left">
-          <i class="pi pi-search" />
+          <IMFontAwesomeIcon icon="fa-solid fa-magnifying-glass" />
           <InputText v-model="searchTerm" type="text" placeholder="Search" @input="search" />
         </span>
       </div>
@@ -38,9 +38,7 @@
     <Column v-if="selectable" selectionMode="multiple" headerStyle="width: 3em" />
     <Column field="name" header="Name">
       <template #body="{ data }: any">
-        <span :style="'color: ' + getColourFromType(data.type)" class="p-mx-1 type-icon">
-          <i :class="getFAIconFromType(data.type)" aria-hidden="true" />
-        </span>
+        <IMFontAwesomeIcon v-if="data.type" :icon="getFAIconFromType(data.type)" :style="'color: ' + getColourFromType(data.type)" class="p-mx-1 type-icon" />
         <span>{{ data.name }}</span>
       </template>
     </Column>
@@ -77,12 +75,13 @@
 
 <script setup lang="ts">
 import { ref, Ref } from "vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { DirectService, Env, EntityService } from "@/services";
 import { FilterMatchMode } from "primevue/api";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import DataTable, {DataTableFilterMeta, DataTableFilterMetaData } from 'primevue/datatable';
+import DataTable, { DataTableFilterMeta, DataTableFilterMetaData } from "primevue/datatable";
 
 const props = defineProps({
   contents: { type: Array, required: true },

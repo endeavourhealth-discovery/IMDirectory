@@ -41,7 +41,7 @@
         <div v-else class="tree-row" @click="onNodeSelect($event)" data-testid="row">
           <span v-if="!node.loading">
             <div :style="'color:' + node.color">
-              <i :class="node.typeIcon" class="fa-fw" aria-hidden="true" />
+              <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixedWidth />
             </div>
           </span>
           <ProgressSpinner v-if="node.loading" />
@@ -94,6 +94,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, inject, onBeforeUnmount, computed } from "vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, AliasEntity } from "@im-library/interfaces";

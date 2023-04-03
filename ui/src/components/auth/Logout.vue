@@ -2,7 +2,7 @@
   <div class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center logout-card">
       <template #header>
-        <i class="fa-solid fa-arrow-right-from-bracket icon-header" aria-hidden="true" />
+        <IMFontAwesomeIcon icon="fa-solid fa-arrow-right-from-bracket" class="icon-header" />
       </template>
       <template #title> Logout </template>
       <template #content>
@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useStore } from "vuex";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { CustomAlert } from "@im-library/interfaces";

@@ -14,7 +14,7 @@
         <div class="tree-row" @dblclick="onNodeDblClick($event, node)" @contextmenu="onNodeContext($event, node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">
-            <i :style="'color:' + node.color" :class="node.typeIcon" class="fa-fw" aria-hidden="true"></i>
+            <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
           </span>
           <ProgressSpinner v-if="node.loading" />
           <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
@@ -40,6 +40,7 @@ import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import setupTree from "@/composables/setupTree";

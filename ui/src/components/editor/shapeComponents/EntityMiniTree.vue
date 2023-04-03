@@ -13,9 +13,7 @@
       <template #default="{ node }: any">
         <div class="tree-row" @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">
           <span v-if="!node.loading">
-            <div :style="'color:' + node.color">
-              <i :class="node.typeIcon" class="fa-fw"></i>
-            </div>
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" :style="'color:' + node.color" fixed-width />
           </span>
           <ProgressSpinner v-else />
           <span>{{ node.label }}</span>
@@ -66,6 +64,7 @@
 <script setup lang="ts">
 import { onMounted, PropType, ref, Ref } from "vue";
 import { ConceptSummary, EntityReferenceNode } from "@im-library/interfaces";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -73,7 +72,7 @@ import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
-import {TreeNode} from 'primevue/tree';
+import { TreeNode } from "primevue/tree";
 
 const props = defineProps({
   selectedEntity: { type: Object as PropType<TTIriRef>, required: true }

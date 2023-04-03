@@ -3,10 +3,8 @@
     <div class="title-buttons-container">
       <div class="title-container">
         <h4 class="title">
-          <span :style="getColour(concept)" class="p-mx-1 type-icon" :key="concept['@id']">
-            <i :class="getIcon(concept)" aria-hidden="true" />
-          </span>
-          {{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Select a task or an action" }}
+          <IMFontAwesomeIcon v-if="concept" :icon="getIcon(concept)" :style="getColour(concept)" class="p-mx-1 type-icon" :key="concept['@id']" />
+          <span>{{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Select a task or an action" }}</span>
         </h4>
       </div>
       <div class="concept-buttons-container">
@@ -46,6 +44,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { DirectService, EntityService, Env } from "@/services";
 import { IM, RDF } from "@im-library/vocabulary";

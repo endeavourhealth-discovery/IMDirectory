@@ -26,9 +26,7 @@
       <Column field="name" header="Name">
         <template #body="{ data }: any">
           <div>
-            <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-              <i :class="data.icon" aria-hidden="true" />
-            </span>
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
             <span @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
@@ -53,17 +51,17 @@
 
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { useStore } from "vuex";
 import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService } from "@/services";
 import rowClick from "@/composables/rowClick";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
-const { isArrayHasLength } = DataTypeCheckers;
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const store = useStore();
 const conceptIri = computed(() => store.state.conceptIri);

@@ -12,9 +12,7 @@
           class="task-tree-container"
         >
           <template #default="{ node }: any">
-            <span :style="'color: ' + node.colour" class="p-mx-1 type-icon">
-              <i :class="node.treeIcon" aria-hidden="true" />
-            </span>
+            <IMFontAwesomeIcon v-if="node.treeIcon" :icon="node.treeIcon" :style="'color: ' + node.colour" class="p-mx-1 type-icon" />
             <span>{{ node.label }}</span>
           </template>
         </Tree>
@@ -32,6 +30,7 @@
 
 <script setup lang="ts">
 import { computed, onUnmounted, ref, Ref, watch } from "vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import ExpansionTable from "./ExpansionTable.vue";
 import ParentHeader from "./ParentHeader.vue";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
