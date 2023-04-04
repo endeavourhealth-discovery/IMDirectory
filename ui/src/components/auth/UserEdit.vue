@@ -56,8 +56,8 @@
                 @blur="updateFocused('email1', false)"
                 :class="(!email1Verified || !email1) && !focused.get('email1') && 'p-invalid'"
               />
-              <i v-if="email1Verified" class="pi pi-check-circle email-check" aria-hidden="true" />
-              <i v-if="!email1Verified && email1" class="pi pi-times-circle email-times" aria-hidden="true" />
+              <IMFontAwesomeIcon v-if="email1Verified" icon="fa-regular fa-circle-check" class="email-check" />
+              <IMFontAwesomeIcon v-if="!email1Verified && email1" icon="fa-regular fa-circle-xmark" class="email-times" />
             </div>
             <InlineMessage v-if="!email1" severity="error"> Email is required. </InlineMessage>
           </div>
@@ -150,6 +150,7 @@ import { useStore } from "vuex";
 import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { Avatars } from "@im-library/constants";
 import { PasswordStrength } from "@im-library/enums";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";

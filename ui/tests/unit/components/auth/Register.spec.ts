@@ -5,10 +5,9 @@ import InlineMessage from "primevue/inlinemessage";
 import Button from "primevue/button";
 import SelectButton from "primevue/selectbutton";
 import OverlayPanel from "primevue/overlaypanel";
-import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import { AuthService } from "@/services";
 import { Avatars } from "@im-library/constants";
-import { User } from "@im-library/models";
+import { User } from "@im-library/interfaces";
 import PrimeVue from "primevue/config";
 import { describe, vi, beforeEach, it, expect } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
@@ -56,7 +55,7 @@ describe("register.vue empty", () => {
     component = render(Register, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage, SelectButton, OverlayPanel, AvatarWithSelector }
+        components: { Card, Button, InputText, InlineMessage, SelectButton, OverlayPanel }
       }
     });
   });
@@ -92,12 +91,12 @@ describe("register.vue prefilled", () => {
     component = render(Register, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage, SelectButton, OverlayPanel, AvatarWithSelector }
+        components: { Card, Button, InputText, InlineMessage, SelectButton, OverlayPanel }
       }
     });
     const usernameInput = component.getByTestId("register-username");
-    const emal1Input = component.getByTestId("register-email1");
-    const emal2Input = component.getByTestId("register-email2");
+    const email1Input = component.getByTestId("register-email1");
+    const email2Input = component.getByTestId("register-email2");
     const firstnameInput = component.getByTestId("register-firstname");
     const lastnameInput = component.getByTestId("register-lastname");
     const password1Input = component.getByTestId("register-password1");
@@ -105,8 +104,8 @@ describe("register.vue prefilled", () => {
     const avatarSelector = component.getByTestId("register-avatar-select");
 
     await fireEvent.update(usernameInput, "DevTest");
-    await fireEvent.update(emal1Input, "devtest@ergo.co.uk");
-    await fireEvent.update(emal2Input, "devtest@ergo.co.uk");
+    await fireEvent.update(email1Input, "devtest@ergo.co.uk");
+    await fireEvent.update(email2Input, "devtest@ergo.co.uk");
     await fireEvent.update(firstnameInput, "John");
     await fireEvent.update(lastnameInput, "Doe");
     await fireEvent.update(password1Input, "12345678");
@@ -132,43 +131,43 @@ describe("register.vue prefilled", () => {
   });
 
   it("should fail emailVerified with incorrect email format", async () => {
-    const emal1Input = component.getByTestId("register-email1");
-    await fireEvent.update(emal1Input, "johndoe.co.uk");
-    await fireEvent.blur(emal1Input);
+    const email1Input = component.getByTestId("register-email1");
+    await fireEvent.update(email1Input, "johndoe.co.uk");
+    await fireEvent.blur(email1Input);
 
     component.getByTestId("register-email1-unverified");
     expect(component.queryByTestId("register-email1-verified")).to.not.exist;
   });
 
   it("should pass emailVerified with correct email format", async () => {
-    const emal1Input = component.getByTestId("register-email1");
-    await fireEvent.update(emal1Input, "devtest@ergo.co.uk");
-    await fireEvent.blur(emal1Input);
+    const email1Input = component.getByTestId("register-email1");
+    await fireEvent.update(email1Input, "devtest@ergo.co.uk");
+    await fireEvent.blur(email1Input);
 
     component.getByTestId("register-email1-verified");
     expect(component.queryByTestId("register-email1-unverified")).to.not.exist;
   });
 
   it("should check if emails match __ false", async () => {
-    const emal1Input = component.getByTestId("register-email1");
-    await fireEvent.update(emal1Input, "johndoe.co.uk");
-    await fireEvent.blur(emal1Input);
+    const email1Input = component.getByTestId("register-email1");
+    await fireEvent.update(email1Input, "johndoe.co.uk");
+    await fireEvent.blur(email1Input);
 
-    const emal2Input = component.getByTestId("register-email2");
-    await fireEvent.update(emal2Input, "jdoe.co.uk");
-    await fireEvent.blur(emal2Input);
+    const email2Input = component.getByTestId("register-email2");
+    await fireEvent.update(email2Input, "jdoe.co.uk");
+    await fireEvent.blur(email2Input);
 
     component.getByText("Email addresses do not match!");
   });
 
   it("should check if emails match __ true", async () => {
-    const emal1Input = component.getByTestId("register-email1");
-    await fireEvent.update(emal1Input, "johndoe.co.uk");
-    await fireEvent.blur(emal1Input);
+    const email1Input = component.getByTestId("register-email1");
+    await fireEvent.update(email1Input, "johndoe.co.uk");
+    await fireEvent.blur(email1Input);
 
-    const emal2Input = component.getByTestId("register-email2");
-    await fireEvent.update(emal2Input, "johndoe.co.uk");
-    await fireEvent.blur(emal2Input);
+    const email2Input = component.getByTestId("register-email2");
+    await fireEvent.update(email2Input, "johndoe.co.uk");
+    await fireEvent.blur(email2Input);
 
     expect(component.queryByText("Email addresses do not match!")).to.not.exist;
   });

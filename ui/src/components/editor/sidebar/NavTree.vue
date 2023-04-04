@@ -19,11 +19,9 @@
           draggable="true"
           @dragstart="dragStart($event, node)"
         >
-          <i class="fa-solid fa-grip-vertical drag-icon grabbable"></i>
+          <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
           <span v-if="!node.loading">
-            <div :style="'color:' + node.color">
-              <i :class="node.typeIcon" class="fa-fw" aria-hidden="true"></i>
-            </div>
+            <FontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-if="node.loading" />
           <span>{{ node.label }}</span>
@@ -73,6 +71,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ConceptSummary } from "@im-library/interfaces";
@@ -84,6 +83,7 @@ import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/tree";
 import setupTree from "@/composables/setupTree";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const store = useStore();
 const router = useRouter();

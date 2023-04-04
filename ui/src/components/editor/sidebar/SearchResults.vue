@@ -42,9 +42,7 @@
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #body="{ data }: any">
           <div class="ml-2">
-            <span :style="'color: ' + data.colour" class="p-mx-1">
-              <i v-if="data.icon" :class="data.icon" aria-hidden="true" />
-            </span>
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color: ' + data.colour" class="p-mx-1" />
             <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.match }}</span>
           </div>
         </template>
@@ -111,14 +109,14 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch, PropType } from "vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { useStore } from "vuex";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
-const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, required: true },

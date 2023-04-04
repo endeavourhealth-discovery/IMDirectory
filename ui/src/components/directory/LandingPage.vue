@@ -21,7 +21,7 @@
             <Column field="name" header="Name">
               <template #body="{ data }: any">
                 <div class="activity-name-icon-container">
-                  <i :class="data.icon" class="recent-icon" :style="data.color" aria-hidden="true" />
+                  <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
                   <span class="activity-name">{{ data.name }}</span>
                 </div>
               </template>
@@ -63,9 +63,10 @@ import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
 import ActionButtons from "../shared/ActionButtons.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 
 export default defineComponent({
-  components: { ReportTable, PieChartDashCard, ActionButtons }
+  components: { ReportTable, PieChartDashCard, ActionButtons, IMFontAwesomeIcon }
 });
 </script>
 

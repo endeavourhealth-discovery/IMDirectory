@@ -2,7 +2,7 @@
   <div class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center login-card">
       <template #header>
-        <i class="fa-solid fa-users icon-header" aria-hidden="true" />
+        <IMFontAwesomeIcon icon="fa-solid fa-users" class="icon-header" />
       </template>
       <template #title> Login </template>
       <template #content>
@@ -39,6 +39,7 @@
 import { computed, onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { AuthService } from "@/services";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
 import { SweetAlertResult } from "sweetalert2";

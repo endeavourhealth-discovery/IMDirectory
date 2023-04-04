@@ -33,7 +33,7 @@
         <template #body="{ data }: any">
           <div class="result-container" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
             <div class="result-icon-container" :style="getColorByConceptType(data.entityType)">
-              <i :class="getPerspectiveByConceptType(data.entityType)" class="result-icon" aria-hidden="true" />
+              <IMFontAwesomeIcon v-if="data.entityType" :icon="getPerspectiveByConceptType(data.entityType)" class="result-icon" />
             </div>
             <div class="result-text-container">
               {{ data.name }}<br />
@@ -107,6 +107,7 @@
 
 <script setup lang="ts">
 import { PropType, ref, Ref, watch, onMounted } from "vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
 import { DirectService } from "@/services";
