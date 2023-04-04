@@ -1,6 +1,8 @@
 <template>
   Property:<InputText type="text" @click="visible = true" v-model="property.label" />
-  <Dialog v-model:visible="visible" modal header="Header" :style="{ width: '50vw' }">
+  <AncestorDescendantSelect />
+
+  <Dialog v-model:visible="visible" modal header="Property" :style="{ width: '50vw' }">
     <Tree
       :value="nodes"
       selectionMode="single"
@@ -29,6 +31,7 @@ import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
 import { SHACL } from "@im-library/vocabulary";
+import AncestorDescendantSelect from "./AncestorDescendantSelect.vue";
 
 const props = defineProps({
   from: { type: Object as PropType<ITextQuery>, required: true },

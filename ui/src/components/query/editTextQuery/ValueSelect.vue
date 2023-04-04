@@ -3,7 +3,8 @@
   <InputText v-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#class'])" type="text" @click="visible = true" />
   <InputText v-else-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#datatype'])" type="text" />
   <EntitySearch v-else :entity-value="entityValue" />
-  <Dialog v-model:visible="visible" modal header="Header" :style="{ width: '50vw' }">
+  <AncestorDescendantSelect />
+  <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
     {{ selectedProperty.data }}
     <Tree
       :value="nodes"
@@ -35,6 +36,7 @@ import { IM, SHACL } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import EntitySearch from "./EntitySearch.vue";
+import AncestorDescendantSelect from "./AncestorDescendantSelect.vue";
 
 const props = defineProps({
   selectedProperty: { type: Object as PropType<TreeNode>, required: true },
