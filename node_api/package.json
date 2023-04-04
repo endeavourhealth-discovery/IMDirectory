@@ -13,7 +13,7 @@
     "debug:run": "nodemon dist/server.js",
     "start": "set NODE_ENV=production && ts-node dist/server",
     "nodemon": "set NODE_ENV=production && nodemon dist/server",
-    "build": "rimraf dist && npm run swagger-autogen && tsc:build && vite build",
+    "build": "rimraf dist && npm run swagger-autogen && npm run tsc:build && vite build",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "swagger-autogen": "node ./src/swagger.js"
