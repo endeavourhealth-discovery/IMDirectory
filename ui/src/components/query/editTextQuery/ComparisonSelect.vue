@@ -1,5 +1,5 @@
 <template>
-  Value:
+  <span> {{ title || "Value:" }}</span>
   <div class="comparison-wrapper">
     <InputText type="text" placeholder="value" v-model="selectedComparison.value" />
     <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="selectedComparison.unit" />
@@ -14,7 +14,8 @@ import { Assignable, Where } from "@im-library/interfaces/AutoGen";
 const operatorOptions = ["=", ">=", ">", "<=", "startsWith", "contains"];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 const props = defineProps({
-  selectedComparison: { type: Object as PropType<Where | Assignable>, required: true }
+  selectedComparison: { type: Object as PropType<Where | Assignable>, required: true },
+  title: { type: String, required: false }
 });
 </script>
 

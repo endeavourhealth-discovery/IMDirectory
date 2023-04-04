@@ -1,8 +1,6 @@
 <template>
-  From:
-  <ComparisonSelect :selected-comparison="selectedRange.from" />
-  To:
-  <ComparisonSelect :selected-comparison="selectedRange.to" />
+  <ComparisonSelect :selected-comparison="selectedRange.from" :title="'From:'" />
+  <ComparisonSelect :selected-comparison="selectedRange.to" :title="'To:'" />
 </template>
 
 <script setup lang="ts">

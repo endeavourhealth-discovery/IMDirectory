@@ -1,22 +1,28 @@
 <template>
   <div>{{ from.data["@id"] }}</div>
   <div>{{ textQuery.type }}</div>
+  <div>{{ property.data }}</div>
   <SimpleJsonEditor :text-query="textQuery" />
 
   <div class="desc-wrapper">Description: <InputText type="text" v-model="description" /></div>
 
-  <div class="property-wrapper">
-    <PropertySelect :from="from" :property="property" />
-    <div v-if="textQuery.data.isNull">is Null</div>
-    <ValueSelect v-else-if="!textQuery.data.range && !textQuery.data.operator" :selected-property="property" :from="from" :selectedValue="value" />
-  </div>
-  <ComparisonSelect v-if="textQuery.data.operator" :selected-comparison="textQuery.data" />
-  <RangeSelect
-    v-if="!textQuery.data.in && !textQuery.data.notIn && textQuery.data.range"
+  <PropertySelect :from="from" :property="property" />
+  <span v-if="textQuery.data.isNull">is Null</span>
+  <ValueSelect
+    v-else-if="isObjectHasKeys(property.data, [SHACL.CLASS]) || isObjectHasKeys(property.data, [SHACL.NODE])"
     :selected-property="property"
     :from="from"
-    :selected-range="textQuery.data.range"
+    :selectedValue="value"
   />
+  <span v-else-if="isObjectHasKeys(property.data, [SHACL.DATATYPE])">
+    <ComparisonSelect v-if="textQuery.data.operator" :selected-comparison="textQuery.data" :title="'Value:'" />
+    <RangeSelect
+      v-if="!textQuery.data.in && !textQuery.data.notIn && textQuery.data.range"
+      :selected-property="property"
+      :from="from"
+      :selected-range="textQuery.data.range"
+    />
+  </span>
   <div class="footer-actions">
     <Button class="action-button" severity="secondary" label="Cancel" @click="cancel"></Button>
     <Button class="action-button" label="Save" @click="save"></Button>
@@ -35,6 +41,7 @@ import { RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import RangeSelect from "./editTextQuery/RangeSelect.vue";
 import ComparisonSelect from "./editTextQuery/ComparisonSelect.vue";
 import SimpleJsonEditor from "./editTextQuery/SimpleJsonEditor.vue";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const emit = defineEmits({ onCancel: () => true });
 
