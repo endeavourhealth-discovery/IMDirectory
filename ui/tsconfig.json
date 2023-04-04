@@ -12,6 +12,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
+    "rootDirs": [".", "../im_library"],
     "baseUrl": ".",
     "types": ["vite/client", "vitest/globals"],
     "paths": {
@@ -19,8 +20,8 @@
       "@im-library/*": ["../im_library/src/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
-    "outDir": "./dist"
+    "outDir": "./dist/types"
   },
-  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.js"],
+  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.js", "./tests/**/*.spec.js", "./tests/**/*.spec.ts"],
   "exclude": ["node_modules"]
 }

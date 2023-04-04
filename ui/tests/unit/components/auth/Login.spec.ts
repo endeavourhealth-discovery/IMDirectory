@@ -4,10 +4,10 @@ import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import { AuthService } from "@/services";
-import { User } from "@im-library/models";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
+import { User } from "@im-library/interfaces";
 
 const mockDispatch = vi.fn();
 const mockState = { registeredUsername: "" };

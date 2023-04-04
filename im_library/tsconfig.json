@@ -6,10 +6,20 @@
     "declarationMap": true,
     "rootDir": ".",
     "composite": true,
-    "outDir": ".",
-    "moduleResolution": "Node"
+    "outDir": "./dist/types",
+    "moduleResolution": "Node",
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] }
   },
   "references": [],
-  "include": ["./src/**/*.ts", "./src/**/*.js", "./src/typings/*.d.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "./src/typings/*.d.ts",
+    "./tests/**/*.spec.js",
+    "./tests/**/*.spec.ts",
+    "./tests/**/*.testData.ts",
+    "./tests/**/*.testData.js"
+  ],
+  "exclude": ["node_modules", "./dist/types/**/*"]
 }

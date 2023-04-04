@@ -4,16 +4,16 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "dev": "run-p swagger-autogen dev:tsc dev:vite",
-    "dev:tsc": "tsc --noEmit --watch",
-    "tsc": "tsc --noEmit",
-    "dev:vite": "vite",
+    "dev": "run-p swagger-autogen tsc:dev vite:dev",
+    "tsc:dev": "tsc --noEmit --watch",
+    "tsc:build": "tsc --noEmit",
+    "vite:dev": "vite",
     "debug": "run-p debug:build debug:run",
     "debug:build": "vite build --sourcemap --watch",
     "debug:run": "nodemon dist/server.js",
     "start": "set NODE_ENV=production && ts-node dist/server",
     "nodemon": "set NODE_ENV=production && nodemon dist/server",
-    "build": "rimraf dist && npm run swagger-autogen && tsc --noEmit && vite build",
+    "build": "rimraf dist && npm run swagger-autogen && tsc:build && vite build",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "swagger-autogen": "node ./src/swagger.js"
@@ -71,5 +71,6 @@
     "vite": "4.2.1",
     "vite-plugin-node": "3.0.2",
     "vitest": "0.29.8"
-  }
+  },
+  "types": "./dist/types"
 }
