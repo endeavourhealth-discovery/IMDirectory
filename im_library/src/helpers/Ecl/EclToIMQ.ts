@@ -1,5 +1,5 @@
 import setupTree from "./SetupTree";
-import ECLToIMQVisitor from "../../antlr4/ecl/ECLToIMQVisitor";
+import ECLToIMQVisitor from "../../visitors/ECLToIMQVisitor";
 import { CustomError } from "../../models";
 import { ErrorType } from "../../enums";
 

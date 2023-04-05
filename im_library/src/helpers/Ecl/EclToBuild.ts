@@ -1,4 +1,4 @@
-import ECLBuilderVisitor from "../../antlr4/ecl/ECLBuilderVisitor";
+import ECLBuilderVisitor from "../../visitors/ECLBuilderVisitor";
 import { ErrorType } from "../../enums";
 import { CustomError } from "../../models";
 import setupTree from "./SetupTree";
