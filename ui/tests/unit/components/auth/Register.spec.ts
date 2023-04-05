@@ -80,6 +80,7 @@ describe("register.vue prefilled", () => {
     AuthService.register = vi.fn().mockResolvedValue({ status: 201, message: "Register successful" });
     AuthService.isEmailRegistered = vi.fn().mockResolvedValue(false);
     testUser = {
+      id: "",
       username: "DevTest",
       firstName: "John",
       lastName: "Doe",

@@ -8,11 +8,11 @@ import OverlayPanel from "primevue/overlaypanel";
 import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import { AuthService } from "@/services";
 import { setupServer } from "msw/node";
-import { User } from "@im-library/models";
 import PrimeVue from "primevue/config";
 import { afterAll, beforeAll, vi } from "vitest";
 import { render, RenderResult } from "@testing-library/vue";
 import { RequestHandler } from "msw";
+import { User } from "@im-library/interfaces";
 
 const mockDispatch = vi.fn();
 const mockState = { registeredUsername: "" } as any;

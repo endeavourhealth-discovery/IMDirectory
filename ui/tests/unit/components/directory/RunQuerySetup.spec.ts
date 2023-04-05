@@ -7,8 +7,8 @@ import testData from "./RunQuerySetup.testData";
 import setupRunQuery from "@/composables/setupRunQuery";
 
 describe("setupRunQuery", () => {
-  let hasPredicatesSpy;
-  let queryIMSpy;
+  let hasPredicatesSpy: any;
+  let queryIMSpy: any;
 
   beforeEach(async () => {
     vi.resetAllMocks();
@@ -17,7 +17,7 @@ describe("setupRunQuery", () => {
   });
 
   it("runQueryFromIri __ runs query and returns", async () => {
-    const testEntity = fakerFactory.entity.create();
+    const testEntity: any = fakerFactory.entity.create();
     testEntity[IM.DEFINITION] = testData.stringDefinition;
     hasPredicatesSpy.mockResolvedValue(false);
     queryIMSpy.mockResolvedValue(testData.queryResults);
