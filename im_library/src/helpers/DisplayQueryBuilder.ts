@@ -1,5 +1,5 @@
 import { DisplayQuery } from "../interfaces";
-import { TTAlias, Where } from "../interfaces/AutoGen";
+import { Element, Where } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function buildDisplayQuery(query: any) {
@@ -137,7 +137,7 @@ function getKey(parent: DisplayQuery) {
   return parent.key + parent.children.length;
 }
 
-function getNameFromRef(ref: TTAlias) {
+function getNameFromRef(ref: Element) {
   if (isObjectHasKeys(ref, ["name"])) {
     return ref.name;
   } else if (isObjectHasKeys(ref, ["@id"])) {

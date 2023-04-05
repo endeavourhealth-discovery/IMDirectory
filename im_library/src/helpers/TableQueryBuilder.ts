@@ -1,5 +1,5 @@
 import { TableQuery } from "../interfaces/query/TableQuery";
-import { TTAlias, Where } from "../interfaces/AutoGen";
+import { Element, Where } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function buildTableQuery(query: any) {
@@ -127,7 +127,7 @@ function getKey(parent: TableQuery) {
   return parent.key + parent.children.length;
 }
 
-function getNameFromRef(ref: TTAlias) {
+function getNameFromRef(ref: Element) {
   if (isObjectHasKeys(ref, ["name"])) {
     return ref.name;
   } else if (isObjectHasKeys(ref, ["@id"])) {

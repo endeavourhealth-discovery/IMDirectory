@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-03-20 11:32:44.
+// Generated using typescript-generator version 2.36.1070 on 2023-04-05 15:08:31.
 
 /**
  * Structure containing search request parameters and filters
@@ -97,15 +97,15 @@ export interface FormGenerator {
     iri: string;
 }
 
-export interface FunctionClause extends TTIriRef {
-    argument: Argument[];
-    conceptMap: { [index: string]: string };
-    defaultValue: TTIriRef;
-}
-
 export interface FunctionRequest {
     functionIri: string;
     arguments: Argument[];
+}
+
+export interface MapFunction extends TTIriRef {
+    argument: Argument[];
+    conceptMap: { [index: string]: string };
+    defaultValue: TTIriRef;
 }
 
 export interface ModelDocument {
@@ -113,7 +113,7 @@ export interface ModelDocument {
     query: QueryEntity[];
     folder: Entity[];
     conceptSet: ConceptSet[];
-    function: FunctionClause[];
+    function: MapFunction[];
 }
 
 export interface NodeShape extends TTIriRef {
@@ -198,7 +198,7 @@ export interface Argument {
 export interface Assignable {
     value: string;
     operator: Operator;
-    relativeTo: string;
+    relativeTo: Property;
     unit: string;
 }
 
@@ -211,34 +211,53 @@ export interface Case {
 
 export interface Delete {
     where: Where;
-    subject: TTAlias;
+    subject: Element;
     inverse: boolean;
-    predicate: TTAlias;
-    object: TTAlias;
+    predicate: Element;
+    object: Element;
     delete: Delete[];
 }
 
-export interface From extends TTAlias {
+export interface Element extends Entailment {
+    "@id": string;
+    "@type": string;
+    "@set": string;
+    variable: string;
+    name: string;
+    parameter: string;
+    inverse: boolean;
+    iri: string;
+}
+
+export interface Entailment {
+    descendantsOf: boolean;
+    descendantsOrSelfOf: boolean;
+    ancestorsOf: boolean;
+}
+
+export interface FunctionClause {
+    function: Function;
+    argument: Argument[];
+}
+
+export interface Match extends Element, Whereable {
     exclude: boolean;
-    graph: TTAlias;
-    boolFrom: Bool;
-    from: From[];
-    where: Where[];
-    bool: Bool;
+    boolMatch: Bool;
+    description: string;
+    graph: Element;
+    path: Element[];
+    match: Match[];
+    orderBy: OrderLimit[];
 }
 
-export interface Having {
-    aggregate: Aggregate;
-    property: TTAlias;
-    value: Value;
-}
-
-export interface OrderLimit extends TTAlias {
-    direction: string;
+export interface OrderLimit extends Property {
+    direction: Order;
+    limit: number;
+    property: string;
 }
 
 export interface PathDocument {
-    where: Where[];
+    match: Match[];
 }
 
 export interface PathQuery extends TTIriRef {
@@ -247,19 +266,18 @@ export interface PathQuery extends TTIriRef {
     depth: number;
 }
 
-export interface Query extends TTAlias {
-    from: From;
+export interface Property extends Element {
+    node: string;
+}
+
+export interface Query extends TTIriRef {
+    match: Match[];
     select: Select[];
-    groupBy: TTAlias[];
+    groupBy: Element[];
     orderBy: OrderLimit[];
-    direction: string;
-    limit: number;
-    having: Having;
     activeOnly: boolean;
     usePrefixes: boolean;
     query: Query[];
-    caze: Case[];
-    case: Case[];
 }
 
 export interface QueryEntity extends Entity {
@@ -279,42 +297,37 @@ export interface QueryRequest {
 }
 
 export interface Range {
-    from: Assignable;
     to: Assignable;
+    from: Assignable;
 }
 
-export interface Select extends TTAlias {
+export interface Select extends Property {
     case: Case[];
-    where: Where;
-    orderBy: OrderLimit[];
-    groupBy: TTAlias[];
-    having: Having;
     select: Select[];
     function: FunctionClause;
 }
 
-export interface Update extends TTAlias {
-    from: From;
+export interface Update extends TTIriRef {
+    match: Match;
     delete: Delete[];
 }
 
 export interface Value extends Assignable {
 }
 
-export interface Where extends TTAlias, Assignable {
-    exclude: boolean;
-    bool: Bool;
-    where: Where[];
+export interface Where extends Property, Assignable, Whereable {
+    description: string;
     range: Range;
-    isNull: boolean;
-    in: TTAlias[];
-    notIn: TTAlias[];
+    in: Element[];
+    notIn: Element[];
     anyRoleGroup: boolean;
     valueLabel: string;
-    orderBy: TTAlias;
-    direction: Order;
-    count: number;
-    then: Where;
+    null: boolean;
+}
+
+export interface Whereable {
+    where: Where[];
+    bool: Bool;
 }
 
 export interface EntityDocument {
@@ -365,23 +378,12 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces: TTPrefix[];
     prefixes: TTPrefix[];
+    nameSpaces: TTPrefix[];
 }
 
 export interface TTTypedRef extends TTIriRef {
     type: TTIriRef;
-}
-
-export interface TTAlias extends TTIriRef {
-    inverse: boolean;
-    alias: string;
-    "@type": string;
-    "@set": string;
-    variable: string;
-    ancestorsOf: boolean;
-    descendantsOrSelfOf: boolean;
-    descendantsOf: boolean;
 }
 
 export interface TTValue extends Serializable {
@@ -406,6 +408,8 @@ export type Aggregate = "SUM" | "COUNT" | "AVERAGE" | "MIN" | "MAX";
 export type Bool = "and" | "or";
 
 export type Comparison = "eq" | "gte" | "gt" | "lte" | "lt";
+
+export type Function = "sum" | "count" | "average";
 
 export type Operator = "=" | ">=" | ">" | "<=" | "startsWith" | "contains";
 
