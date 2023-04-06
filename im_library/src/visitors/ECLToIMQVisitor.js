@@ -18,14 +18,13 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitEcl(ctx) {
     logItem("found ecl", ctx.getText());
-    let query = {};
+    let query = { match: [] };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["expressionConstraint"])) {
-            if (isObjectHasKeys(result.expressionConstraint.from)) query = result.expressionConstraint;
-            else query.from = result.expressionConstraint;
+            query.match.push(result.expressionConstraint);
           }
         }
       }
@@ -64,22 +63,23 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitRefinedexpressionconstraint(ctx) {
     logItem("found refined expression constraint", ctx.getText());
-    let query = { refinedExpressionConstraint: { from: {} } };
+    let query = { refinedExpressionConstraint: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       for (const result of results) {
         if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
           const subExpressionConstraint = result.subExpressionConstraint;
-          query.refinedExpressionConstraint.from = subExpressionConstraint;
+          query.refinedExpressionConstraint = subExpressionConstraint;
         }
         if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
           const bracketCompoundExpressionConstraint = result.bracketCompoundExpressionConstraint;
-          query.refinedExpressionConstraint.from = bracketCompoundExpressionConstraint;
+          query.refinedExpressionConstraint = bracketCompoundExpressionConstraint;
         }
         if (isObjectHasKeys(result, ["eclRefinement"])) {
           const eclRefinement = result.eclRefinement;
-          if (isObjectHasKeys(eclRefinement, ["bool"])) query.refinedExpressionConstraint.from.where = [eclRefinement];
-          else query.refinedExpressionConstraint.from.where = eclRefinement.where;
+          query.refinedExpressionConstraint.where = [];
+          if (isObjectHasKeys(eclRefinement, ["bool"])) query.refinedExpressionConstraint.where.push(eclRefinement);
+          else query.refinedExpressionConstraint.where.push(eclRefinement);
         }
       }
     }
@@ -98,15 +98,15 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitConjunctionexpressionconstraint(ctx) {
     logItem("found conjunction expression constraint", ctx.getText());
-    let query = { conjunctionExpressionConstraint: { from: [] } };
+    let query = { conjunctionExpressionConstraint: { match: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["conjunction"])) query.conjunctionExpressionConstraint.boolFrom = result.conjunction;
-          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.conjunctionExpressionConstraint.from.push(result.subExpressionConstraint);
+          if (isObjectHasKeys(result, ["conjunction"])) query.conjunctionExpressionConstraint.boolMatch = result.conjunction;
+          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.conjunctionExpressionConstraint.match.push(result.subExpressionConstraint);
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"]))
-            query.conjunctionExpressionConstraint.from.push(result.bracketCompoundExpressionConstraint.from);
+            query.conjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint);
         }
       }
     }
@@ -115,15 +115,15 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitDisjunctionexpressionconstraint(ctx) {
     logItem("found disjunction expression constraint", ctx.getText());
-    let query = { disjunctionExpressionConstraint: { from: [] } };
+    let query = { disjunctionExpressionConstraint: { match: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["disjunction"])) query.disjunctionExpressionConstraint.boolFrom = result.disjunction;
-          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.disjunctionExpressionConstraint.from.push(result.subExpressionConstraint);
+          if (isObjectHasKeys(result, ["disjunction"])) query.disjunctionExpressionConstraint.boolMatch = result.disjunction;
+          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.disjunctionExpressionConstraint.match.push(result.subExpressionConstraint);
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"]))
-            query.disjunctionExpressionConstraint.from.push(result.bracketCompoundExpressionConstraint.from);
+            query.disjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint.match);
         }
       }
     }
@@ -132,7 +132,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitExclusionexpressionconstraint(ctx) {
     logItem("found exclusion expression constraint", ctx.getText());
-    let query = { exclusionExpressionConstraint: { boolFrom: "and", from: [] } };
+    let query = { exclusionExpressionConstraint: { boolMatch: "and", match: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
@@ -142,44 +142,25 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           if (isObjectHasKeys(result, ["exclusion"])) conjunction = result.exclusion;
           if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
             if (first) {
-              query.exclusionExpressionConstraint.from.push(result.subExpressionConstraint);
+              query.exclusionExpressionConstraint.match.push(result.subExpressionConstraint);
               first = false;
             } else {
-              query.exclusionExpressionConstraint.from.push({ exclude: true, from: [result.subExpressionConstraint] });
+              query.exclusionExpressionConstraint.match.push({ exclude: true, match: [result.subExpressionConstraint] });
             }
           }
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
             if (first) {
-              if (isObjectHasKeys(result.bracketCompoundExpressionConstraint.from)) {
-                query.exclusionExpressionConstraint.from.push(result.bracketCompoundExpressionConstraint.from);
-              } else if (_.isArray(result.bracketCompoundExpressionConstraint.from)) {
-                query.exclusionExpressionConstraint.from.push(result.bracketCompoundExpressionConstraint);
-              }
+              query.exclusionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint);
               first = false;
             } else {
-              if (isObjectHasKeys(result.bracketCompoundExpressionConstraint.from)) {
-                if (result.bracketCompoundExpressionConstraint.boolFrom) {
-                  query.exclusionExpressionConstraint.from.push({
-                    exclude: true,
-                    boolFrom: result.bracketCompoundExpressionConstraint.boolFrom,
-                    from: [result.bracketCompoundExpressionConstraint.from]
-                  });
-                } else {
-                  query.exclusionExpressionConstraint.from.push({
-                    exclude: true,
-                    from: [result.bracketCompoundExpressionConstraint.from]
-                  });
-                }
-              } else if (_.isArray(result.bracketCompoundExpressionConstraint.from)) {
-                if (result.bracketCompoundExpressionConstraint.boolFrom) {
-                  query.exclusionExpressionConstraint.from.push({
-                    exclude: true,
-                    boolFrom: result.bracketCompoundExpressionConstraint.boolFrom,
-                    from: result.bracketCompoundExpressionConstraint.from
-                  });
-                } else {
-                  query.exclusionExpressionConstraint.from.push({ exclude: true, from: result.bracketCompoundExpressionConstraint.from });
-                }
+              if (result.bracketCompoundExpressionConstraint.boolMatch) {
+                query.exclusionExpressionConstraint.match.push({
+                  exclude: true,
+                  boolMatch: result.bracketCompoundExpressionConstraint.boolMatch,
+                  match: result.bracketCompoundExpressionConstraint.match
+                });
+              } else {
+                query.exclusionExpressionConstraint.match.push({ exclude: true, match: [result.bracketCompoundExpressionConstraint] });
               }
             }
           }
@@ -313,7 +294,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
     logItem("found ecl refinement", ctx.getText());
     if (ctx.children) {
       const result = this.visitChildren(ctx)[0];
-      if (isObjectHasKeys(result, ["subRefinement"])) return { eclRefinement: { where: [result.subRefinement] } };
+      if (isObjectHasKeys(result, ["subRefinement"])) return { eclRefinement: result.subRefinement };
       if (isObjectHasKeys(result, ["compoundRefinementSet"])) return { eclRefinement: result.compoundRefinementSet };
     }
   }
