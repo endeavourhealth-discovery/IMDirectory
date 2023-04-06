@@ -18,18 +18,45 @@ describe("eclToBuild", () => {
   });
 
   it("errors with reverse", () => {
-    expect(() => {
-      eclToBuild("    <  91723000 |Anatomical structure| : R  363698007 |Finding site|  = <  125605004 |Fracture of bone|").toThrowError(
-        "'R/reverseOf/.' is not currently supported"
-      );
-    });
+    expect(() => eclToBuild("    <  91723000 |Anatomical structure| : R  363698007 |Finding site|  = <  125605004 |Fracture of bone|")).toThrowError(
+      "Reverse is not currently supported"
+    );
   });
 
-  it("errors with NOT", () => {
-    expect(() => {
-      eclToBuild(
-        "   descendantOf  404684003 |Clinical finding| : 116676008 |Associated morphology|  NOT = descendantOrSelfOf  26036001 |Obstruction|"
-      ).toThrowError("'NOT' is currently not supported. Please use '!=' notation instead");
+  it("handles long syntax NOT", () => {
+    expect(
+      eclToBuild("   descendantOf  404684003 |Clinical finding| : 116676008 |Associated morphology|  NOT = descendantOrSelfOf  26036001 |Obstruction|")
+    ).toEqual({
+      conjunction: "AND",
+      items: [
+        {
+          concept: {
+            iri: "http://snomed.info/sct#404684003"
+          },
+          conjunction: "AND",
+          descendants: "<",
+          items: [
+            {
+              operator: "!=",
+              property: {
+                concept: {
+                  iri: "http://snomed.info/sct#116676008"
+                },
+                descendants: ""
+              },
+              type: "Refinement",
+              value: {
+                concept: {
+                  iri: "http://snomed.info/sct#26036001"
+                },
+                descendants: "<<"
+              }
+            }
+          ],
+          type: "Concept"
+        }
+      ],
+      type: "BoolGroup"
     });
   });
 
