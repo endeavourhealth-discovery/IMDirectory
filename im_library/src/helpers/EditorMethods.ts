@@ -15,7 +15,7 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
         if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
           foundValueVariable = valueVariableMap.get(value + property.order);
         } else {
-          foundValueVariable = valueVariableMap.get(value as any);
+          foundValueVariable = valueVariableMap.get(value);
         }
         argResult[key] = foundValueVariable;
       } else {

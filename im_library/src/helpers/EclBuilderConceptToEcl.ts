@@ -8,14 +8,18 @@ export function builderConceptToEcl(builderConcept: any, includeTerms: boolean) 
       if (includeTerms) ecl += " | ANY | ";
     } else {
       ecl += builderConcept.concept.code;
-      if (includeTerms && builderConcept.concept.name) ecl += " | " + builderConcept.concept.name + " | ";
+      addNameToEcl(ecl, builderConcept, includeTerms);
     }
   } else if (builderConcept.concept && builderConcept.concept.iri) {
     ecl += builderConcept.concept.iri.split("#")[1];
-    if (includeTerms && builderConcept.concept.name) ecl += " | " + builderConcept.concept.name + " | ";
+    addNameToEcl(ecl, builderConcept, includeTerms);
   } else ecl += "[ UNKNOWN CONCEPT ]";
 
   return ecl;
+}
+
+function addNameToEcl(ecl: string, builderConcept: any, includeTerms: boolean) {
+  if (includeTerms && builderConcept.concept.name) ecl += " | " + builderConcept.concept.name + " | ";
 }
 
 export default { builderConceptToEcl };

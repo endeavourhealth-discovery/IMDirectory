@@ -13,7 +13,7 @@ export function verifyEmailsMatch(email1: string, email2: string): boolean {
 }
 
 export function verifyIsName(name: string): boolean {
-  return name !== "" && /^[\p{L}'][ \p{L}'-]*[\p{L}]$/u.test(name);
+  return name !== "" && /^\p{L}'?\p{L}+-?\p{L}+$/u.test(name);
 }
 
 export function verifyIsUsername(name: string): boolean {
