@@ -11,6 +11,9 @@ export function buildDisplayQuery(query: any) {
 function buildRecursively(query: any, type: string, parent: DisplayQuery) {
   if ("match" === type) {
     addMatch(query, type, parent);
+  } else if ("select" === type) {
+    const selectParent = addItem("select", query, type, parent);
+    addSelect(query, type, selectParent);
   } else if (isObjectHasKeys(query)) {
     for (const key of Object.keys(query)) {
       if (!isPrimitiveType(query[key])) buildRecursively(query[key], key, parent);
@@ -34,6 +37,23 @@ function buildDQInstance(parent: DisplayQuery, label: string, type?: string, dat
 }
 
 // adders
+function addSelect(select: any, type: string, parent: DisplayQuery) {
+  if (isArrayHasLength(select)) {
+    for (const selectItem of select) {
+      addSelect(selectItem, type, parent);
+    }
+  } else {
+    const label = getNameFromRef(select);
+    const newParent = addItem(label, select, type, parent);
+
+    if (isArrayHasLength(select.select)) {
+      for (const matchItem of select.select) {
+        addSelect(matchItem, type, newParent);
+      }
+    }
+  }
+}
+
 function addMatch(match: any, type: string, parent: DisplayQuery) {
   if (isArrayHasLength(match)) {
     for (const matchItem of match) {
@@ -149,6 +169,8 @@ function getNameFromRef(ref: any) {
   } else if (isObjectHasKeys(ref, ["@type"])) {
     const splits = ref["@type"].split("#");
     name = splits[1] || splits[0];
+  } else if (isObjectHasKeys(ref, ["parameter"])) {
+    name = ref.parameter;
   }
 
   if (ref.variable) name += "(as " + ref.variable + ")";
