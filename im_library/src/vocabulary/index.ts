@@ -6,5 +6,6 @@ import { RDFS } from "./RDFS";
 import { SHACL } from "./SHACL";
 import { SNOMED } from "./SNOMED";
 import { CONFIG } from "./CONFIG";
+import { XMLS } from "./XMLS";
 
-export { IM, NAMESPACES, OWL, RDF, RDFS, SHACL, SNOMED, CONFIG };
+export { IM, NAMESPACES, OWL, RDF, RDFS, SHACL, SNOMED, CONFIG, XMLS };
