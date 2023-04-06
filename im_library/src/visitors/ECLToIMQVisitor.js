@@ -78,8 +78,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         if (isObjectHasKeys(result, ["eclRefinement"])) {
           const eclRefinement = result.eclRefinement;
           query.refinedExpressionConstraint.where = [];
-          if (isObjectHasKeys(eclRefinement, ["bool"])) query.refinedExpressionConstraint.where.push(eclRefinement);
-          else query.refinedExpressionConstraint.where.push(eclRefinement);
+          query.refinedExpressionConstraint.where.push(eclRefinement);
         }
       }
     }
