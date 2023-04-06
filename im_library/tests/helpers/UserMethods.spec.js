@@ -1,10 +1,4 @@
-import {
-  verifyIsEmail,
-  verifyPasswordsMatch,
-  verifyIsName,
-  verifyIsUsername,
-  checkPasswordStrength
-} from "@/helpers/UserMethods";
+import { verifyIsEmail, verifyPasswordsMatch, verifyIsName, verifyIsUsername, checkPasswordStrength } from "@/helpers/UserMethods";
 import { PasswordStrength } from "@/enums";
 
 describe("verifyIsEmail", () => {
@@ -113,10 +107,13 @@ describe("verifyIsName", () => {
     expect(verifyIsName(name)).toBe(true);
   });
 
-  it("should not allow hyphens as end characters", () => {
+  it("should not allow hyphens as start characters", () => {
     const name = "-mary";
-    const name2 = "mary-";
     expect(verifyIsName(name)).toBe(false);
+  });
+
+  it("should not allow hyphens as end characters", () => {
+    const name = "mary-";
     expect(verifyIsName(name)).toBe(false);
   });
 
@@ -125,8 +122,18 @@ describe("verifyIsName", () => {
     expect(verifyIsName(name)).toBe(true);
   });
 
-  it("should not allow hyphens anywhere else", () => {
-    const name = "'''''''''";
+  it("should not allow apostrophies anywhere else", () => {
+    const name = "OK'eith";
+    expect(verifyIsName(name)).toBe(false);
+  });
+
+  it("should allow apostrophie and hyphen names", () => {
+    const name = "O'Brien-Smith";
+    expect(verifyIsName(name)).toBe(true);
+  });
+
+  it("should not allow spaces", () => {
+    const name = "Jean-Luc Picard";
     expect(verifyIsName(name)).toBe(false);
   });
 });
