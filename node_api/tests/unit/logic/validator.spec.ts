@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import Validator from "@/logic/validator";
+import Validator from "../../../src/logic/validator";
 
 test("Is valid IRI and data", () => {
   const actual = new Validator().validate("http://endhealth.info/im#Validation_hasParent", {

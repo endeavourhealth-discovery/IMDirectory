@@ -1,9 +1,15 @@
-import ECLVisitor from "./ECLVisitor";
-import { isObjectHasKeys } from "../../helpers/DataTypeCheckers";
+import ECLVisitor from "../antlr4/ecl/ECLVisitor";
+import { isObjectHasKeys } from "../helpers/DataTypeCheckers";
 import _ from "lodash";
-import { SNOMED } from "../../vocabulary";
+import { IM, SNOMED } from "../vocabulary";
 
 const showLogs = false;
+function logItem(found, ctx) {
+  if (showLogs) {
+    console.log(found);
+    console.log(ctx);
+  }
+}
 
 export default class ECLBuilderVisitor extends ECLVisitor {
   constructor() {
@@ -11,18 +17,14 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitEcl(ctx) {
-    if (showLogs) {
-      console.log("found ecl");
-      console.log(ctx.getText());
-    }
-    let query = {};
+    logItem("found ecl", ctx.getText());
+    let query = { match: [] };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
           if (isObjectHasKeys(result, ["expressionConstraint"])) {
-            if (isObjectHasKeys(result.expressionConstraint.from)) query = result.expressionConstraint;
-            else query.from = result.expressionConstraint;
+            query.match.push(result.expressionConstraint);
           }
         }
       }
@@ -31,10 +33,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitExpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found expression constraint");
-      console.log(ctx.getText());
-    }
+    logItem("found expression constraint", ctx.getText());
     let query = { expressionConstraint: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -63,26 +62,24 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitRefinedexpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found refined expression constraint");
-      console.log(ctx.getText());
-    }
-    let query = { refinedExpressionConstraint: { from: {} } };
+    logItem("found refined expression constraint", ctx.getText());
+    let query = { refinedExpressionConstraint: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       for (const result of results) {
         if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
           const subExpressionConstraint = result.subExpressionConstraint;
-          query.refinedExpressionConstraint.from = subExpressionConstraint;
+          query.refinedExpressionConstraint = subExpressionConstraint;
         }
         if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
           const bracketCompoundExpressionConstraint = result.bracketCompoundExpressionConstraint;
-          query.refinedExpressionConstraint.from = bracketCompoundExpressionConstraint;
+          query.refinedExpressionConstraint = bracketCompoundExpressionConstraint;
         }
         if (isObjectHasKeys(result, ["eclRefinement"])) {
           const eclRefinement = result.eclRefinement;
-          if (isObjectHasKeys(eclRefinement, ["bool"])) query.refinedExpressionConstraint.from.where = [eclRefinement];
-          else query.refinedExpressionConstraint.from.where = eclRefinement.where;
+          query.refinedExpressionConstraint.where = [];
+          if (isObjectHasKeys(eclRefinement, ["bool"])) query.refinedExpressionConstraint.where.push(eclRefinement);
+          else query.refinedExpressionConstraint.where.push(eclRefinement);
         }
       }
     }
@@ -90,10 +87,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitCompoundexpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found compound expression constraint");
-      console.log(ctx.getText());
-    }
+    logItem("found compound expression constraint", ctx.getText());
     if (ctx.children) {
       const result = this.visitChildren(ctx)[0];
       if (isObjectHasKeys(result, ["conjunctionExpressionConstraint"])) return { compoundExpressionConstraint: result.conjunctionExpressionConstraint };
@@ -103,19 +97,16 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitConjunctionexpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found conjunction expression constraint");
-      console.log(ctx.getText());
-    }
-    let query = { conjunctionExpressionConstraint: { from: [] } };
+    logItem("found conjunction expression constraint", ctx.getText());
+    let query = { conjunctionExpressionConstraint: { match: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["conjunction"])) query.conjunctionExpressionConstraint.boolFrom = result.conjunction;
-          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.conjunctionExpressionConstraint.from.push(result.subExpressionConstraint);
+          if (isObjectHasKeys(result, ["conjunction"])) query.conjunctionExpressionConstraint.boolMatch = result.conjunction;
+          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.conjunctionExpressionConstraint.match.push(result.subExpressionConstraint);
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"]))
-            query.conjunctionExpressionConstraint.from.push(result.bracketCompoundExpressionConstraint.from);
+            query.conjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint);
         }
       }
     }
@@ -123,19 +114,16 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitDisjunctionexpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found disjunction expression constraint");
-      console.log(ctx.getText());
-    }
-    let query = { disjunctionExpressionConstraint: { from: [] } };
+    logItem("found disjunction expression constraint", ctx.getText());
+    let query = { disjunctionExpressionConstraint: { match: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
         for (const result of results) {
-          if (isObjectHasKeys(result, ["disjunction"])) query.disjunctionExpressionConstraint.boolFrom = result.disjunction;
-          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.disjunctionExpressionConstraint.from.push(result.subExpressionConstraint);
+          if (isObjectHasKeys(result, ["disjunction"])) query.disjunctionExpressionConstraint.boolMatch = result.disjunction;
+          if (isObjectHasKeys(result, ["subExpressionConstraint"])) query.disjunctionExpressionConstraint.match.push(result.subExpressionConstraint);
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"]))
-            query.disjunctionExpressionConstraint.from.push(result.bracketCompoundExpressionConstraint.from);
+            query.disjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint.match);
         }
       }
     }
@@ -143,11 +131,8 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitExclusionexpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found exclusion expression constraint");
-      console.log(ctx.getText());
-    }
-    let query = { exclusionExpressionConstraint: { boolFrom: "and", from: [] } };
+    logItem("found exclusion expression constraint", ctx.getText());
+    let query = { exclusionExpressionConstraint: { boolMatch: "and", match: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
       if (results) {
@@ -157,44 +142,25 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           if (isObjectHasKeys(result, ["exclusion"])) conjunction = result.exclusion;
           if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
             if (first) {
-              query.exclusionExpressionConstraint.from.push(result.subExpressionConstraint);
+              query.exclusionExpressionConstraint.match.push(result.subExpressionConstraint);
               first = false;
             } else {
-              query.exclusionExpressionConstraint.from.push({ exclude: true, from: [result.subExpressionConstraint] });
+              query.exclusionExpressionConstraint.match.push({ exclude: true, match: [result.subExpressionConstraint] });
             }
           }
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
             if (first) {
-              if (isObjectHasKeys(result.bracketCompoundExpressionConstraint.from)) {
-                query.exclusionExpressionConstraint.from.push(result.bracketCompoundExpressionConstraint.from);
-              } else if (_.isArray(result.bracketCompoundExpressionConstraint.from)) {
-                query.exclusionExpressionConstraint.from.push(result.bracketCompoundExpressionConstraint);
-              }
+              query.exclusionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint);
               first = false;
             } else {
-              if (isObjectHasKeys(result.bracketCompoundExpressionConstraint.from)) {
-                if (result.bracketCompoundExpressionConstraint.boolFrom) {
-                  query.exclusionExpressionConstraint.from.push({
-                    exclude: true,
-                    boolFrom: result.bracketCompoundExpressionConstraint.boolFrom,
-                    from: [result.bracketCompoundExpressionConstraint.from]
-                  });
-                } else {
-                  query.exclusionExpressionConstraint.from.push({
-                    exclude: true,
-                    from: [result.bracketCompoundExpressionConstraint.from]
-                  });
-                }
-              } else if (_.isArray(result.bracketCompoundExpressionConstraint.from)) {
-                if (result.bracketCompoundExpressionConstraint.boolFrom) {
-                  query.exclusionExpressionConstraint.from.push({
-                    exclude: true,
-                    boolFrom: result.bracketCompoundExpressionConstraint.boolFrom,
-                    from: result.bracketCompoundExpressionConstraint.from
-                  });
-                } else {
-                  query.exclusionExpressionConstraint.from.push({ exclude: true, from: result.bracketCompoundExpressionConstraint.from });
-                }
+              if (result.bracketCompoundExpressionConstraint.boolMatch) {
+                query.exclusionExpressionConstraint.match.push({
+                  exclude: true,
+                  boolMatch: result.bracketCompoundExpressionConstraint.boolMatch,
+                  match: result.bracketCompoundExpressionConstraint.match
+                });
+              } else {
+                query.exclusionExpressionConstraint.match.push({ exclude: true, match: [result.bracketCompoundExpressionConstraint] });
               }
             }
           }
@@ -205,26 +171,17 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitDottedexpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found dotted expression constraint");
-      console.log(ctx.getText());
-    }
+    logItem("found dotted expression constraint", ctx.getText());
     this.visitChildren(ctx);
   }
 
   visitDottedexpressionattribute(ctx) {
-    if (showLogs) {
-      console.log("found dotted expression attribute");
-      console.log(ctx.getText());
-    }
+    logItem("found dotted expression attribute", ctx.getText());
     this.visitChildren(ctx);
   }
 
   visitSubexpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found sub expression constraint");
-      console.log(ctx.getText());
-    }
+    logItem("found sub expression constraint", ctx.getText());
     let query = { subExpressionConstraint: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -241,10 +198,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitBracketcompoundexpressionconstraint(ctx) {
-    if (showLogs) {
-      console.log("found bracket compound expression constraint");
-      console.log(ctx.getText());
-    }
+    logItem("found bracket compound expression constraint", ctx.getText());
     let query = { bracketCompoundExpressionConstraint: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -269,66 +223,42 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitConstraintoperator(ctx) {
-    if (showLogs) {
-      console.log("found constraintOperator");
-      console.log(ctx.getText());
-    }
+    logItem("found constraintOperator", ctx.getText());
     if (ctx.children) return { constraintOperator: this.visitChildren(ctx)[0] };
   }
 
   visitDescendantof(ctx) {
-    if (showLogs) {
-      console.log("found descendantOf");
-      console.log(ctx.getText());
-    }
+    logItem("found descendantOf", ctx.getText());
     return "descendantsOf";
   }
 
   visitDescendantorselfof(ctx) {
-    if (showLogs) {
-      console.log("found descendantOrSelfOf");
-      console.log(ctx.getText());
-    }
+    logItem("found descendantOrSelfOf", ctx.getText());
     return "descendantsOrSelfOf";
   }
 
   visitAncestorof(ctx) {
-    if (showLogs) {
-      console.log("found ancestorOf");
-      console.log(ctx.getText());
-    }
+    logItem("found ancestorOf", ctx.getText());
     return "ancestorsOf";
   }
 
   visitAncestororselfof(ctx) {
-    if (showLogs) {
-      console.log("found ancestorOrSelfOf");
-      console.log(ctx.getText());
-    }
+    logItem("found ancestorOrSelfOf", ctx.getText());
     throw new Error("AncestorOrSelfOf '>>' is not currently supported");
   }
 
   visitChildof(ctx) {
-    if (showLogs) {
-      console.log("found childOf");
-      console.log(ctx.getText());
-    }
+    logItem("found childOf", ctx.getText());
     throw new Error("ChildOf '<!' is not currently supported");
   }
 
   visitParentof(ctx) {
-    if (showLogs) {
-      console.log("found parentOf");
-      console.log(ctx.getText());
-    }
+    logItem("found parentOf", ctx.getText());
     throw new Error("ParentOf '>!' is not currently supported");
   }
 
   visitEclfocusconcept(ctx) {
-    if (showLogs) {
-      console.log("found ecl focus concept");
-      console.log(ctx.getText());
-    }
+    logItem("found ecl focus concept", ctx.getText());
     if (ctx.children) {
       const result = this.visitChildren(ctx)[0];
       if (isObjectHasKeys(result, ["eclConceptReference"])) return { eclFocusConcept: result.eclConceptReference };
@@ -337,10 +267,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitEclconceptreference(ctx) {
-    if (showLogs) {
-      console.log("found ecl concept reference");
-      console.log(ctx.getText());
-    }
+    logItem("found ecl concept reference", ctx.getText());
     if (ctx.children) {
       const result = this.visitChildren(ctx)[0];
       return { eclConceptReference: result };
@@ -348,10 +275,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitConceptid(ctx) {
-    if (showLogs) {
-      console.log("found concept id");
-      console.log(ctx.getText());
-    }
+    logItem("found concept id", ctx.getText());
     const code = ctx.getText();
     let iri = code;
     if (code.match(/^[0-9]+$/)) {
@@ -362,30 +286,21 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitWildcard(ctx) {
-    if (showLogs) {
-      console.log("found wildcard");
-      console.log(ctx.getText());
-    }
+    logItem("found wildcard", ctx.getText());
     return { wildcard: ctx.getText() };
   }
 
   visitEclrefinement(ctx) {
-    if (showLogs) {
-      console.log("found ecl refinement");
-      console.log(ctx.getText());
-    }
+    logItem("found ecl refinement", ctx.getText());
     if (ctx.children) {
       const result = this.visitChildren(ctx)[0];
-      if (isObjectHasKeys(result, ["subRefinement"])) return { eclRefinement: { where: [result.subRefinement] } };
+      if (isObjectHasKeys(result, ["subRefinement"])) return { eclRefinement: result.subRefinement };
       if (isObjectHasKeys(result, ["compoundRefinementSet"])) return { eclRefinement: result.compoundRefinementSet };
     }
   }
 
   visitCompoundrefinementset(ctx) {
-    if (showLogs) {
-      console.log("found compound refinement set");
-      console.log(ctx.getText());
-    }
+    logItem("found compound refinement set", ctx.getText());
     if (ctx.children) {
       const result = this.visitChildren(ctx)[0];
       if (isObjectHasKeys(result, ["conjunctionRefinementSet"])) return { compoundRefinementSet: result.conjunctionRefinementSet };
@@ -394,10 +309,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitConjunctionrefinementset(ctx) {
-    if (showLogs) {
-      console.log("found conjunction refinement set");
-      console.log(ctx.getText());
-    }
+    logItem("found conjunction refinement set", ctx.getText());
     let query = { conjunctionRefinementSet: { where: [] } };
     const results = this.visitChildren(ctx);
     if (results) {
@@ -420,10 +332,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitDisjunctionrefinementset(ctx) {
-    if (showLogs) {
-      console.log("found disjunction refinement set");
-      console.log(ctx.getText());
-    }
+    logItem("found disjunction refinement set", ctx.getText());
     let query = { disjunctionRefinementSet: { where: [] } };
     const results = this.visitChildren(ctx);
     if (results) {
@@ -446,34 +355,22 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitConjunction(ctx) {
-    if (showLogs) {
-      console.log("found conjunction");
-      console.log(ctx.getText());
-    }
+    logItem("found conjunction", ctx.getText());
     return { conjunction: "and" };
   }
 
   visitDisjunction(ctx) {
-    if (showLogs) {
-      console.log("found disjunction");
-      console.log(ctx.getText());
-    }
+    logItem("found disjunction", ctx.getText());
     return { disjunction: "or" };
   }
 
   visitExclusion(ctx) {
-    if (showLogs) {
-      console.log("found exclusion");
-      console.log(ctx.getText());
-    }
+    logItem("found exclusion", ctx.getText());
     return { exclusion: "not" };
   }
 
   visitSubrefinement(ctx) {
-    if (showLogs) {
-      console.log("found sub refinement");
-      console.log(ctx.getText());
-    }
+    logItem("found sub refinement", ctx.getText());
     if (ctx.children) {
       const result = this.visitChildren(ctx)[0];
       if (isObjectHasKeys(result, ["compoundAttributeSet"])) return { subRefinement: result.compoundAttributeSet };
@@ -487,26 +384,22 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitDot(ctx) {
-    if (showLogs) {
-      console.log("dot found");
-      console.log(ctx.getText());
-    }
+    logItem("found dot", ctx.getText());
     throw new Error("Dot '.' is not currently supported.");
   }
 
   visitMemberof(ctx) {
+    logItem("found memberOf", ctx.getText());
     throw new Error("member of '^' is not currently supported.");
   }
 
   visitCardinality(ctx) {
+    logItem("found cardinality", ctx.getText());
     throw new Error("Cardinality is not currently supported");
   }
 
   visitEclattributegroup(ctx) {
-    if (showLogs) {
-      console.log("found ecl attribute group");
-      console.log(ctx.getText());
-    }
+    logItem("found ecl attribute group", ctx.getText());
     let query = { eclAttributeGroup: { where: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -515,10 +408,9 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           if (isObjectHasKeys(result, ["compoundAttributeSet"])) {
             result.compoundAttributeSet.where.forEach(item => delete item.anyRoleGroup);
             query.eclAttributeGroup = result.compoundAttributeSet;
-            query.eclAttributeGroup["@id"] = "http://endhealth.info/im#roleGroup";
+            query.eclAttributeGroup["@id"] = IM.ROLE_GROUP;
           }
-          if (isObjectHasKeys(result, ["eclAttribute"]))
-            query.eclAttributeGroup = { "@id": "http://endhealth.info/im#roleGroup", where: [result.eclAttribute] };
+          if (isObjectHasKeys(result, ["eclAttribute"])) query.eclAttributeGroup = { "@id": IM.ROLE_GROUP, where: [result.eclAttribute] };
         }
       }
     }
@@ -526,10 +418,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitCompoundattributeset(ctx) {
-    if (showLogs) {
-      console.log("found compound attribute set");
-      console.log(ctx.getText());
-    }
+    logItem("found compound attribute set", ctx.getText());
     const result = this.visitChildren(ctx)[0];
     if (isObjectHasKeys(result, ["conjunctionAttributeSet"])) {
       if (result.conjunctionAttributeSet.where)
@@ -548,10 +437,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitConjunctionattributeset(ctx) {
-    if (showLogs) {
-      console.log("found conjunction attribute set");
-      console.log(ctx.getText());
-    }
+    logItem("found conjunction attribute set", ctx.getText());
     let query = { conjunctionAttributeSet: { where: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -576,10 +462,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitDisjunctionattributeset(ctx) {
-    if (showLogs) {
-      console.log("found disjunction attribute set");
-      console.log(ctx.getText());
-    }
+    logItem("found disjunction attribute set", ctx.getText());
     let query = { disjunctionAttributeSet: { where: [] } };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -604,10 +487,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitBracketattributeset(ctx) {
-    if (showLogs) {
-      console.log("found bracket attribute set");
-      console.log(ctx.getText());
-    }
+    logItem("found bracket attribute set", ctx.getText());
     let query = { bracketAttributeSet: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -623,10 +503,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitSubattributeset(ctx) {
-    if (showLogs) {
-      console.log("found sub attribute set");
-      console.log(ctx.getText());
-    }
+    logItem("found sub attribute set", ctx.getText());
     if (ctx.children) {
       const result = this.visitChildren(ctx)[0];
       if (isObjectHasKeys(result, ["eclAttribute"])) return { subAttributeSet: result.eclAttribute };
@@ -635,10 +512,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitEclattribute(ctx) {
-    if (showLogs) {
-      console.log("found ecl attribute");
-      console.log(ctx.getText());
-    }
+    logItem("found ecl attribute", ctx.getText());
     let query = { eclAttribute: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -673,10 +547,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitEclattributeexpressionvalue(ctx) {
-    if (showLogs) {
-      console.log("found ecl attribute expression value");
-      console.log(ctx.getText());
-    }
+    logItem("found ecl attribute expression value", ctx.getText());
     let query = { eclAttributeExpressionValue: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -709,10 +580,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitEclattributestringvalue(ctx) {
-    if (showLogs) {
-      console.log("found ecl attribute string value");
-      console.log(ctx.getText());
-    }
+    logItem("found ecl attribute string value", ctx.getText());
     let query = { eclAttributeStringValue: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -738,10 +606,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitEclattributenumbervalue(ctx) {
-    if (showLogs) {
-      console.log("found ecl attribute number value");
-      console.log(ctx.getText());
-    }
+    logItem("found ecl attribute number value", ctx.getText());
     let query = { eclAttributeNumberValue: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);
@@ -766,50 +631,32 @@ export default class ECLBuilderVisitor extends ECLVisitor {
   }
 
   visitExpressioncomparisonoperator(ctx) {
-    if (showLogs) {
-      console.log("found expression comparison operator");
-      console.log(ctx.getText());
-    }
+    logItem("found expression comparison operator", ctx.getText());
     return { expressionComparisonOperator: ctx.getText() };
   }
 
   visitStringcomparisonoperator(ctx) {
-    if (showLogs) {
-      console.log("found string comparison operator");
-      console.log(ctx.getText());
-    }
+    logItem("found string comparison operator", ctx.getText());
     return { stringComparisonOperator: ctx.getText() };
   }
 
   visitStringvalue(ctx) {
-    if (showLogs) {
-      console.log("found string value");
-      console.log(ctx.getText());
-    }
+    logItem("found string value", ctx.getText());
     return { stringValue: ctx.getText() };
   }
 
   visitNumericcomparisonoperator(ctx) {
-    if (showLogs) {
-      console.log("found numeric comparison operator");
-      console.log(ctx.getText());
-    }
+    logItem("found numeric comparison operator", ctx.getText());
     return { numericComparisonOperator: ctx.getText() };
   }
 
   visitNumericvalue(ctx) {
-    if (showLogs) {
-      console.log("found numeric value");
-      console.log(ctx.getText());
-    }
+    logItem("found numeric value", ctx.getText());
     return { numericValue: ctx.getText() };
   }
 
   visitBracketsubrefinement(ctx) {
-    if (showLogs) {
-      console.log("found bracket sub refinement");
-      console.log(ctx.getText());
-    }
+    logItem("found bracket sub refinement", ctx.getText());
     const query = { bracketSubRefinement: {} };
     if (ctx.children) {
       const results = this.visitChildren(ctx);

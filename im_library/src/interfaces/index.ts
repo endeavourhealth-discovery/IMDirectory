@@ -43,7 +43,6 @@ import { FieldDto } from "./queryBuilder/FieldDto";
 import { FieldUI } from "./queryBuilder/FieldUI";
 import { GenericType } from "./queryBuilder/GenericType";
 import { QueryObject } from "./queryBuilder/QueryObject";
-import { Refinement } from "./queryBuilder/Refinement";
 import { SimplifiedType } from "./queryBuilder/SimplifiedType";
 import { GithubRelease } from "./GithubRelease";
 import TangledTreeData from "./TangledTreeData";
@@ -105,7 +104,6 @@ export {
   type QueryObject,
   type FieldUI,
   type SimplifiedType,
-  type Refinement,
   type GithubRelease,
   type TangledTreeData,
   type AllowableChildProperty,

@@ -1,5 +1,5 @@
 import { ITextQuery } from "../interfaces/query/TextQuery";
-import { TTAlias, Where } from "../interfaces/AutoGen";
+import { Element, Where } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function buildTextQuery(query: any) {

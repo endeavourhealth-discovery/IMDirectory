@@ -6,6 +6,7 @@ describe("DisplayQueryBuilder.ts ___", () => {
   describe("buildDisplayQuery", () => {
     it("can convert Q_RegisteredGMS definition to DisplayQuery nodes", () => {
       const nodes = buildDisplayQuery(Q_RegisteredGMS.definition);
+      console.log(JSON.stringify(nodes));
       expect(nodes).toStrictEqual(Q_RegisteredGMS.nodes);
     });
   });

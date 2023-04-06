@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsc --noEmit --watch",
-    "tsc": "tsc --noEmit",
+    "dev": "npm run tsc:dev",
+    "tsc:dev": "tsc --noEmit --watch",
+    "tsc:build": "tsc --build tsconfig.build.json",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix",
     "format": "prettier --write",
-    "build": "tsc --noEmit"
+    "build": "npm run tsc:build"
   },
   "dependencies": {
     "antlr4": "4.11.0",
@@ -37,5 +38,5 @@
     "vite-plugin-dts": "1.7.1",
     "vitest": "0.29.8"
   },
-  "types": "./src/typings"
+  "types": "./dist/types"
 }

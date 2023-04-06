@@ -3,7 +3,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import * as crypto from "crypto";
 import { TreeNode } from "primevue/tree";
 
-export function buildQueryDisplayFromQuery(queryAPI: any) {
+export function buildQueryDisplayFromQuery(queryAPI: any): TreeNode {
   const queryUI = {} as TreeNode;
   queryUI.children = [] as TreeNode[];
   buildQueryDisplay(queryAPI, queryUI);
