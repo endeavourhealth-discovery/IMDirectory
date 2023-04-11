@@ -44,7 +44,7 @@ const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
 
 onMounted(async () => {
-  const entity = await EntityService.getPartialEntity(props.from.data["@id"], [SHACL.PROPERTY]);
+  const entity = await EntityService.getPartialEntity(props.from.data["@id"] || props.from.data["@type"] || props.from.data["@set"], [SHACL.PROPERTY]);
   nodes.value = getTreeNodes(entity, { children: [] });
 });
 

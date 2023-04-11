@@ -58,7 +58,7 @@ async function getPropertyTreeNode() {
     argument: [
       {
         parameter: "dataModel",
-        valueIri: props.from.data["@id"]
+        valueIri: props.from.data["@id"] || props.from.data["@type"] || props.from.data["@set"]
       },
       {
         parameter: "property",

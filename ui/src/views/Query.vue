@@ -16,40 +16,28 @@
 </template>
 
 <script setup lang="ts">
-import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { definition } from "./definition";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
 import { useStore } from "vuex";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
 import TextQuery from "@/components/query/RecursiveTextQuery.vue";
 import { ITextQuery } from "@im-library/interfaces";
 import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import { QueryService } from "@/services";
-import { Query } from "@im-library/interfaces/AutoGen";
-const toast = useToast();
 const store = useStore();
-const selected = ref([] as any[]);
 const textQueries: Ref<ITextQuery[]> = ref([]);
 const query: Ref<any> = ref();
 const visibleDialog: Ref<boolean> = ref(false);
-
-async function getTextQuery() {
-  query.value = await QueryService.getLabeledQuery(definition as any);
-  return buildTextQuery(query.value);
-}
 
 onMounted(async () => {
   await store.dispatch("fetchFilterSettings");
   textQueries.value = await getTextQuery();
 });
 
-async function copy() {
-  await navigator.clipboard.writeText(JSON.stringify(query.value));
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "JSON value copied to clipboard"));
+async function getTextQuery() {
+  query.value = await QueryService.getLabeledQuery(definition as any);
+  return buildTextQuery(query.value);
 }
 </script>
 

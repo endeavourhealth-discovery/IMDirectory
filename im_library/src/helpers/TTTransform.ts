@@ -1,4 +1,3 @@
-import { TTAlias } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function transformTT(ttEntity: any, map?: any) {
@@ -39,7 +38,7 @@ function getNameFromIri(iri: string) {
   }
 }
 
-export function getNameFromRef(ref: TTAlias) {
+export function getNameFromRef(ref: any) {
   if (isObjectHasKeys(ref, ["name"])) {
     return ref.name;
   } else if (isObjectHasKeys(ref, ["@id"])) {

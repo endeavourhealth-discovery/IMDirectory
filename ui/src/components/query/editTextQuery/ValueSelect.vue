@@ -31,7 +31,7 @@ import { EntityService } from "@/services";
 import { getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityReferenceNode, TTIriRef, TTProperty } from "@im-library/interfaces";
-import { TTAlias, Where } from "@im-library/interfaces/AutoGen";
+import { Element, Where } from "@im-library/interfaces/AutoGen";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
@@ -47,7 +47,7 @@ const selectedKey = ref(undefined);
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
 const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
-const entityValue: Ref<TTAlias> = ref({} as TTAlias);
+const entityValue: Ref<Element> = ref({} as Element);
 
 onMounted(async () => {
   // TODO get tree from set/query
