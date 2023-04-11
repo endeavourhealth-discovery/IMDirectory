@@ -368,9 +368,6 @@ function renderChart() {
       }
     });
 
-  let rect: any;
-  let fullName: any;
-
   const div = d3.selectAll("#data-model-svg-container").append("div").attr("class", "tooltip").style("opacity", 0);
 
   node
@@ -389,30 +386,9 @@ function renderChart() {
           .html(n.name + "<div/> Press ctr+click to navigate")
           .style("left", d.layerX + "px")
           .style("top", d.layerY + 10 + "px");
-      if (n.name.length > 26) {
-        rect = svg
-          .append("rect")
-          .attr("x", n.x + 30)
-          .attr("y", n.y - 40)
-          .attr("width", n.name.length * 6)
-          .attr("height", 45)
-          .attr("fill", "white")
-          .attr("stroke", "black");
-        fullName = svg
-          .append("text")
-          .attr("x", n.x + 40)
-          .attr("y", n.y - 15)
-          .text(n.name)
-          .attr("stroke-width", 0.1)
-          .style("font-size", 12);
-      }
     })
     .on("mouseout", (_d: any) => {
       div.transition().duration(500).style("opacity", 0);
-      if (rect && fullName) {
-        rect.remove();
-        fullName.remove();
-      }
     })
     .on("click", (d: any) => {
       div.transition().duration(500).style("opacity", 0);
