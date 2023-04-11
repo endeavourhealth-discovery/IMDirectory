@@ -219,7 +219,7 @@ function removeGroupNumber(arr: any[]) {
   if (isArrayHasLength(groupNumberItems)) {
     for (const groupNumberItem of groupNumberItems) {
       for (const roleGroup of groupNumberItem[IM.ROLE_GROUP]) {
-        delete roleGroup["http://endhealth.info/im#groupNumber"];
+        delete roleGroup[IM.GROUP_NUMBER];
       }
     }
   }

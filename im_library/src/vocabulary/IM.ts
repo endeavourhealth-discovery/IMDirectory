@@ -97,6 +97,9 @@ export class IM {
   public static MATCH = IM.NAMESPACE + "match";
   public static ENTITY_TYPE = IM.NAMESPACE + "entityType";
 
+  // graph
+  public static GROUP_NUMBER = IM.NAMESPACE + "groupNumber";
+
   //shapes
   public static CONCEPT_SHAPE = IM.NAMESPACE + "ConceptShape";
   public static PROPERTY_SHAPE = IM.NAMESPACE + "PropertyShape";
@@ -153,5 +156,4 @@ export class IM {
 
   // Config
   public static HAS_CONFIG = IM.NAMESPACE + "hasConfig";
-
 }

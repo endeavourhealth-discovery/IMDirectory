@@ -157,9 +157,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
       const results = this.visitChildren(ctx);
       if (results) {
         let first = true;
-        let conjunction;
         for (const result of results) {
-          if (isObjectHasKeys(result, ["exclusion"])) conjunction = result.exclusion;
           if (isObjectHasKeys(result, ["subExpressionConstraint"])) {
             if (first) {
               build.exclusionExpressionConstraint.items.push(result.subExpressionConstraint);
@@ -293,7 +291,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
     logItem("found concept id", ctx.getText());
     const code = ctx.getText();
     let iri = code;
-    if (code.match(/^[0-9]+$/)) {
+    if (code.match(/^\d+$/)) {
       if (code.match(/1000252/g)) iri = IM.NAMESPACE + code;
       else iri = SNOMED.NAMESPACE + code;
     }
@@ -609,14 +607,26 @@ export default class ECLBuilderVisitor extends ECLVisitor {
     return build;
   }
 
+  visitMany(ctx) {
+    logItem("found many", ctx.getText());
+    throw new Error("Many is not currently supported");
+  }
+
+  visitReverseflag(ctx) {
+    logItem("found reverse", ctx.getText());
+    throw new Error("Reverse is not currently supported");
+  }
+
   visitExpressioncomparisonoperator(ctx) {
     logItem("found expression comparison operator", ctx.getText());
+    if (ctx.getText().match(/^[nN][oO][tT]/)) return { expressionComparisonOperator: "!=" };
     return { expressionComparisonOperator: ctx.getText() };
   }
 
   visitStringcomparisonoperator(ctx) {
     logItem("found string comparison operator", ctx.getText());
-    return { StringComparisonOperator: ctx.getText() };
+    if (ctx.getText().match(/^[nN][oO][tT]/)) return { stringComparisonOperator: "!=" };
+    return { stringComparisonOperator: ctx.getText() };
   }
 
   visitStringvalue(ctx) {
@@ -626,6 +636,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
 
   visitNumericcomparisonoperator(ctx) {
     logItem("found numeric comparison operator", ctx.getText());
+    if (ctx.getText().match(/^[nN][oO][tT]/)) return { numericComparisonOperator: "!=" };
     return { numericComparisonOperator: ctx.getText() };
   }
 

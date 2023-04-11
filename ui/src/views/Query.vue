@@ -13,9 +13,6 @@
       <Button class="button-bar-button" label="Save" severity="success" />
     </div>
   </div>
-  <Dialog v-model:visible="visibleDialog" modal header="Header" :style="{ width: '50vw' }">
-    <VueJsonPretty class="json" :path="'res'" :data="query" @nodeClick="copy" />
-  </Dialog>
 </template>
 
 <script setup lang="ts">
