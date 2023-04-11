@@ -22,6 +22,10 @@ const EclService = {
     return axios.post(Env.API + "api/ecl/public/evaluateEcl", eclSearchRequest, { headers: { "Content-Type": "application/json" } });
   },
 
+  async evaluateEcl(ecl: string): Promise<any> {
+    return axios.post(Env.API + "api/ecl/public/evaluateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
+  },
+
   async getQueryFromECL(ecl: string): Promise<Query> {
     return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclToIMQ", ecl, { headers: { "Content-Type": "text/plain" } });
   },

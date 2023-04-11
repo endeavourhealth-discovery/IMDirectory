@@ -22,6 +22,14 @@ export default class EclService {
     return validateEcl(ecl);
   }
 
+  public async evaluateEcl(ecl: string) {
+    const esr = {
+      eclString: ecl,
+    } as EclSearchRequest;
+
+    return await this.eclSearch(esr);
+  }
+
   public async eclSearch(eclSearchRequest: EclSearchRequest) {
     if (isObjectHasKeys(eclSearchRequest, ["eclString"]) && eclSearchRequest.eclString) {
       eclSearchRequest.eclQuery = eclToIMQ(eclSearchRequest.eclString);
