@@ -125,12 +125,11 @@ export default class FhirService {
 
         for (const e of evaluated) {
             const valueSetContains = new fhirR4.ValueSetContains();
-            const scheme: string[] = e["scheme"];
 
             valueSetContains.id = e["@id"];
-            valueSetContains.display = e["name"];
-            valueSetContains.code = e["code"];
-            valueSetContains.system = scheme["@id"];
+            valueSetContains.display = e.name;
+            valueSetContains.code = e.code;
+            valueSetContains.system = e.scheme?.["@id"];
 
             contains.push(valueSetContains);
         }

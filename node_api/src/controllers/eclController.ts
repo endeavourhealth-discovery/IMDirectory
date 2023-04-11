@@ -57,7 +57,7 @@ export default class EclController {
   }
 
   async evaluateEcl(req: Request, res: Response, next: NextFunction) {
-      const result = await this.eclService.evaluateEcl(req);
+      const result = await this.eclService.evaluateEcl(req.body);
       res.send(result).end();
   }
 }
