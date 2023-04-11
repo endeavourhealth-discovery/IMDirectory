@@ -115,7 +115,7 @@ export default class FhirService {
     async eclToFhir(data: string) {
         const result = new fhirR4.ValueSet();
         result.resourceType = "ValueSet";
-        result.name = data.replaceAll("\n", "?");
+        result.name = data.replaceAll("\n", " ");
 
         const expansion = new fhirR4.ValueSetExpansion();
         expansion.contains = [];
