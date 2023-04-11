@@ -35,6 +35,9 @@ export default class FhirController {
       */
       return await this.getValueSet(req, res, next, true)
     });
+    this.router.post("/ValueSet/ECL", async (req,res,next) => {
+      return await this.eclToFhir(req, res, next)
+    });
   }
 
   async getValueSet(req: Request, res: Response, next: NextFunction,expand:boolean) {
@@ -44,6 +47,18 @@ export default class FhirController {
         .setHeader('content-type','application/fhir+json')
         .send(data)
         .end();
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async eclToFhir(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await this.service.eclToFhir(req.body);
+      res
+          .setHeader('content-type', 'text/plain')
+          .send(data)
+          .end();
     } catch (e) {
       next(e);
     }
