@@ -10,9 +10,9 @@
       </svg>
     </div>
     <div class="custom-control-buttons">
-      <Button class="svg-pan-zoom-control p-button-secondary" icon="pi pi-plus" @click="zoomIn" />
+      <Button class="svg-pan-zoom-control p-button-secondary" icon="fa-solid fa-plus" @click="zoomIn" />
       <Button class="svg-pan-zoom-control p-button-secondary" label="RESET" @click="resetZoom" />
-      <Button class="svg-pan-zoom-control p-button-secondary" icon="pi pi-minus" @click="zoomOut" />
+      <Button class="svg-pan-zoom-control p-button-secondary" icon="fa-solid fa-minus" @click="zoomOut" />
     </div>
   </div>
   <ContextMenu ref="menu" :model="contextMenu" />

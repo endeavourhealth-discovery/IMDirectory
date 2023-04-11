@@ -3,7 +3,7 @@
     <InputText id="editor-search" v-model="searchText" placeholder="Search..." @keyup.enter="search" data-testid="editor-search-input" />
     <Button
       id="filter=button"
-      icon="pi pi-sliders-h"
+      :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'fa-solid fa-sliders'"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
       @click="openFiltersOverlay"
       data-testid="filters-open-button"
@@ -37,6 +37,7 @@ const emit = defineEmits({
 
 const store = useStore();
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");

@@ -63,8 +63,8 @@
       </div>
     </div>
     <template #footer>
-      <Button severity="warning" label="Decline" icon="pi pi-times" @click="submitDecline" data-testid="decline-button" />
-      <Button label="Agree" icon="pi pi-check" @click="submitAgree" data-testid="agree-button" />
+      <Button severity="warning" label="Decline" icon="fa-solid fa-xmark" @click="submitDecline" data-testid="decline-button" />
+      <Button label="Agree" icon="fa-solid fa-check" @click="submitAgree" data-testid="agree-button" />
     </template>
   </Dialog>
 </template>

@@ -51,8 +51,8 @@
       </Column>
     </DataTable>
     <template #footer>
-      <Button label="Cancel" icon="pi pi-times" @click="closeDialog" class="p-button-text" />
-      <Button label="Add valid codes" :disabled="!hasValidEntities" icon="pi pi-plus" @click="add" autofocus />
+      <Button label="Cancel" icon="fa-solid fa-xmark" @click="closeDialog" class="p-button-text" />
+      <Button label="Add valid codes" :disabled="!hasValidEntities" icon="fa-solid fa-plus"" @click="add" autofocus />
     </template>
   </Dialog>
 </template>
@@ -183,14 +183,14 @@ function getSeverity(codeStatus: string) {
 function getIcon(codeStatus: string) {
   switch (codeStatus) {
     case CODE_STATUS.VALID:
-      return "pi pi-check";
+      return "fa-solid fa-check";
     case CODE_STATUS.DUPLICATE:
     case CODE_STATUS.CHILD:
-      return "pi pi-exclamation-triangle";
+      return "fa-solid fa-triangle-exclamation";
     case CODE_STATUS.INVALID:
-      return "pi pi-times";
+      return "fa-solid fa-xmark";
     default:
-      return "pi pi-times";
+      return "fa-solid fa-xmark";
   }
 }
 

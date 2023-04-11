@@ -40,12 +40,12 @@
           />
         </div>
         <div class="button-bar" id="editor-button-bar">
-          <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" data-testid="back-button" />
-          <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="router.go(-1)" data-testid="cancel-button" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
-          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshEditor" data-testid="refresh-button" />
-          <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
-          <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" data-testid="forward-button" />
+          <Button :disabled="currentStep === 0" icon="fa-solid fa-angle-left" label="Back" @click="stepsBack" data-testid="back-button" />
+          <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="router.go(-1)" data-testid="cancel-button" />
+          <Button v-if="hasQueryDefinition" icon="fa-solid fa-bolt" label="Test query" severity="help" @click="testQuery" />
+          <Button icon="fa-solid fa-rotate-right" label="Reset" severity="warning" @click="refreshEditor" data-testid="refresh-button" />
+          <Button icon="fa-solid fa-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
+          <Button :disabled="currentStep >= stepsItems.length - 1" icon="fa-solid fa-angle-right" label="Next" @click="stepsForward" data-testid="forward-button" />
         </div>
       </div>
     </div>

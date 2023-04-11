@@ -1,7 +1,7 @@
 <template>
   <div class="avatar-container">
     <img data-testid="avatar-image" id="selected-avatar" :src="getUrl(newAvatar)" alt="avatar icon" />
-    <Button data-testid="avatar-op-button" icon="pi pi-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
+    <Button data-testid="avatar-op-button" icon="fa-solid fa-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
     <OverlayPanel ref="avatar" class="avatar-popup">
       <div>
         Icons made by

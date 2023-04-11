@@ -3,26 +3,28 @@
     <div class="title-buttons-container">
       <div class="title-container">
         <h4 class="title">
-          <IMFontAwesomeIcon v-if="concept" :icon="getIcon(concept)" :style="getColour(concept)" class="p-mx-1 type-icon" :key="concept['@id']" />
-          <span>{{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Select a task or an action" }}</span>
+          <span :style="getColour(concept)" class="p-mx-1 type-icon" :key="concept['@id']">
+            <i :class="getIcon(concept)" aria-hidden="true" />
+          </span>
+          {{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Select a task or an action" }}
         </h4>
       </div>
       <div class="concept-buttons-container">
         <Button
-          icon="pi pi-fw pi-eye"
+          icon="fa-regular fa-eye"
           severity="secondary"
           class="p-button-outlined concept-button"
           @click="view(concept['@id'])"
           v-tooltip.left="'Open in Viewer'"
         />
         <Button
-          icon="pi pi-fw pi-info-circle"
+          icon="fa-solid fa-circle-info"
           severity="secondary"
           class="p-button-outlined concept-button"
           @click="showInfo(concept['@id'])"
           v-tooltip.left="'Show summary panel'"
         />
-        <Button icon="pi pi-fw pi-pencil" severity="secondary" class="p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
+        <Button :icon="fontAwesomePro ? 'fa-duotone fa-pencil' : 'fa-regular fa-pencil'" severity="secondary" class="p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
         <!-- <Button
           icon="pi pi-fw pi-play"
           class="p-button-secondary p-button-outlined concept-button"
@@ -43,9 +45,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch } from "vue";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import {computed, defineComponent, onMounted, ref, Ref, watch} from "vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { DirectService, EntityService, Env } from "@/services";
 import { IM, RDF } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
@@ -64,6 +66,7 @@ watch(
 const router = useRouter();
 const store = useStore();
 
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 const directService = new DirectService();
 
 const concept: Ref<any> = ref({});
@@ -151,12 +154,12 @@ function updateFavourites(iri: string) {
 }
 
 .concept-button:hover {
-  background-color: var(--text-color) !important;
-  color: var(--surface-a) !important;
+  background-color: #6c757d !important;
+  color: #ffffff !important;
 }
 
 .concept-button-fav:hover {
-  background-color: var(--yellow-500) !important;
-  color: var(--surface-a) !important;
+  background-color: #e39a36 !important;
+  color: #ffffff !important;
 }
 </style>

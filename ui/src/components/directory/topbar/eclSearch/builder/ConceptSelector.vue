@@ -174,7 +174,7 @@ function openTree(type: string) {
     props: dialogProps,
     templates: {
       footer: () => {
-        return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+        return [h(Button, { label: "Close", icon: "fa-solid fa-xmark", onClick: () => dialogRef.close() })];
       }
     },
     data: { type: "concept", currentValue: props.value.concept },

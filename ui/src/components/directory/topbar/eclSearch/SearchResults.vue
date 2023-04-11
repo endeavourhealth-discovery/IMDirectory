@@ -24,27 +24,27 @@
           <Button
             :disabled="!searchResults?.length"
             class="p-button-sm p-button-text"
-            icon="pi pi-external-link"
+            :icon="fontAwesomePro ? 'fa-duotone fa-up-right-from-square' : 'fa-solid fa-up-right-from-square'"
             @click="exportCSV()"
             v-tooltip.right="'Download results table'"
           />
         </template>
 
-        <template #body="{ data }: any">
-          <div class="result-container" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
-            <div class="result-icon-container" :style="getColorByConceptType(data.entityType)">
-              <IMFontAwesomeIcon v-if="data.entityType" :icon="getPerspectiveByConceptType(data.entityType)" class="result-icon" />
+        <template #body="slotProps">
+          <div class="result-container" @mouseenter="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay()">
+            <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
+              <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon" aria-hidden="true" />
             </div>
             <div class="result-text-container">
-              {{ data.name }}<br />
-              <small style="color: lightgrey">{{ data.name }}</small>
+              {{ slotProps.data.name }}<br />
+              <small style="color: lightgrey">{{ slotProps.data.name }}</small>
             </div>
             <div class="button-container">
               <Button
-                icon="pi pi-copy"
+                icon="fa-solid fa-copy"
                 severity="secondary"
                 class="p-button-rounded p-button-text row-button"
-                v-clipboard:copy="copyConceptToClipboardVueWrapper(data)"
+                v-clipboard:copy="copyConceptToClipboardVueWrapper(slotProps.data)"
                 v-clipboard:success="onCopy"
                 v-clipboard:error="onCopyError"
                 v-tooltip.right="'Copy concept summary to clipboard \n (right click to copy individual properties)'"
@@ -106,8 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch, onMounted } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import {PropType, ref, Ref, watch, onMounted, computed} from "vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
 import { DirectService } from "@/services";
@@ -120,6 +119,7 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { conceptObjectToCopyString, copyConceptToClipboard } from "@im-library/helpers/CopyConceptToClipboard";
+import {useStore} from "vuex";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -144,6 +144,7 @@ onMounted(() => {
 });
 
 const toast = useToast();
+const store = useStore();
 const directService = new DirectService();
 const { downloadFile } = setupDownloadFile(window, document);
 
@@ -155,6 +156,8 @@ const currentReportTemplate = ref("Displaying {first} to {last} of {totalRecords
 
 const blockedIris = XmlSchemaDatatypes;
 const defaultPredicates = DefaultPredicateNames;
+
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const op = ref();
 const copyMenu = ref();
@@ -342,7 +345,7 @@ async function setCopyMenuItems(): Promise<void> {
 }
 
 .row-button:hover {
-  background-color: var(--surface-b) !important;
-  color: var(--text-color) !important;
+  background-color: #6c757d !important;
+  color: #ffffff !important;
 }
 </style>

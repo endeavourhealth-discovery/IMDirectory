@@ -26,7 +26,7 @@ function createNew() {
     if (!isArrayHasLength(allowableTypes)) {
       selectionWrapperCopy[0].items.push({
         label: "No options",
-        icon: "pi pi-ban",
+        icon: "fa-solid fa-ban",
         disabled: true
       });
       return selectionWrapperCopy;

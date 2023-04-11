@@ -1,5 +1,5 @@
 <template>
-  <div v-if="data && hasData" id="term-codes-container" :style="{ width: size }">
+  <div v-if="hasData" id="term-codes-container" :style="{ width: size }">
     <div class="head-container">
       <strong class="label">{{ label }}</strong>
       <span>&nbsp;({{ data.length }})</span>
@@ -19,16 +19,16 @@
     <DataTable :value="data" :paginator="data.length > 5 ? true : false" :rows="5" id="term-codes-table" class="hidden">
       <template #empty> No records found </template>
       <Column field="name" header="Name" :sortable="true">
-        <template #body="{ data }: any">
+        <template #body="slotProps">
           <div>
-            {{ data.name }}
+            {{ slotProps.data.name }}
           </div>
         </template>
       </Column>
       <Column field="code" header="Code" :sortable="true">
-        <template #body="{ data }: any">
+        <template #body="slotProps">
           <div>
-            {{ data.code || "None" }}
+            {{ slotProps.data.code || "None" }}
           </div>
         </template>
       </Column>
@@ -37,21 +37,20 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, computed } from "vue";
+import { computed, PropType, ref } from "vue";
 import { TermCode } from "@im-library/interfaces";
-import { DataTypeCheckers } from "@im-library/helpers";
-const { isArrayHasLength } = DataTypeCheckers;
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({
   label: { type: String },
-  data: { type: Array as PropType<Array<TermCode>> },
+  data: { type: Array as PropType<TermCode[]>, required: true },
   size: { type: String },
   id: { type: String }
 });
 
 const hasData = computed(() => isArrayHasLength(props.data));
 
-const buttonExpanded = ref(false);
+let buttonExpanded = ref(false);
 
 function setButtonExpanded(): void {
   buttonExpanded.value = !buttonExpanded.value;

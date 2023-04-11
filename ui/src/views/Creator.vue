@@ -40,11 +40,11 @@
           />
         </div>
         <div class="button-bar" id="creator-button-bar">
-          <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" />
-          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshCreator" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
-          <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
-          <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" />
+          <Button :disabled="currentStep === 0" icon="fa-solid fa-angle-left" label="Back" @click="stepsBack" />
+          <Button icon="fa-solid fa-rotate-right" label="Reset" severity="warning" @click="refreshCreator" />
+          <Button v-if="hasQueryDefinition" icon="fa-solid fa-bolt" label="Test query" severity="help" @click="testQuery" />
+          <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
+          <Button :disabled="currentStep >= stepsItems.length - 1" icon="fa-solid fa-angle-right" label="Next" @click="stepsForward" />
         </div>
       </div>
     </div>

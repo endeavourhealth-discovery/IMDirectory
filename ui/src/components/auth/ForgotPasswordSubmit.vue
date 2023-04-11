@@ -2,47 +2,32 @@
   <div class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center recovery-card">
       <template #header>
-        <IMFontAwesomeIcon icon="fa-solid fa-user" class="icon-header" />
+        <i class="fa-solid fa-user icon-header" aria-hidden="true" />
       </template>
       <template #title> Account Recovery: <br /><br />Submit Password Reset Code </template>
       <template #content>
         <div class="p-fluid recovery-form">
           <div class="field">
             <label for="fieldUsername">Username</label>
-            <InputText
-              data-testid="forgot-password-submit-username"
-              id="fieldUsername"
-              type="text"
-              v-model="username"
-              :placeholder="registeredUsername"
-              @focus="updateFocused('username', true)"
-              @blur="updateFocused('username', false)"
-              :class="!username && focused.get('username') === false && 'p-invalid'"
-            />
+            <InputText data-testid="forgot-password-submit-username" id="fieldUsername" type="text" v-model="username" :placeholder="registeredUsername" />
           </div>
           <div class="field">
             <label for="fieldCode">Confirmation code</label>
             <div class="flex flex-row align-items-center">
-              <InputText
-                data-testid="forgot-password-submit-code"
-                id="fieldCode"
-                type="password"
-                v-model="code"
-                @focus="updateFocused('code', true)"
-                @blur="updateFocused('code', false)"
-                :class="!codeVerified && code && !focused.get('code') && 'p-invalid'"
-              />
-              <IMFontAwesomeIcon
+              <InputText data-testid="forgot-password-submit-code" id="fieldCode" type="password" v-model="code" />
+              <i
                 v-if="codeVerified"
-                icon="fa-regular fa-circle-check"
-                style="color: var(--green-500); font-size: 2em"
                 data-testid="forgot-password-submit-verified"
+                class="fa-solid fa-circle-check"
+                style="color: #439446; font-size: 2em"
+                aria-hidden="true"
               />
-              <IMFontAwesomeIcon
-                v-if="!codeVerified && code"
-                icon="fa-regular fa-circle-xmark"
-                style="color: var(--red-500); font-size: 2em"
+              <i
+                v-if="!codeVerified && code !== ''"
                 data-testid="forgot-password-submit-unverified"
+                class="fa-solid fa-circle-xmark"
+                style="color: #e60017; font-size: 2em"
+                aria-hidden="true"
               />
             </div>
             <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
@@ -55,9 +40,6 @@
               type="password"
               aria-describedby="password-help"
               v-model="newPassword1"
-              @focus="updateFocused('password1', true)"
-              @blur="updateFocused('password1', false)"
-              :class="passwordStrength === 'fail' && newPassword1 && !focused.get('password1') && 'p-invalid'"
             />
             <InlineMessage v-if="passwordStrength === 'strong'" severity="success">Password Strength: Strong</InlineMessage>
             <InlineMessage v-if="passwordStrength === 'medium'" severity="success">Password Strength: Medium</InlineMessage>
@@ -74,23 +56,12 @@
               id="fieldPassword2"
               type="password"
               v-model="newPassword2"
-              @focus="updateFocused('password2', true)"
-              @blur="updateFocused('password2', false)"
-              :class="!passwordsMatch && newPassword2 && !focused.get('password2') && 'p-invalid'"
+              v-on:blur="setShowPassword2Notice"
             />
-            <InlineMessage v-if="!passwordsMatch && newPassword2 && !focused.get('password2') && 'p-invalid'" severity="error"
-              >Passwords do not match!</InlineMessage
-            >
+            <InlineMessage v-if="showPassword2Notice" severity="error">Passwords do not match!</InlineMessage>
           </div>
           <div class="flex flex-row justify-content-center">
-            <Button
-              :disabled="!allVerified"
-              data-testid="forgot-password-submit-reset"
-              class="user-submit"
-              type="submit"
-              label="Reset Password"
-              v-on:click.prevent="handleSubmit"
-            />
+            <Button data-testid="forgot-password-submit-reset" class="user-submit" type="submit" label="Reset Password" v-on:click.prevent="handleSubmit" />
           </div>
         </div>
       </template>
@@ -108,7 +79,6 @@
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { AuthService } from "@/services";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { PasswordStrength } from "@im-library/enums";
 import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import { SweetAlertResult } from "sweetalert2";
@@ -124,11 +94,10 @@ let username = ref("");
 let newPassword1 = ref("");
 let newPassword2 = ref("");
 let passwordStrength: Ref<PasswordStrength> = ref(PasswordStrength.fail);
-let focused: Ref<Map<string, boolean>> = ref(new Map());
+let showPassword2Notice = ref(false);
 
 const codeVerified = computed(() => verifyCode(code.value));
 const passwordsMatch = computed(() => verifyPasswordsMatch(newPassword1.value, newPassword2.value));
-const allVerified = computed(() => codeVerified.value && passwordStrength.value !== PasswordStrength.fail && passwordsMatch.value && username.value !== "");
 
 watch(newPassword1, newValue => {
   passwordStrength.value = checkPasswordStrength(newValue);
@@ -140,16 +109,16 @@ onMounted(() => {
   }
 });
 
-function verifyCode(code: string): boolean {
-  return /^.{6,}$/.test(code) && code.length <= 6;
+function setShowPassword2Notice(): void {
+  showPassword2Notice.value = passwordsMatch.value ? false : true;
 }
 
-function updateFocused(key: string, value: boolean) {
-  focused.value.set(key, value);
+function verifyCode(code: string): boolean {
+  return /^(?=.{6,})/.test(code);
 }
 
 function handleSubmit(): void {
-  if (allVerified.value) {
+  if (codeVerified.value && username.value !== "" && passwordsMatch.value && passwordStrength.value !== PasswordStrength.fail) {
     AuthService.forgotPasswordSubmit(username.value, code.value, newPassword1.value).then(res => {
       if (res.status === 200) {
         Swal.fire({

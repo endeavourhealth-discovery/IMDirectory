@@ -2,7 +2,7 @@
   <div class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center confirm-card">
       <template #header>
-        <IMFontAwesomeIcon icon="fa-solid fa-key" class="icon-header" />
+        <i class="fa-solid fa-key icon-header" aria-hidden="true" />
       </template>
       <template #title> Confirmation Code </template>
       <template #content>
@@ -15,8 +15,8 @@
             <label for="fieldCode">Confirmation code</label>
             <div class="flex flex-row align-items-center">
               <InputText data-testid="confirm-code-input" id="fieldCode" type="password" v-model="code" />
-              <IMFontAwesomeIcon v-if="codeVerified" icon="fa-regular fa-circle-check" class="password-check" />
-              <IMFontAwesomeIcon v-if="!codeVerified && code" icon="fa-regular fa-circle-xmark" class="password-times" />
+              <i v-if="codeVerified" class="fa-solid fa-circle-check password-check" aria-hidden="true" />
+              <i v-if="!codeVerified && code !== ''" class="fa-solid fa-circle-xmark password-times" aria-hidden="true" />
             </div>
             <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
           </div>
@@ -55,10 +55,9 @@
 <script setup lang="ts">
 import { useStore } from "vuex";
 import { AuthService } from "@/services";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 
 const store = useStore();
 const router = useRouter();
@@ -82,7 +81,7 @@ onMounted(() => {
 });
 
 function verifyCode(code: string) {
-  return /^.{6,}$/.test(code) && code.length <= 6;
+  return /^(?=.{6,})/.test(code);
 }
 
 function handleSubmit() {
@@ -176,21 +175,21 @@ function requestCode() {
 }
 
 .password-check {
-  color: var(--green-500);
+  color: #439446;
   font-size: 2em;
 }
 
 .password-times {
-  color: var(--red-500);
+  color: #e60017;
   font-size: 2em;
 }
 
 .invalid {
-  border-color: var(--red-400);
+  border-color: #e24c4c;
 }
 
 .validate-error {
-  color: var(--red-400);
+  color: #e24c4c;
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

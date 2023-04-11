@@ -3,7 +3,7 @@
     <Panel>
       <template #icons>
         <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
-          <span class="pi pi-times"></span>
+          <span class="fa-solid fa-xmark"></span>
         </button>
       </template>
       <template #header> Please select an item to display </template>
@@ -13,7 +13,7 @@
     <Panel>
       <template #icons>
         <button class="p-panel-header-icon p-link mr-2" @click="closeBar">
-          <span class="pi pi-times"></span>
+          <span class="fa-solid fa-xmark"></span>
         </button>
       </template>
       <template #header>

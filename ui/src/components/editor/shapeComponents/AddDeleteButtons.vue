@@ -1,8 +1,8 @@
 <template>
   <div class="switch-button-container">
     <div class="buttons-container">
-      <Button v-if="show.minus" icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteClicked" />
-      <Button v-if="show.plus" icon="pi pi-plus" label="Add" severity="success" @click="addNextClicked" />
+      <Button v-if="show.minus" icon="fa-solid fa-xmark" severity="danger" class="p-button-rounded p-button-text" @click="deleteClicked" />
+      <Button v-if="show.plus" icon="fa-solid fa-plus" label="Add" severity="success" @click="addNextClicked" />
     </div>
     <Menu ref="optionsMenu" :model="menuOptions" :popup="true" />
   </div>
@@ -48,11 +48,7 @@ onMounted(() => {
 });
 
 function addNextClicked(event: any) {
-  if(props.options?.length === 1) {
-    selected.value = props.options[0];
-  } else {
-    (optionsMenu.value as any).toggle(event);
-  }
+  (optionsMenu.value as any).toggle(event);
 }
 
 function deleteClicked() {

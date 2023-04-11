@@ -118,12 +118,12 @@ const selected: Ref<any> = ref({});
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
-    icon: "fa-solid fa-sitemap",
+    icon:fontAwesomePro ? "fa-duotone fa-list-tree" : "fa-solid fa-sitemap",
     command: () => directService.select((selected.value as any).iri, "Folder")
   },
   {
     label: "View in new tab",
-    icon: "pi pi-fw pi-external-link",
+    icon: fontAwesomePro ? "fa-duotone fa-up-right-from-square" : "fa-solid fa-up-right-from-square",
     command: () => directService.view((selected.value as any).iri)
   },
   {
@@ -131,7 +131,7 @@ const rClickOptions: Ref<any[]> = ref([
   },
   {
     label: "Favourite",
-    icon: "pi pi-fw pi-star",
+    icon: "fa-regular fa-star",
     command: () => updateFavourites()
   }
 ]);

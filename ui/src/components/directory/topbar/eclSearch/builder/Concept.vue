@@ -9,30 +9,16 @@
         <component :is="getComponent(value.concept.type)" :value="value.concept" :parent="value" @unGroupItems="unGroupItems" />
       </div>
       <div v-else class="add-focus-buttons-container">
-        <Button
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="hover ? false : true"
-          :class="!hover && 'hover-button'"
-          label="Add Concept"
-          @click="addConcept"
-          class="builder-button"
-        />
-        <Button
-          :severity="hover ? 'success' : 'secondary'"
-          :outlined="hover ? false : true"
-          :class="!hover && 'hover-button'"
-          label="Add Group"
-          @click="addGroup"
-          class="builder-button"
-        />
+        <Button type="button" :severity="hover ? 'success' : undefined"  :class="!hover && 'p-button-placeholder'" label="Add Concept" @click="addConcept" class="builder-button" />
+        <Button type="button" :severity="hover ? 'success' : undefined"  :class="!hover && 'p-button-placeholder'" label="Add Group" @click="addGroup" class="builder-button" />
       </div>
     </div>
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <div v-for="(item, index) in value.items" class="refinement-container">
       <span class="left-container">
         <div v-if="index === 0" class="spacer">&nbsp;</div>
-        <Button v-else-if="index === 1" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
-        <Button v-else-if="index > 1" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
+        <Button v-else-if="index === 1" type="button" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
+        <Button v-else-if="index > 1" type="button" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
       </span>
       <component v-if="!loading" :is="getComponent(item.type)" :value="item" :parent="value" :focus="value.concept" @unGroupItems="unGroupItems" />
       <component v-else :is="getSkeletonComponent(item.type)" :value="item" :parent="value" :focus="value.concept" />
@@ -41,56 +27,50 @@
           <Checkbox :inputId="'group' + index" name="Group" :value="index" v-model="group" />
           <label :for="'group' + index">Group</label>
         </div>
-        <Button
-          @click="deleteItem(index)"
-          :severity="hover ? 'danger' : 'secondary'"
-          :outlined="!hover"
-          :class="!hover && 'hover-button'"
-          icon="pi pi-trash"
-          class="builder-button"
-        />
+        <Button @click="deleteItem(index)" :severity="hover ? 'danger' : undefined"  :class="!hover && 'p-button-placeholder'"
+                :icon="fontAwesomePro ? 'fa-duotone fa-trash-can' : 'fa-solid fa-trash-can'"  />
       </span>
     </div>
     <div class="add-group">
       <Button
-        :severity="hover ? 'success' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        label="Add Refinement"
-        @click="addRefinement"
-        class="builder-button"
+          type="button"
+          :severity="hover ? 'success' : undefined"
+          :class="!hover && 'p-button-placeholder'"
+          label="Add Refinement"
+          @click="addRefinement"
+          class="builder-button"
       />
       <Button
-        :severity="hover ? 'success' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        label="Add New Group"
-        @click="addGroup"
-        class="builder-button"
+          type="button"
+          :severity="hover ? 'success' : undefined"
+          :class="!hover && 'p-button-placeholder'"
+          label="Add New Group"
+          @click="addGroup"
+          class="builder-button"
       />
       <Button
-        :severity="hover ? 'help' : 'secondary'"
-        :outlined="!hover"
-        :class="[!hover && 'hover-button', groupWithinConcept ? 'p-button-danger' : 'p-button-help']"
-        :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
-        @click="processGroup"
-        class="builder-button"
+          type="button"
+          :severity="(groupWithinConcept ? 'danger' : undefined) || (!groupWithinConcept ? 'help' : undefined)"
+          :class="!hover && 'p-button-placeholder'"
+          :label="groupWithinConcept ? 'Finish Grouping' : 'Group within'"
+          @click="processGroup"
+          class="builder-button"
       />
       <Button
-        v-if="index && index > 0"
-        :severity="hover ? 'danger' : 'secondary'"
-        :outlined="!hover"
-        :class="!hover && 'hover-button'"
-        :label="value.exclude ? 'Include' : 'Exclude'"
-        @click="toggleExclude"
-        class="builder-button"
+          v-if="index && index > 0"
+          type="button"
+          :severity="hover ? 'danger' : undefined"
+          :class="!hover && 'p-button-placeholder'"
+          :label="value.exclude ? 'Include' : 'Exclude'"
+          @click="toggleExclude"
+          class="builder-button"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch, inject } from "vue";
+import {Ref, ref, onMounted, PropType, watch, inject, computed} from "vue";
 import BoolGroup from "./BoolGroup.vue";
 import BoolGroupSkeleton from "./skeletons/BoolGroupSkeleton.vue";
 import Refinement from "@/components/directory/topbar/eclSearch/builder/Refinement.vue";
@@ -101,6 +81,10 @@ import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
+import { Store, useStore } from "vuex";
+
+const store = useStore();
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
 const props = defineProps({
   value: {
@@ -120,17 +104,17 @@ const props = defineProps({
 });
 
 watch(
-  () => _.cloneDeep(props.value),
-  () => {
-    props.value.ecl = generateEcl();
-  }
+    () => _.cloneDeep(props.value),
+    () => {
+      props.value.ecl = generateEcl();
+    }
 );
 
 watch(
-  () => _.cloneDeep(props.value.concept),
-  async (newValue, oldValue) => {
-    if (newValue !== oldValue) await init();
-  }
+    () => _.cloneDeep(props.value.concept),
+    async (newValue, oldValue) => {
+      if (newValue !== oldValue) await init();
+    }
 );
 
 const includeTerms = inject("includeTerms") as Ref<boolean>;
@@ -269,7 +253,16 @@ function unGroupItems(groupedItems: any) {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+@use "primevue/resources/themes/saga-blue/theme.css";
+
+.p-button-placeholder {
+  @extend .p-button-secondary;
+  @extend .p-button-outlined;
+  color: #00000030 !important;
+  border-style: dashed !important;
+}
+
 .focus-container {
   display: flex;
   flex-flow: row nowrap;
@@ -291,29 +284,6 @@ function unGroupItems(groupedItems: any) {
   flex-flow: column nowrap;
 }
 
-.nested-div {
-  padding: 0.5rem;
-  border: #ff8c0030 1px solid;
-  border-radius: 5px;
-  background-color: #ff8c0010;
-  margin: 0.5rem;
-  flex: 1;
-}
-
-.nested-div:deep(.hover-button) {
-  color: #00000030 !important;
-  border-style: dashed !important;
-}
-
-.nested-div-hover {
-  padding: 0.5rem;
-  border-radius: 5px;
-  background-color: #ff8c0010;
-  margin: 0.5rem;
-  flex: 1;
-  border: #ff8c00 1px solid;
-}
-
 .refinement-container {
   display: flex;
 }
@@ -326,6 +296,20 @@ function unGroupItems(groupedItems: any) {
 .conjunction-button {
   width: 4rem;
   margin: 0;
+}
+
+.nested-div {
+  padding: 0.5rem;
+  border: #ff8c0030 1px solid;
+  border-radius: 5px;
+  background-color: #ff8c0010;
+  margin: 0.5rem;
+  flex: 1;
+}
+
+.nested-div-hover {
+  @extend .nested-div;
+  border: #ff8c00 1px solid;
 }
 
 .builder-button {
@@ -342,7 +326,7 @@ function unGroupItems(groupedItems: any) {
 .add-group {
   width: 100%;
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: row;
   justify-content: flex-start;
   gap: 4px;
 }
