@@ -371,6 +371,8 @@ function renderChart() {
   let rect: any;
   let fullName: any;
 
+  const div = d3.selectAll("#data-model-svg-container").append("div").attr("class", "tooltip").style("opacity", 0);
+
   node
     .append("text")
     .attr("x", (n: any) => n.x + 4)
@@ -382,6 +384,11 @@ function renderChart() {
     .on("mouseover", (d: any) => {
       d3.select(d.srcElement).style("cursor", "pointer");
       const n = d["target"]["__data__"];
+      div.transition().duration(200).style("opacity", 0.9);
+      div
+          .html(n.name + "<div/> Press ctr+click to navigate")
+          .style("left", d.layerX + "px")
+          .style("top", d.layerY + 10 + "px");
       if (n.name.length > 26) {
         rect = svg
           .append("rect")
@@ -401,18 +408,29 @@ function renderChart() {
       }
     })
     .on("mouseout", (_d: any) => {
+      div.transition().duration(500).style("opacity", 0);
       if (rect && fullName) {
         rect.remove();
         fullName.remove();
       }
     })
     .on("click", (d: any) => {
-      const n = d["target"]["__data__"];
-      if (n.id.startsWith(twinNode)) {
-        const iri = n.id.slice(15);
-        directService.select(iri);
+      div.transition().duration(500).style("opacity", 0);
+      const node = d["target"]["__data__"];
+      if (d.metaKey || d.ctrlKey) {
+        if (node.id.startsWith(twinNode)) {
+          const iri = node.id.slice(15);
+          directService.select(iri);
+        } else {
+          directService.select(node.id);
+        }
       } else {
-        directService.select(n.id);
+        d.preventDefault();
+        toggleSubProperties(d);
+        if (selectedNode.value !== node) {
+          selectedNode.value = node;
+          selected.value = (nodeMap.get(node.id) as any) || [];
+        }
       }
     });
 }
@@ -442,5 +460,18 @@ function hasSubPropertiesOpen(node: any) {
   margin-top: 2rem;
   margin-left: 10px;
   margin-right: 10px;
+}
+
+#data-model-svg-container:deep(.tooltip) {
+  position: absolute;
+  text-align: center;
+  width: 120px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background-color: var(--surface-b);
+  color: var(--text-color);
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
 }
 </style>
