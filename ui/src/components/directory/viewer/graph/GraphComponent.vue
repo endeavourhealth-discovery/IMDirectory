@@ -425,7 +425,6 @@ function zoomOut() {
   opacity: 33%;
   padding: 0.25rem !important;
   width: auto !important;
-  background-color: var(--surface-b) !important;
 }
 
 .svg-pan-zoom-control:hover {
