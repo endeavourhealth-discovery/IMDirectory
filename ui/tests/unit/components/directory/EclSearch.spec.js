@@ -7,7 +7,7 @@ import MultiSelect from "primevue/multiselect";
 import testData from "./EclSearch.testData";
 import { EclService } from "@/services";
 import { expect, it } from "vitest";
-import { fakerFactory } from "../../../../src/mocks/factory";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import VueClipboard from "vue3-clipboard";
 import Tooltip from "primevue/tooltip";
 

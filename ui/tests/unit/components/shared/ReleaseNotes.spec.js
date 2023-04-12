@@ -4,7 +4,7 @@ import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fakerFactory } from "@/mocks/factory";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import axios from "axios";
 import { flushPromises } from "@vue/test-utils";
 import { GithubService } from "@/services";

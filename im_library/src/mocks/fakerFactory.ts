@@ -1,5 +1,6 @@
-import { factory, primaryKey, manyOf, nullable } from "@mswjs/data";
+import { factory, primaryKey, manyOf, nullable, oneOf } from "@mswjs/data";
 import { faker } from "@faker-js/faker";
+import { ComponentType } from "@/enums";
 
 const apiUrl = "http://localhost/imapi/api/";
 
@@ -59,6 +60,52 @@ const fakerFactory = factory({
     releaseNotes: faker.datatype.array,
     author: faker.name.fullName,
     url: primaryKey(faker.internet.url)
+  },
+  argument: {
+    parameter: primaryKey(String),
+    valueData: String,
+    valueVariable: String,
+    valueIri: oneOf("iriRef"),
+    valueIriList: manyOf("iriRef"),
+    valueDataList: faker.datatype.array
+  },
+  propertyShape: {
+    label: faker.lorem.sentence,
+    comment: faker.lorem.sentence,
+    name: primaryKey(faker.lorem.words),
+    order: faker.datatype.number,
+    minCount: faker.datatype.number,
+    maxCount: faker.datatype.number,
+    componentType: oneOf("iriRef"),
+    path: oneOf("iriRef", { unique: true }),
+    node: manyOf("iriRef", { unique: true }),
+    validation: nullable(oneOf("iriRef")),
+    search: nullable(oneOf("iriRef")),
+    select: manyOf("iriRef"),
+    argument: nullable(oneOf("argument")),
+    valueVariable: nullable(oneOf("iriRef")),
+    isIri: nullable(oneOf("iriRef")),
+    isTextValue: nullable(String),
+    isNumbericValue: nullable(String),
+    forceIsValue: Boolean,
+    builderChild: Boolean,
+    datatype: oneOf("iriRef"),
+    clazz: oneOf("iriRef"),
+    validationErrorMessage: nullable(faker.lorem.sentence),
+    function: nullable(oneOf("iriRef")),
+    expression: nullable(Object),
+    subProperty: manyOf("propertyShape")
+  },
+  componentDetails: {
+    id: primaryKey(faker.datatype.string),
+    value: Object,
+    position: faker.datatype.number,
+    type: String,
+    json: Object,
+    showButtons: nullable(Object),
+    shape: oneOf("propertyShape"),
+    mode: String,
+    showTitles: Boolean
   }
 });
 

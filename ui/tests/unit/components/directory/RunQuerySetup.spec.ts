@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EntityService, QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import { fakerFactory } from "@/mocks/factory";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { createTestStore, mountComposable } from "../../TestMethods";
 import testData from "./RunQuerySetup.testData";
 import setupRunQuery from "@/composables/setupRunQuery";
