@@ -62,9 +62,9 @@ const fakerFactory = factory({
     url: primaryKey(faker.internet.url)
   },
   argument: {
-    parameter: primaryKey(String),
-    valueData: String,
-    valueVariable: String,
+    parameter: primaryKey(faker.internet.url),
+    valueData: faker.datatype.string,
+    valueVariable: faker.datatype.string,
     valueIri: oneOf("iriRef"),
     valueIriList: manyOf("iriRef"),
     valueDataList: faker.datatype.array
@@ -82,7 +82,7 @@ const fakerFactory = factory({
     validation: nullable(oneOf("iriRef")),
     search: nullable(oneOf("iriRef")),
     select: manyOf("iriRef"),
-    argument: nullable(oneOf("argument")),
+    argument: nullable(manyOf("argument")),
     valueVariable: nullable(oneOf("iriRef")),
     isIri: nullable(oneOf("iriRef")),
     isTextValue: nullable(String),
