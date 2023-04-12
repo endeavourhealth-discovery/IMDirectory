@@ -1,6 +1,7 @@
 import { ITextQuery } from "../interfaces";
 import { Element, Match, Path, Where, Property, OrderLimit } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { getNameFromRef } from "./TTTransform";
 
 export function buildTextQuery(query: any) {
   const parentNode = { key: "1", children: [] as ITextQuery[] } as ITextQuery;
@@ -26,7 +27,6 @@ function buildRecursively(query: any, type: string, parent: ITextQuery) {
 }
 
 function buildDQInstance(parent: ITextQuery, label: string, type: string, data: any): ITextQuery {
-  label = label === "or" ? "any of" : label;
   return {
     key: getKey(parent),
     display: label,
@@ -45,7 +45,7 @@ function addSelect(select: any, type: string, parent: ITextQuery) {
       addSelect(selectItem, type, parent);
     }
   } else {
-    const label = getNameFromRef(select);
+    const label = getName(select);
     const newParent = addItem(label, select, type, parent);
 
     if (isArrayHasLength(select.select)) {
@@ -61,21 +61,21 @@ function addMatch(match: any, type: string, parent: ITextQuery) {
     for (const matchItem of match) {
       addMatch(matchItem, type, parent);
     }
-  } else if (!isObjectHasKeys(match, ["match", "boolMatch"])) {
-    const label = getMatchLabel(match);
+  } else {
+    let label = parent?.data?.boolMatch || "";
+    if (label) label += " ";
+    label += getMatchLabel(match);
     const matchParent = addItem(label, match, type, parent);
-    if (!matchParent.display && match.description) matchParent.display = match.description;
-
+    if (!matchParent.display) console.log(match);
     if (isObjectHasKeys(match, ["where"])) {
       addMatchWhere(match.where, "where", matchParent);
     }
-    if (isObjectHasKeys(match, ["orderBy"])) {
-      addMatchOrderBy(match.orderBy, "orderBy", matchParent);
-    }
-  } else if (isArrayHasLength(match.match)) {
-    const boolParent = addItem(match.boolMatch, match, type, parent);
-    for (const matchItem of match.match) {
-      addMatch(matchItem, type, boolParent);
+
+    if (isArrayHasLength(match.match)) {
+      const boolParent = addItem(match.boolMatch, match, type, parent);
+      for (const matchItem of match.match) {
+        addMatch(matchItem, type, boolParent);
+      }
     }
   }
 }
@@ -100,7 +100,6 @@ function addMatchWhere(where: any, type: string, parent: ITextQuery) {
       addMatchWhere(whereItem, type, parent);
     }
   } else {
-    if (!parent.display && where.node) parent.display += where.node;
     if (isObjectHasKeys(where, ["in"])) {
       addIn(where, parent);
     }
@@ -114,17 +113,18 @@ function addMatchWhere(where: any, type: string, parent: ITextQuery) {
 }
 
 function addComparison(where: any, type: string, parent: ITextQuery) {
-  const label = getNameFromRef(where) + " " + getComparisonLabel(where);
+  const label = getComparisonLabel(where);
   addItem(label, where, type, parent);
 }
 
 function addIn(where: any, parent: ITextQuery) {
-  parent.display += "." + getNameFromRef(where);
+  parent.display += "." + getName(where);
   if (isArrayHasLength(where.in) && where.in.length === 1) {
-    parent.display += ": " + getNameFromRef(where.in[0]);
+    parent.display += " = " + getName(where.in[0]);
   } else {
+    parent.display += " in ";
     for (const inItem of where.in as Element[]) {
-      addItem(getNameFromRef(inItem), inItem, "in", parent);
+      addItem(getName(inItem), inItem, "in", parent);
     }
   }
 }
@@ -132,7 +132,7 @@ function addIn(where: any, parent: ITextQuery) {
 function addRange(where: any, type: string, parent: ITextQuery) {
   const from = " from " + getComparisonLabel(where.range.from);
   const to = " to " + getComparisonLabel(where.range.from);
-  const label = getNameFromRef(where) + " " + from + to;
+  const label = getName(where) + " " + from + to;
   addItem(label, where, type, parent);
 }
 
@@ -144,10 +144,11 @@ function addItem(label: string, query: any, type: string, parent: ITextQuery) {
 
 // getters
 function getMatchLabel(match: Match) {
-  let label: string = getNameFromRef(match);
+  let label: string = getName(match) || match.boolMatch || "";
   if (!label && match.path) {
-    for (const path of match.path as Element[]) {
-      label += getNameFromRef(path) + ".";
+    for (const [index, value] of (match.path as Element[]).entries()) {
+      if (index % 2 != 0) label += getName(value) + ".";
+      else label += getName(value) + ":";
     }
     label = label.substring(0, label.length - 1);
   }
@@ -158,38 +159,31 @@ function getKey(parent: ITextQuery) {
   return parent.key + parent.children.length;
 }
 
-function getNameFromRef(ref: any) {
-  let name = "";
-  if (isObjectHasKeys(ref, ["name"])) {
-    name = ref.name;
-  } else if (isObjectHasKeys(ref, ["@id"])) {
-    const splits = ref["@id"].split("#");
-    name = splits[1] || splits[0];
-  } else if (isObjectHasKeys(ref, ["@set"])) {
-    const splits = ref["@set"].split("#");
-    name = splits[1] || splits[0];
-  } else if (isObjectHasKeys(ref, ["@type"])) {
-    const splits = ref["@type"].split("#");
-    name = splits[1] || splits[0];
-  } else if (isObjectHasKeys(ref, ["parameter"])) {
+function getName(ref: any) {
+  let name = getNameFromRef(ref);
+  if (isObjectHasKeys(ref, ["parameter"])) {
     name = ref.parameter;
   }
 
   if (ref.variable) name += "(as " + ref.variable + ")";
+
   return name;
 }
 
-function getComparisonLabel(query: any) {
-  let label = "";
-  if (query.operator) label += query.operator;
-  if (query.relativeTo) label += " " + getLabelFromProperty(query.relativeTo);
-  if (query.value) label += " " + query.value;
-  if (query.unit) label += " (" + query.unit + ")";
+function getComparisonLabel(where: Where) {
+  console.log(where);
+  let label = where.node || "";
+  if (label) label += "." + getName(where) + " ";
+  else label += getName(where) + " ";
+  if (where.operator) label += where.operator;
+  if (where.relativeTo) label += " " + getLabelFromProperty(where.relativeTo);
+  if (where.value) label += " " + where.value;
+  if (where.unit) label += " (" + where.unit + ")";
   return label;
 }
 
 function getLabelFromProperty(property: Property) {
-  return property.parameter || property.node || getNameFromRef(property);
+  return property.parameter || property.node || getName(property);
 }
 
 // checkers

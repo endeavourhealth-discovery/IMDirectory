@@ -54,7 +54,20 @@ export function getNameFromRef(ref: any) {
   return "";
 }
 
+export function resolveIri(iri: string) {
+  const prefixes: any = { im: "http://endhealth.info/im#", sn: "http://snomed.info/sct#" };
+  if (iri.includes("#")) {
+    return iri;
+  } else if (iri.includes(":")) {
+    const splits = iri.split(":");
+    return prefixes[splits[0]] + splits[1];
+  } else {
+    return prefixes.im + iri;
+  }
+}
+
 export default {
   transformTT,
-  getNameFromRef
+  getNameFromRef,
+  resolveIri
 };

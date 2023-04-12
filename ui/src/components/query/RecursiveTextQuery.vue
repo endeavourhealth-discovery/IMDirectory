@@ -1,11 +1,11 @@
 <template>
   <div class="text-container">
     <div v-for="(textQuery, index) in textQueries">
-      <div v-if="textQuery.display && textQuery.display !== 'or'">
+      <div v-if="textQuery.display && textQuery.display !== 'or' && textQuery.display !== 'or '">
         <span v-if="textQuery.data.exclude" class="exclude">exclude </span>
-        <span v-if="index === 0 && textQuery.parent.bool === 'or'"> <span class="and">and </span> <span class="either">either </span> </span>
+        <!-- <span v-if="index === 0 && textQuery.parent.bool === 'or'"> <span class="and">and </span> <span class="either">either </span> </span>
         <span v-else-if="index !== 0 && !textQuery.parent.bool && !textQuery.data.exclude" class="and">and </span>
-        <span v-else-if="index !== 0 && textQuery.parent.bool" :class="textQuery.parent.bool">{{ textQuery.parent.bool + " " }} </span>
+        <span v-else-if="index !== 0 && textQuery.parent.bool" :class="textQuery.parent.bool">{{ textQuery.parent.bool + " " }} </span> -->
         <span v-if="'exclude' !== textQuery.display" class="content" @click="openDialog(textQuery)"> {{ textQuery.display }}</span>
         <RecursiveTextQuery :from="from" v-if="isArrayHasLength(textQuery.children)" :text-queries="textQuery.children" :parent="textQuery" />
       </div>

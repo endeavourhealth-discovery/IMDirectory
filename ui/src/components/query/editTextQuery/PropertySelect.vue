@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { resolveIri } from "@im-library/helpers/TTTransform";
 import { ITextQuery, TTProperty } from "@im-library/interfaces";
 import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
@@ -44,7 +45,8 @@ const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
 
 onMounted(async () => {
-  const entity = await EntityService.getPartialEntity(props.from.data["@id"] || props.from.data["@type"] || props.from.data["@set"], [SHACL.PROPERTY]);
+  const iri: string = props.from.data["@id"] || props.from.data["@type"] || props.from.data["@set"];
+  const entity = await EntityService.getPartialEntity(resolveIri(iri), [SHACL.PROPERTY]);
   nodes.value = getTreeNodes(entity, { children: [] });
 });
 

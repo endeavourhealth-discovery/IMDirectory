@@ -31,12 +31,13 @@ import { onMounted, PropType, Ref, ref } from "vue";
 import PropertySelect from "./editTextQuery/PropertySelect.vue";
 import ValueSelect from "./editTextQuery/ValueSelect.vue";
 import { buildPropertyTreeNode } from "@im-library/helpers/PropertyTreeNodeBuilder";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
 import RangeSelect from "./editTextQuery/RangeSelect.vue";
 import ComparisonSelect from "./editTextQuery/ComparisonSelect.vue";
 import SimpleJsonEditor from "./editTextQuery/SimpleJsonEditor.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { resolveIri } from "@im-library/helpers/TTTransform";
 
 const emit = defineEmits({ onCancel: () => true });
 
@@ -54,25 +55,35 @@ onMounted(async () => {
 });
 
 async function getPropertyTreeNode() {
-  const results = await QueryService.queryIM({
-    argument: [
-      {
-        parameter: "dataModel",
-        valueIri: props.from.data["@id"] || props.from.data["@type"] || props.from.data["@set"]
-      },
-      {
-        parameter: "property",
-        valueIri: props.textQuery.data["@id"]
-      }
-    ],
-    query: {
-      "@id": "http://endhealth.info/im#Query_PropertyFromDataModel"
-    }
-  } as any);
-  if (isArrayHasLength(results.entities) && isObjectHasKeys(results.entities[0], [SHACL.PROPERTY]) && isArrayHasLength(results.entities[0][SHACL.PROPERTY])) {
-    const ttproperties: TTProperty[] = results.entities[0][SHACL.PROPERTY];
-    return buildPropertyTreeNode(ttproperties[0]);
-  }
+  const propertyIri = resolveIri(props.textQuery.data["@id"]);
+  const dataModelIri: string = props.from.data["@id"] || props.from.data["@type"] || props.from.data["@set"];
+  const entity = await EntityService.getPartialEntity(resolveIri(dataModelIri), [SHACL.PROPERTY]);
+  const ttproperties: TTProperty[] = entity[SHACL.PROPERTY];
+  console.log(ttproperties);
+  console.log(props.textQuery.data["@id"]);
+  const property = ttproperties.find(ttproperty => ttproperty["http://www.w3.org/ns/shacl#path"][0]["@id"] === propertyIri);
+  console.log(property);
+  if (property) return buildPropertyTreeNode(property);
+
+  // const results = await QueryService.queryIM({
+  //   argument: [
+  //     {
+  //       parameter: "dataModel",
+  //       valueIri: props.from.data["@id"] || props.from.data["@type"] || props.from.data["@set"]
+  //     },
+  //     {
+  //       parameter: "property",
+  //       valueIri: props.textQuery.data["@id"]
+  //     }
+  //   ],
+  //   query: {
+  //     "@id": "http://endhealth.info/im#Query_PropertyFromDataModel"
+  //   }
+  // } as any);
+  // if (isArrayHasLength(results.entities) && isObjectHasKeys(results.entities[0], [SHACL.PROPERTY]) && isArrayHasLength(results.entities[0][SHACL.PROPERTY])) {
+  //   const ttproperties: TTProperty[] = results.entities[0][SHACL.PROPERTY];
+  //   return buildPropertyTreeNode(ttproperties[0]);
+  // }
 
   return {};
 }
