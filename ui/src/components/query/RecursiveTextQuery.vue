@@ -3,9 +3,6 @@
     <div v-for="(textQuery, index) in textQueries">
       <div v-if="textQuery.display && textQuery.display !== 'or' && textQuery.display !== 'or '">
         <span v-if="textQuery.data.exclude" class="exclude">exclude </span>
-        <!-- <span v-if="index === 0 && textQuery.parent.bool === 'or'"> <span class="and">and </span> <span class="either">either </span> </span>
-        <span v-else-if="index !== 0 && !textQuery.parent.bool && !textQuery.data.exclude" class="and">and </span>
-        <span v-else-if="index !== 0 && textQuery.parent.bool" :class="textQuery.parent.bool">{{ textQuery.parent.bool + " " }} </span> -->
         <span v-if="'exclude' !== textQuery.display" class="content" @click="openDialog(textQuery)"> {{ textQuery.display }}</span>
         <RecursiveTextQuery :from="from" v-if="isArrayHasLength(textQuery.children)" :text-queries="textQuery.children" :parent="textQuery" />
       </div>
@@ -13,7 +10,8 @@
     </div>
   </div>
   <Dialog v-model:visible="editDialog" modal :header="selected.display" :style="{ width: '50vw' }">
-    <EditTextQuery :from="from" :text-query="selected" @on-cancel="editDialog = false" />
+    <!-- <EditTextQuery :from="from" :text-query="selected" @on-cancel="editDialog = false" /> -->
+    <CreateClause :from="from" :text-query="selected" @on-cancel="editDialog = false" />
   </Dialog>
 </template>
 
@@ -22,6 +20,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { ITextQuery } from "@im-library/interfaces/query/TextQuery";
 import { onMounted, PropType, ComputedRef, Ref, ref, computed } from "vue";
 import EditTextQuery from "./EditTextQuery.vue";
+import CreateClause from "./CreateClause.vue";
 const props = defineProps({
   from: { type: Object as PropType<ITextQuery>, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },

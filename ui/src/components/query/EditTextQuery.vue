@@ -1,7 +1,9 @@
 <template>
   <SimpleJsonEditor :text-query="textQuery" />
   <div class="desc-wrapper">Description: <InputText type="text" v-model="description" /></div>
-  <PropertySelect :from="from" :property="property" />
+  <PropertySelect v-if="isObjectHasKeys(textQuery.data, ['@id'])" :from="from" :property="property" />
+  <div v-if="isObjectHasKeys(textQuery.data, ['@set'])">Set: <EntitySearch :entity-value="textQuery.data" /></div>
+  <div v-if="isObjectHasKeys(textQuery.data, ['@type'])">Type: <EntitySearch :entity-value="textQuery.data" /></div>
   <span v-if="textQuery.data.isNull">is Null</span>
   <ValueSelect
     v-else-if="isObjectHasKeys(property.data, [SHACL.CLASS]) || isObjectHasKeys(property.data, [SHACL.NODE])"
@@ -38,6 +40,7 @@ import ComparisonSelect from "./editTextQuery/ComparisonSelect.vue";
 import SimpleJsonEditor from "./editTextQuery/SimpleJsonEditor.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { resolveIri } from "@im-library/helpers/TTTransform";
+import EntitySearch from "./editTextQuery/EntitySearch.vue";
 
 const emit = defineEmits({ onCancel: () => true });
 

@@ -1,5 +1,5 @@
 <template>
-  <AutoComplete :multiple="true" option-label="name" v-model="selected" :suggestions="suggestions" @complete="debounceForSearch" @change="change" />
+  <AutoComplete v-model="selected" :suggestions="suggestions" @complete="debounceForSearch" @change="emit('onChange', selected)" />
 </template>
 
 <script setup lang="ts">
@@ -16,16 +16,18 @@ const props = defineProps({
 });
 const controller: Ref<AbortController> = ref({} as AbortController);
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
-const selected: Ref<ConceptSummary[]> = ref([]);
+const selected: Ref<ConceptSummary> = ref("" as any);
 const suggestions: Ref<ConceptSummary[]> = ref([]);
 const debounce = ref(0);
 
-const emit = defineEmits({ onChange: (payload: ConceptSummary[]) => payload });
+const emit = defineEmits({ onChange: (payload: ConceptSummary) => payload });
 
 onMounted(async () => {
   const iri = props.entityValue["@id"] || props.entityValue["@set"] || props.entityValue["@type"];
-  const cSummary = { name: props.entityValue.name || iri, iri: iri } as ConceptSummary;
-  selected.value.push(cSummary);
+  if (iri) {
+    const cSummary = { name: props.entityValue.name || iri, iri: iri } as ConceptSummary;
+    selected.value = cSummary;
+  }
 });
 
 async function search(searchTerm: any) {
@@ -41,10 +43,6 @@ function debounceForSearch(searchTerm: any): void {
   debounce.value = window.setTimeout(() => {
     search(searchTerm);
   }, 600);
-}
-
-function change() {
-  emit("onChange", selected.value);
 }
 </script>
 

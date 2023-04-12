@@ -1,6 +1,5 @@
 <template>
-  Property:<InputText type="text" @click="visible = true" v-model="property.label" />
-  <AncestorDescendantSelect />
+  <InputText type="text" @click="visible = true" v-model="selectedProperty.label" />
 
   <Dialog v-model:visible="visible" modal header="Property" :style="{ width: '50vw' }">
     <Tree
@@ -34,13 +33,15 @@ import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
 import { SHACL } from "@im-library/vocabulary";
 import AncestorDescendantSelect from "./AncestorDescendantSelect.vue";
 
+const emit = defineEmits({ onSelect: (payload: TreeNode) => payload });
+
 const props = defineProps({
   from: { type: Object as PropType<ITextQuery>, required: true },
-  property: { type: Object as PropType<TreeNode>, required: true }
+  property: { type: Object as PropType<TreeNode>, required: false }
 });
 const visible: Ref<boolean> = ref(false);
 const selectedKey = ref(undefined);
-const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
+const selectedProperty: Ref<TreeNode> = ref({} as TreeNode);
 const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
 
@@ -51,7 +52,8 @@ onMounted(async () => {
 });
 
 function selectNode(node: TreeNode) {
-  selectedNode.value = node;
+  selectedProperty.value = node;
+  emit("onSelect", selectedProperty);
 }
 
 async function expandNode(node: TreeNode) {
@@ -63,9 +65,6 @@ async function expandNode(node: TreeNode) {
 }
 
 function select() {
-  for (const key of Object.keys(selectedNode.value)) {
-    props.property[key] = selectedNode.value[key];
-  }
   visible.value = false;
 }
 </script>
