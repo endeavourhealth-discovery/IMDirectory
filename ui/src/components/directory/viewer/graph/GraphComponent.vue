@@ -10,9 +10,9 @@
       </svg>
     </div>
     <div class="custom-control-buttons">
-      <Button class="svg-pan-zoom-control p-button-secondary" icon="pi pi-plus" @click="zoomIn" />
-      <Button class="svg-pan-zoom-control p-button-secondary" label="RESET" @click="resetZoom" />
-      <Button class="svg-pan-zoom-control p-button-secondary" icon="pi pi-minus" @click="zoomOut" />
+      <Button class="svg-pan-zoom-control" severity="secondary" icon="pi pi-plus" @click="zoomIn" />
+      <Button class="svg-pan-zoom-control" severity="secondary" label="RESET" @click="resetZoom" />
+      <Button class="svg-pan-zoom-control" severity="secondary" icon="pi pi-minus" @click="zoomOut" />
     </div>
   </div>
   <ContextMenu ref="menu" :model="contextMenu" />
@@ -69,7 +69,7 @@ const width = ref(400);
 const force = ref(-5000);
 const radius = ref(16);
 const colour = ref({
-  activeNode: { fill: "var(--background-a)", stroke: "#AAAAAA" },
+  activeNode: { fill: "#FFFFFF", stroke: "#AAAAAA" },
   inactiveNode: { fill: "var(--purple-500)", stroke: "#AAAAAA" },
   centerNode: {
     fill: "var(--yellow-500)",
@@ -208,7 +208,9 @@ function drawGraph() {
     .style("text-anchor", "middle")
     .attr("startOffset", "50%")
     .attr("font-size", () => `${pathFontSize.value}px`)
-    .text((d: any) => d.target.data.relToParent);
+    .text((d: any) => d.target.data.relToParent)
+
+      .style("fill", "var(--text-color)");
 
   const node = svg
     .append("g")
@@ -426,10 +428,12 @@ function zoomOut() {
   padding: 0.25rem !important;
   width: auto !important;
   background-color: var(--surface-b) !important;
+  color: var(--text-color);
 }
 
 .svg-pan-zoom-control:hover {
   opacity: 100%;
+  color: var(--text-color) !important;
 }
 
 #force-layout-svg {
@@ -449,12 +453,12 @@ function zoomOut() {
   cursor: -webkit-grabbing;
 }
 #force-layout-graph:deep(p) {
-  text-align: center;
-  position: relative;
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  -webkit-transform: translateY(-50%);
-  transform: translateY(-50%);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: inherit;
+  text-align:center;
 }
 
 #force-layout-graph:deep(foreignObject):hover {
