@@ -18,7 +18,7 @@
           <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
         </div>
 
-        <div v-else-if="node.data">{{ node.label + " - " + node.data.name }}</div>
+        <div v-else-if="node.data">{{ node.label + " - "}}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name " /></div>
         <div v-else>{{ node.label }}</div>
       </template>
       <template #string="{ node }: any">{{ node.value }}</template>
