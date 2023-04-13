@@ -44,14 +44,15 @@ const props = defineProps({
 const route = useRoute();
 const toast = useToast();
 const store = useStore();
+const graphData = ref();
 const directService = new DirectService();
 const splitterRightSize = computed(() => store.state.splitterRightSize);
 
 watch(
   () => _.cloneDeep(props.data),
   newValue => {
-    root.value = d3.hierarchy(newValue);
-    drawGraph();
+    graphData.value = newValue;
+    setRoot();
   }
 );
 
@@ -90,13 +91,26 @@ const menu = ref();
 
 onMounted(() => {
   window.addEventListener("resize", onResize);
-  root.value = d3.hierarchy(props.data);
-  drawGraph();
+  graphData.value = props.data;
+  setRoot();
 });
+
+watch(
+    () => _.cloneDeep(graphData),
+    newValue => {
+      root.value = d3.hierarchy(newValue);
+      drawGraph();
+    }
+);
 
 onUnmounted(() => window.removeEventListener("resize", onResize));
 
 function onResize() {
+  drawGraph();
+}
+
+function setRoot() {
+  root.value = d3.hierarchy(props.data);
   drawGraph();
 }
 
@@ -206,9 +220,9 @@ function drawGraph() {
     .join("circle")
     .attr("fill", (d: any) => {
       if (d.depth === 0) return colour.value.centerNode.fill;
-      return hasNodeChildrenByName(props.data, d.data.name) ? colour.value.inactiveNode.fill : colour.value.activeNode.fill;
+      return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.inactiveNode.fill : colour.value.activeNode.fill;
     })
-    .attr("stroke", (d: any) => (hasNodeChildrenByName(props.data, d.data.name) ? colour.value.inactiveNode.stroke : colour.value.activeNode.stroke))
+    .attr("stroke", (d: any) => (hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.inactiveNode.stroke : colour.value.activeNode.stroke))
     .attr("r", (d: any) => {
       if (d.data.name !== undefined && typeof d.data.name === "string" && d.data.name.startsWith("middle-node")) {
         return 3;
@@ -230,7 +244,7 @@ function drawGraph() {
     .attr("y", (d: any) => getFODimensions(d).y)
     .attr("width", (d: any) => getFODimensions(d).width)
     .attr("height", (d: any) => getFODimensions(d).height)
-    .attr("color", (d: any) => (hasNodeChildrenByName(props.data, d.data.name) ? colour.value.activeNode.fill : colour.value.inactiveNode.fill))
+    .attr("color", (d: any) => (hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.inactiveNode.fill))
     .style("font-size", () => `${nodeFontSize.value}px`)
     .on("dblclick", (d: any) => dblclick(d))
     .on("click", (d: any) => click(d))
@@ -317,14 +331,14 @@ function navigate(iri: string) {
 }
 
 function redrawGraph() {
-  root.value = d3.hierarchy(props.data);
+  root.value = d3.hierarchy(graphData.value);
   drawGraph();
 }
 
 async function dblclick(d: any) {
   const node = d["target"]["__data__"]["data"] as TTGraphData;
   if (isArrayHasLength(node.children) || isArrayHasLength(node._children)) {
-    toggleNodeByName(props.data, node.name);
+    toggleNodeByName(graphData.value, node.name);
     redrawGraph();
   } else {
     if (node.iri) {
@@ -334,7 +348,7 @@ async function dblclick(d: any) {
         data.children.forEach((child: any) => {
           node._children.push(child);
         });
-        toggleNodeByName(props.data, node.name);
+        toggleNodeByName(graphData.value, node.name);
         redrawGraph();
       }
     } else {
@@ -411,7 +425,6 @@ function zoomOut() {
   opacity: 33%;
   padding: 0.25rem !important;
   width: auto !important;
-  background-color: var(--surface-b) !important;
 }
 
 .svg-pan-zoom-control:hover {
