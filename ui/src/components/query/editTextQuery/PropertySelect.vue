@@ -1,6 +1,5 @@
 <template>
-  <InputText type="text" @click="visible = true" v-model="selectedProperty.label" />
-
+  <InputText type="text" @click="visible = true" v-model="selectedProperty.label" placeholder="Property" />
   <Dialog v-model:visible="visible" modal header="Property" :style="{ width: '50vw' }">
     <Tree
       :value="nodes"
@@ -31,7 +30,6 @@ import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
 import { SHACL } from "@im-library/vocabulary";
-import AncestorDescendantSelect from "./AncestorDescendantSelect.vue";
 
 const emit = defineEmits({ onSelect: (payload: TreeNode) => payload });
 

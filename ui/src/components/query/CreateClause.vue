@@ -6,14 +6,17 @@
       @onSelectType="baseClause.selectedType = $event"
       @onSelectTypeValue="baseClause.selectedTypeValue = $event"
     />
-    <WhereClause v-if="baseClause.selectedType.name === 'Property'" :property="baseClause.selectedTypeValue" />
+    <WhereClause
+      v-if="baseClause.selectedType.name === 'Property' && baseClause.selectedTypeValue"
+      :property="baseClause.selectedTypeValue"
+      @on-select-property-value="baseClause.selectedPropertyValue = $event"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, PropType } from "vue";
-import { ConceptSummary, ITextQuery } from "@im-library/interfaces";
-import { Element } from "@im-library/interfaces/AutoGen";
+import { ref, PropType } from "vue";
+import { ITextQuery } from "@im-library/interfaces";
 import BaseClause from "./clause/BaseClause.vue";
 import WhereClause from "./clause/WhereClause.vue";
 import { TreeNode } from "primevue/tree";
@@ -24,7 +27,8 @@ const props = defineProps({
 
 const baseClause = ref({
   selectedType: { name: "Type", prop: "@type" },
-  selectedTypeValue: "" as any
+  selectedTypeValue: "" as any,
+  selectedPropertyValue: {} as TreeNode
 });
 </script>
 

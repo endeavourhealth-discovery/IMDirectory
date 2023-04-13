@@ -2,7 +2,7 @@
   <div class="base-clause">
     <Dropdown v-model="selectedType" :options="clauseTypes" optionLabel="name" placeholder="Select a type" @change="emit('onSelectType', $event.value)" />
     <PropertySelect v-if="selectedType.name === 'Property'" :from="from" :property="{}" @on-select="emit('onSelectTypeValue', $event)" />
-    <EntitySearch v-else :entity-value="selectedTypeValue" @on-change="emit('onSelectTypeValue', $event)" />
+    <EntitySearch v-else :entity-value="undefined" @on-change="emit('onSelectTypeValue', $event)" />
     <AncestorDescendantSelect />
   </div>
 </template>

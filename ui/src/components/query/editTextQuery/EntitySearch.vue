@@ -12,7 +12,7 @@ import { useStore } from "vuex";
 
 const store = useStore();
 const props = defineProps({
-  entityValue: { type: Object as PropType<Element>, required: true }
+  entityValue: { type: Object as PropType<Element>, required: false }
 });
 const controller: Ref<AbortController> = ref({} as AbortController);
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
@@ -23,10 +23,9 @@ const debounce = ref(0);
 const emit = defineEmits({ onChange: (payload: ConceptSummary) => payload });
 
 onMounted(async () => {
-  const iri = props.entityValue["@id"] || props.entityValue["@set"] || props.entityValue["@type"];
-  if (iri) {
-    const cSummary = { name: props.entityValue.name || iri, iri: iri } as ConceptSummary;
-    selected.value = cSummary;
+  if (props.entityValue) {
+    const iri = props.entityValue["@id"] || props.entityValue["@set"] || props.entityValue["@type"];
+    selected.value = { name: props.entityValue.name || iri, iri: iri } as ConceptSummary;
   }
 });
 
