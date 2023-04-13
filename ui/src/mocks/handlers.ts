@@ -1,6 +1,6 @@
 import { rest } from "msw";
 import { IM } from "@im-library/vocabulary";
-import { fakerFactory } from "@im-library/mocks/fakerFactoryfactory";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 
 const apiUrl = "http://localhost:8082/imapi/api/";
 

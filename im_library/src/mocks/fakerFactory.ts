@@ -1,6 +1,5 @@
 import { factory, primaryKey, manyOf, nullable, oneOf } from "@mswjs/data";
 import { faker } from "@faker-js/faker";
-import { ComponentType } from "@/enums";
 
 const apiUrl = "http://localhost/imapi/api/";
 
@@ -106,6 +105,21 @@ const fakerFactory = factory({
     shape: oneOf("propertyShape"),
     mode: String,
     showTitles: Boolean
+  },
+  propertyDisplay: {
+    key: primaryKey(faker.datatype.uuid),
+    order: Number,
+    group: oneOf("iriRef"),
+    property: oneOf("iriRef"),
+    type: oneOf("iriRef"),
+    cardinality: faker.datatype.string
+  },
+  tangledTreeData: {
+    id: primaryKey(faker.internet.url),
+    parents: nullable(manyOf("tangledTreeData")),
+    name: faker.lorem.sentence,
+    type: faker.lorem.word,
+    cardinality: nullable(faker.datatype.string)
   }
 });
 
