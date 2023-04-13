@@ -69,14 +69,14 @@ const width = ref(400);
 const force = ref(-5000);
 const radius = ref(16);
 const colour = ref({
-  activeNode: { fill: "#FFFFFF", stroke: "#AAAAAA" },
-  inactiveNode: { fill: "var(--purple-500)", stroke: "#AAAAAA" },
+  activeNode: { fill: "var(--gray-50)", stroke: "var(--surface-500)" },
+  inactiveNode: { fill: "var(--purple-500)", stroke: "var(--surface-500)" },
   centerNode: {
     fill: "var(--yellow-500)",
     stroke: "var(--text-color)"
   },
   font: {},
-  path: { fill: "", stroke: "#AAAAAA" }
+  path: { fill: "", stroke: "var(--surface-500)" }
 });
 const contextMenu: Ref<{ iri: string; label: string; command: (d: any) => void; disabled?: boolean }[]> = ref([]);
 
