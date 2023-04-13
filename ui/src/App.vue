@@ -178,6 +178,9 @@ function setupExternalErrorHandler() {
 </style>
 
 <style>
+.p-dialog-mask {
+  z-index: 1;
+}
 .swal2-popup {
   background-color: var(--surface-a);
 }
