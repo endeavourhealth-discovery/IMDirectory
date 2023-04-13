@@ -209,8 +209,7 @@ function drawGraph() {
     .attr("startOffset", "50%")
     .attr("font-size", () => `${pathFontSize.value}px`)
     .text((d: any) => d.target.data.relToParent)
-
-      .style("fill", "var(--text-color)");
+    .style("fill", "var(--text-color)");
 
   const node = svg
     .append("g")
