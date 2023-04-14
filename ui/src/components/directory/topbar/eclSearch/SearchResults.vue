@@ -82,7 +82,7 @@ const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
-const selected = ref({});
+const selected:Ref<any> = ref({});
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
@@ -133,7 +133,6 @@ function init() {
 }
 
 function processSearchResults() {
-  console.log(props.searchResults)
   for (const result of props.searchResults) {
     if (isObjectHasKeys(result, ["type"])) {
       result.icon = getFAIconFromType(result.type);
