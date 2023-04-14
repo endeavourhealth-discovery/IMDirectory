@@ -7,7 +7,12 @@
       <slot name="content" />
     </div>
     <div id="topbar-end">
-      <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
+      <Button
+        v-if="currentVersion"
+        :label="currentVersion"
+        class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
+        @click="showReleaseNotes"
+      />
       <Button :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
@@ -66,7 +71,7 @@ import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, DataModelService } from "@/services";
+import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
 
@@ -80,6 +85,7 @@ const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
 const accountItems: Ref<AccountItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
+const currentVersion: Ref<undefined | string> = ref();
 
 const PrimeVue: any = usePrimeVue();
 const toast = useToast();
@@ -89,10 +95,16 @@ const userMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
 
-onMounted(() => {
+onMounted(async () => {
   setUserMenuItems();
   setAppMenuItems();
+  await getCurrentVersion();
 });
+
+async function getCurrentVersion() {
+  const latestRelease = await GithubService.getLatestRelease("IMDirectory");
+  if (latestRelease && latestRelease.version) currentVersion.value = latestRelease.version;
+}
 
 function toLandingPage() {
   window.location.href = "/";
