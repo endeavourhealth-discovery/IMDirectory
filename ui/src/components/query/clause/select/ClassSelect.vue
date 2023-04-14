@@ -1,6 +1,7 @@
 <template>
+  <DropdownHeader :options="['In', 'Not in', 'Is null']" />
   <div class="class-select">
-    <InputText type="text" @click="visible = true" placeholder="Value" />
+    <InputText type="text" @click="visible = true" placeholder="Value" v-model:model-value="valueDisplay" />
     <AncestorDescendantSelect />
   </div>
   <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
@@ -19,6 +20,7 @@ import { onMounted, PropType, Ref, ref } from "vue";
 import AncestorDescendantSelect from "../../editTextQuery/AncestorDescendantSelect.vue";
 import ValueTreeSelect from "./class/ValueTreeSelect.vue";
 import ValueListSelect from "./class/ValueListSelect.vue";
+import DropdownHeader from "../DropdownHeader.vue";
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
 const props = defineProps({
@@ -27,6 +29,7 @@ const props = defineProps({
 });
 const visible: Ref<boolean> = ref(false);
 const showTree: Ref<boolean> = ref(false);
+const valueDisplay = ref();
 
 onMounted(async () => {
   // TODO get tree from set/query
@@ -41,6 +44,7 @@ onMounted(async () => {
 
 function onSelect(event: any) {
   visible.value = false;
+  valueDisplay.value = event.name || event.label;
   emit("onSelect", event);
 }
 </script>

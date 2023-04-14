@@ -9,7 +9,10 @@
     v-else-if="isObjectHasKeys(property.data, ['http://www.w3.org/ns/shacl#datatype'])"
     :datatype="property.data['http://www.w3.org/ns/shacl#datatype'][0]['@id']"
   />
-  <EntitySearch v-else :entity-value="undefined" />
+  <div v-else>
+    <DropdownHeader :options="['In', 'Not in', 'Is null']" />
+    <EntitySearch :entity-value="undefined" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -19,6 +22,7 @@ import ClassSelect from "./select/ClassSelect.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DatatypeSelect from "./select/DatatypeSelect.vue";
 import EntitySearch from "../editTextQuery/EntitySearch.vue";
+import DropdownHeader from "./DropdownHeader.vue";
 const emit = defineEmits({ onSelectPropertyValue: (payload: TreeNode) => payload });
 
 const props = defineProps({

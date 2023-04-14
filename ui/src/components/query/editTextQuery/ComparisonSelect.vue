@@ -1,22 +1,26 @@
 <template>
-  <span> {{ title || "Value:" }}</span>
   <div class="comparison-wrapper">
-    <InputText type="text" placeholder="value" v-model="selectedComparison.value" />
-    <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="selectedComparison.unit" />
-    <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="selectedComparison.operator" />
-    <InputText type="text" placeholder="relative to" v-model="selectedComparison.relativeTo" />
+    <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="operator" />
+    <InputText type="text" placeholder="value" v-model="value" />
+    <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="unit" />
+    <InputText type="text" placeholder="relative to" v-model="relativeTo" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch, PropType } from "vue";
+import { onMounted, watch, PropType, ref } from "vue";
 import { Assignable, Where } from "@im-library/interfaces/AutoGen";
-const operatorOptions = ["=", ">=", ">", "<=", "startsWith", "contains"];
+const operatorOptions = ["=", ">=", ">", "<="];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 const props = defineProps({
-  selectedComparison: { type: Object as PropType<Where | Assignable>, required: true },
+  selectedComparison: { type: Object as PropType<Where | Assignable>, required: false },
   title: { type: String, required: false }
 });
+const value = ref();
+const unit = ref();
+const operator = ref();
+const relativeTo = ref();
+onMounted(async () => {});
 </script>
 
 <style scoped></style>

@@ -28,6 +28,7 @@ onMounted(async () => {
   options.value = results.entities.map(entity => {
     return { "@id": entity["@id"], name: entity[RDFS.LABEL] };
   });
+  console.log(options.value.length);
 });
 </script>
 
