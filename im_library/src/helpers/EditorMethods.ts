@@ -14,7 +14,7 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
         if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
         if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
           foundValueVariable = valueVariableMap.get(value + property.order);
-        } else {
+        } else if (valueVariableMap && valueVariableMap.has(value)) {
           foundValueVariable = valueVariableMap.get(value);
         }
         argResult[key] = foundValueVariable;
@@ -75,7 +75,7 @@ export function processComponentType(type: TTIriRef): any {
     case IM.DROPDOWN_TEXT_INPUT_CONCATENATOR:
       return ComponentType.DROPDOWN_TEXT_INPUT_CONCATENATOR;
     default:
-      throw new Error("Invalid component type encountered while processing component types" + type["@id"]);
+      throw new Error("Invalid component type encountered while processing component types: " + type["@id"]);
   }
 }
 
