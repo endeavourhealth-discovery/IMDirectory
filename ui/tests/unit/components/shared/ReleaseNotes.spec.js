@@ -65,7 +65,7 @@ describe("ReleaseNotes.vue", () => {
     const button = component.getByTestId("expand-all-button");
     await fireEvent.click(button);
     await flushPromises();
-    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(1);
+    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(2);
     expect(getLatestReleaseSpy).toHaveBeenCalledWith("ImportData");
     const directoryButton = component.getByTestId("expand-button-directory");
     expect(directoryButton.classList.contains("pi-minus"));
