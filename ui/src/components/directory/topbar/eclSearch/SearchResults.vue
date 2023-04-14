@@ -1,125 +1,72 @@
 <template>
-  <div id="search-results-container" class="p-field">
+  <div id="search-results-main-container">
     <DataTable
-      :value="searchResults"
-      v-model:selection="selectedResult"
-      @row-select="directService.select(selectedResult.iri, 'Folder')"
-      selectionMode="single"
-      class="p-datatable-sm"
-      :scrollable="true"
-      removableSort
-      :paginator="true"
-      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown CurrentPageReport"
-      :rowsPerPageOptions="[15, 25, 50]"
-      :currentPageReportTemplate="currentReportTemplate"
-      :rows="15"
-      @page="scrollToTop"
-      :loading="loading"
+        :paginator="true"
+        :rows="20"
+        :value="searchResults"
+        class="p-datatable-sm"
+        v-model:selection="selected"
+        selectionMode="single"
+        @row-select="onRowSelect"
+        contextMenu
+        @rowContextmenu="onRowContextMenu"
+        :scrollable="true"
+        scrollHeight="flex"
+        :loading="isLoading"
+        ref="searchTable"
+        dataKey="iri"
+        :autoLayout="true"
     >
       <template #empty> None </template>
-      <template #loading> Loading... </template>
-      <Column field="name">
+      <Column field="name" headerStyle="flex: 0 1 calc(100% - 22rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
           Results
           <Button
-            :disabled="!searchResults?.length"
-            class="p-button-sm p-button-text"
-            icon="pi pi-external-link"
-            @click="exportCSV()"
-            v-tooltip.right="'Download results table'"
+              :disabled="!searchResults?.length"
+              class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
+              :icon="fontAwesomePro ? 'fa-duotone fa-fw fa-file-arrow-down' : 'fa-solid fa-fw fa-file-arrow-down'"
+              @click="exportCSV()"
+              v-tooltip.right="'Download results table'"
           />
         </template>
-
         <template #body="{ data }: any">
-          <div class="result-container" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
-            <div class="result-icon-container" :style="getColorByConceptType(data.entityType)">
-              <IMFontAwesomeIcon v-if="data.entityType" :icon="getPerspectiveByConceptType(data.entityType)" class="result-icon" />
-            </div>
-            <div class="result-text-container">
-              {{ data.name }}<br />
-              <small style="color: lightgrey">{{ data.name }}</small>
-            </div>
-            <div class="button-container">
-              <Button
-                icon="pi pi-copy"
-                severity="secondary"
-                class="p-button-rounded p-button-text row-button"
-                v-clipboard:copy="copyConceptToClipboardVueWrapper(data)"
-                v-clipboard:success="onCopy"
-                v-clipboard:error="onCopyError"
-                v-tooltip.right="'Copy concept summary to clipboard \n (right click to copy individual properties)'"
-                @contextmenu="onCopyRightClick"
-              />
-            </div>
+          <div class="datatable-flex-cell">
+            <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
+            <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
+              {{ data.name + " | " + data.code  }}
+            </span>
+          </div>
+        </template>
+      </Column>
+      <Column field="weighting" header="Usage">
+        <template #body="{ data }: any">
+          <span>{{ data.usage }}</span>
+        </template>
+      </Column>
+      <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
+        <template #body="{ data }: any">
+          <div class="buttons-container">
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" />
           </div>
         </template>
       </Column>
     </DataTable>
-
-    <ContextMenu ref="copyMenu" :model="copyMenuItems" />
-
-    <OverlayPanel ref="op" id="overlay-panel" :dismissable="true">
-      <div class="result-overlay">
-        <div class="left-side" v-if="hoveredResult.iri">
-          <p>
-            <strong>Name: </strong>
-            <span>
-              {{ hoveredResult.name }}
-            </span>
-          </p>
-          <p>
-            <strong>Iri: </strong>
-            <span style="word-break: break-all">
-              {{ hoveredResult.iri }}
-            </span>
-          </p>
-          <p>
-            <strong>Code: </strong>
-            <span>
-              {{ hoveredResult.code }}
-            </span>
-          </p>
-        </div>
-        <div class="right-side" v-if="hoveredResult.iri">
-          <p>
-            <strong>Status: </strong>
-            <span v-if="hoveredResult.status">
-              {{ hoveredResult.status.name }}
-            </span>
-          </p>
-          <p>
-            <strong>Scheme: </strong>
-            <span v-if="hoveredResult.scheme">
-              {{ hoveredResult.scheme.name }}
-            </span>
-          </p>
-          <p>
-            <strong>Type: </strong>
-            <span>
-              {{ getConceptTypes(hoveredResult) }}
-            </span>
-          </p>
-        </div>
-      </div>
-    </OverlayPanel>
+    <ContextMenu :model="rClickOptions" ref="contextMenu" />
+    <OverlaySummary ref="OS" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch, onMounted } from "vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import _ from "lodash";
-import { XmlSchemaDatatypes, DefaultPredicateNames } from "@im-library/config";
+import {computed, onMounted, PropType, ref, Ref, watch} from "vue";
+import { useStore } from "vuex";
 import { DirectService } from "@/services";
-import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
+import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import rowClick from "@/composables/rowClick";
+import ActionButtons from "@/components/shared/ActionButtons.vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue"
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import setupDownloadFile from "@/composables/downloadFile";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { conceptObjectToCopyString, copyConceptToClipboard } from "@im-library/helpers/CopyConceptToClipboard";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -127,222 +74,152 @@ const props = defineProps({
   loading: { type: Boolean, required: true }
 });
 
-watch(
-  () => _.cloneDeep(props.searchResults),
-  newValue => (results.value = newValue)
-);
+const store = useStore();
+const favourites = computed(() => store.state.favourites);
+const fontAwesomePro = computed(() => store.state.fontAwesomePro);
 
-watch(
-  () => _.cloneDeep(props.totalRecords),
-  newValue => {
-    if (newValue) currentReportTemplate.value = `Displaying {first} to {last} of ${newValue} results`;
-  }
-);
-
-onMounted(() => {
-  if (props.totalRecords) currentReportTemplate.value = `Displaying {first} to {last} of ${props.totalRecords} results`;
-});
-
-const toast = useToast();
-const directService = new DirectService();
 const { downloadFile } = setupDownloadFile(window, document);
 
-const results: Ref<any[]> = ref([]);
-const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const copyMenuItems: Ref<any[]> = ref([]);
-const currentReportTemplate = ref("Displaying {first} to {last} of {totalRecords} results");
+const directService = new DirectService();
 
-const blockedIris = XmlSchemaDatatypes;
-const defaultPredicates = DefaultPredicateNames;
+const selected = ref({});
+const rClickOptions: Ref<any[]> = ref([
+  {
+    label: "Select",
+    icon: "fa-solid fa-sitemap",
+    command: () => directService.select((selected.value as any).iri, "Folder")
+  },
+  {
+    label: "View in new tab",
+    icon: "pi pi-fw pi-external-link",
+    command: () => directService.view((selected.value as any).iri)
+  },
+  {
+    separator: true
+  },
+  {
+    label: "Favourite",
+    icon: "pi pi-fw pi-star",
+    command: () => updateFavourites()
+  }
+]);
 
-const op = ref();
-const copyMenu = ref();
+const OS: Ref<any> = ref();
+const contextMenu = ref();
+const menu = ref();
+const { onRowClick }: { onRowClick: Function } = rowClick();
+
+watch(
+    () => props.searchResults,
+    () => init()
+);
+
+onMounted(() => init());
+
+const isLoading = computed(() => props.loading);
+
+function updateFavourites(row?: any) {
+  if (row) selected.value = row.data;
+  store.commit("updateFavourites", selected.value.iri);
+}
+
+function isFavourite(iri: string) {
+  if (!favourites.value.length) return false;
+  return favourites.value.includes(iri);
+}
+
+function init() {
+  processSearchResults();
+}
+
+function processSearchResults() {
+  console.log(props.searchResults)
+  for (const result of props.searchResults) {
+    if (isObjectHasKeys(result, ["type"])) {
+      result.icon = getFAIconFromType(result.type);
+      result.colour = getColourFromType(result.type);
+      result.typeNames = getNamesAsStringFromTypes(result.type);
+      result.favourite = isFavourite(result.iri);
+    }
+  }
+}
+
+function updateRClickOptions() {
+  rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
+}
+
+function onRowContextMenu(event: any) {
+  selected.value = event.data;
+  updateRClickOptions();
+  contextMenu.value.show(event.originalEvent);
+}
+
+function onRowSelect(event: any) {
+  onRowClick(event.data.iri);
+}
+
+async function showOverlay(event: any, data: any): Promise<void> {
+  await OS.value.showOverlay(event, data.iri);
+}
+
+function hideOverlay(event: any): void {
+  OS.value.hideOverlay(event);
+}
 
 function exportCSV(): void {
   const heading = ["name", "iri", "code"].join(",");
-  const body = props.searchResults.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+  const body = props.searchResults?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
   const csv = [heading, body].join("\n");
   downloadFile(csv, "results.csv");
-}
-
-function getPerspectiveByConceptType(conceptTypes: TTIriRef[]): string[] {
-  return getFAIconFromType(conceptTypes);
-}
-
-function getColorByConceptType(conceptTypes: TTIriRef[]): string {
-  return "color:" + getColourFromType(conceptTypes);
-}
-
-function onNodeSelect(): void {
-  directService.select(selectedResult.value.iri, "Folder");
-}
-
-function scrollToTop(): void {
-  const resultsContainer = document.getElementById("search-results-container") as HTMLElement;
-  const scrollBox = resultsContainer?.getElementsByClassName("p-datatable-wrapper")[0] as HTMLElement;
-  if (scrollBox) {
-    scrollBox.scrollTop = 0;
-  }
-}
-
-function hideOverlay(): void {
-  op.value.hide();
-}
-
-function showOverlay(event: any, data: ConceptSummary): void {
-  hoveredResult.value = data;
-  setCopyMenuItems();
-  op.value.show(event, event.target);
-}
-
-function getConceptTypes(concept: ConceptSummary): string {
-  if (isObjectHasKeys(concept, ["entityType"])) {
-    return concept.entityType
-      .map(function (type: any) {
-        return type.name;
-      })
-      .join(", ");
-  } else {
-    return "None";
-  }
-}
-
-function onCopy(): void {
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-function onCopyError(): void {
-  toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy value to clipboard"));
-}
-
-function onCopyRightClick(event: any) {
-  copyMenu.value.show(event);
-}
-
-function copyConceptToClipboardVueWrapper(data: any) {
-  let filteredData = { ...data };
-  delete filteredData.match;
-  delete filteredData.weighting;
-  delete filteredData.isDescendantOf;
-  return copyConceptToClipboard(filteredData, undefined, defaultPredicates, blockedIris);
-}
-
-async function setCopyMenuItems(): Promise<void> {
-  copyMenuItems.value = [
-    {
-      label: "Copy",
-      disabled: true
-    },
-    {
-      separator: true
-    },
-    {
-      label: "All",
-      command: async () => {
-        await navigator.clipboard
-          .writeText(copyConceptToClipboard(hoveredResult.value, undefined, defaultPredicates, blockedIris))
-          .then(() => {
-            toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Concept copied to clipboard"));
-          })
-          .catch(err => {
-            toast.add(new ToastOptions(ToastSeverity.ERROR, "Failed to copy concept to clipboard", err));
-          });
-      }
-    }
-  ];
-
-  let key: string;
-  let value: any;
-  for ([key, value] of Object.entries(hoveredResult.value)) {
-    let result = conceptObjectToCopyString(key, value, 0, 1, undefined, defaultPredicates);
-    if (!result) continue;
-    const label = result.label;
-    const text = result.value;
-    copyMenuItems.value.push({
-      label: label,
-      command: async () => {
-        await navigator.clipboard
-          .writeText(text)
-          .then(() => {
-            toast.add(new ToastOptions(ToastSeverity.SUCCESS, `${label} copied to clipboard`));
-          })
-          .catch(err => {
-            toast.add(new ToastOptions(ToastSeverity.ERROR, `Failed to copy ${label} to clipboard`, err));
-          });
-      }
-    });
-  }
 }
 </script>
 
 <style scoped>
-#search-results-container {
+label {
+  font-size: 1rem !important;
+}
+
+#search-results-main-container {
   height: 100%;
-}
-
-#search-results-container ::v-deep(.p-datatable) {
-  height: 100%;
+  flex: 1 1 auto;
+  overflow: auto;
+  background-color: var(--surface-a);
   display: flex;
-  flex-flow: column;
-  justify-content: space-between;
+  flex-flow: column nowrap;
 }
 
-#search-results-container ::v-deep(.p-datatable-wrapper) {
-  flex-grow: 6;
+#search-results-main-container:deep(.p-datatable-thead) {
+  z-index: 0 !important;
 }
 
-.result-container {
-  width: 100%;
+.buttons-container {
   display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
+  flex-flow: row wrap;
   align-items: center;
+  justify-content: center;
+  row-gap: 0.5rem;
 }
 
-.result-icon-container {
-  height: 100%;
-  margin-right: 1em;
+.break-word {
+  word-break: normal;
 }
 
-.result-text-container {
-  height: fit-content;
-  flex-grow: 10;
-}
-
-.result-icon {
-  font-size: 2.5rem;
+.recent-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
   padding: 5px;
 }
 
-#overlay-panel:hover {
-  transition-delay: 2s;
-}
-
-.result-overlay {
+.datatable-flex-cell {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  width: 100%;
-  gap: 7px;
-}
-
-.left-side,
-.right-side {
-  max-width: 50%;
-  flex-grow: 2;
-}
-
-.button-container {
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 0;
+  flex: 1 1 0;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
   align-items: center;
-  width: fit-content;
-}
-
-.row-button:hover {
-  background-color: var(--surface-b) !important;
-  color: var(--text-color) !important;
 }
 </style>
