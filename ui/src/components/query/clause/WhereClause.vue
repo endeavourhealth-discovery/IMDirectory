@@ -15,9 +15,9 @@
 <script setup lang="ts">
 import { TreeNode } from "primevue/tree";
 import { PropType, onMounted } from "vue";
-import ClassSelect from "./ClassSelect.vue";
+import ClassSelect from "./select/ClassSelect.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import DatatypeSelect from "./DatatypeSelect.vue";
+import DatatypeSelect from "./select/DatatypeSelect.vue";
 import EntitySearch from "../editTextQuery/EntitySearch.vue";
 const emit = defineEmits({ onSelectPropertyValue: (payload: TreeNode) => payload });
 
