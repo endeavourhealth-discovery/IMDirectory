@@ -8,6 +8,8 @@ import Button from "primevue/button";
 import Menu from "primevue/menu";
 import { expect, vi } from "vitest";
 import PrimeVue from "primevue/config";
+import { GithubService } from "@/services";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 
 vi.mock("vuex", () => ({
   useStore: () => ({
@@ -43,9 +45,12 @@ vi.mock("primevue/usetoast", () => ({
 
 describe("App.vue", () => {
   let component;
+  let getLatestReleaseSpy;
+  let testLatestRelease = fakerFactory.githubRelease.create();
 
   beforeEach(async () => {
     vi.resetAllMocks();
+    getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
     component = render(App, {
       global: {
         components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu, DynamicDialog },

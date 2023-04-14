@@ -13,6 +13,8 @@ import TopBar from "@/components/shared/TopBar.vue";
 import { vi } from "vitest";
 import { render } from "@testing-library/vue";
 import { nextTick } from "vue";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
+import { GithubService } from "@/services";
 
 const mockAdd = vi.fn();
 
@@ -28,12 +30,15 @@ describe("router", () => {
   });
   describe("router ___ no snomed", () => {
     let component;
+    let getLatestReleaseSpy;
+    let testLatestRelease = fakerFactory.githubRelease.create();
 
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       store.commit("updateSnomedLicenseAccepted", "false");
       store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
+      getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
       await router.isReady();
 
@@ -58,12 +63,15 @@ describe("router", () => {
 
   describe.skip("router ___ snomed", () => {
     let wrapper;
+    let getLatestReleaseSpy;
+    let testLatestRelease = fakerFactory.githubRelease.create();
 
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       store.commit("updateSnomedLicenseAccepted", "true");
       store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
+      getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
       await router.isReady();
 
@@ -87,12 +95,15 @@ describe("router", () => {
   // currently has no secure routes to test against
   describe.skip("router ___ no auth", () => {
     let wrapper;
+    let getLatestReleaseSpy;
+    let testLatestRelease = fakerFactory.githubRelease.create();
 
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       store.state.snomedLicenseAccepted = "true";
       store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
+      getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
       await router.isReady();
 
@@ -118,12 +129,15 @@ describe("router", () => {
   // currently has no secure routes to test against
   describe.skip("router ___ auth", () => {
     let wrapper;
+    let getLatestReleaseSpy;
+    let testLatestRelease = fakerFactory.githubRelease.create();
 
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       store.state.snomedLicenseAccepted = "true";
       store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
+      getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
       await router.isReady();
 
