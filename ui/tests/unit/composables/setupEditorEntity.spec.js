@@ -1,7 +1,7 @@
 import { expect, vi } from "vitest";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import { fakerFactory } from "@/mocks/factory";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { createTestStore, mountComposable } from "../TestMethods";
 
 import { setupEditorEntity } from "@/composables/setupEditorEntity";

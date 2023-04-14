@@ -1,0 +1,69 @@
+import { ComponentType } from "../../src/enums";
+import { getTreeQueryIri, processArguments, processComponentType } from "../../src/helpers/EditorMethods";
+import { fakerFactory } from "../../src/mocks/fakerFactory";
+import { IM } from "../../src/vocabulary";
+
+describe("EditorMethods", () => {
+  describe("processArguments", () => {
+    it("processes arguments", () => {
+      const argument1 = fakerFactory.argument.create({ valueVariable: "testVariable", valueDataList: [] });
+      const argument2 = fakerFactory.argument.create({ valueVariable: "altVariable", valueDataList: [] });
+      const argument3 = fakerFactory.argument.create({ valueVariable: "testVariableWithOrder", valueDataList: [] });
+      const shape = fakerFactory.propertyShape.create({ argument: [argument1, argument2, argument3], builderChild: true, order: 2 });
+      const valueVariableMap = new Map().set("testVariable", { id: "testId" }).set("testVariableWithOrder2", { id: "testOrderId" });
+      const results = processArguments(shape, valueVariableMap);
+      expect(results[0]).toEqual(expect.objectContaining({ valueVariable: { id: "testId" } }));
+      expect(results[0]).toEqual(expect.objectContaining({ valueData: argument1.valueData }));
+      expect(results[1]).toEqual(expect.objectContaining({ valueVariable: null }));
+      expect(results[1]).toEqual(expect.objectContaining({ valueData: argument2.valueData }));
+      expect(results[2]).toEqual(expect.objectContaining({ valueVariable: { id: "testOrderId" } }));
+      expect(results[2]).toEqual(expect.objectContaining({ valueData: argument3.valueData }));
+    });
+  });
+
+  describe("getTreeQueryIri", () => {
+    it("handles empty select", () => {
+      expect(getTreeQueryIri([])).toBe(undefined);
+    });
+
+    it("handles length < 2", () => {
+      expect(getTreeQueryIri([fakerFactory.iriRef.create()])).toBe(undefined);
+    });
+
+    it("returns position 1 id", () => {
+      const iri1 = fakerFactory.iriRef.create();
+      const iri2 = fakerFactory.iriRef.create();
+      const iri3 = fakerFactory.iriRef.create();
+      expect(getTreeQueryIri([iri1, iri2, iri3])).toBe(iri2["@id"]);
+    });
+  });
+
+  describe("processComponentType", () => {
+    it("processes component type ___ invalid", () => {
+      const testIri = fakerFactory.iriRef.create();
+      expect(() => processComponentType(testIri)).toThrowError("Invalid component type encountered while processing component types: " + testIri["@id"]);
+    });
+
+    it("process component type __ valid", () => {
+      expect(processComponentType({ "@id": IM.TEXT_DISPLAY_COMPONENT })).toBe(ComponentType.TEXT_DISPLAY);
+      expect(processComponentType({ "@id": IM.TEXT_INPUT_COMPONENT })).toBe(ComponentType.TEXT_INPUT);
+      expect(processComponentType({ "@id": IM.HTML_INPUT_COMPONENT })).toBe(ComponentType.HTML_INPUT);
+      expect(processComponentType({ "@id": IM.ARRAY_BUILDER_COMPONENT })).toBe(ComponentType.ARRAY_BUILDER);
+      expect(processComponentType({ "@id": IM.ENTITY_SEARCH_COMPONENT })).toBe(ComponentType.ENTITY_SEARCH);
+      expect(processComponentType({ "@id": IM.ENTITY_COMBOBOX_COMPONENT })).toBe(ComponentType.ENTITY_COMBOBOX);
+      expect(processComponentType({ "@id": IM.ENTITY_DROPDOWN_COMPONENT })).toBe(ComponentType.ENTITY_DROPDOWN);
+      expect(processComponentType({ "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT })).toBe(ComponentType.ENTITY_AUTO_COMPLETE);
+      expect(processComponentType({ "@id": IM.COMPONENT_GROUP })).toBe(ComponentType.COMPONENT_GROUP);
+      expect(processComponentType({ "@id": IM.MEMBERS_BUILDER })).toBe(ComponentType.MEMBERS_BUILDER);
+      expect(processComponentType({ "@id": IM.STEPS_GROUP_COMPONENT })).toBe(ComponentType.STEPS_GROUP);
+      expect(processComponentType({ "@id": IM.SET_DEFINITION_BUILDER })).toBe(ComponentType.SET_DEFINITION_BUILDER);
+      expect(processComponentType({ "@id": IM.QUERY_DEFINITION_BUILDER })).toBe(ComponentType.QUERY_DEFINITION_BUILDER);
+      expect(processComponentType({ "@id": IM.ARRAY_BUILDER_WITH_DROPDOWN })).toBe(ComponentType.ARRAY_BUILDER_WITH_DROPDOWN);
+      expect(processComponentType({ "@id": IM.PROPERTY_BUILDER })).toBe(ComponentType.PROPERTY_BUILDER);
+      expect(processComponentType({ "@id": IM.TOGGLEABLE_COMPONENT })).toBe(ComponentType.TOGGLEABLE_COMPONENT);
+      expect(processComponentType({ "@id": IM.HORIZONTAL_LAYOUT })).toBe(ComponentType.HORIZONTAL_LAYOUT);
+      expect(processComponentType({ "@id": IM.VERTICAL_LAYOUT })).toBe(ComponentType.VERTICAL_LAYOUT);
+      expect(processComponentType({ "@id": IM.DROPDOWN_TEXT_INPUT_CONCATENATOR })).toBe(ComponentType.DROPDOWN_TEXT_INPUT_CONCATENATOR);
+    });
+  });
+});
