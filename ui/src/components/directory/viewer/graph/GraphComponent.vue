@@ -4,7 +4,7 @@
       <svg id="force-layout-svg">
         <defs id="defs">
           <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="25" refY="6" orient="auto-start-reverse">
-            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--purple-500)"></path>
+            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--surface-500)"></path>
           </marker>
         </defs>
       </svg>
@@ -69,11 +69,9 @@ const width = ref(400);
 const force = ref(-5000);
 const radius = ref(16);
 const colour = ref({
-  activeNode: { fill: "var(--gray-50)", stroke: "var(--surface-500)" },
-  inactiveNode: { fill: "var(--purple-500)", stroke: "var(--surface-500)" },
-  centerNode: {
-    fill: "var(--yellow-500)",
-    stroke: "var(--text-color)"
+  activeNode: { fill: "var(--surface-100)", stroke: "var(--surface-500)" },
+  inactiveNode: { fill: "var(--primary-200)", stroke: "var(--surface-500)" },
+  centerNode: { fill: "var(--primary-color)", stroke: "var(--text-color)"
   },
   font: {},
   path: { fill: "", stroke: "var(--surface-500)" }
@@ -245,7 +243,10 @@ function drawGraph() {
     .attr("y", (d: any) => getFODimensions(d).y)
     .attr("width", (d: any) => getFODimensions(d).width)
     .attr("height", (d: any) => getFODimensions(d).height)
-    .attr("color", (d: any) => (hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.inactiveNode.fill))
+      .attr("color", (d: any) => {
+        if (d.depth === 0) return colour.value.activeNode.fill;
+        return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
+      })
     .style("font-size", () => `${nodeFontSize.value}px`)
     .on("dblclick", (d: any) => dblclick(d))
     .on("click", (d: any) => click(d))
