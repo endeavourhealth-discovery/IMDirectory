@@ -24,7 +24,7 @@ export default class EclService {
 
   public async evaluateEcl(ecl: string) {
     const esr = {
-      eclString: ecl,
+      eclString: ecl
     } as EclSearchRequest;
 
     return await this.eclSearch(esr);
@@ -35,7 +35,6 @@ export default class EclService {
       eclSearchRequest.eclQuery = eclToIMQ(eclSearchRequest.eclString);
       delete eclSearchRequest.eclString;
     } else if (isObjectHasKeys(eclSearchRequest, ["eclQuery"]) && eclSearchRequest.eclQuery) {
-      eclSearchRequest.eclQuery = eclSearchRequest.eclQuery;
       delete eclSearchRequest.eclString;
     } else throw new Error("eclString or eclQuery required for eclSearch");
     return (await this.axios.post(Env.API + "api/ecl/public/evaluateEclQuery", eclSearchRequest)).data;

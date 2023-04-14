@@ -15,7 +15,7 @@ import Env from "./Env";
 import axios from "axios";
 import { TreeNode } from "primevue/tree";
 import { SortDirection } from "@im-library/enums";
-import { isObject } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { OrganizationChartNode } from "primevue/organizationchart";
 const api = Env.API;
 
@@ -142,21 +142,45 @@ const EntityService = {
   },
 
   async getFilterOptions(): Promise<FilterOptions> {
-    const schemeOptions = (await this.getEntityChildren(IM.NAMESPACE + "Graph")).map(option => {
-      return { "@id": option["@id"], name: option.name } as TTIriRef;
-    });
-    const statusOptions = (await this.getEntityChildren(IM.STATUS)).map(option => {
-      return { "@id": option["@id"], name: option.name } as TTIriRef;
-    });
-    const typeOptions = (await this.getEntityChildren(IM.NAMESPACE + "TypeFilterOptions")).map(option => {
-      return { "@id": option["@id"], name: option.name } as TTIriRef;
-    });
-    const sortFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions")).map(option => {
-      return { "@id": option["@id"], name: option.name } as TTIriRef;
-    });
-    const sortDirectionOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterOptions")).map(option => {
-      return { "@id": option["@id"], name: option.name } as TTIriRef;
-    });
+    let schemeOptions: TTIriRef[] = [];
+    const schemeResults = await this.getEntityChildren(IM.NAMESPACE + "Graph");
+    if (isArrayHasLength(schemeResults)) {
+      schemeOptions = schemeResults.map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+    }
+
+    let statusOptions: TTIriRef[] = [];
+    const statusResults = await this.getEntityChildren(IM.STATUS);
+    if (isArrayHasLength(statusResults)) {
+      statusOptions = statusResults.map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+    }
+
+    let typeOptions: TTIriRef[] = [];
+    const typeResults = await this.getEntityChildren(IM.NAMESPACE + "TypeFilterOptions");
+    if (isArrayHasLength(typeResults)) {
+      typeOptions = typeResults.map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+    }
+
+    let sortFieldOptions: TTIriRef[] = [];
+    const sortFieldResults = await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterOptions");
+    if (isArrayHasLength(sortFieldResults)) {
+      sortFieldOptions = sortFieldResults.map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+    }
+
+    let sortDirectionOptions: TTIriRef[] = [];
+    const sortDirectionResults = await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterOptions");
+    if (isArrayHasLength(sortDirectionResults)) {
+      sortDirectionOptions = sortDirectionResults.map(option => {
+        return { "@id": option["@id"], name: option.name } as TTIriRef;
+      });
+    }
 
     return {
       status: statusOptions,
@@ -448,7 +472,7 @@ const EntityService = {
     return axios.get(api + "api/entity/public/hasPredicates", {
       params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
     });
-  },
+  }
 };
 
 if (process.env.NODE_ENV !== "test") Object.freeze(EntityService);
