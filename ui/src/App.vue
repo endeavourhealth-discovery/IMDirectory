@@ -202,4 +202,8 @@ function setupExternalErrorHandler() {
   flex: 1 0 auto;
   justify-content: flex-end;
 }
+
+.p-progress-spinner {
+  overflow: hidden;
+}
 </style>
