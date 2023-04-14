@@ -3,7 +3,7 @@
     <Toast />
     <ConfirmDialog />
     <DynamicDialog class="dynamic-dialog" />
-    <ReleaseNotes v-if="!loading && showReleaseNotes" repositoryName="IMDirectory" />
+    <ReleaseNotes v-if="!loading && showReleaseNotes" />
     <div id="main-container">
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
@@ -20,7 +20,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Env } from "@/services";
+import { Env, GithubService } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
@@ -38,8 +38,6 @@ const store = useStore();
 const currentTheme = computed(() => store.state.currentTheme);
 const showReleaseNotes: ComputedRef<boolean> = computed(() => store.state.showReleaseNotes);
 
-const appVersion = __APP_VERSION__;
-
 const loading = ref(true);
 
 onMounted(async () => {
@@ -48,7 +46,7 @@ onMounted(async () => {
   if (currentTheme.value) {
     if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
   } else store.commit("updateCurrentTheme", "saga-blue");
-  setShowReleaseNotes();
+  await setShowReleaseNotes();
   loading.value = false;
 });
 
@@ -57,12 +55,15 @@ function changeTheme(newTheme: string) {
   store.commit("updateCurrentTheme", newTheme);
 }
 
-function setShowReleaseNotes() {
+async function setShowReleaseNotes() {
   const lastVersion = getLocalVersion("IMDirectory");
-  if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, appVersion)) {
+  const latestRelease = await GithubService.getLatestRelease("IMDirectory");
+  let currentVersion = "v0.0.0";
+  if (latestRelease && latestRelease.version) currentVersion = latestRelease.version;
+  if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
     store.commit("updateShowReleaseNotes", true);
-  } else if (semver.valid(lastVersion) && semver.gt(lastVersion, appVersion)) {
-    setLocalVersion("IMDirectory", appVersion);
+  } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
+    setLocalVersion("IMDirectory", currentVersion);
     store.commit("updateShowReleaseNotes", true);
   } else store.commit("updateShowReleaseNotes", false);
 }
@@ -200,5 +201,9 @@ function setupExternalErrorHandler() {
 .p-dialog-header-icons {
   flex: 1 0 auto;
   justify-content: flex-end;
+}
+
+.p-progress-spinner {
+  overflow: hidden;
 }
 </style>

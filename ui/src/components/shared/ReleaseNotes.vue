@@ -70,29 +70,24 @@ import { GithubRelease } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useStore } from "vuex";
 
-const props = defineProps({
-  repositoryName: { type: String, required: true }
-});
-
 const store = useStore();
 
 const releases: Map<string, GithubRelease[]> = reactive(new Map().set("directory", []).set("importData", []));
-const showApp: Ref<any> = ref({ auth: false, directory: false, editor: false, importData: false, viewer: false });
-const showLegacy: Ref<any> = ref({ auth: false, directory: false, editor: false, importData: false, viewer: false });
-const loadingPerApp: Ref<any> = ref({ auth: false, directory: false, editor: false, importData: false, viewer: false });
+const showApp: Ref<any> = ref({ directory: false, importData: false });
+const showLegacy: Ref<any> = ref({ directory: false, importData: false });
+const loadingPerApp: Ref<any> = ref({ directory: false, importData: false });
 const loadingGlobal = ref(false);
 
 onMounted(async () => {
-  await init(props.repositoryName);
+  await init();
 });
 
-async function init(repoName: string) {
+async function init() {
   loadingGlobal.value = true;
-  await getLatestReleaseNotes(repoName);
+  await getLatestReleaseNotes("IMDirectory");
   loadingGlobal.value = false;
   await nextTick();
-  startExpanded(props.repositoryName);
-  loadingGlobal.value = false;
+  startExpanded("IMDirectory");
 }
 
 function setLocalVersion(repoName: string, versionNo: string) {
@@ -159,8 +154,8 @@ function resetBooleanObject(booleanObject: any) {
 }
 
 async function viewAll() {
-  await getAdditionalAppLatestReleaseNotes(props.repositoryName);
-  if (props.repositoryName !== "IMDirectory" && showApp.value.directory === false) startExpanded("IMDirectory");
+  await getAdditionalAppLatestReleaseNotes("directory");
+  if (showApp.value.directory === false) startExpanded("IMDirectory");
   if (showApp.value.importData === false) startExpanded("ImportData");
 }
 
@@ -235,6 +230,10 @@ function keyToRepoName(key: string): string {
   padding: 0.5rem;
   border: 1px solid var(--surface-border);
   border-radius: 3px;
+}
+
+.loading-container {
+  overflow: hidden;
 }
 
 p {
