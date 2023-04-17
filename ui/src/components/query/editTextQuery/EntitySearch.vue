@@ -1,18 +1,17 @@
 <template>
-  <AutoComplete v-model="selected" :suggestions="suggestions" @complete="debounceForSearch" @change="emit('onChange', selected)" />
+  <AutoComplete v-model="selected" option-label="name" :suggestions="suggestions" @complete="debounceForSearch" @change="emit('onChange', selected)" />
 </template>
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { Element } from "@im-library/interfaces/AutoGen";
 import { onMounted, PropType, Ref, ref, computed } from "vue";
 import { useStore } from "vuex";
 
 const store = useStore();
 const props = defineProps({
-  entityValue: { type: Object as PropType<Element>, required: false }
+  entityValue: { type: Object as PropType<ConceptSummary>, required: false }
 });
 const controller: Ref<AbortController> = ref({} as AbortController);
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
@@ -22,10 +21,10 @@ const debounce = ref(0);
 
 const emit = defineEmits({ onChange: (payload: ConceptSummary) => payload });
 
-onMounted(async () => {
+onMounted(() => {
   if (props.entityValue) {
-    const iri = props.entityValue["@id"] || props.entityValue["@set"] || props.entityValue["@type"];
-    selected.value = { name: props.entityValue.name || iri, iri: iri } as ConceptSummary;
+    const value = props.entityValue.name || props.entityValue.iri;
+    selected.value = value as any;
   }
 });
 

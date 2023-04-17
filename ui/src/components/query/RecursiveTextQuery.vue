@@ -11,7 +11,7 @@
   </div>
   <Dialog v-model:visible="editDialog" modal :header="selected.display" :style="{ width: '50vw' }">
     <!-- <EditTextQuery :from="from" :text-query="selected" @on-cancel="editDialog = false" /> -->
-    <CreateClause :from="from" :text-query="selected" @on-cancel="editDialog = false" />
+    <MatchClause :from="from" :text-query="selected" @on-cancel="editDialog = false" />
   </Dialog>
 </template>
 
@@ -20,7 +20,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { ITextQuery } from "@im-library/interfaces/query/TextQuery";
 import { onMounted, PropType, ComputedRef, Ref, ref, computed } from "vue";
 import EditTextQuery from "./EditTextQuery.vue";
-import CreateClause from "./CreateClause.vue";
+import MatchClause from "./MatchClause.vue";
 const props = defineProps({
   from: { type: Object as PropType<ITextQuery>, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },

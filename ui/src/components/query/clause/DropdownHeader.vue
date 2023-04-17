@@ -1,7 +1,7 @@
 <template>
   <Inplace :closable="true">
     <template #display>
-      <h4>{{ selected }}</h4>
+      <div class="inplace-display">{{ selected }}</div>
     </template>
     <template #content>
       <Dropdown :options="options" v-model:model-value="selected" @change="emit('onChange', selected)" />
@@ -23,4 +23,16 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.dropdown-header {
+  display: flex;
+  flex-flow: column;
+}
+
+/* .inplace-display {
+  padding: 1px;
+  display: flex;
+  flex-flow: row;
+  all: unset !important;
+} */
+</style>

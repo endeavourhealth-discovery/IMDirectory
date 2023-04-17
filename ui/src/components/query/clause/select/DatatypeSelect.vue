@@ -1,6 +1,6 @@
 <template>
   <div v-if="datatype === 'http://www.w3.org/2001/XMLSchema#string'">
-    <DropdownHeader :options="['Is', 'Starts with', 'Contains']" />
+    <DropdownHeader :options="['Is', 'Starts with', 'Contains']" @on-change="header = $event" />
     <InputText type="text" v-model:model-value="value" @change="emit('onValueUpdate', $event)" />
   </div>
   <Dropdown

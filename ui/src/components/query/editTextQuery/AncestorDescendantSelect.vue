@@ -3,20 +3,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch, ref, Ref } from "vue";
-// const props = defineProps({
-//   propValue: { type: String, required: true }
-// });
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { onMounted, watch, ref, Ref, PropType } from "vue";
+const props = defineProps({
+  selected: { type: Object as PropType<string[]>, required: true }
+});
 
 const options = ["ancestorsOf", "descendantsOrSelfOf", "descendantsOf"];
 const selectedOptions: Ref<string[]> = ref([]);
 
-// watch(
-//   () => props.propValue,
-//   async newValue => {}
-// );
-
-// onMounted(async () => {});
+onMounted(async () => {
+  if (isArrayHasLength(props.selected)) selectedOptions.value = [...props.selected];
+});
 </script>
 
 <style scoped></style>

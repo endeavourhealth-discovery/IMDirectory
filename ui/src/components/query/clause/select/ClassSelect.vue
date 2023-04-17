@@ -1,8 +1,10 @@
 <template>
-  <DropdownHeader :options="['In', 'Not in', 'Is null']" />
-  <div class="class-select">
-    <InputText type="text" @click="visible = true" placeholder="Value" v-model:model-value="valueDisplay" />
-    <AncestorDescendantSelect />
+  <DropdownHeader :options="['In', 'Not in', 'Is null']" @on-change="header = $event" />
+  <div v-if="header !== 'Is null'" v-for="(selValue, index) in selectedValues" class="class-select">
+    <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="selValue.name" />
+    <AncestorDescendantSelect :selected="selectedOptions" />
+    <Button class="hidden-button" icon="fa-solid fa-plus" text @click="selectedValues.push({ name: '' } as ConceptSummary)" />
+    <Button class="hidden-button" icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" />
   </div>
   <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
     <ValueTreeSelect v-if="showTree" :class-iri="props.selectedProperty.data[SHACL.CLASS][0]['@id']" @close="visible = false" />
@@ -21,6 +23,7 @@ import AncestorDescendantSelect from "../../editTextQuery/AncestorDescendantSele
 import ValueTreeSelect from "./class/ValueTreeSelect.vue";
 import ValueListSelect from "./class/ValueListSelect.vue";
 import DropdownHeader from "../DropdownHeader.vue";
+import { ConceptSummary } from "@im-library/interfaces";
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
 const props = defineProps({
@@ -29,10 +32,12 @@ const props = defineProps({
 });
 const visible: Ref<boolean> = ref(false);
 const showTree: Ref<boolean> = ref(false);
-const valueDisplay = ref();
+const selectedValues: Ref<ConceptSummary[]> = ref([{} as ConceptSummary]);
+const selectedIndex: Ref<number> = ref(0);
+const selectedOptions: Ref<string[]> = ref([]);
+const header = ref("Is");
 
 onMounted(async () => {
-  // TODO get tree from set/query
   const classIri = props.selectedProperty.data[SHACL.CLASS][0]["@id"];
   const entity = await EntityService.getPartialEntity(classIri, [RDF.TYPE, IM.DEFINITION]);
   if (isQuery(entity[RDF.TYPE]) || (isValueSet(entity[RDF.TYPE]) && isObjectHasKeys(entity, [IM.DEFINITION]))) {
@@ -44,8 +49,20 @@ onMounted(async () => {
 
 function onSelect(event: any) {
   visible.value = false;
-  valueDisplay.value = event.name || event.label;
+  selectedValues.value[selectedIndex.value] = {
+    name: event.name || event.label,
+    iri: event["@id"]
+  } as ConceptSummary;
   emit("onSelect", event);
+}
+
+function openDialog(index: number) {
+  selectedIndex.value = index;
+  visible.value = true;
+}
+
+function deleteItem(index: number) {
+  selectedValues.value.splice(index, 1);
 }
 </script>
 
@@ -53,5 +70,11 @@ function onSelect(event: any) {
 .class-select {
   display: flex;
   align-items: baseline;
+}
+.hidden-button {
+  display: none;
+}
+.class-select:hover .hidden-button {
+  display: flex;
 }
 </style>
