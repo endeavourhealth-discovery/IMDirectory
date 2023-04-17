@@ -34,7 +34,7 @@ import { SHACL } from "@im-library/vocabulary";
 const emit = defineEmits({ onSelect: (payload: TreeNode) => payload });
 
 const props = defineProps({
-  from: { type: Object as PropType<ITextQuery>, required: true },
+  baseEntityIri: { type: String, required: true },
   property: { type: Object as PropType<TreeNode>, required: false }
 });
 const visible: Ref<boolean> = ref(false);
@@ -44,8 +44,7 @@ const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
 
 onMounted(async () => {
-  const iri: string = props.from.data["@id"] || props.from.data["@type"] || props.from.data["@set"];
-  const entity = await EntityService.getPartialEntity(resolveIri(iri), [SHACL.PROPERTY]);
+  const entity = await EntityService.getPartialEntity(resolveIri(props.baseEntityIri), [SHACL.PROPERTY]);
   nodes.value = getTreeNodes(entity, { children: [] });
 });
 

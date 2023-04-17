@@ -28,13 +28,11 @@ import { Where } from "@im-library/interfaces/AutoGen";
 const emit = defineEmits({ onSelectPropertyValue: (payload: TreeNode) => payload });
 
 const props = defineProps({
-  property: { type: Object as PropType<TreeNode>, required: true },
-  selectedWhere: { type: Object as PropType<Where>, required: true }
+  where: { type: Object as PropType<Where>, required: true }
 });
 
 const editEntityValue: Ref<ConceptSummary> = ref({} as ConceptSummary);
-
-onMounted(async () => {});
+const property = onMounted(async () => {});
 </script>
 
 <style scoped></style>

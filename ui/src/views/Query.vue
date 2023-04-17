@@ -6,7 +6,7 @@
       </template>
     </TopBar>
     Defined as
-    <TextQuery :from="textQueries[0]" :text-queries="textQueries" :parent="undefined"></TextQuery>
+    <TextQuery :baseEntityIri="baseEntityIri" :text-queries="textQueries" :parent="undefined"></TextQuery>
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -29,10 +29,13 @@ const store = useStore();
 const textQueries: Ref<ITextQuery[]> = ref([]);
 const query: Ref<any> = ref();
 const visibleDialog: Ref<boolean> = ref(false);
+const baseEntityIri = ref("");
 
 onMounted(async () => {
   await store.dispatch("fetchFilterSettings");
   textQueries.value = await getTextQuery();
+  const baseEntity = textQueries.value[0].data;
+  baseEntityIri.value = baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"];
 });
 
 async function getTextQuery() {

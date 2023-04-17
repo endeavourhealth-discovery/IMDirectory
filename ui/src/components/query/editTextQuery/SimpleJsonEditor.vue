@@ -4,16 +4,15 @@
 </template>
 
 <script setup lang="ts">
-import { ITextQuery } from "@im-library/interfaces";
-import { onMounted, watch, ref, PropType } from "vue";
+import { onMounted, ref, PropType } from "vue";
 const props = defineProps({
-  textQuery: { type: Object as PropType<ITextQuery>, required: true }
+  jsonObject: { type: Object as PropType<any>, required: true }
 });
 const jsonString = ref("");
 const errorMessage = ref("");
 
 onMounted(async () => {
-  jsonString.value = JSON.stringify(props.textQuery.data, null, 2);
+  jsonString.value = JSON.stringify(props.jsonObject.data, null, 2);
 });
 
 function getParsedOrError() {
@@ -28,7 +27,7 @@ function getParsedOrError() {
 
 function onFormat(event: KeyboardEvent) {
   if (event.code === "AltLeft") {
-    jsonString.value = JSON.stringify(props.textQuery.data, null, 2);
+    jsonString.value = JSON.stringify(props.jsonObject.data, null, 2);
   }
 }
 
@@ -37,7 +36,7 @@ function onChange() {
   if (typeof messageOrData === "string") {
     errorMessage.value = messageOrData;
   } else {
-    props.textQuery.data = messageOrData;
+    props.jsonObject.data = messageOrData;
     errorMessage.value = "";
   }
 }

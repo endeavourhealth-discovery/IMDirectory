@@ -4,14 +4,18 @@
       <div v-if="textQuery.display && textQuery.display !== 'or' && textQuery.display !== 'or '">
         <span v-if="textQuery.data.exclude" class="exclude">exclude </span>
         <span v-if="'exclude' !== textQuery.display" class="content" @click="openDialog(textQuery)"> {{ textQuery.display }}</span>
-        <RecursiveTextQuery :from="from" v-if="isArrayHasLength(textQuery.children)" :text-queries="textQuery.children" :parent="textQuery" />
+        <RecursiveTextQuery :baseEntityIri="baseEntityIri" v-if="isArrayHasLength(textQuery.children)" :text-queries="textQuery.children" :parent="textQuery" />
       </div>
-      <RecursiveTextQuery :from="from" v-else-if="isArrayHasLength(textQuery.children)" :text-queries="textQuery.children" :parent="textQuery" />
+      <RecursiveTextQuery
+        :baseEntityIri="baseEntityIri"
+        v-else-if="isArrayHasLength(textQuery.children)"
+        :text-queries="textQuery.children"
+        :parent="textQuery"
+      />
     </div>
   </div>
   <Dialog v-model:visible="editDialog" modal :header="selected.display" :style="{ width: '50vw' }">
-    <!-- <EditTextQuery :from="from" :text-query="selected" @on-cancel="editDialog = false" /> -->
-    <MatchClause :from="from" :text-query="selected" @on-cancel="editDialog = false" />
+    <MatchClause :baseEntityIri="baseEntityIri" :match="selected.data" @on-cancel="editDialog = false" @on-save="onSave" />
   </Dialog>
 </template>
 
@@ -19,10 +23,10 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ITextQuery } from "@im-library/interfaces/query/TextQuery";
 import { onMounted, PropType, ComputedRef, Ref, ref, computed } from "vue";
-import EditTextQuery from "./EditTextQuery.vue";
 import MatchClause from "./MatchClause.vue";
+import { Match } from "@im-library/interfaces/AutoGen";
 const props = defineProps({
-  from: { type: Object as PropType<ITextQuery>, required: true },
+  baseEntityIri: { type: String, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },
   parent: { type: Object as PropType<ITextQuery | undefined>, required: true }
 });
@@ -33,6 +37,11 @@ const editDialog: Ref<boolean> = ref(false);
 function openDialog(textQuery: ITextQuery) {
   selected.value = textQuery;
   editDialog.value = true;
+}
+
+function onSave(event: Match) {
+  selected.value.data = event;
+  editDialog.value = false;
 }
 
 onMounted(async () => {});
