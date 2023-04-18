@@ -90,44 +90,44 @@ describe("EclSearch.vue", async () => {
     component.getByText("ECL expression:");
   });
 
-  // it("searches", async () => {
-  //   const textbox = component.getByTestId("query-string");
-  //   await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
-  //   component.getByDisplayValue("<< 10363601000001109 |UK product|");
-  //   const search = component.getByTestId("search-button");
-  //   await fireEvent.click(search);
-  //   await flushPromises();
-  //   expect(mockECLSearch).toHaveBeenCalledTimes(1);
-  // });
-  //
-  // it("opens builder overlay", async () => {
-  //   const button = component.getByTestId("builder-button");
-  //   await fireEvent.click(button);
-  //   component.getByTestId("builder-visible-true");
-  // });
+  it("searches", async () => {
+    const textbox = component.getByTestId("query-string");
+    await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
+    component.getByDisplayValue("<< 10363601000001109 |UK product|");
+    const search = component.getByTestId("search-button");
+    await fireEvent.click(search);
+    await flushPromises();
+    expect(mockECLSearch).toHaveBeenCalledTimes(1);
+  });
 
-  // it("handles >1000 results", async () => {
-  //   const largeSearchResults = [];
-  //   for (let i = 1; i <= 1100; i++) {
-  //     largeSearchResults.push(fakerFactory.conceptSummary.create());
-  //   }
-  //   mockECLSearch.mockResolvedValue(largeSearchResults);
-  //   const textbox = component.getByTestId("query-string");
-  //   await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
-  //   component.getByDisplayValue("<< 10363601000001109 |UK product|");
-  //   const search = component.getByTestId("search-button");
-  //   await fireEvent.click(search);
-  //   await flushPromises();
-  //   component.getByText("1100 results found. Display limited to first 1000.");
-  // });
+  it("opens builder overlay", async () => {
+    const button = component.getByTestId("builder-button");
+    await fireEvent.click(button);
+    component.getByTestId("builder-visible-true");
+  });
 
-  // it("toasts on copy", async () => {
-  //   const textbox = component.getByTestId("query-string");
-  //   await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
-  //   component.getByDisplayValue("<< 10363601000001109 |UK product|");
-  //   const button = component.getByTestId("copy-to-clipboard-button");
-  //   await fireEvent.click(button);
-  //   await flushPromises();
-  //   expect(mockAdd).toHaveBeenCalledOnce();
-  // });
+  it("handles >1000 results", async () => {
+    const largeSearchResults = [];
+    for (let i = 1; i <= 1100; i++) {
+      largeSearchResults.push(fakerFactory.conceptSummary.create());
+    }
+    mockECLSearch.mockResolvedValue(largeSearchResults);
+    const textbox = component.getByTestId("query-string");
+    await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
+    component.getByDisplayValue("<< 10363601000001109 |UK product|");
+    const search = component.getByTestId("search-button");
+    await fireEvent.click(search);
+    await flushPromises();
+    component.getByText("1100 results found. Display limited to first 1000.");
+  });
+
+  it("toasts on copy", async () => {
+    const textbox = component.getByTestId("query-string");
+    await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
+    component.getByDisplayValue("<< 10363601000001109 |UK product|");
+    const button = component.getByTestId("copy-to-clipboard-button");
+    await fireEvent.click(button);
+    await flushPromises();
+    expect(mockAdd).toHaveBeenCalledOnce();
+  });
 });

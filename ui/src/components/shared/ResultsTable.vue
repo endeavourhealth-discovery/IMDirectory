@@ -117,15 +117,13 @@ watch(
 
 onMounted(() => init());
 
-const isLoading = computed(() => () => props.loading);
-
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
   store.commit("updateFavourites", selected.value.iri);
 }
 
 function isFavourite(iri: string) {
-  if (!favourites.value.length) return false;
+  if (!favourites.value?.length) return false;
   return favourites.value.includes(iri);
 }
 
