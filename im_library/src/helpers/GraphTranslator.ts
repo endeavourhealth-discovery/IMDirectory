@@ -87,7 +87,7 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
       });
     });
   });
-  if (preNode.children.length > 1) {
+  if (preNode.children.length < 1) {
     if (!firstNode.children.some((c: any) => c.relToParent === preNode.relToParent)) {
       firstNode.children.push(preNode);
     }

@@ -4,7 +4,7 @@ import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fakerFactory } from "@/mocks/factory";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import axios from "axios";
 import { flushPromises } from "@vue/test-utils";
 import { GithubService } from "@/services";
@@ -65,7 +65,7 @@ describe("ReleaseNotes.vue", () => {
     const button = component.getByTestId("expand-all-button");
     await fireEvent.click(button);
     await flushPromises();
-    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(1);
+    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(2);
     expect(getLatestReleaseSpy).toHaveBeenCalledWith("ImportData");
     const directoryButton = component.getByTestId("expand-button-directory");
     expect(directoryButton.classList.contains("pi-minus"));

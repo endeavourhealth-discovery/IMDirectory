@@ -12,10 +12,7 @@ import UserMethods from "./UserMethods";
 import EditorBuilderJsonMethods from "./EditorBuilderJsonMethods";
 import EditorMethods from "./EditorMethods";
 import TypeGuards from "./TypeGuards";
-import EntityValidator from "./EntityValidator";
-import QueryBuilderMethods from "./QueryBuilderMethods";
 import UtililityMethods from "./UtilityMethods";
-import TangledTreeLayout from "./TangledTreeLayout";
 import StringManipulators from "./StringManipulators";
 import DisplayQueryBuilder from "./DisplayQueryBuilder";
 import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
@@ -40,10 +37,7 @@ export {
   UserMethods,
   EditorBuilderJsonMethods,
   TypeGuards,
-  EntityValidator,
-  QueryBuilderMethods,
   UtililityMethods,
-  TangledTreeLayout,
   StringManipulators,
   DisplayQueryBuilder,
   EclBuilderConceptToEcl,

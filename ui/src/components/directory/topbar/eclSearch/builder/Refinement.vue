@@ -1,5 +1,5 @@
 <template>
-  <div class="refinement-content-container nested-div">
+  <div class="refinement-content-container">
     <AutoComplete
       style="flex: 1"
       input-style="flex:1"
@@ -391,12 +391,6 @@ function hasFocus(): boolean {
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
-}
-
-.nested-div {
-  border: none;
-  background-color: unset;
-  border-radius: 5px;
 }
 
 .loading-icon {
