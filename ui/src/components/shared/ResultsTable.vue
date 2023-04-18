@@ -12,13 +12,13 @@
         @rowContextmenu="onRowContextMenu"
         :scrollable="true"
         scrollHeight="flex"
-        :loading="isLoading"
+        :loading="loading"
         ref="searchTable"
         dataKey="iri"
         :autoLayout="true"
     >
       <template #empty> None </template>
-      <Column field="name" headerStyle="flex: 0 1 calc(100% - 22rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
+      <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
           Results
           <Button
@@ -33,14 +33,14 @@
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
             <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
-              {{ data.name + " | " + data.code  }}
+              {{ data.code ? data.name + " | " + data.code : data.name }}
             </span>
           </div>
         </template>
       </Column>
       <Column field="weighting" header="Usage">
         <template #body="{ data }: any">
-          <span>{{ data.usage }}</span>
+          <span>{{ data.weighting || data.usage }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
@@ -64,7 +64,7 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue"
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import setupDownloadFile from "@/composables/downloadFile";
 
@@ -77,6 +77,7 @@ const props = defineProps({
 const store = useStore();
 const favourites = computed(() => store.state.favourites);
 const fontAwesomePro = computed(() => store.state.fontAwesomePro);
+const searchLoading = computed(() => store.state.searchLoading);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
@@ -116,7 +117,7 @@ watch(
 
 onMounted(() => init());
 
-const isLoading = computed(() => props.loading);
+const isLoading = computed(() => () => props.loading);
 
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
@@ -134,7 +135,12 @@ function init() {
 
 function processSearchResults() {
   for (const result of props.searchResults) {
-    if (isObjectHasKeys(result, ["type"])) {
+    if (isObjectHasKeys(result, ["entityType"])) {
+      result.icon = getFAIconFromType(result.entityType);
+      result.colour = getColourFromType(result.entityType);
+      result.typeNames = getNamesAsStringFromTypes(result.entityType);
+      result.favourite = isFavourite(result.iri);
+    } else if(isObjectHasKeys(result, ["type"])) {
       result.icon = getFAIconFromType(result.type);
       result.colour = getColourFromType(result.type);
       result.typeNames = getNamesAsStringFromTypes(result.type);
