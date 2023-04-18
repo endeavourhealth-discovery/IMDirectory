@@ -21,7 +21,7 @@
             <ProgressSpinner />
           </div>
           <div v-else class="steps-content">
-            <Steps :model="stepsItems" :readonly="false" @click="stepsClicked" />
+            <Steps v-if="stepsItems.length !== 0" :model="stepsItems" :readonly="false" @click="stepsClicked" />
             <router-view v-slot="{ Component }: any">
               <keep-alive>
                 <component :is="Component" :shape="groups.length ? groups[currentStep - 1] : undefined" :mode="EditorMode.CREATE" />
