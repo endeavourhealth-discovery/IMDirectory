@@ -20,60 +20,7 @@
         </span>
       </div>
     </div>
-
-    <DataTable
-      :paginator="true"
-      :rows="20"
-      :value="localSearchResults"
-      class="p-datatable-sm"
-      v-model:selection="selected"
-      selectionMode="single"
-      @row-select="onRowSelect"
-      contextMenu
-      @rowContextmenu="onRowContextMenu"
-      :scrollable="true"
-      scrollHeight="flex"
-      :loading="isLoading"
-      ref="searchTable"
-      dataKey="iri"
-      :autoLayout="true"
-    >
-      <template #empty> None </template>
-      <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
-        <template #header>
-          Results
-          <Button
-            :disabled="!searchResults?.length"
-            class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
-            :icon="fontAwesomePro ? 'fa-duotone fa-fw fa-file-arrow-down' : 'fa-solid fa-fw fa-file-arrow-down'"
-            @click="exportCSV()"
-            v-tooltip.right="'Download results table'"
-          />
-        </template>
-        <template #body="{ data }: any">
-          <div class="datatable-flex-cell">
-            <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
-            <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
-              {{ data.code ? data.match + " | " + data.code : data.match }}
-            </span>
-          </div>
-        </template>
-      </Column>
-      <Column field="weighting" header="Usage">
-        <template #body="{ data }: any">
-          <span>{{ data.weighting }}</span>
-        </template>
-      </Column>
-      <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="{ data }: any">
-          <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" />
-          </div>
-        </template>
-      </Column>
-    </DataTable>
-    <ContextMenu :model="rClickOptions" ref="contextMenu" />
-    <OverlaySummary ref="OS" />
+    <ResultsTable :searchResults="localSearchResults" :loading="isLoading"/>
   </div>
 </template>
 
@@ -81,14 +28,8 @@
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { useStore } from "vuex";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { DirectService } from "@/services";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
-import rowClick from "@/composables/rowClick";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
-import setupDownloadFile from "@/composables/downloadFile";
+import ResultsTable from "@/components/shared/ResultsTable.vue";
 
 const props = defineProps({
   showFilters: { type: Boolean, required: false, default: true }
@@ -99,12 +40,6 @@ const searchLoading = computed(() => store.state.searchLoading);
 const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptions);
 const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
 const searchResults = computed(() => store.state.searchResults);
-const favourites = computed(() => store.state.favourites);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
-
-const { downloadFile } = setupDownloadFile(window, document);
-
-const directService = new DirectService();
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
@@ -114,32 +49,6 @@ const statusOptions: Ref<string[]> = ref([]);
 const typeOptions: Ref<string[]> = ref([]);
 const localSearchResults: Ref<any[]> = ref([]);
 const loading = ref(true);
-const selected: Ref<any> = ref({});
-const rClickOptions: Ref<any[]> = ref([
-  {
-    label: "Select",
-    icon: "fa-solid fa-sitemap",
-    command: () => directService.select((selected.value as any).iri, "Folder")
-  },
-  {
-    label: "View in new tab",
-    icon: "pi pi-fw pi-external-link",
-    command: () => directService.view((selected.value as any).iri)
-  },
-  {
-    separator: true
-  },
-  {
-    label: "Favourite",
-    icon: "pi pi-fw pi-star",
-    command: () => updateFavourites()
-  }
-]);
-
-const OS: Ref<any> = ref();
-const contextMenu = ref();
-const menu = ref();
-const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => searchResults.value,
@@ -150,37 +59,16 @@ onMounted(() => init());
 
 const isLoading = computed(() => loading.value || searchLoading.value);
 
-function updateFavourites(row?: any) {
-  if (row) selected.value = row.data;
-  store.commit("updateFavourites", selected.value.iri);
-}
-
-function isFavourite(iri: string) {
-  if (!favourites.value.length) return false;
-  return favourites.value.includes(iri);
-}
-
 function init() {
   loading.value = true;
   localSearchResults.value = [...searchResults.value];
-  processSearchResults();
+
   if (isArrayHasLength(localSearchResults.value)) {
     setFiltersFromSearchResults();
   } else {
     setFilterDefaults();
   }
   loading.value = false;
-}
-
-function processSearchResults() {
-  for (const result of localSearchResults.value) {
-    if (isObjectHasKeys(result, ["entityType"])) {
-      result.icon = getFAIconFromType(result.entityType);
-      result.colour = getColourFromType(result.entityType);
-      result.typeNames = getNamesAsStringFromTypes(result.entityType);
-      result.favourite = isFavourite(result.iri);
-    }
-  }
 }
 
 function setFilterDefaults() {
@@ -231,36 +119,6 @@ function filterResults() {
     }
   });
   localSearchResults.value = [...filteredSearchResults];
-  processSearchResults();
-}
-
-function updateRClickOptions() {
-  rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
-}
-
-function onRowContextMenu(event: any) {
-  selected.value = event.data;
-  updateRClickOptions();
-  contextMenu.value.show(event.originalEvent);
-}
-
-function onRowSelect(event: any) {
-  onRowClick(event.data.iri);
-}
-
-async function showOverlay(event: any, data: any): Promise<void> {
-  await OS.value.showOverlay(event, data.iri);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
-}
-
-function exportCSV(): void {
-  const heading = ["name", "iri", "code"].join(",");
-  const body = localSearchResults.value.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
-  const csv = [heading, body].join("\n");
-  downloadFile(csv, "results.csv");
 }
 </script>
 
@@ -291,47 +149,7 @@ label {
   padding: 0.5rem;
 }
 
-.p-datatable {
-  flex: 1 1 auto;
-  overflow: auto;
-}
-
 #search-results-main-container:deep(.p-datatable-thead) {
   z-index: 0 !important;
-}
-
-.buttons-container {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
-  justify-content: center;
-  row-gap: 0.5rem;
-}
-
-.break-all {
-  word-break: break-all;
-}
-
-.break-word {
-  word-break: normal;
-}
-
-.recent-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 1.25rem;
-  padding: 5px;
-}
-
-.datatable-flex-cell {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-flex: 1;
-  -ms-flex: 1 1 0;
-  flex: 1 1 0;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
 }
 </style>

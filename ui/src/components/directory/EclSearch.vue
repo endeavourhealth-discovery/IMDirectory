@@ -35,7 +35,7 @@
     </div>
     <div class="results-container">
       <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
-      <SearchResults :searchResults="searchResults" :totalRecords="totalCount" :loading="loading" />
+      <ResultsTable :searchResults="searchResults" :loading="loading" />
     </div>
   </div>
   <Builder
@@ -52,7 +52,6 @@
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -64,6 +63,7 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { useStore } from "vuex";
 import { byName } from "@im-library/helpers/Sorters";
+import ResultsTable from "@/components/shared/ResultsTable.vue";
 
 const toast = useToast();
 const store = useStore();
