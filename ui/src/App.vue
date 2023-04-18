@@ -99,11 +99,24 @@ async function setupAxiosInterceptors(axios: any) {
     (error: any) => {
       if (error?.response?.config?.raw) return Promise.reject(error);
       if (error?.response?.status === 403) {
-        toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-        });
+        if (error.response.data) {
+          toast.add({
+            severity: "error",
+            summary: "Access denied",
+            detail: error.response.data.debugMessage
+          });
+        } else if (error.config.url) {
+          toast.add({
+            severity: "error",
+            summary: "Access denied",
+            detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Access denied"
+          });
+        }
         window.location.href = Env.AUTH_URL + "login?returnUrl=" + route.fullPath;
       } else if (error?.response?.status === 401) {
         toast.add({
