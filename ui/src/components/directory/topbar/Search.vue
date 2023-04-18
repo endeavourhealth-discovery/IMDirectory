@@ -5,6 +5,7 @@
       <Button @click="search" class="search-button p-button-secondary" label="Search" />
     </SplitButton>
     <Button
+      v-tooltip.bottom="'Filters'"
       id="filter-button"
       :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"

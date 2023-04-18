@@ -8,12 +8,13 @@
     </div>
     <div id="topbar-end">
       <Button
+        v-tooltip.bottom="'Releases'"
         v-if="currentVersion"
         :label="currentVersion"
         class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
         @click="showReleaseNotes"
       />
-      <Button :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
+      <Button v-tooltip.bottom="'Themes'" :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
           <div class="theme-row p-link">
@@ -23,12 +24,14 @@
         </template>
       </Menu>
       <Button
+        v-tooltip.bottom="'Upload/Download'"
         :icon="fontAwesomePro ? 'fa-duotone fa-arrow-down-up-across-line' : 'fa-solid fa-arrow-down-up-across-line'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
       />
       <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
       <Button
+        v-tooltip.bottom="'Apps'"
         :icon="fontAwesomePro ? 'fa-regular fa-grid-2' : 'pi pi-th-large'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
@@ -45,6 +48,7 @@
         </div>
       </OverlayPanel>
       <Button
+        v-tooltip.left="'Account'"
         v-if="!isLoggedIn"
         :icon="fontAwesomePro ? 'fa-duotone fa-user' : 'fa-regular fa-user'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
@@ -53,6 +57,7 @@
         aria-controls="overlay_menu"
       />
       <Button
+        v-tooltip.left="'Account'"
         v-if="currentUser && isLoggedIn"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openUserMenu"
