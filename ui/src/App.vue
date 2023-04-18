@@ -5,6 +5,7 @@
     <DynamicDialog class="dynamic-dialog" />
     <ReleaseNotes v-if="!loading && showReleaseNotes" />
     <div id="main-container">
+      <BannerBar v-if="showBanner" :latestRelease="latestRelease" />
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
@@ -14,8 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef } from "vue";
+import { onMounted, ref, computed, ComputedRef, Ref } from "vue";
 import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
+import BannerBar from "./components/shared/BannerBar.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
@@ -25,6 +27,7 @@ import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
 import { usePrimeVue } from "primevue/config";
+import { GithubRelease } from "./interfaces";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -37,7 +40,9 @@ const store = useStore();
 
 const currentTheme = computed(() => store.state.currentTheme);
 const showReleaseNotes: ComputedRef<boolean> = computed(() => store.state.showReleaseNotes);
+const showBanner: ComputedRef<boolean> = computed(() => store.state.showBanner);
 
+const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
@@ -57,14 +62,16 @@ function changeTheme(newTheme: string) {
 
 async function setShowReleaseNotes() {
   const lastVersion = getLocalVersion("IMDirectory");
-  const latestRelease = await GithubService.getLatestRelease("IMDirectory");
+  latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
   let currentVersion = "v0.0.0";
-  if (latestRelease && latestRelease.version) currentVersion = latestRelease.version;
+  if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
     store.commit("updateShowReleaseNotes", true);
+    store.commit("updateShowBanner", true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
     setLocalVersion("IMDirectory", currentVersion);
     store.commit("updateShowReleaseNotes", true);
+    store.commit("updateShowBanner", true);
   } else store.commit("updateShowReleaseNotes", false);
 }
 

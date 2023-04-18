@@ -52,7 +52,8 @@ export default createStore({
     showReleaseNotes: false as boolean,
     fontAwesomePro: false,
     eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string),
-    currentTheme: localStorage.getItem("currentTheme") as string
+    currentTheme: localStorage.getItem("currentTheme") as string,
+    showBanner: localStorage.getItem("showBanner") === "true" ? true : false
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -201,6 +202,10 @@ export default createStore({
     updateCurrentTheme(state, theme) {
       state.currentTheme = theme;
       localStorage.setItem("currentTheme", theme);
+    },
+    updateShowBanner(state, bool: boolean) {
+      state.showBanner = bool;
+      localStorage.setItem("showBanner", bool === true ? "true" : "");
     }
   },
   actions: {
