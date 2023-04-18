@@ -9,7 +9,7 @@ export interface State {
   registeredUsername: string;
   isLoggedIn: boolean;
   recentLocalActivity: string;
-  snomedLicenseAccepted: string;
+  snomedLicenseAccepted: boolean;
   filters: {
     selectedStatus: string[];
     selectedSchemes: { iri: string; name: string }[];

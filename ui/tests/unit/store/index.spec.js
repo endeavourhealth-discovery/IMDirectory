@@ -47,7 +47,7 @@ describe("state", () => {
     expect(store.state.searchResults).toEqual([]);
     expect(store.state.currentUser).toEqual({});
     expect(store.state.isLoggedIn).toBeFalsy();
-    expect(store.state.snomedLicenseAccepted).toBeNull();
+    expect(store.state.snomedLicenseAccepted).toBe(false);
 
     expect(store.state.selectedFilters).toEqual({});
     expect(store.state.filterOptions).toStrictEqual({});
@@ -106,9 +106,9 @@ describe("mutations", () => {
   });
 
   it("can updateSnomedLicenseAccepted", () => {
-    const testBool = "true";
+    const testBool = true;
     store.commit("updateSnomedLicenseAccepted", testBool);
-    expect(store.state.snomedLicenseAccepted).toBe("true");
+    expect(store.state.snomedLicenseAccepted).toBe(true);
   });
 
   it("can updateSelectedFilters", () => {

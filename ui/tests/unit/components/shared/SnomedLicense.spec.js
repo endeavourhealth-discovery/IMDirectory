@@ -9,7 +9,7 @@ import SnomedLicense from "@/components/shared/SnomedLicense.vue";
 
 const store = createStore({
   state: {
-    snomedLicenseAccepted: "false",
+    snomedLicenseAccepted: false,
     snomedReturnUrl: "testUrl.org"
   },
   mutations: {
@@ -30,7 +30,7 @@ describe("SnomedLicense.vue ___ not accepted", () => {
     location = window.location;
     delete window.location;
     window.location = mockLocation;
-    store.state.snomedLicenseAccepted = "false";
+    store.state.snomedLicenseAccepted = false;
     component = render(SnomedLicense, {
       global: {
         plugins: [PrimeVue, store],
@@ -45,7 +45,7 @@ describe("SnomedLicense.vue ___ not accepted", () => {
   });
 
   it("shows dialog if license not accepted", () => {
-    store.state.snomedLicenseAccepted = "false";
+    store.state.snomedLicenseAccepted = false;
     component.getByTestId("license-dialog");
   });
 
@@ -67,7 +67,7 @@ describe("SnomedLicense.vue ___ accepted", () => {
     location = window.location;
     delete window.location;
     window.location = mockLocation;
-    store.state.snomedLicenseAccepted = "true";
+    store.state.snomedLicenseAccepted = true;
     component = render(SnomedLicense, {
       global: {
         plugins: [PrimeVue, store],
