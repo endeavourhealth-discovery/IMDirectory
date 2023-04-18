@@ -25,17 +25,15 @@
 import { EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { resolveIri } from "@im-library/helpers/TTTransform";
-import { ITextQuery, TTProperty } from "@im-library/interfaces";
+import { TTProperty } from "@im-library/interfaces";
 import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
 import { SHACL } from "@im-library/vocabulary";
 
-const emit = defineEmits({ onSelect: (payload: TreeNode) => payload });
-
 const props = defineProps({
   baseEntityIri: { type: String, required: true },
-  property: { type: Object as PropType<TreeNode>, required: false }
+  typeValue: { type: Object as PropType<TreeNode>, required: true }
 });
 const visible: Ref<boolean> = ref(false);
 const selectedKey = ref(undefined);
@@ -44,13 +42,14 @@ const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
 
 onMounted(async () => {
+  console.log(props.typeValue);
+
   const entity = await EntityService.getPartialEntity(resolveIri(props.baseEntityIri), [SHACL.PROPERTY]);
   nodes.value = getTreeNodes(entity, { children: [] });
 });
 
 function selectNode(node: TreeNode) {
   selectedProperty.value = node;
-  emit("onSelect", selectedProperty);
 }
 
 async function expandNode(node: TreeNode) {
@@ -62,6 +61,9 @@ async function expandNode(node: TreeNode) {
 }
 
 function select() {
+  console.log(props.typeValue);
+
+  props.typeValue.data = selectedProperty.value.data;
   visible.value = false;
 }
 </script>

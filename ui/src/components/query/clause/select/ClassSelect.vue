@@ -2,7 +2,7 @@
   <DropdownHeader :options="['In', 'Not in', 'Is null']" @on-change="header = $event" />
   <div v-if="header !== 'Is null'" v-for="(selValue, index) in selectedValues" class="class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="selValue.name" />
-    <AncestorDescendantSelect :selected="selectedOptions" />
+    <EntailmentOptionsSelect :selected="selectedOptions" :entailment-options="[]" />
     <Button class="hidden-button" icon="fa-solid fa-plus" text @click="selectedValues.push({ name: '' } as ConceptSummary)" />
     <Button class="hidden-button" icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" />
   </div>
@@ -19,7 +19,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
-import AncestorDescendantSelect from "../../editTextQuery/AncestorDescendantSelect.vue";
+import EntailmentOptionsSelect from "../../editTextQuery/EntailmentOptionsSelect.vue";
 import ValueTreeSelect from "./class/ValueTreeSelect.vue";
 import ValueListSelect from "./class/ValueListSelect.vue";
 import DropdownHeader from "../DropdownHeader.vue";

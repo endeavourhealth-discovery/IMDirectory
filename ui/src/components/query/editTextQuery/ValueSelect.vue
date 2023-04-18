@@ -3,7 +3,7 @@
   <InputText v-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#class'])" type="text" @click="visible = true" />
   <InputText v-else-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#datatype'])" type="text" />
   <EntitySearch v-else :entity-value="entityValue" />
-  <AncestorDescendantSelect />
+  <EntailmentOptionsSelect />
   <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
     {{ selectedProperty.data }}
     <Tree
@@ -30,13 +30,13 @@
 import { EntityService } from "@/services";
 import { getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EntityReferenceNode, TTIriRef, TTProperty } from "@im-library/interfaces";
-import { Element, Where } from "@im-library/interfaces/AutoGen";
-import { IM, SHACL } from "@im-library/vocabulary";
+import { EntityReferenceNode } from "@im-library/interfaces";
+import { Element } from "@im-library/interfaces/AutoGen";
+import { SHACL } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import EntitySearch from "./EntitySearch.vue";
-import AncestorDescendantSelect from "./AncestorDescendantSelect.vue";
+import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 
 const props = defineProps({
   selectedProperty: { type: Object as PropType<TreeNode>, required: true },
