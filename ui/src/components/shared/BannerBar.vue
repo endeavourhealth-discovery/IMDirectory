@@ -1,7 +1,9 @@
 <template>
   <div id="banner">
     <div class="banner-text-container">
-      <span v-if="latestRelease" class="banner-text">{{ latestRelease.title }} <a :href="latestRelease.url" class="release-notes-link">View notes</a></span>
+      <span v-if="latestRelease" class="banner-text"
+        >{{ latestRelease.title }} <span @click="showReleaseNotes" class="release-notes-link">View notes</span></span
+      >
     </div>
     <Button icon="fa-regular fa-times" text rounded aria-label="Cancel" class="close-button" @click="closeBanner" />
   </div>
@@ -19,7 +21,12 @@ const props = defineProps({
 const store = useStore();
 
 function closeBanner() {
+  if (props.latestRelease?.version) localStorage.setItem("IMDirectoryVersion", props.latestRelease.version);
   store.commit("updateShowBanner", false);
+}
+
+function showReleaseNotes() {
+  store.commit("updateShowReleaseNotes", true);
 }
 </script>
 
@@ -52,6 +59,7 @@ function closeBanner() {
 .release-notes-link {
   font-weight: bold;
   color: var(--primary-color-text);
+  cursor: pointer;
 }
 
 .release-notes-link:hover {

@@ -5,7 +5,7 @@
     <DynamicDialog class="dynamic-dialog" />
     <ReleaseNotes v-if="!loading && showReleaseNotes" />
     <div id="main-container">
-      <BannerBar v-if="showBanner" :latestRelease="latestRelease" />
+      <BannerBar v-if="!loading && showBanner" :latestRelease="latestRelease" />
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
@@ -51,7 +51,7 @@ onMounted(async () => {
   if (currentTheme.value) {
     if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
   } else store.commit("updateCurrentTheme", "saga-blue");
-  await setShowReleaseNotes();
+  await setShowBanner();
   loading.value = false;
 });
 
@@ -60,19 +60,17 @@ function changeTheme(newTheme: string) {
   store.commit("updateCurrentTheme", newTheme);
 }
 
-async function setShowReleaseNotes() {
+async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
   latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
   let currentVersion = "v0.0.0";
   if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
-    store.commit("updateShowReleaseNotes", true);
     store.commit("updateShowBanner", true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
-    setLocalVersion("IMDirectory", currentVersion);
-    store.commit("updateShowReleaseNotes", true);
+    localStorage.removeItem("IMDirectoryVersion");
     store.commit("updateShowBanner", true);
-  } else store.commit("updateShowReleaseNotes", false);
+  } else store.commit("updateShowBanner", false);
 }
 
 function getLocalVersion(repoName: string): string | null {
