@@ -4,6 +4,7 @@
     <ConfirmDialog />
     <DynamicDialog class="dynamic-dialog" />
     <ReleaseNotes v-if="!loading && showReleaseNotes" />
+    <CookiesConsent />
     <div id="main-container">
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
@@ -16,6 +17,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, ComputedRef } from "vue";
 import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
+import CookiesConsent from "./components/shared/CookiesConsent.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";

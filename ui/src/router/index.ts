@@ -27,6 +27,7 @@ const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.v
 const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
 const ServerOffline = () => import("@/components/shared/errorPages/ServerOffline.vue");
 const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
+const Cookies = () => import("@/views/Cookies.vue");
 const Filer = () => import("@/views/Filer.vue");
 const Query = () => import("@/views/Query.vue");
 import { EntityService, Env } from "@/services";
@@ -224,6 +225,7 @@ const routes: Array<RouteRecordRaw> = [
     name: "License",
     component: SnomedLicense
   },
+  { path: "/cookies", name: "Cookies", component: Cookies },
   {
     path: "/401/:requiredRole?",
     name: "AccessDenied",

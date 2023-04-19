@@ -14,7 +14,15 @@
         class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
         @click="showReleaseNotes"
       />
-      <Button v-tooltip.bottom="'Themes'" :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
+      <Button
+        v-tooltip.bottom="'Themes'"
+        :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openThemesMenu"
+      />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
           <div class="theme-row p-link">
@@ -47,6 +55,13 @@
           />
         </div>
       </OverlayPanel>
+      <Button
+        v-tooltip.bottom="'Settings'"
+        icon="fa-solid fa-gear"
+        class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
+        @click="openSettingsMenu"
+      />
+      <Menu ref="settingsMenu" :model="getSettingsItems()" :popup="true" />
       <Button
         v-tooltip.left="'Account'"
         v-if="!isLoggedIn"
@@ -97,6 +112,7 @@ const toast = useToast();
 const adminMenu = ref();
 const themesMenu = ref();
 const userMenu = ref();
+const settingsMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
 
@@ -138,6 +154,10 @@ function getUrl(item: string): string {
 
 function openAppsOverlay(event: any) {
   (appsOP.value as any).toggle(event);
+}
+
+function openSettingsMenu(event: any) {
+  settingsMenu.value.toggle(event);
 }
 
 function setUserMenuItems(): void {
@@ -221,6 +241,10 @@ function getAdminItems(): any[] {
       ]
     }
   ];
+}
+
+function getSettingsItems() {
+  return [{ label: "Cookie preferences", icon: "fa-solid fa-gear", command: () => store.commit("updateShowCookieConsent", true) }];
 }
 
 function getThemes() {

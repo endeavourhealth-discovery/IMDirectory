@@ -52,7 +52,10 @@ export default createStore({
     showReleaseNotes: false as boolean,
     fontAwesomePro: false,
     eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string),
-    currentTheme: localStorage.getItem("currentTheme") as string
+    currentTheme: localStorage.getItem("currentTheme") as string,
+    cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
+    cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
+    showCookieConsent: false
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -122,7 +125,7 @@ export default createStore({
         }
       }
 
-      localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
+      if (state.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       state.recentLocalActivity = activity;
     },
     updateFavourites(state, favourite: string) {
@@ -133,7 +136,7 @@ export default createStore({
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        localStorage.setItem("favourites", JSON.stringify(favourites));
+        if (state.cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
         state.favourites = favourites;
       }
     },
@@ -163,17 +166,19 @@ export default createStore({
     },
     updateEditorIri(state, iri) {
       state.editorIri = iri;
-      localStorage.setItem("editorSelectedIri", iri);
+      if (state.cookiesOptionalAccepted) localStorage.setItem("editorSelectedIri", iri);
     },
     updateEditorSavedEntity(state, entity) {
       state.editorSavedEntity = entity;
-      if (entity) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
+      if (entity && state.cookiesOptionalAccepted) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
       else localStorage.removeItem("editorSavedEntity");
     },
     updateCreatorSavedEntity(state, entity) {
-      state.creatorSavedEntity = entity;
-      if (entity) localStorage.setItem("creatorSavedEntity", JSON.stringify(entity));
-      else localStorage.removeItem("creatorSavedEntity");
+      if (state.cookiesOptionalAccepted) {
+        state.creatorSavedEntity = entity;
+        if (entity && state.cookiesOptionalAccepted) localStorage.setItem("creatorSavedEntity", JSON.stringify(entity));
+        else localStorage.removeItem("creatorSavedEntity");
+      }
     },
     updateCreatorHasChanges(state, bool) {
       state.creatorHasChanges = bool;
@@ -195,12 +200,23 @@ export default createStore({
     },
     updateEclEditorSavedString(state, ecl) {
       state.eclEditorSavedString = ecl;
-      if (ecl) localStorage.setItem("eclEditorSavedString", ecl);
+      if (ecl && state.cookiesOptionalAccepted) localStorage.setItem("eclEditorSavedString", ecl);
       else localStorage.removeItem("eclEditorSavedString");
     },
     updateCurrentTheme(state, theme) {
       state.currentTheme = theme;
-      localStorage.setItem("currentTheme", theme);
+      if (state.cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
+    },
+    updateCookiesEssentialAccepted(state, bool) {
+      state.cookiesEssentialAccepted = bool;
+      localStorage.setItem("cookiesEssentialAccepted", bool);
+    },
+    updateCookiesOptionalAccepted(state, bool) {
+      state.cookiesOptionalAccepted = bool;
+      localStorage.setItem("cookiesOptionalAccepted", bool);
+    },
+    updateShowCookieConsent(state, bool) {
+      state.showCookieConsent = bool;
     }
   },
   actions: {
@@ -293,6 +309,19 @@ export default createStore({
         }
       });
       return result;
+    },
+    clearOptionalCookies() {
+      localStorage.removeItem("currentTheme");
+      localStorage.removeItem("favourites");
+      localStorage.removeItem("recentLocalActivity");
+      localStorage.removeItem("directoryMainSplitterVertical");
+      localStorage.removeItem("directoryMainSplitterHorizontal");
+      localStorage.removeItem("viewerMainSplitterVertical");
+      localStorage.removeItem("viewerMainSplitterHorizontal");
+      localStorage.removeItem("eclEditorSavedString");
+      localStorage.removeItem("editorSavedEntity");
+      localStorage.removeItem("creatorSavedEntity");
+      localStorage.removeItem("editorSelectedIri");
     }
   },
   modules: {}
