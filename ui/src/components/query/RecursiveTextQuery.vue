@@ -1,17 +1,8 @@
 <template>
   <div class="text-container">
     <div v-for="(textQuery, index) in textQueries">
-      <div v-if="textQuery.display && textQuery.display !== 'or' && textQuery.display !== 'or '">
-        <span v-if="textQuery.data.exclude" class="exclude">exclude </span>
-        <span v-if="'exclude' !== textQuery.display" class="content" @click="openDialog(textQuery)"> {{ textQuery.display }}</span>
-        <RecursiveTextQuery :baseEntityIri="baseEntityIri" v-if="isArrayHasLength(textQuery.children)" :text-queries="textQuery.children" :parent="textQuery" />
-      </div>
-      <RecursiveTextQuery
-        :baseEntityIri="baseEntityIri"
-        v-else-if="isArrayHasLength(textQuery.children)"
-        :text-queries="textQuery.children"
-        :parent="textQuery"
-      />
+      <span v-if="textQuery.data.exclude" class="exclude">exclude </span>
+      <span class="content" @click="openDialog(textQuery)"> {{ textQuery.display }}</span>
     </div>
   </div>
   <Dialog v-model:visible="editDialog" modal :header="selected.display" :style="{ width: '50vw' }">

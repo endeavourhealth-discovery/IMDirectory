@@ -1,5 +1,5 @@
 import { ITextQuery } from "../interfaces";
-import { Element, Match, Path, Where, Property, OrderLimit } from "../interfaces/AutoGen";
+import { Element, Match, Relationship, Where, Property, OrderLimit, Node } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 
@@ -38,6 +38,84 @@ function buildDQInstance(parent: ITextQuery, label: string, type: string, data: 
   };
 }
 
+export function getDisplayFromMatch(match: Match) {
+  let display = "";
+  if (match.exclude) display += "exclude ";
+  display += getNameFromRef(match);
+  if (match.path) display += getDisplayFromPath(match.path);
+  if (match.where) {
+    for (const [index, where] of match.where.entries()) {
+      let whereDisplay = "";
+      if (match.bool && index !== 0 && index !== match.where.length - 1) whereDisplay += " " + match.bool.toLocaleUpperCase() + " ";
+      whereDisplay += getDisplayFromWhere(where);
+      display += "." + getDisplayFromWhere(where);
+    }
+  }
+
+  return display;
+}
+
+export function getDisplayFromWhere(where: Where) {
+  let display = "";
+  display += getNameFromRef(where);
+  if (where.in) display += getDisplayFromList(where.in, true);
+  if (where.notIn) display += getDisplayFromList(where.notIn, false);
+  if (where.operator) display = getDisplayFromOperator(where);
+  return display;
+}
+
+export function getDisplayFromOperator(where: Where) {
+  const property = getNameFromRef(where);
+  let display = "";
+  if (where.variable) display += where.variable + ".";
+  display += property + " ";
+  display += where.operator + " ";
+  if (where.relativeTo) {
+    let relativeTo = "";
+    if (where.relativeTo.variable) relativeTo += where.relativeTo.variable;
+    if (relativeTo) relativeTo += ".";
+    relativeTo += getNameFromRef(where.relativeTo);
+    display += relativeTo;
+  } else if (where.value) display += where.value;
+
+  return display;
+}
+
+export function getDisplayFromList(nodes: Node[], include: boolean) {
+  let display = "";
+  if (nodes.length > 1) {
+    display += include ? " in [" : " not in [";
+    display += getDisplayFromEntailment(nodes[0]);
+    display += getNameFromRef(nodes[0]);
+    display += " and more...]";
+  } else {
+    display += include ? ": " : "!: ";
+    display += getDisplayFromEntailment(nodes[0]);
+    display += getNameFromRef(nodes[0]);
+  }
+  return display;
+}
+
+export function getDisplayFromEntailment(node: Node) {
+  if (node.ancestorsOf) return ">";
+  if (node.descendantsOf) return "<";
+  if (node.descendantsOrSelfOf) return "<<";
+  return "";
+}
+
+export function getDisplayFromPath(pathOrNode: Relationship | Node) {
+  const displayObject = { display: "" };
+  getDisplayFromPathRecursively(displayObject, "path", pathOrNode);
+  return displayObject.display;
+}
+
+function getDisplayFromPathRecursively(displayObject: { display: string }, type: string, pathOrNode: any) {
+  if (displayObject.display) displayObject.display += "node" === type ? "->" : ".";
+  displayObject.display += getNameFromRef(pathOrNode);
+  if (isObjectHasKeys(pathOrNode, ["node"])) getDisplayFromPathRecursively(displayObject, "node", pathOrNode.node);
+  if (isObjectHasKeys(pathOrNode, ["path"])) getDisplayFromPathRecursively(displayObject, "path", pathOrNode.path);
+}
+
 // adders
 function addSelect(select: any, type: string, parent: ITextQuery) {
   if (isArrayHasLength(select)) {
@@ -56,27 +134,10 @@ function addSelect(select: any, type: string, parent: ITextQuery) {
   }
 }
 
-function addMatch(match: any, type: string, parent: ITextQuery) {
-  if (isArrayHasLength(match)) {
-    for (const matchItem of match) {
-      addMatch(matchItem, type, parent);
-    }
-  } else {
-    let label = parent?.data?.boolMatch || "";
-    if (label) label += " ";
-    label += getMatchLabel(match);
-    const matchParent = addItem(label, match, type, parent);
-    if (!matchParent.display) console.log(match);
-    if (isObjectHasKeys(match, ["where"])) {
-      addMatchWhere(match.where, "where", matchParent);
-    }
-
-    if (isArrayHasLength(match.match)) {
-      const boolParent = addItem(match.boolMatch, match, type, parent);
-      for (const matchItem of match.match) {
-        addMatch(matchItem, type, boolParent);
-      }
-    }
+function addMatch(match: Match[], type: string, parent: ITextQuery) {
+  for (const matchItem of match) {
+    const label = getDisplayFromMatch(matchItem);
+    addItem(label, matchItem, type, parent);
   }
 }
 
@@ -88,7 +149,7 @@ function addMatchOrderBy(orderBy: any, type: string, parent: ITextQuery) {
   } else {
     const orderByItem: OrderLimit = orderBy;
     if (isObjectHasKeys(orderByItem, ["@id", "direction", "limit"]) && 1 === orderByItem.limit) {
-      const label = "order by: " + orderByItem.node;
+      const label = "order by: " + orderByItem.variable;
       addItem(label, orderBy, type, parent);
     }
   }
@@ -100,14 +161,18 @@ function addMatchWhere(where: any, type: string, parent: ITextQuery) {
       addMatchWhere(whereItem, type, parent);
     }
   } else {
-    if (isObjectHasKeys(where, ["in"])) {
-      addIn(where, parent);
+    if (isObjectHasKeys(where, [" in"])) {
+      parent.display += "in";
+      // addIn(where, parent);
     }
-    if (isObjectHasKeys(where, ["range"])) {
-      addRange(where, type, parent);
+    if (isObjectHasKeys(where, [" range"])) {
+      parent.display += "range";
+
+      // addRange(where, type, parent);
     }
-    if (isObjectHasKeys(where, ["operator"])) {
-      addComparison(where, type, parent);
+    if (isObjectHasKeys(where, [" operator"])) {
+      parent.display += "comparison";
+      // addComparison(where, type, parent);
     }
   }
 }
@@ -144,14 +209,18 @@ function addItem(label: string, query: any, type: string, parent: ITextQuery) {
 
 // getters
 function getMatchLabel(match: Match) {
-  let label: string = getName(match) || match.boolMatch || "";
+  let label: string = getName(match) || "";
   if (!label && match.path) {
-    for (const [index, value] of (match.path as Element[]).entries()) {
-      if (index % 2 != 0) label += getName(value) + ".";
-      else label += getName(value) + ":";
-    }
-    label = label.substring(0, label.length - 1);
+    label = getLabelFromPath(label, match.path);
   }
+  return label;
+}
+
+function getLabelFromPath(label: string, pathOrNode: any) {
+  if (label) label += ".";
+  label += getNameFromRef(pathOrNode);
+  if (isObjectHasKeys(pathOrNode, ["path"])) getLabelFromPath(label, pathOrNode.path);
+  if (isObjectHasKeys(pathOrNode, ["node"])) getLabelFromPath(label, pathOrNode.node);
   return label;
 }
 
@@ -165,14 +234,13 @@ function getName(ref: any) {
     name = ref.parameter;
   }
 
-  if (ref.variable) name += "(as " + ref.variable + ")";
+  // if (ref.variable) name += "(as " + ref.variable + ")";
 
   return name;
 }
 
 function getComparisonLabel(where: Where) {
-  console.log(where);
-  let label = where.node || "";
+  let label = where.variable || "";
   if (label) label += "." + getName(where) + " ";
   else label += getName(where) + " ";
   if (where.operator) label += where.operator;
@@ -183,7 +251,7 @@ function getComparisonLabel(where: Where) {
 }
 
 function getLabelFromProperty(property: Property) {
-  return property.parameter || property.node || getName(property);
+  return property.parameter || property.variable || getName(property);
 }
 
 // checkers

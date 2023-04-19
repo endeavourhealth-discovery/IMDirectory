@@ -11,61 +11,61 @@ export const definition = {
           description: "aged between 65 and 70",
           where: [
             {
-              "@id": "age",
-              range: { to: { operator: ">", value: "70", unit: null, relativeTo: null }, from: { operator: ">=", value: "65", unit: null, relativeTo: null } }
+              range: { to: { operator: ">", value: "70", unit: null, relativeTo: null }, from: { operator: ">=", value: "65", unit: null, relativeTo: null } },
+              "@id": "http://endhealth.info/im#age"
             }
           ]
         },
-        { description: "Diabetic", "@set": "http://example.org/qry#Q_Diabetics" },
+        { description: "Diabetic", "@set": "http://example/queries#Q_Diabetics" },
         {
-          path: [{ "@id": "observation" }, { "@type": "Observation" }],
-          where: [{ "@id": "concept", in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }] }]
+          path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+          where: [{ in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], "@id": "http://endhealth.info/im#concept" }]
         }
       ]
     },
     {
-      path: [{ "@id": "observation" }, { "@type": "Observation", variable: "latestBP" }],
+      path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation", variable: "latestBP" } },
       bool: "and",
       where: [
         {
           description: "Home or office based Systolic",
-          "@id": "concept",
           name: "concept",
           in: [
             { "@id": "http://snomed.info/sct#271649006", name: "Systolic blood pressure" },
             { "@id": "http://endhealth.info/emis#1994021000006104", name: "Home systolic blood pressure" }
           ],
-          valueLabel: "Office or home systolic blood pressure"
+          valueLabel: "Office or home systolic blood pressure",
+          "@id": "http://endhealth.info/im#concept"
         },
         {
           description: "Last 6 months",
-          "@id": "effectiveDate",
           operator: ">=",
           value: "-6",
           unit: "MONTHS",
-          relativeTo: { "@id": "$referenceDate" },
-          valueLabel: "last 6 months"
+          relativeTo: { "@id": "http://endhealth.info/im#$referenceDate" },
+          valueLabel: "last 6 months",
+          "@id": "http://endhealth.info/im#effectiveDate"
         }
       ],
-      orderBy: [{ "@id": "effectiveDate", direction: "descending", node: "latestBP", limit: 1 }]
+      orderBy: [{ direction: "descending", variable: "latestBP", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" }]
     },
-    { where: [{ description: ">150", "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150", node: "latestBP" }] },
+    { where: [{ description: ">150", operator: ">", value: "150", variable: "latestBP", "@id": "http://endhealth.info/im#numericValue" }] },
     {
       exclude: true,
       description: "High BP not followed by screening invite",
-      path: [{ "@id": "http://endhealth.info/im#observation" }, { "@type": "Observation" }],
+      path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
       bool: "and",
       where: [
         {
           description: "Invited for Screening after BP",
-          "@id": "http://endhealth.info/im#concept",
-          in: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }]
+          in: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }],
+          "@id": "http://endhealth.info/im#concept"
         },
         {
           description: "after high BP",
-          "@id": "http://endhealth.info/im#effectiveDate",
           operator: ">=",
-          relativeTo: { "@id": "effectiveDate", node: "latestBP" }
+          relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", variable: "latestBP" },
+          "@id": "http://endhealth.info/im#effectiveDate"
         }
       ]
     },

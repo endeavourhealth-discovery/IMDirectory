@@ -24,7 +24,8 @@ import { useStore } from "vuex";
 import TextQuery from "@/components/query/RecursiveTextQuery.vue";
 import { ITextQuery } from "@im-library/interfaces";
 import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
+import { IM } from "@im-library/vocabulary";
 const store = useStore();
 const textQueries: Ref<ITextQuery[]> = ref([]);
 const query: Ref<any> = ref();
@@ -39,8 +40,9 @@ onMounted(async () => {
 });
 
 async function getTextQuery() {
-  query.value = await QueryService.getLabeledQuery(definition as any);
-  return buildTextQuery(query.value);
+  const entity = await EntityService.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
+  query.value = await QueryService.getLabeledQuery(JSON.parse(entity[IM.DEFINITION]));
+  return buildTextQuery(JSON.parse(entity[IM.DEFINITION]));
 }
 </script>
 
