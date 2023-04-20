@@ -192,7 +192,7 @@ label {
 }
 
 #search-results-main-container:deep(.p-datatable-thead) {
-  z-index: 0 !important;
+  z-index: 1;
 }
 
 .buttons-container {
