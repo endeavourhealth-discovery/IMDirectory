@@ -2,8 +2,8 @@
   Value:
   <InputText v-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#class'])" type="text" @click="visible = true" />
   <InputText v-else-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#datatype'])" type="text" />
-  <EntitySearch v-else :entity-value="entityValue" />
-  <EntailmentOptionsSelect />
+  <EntitySearch v-else :entity-value="entityValue as any" />
+  <EntailmentOptionsSelect :entailment-options="[]" />
   <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
     {{ selectedProperty.data }}
     <Tree

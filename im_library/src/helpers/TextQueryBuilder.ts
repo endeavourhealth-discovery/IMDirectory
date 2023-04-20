@@ -1,5 +1,5 @@
 import { ITextQuery } from "../interfaces";
-import { Element, Match, Relationship, Where, Property, OrderLimit, Node } from "../interfaces/AutoGen";
+import { Match, Relationship, Where, Property, OrderLimit, Node } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 
@@ -38,21 +38,75 @@ function buildDQInstance(parent: ITextQuery, label: string, type: string, data: 
   };
 }
 
+// adders
+function addSelect(select: any, type: string, parent: ITextQuery) {
+  if (isArrayHasLength(select)) {
+    for (const selectItem of select) {
+      addSelect(selectItem, type, parent);
+    }
+  } else {
+    const label = getNameFromRef(select);
+    const newParent = addItem(label, select, type, parent);
+
+    if (isArrayHasLength(select.select)) {
+      for (const matchItem of select.select) {
+        addSelect(matchItem, type, newParent);
+      }
+    }
+  }
+}
+
+function addMatch(match: Match[], type: string, parent: ITextQuery) {
+  for (const [index, matchItem] of match.entries()) {
+    const isNestedMatch = "match" === parent.type;
+    let label = "";
+    if (isNestedMatch && index !== 0) label += getDisplayFromLogic(parent.data.boolMatch) + " ";
+    label += getDisplayFromMatch(matchItem);
+    const matchParent = addItem(label, matchItem, type, parent);
+    if (matchItem.boolMatch) {
+      addMatch(matchItem.match, type, matchParent);
+    }
+  }
+}
+
+function addItem(label: string, query: any, type: string, parent: ITextQuery) {
+  const child = buildDQInstance(parent, label, type, query);
+  parent.children.push(child);
+  return child;
+}
+
+// getters
+function getKey(parent: ITextQuery) {
+  return parent.key + parent.children.length;
+}
+
 export function getDisplayFromMatch(match: Match) {
+  if (match.boolMatch) return getDisplayFromLogic("and");
   let display = "";
-  if (match.exclude) display += "exclude ";
+  if (match.exclude) display += getDisplayFromLogic("exclude");
   display += getNameFromRef(match);
   if (match.path) display += getDisplayFromPath(match.path);
   if (match.where) {
-    for (const [index, where] of match.where.entries()) {
-      let whereDisplay = "";
-      if (match.bool && index !== 0 && index !== match.where.length - 1) whereDisplay += " " + match.bool.toLocaleUpperCase() + " ";
-      whereDisplay += getDisplayFromWhere(where);
-      display += "." + getDisplayFromWhere(where);
+    let whereDisplay = "";
+    const whereDisplays = getDisplayFromWhereList(display, match.where);
+    for (let [index, value] of whereDisplays.entries()) {
+      if (match.bool && index !== 0) whereDisplay += " " + getDisplayFromLogic(match.bool);
+      whereDisplay += value;
     }
+    display = whereDisplay;
   }
 
   return display;
+}
+
+export function getDisplayFromWhereList(matchDisplay: string, where: Where[]) {
+  const whereDisplays = [];
+  for (const whereItem of where) {
+    if (matchDisplay && matchDisplay.slice(-1) !== ".") matchDisplay += ".";
+    whereDisplays.push(matchDisplay + getDisplayFromWhere(whereItem));
+  }
+
+  return whereDisplays;
 }
 
 export function getDisplayFromWhere(where: Where) {
@@ -61,6 +115,29 @@ export function getDisplayFromWhere(where: Where) {
   if (where.in) display += getDisplayFromList(where.in, true);
   if (where.notIn) display += getDisplayFromList(where.notIn, false);
   if (where.operator) display = getDisplayFromOperator(where);
+  if (where.range) display = getDisplayFromRange(where);
+
+  return display;
+}
+
+function getDisplayFromLogic(title: string) {
+  switch (title) {
+    case "exclude":
+      return "<span style='color: red;'>exclude</span> ";
+    case "or":
+      return "<span style='color: blue;'>or</span> ";
+    case "and":
+      return "<span style='color: orange;'>and</span> ";
+    default:
+      return "<span style='color: orange;'>and</span> ";
+  }
+}
+
+function getDisplayFromRange(where: Where) {
+  const property = getNameFromRef(where);
+  let display = property;
+  display += " from " + where.range.from.operator + " " + where.range.from.value;
+  display += " to " + where.range.to.operator + " " + where.range.to.value;
   return display;
 }
 
@@ -114,144 +191,6 @@ function getDisplayFromPathRecursively(displayObject: { display: string }, type:
   displayObject.display += getNameFromRef(pathOrNode);
   if (isObjectHasKeys(pathOrNode, ["node"])) getDisplayFromPathRecursively(displayObject, "node", pathOrNode.node);
   if (isObjectHasKeys(pathOrNode, ["path"])) getDisplayFromPathRecursively(displayObject, "path", pathOrNode.path);
-}
-
-// adders
-function addSelect(select: any, type: string, parent: ITextQuery) {
-  if (isArrayHasLength(select)) {
-    for (const selectItem of select) {
-      addSelect(selectItem, type, parent);
-    }
-  } else {
-    const label = getName(select);
-    const newParent = addItem(label, select, type, parent);
-
-    if (isArrayHasLength(select.select)) {
-      for (const matchItem of select.select) {
-        addSelect(matchItem, type, newParent);
-      }
-    }
-  }
-}
-
-function addMatch(match: Match[], type: string, parent: ITextQuery) {
-  for (const matchItem of match) {
-    const label = getDisplayFromMatch(matchItem);
-    addItem(label, matchItem, type, parent);
-  }
-}
-
-function addMatchOrderBy(orderBy: any, type: string, parent: ITextQuery) {
-  if (isArrayHasLength(orderBy)) {
-    for (const orderByItem of orderBy) {
-      addMatchOrderBy(orderByItem, type, parent);
-    }
-  } else {
-    const orderByItem: OrderLimit = orderBy;
-    if (isObjectHasKeys(orderByItem, ["@id", "direction", "limit"]) && 1 === orderByItem.limit) {
-      const label = "order by: " + orderByItem.variable;
-      addItem(label, orderBy, type, parent);
-    }
-  }
-}
-
-function addMatchWhere(where: any, type: string, parent: ITextQuery) {
-  if (isArrayHasLength(where)) {
-    for (const whereItem of where) {
-      addMatchWhere(whereItem, type, parent);
-    }
-  } else {
-    if (isObjectHasKeys(where, [" in"])) {
-      parent.display += "in";
-      // addIn(where, parent);
-    }
-    if (isObjectHasKeys(where, [" range"])) {
-      parent.display += "range";
-
-      // addRange(where, type, parent);
-    }
-    if (isObjectHasKeys(where, [" operator"])) {
-      parent.display += "comparison";
-      // addComparison(where, type, parent);
-    }
-  }
-}
-
-function addComparison(where: any, type: string, parent: ITextQuery) {
-  const label = getComparisonLabel(where);
-  addItem(label, where, type, parent);
-}
-
-function addIn(where: any, parent: ITextQuery) {
-  parent.display += "." + getName(where);
-  if (isArrayHasLength(where.in) && where.in.length === 1) {
-    parent.display += " = " + getName(where.in[0]);
-  } else {
-    parent.display += " in ";
-    for (const inItem of where.in as Element[]) {
-      addItem(getName(inItem), inItem, "in", parent);
-    }
-  }
-}
-
-function addRange(where: any, type: string, parent: ITextQuery) {
-  const from = " from " + getComparisonLabel(where.range.from);
-  const to = " to " + getComparisonLabel(where.range.from);
-  const label = getName(where) + " " + from + to;
-  addItem(label, where, type, parent);
-}
-
-function addItem(label: string, query: any, type: string, parent: ITextQuery) {
-  const child = buildDQInstance(parent, label, type, query);
-  parent.children.push(child);
-  return child;
-}
-
-// getters
-function getMatchLabel(match: Match) {
-  let label: string = getName(match) || "";
-  if (!label && match.path) {
-    label = getLabelFromPath(label, match.path);
-  }
-  return label;
-}
-
-function getLabelFromPath(label: string, pathOrNode: any) {
-  if (label) label += ".";
-  label += getNameFromRef(pathOrNode);
-  if (isObjectHasKeys(pathOrNode, ["path"])) getLabelFromPath(label, pathOrNode.path);
-  if (isObjectHasKeys(pathOrNode, ["node"])) getLabelFromPath(label, pathOrNode.node);
-  return label;
-}
-
-function getKey(parent: ITextQuery) {
-  return parent.key + parent.children.length;
-}
-
-function getName(ref: any) {
-  let name = getNameFromRef(ref);
-  if (isObjectHasKeys(ref, ["parameter"])) {
-    name = ref.parameter;
-  }
-
-  // if (ref.variable) name += "(as " + ref.variable + ")";
-
-  return name;
-}
-
-function getComparisonLabel(where: Where) {
-  let label = where.variable || "";
-  if (label) label += "." + getName(where) + " ";
-  else label += getName(where) + " ";
-  if (where.operator) label += where.operator;
-  if (where.relativeTo) label += " " + getLabelFromProperty(where.relativeTo);
-  if (where.value) label += " " + where.value;
-  if (where.unit) label += " (" + where.unit + ")";
-  return label;
-}
-
-function getLabelFromProperty(property: Property) {
-  return property.parameter || property.variable || getName(property);
 }
 
 // checkers

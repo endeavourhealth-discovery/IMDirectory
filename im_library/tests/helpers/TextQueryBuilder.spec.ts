@@ -25,7 +25,7 @@ describe("TextQueryBuilder.ts ___", () => {
         "@set": "http://endhealth.info/im#Q_Hypertensives",
         name: "Hypertensives"
       } as Match);
-      expect(display).toEqual("exclude Hypertensives");
+      expect(display).toEqual("<span style='color: red;'>exclude</span> Hypertensives");
     });
 
     it("can get a display for an exclude set match clause", () => {
@@ -35,7 +35,7 @@ describe("TextQueryBuilder.ts ___", () => {
         "@set": "http://endhealth.info/im#Q_Hypertensives",
         name: "Hypertensives"
       } as Match);
-      expect(display).toEqual("exclude Hypertensives");
+      expect(display).toEqual("<span style='color: red;'>exclude</span> Hypertensives");
     });
 
     it("can get a display for a match with a where in clause", () => {
@@ -66,7 +66,35 @@ describe("TextQueryBuilder.ts ___", () => {
           }
         ]
       } as Match);
-      expect(display).toEqual("observation->Observation.concept: InvitedForScreening AND observation->Observation.effectiveDate >= latestBP.effectiveDate");
+      expect(display).toEqual(
+        "<span style='color: red;'>exclude</span> observation->Observation.concept: InvitedForScreening <span style='color: orange;'>and</span> <span style='color: red;'>exclude</span> observation->Observation.effectiveDate >= latestBP.effectiveDate"
+      );
+    });
+
+    it("can get a display for a match with nested matches", () => {
+      const display = getDisplayFromMatch({
+        boolMatch: "or",
+        match: [
+          {
+            description: "aged between 65 and 70",
+            where: [
+              {
+                range: {
+                  to: { operator: ">", value: "70", unit: null, relativeTo: null },
+                  from: { operator: ">=", value: "65", unit: null, relativeTo: null }
+                },
+                "@id": "http://endhealth.info/im#age"
+              }
+            ]
+          },
+          { description: "Diabetic", "@set": "http://example/queries#Q_Diabetics" },
+          {
+            path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+            where: [{ in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], "@id": "http://endhealth.info/im#concept" }]
+          }
+        ]
+      } as Match);
+      expect(display).toEqual("<span style='color: orange;'>and</span> ");
     });
   });
 
@@ -128,6 +156,14 @@ describe("TextQueryBuilder.ts ___", () => {
         "@id": "http://endhealth.info/im#effectiveDate"
       } as Where);
       expect(display).toEqual("effectiveDate >= latestBP.effectiveDate");
+    });
+
+    it("can get a display for a where with a range", () => {
+      const display = getDisplayFromWhere({
+        range: { to: { operator: ">", value: "70", unit: null, relativeTo: null }, from: { operator: ">=", value: "65", unit: null, relativeTo: null } },
+        "@id": "http://endhealth.info/im#age"
+      } as Where);
+      expect(display).toEqual("age from >= 65 to > 70");
     });
   });
 

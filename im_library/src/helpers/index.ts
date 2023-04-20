@@ -17,7 +17,6 @@ import QueryBuilderMethods from "./QueryBuilderMethods";
 import UtililityMethods from "./UtilityMethods";
 import TangledTreeLayout from "./TangledTreeLayout";
 import StringManipulators from "./StringManipulators";
-import DisplayQueryBuilder from "./DisplayQueryBuilder";
 import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
 import { eclToBuild } from "./Ecl/EclToBuild";
 import { eclToIMQ } from "./Ecl/EclToIMQ";
@@ -46,7 +45,6 @@ export {
   UtililityMethods,
   TangledTreeLayout,
   StringManipulators,
-  DisplayQueryBuilder,
   EclBuilderConceptToEcl,
   eclToBuild,
   eclToIMQ,

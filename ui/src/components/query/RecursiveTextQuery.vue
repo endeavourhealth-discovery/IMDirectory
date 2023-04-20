@@ -1,8 +1,8 @@
 <template>
   <div class="text-container">
-    <div v-for="(textQuery, index) in textQueries">
-      <span v-if="textQuery.data.exclude" class="exclude">exclude </span>
-      <span class="content" @click="openDialog(textQuery)"> {{ textQuery.display }}</span>
+    <div v-for="textQuery in textQueries">
+      <span class="content" @click="openDialog(textQuery)" v-html="textQuery.display"> </span>
+      <RecursiveTextQuery v-if="isArrayHasLength(textQuery.children)" :base-entity-iri="baseEntityIri" :text-queries="textQuery.children" :parent="textQuery" />
     </div>
   </div>
   <Dialog v-model:visible="editDialog" modal :header="selected.display" :style="{ width: '50vw' }">
@@ -11,9 +11,9 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { ITextQuery } from "@im-library/interfaces/query/TextQuery";
-import { onMounted, PropType, ComputedRef, Ref, ref, computed } from "vue";
+import { onMounted, PropType, Ref, ref } from "vue";
 import MatchClause from "./MatchClause.vue";
 import { Match } from "@im-library/interfaces/AutoGen";
 const props = defineProps({
@@ -43,26 +43,11 @@ onMounted(async () => {});
   padding-left: 1rem;
 }
 
-.and {
-  color: orange;
-  user-select: none;
-}
-
-.either,
-.or {
-  color: blue;
-  user-select: none;
-}
-
 .content {
   cursor: pointer;
 }
 
 .content:hover {
   color: lightskyblue;
-}
-
-.exclude {
-  color: red;
 }
 </style>
