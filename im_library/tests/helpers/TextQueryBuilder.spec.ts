@@ -9,9 +9,11 @@ import {
   getDisplayFromRange,
   getDisplayFromLogic,
   getDisplayFromWhereList,
-  buildTextQuery
+  buildTextQuery,
+  getDisplayFromOrderByList,
+  getDisplayFromOrderBy
 } from "@/helpers/TextQueryBuilder";
-import { Match, Node, Relationship, Where } from "@/interfaces/AutoGen";
+import { Match, Node, OrderLimit, Relationship, Where } from "@/interfaces/AutoGen";
 
 describe("TextQueryBuilder.ts ___", () => {
   describe("buildTextQuery", () => {
@@ -438,6 +440,53 @@ describe("TextQueryBuilder.ts ___", () => {
         const display = getDisplayFromLogic("or");
         expect(display).toEqual("<span style='color: blue;'>or</span> ");
       });
+    });
+  });
+
+  describe("getDisplayFromOrderByList", () => {
+    it("can get a display for a where range", () => {
+      const display = getDisplayFromOrderByList([
+        { direction: "descending", variable: "latestBP", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" }
+      ] as OrderLimit[]);
+      expect(display).toEqual("ordered by [latest latestBP.effectiveDate]");
+    });
+
+    it("can get a display for a where range", () => {
+      const display = getDisplayFromOrderByList([
+        { direction: "descending", variable: "latestBP", "@id": "http://endhealth.info/im#effectiveDate" }
+      ] as OrderLimit[]);
+      expect(display).toEqual("ordered by [latestBP.effectiveDate (descending)]");
+    });
+  });
+
+  describe("getDisplayFromOrderBy", () => {
+    it("can get a display for a latest", () => {
+      const display = getDisplayFromOrderBy({
+        direction: "descending",
+        variable: "latestBP",
+        limit: 1,
+        "@id": "http://endhealth.info/im#effectiveDate"
+      } as OrderLimit);
+      expect(display).toEqual("latest latestBP.effectiveDate");
+    });
+
+    it("can get a display for a earliest", () => {
+      const display = getDisplayFromOrderBy({
+        direction: "ascending",
+        variable: "latestBP",
+        limit: 1,
+        "@id": "http://endhealth.info/im#effectiveDate"
+      } as OrderLimit);
+      expect(display).toEqual("earliest latestBP.effectiveDate");
+    });
+
+    it("can get a display for an order by", () => {
+      const display = getDisplayFromOrderBy({
+        direction: "descending",
+        variable: "latestBP",
+        "@id": "http://endhealth.info/im#effectiveDate"
+      } as OrderLimit);
+      expect(display).toEqual("latestBP.effectiveDate (descending)");
     });
   });
 

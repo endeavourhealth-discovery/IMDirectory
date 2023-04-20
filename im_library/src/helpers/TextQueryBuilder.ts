@@ -120,6 +120,26 @@ export function getDisplayFromWhere(where: Where) {
   return display;
 }
 
+export function getDisplayFromOrderByList(orderByList: OrderLimit[]) {
+  let display = "ordered by [";
+  for (const [index, orderBy] of orderByList.entries()) {
+    display += getDisplayFromOrderBy(orderBy);
+  }
+  display += "]";
+  return display;
+}
+
+export function getDisplayFromOrderBy(orderBy: OrderLimit) {
+  let display = "";
+  if (orderBy.variable) display += orderBy.variable + ".";
+  display += getNameFromRef(orderBy);
+  if (orderBy.limit === 1) {
+    if ("descending" === orderBy.direction) display = "latest " + display;
+    if ("ascending" === orderBy.direction) display = "earliest " + display;
+  } else if (orderBy.direction) display += " (" + orderBy.direction + ")";
+  return display;
+}
+
 export function getDisplayFromLogic(title: string) {
   switch (title) {
     case "exclude":

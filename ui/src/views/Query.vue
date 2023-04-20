@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
-// import { definition } from "./definition";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
 import { useStore } from "vuex";
