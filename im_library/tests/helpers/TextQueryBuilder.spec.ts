@@ -231,6 +231,14 @@ describe("TextQueryBuilder.ts ___", () => {
       expect(display).toEqual("concept: &lt;714628002");
     });
 
+    it("can get a display for a where null", () => {
+      const display = getDisplayFromWhere({
+        null: true,
+        "@id": "http://endhealth.info/im#endDate"
+      } as Where);
+      expect(display).toEqual("endDate is null");
+    });
+
     it("can get a display for a where with a not in list", () => {
       const display = getDisplayFromWhere({
         notIn: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }],

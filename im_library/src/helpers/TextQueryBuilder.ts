@@ -116,7 +116,7 @@ export function getDisplayFromWhere(where: Where) {
   if (where.notIn) display += getDisplayFromList(where.notIn, false);
   if (where.operator) display = getDisplayFromOperator(where);
   if (where.range) display = getDisplayFromRange(where);
-
+  if (where.null) display += " is null";
   return display;
 }
 
