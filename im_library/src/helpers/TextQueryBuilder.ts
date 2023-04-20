@@ -120,7 +120,7 @@ export function getDisplayFromWhere(where: Where) {
   return display;
 }
 
-function getDisplayFromLogic(title: string) {
+export function getDisplayFromLogic(title: string) {
   switch (title) {
     case "exclude":
       return "<span style='color: red;'>exclude</span> ";
@@ -133,7 +133,7 @@ function getDisplayFromLogic(title: string) {
   }
 }
 
-function getDisplayFromRange(where: Where) {
+export function getDisplayFromRange(where: Where) {
   const property = getNameFromRef(where);
   let display = property;
   display += " from " + where.range.from.operator + " " + where.range.from.value;
@@ -154,7 +154,7 @@ export function getDisplayFromOperator(where: Where) {
     relativeTo += getNameFromRef(where.relativeTo);
     display += relativeTo;
   } else if (where.value) display += where.value;
-
+  if (where.unit) display += " " + where.unit;
   return display;
 }
 
@@ -174,9 +174,9 @@ export function getDisplayFromList(nodes: Node[], include: boolean) {
 }
 
 export function getDisplayFromEntailment(node: Node) {
-  if (node.ancestorsOf) return ">";
-  if (node.descendantsOf) return "<";
-  if (node.descendantsOrSelfOf) return "<<";
+  if (node.ancestorsOf) return "&gt;";
+  if (node.descendantsOf) return "&lt;";
+  if (node.descendantsOrSelfOf) return "&lt;&lt;";
   return "";
 }
 
