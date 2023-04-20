@@ -23,7 +23,7 @@ export default createStore({
     isLoggedIn: false as boolean,
     registeredUsername: "" as string,
     recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
-    snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
+    snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false,
     snomedReturnUrl: "",
     authReturnUrl: "",
     filterOptions: {} as FilterOptions,
@@ -52,7 +52,8 @@ export default createStore({
     showReleaseNotes: false as boolean,
     fontAwesomePro: false,
     eclEditorSavedString: localStorage.getItem("eclEditorSavedString") || ("" as string),
-    currentTheme: localStorage.getItem("currentTheme") as string
+    currentTheme: localStorage.getItem("currentTheme") as string,
+    showBanner: localStorage.getItem("showBanner") === "true" ? true : false
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -88,9 +89,9 @@ export default createStore({
     updateRegisteredUsername(state, username) {
       state.registeredUsername = username;
     },
-    updateSnomedLicenseAccepted(state, status: string) {
-      state.snomedLicenseAccepted = status;
-      localStorage.setItem("snomedLicenseAccepted", status);
+    updateSnomedLicenseAccepted(state, bool: boolean) {
+      state.snomedLicenseAccepted = bool;
+      localStorage.setItem("snomedLicenseAccepted", bool === true ? "true" : "");
     },
     updateSnomedReturnUrl(state, url) {
       state.snomedReturnUrl = url;
@@ -201,6 +202,10 @@ export default createStore({
     updateCurrentTheme(state, theme) {
       state.currentTheme = theme;
       localStorage.setItem("currentTheme", theme);
+    },
+    updateShowBanner(state, bool: boolean) {
+      state.showBanner = bool;
+      localStorage.setItem("showBanner", bool === true ? "true" : "");
     }
   },
   actions: {

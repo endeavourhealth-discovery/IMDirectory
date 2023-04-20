@@ -101,7 +101,7 @@ describe("router", () => {
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
-      store.state.snomedLicenseAccepted = "true";
+      store.state.snomedLicenseAccepted = true;
       store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
@@ -135,7 +135,7 @@ describe("router", () => {
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
-      store.state.snomedLicenseAccepted = "true";
+      store.state.snomedLicenseAccepted = true;
       store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
