@@ -39,6 +39,7 @@ import { faBoltLightning } from "@fortawesome/pro-solid-svg-icons/faBoltLightnin
 import { faRobot } from "@fortawesome/pro-solid-svg-icons/faRobot";
 import { faLightbulb } from "@fortawesome/pro-solid-svg-icons/faLightbulb";
 import { faGear } from "@fortawesome/pro-solid-svg-icons/faGear";
+import { faCircleExclamation } from "@fortawesome/pro-solid-svg-icons/faCircleExclamation";
 
 export default function addSolidIcons(library: Library) {
   library.add(
@@ -77,7 +78,8 @@ export default function addSolidIcons(library: Library) {
     faBoltLightning,
     faRobot,
     faLightbulb,
-    faGear
+    faGear,
+    faCircleExclamation
   );
 }
 // #v-endif

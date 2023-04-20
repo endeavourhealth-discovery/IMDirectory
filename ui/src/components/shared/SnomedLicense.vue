@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, } from "vue";
+import { computed } from "vue";
 import { useStore } from "vuex";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
@@ -80,7 +80,7 @@ const snomedLicenseAccepted = computed(() => store.state.snomedLicenseAccepted);
 const snomedReturnUrl = computed(() => store.state.snomedReturnUrl);
 
 const showDialog = computed(() => {
-  if (snomedLicenseAccepted.value === "true") {
+  if (snomedLicenseAccepted.value === true) {
     return false;
   } else return true;
 });
@@ -90,7 +90,7 @@ function submitDecline(): void {
 }
 
 function submitAgree(): void {
-  store.commit("updateSnomedLicenseAccepted", "true");
+  store.commit("updateSnomedLicenseAccepted", true);
   window.location.href = snomedReturnUrl.value;
 }
 </script>

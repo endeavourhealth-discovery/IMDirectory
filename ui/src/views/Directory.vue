@@ -40,13 +40,15 @@ onMounted(async () => {
   await store.dispatch("initFavourites");
   loading.value = false;
 });
-
 </script>
 
 <style scoped>
 #directory-main-container {
-  height: 100%;
+  flex: 1 1 auto;
   width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
 }
 
 #topbar-content-container {
@@ -67,7 +69,8 @@ body {
 }
 
 #app-content-container {
-  height: calc(100% - 3.5rem);
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
 #topbar-container {

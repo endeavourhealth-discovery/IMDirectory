@@ -23,7 +23,7 @@ export default createStore({
     isLoggedIn: false as boolean,
     registeredUsername: "" as string,
     recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
-    snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") as string,
+    snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false,
     snomedReturnUrl: "",
     authReturnUrl: "",
     filterOptions: {} as FilterOptions,
@@ -55,7 +55,8 @@ export default createStore({
     currentTheme: localStorage.getItem("currentTheme") as string,
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
-    showCookieConsent: false
+    showCookieConsent: false,
+    showBanner: localStorage.getItem("showBanner") === "true" ? true : false
   },
   mutations: {
     updateFindInTreeIri(state, value) {
@@ -91,9 +92,9 @@ export default createStore({
     updateRegisteredUsername(state, username) {
       state.registeredUsername = username;
     },
-    updateSnomedLicenseAccepted(state, status: string) {
-      state.snomedLicenseAccepted = status;
-      localStorage.setItem("snomedLicenseAccepted", status);
+    updateSnomedLicenseAccepted(state, bool: boolean) {
+      state.snomedLicenseAccepted = bool;
+      localStorage.setItem("snomedLicenseAccepted", bool === true ? "true" : "");
     },
     updateSnomedReturnUrl(state, url) {
       state.snomedReturnUrl = url;
@@ -217,6 +218,10 @@ export default createStore({
     },
     updateShowCookieConsent(state, bool) {
       state.showCookieConsent = bool;
+    },
+    updateShowBanner(state, bool: boolean) {
+      state.showBanner = bool;
+      localStorage.setItem("showBanner", bool === true ? "true" : "");
     }
   },
   actions: {

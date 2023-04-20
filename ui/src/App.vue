@@ -6,6 +6,7 @@
     <ReleaseNotes v-if="!loading && showReleaseNotes" />
     <CookiesConsent />
     <div id="main-container">
+      <BannerBar v-if="!loading && showBanner" :latestRelease="latestRelease" />
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
@@ -15,9 +16,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef } from "vue";
+import { onMounted, ref, computed, ComputedRef, Ref } from "vue";
 import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
 import CookiesConsent from "./components/shared/CookiesConsent.vue";
+import BannerBar from "./components/shared/BannerBar.vue";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
@@ -27,6 +29,7 @@ import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
 import { usePrimeVue } from "primevue/config";
+import { GithubRelease } from "./interfaces";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -39,7 +42,9 @@ const store = useStore();
 
 const currentTheme = computed(() => store.state.currentTheme);
 const showReleaseNotes: ComputedRef<boolean> = computed(() => store.state.showReleaseNotes);
+const showBanner: ComputedRef<boolean> = computed(() => store.state.showBanner);
 
+const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
@@ -48,7 +53,7 @@ onMounted(async () => {
   if (currentTheme.value) {
     if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
   } else store.commit("updateCurrentTheme", "saga-blue");
-  await setShowReleaseNotes();
+  await setShowBanner();
   loading.value = false;
 });
 
@@ -57,17 +62,17 @@ function changeTheme(newTheme: string) {
   store.commit("updateCurrentTheme", newTheme);
 }
 
-async function setShowReleaseNotes() {
+async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
-  const latestRelease = await GithubService.getLatestRelease("IMDirectory");
+  latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
   let currentVersion = "v0.0.0";
-  if (latestRelease && latestRelease.version) currentVersion = latestRelease.version;
+  if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
-    store.commit("updateShowReleaseNotes", true);
+    store.commit("updateShowBanner", true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
-    setLocalVersion("IMDirectory", currentVersion);
-    store.commit("updateShowReleaseNotes", true);
-  } else store.commit("updateShowReleaseNotes", false);
+    localStorage.removeItem("IMDirectoryVersion");
+    store.commit("updateShowBanner", true);
+  } else store.commit("updateShowBanner", false);
 }
 
 function getLocalVersion(repoName: string): string | null {
@@ -94,11 +99,24 @@ async function setupAxiosInterceptors(axios: any) {
     (error: any) => {
       if (error?.response?.config?.raw) return Promise.reject(error);
       if (error?.response?.status === 403) {
-        toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-        });
+        if (error.response.data) {
+          toast.add({
+            severity: "error",
+            summary: "Access denied",
+            detail: error.response.data.debugMessage
+          });
+        } else if (error.config.url) {
+          toast.add({
+            severity: "error",
+            summary: "Access denied",
+            detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Access denied"
+          });
+        }
         window.location.href = Env.AUTH_URL + "login?returnUrl=" + route.fullPath;
       } else if (error?.response?.status === 401) {
         toast.add({
