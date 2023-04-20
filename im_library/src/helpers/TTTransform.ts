@@ -50,6 +50,8 @@ export function getNameFromRef(ref: any) {
   } else if (isObjectHasKeys(ref, ["@type"])) {
     const splits = ref["@type"].split("#");
     return splits[1] || splits[0];
+  } else if (isObjectHasKeys(ref, ["parameter"])) {
+    return ref["parameter"];
   }
   return "";
 }

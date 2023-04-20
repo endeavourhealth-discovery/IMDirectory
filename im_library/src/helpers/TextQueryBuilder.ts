@@ -153,7 +153,11 @@ export function getDisplayFromOperator(where: Where) {
     if (relativeTo) relativeTo += ".";
     relativeTo += getNameFromRef(where.relativeTo);
     display += relativeTo;
-  } else if (where.value) display += where.value;
+  }
+  if (where.value) {
+    if (where.relativeTo) display += " by ";
+    display += where.value;
+  }
   if (where.unit) display += " " + where.unit;
   return display;
 }

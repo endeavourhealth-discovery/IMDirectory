@@ -356,6 +356,32 @@ describe("TextQueryBuilder.ts ___", () => {
       } as Where);
       expect(display).toEqual("age >= 18 YEAR");
     });
+
+    it("can get a display for a where operator with relative to parameter", () => {
+      const display = getDisplayFromOperator({
+        operator: "<=",
+        value: "18",
+        unit: "MONTH",
+        relativeTo: {
+          parameter: "$referenceDate"
+        },
+        "@id": "http://endhealth.info/im#effectiveDate"
+      } as Where);
+      expect(display).toEqual("effectiveDate <= $referenceDate by 18 MONTH");
+    });
+
+    it("can get a display for a where operator with relative to parameter and value", () => {
+      const display = getDisplayFromOperator({
+        description: "Last 6 months",
+        operator: ">=",
+        value: "-6",
+        unit: "MONTHS",
+        relativeTo: { "@id": "http://endhealth.info/im#$referenceDate" },
+        valueLabel: "last 6 months",
+        "@id": "http://endhealth.info/im#effectiveDate"
+      } as Where);
+      expect(display).toEqual("effectiveDate >= $referenceDate by -6 MONTHS");
+    });
   });
 
   describe("getDisplayFromWhereList", () => {
