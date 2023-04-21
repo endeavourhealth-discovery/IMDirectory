@@ -16,50 +16,45 @@ export class GraphdbService {
   private repoConfig: typeof RepositoryClientConfig;
   private repo: typeof RDFRepositoryClient;
 
-  public async update(sparql: string): Promise<boolean> {
-    try {
-      const client = await this.getRepo();
+  public async update(sparql: string, isConfig?: boolean): Promise<boolean> {
+    const client = await this.getRepo(isConfig);
 
-      client.registerParser(new SparqlJsonResultParser());
+    client.registerParser(new SparqlJsonResultParser());
 
-      const stmt = new UpdateQueryPayload().setQuery(sparql).setContentType(QueryContentType.X_WWW_FORM_URLENCODED).setInference(true).setTimeout(5);
+    const stmt = new UpdateQueryPayload().setQuery(sparql).setContentType(QueryContentType.X_WWW_FORM_URLENCODED).setInference(true).setTimeout(5);
 
-      return client.update(stmt).then(() => {
-        return true;
-      });
-    } catch (e) {
-      console.error("********* ERROR!!");
-      console.error(e);
-      return false;
-    }
+    return client.update(stmt).then(() => {
+      return true;
+    });
   }
 
   public async execute(sparql: string, bindings?: any, isConfig?: boolean): Promise<any[]> {
-    try {
-      const client = await this.getRepo(isConfig);
+    const client = await this.getRepo(isConfig);
 
-      const stmt = new GetQueryPayload().setQuery(sparql).setQueryType(QueryType.SELECT).setResponseType(RDFMimeType.SPARQL_RESULTS_JSON);
+    const stmt = new GetQueryPayload().setQuery(sparql).setQueryType(QueryType.SELECT).setResponseType(RDFMimeType.SPARQL_RESULTS_JSON);
 
-      if (bindings) {
-        for (const key of Object.keys(bindings)) {
-          stmt.addBinding("$" + key, bindings[key]);
-        }
+    if (bindings) {
+      for (const key of Object.keys(bindings)) {
+        stmt.addBinding("$" + key, bindings[key]);
       }
-
-      const rs = await client.query(stmt);
-
-      const result: any[] = [];
-      rs.on("data", (binding: any) => {
-        result.push(binding);
-      });
-      await new Promise(done => rs.on("end", done));
-
-      return result;
-    } catch (e) {
-      console.error("********* ERROR!!");
-      console.error(e);
-      return [];
     }
+
+    const rs = await client.query(stmt);
+
+    const result: any[] = [];
+    rs.on("data", (binding: any) => {
+      result.push(binding);
+    });
+    await new Promise(done => rs.on("end", done));
+
+    return result;
+  }
+
+  public async delete(subject?: string, predicate?: string, object?: string, contexts?: any, isConfig?: boolean) {
+    const client = await this.getRepo(isConfig);
+    await client.deleteStatements(subject, predicate, object, contexts).then(() => {
+      return true;
+    });
   }
 
   private async getRepo(isConfig?: boolean) {
@@ -87,10 +82,16 @@ export class GraphdbService {
       .setReadTimeout(timeout)
       .setWriteTimeout(timeout);
 
-    this.repo = await this.server.getRepository((isConfig ? Env.GRAPH_REPO_CONFIG : Env.GRAPH_REPO), this.repoConfig);
+    this.repo = await this.server.getRepository(isConfig ? Env.GRAPH_REPO_CONFIG : Env.GRAPH_REPO, this.repoConfig);
   }
 }
 
 export function iri(url: string) {
   return "<" + url + ">";
+}
+
+export function sanitise(data: any) {
+  if (typeof data === "string") return "'" + data + "'";
+  if (typeof data === "object") return "'" + JSON.stringify(data).replaceAll('"', "`").replaceAll("'", '"') + "'";
+  if (typeof data === "number") return "'" + data + "'";
 }
