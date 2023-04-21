@@ -6,6 +6,8 @@ import * as https from "https";
 import * as fs from "fs";
 import Env from "@/services/env.service";
 import errorHandler from "./middlewares/errorHandler.middleware";
+import cron from "node-cron";
+import setGithubConfig from "./logic/setGithubConfig";
 
 class App {
   public app: Application;
@@ -29,6 +31,8 @@ class App {
 
     appInit.middleWares.forEach(m => this.app.use(m));
     appInit.controllers.forEach(c => this.app.use(c.path, c.router));
+
+    cron.schedule("* * 0 * * *", async () => await setGithubConfig(), { timezone: "Europe/London" });
 
     this.app.use(errorHandler);
   }
