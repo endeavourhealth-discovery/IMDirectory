@@ -135,7 +135,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ]
       } as Match);
 
-      expect(display).toEqual("(observation->Observation as with1).concept in [SMIResolved and more...]");
+      expect(display).toEqual("(observation->Observation as with1).concept in [SMIResolved and more...] ordered by earliest with1.effectiveDate");
     });
 
     it("can get a display for a match with multiple where clauses", () => {
@@ -448,14 +448,14 @@ describe("TextQueryBuilder.ts ___", () => {
       const display = getDisplayFromOrderByList([
         { direction: "descending", variable: "latestBP", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" }
       ] as OrderLimit[]);
-      expect(display).toEqual("ordered by [latest latestBP.effectiveDate]");
+      expect(display).toEqual("ordered by latest latestBP.effectiveDate");
     });
 
     it("can get a display for a where range", () => {
       const display = getDisplayFromOrderByList([
         { direction: "descending", variable: "latestBP", "@id": "http://endhealth.info/im#effectiveDate" }
       ] as OrderLimit[]);
-      expect(display).toEqual("ordered by [latestBP.effectiveDate (descending)]");
+      expect(display).toEqual("ordered by descending latestBP.effectiveDate");
     });
   });
 
@@ -486,7 +486,7 @@ describe("TextQueryBuilder.ts ___", () => {
         variable: "latestBP",
         "@id": "http://endhealth.info/im#effectiveDate"
       } as OrderLimit);
-      expect(display).toEqual("latestBP.effectiveDate (descending)");
+      expect(display).toEqual("descending latestBP.effectiveDate");
     });
   });
 

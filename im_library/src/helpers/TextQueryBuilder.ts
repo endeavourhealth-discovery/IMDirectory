@@ -95,6 +95,7 @@ export function getDisplayFromMatch(match: Match) {
     }
     display = whereDisplay;
   }
+  if (match.orderBy) display += " " + getDisplayFromOrderByList(match.orderBy);
 
   return display;
 }
@@ -121,11 +122,17 @@ export function getDisplayFromWhere(where: Where) {
 }
 
 export function getDisplayFromOrderByList(orderByList: OrderLimit[]) {
-  let display = "ordered by [";
-  for (const [index, orderBy] of orderByList.entries()) {
-    display += getDisplayFromOrderBy(orderBy);
+  let display = "ordered by ";
+  if (orderByList.length === 1) display += getDisplayFromOrderBy(orderByList[0]);
+  else {
+    display += "[";
+    for (const [index, orderBy] of orderByList.entries()) {
+      display += getDisplayFromOrderBy(orderBy);
+      if (index !== orderByList.length - 1) display += ",";
+    }
+    display += "]";
   }
-  display += "]";
+
   return display;
 }
 
@@ -136,7 +143,7 @@ export function getDisplayFromOrderBy(orderBy: OrderLimit) {
   if (orderBy.limit === 1) {
     if ("descending" === orderBy.direction) display = "latest " + display;
     if ("ascending" === orderBy.direction) display = "earliest " + display;
-  } else if (orderBy.direction) display += " (" + orderBy.direction + ")";
+  } else if (orderBy.direction) display = orderBy.direction + " " + display;
   return display;
 }
 
