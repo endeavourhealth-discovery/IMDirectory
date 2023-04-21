@@ -33,8 +33,8 @@
         </span>
       </div>
     </div>
+    <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
     <div class="results-container">
-      <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
       <ResultsTable :searchResults="searchResults" :loading="loading" />
     </div>
   </div>
@@ -200,6 +200,11 @@ function onCopyError(): void {
   width: 100%;
   flex: 0 1 auto;
   overflow: auto;
+}
+
+.result-summary {
+  width: 100%;
+  padding-left: 8px;
 }
 
 .error-message {
