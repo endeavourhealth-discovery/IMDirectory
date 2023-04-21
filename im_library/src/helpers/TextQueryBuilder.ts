@@ -222,6 +222,7 @@ function getDisplayFromPathRecursively(displayObject: { display: string }, type:
   displayObject.display += getNameFromRef(pathOrNode);
   if (isObjectHasKeys(pathOrNode, ["node"])) getDisplayFromPathRecursively(displayObject, "node", pathOrNode.node);
   if (isObjectHasKeys(pathOrNode, ["path"])) getDisplayFromPathRecursively(displayObject, "path", pathOrNode.path);
+  if (isObjectHasKeys(pathOrNode, ["variable"])) displayObject.display = "(" + displayObject.display + " as " + pathOrNode.variable + ")";
 }
 
 // checkers
