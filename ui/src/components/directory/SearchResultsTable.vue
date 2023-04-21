@@ -149,7 +149,4 @@ label {
   padding: 0.5rem;
 }
 
-#search-results-main-container:deep(.p-datatable-thead) {
-  z-index: 1 !important;
-}
 </style>

@@ -191,10 +191,6 @@ label {
   flex-flow: column nowrap;
 }
 
-#search-results-main-container:deep(.p-datatable-thead) {
-  z-index: 1;
-}
-
 .buttons-container {
   display: flex;
   flex-flow: row wrap;
