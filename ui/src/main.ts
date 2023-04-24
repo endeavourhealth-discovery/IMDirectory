@@ -19,18 +19,7 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(fab);
 
-const store = useRootStore();
-
-// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
-import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
-addFontAwesomeProIcons(library);
-store.updateFontAwesomePro(true);
-// #v-endif
-// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
-import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
-import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-store.updateFontAwesomePro(false);
-// #v-endif
+const pinia = createPinia();
 
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
@@ -112,9 +101,8 @@ if (import.meta.env.MODE === "mock") {
   worker.start();
 }
 
-
 const app = createApp(App)
-  .use(store)
+  .use(pinia)
   .use(router)
   .use(PrimeVue, { ripple: true, local: { dateFormat: "dd/mm/yyyy" } })
   .use(ConfirmationService)
@@ -184,6 +172,20 @@ const app = createApp(App)
   .component("Skeleton", Skeleton)
   .component("DynamicDialog", DynamicDialog)
   .component("Image", Image);
+
+const store = useRootStore();
+
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
+addFontAwesomeProIcons(library);
+store.updateFontAwesomePro(true);
+// #v-endif
+// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
+import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
+store.updateFontAwesomePro(false);
+// #v-endif
+
 const vm = app.mount("#app");
 
 // Vue application exceptions

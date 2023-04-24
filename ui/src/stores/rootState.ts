@@ -18,7 +18,7 @@ export interface RootState {
   filterOptions: FilterOptions;
   filterDefaults: FilterOptions;
   selectedFilters: FilterOptions;
-  quickFiltersStatus: Map<string, boolean>;
+  quickFiltersStatus: any;
   focusHierarchy: boolean;
   sidebarControlActivePanel: number;
   // filters: {
@@ -30,14 +30,14 @@ export interface RootState {
   // instanceIri: string;
   hierarchySelectedFilters: Namespace[];
   fontAwesomePro: boolean;
-  arrayObjectNameListboxWithLabelStartExpanded: [];
+  arrayObjectNameListboxWithLabelStartExpanded: string[];
   tagSeverityMatches: any[];
   textDefinitionStartExpanded: string[];
   activeProfile: any;
   splitterRightSize: number;
   editorIri: string;
-  editorSavedEntity: string;
-  creatorSavedEntity: string;
+  editorSavedEntity: any;
+  creatorSavedEntity: any;
   creatorHasChanges: boolean;
   editorHasChanges: boolean;
   findInEditorTreeIri: string;

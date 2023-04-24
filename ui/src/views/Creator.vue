@@ -211,7 +211,7 @@ watch(
   }
 );
 
-const currentUser = computed(() => store.state.currentUser).value;
+const currentUser = computed(() => store.currentUser).value;
 
 const debouncedFiler = debounce((entity: any) => {
   fileChanges(entity);

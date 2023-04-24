@@ -205,7 +205,7 @@ function openThemesMenu(event: any): void {
   themesMenu.value.toggle(event);
 }
 
-function isLoggedInWithRole(role: String): boolean {
+function isLoggedInWithRole(role: string): boolean {
   return isLoggedIn.value && currentUser.value && currentUser.value.roles.includes(role);
 }
 

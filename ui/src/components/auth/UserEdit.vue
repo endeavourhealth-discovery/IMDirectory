@@ -264,7 +264,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
           res2.status === 200
             ? swalert("success", "Success", "User details and password successfully updated.")
             : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
-          store.commit("updateCurrentUser", res.user);
+          store.updateCurrentUser(res.user);
           router.push({ name: "UserDetails" });
         });
       }

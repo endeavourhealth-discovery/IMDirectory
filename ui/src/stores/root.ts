@@ -164,47 +164,47 @@ export const useRootStore = defineStore('root', {
       localStorage.removeItem("editorSelectedIri");
     },
   // Mutations
-    updateFindInTreeIri( value) {
+    updateFindInTreeIri( value: any) {
       this.findInTreeIri = value;
     },
-    updateActiveProfile( value) {
+    updateActiveProfile( value: any) {
       this.activeProfile = value;
     },
-    updateSearchLoading( loading) {
+    updateSearchLoading( loading: any) {
       this.searchLoading = loading;
     },
-    updateConceptIri( conceptIri) {
+    updateConceptIri( conceptIri: any) {
       this.conceptIri = conceptIri;
     },
-    updateSearchResults( searchResults) {
+    updateSearchResults( searchResults: any) {
       this.searchResults = searchResults;
     },
-    updateFilterOptions( filters) {
+    updateFilterOptions( filters: any) {
       this.filterOptions = filters;
     },
-    updateSelectedFilters( filters) {
+    updateSelectedFilters( filters: any) {
       this.selectedFilters = filters;
     },
-    updateQuickFiltersStatus( status) {
+    updateQuickFiltersStatus( status: any) {
       this.quickFiltersStatus.set(status.key, status.value);
     },
-    updateCurrentUser( user) {
+    updateCurrentUser( user: any) {
       this.currentUser = user;
     },
-    updateIsLoggedIn( status) {
+    updateIsLoggedIn( status: any) {
       this.isLoggedIn = status;
     },
-    updateRegisteredUsername( username) {
+    updateRegisteredUsername( username: any) {
       this.registeredUsername = username;
     },
     updateSnomedLicenseAccepted( bool: boolean) {
       this.snomedLicenseAccepted = bool;
       localStorage.setItem("snomedLicenseAccepted", bool === true ? "true" : "");
     },
-    updateSnomedReturnUrl( url) {
+    updateSnomedReturnUrl( url: any) {
       this.snomedReturnUrl = url;
     },
-    updateAuthReturnUrl( url) {
+    updateAuthReturnUrl( url: any) {
       this.authReturnUrl = url;
     },
     updateRecentLocalActivity( recentActivityItem: RecentActivityItem) {
@@ -246,78 +246,78 @@ export const useRootStore = defineStore('root', {
         this.favourites = favourites;
       }
     },
-    updateFocusHierarchy( bool) {
+    updateFocusHierarchy( bool: any) {
       this.focusHierarchy = bool;
     },
-    updateSidebarControlActivePanel( number) {
+    updateSidebarControlActivePanel( number: any) {
       this.sidebarControlActivePanel = number;
     },
-    updateHierarchySelectedFilters( filters) {
+    updateHierarchySelectedFilters( filters: any) {
       this.hierarchySelectedFilters = filters;
     },
-    updateFilterDefaults( defaults) {
+    updateFilterDefaults( defaults: any) {
       this.filterDefaults = defaults;
     },
-    updateArrayObjectNameListboxWithLabelStartExpanded( items) {
+    updateArrayObjectNameListboxWithLabelStartExpanded( items: any) {
       this.arrayObjectNameListboxWithLabelStartExpanded = items;
     },
-    updateTagSeverityMatches( items) {
+    updateTagSeverityMatches( items: any) {
       this.tagSeverityMatches = items;
     },
-    updateTextDefinitionStartExpanded( items) {
+    updateTextDefinitionStartExpanded( items: any) {
       this.textDefinitionStartExpanded = items;
     },
-    updateSplitterRightSize( splitterRightSize) {
+    updateSplitterRightSize( splitterRightSize: any) {
       this.splitterRightSize = splitterRightSize;
     },
-    updateEditorIri( iri) {
+    updateEditorIri( iri: any) {
       this.editorIri = iri;
       if (this.cookiesOptionalAccepted) localStorage.setItem("editorSelectedIri", iri);
     },
-    updateEditorSavedEntity( entity) {
+    updateEditorSavedEntity( entity: any) {
       this.editorSavedEntity = entity;
       if (entity && this.cookiesOptionalAccepted) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
       else localStorage.removeItem("editorSavedEntity");
     },
-    updateCreatorSavedEntity( entity) {
+    updateCreatorSavedEntity( entity: any) {
       if (this.cookiesOptionalAccepted) {
         this.creatorSavedEntity = entity;
         if (entity && this.cookiesOptionalAccepted) localStorage.setItem("creatorSavedEntity", JSON.stringify(entity));
         else localStorage.removeItem("creatorSavedEntity");
       }
     },
-    updateCreatorHasChanges( bool) {
+    updateCreatorHasChanges( bool: any) {
       this.creatorHasChanges = bool;
     },
-    updateEditorHasChanges( bool) {
+    updateEditorHasChanges( bool: any) {
       this.editorHasChanges = bool;
     },
-    updateFindInEditorTreeIri( iri) {
+    updateFindInEditorTreeIri( iri: any) {
       this.findInEditorTreeIri = iri;
     },
     updateRefreshTree() {
       this.refreshEditorTree = !this.refreshEditorTree;
     },
-    updateShowReleaseNotes( bool) {
+    updateShowReleaseNotes( bool: any) {
       this.showReleaseNotes = bool;
     },
-    updateFontAwesomePro( bool) {
+    updateFontAwesomePro( bool: any) {
       this.fontAwesomePro = bool;
     },
-    updateEclEditorSavedString( ecl) {
+    updateEclEditorSavedString( ecl: any) {
       this.eclEditorSavedString = ecl;
       if (ecl && this.cookiesOptionalAccepted) localStorage.setItem("eclEditorSavedString", ecl);
       else localStorage.removeItem("eclEditorSavedString");
     },
-    updateCurrentTheme( theme) {
+    updateCurrentTheme( theme: any) {
       this.currentTheme = theme;
       if (this.cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
     },
-    updateCookiesEssentialAccepted( bool) {
+    updateCookiesEssentialAccepted( bool: any) {
       this.cookiesEssentialAccepted = bool;
       localStorage.setItem("cookiesEssentialAccepted", bool);
     },
-    updateCookiesOptionalAccepted( bool) {
+    updateCookiesOptionalAccepted( bool: any) {
       this.cookiesOptionalAccepted = bool;
       localStorage.setItem("cookiesOptionalAccepted", bool);
     },
