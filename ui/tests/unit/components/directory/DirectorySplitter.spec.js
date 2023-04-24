@@ -3,25 +3,21 @@ import { beforeEach, describe, it } from "vitest";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
+import PrimeVue from "primevue/config";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = {};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia()
 
 describe("Home.vue", () => {
   let component;
 
   beforeEach(() => {
     component = render(DirectorySplitter, {
-      global: { components: { Splitter, SplitterPanel }, stubs: ["router-view", "InfoSideBar", "NavTree"] }
+      global: {
+        components: { Splitter, SplitterPanel },
+        stubs: ["router-view", "InfoSideBar", "NavTree"],
+        plugins: [PrimeVue],
+      }
     });
   });
 

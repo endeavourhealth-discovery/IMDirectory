@@ -8,18 +8,15 @@ import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { User } from "@im-library/interfaces";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/root";
 
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" };
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    root: { registeredUsername: "testUser" }
+  }
+})
+const mockState = useRootStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

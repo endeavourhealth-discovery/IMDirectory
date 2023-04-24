@@ -6,7 +6,6 @@ import DynamicDialog from "primevue/dynamicdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import ProgressSpinner from "primevue/progressspinner";
-import store from "@/store/index";
 import { flushPromises, shallowMount } from "@vue/test-utils";
 import PrimeVue from "primevue/config";
 import TopBar from "@/components/shared/TopBar.vue";
@@ -15,6 +14,8 @@ import { render } from "@testing-library/vue";
 import { nextTick } from "vue";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { GithubService } from "@/services";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/root";
 
 const mockAdd = vi.fn();
 
@@ -36,8 +37,10 @@ describe("router", () => {
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
-      store.commit("updateSnomedLicenseAccepted", "false");
-      store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
+      createTestingPinia();
+      const store = useRootStore();
+      store.updateSnomedLicenseAccepted(false);
+      // store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
       await router.isReady();
@@ -45,7 +48,7 @@ describe("router", () => {
       component = render(App, {
         global: {
           components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu, DynamicDialog },
-          plugins: [router, store, PrimeVue],
+          plugins: [router, PrimeVue],
           stubs: { SnomedLicense: { template: "<span>Test Snomed License</span>" }, Directory: true, ReleaseNotes: true }
         }
       });
@@ -56,8 +59,9 @@ describe("router", () => {
     });
 
     it("routes to snomedLicense if snomedAccepted ___ false", () => {
+      const store = useRootStore();
       component.getByText("Test Snomed License");
-      store.commit("updateSnomedLicenseAccepted", "true");
+      store.updateSnomedLicenseAccepted(true);
     });
   });
 
@@ -69,8 +73,10 @@ describe("router", () => {
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
-      store.commit("updateSnomedLicenseAccepted", "true");
-      store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
+      createTestingPinia();
+      const store = useRootStore();
+      store.updateSnomedLicenseAccepted(true);
+      // store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
       await router.isReady();
@@ -101,8 +107,10 @@ describe("router", () => {
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
-      store.state.snomedLicenseAccepted = true;
-      store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
+      createTestingPinia();
+      const store = useRootStore();
+      store.snomedLicenseAccepted = true;
+      // store.dispatch = vi.fn().mockResolvedValue({ authenticated: false });
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
       await router.isReady();
@@ -135,8 +143,10 @@ describe("router", () => {
     beforeEach(async () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
-      store.state.snomedLicenseAccepted = true;
-      store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
+      createTestingPinia();
+      const store = useRootStore();
+      store.snomedLicenseAccepted = true;
+      // store.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
       await router.isReady();

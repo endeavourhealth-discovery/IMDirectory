@@ -1,7 +1,6 @@
 import { createApp, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import store from "./store";
 import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
@@ -20,15 +19,17 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(fab);
 
+const store = useRootStore();
+
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
 addFontAwesomeProIcons(library);
-store.commit("updateFontAwesomePro", true);
+store.updateFontAwesomePro(true);
 // #v-endif
 // #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
 import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-store.commit("updateFontAwesomePro", false);
+store.updateFontAwesomePro(false);
 // #v-endif
 
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -100,6 +101,8 @@ import Image from "primevue/image";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
+import { createPinia } from "pinia";
+import { useRootStore } from "@/stores/root";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -108,6 +111,7 @@ Auth.configure(awsconfig);
 if (import.meta.env.MODE === "mock") {
   worker.start();
 }
+
 
 const app = createApp(App)
   .use(store)

@@ -6,18 +6,12 @@ import { Avatars } from "@im-library/constants";
 import PrimeVue from "primevue/config";
 import { vi, describe, beforeEach, it, expect } from "vitest";
 import { render, RenderResult } from "@testing-library/vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/root";
+import { User } from "@im-library/interfaces";
 
-const mockDispatch = vi.fn();
-const mockState = {} as any;
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia();
+const mockState = useRootStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -34,6 +28,7 @@ describe("userDetails.vue", () => {
 
   beforeEach(() => {
     const user = {
+      id: "1234",
       username: "testUser",
       firstName: "John",
       lastName: "Doe",
@@ -41,7 +36,7 @@ describe("userDetails.vue", () => {
       password: "",
       avatar: Avatars[0],
       roles: []
-    };
+    } as User;
     vi.clearAllMocks();
     mockState.currentUser = user;
     mockState.isLoggedIn = true;

@@ -2,18 +2,9 @@ import { render, fireEvent, RenderResult } from "@testing-library/vue";
 import { vi } from "vitest";
 import ButtonBar from "@/components/auth/ButtonBar.vue";
 import Button from "primevue/button";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = { previousAppUrl: "testUrl" };
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia()
 
 const mockBack = vi.fn();
 const mockPush = vi.fn();
@@ -39,9 +30,7 @@ describe("ButtonBar.vue ___ previousAppUrl", () => {
     window.location = mockLocation;
 
     component = render(ButtonBar, {
-      global: {
-        components: { Button }
-      }
+      global: { components: { Button } }
     });
   });
 
@@ -70,7 +59,6 @@ describe("ButtonBar.vue ___ no previousAppUrl", () => {
   beforeEach(() => {
     vi.resetAllMocks();
 
-    mockState.previousAppUrl = null as any;
     mockLocation = { href: "" };
     location = window.location;
     delete (window as any).location;

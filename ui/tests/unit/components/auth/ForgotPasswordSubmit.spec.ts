@@ -8,18 +8,16 @@ import { AuthService } from "@/services";
 import { SpyInstance, vi } from "vitest";
 import PrimeVue from "primevue/config";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/root";
 
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" };
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  stubActions: false,
+  initialState: {
+    root: { registeredUsername: "" }
+  }
+})
+const mockState = useRootStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

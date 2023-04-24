@@ -8,19 +8,14 @@ import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import Swal from "sweetalert2";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/root";
+import { CustomAlert, User } from "@im-library/interfaces";
 
 window.scrollTo = vi.fn() as any;
-const mockDispatch = vi.fn();
-const mockState = {} as any;
-const mockCommit = vi.fn();
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia()
+const mockState = useRootStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -34,11 +29,12 @@ vi.mock("vue-router", () => ({
 
 describe("Logout.vue", () => {
   let component: RenderResult;
-  let user;
+  let user: User;
 
   beforeEach(() => {
     vi.clearAllMocks();
     user = {
+      id: "12345",
       username: "testUser",
       firstName: "John",
       lastName: "Doe",
@@ -46,7 +42,7 @@ describe("Logout.vue", () => {
       password: "",
       avatar: Avatars[0],
       roles: []
-    };
+    } as User;
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "Logout successful" });
 
     mockState.currentUser = user;
@@ -106,7 +102,7 @@ describe("Logout.vue", () => {
   });
 
   it("fires swal on unsuccessful store logout", async () => {
-    mockDispatch.mockResolvedValue({ status: 400, message: "logout failed" });
+    mockState.logoutCurrentUser =  (async () => { return {status: 400, message: "logout failed" } as CustomAlert});
     const logout = component.getByTestId("logout-submit");
     await fireEvent.click(logout);
 

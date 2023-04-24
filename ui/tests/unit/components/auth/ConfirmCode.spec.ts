@@ -9,23 +9,20 @@ import { AuthService } from "@/services";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
+import { createTestingPinia } from "@pinia/testing";
 
 window.scrollTo = vi.fn() as any;
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" };
-const mockCommit = vi.fn();
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia(
+  {
+    initialState: {
+      root: { registeredUsername: "testUser" }
+    }
+  }
+)
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
-
 vi.mock("vue-router", () => ({
   useRouter: () => ({
     push: mockPush,
@@ -34,6 +31,7 @@ vi.mock("vue-router", () => ({
 }));
 
 const mockAdd = vi.fn();
+
 
 vi.mock("primevue/usetoast", () => ({
   useToast: () => ({
@@ -68,7 +66,6 @@ describe("ConfirmCode.vue with registeredUser", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockState.registeredUsername = "testUser";
 
     mockResponse("confirmRegister", { status: 200, message: "Register confirmation successful" });
     mockResponse("resendConfirmationCode", { status: 200, message: "Resend confirmation code successful" });

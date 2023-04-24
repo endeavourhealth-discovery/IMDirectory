@@ -13,18 +13,15 @@ import { afterAll, beforeAll, vi } from "vitest";
 import { render, RenderResult } from "@testing-library/vue";
 import { RequestHandler } from "msw";
 import { User } from "@im-library/interfaces";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/root";
 
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" } as any;
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    root: { registeredUsername: "" }
+  }
+})
+const mockState = useRootStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
