@@ -106,7 +106,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
-import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { PasswordStrength } from "@im-library/enums";
@@ -114,10 +113,11 @@ import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers
 import { SweetAlertResult } from "sweetalert2";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 const router = useRouter();
-const store = useStore();
-const registeredUsername = computed(() => store.state.registeredUsername);
+const store = useRootStore();
+const registeredUsername = computed(() => store.registeredUsername);
 
 let code = ref("");
 let username = ref("");

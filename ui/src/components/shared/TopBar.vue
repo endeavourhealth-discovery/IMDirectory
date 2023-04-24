@@ -89,17 +89,17 @@
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
-import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
-const currentTheme = computed(() => store.state.currentTheme);
+const store = useRootStore();
+const currentUser = computed(() => store.currentUser);
+const isLoggedIn = computed(() => store.isLoggedIn);
+const fontAwesomePro = computed(() => store.fontAwesomePro);
+const currentTheme = computed(() => store.currentTheme);
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -244,7 +244,7 @@ function getAdminItems(): any[] {
 }
 
 function getSettingsItems() {
-  return [{ label: "Cookie preferences", icon: "fa-solid fa-gear", command: () => store.commit("updateShowCookieConsent", true) }];
+  return [{ label: "Cookie preferences", icon: "fa-solid fa-gear", command: () => store.updateShowCookieConsent(true) }];
 }
 
 function getThemes() {
@@ -586,11 +586,11 @@ function setAppMenuItems() {
 }
 
 function showReleaseNotes() {
-  store.commit("updateShowReleaseNotes", true);
+  store.updateShowReleaseNotes(true);
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => store.commit("updateCurrentTheme", newTheme));
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => store.updateCurrentTheme(newTheme));
 }
 </script>
 

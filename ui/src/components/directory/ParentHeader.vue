@@ -48,13 +48,13 @@ import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { IM, RDF } from "@im-library/vocabulary";
 import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { computed, Ref, watch, ref, onMounted } from "vue";
-import { useStore } from "vuex";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
+const store = useRootStore();
 const props = defineProps({ concept: { type: Object as any, required: true } });
-const conceptIri = computed(() => store.state.conceptIri);
+const conceptIri = computed(() => store.conceptIri);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 
 onMounted(async () => {

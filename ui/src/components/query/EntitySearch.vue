@@ -8,14 +8,14 @@ import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { Element } from "@im-library/interfaces/AutoGen";
 import { onMounted, PropType, Ref, ref, computed } from "vue";
-import { useStore } from "vuex";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
+const store = useRootStore();
 const props = defineProps({
   entityValue: { type: Object as PropType<Element>, required: true }
 });
 const controller: Ref<AbortController> = ref({} as AbortController);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
+const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
 const selected: Ref<ConceptSummary[]> = ref([]);
 const suggestions: Ref<ConceptSummary[]> = ref([]);
 const debounce = ref(0);

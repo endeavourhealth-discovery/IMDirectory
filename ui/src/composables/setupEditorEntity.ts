@@ -2,16 +2,16 @@ import { computed, Ref, ref } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
-import { useStore } from "vuex";
+import { useRootStore } from "@/stores/root";
 
 export function setupEditorEntity() {
-  const store = useStore();
+  const store = useRootStore();
   let editorEntityOriginal: Ref<any> = ref({});
   let editorEntity: Ref<any> = ref({});
   let entityName = ref("");
 
-  const editorIri = computed(() => store.state.editorIri).value;
-  const editorSavedEntity = computed(() => store.state.editorSavedEntity).value;
+  const editorIri = computed(() => store.editorIri).value;
+  const editorSavedEntity = computed(() => store.editorSavedEntity).value;
   const hasType = computed<boolean>(() => {
     return isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]);
   });

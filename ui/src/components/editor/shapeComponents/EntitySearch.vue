@@ -39,11 +39,11 @@ import { processArguments } from "@im-library/helpers/EditorMethods";
 import { mapToObject } from "@im-library/helpers/Transforms";
 import { QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { useStore } from "vuex";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
+const store = useRootStore();
 
 const props = defineProps({
   value: { type: Object as PropType<TTIriRef>, required: false },
@@ -208,7 +208,7 @@ function defaultValidity() {
 }
 
 function findInTree(iri: string) {
-  if (iri) store.commit("updateFindInEditorTreeIri", iri);
+  if (iri) store.updateFindInEditorTreeIri(iri);
 }
 
 function dropReceived(event: any) {

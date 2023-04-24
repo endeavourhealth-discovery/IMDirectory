@@ -30,10 +30,10 @@ import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
-import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import { useRootStore } from "@/stores/root";
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -43,10 +43,10 @@ const props = defineProps({
 
 const route = useRoute();
 const toast = useToast();
-const store = useStore();
+const store = useRootStore();
 const graphData = ref();
 const directService = new DirectService();
-const splitterRightSize = computed(() => store.state.splitterRightSize);
+const splitterRightSize = computed(() => store.splitterRightSize);
 
 watch(
   () => _.cloneDeep(props.data),
@@ -326,7 +326,7 @@ async function click(d: any) {
 function navigate(iri: string) {
   const currentRoute = route.name as RouteRecordName | undefined;
   if (iri === "seeMore") {
-    store.commit("updateConceptActivePanel", 2);
+    store.updateConceptActivePanel(2);
   } else if (iri) {
     directService.select(iri);
   }

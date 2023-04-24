@@ -18,7 +18,6 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, ComputedRef } from "vue";
-import { useStore } from "vuex";
 import Filters from "@/components/directory/topbar/Filters.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { FilterOptions } from "@im-library/interfaces";
@@ -28,6 +27,7 @@ import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers
 import { EntityService } from "@/services";
 import { isArray } from "lodash";
 import { IM } from "@im-library/vocabulary";
+import { useRootStore } from "@/stores/root";
 
 const emit = defineEmits({
   openSearchPanel: () => true,
@@ -35,8 +35,8 @@ const emit = defineEmits({
   searchResults: (payload: any[]) => isArray(payload)
 });
 
-const store = useStore();
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
+const store = useRootStore();
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.selectedFilters);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");

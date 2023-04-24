@@ -59,17 +59,17 @@
 
 <script setup lang="ts">
 import { computed, Ref, ref } from "vue";
-import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { PasswordStrength } from "@im-library/enums";
 import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 const router = useRouter();
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const previousAppUrl = computed(() => store.state.previousAppUrl);
+const store = useRootStore();
+const currentUser = computed(() => store.currentUser);
+const previousAppUrl = computed(() => store.previousAppUrl);
 
 let passwordOld = ref("");
 let passwordNew1 = ref("");

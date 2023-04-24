@@ -71,13 +71,13 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useStore } from "vuex";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
-const snomedLicenseAccepted = computed(() => store.state.snomedLicenseAccepted);
-const snomedReturnUrl = computed(() => store.state.snomedReturnUrl);
+const store = useRootStore();
+const snomedLicenseAccepted = computed(() => store.snomedLicenseAccepted);
+const snomedReturnUrl = computed(() => store.snomedReturnUrl);
 
 const showDialog = computed(() => {
   if (snomedLicenseAccepted.value === true) {
@@ -90,7 +90,7 @@ function submitDecline(): void {
 }
 
 function submitAgree(): void {
-  store.commit("updateSnomedLicenseAccepted", true);
+  store.updateSnomedLicenseAccepted(true);
   window.location.href = snomedReturnUrl.value;
 }
 </script>

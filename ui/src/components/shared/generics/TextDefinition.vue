@@ -27,7 +27,6 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from "vue";
-import { useStore } from "vuex";
 import { TTBundle } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { bundleToText } from "@im-library/helpers/Transforms";
@@ -35,6 +34,7 @@ import { isTTBundle } from "@im-library/helpers/TypeGuards";
 import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDatatypes } from "@im-library/config";
 import { IM } from "@im-library/vocabulary";
 import _ from "lodash";
+import { useRootStore } from "@/stores/root";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -47,9 +47,9 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const store = useStore();
-const textDefinitionStartExpanded = computed(() => store.state.textDefinitionStartExpanded);
-const conceptIri = computed(() => store.state.conceptIri);
+const store = useRootStore();
+const textDefinitionStartExpanded = computed(() => store.textDefinitionStartExpanded);
+const conceptIri = computed(() => store.conceptIri);
 
 const hasData = computed(() => isTTBundle(data.value) && isObjectHasKeys(data.value.entity));
 watch(

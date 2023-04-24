@@ -58,7 +58,6 @@
 
 <script setup lang="ts">
 import {computed, onMounted, PropType, ref, Ref, watch} from "vue";
-import { useStore } from "vuex";
 import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
@@ -67,6 +66,7 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue"
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import setupDownloadFile from "@/composables/downloadFile";
+import { useRootStore } from "@/stores/root";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -74,10 +74,10 @@ const props = defineProps({
   loading: { type: Boolean, required: true }
 });
 
-const store = useStore();
-const favourites = computed(() => store.state.favourites);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
-const searchLoading = computed(() => store.state.searchLoading);
+const store = useRootStore();
+const favourites = computed(() => store.favourites);
+const fontAwesomePro = computed(() => store.fontAwesomePro);
+const searchLoading = computed(() => store.searchLoading);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
@@ -119,7 +119,7 @@ onMounted(() => init());
 
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
-  store.commit("updateFavourites", selected.value.iri);
+  store.updateFavourites(selected.value.iri);
 }
 
 function isFavourite(iri: string) {

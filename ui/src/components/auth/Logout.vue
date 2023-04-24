@@ -37,17 +37,17 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useStore } from "vuex";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { CustomAlert } from "@im-library/interfaces";
+import { useRootStore } from "@/stores/root";
 
 const router = useRouter();
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
-const previousAppUrl = computed(() => store.state.previousAppUrl);
+const store = useRootStore();
+const currentUser = computed(() => store.currentUser);
+const isLoggedIn = computed(() => store.isLoggedIn);
+const previousAppUrl = computed(() => store.previousAppUrl);
 
 function handleSubmit(): void {
   Swal.fire({
@@ -59,7 +59,7 @@ function handleSubmit(): void {
     reverseButtons: true
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      store.dispatch("logoutCurrentUser").then((res: CustomAlert) => {
+      store.logoutCurrentUser().then((res: CustomAlert) => {
         if (res.status === 200) {
           Swal.fire({
             icon: "success",

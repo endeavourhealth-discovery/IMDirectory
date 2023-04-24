@@ -1,0 +1,53 @@
+import { User, Namespace, ConceptSummary, RecentActivityItem, HistoryItem, FilterOptions } from "@im-library/interfaces";
+
+export interface RootState {
+  // loading: Map<string, boolean>;
+  conceptIri: string;
+  findInTreeIri: string;
+  searchResults: ConceptSummary[];
+  searchLoading: boolean;
+  history: HistoryItem[];
+  favourites: string[];
+  currentUser: User;
+  registeredUsername: string;
+  isLoggedIn: boolean;
+  recentLocalActivity: RecentActivityItem[];
+  snomedLicenseAccepted: boolean;
+  snomedReturnUrl: string;
+  authReturnUrl: string;
+  filterOptions: FilterOptions;
+  filterDefaults: FilterOptions;
+  selectedFilters: FilterOptions;
+  quickFiltersStatus: Map<string, boolean>;
+  focusHierarchy: boolean;
+  sidebarControlActivePanel: number;
+  // filters: {
+  //   selectedStatus: string[];
+  //   selectedSchemes: { iri: string; name: string }[];
+  //   selectedTypes: string[];
+  // };
+  // term: string;
+  // instanceIri: string;
+  hierarchySelectedFilters: Namespace[];
+  fontAwesomePro: boolean;
+  arrayObjectNameListboxWithLabelStartExpanded: [];
+  tagSeverityMatches: any[];
+  textDefinitionStartExpanded: string[];
+  activeProfile: any;
+  splitterRightSize: number;
+  editorIri: string;
+  editorSavedEntity: string;
+  creatorSavedEntity: string;
+  creatorHasChanges: boolean;
+  editorHasChanges: boolean;
+  findInEditorTreeIri: string;
+  refreshEditorTree: boolean;
+  showReleaseNotes: boolean;
+  eclEditorSavedString: string;
+  currentTheme: string;
+  cookiesEssentialAccepted: boolean;
+  cookiesOptionalAccepted: boolean;
+  showCookieConsent: boolean;
+  showBanner: boolean;
+  previousAppUrl: string;
+}

@@ -110,13 +110,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch, PropType } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { useStore } from "vuex";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { useRootStore } from "@/stores/root";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, required: true },
@@ -127,11 +127,11 @@ const emit = defineEmits({
   openTreePanel: () => true
 });
 
-const store = useStore();
-const searchLoading = computed(() => store.state.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
-const favourites = computed(() => store.state.favourites);
+const store = useRootStore();
+const searchLoading = computed(() => store.searchLoading);
+const filterOptions: Ref<FilterOptions> = computed(() => store.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
+const favourites = computed(() => store.favourites);
 
 const directService = new DirectService();
 
@@ -181,7 +181,7 @@ const isLoading = computed(() => loading.value || searchLoading.value);
 
 function updateFavourites(data?: any) {
   if (data) selected.value = data;
-  store.commit("updateFavourites", selected.value.iri);
+  store.updateFavourites(selected.value.iri);
 }
 
 function isFavourite(iri: string) {
@@ -286,7 +286,7 @@ function hideOverlay(event: any): void {
 }
 
 function locateInTree(event: any, iri: string) {
-  store.commit("updateFindInEditorTreeIri", iri);
+  store.updateFindInEditorTreeIri(iri);
   emit("openTreePanel");
 }
 

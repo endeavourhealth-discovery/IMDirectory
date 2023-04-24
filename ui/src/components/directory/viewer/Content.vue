@@ -52,7 +52,6 @@
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { useStore } from "vuex";
 import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
@@ -62,10 +61,11 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
-const favourites = computed(() => store.state.favourites);
+const store = useRootStore();
+const conceptIri = computed(() => store.conceptIri);
+const favourites = computed(() => store.favourites);
 
 const directService = new DirectService();
 const { onRowClick }: { onRowClick: Function } = rowClick();
@@ -165,7 +165,7 @@ function onRowContextMenu(data: any) {
 }
 
 function updateFavourites(iri: string) {
-  store.commit("updateFavourites", iri);
+  store.updateFavourites(iri);
 }
 
 function onRowSelect(event: any) {

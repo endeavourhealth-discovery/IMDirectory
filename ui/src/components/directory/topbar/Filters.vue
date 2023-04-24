@@ -59,21 +59,21 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { useStore } from "vuex";
 import { FilterOptions } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { useRootStore } from "@/stores/root";
 
 const props = defineProps({
   search: { type: Function, required: true }
 });
 
-const store = useStore();
-const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
-const quickFiltersStatus = computed(() => store.state.quickFiltersStatus);
+const store = useRootStore();
+const filterOptions: Ref<FilterOptions> = computed(() => store.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.selectedFilters);
+const quickFiltersStatus = computed(() => store.quickFiltersStatus);
 
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
@@ -126,7 +126,7 @@ function checkForSearch(): void {
 }
 
 function updateStoreSelectedFilters(): void {
-  store.commit("updateSelectedFilters", {
+  store.updateSelectedFilters({
     status: selectedStatus.value,
     schemes: selectedSchemes.value,
     types: selectedTypes.value,
@@ -179,7 +179,7 @@ function setLegacy(include: boolean): void {
       selectedSchemes.value.splice(emisScheme, 1);
     }
   }
-  store.commit("updateQuickFiltersStatus", {
+  store.updateQuickFiltersStatus({
     key: "includeLegacy",
     value: include
   });

@@ -150,7 +150,6 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, Ref, ref, watch } from "vue";
 import ConfirmDialog from "primevue/confirmdialog";
-import { useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import "vue-json-pretty/lib/styles.css";
@@ -159,6 +158,7 @@ import { DirectService, EntityService, Env } from "@/services";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 const props = defineProps({
   data: { type: Object, required: true }
@@ -171,11 +171,11 @@ const emit = defineEmits({
   updateSelected: (_payload: string) => true
 });
 
-const store = useStore();
+const store = useRootStore();
 const route = useRoute();
 const router = useRouter();
 
-const filterOptions: ComputedRef<FilterOptions> = computed(() => store.state.filterOptions);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => store.filterOptions);
 
 const directService = new DirectService();
 
@@ -196,7 +196,7 @@ const searchTerm = ref("");
 const loading = ref(true);
 const searching = ref(true);
 const saveLoading = ref(false);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.selectedFilters);
 
 watch(taskIri, async newValue => {
   if (newValue) await setIriExists();

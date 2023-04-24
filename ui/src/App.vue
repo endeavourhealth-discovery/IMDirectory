@@ -20,7 +20,6 @@ import { onMounted, ref, computed, ComputedRef, Ref } from "vue";
 import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
 import CookiesConsent from "./components/shared/CookiesConsent.vue";
 import BannerBar from "./components/shared/BannerBar.vue";
-import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -30,6 +29,7 @@ import axios from "axios";
 import semver from "semver";
 import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
+import { useRootStore } from "@/stores/root";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -38,28 +38,28 @@ const PrimeVue: any = usePrimeVue();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const store = useStore();
+const store = useRootStore();
 
-const currentTheme = computed(() => store.state.currentTheme);
-const showReleaseNotes: ComputedRef<boolean> = computed(() => store.state.showReleaseNotes);
-const showBanner: ComputedRef<boolean> = computed(() => store.state.showBanner);
+const currentTheme = computed(() => store.currentTheme);
+const showReleaseNotes: ComputedRef<boolean> = computed(() => store.showReleaseNotes);
+const showBanner: ComputedRef<boolean> = computed(() => store.showBanner);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
-  await store.dispatch("authenticateCurrentUser");
+  await store.authenticateCurrentUser();
   if (currentTheme.value) {
     if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
-  } else store.commit("updateCurrentTheme", "saga-blue");
+  } else store.updateCurrentTheme("saga-blue");
   await setShowBanner();
   loading.value = false;
 });
 
 function changeTheme(newTheme: string) {
   PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
-  store.commit("updateCurrentTheme", newTheme);
+  store.updateCurrentTheme(newTheme);
 }
 
 async function setShowBanner() {
@@ -68,11 +68,11 @@ async function setShowBanner() {
   let currentVersion = "v0.0.0";
   if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
-    store.commit("updateShowBanner", true);
+    store.updateShowBanner(true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
     localStorage.removeItem("IMDirectoryVersion");
-    store.commit("updateShowBanner", true);
-  } else store.commit("updateShowBanner", false);
+    store.updateShowBanner(true);
+  } else store.updateShowBanner(false);
 }
 
 function getLocalVersion(repoName: string): string | null {
@@ -85,7 +85,7 @@ function setLocalVersion(repoName: string, versionNo: string) {
 
 async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
-    if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
+    if (store.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
       if (!request.headers) request.headers = {};
       request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
     }

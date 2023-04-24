@@ -26,20 +26,20 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
-import { useStore } from "vuex";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
+import { useRootStore } from "@/stores/root";
 
 const props = defineProps({
   showFilters: { type: Boolean, required: false, default: true }
 });
 
-const store = useStore();
-const searchLoading = computed(() => store.state.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
-const searchResults = computed(() => store.state.searchResults);
+const store = useRootStore();
+const searchLoading = computed(() => store.searchLoading);
+const filterOptions: Ref<FilterOptions> = computed(() => store.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
+const searchResults = computed(() => store.searchResults);
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);

@@ -39,10 +39,10 @@ import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { SweetAlertResult } from "sweetalert2";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import { useStore } from "vuex";
+import { useRootStore } from "@/stores/root";
 
 const router = useRouter();
-const store = useStore();
+const store = useRootStore();
 
 let username = ref("");
 
@@ -63,7 +63,7 @@ function handleSubmit(): void {
             title: "Success",
             text: "Password has been reset for account: " + username.value + ". An email has been sent with a recovery code."
           }).then(() => {
-            store.commit("updateRegisteredUsername", username.value);
+            store.updateRegisteredUsername(username.value);
             router.push({ name: "ForgotPasswordSubmit" });
           });
         } else {

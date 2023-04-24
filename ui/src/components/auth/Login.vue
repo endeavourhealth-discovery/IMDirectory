@@ -37,18 +37,18 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
 import { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 const router = useRouter();
-const store = useStore();
-const registeredUsername = computed(() => store.state.registeredUsername);
-const previousAppUrl = computed(() => store.state.previousAppUrl);
+const store = useRootStore();
+const registeredUsername = computed(() => store.registeredUsername);
+const previousAppUrl = computed(() => store.previousAppUrl);
 
 let username = ref("");
 let password = ref("");
@@ -69,9 +69,9 @@ function handleSubmit(): void {
         if (!result) {
           loggedInUser.avatar = Avatars[0];
         }
-        store.commit("updateCurrentUser", loggedInUser);
-        store.commit("updateRegisteredUsername", null);
-        store.commit("updateIsLoggedIn", true);
+        store.updateCurrentUser(loggedInUser);
+        store.updateRegisteredUsername(null);
+        store.updateIsLoggedIn(true);
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -93,7 +93,7 @@ function handleSubmit(): void {
           confirmButtonText: "Confirm Account"
         }).then((result: SweetAlertResult) => {
           if (result.isConfirmed) {
-            store.commit("updateRegisteredUsername", username.value);
+            store.updateRegisteredUsername(username.value);
             router.push({ name: "ConfirmCode" });
           }
         });

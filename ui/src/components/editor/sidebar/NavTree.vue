@@ -72,7 +72,6 @@
 <script setup lang="ts">
 import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ConceptSummary } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -84,12 +83,13 @@ import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/tree";
 import setupTree from "@/composables/setupTree";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
+const store = useRootStore();
 const router = useRouter();
 const toast = useToast();
 
-const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
+const treeIri: ComputedRef<string> = computed(() => store.findInEditorTreeIri);
 
 const {
   selectedNode,
@@ -159,7 +159,7 @@ function onNodeSelect(node: any): void {
     //   name: "Folder",
     //   params: { selectedIri: node.data }
     // });
-    store.commit("updateSelectedConceptIri", node.data);
+    store.updateSelectedConceptIri(node.data);
   }
 }
 

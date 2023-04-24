@@ -35,14 +35,14 @@
 <script setup lang="ts">
 import { ComputedRef, onMounted, ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useStore } from "vuex";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
+const store = useRootStore();
 const route = useRoute();
 
-const cookiesEssentialAccepted: ComputedRef<boolean> = computed(() => store.state.cookiesEssentialAccepted);
-const cookiesOptionalAccepted: ComputedRef<boolean> = computed(() => store.state.cookiesOptionalAccepted);
-const showCookieConsent: ComputedRef<boolean> = computed(() => store.state.showCookieConsent);
+const cookiesEssentialAccepted: ComputedRef<boolean> = computed(() => store.cookiesEssentialAccepted);
+const cookiesOptionalAccepted: ComputedRef<boolean> = computed(() => store.cookiesOptionalAccepted);
+const showCookieConsent: ComputedRef<boolean> = computed(() => store.showCookieConsent);
 
 const essentialChecked = ref(false);
 const optionalChecked = ref(false);
@@ -55,23 +55,23 @@ onMounted(() => {
 });
 
 function handleAcceptAll() {
-  store.commit("updateCookiesEssentialAccepted", true);
-  store.commit("updateCookiesOptionalAccepted", true);
-  store.commit("updateShowCookieConsent", false);
+  store.updateCookiesEssentialAccepted(true);
+  store.updateCookiesOptionalAccepted(true);
+  store.updateShowCookieConsent(false);
 }
 
 function handleAcceptEssential() {
-  store.commit("updateCookiesEssentialAccepted", true);
-  store.commit("updateCookiesOptionalAccepted", false);
-  store.dispatch("clearOptionalCookies");
-  store.commit("updateShowCookieConsent", false);
+  store.updateCookiesEssentialAccepted(true);
+  store.updateCookiesOptionalAccepted(false);
+  store.clearOptionalCookies();
+  store.updateShowCookieConsent(false);
 }
 
 function handleSave() {
-  store.commit("updateCookiesEssentialAccepted", true);
-  store.commit("updateCookiesOptionalAccepted", optionalChecked.value);
-  if (!optionalChecked.value) store.dispatch("clearOptionalCookies");
-  store.commit("updateShowCookieConsent", false);
+  store.updateCookiesEssentialAccepted(true);
+  store.updateCookiesOptionalAccepted(optionalChecked.value);
+  if (!optionalChecked.value) store.clearOptionalCookies();
+  store.updateShowCookieConsent(false);
 }
 </script>
 

@@ -12,9 +12,9 @@
 import { computed, PropType } from "vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useStore } from "vuex";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { TagSeverity } from "@im-library/enums";
+import { useRootStore } from "@/stores/root";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameTagWithLabel");
 
@@ -26,8 +26,8 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const store = useStore();
-const tagSeverityMatches = computed(() => store.state.tagSeverityMatches);
+const store = useRootStore();
+const tagSeverityMatches = computed(() => store.tagSeverityMatches);
 
 const isArrayObject = computed(() => {
   if (props.data && isArrayHasLength(props.data) && isObjectHasKeys(props.data[0], ["@id"])) {

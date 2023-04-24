@@ -53,17 +53,17 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { computed, onMounted, ref } from "vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
+const store = useRootStore();
 const router = useRouter();
 
-const registeredUsername = computed(() => store.state.registeredUsername);
+const registeredUsername = computed(() => store.registeredUsername);
 
 let code = ref("");
 let username = ref("");
@@ -96,7 +96,7 @@ function handleSubmit() {
             text: res.message,
             confirmButtonText: "Login"
           }).then(() => {
-            store.commit("updateRegisteredUsername", username.value);
+            store.updateRegisteredUsername(username.value);
             router.push({ name: "Login" });
           });
         } else {

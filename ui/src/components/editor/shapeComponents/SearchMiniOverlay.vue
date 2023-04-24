@@ -86,13 +86,13 @@
 
 <script setup lang="ts">
 import { PropType, ref } from "vue";
-import { useStore } from "vuex";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { useRootStore } from "@/stores/root";
 
-const store = useStore();
+const store = useRootStore();
 
 const props = defineProps({
   searchTerm: { type: String, required: false },
@@ -150,7 +150,7 @@ function getConceptTypes(concept: ConceptSummary): any {
 }
 
 function findInTree(iri: string) {
-  if (iri) store.commit("updateFindInEditorTreeIri", iri);
+  if (iri) store.updateFindInEditorTreeIri(iri);
 }
 </script>
 
