@@ -55,6 +55,8 @@ import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
 import { ITextQuery } from "./query/TextQuery";
+import { ClauseUI } from "./query/ClauseUI";
+
 import { TTProperty } from "./TTProperty";
 
 export {
@@ -115,5 +117,6 @@ export {
   type PropertyDisplay,
   type DisplayQuery,
   type ITextQuery,
-  type TTProperty
+  type TTProperty,
+  type ClauseUI
 };

@@ -7,6 +7,8 @@
     </TopBar>
     Defined as
     <TextQuery :baseEntityIri="baseEntityIri" :text-queries="textQueries" :parent="undefined"></TextQuery>
+    <div><Button label="Add clause" @click="addClause" /></div>
+
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -37,6 +39,11 @@ onMounted(async () => {
   const baseEntity = textQueries.value[0].data;
   baseEntityIri.value = baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"];
 });
+
+function addClause() {
+  const newClause = { display: "New clause" } as ITextQuery;
+  textQueries.value.push(newClause);
+}
 
 async function getTextQuery() {
   const entity = await EntityService.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);

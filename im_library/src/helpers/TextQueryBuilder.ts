@@ -1,5 +1,6 @@
 import { ITextQuery } from "../interfaces";
 import { Match, Relationship, Where, Property, OrderLimit, Node } from "../interfaces/AutoGen";
+import { buildClauseUI } from "./ClauseUIBuilder";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 

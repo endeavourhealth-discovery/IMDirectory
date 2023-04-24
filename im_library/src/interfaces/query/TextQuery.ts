@@ -1,4 +1,5 @@
 import { Bool } from "../AutoGen";
+import { ClauseUI } from "./ClauseUI";
 export interface ITextQuery {
   key: string;
   display: string;

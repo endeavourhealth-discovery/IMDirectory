@@ -5,17 +5,22 @@
       <RecursiveTextQuery v-if="isArrayHasLength(textQuery.children)" :base-entity-iri="baseEntityIri" :text-queries="textQuery.children" :parent="textQuery" />
     </div>
   </div>
-  <Dialog v-model:visible="editDialog" modal :header="selected.display" :style="{ width: '50vw' }">
-    <MatchClause :baseEntityIri="baseEntityIri" :match="selected.data" @on-cancel="editDialog = false" @on-save="onSave" />
+
+  <Dialog v-model:visible="editDialog" modal :style="{ width: '50vw' }">
+    <template #header> <div v-html="selected.display"></div> </template>
+    <MatchClause :baseEntityIri="baseEntityIri" :match="selected.data" @on-cancel="editDialog = false" />
+    <template #footer>
+      <Button class="action-button" severity="secondary" label="Cancel" @click="editDialog = false"></Button>
+      <Button class="action-button" label="Save" @click="onSave()"></Button>
+    </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ITextQuery } from "@im-library/interfaces/query/TextQuery";
 import { onMounted, PropType, Ref, ref } from "vue";
 import MatchClause from "./MatchClause.vue";
-import { Match } from "@im-library/interfaces/AutoGen";
 const props = defineProps({
   baseEntityIri: { type: String, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },
@@ -30,8 +35,8 @@ function openDialog(textQuery: ITextQuery) {
   editDialog.value = true;
 }
 
-function onSave(event: Match) {
-  selected.value.data = event;
+function onSave() {
+  // selected.value.data = event;
   editDialog.value = false;
 }
 
