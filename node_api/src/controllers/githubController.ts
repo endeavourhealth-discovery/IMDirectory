@@ -38,8 +38,8 @@ export default class GithubController {
       }
       res.send(result);
     } catch (e) {
-      console.error(e);
-      next(e);
+      await setGithubConfig();
+      await this.getLatestRelease(req, res, next);
     }
   }
 
@@ -56,8 +56,8 @@ export default class GithubController {
       }
       res.send(results);
     } catch (e) {
-      console.error(e);
-      next(e);
+      await setGithubConfig();
+      await this.getReleases(req, res, next);
     }
   }
 

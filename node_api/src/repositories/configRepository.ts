@@ -1,5 +1,7 @@
 import { GraphdbService, iri, sanitise } from "@/services/graphdb.service";
 import { IM, RDFS } from "@im-library/vocabulary";
+import {isArray} from "lodash";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 export default class ConfigRepository {
   private graph: GraphdbService;
 
@@ -21,7 +23,14 @@ export default class ConfigRepository {
       true
     );
 
-    return rs[0].data.value;
+    if (isArrayHasLength(rs)) {
+        if (isObjectHasKeys(rs[0], ["data"]))
+            return rs[0].data.value;
+    } else {
+        throw new Error(`Config not found: ${url}`);
+    }
+
+
   }
 
   public async setConfig(subjectUrl: string, name: string, description: string, data: any): Promise<void> {
