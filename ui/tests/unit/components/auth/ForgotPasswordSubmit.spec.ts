@@ -9,14 +9,14 @@ import { SpyInstance, vi } from "vitest";
 import PrimeVue from "primevue/config";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 createTestingPinia({
   stubActions: false,
   initialState: {
     root: { registeredUsername: "" }
   }
-})
+});
 const mockState = useRootStore();
 
 const mockPush = vi.fn();
@@ -43,7 +43,7 @@ describe("ForgotPasswordSubmit.vue no registeredUser", () => {
     });
   });
 
-  it("starts empty if no store registeredUsername", async () => {
+  it("starts empty if no rootStore registeredUsername", async () => {
     component.getByTestId("forgot-password-submit-username");
     component.getByTestId("forgot-password-submit-code");
     component.getByTestId("forgot-password-submit-password1");
@@ -68,7 +68,7 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
     });
   });
 
-  it("starts with username if store has registeredUsername", async () => {
+  it("starts with username if rootStore has registeredUsername", async () => {
     component.getByDisplayValue("testUser");
   });
 

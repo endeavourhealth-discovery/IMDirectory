@@ -1,32 +1,32 @@
 <template>
   <div id="search-results-main-container">
     <DataTable
-        :paginator="true"
-        :rows="20"
-        :value="searchResults"
-        class="p-datatable-sm"
-        v-model:selection="selected"
-        selectionMode="single"
-        @row-select="onRowSelect"
-        contextMenu
-        @rowContextmenu="onRowContextMenu"
-        :scrollable="true"
-        scrollHeight="flex"
-        :loading="loading"
-        ref="searchTable"
-        dataKey="iri"
-        :autoLayout="true"
+      :paginator="true"
+      :rows="20"
+      :value="searchResults"
+      class="p-datatable-sm"
+      v-model:selection="selected"
+      selectionMode="single"
+      @row-select="onRowSelect"
+      contextMenu
+      @rowContextmenu="onRowContextMenu"
+      :scrollable="true"
+      scrollHeight="flex"
+      :loading="loading"
+      ref="searchTable"
+      dataKey="iri"
+      :autoLayout="true"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
           Results
           <Button
-              :disabled="!searchResults?.length"
-              class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
-              :icon="fontAwesomePro ? 'fa-duotone fa-fw fa-file-arrow-down' : 'fa-solid fa-fw fa-file-arrow-down'"
-              @click="exportCSV()"
-              v-tooltip.right="'Download results table'"
+            :disabled="!searchResults?.length"
+            class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
+            :icon="fontAwesomePro ? 'fa-duotone fa-fw fa-file-arrow-down' : 'fa-solid fa-fw fa-file-arrow-down'"
+            @click="exportCSV()"
+            v-tooltip.right="'Download results table'"
           />
         </template>
         <template #body="{ data }: any">
@@ -57,16 +57,16 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, PropType, ref, Ref, watch} from "vue";
+import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
 import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue"
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import setupDownloadFile from "@/composables/downloadFile";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -74,16 +74,16 @@ const props = defineProps({
   loading: { type: Boolean, required: true }
 });
 
-const store = useRootStore();
-const favourites = computed(() => store.favourites);
-const fontAwesomePro = computed(() => store.fontAwesomePro);
-const searchLoading = computed(() => store.searchLoading);
+const rootStore = useRootStore();
+const favourites = computed(() => rootStore.favourites);
+const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
+const searchLoading = computed(() => rootStore.searchLoading);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
-const selected:Ref<any> = ref({});
+const selected: Ref<any> = ref({});
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
@@ -111,15 +111,15 @@ const menu = ref();
 const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
-    () => props.searchResults,
-    () => init()
+  () => props.searchResults,
+  () => init()
 );
 
 onMounted(() => init());
 
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
-  store.updateFavourites(selected.value.iri);
+  rootStore.updateFavourites(selected.value.iri);
 }
 
 function isFavourite(iri: string) {
@@ -138,7 +138,7 @@ function processSearchResults() {
       result.colour = getColourFromType(result.entityType);
       result.typeNames = getNamesAsStringFromTypes(result.entityType);
       result.favourite = isFavourite(result.iri);
-    } else if(isObjectHasKeys(result, ["type"])) {
+    } else if (isObjectHasKeys(result, ["type"])) {
       result.icon = getFAIconFromType(result.type);
       result.colour = getColourFromType(result.type);
       result.typeNames = getNamesAsStringFromTypes(result.type);

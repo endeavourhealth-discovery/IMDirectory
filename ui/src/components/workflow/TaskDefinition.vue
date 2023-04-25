@@ -158,7 +158,7 @@ import { DirectService, EntityService, Env } from "@/services";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const props = defineProps({
   data: { type: Object, required: true }
@@ -171,11 +171,11 @@ const emit = defineEmits({
   updateSelected: (_payload: string) => true
 });
 
-const store = useRootStore();
+const rootStore = useRootStore();
 const route = useRoute();
 const router = useRouter();
 
-const filterOptions: ComputedRef<FilterOptions> = computed(() => store.filterOptions);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => rootStore.filterOptions);
 
 const directService = new DirectService();
 
@@ -196,7 +196,7 @@ const searchTerm = ref("");
 const loading = ref(true);
 const searching = ref(true);
 const saveLoading = ref(false);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.selectedFilters);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => rootStore.selectedFilters);
 
 watch(taskIri, async newValue => {
   if (newValue) await setIriExists();

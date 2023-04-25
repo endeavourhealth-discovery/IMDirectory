@@ -31,13 +31,13 @@ import { DataTypeCheckers } from "@im-library/helpers";
 import { useRouter } from "vue-router";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 const { isObject } = DataTypeCheckers;
 
 const router = useRouter();
-const store = useRootStore();
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.selectedFilters);
-const fontAwesomePro = computed(() => store.fontAwesomePro);
+const rootStore = useRootStore();
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => rootStore.selectedFilters);
+const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
@@ -74,7 +74,7 @@ async function search(): Promise<void> {
     router.push({
       name: "Search"
     });
-    store.updateSearchLoading(true);
+    rootStore.updateSearchLoading(true);
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;
     searchRequest.sortField = "weighting";
@@ -107,11 +107,11 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    await store.fetchSearchResults({
+    await rootStore.fetchSearchResults({
       searchRequest: searchRequest,
       controller: controller.value
     });
-    store.updateSearchLoading(false);
+    rootStore.updateSearchLoading(false);
   }
 }
 </script>

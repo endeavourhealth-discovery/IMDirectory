@@ -6,7 +6,7 @@ import { render, fireEvent } from "@testing-library/vue";
 import { flushPromises } from "@vue/test-utils";
 import SnomedLicense from "@/components/shared/SnomedLicense.vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 createTestingPinia({
   initialState: {
@@ -18,11 +18,10 @@ createTestingPinia({
 });
 
 const mockState = useRootStore();
-mockState.updateSnomedLicenseAccepted = (status) => {
+mockState.updateSnomedLicenseAccepted = status => {
   mockState.snomedLicenseAccepted = status;
   localStorage.setItem("snomedLicenseAccepted", status);
-}
-
+};
 
 describe("SnomedLicense.vue ___ not accepted", () => {
   let mockLocation;

@@ -157,21 +157,21 @@ import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import OverlaySummary from "../shared/OverlaySummary.vue";
 import SecondaryTree from "../shared/SecondaryTree.vue";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const emit = defineEmits({
   showDetails: (_payload: string) => true
 });
 
 const route = useRoute();
-const store = useRootStore();
+const rootStore = useRootStore();
 const toast = useToast();
 
 const directService = new DirectService();
 
-const filterOptions: ComputedRef<FilterOptions> = computed(() => store.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.selectedFilters);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => rootStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => rootStore.selectedFilters);
 
 let taskIri = ref("");
 let taskName = ref("");
@@ -187,7 +187,6 @@ let loading = ref(false);
 let saveLoading = ref(false);
 let controller: Ref<AbortController> = ref({} as AbortController);
 let hoveredItem = ref({} as any);
-
 
 const summary_overlay = ref();
 

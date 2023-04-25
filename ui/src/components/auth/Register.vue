@@ -165,13 +165,13 @@ import { PasswordStrength } from "@im-library/enums";
 import { Avatars } from "@im-library/constants";
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const emit = defineEmits({
   userCreated: (payload: User) => true
 });
 
-const store = useRootStore();
+const rootStore = useRootStore();
 const router = useRouter();
 
 const username = ref("");
@@ -236,7 +236,7 @@ async function handleSubmit(): Promise<void> {
           }).then((result: SweetAlertResult) => {
             emit("userCreated", user);
             if (result.isConfirmed) {
-              store.updateRegisteredUsername(username.value);
+              rootStore.updateRegisteredUsername(username.value);
               router.push({ name: "ConfirmCode" });
             } else {
               clearForm();

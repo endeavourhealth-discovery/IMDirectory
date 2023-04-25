@@ -35,7 +35,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 import { nextTick } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 const APP_TITLE = "IM Directory";
@@ -256,22 +256,21 @@ const router = createRouter({
   routes
 });
 
-
 router.beforeEach(async (to, from) => {
-  const store = useRootStore();
+  const rootStore = useRootStore();
   const userStore = useUserStore();
 
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
   if (to.path !== "/snomedLicense") {
-    store.updateSnomedReturnUrl(currentUrl);
-    store.updateAuthReturnUrl(currentUrl);
+    rootStore.updateSnomedReturnUrl(currentUrl);
+    rootStore.updateAuthReturnUrl(currentUrl);
   }
   const iri = to.params.selectedIri;
   if (iri) {
-    store.updateConceptIri(iri as string);
+    rootStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
-    if (iri) store.updateEditorIri(iri);
+    if (iri) rootStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
         router.push({ name: "EntityNotFound" });
@@ -281,7 +280,7 @@ router.beforeEach(async (to, from) => {
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
-    const res = await store.authenticateCurrentUser();
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
@@ -290,7 +289,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
-    const res = await store.authenticateCurrentUser();
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
@@ -301,7 +300,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
-    const res = await store.authenticateCurrentUser();
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
@@ -312,8 +311,8 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
-    console.log("snomed license accepted:" + store.snomedLicenseAccepted);
-    if (store.snomedLicenseAccepted !== true) {
+    console.log("snomed license accepted:" + rootStore.snomedLicenseAccepted);
+    if (rootStore.snomedLicenseAccepted !== true) {
       return {
         path: "/snomedLicense"
       };
@@ -345,7 +344,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/creator/") && !to.path.startsWith("/creator/")) {
-    if (store.creatorHasChanges) {
+    if (rootStore.creatorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }
@@ -353,7 +352,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/editor/") && !to.path.startsWith("/editor/")) {
-    if (store.editorHasChanges) {
+    if (rootStore.editorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }

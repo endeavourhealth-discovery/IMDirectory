@@ -14,14 +14,14 @@ import { render, RenderResult } from "@testing-library/vue";
 import { RequestHandler } from "msw";
 import { User } from "@im-library/interfaces";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
   initialState: {
     root: { registeredUsername: "" }
   }
-})
+});
 const mockState = useRootStore();
 const mockUserState = useUserStore();
 
@@ -73,7 +73,6 @@ describe("userEdit.vue ___ user", () => {
     AuthService.updateUser = vi.fn().mockResolvedValue({ status: 200, message: "User Update successful", user: testUser });
 
     mockUserState.currentUser = testUser;
-    mockState.isLoggedIn = true;
 
     component = render(UserEdit, {
       global: {
@@ -237,7 +236,7 @@ describe("userEdit.vue ___ user", () => {
   //   });
   // });
 
-  // it("updates store and reroutes if all verified _ no password", async () => {
+  // it("updates rootStore and reroutes if all verified _ no password", async () => {
   //   wrapper.vm.firstName = "Johnny";
   //   await wrapper.vm.$nextTick();
   //   wrapper.vm.handleEditSubmit();
@@ -326,7 +325,7 @@ describe("userEdit.vue ___ user", () => {
   //   });
   // });
 
-  // it("updates store and reroutes if password 200 received ___ password edit", async () => {
+  // it("updates rootStore and reroutes if password 200 received ___ password edit", async () => {
   //   wrapper.vm.showPasswordEdit = true;
   //   wrapper.vm.passwordOld = "12345678";
   //   wrapper.vm.passwordNew1 = "87654321";

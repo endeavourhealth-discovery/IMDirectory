@@ -7,7 +7,7 @@ import PrimeVue from "primevue/config";
 import { vi, describe, beforeEach, it, expect } from "vitest";
 import { render, RenderResult } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
 
@@ -41,7 +41,6 @@ describe("userDetails.vue", () => {
     } as User;
     vi.clearAllMocks();
     mockUserState.currentUser = user;
-    mockState.isLoggedIn = true;
     component = render(UserDetails, {
       global: {
         plugins: [PrimeVue],
@@ -50,7 +49,7 @@ describe("userDetails.vue", () => {
     });
   });
 
-  it("correctly renders User details from store", () => {
+  it("correctly renders User details from rootStore", () => {
     component.getByTestId("user-details-username");
     component.getByTestId("user-details-email");
     component.getByTestId("user-details-firstname");

@@ -1,10 +1,10 @@
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 function findInTree() {
-  const store = useRootStore();
+  const rootStore = useRootStore();
   async function locateInTree(event: any, iri: string) {
     event.stopPropagation();
-    store.updateFindInTreeIri(iri);
+    rootStore.updateFindInTreeIri(iri);
   }
   return { locateInTree };
 }

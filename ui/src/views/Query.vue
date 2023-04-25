@@ -21,20 +21,20 @@
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import TextQuery from "@/components/query/RecursiveTextQuery.vue";
 import { ITextQuery } from "@im-library/interfaces";
 import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import { EntityService, QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-const store = useRootStore();
+const rootStore = useRootStore();
 const textQueries: Ref<ITextQuery[]> = ref([]);
 const query: Ref<any> = ref();
 const visibleDialog: Ref<boolean> = ref(false);
 const baseEntityIri = ref("");
 
 onMounted(async () => {
-  await store.fetchFilterSettings();
+  await rootStore.fetchFilterSettings();
   textQueries.value = await getTextQuery();
   const baseEntity = textQueries.value[0].data;
   baseEntityIri.value = baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"];

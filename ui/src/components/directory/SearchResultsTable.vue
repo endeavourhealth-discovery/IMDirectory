@@ -20,7 +20,7 @@
         </span>
       </div>
     </div>
-    <ResultsTable :searchResults="localSearchResults" :loading="isLoading"/>
+    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" />
   </div>
 </template>
 
@@ -29,17 +29,17 @@ import { computed, onMounted, ref, Ref, watch } from "vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const props = defineProps({
   showFilters: { type: Boolean, required: false, default: true }
 });
 
-const store = useRootStore();
-const searchLoading = computed(() => store.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => store.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
-const searchResults = computed(() => store.searchResults);
+const rootStore = useRootStore();
+const searchLoading = computed(() => rootStore.searchLoading);
+const filterOptions: Ref<FilterOptions> = computed(() => rootStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
+const searchResults = computed(() => rootStore.searchResults);
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
@@ -148,5 +148,4 @@ label {
   width: 33.3%;
   padding: 0.5rem;
 }
-
 </style>

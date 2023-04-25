@@ -9,13 +9,13 @@ import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import Swal from "sweetalert2";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { CustomAlert, User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
 
 window.scrollTo = vi.fn() as any;
 
-createTestingPinia()
+createTestingPinia();
 const mockState = useRootStore();
 const mockUserState = useUserStore();
 
@@ -48,7 +48,6 @@ describe("Logout.vue", () => {
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "Logout successful" });
 
     mockUserState.currentUser = user;
-    mockState.isLoggedIn = true;
     component = render(Logout, {
       global: {
         plugins: [PrimeVue],
@@ -57,7 +56,7 @@ describe("Logout.vue", () => {
     });
   });
 
-  it("renders current username from store", async () => {
+  it("renders current username from rootStore", async () => {
     component.getByText("testUser");
   });
 
@@ -88,7 +87,7 @@ describe("Logout.vue", () => {
     component.getByText("Current User:");
   });
 
-  it("fires swal on successful store logout", async () => {
+  it("fires swal on successful rootStore logout", async () => {
     const logout = component.getByTestId("logout-submit");
     await fireEvent.click(logout);
 
@@ -103,8 +102,10 @@ describe("Logout.vue", () => {
     // component.getByText("logout success");
   });
 
-  it("fires swal on unsuccessful store logout", async () => {
-    mockState.logoutCurrentUser =  (async () => { return {status: 400, message: "logout failed" } as CustomAlert});
+  it("fires swal on unsuccessful rootStore logout", async () => {
+    mockUserState.logoutCurrentUser = async () => {
+      return { status: 400, message: "logout failed" } as CustomAlert;
+    };
     const logout = component.getByTestId("logout-submit");
     await fireEvent.click(logout);
 

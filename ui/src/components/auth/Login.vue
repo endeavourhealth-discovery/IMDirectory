@@ -43,14 +43,14 @@ import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
 import { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const store = useRootStore();
+const rootStore = useRootStore();
 const userStore = useUserStore();
-const registeredUsername = computed(() => store.registeredUsername);
-const previousAppUrl = computed(() => store.previousAppUrl);
+const registeredUsername = computed(() => rootStore.registeredUsername);
+const previousAppUrl = computed(() => rootStore.previousAppUrl);
 
 let username = ref("");
 let password = ref("");
@@ -72,8 +72,7 @@ function handleSubmit(): void {
           loggedInUser.avatar = Avatars[0];
         }
         userStore.updateCurrentUser(loggedInUser);
-        store.updateRegisteredUsername(null);
-        store.updateIsLoggedIn(true);
+        rootStore.updateRegisteredUsername(null);
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -95,7 +94,7 @@ function handleSubmit(): void {
           confirmButtonText: "Confirm Account"
         }).then((result: SweetAlertResult) => {
           if (result.isConfirmed) {
-            store.updateRegisteredUsername(username.value);
+            rootStore.updateRegisteredUsername(username.value);
             router.push({ name: "ConfirmCode" });
           }
         });
