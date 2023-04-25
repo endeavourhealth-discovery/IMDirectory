@@ -116,7 +116,7 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, required: true },
@@ -127,11 +127,11 @@ const emit = defineEmits({
   openTreePanel: () => true
 });
 
-const store = useRootStore();
-const searchLoading = computed(() => store.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => store.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
-const favourites = computed(() => store.favourites);
+const rootStore = useRootStore();
+const searchLoading = computed(() => rootStore.searchLoading);
+const filterOptions: Ref<FilterOptions> = computed(() => rootStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
+const favourites = computed(() => rootStore.favourites);
 
 const directService = new DirectService();
 
@@ -181,7 +181,7 @@ const isLoading = computed(() => loading.value || searchLoading.value);
 
 function updateFavourites(data?: any) {
   if (data) selected.value = data;
-  store.updateFavourites(selected.value.iri);
+  rootStore.updateFavourites(selected.value.iri);
 }
 
 function isFavourite(iri: string) {
@@ -286,7 +286,7 @@ function hideOverlay(event: any): void {
 }
 
 function locateInTree(event: any, iri: string) {
-  store.updateFindInEditorTreeIri(iri);
+  rootStore.updateFindInEditorTreeIri(iri);
   emit("openTreePanel");
 }
 

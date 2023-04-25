@@ -10,7 +10,7 @@ import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
 
@@ -18,10 +18,9 @@ createTestingPinia({
   initialState: {
     root: { registeredUsername: "" }
   }
-})
+});
 const mockState = useRootStore();
 const mockUserState = useUserStore();
-
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -50,7 +49,6 @@ describe("PasswordEdit.vue with registeredUser", () => {
     vi.clearAllMocks();
     AuthService.changePassword = vi.fn().mockResolvedValue({ status: 200, message: "Password change successful" });
     mockUserState.currentUser = user;
-    mockState.isLoggedIn = true;
     component = render(PasswordEdit, {
       global: {
         plugins: [PrimeVue],
@@ -59,7 +57,7 @@ describe("PasswordEdit.vue with registeredUser", () => {
     });
   });
 
-  it("renders username from store currentUser", async () => {
+  it("renders username from rootStore currentUser", async () => {
     component.getByTestId("password-edit-username");
     component.getByDisplayValue("testUser");
   });

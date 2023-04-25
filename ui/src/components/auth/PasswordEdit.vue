@@ -64,15 +64,15 @@ import { PasswordStrength } from "@im-library/enums";
 import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const store = useRootStore();
+const rootStore = useRootStore();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
-const previousAppUrl = computed(() => store.previousAppUrl);
+const previousAppUrl = computed(() => rootStore.previousAppUrl);
 
 let passwordOld = ref("");
 let passwordNew1 = ref("");

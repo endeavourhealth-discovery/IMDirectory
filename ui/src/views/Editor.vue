@@ -81,12 +81,12 @@ import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { DirectService, EntityService, Env } from "@/services";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const router = useRouter();
 const route = useRoute();
 const confirm = useConfirm();
-const store = useRootStore();
+const rootStore = useRootStore();
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -95,7 +95,7 @@ onUnmounted(() => {
 const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
 const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupEditorShape();
 
-const treeIri: ComputedRef<string> = computed(() => store.findInEditorTreeIri);
+const treeIri: ComputedRef<string> = computed(() => rootStore.findInEditorTreeIri);
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
@@ -103,7 +103,7 @@ watch(treeIri, (newValue, oldValue) => {
 
 function onShowSidebar() {
   showSidebar.value = !showSidebar.value;
-  store.updateFindInEditorTreeIri("");
+  rootStore.updateFindInEditorTreeIri("");
 }
 
 const loading = ref(true);
@@ -120,7 +120,7 @@ provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableM
 
 onMounted(async () => {
   loading.value = true;
-  await store.fetchFilterSettings();
+  await rootStore.fetchFilterSettings();
   await fetchEntity();
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
     await getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
@@ -232,7 +232,7 @@ function updateEntity(data: any) {
       }
     }
   }
-  store.updateEditorSavedEntity(editorEntity.value);
+  rootStore.updateEditorSavedEntity(editorEntity.value);
 }
 
 function deleteEntityKey(data: string) {
@@ -241,10 +241,10 @@ function deleteEntityKey(data: string) {
 
 function checkForChanges() {
   if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
-    store.updateEditorHasChanges(false);
+    rootStore.updateEditorHasChanges(false);
     return false;
   } else {
-    store.updateEditorHasChanges(true);
+    rootStore.updateEditorHasChanges(true);
     return true;
   }
 }
@@ -266,7 +266,7 @@ async function submit(): Promise<void> {
       preConfirm: async () => {
         const res = await EntityService.updateEntity(editorEntity.value);
         if (res) {
-          store.updateEditorSavedEntity(undefined);
+          rootStore.updateEditorSavedEntity(undefined);
           return res;
         } else Swal.showValidationMessage("Error saving entity to server.");
       }

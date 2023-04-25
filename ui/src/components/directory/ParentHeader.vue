@@ -50,11 +50,11 @@ import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-l
 import { computed, Ref, watch, ref, onMounted } from "vue";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
-const store = useRootStore();
+const rootStore = useRootStore();
 const props = defineProps({ concept: { type: Object as any, required: true } });
-const conceptIri = computed(() => store.conceptIri);
+const conceptIri = computed(() => rootStore.conceptIri);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 
 onMounted(async () => {

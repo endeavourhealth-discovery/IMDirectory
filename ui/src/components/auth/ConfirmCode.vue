@@ -58,12 +58,12 @@ import { computed, onMounted, ref } from "vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
-const store = useRootStore();
+const rootStore = useRootStore();
 const router = useRouter();
 
-const registeredUsername = computed(() => store.registeredUsername);
+const registeredUsername = computed(() => rootStore.registeredUsername);
 
 let code = ref("");
 let username = ref("");
@@ -96,7 +96,7 @@ function handleSubmit() {
             text: res.message,
             confirmButtonText: "Login"
           }).then(() => {
-            store.updateRegisteredUsername(username.value);
+            rootStore.updateRegisteredUsername(username.value);
             router.push({ name: "Login" });
           });
         } else {

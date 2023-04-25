@@ -63,17 +63,17 @@ import { FilterOptions } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const props = defineProps({
   search: { type: Function, required: true }
 });
 
-const store = useRootStore();
-const filterOptions: Ref<FilterOptions> = computed(() => store.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.selectedFilters);
-const quickFiltersStatus = computed(() => store.quickFiltersStatus);
+const rootStore = useRootStore();
+const filterOptions: Ref<FilterOptions> = computed(() => rootStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => rootStore.selectedFilters);
+const quickFiltersStatus = computed(() => rootStore.quickFiltersStatus);
 
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const selectedSchemes: Ref<TTIriRef[]> = ref([]);
@@ -126,7 +126,7 @@ function checkForSearch(): void {
 }
 
 function updateStoreSelectedFilters(): void {
-  store.updateSelectedFilters({
+  rootStore.updateSelectedFilters({
     status: selectedStatus.value,
     schemes: selectedSchemes.value,
     types: selectedTypes.value,
@@ -179,7 +179,7 @@ function setLegacy(include: boolean): void {
       selectedSchemes.value.splice(emisScheme, 1);
     }
   }
-  store.updateQuickFiltersStatus({
+  rootStore.updateQuickFiltersStatus({
     key: "includeLegacy",
     value: include
   });

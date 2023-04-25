@@ -8,7 +8,7 @@ import PrimeVue from "primevue/config";
 import SplitButton from "primevue/splitbutton";
 import { fireEvent, render } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 createTestingPinia({
   initialState: {
@@ -44,7 +44,6 @@ describe("Search.vue", () => {
       }
     });
   });
-
 
   it("searches when user inputs", async () => {
     const input = component.getByTestId("search-input");

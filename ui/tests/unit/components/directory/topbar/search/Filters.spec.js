@@ -20,7 +20,7 @@ createTestingPinia({
       quickFiltersStatus: testData.QUICK_FILTER_STATUS
     }
   }
-})
+});
 
 describe("Filters.vue", () => {
   let component;
@@ -56,7 +56,7 @@ describe("Filters.vue", () => {
 });
 
 // describe("Filters.vue", () => {
-//   describe("empty store", () => {
+//   describe("empty rootStore", () => {
 //     let component;
 
 //     beforeEach(async () => {
@@ -489,7 +489,7 @@ describe("Filters.vue", () => {
 //     });
 //   });
 
-//   describe("full store", () => {
+//   describe("full rootStore", () => {
 //     let wrapper;
 //     let mockStore;
 //     let mockToast;
@@ -624,7 +624,7 @@ describe("Filters.vue", () => {
 //         global: {
 //           components: { MultiSelect, InputSwitch, Button, Dropdown },
 //           directives: { Tooltip: Tooltip },
-//           mocks: { $store: mockStore, $toast: mockToast }
+//           mocks: { $rootStore: mockStore, $toast: mockToast }
 //         }
 //       });
 
@@ -821,7 +821,7 @@ describe("Filters.vue", () => {
 //         global: {
 //           components: { MultiSelect, InputSwitch, Button, Dropdown },
 //           directives: { Tooltip: Tooltip },
-//           mocks: { $store: mockStore, $toast: mockToast }
+//           mocks: { $rootStore: mockStore, $toast: mockToast }
 //         }
 //       });
 

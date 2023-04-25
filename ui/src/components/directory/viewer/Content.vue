@@ -61,11 +61,11 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
-const store = useRootStore();
-const conceptIri = computed(() => store.conceptIri);
-const favourites = computed(() => store.favourites);
+const rootStore = useRootStore();
+const conceptIri = computed(() => rootStore.conceptIri);
+const favourites = computed(() => rootStore.favourites);
 
 const directService = new DirectService();
 const { onRowClick }: { onRowClick: Function } = rowClick();
@@ -165,7 +165,7 @@ function onRowContextMenu(data: any) {
 }
 
 function updateFavourites(iri: string) {
-  store.updateFavourites(iri);
+  rootStore.updateFavourites(iri);
 }
 
 function onRowSelect(event: any) {

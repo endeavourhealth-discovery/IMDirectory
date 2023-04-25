@@ -29,7 +29,8 @@ import axios from "axios";
 import semver from "semver";
 import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "./stores/userStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -38,28 +39,30 @@ const PrimeVue: any = usePrimeVue();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const store = useRootStore();
+const rootStore = useRootStore();
+const userStore = useUserStore();
 
-const currentTheme = computed(() => store.currentTheme);
-const showReleaseNotes: ComputedRef<boolean> = computed(() => store.showReleaseNotes);
-const showBanner: ComputedRef<boolean> = computed(() => store.showBanner);
+const currentTheme = computed(() => rootStore.currentTheme);
+const showReleaseNotes: ComputedRef<boolean> = computed(() => rootStore.showReleaseNotes);
+const showBanner: ComputedRef<boolean> = computed(() => rootStore.showBanner);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
-  await store.authenticateCurrentUser();
+  await userStore.authenticateCurrentUser();
   if (currentTheme.value) {
     if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
-  } else store.updateCurrentTheme("saga-blue");
+  } else rootStore.updateCurrentTheme("saga-blue");
   await setShowBanner();
   loading.value = false;
 });
 
 function changeTheme(newTheme: string) {
   PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
-  store.updateCurrentTheme(newTheme);
+  rootStore.updateCurrentTheme(newTheme);
 }
 
 async function setShowBanner() {
@@ -68,11 +71,11 @@ async function setShowBanner() {
   let currentVersion = "v0.0.0";
   if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
-    store.updateShowBanner(true);
+    rootStore.updateShowBanner(true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
     localStorage.removeItem("IMDirectoryVersion");
-    store.updateShowBanner(true);
-  } else store.updateShowBanner(false);
+    rootStore.updateShowBanner(true);
+  } else rootStore.updateShowBanner(false);
 }
 
 function getLocalVersion(repoName: string): string | null {
@@ -85,7 +88,7 @@ function setLocalVersion(repoName: string, versionNo: string) {
 
 async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
-    if (store.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
+    if (isLoggedIn.value && Env.API && request.url?.startsWith(Env.API)) {
       if (!request.headers) request.headers = {};
       request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
     }

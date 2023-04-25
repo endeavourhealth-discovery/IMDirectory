@@ -14,7 +14,7 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { TagSeverity } from "@im-library/enums";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameTagWithLabel");
 
@@ -26,8 +26,8 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const store = useRootStore();
-const tagSeverityMatches = computed(() => store.tagSeverityMatches);
+const rootStore = useRootStore();
+const tagSeverityMatches = computed(() => rootStore.tagSeverityMatches);
 
 const isArrayObject = computed(() => {
   if (props.data && isArrayHasLength(props.data) && isObjectHasKeys(props.data[0], ["@id"])) {
@@ -39,7 +39,7 @@ const isArrayObject = computed(() => {
 
 function getSeverity(item: TTIriRef): TagSeverity {
   let result = TagSeverity.INFO;
-  if (!tagSeverityMatches.value) throw new Error("Missing vuex store property 'tagSeverityMatches'");
+  if (!tagSeverityMatches.value) throw new Error("Missing vuex rootStore property 'tagSeverityMatches'");
   if (item && isObjectHasKeys(item, ["name"])) {
     const found = tagSeverityMatches.value.find((severity: { "@id": string; severity: string }) => severity["@id"] === item["@id"]);
     if (found) result = found.severity;

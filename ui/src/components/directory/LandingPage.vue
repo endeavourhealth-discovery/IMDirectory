@@ -80,12 +80,12 @@ import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byOrder } = Sorters;
-const store = useRootStore();
-const recentLocalActivity = computed(() => store.recentLocalActivity);
+const rootStore = useRootStore();
+const recentLocalActivity = computed(() => rootStore.recentLocalActivity);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});

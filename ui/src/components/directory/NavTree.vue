@@ -47,18 +47,18 @@ import createNew from "@/composables/createNew";
 import { TreeNode } from "primevue/tree";
 import { isArray } from "lodash";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 const toast = useToast();
 const confirm = useConfirm();
-const store = useRootStore();
+const rootStore = useRootStore();
 const userStore = useUserStore();
 
-const conceptIri = computed(() => store.conceptIri);
+const conceptIri = computed(() => rootStore.conceptIri);
 const currentUser = computed(() => userStore.currentUser);
-const findInTreeIri = computed(() => store.findInTreeIri);
-const fontAwesomePro = computed(() => store.fontAwesomePro);
+const findInTreeIri = computed(() => rootStore.findInTreeIri);
+const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
 
 const loading = ref(true);
 const overlayLocation: Ref<any> = ref({});

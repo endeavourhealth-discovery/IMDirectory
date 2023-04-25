@@ -68,9 +68,9 @@ import { onMounted, Ref, ref, reactive, nextTick } from "vue";
 import { GithubService } from "@/services";
 import { GithubRelease } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
-const store = useRootStore();
+const rootStore = useRootStore();
 
 const releases: Map<string, GithubRelease[]> = reactive(new Map().set("directory", []).set("importData", []));
 const showApp: Ref<any> = ref({ directory: false, importData: false });
@@ -128,7 +128,7 @@ function close() {
     if (value.length) version = value[0].version;
     if (version) setLocalVersion(keyToRepoName(key), version);
   }
-  store.updateShowReleaseNotes( false);
+  rootStore.updateShowReleaseNotes(false);
 }
 
 async function expandAppClicked(key: string, show: boolean) {

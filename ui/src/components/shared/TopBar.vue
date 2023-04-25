@@ -93,16 +93,16 @@ import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
-const store = useRootStore();
+const rootStore = useRootStore();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => store.isLoggedIn);
-const fontAwesomePro = computed(() => store.fontAwesomePro);
-const currentTheme = computed(() => store.currentTheme);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
+const currentTheme = computed(() => rootStore.currentTheme);
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -247,7 +247,7 @@ function getAdminItems(): any[] {
 }
 
 function getSettingsItems() {
-  return [{ label: "Cookie preferences", icon: "fa-solid fa-gear", command: () => store.updateShowCookieConsent(true) }];
+  return [{ label: "Cookie preferences", icon: "fa-solid fa-gear", command: () => rootStore.updateShowCookieConsent(true) }];
 }
 
 function getThemes() {
@@ -589,11 +589,11 @@ function setAppMenuItems() {
 }
 
 function showReleaseNotes() {
-  store.updateShowReleaseNotes(true);
+  rootStore.updateShowReleaseNotes(true);
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => store.updateCurrentTheme(newTheme));
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => rootStore.updateCurrentTheme(newTheme));
 }
 </script>
 

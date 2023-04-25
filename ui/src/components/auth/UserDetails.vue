@@ -35,15 +35,15 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const store = useRootStore();
+const rootStore = useRootStore();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => store.isLoggedIn);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 function handleEditClicked(): void {
   router.push({ name: "UserEdit" });

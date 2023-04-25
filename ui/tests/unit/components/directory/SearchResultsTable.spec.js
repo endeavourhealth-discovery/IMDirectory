@@ -14,7 +14,7 @@ import { DirectService } from "@/services";
 import { expect, it, vi } from "vitest";
 import testData from "./SearchResultsTable.testData";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 Object.assign(navigator, {
   clipboard: {

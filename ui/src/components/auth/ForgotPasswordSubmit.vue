@@ -113,11 +113,11 @@ import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers
 import { SweetAlertResult } from "sweetalert2";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const router = useRouter();
-const store = useRootStore();
-const registeredUsername = computed(() => store.registeredUsername);
+const rootStore = useRootStore();
+const registeredUsername = computed(() => rootStore.registeredUsername);
 
 let code = ref("");
 let username = ref("");

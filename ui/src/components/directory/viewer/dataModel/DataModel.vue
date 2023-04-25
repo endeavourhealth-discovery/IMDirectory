@@ -10,14 +10,14 @@ import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import TangledTree from "./TangledTree.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useRootStore } from "@/stores/root";
+import { useRootStore } from "@/stores/rootStore";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
 });
 
-const store = useRootStore();
-const conceptIri = computed(() => store.conceptIri);
+const rootStore = useRootStore();
+const conceptIri = computed(() => rootStore.conceptIri);
 
 watch(
   () => props.conceptIri,
