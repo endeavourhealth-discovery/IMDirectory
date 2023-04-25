@@ -34,7 +34,7 @@ const visibleDialog: Ref<boolean> = ref(false);
 const baseEntityIri = ref("");
 
 onMounted(async () => {
-  await store.dispatch("fetchFilterSettings");
+  await store.fetchFilterSettings();
   textQueries.value = await getTextQuery();
   const baseEntity = textQueries.value[0].data;
   baseEntityIri.value = baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"];

@@ -9,7 +9,7 @@
       :expanded-keys="expandedKeys"
       @node-expand="expandNode"
     >
-      <template #default="{ node }">
+      <template #default="{ node }: { node: any}">
         {{ node.label }}
       </template>
     </Tree>

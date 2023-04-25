@@ -179,15 +179,17 @@ const app = createApp(App)
   .component("InputNumber", InputNumber)
   .component("Inplace", Inplace);
 
+const store = useRootStore();
+
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
 addFontAwesomeProIcons(library);
-store.commit("updateFontAwesomePro", true);
+store.updateFontAwesomePro(true);
 // #v-endif
 // #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
 import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-store.commit("updateFontAwesomePro", false);
+store.updateFontAwesomePro(false);
 // #v-endif
 
 const vm = app.mount("#app");
