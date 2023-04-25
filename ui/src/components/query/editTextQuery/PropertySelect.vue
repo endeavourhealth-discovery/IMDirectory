@@ -2,14 +2,14 @@
   <InputText type="text" @click="visible = true" v-model="selectedProperty.label" placeholder="Property" />
   <Dialog v-model:visible="visible" modal header="Property" :style="{ width: '50vw' }">
     <Tree
-      :value="nodes"
+      :value="(nodes as any)"
       selectionMode="single"
       v-model:selectionKeys="selectedKey"
       @node-select="selectNode"
       :expanded-keys="expandedKeys"
       @node-expand="expandNode"
     >
-      <template #default="{ node }: { node: TreeNode }">
+      <template #default="{ node }">
         {{ node.label }}
       </template>
     </Tree>
@@ -46,11 +46,11 @@ onMounted(async () => {
   nodes.value = getTreeNodes(entity, { children: [] as TreeNode[] } as TreeNode);
 });
 
-function selectNode(node: TreeNode) {
+function selectNode(node: any) {
   selectedProperty.value = node;
 }
 
-async function expandNode(node: TreeNode) {
+async function expandNode(node: any) {
   if (!isArrayHasLength(node.children) && "dataModel" === node.type) {
     const iri = node.data[SHACL.NODE][0]["@id"];
     const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);

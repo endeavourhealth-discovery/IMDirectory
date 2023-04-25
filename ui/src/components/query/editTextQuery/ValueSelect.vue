@@ -7,14 +7,14 @@
   <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
     {{ selectedProperty.data }}
     <Tree
-      :value="nodes"
+      :value="(nodes as any)"
       selectionMode="single"
       v-model:selectionKeys="selectedKey"
       @node-select="selectNode"
       :expanded-keys="expandedKeys"
       @node-expand="expandNode"
     >
-      <template #default="{ node }: { node: TreeNode }">
+      <template #default="{ node }">
         {{ node.label }}
       </template>
     </Tree>
@@ -67,7 +67,7 @@ async function getTreeNodes(iri: string, parent: TreeNode): Promise<TreeNode[]> 
   return parent.children;
 }
 
-function selectNode(node: TreeNode) {
+function selectNode(node: any) {
   selectedNode.value = node;
 }
 
@@ -84,7 +84,7 @@ function buildClassTreeNode(entityReferenceNode: EntityReferenceNode, parent: Tr
   } as TreeNode;
 }
 
-async function expandNode(node: TreeNode) {
+async function expandNode(node: any) {
   if (!isArrayHasLength(node.children)) {
     node.children = await getTreeNodes(node.data.iri, node);
   }

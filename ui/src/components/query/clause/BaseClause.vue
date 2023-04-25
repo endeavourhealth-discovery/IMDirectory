@@ -1,7 +1,7 @@
 <template>
   <div class="base-clause">
     <Dropdown v-model="editClauseType" :options="clauseTypes" optionLabel="name" placeholder="Select a type" @change="onClauseTypeSelect" />
-    <PropertySelect v-if="editClauseType.name === 'Property'" optionLabel="name" :baseEntityIri="baseEntityIri" :typeValue="typeValue" />
+    <PropertySelect v-if="editClauseType.name === 'Property'" optionLabel="name" :baseEntityIri="baseEntityIri" :typeValue="(typeValue as any)" />
     <EntitySearch v-else :entity-value="typeValue" />
     <EntailmentOptionsSelect :entailmentOptions="entailmentOptions" />
   </div>
