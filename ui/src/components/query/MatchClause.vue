@@ -4,11 +4,18 @@
     <div v-for="baseClause of baseClauses" class="create-clause">
       <BaseClause
         :baseEntityIri="baseEntityIri"
-        :clauseType="baseClause.clauseType"
-        :typeValue="baseClause.typeValue"
-        :entailmentOptions="baseClause.entailmentOptions"
+        :clauseType="baseClause.matchType"
+        :typeValue="baseClause.matchValue"
+        :entailmentOptions="baseClause.matchEntailment"
       />
-      <WhereClause v-if="baseClause.clauseType.name === 'Property' && baseClause.typeValue" :property="baseClause.typeValue" :entailment-options="[]" />
+
+      <WhereClause
+        v-for="whereClause of baseClause.where"
+        :base-clause="baseClause"
+        :where-clause="whereClause"
+        :base-entity-iri="baseEntityIri"
+        :entailment-options="whereClause.whereEntailment"
+      />
     </div>
     <!-- <SimpleJsonEditor v-if="jsonMode" :json-object="{ data: match }" /> -->
   </div>
@@ -22,7 +29,7 @@ import WhereClause from "./clause/WhereClause.vue";
 import { Match } from "@im-library/interfaces/AutoGen";
 import SimpleJsonEditor from "./editTextQuery/SimpleJsonEditor.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptSummary, ClauseUI } from "@im-library/interfaces";
+import { ConceptSummary, MatchClauseUI } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { buildClauseUI } from "@im-library/helpers/ClauseUIBuilder";
 
@@ -35,13 +42,12 @@ const props = defineProps({
 
 const jsonMode = ref(true);
 const include = ref(true);
-const baseClauses: Ref<ClauseUI[]> = ref([
+const baseClauses: Ref<MatchClauseUI[]> = ref([
   {
-    clauseType: {} as { name: string; prop: string },
-    typeValue: {} as ConceptSummary,
-    entailmentOptions: [] as string[],
-    propertyValue: {} as { value: any; type: string }
-  }
+    matchType: {} as { name: string; prop: string },
+    matchValue: {} as ConceptSummary,
+    matchEntailment: [] as string[]
+  } as MatchClauseUI
 ]);
 
 onMounted(() => {

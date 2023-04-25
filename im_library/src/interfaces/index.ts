@@ -55,7 +55,8 @@ import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
 import { ITextQuery } from "./query/TextQuery";
-import { ClauseUI } from "./query/ClauseUI";
+import { MatchClauseUI } from "./query/MatchClauseUI";
+import { WhereClauseUI } from "./query/WhereClauseUI";
 import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 export {
@@ -117,6 +118,7 @@ export {
   type DisplayQuery,
   type ITextQuery,
   type TTProperty,
-  type ClauseUI,
+  type MatchClauseUI,
+  type WhereClauseUI,
   type TreeNode
 };

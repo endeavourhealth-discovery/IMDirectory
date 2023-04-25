@@ -50,6 +50,6 @@ function onSave() {
 }
 
 .content:hover {
-  color: var(--focus-ring);
+  color: var(--blue-400);
 }
 </style>

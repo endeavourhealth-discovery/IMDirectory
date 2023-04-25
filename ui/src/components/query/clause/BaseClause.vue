@@ -1,8 +1,7 @@
 <template>
   <div class="base-clause">
     <Dropdown v-model="editClauseType" :options="clauseTypes" optionLabel="name" placeholder="Select a type" @change="onClauseTypeSelect" />
-    <PropertySelect v-if="editClauseType.name === 'Property'" optionLabel="name" :baseEntityIri="baseEntityIri" :typeValue="(typeValue as any)" />
-    <EntitySearch v-else :entity-value="typeValue" />
+    <EntitySearch :entity-value="typeValue" />
     <EntailmentOptionsSelect :entailmentOptions="entailmentOptions" />
   </div>
 </template>
@@ -29,7 +28,6 @@ const editClauseType = ref({} as { name: string; prop: string });
 const clauseTypes = [
   { name: "Type", prop: "@type" },
   { name: "Set", prop: "@set" },
-  { name: "Property", prop: "@id" },
   { name: "Entity", prop: "@id" }
 ];
 

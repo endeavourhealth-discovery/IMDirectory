@@ -17,13 +17,12 @@ import { EntityService } from "@/services";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
-import { TreeNode } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import EntailmentOptionsSelect from "../../editTextQuery/EntailmentOptionsSelect.vue";
 import ValueTreeSelect from "./class/ValueTreeSelect.vue";
 import ValueListSelect from "./class/ValueListSelect.vue";
 import DropdownHeader from "../DropdownHeader.vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary, TreeNode } from "@im-library/interfaces";
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
 const props = defineProps({

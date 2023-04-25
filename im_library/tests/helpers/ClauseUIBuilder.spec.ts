@@ -1,16 +1,22 @@
 import { describe, expect, it } from "vitest";
 import { Entailment, Match, Node, OrderLimit, Relationship, Where } from "@/interfaces/AutoGen";
-import { buildClauseUI, getClauseType, getEntailmentOptions, getPropertyValue, getTypeValue } from "@/helpers/ClauseUIBuilder";
+import { buildClauseUI, getEntailmentOptions, getMatchType, getPropertyValue, getMatchValue } from "@/helpers/ClauseUIBuilder";
+import { MatchClauseUI } from "@/interfaces";
 
 describe("ClauseUIBuilder.ts ___", () => {
   describe("buildClauseUI", () => {
     it("can get a ClauseUI list from a match type", () => {
       const uiData = buildClauseUI({ "@type": "Patient" } as Match);
-      expect(uiData.length).toEqual(1);
-      expect(uiData[0].clauseType.name).toEqual("Type");
-      expect(uiData[0].clauseType.prop).toEqual("@type");
-      expect(uiData[0].typeValue.name).toEqual("Patient");
-      expect(uiData[0].typeValue.iri).toEqual("Patient");
+      expect(uiData).toStrictEqual([
+        {
+          matchEntailment: [],
+          matchType: { name: "Type", prop: "@type" },
+          matchValue: {
+            iri: "Patient",
+            name: "Patient"
+          }
+        }
+      ]);
     });
 
     it("can get a ClauseUI list from a match set", () => {
@@ -19,11 +25,16 @@ describe("ClauseUIBuilder.ts ___", () => {
         "@set": "http://endhealth.info/im#Q_RegisteredGMS",
         name: "Registered for GMS services on reference date"
       } as Match);
-      expect(uiData.length).toEqual(1);
-      expect(uiData[0].clauseType.name).toEqual("Set");
-      expect(uiData[0].clauseType.prop).toEqual("@set");
-      expect(uiData[0].typeValue.name).toEqual("Registered for GMS services on reference date");
-      expect(uiData[0].typeValue.iri).toEqual("http://endhealth.info/im#Q_RegisteredGMS");
+      expect(uiData).toStrictEqual([
+        {
+          matchEntailment: [],
+          matchType: { name: "Set", prop: "@set" },
+          matchValue: {
+            iri: "http://endhealth.info/im#Q_RegisteredGMS",
+            name: "Registered for GMS services on reference date"
+          }
+        }
+      ]);
     });
 
     it("can get a typeValue from where property", () => {
@@ -36,18 +47,25 @@ describe("ClauseUIBuilder.ts ___", () => {
           }
         ]
       } as Match);
-      expect(uiData.length).toEqual(1);
-      expect(uiData[0].clauseType.name).toEqual("Property");
-      expect(uiData[0].clauseType.prop).toEqual("@id");
-      expect(uiData[0].typeValue.name).toEqual("age");
-      expect(uiData[0].typeValue.iri).toEqual("http://endhealth.info/im#age");
-      expect(uiData[0].propertyValue.type).toEqual("range");
-      expect(uiData[0].propertyValue.value).toEqual({
-        to: { operator: ">", value: "70", unit: null, relativeTo: null },
-        from: { operator: ">=", value: "65", unit: null, relativeTo: null }
-      });
+      expect(uiData).toStrictEqual([
+        {
+          matchEntailment: [],
+          matchType: undefined,
+          matchValue: undefined,
+          where: [
+            {
+              whereProperty: "http://endhealth.info/im#age",
+              whereType: "range",
+              whereValue: {
+                to: { operator: ">", value: "70", unit: null, relativeTo: null },
+                from: { operator: ">=", value: "65", unit: null, relativeTo: null }
+              },
+              whereEntailment: []
+            }
+          ]
+        }
+      ]);
     });
-
     it("can get a typeValue from where properties", () => {
       const uiData = buildClauseUI({
         exclude: true,
@@ -68,66 +86,76 @@ describe("ClauseUIBuilder.ts ___", () => {
           }
         ]
       } as Match);
-      expect(uiData.length).toEqual(2);
-      expect(uiData[0].clauseType.name).toEqual("Property");
-      expect(uiData[0].clauseType.prop).toEqual("@id");
-      expect(uiData[0].typeValue.name).toEqual("concept");
-      expect(uiData[0].typeValue.iri).toEqual("http://endhealth.info/im#concept");
-
-      expect(uiData[1].clauseType.name).toEqual("Property");
-      expect(uiData[1].clauseType.prop).toEqual("@id");
-      expect(uiData[1].typeValue.name).toEqual("effectiveDate");
-      expect(uiData[1].typeValue.iri).toEqual("http://endhealth.info/im#effectiveDate");
+      expect(uiData).toStrictEqual([
+        {
+          matchEntailment: [],
+          matchType: undefined,
+          matchValue: undefined,
+          where: [
+            {
+              whereProperty: "http://endhealth.info/im#concept",
+              whereType: "in",
+              whereValue: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }],
+              whereEntailment: []
+            },
+            {
+              whereProperty: "http://endhealth.info/im#effectiveDate",
+              whereType: "comparison",
+              whereValue: {
+                description: "after high BP",
+                operator: ">=",
+                relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", variable: "latestBP" },
+                "@id": "http://endhealth.info/im#effectiveDate"
+              },
+              whereEntailment: []
+            }
+          ]
+        }
+      ]);
     });
   });
 
-  describe("getClauseType", () => {
+  describe("getMatchType", () => {
     it("can get a clauseType from type", () => {
-      const clauseType = getClauseType({ "@type": "Patient" } as Match);
-      expect(clauseType.name).toEqual("Type");
-      expect(clauseType.prop).toEqual("@type");
+      const matchType = getMatchType({ "@type": "Patient" } as Match);
+      expect(matchType).toStrictEqual({ name: "Type", prop: "@type" });
     });
 
     it("can get a clauseType from set", () => {
-      const clauseType = getClauseType({
+      const matchType = getMatchType({
         description: "Registered for gms",
         "@set": "http://endhealth.info/im#Q_RegisteredGMS",
         name: "Registered for GMS services on reference date"
       } as Match);
-      expect(clauseType.name).toEqual("Set");
-      expect(clauseType.prop).toEqual("@set");
+      expect(matchType).toStrictEqual({ name: "Set", prop: "@set" });
     });
 
     it("can get a clauseType from entity", () => {
-      const clauseType = getClauseType({
+      const matchType = getMatchType({
         "@id": "http://snomed.info/sct#71388002",
         name: "Procedure (procedure)"
       } as Match);
-      expect(clauseType.name).toEqual("Entity");
-      expect(clauseType.prop).toEqual("@id");
+      expect(matchType).toStrictEqual({ name: "Entity", prop: "@id" });
     });
   });
 
   describe("getTypeValue", () => {
     it("can get a typeValue from type", () => {
-      const typeValue = getTypeValue({ "@type": "Patient" } as Match);
-      expect(typeValue.iri).toEqual("Patient");
-      expect(typeValue.name).toEqual("Patient");
+      const matchValue = getMatchValue({ "@type": "Patient" } as Match);
+      expect(matchValue).toStrictEqual({ name: "Patient", iri: "Patient" });
     });
 
     it("can get a typeValue from set", () => {
-      const typeValue = getTypeValue({ description: "Diabetic", "@set": "http://example/queries#Q_Diabetics" } as Match);
-      expect(typeValue.iri).toEqual("http://example/queries#Q_Diabetics");
-      expect(typeValue.name).toEqual("Q_Diabetics");
+      const matchValue = getMatchValue({ description: "Diabetic", "@set": "http://example/queries#Q_Diabetics" } as Match);
+      expect(matchValue).toEqual({ name: "Q_Diabetics", iri: "http://example/queries#Q_Diabetics" });
     });
 
     it("can get a typeValue from entity", () => {
-      const typeValue = getTypeValue({
+      const matchValue = getMatchValue({
         "@id": "http://snomed.info/sct#71388002",
         name: "Procedure (procedure)"
       } as Match);
-      expect(typeValue.iri).toEqual("http://snomed.info/sct#71388002");
-      expect(typeValue.name).toEqual("Procedure (procedure)");
+      expect(matchValue).toEqual({ iri: "http://snomed.info/sct#71388002", name: "Procedure (procedure)" });
     });
   });
 
