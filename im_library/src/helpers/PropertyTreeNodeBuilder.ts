@@ -35,7 +35,7 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
     label: getNameFromRef(property[SHACL.PATH][0]),
     data: property,
     type: type,
-    icon: getFAIconFromType([imtype]) as any,
+    icon: getFAIconFromType([imtype]),
     leaf: "node" === type ? false : true,
     children: [] as TreeNode[],
     parent: parent
@@ -60,7 +60,7 @@ function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNod
     const propertyTreeNode = buildPropertyTreeNode(property, newGroup);
     addDataModel(property, propertyTreeNode);
     if (!isArrayHasLength(newGroup.children)) newGroup.children = [];
-    newGroup.children?.push(propertyTreeNode);
+    newGroup.children.push(propertyTreeNode);
     treeNodes.push(newGroup);
     groupMap.set(group["@id"], newGroup);
   }
@@ -81,7 +81,7 @@ function buildDataModelTreeNode(property: TTProperty, parent: TreeNode) {
     label: property[SHACL.NODE][0].name,
     data: property,
     type: "dataModel",
-    icon: getFAIconFromType([imtype]) as any,
+    icon: getFAIconFromType([imtype]),
     leaf: false,
     children: [],
     selectable: false,
