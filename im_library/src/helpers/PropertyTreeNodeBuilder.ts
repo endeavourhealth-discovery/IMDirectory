@@ -1,8 +1,8 @@
-import { TTIriRef, TTProperty } from "../interfaces";
 import { TreeNode } from "../interfaces/TreeNode";
+import { TTIriRef, TTProperty } from "../interfaces";
 import { IM, SHACL } from "../vocabulary";
 import { getFAIconFromType } from "./ConceptTypeMethods";
-import { isObjectHasKeys } from "./DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 
 export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
@@ -14,11 +14,12 @@ export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
     } else {
       const propertyTreeNode = buildPropertyTreeNode(property, parent);
       addDataModel(property, propertyTreeNode);
-      parent.children?.push(propertyTreeNode);
+      if (!isArrayHasLength(parent.children)) parent.children = [];
+      parent.children.push(propertyTreeNode);
     }
   }
 
-  return parent.children!;
+  return parent.children;
 }
 
 export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
@@ -31,12 +32,12 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
 
   return {
     key: getKey(parent),
-    label: getNameFromRef(property["http://www.w3.org/ns/shacl#path"][0] as any),
+    label: getNameFromRef(property[SHACL.PATH][0]),
     data: property,
     type: type,
     icon: getFAIconFromType([imtype]) as any,
     leaf: "node" === type ? false : true,
-    children: [],
+    children: [] as TreeNode[],
     parent: parent
   } as TreeNode;
 }
@@ -47,16 +48,18 @@ function getKey(parent: TreeNode | undefined) {
 }
 
 function addGroup(groupMap: Map<string, TreeNode>, property: TTProperty, treeNodes: TreeNode[]) {
-  const group = property["http://www.w3.org/ns/shacl#group"]![0];
+  const group = property[SHACL.GROUP][0];
   const treeNode = groupMap.get(group["@id"]);
   if (treeNode) {
     const propertyTreeNode = buildPropertyTreeNode(property, treeNode);
     addDataModel(property, propertyTreeNode);
-    treeNode.children?.push(propertyTreeNode);
+    if (!isArrayHasLength(treeNode.children)) treeNode.children = [];
+    treeNode.children.push(propertyTreeNode);
   } else {
-    const newGroup = buildGroupTreeNode(group.name, String(treeNodes.length), {});
+    const newGroup = buildGroupTreeNode(group.name, String(treeNodes.length), {} as TreeNode);
     const propertyTreeNode = buildPropertyTreeNode(property, newGroup);
     addDataModel(property, propertyTreeNode);
+    if (!isArrayHasLength(newGroup.children)) newGroup.children = [];
     newGroup.children?.push(propertyTreeNode);
     treeNodes.push(newGroup);
     groupMap.set(group["@id"], newGroup);
@@ -75,7 +78,7 @@ function buildDataModelTreeNode(property: TTProperty, parent: TreeNode) {
 
   return {
     key: getKey(parent),
-    label: property["http://www.w3.org/ns/shacl#node"]![0].name,
+    label: property[SHACL.NODE][0].name,
     data: property,
     type: "dataModel",
     icon: getFAIconFromType([imtype]) as any,
@@ -91,8 +94,8 @@ function buildGroupTreeNode(label: string, key: string, parent: TreeNode) {
     key: key,
     label: label,
     type: "group",
-    icon: "fa-solid fa-layer-group",
-    children: [],
+    icon: ["fa-solid", "fa-layer-group"],
+    children: [] as TreeNode[],
     selectable: false,
     parent: parent
   } as TreeNode;

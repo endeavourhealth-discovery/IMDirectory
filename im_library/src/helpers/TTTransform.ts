@@ -1,3 +1,4 @@
+import { IM, SNOMED } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function transformTT(ttEntity: any, map?: any) {
@@ -34,30 +35,28 @@ function transformIris(ttEntity: any) {
 function getNameFromIri(iri: string) {
   if (!iri) return "undefined";
   if (iri.includes("#")) {
-    return iri.split("#")[1];
+    const splits = iri.split("#");
+    return splits[1] || splits[0];
   }
+  if (iri.includes(":")) {
+    const splits = iri.split(":");
+    return splits[1] || splits[0];
+  }
+  return iri;
 }
 
 export function getNameFromRef(ref: any) {
-  if (isObjectHasKeys(ref, ["name"])) {
-    return ref.name;
-  } else if (isObjectHasKeys(ref, ["@id"])) {
-    const splits = ref["@id"].split("#");
-    return splits[1] || splits[0];
-  } else if (isObjectHasKeys(ref, ["@set"])) {
-    const splits = ref["@set"].split("#");
-    return splits[1] || splits[0];
-  } else if (isObjectHasKeys(ref, ["@type"])) {
-    const splits = ref["@type"].split("#");
-    return splits[1] || splits[0];
-  } else if (isObjectHasKeys(ref, ["parameter"])) {
-    return ref["parameter"];
-  }
+  if (isObjectHasKeys(ref, ["name"])) return ref.name;
+  else if (isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
+  else if (isObjectHasKeys(ref, ["@set"])) return getNameFromIri(ref["@set"]);
+  else if (isObjectHasKeys(ref, ["@type"])) return getNameFromIri(ref["@type"]);
+  else if (isObjectHasKeys(ref, ["parameter"])) return ref["parameter"];
+
   return "";
 }
 
 export function resolveIri(iri: string) {
-  const prefixes: any = { im: "http://endhealth.info/im#", sn: "http://snomed.info/sct#" };
+  const prefixes: any = { im: IM.NAMESPACE, sn: SNOMED.NAMESPACE };
   if (iri.includes("#")) {
     return iri;
   } else if (iri.includes(":")) {

@@ -1,7 +1,7 @@
 import { isObjectHasKeys } from "./DataTypeCheckers";
-import { ClauseUI, ConceptSummary } from "@/interfaces";
+import { ClauseUI, ConceptSummary } from "../interfaces";
 import { getNameFromRef } from "./TTTransform";
-import { Entailment, Match, Where } from "@/interfaces/AutoGen";
+import { Entailment, Match, Where } from "../interfaces/AutoGen";
 
 export function buildClauseUI(match: Match): ClauseUI[] {
   const clauses = [] as ClauseUI[];
@@ -27,6 +27,7 @@ export function getPropertyValue(where: Where): { value: any; type: string } {
   if (isObjectHasKeys(where, ["in"])) return { value: where.in, type: "in" };
   if (isObjectHasKeys(where, ["notIn"])) return { value: where.notIn, type: "notIn" };
   if (isObjectHasKeys(where, ["operator"])) return { value: where, type: "comparison" };
+  return { value: where.in, type: "in" };
 }
 
 export function getClauseType(match: Match): { name: string; prop: string } {

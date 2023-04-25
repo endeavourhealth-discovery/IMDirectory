@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { EntityService, QueryService } from "@/services";
-import { QueryRequest } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { Ref, onMounted, ref, watch } from "vue";
 const props = defineProps({
@@ -17,7 +17,7 @@ const props = defineProps({
 const emit = defineEmits({ onSelect: (payload: any) => payload, close: () => true });
 
 const selectedValue: Ref<any> = ref({});
-const options: Ref<any> = ref([]);
+const options: Ref<TTIriRef[]> = ref([]);
 
 onMounted(async () => {
   const entity = await EntityService.getPartialEntity(props.classIri, [IM.DEFINITION]);
@@ -26,9 +26,8 @@ onMounted(async () => {
   const queryRequest = { query: definition } as QueryRequest;
   const results = await QueryService.queryIM(queryRequest);
   options.value = results.entities.map(entity => {
-    return { "@id": entity["@id"], name: entity[RDFS.LABEL] };
+    return { "@id": entity["@id"], name: entity[RDFS.LABEL] } as TTIriRef;
   });
-  console.log(options.value.length);
 });
 </script>
 

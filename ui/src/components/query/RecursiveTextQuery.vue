@@ -24,7 +24,7 @@ import MatchClause from "./MatchClause.vue";
 const props = defineProps({
   baseEntityIri: { type: String, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },
-  parent: { type: Object as PropType<ITextQuery | undefined>, required: true }
+  parent: { type: Object as PropType<ITextQuery | undefined> }
 });
 
 const selected: Ref<ITextQuery> = ref({} as ITextQuery);
@@ -36,11 +36,8 @@ function openDialog(textQuery: ITextQuery) {
 }
 
 function onSave() {
-  // selected.value.data = event;
   editDialog.value = false;
 }
-
-onMounted(async () => {});
 </script>
 
 <style scoped>
@@ -53,6 +50,6 @@ onMounted(async () => {});
 }
 
 .content:hover {
-  color: lightskyblue;
+  color: var(--focus-ring);
 }
 </style>

@@ -22,23 +22,23 @@ const props = defineProps({
 
 watch(
   () => props.typeValue.iri,
-  async () => initValues()
+  () => initValues()
 );
 
 const editClauseType = ref({} as { name: string; prop: string });
-const clauseTypes = ref([
+const clauseTypes = [
   { name: "Type", prop: "@type" },
   { name: "Set", prop: "@set" },
   { name: "Property", prop: "@id" },
   { name: "Entity", prop: "@id" }
-]);
+];
 
 onMounted(() => {
   initValues();
 });
 
 function initValues() {
-  editClauseType.value = clauseTypes.value.find(tp => tp.name === props.clauseType.name) || clauseTypes.value[0];
+  editClauseType.value = clauseTypes.find(tp => tp.name === props.clauseType.name) || clauseTypes[0];
 }
 
 function onClauseTypeSelect() {

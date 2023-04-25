@@ -12,7 +12,7 @@ const props = defineProps({
   selectedRange: { type: Object as PropType<Range>, required: false }
 });
 
-const value = ref();
+const selectedValue: Ref<any> = ref();
 const unit = ref();
 const operator = ref();
 const relativeTo = ref();

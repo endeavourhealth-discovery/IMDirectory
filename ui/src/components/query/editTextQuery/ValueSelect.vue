@@ -1,7 +1,7 @@
 <template>
   Value:
-  <InputText v-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#class'])" type="text" @click="visible = true" />
-  <InputText v-else-if="isObjectHasKeys(selectedProperty.data, ['http://www.w3.org/ns/shacl#datatype'])" type="text" />
+  <InputText v-if="isObjectHasKeys(selectedProperty.data, [SHACL.CLASS])" type="text" @click="visible = true" />
+  <InputText v-else-if="isObjectHasKeys(selectedProperty.data, [SHACL.DATATYPE])" type="text" />
   <EntitySearch v-else :entity-value="entityValue as any" />
   <EntailmentOptionsSelect :entailment-options="[]" />
   <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
@@ -33,17 +33,19 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { Element } from "@im-library/interfaces/AutoGen";
 import { SHACL } from "@im-library/vocabulary";
-import { TreeNode } from "primevue/tree";
+import { TreeSelectionKeys } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import EntitySearch from "./EntitySearch.vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
+import { getKey } from "@im-library/helpers";
+import { TreeNode } from "@im-library/interfaces/TreeNode";
 
 const props = defineProps({
   selectedProperty: { type: Object as PropType<TreeNode>, required: true },
   selectedValue: { type: Object as PropType<TreeNode>, required: true }
 });
 const visible: Ref<boolean> = ref(false);
-const selectedKey = ref(undefined);
+const selectedKey: Ref<TreeSelectionKeys> = ref({} as TreeSelectionKeys);
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
 const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
@@ -52,16 +54,17 @@ const entityValue: Ref<Element> = ref({} as Element);
 onMounted(async () => {
   // TODO get tree from set/query
   const classIri = props.selectedProperty.data[SHACL.CLASS][0]["@id"];
-  nodes.value = await getTreeNodes(classIri, { children: [] });
+  nodes.value = await getTreeNodes(classIri, { children: [] as TreeNode[] } as TreeNode);
 });
 
 async function getTreeNodes(iri: string, parent: TreeNode): Promise<TreeNode[]> {
   const children = await EntityService.getEntityChildren(iri);
+  if (!isArrayHasLength(parent.children)) parent.children = [];
   for (const child of children) {
-    parent.children?.push(buildClassTreeNode(child, parent));
+    parent.children.push(buildClassTreeNode(child, parent));
   }
 
-  return parent.children!;
+  return parent.children;
 }
 
 function selectNode(node: TreeNode) {
@@ -73,17 +76,12 @@ function buildClassTreeNode(entityReferenceNode: EntityReferenceNode, parent: Tr
     key: getKey(parent),
     label: entityReferenceNode.name,
     type: "class",
-    icon: getFAIconFromType(entityReferenceNode.type) as any,
-    children: [],
+    icon: getFAIconFromType(entityReferenceNode.type),
+    children: [] as TreeNode[],
     leaf: entityReferenceNode.hasChildren,
     data: entityReferenceNode,
     parent: parent
-  };
-}
-
-function getKey(parent: TreeNode) {
-  if (!parent) return "0";
-  return parent.key! + parent.children!.length;
+  } as TreeNode;
 }
 
 async function expandNode(node: TreeNode) {
@@ -106,4 +104,3 @@ function select() {
   justify-content: end;
 }
 </style>
-F

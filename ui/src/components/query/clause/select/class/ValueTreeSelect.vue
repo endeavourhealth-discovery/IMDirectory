@@ -19,25 +19,27 @@
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
+import { getKey } from "@im-library/helpers";
 import { getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityReferenceNode } from "@im-library/interfaces";
-import { TreeNode } from "primevue/tree";
-import { Ref, onMounted, ref, watch } from "vue";
+import { TreeNode } from "@im-library/interfaces/TreeNode";
+import { TreeSelectionKeys } from "primevue/tree";
+import { Ref, onMounted, ref } from "vue";
 const emit = defineEmits({ onSelect: (payload: TreeNode) => payload, close: () => true });
 
 const props = defineProps({
   classIri: { type: String, required: true }
 });
 const nodes: Ref<TreeNode[]> = ref([]);
-const selectedKey = ref(undefined);
+const selectedKey: Ref<TreeSelectionKeys> = ref({} as TreeSelectionKeys);
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
 
 const expandedKeys: Ref<any> = ref({});
 
 function selectNode(node: TreeNode) {
   selectedNode.value = node;
-  emit("onSelect", selectedNode);
+  emit("onSelect", selectedNode.value);
 }
 
 async function expandNode(node: TreeNode) {
@@ -48,16 +50,12 @@ async function expandNode(node: TreeNode) {
 
 async function getTreeNodes(iri: string, parent: TreeNode): Promise<TreeNode[]> {
   const children = await EntityService.getEntityChildren(iri);
+  if (!isArrayHasLength(parent.children)) parent.children = [];
   for (const child of children) {
-    parent.children?.push(buildClassTreeNode(child, parent));
+    parent.children.push(buildClassTreeNode(child, parent));
   }
 
-  return parent.children!;
-}
-
-function getKey(parent: TreeNode) {
-  if (!parent) return "0";
-  return parent.key! + parent.children!.length;
+  return parent.children;
 }
 
 function buildClassTreeNode(entityReferenceNode: EntityReferenceNode, parent: TreeNode): TreeNode {
@@ -65,19 +63,19 @@ function buildClassTreeNode(entityReferenceNode: EntityReferenceNode, parent: Tr
     key: getKey(parent),
     label: entityReferenceNode.name,
     type: "class",
-    icon: getFAIconFromType(entityReferenceNode.type) as any,
-    children: [],
+    icon: getFAIconFromType(entityReferenceNode.type),
+    children: [] as TreeNode[],
     leaf: entityReferenceNode.hasChildren,
     data: entityReferenceNode,
     parent: parent
-  };
+  } as TreeNode;
 }
 
 function select() {
   selectedNode.value;
 }
 onMounted(async () => {
-  nodes.value = await getTreeNodes(props.classIri, { children: [] });
+  nodes.value = await getTreeNodes(props.classIri, { children: [] as TreeNode[] } as TreeNode);
 });
 </script>
 

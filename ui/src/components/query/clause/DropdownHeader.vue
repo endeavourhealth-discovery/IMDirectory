@@ -13,7 +13,7 @@ const props = defineProps({
 });
 const selected: Ref<string> = ref("");
 
-onMounted(async () => {
+onMounted(() => {
   selected.value = props.selectedOption || props.options[0];
 });
 </script>

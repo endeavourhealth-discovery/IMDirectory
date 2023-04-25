@@ -56,9 +56,8 @@ import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
 import { ITextQuery } from "./query/TextQuery";
 import { ClauseUI } from "./query/ClauseUI";
-
 import { TTProperty } from "./TTProperty";
-
+import { TreeNode } from "./TreeNode";
 export {
   type AccountItem,
   type Address,
@@ -118,5 +117,6 @@ export {
   type DisplayQuery,
   type ITextQuery,
   type TTProperty,
-  type ClauseUI
+  type ClauseUI,
+  type TreeNode
 };

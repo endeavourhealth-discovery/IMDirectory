@@ -1,9 +1,6 @@
 <template>
-  <ClassSelect v-if="isObjectHasKeys(property.data, ['http://www.w3.org/ns/shacl#class'])" :selected-property="property" :selected-value="undefined" />
-  <DatatypeSelect
-    v-else-if="isObjectHasKeys(property.data, ['http://www.w3.org/ns/shacl#datatype'])"
-    :datatype="property.data['http://www.w3.org/ns/shacl#datatype'][0]['@id']"
-  />
+  <ClassSelect v-if="isObjectHasKeys(property.data, [SHACL.CLASS])" :selected-property="property" :selected-value="undefined" />
+  <DatatypeSelect v-else-if="isObjectHasKeys(property.data, [SHACL.DATATYPE])" :datatype="property.data[SHACL.DATATYPE][0]['@id']" />
   <div v-else>
     <DropdownHeader :options="['In', 'Not in', 'Is null']" />
     <EntitySearch :entity-value="editEntityValue" />
@@ -22,6 +19,7 @@ import DropdownHeader from "./DropdownHeader.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 import EntailmentOptionsSelect from "../editTextQuery/EntailmentOptionsSelect.vue";
+import { SHACL } from "@im-library/vocabulary";
 
 const props = defineProps({
   property: { type: Object as PropType<TreeNode>, required: true }
@@ -36,12 +34,11 @@ watch(
   }
 );
 
-onMounted(async () => {
+onMounted(() => {
   initValues();
 });
 
 function initValues() {
-  console.log(props.property);
   setEntityValue();
 }
 

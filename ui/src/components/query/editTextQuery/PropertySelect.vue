@@ -25,8 +25,8 @@
 import { EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { resolveIri } from "@im-library/helpers/TTTransform";
-import { TTProperty } from "@im-library/interfaces";
-import { TreeNode } from "primevue/tree";
+import { TreeNode } from "@im-library/interfaces";
+import { TreeSelectionKeys } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
 import { SHACL } from "@im-library/vocabulary";
@@ -36,16 +36,14 @@ const props = defineProps({
   typeValue: { type: Object as PropType<TreeNode>, required: true }
 });
 const visible: Ref<boolean> = ref(false);
-const selectedKey = ref(undefined);
+const selectedKey: Ref<TreeSelectionKeys> = ref({} as TreeSelectionKeys);
 const selectedProperty: Ref<TreeNode> = ref({} as TreeNode);
 const expandedKeys: Ref<any> = ref({});
 const nodes: Ref<TreeNode[]> = ref([]);
 
 onMounted(async () => {
-  console.log(props.typeValue);
-
   const entity = await EntityService.getPartialEntity(resolveIri(props.baseEntityIri), [SHACL.PROPERTY]);
-  nodes.value = getTreeNodes(entity, { children: [] });
+  nodes.value = getTreeNodes(entity, { children: [] as TreeNode[] } as TreeNode);
 });
 
 function selectNode(node: TreeNode) {
@@ -54,15 +52,13 @@ function selectNode(node: TreeNode) {
 
 async function expandNode(node: TreeNode) {
   if (!isArrayHasLength(node.children) && "dataModel" === node.type) {
-    const iri = (node.data as TTProperty)["http://www.w3.org/ns/shacl#node"]![0]["@id"];
+    const iri = node.data[SHACL.NODE][0]["@id"];
     const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
     node.children = getTreeNodes(entity, node);
   }
 }
 
 function select() {
-  console.log(props.typeValue);
-
   props.typeValue.data = selectedProperty.value.data;
   visible.value = false;
 }

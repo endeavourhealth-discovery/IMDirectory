@@ -1,17 +1,17 @@
 <template>
-  <Textarea v-model="jsonString" @update:model-value="onChange" :class="errorMessage ? 'json-string p-invalid' : 'json-string'" @keydown="onFormat" />
+  <Textarea v-model="jsonString" @update:model-value="onChange" class="json-string" :class="errorMessage ? 'p-invalid' : ''" @keydown="onFormat" />
   <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, PropType } from "vue";
+import { onMounted, ref, PropType, Ref } from "vue";
 const props = defineProps({
   jsonObject: { type: Object as PropType<any>, required: true }
 });
-const jsonString = ref("");
-const errorMessage = ref("");
+const jsonString: Ref<string> = ref("");
+const errorMessage: Ref<string> = ref("");
 
-onMounted(async () => {
+onMounted(() => {
   jsonString.value = JSON.stringify(props.jsonObject.data, null, 2);
 });
 
@@ -44,7 +44,7 @@ function onChange() {
 
 <style scoped>
 .error-message {
-  color: red;
+  color: var(--red-800);
 }
 
 .json-string {

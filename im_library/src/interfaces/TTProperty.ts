@@ -11,4 +11,5 @@ export interface TTProperty {
   "http://endhealth.info/im#inversePath"?: TTIriRef[];
   "http://www.w3.org/ns/shacl#maxCount"?: number;
   "http://www.w3.org/ns/shacl#minCount"?: number;
+  [key: string]: any;
 }
