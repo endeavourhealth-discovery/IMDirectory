@@ -5,7 +5,10 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    <div id="query-main-container"></div>
+    Defined as
+    <TextQuery :baseEntityIri="baseEntityIri" :text-queries="textQueries" :parent="undefined"></TextQuery>
+    <div><Button label="Add clause" @click="addClause" /></div>
+
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -15,20 +18,38 @@
 </template>
 
 <script setup lang="ts">
-import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
-// import { queryDefinition } from "./query-json";
 import { useStore } from "vuex";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
-const toast = useToast();
+import TextQuery from "@/components/query/RecursiveTextQuery.vue";
+import { ITextQuery } from "@im-library/interfaces";
+import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
+import { EntityService, QueryService } from "@/services";
+import { IM } from "@im-library/vocabulary";
 const store = useStore();
-const selected = ref([] as any[]);
+const textQueries: Ref<ITextQuery[]> = ref([]);
 const query: Ref<any> = ref();
 const visibleDialog: Ref<boolean> = ref(false);
+const baseEntityIri = ref("");
+
+onMounted(async () => {
+  await store.dispatch("fetchFilterSettings");
+  textQueries.value = await getTextQuery();
+  const baseEntity = textQueries.value[0].data;
+  baseEntityIri.value = baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"];
+});
+
+function addClause() {
+  const newClause = { display: "New clause" } as ITextQuery;
+  textQueries.value.push(newClause);
+}
+
+async function getTextQuery() {
+  const entity = await EntityService.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
+  query.value = await QueryService.getLabeledQuery(JSON.parse(entity[IM.DEFINITION]));
+  return buildTextQuery(JSON.parse(entity[IM.DEFINITION]));
+}
 </script>
 
 <style scoped lang="scss">

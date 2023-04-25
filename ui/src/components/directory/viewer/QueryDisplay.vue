@@ -2,7 +2,7 @@
   <div class="query-display-container">
     <Tree :value="nodes" :expanded-keys="expandedKeys">
       <template #default="{ node }: any">
-        {{ node.data.exclude ? "exclude " + node.label : node.label }}
+        <div v-html="node.display"></div>
       </template>
     </Tree>
   </div>
@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { EntityService, QueryService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { buildDisplayQuery } from "@im-library/helpers/DisplayQueryBuilder";
+import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import { DisplayQuery } from "@im-library/interfaces";
 import { Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
@@ -48,7 +48,7 @@ async function getDefinition(iri: string) {
 }
 
 function getNodes(query: Query) {
-  return buildDisplayQuery(query);
+  return buildTextQuery(query);
 }
 
 function expandAll() {
