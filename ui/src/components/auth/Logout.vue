@@ -66,11 +66,13 @@ function handleSubmit(): void {
             title: "Success",
             text: res.message
           }).then(() => {
+            store.dispatch("clearOptionalCookies");
             if (previousAppUrl.value) {
               window.location.href = previousAppUrl.value;
             } else {
-              router.push({ name: "Login" });
+              window.location.href = "/#/user/login";
             }
+            window.location.reload();
           });
         } else {
           Swal.fire({
