@@ -155,11 +155,6 @@ function onNodeSelect(node: any): void {
     if (!node.loading) loadMore(node);
   } else {
     selectedNode.value = node;
-    // router.push({
-    //   name: "Folder",
-    //   params: { selectedIri: node.data }
-    // });
-    store.updateSelectedConceptIri(node.data);
   }
 }
 

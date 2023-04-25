@@ -324,9 +324,8 @@ async function click(d: any) {
 }
 
 function navigate(iri: string) {
-  const currentRoute = route.name as RouteRecordName | undefined;
   if (iri === "seeMore") {
-    store.updateConceptActivePanel(2);
+    store.updateSidebarControlActivePanel(2);
   } else if (iri) {
     directService.select(iri);
   }
