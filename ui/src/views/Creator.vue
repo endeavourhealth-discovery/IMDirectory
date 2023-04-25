@@ -79,11 +79,14 @@ import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { DirectService, EntityService, FilerService } from "@/services";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
 const router = useRouter();
 const store = useRootStore();
+const userStore = useUserStore();
+
 const confirm = useConfirm();
 
 const creatorSavedEntity = computed(() => store.creatorSavedEntity);
@@ -211,7 +214,7 @@ watch(
   }
 );
 
-const currentUser = computed(() => store.currentUser).value;
+const currentUser = computed(() => userStore.currentUser).value;
 
 const debouncedFiler = debounce((entity: any) => {
   fileChanges(entity);

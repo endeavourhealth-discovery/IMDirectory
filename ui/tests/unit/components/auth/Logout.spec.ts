@@ -11,11 +11,13 @@ import Swal from "sweetalert2";
 import { createTestingPinia } from "@pinia/testing";
 import { useRootStore } from "@/stores/root";
 import { CustomAlert, User } from "@im-library/interfaces";
+import { useUserStore } from "@/stores/userStore";
 
 window.scrollTo = vi.fn() as any;
 
 createTestingPinia()
 const mockState = useRootStore();
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -45,7 +47,7 @@ describe("Logout.vue", () => {
     } as User;
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "Logout successful" });
 
-    mockState.currentUser = user;
+    mockUserState.currentUser = user;
     mockState.isLoggedIn = true;
     component = render(Logout, {
       global: {

@@ -36,10 +36,13 @@
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const store = useRootStore();
-const currentUser = computed(() => store.currentUser);
+const userStore = useUserStore();
+
+const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => store.isLoggedIn);
 
 function handleEditClicked(): void {

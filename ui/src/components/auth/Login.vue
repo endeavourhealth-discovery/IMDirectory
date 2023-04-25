@@ -44,9 +44,11 @@ import Swal from "sweetalert2";
 import { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const store = useRootStore();
+const userStore = useUserStore();
 const registeredUsername = computed(() => store.registeredUsername);
 const previousAppUrl = computed(() => store.previousAppUrl);
 
@@ -69,7 +71,7 @@ function handleSubmit(): void {
         if (!result) {
           loggedInUser.avatar = Avatars[0];
         }
-        store.updateCurrentUser(loggedInUser);
+        userStore.updateCurrentUser(loggedInUser);
         store.updateRegisteredUsername(null);
         store.updateIsLoggedIn(true);
         Swal.fire({

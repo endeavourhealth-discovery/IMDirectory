@@ -48,12 +48,15 @@ import { TreeNode } from "primevue/tree";
 import { isArray } from "lodash";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const toast = useToast();
 const confirm = useConfirm();
 const store = useRootStore();
+const userStore = useUserStore();
+
 const conceptIri = computed(() => store.conceptIri);
-const currentUser = computed(() => store.currentUser);
+const currentUser = computed(() => userStore.currentUser);
 const findInTreeIri = computed(() => store.findInTreeIri);
 const fontAwesomePro = computed(() => store.fontAwesomePro);
 

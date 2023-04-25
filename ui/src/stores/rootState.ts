@@ -8,7 +8,6 @@ export interface RootState {
   searchLoading: boolean;
   history: HistoryItem[];
   favourites: string[];
-  currentUser: User;
   registeredUsername: string;
   isLoggedIn: boolean;
   recentLocalActivity: RecentActivityItem[];

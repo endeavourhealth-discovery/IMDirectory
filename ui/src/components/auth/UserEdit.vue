@@ -156,10 +156,12 @@ import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, c
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const store = useRootStore();
-const currentUser = computed(() => store.currentUser);
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => store.isLoggedIn);
 
 let username = ref("");
@@ -242,7 +244,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
               AuthService.verifyEmail(result.value).then(res => {
                 if (res.status === 200) {
                   swalert("success", "Success", "Account details updated successfully.").then(() => {
-                    store.updateCurrentUser(res.user);
+                    userStore.updateCurrentUser(res.user);
                     router.push({ name: "UserDetails" });
                   });
                 } else {
@@ -255,7 +257,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
           });
         } else {
           swalert("success", "Success", "Account details updated successfully.").then(() => {
-            store.updateCurrentUser(res.user);
+            userStore.updateCurrentUser(res.user);
             router.push({ name: "UserDetails" });
           });
         }
@@ -264,7 +266,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
           res2.status === 200
             ? swalert("success", "Success", "User details and password successfully updated.")
             : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
-          store.updateCurrentUser(res.user);
+          userStore.updateCurrentUser(res.user);
           router.push({ name: "UserDetails" });
         });
       }

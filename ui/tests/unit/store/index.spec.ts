@@ -5,6 +5,9 @@ import { beforeEach, describe, vi } from "vitest";
 import testData from "./index.testData";
 import { createTestingPinia } from "@pinia/testing";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
+import { SearchRequest } from "@im-library/interfaces/AutoGen";
+import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
 
 describe("state", () => {
   beforeEach(() => {
@@ -17,7 +20,7 @@ describe("state", () => {
     window.sessionStorage.clear();
   });
 
-  it("should start with the correct values", () => {
+  it("root store should start with the correct values", () => {
     const store = useRootStore();
     expect(Object.keys(store)).toEqual(
       expect.arrayContaining([
@@ -26,7 +29,6 @@ describe("state", () => {
         "history",
         "searchResults",
         "searchLoading",
-        "currentUser",
         "isLoggedIn",
         "recentLocalActivity",
         "snomedLicenseAccepted",
@@ -48,7 +50,6 @@ describe("state", () => {
     expect(store.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
 
     expect(store.searchResults).toEqual([]);
-    expect(store.currentUser).toEqual({});
     expect(store.isLoggedIn).toBeFalsy();
     expect(store.snomedLicenseAccepted).toBe(false);
 
@@ -58,7 +59,19 @@ describe("state", () => {
     expect(store.focusHierarchy).toBe(false);
     expect(store.hierarchySelectedFilters).toStrictEqual([]);
   });
+
+  it("user store should start with the correct values", () => {
+    const userStore = useUserStore();
+    expect(Object.keys(userStore)).toEqual(
+      expect.arrayContaining([
+        "currentUser"
+      ])
+    );
+    expect(userStore.currentUser).toEqual({});
+  });
 });
+
+
 
 describe("mutations", () => {
   it("can updateConceptIri", () => {
@@ -92,7 +105,7 @@ describe("mutations", () => {
   });
 
   it("can updateCurrentUser", () => {
-    const store = useRootStore();
+    const store = useUserStore();
 
     const testUser = {
       username: "testUser",
@@ -187,13 +200,13 @@ describe("actions", () => {
     vi.resetAllMocks();
     createTestingPinia({stubActions: false});
     iriExistsSpy.mockResolvedValue(true);
-    getFilterOptionsSpy.mockResolvedValue(testData.FILTER_OPTIONS);
-    advancedSearchSpy.mockResolvedValue(testData.SEARCH_RESULTS);
+    getFilterOptionsSpy.mockResolvedValue((testData.FILTER_OPTIONS as any) as FilterOptions);
+    advancedSearchSpy.mockResolvedValue((testData.SEARCH_RESULTS as any) as ConceptSummary[]);
   });
 
   it("can fetchSearchResults ___ pass", async () => {
     const store = useRootStore();
-    const testInput = { searchRequest: {}, controller: new AbortController() };
+    const testInput = { searchRequest: {} as SearchRequest, controller: new AbortController() };
     await store.fetchSearchResults(testInput);
     await flushPromises();
     expect(advancedSearchSpy).toBeCalledTimes(1);
@@ -204,8 +217,8 @@ describe("actions", () => {
 
   it("can fetchSearchResults ___ failed", async () => {
     const store = useRootStore();
-    advancedSearchSpy.mockResolvedValue({ status: 400, message: "test fail" });
-    const testInput = { searchRequest: {}, controller: new AbortController() };
+    advancedSearchSpy.mockResolvedValue(({ status: 400, message: "test fail" } as any) as ConceptSummary[]);
+    const testInput = { searchRequest: {} as SearchRequest, controller: new AbortController() };
     await store.fetchSearchResults(testInput);
     await flushPromises();
     expect(advancedSearchSpy).toBeCalledTimes(1);
@@ -216,13 +229,15 @@ describe("actions", () => {
 
   it("can logoutCurrentUser ___ 200", async () => {
     const store = useRootStore();
+    const userStore = useUserStore();
+
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "logout successful" });
-    let result = false;
+    let result = { };
     await store.logoutCurrentUser().then(res => (result = res));
     await flushPromises();
     expect(AuthService.signOut).toBeCalledTimes(1);
     await flushPromises();
-    expect(store.currentUser).toBe(null);
+    expect(userStore.currentUser).toBe(null);
     expect(store.isLoggedIn).toBe(false);
     expect(result).toEqual({ status: 200, message: "logout successful" });
   });
@@ -230,7 +245,7 @@ describe("actions", () => {
   it("can logoutCurrentUser ___ 400", async () => {
     const store = useRootStore();
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 400, message: "logout failed 400" });
-    let result = false;
+    let result = { };
     await store.logoutCurrentUser().then(res => (result = res));
     await flushPromises();
     expect(AuthService.signOut).toBeCalledTimes(1);
@@ -240,6 +255,7 @@ describe("actions", () => {
 
   it("can authenticateCurrentUser___ 200 ___ avatar", async () => {
     const store = useRootStore();
+    const userStore = useUserStore();
     let testUser = {
       id: "8901-test",
       username: "testUser",
@@ -257,12 +273,14 @@ describe("actions", () => {
     expect(AuthService.getCurrentAuthenticatedUser).toBeCalledTimes(1);
     await flushPromises();
     expect(store.isLoggedIn).toBe(true);
-    expect(store.currentUser).toEqual(testUser);
+    expect(userStore.currentUser).toEqual(testUser);
     expect(result.authenticated).toBe(true);
   });
 
   it("can authenticateCurrentUser___ 200 ___ no avatar", async () => {
     const store = useRootStore();
+    const userStore = useUserStore();
+
     let testUser = {
       id: "8901-test",
       username: "testUser",
@@ -282,12 +300,14 @@ describe("actions", () => {
     await flushPromises();
     expect(store.isLoggedIn).toBe(true);
     testUser.avatar = "colour/001-man.png";
-    expect(store.currentUser).toEqual(testUser);
+    expect(userStore.currentUser).toEqual(testUser);
     expect(result.authenticated).toBe(true);
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 200", async () => {
     const store = useRootStore();
+    const userStore = useUserStore();
+
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 403, message: "user authenticated" });
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "logout successful" });
     let result = { authenticated: false };
@@ -298,12 +318,13 @@ describe("actions", () => {
     expect(AuthService.signOut).toBeCalledTimes(1);
     await flushPromises();
     expect(store.isLoggedIn).toBe(false);
-    expect(store.currentUser).toBe(null);
+    expect(userStore.currentUser).toBe(null);
     expect(result.authenticated).toBe(false);
   });
 
   it("can authenticateCurrentUser___ 403 ___ logout 400", async () => {
     const store = useRootStore();
+    const userStore = useUserStore();
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 403, message: "user authenticated" });
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 400, message: "logout failed" });
     let result = { authenticated: false };
@@ -314,7 +335,7 @@ describe("actions", () => {
     expect(AuthService.signOut).toBeCalledTimes(1);
     await flushPromises();
     expect(store.isLoggedIn).toBe(false);
-    expect(store.currentUser).toStrictEqual({});
+    expect(userStore.currentUser).toStrictEqual({});
     expect(result.authenticated).toBe(false);
   });
 });

@@ -9,9 +9,11 @@ import { render, RenderResult } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
 import { useRootStore } from "@/stores/root";
 import { User } from "@im-library/interfaces";
+import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia();
 const mockState = useRootStore();
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -38,7 +40,7 @@ describe("userDetails.vue", () => {
       roles: []
     } as User;
     vi.clearAllMocks();
-    mockState.currentUser = user;
+    mockUserState.currentUser = user;
     mockState.isLoggedIn = true;
     component = render(UserDetails, {
       global: {

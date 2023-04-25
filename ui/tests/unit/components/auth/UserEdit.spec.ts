@@ -15,6 +15,7 @@ import { RequestHandler } from "msw";
 import { User } from "@im-library/interfaces";
 import { createTestingPinia } from "@pinia/testing";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
   initialState: {
@@ -22,6 +23,7 @@ createTestingPinia({
   }
 })
 const mockState = useRootStore();
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -70,7 +72,7 @@ describe("userEdit.vue ___ user", () => {
 
     AuthService.updateUser = vi.fn().mockResolvedValue({ status: 200, message: "User Update successful", user: testUser });
 
-    mockState.currentUser = testUser;
+    mockUserState.currentUser = testUser;
     mockState.isLoggedIn = true;
 
     component = render(UserEdit, {

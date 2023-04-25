@@ -70,6 +70,7 @@ import { ToastSeverity } from "@im-library/enums";
 import setupDownloadFile from "@/composables/downloadFile";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const props = defineProps({
   conceptIri: { type: String, required: true }
@@ -77,7 +78,9 @@ const props = defineProps({
 const { downloadFile } = setupDownloadFile(window, document);
 const toast = useToast();
 const store = useRootStore();
-const currentUser = computed(() => store.currentUser);
+const userStore = useUserStore();
+
+const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => store.isLoggedIn);
 const hasDefintion: Ref<boolean> = ref(false);
 

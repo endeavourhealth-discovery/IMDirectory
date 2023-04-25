@@ -42,10 +42,12 @@ import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { CustomAlert } from "@im-library/interfaces";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const store = useRootStore();
-const currentUser = computed(() => store.currentUser);
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => store.isLoggedIn);
 const previousAppUrl = computed(() => store.previousAppUrl);
 

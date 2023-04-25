@@ -2,11 +2,12 @@ import { defineStore } from 'pinia'
 import { RootState } from "@/stores/rootState";
 
 import { IM } from "@im-library/vocabulary";
-import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, FilterOptions, CustomAlert, User } from "@im-library/interfaces";
+import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, FilterOptions, CustomAlert } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { AuthService, EntityService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useUserStore } from "@/stores/userStore";
 // import { getLogger } from "@im-library/logger/LogConfig";
 
 // const log = getLogger("store");
@@ -19,7 +20,6 @@ export const useRootStore = defineStore('root', {
     history: [] as HistoryItem[],
     searchResults: [] as ConceptSummary[],
     searchLoading: false,
-    currentUser: {} as User,
     isLoggedIn: false as boolean,
     registeredUsername: "" as string,
     recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
@@ -117,7 +117,7 @@ export const useRootStore = defineStore('root', {
       let result = { status: 500, message: "Logout (store) failed" } as CustomAlert;
       await AuthService.signOut().then(res => {
         if (res.status === 200) {
-          this.updateCurrentUser(null);
+          useUserStore().updateCurrentUser(null);
           this.updateIsLoggedIn(false);
           result = res;
         } else {
@@ -136,7 +136,7 @@ export const useRootStore = defineStore('root', {
           if (!foundAvatar) {
             loggedInUser.avatar = Avatars[0];
           }
-          this.updateCurrentUser(loggedInUser);
+          useUserStore().updateCurrentUser(loggedInUser);
           result.authenticated = true;
         } else {
           this.logoutCurrentUser().then(resLogout => {
@@ -187,9 +187,6 @@ export const useRootStore = defineStore('root', {
     },
     updateQuickFiltersStatus( status: any) {
       this.quickFiltersStatus.set(status.key, status.value);
-    },
-    updateCurrentUser( user: any) {
-      this.currentUser = user;
     },
     updateIsLoggedIn( status: any) {
       this.isLoggedIn = status;

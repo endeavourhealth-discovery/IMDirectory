@@ -36,6 +36,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { nextTick } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const APP_TITLE = "IM Directory";
 
@@ -258,6 +259,8 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const store = useRootStore();
+  const userStore = useUserStore();
+
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
   if (to.path !== "/snomedLicense") {
     store.updateSnomedReturnUrl(currentUrl);
@@ -292,7 +295,7 @@ router.beforeEach(async (to, from) => {
     if (!res.authenticated) {
       console.log("redirecting to login");
       router.push({ name: "Login" });
-    } else if (!store.currentUser.roles.includes("create")) {
+    } else if (!userStore.currentUser.roles.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
     }
   }
@@ -303,7 +306,7 @@ router.beforeEach(async (to, from) => {
     if (!res.authenticated) {
       console.log("redirecting to login");
       router.push({ name: "Login" });
-    } else if (!store.currentUser.roles.includes("edit")) {
+    } else if (!userStore.currentUser.roles.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
     }
   }

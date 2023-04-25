@@ -24,12 +24,14 @@ import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const toast = useToast();
 const store = useRootStore();
+const userStore = useUserStore();
 
-const currentUser = computed(() => store.currentUser);
+const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => store.isLoggedIn);
 
 const loading = ref(true);

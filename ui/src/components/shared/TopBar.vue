@@ -94,9 +94,12 @@ import { DirectService, Env, FilerService, DataModelService, GithubService } fro
 
 import { usePrimeVue } from "primevue/config";
 import { useRootStore } from "@/stores/root";
+import { useUserStore } from "@/stores/userStore";
 
 const store = useRootStore();
-const currentUser = computed(() => store.currentUser);
+const userStore = useUserStore();
+
+const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => store.isLoggedIn);
 const fontAwesomePro = computed(() => store.fontAwesomePro);
 const currentTheme = computed(() => store.currentTheme);
