@@ -14,7 +14,6 @@ import EditorMethods from "./EditorMethods";
 import TypeGuards from "./TypeGuards";
 import UtililityMethods from "./UtilityMethods";
 import StringManipulators from "./StringManipulators";
-import DisplayQueryBuilder from "./DisplayQueryBuilder";
 import EclBuilderConceptToEcl from "./EclBuilderConceptToEcl";
 import { eclToBuild } from "./Ecl/EclToBuild";
 import { eclToIMQ } from "./Ecl/EclToIMQ";
@@ -22,6 +21,8 @@ import { validateEcl } from "./Ecl/ValidateEcl";
 import { dateNow } from "./Datetime/DateNow";
 import { timeNow } from "./Datetime/TimeNow";
 import { timeNow12Hr } from "./Datetime/TimeNow12Hr";
+import PropertyTreeNodeBuilder from "./PropertyTreeNodeBuilder";
+import { getKey } from "./TreeHelper";
 
 export {
   ChartRescale,
@@ -39,7 +40,6 @@ export {
   TypeGuards,
   UtililityMethods,
   StringManipulators,
-  DisplayQueryBuilder,
   EclBuilderConceptToEcl,
   eclToBuild,
   eclToIMQ,
@@ -47,5 +47,7 @@ export {
   TTTransform,
   dateNow,
   timeNow,
-  timeNow12Hr
+  timeNow12Hr,
+  getKey,
+  PropertyTreeNodeBuilder
 };
