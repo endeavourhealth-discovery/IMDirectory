@@ -1,32 +1,37 @@
 <template>
-  <AutoComplete :multiple="true" option-label="name" v-model="selected" :suggestions="suggestions" @complete="debounceForSearch" @change="change" />
+  <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" />
 </template>
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { Element } from "@im-library/interfaces/AutoGen";
-import { onMounted, PropType, Ref, ref, computed } from "vue";
+import { onMounted, PropType, Ref, ref, computed, watch } from "vue";
 import { useRootStore } from "@/stores/root";
 
 const store = useRootStore();
 const props = defineProps({
-  entityValue: { type: Object as PropType<Element>, required: true }
+  entityValue: { type: Object as PropType<ConceptSummary>, required: true }
 });
+
+watch(
+  () => props.entityValue.iri,
+  () => initValues()
+);
+
 const controller: Ref<AbortController> = ref({} as AbortController);
 const filterDefaults: Ref<FilterOptions> = computed(() => store.filterDefaults);
-const selected: Ref<ConceptSummary[]> = ref([]);
+const selected: Ref<ConceptSummary> = ref("" as any);
 const suggestions: Ref<ConceptSummary[]> = ref([]);
 const debounce = ref(0);
 
-const emit = defineEmits({ onChange: (payload: ConceptSummary[]) => payload });
-
-onMounted(async () => {
-  const iri = props.entityValue["@id"] || props.entityValue["@set"] || props.entityValue["@type"];
-  const cSummary = { name: props.entityValue.name || iri, iri: iri } as ConceptSummary;
-  selected.value.push(cSummary);
+onMounted(() => {
+  initValues();
 });
+
+function initValues() {
+  selected.value = { iri: props.entityValue.iri, name: props.entityValue.name || props.entityValue.iri } as ConceptSummary;
+}
 
 async function search(searchTerm: any) {
   if (!isObject(controller.value)) {
@@ -41,10 +46,6 @@ function debounceForSearch(searchTerm: any): void {
   debounce.value = window.setTimeout(() => {
     search(searchTerm);
   }, 600);
-}
-
-function change() {
-  emit("onChange", selected.value);
 }
 </script>
 

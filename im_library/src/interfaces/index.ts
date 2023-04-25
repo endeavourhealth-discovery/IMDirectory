@@ -54,8 +54,10 @@ import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
-import { TableQuery } from "./query/TableQuery";
-
+import { ITextQuery } from "./query/TextQuery";
+import { ClauseUI } from "./query/ClauseUI";
+import { TTProperty } from "./TTProperty";
+import { TreeNode } from "./TreeNode";
 export {
   type AccountItem,
   type Address,
@@ -113,5 +115,8 @@ export {
   type AliasEntity,
   type PropertyDisplay,
   type DisplayQuery,
-  type TableQuery
+  type ITextQuery,
+  type TTProperty,
+  type ClauseUI,
+  type TreeNode
 };

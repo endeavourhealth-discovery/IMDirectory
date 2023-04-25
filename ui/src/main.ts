@@ -19,8 +19,6 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(fab);
 
-const pinia = createPinia();
-
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 dom.watch();
@@ -87,6 +85,9 @@ import Skeleton from "primevue/skeleton";
 import DialogService from "primevue/dialogservice";
 import DynamicDialog from "primevue/dynamicdialog";
 import Image from "primevue/image";
+import InputNumber from "primevue/inputnumber";
+import Calendar from "primevue/calendar";
+import Inplace from "primevue/inplace";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -100,6 +101,8 @@ Auth.configure(awsconfig);
 if (import.meta.env.MODE === "mock") {
   worker.start();
 }
+
+const pinia = createPinia();
 
 const app = createApp(App)
   .use(pinia)
@@ -171,19 +174,20 @@ const app = createApp(App)
   .component("ToggleButton", ToggleButton)
   .component("Skeleton", Skeleton)
   .component("DynamicDialog", DynamicDialog)
-  .component("Image", Image);
-
-const store = useRootStore();
+  .component("Image", Image)
+  .component("Calendar", Calendar)
+  .component("InputNumber", InputNumber)
+  .component("Inplace", Inplace);
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
 addFontAwesomeProIcons(library);
-store.updateFontAwesomePro(true);
+store.commit("updateFontAwesomePro", true);
 // #v-endif
 // #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
 import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-store.updateFontAwesomePro(false);
+store.commit("updateFontAwesomePro", false);
 // #v-endif
 
 const vm = app.mount("#app");
