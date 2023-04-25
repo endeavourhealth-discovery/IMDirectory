@@ -8,19 +8,16 @@ import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import Swal from "sweetalert2";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/rootStore";
+import { CustomAlert, User } from "@im-library/interfaces";
+import { useUserStore } from "@/stores/userStore";
 
 window.scrollTo = vi.fn() as any;
-const mockDispatch = vi.fn();
-const mockState = {} as any;
-const mockCommit = vi.fn();
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia();
+const mockState = useRootStore();
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -34,11 +31,12 @@ vi.mock("vue-router", () => ({
 
 describe("Logout.vue", () => {
   let component: RenderResult;
-  let user;
+  let user: User;
 
   beforeEach(() => {
     vi.clearAllMocks();
     user = {
+      id: "12345",
       username: "testUser",
       firstName: "John",
       lastName: "Doe",
@@ -46,11 +44,10 @@ describe("Logout.vue", () => {
       password: "",
       avatar: Avatars[0],
       roles: []
-    };
+    } as User;
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "Logout successful" });
 
-    mockState.currentUser = user;
-    mockState.isLoggedIn = true;
+    mockUserState.currentUser = user;
     component = render(Logout, {
       global: {
         plugins: [PrimeVue],
@@ -59,7 +56,7 @@ describe("Logout.vue", () => {
     });
   });
 
-  it("renders current username from store", async () => {
+  it("renders current username from rootStore", async () => {
     component.getByText("testUser");
   });
 
@@ -90,7 +87,7 @@ describe("Logout.vue", () => {
     component.getByText("Current User:");
   });
 
-  it("fires swal on successful store logout", async () => {
+  it("fires swal on successful rootStore logout", async () => {
     const logout = component.getByTestId("logout-submit");
     await fireEvent.click(logout);
 
@@ -105,8 +102,10 @@ describe("Logout.vue", () => {
     // component.getByText("logout success");
   });
 
-  it("fires swal on unsuccessful store logout", async () => {
-    mockDispatch.mockResolvedValue({ status: 400, message: "logout failed" });
+  it("fires swal on unsuccessful rootStore logout", async () => {
+    mockUserState.logoutCurrentUser = async () => {
+      return { status: 400, message: "logout failed" } as CustomAlert;
+    };
     const logout = component.getByTestId("logout-submit");
     await fireEvent.click(logout);
 

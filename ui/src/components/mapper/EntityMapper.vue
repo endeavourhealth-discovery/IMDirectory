@@ -143,7 +143,6 @@
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
-import { useStore } from "vuex";
 import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ToastOptions } from "@im-library/models";
@@ -158,19 +157,21 @@ import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import OverlaySummary from "../shared/OverlaySummary.vue";
 import SecondaryTree from "../shared/SecondaryTree.vue";
+import { useRootStore } from "@/stores/rootStore";
 
 const emit = defineEmits({
   showDetails: (_payload: string) => true
 });
 
 const route = useRoute();
-const store = useStore();
+const rootStore = useRootStore();
 const toast = useToast();
 
 const directService = new DirectService();
 
-const filterOptions: ComputedRef<FilterOptions> = computed(() => store.state.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => rootStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => rootStore.selectedFilters);
 
 let taskIri = ref("");
 let taskName = ref("");
@@ -186,7 +187,6 @@ let loading = ref(false);
 let saveLoading = ref(false);
 let controller: Ref<AbortController> = ref({} as AbortController);
 let hoveredItem = ref({} as any);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
 
 const summary_overlay = ref();
 

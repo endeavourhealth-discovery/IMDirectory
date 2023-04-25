@@ -52,7 +52,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";import TypeSelector from "@/components/creator/TypeSelector.vue";
+import { defineComponent } from "vue";
+import TypeSelector from "@/components/creator/TypeSelector.vue";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
 
 export default defineComponent({
@@ -66,7 +67,6 @@ import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import _ from "lodash";
-import { useStore } from "vuex";
 import Swal from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
@@ -79,14 +79,18 @@ import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { DirectService, EntityService, FilerService } from "@/services";
+import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
 const router = useRouter();
-const store = useStore();
+const rootStore = useRootStore();
+const userStore = useUserStore();
+
 const confirm = useConfirm();
 
-const creatorSavedEntity = computed(() => store.state.creatorSavedEntity);
+const creatorSavedEntity = computed(() => rootStore.creatorSavedEntity);
 const directService = new DirectService();
 
 onUnmounted(() => {
@@ -97,7 +101,7 @@ const hasType = computed<boolean>(() => {
   return isObjectHasKeys(editorEntity.value, [RDF.TYPE]);
 });
 
-const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
+const treeIri: ComputedRef<string> = computed(() => rootStore.findInEditorTreeIri);
 const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 watch(treeIri, (newValue, oldValue) => {
@@ -106,7 +110,7 @@ watch(treeIri, (newValue, oldValue) => {
 
 function onShowSidebar() {
   showSidebar.value = !showSidebar.value;
-  store.commit("updateFindInEditorTreeIri", "");
+  rootStore.updateFindInEditorTreeIri("");
 }
 
 const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
@@ -128,7 +132,7 @@ provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableM
 
 onMounted(async () => {
   loading.value = true;
-  await store.dispatch("fetchFilterSettings");
+  await rootStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
   if (isObjectHasKeys(creatorSavedEntity.value, ["@id"])) {
     await showEntityFoundWarning();
@@ -153,7 +157,7 @@ onMounted(async () => {
       editorEntity.value[propertyIri as string] = [{ "@id": containingEntity["@id"], name: containingEntity[RDFS.LABEL] }];
     }
   } else {
-    await router.push({name: "TypeSelector", params: route.params});
+    await router.push({ name: "TypeSelector", params: route.params });
   }
   loading.value = false;
 });
@@ -211,7 +215,7 @@ watch(
   }
 );
 
-const currentUser = computed(() => store.state.currentUser).value;
+const currentUser = computed(() => userStore.currentUser).value;
 
 const debouncedFiler = debounce((entity: any) => {
   fileChanges(entity);
@@ -301,7 +305,7 @@ function updateEntity(data: any) {
     }
   }
   if (wasUpdated && isValidEntity(editorEntity.value)) {
-    store.commit("updateCreatorSavedEntity", editorEntity.value);
+    rootStore.updateCreatorSavedEntity(editorEntity.value);
   }
 }
 
@@ -315,10 +319,10 @@ function fileChanges(entity: any) {
 
 function checkForChanges() {
   if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
-    store.commit("updateCreatorHasChanges", false);
+    rootStore.updateCreatorHasChanges(false);
     return false;
   } else {
-    store.commit("updateCreatorHasChanges", true);
+    rootStore.updateCreatorHasChanges(true);
     return true;
   }
 }
@@ -340,7 +344,7 @@ async function submit(): Promise<void> {
       preConfirm: async () => {
         const res = await EntityService.createEntity(editorEntity.value);
         if (res) {
-          store.commit("updateCreatorSavedEntity", undefined);
+          rootStore.updateCreatorSavedEntity(undefined);
           return res;
         } else Swal.showValidationMessage("Error creating entity from server.");
       }

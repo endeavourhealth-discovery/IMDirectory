@@ -163,15 +163,15 @@ import Swal, { SweetAlertResult } from "sweetalert2";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyIsUsername, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import { PasswordStrength } from "@im-library/enums";
 import { Avatars } from "@im-library/constants";
-import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
+import { useRootStore } from "@/stores/rootStore";
 
 const emit = defineEmits({
   userCreated: (payload: User) => true
 });
 
-const store = useStore();
+const rootStore = useRootStore();
 const router = useRouter();
 
 const username = ref("");
@@ -236,7 +236,7 @@ async function handleSubmit(): Promise<void> {
           }).then((result: SweetAlertResult) => {
             emit("userCreated", user);
             if (result.isConfirmed) {
-              store.commit("updateRegisteredUsername", username.value);
+              rootStore.updateRegisteredUsername(username.value);
               router.push({ name: "ConfirmCode" });
             } else {
               clearForm();

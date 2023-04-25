@@ -12,20 +12,15 @@ import testData from "./LandingPage.testData";
 import { EntityService, ConfigService, DirectService } from "@/services";
 import { flushPromises } from "@vue/test-utils";
 import { it, vi } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = {
-  recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }]
-};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    root: {
+      recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }]
+    }
+  }
+})
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

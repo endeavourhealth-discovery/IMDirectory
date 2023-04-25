@@ -1,19 +1,8 @@
-import { createStore } from "vuex";
 import { defineComponent } from "vue";
 import { mount } from "@vue/test-utils";
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import { vi } from "vitest";
-
-export function createTestStore(mockState?: any, mockCommit?: any, mockDispatch?: any) {
-  const store = createStore({
-    state() {
-      return mockState || {};
-    }
-  });
-  store.commit = mockCommit || vi.fn();
-  store.dispatch = mockDispatch || vi.fn();
-  return store;
-}
+import { createTestingPinia } from '@pinia/testing'
 
 export function createTestRouter(routes?: RouteRecordRaw[], mockPush?: any, mockGo?: any, mockBack?: any, mockForward?: any) {
   const router = createRouter({ routes: routes || [], history: createWebHashHistory() });
@@ -24,7 +13,7 @@ export function createTestRouter(routes?: RouteRecordRaw[], mockPush?: any, mock
   return router;
 }
 
-export function mountComposable(composable: any, mockStore?: any, mockRouter?: any) {
+export function mountComposable(composable: any, initialState?: any, mockRouter?: any) {
   const TestComponent = defineComponent({
     setup() {
       return { ...composable() };
@@ -32,14 +21,15 @@ export function mountComposable(composable: any, mockStore?: any, mockRouter?: a
     template: "<template></template>"
   });
 
+  createTestingPinia({initialState: { root: initialState}});
+
   if (mockRouter)
     return mount(TestComponent, {
       global: {
-        provide: { store: mockStore || createTestStore() },
         plugins: [mockRouter]
       }
     });
-  else return mount(TestComponent, { global: { provide: { store: mockStore || createTestStore() } } });
+  else return mount(TestComponent);
 }
 
-export default { createTestStore, createTestRouter, mountComposable };
+export default { createTestRouter, mountComposable };

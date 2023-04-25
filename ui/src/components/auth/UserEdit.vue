@@ -146,7 +146,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from "vue";
-import { useStore } from "vuex";
 import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
@@ -156,11 +155,14 @@ import { PasswordStrength } from "@im-library/enums";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
+import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
+const rootStore = useRootStore();
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 let username = ref("");
 let firstName = ref("");
@@ -242,7 +244,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
               AuthService.verifyEmail(result.value).then(res => {
                 if (res.status === 200) {
                   swalert("success", "Success", "Account details updated successfully.").then(() => {
-                    store.commit("updateCurrentUser", res.user);
+                    userStore.updateCurrentUser(res.user);
                     router.push({ name: "UserDetails" });
                   });
                 } else {
@@ -255,7 +257,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
           });
         } else {
           swalert("success", "Success", "Account details updated successfully.").then(() => {
-            store.commit("updateCurrentUser", res.user);
+            userStore.updateCurrentUser(res.user);
             router.push({ name: "UserDetails" });
           });
         }
@@ -264,7 +266,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
           res2.status === 200
             ? swalert("success", "Success", "User details and password successfully updated.")
             : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
-          store.commit("updateCurrentUser", res.user);
+          userStore.updateCurrentUser(res.user);
           router.push({ name: "UserDetails" });
         });
       }

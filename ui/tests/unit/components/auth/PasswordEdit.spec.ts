@@ -9,18 +9,18 @@ import { Avatars } from "@im-library/constants";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/rootStore";
+import { User } from "@im-library/interfaces";
+import { useUserStore } from "@/stores/userStore";
 
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" } as any;
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    root: { registeredUsername: "" }
+  }
+});
+const mockState = useRootStore();
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -35,6 +35,7 @@ vi.mock("vue-router", () => ({
 describe("PasswordEdit.vue with registeredUser", () => {
   let component: RenderResult;
   const user = {
+    id: "1234",
     username: "testUser",
     firstName: "John",
     lastName: "Doe",
@@ -42,14 +43,12 @@ describe("PasswordEdit.vue with registeredUser", () => {
     password: "",
     avatar: Avatars[0],
     roles: []
-  };
+  } as User;
 
   beforeEach(() => {
     vi.clearAllMocks();
     AuthService.changePassword = vi.fn().mockResolvedValue({ status: 200, message: "Password change successful" });
-    mockState.currentUser = user;
-    mockState.isLoggedIn = true;
-    mockDispatch.mockResolvedValue({ status: 200, message: "logout success" });
+    mockUserState.currentUser = user;
     component = render(PasswordEdit, {
       global: {
         plugins: [PrimeVue],
@@ -58,7 +57,7 @@ describe("PasswordEdit.vue with registeredUser", () => {
     });
   });
 
-  it("renders username from store currentUser", async () => {
+  it("renders username from rootStore currentUser", async () => {
     component.getByTestId("password-edit-username");
     component.getByDisplayValue("testUser");
   });

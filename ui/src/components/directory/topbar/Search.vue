@@ -24,8 +24,6 @@
 import Filters from "./Filters.vue";
 
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
-import { useStore } from "vuex";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
@@ -33,12 +31,13 @@ import { DataTypeCheckers } from "@im-library/helpers";
 import { useRouter } from "vue-router";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
+import { useRootStore } from "@/stores/rootStore";
 const { isObject } = DataTypeCheckers;
 
 const router = useRouter();
-const store = useStore();
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
+const rootStore = useRootStore();
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => rootStore.selectedFilters);
+const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
@@ -75,7 +74,7 @@ async function search(): Promise<void> {
     router.push({
       name: "Search"
     });
-    store.commit("updateSearchLoading", true);
+    rootStore.updateSearchLoading(true);
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;
     searchRequest.sortField = "weighting";
@@ -108,11 +107,11 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    await store.dispatch("fetchSearchResults", {
+    await rootStore.fetchSearchResults({
       searchRequest: searchRequest,
       controller: controller.value
     });
-    store.commit("updateSearchLoading", false);
+    rootStore.updateSearchLoading(false);
   }
 }
 </script>

@@ -34,7 +34,6 @@
 
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { useStore } from "vuex";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
@@ -48,14 +47,18 @@ import createNew from "@/composables/createNew";
 import { TreeNode } from "primevue/tree";
 import { isArray } from "lodash";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
 const toast = useToast();
 const confirm = useConfirm();
-const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
-const currentUser = computed(() => store.state.currentUser);
-const findInTreeIri = computed(() => store.state.findInTreeIri);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
+const rootStore = useRootStore();
+const userStore = useUserStore();
+
+const conceptIri = computed(() => rootStore.conceptIri);
+const currentUser = computed(() => userStore.currentUser);
+const findInTreeIri = computed(() => rootStore.findInTreeIri);
+const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
 
 const loading = ref(true);
 const overlayLocation: Ref<any> = ref({});

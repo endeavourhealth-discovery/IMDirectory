@@ -5,21 +5,14 @@ import StyleClass from "primevue/styleclass";
 import ProgressSpinner from "primevue/progressspinner";
 import { expect } from "vitest";
 import { flushPromises } from "@vue/test-utils";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = {
-  textDefinitionStartExpanded: ["Definition"],
-  conceptIri: "http://snomed.info/sct#298382003"
-};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    root: {
+      textDefinitionStartExpanded: ["Definition"],
+      conceptIri: "http://snomed.info/sct#298382003"
+    }}});
 
 const BUNDLE = {
   entity: {

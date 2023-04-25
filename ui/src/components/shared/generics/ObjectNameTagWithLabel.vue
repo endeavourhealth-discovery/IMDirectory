@@ -10,9 +10,9 @@
 import { computed, PropType } from "vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useStore } from "vuex";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { TagSeverity } from "@im-library/enums";
+import { useRootStore } from "@/stores/rootStore";
 
 const log = getLogger("components.shared.generics.ObjectNameTagWithLabel");
 
@@ -24,14 +24,14 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const store = useStore();
-const tagSeverityMatches = computed(() => store.state.tagSeverityMatches);
+const rootStore = useRootStore();
+const tagSeverityMatches = computed(() => rootStore.tagSeverityMatches);
 
 const isObjectWithName = computed(() => isObjectHasKeys(props.data, ["name"]));
 
 function getSeverity(data: TTIriRef): TagSeverity {
   let result = TagSeverity.INFO;
-  if (!tagSeverityMatches.value) throw new Error("Missing vuex store property 'tagSeverityMatches'");
+  if (!tagSeverityMatches.value) throw new Error("Missing vuex rootStore property 'tagSeverityMatches'");
   if (data && isObjectHasKeys(data, ["@id"])) {
     const found = tagSeverityMatches.value.find((severity: { "@id": string; severity: string }) => severity["@id"] === data["@id"]);
     if (found) result = found.severity;
