@@ -68,7 +68,7 @@ function handleSubmit(): void {
             title: "Success",
             text: res.message
           }).then(() => {
-            store.dispatch("clearOptionalCookies");
+            rootStore.clearOptionalCookies();
             if (previousAppUrl.value) {
               window.location.href = previousAppUrl.value;
             } else {
