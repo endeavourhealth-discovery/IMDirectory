@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 import { TreeNode } from "@im-library/interfaces";
 import { TreeSelectionKeys } from "primevue/tree";
@@ -33,7 +33,7 @@ import { SHACL } from "@im-library/vocabulary";
 
 const props = defineProps({
   baseEntityIri: { type: String, required: true },
-  typeValue: { type: Object as PropType<TreeNode>, required: true }
+  property: { type: Object as PropType<TreeNode>, required: true }
 });
 const visible: Ref<boolean> = ref(false);
 const selectedKey: Ref<TreeSelectionKeys> = ref({} as TreeSelectionKeys);
@@ -44,7 +44,28 @@ const nodes: Ref<TreeNode[]> = ref([]);
 onMounted(async () => {
   const entity = await EntityService.getPartialEntity(resolveIri(props.baseEntityIri), [SHACL.PROPERTY]);
   nodes.value = getTreeNodes(entity, { children: [] as TreeNode[] } as TreeNode);
+  if (isObjectHasKeys(props.property.data, [SHACL.PATH])) {
+    setSelectedProperty();
+  }
 });
+
+function setSelectedProperty() {
+  const iri = props.property.data[SHACL.PATH][0]["@id"];
+  const found = [] as TreeNode[];
+  for (const node of nodes.value) {
+    findNodeByIri(node, iri, found);
+  }
+  if (isArrayHasLength(found)) {
+    const keys = {} as any;
+    keys[found[0].label] = true;
+    selectedKey.value = { ...keys };
+    selectNode(found[0]);
+
+    props.property.data = found[0].data;
+    props.property.label = found[0].label;
+    props.property.iri = found[0].iri;
+  }
+}
 
 function selectNode(node: any) {
   selectedProperty.value = node;
@@ -59,8 +80,20 @@ async function expandNode(node: any) {
 }
 
 function select() {
-  props.typeValue.data = selectedProperty.value.data;
+  props.property.data = selectedProperty.value.data;
+  console.log(selectedProperty.value);
   visible.value = false;
+}
+
+function findNodeByIri(node: TreeNode, iri: string, nodes: TreeNode[]): void {
+  if (node.iri === iri) {
+    nodes.push(node);
+  } else {
+    if (isArrayHasLength(node.children))
+      for (const child of node.children) {
+        findNodeByIri(child, iri, nodes);
+      }
+  }
 }
 </script>
 

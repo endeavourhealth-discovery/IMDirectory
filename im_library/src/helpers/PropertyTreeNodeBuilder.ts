@@ -33,6 +33,7 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
   return {
     key: getKey(parent),
     label: getNameFromRef(property[SHACL.PATH][0]),
+    iri: property[SHACL.PATH][0]["@id"],
     data: property,
     type: type,
     icon: getFAIconFromType([imtype]),
@@ -79,6 +80,7 @@ function buildDataModelTreeNode(property: TTProperty, parent: TreeNode) {
   return {
     key: getKey(parent),
     label: property[SHACL.NODE][0].name,
+    iri: property[SHACL.PATH][0]["@id"],
     data: property,
     type: "dataModel",
     icon: getFAIconFromType([imtype]),

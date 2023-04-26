@@ -1,20 +1,17 @@
 <template>
   <div class="dropdown-header">
-    <Dropdown :options="options" v-model:model-value="selected" @change="emit('onChange', selected)" />
+    <Dropdown :options="options" v-model:model-value="whereClause.whereType" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { WhereClauseUI } from "@im-library/interfaces";
+import { Where } from "@im-library/interfaces/AutoGen";
 import { PropType, Ref, onMounted, ref, watch } from "vue";
-const emit = defineEmits({ onChange: (payload: string) => payload });
 const props = defineProps({
-  selectedOption: { type: String, required: false },
+  whereClause: { type: Object as PropType<WhereClauseUI>, required: true },
   options: { type: Object as PropType<string[]>, required: true }
-});
-const selected: Ref<string> = ref("");
-
-onMounted(() => {
-  selected.value = props.selectedOption || props.options[0];
 });
 </script>
 

@@ -1,5 +1,7 @@
+import { TreeNode } from "../TreeNode";
+
 export interface WhereClauseUI {
-  whereProperty: string;
+  whereProperty: TreeNode;
   whereType: string;
   whereValue: any;
   whereEntailment: string[];

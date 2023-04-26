@@ -1,7 +1,8 @@
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { MatchClauseUI, ConceptSummary, WhereClauseUI } from "../interfaces";
+import { MatchClauseUI, ConceptSummary, WhereClauseUI, TreeNode } from "../interfaces";
 import { getNameFromRef } from "./TTTransform";
-import { Entailment, Match, Where } from "../interfaces/AutoGen";
+import { Entailment, Match, TTIriRef, Where } from "../interfaces/AutoGen";
+import { SHACL } from "../vocabulary";
 
 export function buildClauseUI(match: Match): MatchClauseUI[] {
   const clauses = [] as MatchClauseUI[];
@@ -14,13 +15,23 @@ export function buildClauseUI(match: Match): MatchClauseUI[] {
   if (isObjectHasKeys(match, ["where"])) {
     for (const where of match.where) {
       const { value, type } = getPropertyValue(where);
-      const whereClause = { whereProperty: where["@id"], whereType: type, whereValue: value, whereEntailment: getEntailmentOptions(where) } as WhereClauseUI;
+      const whereClause = {
+        whereProperty: getWhereProperty(where),
+        whereType: type,
+        whereValue: value,
+        whereEntailment: getEntailmentOptions(where)
+      } as WhereClauseUI;
       if (!isArrayHasLength(clauseUI.where)) clauseUI.where = [];
       clauseUI.where.push(whereClause);
     }
   }
   clauses.push(clauseUI);
   return clauses;
+}
+export function getWhereProperty(where: Where) {
+  const treeNode = { data: {} } as TreeNode;
+  treeNode.data[SHACL.PATH] = [{ "@id": where["@id"] }] as TTIriRef[];
+  return treeNode;
 }
 
 export function getPropertyValue(where: Where): { value: any; type: string } {

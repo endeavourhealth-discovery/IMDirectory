@@ -1,5 +1,5 @@
 <template>
-  <DropdownHeader :options="['In', 'Not in', 'Is null']" @on-change="header = $event" />
+  <DropdownHeader :options="['in', 'notIn', 'isNull']" />
   <div v-if="header !== 'Is null'" v-for="(selValue, index) in selectedValues" class="class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="selValue.name" />
     <EntailmentOptionsSelect :selected="selectedOptions" :entailment-options="[]" />

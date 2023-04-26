@@ -1,12 +1,24 @@
 <template>
-  <PropertySelect optionLabel="name" :baseEntityIri="baseEntityIri" :typeValue="editProperty" />
-  <ClassSelect v-if="isObjectHasKeys(editProperty.data, [SHACL.CLASS])" :selected-property="editProperty" :selected-value="undefined" />
-  <DatatypeSelect v-else-if="isObjectHasKeys(editProperty.data, [SHACL.DATATYPE])" :datatype="editProperty.data[SHACL.DATATYPE][0]['@id']" />
+  <div>
+    <PropertySelect optionLabel="name" :baseEntityIri="baseEntityIri" :property="whereClause.whereProperty" />
+    <EntailmentOptionsSelect :entailmentOptions="whereClause.whereEntailment" />
+  </div>
+  <ClassSelect
+    v-if="isObjectHasKeys(whereClause.whereProperty.data, [SHACL.CLASS])"
+    :selected-property="whereClause.whereProperty"
+    :selected-value="whereClause.whereValue"
+  />
+  <DatatypeSelect
+    v-else-if="isObjectHasKeys(whereClause.whereProperty.data, [SHACL.DATATYPE])"
+    :datatype="whereClause.whereProperty.data[SHACL.DATATYPE][0]['@id']"
+    :whereClause="whereClause"
+  />
   <div v-else>
-    <DropdownHeader :options="['In', 'Not in', 'Is null']" />
+    <DropdownHeader :options="['in', 'notIn', 'isNull']" :where-clause="whereClause" />
     <EntitySearch :entity-value="editEntityValue" />
     <EntailmentOptionsSelect :entailmentOptions="editEntailmentOptions" />
   </div>
+  <Divider />
 </template>
 
 <script setup lang="ts">

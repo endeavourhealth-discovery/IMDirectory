@@ -10,9 +10,12 @@
       text
       @click="editClause.include = !editClause.include"
     />
-    <div class="create-clause">
-      <BaseClause :baseEntityIri="baseEntityIri" :base-clause="editClause" />
+    <div>
+      <BaseClause v-if="editClause.matchValue?.iri" :baseEntityIri="baseEntityIri" :base-clause="editClause" />
+      <Button v-else :label="'Add match'" :severity="'success'" text @click="addProperty(editClause)" />
+    </div>
 
+    <div class="create-clause">
       <WhereClause
         v-for="whereClause of editClause.where"
         :base-clause="editClause"
@@ -35,7 +38,7 @@ import WhereClause from "./clause/WhereClause.vue";
 import { Match } from "@im-library/interfaces/AutoGen";
 import SimpleJsonEditor from "./editTextQuery/SimpleJsonEditor.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptSummary, ITextQuery, MatchClauseUI, WhereClauseUI } from "@im-library/interfaces";
+import { ConceptSummary, ITextQuery, MatchClauseUI, TreeNode, WhereClauseUI } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 
 const emit = defineEmits({ onCancel: () => true, onSave: (payload: any) => payload });
@@ -61,7 +64,7 @@ onMounted(() => {
 
 function addProperty(editClause: MatchClauseUI) {
   if (!isArrayHasLength(editClause.where)) editClause.where = [];
-  editClause.where.push({ whereValue: "", whereType: "", whereProperty: "", whereEntailment: [] } as WhereClauseUI);
+  editClause.where.push({ whereValue: "", whereType: "", whereProperty: {} as TreeNode, whereEntailment: [] } as WhereClauseUI);
 }
 </script>
 

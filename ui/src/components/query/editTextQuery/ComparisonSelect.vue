@@ -1,8 +1,8 @@
 <template>
   <div class="comparison-wrapper">
-    <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="operator" />
-    <InputText type="text" placeholder="value" v-model="selectedValue" />
-    <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="unit" />
+    <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="where.operator" />
+    <InputText type="text" placeholder="value" v-model="where.value" />
+    <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="where.unit" />
     <InputText type="text" placeholder="relative to" v-model="relativeTo" />
   </div>
 </template>
@@ -13,12 +13,9 @@ import { Assignable, Where } from "@im-library/interfaces/AutoGen";
 const operatorOptions = ["=", ">=", ">", "<="];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 const props = defineProps({
-  selectedComparison: { type: Object as PropType<Where | Assignable>, required: false },
-  title: { type: String, required: false }
+  where: { type: Object as PropType<Assignable>, required: true }
 });
-const selectedValue: Ref<any> = ref();
-const unit = ref();
-const operator = ref();
+
 const relativeTo = ref();
 </script>
 

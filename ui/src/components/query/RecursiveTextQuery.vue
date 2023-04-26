@@ -17,12 +17,15 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ITextQuery } from "@im-library/interfaces/query/TextQuery";
 import { PropType, Ref, ref } from "vue";
 import MatchClause from "./MatchClause.vue";
 import { getDisplayFromMatch } from "@im-library/helpers/TextQueryBuilder";
 import { buildClauseUI } from "@im-library/helpers/ClauseUIBuilder";
+import { MatchClauseUI, WhereClauseUI } from "@im-library/interfaces";
+import { Where } from "@im-library/interfaces/AutoGen";
+import { SHACL } from "@im-library/vocabulary";
 const props = defineProps({
   baseEntityIri: { type: String, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },
@@ -46,17 +49,33 @@ function onSave() {
   if (selected.value.uiData.length === 1) {
     const matchClause = selected.value.uiData[0];
     const match = selected.value.data;
-
-    match[matchClause.matchType.prop] = matchClause.matchValue.iri;
-    match.exclude = !matchClause.include;
-    for (const entailment of matchClause.matchEntailment) {
-      match[entailment] = true;
-    }
+    updateMatch(match, matchClause);
+    updateWhere(match, matchClause.where);
   }
 
   selected.value.display = getDisplayFromMatch(selected.value.data);
 
   editDialog.value = false;
+}
+
+function updateMatch(match: any, matchClause: MatchClauseUI) {
+  if (isObjectHasKeys(matchClause.matchType)) match[matchClause.matchType.prop] = matchClause.matchValue.iri;
+  match.exclude = !matchClause.include;
+  if (isArrayHasLength(matchClause.matchEntailment))
+    for (const entailment of matchClause.matchEntailment) {
+      match[entailment] = true;
+    }
+}
+
+function updateWhere(match: any, whereClauses: WhereClauseUI[]) {
+  match.where = [];
+  for (const whereClause of whereClauses) {
+    const where = {} as any;
+    where["@id"] = whereClause.whereProperty.data[SHACL.PATH][0]["@id"];
+    where.name = whereClause.whereProperty.data[SHACL.PATH][0].name;
+    where[whereClause.whereType] = whereClause.whereValue;
+    match.where.push(where);
+  }
 }
 </script>
 
