@@ -61,15 +61,15 @@ import { EclService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { useStore } from "vuex";
 import { byName } from "@im-library/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
+import { useRootStore } from "@/stores/rootStore";
 
 const toast = useToast();
-const store = useStore();
+const rootStore = useRootStore();
 
-const statusOptions = computed(() => store.state.filterOptions.status);
-const savedEcl = computed(() => store.state.eclEditorSavedString);
+const statusOptions = computed(() => rootStore.filterOptions.status);
+const savedEcl = computed(() => rootStore.eclEditorSavedString);
 
 const queryString = ref("");
 const showDialog = ref(false);
@@ -84,7 +84,7 @@ const builderKey = ref(0);
 
 watch(queryString, () => {
   eclError.value = false;
-  store.commit("updateEclEditorSavedString", queryString.value);
+  rootStore.updateEclEditorSavedString(queryString.value);
 });
 
 watch(selectedStatus, async () => {

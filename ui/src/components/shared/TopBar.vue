@@ -89,17 +89,20 @@
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
-import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
+import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
-const currentTheme = computed(() => store.state.currentTheme);
+const rootStore = useRootStore();
+const userStore = useUserStore();
+
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
+const currentTheme = computed(() => rootStore.currentTheme);
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -205,7 +208,7 @@ function openThemesMenu(event: any): void {
   themesMenu.value.toggle(event);
 }
 
-function isLoggedInWithRole(role: String): boolean {
+function isLoggedInWithRole(role: string): boolean {
   return isLoggedIn.value && currentUser.value && currentUser.value.roles.includes(role);
 }
 
@@ -244,7 +247,7 @@ function getAdminItems(): any[] {
 }
 
 function getSettingsItems() {
-  return [{ label: "Cookie preferences", icon: "fa-solid fa-gear", command: () => store.commit("updateShowCookieConsent", true) }];
+  return [{ label: "Cookie preferences", icon: "fa-solid fa-gear", command: () => rootStore.updateShowCookieConsent(true) }];
 }
 
 function getThemes() {
@@ -586,11 +589,11 @@ function setAppMenuItems() {
 }
 
 function showReleaseNotes() {
-  store.commit("updateShowReleaseNotes", true);
+  rootStore.updateShowReleaseNotes(true);
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => store.commit("updateCurrentTheme", newTheme));
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => rootStore.updateCurrentTheme(newTheme));
 }
 </script>
 

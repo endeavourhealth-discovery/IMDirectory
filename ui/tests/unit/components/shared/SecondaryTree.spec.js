@@ -11,6 +11,7 @@ import { flushPromises } from "@vue/test-utils";
 import { EntityService } from "@/services";
 import PrimeVue from "primevue/config";
 import testData from "./SecondaryTree.testData";
+import { createTestingPinia } from "@pinia/testing";
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -24,17 +25,7 @@ vi.mock("vue-router", () => ({
   useRoute: () => mockRoute
 }));
 
-const mockDispatch = vi.fn();
-const mockState = {};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia();
 
 vi.mock("primevue/usetoast", () => ({
   useToast: () => ({

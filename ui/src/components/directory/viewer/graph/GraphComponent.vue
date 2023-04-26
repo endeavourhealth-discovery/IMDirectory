@@ -30,10 +30,10 @@ import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
-import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import { useRootStore } from "@/stores/rootStore";
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -43,10 +43,10 @@ const props = defineProps({
 
 const route = useRoute();
 const toast = useToast();
-const store = useStore();
+const rootStore = useRootStore();
 const graphData = ref();
 const directService = new DirectService();
-const splitterRightSize = computed(() => store.state.splitterRightSize);
+const splitterRightSize = computed(() => rootStore.splitterRightSize);
 
 watch(
   () => _.cloneDeep(props.data),
@@ -71,8 +71,7 @@ const radius = ref(16);
 const colour = ref({
   activeNode: { fill: "var(--surface-100)", stroke: "var(--surface-500)" },
   inactiveNode: { fill: "var(--primary-200)", stroke: "var(--surface-500)" },
-  centerNode: { fill: "var(--primary-color)", stroke: "var(--text-color)"
-  },
+  centerNode: { fill: "var(--primary-color)", stroke: "var(--text-color)" },
   font: {},
   path: { fill: "", stroke: "var(--surface-500)" }
 });
@@ -94,11 +93,11 @@ onMounted(() => {
 });
 
 watch(
-    () => _.cloneDeep(graphData),
-    newValue => {
-      root.value = d3.hierarchy(newValue);
-      drawGraph();
-    }
+  () => _.cloneDeep(graphData),
+  newValue => {
+    root.value = d3.hierarchy(newValue);
+    drawGraph();
+  }
 );
 
 onUnmounted(() => window.removeEventListener("resize", onResize));
@@ -243,10 +242,10 @@ function drawGraph() {
     .attr("y", (d: any) => getFODimensions(d).y)
     .attr("width", (d: any) => getFODimensions(d).width)
     .attr("height", (d: any) => getFODimensions(d).height)
-      .attr("color", (d: any) => {
-        if (d.depth === 0) return colour.value.activeNode.fill;
-        return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
-      })
+    .attr("color", (d: any) => {
+      if (d.depth === 0) return colour.value.activeNode.fill;
+      return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
+    })
     .style("font-size", () => `${nodeFontSize.value}px`)
     .on("dblclick", (d: any) => dblclick(d))
     .on("click", (d: any) => click(d))
@@ -324,9 +323,8 @@ async function click(d: any) {
 }
 
 function navigate(iri: string) {
-  const currentRoute = route.name as RouteRecordName | undefined;
   if (iri === "seeMore") {
-    store.commit("updateConceptActivePanel", 2);
+    rootStore.updateSidebarControlActivePanel(2);
   } else if (iri) {
     directService.select(iri);
   }
@@ -458,7 +456,7 @@ function zoomOut() {
   align-items: center;
   justify-content: center;
   height: inherit;
-  text-align:center;
+  text-align: center;
 }
 
 #force-layout-graph:deep(foreignObject):hover {

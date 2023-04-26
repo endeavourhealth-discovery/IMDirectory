@@ -1,4 +1,4 @@
-import { eclToIMQ } from "../../../src/helpers/Ecl/EclToIMQ";
+import { eclToIMQ } from "../../src/helpers/Ecl/EclToIMQ";
 import queryTestData from "./query.testData";
 import eclTestData from "./ecl.testData";
 

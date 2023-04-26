@@ -10,27 +10,22 @@ import { expect, it } from "vitest";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import VueClipboard from "vue3-clipboard";
 import Tooltip from "primevue/tooltip";
+import { createTestingPinia } from "@pinia/testing";
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
-
-const mockDispatch = vi.fn();
-const mockCommit = vi.fn();
-const mockState = {
-  filterOptions: {
-    status: [
-      { "@id": "http://endhealth.info/im#Active", name: "Active" },
-      { "@id": "http://endhealth.info/im#Draft", name: "Draft" },
-      { "@id": "http://endhealth.info/im#Inactive", name: "Inactive" },
-      { "@id": "http://endhealth.info/im#Unassigned", name: "Unassigned" }
-    ]
+createTestingPinia({
+  initialState: {
+    root: {
+      filterOptions: {
+        status: [
+          { "@id": "http://endhealth.info/im#Active", name: "Active" },
+          { "@id": "http://endhealth.info/im#Draft", name: "Draft" },
+          { "@id": "http://endhealth.info/im#Inactive", name: "Inactive" },
+          { "@id": "http://endhealth.info/im#Unassigned", name: "Unassigned" }
+        ]
+      }
+    }
   }
-};
+})
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -56,8 +51,6 @@ describe("EclSearch.vue", async () => {
   let component;
   let mockECLSearch;
   let mockGetQueryFromECL;
-  let docSpy;
-  let windowSpy;
 
   beforeEach(async () => {
     vi.resetAllMocks();

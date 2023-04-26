@@ -13,6 +13,8 @@ import PrimeVue from "primevue/config";
 import { DirectService } from "@/services";
 import { expect, it, vi } from "vitest";
 import testData from "./SearchResultsTable.testData";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/rootStore";
 
 Object.assign(navigator, {
   clipboard: {
@@ -20,25 +22,20 @@ Object.assign(navigator, {
   }
 });
 
-const mockDispatch = vi.fn();
-const mockState = {
-  searchLoading: false,
-  filterDefaults: testData.FILTER_DEFAULTS,
-  filterOptions: testData.FILTER_OPTIONS,
-  selectedFilters: testData.SELECTED_FILTERS,
-  searchResults: testData.SEARCH_RESULTS,
-  favourites: ["http://snomed.info/sct#241193003"],
-  findInTreeIri: ""
-};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    root: {
+      searchLoading: false,
+      filterDefaults: testData.FILTER_DEFAULTS,
+      filterOptions: testData.FILTER_OPTIONS,
+      selectedFilters: testData.SELECTED_FILTERS,
+      searchResults: testData.SEARCH_RESULTS,
+      favourites: ["http://snomed.info/sct#241193003"],
+      findInTreeIri: ""
+    }
+  }
+});
+const mockState = useRootStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -120,8 +117,7 @@ describe("SearchResultsTable.vue", () => {
     let favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[0].name + " | " + mockState.searchResults[0].code))[0];
     let favButton = within(favourite).getByTestId("unfavourite-button");
     await fireEvent.click(favButton);
-    expect(mockCommit).toHaveBeenCalledTimes(1);
-    expect(mockCommit).toBeCalledWith("updateFavourites", mockState.searchResults[0].iri);
+    expect(mockState.updateFavourites).toHaveBeenCalledTimes(1);
   });
 
   it("can favourite", async () => {
@@ -130,7 +126,6 @@ describe("SearchResultsTable.vue", () => {
     let favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[1].name + " | " + mockState.searchResults[1].code))[0];
     let favButton = within(favourite).getByTestId("favourite-button");
     await fireEvent.click(favButton);
-    expect(mockCommit).toHaveBeenCalledTimes(1);
-    expect(mockCommit).toBeCalledWith("updateFavourites", mockState.searchResults[1].iri);
+    expect(mockState.updateFavourites).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,10 +1,11 @@
 import { CreateComponentPublicInstance } from "vue";
 import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
-import { Store, useStore } from "vuex";
+import { RecentActivityItem } from "@im-library/interfaces";
 import Env from "./Env";
+import { useRootStore } from "@/stores/rootStore";
 
 export default class DirectService {
-  private store: Store<any>;
+  private rootStore;
   private _message: string;
   private router: Router;
   private route: RouteLocationNormalizedLoaded;
@@ -12,7 +13,7 @@ export default class DirectService {
   constructor() {
     this.route = useRoute();
     this.router = useRouter();
-    this.store = useStore();
+    this.rootStore = useRootStore();
     this._message = "You will be directed to a different application. Are you sure you want to proceed?";
   }
 
@@ -20,7 +21,7 @@ export default class DirectService {
     if (iri) {
       if (appRoute) window.open(app + appRoute + "/" + encodeURIComponent(iri));
       else window.open(app + encodeURIComponent(iri));
-      this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), action: action });
+      this.rootStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: action } as RecentActivityItem);
     } else if (appRoute) {
       window.open(app + appRoute);
     } else {
@@ -58,9 +59,9 @@ export default class DirectService {
         name: routeName || currentRoute,
         params: { selectedIri: iri }
       });
-      this.store.commit("updateConceptIri", iri);
+      this.rootStore.updateConceptIri(iri);
     }
-    this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), action: "Viewed" });
+    this.rootStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: "Viewed" } as RecentActivityItem);
   }
 
   public edit(iri?: string) {

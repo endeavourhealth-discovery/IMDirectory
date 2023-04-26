@@ -3,22 +3,25 @@ import Button from "primevue/button";
 import PrimeVue from "primevue/config";
 import { expect, vi } from "vitest";
 import { render, fireEvent } from "@testing-library/vue";
-import { createStore } from "vuex";
 import { flushPromises } from "@vue/test-utils";
 import SnomedLicense from "@/components/shared/SnomedLicense.vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/rootStore";
 
-const store = createStore({
-  state: {
-    snomedLicenseAccepted: false,
-    snomedReturnUrl: "testUrl.org"
-  },
-  mutations: {
-    updateSnomedLicenseAccepted(state, status) {
-      state.snomedLicenseAccepted = status;
-      localStorage.setItem("snomedLicenseAccepted", status);
+createTestingPinia({
+  initialState: {
+    root: {
+      snomedLicenseAccepted: false,
+      snomedReturnUrl: "testUrl.org"
     }
   }
 });
+
+const mockState = useRootStore();
+mockState.updateSnomedLicenseAccepted = status => {
+  mockState.snomedLicenseAccepted = status;
+  localStorage.setItem("snomedLicenseAccepted", status);
+};
 
 describe("SnomedLicense.vue ___ not accepted", () => {
   let mockLocation;
@@ -30,10 +33,9 @@ describe("SnomedLicense.vue ___ not accepted", () => {
     location = window.location;
     delete window.location;
     window.location = mockLocation;
-    store.state.snomedLicenseAccepted = false;
     component = render(SnomedLicense, {
       global: {
-        plugins: [PrimeVue, store],
+        plugins: [PrimeVue],
         components: { Dialog, Button }
       }
     });
@@ -45,7 +47,6 @@ describe("SnomedLicense.vue ___ not accepted", () => {
   });
 
   it("shows dialog if license not accepted", () => {
-    store.state.snomedLicenseAccepted = false;
     component.getByTestId("license-dialog");
   });
 
@@ -67,10 +68,10 @@ describe("SnomedLicense.vue ___ accepted", () => {
     location = window.location;
     delete window.location;
     window.location = mockLocation;
-    store.state.snomedLicenseAccepted = true;
+    mockState.snomedLicenseAccepted = true;
     component = render(SnomedLicense, {
       global: {
-        plugins: [PrimeVue, store],
+        plugins: [PrimeVue],
         components: { Dialog, Button }
       }
     });

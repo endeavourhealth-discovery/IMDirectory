@@ -32,9 +32,11 @@ const Filer = () => import("@/views/Filer.vue");
 const Query = () => import("@/views/Query.vue");
 import { EntityService, Env } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import store from "@/store/index";
+
 import { nextTick } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
+import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
 const APP_TITLE = "IM Directory";
 
@@ -255,17 +257,20 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
+  const rootStore = useRootStore();
+  const userStore = useUserStore();
+
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
   if (to.path !== "/snomedLicense") {
-    store.commit("updateSnomedReturnUrl", currentUrl);
-    store.commit("updateAuthReturnUrl", currentUrl);
+    rootStore.updateSnomedReturnUrl(currentUrl);
+    rootStore.updateAuthReturnUrl(currentUrl);
   }
   const iri = to.params.selectedIri;
   if (iri) {
-    store.commit("updateConceptIri", iri as string);
+    rootStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
-    if (iri) store.commit("updateEditorIri", iri);
+    if (iri) rootStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
         router.push({ name: "EntityNotFound" });
@@ -275,7 +280,7 @@ router.beforeEach(async (to, from) => {
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
@@ -284,30 +289,30 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
       router.push({ name: "Login" });
-    } else if (!store.state.currentUser.roles.includes("create")) {
+    } else if (!userStore.currentUser.roles.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       console.log("redirecting to login");
       router.push({ name: "Login" });
-    } else if (!store.state.currentUser.roles.includes("edit")) {
+    } else if (!userStore.currentUser.roles.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
-    console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
-    if (store.state.snomedLicenseAccepted !== true) {
+    console.log("snomed license accepted:" + rootStore.snomedLicenseAccepted);
+    if (rootStore.snomedLicenseAccepted !== true) {
       return {
         path: "/snomedLicense"
       };
@@ -339,7 +344,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/creator/") && !to.path.startsWith("/creator/")) {
-    if (store.state.creatorHasChanges) {
+    if (rootStore.creatorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }
@@ -347,7 +352,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/editor/") && !to.path.startsWith("/editor/")) {
-    if (store.state.editorHasChanges) {
+    if (rootStore.editorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }
