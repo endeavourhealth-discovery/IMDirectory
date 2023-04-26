@@ -33,6 +33,7 @@ function buildDQInstance(parent: ITextQuery, label: string, type: string, data: 
     display: label,
     type: type,
     data: data,
+    uiData: buildClauseUI(data),
     parent: parent,
     bool: data.bool,
     children: []

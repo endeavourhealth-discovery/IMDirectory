@@ -5,7 +5,12 @@ import { Entailment, Match, Where } from "../interfaces/AutoGen";
 
 export function buildClauseUI(match: Match): MatchClauseUI[] {
   const clauses = [] as MatchClauseUI[];
-  const clauseUI = { matchType: getMatchType(match), matchEntailment: getEntailmentOptions(match), matchValue: getMatchValue(match) } as MatchClauseUI;
+  const clauseUI = {
+    matchType: getMatchType(match),
+    matchEntailment: getEntailmentOptions(match),
+    matchValue: getMatchValue(match),
+    include: !match.exclude
+  } as MatchClauseUI;
   if (isObjectHasKeys(match, ["where"])) {
     for (const where of match.where) {
       const { value, type } = getPropertyValue(where);

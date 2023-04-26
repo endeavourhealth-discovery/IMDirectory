@@ -8,19 +8,21 @@
 
   <Dialog v-model:visible="editDialog" modal :style="{ width: '50vw' }">
     <template #header> <div v-html="selected.display"></div> </template>
-    <MatchClause :baseEntityIri="baseEntityIri" :match="selected.data" @on-cancel="editDialog = false" />
+    <MatchClause :baseEntityIri="baseEntityIri" :text-query="selected" />
     <template #footer>
-      <Button class="action-button" severity="secondary" label="Cancel" @click="editDialog = false"></Button>
+      <Button class="action-button" severity="secondary" label="Cancel" @click="onCancel()"></Button>
       <Button class="action-button" label="Save" @click="onSave()"></Button>
     </template>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { ITextQuery } from "@im-library/interfaces/query/TextQuery";
-import { onMounted, PropType, Ref, ref } from "vue";
+import { PropType, Ref, ref } from "vue";
 import MatchClause from "./MatchClause.vue";
+import { getDisplayFromMatch } from "@im-library/helpers/TextQueryBuilder";
+import { buildClauseUI } from "@im-library/helpers/ClauseUIBuilder";
 const props = defineProps({
   baseEntityIri: { type: String, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },
@@ -35,7 +37,25 @@ function openDialog(textQuery: ITextQuery) {
   editDialog.value = true;
 }
 
+function onCancel() {
+  selected.value.uiData = buildClauseUI(selected.value.data);
+  editDialog.value = false;
+}
+
 function onSave() {
+  if (selected.value.uiData.length === 1) {
+    const matchClause = selected.value.uiData[0];
+    const match = selected.value.data;
+
+    match[matchClause.matchType.prop] = matchClause.matchValue.iri;
+    match.exclude = !matchClause.include;
+    for (const entailment of matchClause.matchEntailment) {
+      match[entailment] = true;
+    }
+  }
+
+  selected.value.display = getDisplayFromMatch(selected.value.data);
+
   editDialog.value = false;
 }
 </script>

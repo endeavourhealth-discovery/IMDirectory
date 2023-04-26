@@ -1,5 +1,5 @@
 <template>
-  <MultiSelect v-model="selectedOptions" :options="options" placeholder="Entailment options" :maxSelectedLabels="1" />
+  <MultiSelect v-model="selectedOptions" :options="options" placeholder="Entailment options" :maxSelectedLabels="1" @change="onChange()" />
 </template>
 
 <script setup lang="ts">
@@ -10,6 +10,12 @@ const props = defineProps({
 const selectedOptions: Ref<string[]> = ref([]);
 
 const options = ["ancestorsOf", "descendantsOrSelfOf", "descendantsOf"];
+
+function onChange() {
+  for (const selectedOption of selectedOptions.value) {
+    props.entailmentOptions.push(selectedOption);
+  }
+}
 </script>
 
 <style scoped></style>
