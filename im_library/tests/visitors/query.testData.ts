@@ -77,9 +77,9 @@ export default {
           {
             "@id": "http://snomed.info/sct#301366005",
             descendantsOrSelfOf: true,
+            path: { "@id": "http://endhealth.info/im#roleGroup" },
             where: [
               {
-                "@id": "http://endhealth.info/im#roleGroup",
                 where: [
                   {
                     "@id": "http://snomed.info/sct#363698007",
@@ -140,9 +140,9 @@ export default {
           {
             "@id": "http://snomed.info/sct#301366005",
             descendantsOrSelfOf: true,
+            path: { "@id": "http://endhealth.info/im#roleGroup" },
             where: [
               {
-                "@id": "http://endhealth.info/im#roleGroup",
                 where: [
                   {
                     "@id": "http://snomed.info/sct#363698007",
@@ -172,9 +172,9 @@ export default {
           {
             "@id": "http://snomed.info/sct#301366005",
             descendantsOrSelfOf: true,
+            path: { "@id": "http://endhealth.info/im#roleGroup" },
             where: [
               {
-                "@id": "http://endhealth.info/im#roleGroup",
                 where: [
                   {
                     "@id": "http://snomed.info/sct#762705008",
@@ -208,9 +208,9 @@ export default {
             descendantsOrSelfOf: true
           }
         ],
+        path: { "@id": "http://endhealth.info/im#roleGroup" },
         where: [
           {
-            "@id": "http://endhealth.info/im#roleGroup",
             where: [
               {
                 "@id": "http://snomed.info/sct#762705008",
@@ -249,9 +249,9 @@ export default {
       {
         "@id": "http://snomed.info/sct#225399009",
         descendantsOrSelfOf: true,
+        path: { "@id": "http://endhealth.info/im#roleGroup" },
         where: [
           {
-            "@id": "http://endhealth.info/im#roleGroup",
             bool: "and",
             where: [
               {
@@ -297,9 +297,9 @@ export default {
                 descendantsOrSelfOf: true
               }
             ],
+            path: { "@id": "http://endhealth.info/im#roleGroup" },
             where: [
               {
-                "@id": "http://endhealth.info/im#roleGroup",
                 where: [
                   {
                     "@id": "http://snomed.info/sct#762705008",
@@ -345,9 +345,9 @@ export default {
                 descendantsOrSelfOf: true
               }
             ],
+            path: { "@id": "http://endhealth.info/im#roleGroup" },
             where: [
               {
-                "@id": "http://endhealth.info/im#roleGroup",
                 where: [
                   {
                     "@id": "http://snomed.info/sct#762705008",
@@ -367,9 +367,9 @@ export default {
             exclude: true,
             match: [
               {
+                path: { "@id": "http://endhealth.info/im#roleGroup" },
                 where: [
                   {
-                    "@id": "http://endhealth.info/im#roleGroup",
                     where: [
                       {
                         "@id": "http://snomed.info/sct#363698007",
