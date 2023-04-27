@@ -202,15 +202,15 @@ async function getAutocompleteOptions() {
     }
     controller.value = new AbortController();
     if (controller.value) {
-      if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_DMPropertyRange" && queryRequest.argument[1].valueIri["@id"]) {
+      if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_DataModelPropertyRange" && queryRequest.argument[1].valueIri["@id"]) {
         const result = await QueryService.queryIM(queryRequest, controller.value);
         if (result && isObjectHasKeys(result, ["entities"])) {
-          const range = result.entities[0][SHACL.PROPERTY] ? result.entities[0][SHACL.PROPERTY][0][SHACL.NODE] || result.entities[0][SHACL.PROPERTY][0][SHACL.CLASS] || result.entities[0][SHACL.PROPERTY][0][SHACL.DATATYPE] : {};
+          const range = result.entities[0]? result.entities[0][SHACL.NODE] || result.entities[0][SHACL.CLASS] || result.entities[0][SHACL.DATATYPE] : {};
           if(Object.keys(range).length !== 0) {
             autocompleteOptions.value = convertToConceptSummary(range);
           }
         }
-      } else if(queryRequest.query["@id"] !== "http://endhealth.info/im#Query_DMPropertyRange") {
+      } else if(queryRequest.query["@id"] !== "http://endhealth.info/im#Query_DataModelPropertyRange") {
         const result = await QueryService.queryIM(queryRequest, controller.value);
         if (result && isObjectHasKeys(result, ["entities"])) {
           autocompleteOptions.value = convertToConceptSummary(result.entities).sort((a:any ,b:any) => a.name.toString().toLowerCase().localeCompare(b.name.toString().toLowerCase()));
