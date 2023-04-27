@@ -23,21 +23,23 @@ import Search from "@/components/directory/topbar/Search.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import { useStore } from "vuex";
+import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const toast = useToast();
-const store = useStore();
+const rootStore = useRootStore();
+const userStore = useUserStore();
 
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
-  await store.dispatch("fetchFilterSettings");
-  await store.dispatch("initFavourites");
+  await rootStore.fetchFilterSettings();
+  await rootStore.initFavourites();
   loading.value = false;
 });
 </script>

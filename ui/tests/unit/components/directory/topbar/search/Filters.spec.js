@@ -9,23 +9,18 @@ import testData from "./Filters.testData";
 import { render } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { beforeEach, describe, it, vi } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
-
-const mockDispatch = vi.fn();
-const mockCommit = vi.fn();
-const mockState = {
-  filterOptions: testData.FILTER_OPTIONS,
-  filterDefaults: testData.FILTER_DEFAULTS,
-  selectedFilters: testData.SELECTED_FILTERS,
-  quickFiltersStatus: testData.QUICK_FILTER_STATUS
-};
+createTestingPinia({
+  initialState: {
+    root: {
+      filterOptions: testData.FILTER_OPTIONS,
+      filterDefaults: testData.FILTER_DEFAULTS,
+      selectedFilters: testData.SELECTED_FILTERS,
+      quickFiltersStatus: testData.QUICK_FILTER_STATUS
+    }
+  }
+});
 
 describe("Filters.vue", () => {
   let component;
@@ -61,7 +56,7 @@ describe("Filters.vue", () => {
 });
 
 // describe("Filters.vue", () => {
-//   describe("empty store", () => {
+//   describe("empty rootStore", () => {
 //     let component;
 
 //     beforeEach(async () => {
@@ -494,7 +489,7 @@ describe("Filters.vue", () => {
 //     });
 //   });
 
-//   describe("full store", () => {
+//   describe("full rootStore", () => {
 //     let wrapper;
 //     let mockStore;
 //     let mockToast;
@@ -629,7 +624,7 @@ describe("Filters.vue", () => {
 //         global: {
 //           components: { MultiSelect, InputSwitch, Button, Dropdown },
 //           directives: { Tooltip: Tooltip },
-//           mocks: { $store: mockStore, $toast: mockToast }
+//           mocks: { $rootStore: mockStore, $toast: mockToast }
 //         }
 //       });
 
@@ -826,7 +821,7 @@ describe("Filters.vue", () => {
 //         global: {
 //           components: { MultiSelect, InputSwitch, Button, Dropdown },
 //           directives: { Tooltip: Tooltip },
-//           mocks: { $store: mockStore, $toast: mockToast }
+//           mocks: { $rootStore: mockStore, $toast: mockToast }
 //         }
 //       });
 

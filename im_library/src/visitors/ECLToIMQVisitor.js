@@ -78,6 +78,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
         if (isObjectHasKeys(result, ["eclRefinement"])) {
           const eclRefinement = result.eclRefinement;
           query.refinedExpressionConstraint.where = [];
+          if (eclRefinement["@id"] === IM.ROLE_GROUP) {
+            query.refinedExpressionConstraint.path = { "@id": IM.ROLE_GROUP };
+            delete eclRefinement["@id"];
+          }
           query.refinedExpressionConstraint.where.push(eclRefinement);
         }
       }

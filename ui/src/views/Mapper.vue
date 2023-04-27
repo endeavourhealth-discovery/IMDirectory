@@ -23,11 +23,12 @@ import { onMounted, ref } from "vue";
 import InfoSideBar from "@/components/editor/infobar/InfoSideBar.vue";
 import EntityMapper from "@/components/mapper/EntityMapper.vue";
 import TopBar from "@/components/shared/TopBar.vue";
-import { useStore } from "vuex";
-const store = useStore();
+import { useRootStore } from "@/stores/rootStore";
+
+const rootStore = useRootStore();
 
 onMounted(async () => {
-  await store.dispatch("fetchFilterSettings");
+  await rootStore.fetchFilterSettings();
 });
 
 const showInfo = ref(false);

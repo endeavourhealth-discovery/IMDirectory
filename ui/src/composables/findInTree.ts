@@ -1,10 +1,10 @@
-import { useStore } from "vuex";
+import { useRootStore } from "@/stores/rootStore";
 
 function findInTree() {
-  const store = useStore();
+  const rootStore = useRootStore();
   async function locateInTree(event: any, iri: string) {
     event.stopPropagation();
-    store.commit("updateFindInTreeIri", iri);
+    rootStore.updateFindInTreeIri(iri);
   }
   return { locateInTree };
 }

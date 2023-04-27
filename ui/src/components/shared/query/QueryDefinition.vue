@@ -9,16 +9,12 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import Node from "./Node.vue";
-import { mapState } from "vuex";
 
 export default defineComponent({
   name: "QueryDefinition",
   props: ["modelValue", "edit"],
   emits: ["stopEditing"],
   components: { Node },
-  computed: {
-    ...mapState(["activeClausePath"])
-  },
   watch: {
     modelValue(value: any) {
       this.query = value;

@@ -10,18 +10,17 @@ import { expect, vi } from "vitest";
 import PrimeVue from "primevue/config";
 import { GithubService } from "@/services";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
+import { createTestingPinia } from "@pinia/testing";
+import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    commit: mockCommit,
-    state: mockState
-  })
-}));
-
-const mockDispatch = vi.fn();
-const mockCommit = vi.fn();
-const mockState = { showReleaseNotes: false };
+createTestingPinia({
+  initialState: {
+    root: { showReleaseNotes: false }
+  }
+});
+const mockState = useRootStore();
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -60,8 +59,7 @@ describe("App.vue", () => {
     });
   });
 
-  it("should check auth and update store history count on mount", async () => {
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
-    expect(mockDispatch).toHaveBeenCalledWith("authenticateCurrentUser");
+  it("should check auth and update rootStore history count on mount", async () => {
+    expect(mockUserState.authenticateCurrentUser).toHaveBeenCalledTimes(1);
   });
 });

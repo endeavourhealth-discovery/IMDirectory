@@ -79,7 +79,6 @@ import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { DirectService, Env, EntityService } from "@/services";
 import { FilterMatchMode } from "primevue/api";
-import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import DataTable, { DataTableFilterMeta, DataTableFilterMetaData } from "primevue/datatable";
 
@@ -107,7 +106,6 @@ const emit = defineEmits({
   showDetails: (_payload: string) => true
 });
 
-const store = useStore();
 const router = useRouter();
 
 const directService = new DirectService();
