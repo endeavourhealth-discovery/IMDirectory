@@ -9,6 +9,7 @@ describe("ClauseUIBuilder.ts ___", () => {
       const uiData = buildClauseUI({ "@type": "Patient" } as Match);
       expect(uiData).toStrictEqual([
         {
+          include: true,
           matchEntailment: [],
           matchType: { name: "Type", prop: "@type" },
           matchValue: {
@@ -27,6 +28,7 @@ describe("ClauseUIBuilder.ts ___", () => {
       } as Match);
       expect(uiData).toStrictEqual([
         {
+          include: true,
           matchEntailment: [],
           matchType: { name: "Set", prop: "@set" },
           matchValue: {
@@ -49,12 +51,21 @@ describe("ClauseUIBuilder.ts ___", () => {
       } as Match);
       expect(uiData).toStrictEqual([
         {
+          include: true,
           matchEntailment: [],
           matchType: undefined,
           matchValue: undefined,
           where: [
             {
-              whereProperty: "http://endhealth.info/im#age",
+              whereProperty: {
+                data: {
+                  "http://www.w3.org/ns/shacl#path": [
+                    {
+                      "@id": "http://endhealth.info/im#age"
+                    }
+                  ]
+                }
+              },
               whereType: "range",
               whereValue: {
                 to: { operator: ">", value: "70", unit: null, relativeTo: null },
@@ -88,18 +99,35 @@ describe("ClauseUIBuilder.ts ___", () => {
       } as Match);
       expect(uiData).toStrictEqual([
         {
+          include: false,
           matchEntailment: [],
           matchType: undefined,
           matchValue: undefined,
           where: [
             {
-              whereProperty: "http://endhealth.info/im#concept",
+              whereProperty: {
+                data: {
+                  "http://www.w3.org/ns/shacl#path": [
+                    {
+                      "@id": "http://endhealth.info/im#concept"
+                    }
+                  ]
+                }
+              },
               whereType: "in",
               whereValue: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }],
               whereEntailment: []
             },
             {
-              whereProperty: "http://endhealth.info/im#effectiveDate",
+              whereProperty: {
+                data: {
+                  "http://www.w3.org/ns/shacl#path": [
+                    {
+                      "@id": "http://endhealth.info/im#effectiveDate"
+                    }
+                  ]
+                }
+              },
               whereType: "comparison",
               whereValue: {
                 description: "after high BP",

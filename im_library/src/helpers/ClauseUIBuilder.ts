@@ -56,7 +56,7 @@ export function getEntailmentOptions(entailment: Entailment): string[] {
   return entailmentOptions;
 }
 
-export function getMatchValue(match: Match | Where): ConceptSummary {
+export function getMatchValue(match: Match | Where): ConceptSummary | void {
   if (isObjectHasKeys(match, ["@type"])) return { iri: match["@type"], name: getNameFromRef(match) } as ConceptSummary;
   else if (isObjectHasKeys(match, ["@set"])) return { iri: match["@set"], name: getNameFromRef(match) } as ConceptSummary;
   else if (isObjectHasKeys(match, ["@id"])) return { iri: match["@id"], name: getNameFromRef(match) } as ConceptSummary;
