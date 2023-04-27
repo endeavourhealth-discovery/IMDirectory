@@ -5,6 +5,7 @@
     <DynamicDialog class="dynamic-dialog" />
     <ReleaseNotes v-if="!loading && showReleaseNotes" />
     <CookiesConsent />
+    <SnomedConsent />
     <div id="main-container">
       <BannerBar v-if="!loading && showBanner" :latestRelease="latestRelease" />
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
@@ -33,6 +34,7 @@ import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
 import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "./stores/userStore";
+import SnomedConsent from "./components/app/SnomedConsent.vue";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();

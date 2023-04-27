@@ -8,10 +8,11 @@
       </template>
     </TopBar>
     <div class="privacy-policy-content">
-      <h1>Endeavour Health Information Model Privacy Policy</h1>
+      <Button label="Back" icon="fa-solid fa-arrow-left" @click="goBack" class="back-button" />
+      <h1>{{ companyName }} Privacy Policy</h1>
       <p>
-        This privacy policy details how Endeavour Health (hereby covered by "we", "us" or "our") handles the use of your personal data. It explains our policies
-        around the collection, processing, use and sharing of the data you provide to our services.
+        This privacy policy details how {{ companyName }} (hereby covered by "we", "us" or "our") handles the use of your personal data. It explains our
+        policies around the collection, processing, use and sharing of the data you provide to our services.
       </p>
       <h2>Data collection</h2>
       <p>
@@ -20,13 +21,13 @@
         the minimum data required to provide our services and personalised experiences.
       </p>
       <h2>Data processing</h2>
-      <p>Endeavour Health is solely responsible for the processing of personal data provided to their services.</p>
+      <p>{{ companyName }} is solely responsible for the processing of personal data provided to their services.</p>
       <h2>Data use</h2>
       <p>Personal data collected is used to provide our services, handle security and for compliance with our industry regulations.</p>
       <h2>Data sharing</h2>
       <p>
         We may share your information with third parties under one of the following circumstances: with your consent, with our service providers, for security
-        purposes, to comply with our legal obligations, or when there is a change of buisness control. Endeavour health do not sell your personal information
+        purposes, to comply with our legal obligations, or when there is a change of buisness control. {{ companyName }} do not sell your personal information
         nor use it for advertising.
       </p>
     </div>
@@ -34,7 +35,17 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const companyName = ref("Voror Health Technologies Ltd");
+
+function goBack() {
+  router.back();
+}
 </script>
 
 <style scoped>
@@ -60,5 +71,9 @@ import TopBar from "@/components/shared/TopBar.vue";
   flex: 1 1 auto;
   overflow: auto;
   padding: 1rem 20%;
+}
+
+.back-button {
+  width: fit-content;
 }
 </style>

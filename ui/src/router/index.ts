@@ -46,7 +46,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/directory",
     name: "Directory",
     component: Directory,
-    meta: { requiredLicense: true },
+    meta: { requiresLicense: true },
     redirect: { name: "LandingPage" },
     children: [
       {
@@ -267,10 +267,9 @@ router.beforeEach(async (to, from) => {
   const userStore = useUserStore();
 
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
-  if (to.path !== "/snomedLicense") {
-    rootStore.updateSnomedReturnUrl(currentUrl);
-    rootStore.updateAuthReturnUrl(currentUrl);
-  }
+
+  rootStore.updateAuthReturnUrl(currentUrl);
+
   const iri = to.params.selectedIri;
   if (iri) {
     rootStore.updateConceptIri(iri as string);
@@ -318,11 +317,6 @@ router.beforeEach(async (to, from) => {
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
     console.log("snomed license accepted:" + rootStore.snomedLicenseAccepted);
-    if (rootStore.snomedLicenseAccepted !== true) {
-      return {
-        path: "/snomedLicense"
-      };
-    }
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {

@@ -1,24 +1,29 @@
 <template>
   <div id="footer-bar">
     <div id="footer-start">
-      <h2>Information Model</h2>
+      <IMFontAwesomeIcon
+        :icon="fontAwesomePro ? 'fa-duotone fa-cookie-bite' : 'fa-solid fa-cookie-bite'"
+        :style="fontAwesomePro && '--fa-primary-color: var(--orange-900); --fa-secondary-color: var(--yellow-500)'"
+        class="footer-icon"
+        v-tooltip.top="'Cookie settings'"
+        @click="showCookieSettings"
+      />
     </div>
     <div id="footer-middle">
       <router-link to="/privacy" class="footer-link">Privacy policy</router-link>
       <router-link to="/cookies" class="footer-link">Cookie policy</router-link>
-      <span @click="showCookieSettings" class="footer-link">Cookie settings</span>
       <router-link to="/snomedLicense" class="footer-link">Snomed agreement</router-link>
     </div>
-    <div id="footer-end">
-      <h3>Endeavour Health</h3>
-    </div>
+    <div id="footer-end"></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRootStore } from "@/stores/rootStore";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 
 const rootStore = useRootStore();
+const fontAwesomePro = rootStore.fontAwesomePro;
 
 function showCookieSettings() {
   rootStore.updateShowCookieConsent(true);
@@ -72,5 +77,11 @@ function showCookieSettings() {
 
 .footer-link:hover {
   text-decoration: underline;
+}
+
+.footer-icon {
+  height: 2rem;
+  width: 2rem;
+  cursor: pointer;
 }
 </style>
