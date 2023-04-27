@@ -1,43 +1,65 @@
 <template>
-  <DropdownHeader :options="['in', 'notIn', 'isNull']" />
-  <div v-if="header !== 'Is null'" v-for="(selValue, index) in selectedValues" class="class-select">
-    <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="selValue.name" />
-    <EntailmentOptionsSelect :selected="selectedOptions" :entailment-options="[]" />
-    <Button class="hidden-button" icon="fa-solid fa-plus" text @click="selectedValues.push({ name: '' } as ConceptSummary)" />
-    <Button class="hidden-button" icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" />
+  <DropdownHeader :options="['in', 'notIn', 'isNull']" :where-clause="whereClause" />
+  <div v-if="whereClause.whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="class-select">
+    <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
+    <EntailmentOptionsSelect :entailment-options="editValue.entailmentOptions" />
+    <Button class="hidden-button" icon="fa-solid fa-plus" text @click="editValues.push({ name: '' } as EditValue)" />
+    <Button class="hidden-button" icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
   </div>
   <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
-    <ValueTreeSelect v-if="showTree" :class-iri="props.selectedProperty.data[SHACL.CLASS][0]['@id']" @close="visible = false" />
-    <ValueListSelect v-else :class-iri="props.selectedProperty.data[SHACL.CLASS][0]['@id']" @close="visible = false" @on-select="onSelect($event)" />
+    <ValueTreeSelect v-if="showTree" :class-iri="whereClause.whereProperty.data[SHACL.CLASS][0]['@id']" @close="visible = false" />
+    <ValueListSelect v-else :class-iri="whereClause.whereProperty.data[SHACL.CLASS][0]['@id']" @close="visible = false" @on-select="onSelect($event)" />
   </Dialog>
 </template>
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
-import { onMounted, PropType, Ref, ref } from "vue";
+import { onMounted, PropType, Ref, ref, watch } from "vue";
 import EntailmentOptionsSelect from "../../editTextQuery/EntailmentOptionsSelect.vue";
 import ValueTreeSelect from "./class/ValueTreeSelect.vue";
 import ValueListSelect from "./class/ValueListSelect.vue";
 import DropdownHeader from "../DropdownHeader.vue";
-import { ConceptSummary, TreeNode } from "@im-library/interfaces";
+import { ConceptSummary, WhereClauseUI } from "@im-library/interfaces";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { getEntailmentOptions } from "@im-library/helpers/ClauseUIBuilder";
+import _ from "lodash";
+
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
+interface EditValue {
+  iri: string;
+  name: string;
+  entailmentOptions: string[];
+}
+
 const props = defineProps({
-  selectedProperty: { type: Object as PropType<TreeNode>, required: true },
-  selectedValue: { type: Object as PropType<TreeNode>, required: false }
+  whereClause: { type: Object as PropType<WhereClauseUI>, required: true }
 });
 const visible: Ref<boolean> = ref(false);
 const showTree: Ref<boolean> = ref(false);
-const selectedValues: Ref<ConceptSummary[]> = ref([{} as ConceptSummary]);
+const editValues: Ref<EditValue[]> = ref([] as EditValue[]);
 const selectedIndex: Ref<number> = ref(0);
-const selectedOptions: Ref<string[]> = ref([]);
-const header = ref("Is");
+watch(
+  () => _.cloneDeep(editValues.value),
+  () => {
+    props.whereClause.whereValue = [];
+    for (const editValue of editValues.value) {
+      const whereValue = { "@id": editValue.iri, name: editValue.name } as any;
+      if (isArrayHasLength(editValue.entailmentOptions))
+        for (const entailment of editValue.entailmentOptions) {
+          whereValue[entailment] = true;
+        }
+      props.whereClause.whereValue.push(whereValue);
+    }
+  }
+);
 
 onMounted(async () => {
-  const classIri = props.selectedProperty.data[SHACL.CLASS][0]["@id"];
+  initEditValues();
+  const classIri = props.whereClause.whereProperty.data[SHACL.CLASS][0]["@id"];
   const entity = await EntityService.getPartialEntity(classIri, [RDF.TYPE, IM.DEFINITION]);
   if (isQuery(entity[RDF.TYPE]) || (isValueSet(entity[RDF.TYPE]) && isObjectHasKeys(entity, [IM.DEFINITION]))) {
     showTree.value = false;
@@ -46,12 +68,26 @@ onMounted(async () => {
   }
 });
 
+function initEditValues() {
+  if (!isArrayHasLength(props.whereClause.whereValue)) {
+    editValues.value.push({} as EditValue);
+  }
+  for (const value of props.whereClause.whereValue) {
+    editValues.value.push({
+      name: getNameFromRef(value),
+      iri: value["@id"],
+      entailmentOptions: getEntailmentOptions(value)
+    } as EditValue);
+  }
+}
+
 function onSelect(event: any) {
   visible.value = false;
-  selectedValues.value[selectedIndex.value] = {
-    name: event.name || event.label,
-    iri: event["@id"]
-  } as ConceptSummary;
+  editValues.value[selectedIndex.value] = {
+    name: event.name || event.label || getNameFromRef(event),
+    iri: event["@id"],
+    entailmentOptions: getEntailmentOptions(event)
+  } as EditValue;
   emit("onSelect", event);
 }
 
@@ -61,7 +97,7 @@ function openDialog(index: number) {
 }
 
 function deleteItem(index: number) {
-  selectedValues.value.splice(index, 1);
+  editValues.value.splice(index, 1);
 }
 </script>
 

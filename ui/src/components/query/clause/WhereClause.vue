@@ -1,13 +1,9 @@
 <template>
   <div>
-    <PropertySelect optionLabel="name" :baseEntityIri="baseEntityIri" :property="whereClause.whereProperty" />
+    <PropertySelect optionLabel="name" :baseEntityIri="baseEntityIri" :property="whereClause.whereProperty" :path="whereClause.path" />
     <EntailmentOptionsSelect :entailmentOptions="whereClause.whereEntailment" />
   </div>
-  <ClassSelect
-    v-if="isObjectHasKeys(whereClause.whereProperty.data, [SHACL.CLASS])"
-    :selected-property="whereClause.whereProperty"
-    :selected-value="whereClause.whereValue"
-  />
+  <ClassSelect v-if="isObjectHasKeys(whereClause.whereProperty.data, [SHACL.CLASS])" :whereClause="whereClause" />
   <DatatypeSelect
     v-else-if="isObjectHasKeys(whereClause.whereProperty.data, [SHACL.DATATYPE])"
     :datatype="whereClause.whereProperty.data[SHACL.DATATYPE][0]['@id']"

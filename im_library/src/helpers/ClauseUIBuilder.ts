@@ -19,7 +19,8 @@ export function buildClauseUI(match: Match): MatchClauseUI[] {
         whereProperty: getWhereProperty(where),
         whereType: type,
         whereValue: value,
-        whereEntailment: getEntailmentOptions(where)
+        whereEntailment: getEntailmentOptions(where),
+        path: match.path
       } as WhereClauseUI;
       if (!isArrayHasLength(clauseUI.where)) clauseUI.where = [];
       clauseUI.where.push(whereClause);
@@ -42,7 +43,7 @@ export function getPropertyValue(where: Where): { value: any; type: string } {
   return { value: where.in, type: "in" };
 }
 
-export function getMatchType(match: Match): { name: string; prop: string } {
+export function getMatchType(match: Match): { name: string; prop: string } | void {
   if (isObjectHasKeys(match, ["@type"])) return { name: "Type", prop: "@type" };
   else if (isObjectHasKeys(match, ["@set"])) return { name: "Set", prop: "@set" };
   else if (isObjectHasKeys(match, ["@id"])) return { name: "Entity", prop: "@id" };
