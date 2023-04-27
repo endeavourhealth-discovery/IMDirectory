@@ -36,6 +36,7 @@ export default class GithubController {
     } catch (e) {
       await setGithubConfig();
       await this.getLatestRelease(req, res, next);
+      next(e);
     }
   }
 
@@ -54,6 +55,7 @@ export default class GithubController {
     } catch (e) {
       await setGithubConfig();
       await this.getReleases(req, res, next);
+      next(e);
     }
   }
 
