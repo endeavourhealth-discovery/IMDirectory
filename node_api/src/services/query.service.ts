@@ -174,14 +174,14 @@ export default class QueryService {
         }
       ],
       query: {
-        "@id": "http://endhealth.info/im#Query_PropertyRange"
+        "@id": "http://endhealth.info/im#Query_AllowableRanges"
       }
     } as any as QueryRequest;
 
     const response = await this.queryIM(queryRequest);
 
-    if (isObjectHasKeys(response, ["entities"]) && isObjectHasKeys(response.entities[0], [RDFS.RANGE])) {
-      return response.entities[0][RDFS.RANGE];
+    if (isObjectHasKeys(response, ["entities"]) && response.entities.length !== 0) {
+      return response.entities;
     } else {
       queryRequest.query = { "@id": "http://endhealth.info/im#Query_ObjectPropertyRangeSuggestions" } as any;
       const suggestions = await this.queryIM(queryRequest);
