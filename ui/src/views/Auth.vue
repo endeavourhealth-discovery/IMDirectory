@@ -16,8 +16,9 @@ import ButtonBar from "@/components/auth/ButtonBar.vue";
 <style scoped>
 .user-container {
   width: 100%;
-  height: 95vh;
+  flex: 1 1 auto;
   margin-top: 5vh;
+  overflow: auto;
 }
 
 .card-button-container {
