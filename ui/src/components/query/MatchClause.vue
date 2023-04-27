@@ -12,7 +12,7 @@
     />
     <div>
       <BaseClause v-if="editClause.matchValue?.iri" :baseEntityIri="baseEntityIri" :base-clause="editClause" />
-      <Button v-else :label="'Add match'" :severity="'success'" text @click="addProperty(editClause)" />
+      <Button v-else :label="'Add match'" :severity="'success'" text @click="addMatch(editClause)" />
     </div>
 
     <div class="create-clause">
@@ -61,6 +61,10 @@ const editClauses: Ref<MatchClauseUI[]> = ref([
 onMounted(() => {
   editClauses.value = props.textQuery.uiData;
 });
+
+function addMatch(editClause: MatchClauseUI) {
+  editClause.matchValue = { iri: " " } as ConceptSummary;
+}
 
 function addProperty(editClause: MatchClauseUI) {
   if (!isArrayHasLength(editClause.where)) editClause.where = [];

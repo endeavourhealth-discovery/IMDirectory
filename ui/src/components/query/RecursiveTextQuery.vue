@@ -11,6 +11,7 @@
     <MatchClause :baseEntityIri="baseEntityIri" :text-query="selected" />
     <template #footer>
       <Button class="action-button" severity="secondary" label="Cancel" @click="onCancel()"></Button>
+      <Button class="action-button" severity="secondary" label="Delete" @click="onDelete()"></Button>
       <Button class="action-button" label="Save" @click="onSave()"></Button>
     </template>
   </Dialog>
@@ -19,7 +20,7 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ITextQuery } from "@im-library/interfaces/query/TextQuery";
-import { PropType, Ref, ref } from "vue";
+import { PropType, Ref, ref, watch } from "vue";
 import MatchClause from "./MatchClause.vue";
 import { getDisplayFromMatch } from "@im-library/helpers/TextQueryBuilder";
 import { buildClauseUI } from "@im-library/helpers/ClauseUIBuilder";
@@ -29,8 +30,24 @@ import { SHACL } from "@im-library/vocabulary";
 const props = defineProps({
   baseEntityIri: { type: String, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },
+  addedNewClause: { type: Boolean },
   parent: { type: Object as PropType<ITextQuery | undefined> }
 });
+
+const emit = defineEmits({ onOpenNewClause: () => true });
+
+watch(
+  () => props.addedNewClause,
+  () => {
+    if (props.addedNewClause) {
+      const newClause = props.textQueries[props.textQueries.length - 1];
+      if ("New clause" === newClause.display) {
+        openDialog(newClause);
+        emit("onOpenNewClause");
+      }
+    }
+  }
+);
 
 const selected: Ref<ITextQuery> = ref({} as ITextQuery);
 const editDialog: Ref<boolean> = ref(false);
@@ -50,7 +67,7 @@ function onSave() {
     const matchClause = selected.value.uiData[0];
     const match = selected.value.data;
     updateMatch(match, matchClause);
-    updateWhere(match, matchClause.where);
+    if (isArrayHasLength(matchClause.where)) updateWhere(match, matchClause.where);
   }
 
   selected.value.display = getDisplayFromMatch(selected.value.data);
@@ -76,6 +93,12 @@ function updateWhere(match: any, whereClauses: WhereClauseUI[]) {
     where[whereClause.whereType] = whereClause.whereValue;
     match.where.push(where);
   }
+}
+
+function onDelete() {
+  const index = props.textQueries.findIndex(textQuery => textQuery.key === selected.value.key);
+  props.textQueries.splice(index, 1);
+  editDialog.value = false;
 }
 </script>
 
