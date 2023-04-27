@@ -4,7 +4,7 @@ import PrimeVue from "primevue/config";
 import { expect, vi } from "vitest";
 import { render, fireEvent } from "@testing-library/vue";
 import { flushPromises } from "@vue/test-utils";
-import SnomedLicense from "@/components/shared/SnomedLicense.vue";
+import SnomedLicense from "@/views/SnomedLicense.vue";
 import { createTestingPinia } from "@pinia/testing";
 import { useRootStore } from "@/stores/rootStore";
 

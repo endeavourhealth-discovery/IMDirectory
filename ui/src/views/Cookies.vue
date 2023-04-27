@@ -55,8 +55,12 @@ const userCookiesData: Ref<{ cookie: string; name: string; purpose: string }[]> 
 <style scoped>
 #cookies-main-container {
   flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 #cookies-content-container {
+  flex: 1 1 auto;
   padding: 1rem 4rem;
   overflow: auto;
 }

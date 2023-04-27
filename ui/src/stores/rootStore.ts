@@ -22,6 +22,7 @@ export const useRootStore = defineStore("root", {
     recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false,
     snomedReturnUrl: "",
+    showSnomedLicense: false,
     authReturnUrl: "",
     filterOptions: {} as FilterOptions,
     selectedFilters: {} as FilterOptions,
@@ -155,6 +156,9 @@ export const useRootStore = defineStore("root", {
     },
     updateSnomedReturnUrl(url: any) {
       this.snomedReturnUrl = url;
+    },
+    updateShowSnomedLicense(bool: boolean) {
+      this.showSnomedLicense = bool;
     },
     updateAuthReturnUrl(url: any) {
       this.authReturnUrl = url;

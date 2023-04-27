@@ -11,15 +11,17 @@
         <ProgressSpinner />
       </div>
       <router-view v-else />
+      <FooterBar />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed, ComputedRef, Ref } from "vue";
-import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
-import CookiesConsent from "./components/shared/CookiesConsent.vue";
-import BannerBar from "./components/shared/BannerBar.vue";
+import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
+import CookiesConsent from "./components/app/CookiesConsent.vue";
+import BannerBar from "./components/app/BannerBar.vue";
+import FooterBar from "./components/app/FooterBar.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -197,11 +199,14 @@ function setupExternalErrorHandler() {
 }
 .loading-container {
   width: 100%;
-  height: 100%;
+  flex: 1 1 auto;
 }
 </style>
 
 <style>
+:root {
+  --hyperlink-blue: #2196f3;
+}
 .p-dialog-mask {
   z-index: 1;
 }

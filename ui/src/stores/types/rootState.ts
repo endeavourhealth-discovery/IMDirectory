@@ -12,6 +12,7 @@ export interface RootState {
   recentLocalActivity: RecentActivityItem[];
   snomedLicenseAccepted: boolean;
   snomedReturnUrl: string;
+  showSnomedLicense: boolean;
   authReturnUrl: string;
   filterOptions: FilterOptions;
   filterDefaults: FilterOptions;

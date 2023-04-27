@@ -22,11 +22,12 @@ const Mapper = () => import("@/views/Mapper.vue");
 const Workflow = () => import("@/views/Workflow.vue");
 const TaskDefinition = () => import("@/components/workflow/TaskDefinition.vue");
 const TaskViewer = () => import("@/components/workflow/TaskViewer.vue");
-const AccessDenied = () => import("@/components/shared/errorPages/AccessDenied.vue");
-const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.vue");
-const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
-const ServerOffline = () => import("@/components/shared/errorPages/ServerOffline.vue");
-const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
+const AccessDenied = () => import("@/views/AccessDenied.vue");
+const PageNotFound = () => import("@/views/PageNotFound.vue");
+const EntityNotFound = () => import("@/views/EntityNotFound.vue");
+const ServerOffline = () => import("@/views/ServerOffline.vue");
+const SnomedLicense = () => import("@/views/SnomedLicense.vue");
+const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
 const Cookies = () => import("@/views/Cookies.vue");
 const Filer = () => import("@/views/Filer.vue");
 const Query = () => import("@/views/Query.vue");
@@ -226,6 +227,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/snomedLicense",
     name: "License",
     component: SnomedLicense
+  },
+  {
+    path: "/privacy",
+    name: "Privacy",
+    component: PrivacyPolicy
   },
   { path: "/cookies", name: "Cookies", component: Cookies },
   {

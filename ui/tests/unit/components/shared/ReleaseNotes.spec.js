@@ -1,4 +1,4 @@
-import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
+import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import { render, fireEvent } from "@testing-library/vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";

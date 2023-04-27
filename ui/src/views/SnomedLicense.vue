@@ -1,4 +1,5 @@
 <template>
+  <div class="content"></div>
   <Dialog header="SNOMED License Agreement" :visible="showDialog" :modal="true" :data-testid="'license-dialog' + showDialog">
     <div data-testid="license-dialog">
       <div class="license-content">
@@ -70,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { useRootStore } from "@/stores/rootStore";
@@ -78,11 +79,16 @@ import { useRootStore } from "@/stores/rootStore";
 const rootStore = useRootStore();
 const snomedLicenseAccepted = computed(() => rootStore.snomedLicenseAccepted);
 const snomedReturnUrl = computed(() => rootStore.snomedReturnUrl);
+const showSnomedLicense = computed(() => rootStore.showSnomedLicense);
 
 const showDialog = computed(() => {
-  if (snomedLicenseAccepted.value === true) {
+  if (snomedLicenseAccepted.value === true && !showSnomedLicense.value) {
     return false;
   } else return true;
+});
+
+onMounted(() => {
+  if (!showSnomedLicense.value) rootStore.updateShowSnomedLicense(true);
 });
 
 function submitDecline(): void {
@@ -91,11 +97,15 @@ function submitDecline(): void {
 
 function submitAgree(): void {
   rootStore.updateSnomedLicenseAccepted(true);
+  rootStore.updateShowSnomedLicense(false);
   window.location.href = snomedReturnUrl.value;
 }
 </script>
 
 <style scoped>
+.content {
+  flex: 1 1 auto;
+}
 .license-content {
   height: 40vh;
   width: 60vw;
