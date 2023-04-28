@@ -6,7 +6,13 @@
       </template>
     </TopBar>
     Defined as
-    <TextQuery :baseEntityIri="baseEntityIri" :text-queries="textQueries" :parent="undefined"></TextQuery>
+    <TextQuery
+      :baseEntityIri="baseEntityIri"
+      :text-queries="textQueries"
+      :parent="undefined"
+      :added-new-clause="addedNewClause"
+      @on-open-new-clause="addedNewClause = false"
+    ></TextQuery>
     <div><Button label="Add clause" @click="addClause" /></div>
 
     <div class="button-bar">
@@ -23,7 +29,7 @@ import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
 import { useRootStore } from "@/stores/rootStore";
 import TextQuery from "@/components/query/RecursiveTextQuery.vue";
-import { ITextQuery } from "@im-library/interfaces";
+import { ITextQuery, MatchClauseUI } from "@im-library/interfaces";
 import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import { EntityService, QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
@@ -32,6 +38,7 @@ const textQueries: Ref<ITextQuery[]> = ref([]);
 const query: Ref<any> = ref();
 const visibleDialog: Ref<boolean> = ref(false);
 const baseEntityIri = ref("");
+const addedNewClause: Ref<boolean> = ref(false);
 
 onMounted(async () => {
   await rootStore.fetchFilterSettings();
@@ -41,8 +48,9 @@ onMounted(async () => {
 });
 
 function addClause() {
-  const newClause = { display: "New clause" } as ITextQuery;
+  const newClause = { display: "New clause", data: {}, uiData: [{}] as MatchClauseUI[] } as ITextQuery;
   textQueries.value.push(newClause);
+  addedNewClause.value = true;
 }
 
 async function getTextQuery() {
