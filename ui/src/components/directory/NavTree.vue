@@ -141,14 +141,14 @@ async function onNodeContext(event: any, node: any) {
   if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
     items.value.push({
       label: "Move selection here",
-      icon: "fas fa-fw fa-file-import",
+      icon: "fa-solid fa-fw fa-file-import",
       command: () => {
         confirmMove(node);
       }
     });
     items.value.push({
       label: "Add selection here",
-      icon: "fas fa-fw fa-copy",
+      icon: "fa-solid fa-fw fa-copy",
       command: () => {
         confirmAdd(node);
       }
