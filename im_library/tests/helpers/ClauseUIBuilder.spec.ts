@@ -57,6 +57,7 @@ describe("ClauseUIBuilder.ts ___", () => {
           matchValue: undefined,
           where: [
             {
+              path: undefined,
               whereProperty: {
                 data: {
                   "http://www.w3.org/ns/shacl#path": [
@@ -105,6 +106,12 @@ describe("ClauseUIBuilder.ts ___", () => {
           matchValue: undefined,
           where: [
             {
+              path: {
+                "@id": "http://endhealth.info/im#observation",
+                node: {
+                  "@type": "Observation"
+                }
+              },
               whereProperty: {
                 data: {
                   "http://www.w3.org/ns/shacl#path": [
@@ -119,6 +126,12 @@ describe("ClauseUIBuilder.ts ___", () => {
               whereEntailment: []
             },
             {
+              path: {
+                "@id": "http://endhealth.info/im#observation",
+                node: {
+                  "@type": "Observation"
+                }
+              },
               whereProperty: {
                 data: {
                   "http://www.w3.org/ns/shacl#path": [
