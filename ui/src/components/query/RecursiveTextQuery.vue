@@ -2,7 +2,7 @@
   <div class="text-container">
     <div v-for="textQuery in textQueries">
       <span class="content" @click="openDialog(textQuery)" v-html="textQuery.display"> </span>
-      <RecursiveTextQuery v-if="isArrayHasLength(textQuery.children)" :base-entity-iri="baseEntityIri" :text-queries="textQuery.children" :parent="textQuery" />
+      <RecursiveTextQuery v-if="isArrayHasLength(textQuery.children)" :base-entity-iri="baseEntityIri" :text-queries="textQuery.children" />
     </div>
   </div>
 
@@ -25,13 +25,11 @@ import MatchClause from "./MatchClause.vue";
 import { getDisplayFromMatch } from "@im-library/helpers/TextQueryBuilder";
 import { buildClauseUI } from "@im-library/helpers/ClauseUIBuilder";
 import { MatchClauseUI, WhereClauseUI } from "@im-library/interfaces";
-import { Where } from "@im-library/interfaces/AutoGen";
 import { SHACL } from "@im-library/vocabulary";
 const props = defineProps({
   baseEntityIri: { type: String, required: true },
   textQueries: { type: Object as PropType<ITextQuery[]>, required: true },
-  addedNewClause: { type: Boolean },
-  parent: { type: Object as PropType<ITextQuery | undefined> }
+  addedNewClause: { type: Boolean }
 });
 
 const emit = defineEmits({ onOpenNewClause: () => true });

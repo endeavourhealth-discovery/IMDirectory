@@ -1,6 +1,6 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { QueryObject, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
+import { QueryObject, AllowableChildProperty, AliasEntity, ITextQuery } from "@im-library/interfaces";
 import axios from "axios";
 import { PathDocument, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/tree";
@@ -72,7 +72,7 @@ const QueryService = {
     return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryObject", query);
   },
 
-  async getQueryDefinitionDisplay(conceptIri: string): Promise<TreeNode> {
+  async getQueryDefinitionDisplay(conceptIri: string): Promise<ITextQuery[]> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDefinitionDisplay", {
       params: { iri: conceptIri }
     });

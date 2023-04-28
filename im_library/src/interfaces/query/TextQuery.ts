@@ -5,7 +5,6 @@ export interface ITextQuery {
   display: string;
   data: any;
   uiData: MatchClauseUI[];
-  parent: ITextQuery;
   type: string;
   bool: Bool;
   children: ITextQuery[];
