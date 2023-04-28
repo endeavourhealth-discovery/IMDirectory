@@ -632,3 +632,17 @@ Content-Type: application/json
     ]
   }
 }
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#recordOwner
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#text
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#age
+
+###
