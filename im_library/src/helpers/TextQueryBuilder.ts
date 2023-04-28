@@ -7,7 +7,17 @@ import { getNameFromRef } from "./TTTransform";
 export function buildTextQuery(query: any) {
   const parentNode = { key: "1", children: [] as ITextQuery[] } as ITextQuery;
   buildRecursively(query, "query", parentNode);
+  if (isSingleLogicWithClauses(parentNode)) return parentNode.children[0].children;
   return parentNode.children;
+}
+
+function isSingleLogicWithClauses(parentNode: ITextQuery) {
+  return (
+    isArrayHasLength(parentNode.children) &&
+    parentNode.children.length === 1 &&
+    parentNode.children[0].display === "<span style='color: orange;'>and</span> " &&
+    isArrayHasLength(parentNode.children[0].children)
+  );
 }
 
 function buildRecursively(query: any, type: string, parent: ITextQuery) {
@@ -34,7 +44,6 @@ function buildDQInstance(parent: ITextQuery, label: string, type: string, data: 
     type: type,
     data: data,
     uiData: buildClauseUI(data),
-    parent: parent,
     bool: data.bool,
     children: []
   };
@@ -86,16 +95,19 @@ export function getDisplayFromMatch(match: Match) {
   if (match.boolMatch) return getDisplayFromLogic("and");
   let display = "";
   if (match.exclude) display += getDisplayFromLogic("exclude");
+  display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
   if (match.path) display += getDisplayFromPath(match.path);
   if (match.where) {
     let whereDisplay = "";
-    const whereDisplays = getDisplayFromWhereList(display, match.where);
+    const whereDisplays = getDisplayFromWhereList(getNameFromRef(match) ? " with " : display, match.where);
     for (let [index, value] of whereDisplays.entries()) {
       if (match.bool && index !== 0) whereDisplay += " " + getDisplayFromLogic(match.bool);
       whereDisplay += value;
     }
-    display = whereDisplay;
+
+    if (getNameFromRef(match)) display += whereDisplay;
+    else display = whereDisplay;
   }
   if (match.orderBy) display += " " + getDisplayFromOrderByList(match.orderBy);
 

@@ -4,28 +4,11 @@
   </div>
   <div v-else-if="queryDisplay.length" class="query-display-container">
     <Tree :value="queryDisplay" :expandedKeys="expandedKeys" class="tree-container">
-      <template #default="{ node }: any">{{ node.label }}</template>
-      <template #propertyIs="{ node }: any">
-        <IMViewerLink
-          :iri="node.value.property['@id']"
-          :label="node.value.property.descendantsOrSelfOf ? node.value.property.name + '*' : node.value.property.name"
-        />
-        =
-        <IMViewerLink :iri="node.value.is['@id']" :label="node.value.is.descendantsOrSelfOf ? node.value.is.name + '*' : node.value.is.name" />
-      </template>
-      <template #string="{ node }: any">{{ node.value }}</template>
-      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" /></template>
-      <template #boolean="{ node }: any">{{ node.label }}</template>
-      <template #from="{ node }: any">
-        <IMViewerLink v-if="node.value.descendantsOrSelfOf" :iri="node.value['@id']" :label="node.label + '*'" />
-        <IMViewerLink v-else :iri="node.value['@id']" :label="node.label" />
-      </template>
-
-      <template #simpleOr="{ node }: any">
-        <div v-for="(from, index) in node.value" :key="index">
-          <IMViewerLink v-if="from.descendantsOrSelfOf" :iri="from['@id']" :label="from.label + '*'" />
-          <IMViewerLink v-else :iri="node.value['@id']" :label="from.label" />
-        </div>
+      <template #default="{ node }">
+        <IMViewerLink v-if="isObjectHasKeys(node.data, ['@set'])" :label="node.display" :html="true" :iri="node.data['@set']" />
+        <IMViewerLink v-else-if="isObjectHasKeys(node.data, ['@type'])" :label="node.display" :html="true" :iri="node.data['@type']" />
+        <IMViewerLink v-else-if="isObjectHasKeys(node.data, ['@id'])" :label="node.display" :html="true" :iri="node.data['@id']" />
+        <div v-else v-html="node.display"></div>
       </template>
     </Tree>
   </div>
@@ -38,9 +21,10 @@ import { ref, watch } from "vue";
 import { QueryService } from "@/services";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { TreeNode } from "primevue/tree";
+import { ITextQuery } from "@im-library/interfaces";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
-
 const loading = ref<boolean>(false);
 const queryDisplay: Ref<TreeNode[]> = ref([] as TreeNode[]);
 const expandedKeys = ref<any>({});
@@ -56,9 +40,9 @@ watch(
   }
 );
 
-async function getQueryDisplay(): Promise<TreeNode[]> {
+async function getQueryDisplay(): Promise<ITextQuery[]> {
   const queryDefinition = await QueryService.getQueryDefinitionDisplay(props.conceptIri);
-  return queryDefinition.children || ([] as TreeNode[]);
+  return queryDefinition || ([] as ITextQuery[]);
 }
 
 function expandAll() {

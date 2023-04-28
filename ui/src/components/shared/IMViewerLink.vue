@@ -1,5 +1,6 @@
 <template>
-  <a class="clickable" @click="click()" @mouseover="showOverlay($event)" @mouseleave="hideOverlay($event)">{{ label || iri }}</a>
+  <a v-if="html" class="clickable" @click="click()" @mouseover="showOverlay($event)" @mouseleave="hideOverlay($event)" v-html="label"></a>
+  <a v-else class="clickable" @click="click()" @mouseover="showOverlay($event)" @mouseleave="hideOverlay($event)">{{ label || iri }}</a>
   <OverlaySummary ref="OS" />
 </template>
 
@@ -11,7 +12,8 @@ import OverlaySummary from "../directory/viewer/OverlaySummary.vue";
 const props = defineProps({
   iri: { type: String, required: true },
   label: { type: String, required: false },
-  action: { type: String, required: false, default: "view" }
+  action: { type: String, required: false, default: "view" },
+  html: { type: Boolean, required: false, default: false }
 });
 const OS: Ref<any> = ref();
 const directService = new DirectService();

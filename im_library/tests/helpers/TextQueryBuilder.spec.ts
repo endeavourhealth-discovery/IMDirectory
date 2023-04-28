@@ -21,6 +21,75 @@ describe("TextQueryBuilder.ts ___", () => {
       const textQuery = buildTextQuery({
         match: [
           {
+            "@id": "http://snomed.info/sct#763158003",
+            name: "Medicinal product (product)",
+            descendantsOrSelfOf: true,
+            bool: "and",
+            where: [
+              {
+                "@id": "http://snomed.info/sct#127489000",
+                name: "Has active ingredient (attribute)",
+                in: [
+                  {
+                    "@id": "http://snomed.info/sct#372665008",
+                    name: "Non-steroidal anti-inflammatory agent (substance)",
+                    descendantsOrSelfOf: true
+                  }
+                ],
+                anyRoleGroup: true,
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#411116001",
+                name: "Has manufactured dose form (attribute)",
+                in: [
+                  {
+                    "@id": "http://snomed.info/sct#385268001",
+                    name: "Oral dose form (dose form)",
+                    descendantsOrSelfOf: true
+                  }
+                ],
+                anyRoleGroup: true,
+                descendantsOrSelfOf: true
+              }
+            ]
+          }
+        ]
+      } as Match);
+      expect(textQuery.length).toEqual(1);
+      expect(textQuery[0].display).toEqual(
+        "&lt;&lt;Medicinal product (product) with .Has active ingredient (attribute): &lt;&lt;Non-steroidal anti-inflammatory agent (substance) <span style='color: orange;'>and</span>  with .Has manufactured dose form (attribute): &lt;&lt;Oral dose form (dose form)"
+      );
+    });
+
+    it("can get buid a textQuery from a query definition", () => {
+      const textQuery = buildTextQuery({
+        match: [
+          {
+            boolMatch: "or",
+            match: [
+              {
+                name: "Text message consultation",
+                descendantsOrSelfOf: true,
+                "@id": "http://endhealth.info/im#1681000252102"
+              },
+              {
+                name: "Email consultation",
+                descendantsOrSelfOf: true,
+                "@id": "http://endhealth.info/im#901000252100"
+              }
+            ]
+          }
+        ]
+      } as Match);
+      expect(textQuery.length).toEqual(2);
+      expect(textQuery[0].display).toEqual("&lt;&lt;Text message consultation");
+    });
+
+    it("can get buid a textQuery from a query definition", () => {
+      const textQuery = buildTextQuery({
+        match: [
+          {
             path: {
               "@id": "http://endhealth.info/im#gpCurrentRegistration",
               node: {
@@ -61,6 +130,15 @@ describe("TextQueryBuilder.ts ___", () => {
     it("can get a display for a type match clause without a name", () => {
       const display = getDisplayFromMatch({ "@type": "Patient" } as Match);
       expect(display).toEqual("Patient");
+    });
+
+    it("can get a display for a match with entailment", () => {
+      const display = getDisplayFromMatch({
+        name: "Text message consultation",
+        descendantsOrSelfOf: true,
+        "@id": "http://endhealth.info/im#1681000252102"
+      } as Match);
+      expect(display).toEqual("&lt;&lt;Text message consultation");
     });
 
     it("can get a display for a set match clause with a name", () => {
