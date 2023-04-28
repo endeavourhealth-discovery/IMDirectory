@@ -34,7 +34,7 @@ function createNew() {
     for (const allowableType of allowableTypes) {
       const item = {
         label: allowableType["http://www.w3.org/2000/01/rdf-schema#label"],
-        data: { type: allowableType["@id"], property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"][0]["@id"] },
+        data: { type: allowableType["@id"], property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id" as any].toString() },
         icon: getFAIconFromType([{ "@id": allowableType["@id"], name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
         command: {} as Function
       };
