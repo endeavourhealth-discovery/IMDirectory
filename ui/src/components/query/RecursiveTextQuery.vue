@@ -11,7 +11,7 @@
     <MatchClause :baseEntityIri="baseEntityIri" :text-query="selected" />
     <template #footer>
       <Button class="action-button" severity="secondary" label="Cancel" @click="onCancel()"></Button>
-      <Button class="action-button" severity="secondary" label="Delete" @click="onDelete()"></Button>
+      <Button class="action-button" severity="danger" label="Delete" @click="onDelete()"></Button>
       <Button class="action-button" label="Save" @click="onSave()"></Button>
     </template>
   </Dialog>

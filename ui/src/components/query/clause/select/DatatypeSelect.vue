@@ -16,8 +16,7 @@
     <ComparisonSelect v-if="whereClause.whereType === 'is'" :where="whereClause.whereValue" />
     <RangeSelect v-else-if="whereClause.whereType === 'range'" :range="whereClause.whereValue" />
   </div>
-
-  <Calendar v-else-if="datatype === IM.NAMESPACE + 'DateTime'" v-model:model-value="selectedValue" @change="emit('onValueUpdate', $event)" />
+  <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'"><Calendar v-model:model-value="selectedValue" @change="emit('onValueUpdate', $event)" /></div>
 </template>
 
 <script setup lang="ts">
