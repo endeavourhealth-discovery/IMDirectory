@@ -156,7 +156,7 @@ export default class QueryService {
         }
       ],
       query: {
-        "@id": "http://endhealth.info/im#AllowableChildTypes"
+        "@id": "http://endhealth.info/im#Query_AllowableChildTypes"
       }
     } as any as QueryRequest;
 

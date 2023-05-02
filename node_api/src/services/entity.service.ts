@@ -2,13 +2,12 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
 import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import { EclSearchRequest, PropertyDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
+import { EclSearchRequest, ITextQuery, PropertyDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { TreeNode } from "primevue/tree";
+import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 
 export default class EntityService {
   axios: any;
@@ -95,10 +94,10 @@ export default class EntityService {
     ).data;
   }
 
-  async getQueryDefinitionDisplayByIri(iri: string): Promise<TreeNode> {
+  async getQueryDefinitionDisplayByIri(iri: string): Promise<ITextQuery[]> {
     const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
-    if (!entity[IM.DEFINITION]) return {} as TreeNode;
-    return buildQueryDisplayFromQuery(JSON.parse(entity[IM.DEFINITION]));
+    if (!entity[IM.DEFINITION]) return [] as ITextQuery[];
+    return buildTextQuery(JSON.parse(entity[IM.DEFINITION]));
   }
 
   async getQueryObjectByIri(iri: string) {

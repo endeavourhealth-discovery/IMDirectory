@@ -1,10 +1,10 @@
 import { Bool } from "../AutoGen";
-import { ClauseUI } from "./ClauseUI";
+import { MatchClauseUI } from "./MatchClauseUI";
 export interface ITextQuery {
   key: string;
   display: string;
   data: any;
-  parent: ITextQuery;
+  uiData: MatchClauseUI[];
   type: string;
   bool: Bool;
   children: ITextQuery[];

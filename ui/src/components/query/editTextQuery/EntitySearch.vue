@@ -1,5 +1,5 @@
 <template>
-  <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" />
+  <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" @item-select="onSelect" />
 </template>
 
 <script setup lang="ts">
@@ -29,6 +29,10 @@ onMounted(() => {
   initValues();
 });
 
+function onSelect() {
+  props.entityValue.iri = selected.value.iri;
+  props.entityValue.name = selected.value.name;
+}
 function initValues() {
   selected.value = { iri: props.entityValue.iri, name: props.entityValue.name || props.entityValue.iri } as ConceptSummary;
 }

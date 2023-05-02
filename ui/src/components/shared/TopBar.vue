@@ -56,13 +56,6 @@
         </div>
       </OverlayPanel>
       <Button
-        v-tooltip.bottom="'Settings'"
-        icon="fa-solid fa-gear"
-        class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
-        @click="openSettingsMenu"
-      />
-      <Menu ref="settingsMenu" :model="getSettingsItems()" :popup="true" />
-      <Button
         v-tooltip.left="'Account'"
         v-if="!isLoggedIn"
         :icon="fontAwesomePro ? 'fa-duotone fa-user' : 'fa-regular fa-user'"
@@ -115,7 +108,6 @@ const toast = useToast();
 const adminMenu = ref();
 const themesMenu = ref();
 const userMenu = ref();
-const settingsMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
 
@@ -157,10 +149,6 @@ function getUrl(item: string): string {
 
 function openAppsOverlay(event: any) {
   (appsOP.value as any).toggle(event);
-}
-
-function openSettingsMenu(event: any) {
-  settingsMenu.value.toggle(event);
 }
 
 function setUserMenuItems(): void {
@@ -244,10 +232,6 @@ function getAdminItems(): any[] {
       ]
     }
   ];
-}
-
-function getSettingsItems() {
-  return [{ label: "Cookie preferences", icon: "fa-solid fa-gear", command: () => rootStore.updateShowCookieConsent(true) }];
 }
 
 function getThemes() {
@@ -605,7 +589,7 @@ function changeTheme(newTheme: string) {
 }
 
 #topbar {
-  height: 3.5rem;
+  min-height: 3.5rem;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;

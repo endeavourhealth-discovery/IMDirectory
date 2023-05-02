@@ -131,6 +131,10 @@
           />
           <InlineMessage v-if="!passwordsMatch && password2 && !focused.get('password2')" severity="error"> Passwords do not match! </InlineMessage>
         </div>
+        <div class="privacy-container">
+          <label for="privacy"> I have read and accept the <router-link to="/privacy">privacy policy </router-link></label>
+          <Checkbox v-model="privacyPolicyAccepted" :binary="true" />
+        </div>
         <div class="flex flex-row justify-content-center">
           <Button
             data-testid="register-submit-disabled"
@@ -184,6 +188,7 @@ const password2 = ref("");
 const selectedAvatar = ref(Avatars[0]);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
 const emailIsNotRegistered = ref(true);
+const privacyPolicyAccepted = ref(false);
 
 const usernameVerified = computed(() => verifyIsUsername(username.value));
 const email1Verified = computed(() => verifyIsEmail(email1.value));
@@ -201,7 +206,8 @@ const allVerified = computed(
     lastNameVerified.value &&
     passwordStrength.value !== PasswordStrength.fail &&
     passwordsMatch.value &&
-    emailIsNotRegistered.value
+    emailIsNotRegistered.value &&
+    privacyPolicyAccepted.value
 );
 
 watch(email1, async newValue => {
@@ -325,5 +331,9 @@ async function verifyEmailIsNotRegistered(email: string): Promise<void> {
 .email-times {
   color: var(--red-500);
   font-size: 2em;
+}
+
+.privacy-container {
+  padding-bottom: 0.5rem;
 }
 </style>

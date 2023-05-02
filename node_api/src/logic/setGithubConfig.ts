@@ -20,7 +20,13 @@ async function setLatestRelease(configRepository: ConfigRepository, githubServic
   } catch (err) {
     console.error(`missing config item ${configName}`);
   }
-  const latestRelease = await githubService.getLatestRelease(repoName);
+  let latestRelease;
+  try {
+    latestRelease = await githubService.getLatestRelease(repoName);
+  } catch (error) {
+    throw new Error(`Failed to fetch latest release from github for repo ${repoName}`);
+  }
+
   if (!latestRelease || !latestRelease.version) throw new Error(`Failed to fetch latest ${repoName} release`);
   else if (currentReleaseConfig && latestRelease) {
     if (!_.isEqual(currentReleaseConfig, latestRelease)) {
@@ -38,7 +44,13 @@ async function setAllReleases(configRepository: ConfigRepository, githubService:
   } catch (err) {
     console.error(`missing config item ${configName}`);
   }
-  const latestReleases = await githubService.getReleases(repoName);
+
+  let latestReleases;
+  try {
+    latestReleases = await githubService.getReleases(repoName);
+  } catch (err) {
+    throw new Error(`Failed to fetch all releases from github for repo ${repoName}`);
+  }
   if (!latestReleases || !isArrayHasLength(latestReleases)) throw new Error(`Failed to fetch all ${repoName} releases`);
   else if (currentReleasesConfig && latestReleases) {
     if (!_.isEqual(currentReleasesConfig, latestReleases)) {

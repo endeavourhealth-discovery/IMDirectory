@@ -1,25 +1,38 @@
-import { isObjectHasKeys } from "./DataTypeCheckers";
-import { ClauseUI, ConceptSummary } from "../interfaces";
+import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { MatchClauseUI, ConceptSummary, WhereClauseUI, TreeNode } from "../interfaces";
 import { getNameFromRef } from "./TTTransform";
-import { Entailment, Match, Where } from "../interfaces/AutoGen";
+import { Entailment, Match, TTIriRef, Where } from "../interfaces/AutoGen";
+import { SHACL } from "../vocabulary";
 
-export function buildClauseUI(match: Match): ClauseUI[] {
-  const clauses = [] as ClauseUI[];
+export function buildClauseUI(match: Match): MatchClauseUI[] {
+  const clauses = [] as MatchClauseUI[];
+  const clauseUI = {
+    matchType: getMatchType(match),
+    matchEntailment: getEntailmentOptions(match),
+    matchValue: getMatchValue(match),
+    include: !match.exclude
+  } as MatchClauseUI;
   if (isObjectHasKeys(match, ["where"])) {
     for (const where of match.where) {
-      const clauseUI = {
-        clauseType: { name: "Property", prop: "@id" },
-        entailmentOptions: getEntailmentOptions(match),
-        typeValue: getTypeValue(where),
-        propertyValue: getPropertyValue(where)
-      } as ClauseUI;
-      clauses.push(clauseUI);
+      const { value, type } = getPropertyValue(where);
+      const whereClause = {
+        whereProperty: getWhereProperty(where),
+        whereType: type,
+        whereValue: value,
+        whereEntailment: getEntailmentOptions(where),
+        path: match.path
+      } as WhereClauseUI;
+      if (!isArrayHasLength(clauseUI.where)) clauseUI.where = [];
+      clauseUI.where.push(whereClause);
     }
-  } else {
-    const clauseUI = { clauseType: getClauseType(match), entailmentOptions: getEntailmentOptions(match), typeValue: getTypeValue(match) } as ClauseUI;
-    clauses.push(clauseUI);
   }
+  clauses.push(clauseUI);
   return clauses;
+}
+export function getWhereProperty(where: Where) {
+  const treeNode = { data: {} } as TreeNode;
+  treeNode.data[SHACL.PATH] = [{ "@id": where["@id"] }] as TTIriRef[];
+  return treeNode;
 }
 
 export function getPropertyValue(where: Where): { value: any; type: string } {
@@ -30,10 +43,10 @@ export function getPropertyValue(where: Where): { value: any; type: string } {
   return { value: where.in, type: "in" };
 }
 
-export function getClauseType(match: Match): { name: string; prop: string } {
+export function getMatchType(match: Match): { name: string; prop: string } | void {
   if (isObjectHasKeys(match, ["@type"])) return { name: "Type", prop: "@type" };
   else if (isObjectHasKeys(match, ["@set"])) return { name: "Set", prop: "@set" };
-  else return { name: "Entity", prop: "@id" };
+  else if (isObjectHasKeys(match, ["@id"])) return { name: "Entity", prop: "@id" };
 }
 
 export function getEntailmentOptions(entailment: Entailment): string[] {
@@ -44,8 +57,8 @@ export function getEntailmentOptions(entailment: Entailment): string[] {
   return entailmentOptions;
 }
 
-export function getTypeValue(match: Match | Where): ConceptSummary {
+export function getMatchValue(match: Match | Where): ConceptSummary | void {
   if (isObjectHasKeys(match, ["@type"])) return { iri: match["@type"], name: getNameFromRef(match) } as ConceptSummary;
   else if (isObjectHasKeys(match, ["@set"])) return { iri: match["@set"], name: getNameFromRef(match) } as ConceptSummary;
-  else return { iri: match["@id"], name: getNameFromRef(match) } as ConceptSummary;
+  else if (isObjectHasKeys(match, ["@id"])) return { iri: match["@id"], name: getNameFromRef(match) } as ConceptSummary;
 }
