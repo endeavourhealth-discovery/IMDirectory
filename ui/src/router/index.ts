@@ -299,7 +299,7 @@ router.beforeEach(async (to, from) => {
     if (!res.authenticated) {
       console.log("redirecting to login");
       router.push({ name: "Login" });
-    } else if (!userStore.currentUser.roles.includes("create")) {
+    } else if (!userStore.currentUser?.roles?.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
     }
   }
@@ -310,7 +310,7 @@ router.beforeEach(async (to, from) => {
     if (!res.authenticated) {
       console.log("redirecting to login");
       router.push({ name: "Login" });
-    } else if (!userStore.currentUser.roles.includes("edit")) {
+    } else if (!userStore.currentUser?.roles?.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
     }
   }

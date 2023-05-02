@@ -1,34 +1,46 @@
 <template>
-  <ClassSelect v-if="isObjectHasKeys(property.data, [SHACL.CLASS])" :selected-property="property" :selected-value="undefined" />
-  <DatatypeSelect v-else-if="isObjectHasKeys(property.data, [SHACL.DATATYPE])" :datatype="property.data[SHACL.DATATYPE][0]['@id']" />
+  <div>
+    <PropertySelect optionLabel="name" :baseEntityIri="baseEntityIri" :property="whereClause.whereProperty" :path="whereClause.path" />
+    <EntailmentOptionsSelect :entailmentOptions="whereClause.whereEntailment" />
+  </div>
+  <ClassSelect v-if="isObjectHasKeys(whereClause.whereProperty.data, [SHACL.CLASS])" :whereClause="whereClause" />
+  <DatatypeSelect
+    v-else-if="isObjectHasKeys(whereClause.whereProperty.data, [SHACL.DATATYPE])"
+    :datatype="whereClause.whereProperty.data[SHACL.DATATYPE][0]['@id']"
+    :whereClause="whereClause"
+  />
   <div v-else>
-    <DropdownHeader :options="['In', 'Not in', 'Is null']" />
+    <DropdownHeader :options="['in', 'notIn', 'isNull']" :where-clause="whereClause" />
     <EntitySearch :entity-value="editEntityValue" />
     <EntailmentOptionsSelect :entailmentOptions="editEntailmentOptions" />
   </div>
+  <Divider />
 </template>
 
 <script setup lang="ts">
-import { TreeNode } from "primevue/tree";
 import { PropType, Ref, onMounted, ref, watch } from "vue";
 import ClassSelect from "./select/ClassSelect.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DatatypeSelect from "./select/DatatypeSelect.vue";
 import EntitySearch from "../editTextQuery/EntitySearch.vue";
 import DropdownHeader from "./DropdownHeader.vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { MatchClauseUI, ConceptSummary, TreeNode, WhereClauseUI } from "@im-library/interfaces";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 import EntailmentOptionsSelect from "../editTextQuery/EntailmentOptionsSelect.vue";
 import { SHACL } from "@im-library/vocabulary";
+import PropertySelect from "../editTextQuery/PropertySelect.vue";
 
 const props = defineProps({
-  property: { type: Object as PropType<TreeNode>, required: true }
+  baseEntityIri: { type: String, required: true },
+  baseClause: { type: Object as PropType<MatchClauseUI>, required: true },
+  whereClause: { type: Object as PropType<WhereClauseUI>, required: true }
 });
 
+const editProperty: Ref<TreeNode> = ref({} as TreeNode);
 const editEntityValue: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const editEntailmentOptions: Ref<string[]> = ref([]);
 watch(
-  () => props.property.iri,
+  () => editProperty.value.iri,
   () => {
     initValues();
   }
@@ -43,9 +55,9 @@ function initValues() {
 }
 
 function setEntityValue() {
-  if (isObjectHasKeys(props.property, ["iri"])) {
-    editEntityValue.value.iri = props.property.iri;
-    editEntityValue.value.name = props.property.name || resolveIri(props.property.iri);
+  if (isObjectHasKeys(editProperty.value, ["iri"])) {
+    editEntityValue.value.iri = editProperty.value.iri;
+    editEntityValue.value.name = editProperty.value.name || resolveIri(editProperty.value.iri);
   }
 }
 </script>
