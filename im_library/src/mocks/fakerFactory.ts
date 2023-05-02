@@ -120,6 +120,15 @@ const fakerFactory = factory({
     name: faker.lorem.sentence,
     type: faker.lorem.word,
     cardinality: nullable(faker.datatype.string)
+  },
+  user: {
+    id: primaryKey(faker.datatype.uuid),
+    firstName: faker.name.firstName,
+    lastName: faker.name.lastName,
+    email: faker.internet.email,
+    password: faker.random.alphaNumeric,
+    avatar: faker.system.directoryPath,
+    roles: faker.datatype.array
   }
 });
 
