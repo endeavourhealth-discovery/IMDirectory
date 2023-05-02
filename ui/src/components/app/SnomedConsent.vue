@@ -1,5 +1,12 @@
 <template>
-  <Dialog header="SNOMED License Agreement" :visible="showDialog" :modal="true" :data-testid="'license-dialog' + showDialog">
+  <Dialog
+    header="SNOMED License Agreement"
+    :visible="showDialog"
+    :modal="true"
+    :data-testid="'license-dialog' + showDialog"
+    :closable="false"
+    :close-on-escape="false"
+  >
     <div data-testid="license-dialog">
       <div class="license-content">
         <strong>Information Model</strong> includes SNOMED Clinical Terms® (SNOMED CT®) which is used by permission of the International Health Terminology
@@ -70,32 +77,38 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { useRootStore } from "@/stores/rootStore";
+import { useRoute } from "vue-router";
 
 const rootStore = useRootStore();
 const snomedLicenseAccepted = computed(() => rootStore.snomedLicenseAccepted);
-const snomedReturnUrl = computed(() => rootStore.snomedReturnUrl);
+
+const route = useRoute();
 
 const showDialog = computed(() => {
   if (snomedLicenseAccepted.value === true) {
     return false;
-  } else return true;
+  } else if (route.meta.requiresLicense) return true;
+  else return false;
 });
 
 function submitDecline(): void {
+  rootStore.updateSnomedLicenseAccepted(false);
   window.location.href = "https://www.snomed.org/";
 }
 
 function submitAgree(): void {
   rootStore.updateSnomedLicenseAccepted(true);
-  window.location.href = snomedReturnUrl.value;
 }
 </script>
 
 <style scoped>
+.content {
+  flex: 1 1 auto;
+}
 .license-content {
   height: 40vh;
   width: 60vw;

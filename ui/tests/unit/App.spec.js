@@ -53,7 +53,7 @@ describe("App.vue", () => {
     component = render(App, {
       global: {
         components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu, DynamicDialog },
-        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true, CookiesConsent: true },
+        stubs: { "router-link": true, "router-view": true, ReleaseNotes: true, CookiesConsent: true, SnomedConsent: true },
         plugins: [PrimeVue]
       }
     });

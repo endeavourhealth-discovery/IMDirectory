@@ -22,11 +22,12 @@ const Mapper = () => import("@/views/Mapper.vue");
 const Workflow = () => import("@/views/Workflow.vue");
 const TaskDefinition = () => import("@/components/workflow/TaskDefinition.vue");
 const TaskViewer = () => import("@/components/workflow/TaskViewer.vue");
-const AccessDenied = () => import("@/components/shared/errorPages/AccessDenied.vue");
-const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.vue");
-const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
-const ServerOffline = () => import("@/components/shared/errorPages/ServerOffline.vue");
-const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
+const AccessDenied = () => import("@/views/AccessDenied.vue");
+const PageNotFound = () => import("@/views/PageNotFound.vue");
+const EntityNotFound = () => import("@/views/EntityNotFound.vue");
+const ServerOffline = () => import("@/views/ServerOffline.vue");
+const SnomedLicense = () => import("@/views/SnomedLicense.vue");
+const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
 const Cookies = () => import("@/views/Cookies.vue");
 const Filer = () => import("@/views/Filer.vue");
 const Query = () => import("@/views/Query.vue");
@@ -45,7 +46,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/directory",
     name: "Directory",
     component: Directory,
-    meta: { requiredLicense: true },
+    meta: { requiresLicense: true },
     redirect: { name: "LandingPage" },
     children: [
       {
@@ -227,6 +228,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "License",
     component: SnomedLicense
   },
+  {
+    path: "/privacy",
+    name: "Privacy",
+    component: PrivacyPolicy
+  },
   { path: "/cookies", name: "Cookies", component: Cookies },
   {
     path: "/401/:requiredRole?",
@@ -261,10 +267,9 @@ router.beforeEach(async (to, from) => {
   const userStore = useUserStore();
 
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
-  if (to.path !== "/snomedLicense") {
-    rootStore.updateSnomedReturnUrl(currentUrl);
-    rootStore.updateAuthReturnUrl(currentUrl);
-  }
+
+  rootStore.updateAuthReturnUrl(currentUrl);
+
   const iri = to.params.selectedIri;
   if (iri) {
     rootStore.updateConceptIri(iri as string);
@@ -312,11 +317,6 @@ router.beforeEach(async (to, from) => {
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
     console.log("snomed license accepted:" + rootStore.snomedLicenseAccepted);
-    if (rootStore.snomedLicenseAccepted !== true) {
-      return {
-        path: "/snomedLicense"
-      };
-    }
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {

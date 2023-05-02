@@ -29,7 +29,6 @@ describe("state", () => {
         "searchLoading",
         "recentLocalActivity",
         "snomedLicenseAccepted",
-        "snomedReturnUrl",
         "authReturnUrl",
         "filterOptions",
         "selectedFilters",

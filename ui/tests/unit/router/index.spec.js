@@ -31,44 +31,9 @@ describe("router", () => {
   afterEach(() => {
     vi.resetAllMocks();
   });
-  describe("router ___ no snomed", () => {
+
+  describe("router ___ snomed", () => {
     let component;
-    let getLatestReleaseSpy;
-    let testLatestRelease = fakerFactory.githubRelease.create();
-
-    beforeEach(async () => {
-      vi.resetAllMocks();
-      window.sessionStorage.clear();
-      createTestingPinia();
-      const rootStore = useRootStore();
-      rootStore.updateSnomedLicenseAccepted(false);
-      // rootStore.dispatch = vi.fn().mockResolvedValue({ authenticated: true });
-      getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
-      router.push("/");
-      await router.isReady();
-
-      component = render(App, {
-        global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu, DynamicDialog, InputSwitch, Sidebar },
-          plugins: [router, PrimeVue],
-          stubs: { SnomedLicense: { template: "<span>Test Snomed License</span>" }, Directory: true, ReleaseNotes: true }
-        }
-      });
-
-      await flushPromises();
-      await nextTick();
-      vi.clearAllMocks();
-    });
-
-    it("routes to snomedLicense if snomedAccepted ___ false", () => {
-      const rootStore = useRootStore();
-      component.getByText("Test Snomed License");
-      rootStore.updateSnomedLicenseAccepted(true);
-    });
-  });
-
-  describe.skip("router ___ snomed", () => {
-    let wrapper;
     let getLatestReleaseSpy;
     let testLatestRelease = fakerFactory.githubRelease.create();
 
@@ -83,20 +48,28 @@ describe("router", () => {
       router.push("/");
       await router.isReady();
 
-      wrapper = shallowMount(App, {
+      component = render(App, {
         global: {
-          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu, DynamicDialog },
-          plugins: [router, rootStore]
+          components: { Toast, ConfirmDialog, TopBar, ProgressSpinner, Button, Menu, DynamicDialog, InputSwitch, Sidebar },
+          plugins: [router, PrimeVue],
+          stubs: {
+            SnomedLicense: { template: "<span>Test Snomed License</span>" },
+            Directory: { template: "<span>Directory</span>" },
+            ReleaseNotes: true,
+            CookiesConsent: true,
+            SnomedConsent: true,
+            FooterBar: true
+          }
         }
       });
 
       await flushPromises();
-      await wrapper.vm.$nextTick();
+      await nextTick();
       vi.clearAllMocks();
     });
 
-    it("routes to home if snomedAccepted ___ true", () => {
-      expect(wrapper.vm.$route.path).toBe("/directory/landingPage");
+    it("snomedAccepted doesn't effect routing ___ true", () => {
+      component.getByText("Directory");
     });
   });
 

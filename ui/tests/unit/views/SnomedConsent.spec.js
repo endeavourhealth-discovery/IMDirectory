@@ -4,7 +4,7 @@ import PrimeVue from "primevue/config";
 import { expect, vi } from "vitest";
 import { render, fireEvent } from "@testing-library/vue";
 import { flushPromises } from "@vue/test-utils";
-import SnomedLicense from "@/components/shared/SnomedLicense.vue";
+import SnomedConsent from "@/components/app/SnomedConsent.vue";
 import { createTestingPinia } from "@pinia/testing";
 import { useRootStore } from "@/stores/rootStore";
 
@@ -23,6 +23,16 @@ mockState.updateSnomedLicenseAccepted = status => {
   localStorage.setItem("snomedLicenseAccepted", status);
 };
 
+const mockRoute = { name: "Concept", meta: { requiresLicense: true } };
+
+vi.mock("vue-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    go: mockGo
+  }),
+  useRoute: () => mockRoute
+}));
+
 describe("SnomedLicense.vue ___ not accepted", () => {
   let mockLocation;
   let component;
@@ -33,10 +43,12 @@ describe("SnomedLicense.vue ___ not accepted", () => {
     location = window.location;
     delete window.location;
     window.location = mockLocation;
-    component = render(SnomedLicense, {
+    mockState.snomedLicenseAccepted = false;
+    component = render(SnomedConsent, {
       global: {
         plugins: [PrimeVue],
-        components: { Dialog, Button }
+        components: { Dialog, Button },
+        stubs: { TopBar: true }
       }
     });
     await flushPromises();
@@ -50,11 +62,11 @@ describe("SnomedLicense.vue ___ not accepted", () => {
     component.getByTestId("license-dialog");
   });
 
-  it("routes after accepted", async () => {
+  it("updates store after accepted", async () => {
     const button = component.getByTestId("agree-button");
     await fireEvent.click(button);
     expect(component.queryByTestId("license-dialog")).toBeNull();
-    expect(window.location.href).toBe("testUrl.org");
+    expect(mockState.snomedLicenseAccepted).toBe(true);
   });
 });
 
@@ -69,10 +81,11 @@ describe("SnomedLicense.vue ___ accepted", () => {
     delete window.location;
     window.location = mockLocation;
     mockState.snomedLicenseAccepted = true;
-    component = render(SnomedLicense, {
+    component = render(SnomedConsent, {
       global: {
         plugins: [PrimeVue],
-        components: { Dialog, Button }
+        components: { Dialog, Button },
+        stubs: { TopBar: true }
       }
     });
     await flushPromises();
