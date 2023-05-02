@@ -8,6 +8,7 @@
       </template>
     </TopBar>
     <div id="cookies-content-container">
+      <Button label="Back" icon="fa-solid fa-arrow-left" @click="goBack" class="back-button" />
       <h1>Essential Cookies</h1>
       <DataTable :value="essentialCookiesData" :show-gridlines="true">
         <Column field="cookie" header="Cookie"></Column>
@@ -27,6 +28,9 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const essentialCookiesData: Ref<{ cookie: string; name: string; purpose: string }[]> = ref([
   { cookie: "Cookie control", name: "cookiesAccepted", purpose: "Remembers a user's choice about consent for cookies." },
@@ -50,13 +54,21 @@ const userCookiesData: Ref<{ cookie: string; name: string; purpose: string }[]> 
   { cookie: "Creator storage", name: "creatorSavedEntity", purpose: "Stores the changes to the entity currently being created to prevent loss of progress." },
   { cookie: "Editor iri", name: "editorSelectedIri", purpose: "Stores the original iri of the entity currently being edited." }
 ]);
+
+function goBack() {
+  router.back();
+}
 </script>
 
 <style scoped>
 #cookies-main-container {
   flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 #cookies-content-container {
+  flex: 1 1 auto;
   padding: 1rem 4rem;
   overflow: auto;
 }
