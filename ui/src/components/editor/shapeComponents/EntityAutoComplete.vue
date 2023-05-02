@@ -109,7 +109,6 @@ watch(
   }
 );
 
-const miniSearchOP = ref();
 const optionsOP = ref();
 
 onMounted(async () => {
@@ -206,7 +205,7 @@ async function getAutocompleteOptions() {
         const result = await QueryService.queryIM(queryRequest, controller.value);
         if (result && isObjectHasKeys(result, ["entities"])) {
           const range = result.entities[0]? result.entities[0][SHACL.NODE] || result.entities[0][SHACL.CLASS] || result.entities[0][SHACL.DATATYPE] : {};
-          if(Object.keys(range).length !== 0) {
+          if(range) {
             autocompleteOptions.value = convertToConceptSummary(range);
           }
         }
@@ -221,7 +220,9 @@ async function getAutocompleteOptions() {
   else {
     if(props.shape.argument[0].valueIri["@id"]) {
       const range = await QueryService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
-      autocompleteOptions.value = convertToConceptSummary(range);
+      if(range.length !== 0) {
+        autocompleteOptions.value = convertToConceptSummary(range);
+      }
     }
   }
 }
