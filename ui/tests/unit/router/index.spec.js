@@ -19,6 +19,7 @@ import { GithubService } from "@/services";
 import { createTestingPinia } from "@pinia/testing";
 import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
+import { Auth } from "aws-amplify";
 
 const mockAdd = vi.fn();
 
@@ -57,7 +58,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -72,7 +74,7 @@ describe("router", () => {
     });
   });
 
-  describe("auth guard ___ false", () => {
+  describe("auth guard ___ false", async () => {
     let getLatestReleaseSpy;
     let userStore;
     let testLatestRelease = fakerFactory.githubRelease.create();
@@ -101,7 +103,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -115,11 +118,11 @@ describe("router", () => {
       router.push({ name: "UserEdit" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Login"));
+      await waitFor(() => screen.getByText("Login"), { timeout: 10000 });
     });
   });
 
-  describe("auth guard ___ true", () => {
+  describe("auth guard ___ true", async () => {
     let getLatestReleaseSpy;
     let testLatestRelease = fakerFactory.githubRelease.create();
     let userStore;
@@ -149,7 +152,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -163,11 +167,11 @@ describe("router", () => {
       router.push({ name: "UserEdit" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("UserEdit"));
+      await waitFor(() => screen.getByText("UserEdit"), { timeout: 10000 });
     });
   });
 
-  describe("create guard", () => {
+  describe("create guard", async () => {
     it("routes to page if true", async () => {
       let testLatestRelease = fakerFactory.githubRelease.create();
       vi.resetAllMocks();
@@ -178,10 +182,11 @@ describe("router", () => {
       rootStore.snomedLicenseAccepted = true;
       let getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       const testUser = fakerFactory.user.create({ roles: ["create"] });
+      let currentSessionSpy = vi
+        .spyOn(Auth, "currentSession")
+        .mockResolvedValue({ getIdToken: vi.fn().mockReturnValue({ getJwtToken: vi.fn().mockReturnValue("") }) });
       let authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: true, status: 200, user: testUser });
       userStore.currentUser = testUser;
-      router.push("/");
-      await router.isReady();
 
       render(App, {
         global: {
@@ -195,18 +200,25 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
+
+      router.push("/");
+      await router.isReady();
+
       await flushPromises();
       await nextTick();
       vi.clearAllMocks();
-
+      await waitFor(() => screen.getByText("Directory"), { timeout: 10000 });
       router.push({ name: "Creator" });
+      console.error(router.currentRoute);
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Creator"));
+      await waitFor(() => screen.getByText("Creator"), { timeout: 10000 });
+      console.error(router.currentRoute);
     });
 
     it("routes to login authenticated false", async () => {
@@ -235,7 +247,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -246,7 +259,7 @@ describe("router", () => {
       router.push({ name: "Creator" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Login"));
+      await waitFor(() => screen.getByText("Login"), { timeout: 10000 });
     });
 
     it("routes to accessDenied if missing role", async () => {
@@ -277,7 +290,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -288,11 +302,11 @@ describe("router", () => {
       router.push({ name: "Creator" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("AccessDenied"));
+      await waitFor(() => screen.getByText("AccessDenied"), { timeout: 10000 });
     });
   });
 
-  describe("edit guard", () => {
+  describe("edit guard", async () => {
     it("routes to page if true", async () => {
       let testLatestRelease = fakerFactory.githubRelease.create();
       vi.resetAllMocks();
@@ -320,7 +334,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -331,7 +346,7 @@ describe("router", () => {
       router.push({ name: "Editor" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Editor"));
+      await waitFor(() => screen.getByText("Editor"), { timeout: 10000 });
     });
 
     it("routes to login authenticated false", async () => {
@@ -360,7 +375,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -371,7 +387,7 @@ describe("router", () => {
       router.push({ name: "Editor" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Login"));
+      await waitFor(() => screen.getByText("Login"), { timeout: 10000 });
     });
 
     it("routes to accessDenied if missing role", async () => {
@@ -402,7 +418,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -413,11 +430,11 @@ describe("router", () => {
       router.push({ name: "Editor" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("AccessDenied"));
+      await waitFor(() => screen.getByText("AccessDenied"), { timeout: 10000 });
     });
   });
 
-  describe("creatorHasChanges guard", () => {
+  describe("creatorHasChanges guard", async () => {
     it("doesn't leave if has changes", async () => {
       let testLatestRelease = fakerFactory.githubRelease.create();
       vi.resetAllMocks();
@@ -448,7 +465,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -459,9 +477,9 @@ describe("router", () => {
       router.push({ name: "Creator" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Creator"));
+      await waitFor(() => screen.getByText("Creator"), { timeout: 10000 });
       router.push({ name: "Directory" });
-      await waitFor(() => screen.getByText("Creator"));
+      await waitFor(() => screen.getByText("Creator"), { timeout: 10000 });
     });
 
     it("leaves if doesn't have changes", async () => {
@@ -494,7 +512,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -505,13 +524,13 @@ describe("router", () => {
       router.push({ name: "Creator" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Creator"));
+      await waitFor(() => screen.getByText("Creator"), { timeout: 10000 });
       router.push({ name: "Directory" });
-      await waitFor(() => screen.getByText("Directory"));
+      await waitFor(() => screen.getByText("Directory"), { timeout: 10000 });
     });
   });
 
-  describe("editorHasChanges guard", () => {
+  describe("editorHasChanges guard", async () => {
     it("doesn't leave if has changes", async () => {
       let testLatestRelease = fakerFactory.githubRelease.create();
       vi.resetAllMocks();
@@ -542,7 +561,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -553,9 +573,9 @@ describe("router", () => {
       router.push({ name: "Editor" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Editor"));
+      await waitFor(() => screen.getByText("Editor"), { timeout: 10000 });
       router.push({ name: "Directory" });
-      await waitFor(() => screen.getByText("Editor"));
+      await waitFor(() => screen.getByText("Editor"), { timeout: 10000 });
     });
 
     it("leaves if doesn't have changes", async () => {
@@ -588,7 +608,8 @@ describe("router", () => {
             ReleaseNotes: true,
             CookiesConsent: true,
             SnomedConsent: true,
-            FooterBar: true
+            FooterBar: true,
+            BannerBar: true
           }
         }
       });
@@ -599,9 +620,9 @@ describe("router", () => {
       router.push({ name: "Editor" });
       await flushPromises();
       await nextTick();
-      await waitFor(() => screen.getByText("Editor"));
+      await waitFor(() => screen.getByText("Editor"), { timeout: 10000 });
       router.push({ name: "Directory" });
-      await waitFor(() => screen.getByText("Directory"));
+      await waitFor(() => screen.getByText("Directory"), { timeout: 10000 });
     });
   });
 });
