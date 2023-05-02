@@ -83,6 +83,9 @@ export class IM {
   public static CONCEPT_SET = IM.NAMESPACE + "ConceptSet";
   public static DATAMODEL_ENTITY = IM.NAMESPACE + "DataModelEntity";
   public static DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
+  public static DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";
+  public static DATAMODEL_DATAPROPERTY = IM.NAMESPACE + "dataModelDataProperty";
+  public static DATAMODEL_FUNCTIONPROPERTY = IM.NAMESPACE + "functionProperty";
   public static QUERY = IM.NAMESPACE + "Query";
 
   // Graphs

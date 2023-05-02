@@ -224,4 +224,22 @@ export default class QueryService {
       return rs[0];
     }
   }
+
+  public async isFunctionProperty(propIri:string) {
+    const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
+    const query = "SELECT ?functionProperty " +
+        "WHERE {" +
+        "bind(exists{?propIri ?isA  ?funcProp} as ?functionProperty)" +
+        "} "
+
+    const rs = await this.graph.execute(query, {
+      propIri:iri(propIri),
+      isA:iri(IM.IS_A),
+      funcProp:iri(IM.DATAMODEL_FUNCTIONPROPERTY)
+    }, false);
+
+    if(isArrayHasLength(rs)) {
+      return rs[0].functionProperty.value;
+    }
+  }
 }
