@@ -658,3 +658,14 @@ GET http://localhost:3000/node_api/query/public/isFunctionProperty?propIri=http:
 GET http://localhost:3000/node_api/query/public/isFunctionProperty?propIri=http://endhealth.info/im#text
 
 ###
+
+POST http://localhost:8080/api/query/public/queryIM
+content-type: application/json
+
+{
+  "query": {
+    "@id": "http://endhealth.info/im#Query_dataPropertyRangeSuggestions"
+  }
+}
+
+###

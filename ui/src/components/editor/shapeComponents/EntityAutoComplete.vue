@@ -231,7 +231,7 @@ function convertToConceptSummary(results: any[]) {
   return results.map(result => {
     const conceptSummary = {} as ConceptSummary;
     conceptSummary.iri = result["@id"];
-    conceptSummary.name = result[RDFS.LABEL];
+    conceptSummary.name = result[RDFS.LABEL] ? result[RDFS.LABEL] : result["@id"];
     conceptSummary.code = result[IM.CODE];
     conceptSummary.entityType = result[RDF.TYPE];
     conceptSummary.scheme = result[IM.SCHEME];
