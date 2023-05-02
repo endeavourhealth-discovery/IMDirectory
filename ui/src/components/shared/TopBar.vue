@@ -605,7 +605,7 @@ function changeTheme(newTheme: string) {
 }
 
 #topbar {
-  height: 3.5rem;
+  min-height: 3.5rem;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;

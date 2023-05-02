@@ -78,11 +78,13 @@ function handleSubmit(): void {
           title: "Success",
           text: "Login successful"
         }).then(() => {
+          rootStore.clearOptionalCookies();
           if (previousAppUrl.value) {
             window.location.href = previousAppUrl.value;
           } else {
-            router.push({ name: "UserDetails" });
+            window.location.href = "#/user/my-account";
           }
+          window.location.reload();
         });
       } else if (res.status === 401) {
         Swal.fire({
