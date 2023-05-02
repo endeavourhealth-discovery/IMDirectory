@@ -4,7 +4,7 @@
   </div>
   <div v-else-if="queryDisplay.length" class="query-display-container">
     <Tree :value="queryDisplay" :expandedKeys="expandedKeys" class="tree-container">
-      <template #default="{ node }">
+      <template #default="{ node }: any">
         <IMViewerLink v-if="isObjectHasKeys(node.data, ['@set'])" :label="node.display" :html="true" :iri="node.data['@set']" />
         <IMViewerLink v-else-if="isObjectHasKeys(node.data, ['@type'])" :label="node.display" :html="true" :iri="node.data['@type']" />
         <IMViewerLink v-else-if="isObjectHasKeys(node.data, ['@id'])" :label="node.display" :html="true" :iri="node.data['@id']" />
