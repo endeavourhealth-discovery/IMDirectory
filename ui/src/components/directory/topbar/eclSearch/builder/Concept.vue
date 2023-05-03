@@ -30,7 +30,7 @@
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <div v-for="(item, index) in value.items" class="refinement-container">
       <span class="left-container">
-        <div v-if="index === 0" class="spacer">&nbsp;</div>
+        <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
         <Button v-else-if="index === 1" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
         <Button v-else-if="index > 1" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
       </span>
@@ -364,5 +364,9 @@ function unGroupItems(groupedItems: any) {
   height: 2.357rem !important;
   width: 2.357rem !important;
   padding: 0.5rem !important;
+}
+
+.spacer {
+  width: 4rem;
 }
 </style>
