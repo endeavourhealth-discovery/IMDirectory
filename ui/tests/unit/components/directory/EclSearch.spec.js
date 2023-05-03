@@ -25,7 +25,7 @@ createTestingPinia({
       }
     }
   }
-})
+});
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -64,7 +64,7 @@ describe("EclSearch.vue", async () => {
         directives: {
           tooltip: Tooltip
         },
-        stubs: { SearchResults: true, Builder: true },
+        stubs: { SearchResults: true, Builder: true, ResultsTable: true },
         plugins: [
           app =>
             VueClipboard(app, {
