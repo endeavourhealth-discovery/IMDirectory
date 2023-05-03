@@ -27,7 +27,7 @@ export default class ParserController {
 
   async getListFromFile(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = this.parserService.getListFromFile(req.body.file as any, req.body.selectedColumn as any);
+      const data = this.parserService.getListFromFile(req.body.file, req.body.selectedColumn);
       res.send(data).end();
     } catch (e) {
       next(e);

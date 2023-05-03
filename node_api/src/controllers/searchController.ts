@@ -22,7 +22,7 @@ export default class SearchController {
     const searchRequest = req.body;
     let result = [];
 
-    if (searchRequest != null && searchRequest.termFilter) {
+    if (searchRequest?.termFilter) {
       if (!searchRequest.index) searchRequest.index = "concept";
 
       if (searchRequest.termFilter.length < 3) {

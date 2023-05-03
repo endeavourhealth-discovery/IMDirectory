@@ -207,7 +207,7 @@ export default class SearchService {
   }
 
   async getEntities(qry: any) {
-    const osRes: any = await this.axios.post(Env.OPENSEARCH_URL as string, qry, {
+    const osRes: any = await this.axios.post(Env.OPENSEARCH_URL, qry, {
       headers: { Authorization: "Basic " + Env.OPENSEARCH_AUTH, "Content-Type": "application/json" }
     });
 

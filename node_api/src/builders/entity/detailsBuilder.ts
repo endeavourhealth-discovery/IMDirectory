@@ -33,13 +33,13 @@ function processEntityKey(key: string, treeNode: any, entity: any, predicates: a
   } else if (key === SHACL.PARAMETER) {
     addParameter(treeNode, entity, predicates, key);
   } else if (key === IM.DEFINITION) {
-    addDefinition(treeNode, entity, predicates, key, types || []);
+    addDefinition(treeNode, entity, predicates, key, types ?? []);
   } else if (key === IM.HAS_MAP) {
     const defaultNode = { key: key, label: predicates[key], children: [] };
     treeNode.children.push(defaultNode);
     addDefault(defaultNode, entity, predicates);
   } else if (key !== "@id") {
-    const newTreeNode = { key: key, label: predicates[key] || key, children: [] };
+    const newTreeNode = { key: key, label: predicates[key] ?? key, children: [] };
     treeNode.children?.push(newTreeNode);
     buildTreeDataRecursively(newTreeNode, entity[key], predicates);
   }
@@ -90,7 +90,7 @@ function addDefault(treeNode: any, entity: any, predicates: any) {
       for (const objectKey of Object.keys(entity[key])) {
         const objectNode = {
           key: String(crypto.randomBytes(64).readBigUInt64BE()),
-          label: predicates[objectKey] || objectKey,
+          label: predicates[objectKey] ?? objectKey,
           children: [] as any
         };
 

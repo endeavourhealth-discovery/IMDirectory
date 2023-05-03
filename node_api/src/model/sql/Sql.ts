@@ -20,18 +20,17 @@ export class Sql extends Join {
 
   public toCreate(): string {
     const table = (<any>dataModelMap)[this.id];
-    if (!table) throw "Id not in data model map [" + this.id + "]";
+    if (!table) throw new Error("Id not in data model map [" + this.id + "]");
 
     let result = "CREATE TABLE IF NOT EXISTS " + table.name + "\n" + "SELECT m." + this.table.fields.pk;
 
-    for (let f = 0; f < this.fields.length; f++) {
-      result += ", " + this.fields[f];
+    for (let field of this.fields) {
+      result += ", " + field;
     }
 
     result += "\nFROM " + this.table.name + " " + this.table.alias;
 
-    for (let j = 0; j < this.joins.length; j++) {
-      const join: Join = this.joins[j];
+    for (let join of this.joins) {
       result += "\nJOIN " + join.table.name + " " + join.table.alias + " ON " + join.on;
 
       result += this.getConditions(join, "AND ");
@@ -47,9 +46,9 @@ export class Sql extends Join {
   }
 
   public getTable(entityTypeId: string, alias: string): Table {
-    if (!entityTypeId) throw "No entity type provided";
+    if (!entityTypeId) throw new Error("No entity type provided");
 
-    if (!(<any>dataModelMap)[entityTypeId]) throw "Entity [" + entityTypeId + "] does not exist in map";
+    if (!(<any>dataModelMap)[entityTypeId]) throw new Error("Entity [" + entityTypeId + "] does not exist in map");
 
     const table = JSON.parse(JSON.stringify((<any>dataModelMap)[entityTypeId]));
     table.alias = alias;
@@ -59,16 +58,16 @@ export class Sql extends Join {
   }
 
   public getField(table: Table, fieldId: string): string {
-    if (!table.fields[fieldId]) throw "Table [" + table.name + "] does not contain field [" + fieldId + "]";
+    if (!table.fields[fieldId]) throw new Error("Table [" + table.name + "] does not contain field [" + fieldId + "]");
 
     return table.alias + "." + table.fields[fieldId];
   }
 
   public getJoin(parent: Table, relationshipId: string, childId: string, alias: string): Join {
-    if (!parent.joins[relationshipId]) throw "Table [" + parent.name + "] does not have relationship [" + relationshipId + "]";
+    if (!parent.joins[relationshipId]) throw new Error("Table [" + parent.name + "] does not have relationship [" + relationshipId + "]");
 
     if (!parent.joins[relationshipId][childId])
-      throw "Table [" + parent.name + "] does not have relationship [" + relationshipId + "] to child table [" + childId + "]";
+      throw new Error("Table [" + parent.name + "] does not have relationship [" + relationshipId + "] to child table [" + childId + "]");
 
     const join: Join = new Join();
     join.table = this.getTable(childId, alias);

@@ -39,7 +39,7 @@ export default class QueryController {
 
   async getQueryDisplay(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await buildQueryDisplayFromQuery(req.body);
+      const data = buildQueryDisplayFromQuery(req.body);
       res.send(data).end();
     } catch (e) {
       next(e);
