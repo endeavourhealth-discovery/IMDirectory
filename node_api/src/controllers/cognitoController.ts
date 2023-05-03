@@ -13,7 +13,7 @@ export default class CognitoController {
   }
 
   private initRoutes() {
-    this.router.get("/public/isEmailRegistered", async (req, res, next) => await this.isEmailRegistered(req, res, next));
+    this.router.get("/public/isEmailRegistered", (req, res, next) => this.isEmailRegistered(req, res, next));
   }
 
   async isEmailRegistered(req: Request, res: Response, next: NextFunction) {

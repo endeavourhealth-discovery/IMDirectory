@@ -16,7 +16,7 @@ export default class ParserController {
     this.router.post("/public/file/list", (req, res, next) => this.getListFromFile(req, res, next));
   }
 
-  getListFromText(req: Request, res: Response, next: NextFunction) {
+  async getListFromText(req: Request, res: Response, next: NextFunction) {
     try {
       const data = this.parserService.getListFromText(req.body.text as string);
       res.send(data).end();
@@ -25,7 +25,7 @@ export default class ParserController {
     }
   }
 
-  getListFromFile(req: Request, res: Response, next: NextFunction) {
+  async getListFromFile(req: Request, res: Response, next: NextFunction) {
     try {
       const data = this.parserService.getListFromFile(req.body.file, req.body.selectedColumn);
       res.send(data).end();

@@ -12,11 +12,11 @@ export default class EntityController {
   }
 
   private initRoutes() {
-    this.router.get("/public/detailsDisplay", async (req, res, next) => await this.getDetailsDisplay(req, res, next));
-    this.router.get("/public/propertiesDisplay", async (req, res, next) => await this.getPropertiesDisplay(req, res, next));
-    this.router.get("/public/detailsDisplay/loadMore", async (req, res, next) => await this.loadMoreDetailsTab(req, res, next));
-    this.router.post("/public/isValidPropertyBoolFocus", async (req, res, next) => await this.isValidPropertyBoolFocus(req, res, next));
-    this.router.post("/public/superiorPropertiesBoolFocusPaged", async (req, res, next) => await this.getSuperiorPropertiesBoolFocusPaged(req, res, next));
+    this.router.get("/public/detailsDisplay", (req, res, next) => this.getDetailsDisplay(req, res, next));
+    this.router.get("/public/propertiesDisplay", (req, res, next) => this.getPropertiesDisplay(req, res, next));
+    this.router.get("/public/detailsDisplay/loadMore", (req, res, next) => this.loadMoreDetailsTab(req, res, next));
+    this.router.post("/public/isValidPropertyBoolFocus", (req, res, next) => this.isValidPropertyBoolFocus(req, res, next));
+    this.router.post("/public/superiorPropertiesBoolFocusPaged", (req, res, next) => this.getSuperiorPropertiesBoolFocusPaged(req, res, next));
   }
 
   async getPropertiesDisplay(req: Request, res: Response, next: NextFunction) {
