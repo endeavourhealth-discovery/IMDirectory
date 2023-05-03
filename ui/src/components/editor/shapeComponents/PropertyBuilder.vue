@@ -157,6 +157,7 @@ function processProps() {
 async function updatePath(data: any) {
   if (data["@id"]  && await isFunctionProperty(data["@id"] )) {
     isVisible.value = false;
+    updateRange({"@id": IM.FUNCTION})
   }
   if (props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
     props.value["http://www.w3.org/ns/shacl#path"][0] = { "@id": data["@id"] } as TTIriRef;
