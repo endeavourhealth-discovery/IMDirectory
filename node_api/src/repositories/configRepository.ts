@@ -1,6 +1,8 @@
 import { GraphdbService, iri, sanitise } from "@/services/graphdb.service";
 import { CONFIG, IM, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { CustomError } from "@im-library/models";
+import { ErrorType } from "@im-library/enums";
 export default class ConfigRepository {
   private graph: GraphdbService;
 
@@ -25,7 +27,7 @@ export default class ConfigRepository {
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"])) {
       return rs[0].data.value;
     } else {
-      throw new Error(`Config not found: ${url}`);
+      throw new CustomError(`Config not found: ${url}`, ErrorType.ConfigNotFoundError);
     }
   }
 
