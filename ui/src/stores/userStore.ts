@@ -4,16 +4,80 @@ import { UserState } from "@/stores/types/userState";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { AuthService, EntityService } from "@/services";
 import { Avatars } from "@im-library/constants";
-import { CustomAlert } from "@im-library/interfaces";
+import { CustomAlert, HistoryItem, RecentActivityItem } from "@im-library/interfaces";
+import { useCookieStore } from "@/stores/cookieStore";
 
+
+const cookieStore = useCookieStore();
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
-    currentUser: {} as User
+    currentUser: {} as User,
+    favourites: [] as string[],
+    history: [] as HistoryItem[],
+    recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
+    currentTheme: localStorage.getItem("currentTheme") as string,
   }),
   getters: {
     isLoggedIn: state => isObjectHasKeys(state.currentUser)
   },
   actions: {
+    async initFavourites() {
+      const favourites = JSON.parse(localStorage.getItem("favourites") || "[]") as string[];
+      for (let index = 0; index < favourites.length; index++) {
+        const iriExists = await EntityService.iriExists(favourites[index]);
+        if (!iriExists) {
+          favourites.splice(index, 1);
+        }
+      }
+      localStorage.setItem("favourites", JSON.stringify(favourites));
+      this.favourites = favourites;
+    },
+    updateRegisteredUsername(username: any) {
+      this.registeredUsername = username;
+    },
+    updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
+      let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
+      activity.forEach(activityItem => {
+        activityItem.dateTime = new Date(activityItem.dateTime);
+      });
+      const foundIndex = activity.findIndex(activityItem => activityItem.iri === recentActivityItem.iri && activityItem.action === recentActivityItem.action);
+      if (foundIndex !== -1) {
+        activity[foundIndex].dateTime = recentActivityItem.dateTime;
+        activity.sort((a, b) => {
+          if (a.dateTime.getTime() > b.dateTime.getTime()) {
+            return 1;
+          } else if (b.dateTime.getTime() > a.dateTime.getTime()) {
+            return -1;
+          } else {
+            return 0;
+          }
+        });
+      } else {
+        while (activity.length > 4) activity.shift();
+        if (recentActivityItem.iri !== "http://endhealth.info/im#Favourites") {
+          activity.push(recentActivityItem);
+        }
+      }
+
+      if (cookieStore.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
+      this.recentLocalActivity = activity;
+    },
+    updateFavourites(favourite: string) {
+      if (favourite !== "http://endhealth.info/im#Favourites") {
+        const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");
+        if (!favourites.includes(favourite)) {
+          favourites.push(favourite);
+        } else {
+          favourites.splice(favourites.indexOf(favourite), 1);
+        }
+        if (cookieStore.cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
+        this.favourites = favourites;
+      }
+    },
+    updateCurrentTheme(theme: any) {
+      this.currentTheme = theme;
+      if (cookieStore.cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
+    },
     updateCurrentUser(user: any) {
       this.currentUser = user;
     },
