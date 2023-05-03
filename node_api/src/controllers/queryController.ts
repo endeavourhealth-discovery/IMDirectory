@@ -1,6 +1,5 @@
 import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
 import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import QueryRunner from "@/logic/queryRunner";
 import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
 import axios from "axios";
@@ -9,19 +8,16 @@ import express, { NextFunction, Request, Response } from "express";
 export default class QueryController {
   public path = "/node_api/query";
   public router = express.Router();
-  private runner: QueryRunner;
   private queryService: QueryService;
   private entityService: EntityService;
 
   constructor() {
     this.initRoutes();
-    this.runner = new QueryRunner();
     this.queryService = new QueryService(axios);
     this.entityService = new EntityService(axios);
   }
 
   private initRoutes() {
-    this.router.get("/node_api/query/public/getSQL", (req, res, next) => this.getSQL(req, res, next));
     this.router.post("/public/queryDisplay", (req, res, next) => this.getQueryDisplay(req, res, next));
     this.router.post("/public/queryObject", (req, res, next) => this.getQueryObject(req, res, next));
     this.router.get("/public/queryDefinitionDisplay", (req, res, next) => this.getQueryDefinitionDisplay(req, res, next));
@@ -36,25 +32,6 @@ export default class QueryController {
     try {
       const childTypes = await this.queryService.getAllowableChildTypes(req.query.iri as string);
       res.send(childTypes).end();
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async getSQL(req: Request, res: Response, next: NextFunction) {
-    try {
-      const sql = await this.runner.generateSQL(req.query.iri as string);
-      res.send(sql).end();
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async runQuery(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = await this.runner.runQuery(req.query.iri as string);
-      res.send(data);
-      res.end();
     } catch (e) {
       next(e);
     }
