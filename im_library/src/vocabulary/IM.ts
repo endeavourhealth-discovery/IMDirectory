@@ -24,6 +24,7 @@ export class IM {
   public static HAS_SUBSET = IM.NAMESPACE + "hasSubset";
   public static IS_SUBSET_OF = IM.NAMESPACE + "isSubsetOf";
   public static WEIGHTING = IM.NAMESPACE + "weighting";
+  public static VERSION = IM.NAMESPACE + "version";
 
   // task
   public static IN_TASK = IM.NAMESPACE + "inTask";
