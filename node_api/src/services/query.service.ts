@@ -6,14 +6,17 @@ import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
 import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
+import {GraphdbService, iri} from "@/services/graphdb.service";
 
 export default class QueryService {
   axios: any;
   eclService: EclService;
+  private graph: GraphdbService;
 
   constructor(axios: any) {
     this.axios = axios;
     this.eclService = new EclService(axios);
+    this.graph = new GraphdbService();
   }
 
   public async queryIM(query: QueryRequest, controller?: AbortController) {
@@ -164,6 +167,7 @@ export default class QueryService {
   }
 
   async getPropertyRange(propIri: string): Promise<any> {
+    const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
     const queryRequest = {
       argument: [
         {
@@ -174,30 +178,68 @@ export default class QueryService {
         }
       ],
       query: {
-        "@id": "http://endhealth.info/im#Query_PropertyRange"
+        "@id": "http://endhealth.info/im#Query_AllowableRanges"
       }
     } as any as QueryRequest;
 
     const response = await this.queryIM(queryRequest);
 
-    if (isObjectHasKeys(response, ["entities"]) && isObjectHasKeys(response.entities[0], [RDFS.RANGE])) {
-      return response.entities[0][RDFS.RANGE];
+    if (isObjectHasKeys(response, ["entities"]) && response.entities.length !== 0) {
+      return response.entities;
     } else {
-      queryRequest.query = { "@id": "http://endhealth.info/im#Query_ObjectPropertyRangeSuggestions" } as any;
-      const suggestions = await this.queryIM(queryRequest);
-      if (isObjectHasKeys(suggestions, ["entities"])) {
+      const propType = await this.checkPropertyType(propIri);
+      if( propType.objectProperty.id === isTrue ) {
+        queryRequest.query = { "@id": "http://endhealth.info/im#Query_ObjectPropertyRangeSuggestions" } as any;
+        const suggestions = await this.queryIM(queryRequest);
         suggestions.entities.push({
           "@id": "http://endhealth.info/im#Concept",
           "http://www.w3.org/2000/01/rdf-schema#label": "Terminology concept"
         });
         return suggestions.entities;
-      } else {
-        const request = { query: { "@id": "http://endhealth.info/im#Query_DataPropertyRangeSuggestions" } } as QueryRequest;
-        const dataTypes = await this.queryIM(request);
+      } else if( propType.dataProperty.id === isTrue ) {
+        queryRequest.query = { "@id": "http://endhealth.info/im#Query_dataPropertyRangeSuggestions" }  as any;
+        const dataTypes = await this.queryIM(queryRequest);
         if (isObjectHasKeys(dataTypes, ["entities"]) && dataTypes.entities.length !== 0) {
           return dataTypes.entities;
-        } else return [];
-      }
+        }
+      } else return [];
+    }
+  }
+
+  public async checkPropertyType(propIri:string) {
+    const query = "SELECT ?objectProperty ?dataProperty " +
+                  "WHERE {" +
+                  "bind(exists{?propIri ?isA  ?objProp} as ?objectProperty)" +
+                  "bind(exists{?propIri ?isA ?dataProp} as ?dataProperty)" +
+                  "} "
+
+    const rs = await this.graph.execute(query, {
+      propIri:iri(propIri),
+      isA:iri(IM.IS_A),
+      objProp:iri(IM.DATAMODEL_OBJECTPROPERTY),
+      dataProp:iri(IM.DATAMODEL_DATAPROPERTY)
+    }, false);
+
+    if(isArrayHasLength(rs)) {
+      return rs[0];
+    }
+  }
+
+  public async isFunctionProperty(propIri:string) {
+    const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
+    const query = "SELECT ?functionProperty " +
+        "WHERE {" +
+        "bind(exists{?propIri ?isA  ?funcProp} as ?functionProperty)" +
+        "} "
+
+    const rs = await this.graph.execute(query, {
+      propIri:iri(propIri),
+      isA:iri(IM.IS_A),
+      funcProp:iri(IM.DATAMODEL_FUNCTIONPROPERTY)
+    }, false);
+
+    if(isArrayHasLength(rs)) {
+      return rs[0].functionProperty.value;
     }
   }
 }

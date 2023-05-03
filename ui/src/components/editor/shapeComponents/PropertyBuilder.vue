@@ -4,7 +4,7 @@
       <ToggleButton v-model="isInherited" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" disabled />
       <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
       <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
-      <EntityAutoComplete :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
+      <EntityAutoComplete :disabled="!isVisible" :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
       <ToggleButton v-model="required" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
       <ToggleButton v-model="unique" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
     </div>
@@ -51,6 +51,7 @@ const unique = ref(false);
 const loading = ref(true);
 const invalid = ref(false);
 let isInherited = false;
+const isVisible = ref(true);
 
 watch(
   [propertyPath, propertyRange, inheritedFrom, required, unique],
@@ -82,10 +83,10 @@ const propertyRangeShape: Ref<PropertyShape> = ref({
   order: 1,
   componentType: { "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT },
   path: props.shape.path,
-  select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_DMPropertyRange" }],
+  select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_DataModelPropertyRange" }],
   argument: [
-    { valueIri: { "@id": propertyPath.value["@id"] }, parameter: "that" },
-    { valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "this" }
+    { valueIri: { "@id": propertyPath.value["@id"] }, parameter: "myProperty" },
+    { valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "myDataModel" }
   ],
   builderChild: true
 } as PropertyShape);
@@ -154,6 +155,10 @@ function processProps() {
 }
 
 async function updatePath(data: any) {
+  if (data["@id"]  && await isFunctionProperty(data["@id"] )) {
+    isVisible.value = false;
+    updateRange({"@id": IM.FUNCTION})
+  }
   if (props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
     props.value["http://www.w3.org/ns/shacl#path"][0] = { "@id": data["@id"] } as TTIriRef;
   }
@@ -230,6 +235,10 @@ async function updateValidity() {
 
 function defaultValidity() {
   return true;
+}
+
+async function isFunctionProperty(propIri: string) {
+  return await QueryService.isFunctionProperty(propIri);
 }
 </script>
 

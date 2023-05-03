@@ -24,6 +24,8 @@ export class IM {
   public static HAS_SUBSET = IM.NAMESPACE + "hasSubset";
   public static IS_SUBSET_OF = IM.NAMESPACE + "isSubsetOf";
   public static WEIGHTING = IM.NAMESPACE + "weighting";
+  public static FUNCTION = IM.NAMESPACE + "function";
+
 
   // task
   public static IN_TASK = IM.NAMESPACE + "inTask";
@@ -84,6 +86,11 @@ export class IM {
   public static DATAMODEL_ENTITY = IM.NAMESPACE + "DataModelEntity";
   public static DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
   public static QUERY = IM.NAMESPACE + "Query";
+
+  //Property types
+  public static DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";
+  public static DATAMODEL_DATAPROPERTY = IM.NAMESPACE + "dataModelDataProperty";
+  public static DATAMODEL_FUNCTIONPROPERTY = IM.NAMESPACE + "functionProperty";
 
   // Graphs
   public static GRAPH_EMIS = IM.DOMAIN + "emis#";
