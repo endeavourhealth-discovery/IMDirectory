@@ -1,7 +1,7 @@
 import Env from "@/services/env.service";
 import EntityService from "@/services/entity.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces";
 
 export default class SearchService {
@@ -14,7 +14,7 @@ export default class SearchService {
   }
 
   async findEntitiesBySnomedCodes(codes: string[]) {
-    const iris = codes.map(code => "http://snomed.info/sct#" + code);
+    const iris = codes.map(code => SNOMED.NAMESPACE + code);
     const result = await this.entityService.getPartialEntities(iris, [RDFS.LABEL, IM.CODE]);
     return result.map(resolved => resolved.data);
   }

@@ -4,7 +4,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
 import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, QUERY, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 
 export default class QueryService {
@@ -28,7 +28,7 @@ export default class QueryService {
   public async getAllowableRangeSuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
     const allowableRangesQuery = {
       query: {
-        "@id": "http://endhealth.info/im#Query_AllowableRanges"
+        "@id": QUERY.ALLOWABLE_RANGES
       },
       argument: [
         {
@@ -42,7 +42,7 @@ export default class QueryService {
 
     const subtypesQuery = {
       query: {
-        "@id": "http://endhealth.info/im#Query_GetIsas"
+        "@id": QUERY.GET_ISAS
       },
       argument: [
         {
@@ -75,7 +75,7 @@ export default class QueryService {
   public async getAllowablePropertySuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
     const queryRequest = {
       query: {
-        "@id": "http://endhealth.info/im#Query_AllowableProperties"
+        "@id": QUERY.ALLOWABLE_PROPERTIES
       },
       argument: [
         {
@@ -112,7 +112,7 @@ export default class QueryService {
         for (const result of results) {
           const queryRequest = {
             query: {
-              "@id": "http://endhealth.info/im#Query_AllowableProperties"
+              "@id": QUERY.ALLOWABLE_PROPERTIES
             },
             argument: [
               {
@@ -153,7 +153,7 @@ export default class QueryService {
         }
       ],
       query: {
-        "@id": "http://endhealth.info/im#Query_AllowableChildTypes"
+        "@id": QUERY.ALLOWABLE_CHILD_TYPES
       }
     } as any as QueryRequest;
 
@@ -174,7 +174,7 @@ export default class QueryService {
         }
       ],
       query: {
-        "@id": "http://endhealth.info/im#Query_PropertyRange"
+        "@id": QUERY.PROPERTY_RANGE
       }
     } as any as QueryRequest;
 
@@ -183,7 +183,7 @@ export default class QueryService {
     if (isObjectHasKeys(response, ["entities"]) && isObjectHasKeys(response.entities[0], [RDFS.RANGE])) {
       return response.entities[0][RDFS.RANGE];
     } else {
-      queryRequest.query = { "@id": "http://endhealth.info/im#Query_ObjectPropertyRangeSuggestions" } as any;
+      queryRequest.query = { "@id": QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as any;
       const suggestions = await this.queryIM(queryRequest);
       if (isObjectHasKeys(suggestions, ["entities"])) {
         suggestions.entities.push({
@@ -192,7 +192,7 @@ export default class QueryService {
         });
         return suggestions.entities;
       } else {
-        const request = { query: { "@id": "http://endhealth.info/im#Query_DataPropertyRangeSuggestions" } } as QueryRequest;
+        const request = { query: { "@id": QUERY.DATA_PROPERTY_RANGE_SUGGESTIONS } } as QueryRequest;
         const dataTypes = await this.queryIM(request);
         if (isObjectHasKeys(dataTypes, ["entities"]) && dataTypes.entities.length !== 0) {
           return dataTypes.entities;

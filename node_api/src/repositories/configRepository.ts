@@ -1,6 +1,5 @@
 import { GraphdbService, iri, sanitise } from "@/services/graphdb.service";
-import { IM, RDFS } from "@im-library/vocabulary";
-import { isArray } from "lodash";
+import { CONFIG, IM, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 export default class ConfigRepository {
   private graph: GraphdbService;
@@ -15,7 +14,7 @@ export default class ConfigRepository {
     const rs = await this.graph.execute(
       qry,
       {
-        c: iri("http://endhealth.info/config#"),
+        c: iri(CONFIG.NAMESPACE),
         s: iri(url),
         label: iri(RDFS.LABEL),
         config: iri(IM.HAS_CONFIG)
@@ -36,7 +35,7 @@ export default class ConfigRepository {
     const qry =
       "INSERT DATA { " +
       "GRAPH " +
-      iri("http://endhealth.info/config#") +
+      iri(CONFIG.NAMESPACE) +
       " { " +
       iri(subjectUrl) +
       " " +
