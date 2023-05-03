@@ -16,9 +16,13 @@ export default class GithubController {
   }
 
   private initRoutes() {
-    this.router.get("/node_api/github/public/latestRelease", (req, res, next) => this.getLatestRelease(req, res, next));
-    this.router.get("/node_api/github/public/releases", (req, res, next) => this.getReleases(req, res, next));
-    this.router.get("/node_api/github/updateGithubConfig", this.auth.secure("IMAdmin"), (req, res, next) => this.updateGithubConfigs(req, res, next));
+    this.router.get("/node_api/github/public/latestRelease", async (req, res, next) => await this.getLatestRelease(req, res, next));
+    this.router.get("/node_api/github/public/releases", async (req, res, next) => await this.getReleases(req, res, next));
+    this.router.get(
+      "/node_api/github/updateGithubConfig",
+      this.auth.secure("IMAdmin"),
+      async (req, res, next) => await this.updateGithubConfigs(req, res, next)
+    );
   }
 
   private async getLatestRelease(req: Request, res: Response, next: NextFunction) {

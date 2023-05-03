@@ -20,13 +20,16 @@ export default class QueryController {
   private initRoutes() {
     this.router.post("/public/queryDisplay", (req, res, next) => this.getQueryDisplay(req, res, next));
     this.router.post("/public/queryObject", (req, res, next) => this.getQueryObject(req, res, next));
-    this.router.get("/public/queryDefinitionDisplay", (req, res, next) => this.getQueryDefinitionDisplay(req, res, next));
-    this.router.get("/public/queryObjectDisplay", (req, res, next) => this.getQueryObjectByIri(req, res, next));
-    this.router.get("/public/allowablePropertySuggestions", (req, res, next) => this.getAllowablePropertySuggestions(req, res, next));
-    this.router.get("/public/allowablePropertySuggestionsBoolFocus", (req, res, next) => this.getAllowablePropertySuggestionsBoolFocus(req, res, next));
-    this.router.get("/public/allowableRangeSuggestions", (req, res, next) => this.getAllowableRangeSuggestions(req, res, next));
-    this.router.get("/public/allowableChildTypes", (req, res, next) => this.getAllowableChildTypes(req, res, next));
-    this.router.get("/public/propertyRange", (req, res, next) => this.getPropertyRange(req, res, next));
+    this.router.get("/public/queryDefinitionDisplay", async (req, res, next) => await this.getQueryDefinitionDisplay(req, res, next));
+    this.router.get("/public/queryObjectDisplay", async (req, res, next) => await this.getQueryObjectByIri(req, res, next));
+    this.router.get("/public/allowablePropertySuggestions", async (req, res, next) => await this.getAllowablePropertySuggestions(req, res, next));
+    this.router.get(
+      "/public/allowablePropertySuggestionsBoolFocus",
+      async (req, res, next) => await this.getAllowablePropertySuggestionsBoolFocus(req, res, next)
+    );
+    this.router.get("/public/allowableRangeSuggestions", async (req, res, next) => await this.getAllowableRangeSuggestions(req, res, next));
+    this.router.get("/public/allowableChildTypes", async (req, res, next) => await this.getAllowableChildTypes(req, res, next));
+    this.router.get("/public/propertyRange", async (req, res, next) => await this.getPropertyRange(req, res, next));
   }
   async getAllowableChildTypes(req: Request, res: Response, next: NextFunction) {
     try {

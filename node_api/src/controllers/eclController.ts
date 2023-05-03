@@ -15,13 +15,12 @@ export default class EclController {
   private initRoutes() {
     this.router.post("/public/eclToBuilder", (req, res, next) => this.eclToBuild(req, res, next));
     this.router.post("/public/eclToIMQ", (req, res, next) => this.eclToIMQ(req, res, next));
-    this.router.post("/public/eclSearch", (req, res, next) => this.eclSearch(req, res, next));
+    this.router.post("/public/eclSearch", async (req, res, next) => await this.eclSearch(req, res, next));
     this.router.post("/public/validateEcl", (req, res, next) => this.validateEcl(req, res, next));
-    this.router.post("/public/evaluateEcl", (req, res, next) => this.evaluateEcl(req, res, next));
-
+    this.router.post("/public/evaluateEcl", async (req, res, next) => await this.evaluateEcl(req, res, next));
   }
 
-  async eclToBuild(req: Request, res: Response, next: NextFunction) {
+  eclToBuild(req: Request, res: Response, next: NextFunction) {
     const ecl = req.body;
     try {
       const result = this.eclService.eclToBuild(ecl);
@@ -31,7 +30,7 @@ export default class EclController {
     }
   }
 
-  async eclToIMQ(req: Request, res: Response, next: NextFunction) {
+  eclToIMQ(req: Request, res: Response, next: NextFunction) {
     const ecl = req.body;
     try {
       const result = this.eclService.eclToIMQ(ecl);
@@ -51,13 +50,13 @@ export default class EclController {
     }
   }
 
-  async validateEcl(req: Request, res: Response, next: NextFunction) {
+  validateEcl(req: Request, res: Response, next: NextFunction) {
     const result = this.eclService.validateEcl(req.body);
     res.send(result).end();
   }
 
   async evaluateEcl(req: Request, res: Response, next: NextFunction) {
-      const result = await this.eclService.evaluateEcl(req.body);
-      res.send(result).end();
+    const result = await this.eclService.evaluateEcl(req.body);
+    res.send(result).end();
   }
 }

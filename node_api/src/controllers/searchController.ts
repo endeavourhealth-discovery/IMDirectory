@@ -13,12 +13,12 @@ export default class SearchController {
   }
 
   private initRoutes() {
-    this.router.post("/api/entity/public/search", (req, res) => this.advancedSearch(req, res));
-    this.router.post("/node_api/public/search/entity", (req, res, next) => this.getEntitiesBySnomedCodes(req, res, next));
-    this.router.post("/node_api/public/search/validatedEntity", (req, res, next) => this.getValidatedEntitiesBySnomedCodes(req, res, next));
+    this.router.post("/api/entity/public/search", async (req, res, next) => await this.advancedSearch(req, res, next));
+    this.router.post("/node_api/public/search/entity", async (req, res, next) => await this.getEntitiesBySnomedCodes(req, res, next));
+    this.router.post("/node_api/public/search/validatedEntity", async (req, res, next) => await this.getValidatedEntitiesBySnomedCodes(req, res, next));
   }
 
-  async advancedSearch(req: Request, res: Response) {
+  async advancedSearch(req: Request, res: Response, next: NextFunction) {
     const searchRequest = req.body;
     let result = [];
 
