@@ -1,6 +1,7 @@
 import router from "express-promise-router";
 
 export default class StatusController {
+  public path = "/";
   public router = router();
 
   constructor() {
@@ -8,6 +9,8 @@ export default class StatusController {
   }
 
   private initRoutes() {
-    this.router.get("/public/status", (req, res, next) => res.status(200).send("OK"));
+    this.router.get("/node_api/status/public/healthCheck", (req, res, next) => {
+      res.status(200).send("OK").end();
+    });
   }
 }
