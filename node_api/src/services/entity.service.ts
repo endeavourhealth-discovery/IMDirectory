@@ -136,7 +136,7 @@ export default class EntityService {
     let found = false;
     let counter = 0;
     if (isArrayHasLength(results)) {
-      while (found != true && counter < results.length) {
+      while (!found && counter < results.length) {
         const conceptIri = results[counter]["@id"];
         const result = (await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: conceptIri, property: propertyIri } })).data;
         if (result) found = result;

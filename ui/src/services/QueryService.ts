@@ -30,15 +30,6 @@ const QueryService = {
     });
   },
 
-  async generateSQL(conceptIri: string) {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/getSQL", {
-      params: {
-        iri: conceptIri
-      },
-      responseType: "text"
-    });
-  },
-
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
     if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal, raw: raw });
     else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });

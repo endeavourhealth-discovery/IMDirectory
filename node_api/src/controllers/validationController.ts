@@ -1,9 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
 import Validator from "../logic/validator";
+import router from "express-promise-router";
 
 export default class ValidationController {
   public path = "/";
-  public router = express.Router();
+  public router = router();
   private validator: Validator;
 
   constructor() {
@@ -12,18 +13,17 @@ export default class ValidationController {
   }
 
   private initRoutes() {
-    this.router.post("/node_api/validation/public/validate", (req, res, next) => this.validate(req, res, next));
+    this.router.post("/node_api/validation/public/validate", (req, res, next) =>
+      this.validate(req)
+        .then(data => res.send(data).end())
+        .catch(next)
+    );
   }
 
-  async validate(req: Request, res: Response, next: NextFunction) {
-    try {
-      const validationIri = req.query.iri as string;
-      if (!validationIri) throw new Error("Missing validation iri");
-      const data = req.body;
-      const result = this.validator.validate(validationIri, data);
-      res.send(result).end();
-    } catch (e) {
-      next(e);
-    }
+  async validate(req: Request) {
+    const validationIri = req.query.iri as string;
+    if (!validationIri) throw new Error("Missing validation iri");
+    const data = req.body;
+    return this.validator.validate(validationIri, data);
   }
 }
