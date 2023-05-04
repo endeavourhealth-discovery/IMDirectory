@@ -64,7 +64,13 @@ export default class QueryController {
         .then(data => res.send(data).end())
         .catch(next)
     );
+    this.router.get("/public/isFunctionProperty", (req, res, next) =>
+      this.isFunctionProperty(req)
+        .then(data => res.send(data).end())
+        .catch(next)
+    );
   }
+
   async getAllowableChildTypes(req: Request) {
     return await this.queryService.getAllowableChildTypes(req.query.iri as string);
   }
@@ -101,5 +107,9 @@ export default class QueryController {
 
   async getPropertyRange(req: Request) {
     return await this.queryService.getPropertyRange(req.query.propIri as string);
+  }
+
+  async isFunctionProperty(req: Request) {
+    return await this.queryService.isFunctionProperty(req.query.propIri as string);
   }
 }

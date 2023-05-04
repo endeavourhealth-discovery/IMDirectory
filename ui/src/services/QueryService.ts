@@ -119,6 +119,12 @@ const QueryService = {
     });
   },
 
+  async isFunctionProperty(propIri: string): Promise<any> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/isFunctionProperty", {
+      params: { propIri: propIri }
+    });
+  },
+
   async getPathSuggestions(queryRequest: QueryRequest): Promise<PathDocument> {
     return axios.post(Env.API + "api/query/public/pathQuery", queryRequest);
   },

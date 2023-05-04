@@ -109,7 +109,6 @@ watch(
   }
 );
 
-const miniSearchOP = ref();
 const optionsOP = ref();
 
 onMounted(async () => {
@@ -202,15 +201,15 @@ async function getAutocompleteOptions() {
     }
     controller.value = new AbortController();
     if (controller.value) {
-      if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_DMPropertyRange" && queryRequest.argument[1].valueIri["@id"]) {
+      if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_DataModelPropertyRange" && queryRequest.argument[1].valueIri["@id"]) {
         const result = await QueryService.queryIM(queryRequest, controller.value);
         if (result && isObjectHasKeys(result, ["entities"])) {
-          const range = result.entities[0][SHACL.PROPERTY] ? result.entities[0][SHACL.PROPERTY][0][SHACL.NODE] || result.entities[0][SHACL.PROPERTY][0][SHACL.CLASS] || result.entities[0][SHACL.PROPERTY][0][SHACL.DATATYPE] : {};
-          if(Object.keys(range).length !== 0) {
+          const range = result.entities[0]? result.entities[0][SHACL.NODE] || result.entities[0][SHACL.CLASS] || result.entities[0][SHACL.DATATYPE] : {};
+          if(range) {
             autocompleteOptions.value = convertToConceptSummary(range);
           }
         }
-      } else if(queryRequest.query["@id"] !== "http://endhealth.info/im#Query_DMPropertyRange") {
+      } else if(queryRequest.query["@id"] !== "http://endhealth.info/im#Query_DataModelPropertyRange") {
         const result = await QueryService.queryIM(queryRequest, controller.value);
         if (result && isObjectHasKeys(result, ["entities"])) {
           autocompleteOptions.value = convertToConceptSummary(result.entities).sort((a:any ,b:any) => a.name.toString().toLowerCase().localeCompare(b.name.toString().toLowerCase()));
@@ -221,7 +220,9 @@ async function getAutocompleteOptions() {
   else {
     if(props.shape.argument[0].valueIri["@id"]) {
       const range = await QueryService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
-      autocompleteOptions.value = convertToConceptSummary(range);
+      if(range.length !== 0) {
+        autocompleteOptions.value = convertToConceptSummary(range);
+      }
     }
   }
 }
@@ -230,7 +231,7 @@ function convertToConceptSummary(results: any[]) {
   return results.map(result => {
     const conceptSummary = {} as ConceptSummary;
     conceptSummary.iri = result["@id"];
-    conceptSummary.name = result[RDFS.LABEL];
+    conceptSummary.name = result[RDFS.LABEL] ? result[RDFS.LABEL] : result["@id"];
     conceptSummary.code = result[IM.CODE];
     conceptSummary.entityType = result[RDF.TYPE];
     conceptSummary.scheme = result[IM.SCHEME];
