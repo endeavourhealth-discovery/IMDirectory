@@ -32,9 +32,6 @@ export const useUserStore = defineStore("user", {
       localStorage.setItem("favourites", JSON.stringify(favourites));
       this.favourites = favourites;
     },
-    updateRegisteredUsername(username: any) {
-      this.registeredUsername = username;
-    },
     updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
       let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
       activity.forEach(activityItem => {

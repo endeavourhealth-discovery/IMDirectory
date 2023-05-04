@@ -12,7 +12,6 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 
 export const useDirectoryStore = defineStore("directory", {
     state: (): DirectoryState => ({
-        conceptIri: IM.MODULE_ONTOLOGY,
         findInTreeIri: "",
         searchResults: [] as ConceptSummary[],
         searchLoading: false,
@@ -38,27 +37,11 @@ export const useDirectoryStore = defineStore("directory", {
         updateSearchLoading(loading: any) {
             this.searchLoading = loading;
         },
-        updateConceptIri(conceptIri: any) {
-            this.conceptIri = conceptIri;
-        },
         updateSearchResults(searchResults: any) {
             this.searchResults = searchResults;
         },
-        updateSnomedLicenseAccepted(bool: boolean) {
-            this.snomedLicenseAccepted = bool;
-            localStorage.setItem("snomedLicenseAccepted", bool === true ? "true" : "");
-        },
-        updateShowSnomedLicense(bool: boolean) {
-            this.showSnomedLicense = bool;
-        },
-        updateFocusHierarchy(bool: any) {
-            this.focusHierarchy = bool;
-        },
         updateSidebarControlActivePanel(number: any) {
             this.sidebarControlActivePanel = number;
-        },
-        updateTagSeverityMatches(items: any) {
-            this.tagSeverityMatches = items;
         },
         updateSplitterRightSize(splitterRightSize: any) {
             this.splitterRightSize = splitterRightSize;
