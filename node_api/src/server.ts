@@ -14,6 +14,7 @@ import FhirController from "@/controllers/fhirController";
 import EclController from "@/controllers/eclController";
 import ConfigController from "@/controllers/configController";
 import ProvController from "@/controllers/provController";
+import StatusController from "./controllers/statusController";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ dns.setDefaultResultOrder("ipv4first");
 const app = new App({
   port: 3000,
   controllers: [
+    new StatusController(),
     new QueryController(),
     new ValidationController(),
     new GithubController(),

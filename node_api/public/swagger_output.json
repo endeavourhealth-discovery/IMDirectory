@@ -54,9 +54,6 @@
     "/ValueSet/ECL": {
       "post": {
         "description": "",
-        "produces": [
-          "application/fhir+json"
-        ],
         "parameters": [
           {
             "name": "url",
