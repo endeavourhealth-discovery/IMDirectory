@@ -15,6 +15,7 @@ import EclController from "@/controllers/eclController";
 import ConfigController from "@/controllers/configController";
 import ProvController from "@/controllers/provController";
 import StatusController from "./controllers/statusController";
+import gracefulShutdown from "http-graceful-shutdown";
 
 dotenv.config();
 
@@ -40,5 +41,22 @@ const app = new App({
 });
 
 if (import.meta.env.PROD) app.listen();
+
+function shutdownFunction(signal?: string | undefined): Promise<void> {
+  return new Promise(resolve => {
+    console.log("... called signal: " + signal);
+    console.log("... in cleanup");
+    setTimeout(function () {
+      console.log("... cleanup finished");
+      resolve();
+    }, 1000);
+  });
+}
+
+function finalFunction() {
+  console.log("Server gracefully shutdown");
+}
+
+gracefulShutdown(app.app, { onShutdown: shutdownFunction, finally: finalFunction, development: true });
 
 export const viteNodeApp = app.app;

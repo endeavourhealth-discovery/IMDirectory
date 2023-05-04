@@ -4,6 +4,14 @@ import { ApiError, CustomError } from "@im-library/models";
 import { NextFunction, Request, Response } from "express";
 
 function errorHandler(error: any, request: Request, response: Response, next: NextFunction) {
+  process.on("uncaughtException", err => {
+    process.exit(1);
+  });
+
+  process.on("unhandledRejection", (reason, promise) => {
+    process.exit(1);
+  });
+
   let status = error.status ?? 500;
   let message = error.message ?? "Uncaught server error occurred";
   const newApiError = new ApiError(status, message);
@@ -14,7 +22,7 @@ function errorHandler(error: any, request: Request, response: Response, next: Ne
   } else if (error.response) {
     handleResponse(error.response, newApiError);
   } else {
-    newApiError.setCode(ErrorType.UnhandledError);
+    process.exit(1);
   }
   response.status(status).send(newApiError);
 }
