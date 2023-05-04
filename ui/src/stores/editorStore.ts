@@ -3,7 +3,7 @@ import { EditorState } from "@/stores/types/editorState";
 import { useCookieStore } from "@/stores/cookieStore";
 
 const cookieStore = useCookieStore();
-defineStore("editor", {
+export const useEditorStore = defineStore("editor", {
     state: (): EditorState => ({
         editorIri: localStorage.getItem("editorSelectedIri") as string,
         editorSavedEntity: JSON.parse(localStorage.getItem("editorSavedEntity") || "{}") as any,
