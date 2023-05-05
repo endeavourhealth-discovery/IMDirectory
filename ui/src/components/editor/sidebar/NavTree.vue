@@ -83,13 +83,13 @@ import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/tree";
 import setupTree from "@/composables/setupTree";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { useRootStore } from "@/stores/rootStore";
+import { useEditorStore } from "@/stores/editorStore";
 
-const rootStore = useRootStore();
+const editorStore = useEditorStore();
 const router = useRouter();
 const toast = useToast();
 
-const treeIri: ComputedRef<string> = computed(() => rootStore.findInEditorTreeIri);
+const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
 const {
   selectedNode,

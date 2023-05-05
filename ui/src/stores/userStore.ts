@@ -6,9 +6,6 @@ import { AuthService, EntityService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import { CustomAlert, HistoryItem, RecentActivityItem } from "@im-library/interfaces";
 import { useCookieStore } from "@/stores/cookieStore";
-
-
-const cookieStore = useCookieStore();
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     currentUser: {} as User,
@@ -56,7 +53,7 @@ export const useUserStore = defineStore("user", {
         }
       }
 
-      if (cookieStore.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
+      if (useCookieStore().cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       this.recentLocalActivity = activity;
     },
     updateFavourites(favourite: string) {
@@ -67,13 +64,13 @@ export const useUserStore = defineStore("user", {
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        if (cookieStore.cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
+        if (useCookieStore().cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
         this.favourites = favourites;
       }
     },
     updateCurrentTheme(theme: any) {
       this.currentTheme = theme;
-      if (cookieStore.cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
+      if (useCookieStore().cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;

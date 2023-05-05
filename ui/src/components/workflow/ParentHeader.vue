@@ -49,7 +49,7 @@ import { getColourFromType, getFAIconFromType } from "@im-library/helpers/Concep
 import { DirectService, EntityService, Env } from "@/services";
 import { IM, RDF } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
 const emit = defineEmits({ showDetails: (_payload: string) => true });
 const props = defineProps({ conceptIri: { type: String, required: true } });
@@ -62,7 +62,7 @@ watch(
 );
 
 const router = useRouter();
-const rootStore = useRootStore();
+const userStore = useUserStore();
 
 const directService = new DirectService();
 
@@ -102,7 +102,7 @@ function starTask(iri: string) {
 }
 
 function updateFavourites(iri: string) {
-  rootStore.updateFavourites(iri);
+  userStore.updateFavourites(iri);
 }
 </script>
 

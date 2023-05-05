@@ -39,10 +39,10 @@ import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { SweetAlertResult } from "sweetalert2";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/rootStore";
+import { useAuthStore } from "@/stores/authStore";
 
 const router = useRouter();
-const rootStore = useRootStore();
+const authStore = useAuthStore();
 
 let username = ref("");
 
@@ -63,7 +63,7 @@ function handleSubmit(): void {
             title: "Success",
             text: "Password has been reset for account: " + username.value + ". An email has been sent with a recovery code."
           }).then(() => {
-            rootStore.updateRegisteredUsername(username.value);
+            authStore.updateRegisteredUsername(username.value);
             router.push({ name: "ForgotPasswordSubmit" });
           });
         } else {

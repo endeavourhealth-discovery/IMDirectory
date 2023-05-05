@@ -116,7 +116,11 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useFilterStore } from "@/stores/filterStore";
+import { useUserStore } from "@/stores/userStore";
+
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, required: true },
@@ -127,11 +131,14 @@ const emit = defineEmits({
   openTreePanel: () => true
 });
 
-const rootStore = useRootStore();
-const searchLoading = computed(() => rootStore.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => rootStore.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
-const favourites = computed(() => rootStore.favourites);
+const directoryStore = useDirectoryStore();
+const editorStore = useEditorStore();
+const filterStore = useFilterStore();
+const userStore = useUserStore();
+const searchLoading = computed(() => directoryStore.searchLoading);
+const filterOptions: Ref<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
+const favourites = computed(() => userStore.favourites);
 
 const directService = new DirectService();
 
@@ -181,7 +188,7 @@ const isLoading = computed(() => loading.value || searchLoading.value);
 
 function updateFavourites(data?: any) {
   if (data) selected.value = data;
-  rootStore.updateFavourites(selected.value.iri);
+  userStore.updateFavourites(selected.value.iri);
 }
 
 function isFavourite(iri: string) {
@@ -286,7 +293,7 @@ function hideOverlay(event: any): void {
 }
 
 function locateInTree(event: any, iri: string) {
-  rootStore.updateFindInEditorTreeIri(iri);
+  editorStore.updateFindInEditorTreeIri(iri);
   emit("openTreePanel");
 }
 

@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { EditorState } from "@/stores/types/editorState";
 import { useCookieStore } from "@/stores/cookieStore";
 
-const cookieStore = useCookieStore();
+
 export const useEditorStore = defineStore("editor", {
     state: (): EditorState => ({
         editorIri: localStorage.getItem("editorSelectedIri") as string,
@@ -15,11 +15,11 @@ export const useEditorStore = defineStore("editor", {
     actions: {
         updateEditorIri(iri: any) {
             this.editorIri = iri;
-            if (cookieStore.cookiesOptionalAccepted) localStorage.setItem("editorSelectedIri", iri);
+            if (useCookieStore().cookiesOptionalAccepted) localStorage.setItem("editorSelectedIri", iri);
         },
         updateEditorSavedEntity(entity: any) {
             this.editorSavedEntity = entity;
-            if (entity && cookieStore.cookiesOptionalAccepted) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
+            if (entity && useCookieStore().cookiesOptionalAccepted) localStorage.setItem("editorSavedEntity", JSON.stringify(entity));
             else localStorage.removeItem("editorSavedEntity");
         },
         updateEditorHasChanges(bool: any) {
@@ -33,7 +33,7 @@ export const useEditorStore = defineStore("editor", {
         },
         updateEclEditorSavedString(ecl: any) {
             this.eclEditorSavedString = ecl;
-            if (ecl && cookieStore.cookiesOptionalAccepted) localStorage.setItem("eclEditorSavedString", ecl);
+            if (ecl && useCookieStore().cookiesOptionalAccepted) localStorage.setItem("eclEditorSavedString", ecl);
             else localStorage.removeItem("eclEditorSavedString");
         }
     }

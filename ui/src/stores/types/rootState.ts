@@ -3,22 +3,9 @@ import { Namespace, ConceptSummary, RecentActivityItem, HistoryItem, FilterOptio
 export interface RootState {
   // loading: Map<string, boolean>;
   conceptIri: string;
-  findInTreeIri: string;
-  searchResults: ConceptSummary[];
-  searchLoading: boolean;
-  history: HistoryItem[];
-  favourites: string[];
-  registeredUsername: string;
-  recentLocalActivity: RecentActivityItem[];
   snomedLicenseAccepted: boolean;
   showSnomedLicense: boolean;
-  authReturnUrl: string;
-  filterOptions: FilterOptions;
-  filterDefaults: FilterOptions;
-  selectedFilters: FilterOptions;
-  quickFiltersStatus: any;
   focusHierarchy: boolean;
-  sidebarControlActivePanel: number;
   // filters: {
   //   selectedStatus: string[];
   //   selectedSchemes: { iri: string; name: string }[];
@@ -26,26 +13,8 @@ export interface RootState {
   // };
   // term: string;
   // instanceIri: string;
-  hierarchySelectedFilters: Namespace[];
-  fontAwesomePro: boolean;
   arrayObjectNameListboxWithLabelStartExpanded: string[];
   tagSeverityMatches: any[];
   textDefinitionStartExpanded: string[];
   activeProfile: any;
-  splitterRightSize: number;
-  editorIri: string;
-  editorSavedEntity: any;
-  creatorSavedEntity: any;
-  creatorHasChanges: boolean;
-  editorHasChanges: boolean;
-  findInEditorTreeIri: string;
-  refreshEditorTree: boolean;
-  showReleaseNotes: boolean;
-  eclEditorSavedString: string;
-  currentTheme: string;
-  cookiesEssentialAccepted: boolean;
-  cookiesOptionalAccepted: boolean;
-  showCookieConsent: boolean;
-  showBanner: boolean;
-  previousAppUrl: string;
 }

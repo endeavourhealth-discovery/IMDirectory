@@ -81,11 +81,13 @@ import { EntityService, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byOrder } = Sorters;
 const rootStore = useRootStore();
-const recentLocalActivity = computed(() => rootStore.recentLocalActivity);
+const userStore = useUserStore();
+const recentLocalActivity = computed(() => userStore.recentLocalActivity);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});

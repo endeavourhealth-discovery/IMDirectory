@@ -20,13 +20,17 @@
 
 <script setup lang="ts">
 import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useCookieStore } from "@/stores/cookieStore";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 
 const rootStore = useRootStore();
-const fontAwesomePro = rootStore.fontAwesomePro;
+const directoryStore = useDirectoryStore();
+const cookieStore = useCookieStore();
+const fontAwesomePro = directoryStore.fontAwesomePro;
 
 function showCookieSettings() {
-  rootStore.updateShowCookieConsent(true);
+  cookieStore.updateShowCookieConsent(true);
 }
 </script>
 

@@ -27,19 +27,21 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useFilterStore } from "@/stores/filterStore";
 
 const props = defineProps({
   showFilters: { type: Boolean, required: false, default: true }
 });
 
-const rootStore = useRootStore();
-const searchLoading = computed(() => rootStore.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => rootStore.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
-const searchResults = computed(() => rootStore.searchResults);
+const directoryStore = useDirectoryStore();
+const filterStore = useFilterStore();
+const searchLoading = computed(() => directoryStore.searchLoading);
+const filterOptions: Ref<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
+const searchResults = computed(() => directoryStore.searchResults);
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);

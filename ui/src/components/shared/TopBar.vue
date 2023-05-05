@@ -88,14 +88,15 @@ import { DirectService, Env, FilerService, DataModelService, GithubService } fro
 import { usePrimeVue } from "primevue/config";
 import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 const rootStore = useRootStore();
 const userStore = useUserStore();
-
+const directoryStore = useDirectoryStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
-const currentTheme = computed(() => rootStore.currentTheme);
+const fontAwesomePro = computed(() => directoryStore.fontAwesomePro);
+const currentTheme = computed(() => userStore.currentTheme);
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -573,11 +574,11 @@ function setAppMenuItems() {
 }
 
 function showReleaseNotes() {
-  rootStore.updateShowReleaseNotes(true);
+  directoryStore.updateShowReleaseNotes(true);
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => rootStore.updateCurrentTheme(newTheme));
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => userStore.updateCurrentTheme(newTheme));
 }
 </script>
 

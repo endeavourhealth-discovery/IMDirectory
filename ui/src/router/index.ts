@@ -38,6 +38,9 @@ import { nextTick } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
 import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useCreatorStore } from "@/stores/creatorStore"
 
 const APP_TITLE = "IM Directory";
 
@@ -264,18 +267,21 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const rootStore = useRootStore();
+  const authStore = useAuthStore();
+  const creatorStore = useCreatorStore();
+  const editorStore = useEditorStore();
   const userStore = useUserStore();
 
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
 
-  rootStore.updateAuthReturnUrl(currentUrl);
+  authStore.updateAuthReturnUrl(currentUrl);
 
   const iri = to.params.selectedIri;
   if (iri) {
     rootStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
-    if (iri) rootStore.updateEditorIri(iri);
+    if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
         router.push({ name: "EntityNotFound" });
@@ -344,7 +350,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/creator/") && !to.path.startsWith("/creator/")) {
-    if (rootStore.creatorHasChanges) {
+    if (creatorStore.creatorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }
@@ -352,7 +358,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/editor/") && !to.path.startsWith("/editor/")) {
-    if (rootStore.editorHasChanges) {
+    if (editorStore.editorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }

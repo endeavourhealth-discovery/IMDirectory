@@ -93,6 +93,7 @@ import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import { createPinia } from "pinia";
 import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -180,16 +181,17 @@ const app = createApp(App)
   .component("Inplace", Inplace);
 
 const rootStore = useRootStore();
+const directoryStore = useDirectoryStore();
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
 addFontAwesomeProIcons(library);
-rootStore.updateFontAwesomePro(true);
+directoryStore.updateFontAwesomePro(true);
 // #v-endif
 // #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
 import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-rootStore.updateFontAwesomePro(false);
+directoryStore.updateFontAwesomePro(false);
 // #v-endif
 
 const vm = app.mount("#app");

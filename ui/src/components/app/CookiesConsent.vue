@@ -36,13 +36,15 @@
 import { ComputedRef, onMounted, ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useRootStore } from "@/stores/rootStore";
+import { useCookieStore } from "@/stores/cookieStore";
 
 const rootStore = useRootStore();
+const cookieStore = useCookieStore();
 const route = useRoute();
 
-const cookiesEssentialAccepted: ComputedRef<boolean> = computed(() => rootStore.cookiesEssentialAccepted);
-const cookiesOptionalAccepted: ComputedRef<boolean> = computed(() => rootStore.cookiesOptionalAccepted);
-const showCookieConsent: ComputedRef<boolean> = computed(() => rootStore.showCookieConsent);
+const cookiesEssentialAccepted: ComputedRef<boolean> = computed(() => cookieStore.cookiesEssentialAccepted);
+const cookiesOptionalAccepted: ComputedRef<boolean> = computed(() => cookieStore.cookiesOptionalAccepted);
+const showCookieConsent: ComputedRef<boolean> = computed(() => cookieStore.showCookieConsent);
 
 const essentialChecked = ref(false);
 const optionalChecked = ref(false);
@@ -55,23 +57,23 @@ onMounted(() => {
 });
 
 function handleAcceptAll() {
-  rootStore.updateCookiesEssentialAccepted(true);
-  rootStore.updateCookiesOptionalAccepted(true);
-  rootStore.updateShowCookieConsent(false);
+  cookieStore.updateCookiesEssentialAccepted(true);
+  cookieStore.updateCookiesOptionalAccepted(true);
+  cookieStore.updateShowCookieConsent(false);
 }
 
 function handleAcceptEssential() {
-  rootStore.updateCookiesEssentialAccepted(true);
-  rootStore.updateCookiesOptionalAccepted(false);
-  rootStore.clearOptionalCookies();
-  rootStore.updateShowCookieConsent(false);
+  cookieStore.updateCookiesEssentialAccepted(true);
+  cookieStore.updateCookiesOptionalAccepted(false);
+  cookieStore.clearOptionalCookies();
+  cookieStore.updateShowCookieConsent(false);
 }
 
 function handleSave() {
-  rootStore.updateCookiesEssentialAccepted(true);
-  rootStore.updateCookiesOptionalAccepted(optionalChecked.value);
-  if (!optionalChecked.value) rootStore.clearOptionalCookies();
-  rootStore.updateShowCookieConsent(false);
+  cookieStore.updateCookiesEssentialAccepted(true);
+  cookieStore.updateCookiesOptionalAccepted(optionalChecked.value);
+  if (!optionalChecked.value) cookieStore.clearOptionalCookies();
+  cookieStore.updateShowCookieConsent(false);
 }
 </script>
 

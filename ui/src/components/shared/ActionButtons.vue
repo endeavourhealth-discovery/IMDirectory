@@ -80,12 +80,17 @@ import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryR
 import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryParams.vue";
 import { Query } from "@im-library/interfaces/AutoGen";
 import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useUserStore } from "@/stores/userStore";
+
 const directService = new DirectService();
 const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
 const rootStore = useRootStore();
-const favourites = computed(() => rootStore.favourites);
-const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
+const directoryStore = useDirectoryStore();
+const userStore = useUserStore();
+const favourites = computed(() => userStore.favourites);
+const fontAwesomePro = computed(() => directoryStore.fontAwesomePro);
 
 const props = defineProps({
   buttons: { type: Array as PropType<Array<string>>, required: true },
@@ -122,7 +127,7 @@ function isFavourite(iri: string) {
 }
 
 function updateFavourites(iri: string) {
-  rootStore.updateFavourites(iri);
+  userStore.updateFavourites(iri);
 }
 
 async function onRunQuery(iri: string) {

@@ -31,6 +31,7 @@ import { IM } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 const { iriToUrl } = Converters;
 
 const props = defineProps({ conceptIri: { type: String, required: true } });
@@ -38,7 +39,8 @@ const props = defineProps({ conceptIri: { type: String, required: true } });
 const router = useRouter();
 const route = useRoute();
 const rootStore = useRootStore();
-const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
+const directoryStore = useDirectoryStore();
+const fontAwesomePro = computed(() => directoryStore.fontAwesomePro);
 
 watch(
   () => props.conceptIri,
