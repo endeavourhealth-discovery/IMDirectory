@@ -16,7 +16,7 @@ import ConfigController from "@/controllers/configController";
 import ProvController from "@/controllers/provController";
 import StatusController from "./controllers/statusController";
 import gracefulShutdown from "http-graceful-shutdown";
-import "./middlewares/logger.middleware";
+import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
 
 dotenv.config();
@@ -52,17 +52,17 @@ if (import.meta.env.PROD) app.listen();
 
 function shutdownFunction(signal?: string | undefined): Promise<void> {
   return new Promise(resolve => {
-    console.log("... called signal: " + signal);
-    console.log("... in cleanup");
+    logger.warn("... called signal: " + signal);
+    logger.warn("... in cleanup");
     setTimeout(function () {
-      console.log("... cleanup finished");
+      logger.warn("... cleanup finished");
       resolve();
     }, 1000);
   });
 }
 
 function finalFunction() {
-  console.log("Server gracefully shutdown");
+  logger.warn("Server gracefully shutdown");
 }
 
 gracefulShutdown(app.app, { onShutdown: shutdownFunction, finally: finalFunction, development: true });
