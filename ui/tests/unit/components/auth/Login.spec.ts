@@ -9,14 +9,14 @@ import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { User } from "@im-library/interfaces";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useAuthStore } from "@/stores/authStore";
 
 createTestingPinia({
   initialState: {
-    root: { registeredUsername: "testUser" }
+    auth: { registeredUsername: "testUser" }
   }
 });
-const mockState = useRootStore();
+const mockState = useAuthStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

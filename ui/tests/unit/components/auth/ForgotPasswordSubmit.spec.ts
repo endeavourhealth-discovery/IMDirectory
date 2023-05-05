@@ -9,15 +9,15 @@ import { SpyInstance, vi } from "vitest";
 import PrimeVue from "primevue/config";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useAuthStore } from "@/stores/authStore";
 
 createTestingPinia({
   stubActions: false,
   initialState: {
-    root: { registeredUsername: "" }
+    auth: { registeredUsername: "" }
   }
 });
-const mockState = useRootStore();
+const mockState = useAuthStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
