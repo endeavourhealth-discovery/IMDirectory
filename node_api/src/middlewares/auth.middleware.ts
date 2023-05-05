@@ -47,7 +47,6 @@ class AuthMiddleware {
     jwt.verify(token, pem, function (err: any, payload: any) {
       if (err) {
         resp.status(401).end();
-        return;
       } else {
         next();
       }
@@ -64,15 +63,15 @@ class AuthMiddleware {
     try {
       const response = await fetch(URL);
       if (response.status !== 200) {
-        throw "request not successful";
+        throw new Error("request not successful");
       }
       const data = await response.json();
       const { keys }: any = data;
-      for (let i = 0; i < keys.length; i++) {
-        const key_id = keys[i].kid;
-        const modulus = keys[i].n;
-        const exponent = keys[i].e;
-        const key_type = keys[i].kty;
+      for (let key of keys) {
+        const key_id = key.kid;
+        const modulus = key.n;
+        const exponent = key.e;
+        const key_type = key.kty;
         const jwk = { kty: key_type, n: modulus, e: exponent };
         const pem = jwkToPem(jwk);
         pems[key_id] = pem;

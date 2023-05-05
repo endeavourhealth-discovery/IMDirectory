@@ -632,3 +632,40 @@ Content-Type: application/json
     ]
   }
 }
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#recordOwner
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#text
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#age
+
+###
+
+GET http://localhost:3000/node_api/query/public/isFunctionProperty?propIri=http://endhealth.info/im#age
+
+###
+
+GET http://localhost:3000/node_api/query/public/isFunctionProperty?propIri=http://endhealth.info/im#recordOwner
+
+###
+
+GET http://localhost:3000/node_api/query/public/isFunctionProperty?propIri=http://endhealth.info/im#text
+
+###
+
+POST http://localhost:8080/api/query/public/queryIM
+content-type: application/json
+
+{
+  "query": {
+    "@id": "http://endhealth.info/im#Query_dataPropertyRangeSuggestions"
+  }
+}
+
+###

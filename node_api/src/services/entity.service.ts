@@ -112,12 +112,12 @@ export default class EntityService {
     if (isObjectHasKeys(entity, [SHACL.PROPERTY]) && isArrayHasLength(entity[SHACL.PROPERTY])) {
       for (const ttproperty of entity[SHACL.PROPERTY]) {
         const cardinality = `${ttproperty[SHACL.MINCOUNT] || 0} : ${ttproperty[SHACL.MAXCOUNT] || "*"}`;
-        const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE];
+        const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
         const group = ttproperty?.[SHACL.GROUP]?.[0];
         const property = {
           order: ttproperty[SHACL.ORDER],
           property: ttproperty[SHACL.PATH][0],
-          type: type[0],
+          type: isArrayHasLength(type) ? type[0] : "",
           cardinality: cardinality
         } as PropertyDisplay;
         if (group) property.group = group;
@@ -136,7 +136,7 @@ export default class EntityService {
     let found = false;
     let counter = 0;
     if (isArrayHasLength(results)) {
-      while (found != true && counter < results.length) {
+      while (!found && counter < results.length) {
         const conceptIri = results[counter]["@id"];
         const result = (await axios.get(Env.API + "api/entity/public/isValidProperty", { params: { entity: conceptIri, property: propertyIri } })).data;
         if (result) found = result;

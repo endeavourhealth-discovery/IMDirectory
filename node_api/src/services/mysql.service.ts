@@ -9,7 +9,6 @@ export class MysqlService {
       this.getConnection().query(sql, params, (err, result) => {
         if (err) {
           reject(err);
-          return;
         } else {
           const rows = <RowDataPacket[]>result;
           resolve(rows);

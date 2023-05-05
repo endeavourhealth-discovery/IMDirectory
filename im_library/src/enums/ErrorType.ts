@@ -1,5 +1,6 @@
 export enum ErrorType {
   InvalidEclError = "InvalidEclError",
   UnhandledError = "UnhandledError",
-  InvalidJsonError = "InvalidJsonError"
+  InvalidJsonError = "InvalidJsonError",
+  ConfigNotFoundError = "ConfigNotFoundError"
 }
