@@ -1,12 +1,8 @@
 import { defineStore } from "pinia";
 import { FilterState } from "@/stores/types/filterState";
 import { FilterOptions, Namespace } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-// import { getLogger } from "@im-library/logger/LogConfig";
-
-// const log = getLogger("rootStore");
 
 export const useFilterStore = defineStore("filter", {
     state: (): FilterState => ({
