@@ -3,6 +3,7 @@ import GithubService from "@/services/github.service";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { CONFIG } from "@im-library/vocabulary/CONFIG";
 import _ from "lodash";
+import logger from "@/middlewares/logger.middleware";
 
 async function setGithubConfig() {
   const configRepository = new ConfigRepository();
@@ -18,7 +19,7 @@ async function setLatestRelease(configRepository: ConfigRepository, githubServic
   try {
     currentReleaseConfig = JSON.parse(await configRepository.getConfig(configName)).replaceAll("`", "'");
   } catch (err) {
-    console.error(`missing config item ${configName}`);
+    logger.warn(`missing config item ${configName}`);
   }
   let latestRelease;
   try {
@@ -42,7 +43,7 @@ async function setAllReleases(configRepository: ConfigRepository, githubService:
   try {
     currentReleasesConfig = JSON.parse(await configRepository.getConfig(configName)).replaceAll("`", "'");
   } catch (err) {
-    console.error(`missing config item ${configName}`);
+    logger.warn(`missing config item ${configName}`);
   }
 
   let latestReleases;
