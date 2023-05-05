@@ -86,11 +86,9 @@ import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
-import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
-const rootStore = useRootStore();
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
 const currentUser = computed(() => userStore.currentUser);

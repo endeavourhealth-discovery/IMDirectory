@@ -92,7 +92,6 @@ import Inplace from "primevue/inplace";
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import { createPinia } from "pinia";
-import { useRootStore } from "@/stores/rootStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 Amplify.configure(awsconfig);
@@ -180,7 +179,6 @@ const app = createApp(App)
   .component("InputNumber", InputNumber)
   .component("Inplace", Inplace);
 
-const rootStore = useRootStore();
 const directoryStore = useDirectoryStore();
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN

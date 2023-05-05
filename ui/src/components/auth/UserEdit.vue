@@ -155,11 +155,9 @@ import { PasswordStrength } from "@im-library/enums";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
-import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const rootStore = useRootStore();
 const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);

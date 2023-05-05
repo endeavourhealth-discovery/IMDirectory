@@ -66,7 +66,6 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import setupDownloadFile from "@/composables/downloadFile";
-import { useRootStore } from "@/stores/rootStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 
@@ -76,7 +75,6 @@ const props = defineProps({
   loading: { type: Boolean, required: true }
 });
 
-const rootStore = useRootStore();
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);

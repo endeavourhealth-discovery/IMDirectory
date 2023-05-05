@@ -43,13 +43,11 @@ import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
 import { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/rootStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useCookieStore } from "@/stores/cookieStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const rootStore = useRootStore();
 const authStore = useAuthStore();
 const cookieStore = useCookieStore();
 const userStore = useUserStore();

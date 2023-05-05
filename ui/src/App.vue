@@ -32,7 +32,6 @@ import axios from "axios";
 import semver from "semver";
 import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
-import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import {useDirectoryStore} from "@/stores/directoryStore";
@@ -44,7 +43,6 @@ const PrimeVue: any = usePrimeVue();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const rootStore = useRootStore();
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
 

@@ -79,7 +79,6 @@ import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { DirectService, EntityService, FilerService } from "@/services";
-import { useRootStore } from "@/stores/rootStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
@@ -88,7 +87,6 @@ import { useUserStore } from "@/stores/userStore";
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
 const router = useRouter();
-const rootStore = useRootStore();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();

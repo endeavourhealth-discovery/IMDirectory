@@ -12,14 +12,12 @@
 <script setup lang="ts">
 import { GithubRelease } from "@im-library/interfaces";
 import { PropType } from "vue";
-import { useRootStore } from "@/stores/rootStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 const props = defineProps({
   latestRelease: { type: Object as PropType<GithubRelease>, required: false }
 });
 
-const rootStore = useRootStore();
 const directoryStore = useDirectoryStore();
 
 function closeBanner() {

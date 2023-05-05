@@ -35,10 +35,8 @@
 <script setup lang="ts">
 import { ComputedRef, onMounted, ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useRootStore } from "@/stores/rootStore";
 import { useCookieStore } from "@/stores/cookieStore";
 
-const rootStore = useRootStore();
 const cookieStore = useCookieStore();
 const route = useRoute();
 
