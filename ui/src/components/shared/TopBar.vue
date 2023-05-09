@@ -88,12 +88,14 @@ import { DirectService, Env, FilerService, DataModelService, GithubService } fro
 import { usePrimeVue } from "primevue/config";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const fontAwesomePro = computed(() => directoryStore.fontAwesomePro);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const currentTheme = computed(() => userStore.currentTheme);
 
 const loading = ref(false);

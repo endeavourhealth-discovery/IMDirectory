@@ -70,8 +70,8 @@ const props = defineProps({
 });
 
 const filterStore = useFilterStore();
-const filterOptions: Ref<FilterOptions> = computed(() => filterStore.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const quickFiltersStatus = computed(() => filterStore.quickFiltersStatus);
 

@@ -20,15 +20,15 @@
 
 <script setup lang="ts">
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { useCookieStore } from "@/stores/cookieStore";
+import { useSharedStore } from "@/stores/sharedStore";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 
 const directoryStore = useDirectoryStore();
-const cookieStore = useCookieStore();
-const fontAwesomePro = directoryStore.fontAwesomePro;
+const sharedStore = useSharedStore();
+const fontAwesomePro = sharedStore.fontAwesomePro;
 
 function showCookieSettings() {
-  cookieStore.updateShowCookieConsent(true);
+  sharedStore.updateShowCookieConsent(true);
 }
 </script>
 

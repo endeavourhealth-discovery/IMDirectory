@@ -33,13 +33,15 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { IM } from "@im-library/vocabulary";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useFilterStore } from "@/stores/filterStore";
+import { useSharedStore } from "@/stores/sharedStore";
 const { isObject } = DataTypeCheckers;
 
 const router = useRouter();
 const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
 const filterStore = useFilterStore();
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
-const fontAwesomePro = computed(() => directoryStore.fontAwesomePro);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");

@@ -108,7 +108,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch, PropType } from "vue";
+import { computed, onMounted, ref, Ref, watch, PropType, ComputedRef } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { DirectService } from "@/services";
@@ -120,7 +120,6 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
-
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, required: true },
@@ -136,8 +135,8 @@ const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const userStore = useUserStore();
 const searchLoading = computed(() => directoryStore.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => filterStore.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
 const favourites = computed(() => userStore.favourites);
 
 const directService = new DirectService();

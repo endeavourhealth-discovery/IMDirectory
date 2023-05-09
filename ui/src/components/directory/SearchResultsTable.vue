@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
@@ -39,8 +39,8 @@ const props = defineProps({
 const directoryStore = useDirectoryStore();
 const filterStore = useFilterStore();
 const searchLoading = computed(() => directoryStore.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => filterStore.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
 const searchResults = computed(() => directoryStore.searchResults);
 
 const selectedSchemes: Ref<string[]> = ref([]);

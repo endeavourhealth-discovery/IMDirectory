@@ -1,25 +1,48 @@
 import { defineStore } from "pinia";
-import { User } from "@im-library/interfaces";
 import { UserState } from "@/stores/types/userState";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { AuthService, EntityService } from "@/services";
 import { Avatars } from "@im-library/constants";
-import { CustomAlert, HistoryItem, RecentActivityItem } from "@im-library/interfaces";
-import { useCookieStore } from "@/stores/cookieStore";
+import { CustomAlert, HistoryItem, RecentActivityItem, User } from "@im-library/interfaces";
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
+    cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
+    cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
+    currentTheme: localStorage.getItem("currentTheme") as string,
     currentUser: {} as User,
     favourites: [] as string[],
     history: [] as HistoryItem[],
-    recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") || "[]") as RecentActivityItem[],
-    currentTheme: localStorage.getItem("currentTheme") as string,
+    recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") ?? "[]") as RecentActivityItem[],
+    snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false
   }),
   getters: {
-    isLoggedIn: state => isObjectHasKeys(state.currentUser)
+    isLoggedIn: state => isObjectHasKeys(state.currentUser),
+    hasCookiesOptionalAccepted: state => isObjectHasKeys(state.cookiesOptionalAccepted)
   },
   actions: {
+    clearOptionalCookies() {
+      localStorage.removeItem("currentTheme");
+      localStorage.removeItem("favourites");
+      localStorage.removeItem("recentLocalActivity");
+      localStorage.removeItem("directoryMainSplitterVertical");
+      localStorage.removeItem("directoryMainSplitterHorizontal");
+      localStorage.removeItem("viewerMainSplitterVertical");
+      localStorage.removeItem("viewerMainSplitterHorizontal");
+      localStorage.removeItem("eclEditorSavedString");
+      localStorage.removeItem("editorSavedEntity");
+      localStorage.removeItem("creatorSavedEntity");
+      localStorage.removeItem("editorSelectedIri");
+    },
+    updateCookiesEssentialAccepted(bool: boolean) {
+      this.cookiesEssentialAccepted = bool;
+      localStorage.setItem("cookiesEssentialAccepted", String(bool));
+    },
+    updateCookiesOptionalAccepted(bool: boolean) {
+      this.cookiesOptionalAccepted = bool;
+      localStorage.setItem("cookiesOptionalAccepted", String(bool));
+    },
     async initFavourites() {
-      const favourites = JSON.parse(localStorage.getItem("favourites") || "[]") as string[];
+      const favourites = JSON.parse(localStorage.getItem("favourites") ?? "[]") as string[];
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
@@ -30,7 +53,7 @@ export const useUserStore = defineStore("user", {
       this.favourites = favourites;
     },
     updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
-      let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") || "[]");
+      let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") ?? "[]");
       activity.forEach(activityItem => {
         activityItem.dateTime = new Date(activityItem.dateTime);
       });
@@ -53,30 +76,30 @@ export const useUserStore = defineStore("user", {
         }
       }
 
-      if (useCookieStore().cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
+      if (this.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       this.recentLocalActivity = activity;
     },
     updateFavourites(favourite: string) {
       if (favourite !== "http://endhealth.info/im#Favourites") {
-        const favourites: string[] = JSON.parse(localStorage.getItem("favourites") || "[]");
+        const favourites: string[] = JSON.parse(localStorage.getItem("favourites") ?? "[]");
         if (!favourites.includes(favourite)) {
           favourites.push(favourite);
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        if (useCookieStore().cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
+        if (this.cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
         this.favourites = favourites;
       }
     },
-    updateCurrentTheme(theme: any) {
+    updateCurrentTheme(theme: string) {
       this.currentTheme = theme;
-      if (useCookieStore().cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
+      if (this.cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;
     },
     async logoutCurrentUser() {
-      let result = { status: 500, message: "Logout (rootStore) failed" } as CustomAlert;
+      let result = { status: 500, message: "Logout (sharedStore) failed" } as CustomAlert;
       await AuthService.signOut().then(res => {
         if (res.status === 200) {
           useUserStore().updateCurrentUser(null);
@@ -109,6 +132,10 @@ export const useUserStore = defineStore("user", {
         }
       });
       return result;
+    },
+    updateSnomedLicenseAccepted(bool: boolean) {
+      this.snomedLicenseAccepted = bool;
+      localStorage.setItem("snomedLicenseAccepted", bool === true ? "true" : "");
     }
   }
 });

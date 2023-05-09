@@ -42,13 +42,10 @@ import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { CustomAlert } from "@im-library/interfaces";
 import { useAuthStore } from "@/stores/authStore";
-import { useCookieStore } from "@/stores/cookieStore";
 import { useUserStore } from "@/stores/userStore";
-
 
 const router = useRouter();
 const authStore = useAuthStore();
-const cookieStore = useCookieStore();
 const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
@@ -71,7 +68,7 @@ function handleSubmit(): void {
             title: "Success",
             text: res.message
           }).then(() => {
-            cookieStore.clearOptionalCookies();
+            userStore.clearOptionalCookies();
             if (previousAppUrl.value) {
               window.location.href = previousAppUrl.value;
             } else {

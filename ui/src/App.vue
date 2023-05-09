@@ -34,7 +34,7 @@ import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
-import {useDirectoryStore} from "@/stores/directoryStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();

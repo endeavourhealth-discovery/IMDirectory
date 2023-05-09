@@ -68,6 +68,7 @@ import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from 
 import setupDownloadFile from "@/composables/downloadFile";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -76,9 +77,10 @@ const props = defineProps({
 });
 
 const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
-const fontAwesomePro = computed(() => directoryStore.fontAwesomePro);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const searchLoading = computed(() => directoryStore.searchLoading);
 
 const { downloadFile } = setupDownloadFile(window, document);

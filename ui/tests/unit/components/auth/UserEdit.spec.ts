@@ -14,7 +14,7 @@ import { render, RenderResult } from "@testing-library/vue";
 import { RequestHandler } from "msw";
 import { User } from "@im-library/interfaces";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
@@ -22,7 +22,7 @@ createTestingPinia({
     root: { registeredUsername: "" }
   }
 });
-const mockState = useRootStore();
+const mockState = useSharedStore();
 const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
@@ -236,7 +236,7 @@ describe("userEdit.vue ___ user", () => {
   //   });
   // });
 
-  // it("updates rootStore and reroutes if all verified _ no password", async () => {
+  // it("updates sharedStore and reroutes if all verified _ no password", async () => {
   //   wrapper.vm.firstName = "Johnny";
   //   await wrapper.vm.$nextTick();
   //   wrapper.vm.handleEditSubmit();
@@ -325,7 +325,7 @@ describe("userEdit.vue ___ user", () => {
   //   });
   // });
 
-  // it("updates rootStore and reroutes if password 200 received ___ password edit", async () => {
+  // it("updates sharedStore and reroutes if password 200 received ___ password edit", async () => {
   //   wrapper.vm.showPasswordEdit = true;
   //   wrapper.vm.passwordOld = "12345678";
   //   wrapper.vm.passwordNew1 = "87654321";

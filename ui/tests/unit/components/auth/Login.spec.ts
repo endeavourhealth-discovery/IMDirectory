@@ -41,7 +41,7 @@ describe("login.vue no registeredUser", () => {
     });
   });
 
-  it("starts empty if no rootStore registeredUsername", async () => {
+  it("starts empty if no sharedStore registeredUsername", async () => {
     component.getByTestId("login-username");
   });
 });
@@ -74,7 +74,7 @@ describe("login.vue with registeredUser", () => {
     });
   });
 
-  it("starts with registeredUsername if in rootStore", async () => {
+  it("starts with registeredUsername if in sharedStore", async () => {
     component.getByTestId("login-username");
     component.getByDisplayValue("testUser");
   });

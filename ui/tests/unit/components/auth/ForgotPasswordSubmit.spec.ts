@@ -43,7 +43,7 @@ describe("ForgotPasswordSubmit.vue no registeredUser", () => {
     });
   });
 
-  it("starts empty if no rootStore registeredUsername", async () => {
+  it("starts empty if no sharedStore registeredUsername", async () => {
     component.getByTestId("forgot-password-submit-username");
     component.getByTestId("forgot-password-submit-code");
     component.getByTestId("forgot-password-submit-password1");
@@ -68,7 +68,7 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
     });
   });
 
-  it("starts with username if rootStore has registeredUsername", async () => {
+  it("starts with username if sharedStore has registeredUsername", async () => {
     component.getByDisplayValue("testUser");
   });
 

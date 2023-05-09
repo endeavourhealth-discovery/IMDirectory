@@ -61,12 +61,12 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 
-const rootStore = useRootStore();
+const sharedStore = useSharedStore();
 const userStore = useUserStore();
-const conceptIri = computed(() => rootStore.conceptIri);
+const conceptIri = computed(() => sharedStore.conceptIri);
 const favourites = computed(() => userStore.favourites);
 
 const directService = new DirectService();

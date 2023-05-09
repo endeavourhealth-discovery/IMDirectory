@@ -80,11 +80,11 @@
 import { computed, onMounted } from "vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
-import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 import { useRoute } from "vue-router";
 
-const rootStore = useRootStore();
-const snomedLicenseAccepted = computed(() => rootStore.snomedLicenseAccepted);
+const userStore = useUserStore();
+const snomedLicenseAccepted = computed(() => userStore.snomedLicenseAccepted);
 
 const route = useRoute();
 
@@ -96,12 +96,12 @@ const showDialog = computed(() => {
 });
 
 function submitDecline(): void {
-  rootStore.updateSnomedLicenseAccepted(false);
+  userStore.updateSnomedLicenseAccepted(false);
   window.location.href = "https://www.snomed.org/";
 }
 
 function submitAgree(): void {
-  rootStore.updateSnomedLicenseAccepted(true);
+  userStore.updateSnomedLicenseAccepted(true);
 }
 </script>
 

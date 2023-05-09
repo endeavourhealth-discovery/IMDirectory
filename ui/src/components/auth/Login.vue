@@ -44,12 +44,10 @@ import Swal from "sweetalert2";
 import { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
-import { useCookieStore } from "@/stores/cookieStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const authStore = useAuthStore();
-const cookieStore = useCookieStore();
 const userStore = useUserStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
 const previousAppUrl = computed(() => authStore.previousAppUrl);
@@ -80,7 +78,7 @@ function handleSubmit(): void {
           title: "Success",
           text: "Login successful"
         }).then(() => {
-          cookieStore.clearOptionalCookies();
+          userStore.clearOptionalCookies();
           if (previousAppUrl.value) {
             window.location.href = previousAppUrl.value;
           } else {
