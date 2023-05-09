@@ -14,7 +14,7 @@ import { DirectService } from "@/services";
 import { expect, it, vi } from "vitest";
 import testData from "./SearchResultsTable.testData";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore.js";
 
 Object.assign(navigator, {
   clipboard: {
@@ -35,7 +35,7 @@ createTestingPinia({
     }
   }
 });
-const mockState = useRootStore();
+const mockState = useSharedStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

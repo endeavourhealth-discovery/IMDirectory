@@ -1,6 +1,7 @@
 import { beforeEach, describe, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useUserStore } from "@/stores/userStore";
 
 describe("state", () => {
   beforeEach(() => {
@@ -13,9 +14,10 @@ describe("state", () => {
     window.sessionStorage.clear();
   });
 
-  it("root rootStore should start with the correct values", () => {
-    const rootStore = useRootStore();
-    expect(Object.keys(rootStore)).toEqual(
+  it("root sharedStore should start with the correct values", () => {
+    const sharedStore = useSharedStore();
+    const userStore = useUserStore();
+    expect(Object.keys(sharedStore)).toEqual(
       expect.arrayContaining([
         "conceptIri",
         "snomedLicenseAccepted",
@@ -27,30 +29,29 @@ describe("state", () => {
         "activeProfile"
       ])
     );
-    expect(rootStore.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
-    expect(rootStore.snomedLicenseAccepted).toBe(false);
-    expect(rootStore.focusHierarchy).toBe(false);
+    expect(sharedStore.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
+    expect(userStore.snomedLicenseAccepted).toBe(false);
+    expect(sharedStore.focusHierarchy).toBe(false);
   });
 });
 
 describe("mutations", () => {
   it("can updateConceptIri", () => {
-    const rootStore = useRootStore();
+    const sharedStore = useSharedStore();
     const testConceptIri = "http://www.endhealth.info/im#test";
-    rootStore.updateConceptIri(testConceptIri);
-    expect(rootStore.conceptIri).toEqual(testConceptIri);
+    sharedStore.updateConceptIri(testConceptIri);
+    expect(sharedStore.conceptIri).toEqual(testConceptIri);
   });
 
   it("can updateSnomedLicenseAccepted", () => {
-    const rootStore = useRootStore();
-
+    const userStore = useUserStore();
     const testBool = true;
-    rootStore.updateSnomedLicenseAccepted(testBool);
-    expect(rootStore.snomedLicenseAccepted).toBe(true);
+    userStore.updateSnomedLicenseAccepted(testBool);
+    expect(userStore.snomedLicenseAccepted).toBe(true);
   });
   it("can updateFocusHierarchy", () => {
-    const rootStore = useRootStore();
-    rootStore.updateFocusHierarchy(true);
-    expect(rootStore.focusHierarchy).toBe(true);
+    const sharedStore = useSharedStore();
+    sharedStore.updateFocusHierarchy(true);
+    expect(sharedStore.focusHierarchy).toBe(true);
   });
 });

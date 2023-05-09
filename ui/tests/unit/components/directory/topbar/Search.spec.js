@@ -8,7 +8,7 @@ import PrimeVue from "primevue/config";
 import SplitButton from "primevue/splitbutton";
 import { fireEvent, render } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore.js";
 
 createTestingPinia({
   initialState: {
@@ -17,7 +17,7 @@ createTestingPinia({
     }
   }
 });
-const mockStore = useRootStore();
+const mockStore = useSharedStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

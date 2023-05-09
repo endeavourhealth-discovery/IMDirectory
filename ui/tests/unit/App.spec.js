@@ -11,7 +11,7 @@ import PrimeVue from "primevue/config";
 import { GithubService } from "@/services";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore.js";
 import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
@@ -19,7 +19,7 @@ createTestingPinia({
     root: { showReleaseNotes: false }
   }
 });
-const mockState = useRootStore();
+const mockState = useSharedStore();
 const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
@@ -59,7 +59,7 @@ describe("App.vue", () => {
     });
   });
 
-  it("should check auth and update rootStore history count on mount", async () => {
+  it("should check auth and update sharedStore history count on mount", async () => {
     expect(mockUserState.authenticateCurrentUser).toHaveBeenCalledTimes(1);
   });
 });

@@ -56,7 +56,7 @@ describe("Filters.vue", () => {
 });
 
 // describe("Filters.vue", () => {
-//   describe("empty rootStore", () => {
+//   describe("empty sharedStore", () => {
 //     let component;
 
 //     beforeEach(async () => {
@@ -489,7 +489,7 @@ describe("Filters.vue", () => {
 //     });
 //   });
 
-//   describe("full rootStore", () => {
+//   describe("full sharedStore", () => {
 //     let wrapper;
 //     let mockStore;
 //     let mockToast;
@@ -624,7 +624,7 @@ describe("Filters.vue", () => {
 //         global: {
 //           components: { MultiSelect, InputSwitch, Button, Dropdown },
 //           directives: { Tooltip: Tooltip },
-//           mocks: { $rootStore: mockStore, $toast: mockToast }
+//           mocks: { $sharedStore: mockStore, $toast: mockToast }
 //         }
 //       });
 
@@ -821,7 +821,7 @@ describe("Filters.vue", () => {
 //         global: {
 //           components: { MultiSelect, InputSwitch, Button, Dropdown },
 //           directives: { Tooltip: Tooltip },
-//           mocks: { $rootStore: mockStore, $toast: mockToast }
+//           mocks: { $sharedStore: mockStore, $toast: mockToast }
 //         }
 //       });
 
