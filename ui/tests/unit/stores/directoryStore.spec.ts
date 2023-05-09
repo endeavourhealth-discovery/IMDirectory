@@ -27,7 +27,6 @@ describe("state", () => {
         "searchResults",
         "searchLoading",
         "sidebarControlActivePanel",
-        "fontAwesomePro",
         "splitterRightSize",
         "showReleaseNotes",
         "showBanner"

@@ -20,7 +20,8 @@ describe("state", () => {
     expect(Object.keys(sharedStore)).toEqual(
       expect.arrayContaining([
         "conceptIri",
-        "snomedLicenseAccepted",
+        "showCookieConsent",
+        "fontAwesomePro",
         "showSnomedLicense",
         "focusHierarchy",
         "arrayObjectNameListboxWithLabelStartExpanded",
