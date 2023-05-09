@@ -156,7 +156,10 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "login"
+      url: Env.DIRECTORY_URL + "user/" + "login",
+      command: () => {
+        rootStore.updatePreviousAppUrl();
+      }
     },
     {
       label: "Register",
