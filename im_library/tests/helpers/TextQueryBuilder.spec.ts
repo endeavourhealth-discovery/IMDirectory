@@ -213,7 +213,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ]
       } as Match);
 
-      expect(display).toEqual("(observation as with1).concept in [SMIResolved and more...] ordered by earliest with1.effectiveDate");
+      expect(display).toEqual("(observation as with1).concept in [SMIResolved, SMI] ordered by earliest with1.effectiveDate");
     });
 
     it("can get a display for a match with multiple where clauses", () => {
@@ -335,7 +335,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ],
         "@id": "http://endhealth.info/im#concept"
       } as Where);
-      expect(display).toEqual("concept in [&lt;Prediabetes (finding) and more...]");
+      expect(display).toEqual("concept in [&lt;Prediabetes (finding), &lt;Normal pituitary function (finding)]");
     });
 
     it("can get a display for a where with an in list with multiple items", () => {
@@ -346,7 +346,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ],
         "@id": "http://endhealth.info/im#concept"
       } as Where);
-      expect(display).toEqual("concept not in [&lt;Prediabetes (finding) and more...]");
+      expect(display).toEqual("concept not in [&lt;Prediabetes (finding), &lt;Normal pituitary function (finding)]");
     });
 
     it("can get a display for a where with an operator", () => {
@@ -390,9 +390,22 @@ describe("TextQueryBuilder.ts ___", () => {
       expect(display).toEqual(": &lt;Prediabetes (finding)");
     });
 
-    it("can get a display from a list with multiple items with names", () => {
+    it("can get a display from a list with multiple items (less than three) with names", () => {
       const display = getDisplayFromList(
         [
+          { "@id": "http://snomed.info/sct#714628002", name: "Prediabetes (finding)", descendantsOf: true },
+          { "@id": "http://snomed.info/sct#264886009", name: "Normal pituitary function (finding)", descendantsOf: true }
+        ] as Node[],
+        true
+      );
+      expect(display).toEqual(" in [&lt;Prediabetes (finding), &lt;Normal pituitary function (finding)]");
+    });
+
+    it("can get a display from a list with multiple items (more than three) with names", () => {
+      const display = getDisplayFromList(
+        [
+          { "@id": "http://snomed.info/sct#714628002", name: "Prediabetes (finding)", descendantsOf: true },
+          { "@id": "http://snomed.info/sct#264886009", name: "Normal pituitary function (finding)", descendantsOf: true },
           { "@id": "http://snomed.info/sct#714628002", name: "Prediabetes (finding)", descendantsOf: true },
           { "@id": "http://snomed.info/sct#264886009", name: "Normal pituitary function (finding)", descendantsOf: true }
         ] as Node[],

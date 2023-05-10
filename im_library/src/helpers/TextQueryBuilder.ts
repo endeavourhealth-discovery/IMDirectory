@@ -205,15 +205,23 @@ export function getDisplayFromOperator(where: Where) {
 
 export function getDisplayFromList(nodes: Node[], include: boolean) {
   let display = "";
-  if (nodes.length > 1) {
+  if (nodes.length === 1) {
+    display += include ? ": " : "!: ";
+    display += getDisplayFromEntailment(nodes[0]);
+    display += getNameFromRef(nodes[0]);
+  } else if (nodes.length <= 3) {
+    display += include ? " in [" : " not in [";
+    for (const [index, node] of nodes.entries()) {
+      display += getDisplayFromEntailment(node);
+      display += getNameFromRef(node);
+      if (index !== nodes.length - 1) display += ", ";
+    }
+    display += "]";
+  } else {
     display += include ? " in [" : " not in [";
     display += getDisplayFromEntailment(nodes[0]);
     display += getNameFromRef(nodes[0]);
     display += " and more...]";
-  } else {
-    display += include ? ": " : "!: ";
-    display += getDisplayFromEntailment(nodes[0]);
-    display += getNameFromRef(nodes[0]);
   }
   return display;
 }
