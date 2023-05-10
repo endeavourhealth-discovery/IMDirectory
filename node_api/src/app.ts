@@ -8,6 +8,7 @@ import Env from "@/services/env.service";
 import errorHandler from "./middlewares/errorHandler.middleware";
 import cron from "node-cron";
 import setGithubConfig from "./logic/setGithubConfig";
+import logger from "./middlewares/logger.middleware";
 
 class App {
   public app: Application;
@@ -41,7 +42,7 @@ class App {
     const prod: boolean = Env.NODE_ENV === "production";
 
     this.app.listen(prod ? 8000 : this.port, () => {
-      console.log(`App started on port ${this.port}`);
+      logger.info(`App started on port ${this.port}`);
     });
 
     if (prod) {
