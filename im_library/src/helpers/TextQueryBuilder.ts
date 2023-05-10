@@ -232,8 +232,10 @@ export function getDisplayFromPath(pathOrNode: Relationship | Node) {
 }
 
 function getDisplayFromPathRecursively(displayObject: { display: string }, type: string, pathOrNode: any) {
-  if (displayObject.display) displayObject.display += "node" === type ? "->" : ".";
-  displayObject.display += getNameFromRef(pathOrNode);
+  if ("node" !== type) {
+    if (displayObject.display) displayObject.display += ".";
+    displayObject.display += getNameFromRef(pathOrNode);
+  }
   if (isObjectHasKeys(pathOrNode, ["node"])) getDisplayFromPathRecursively(displayObject, "node", pathOrNode.node);
   if (isObjectHasKeys(pathOrNode, ["path"])) getDisplayFromPathRecursively(displayObject, "path", pathOrNode.path);
   if (isObjectHasKeys(pathOrNode, ["variable"])) displayObject.display = "(" + displayObject.display + " as " + pathOrNode.variable + ")";

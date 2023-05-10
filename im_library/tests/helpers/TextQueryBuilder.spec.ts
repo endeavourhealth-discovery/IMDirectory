@@ -121,7 +121,7 @@ describe("TextQueryBuilder.ts ___", () => {
       });
       expect(textQuery.length).toEqual(1);
       expect(textQuery[0].display).toEqual(
-        "gpCurrentRegistration->GPRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration->GPRegistration.age >= 18 YEAR"
+        "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration.age >= 18 YEAR"
       );
     });
   });
@@ -175,7 +175,7 @@ describe("TextQueryBuilder.ts ___", () => {
         path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
         where: [{ in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], "@id": "http://endhealth.info/im#concept" }]
       } as Match);
-      expect(display).toEqual("observation->Observation.concept: &lt;714628002");
+      expect(display).toEqual("observation.concept: &lt;714628002");
     });
 
     it("can get a display for a match with where and a variable", () => {
@@ -213,7 +213,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ]
       } as Match);
 
-      expect(display).toEqual("(observation->Observation as with1).concept in [SMIResolved and more...] ordered by earliest with1.effectiveDate");
+      expect(display).toEqual("(observation as with1).concept in [SMIResolved and more...] ordered by earliest with1.effectiveDate");
     });
 
     it("can get a display for a match with multiple where clauses", () => {
@@ -246,7 +246,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ]
       } as Match);
       expect(display).toEqual(
-        "gpCurrentRegistration->GPRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration->GPRegistration.age >= 18 YEAR"
+        "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration.age >= 18 YEAR"
       );
     });
 
@@ -271,7 +271,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ]
       } as Match);
       expect(display).toEqual(
-        "<span style='color: red;'>exclude</span> observation->Observation.concept: InvitedForScreening <span style='color: orange;'>and</span> <span style='color: red;'>exclude</span> observation->Observation.effectiveDate >= latestBP.effectiveDate"
+        "<span style='color: red;'>exclude</span> observation.concept: InvitedForScreening <span style='color: orange;'>and</span> <span style='color: red;'>exclude</span> observation.effectiveDate >= latestBP.effectiveDate"
       );
     });
 
@@ -422,7 +422,7 @@ describe("TextQueryBuilder.ts ___", () => {
   describe("getPathDisplay", () => {
     it("can get a display for a path", () => {
       const display = getDisplayFromPath({ "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } } as Relationship);
-      expect(display).toEqual("observation->Observation");
+      expect(display).toEqual("observation");
     });
 
     it("can get a display for a nested path", () => {
@@ -430,7 +430,7 @@ describe("TextQueryBuilder.ts ___", () => {
         "@id": "http://endhealth.info/im#observation",
         node: { "@type": "Observation", path: { "@id": "http://endhealth.info/im#patient", node: { "@type": "http://endhealth.info/im#Patient" } } }
       } as Relationship);
-      expect(display).toEqual("observation->Observation.patient->Patient");
+      expect(display).toEqual("observation.patient");
     });
   });
 
