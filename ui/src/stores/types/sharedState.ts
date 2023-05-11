@@ -1,5 +1,3 @@
-import { Namespace, ConceptSummary, RecentActivityItem, HistoryItem, FilterOptions } from "@im-library/interfaces";
-
 export interface SharedState {
   // loading: Map<string, boolean>;
   conceptIri: string;
