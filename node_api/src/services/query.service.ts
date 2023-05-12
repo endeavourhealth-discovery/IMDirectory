@@ -3,11 +3,12 @@ import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
-import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, QUERY, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, iri } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
+import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 
 export default class QueryService {
   axios: any;
@@ -259,6 +260,10 @@ export default class QueryService {
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
     const labeledQueryResponse = await this.axios.post(Env.API + "api/query/public/labelQuery", query);
-    return labeledQueryResponse.data;
+    return await this.generateQueryDescriptions(labeledQueryResponse.data);
+  }
+
+  public async generateQueryDescriptions(query: Query): Promise<Query> {
+    return describeQuery(query);
   }
 }
