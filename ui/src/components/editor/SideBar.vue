@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <SearchBar @open-search-panel="openSearchPanel" @search-loading="updateSearchLoading" @search-results="updateSearchResults" class="searchbar" />
+    <SearchBar @open-search-panel="openSearchPanel" @search-loading="updateSearchLoading" @search-results="updateSearchResults" />
     <TabView :lazy="true" v-model:activeIndex="activeIndex">
       <TabPanel header="NavTree">
         <NavTree />
@@ -53,10 +53,6 @@ function handleClick(data: any) {
 </script>
 
 <style scoped>
-.searchbar {
-  display: flex;
-  flex-flow: column;
-}
 .sidebar {
   display: flex;
   flex-flow: column nowrap;

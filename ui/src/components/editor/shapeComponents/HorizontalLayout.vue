@@ -23,10 +23,10 @@ import { PropType, inject, ref, Ref, onMounted } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
 
 const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
+  shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
   value: { type: ([Object, String] as PropType<any>) || String, required: false },
   position: { type: Number, required: false }
@@ -43,7 +43,7 @@ onMounted(() => {
 });
 
 function setComponents() {
-  components.value = props.shape.subGroup;
+  components.value = props.shape.property;
 }
 
 function setWidths() {
@@ -52,14 +52,14 @@ function setWidths() {
     if (splitArgs && splitArgs?.length) {
       widths.value = splitArgs;
     } else {
-      widths.value.push(100 / props.shape.subGroup.length + "%");
+      widths.value.push(100 / props.shape.property.length + "%");
     }
   } else {
-    widths.value.push(100 / props.shape.subGroup.length + "%");
+    widths.value.push(100 / props.shape.property.length + "%");
   }
 }
 
-function processEntityValue(property: PropertyShape | PropertyGroup) {
+function processEntityValue(property: PropertyShape) {
   if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
   }

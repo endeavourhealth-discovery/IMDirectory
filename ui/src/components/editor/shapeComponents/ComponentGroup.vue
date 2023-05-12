@@ -28,11 +28,11 @@ import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
+  shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
   value: { type: Array as PropType<TTIriRef[]>, required: false },
   position: { type: Number, required: false }
@@ -47,13 +47,13 @@ watch(
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 
-let properties: Ref<PropertyShape[] | PropertyGroup[]> = ref([]);
+let properties: Ref<PropertyShape[]> = ref([]);
 
 onMounted(() => {
   setProperties(props.shape);
 });
 
-function processEntityValue(property: PropertyShape | PropertyGroup) {
+function processEntityValue(property: PropertyShape) {
   if (props.value && isPropertyShape(property)) {
     return props.value[property.order - 1];
   }
@@ -63,9 +63,8 @@ function processEntityValue(property: PropertyShape | PropertyGroup) {
   return undefined;
 }
 
-function setProperties(shape: PropertyGroup) {
+function setProperties(shape: PropertyShape) {
   if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property;
-  else if (isObjectHasKeys(shape, ["subGroup"])) properties.value = shape.subGroup;
   else properties.value = [];
 }
 </script>

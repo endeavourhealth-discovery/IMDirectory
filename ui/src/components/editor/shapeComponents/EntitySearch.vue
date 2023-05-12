@@ -12,7 +12,7 @@
         placeholder="Search"
         class="p-inputtext search-input"
         autoWidth="true"
-        v-tooltip="{ value: selectedResult.name, class: 'entity-tooltip' }"
+        v-tooltip="{ value: selectedResult.name ?? '', class: 'entity-tooltip' }"
         @dragenter.prevent
         @dragover.prevent
         @drop="dropReceived"

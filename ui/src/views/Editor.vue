@@ -21,11 +21,13 @@
           <div v-if="loading" class="loading-container">
             <ProgressSpinner />
           </div>
-          <div v-else class="steps-content">
-            <Steps :model="stepsItems" :readonly="false" @click="stepsClicked" />
-            <router-view v-slot="{ Component }: any">
-              <component :is="Component" :shape="groups.length ? groups[currentStep] : undefined" :mode="EditorMode.EDIT" />
-            </router-view>
+          <div v-else class="editor-layout-container">
+            <!-- <Steps :model="stepsItems" :readonly="false" @click="stepsClicked" />
+            <router-view v-slot="{ Component }: any"> -->
+            <template v-for="group of groups">
+              <component :is="processComponentType(group.componentType)" :shape="group" :mode="EditorMode.EDIT" :value="processEntityValue(group)" />
+            </template>
+            <!-- </router-view> -->
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
           <div v-if="showSidebar" class="sidebar-container">
@@ -55,10 +57,44 @@
 <script lang="ts">
 import TypeSelector from "@/components/creator/TypeSelector.vue";
 import StepsGroup from "@/components/editor/StepsGroup.vue";
+import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
+import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
+import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
+import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
+import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
+import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
+import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
+import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
+import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
+import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
+import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
+import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 export default defineComponent({
-  components: { StepsGroup, TypeSelector }
+  components: {
+    StepsGroup,
+    TypeSelector,
+    HorizontalLayout,
+    VerticalLayout,
+    ArrayBuilder,
+    EntityAutoComplete,
+    EntityComboBox,
+    TextDisplay,
+    TextInput,
+    EntityDropdown,
+    EntitySearch,
+    HtmlInput,
+    ToggleableComponent,
+    QueryDefinitionBuilder,
+    ComponentGroup,
+    ArrayBuilderWithDropdown,
+    DropdownTextInputConcatenator
+  }
 });
 </script>
 
@@ -93,7 +129,7 @@ onUnmounted(() => {
 });
 
 const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
-const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupEditorShape();
+const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 
 const treeIri: ComputedRef<string> = computed(() => rootStore.findInEditorTreeIri);
 
@@ -125,7 +161,7 @@ onMounted(async () => {
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
     await getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
-    router.push(stepsItems.value[0].to);
+    // router.push(stepsItems.value[0].to);
   } else window.location.href = Env.DIRECTORY_URL;
   loading.value = false;
 });
@@ -339,11 +375,18 @@ function stepsForward() {
   currentStep.value++;
   if (currentStep.value < stepsItems.value.length) router.push(stepsItems.value[currentStep.value].to);
 }
+
+function processEntityValue(property: PropertyShape) {
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path["@id"]])) {
+    return editorEntity.value[property.path["@id"]];
+  }
+  return undefined;
+}
 </script>
 
 <style scoped>
 #topbar-editor-container {
-  height: 100%;
+  flex: 1 1 auto;
   width: 100%;
   overflow: auto;
 }
@@ -382,7 +425,7 @@ function stepsForward() {
   padding-top: 3rem;
 }
 
-.steps-content {
+.editor-layout-container {
   flex: 1 1 auto;
   width: 100%;
   overflow: auto;
