@@ -7,16 +7,19 @@ import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, QUERY, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, iri } from "@/services/graphdb.service";
+import EntityService from "./entity.service";
 
 export default class QueryService {
   axios: any;
   eclService: EclService;
+  entityService: EntityService;
   private graph: GraphdbService;
 
   constructor(axios: any) {
     this.axios = axios;
     this.eclService = new EclService(axios);
     this.graph = new GraphdbService();
+    this.entityService = new EntityService(axios);
   }
 
   public async queryIM(query: QueryRequest, controller?: AbortController) {
@@ -247,5 +250,15 @@ export default class QueryService {
     if (isArrayHasLength(rs)) {
       return rs[0].functionProperty.value;
     }
+  }
+
+  public async getQueryDisplay(queryIri: string) {
+    const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
+    if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
+      return {};
+    }
+    const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
+    const labeledQueryResponse = await this.axios.post(Env.API + "api/query/public/labelQuery", query);
+    return labeledQueryResponse.data;
   }
 }

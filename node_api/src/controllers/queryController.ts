@@ -1,5 +1,3 @@
-import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
-import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
 import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
 import axios from "axios";
@@ -19,26 +17,18 @@ export default class QueryController {
   }
 
   private initRoutes() {
-    this.router.post("/public/queryDisplay", (req, res, next) =>
-      this.getQueryDisplay(req)
-        .then(data => res.send(data).end())
-        .catch(next)
-    );
-    this.router.post("/public/queryObject", (req, res, next) =>
-      this.getQueryObject(req)
-        .then(data => res.send(data).end())
-        .catch(next)
-    );
     this.router.get("/public/queryDefinitionDisplay", (req, res, next) =>
       this.getQueryDefinitionDisplay(req)
         .then(data => res.send(data).end())
         .catch(next)
     );
-    this.router.get("/public/queryObjectDisplay", (req, res, next) =>
-      this.getQueryObjectByIri(req)
+
+    this.router.get("/public/queryDisplay", (req, res, next) =>
+      this.getQueryDisplay(req)
         .then(data => res.send(data).end())
         .catch(next)
     );
+
     this.router.get("/public/allowablePropertySuggestions", (req, res, next) =>
       this.getAllowablePropertySuggestions(req)
         .then(data => res.send(data).end())
@@ -75,18 +65,6 @@ export default class QueryController {
     return await this.queryService.getAllowableChildTypes(req.query.iri as string);
   }
 
-  async getQueryDisplay(req: Request) {
-    return buildQueryDisplayFromQuery(req.body);
-  }
-
-  async getQueryObject(req: Request) {
-    return buildQueryObjectFromQuery(req.body);
-  }
-
-  async getQueryObjectByIri(req: Request) {
-    return await this.entityService.getQueryObjectByIri(req.query.iri as string);
-  }
-
   async getQueryDefinitionDisplay(req: Request) {
     return await this.entityService.getQueryDefinitionDisplayByIri(req.query.iri as string);
   }
@@ -111,5 +89,9 @@ export default class QueryController {
 
   async isFunctionProperty(req: Request) {
     return await this.queryService.isFunctionProperty(req.query.propIri as string);
+  }
+
+  async getQueryDisplay(req: Request) {
+    return await this.queryService.getQueryDisplay(req.query.queryIri as string);
   }
 }
