@@ -38,6 +38,11 @@ export default class EntityController {
         .then(data => res.send(data).end())
         .catch(next)
     );
+    this.router.get("/public/conceptContextMaps", (req, res, next) =>
+      this.getConceptContextMaps(req)
+        .then(data => res.send(data).end())
+        .catch(next)
+    );
   }
 
   async getPropertiesDisplay(req: Request) {
@@ -67,5 +72,9 @@ export default class EntityController {
     const pageSize = req.body.pageSize;
     const filters = req.body.filters;
     return await this.entityService.getSuperiorPropertiesBoolFocusPaged(focus, pageIndex, pageSize, filters);
+  }
+
+  async getConceptContextMaps(req: Request) {
+    return await this.entityService.getConceptContextMaps(req.query.iri as string);
   }
 }

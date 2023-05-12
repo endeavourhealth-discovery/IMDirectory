@@ -5,7 +5,7 @@ export default class ProvRepository {
   private graph: GraphdbService;
 
   constructor() {
-    this.graph = new GraphdbService();
+    this.graph = GraphdbService.imRepo()
   }
 
   public async getProvHistory(url: string): Promise<any[]> {

@@ -8,14 +8,17 @@ import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
+import EntityRepository from "@/repositories/entityRepository";
 
 export default class EntityService {
   axios: any;
   eclService: EclService;
+  entityRepository: EntityRepository;
 
   constructor(axios: any) {
     this.axios = axios;
     this.eclService = new EclService(axios);
+    this.entityRepository = new EntityRepository();
   }
 
   public async getPartialEntity(iri: string, predicates: string[]): Promise<any> {
@@ -167,5 +170,9 @@ export default class EntityService {
       }
     }
     return superiors;
+  }
+
+  async getConceptContextMaps(iri: string) {
+    return await this.entityRepository.getConceptContextMaps(iri);
   }
 }
