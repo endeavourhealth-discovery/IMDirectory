@@ -95,3 +95,7 @@ export function sanitise(data: any) {
   if (typeof data === "object") return "'" + JSON.stringify(data).replaceAll('"', "`").replaceAll("'", '"') + "'";
   if (typeof data === "number") return "'" + data + "'";
 }
+
+export function desanitise(data: string) {
+  return JSON.parse(data.replaceAll('"', "'").replaceAll("`", '"'));
+}
