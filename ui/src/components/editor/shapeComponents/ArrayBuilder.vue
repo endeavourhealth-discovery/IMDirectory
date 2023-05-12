@@ -1,5 +1,6 @@
 <template>
   <div class="array-builder-container">
+    <h2 v-if="shape.name">{{ shape.name }}</h2>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
@@ -324,6 +325,7 @@ function moveItemDown(item: ComponentDetails) {
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
+  align-items: center;
 }
 .loading-container {
   flex: 1 1 auto;
