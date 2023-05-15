@@ -39,7 +39,7 @@ export default class GithubController {
   private async getLatestRelease(req: Request, res: Response, next: NextFunction): Promise<GithubRelease> {
     try {
       const repo = req.query.repositoryName;
-      if (typeof repo !== "string") new Error("Missing parameter 'repositoryName' or parameter is not of type 'string'");
+      if (typeof repo !== "string") throw new Error("Missing parameter 'repositoryName' or parameter is not of type 'string'");
       if (repo === "IMDirectory") {
         return await getGithubConfig(CONFIG.IMDIRECTORY_LATEST_RELEASE);
       } else if (repo === "ImportData") {
