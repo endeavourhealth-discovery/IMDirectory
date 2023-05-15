@@ -1,3 +1,4 @@
+import { ContextMap } from "@im-library/interfaces";
 import EntityService from "@/services/entity.service";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
@@ -74,7 +75,7 @@ export default class EntityController {
     return await this.entityService.getSuperiorPropertiesBoolFocusPaged(focus, pageIndex, pageSize, filters);
   }
 
-  async getConceptContextMaps(req: Request) {
+  async getConceptContextMaps(req: Request): Promise<ContextMap[]> {
     return await this.entityService.getConceptContextMaps(req.query.iri as string);
   }
 }

@@ -1,5 +1,6 @@
 import { GraphdbService, iri } from "@/services/graphdb.service";
 import { IM, RDFS } from "@im-library/vocabulary";
+import { ContextMap } from "@im-library/interfaces";
 
 export default class EntityRepository {
   private graph: GraphdbService;
@@ -8,7 +9,7 @@ export default class EntityRepository {
     this.graph = GraphdbService.imRepo();
   }
 
-  public async getConceptContextMaps(conceptIri: string): Promise<any[]> {
+  public async getConceptContextMaps(conceptIri: string): Promise<ContextMap[]> {
     const rs = await this.graph.execute(
       "select ?publisherName ?systemName ?schema ?table ?field ?sourceVal ?sourceRegex ?map\n" +
       "where { \n" +
@@ -49,6 +50,6 @@ export default class EntityRepository {
       field: cm.field?.value,
       value: cm.sourceVal?.value,
       regex: cm.sourceRegex?.value
-    }));
+    } as ContextMap));
   }
 }

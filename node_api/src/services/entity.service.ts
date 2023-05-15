@@ -3,7 +3,7 @@ import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
 import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
-import { EclSearchRequest, ITextQuery, PropertyDisplay, QueryObject, TTBundle, TTIriRef } from "@im-library/interfaces";
+import { EclSearchRequest, ITextQuery, PropertyDisplay, QueryObject, TTBundle, TTIriRef, ContextMap } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -172,7 +172,7 @@ export default class EntityService {
     return superiors;
   }
 
-  async getConceptContextMaps(iri: string) {
+  async getConceptContextMaps(iri: string): Promise<ContextMap[]> {
     return await this.entityRepository.getConceptContextMaps(iri);
   }
 }

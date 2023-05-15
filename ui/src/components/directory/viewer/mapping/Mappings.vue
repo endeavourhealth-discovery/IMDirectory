@@ -144,7 +144,7 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
-import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode } from "@im-library/interfaces";
+import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode, ContextMap } from "@im-library/interfaces";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
@@ -156,7 +156,7 @@ const props = defineProps({
 });
 
 const mappings: Ref<any[]> = ref([]);
-const contextMaps: Ref<any[]> = ref([]);
+const contextMaps: Ref<ContextMap[]> = ref([]);
 const data: Ref = ref({});
 const hoveredResult: Ref = ref({});
 const matchedFrom: Ref<SimpleMap[]> = ref([]);
@@ -184,8 +184,8 @@ async function updateMappings() {
 }
 
 async function getMappings(): Promise<void> {
-  mappings.value = (await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_MAP]))[IM.HAS_MAP] || [];
-  contextMaps.value = (await EntityService.getContextMaps(props.conceptIri)) || [];
+  mappings.value = (await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_MAP]))[IM.HAS_MAP] ?? [];
+  contextMaps.value = (await EntityService.getContextMaps(props.conceptIri)) ?? [];
   data.value = {};
 
   namespaces.value = await EntityService.getNamespaces();
