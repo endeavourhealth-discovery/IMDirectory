@@ -17,7 +17,7 @@ async function setGithubConfig() {
 async function setLatestRelease(configRepository: ConfigRepository, githubService: GithubService, repoName: string, configName: string) {
   let currentReleaseConfig;
   try {
-    currentReleaseConfig = JSON.parse(await configRepository.getConfig(configName)).replaceAll("`", "'");
+    currentReleaseConfig = await configRepository.getConfig(configName);
   } catch (err) {
     logger.warn(`missing config item ${configName}`);
   }
@@ -41,7 +41,7 @@ async function setLatestRelease(configRepository: ConfigRepository, githubServic
 async function setAllReleases(configRepository: ConfigRepository, githubService: GithubService, repoName: string, configName: string) {
   let currentReleasesConfig;
   try {
-    currentReleasesConfig = JSON.parse(await configRepository.getConfig(configName)).replaceAll("`", "'");
+    currentReleasesConfig = await configRepository.getConfig(configName);
   } catch (err) {
     logger.warn(`missing config item ${configName}`);
   }
