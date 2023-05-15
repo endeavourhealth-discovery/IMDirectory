@@ -14,7 +14,7 @@ describe("fetchEntity", () => {
   });
 
   it("does nothing if no editorIri", async () => {
-    const wrapper = mountComposable(setupEditorEntity, { editorIri: undefined});
+    const wrapper = mountComposable(setupEditorEntity, { editor: { editorIri: undefined}});
 
     await wrapper.vm.fetchEntity();
     expect(wrapper.vm.editorEntity).toEqual({});
@@ -25,7 +25,7 @@ describe("fetchEntity", () => {
   it("gets full entity by iri and process entity", async () => {
     const testEntity = fakerFactory.entity.create();
     getFullEntitySpy.mockResolvedValue(testEntity);
-    const wrapper = mountComposable(setupEditorEntity, { editorIri: "testIri"});
+    const wrapper = mountComposable(setupEditorEntity, { editor: { editorIri: "testIri"}});
 
     await wrapper.vm.fetchEntity();
     expect(getFullEntitySpy).toHaveBeenCalled();
