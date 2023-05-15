@@ -35,6 +35,7 @@ import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDataty
 import { IM } from "@im-library/vocabulary";
 import _ from "lodash";
 import { useSharedStore } from "@/stores/sharedStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -47,9 +48,10 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
+const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
-const textDefinitionStartExpanded = computed(() => sharedStore.textDefinitionStartExpanded);
-const conceptIri = computed(() => sharedStore.conceptIri);
+const textDefinitionStartExpanded = computed(() => directoryStore.textDefinitionStartExpanded);
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 const hasData = computed(() => isTTBundle(data.value) && isObjectHasKeys(data.value.entity));
 watch(

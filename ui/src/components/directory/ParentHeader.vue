@@ -50,11 +50,11 @@ import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-l
 import { computed, Ref, watch, ref, onMounted } from "vue";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useSharedStore } from "@/stores/sharedStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
-const sharedStore = useSharedStore();
+const directoryStore = useDirectoryStore();
 const props = defineProps({ concept: { type: Object as any, required: true } });
-const conceptIri = computed(() => sharedStore.conceptIri);
+const conceptIri = computed(() => directoryStore.conceptIri);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 
 onMounted(async () => {

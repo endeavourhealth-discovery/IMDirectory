@@ -57,7 +57,7 @@ const sharedStore = useSharedStore();
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 
-const conceptIri = computed(() => sharedStore.conceptIri);
+const conceptIri = computed(() => directoryStore.conceptIri);
 const currentUser = computed(() => userStore.currentUser);
 const findInTreeIri = computed(() => directoryStore.findInTreeIri);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);

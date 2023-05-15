@@ -1,29 +1,19 @@
 import { defineStore } from "pinia";
 import { SharedState } from "@/stores/types/sharedState";
-
 import { IM } from "@im-library/vocabulary";
-import { Namespace, HistoryItem, RecentActivityItem, ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/interfaces/AutoGen";
-import { EntityService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-// import { getLogger } from "@im-library/logger/LogConfig";
-
-// const log = getLogger("sharedStore");
 
 export const useSharedStore = defineStore("shared", {
   state: (): SharedState => ({
-    conceptIri: IM.MODULE_ONTOLOGY,
     showCookieConsent: false,
     fontAwesomePro: false,
     showSnomedLicense: false,
-    focusHierarchy: false,
-    arrayObjectNameListboxWithLabelStartExpanded: [],
     tagSeverityMatches: [
       { "@id": IM.ACTIVE, severity: "success" },
       { "@id": IM.DRAFT, severity: "warning" },
       { "@id": IM.INACTIVE, severity: "danger" }
     ],
-    textDefinitionStartExpanded: ["Definition"],
+    showReleaseNotes: false,
+    showBanner: localStorage.getItem("showBanner") === "true" ? true : false,
     activeProfile: { uuid: "", activeClausePath: "" }
   }),
   actions: {
@@ -36,23 +26,18 @@ export const useSharedStore = defineStore("shared", {
     updateActiveProfile(value: any) {
       this.activeProfile = value;
     },
-    updateConceptIri(conceptIri: string) {
-      this.conceptIri = conceptIri;
-    },
     updateShowSnomedLicense(bool: boolean) {
       this.showSnomedLicense = bool;
     },
-    updateFocusHierarchy(bool: boolean) {
-      this.focusHierarchy = bool;
+    updateShowReleaseNotes(bool: boolean) {
+      this.showReleaseNotes = bool;
     },
-    updateArrayObjectNameListboxWithLabelStartExpanded(items: any) {
-      this.arrayObjectNameListboxWithLabelStartExpanded = items;
+    updateShowBanner(bool: boolean) {
+      this.showBanner = bool;
+      localStorage.setItem("showBanner", bool === true ? "true" : "");
     },
     updateTagSeverityMatches(items: any) {
       this.tagSeverityMatches = items;
-    },
-    updateTextDefinitionStartExpanded(items: any) {
-      this.textDefinitionStartExpanded = items;
     }
   }
 });

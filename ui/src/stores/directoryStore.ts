@@ -5,22 +5,24 @@ import { IM } from "@im-library/vocabulary";
 import { ConceptSummary } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-// import { getLogger } from "@im-library/logger/LogConfig";
-
-// const log = getLogger("sharedStore");
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 export const useDirectoryStore = defineStore("directory", {
   state: (): DirectoryState => ({
+    conceptIri: IM.MODULE_ONTOLOGY,
     findInTreeIri: "",
     searchResults: [] as ConceptSummary[],
     searchLoading: false,
     sidebarControlActivePanel: 0,
     splitterRightSize: 0,
-    showReleaseNotes: false,
-    showBanner: localStorage.getItem("showBanner") === "true" ? true : false
+    focusHierarchy: false,
+    textDefinitionStartExpanded: ["Definition"],
+    arrayObjectNameListboxWithLabelStartExpanded: []
   }),
   actions: {
+    updateConceptIri(conceptIri: string) {
+      this.conceptIri = conceptIri;
+    },
     async fetchSearchResults(data: { searchRequest: SearchRequest; controller: AbortController }) {
       const result = await EntityService.advancedSearch(data.searchRequest, data.controller);
       if (result && isArrayHasLength(result)) {
@@ -45,12 +47,14 @@ export const useDirectoryStore = defineStore("directory", {
     updateSplitterRightSize(splitterRightSize: number) {
       this.splitterRightSize = splitterRightSize;
     },
-    updateShowReleaseNotes(bool: boolean) {
-      this.showReleaseNotes = bool;
+    updateTextDefinitionStartExpanded(items: any) {
+      this.textDefinitionStartExpanded = items;
     },
-    updateShowBanner(bool: boolean) {
-      this.showBanner = bool;
-      localStorage.setItem("showBanner", bool === true ? "true" : "");
+    updateArrayObjectNameListboxWithLabelStartExpanded(items: any) {
+      this.arrayObjectNameListboxWithLabelStartExpanded = items;
+    },
+    updateFocusHierarchy(bool: boolean) {
+      this.focusHierarchy = bool;
     }
   }
 });

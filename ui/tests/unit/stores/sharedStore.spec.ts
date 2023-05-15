@@ -2,6 +2,7 @@ import { beforeEach, describe, vi } from "vitest";
 import { createTestingPinia } from "@pinia/testing";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 describe("state", () => {
   beforeEach(() => {
@@ -19,40 +20,24 @@ describe("state", () => {
     const userStore = useUserStore();
     expect(Object.keys(sharedStore)).toEqual(
       expect.arrayContaining([
-        "conceptIri",
         "showCookieConsent",
         "fontAwesomePro",
         "showSnomedLicense",
-        "focusHierarchy",
-        "arrayObjectNameListboxWithLabelStartExpanded",
         "tagSeverityMatches",
-        "textDefinitionStartExpanded",
+        "showReleaseNotes",
+        "showBanner",
         "activeProfile"
       ])
     );
-    expect(sharedStore.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
     expect(userStore.snomedLicenseAccepted).toBe(false);
-    expect(sharedStore.focusHierarchy).toBe(false);
   });
 });
 
 describe("mutations", () => {
-  it("can updateConceptIri", () => {
-    const sharedStore = useSharedStore();
-    const testConceptIri = "http://www.endhealth.info/im#test";
-    sharedStore.updateConceptIri(testConceptIri);
-    expect(sharedStore.conceptIri).toEqual(testConceptIri);
-  });
-
   it("can updateSnomedLicenseAccepted", () => {
     const userStore = useUserStore();
     const testBool = true;
     userStore.updateSnomedLicenseAccepted(testBool);
     expect(userStore.snomedLicenseAccepted).toBe(true);
-  });
-  it("can updateFocusHierarchy", () => {
-    const sharedStore = useSharedStore();
-    sharedStore.updateFocusHierarchy(true);
-    expect(sharedStore.focusHierarchy).toBe(true);
   });
 });

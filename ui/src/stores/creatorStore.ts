@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { CreatorState } from "@/stores/types/creatorState";
 import { useUserStore } from "@/stores/userStore";
+
 export const useCreatorStore = defineStore("creator", {
   state: (): CreatorState => ({
     creatorSavedEntity: JSON.parse(localStorage.getItem("creatorSavedEntity") ?? "{}") as any,

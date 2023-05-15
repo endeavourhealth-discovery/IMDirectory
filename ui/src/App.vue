@@ -34,7 +34,7 @@ import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -44,11 +44,11 @@ const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const userStore = useUserStore();
-const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
 
 const currentTheme = computed(() => userStore.currentTheme);
-const showReleaseNotes: ComputedRef<boolean> = computed(() => directoryStore.showReleaseNotes);
-const showBanner: ComputedRef<boolean> = computed(() => directoryStore.showBanner);
+const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
+const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
@@ -75,11 +75,11 @@ async function setShowBanner() {
   let currentVersion = "v0.0.0";
   if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
-    directoryStore.updateShowBanner(true);
+    sharedStore.updateShowBanner(true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
     localStorage.removeItem("IMDirectoryVersion");
-    directoryStore.updateShowBanner(true);
-  } else directoryStore.updateShowBanner(false);
+    sharedStore.updateShowBanner(true);
+  } else sharedStore.updateShowBanner(false);
 }
 
 function getLocalVersion(repoName: string): string | null {

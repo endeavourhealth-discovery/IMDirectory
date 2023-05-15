@@ -574,7 +574,7 @@ function setAppMenuItems() {
 }
 
 function showReleaseNotes() {
-  directoryStore.updateShowReleaseNotes(true);
+  sharedStore.updateShowReleaseNotes(true);
 }
 
 function changeTheme(newTheme: string) {

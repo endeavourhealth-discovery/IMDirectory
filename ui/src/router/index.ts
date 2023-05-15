@@ -36,7 +36,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 import { nextTick } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
-import { useSharedStore } from "@/stores/sharedStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useEditorStore } from "@/stores/editorStore";
@@ -266,7 +266,7 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from) => {
-  const sharedStore = useSharedStore();
+  const directoryStore = useDirectoryStore();
   const authStore = useAuthStore();
   const creatorStore = useCreatorStore();
   const editorStore = useEditorStore();
@@ -278,7 +278,7 @@ router.beforeEach(async (to, from) => {
 
   const iri = to.params.selectedIri;
   if (iri) {
-    sharedStore.updateConceptIri(iri as string);
+    directoryStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
     if (iri) editorStore.updateEditorIri(iri);

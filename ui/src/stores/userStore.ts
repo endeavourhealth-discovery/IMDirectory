@@ -4,6 +4,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { AuthService, EntityService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import { CustomAlert, HistoryItem, RecentActivityItem, User } from "@im-library/interfaces";
+
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
@@ -16,8 +17,7 @@ export const useUserStore = defineStore("user", {
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false
   }),
   getters: {
-    isLoggedIn: state => isObjectHasKeys(state.currentUser),
-    hasCookiesOptionalAccepted: state => isObjectHasKeys(state.cookiesOptionalAccepted)
+    isLoggedIn: state => isObjectHasKeys(state.currentUser)
   },
   actions: {
     clearOptionalCookies() {
@@ -99,7 +99,7 @@ export const useUserStore = defineStore("user", {
       this.currentUser = user;
     },
     async logoutCurrentUser() {
-      let result = { status: 500, message: "Logout (sharedStore) failed" } as CustomAlert;
+      let result = { status: 500, message: "Logout (userStore) failed" } as CustomAlert;
       await AuthService.signOut().then(res => {
         if (res.status === 200) {
           useUserStore().updateCurrentUser(null);

@@ -1,11 +1,13 @@
-import { Namespace, ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { ConceptSummary } from "@im-library/interfaces";
 
 export interface DirectoryState {
+  conceptIri: string;
   findInTreeIri: string;
   searchResults: ConceptSummary[];
   searchLoading: boolean;
   sidebarControlActivePanel: number;
   splitterRightSize: number;
-  showReleaseNotes: boolean;
-  showBanner: boolean;
+  focusHierarchy: boolean;
+  textDefinitionStartExpanded: string[];
+  arrayObjectNameListboxWithLabelStartExpanded: string[];
 }

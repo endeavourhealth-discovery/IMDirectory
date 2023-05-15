@@ -23,16 +23,20 @@ describe("state", () => {
     const directoryStore = useDirectoryStore();
     expect(Object.keys(directoryStore)).toEqual(
       expect.arrayContaining([
+        "conceptIri",
         "findInTreeIri",
         "searchResults",
         "searchLoading",
         "sidebarControlActivePanel",
         "splitterRightSize",
-        "showReleaseNotes",
-        "showBanner"
+        "focusHierarchy",
+        "textDefinitionStartExpanded",
+        "arrayObjectNameListboxWithLabelStartExpanded"
       ])
     );
+    expect(directoryStore.conceptIri).toBe("http://endhealth.info/im#DiscoveryOntology");
     expect(directoryStore.searchResults).toEqual([]);
+    expect(directoryStore.focusHierarchy).toBe(false);
   });
 });
 
@@ -100,5 +104,19 @@ describe("actions", () => {
     expect(advancedSearchSpy).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
     expect(directoryStore.searchResults).toStrictEqual([]);
+  });
+});
+
+describe("mutations", () => {
+  it("can updateConceptIri", () => {
+    const directoryStore = useDirectoryStore();
+    const testConceptIri = "http://www.endhealth.info/im#test";
+    directoryStore.updateConceptIri(testConceptIri);
+    expect(directoryStore.conceptIri).toEqual(testConceptIri);
+  });
+  it("can updateFocusHierarchy", () => {
+    const directoryStore = useDirectoryStore();
+    directoryStore.updateFocusHierarchy(true);
+    expect(directoryStore.focusHierarchy).toBe(true);
   });
 });

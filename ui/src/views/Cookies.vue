@@ -39,7 +39,7 @@ const essentialCookiesData: Ref<{ cookie: string; name: string; purpose: string 
     name: "IMVersion",
     purpose: "Stores the current version of the web app. Used to show current version and changes upon an update."
   },
-  { cookie: "Banner control", name: "showBanner", purpose: "Used to sharedStore whether the user has closed the updates banner." },
+  { cookie: "Banner control", name: "showBanner", purpose: "Used to userStore whether the user has closed the updates banner." },
   { cookie: "Snomed license", name: "snomedLicenseAccepted", purpose: "Identifies whether a user has accepted the Snomed License required to use the site." },
   { cookie: "User identity control", name: "Cognito...", purpose: "Multiple security control cookies required for user accounts." }
 ]);
