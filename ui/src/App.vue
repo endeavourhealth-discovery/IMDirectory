@@ -124,7 +124,6 @@ async function setupAxiosInterceptors(axios: any) {
             summary: "Access denied"
           });
         }
-        window.location.href = Env.AUTH_URL + "login?returnUrl=" + route.fullPath;
       } else if (error?.response?.status === 401) {
         toast.add({
           severity: "error",
@@ -135,6 +134,13 @@ async function setupAxiosInterceptors(axios: any) {
             ". Please contact an admin to change your account security clearance if you require access to this resource."
         });
         router.push({ name: "AccessDenied" }).then();
+      } else if (error?.response?.data?.code && error?.response?.status > 399 && error?.response?.status < 500) {
+        console.error(error.response.data);
+        toast.add({
+          severity: "error",
+          summary: error.response.data.code,
+          detail: error.response.data.debugMessage
+        });
       } else if (error?.response?.status === 500 && error.code === "ERR_BAD_RESPONSE") {
         router.push({ name: "ServerOffline" }).then();
       } else if (error.code === "ERR_CANCELED") {
@@ -195,7 +201,7 @@ function setupExternalErrorHandler() {
   max-height: 100vh;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: flex-start;
+  justify-content: space-between;
   overflow: auto;
   background-color: var(--surface-ground);
 }

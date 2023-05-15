@@ -7,7 +7,9 @@ export default class GithubService {
   private owner = "endeavourhealth-discovery";
 
   constructor() {
-    this.octokit = new Octokit({ auth: Env.GIT_TOKEN });
+    this.octokit = new Octokit({
+      auth: Env.GIT_TOKEN
+    });
   }
 
   public async getLatestRelease(repo: string) {

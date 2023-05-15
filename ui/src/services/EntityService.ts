@@ -472,6 +472,12 @@ const EntityService = {
     return axios.get(api + "api/entity/public/hasPredicates", {
       params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
     });
+  },
+
+  async getContextMaps(conceptIri: string): Promise<any[]> {
+    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/conceptContextMaps", {
+      params: { iri: conceptIri }
+    });
   }
 };
 

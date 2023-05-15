@@ -2,94 +2,149 @@
   <div class="flex flex-row justify-contents-center align-items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
-  <OrganizationChart v-else :value="data" data-testid="mappings">
-    <template #hasMap="{ node }: any">
-      <span>{{ node.data.label }}</span>
-    </template>
-    <template #oneOf="{ node }: any">
-      <span>{{ node.data.label }}</span>
-    </template>
-    <template #comboOf="{ node }: any">
-      <span>{{ node.data.label }}</span>
-    </template>
-    <template #someOf="{ node }: any">
-      <span>{{ node.data.label }}</span>
-    </template>
-    <template #matchedFrom="{ node }: any">
-      <span>{{ node.data.label }}</span>
-    </template>
-    <template #matchedTo="{ node }: any">
-      <span>{{ node.data.label }}</span>
-    </template>
-    <template #childList="{ node }: any">
-      <table aria-label="Concept map children" data-testid="hasMap">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Priority</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="mapItem of node.data.mapItems"
-            :key="mapItem"
-            @mouseenter="toggle($event, mapItem, 'opMap')"
-            @mouseleave="toggle($event, mapItem, 'opMap')"
-          >
-            <td>{{ mapItem.name }}</td>
-            <td>{{ mapItem.priority }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </template>
-    <template #matchedFromList="{ node }: any">
-      <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedFromToggle" data-testid="matchedFrom" />
-      <span v-else>None</span>
-    </template>
-    <template #matchedToList="{ node }: any">
-      <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedToToggle" data-testid="matchedTo" />
-      <span v-else>None</span>
-    </template>
-    <template #default>
-      <p class="text-centered">None</p>
-    </template>
-  </OrganizationChart>
+  <div v-else class="flex flex-column justify-contents-center align-items-center flex-auto">
+    <OrganizationChart :value="data" data-testid="mappings">
+      <template #hasMap="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #oneOf="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #comboOf="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #someOf="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #matchedFrom="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #matchedTo="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #childList="{ node }: any">
+        <table aria-label="Concept map children" data-testid="hasMap">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="mapItem of node.data.mapItems"
+              :key="mapItem"
+              @mouseenter="toggle($event, mapItem, 'opMap')"
+              @mouseleave="toggle($event, mapItem, 'opMap')"
+            >
+              <td>{{ mapItem.name }}</td>
+              <td>{{ mapItem.priority }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+      <template #matchedFromList="{ node }: any">
+        <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedFromToggle" data-testid="matchedFrom" />
+        <span v-else>None</span>
+      </template>
+      <template #matchedToList="{ node }: any">
+        <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedToToggle" data-testid="matchedTo" />
+        <span v-else>None</span>
+      </template>
+      <template #default>
+        <p class="text-centered">None</p>
+      </template>
+    </OrganizationChart>
 
-  <OverlayPanel ref="opMap" id="overlay-panel-maps">
-    <div class="flex flex-column justify-contents-start map-overlay">
-      <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
-      <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
-      <p><strong>Priority: </strong>{{ hoveredResult.priority }}</p>
-      <p>
-        <strong>Assurance level: </strong>
-        {{ hoveredResult.assuranceLevel }}
-      </p>
-    </div>
-  </OverlayPanel>
+    <OverlayPanel ref="opMap" id="overlay-panel-maps">
+      <div class="flex flex-column justify-contents-start map-overlay">
+        <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
+        <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
+        <p><strong>Priority: </strong>{{ hoveredResult.priority }}</p>
+        <p>
+          <strong>Assurance level: </strong>
+          {{ hoveredResult.assuranceLevel }}
+        </p>
+      </div>
+    </OverlayPanel>
 
-  <OverlayPanel ref="opMatchedFrom" id="overlay-panel-simple-maps">
-    <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
-      <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
-      <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
-      <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
-      <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
-    </div>
-  </OverlayPanel>
+    <OverlayPanel ref="opMatchedFrom" id="overlay-panel-simple-maps">
+      <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
+        <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
+        <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
+        <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
+        <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
+      </div>
+    </OverlayPanel>
 
-  <OverlayPanel ref="opMatchedTo" id="overlay-panel-simple-maps">
-    <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
-      <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
-      <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
-      <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
-      <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
+    <OverlayPanel ref="opMatchedTo" id="overlay-panel-simple-maps">
+      <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
+        <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
+        <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
+        <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
+        <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
+      </div>
+    </OverlayPanel>
+    <div class="context-table">
+      <DataTable
+        :paginator="true"
+        :rows="10"
+        :value="contextMaps"
+        class="p-datatable-sm flex-grow-1"
+        :scrollable="true"
+        scrollHeight="flex"
+        :loading="loading"
+        ref="contextMapTable"
+        dataKey="iri"
+        :autoLayout="true"
+      >
+        <template #empty> None </template>
+        <Column field="publisher" header="Publisher" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
+          <template #body="{ data }: any">
+            <div class="datatable-flex-cell">
+              {{ data.publisher }}
+            </div>
+          </template>
+        </Column>
+        <Column field="system" header="System">
+          <template #body="{ data }: any">
+            <span>{{ data.system }}</span>
+          </template>
+        </Column>
+        <Column field="schema" header="Schema">
+          <template #body="{ data }: any">
+            <span>{{ data.schema }}</span>
+          </template>
+        </Column>
+        <Column field="table" header="Table">
+          <template #body="{ data }: any">
+            <span>{{ data.table }}</span>
+          </template>
+        </Column>
+        <Column field="field" header="Field">
+          <template #body="{ data }: any">
+            <span>{{ data.field }}</span>
+          </template>
+        </Column>
+        <Column field="value" header="Value">
+          <template #body="{ data }: any">
+            <span>{{ data.value }}</span>
+          </template>
+        </Column>
+        <Column field="regex" header="Expression">
+          <template #body="{ data }: any">
+            <span>{{ data.regex }}</span>
+          </template>
+        </Column>
+      </DataTable>
     </div>
-  </OverlayPanel>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
-import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode } from "@im-library/interfaces";
+import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode, ContextMap } from "@im-library/interfaces";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
@@ -101,6 +156,7 @@ const props = defineProps({
 });
 
 const mappings: Ref<any[]> = ref([]);
+const contextMaps: Ref<ContextMap[]> = ref([]);
 const data: Ref = ref({});
 const hoveredResult: Ref = ref({});
 const matchedFrom: Ref<SimpleMap[]> = ref([]);
@@ -128,7 +184,8 @@ async function updateMappings() {
 }
 
 async function getMappings(): Promise<void> {
-  mappings.value = (await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_MAP]))[IM.HAS_MAP] || [];
+  mappings.value = (await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_MAP]))[IM.HAS_MAP] ?? [];
+  contextMaps.value = (await EntityService.getContextMaps(props.conceptIri)) ?? [];
   data.value = {};
 
   namespaces.value = await EntityService.getNamespaces();
@@ -349,5 +406,9 @@ table {
   align-items: center;
   height: 20rem;
   width: 100%;
+}
+
+.context-table {
+  width: 100%
 }
 </style>

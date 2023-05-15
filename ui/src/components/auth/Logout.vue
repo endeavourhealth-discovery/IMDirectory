@@ -72,7 +72,7 @@ function handleSubmit(): void {
             if (previousAppUrl.value) {
               window.location.href = previousAppUrl.value;
             } else {
-              window.location.href = "/#/user/login";
+              router.push({ name: "LandingPage" });
             }
             window.location.reload();
           });

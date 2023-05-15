@@ -89,7 +89,9 @@ import { usePrimeVue } from "primevue/config";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
+import { useAuthStore } from "@/stores/authStore";
 
+const authStore = useAuthStore();
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
@@ -157,7 +159,10 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "login"
+      url: Env.DIRECTORY_URL + "user/" + "login",
+      command: () => {
+        authStore.updatePreviousAppUrl();
+      }
     },
     {
       label: "Register",
@@ -184,7 +189,10 @@ function setUserMenuItems(): void {
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      url: Env.DIRECTORY_URL + "user/" + "logout"
+      url: Env.DIRECTORY_URL + "user/" + "logout",
+      command: () => {
+        authStore.updatePreviousAppUrl();
+      }
     }
   ];
 }

@@ -13,6 +13,9 @@ export const useAuthStore = defineStore("auth", {
     },
     updateAuthReturnUrl(url: any) {
       this.authReturnUrl = url;
+    },
+    updatePreviousAppUrl() {
+      this.previousAppUrl = window.location.href;
     }
   }
 });

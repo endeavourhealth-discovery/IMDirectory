@@ -41,6 +41,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
+import Swal, { SweetAlertResult } from "sweetalert2";
 
 const APP_TITLE = "IM Directory";
 
@@ -265,6 +266,24 @@ const router = createRouter({
   routes
 });
 
+const directToLogin = () => {
+  Swal.fire({
+    icon: "warning",
+    title: "Please Login to continue",
+    showCancelButton: true,
+    confirmButtonText: "Login",
+    reverseButtons: true
+  }).then((result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      console.log("redirecting to login");
+      router.push({ name: "Login" });
+    } else {
+      console.log("redirecting to landing page");
+      router.push({ name: "LandingPage" });
+    }
+  });
+};
+
 router.beforeEach(async (to, from) => {
   const directoryStore = useDirectoryStore();
   const authStore = useAuthStore();
@@ -294,8 +313,8 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
+      authStore.updatePreviousAppUrl();
+      directToLogin();
     }
   }
 
@@ -303,8 +322,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
+      directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
     }
@@ -314,8 +332,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
+      directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
     }

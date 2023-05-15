@@ -21,7 +21,7 @@
         >
           <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
           <span v-if="!node.loading">
-            <FontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-if="node.loading" />
           <span>{{ node.label }}</span>

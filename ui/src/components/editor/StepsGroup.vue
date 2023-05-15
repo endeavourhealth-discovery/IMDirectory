@@ -21,7 +21,6 @@ import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableC
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import VerticalLayout from "./shapeComponents/VerticalLayout.vue";
 
-
 export default defineComponent({
   components: {
     EntityComboBox,
@@ -41,7 +40,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ref, Ref, watch, inject, onMounted, PropType } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -49,7 +48,7 @@ import { processComponentType } from "@im-library/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
 const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
+  shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true }
 });
 watch(
@@ -61,22 +60,21 @@ watch(
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 
-let properties: Ref<PropertyShape[] | PropertyGroup[]> = ref([]);
+let properties: Ref<PropertyShape[]> = ref([]);
 
 onMounted(() => {
   setProperties(props.shape);
 });
 
-function processEntityValue(property: PropertyShape | PropertyGroup) {
+function processEntityValue(property: PropertyShape) {
   if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
   }
   return undefined;
 }
 
-function setProperties(shape: PropertyGroup) {
+function setProperties(shape: PropertyShape) {
   if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property;
-  else if (isObjectHasKeys(shape, ["subGroup"])) properties.value = shape.subGroup;
   else properties.value = [];
 }
 </script>

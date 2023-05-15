@@ -59,6 +59,7 @@ import { MatchClauseUI } from "./query/MatchClauseUI";
 import { WhereClauseUI } from "./query/WhereClauseUI";
 import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
+import { ContextMap } from "./ContextMap";
 export {
   type AccountItem,
   type Address,
@@ -120,5 +121,6 @@ export {
   type TTProperty,
   type MatchClauseUI,
   type WhereClauseUI,
-  type TreeNode
+  type TreeNode,
+  type ContextMap
 };
