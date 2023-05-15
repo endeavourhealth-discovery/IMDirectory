@@ -11,7 +11,7 @@ import PrimeVue from "primevue/config";
 import { GithubService } from "@/services";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { createTestingPinia } from "@pinia/testing";
-import { useSharedStore } from "@/stores/sharedStore.js";
+import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
