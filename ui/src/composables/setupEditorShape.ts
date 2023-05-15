@@ -27,7 +27,7 @@ export function setupEditorShape() {
     }
     for (const type of types) {
       const typeShape = await getShape(type["@id"]);
-      if (isObjectHasKeys(shapeCombined, ["group"])) addToShape(shapeCombined, typeShape);
+      if (isObjectHasKeys(shapeCombined, ["property"])) addToShape(shapeCombined, typeShape);
       else shapeCombined = typeShape;
     }
     shape.value = { ...shapeCombined };

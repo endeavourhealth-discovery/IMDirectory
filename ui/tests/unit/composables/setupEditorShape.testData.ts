@@ -23,7 +23,7 @@ export default {
         "@id": "http://endhealth.info/im#ModelDataModels"
       }
     ],
-    group: [
+    property: [
       {
         label: "Property group - Summary details",
         name: "Summary details",
@@ -192,7 +192,7 @@ export default {
         componentType: {
           "@id": "http://endhealth.info/im#stepsGroup"
         },
-        subGroup: [
+        property: [
           {
             label: "Property group - Sub type array builder",
             name: "Subclass of",
@@ -247,7 +247,7 @@ export default {
         componentType: {
           "@id": "http://endhealth.info/im#stepsGroup"
         },
-        subGroup: [
+        property: [
           {
             label: "Property group - Is contained in array builder",
             name: "Is contained in",
@@ -301,7 +301,7 @@ export default {
         componentType: {
           "@id": "http://endhealth.info/im#stepsGroup"
         },
-        subGroup: [
+        property: [
           {
             label: "Property Group - Role group array builder",
             name: "Role group",
@@ -311,7 +311,7 @@ export default {
             componentType: {
               "@id": "http://endhealth.info/im#arrayBuilder"
             },
-            subGroup: [
+            property: [
               {
                 label: "Property Group - Role group component group",
                 name: "Property refinement",
@@ -419,7 +419,7 @@ export default {
         "@id": "http://endhealth.info/im#ModelDataModels"
       }
     ],
-    group: [
+    property: [
       {
         label: "Property group - Summary details",
         name: "Summary details",
@@ -588,7 +588,7 @@ export default {
         componentType: {
           "@id": "http://endhealth.info/im#stepsGroup"
         },
-        subGroup: [
+        property: [
           {
             label: "Property group - Sub type array builder",
             name: "Subclass of",
@@ -643,7 +643,7 @@ export default {
         componentType: {
           "@id": "http://endhealth.info/im#stepsGroup"
         },
-        subGroup: [
+        property: [
           {
             label: "Property group - contained in array builder",
             name: "isContainedIn",
@@ -698,7 +698,7 @@ export default {
         componentType: {
           "@id": "http://endhealth.info/im#stepsGroup"
         },
-        subGroup: [
+        property: [
           {
             label: "Property group - members array builder",
             name: "definition",
@@ -707,7 +707,7 @@ export default {
             componentType: {
               "@id": "http://endhealth.info/im#arrayBuilder"
             },
-            subGroup: [
+            property: [
               {
                 label: "Members builder",
                 name: "Members",
@@ -735,12 +735,7 @@ export default {
                     ],
                     valueVariable: "memberIri",
                     builderChild: true
-                  }
-                ],
-                componentType: {
-                  "@id": "http://endhealth.info/im#arrayBuilderWithDropdown"
-                },
-                subGroup: [
+                  },
                   {
                     label: "Property Group - refinement component group",
                     name: "Member refinement",
@@ -811,6 +806,9 @@ export default {
                     builderChild: true
                   }
                 ],
+                componentType: {
+                  "@id": "http://endhealth.info/im#arrayBuilderWithDropdown"
+                },
                 path: {
                   name: "definition",
                   "@id": "http://endhealth.info/im#definition"
