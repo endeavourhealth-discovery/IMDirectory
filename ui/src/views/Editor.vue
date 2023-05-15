@@ -22,12 +22,9 @@
             <ProgressSpinner />
           </div>
           <div v-else class="editor-layout-container">
-            <!-- <Steps :model="stepsItems" :readonly="false" @click="stepsClicked" />
-            <router-view v-slot="{ Component }: any"> -->
             <template v-for="group of groups">
               <component :is="processComponentType(group.componentType)" :shape="group" :mode="EditorMode.EDIT" :value="processEntityValue(group)" />
             </template>
-            <!-- </router-view> -->
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
           <div v-if="showSidebar" class="sidebar-container">
@@ -42,12 +39,10 @@
           />
         </div>
         <div class="button-bar" id="editor-button-bar">
-          <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" data-testid="back-button" />
           <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="router.go(-1)" data-testid="cancel-button" />
           <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
           <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshEditor" data-testid="refresh-button" />
           <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
-          <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" data-testid="forward-button" />
         </div>
       </div>
     </div>
@@ -55,8 +50,6 @@
 </template>
 
 <script lang="ts">
-import TypeSelector from "@/components/creator/TypeSelector.vue";
-import StepsGroup from "@/components/editor/StepsGroup.vue";
 import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
 import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
@@ -77,8 +70,6 @@ import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 export default defineComponent({
   components: {
-    StepsGroup,
-    TypeSelector,
     HorizontalLayout,
     VerticalLayout,
     ArrayBuilder,
@@ -161,7 +152,6 @@ onMounted(async () => {
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
     await getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
-    // router.push(stepsItems.value[0].to);
   } else window.location.href = Env.DIRECTORY_URL;
   loading.value = false;
 });
@@ -364,16 +354,6 @@ function refreshEditor() {
       router.push(stepsItems.value[currentStep.value].to);
     }
   });
-}
-
-function stepsBack() {
-  currentStep.value--;
-  if (currentStep.value >= 0) router.push(stepsItems.value[currentStep.value].to);
-}
-
-function stepsForward() {
-  currentStep.value++;
-  if (currentStep.value < stepsItems.value.length) router.push(stepsItems.value[currentStep.value].to);
 }
 
 function processEntityValue(property: PropertyShape) {
