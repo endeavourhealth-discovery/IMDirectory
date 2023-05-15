@@ -205,15 +205,23 @@ export function getDisplayFromOperator(where: Where) {
 
 export function getDisplayFromList(nodes: Node[], include: boolean) {
   let display = "";
-  if (nodes.length > 1) {
+  if (nodes.length === 1) {
+    display += include ? ": " : "!: ";
+    display += getDisplayFromEntailment(nodes[0]);
+    display += getNameFromRef(nodes[0]);
+  } else if (nodes.length <= 3) {
+    display += include ? " in [" : " not in [";
+    for (const [index, node] of nodes.entries()) {
+      display += getDisplayFromEntailment(node);
+      display += getNameFromRef(node);
+      if (index !== nodes.length - 1) display += ", ";
+    }
+    display += "]";
+  } else {
     display += include ? " in [" : " not in [";
     display += getDisplayFromEntailment(nodes[0]);
     display += getNameFromRef(nodes[0]);
     display += " and more...]";
-  } else {
-    display += include ? ": " : "!: ";
-    display += getDisplayFromEntailment(nodes[0]);
-    display += getNameFromRef(nodes[0]);
   }
   return display;
 }
@@ -232,8 +240,10 @@ export function getDisplayFromPath(pathOrNode: Relationship | Node) {
 }
 
 function getDisplayFromPathRecursively(displayObject: { display: string }, type: string, pathOrNode: any) {
-  if (displayObject.display) displayObject.display += "node" === type ? "->" : ".";
-  displayObject.display += getNameFromRef(pathOrNode);
+  if ("node" !== type) {
+    if (displayObject.display) displayObject.display += ".";
+    displayObject.display += getNameFromRef(pathOrNode);
+  }
   if (isObjectHasKeys(pathOrNode, ["node"])) getDisplayFromPathRecursively(displayObject, "node", pathOrNode.node);
   if (isObjectHasKeys(pathOrNode, ["path"])) getDisplayFromPathRecursively(displayObject, "path", pathOrNode.path);
   if (isObjectHasKeys(pathOrNode, ["variable"])) displayObject.display = "(" + displayObject.display + " as " + pathOrNode.variable + ")";

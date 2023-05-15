@@ -2,19 +2,33 @@ import { ErrorType } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ApiError, CustomError } from "@im-library/models";
 import { NextFunction, Request, Response } from "express";
+import logger from "./logger.middleware";
 
 function errorHandler(error: any, request: Request, response: Response, next: NextFunction) {
+  process.on("uncaughtException", err => {
+    logger.log("fatal", error);
+    process.exit(1);
+  });
+
+  process.on("unhandledRejection", (reason, promise) => {
+    logger.log("fatal", error);
+    process.exit(1);
+  });
+
   let status = error.status ?? 500;
   let message = error.message ?? "Uncaught server error occurred";
   const newApiError = new ApiError(status, message);
   if (error instanceof CustomError) {
+    logger.error(error);
     newApiError.setCode(error.errorType);
     newApiError.setStatus(400);
     status = 400;
   } else if (error.response) {
+    logger.error(error);
     handleResponse(error.response, newApiError);
   } else {
-    newApiError.setCode(ErrorType.UnhandledError);
+    logger.log("fatal", error);
+    process.exit(1);
   }
   response.status(status).send(newApiError);
 }

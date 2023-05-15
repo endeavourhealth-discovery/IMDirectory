@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import jwkToPem from "jwk-to-pem";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
+import logger from "./logger.middleware";
 
 let pems: { [key: string]: any } = {};
 
@@ -18,7 +19,7 @@ class AuthMiddleware {
     if (!token) return resp.status(401).end();
 
     let decodedJwt: any = jwt.decode(token, { complete: true });
-    console.log("decodedJwt", decodedJwt);
+    logger.info("decodedJwt", decodedJwt);
     if (decodedJwt === null) {
       resp.status(401).end();
       return;
@@ -77,8 +78,8 @@ class AuthMiddleware {
         pems[key_id] = pem;
       }
     } catch (error) {
-      console.error(error);
-      console.error("Error! Unable to download JWKs");
+      logger.error(error);
+      logger.error("Error! Unable to download JWKs");
     }
   }
 }
