@@ -278,7 +278,10 @@ export const useRootStore = defineStore("root", {
     },
     updateShowBanner(bool: boolean) {
       this.showBanner = bool;
-      localStorage.setItem("showBanner", bool === true ? "true" : "");
+      localStorage.setItem("showBanner", bool ? "true" : "");
+    },
+    updatePreviousAppUrl() {
+      this.previousAppUrl = window.location.href;
     }
   }
 });

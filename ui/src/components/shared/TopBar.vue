@@ -156,7 +156,10 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "login"
+      url: Env.DIRECTORY_URL + "user/" + "login",
+      command: () => {
+        rootStore.updatePreviousAppUrl();
+      }
     },
     {
       label: "Register",
@@ -183,7 +186,10 @@ function setUserMenuItems(): void {
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      url: Env.DIRECTORY_URL + "user/" + "logout"
+      url: Env.DIRECTORY_URL + "user/" + "logout",
+      command: () => {
+        rootStore.updatePreviousAppUrl();
+      }
     }
   ];
 }
