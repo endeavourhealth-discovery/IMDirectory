@@ -44,17 +44,17 @@ import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
-import { isPropertyGroup, isPropertyShape, isTTIriRef } from "@im-library/helpers/TypeGuards";
+import { isPropertyShape, isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService, EntityService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 
 const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
+  shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
   value: { type: Object as PropType<any>, required: false }
 });
@@ -143,37 +143,20 @@ async function createBuild() {
 
 function createDefaultBuild() {
   build.value = [];
-  if (isPropertyGroup(props.shape)) {
-    if (isObjectHasKeys(props.shape, ["property"])) {
-      props.shape.property.forEach(property => {
-        build.value.push(
-          generateNewComponent(
-            ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
-            property.order - 1,
-            undefined,
-            property,
-            { minus: true, plus: true, up: true, down: true },
-            props.mode,
-              false
-          )
-        );
-      });
-    }
-    if (isObjectHasKeys(props.shape, ["subGroup"])) {
-      props.shape.subGroup.forEach(subGroup => {
-        build.value.push(
-          generateNewComponent(
-            ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
-            subGroup.order - 1,
-            undefined,
-            subGroup,
-            { minus: true, plus: true, up: true, down: true },
-            props.mode,
-              false
-          )
-        );
-      });
-    }
+  if (isObjectHasKeys(props.shape, ["property"])) {
+    props.shape.property.forEach(property => {
+      build.value.push(
+        generateNewComponent(
+          ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
+          property.order - 1,
+          undefined,
+          property,
+          { minus: true, plus: true, up: true, down: true },
+          props.mode,
+          false
+        )
+      );
+    });
   }
 }
 
@@ -183,7 +166,7 @@ async function processChild(child: any, position: number) {
       ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
       position,
       child,
-      isObjectHasKeys(props.shape, ["property"]) ? props.shape.property[0] : props.shape.subGroup[0],
+      props.shape.property[0],
       {
         minus: true,
         plus: true,
@@ -191,14 +174,14 @@ async function processChild(child: any, position: number) {
         down: true
       },
       props.mode,
-        false
+      false
     );
   } else {
     return generateNewComponent(
       ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
       position,
       await processComponentGroupData(child),
-      isObjectHasKeys(props.shape, ["subGroup"]) ? props.shape.subGroup[0] : props.shape.property[0],
+      props.shape.property[0],
       {
         minus: true,
         plus: true,
@@ -206,7 +189,7 @@ async function processChild(child: any, position: number) {
         down: true
       },
       props.mode,
-        false
+      false
     );
   }
 }
@@ -270,17 +253,15 @@ function defaultValidation() {
   return generateBuildAsJson().every((item: any) => isObjectHasKeys(item, ["@id", "name"]));
 }
 
-function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape | PropertyGroup }): void {
+function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
   let shape;
-  if (isPropertyGroup(props.shape) && isObjectHasKeys(props.shape, ["property"])) {
+  if (isObjectHasKeys(props.shape, ["property"])) {
     shape = props.shape.property.find(p => processComponentType(p.componentType) === data.selectedType);
-  } else if (isPropertyGroup(props.shape) && isObjectHasKeys(props.shape, ["subGroup"])) {
-    shape = props.shape.subGroup.find(s => processComponentType(s.componentType) === data.selectedType);
   }
   if (data.selectedType !== ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER;
   }
-  if (shape) addItem(data, build.value, { minus: true, plus: true, up: true, down: true }, shape, props.mode,false);
+  if (shape) addItem(data, build.value, { minus: true, plus: true, up: true, down: true }, shape, props.mode, false);
 }
 
 function deleteItem(data: ComponentDetails): void {
@@ -300,13 +281,7 @@ function updateItemWrapper(data: ComponentDetails) {
 
 function getNextComponentOptions() {
   const options = [];
-  if (isPropertyGroup(props.shape) && isObjectHasKeys(props.shape, ["subGroup"]))
-    options.push(
-      props.shape.subGroup.map(subGroup => {
-        return { type: processComponentType(subGroup.componentType), name: subGroup.name };
-      })
-    );
-  if (isPropertyGroup(props.shape) && isObjectHasKeys(props.shape, ["property"]))
+  if (isObjectHasKeys(props.shape, ["property"]))
     options.push(
       props.shape.property.map(property => {
         return { type: processComponentType(property.componentType), name: property.name };

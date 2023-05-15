@@ -6,6 +6,7 @@
           <Checkbox inputId="showNames" v-model="showNames" :binary="true" />
           <label for="showNames">Show names</label>
         </div> -->
+        <h1>{{ shape.name }}</h1>
         <Textarea
           v-model="ecl"
           id="ecl-string-container"
@@ -31,13 +32,7 @@
     </div>
     <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
   </div>
-  <Builder
-    :showDialog="showDialog"
-    :eclString="ecl"
-    @eclSubmitted="updateECL"
-    @closeDialog="() => (showDialog = false)"
-    @eclConversionError="updateError"
-  />
+  <Builder :showDialog="showDialog" :eclString="ecl" @eclSubmitted="updateECL" @closeDialog="() => (showDialog = false)" @eclConversionError="updateError" />
   <AddByCodeList :showAddByFile="showAddByFileDialog" :showAddByList="showAddByCodeListDialog" @closeDialog="closeAddByDialog" @addCodeList="processCodeList" />
 </template>
 
@@ -49,7 +44,7 @@ import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyGroup, Query } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
@@ -57,7 +52,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary } from "@im-library/interfaces";
 
 const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
+  shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
   value: { type: String, required: false }
 });

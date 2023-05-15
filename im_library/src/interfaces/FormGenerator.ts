@@ -1,4 +1,4 @@
-import { PropertyGroup, TTIriRef } from "../interfaces/AutoGen";
+import { PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 
 export interface FormGenerator {
   iri: string;
@@ -10,5 +10,5 @@ export interface FormGenerator {
   targetShape: TTIriRef;
   isContainedIn: TTIriRef[];
   subClassOf: TTIriRef[];
-  group: PropertyGroup[];
+  property: PropertyShape[];
 }

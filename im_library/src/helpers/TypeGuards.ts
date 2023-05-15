@@ -1,5 +1,5 @@
 import { TTBundle, TTIriRef } from "../interfaces";
-import { PropertyGroup, PropertyShape } from "../interfaces/AutoGen";
+import { PropertyShape } from "../interfaces/AutoGen";
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
 export function isTTIriRef(data: any): data is TTIriRef {
@@ -9,11 +9,6 @@ export function isTTIriRef(data: any): data is TTIriRef {
 
 export function isTTBundle(data: any): data is TTBundle {
   if (data && (data as TTBundle).entity && (data as TTBundle).predicates) return true;
-  return false;
-}
-
-export function isPropertyGroup(data: any): data is PropertyGroup {
-  if (data && ((data as PropertyGroup).subGroup || (data as PropertyGroup).property)) return true;
   return false;
 }
 
@@ -35,7 +30,6 @@ export function isBoolGroup(data: any): data is { conjunction: string; items: an
 export default {
   isTTIriRef,
   isTTBundle,
-  isPropertyGroup,
   isPropertyShape,
   isAliasIriRef,
   isBoolGroup
