@@ -17,7 +17,7 @@ import { nextTick } from "vue";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { GithubService } from "@/services";
 import { createTestingPinia } from "@pinia/testing";
-import { useSharedStore } from "@/stores/sharedStore.js";
+import { useSharedStore } from "@/stores/sharedStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useUserStore } from "@/stores/userStore";
@@ -44,7 +44,7 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
+      const userStore = useUserStore();
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       router.push("/");
@@ -86,7 +86,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       userStore = useUserStore();
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
@@ -134,7 +133,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
@@ -179,7 +177,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
       let getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
@@ -228,7 +225,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
       let getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
@@ -269,7 +265,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
       let getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
@@ -314,7 +309,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
       let getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
@@ -356,7 +350,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
       let getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
@@ -397,7 +390,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
       let getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
@@ -442,7 +434,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const creatorStore = useCreatorStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
@@ -490,7 +481,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const creatorStore = useCreatorStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
@@ -540,7 +530,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const editorStore = useEditorStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;
@@ -588,7 +577,6 @@ describe("router", () => {
       vi.resetAllMocks();
       window.sessionStorage.clear();
       createTestingPinia();
-      const sharedStore = useSharedStore();
       const editorStore = useEditorStore();
       const userStore = useUserStore();
       userStore.snomedLicenseAccepted = true;

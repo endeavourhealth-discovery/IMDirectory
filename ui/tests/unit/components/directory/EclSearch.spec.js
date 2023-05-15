@@ -14,7 +14,7 @@ import { createTestingPinia } from "@pinia/testing";
 
 createTestingPinia({
   initialState: {
-    root: {
+    filter: {
       filterOptions: {
         status: [
           { "@id": "http://endhealth.info/im#Active", name: "Active" },

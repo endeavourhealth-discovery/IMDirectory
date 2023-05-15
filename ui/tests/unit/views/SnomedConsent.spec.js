@@ -6,11 +6,11 @@ import { render, fireEvent } from "@testing-library/vue";
 import { flushPromises } from "@vue/test-utils";
 import SnomedConsent from "@/components/app/SnomedConsent.vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useSharedStore } from "@/stores/sharedStore.js";
+import { useSharedStore } from "@/stores/sharedStore";
 
 createTestingPinia({
   initialState: {
-    root: {
+    shared: {
       snomedLicenseAccepted: false,
       snomedReturnUrl: "testUrl.org"
     }

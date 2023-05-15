@@ -13,13 +13,11 @@ import { createTestingPinia } from "@pinia/testing";
 
 window.scrollTo = vi.fn() as any;
 
-createTestingPinia(
-  {
-    initialState: {
-      root: { registeredUsername: "testUser" }
-    }
+createTestingPinia({
+  initialState: {
+    auth: { registeredUsername: "testUser" }
   }
-)
+});
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -31,7 +29,6 @@ vi.mock("vue-router", () => ({
 }));
 
 const mockAdd = vi.fn();
-
 
 vi.mock("primevue/usetoast", () => ({
   useToast: () => ({

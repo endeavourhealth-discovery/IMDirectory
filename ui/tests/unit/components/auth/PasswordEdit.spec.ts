@@ -16,7 +16,7 @@ import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
   initialState: {
-    root: { registeredUsername: "" }
+    auth: { registeredUsername: "" }
   }
 });
 const mockState = useSharedStore();
