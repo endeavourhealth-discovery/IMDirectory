@@ -148,8 +148,6 @@ import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNo
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPriority, byScheme } = Sorters;
 
