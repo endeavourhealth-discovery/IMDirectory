@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 const Directory = () => import("@/views/Directory.vue");
 const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.vue");
 const SearchResultsTable = () => import("@/components/directory/SearchResultsTable.vue");
@@ -36,9 +36,12 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 import { nextTick } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
-import Swal, {SweetAlertResult} from "sweetalert2";
+import { useAuthStore } from "@/stores/authStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useCreatorStore } from "@/stores/creatorStore";
+import Swal, { SweetAlertResult } from "sweetalert2";
 
 const APP_TITLE = "IM Directory";
 
@@ -279,22 +282,25 @@ const directToLogin = () => {
       router.push({ name: "LandingPage" });
     }
   });
-}
+};
 
 router.beforeEach(async (to, from) => {
-  const rootStore = useRootStore();
+  const directoryStore = useDirectoryStore();
+  const authStore = useAuthStore();
+  const creatorStore = useCreatorStore();
+  const editorStore = useEditorStore();
   const userStore = useUserStore();
 
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
 
-  rootStore.updateAuthReturnUrl(currentUrl);
+  authStore.updateAuthReturnUrl(currentUrl);
 
   const iri = to.params.selectedIri;
   if (iri) {
-    rootStore.updateConceptIri(iri as string);
+    directoryStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
-    if (iri) rootStore.updateEditorIri(iri);
+    if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
         router.push({ name: "EntityNotFound" });
@@ -307,7 +313,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      rootStore.updatePreviousAppUrl();
+      authStore.updatePreviousAppUrl();
       directToLogin();
     }
   }
@@ -333,7 +339,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
-    console.log("snomed license accepted:" + rootStore.snomedLicenseAccepted);
+    console.log("snomed license accepted:" + userStore.snomedLicenseAccepted);
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {
@@ -361,7 +367,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/creator/") && !to.path.startsWith("/creator/")) {
-    if (rootStore.creatorHasChanges) {
+    if (creatorStore.creatorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }
@@ -369,7 +375,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/editor/") && !to.path.startsWith("/editor/")) {
-    if (rootStore.editorHasChanges) {
+    if (editorStore.editorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }

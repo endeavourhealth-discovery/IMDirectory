@@ -8,6 +8,7 @@ import { faClipboardCheck } from "@fortawesome/pro-solid-svg-icons/faClipboardCh
 import { faPenToSquare } from "@fortawesome/pro-solid-svg-icons/faPenToSquare";
 import { faListCheck } from "@fortawesome/pro-solid-svg-icons/faListCheck";
 import { faFolder } from "@fortawesome/pro-solid-svg-icons/faFolder";
+import { faFileImport } from "@fortawesome/pro-solid-svg-icons/faFileImport";
 import { faMagnifyingGlass } from "@fortawesome/pro-solid-svg-icons/faMagnifyingGlass";
 import { faKey } from "@fortawesome/pro-solid-svg-icons/faKey";
 import { faUser } from "@fortawesome/pro-solid-svg-icons/faUser";
@@ -49,6 +50,7 @@ export default function addSolidIcons(library: Library) {
     faPenToSquare,
     faListCheck,
     faFolder,
+    faFileImport,
     faMagnifyingGlass,
     faKey,
     faUser,

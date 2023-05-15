@@ -9,14 +9,14 @@ import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import Swal from "sweetalert2";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
 import { CustomAlert, User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
 
 window.scrollTo = vi.fn() as any;
 
 createTestingPinia();
-const mockState = useRootStore();
+const mockState = useSharedStore();
 const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
@@ -56,7 +56,7 @@ describe("Logout.vue", () => {
     });
   });
 
-  it("renders current username from rootStore", async () => {
+  it("renders current username from sharedStore", async () => {
     component.getByText("testUser");
   });
 
@@ -87,7 +87,7 @@ describe("Logout.vue", () => {
     component.getByText("Current User:");
   });
 
-  it("fires swal on successful rootStore logout", async () => {
+  it("fires swal on successful sharedStore logout", async () => {
     const logout = component.getByTestId("logout-submit");
     await fireEvent.click(logout);
 
@@ -102,7 +102,7 @@ describe("Logout.vue", () => {
     // component.getByText("logout success");
   });
 
-  it("fires swal on unsuccessful rootStore logout", async () => {
+  it("fires swal on unsuccessful sharedStore logout", async () => {
     mockUserState.logoutCurrentUser = async () => {
       return { status: 400, message: "logout failed" } as CustomAlert;
     };

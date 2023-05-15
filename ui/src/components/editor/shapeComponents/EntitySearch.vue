@@ -41,9 +41,9 @@ import { QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
-import { useRootStore } from "@/stores/rootStore";
+import { useEditorStore } from "@/stores/editorStore";
 
-const rootStore = useRootStore();
+const editorStore = useEditorStore();
 
 const props = defineProps({
   value: { type: Object as PropType<TTIriRef>, required: false },
@@ -206,7 +206,7 @@ function defaultValidity() {
 }
 
 function findInTree(iri: string) {
-  if (iri) rootStore.updateFindInEditorTreeIri(iri);
+  if (iri) editorStore.updateFindInEditorTreeIri(iri);
 }
 
 function dropReceived(event: any) {

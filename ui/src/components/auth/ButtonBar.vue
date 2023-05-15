@@ -15,12 +15,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/rootStore";
+import { useAuthStore } from "@/stores/authStore";
 
-const rootStore = useRootStore();
+const authStore = useAuthStore();
 const router = useRouter();
 
-const previousAppUrl = computed(() => rootStore.previousAppUrl);
+const previousAppUrl = computed(() => authStore.previousAppUrl);
 
 function clickedBack(): void {
   router.back();

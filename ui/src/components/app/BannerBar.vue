@@ -12,21 +12,21 @@
 <script setup lang="ts">
 import { GithubRelease } from "@im-library/interfaces";
 import { PropType } from "vue";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const props = defineProps({
   latestRelease: { type: Object as PropType<GithubRelease>, required: false }
 });
 
-const rootStore = useRootStore();
+const sharedStore = useSharedStore();
 
 function closeBanner() {
   if (props.latestRelease?.version) localStorage.setItem("IMDirectoryVersion", props.latestRelease.version);
-  rootStore.updateShowBanner(false);
+  sharedStore.updateShowBanner(false);
 }
 
 function showReleaseNotes() {
-  rootStore.updateShowReleaseNotes(true);
+  sharedStore.updateShowReleaseNotes(true);
 }
 </script>
 

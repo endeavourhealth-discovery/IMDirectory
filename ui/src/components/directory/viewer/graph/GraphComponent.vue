@@ -33,7 +33,7 @@ import ContextMenu from "primevue/contextmenu";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
@@ -43,10 +43,10 @@ const props = defineProps({
 
 const route = useRoute();
 const toast = useToast();
-const rootStore = useRootStore();
+const directoryStore = useDirectoryStore();
 const graphData = ref();
 const directService = new DirectService();
-const splitterRightSize = computed(() => rootStore.splitterRightSize);
+const splitterRightSize = computed(() => directoryStore.splitterRightSize);
 
 watch(
   () => _.cloneDeep(props.data),
@@ -324,7 +324,7 @@ async function click(d: any) {
 
 function navigate(iri: string) {
   if (iri === "seeMore") {
-    rootStore.updateSidebarControlActivePanel(2);
+    directoryStore.updateSidebarControlActivePanel(2);
   } else if (iri) {
     directService.select(iri);
   }

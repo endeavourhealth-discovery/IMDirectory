@@ -9,14 +9,14 @@ import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { User } from "@im-library/interfaces";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useAuthStore } from "@/stores/authStore";
 
 createTestingPinia({
   initialState: {
-    root: { registeredUsername: "testUser" }
+    auth: { registeredUsername: "testUser" }
   }
 });
-const mockState = useRootStore();
+const mockState = useAuthStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -41,7 +41,7 @@ describe("login.vue no registeredUser", () => {
     });
   });
 
-  it("starts empty if no rootStore registeredUsername", async () => {
+  it("starts empty if no sharedStore registeredUsername", async () => {
     component.getByTestId("login-username");
   });
 });
@@ -74,7 +74,7 @@ describe("login.vue with registeredUser", () => {
     });
   });
 
-  it("starts with registeredUsername if in rootStore", async () => {
+  it("starts with registeredUsername if in sharedStore", async () => {
     component.getByTestId("login-username");
     component.getByDisplayValue("testUser");
   });

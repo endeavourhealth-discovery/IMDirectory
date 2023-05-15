@@ -41,15 +41,15 @@ import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { CustomAlert } from "@im-library/interfaces";
-import { useRootStore } from "@/stores/rootStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const rootStore = useRootStore();
+const authStore = useAuthStore();
 const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const previousAppUrl = computed(() => rootStore.previousAppUrl);
+const previousAppUrl = computed(() => authStore.previousAppUrl);
 
 function handleSubmit(): void {
   Swal.fire({
@@ -68,7 +68,7 @@ function handleSubmit(): void {
             title: "Success",
             text: res.message
           }).then(() => {
-            rootStore.clearOptionalCookies();
+            userStore.clearOptionalCookies();
             if (previousAppUrl.value) {
               window.location.href = previousAppUrl.value;
             } else {

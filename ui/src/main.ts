@@ -92,7 +92,7 @@ import Inplace from "primevue/inplace";
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import { createPinia } from "pinia";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -179,17 +179,17 @@ const app = createApp(App)
   .component("InputNumber", InputNumber)
   .component("Inplace", Inplace);
 
-const rootStore = useRootStore();
+const sharedStore = useSharedStore();
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
 addFontAwesomeProIcons(library);
-rootStore.updateFontAwesomePro(true);
+sharedStore.updateFontAwesomePro(true);
 // #v-endif
 // #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
 import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-rootStore.updateFontAwesomePro(false);
+sharedStore.updateFontAwesomePro(false);
 // #v-endif
 
 const vm = app.mount("#app");

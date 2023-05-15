@@ -69,7 +69,6 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import setupDownloadFile from "@/composables/downloadFile";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 const props = defineProps({
@@ -77,7 +76,6 @@ const props = defineProps({
 });
 const { downloadFile } = setupDownloadFile(window, document);
 const toast = useToast();
-const rootStore = useRootStore();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);

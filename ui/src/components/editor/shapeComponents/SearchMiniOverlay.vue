@@ -90,9 +90,9 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { useRootStore } from "@/stores/rootStore";
+import { useEditorStore } from "@/stores/editorStore";
 
-const rootStore = useRootStore();
+const editorStore = useEditorStore();
 
 const props = defineProps({
   searchTerm: { type: String, required: false },
@@ -150,7 +150,7 @@ function getConceptTypes(concept: ConceptSummary): any {
 }
 
 function findInTree(iri: string) {
-  if (iri) rootStore.updateFindInEditorTreeIri(iri);
+  if (iri) editorStore.updateFindInEditorTreeIri(iri);
 }
 </script>
 

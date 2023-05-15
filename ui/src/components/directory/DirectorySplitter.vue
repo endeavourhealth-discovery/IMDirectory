@@ -13,11 +13,12 @@
 
 <script setup lang="ts">
 import NavTree from "@/components/directory/NavTree.vue";
-import { useRootStore } from "@/stores/rootStore";
-const rootStore = useRootStore();
+import { useDirectoryStore } from "@/stores/directoryStore";
+
+const directoryStore = useDirectoryStore();
 
 function updateSplitter(event: any) {
-  rootStore.updateSplitterRightSize(event.sizes[1]);
+  directoryStore.updateSplitterRightSize(event.sizes[1]);
 }
 </script>
 

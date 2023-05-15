@@ -7,9 +7,9 @@ import { EntityService } from "@/services";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { onMounted, PropType, Ref, ref, computed, watch } from "vue";
-import { useRootStore } from "@/stores/rootStore";
+import { useFilterStore } from "@/stores/filterStore";
 
-const rootStore = useRootStore();
+const filterStore = useFilterStore();
 const props = defineProps({
   entityValue: { type: Object as PropType<ConceptSummary>, required: true }
 });
@@ -20,7 +20,7 @@ watch(
 );
 
 const controller: Ref<AbortController> = ref({} as AbortController);
-const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
+const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
 const selected: Ref<ConceptSummary> = ref("" as any);
 const suggestions: Ref<ConceptSummary[]> = ref([]);
 const debounce = ref(0);

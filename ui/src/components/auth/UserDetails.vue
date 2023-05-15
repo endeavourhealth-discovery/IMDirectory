@@ -35,11 +35,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const rootStore = useRootStore();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);

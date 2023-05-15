@@ -32,9 +32,9 @@ import axios from "axios";
 import semver from "semver";
 import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
-import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
+import { useSharedStore } from "@/stores/sharedStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -43,12 +43,12 @@ const PrimeVue: any = usePrimeVue();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const rootStore = useRootStore();
 const userStore = useUserStore();
+const sharedStore = useSharedStore();
 
-const currentTheme = computed(() => rootStore.currentTheme);
-const showReleaseNotes: ComputedRef<boolean> = computed(() => rootStore.showReleaseNotes);
-const showBanner: ComputedRef<boolean> = computed(() => rootStore.showBanner);
+const currentTheme = computed(() => userStore.currentTheme);
+const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
+const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
@@ -59,14 +59,14 @@ onMounted(async () => {
   await userStore.authenticateCurrentUser();
   if (currentTheme.value) {
     if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
-  } else rootStore.updateCurrentTheme("saga-blue");
+  } else userStore.updateCurrentTheme("saga-blue");
   await setShowBanner();
   loading.value = false;
 });
 
 function changeTheme(newTheme: string) {
   PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
-  rootStore.updateCurrentTheme(newTheme);
+  userStore.updateCurrentTheme(newTheme);
 }
 
 async function setShowBanner() {
@@ -75,11 +75,11 @@ async function setShowBanner() {
   let currentVersion = "v0.0.0";
   if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
   if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
-    rootStore.updateShowBanner(true);
+    sharedStore.updateShowBanner(true);
   } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
     localStorage.removeItem("IMDirectoryVersion");
-    rootStore.updateShowBanner(true);
-  } else rootStore.updateShowBanner(false);
+    sharedStore.updateShowBanner(true);
+  } else sharedStore.updateShowBanner(false);
 }
 
 function getLocalVersion(repoName: string): string | null {

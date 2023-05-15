@@ -118,13 +118,13 @@ import setupConcept from "@/composables/setupConcept";
 import setupConfig from "@/composables/setupConfig";
 import setupTerms from "@/composables/setupTerms";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 const { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
 const { isObjectHasKeys } = DataTypeCheckers;
 
 const router = useRouter();
-const rootStore = useRootStore();
-const conceptIri = computed(() => rootStore.conceptIri);
+const directoryStore = useDirectoryStore();
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);

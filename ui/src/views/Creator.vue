@@ -106,18 +106,22 @@ import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { DirectService, EntityService, FilerService } from "@/services";
-import { useRootStore } from "@/stores/rootStore";
+import { useCreatorStore } from "@/stores/creatorStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
 const router = useRouter();
-const rootStore = useRootStore();
+const creatorStore = useCreatorStore();
+const editorStore = useEditorStore();
+const filterStore = useFilterStore();
 const userStore = useUserStore();
 
 const confirm = useConfirm();
 
-const creatorSavedEntity = computed(() => rootStore.creatorSavedEntity);
+const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const directService = new DirectService();
 
 onUnmounted(() => {
@@ -128,7 +132,7 @@ const hasType = computed<boolean>(() => {
   return isObjectHasKeys(editorEntity.value, [RDF.TYPE]);
 });
 
-const treeIri: ComputedRef<string> = computed(() => rootStore.findInEditorTreeIri);
+const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 watch(treeIri, (newValue, oldValue) => {
@@ -137,7 +141,7 @@ watch(treeIri, (newValue, oldValue) => {
 
 function onShowSidebar() {
   showSidebar.value = !showSidebar.value;
-  rootStore.updateFindInEditorTreeIri("");
+  editorStore.updateFindInEditorTreeIri("");
 }
 
 const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
@@ -159,7 +163,7 @@ provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableM
 
 onMounted(async () => {
   loading.value = true;
-  await rootStore.fetchFilterSettings();
+  await filterStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
   if (isObjectHasKeys(creatorSavedEntity.value, ["@id"])) {
     await showEntityFoundWarning();
@@ -326,7 +330,7 @@ function updateEntity(data: any) {
     }
   }
   if (wasUpdated && isValidEntity(editorEntity.value)) {
-    rootStore.updateCreatorSavedEntity(editorEntity.value);
+    creatorStore.updateCreatorSavedEntity(editorEntity.value);
   }
 }
 
@@ -340,10 +344,10 @@ function fileChanges(entity: any) {
 
 function checkForChanges() {
   if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
-    rootStore.updateCreatorHasChanges(false);
+    creatorStore.updateCreatorHasChanges(false);
     return false;
   } else {
-    rootStore.updateCreatorHasChanges(true);
+    creatorStore.updateCreatorHasChanges(true);
     return true;
   }
 }
@@ -365,7 +369,7 @@ async function submit(): Promise<void> {
       preConfirm: async () => {
         const res = await EntityService.createEntity(editorEntity.value);
         if (res) {
-          rootStore.updateCreatorSavedEntity(undefined);
+          creatorStore.updateCreatorSavedEntity(undefined);
           return res;
         } else Swal.showValidationMessage("Error creating entity from server.");
       }

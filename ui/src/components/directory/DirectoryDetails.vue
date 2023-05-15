@@ -20,10 +20,10 @@ import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
-const rootStore = useRootStore();
-const conceptIri = computed(() => rootStore.conceptIri);
+const directoryStore = useDirectoryStore();
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 watch(
   () => conceptIri.value,

@@ -43,7 +43,7 @@ import { DirectService } from "@/services";
 import { computed, onMounted, PropType, ref, Ref } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getLogger } from "@im-library/logger/LogConfig";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabel");
 
@@ -55,9 +55,9 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const rootStore = useRootStore();
+const directoryStore = useDirectoryStore();
 const directService = new DirectService();
-const arrayObjectNameListboxWithLabelStartExpanded = computed(() => rootStore.arrayObjectNameListboxWithLabelStartExpanded);
+const arrayObjectNameListboxWithLabelStartExpanded = computed(() => directoryStore.arrayObjectNameListboxWithLabelStartExpanded);
 
 const selected: Ref = ref({});
 const buttonExpanded = ref(false);

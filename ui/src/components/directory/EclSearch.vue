@@ -63,13 +63,15 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { byName } from "@im-library/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
-import { useRootStore } from "@/stores/rootStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useFilterStore } from "@/stores/filterStore";
 
 const toast = useToast();
-const rootStore = useRootStore();
+const filterStore = useFilterStore();
+const editorStore = useEditorStore();
 
-const statusOptions = computed(() => rootStore.filterOptions.status);
-const savedEcl = computed(() => rootStore.eclEditorSavedString);
+const statusOptions = computed(() => filterStore.filterOptions.status);
+const savedEcl = computed(() => editorStore.eclEditorSavedString);
 
 const queryString = ref("");
 const showDialog = ref(false);
@@ -84,7 +86,7 @@ const builderKey = ref(0);
 
 watch(queryString, () => {
   eclError.value = false;
-  rootStore.updateEclEditorSavedString(queryString.value);
+  editorStore.updateEclEditorSavedString(queryString.value);
 });
 
 watch(selectedStatus, async () => {

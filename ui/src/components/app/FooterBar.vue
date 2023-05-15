@@ -19,14 +19,16 @@
 </template>
 
 <script setup lang="ts">
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useSharedStore } from "@/stores/sharedStore";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 
-const rootStore = useRootStore();
-const fontAwesomePro = rootStore.fontAwesomePro;
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
+const fontAwesomePro = sharedStore.fontAwesomePro;
 
 function showCookieSettings() {
-  rootStore.updateShowCookieConsent(true);
+  sharedStore.updateShowCookieConsent(true);
 }
 </script>
 

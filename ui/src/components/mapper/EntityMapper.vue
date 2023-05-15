@@ -157,21 +157,21 @@ import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import OverlaySummary from "../shared/OverlaySummary.vue";
 import SecondaryTree from "../shared/SecondaryTree.vue";
-import { useRootStore } from "@/stores/rootStore";
+import { useFilterStore } from "@/stores/filterStore";
 
 const emit = defineEmits({
   showDetails: (_payload: string) => true
 });
 
 const route = useRoute();
-const rootStore = useRootStore();
+const filterStore = useFilterStore();
 const toast = useToast();
 
 const directService = new DirectService();
 
-const filterOptions: ComputedRef<FilterOptions> = computed(() => rootStore.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => rootStore.filterDefaults);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => rootStore.selectedFilters);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 
 let taskIri = ref("");
 let taskName = ref("");
