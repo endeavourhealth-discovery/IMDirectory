@@ -19,10 +19,9 @@ import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
   initialState: {
-    root: { registeredUsername: "" }
+    auth: { registeredUsername: "" }
   }
 });
-const mockState = useSharedStore();
 const mockUserState = useUserStore();
 
 const mockPush = vi.fn();

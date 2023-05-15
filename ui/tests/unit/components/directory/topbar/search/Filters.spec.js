@@ -13,7 +13,7 @@ import { createTestingPinia } from "@pinia/testing";
 
 createTestingPinia({
   initialState: {
-    root: {
+    filter: {
       filterOptions: testData.FILTER_OPTIONS,
       filterDefaults: testData.FILTER_DEFAULTS,
       selectedFilters: testData.SELECTED_FILTERS,

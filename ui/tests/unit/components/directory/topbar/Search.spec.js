@@ -8,16 +8,17 @@ import PrimeVue from "primevue/config";
 import SplitButton from "primevue/splitbutton";
 import { fireEvent, render } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useSharedStore } from "@/stores/sharedStore.js";
+import { useFilterStore } from "@/stores/filterStore.ts";
+import { useDirectoryStore } from "@/stores/directoryStore.ts";
 
 createTestingPinia({
   initialState: {
-    root: {
+    filter: {
       selectedFilters: testData.SELECTED_FILTERS
     }
   }
 });
-const mockStore = useSharedStore();
+const mockStoreDirectory = useDirectoryStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -50,8 +51,8 @@ describe("Search.vue", () => {
     await fireEvent.update(input, "Scoliosis");
     expect(mockPush).toHaveBeenCalledOnce();
     expect(mockPush).toHaveBeenCalledWith({ name: "Search" });
-    expect(mockStore.updateSearchLoading).toHaveBeenCalledTimes(2);
-    expect(mockStore.fetchSearchResults).toHaveBeenCalledOnce();
+    expect(mockStoreDirectory.updateSearchLoading).toHaveBeenCalledTimes(2);
+    expect(mockStoreDirectory.fetchSearchResults).toHaveBeenCalledOnce();
   });
 
   it("opens filters", async () => {

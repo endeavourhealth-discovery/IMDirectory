@@ -16,11 +16,11 @@ import { createTestingPinia } from "@pinia/testing";
 
 createTestingPinia({
   initialState: {
-    root: {
+    user: {
       recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }]
     }
   }
-})
+});
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

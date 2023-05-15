@@ -14,7 +14,9 @@ import { DirectService } from "@/services";
 import { expect, it, vi } from "vitest";
 import testData from "./SearchResultsTable.testData";
 import { createTestingPinia } from "@pinia/testing";
-import { useSharedStore } from "@/stores/sharedStore.js";
+import { useFilterStore } from "@/stores/filterStore.ts";
+import { useUserStore } from "@/stores/userStore.ts";
+import { useDirectoryStore } from "@/stores/directoryStore.ts";
 
 Object.assign(navigator, {
   clipboard: {
@@ -24,18 +26,23 @@ Object.assign(navigator, {
 
 createTestingPinia({
   initialState: {
-    root: {
+    directory: {
+      findInTreeIri: "",
       searchLoading: false,
+      searchResults: testData.SEARCH_RESULTS
+    },
+    filter: {
       filterDefaults: testData.FILTER_DEFAULTS,
       filterOptions: testData.FILTER_OPTIONS,
-      selectedFilters: testData.SELECTED_FILTERS,
-      searchResults: testData.SEARCH_RESULTS,
-      favourites: ["http://snomed.info/sct#241193003"],
-      findInTreeIri: ""
+      selectedFilters: testData.SELECTED_FILTERS
+    },
+    user: {
+      favourites: ["http://snomed.info/sct#241193003"]
     }
   }
 });
-const mockState = useSharedStore();
+const mockStateDirectory = useDirectoryStore();
+const mockStateUser = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -76,9 +83,9 @@ describe("SearchResultsTable.vue", () => {
   });
 
   it("displays first page of search results", () => {
-    component.getByText(mockState.searchResults[0].name + " | " + mockState.searchResults[0].code);
-    component.getByText(mockState.searchResults[19].name + " | " + mockState.searchResults[19].code);
-    const aboveLimit = component.queryByText(mockState.searchResults[20].name);
+    component.getByText(mockStateDirectory.searchResults[0].name + " | " + mockStateDirectory.searchResults[0].code);
+    component.getByText(mockStateDirectory.searchResults[19].name + " | " + mockStateDirectory.searchResults[19].code);
+    const aboveLimit = component.queryByText(mockStateDirectory.searchResults[20].name);
     expect(aboveLimit).toBeFalsy();
   });
 
@@ -90,7 +97,9 @@ describe("SearchResultsTable.vue", () => {
 
   it("identifies favourites", () => {
     const rows = component.getAllByRole("row");
-    const favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[0].name + " | " + mockState.searchResults[0].code))[0];
+    const favourite = rows.filter(item =>
+      within(item).queryByText(mockStateDirectory.searchResults[0].name + " | " + mockStateDirectory.searchResults[0].code)
+    )[0];
     const buttons = within(favourite).getAllByRole("button");
     const favButton = buttons.filter(button => button.classList.contains("row-button-fav"));
     expect(favButton).toBeTruthy();
@@ -100,7 +109,7 @@ describe("SearchResultsTable.vue", () => {
     const buttons = component.getAllByRole("button");
     const paginatorButtons = buttons.filter(button => button.classList.contains("p-paginator-page"));
     await fireEvent.click(paginatorButtons[1]);
-    component.getByText(mockState.searchResults[20].name + " | " + mockState.searchResults[20].code);
+    component.getByText(mockStateDirectory.searchResults[20].name + " | " + mockStateDirectory.searchResults[20].code);
   });
 
   it("routes on edit", async () => {
@@ -114,18 +123,22 @@ describe("SearchResultsTable.vue", () => {
   it("can unfavourite", async () => {
     vi.clearAllMocks();
     let rows = component.getAllByRole("row");
-    let favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[0].name + " | " + mockState.searchResults[0].code))[0];
+    let favourite = rows.filter(item =>
+      within(item).queryByText(mockStateDirectory.searchResults[0].name + " | " + mockStateDirectory.searchResults[0].code)
+    )[0];
     let favButton = within(favourite).getByTestId("unfavourite-button");
     await fireEvent.click(favButton);
-    expect(mockState.updateFavourites).toHaveBeenCalledTimes(1);
+    expect(mockStateUser.updateFavourites).toHaveBeenCalledTimes(1);
   });
 
   it("can favourite", async () => {
     vi.clearAllMocks();
     let rows = component.getAllByRole("row");
-    let favourite = rows.filter(item => within(item).queryByText(mockState.searchResults[1].name + " | " + mockState.searchResults[1].code))[0];
+    let favourite = rows.filter(item =>
+      within(item).queryByText(mockStateDirectory.searchResults[1].name + " | " + mockStateDirectory.searchResults[1].code)
+    )[0];
     let favButton = within(favourite).getByTestId("favourite-button");
     await fireEvent.click(favButton);
-    expect(mockState.updateFavourites).toHaveBeenCalledTimes(1);
+    expect(mockStateUser.updateFavourites).toHaveBeenCalledTimes(1);
   });
 });

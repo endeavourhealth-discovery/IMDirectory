@@ -9,10 +9,12 @@ import { createTestingPinia } from "@pinia/testing";
 
 createTestingPinia({
   initialState: {
-    root: {
+    directory: {
       textDefinitionStartExpanded: ["Definition"],
       conceptIri: "http://snomed.info/sct#298382003"
-    }}});
+    }
+  }
+});
 
 const BUNDLE = {
   entity: {
