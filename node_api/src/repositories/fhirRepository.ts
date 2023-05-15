@@ -7,7 +7,7 @@ export default class FhirRepository {
   private graph: GraphdbService;
 
   constructor() {
-    this.graph = new GraphdbService();
+    this.graph = GraphdbService.imRepo();
   }
 
   public async getMembers(url: string): Promise<any[]> {

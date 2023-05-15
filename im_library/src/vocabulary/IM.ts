@@ -48,6 +48,15 @@ export class IM {
   //maps assurance levels
   public static NATIONALLY_ASSURED_UK = IM.NAMESPACE + "NationallyAssuredUK";
 
+  // context maps
+  public static SOURCE_PUBLISHER = IM.NAMESPACE + "sourcePublisher";
+  public static SOURCE_SYSTEM = IM.NAMESPACE + "sourceSystem";
+  public static SOURCE_SCHEMA = IM.NAMESPACE + "sourceSchema";
+  public static SOURCE_TABLE = IM.NAMESPACE + "sourceTable";
+  public static SOURCE_FIELD = IM.NAMESPACE + "sourceField";
+  public static SOURCE_VALUE = IM.NAMESPACE + "sourceValue";
+  public static SOURCE_REGEX = IM.NAMESPACE + "sourceRegex";
+
   public static QUERY_SET = IM.NAMESPACE + "QuerySet";
   public static QUERY_TEMPLATE = IM.NAMESPACE + "QueryTemplate";
   public static HAS_MEMBER = IM.NAMESPACE + "hasMember";
