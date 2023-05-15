@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
+import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
 const Directory = () => import("@/views/Directory.vue");
 const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.vue");
 const SearchResultsTable = () => import("@/components/directory/SearchResultsTable.vue");
@@ -264,7 +264,6 @@ const router = createRouter({
 });
 
 const directToLogin = () => {
-  const store = useRootStore();
   Swal.fire({
     icon: "warning",
     title: "Please Login to continue",
@@ -273,7 +272,6 @@ const directToLogin = () => {
     reverseButtons: true
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      store.updatePreviousAppUrl();
       console.log("redirecting to login");
       router.push({ name: "Login" });
     } else {
@@ -309,6 +307,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
+      rootStore.updatePreviousAppUrl();
       directToLogin();
     }
   }

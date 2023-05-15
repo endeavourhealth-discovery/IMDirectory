@@ -124,7 +124,6 @@ async function setupAxiosInterceptors(axios: any) {
             summary: "Access denied"
           });
         }
-        window.location.href = Env.AUTH_URL + "login?returnUrl=" + route.fullPath;
       } else if (error?.response?.status === 401) {
         toast.add({
           severity: "error",
