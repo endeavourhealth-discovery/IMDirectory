@@ -20,13 +20,10 @@
           <div v-if="loading" class="loading-container">
             <ProgressSpinner />
           </div>
-          <div v-else class="steps-content">
-            <Steps v-if="stepsItems.length !== 0" :model="stepsItems" :readonly="false" @click="stepsClicked" />
-            <router-view v-slot="{ Component }: any">
-              <keep-alive>
-                <component :is="Component" :shape="groups.length ? groups[currentStep - 1] : undefined" :mode="EditorMode.CREATE" />
-              </keep-alive>
-            </router-view>
+          <div v-else class="creator-layout-container">
+            <template v-for="group of groups">
+              <component :is="processComponentType(group.componentType)" :shape="group" :mode="EditorMode.CREATE" :value="processEntityValue(group)" />
+            </template>
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
           <div v-if="showSidebar" class="sidebar-container">
@@ -40,11 +37,9 @@
           />
         </div>
         <div class="button-bar" id="creator-button-bar">
-          <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" />
           <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshCreator" />
           <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
           <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
-          <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" />
         </div>
       </div>
     </div>
@@ -52,12 +47,44 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
 import TypeSelector from "@/components/creator/TypeSelector.vue";
-import StepsGroup from "@/components/editor/StepsGroup.vue";
+import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
+import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
+import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
+import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
+import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
+import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
+import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
+import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
+import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
+import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
+import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
+import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
+import { defineComponent } from "vue";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 export default defineComponent({
-  components: { StepsGroup, TypeSelector }
+  components: {
+    TypeSelector,
+    HorizontalLayout,
+    VerticalLayout,
+    ArrayBuilder,
+    EntityAutoComplete,
+    EntityComboBox,
+    TextDisplay,
+    TextInput,
+    EntityDropdown,
+    EntitySearch,
+    HtmlInput,
+    ToggleableComponent,
+    QueryDefinitionBuilder,
+    ComponentGroup,
+    ArrayBuilderWithDropdown,
+    DropdownTextInputConcatenator
+  }
 });
 </script>
 
@@ -73,7 +100,7 @@ import { setupEditorShape } from "@/composables/setupEditorShape";
 import { useConfirm } from "primevue/useconfirm";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
@@ -143,21 +170,16 @@ onMounted(async () => {
   } else if (isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
     await getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
-    await nextTick();
-    await router.push(stepsItems.value[1].to);
   } else if (typeIri) {
     currentStep.value = 1;
     const typeEntity = await EntityService.getPartialEntity(typeIri as string, [RDFS.LABEL]);
     editorEntity.value[RDF.TYPE] = [{ "@id": typeIri, name: typeEntity[RDFS.LABEL] }];
     shape.value = await getShape(typeIri as string);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
-    await router.push(stepsItems.value[1].to);
     if (propertyIri && valueIri) {
       const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
       editorEntity.value[propertyIri as string] = [{ "@id": containingEntity["@id"], name: containingEntity[RDFS.LABEL] }];
     }
-  } else {
-    await router.push({ name: "TypeSelector", params: route.params });
   }
   loading.value = false;
 });
@@ -267,7 +289,6 @@ async function updateType(types: TTIriRef[]) {
   if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   editorEntity.value[RDF.TYPE] = types;
   loading.value = false;
-  if (currentStep.value === 0) stepsForward();
 }
 
 function beforeWindowUnload(e: any) {
@@ -408,14 +429,11 @@ function refreshCreator() {
   });
 }
 
-function stepsBack() {
-  currentStep.value--;
-  if (currentStep.value >= 0) router.push(stepsItems.value[currentStep.value].to);
-}
-
-function stepsForward() {
-  currentStep.value++;
-  if (currentStep.value < stepsItems.value.length) router.push(stepsItems.value[currentStep.value].to);
+function processEntityValue(property: PropertyShape) {
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path["@id"]])) {
+    return editorEntity.value[property.path["@id"]];
+  }
+  return undefined;
 }
 </script>
 

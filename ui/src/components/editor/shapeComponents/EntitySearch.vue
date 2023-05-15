@@ -12,7 +12,7 @@
         placeholder="Search"
         class="p-inputtext search-input"
         autoWidth="true"
-        v-tooltip="{ value: selectedResult.name, class: 'entity-tooltip' }"
+        v-tooltip="{ value: selectedResult.name ?? '', class: 'entity-tooltip' }"
         @dragenter.prevent
         @dragover.prevent
         @drop="dropReceived"
@@ -109,9 +109,7 @@ async function search(): Promise<void> {
     let queryRequest = {} as QueryRequest;
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
-      const args = processArguments(props.shape);
-      const replacedArgs = mapToObject(args);
-      queryRequest.argument = replacedArgs;
+      queryRequest.argument = processArguments(props.shape);
       queryRequest.textSearch = searchTerm.value;
       query["@id"] = props.shape.select[0]["@id"];
       queryRequest.query = query;

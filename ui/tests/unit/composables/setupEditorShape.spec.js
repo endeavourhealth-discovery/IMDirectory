@@ -38,15 +38,15 @@ describe("setupShape", async () => {
     it("adds missing groups to the existing shape", () => {
       const startShape = { ...testData.CONCEPT_SHAPE };
       const shapeToAdd = { ...testData.CONCEPT_SET_SHAPE };
-      expect(startShape.group.length).toBe(4);
+      expect(startShape.property.length).toBe(4);
       wrapper = mountComposable(setupEditorShape, undefined, createTestRouter());
       wrapper.vm.addToShape(startShape, shapeToAdd);
-      expect(startShape.group.length).toBe(5);
-      expect(startShape.group[0]).toEqual(testData.CONCEPT_SHAPE.group[0]);
-      expect(startShape.group[1]).toEqual(testData.CONCEPT_SHAPE.group[1]);
-      expect(startShape.group[2]).toEqual(testData.CONCEPT_SHAPE.group[2]);
-      expect(startShape.group[3]).toEqual(testData.CONCEPT_SHAPE.group[3]);
-      expect(startShape.group[4]).toEqual(testData.CONCEPT_SET_SHAPE.group[3]);
+      expect(startShape.property.length).toBe(5);
+      expect(startShape.property[0]).toEqual(testData.CONCEPT_SHAPE.property[0]);
+      expect(startShape.property[1]).toEqual(testData.CONCEPT_SHAPE.property[1]);
+      expect(startShape.property[2]).toEqual(testData.CONCEPT_SHAPE.property[2]);
+      expect(startShape.property[3]).toEqual(testData.CONCEPT_SHAPE.property[3]);
+      expect(startShape.property[4]).toEqual(testData.CONCEPT_SET_SHAPE.property[3]);
     });
   });
 });

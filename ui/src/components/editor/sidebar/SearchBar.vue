@@ -1,5 +1,5 @@
 <template>
-  <div class="p-inputgroup">
+  <div class="p-inputgroup searchbar">
     <InputText id="editor-search" v-model="searchText" placeholder="Search..." @keyup.enter="search" data-testid="editor-search-input" />
     <Button
       id="filter=button"
@@ -93,4 +93,9 @@ async function search(): Promise<void> {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.searchbar {
+  display: flex;
+  flex-flow: row;
+}
+</style>
