@@ -5,7 +5,6 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    Defined as
     <!-- <TextQuery
       :baseEntityIri="baseEntityIri"
       :text-queries="textQueries"
@@ -15,7 +14,8 @@
     ></TextQuery>
     <div><Button label="Add clause" @click="addClause" /></div> -->
 
-    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match" />
+    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :include="true" :matches="query.match.filter(match => !isObjectHasKeys(match, ['exclude']))" />
+    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :include="false" :matches="query.match.filter(match => isObjectHasKeys(match, ['exclude']))" />
 
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -37,7 +37,7 @@ import { QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { Query } from "@im-library/interfaces/AutoGen";
 import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({} as Query);
 const visibleDialog: Ref<boolean> = ref(false);

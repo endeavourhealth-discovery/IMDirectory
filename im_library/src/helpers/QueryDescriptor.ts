@@ -48,9 +48,9 @@ function describeWhere(where: Where[], type: string) {
 
 // getters
 export function getDisplayFromMatch(match: Match) {
-  if (match.boolMatch) return getDisplayFromLogic("and");
+  // if (match.boolMatch) return getDisplayFromLogic("and");
   let display = "";
-  if (match.exclude) display += getDisplayFromLogic("exclude");
+  // if (match.exclude) display += getDisplayFromLogic("exclude");
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
   if (match.path) display += getDisplayFromPath(match.path);
@@ -70,9 +70,10 @@ export function getDisplayFromWhereList(matchDisplay: string, where: Where[]) {
 
 export function getDisplayFromWhere(where: Where) {
   let display = "";
-  display += getNameFromRef(where);
-  if (where.in) display += getDisplayFromList(where.in, true);
-  if (where.notIn) display += getDisplayFromList(where.notIn, false);
+  const propertyName = getNameFromRef(where);
+  if (!propertyDropList.includes(propertyName)) display += propertyName;
+  if (where.in) display += "with " + (where.valueLabel ?? getDisplayFromList(where.in, true));
+  if (where.notIn) display += "without " + (where.valueLabel ?? getDisplayFromList(where.notIn, false));
   if (where.operator) display = getDisplayFromOperator(where);
   if (where.range) display = getDisplayFromRange(where);
   if (where.null) display += " is null";
@@ -119,7 +120,7 @@ export function getDisplayFromLogic(title: string) {
 }
 
 export function getDisplayFromRange(where: Where) {
-  const property = getNameFromRef(where);
+  const property = "has " + getNameFromRef(where);
   let display = property + " between ";
   display += where.range.from.value + " and " + where.range.to.value + " " + where.range.to.unit;
   return display;
@@ -149,11 +150,10 @@ export function getDisplayFromOperator(where: Where) {
 export function getDisplayFromList(nodes: Node[], include: boolean) {
   let display = "";
   if (nodes.length === 1) {
-    display += include ? ": " : "!: ";
     display += getDisplayFromEntailment(nodes[0]);
     display += getNameFromRef(nodes[0]);
   } else if (nodes.length <= 3) {
-    display += include ? " in [" : " not in [";
+    display += include ? "a value of [" : " without a value of [";
     for (const [index, node] of nodes.entries()) {
       display += getDisplayFromEntailment(node);
       display += getNameFromRef(node);
@@ -161,7 +161,7 @@ export function getDisplayFromList(nodes: Node[], include: boolean) {
     }
     display += "]";
   } else {
-    display += include ? " in [" : " not in [";
+    display += include ? "a value of [" : " without a value of [";
     display += getDisplayFromEntailment(nodes[0]);
     display += getNameFromRef(nodes[0]);
     display += " and more...]";
