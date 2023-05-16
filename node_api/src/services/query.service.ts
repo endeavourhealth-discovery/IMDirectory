@@ -19,7 +19,7 @@ export default class QueryService {
   constructor(axios: any) {
     this.axios = axios;
     this.eclService = new EclService(axios);
-    this.graph = new GraphdbService();
+    this.graph = GraphdbService.imRepo();
     this.entityService = new EntityService(axios);
   }
 
@@ -225,8 +225,7 @@ export default class QueryService {
         isA: iri(IM.IS_A),
         objProp: iri(IM.DATAMODEL_OBJECTPROPERTY),
         dataProp: iri(IM.DATAMODEL_DATAPROPERTY)
-      },
-      false
+      }
     );
 
     if (isArrayHasLength(rs)) {
@@ -244,8 +243,7 @@ export default class QueryService {
         propIri: iri(propIri),
         isA: iri(IM.IS_A),
         funcProp: iri(IM.DATAMODEL_FUNCTIONPROPERTY)
-      },
-      false
+      }
     );
 
     if (isArrayHasLength(rs)) {

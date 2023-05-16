@@ -6,8 +6,8 @@
     <div v-else class="header-content-container">
       <span class="text">Select entity type:</span>
       <div class="type-buttons-container">
-        <button v-for="typee in typeOptions" class="custom-button" @click="typeSelected(typee)">
-          <span>{{ typee.name }}</span>
+        <button v-for="option in typeOptions" class="custom-button" @click="typeSelected(option)">
+          <span>{{ option.name }}</span>
         </button>
       </div>
     </div>
@@ -83,23 +83,21 @@ function typeSelected(data: EntityReferenceNode) {
 }
 
 .custom-button {
-  width: 130px;
-  height: 40px;
+  display: flex;
   font-family: "Lato", sans-serif;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  display: inline-block;
   background: #bb3f3f;
   color: #fff;
   line-height: 42px;
-  padding: 0;
+  padding: 0 1rem;
   border: none;
 }
 
 .custom-button span {
-  position: relative;
+  flex: 1 1 auto;
   display: block;
   width: 100%;
   height: 100%;

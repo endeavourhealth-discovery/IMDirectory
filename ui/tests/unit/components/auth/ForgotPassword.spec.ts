@@ -12,9 +12,9 @@ window.scrollTo = vi.fn() as any;
 
 createTestingPinia({
   initialState: {
-    root: { registeredUsername: "" }
+    user: { registeredUsername: "" }
   }
-})
+});
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

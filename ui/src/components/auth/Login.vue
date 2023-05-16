@@ -43,14 +43,14 @@ import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
 import { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
-import { useRootStore } from "@/stores/rootStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const rootStore = useRootStore();
+const authStore = useAuthStore();
 const userStore = useUserStore();
-const registeredUsername = computed(() => rootStore.registeredUsername);
-const previousAppUrl = computed(() => rootStore.previousAppUrl);
+const registeredUsername = computed(() => authStore.registeredUsername);
+const previousAppUrl = computed(() => authStore.previousAppUrl);
 
 let username = ref("");
 let password = ref("");
@@ -72,17 +72,17 @@ function handleSubmit(): void {
           loggedInUser.avatar = Avatars[0];
         }
         userStore.updateCurrentUser(loggedInUser);
-        rootStore.updateRegisteredUsername(null);
+        authStore.updateRegisteredUsername(null);
         Swal.fire({
           icon: "success",
           title: "Success",
           text: "Login successful"
         }).then(() => {
-          rootStore.clearOptionalCookies();
+          userStore.clearOptionalCookies();
           if (previousAppUrl.value) {
             window.location.href = previousAppUrl.value;
           } else {
-            window.location.href = "#/user/my-account";
+            router.push({ name: "LandingPage" });
           }
           window.location.reload();
         });
@@ -96,7 +96,7 @@ function handleSubmit(): void {
           confirmButtonText: "Confirm Account"
         }).then((result: SweetAlertResult) => {
           if (result.isConfirmed) {
-            rootStore.updateRegisteredUsername(username.value);
+            authStore.updateRegisteredUsername(username.value);
             router.push({ name: "ConfirmCode" });
           }
         });

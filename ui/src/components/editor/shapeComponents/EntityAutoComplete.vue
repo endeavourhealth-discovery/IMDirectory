@@ -63,8 +63,8 @@
 </template>
 
 <script setup lang="ts">
-import {inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch} from "vue";
-import {AbortController} from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch } from "vue";
+import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
 import { EditorMode } from "@im-library/enums";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
@@ -142,7 +142,7 @@ async function init() {
   loading.value = true;
   if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path["@id"];
   getAssociatedProperty();
-  if(autocompleteOptions.value.length === 0) {
+  if (autocompleteOptions.value.length === 0) {
     await getAutocompleteOptions();
   }
   if (props.value && isTTIriRef(props.value)) {
@@ -190,7 +190,7 @@ async function getAutocompleteOptions() {
     let queryRequest = {} as QueryRequest;
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
-      queryRequest.argument=processArguments(props.shape, valueVariableMap?.value);
+      queryRequest.argument = processArguments(props.shape, valueVariableMap?.value);
       query["@id"] = props.shape.select[0]["@id"];
       queryRequest.query = query;
     } else {
@@ -204,23 +204,24 @@ async function getAutocompleteOptions() {
       if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_DataModelPropertyRange" && queryRequest.argument[1].valueIri["@id"]) {
         const result = await QueryService.queryIM(queryRequest, controller.value);
         if (result && isObjectHasKeys(result, ["entities"])) {
-          const range = result.entities[0]? result.entities[0][SHACL.NODE] || result.entities[0][SHACL.CLASS] || result.entities[0][SHACL.DATATYPE] : {};
-          if(range) {
+          const range = result.entities[0] ? result.entities[0][SHACL.NODE] || result.entities[0][SHACL.CLASS] || result.entities[0][SHACL.DATATYPE] : {};
+          if (range) {
             autocompleteOptions.value = convertToConceptSummary(range);
           }
         }
-      } else if(queryRequest.query["@id"] !== "http://endhealth.info/im#Query_DataModelPropertyRange") {
+      } else if (queryRequest.query["@id"] !== "http://endhealth.info/im#Query_DataModelPropertyRange") {
         const result = await QueryService.queryIM(queryRequest, controller.value);
         if (result && isObjectHasKeys(result, ["entities"])) {
-          autocompleteOptions.value = convertToConceptSummary(result.entities).sort((a:any ,b:any) => a.name.toString().toLowerCase().localeCompare(b.name.toString().toLowerCase()));
+          autocompleteOptions.value = convertToConceptSummary(result.entities).sort((a: any, b: any) =>
+            a.name.toString().toLowerCase().localeCompare(b.name.toString().toLowerCase())
+          );
         }
       }
     }
-  }
-  else {
-    if(props.shape.argument[0].valueIri["@id"]) {
+  } else {
+    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument[0], ["valueIri"]) && props.shape.argument[0].valueIri["@id"]) {
       const range = await QueryService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
-      if(range.length !== 0) {
+      if (range.length !== 0) {
         autocompleteOptions.value = convertToConceptSummary(range);
       }
     }
@@ -244,7 +245,9 @@ function searchOptions(event: any) {
   if (!event.query.trim().length) {
     getAutocompleteOptions();
   } else {
-    autocompleteOptions.value = autocompleteOptions.value.filter(option => option.name.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase()));
+    autocompleteOptions.value = autocompleteOptions.value.filter(option =>
+      option.name.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
+    );
   }
 }
 

@@ -36,8 +36,12 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 import { nextTick } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useCreatorStore } from "@/stores/creatorStore";
+import Swal, { SweetAlertResult } from "sweetalert2";
 
 const APP_TITLE = "IM Directory";
 
@@ -262,20 +266,41 @@ const router = createRouter({
   routes
 });
 
+const directToLogin = () => {
+  Swal.fire({
+    icon: "warning",
+    title: "Please Login to continue",
+    showCancelButton: true,
+    confirmButtonText: "Login",
+    reverseButtons: true
+  }).then((result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      console.log("redirecting to login");
+      router.push({ name: "Login" });
+    } else {
+      console.log("redirecting to landing page");
+      router.push({ name: "LandingPage" });
+    }
+  });
+};
+
 router.beforeEach(async (to, from) => {
-  const rootStore = useRootStore();
+  const directoryStore = useDirectoryStore();
+  const authStore = useAuthStore();
+  const creatorStore = useCreatorStore();
+  const editorStore = useEditorStore();
   const userStore = useUserStore();
 
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
 
-  rootStore.updateAuthReturnUrl(currentUrl);
+  authStore.updateAuthReturnUrl(currentUrl);
 
   const iri = to.params.selectedIri;
   if (iri) {
-    rootStore.updateConceptIri(iri as string);
+    directoryStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
-    if (iri) rootStore.updateEditorIri(iri);
+    if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
         router.push({ name: "EntityNotFound" });
@@ -288,8 +313,8 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
+      authStore.updatePreviousAppUrl();
+      directToLogin();
     }
   }
 
@@ -297,8 +322,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
+      directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
     }
@@ -308,15 +332,14 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
+      directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
-    console.log("snomed license accepted:" + rootStore.snomedLicenseAccepted);
+    console.log("snomed license accepted:" + userStore.snomedLicenseAccepted);
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {
@@ -344,7 +367,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/creator/") && !to.path.startsWith("/creator/")) {
-    if (rootStore.creatorHasChanges) {
+    if (creatorStore.creatorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }
@@ -352,7 +375,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/editor/") && !to.path.startsWith("/editor/")) {
-    if (rootStore.editorHasChanges) {
+    if (editorStore.editorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }

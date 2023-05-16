@@ -76,16 +76,15 @@ import { getColourFromType, getFAIconFromType } from "@im-library/helpers/Concep
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService, ConfigService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
-import { useRootStore } from "@/stores/rootStore";
+import { useUserStore } from "@/stores/userStore";
 
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
-const { byOrder } = Sorters;
-const rootStore = useRootStore();
-const recentLocalActivity = computed(() => rootStore.recentLocalActivity);
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { byOrder } from "@im-library/helpers/Sorters";
+const userStore = useUserStore();
+const recentLocalActivity = computed(() => userStore.recentLocalActivity);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});

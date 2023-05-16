@@ -1,19 +1,17 @@
 <template>
   <div v-if="show" class="title-container">
-    <h5 class="title-center" id="inherited" >Inherited</h5>
-    <h5 class="title-center" id="property" >Property</h5>
-    <h5 class="title-center" id="prop-type" >Type</h5>
-    <h5 class="title-center" id="required" >Required</h5>
-    <h5 class="title-center" id="unique" >Unique</h5>
+    <h5 class="title-center" id="inherited">Inherited</h5>
+    <h5 class="title-center" id="property">Property</h5>
+    <h5 class="title-center" id="prop-type">Type</h5>
+    <h5 class="title-center" id="required">Required</h5>
+    <h5 class="title-center" id="unique">Unique</h5>
   </div>
 </template>
 
 <script setup lang="ts">
-
 const props = defineProps({
-  show: {type: Boolean, required: true}
-})
-
+  show: { type: Boolean, required: false, default: false }
+});
 </script>
 
 <style scoped>
@@ -35,8 +33,9 @@ const props = defineProps({
   flex-basis: 30.5%;
 }
 
-#inherited, #required, #unique {
-  flex-basis: 7.5%
+#inherited,
+#required,
+#unique {
+  flex-basis: 7.5%;
 }
-
 </style>

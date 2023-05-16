@@ -1,5 +1,5 @@
 <template>
-  <div class="p-inputgroup">
+  <div class="p-inputgroup searchbar">
     <InputText id="editor-search" v-model="searchText" placeholder="Search..." @keyup.enter="search" data-testid="editor-search-input" />
     <Button
       id="filter=button"
@@ -27,7 +27,7 @@ import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers
 import { EntityService } from "@/services";
 import { isArray } from "lodash";
 import { IM } from "@im-library/vocabulary";
-import { useRootStore } from "@/stores/rootStore";
+import { useFilterStore } from "@/stores/filterStore";
 
 const emit = defineEmits({
   openSearchPanel: () => true,
@@ -35,8 +35,8 @@ const emit = defineEmits({
   searchResults: (payload: any[]) => isArray(payload)
 });
 
-const rootStore = useRootStore();
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => rootStore.selectedFilters);
+const filterStore = useFilterStore();
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
@@ -93,4 +93,9 @@ async function search(): Promise<void> {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.searchbar {
+  display: flex;
+  flex-flow: row;
+}
+</style>

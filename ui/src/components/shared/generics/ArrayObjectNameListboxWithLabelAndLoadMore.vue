@@ -55,7 +55,8 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import _ from "lodash";
 import { DirectService } from "@/services";
 import { getLogger } from "@im-library/logger/LogConfig";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabelAndLoadMore");
 
@@ -67,10 +68,11 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const rootStore = useRootStore();
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
 const directService = new DirectService();
-const arrayObjectNameListboxWithLabelStartExpanded = computed(() => rootStore.arrayObjectNameListboxWithLabelStartExpanded);
-const conceptIri = computed(() => rootStore.conceptIri);
+const arrayObjectNameListboxWithLabelStartExpanded = computed(() => directoryStore.arrayObjectNameListboxWithLabelStartExpanded);
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 const selected: Ref = ref({});
 const buttonExpanded = ref(false);

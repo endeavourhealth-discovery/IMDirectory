@@ -20,7 +20,7 @@ vi.mock("vue-router", () => ({
 
 createTestingPinia({
   initialState: {
-    root: { arrayObjectNameListboxWithLabelStartExpanded: ["Is a"], conceptIri: "http://snomed.info/sct#111266001" }
+    directory: { arrayObjectNameListboxWithLabelStartExpanded: ["Is a"], conceptIri: "http://snomed.info/sct#111266001" }
   }
 });
 

@@ -21,7 +21,7 @@ export function mountComposable(composable: any, initialState?: any, mockRouter?
     template: "<template></template>"
   });
 
-  createTestingPinia({initialState: { root: initialState}});
+  createTestingPinia({initialState: initialState});
 
   if (mockRouter)
     return mount(TestComponent, {

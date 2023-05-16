@@ -34,7 +34,8 @@ import { isTTBundle } from "@im-library/helpers/TypeGuards";
 import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDatatypes } from "@im-library/config";
 import { IM } from "@im-library/vocabulary";
 import _ from "lodash";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 const props = defineProps({
   label: { type: String, required: true },
@@ -47,9 +48,10 @@ const props = defineProps({
   show: { type: Boolean, required: true }
 });
 
-const rootStore = useRootStore();
-const textDefinitionStartExpanded = computed(() => rootStore.textDefinitionStartExpanded);
-const conceptIri = computed(() => rootStore.conceptIri);
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
+const textDefinitionStartExpanded = computed(() => directoryStore.textDefinitionStartExpanded);
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 const hasData = computed(() => isTTBundle(data.value) && isObjectHasKeys(data.value.entity));
 watch(
@@ -73,7 +75,7 @@ function init(): void {
 }
 
 function startExpanded() {
-  if (!Array.isArray(textDefinitionStartExpanded.value)) throw new Error("TextDefinition missing vuex rootStore property 'textDefinitionStartExpanded'");
+  if (!Array.isArray(textDefinitionStartExpanded.value)) throw new Error("TextDefinition missing vuex sharedStore property 'textDefinitionStartExpanded'");
   if (textDefinitionStartExpanded.value.includes(props.label)) {
     const button = document.getElementById(`expand-button-${props.label}`) as HTMLElement;
     if (button) button.click();

@@ -7,12 +7,12 @@ import PrimeVue from "primevue/config";
 import { vi, describe, beforeEach, it, expect } from "vitest";
 import { render, RenderResult } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
 import { User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia();
-const mockState = useRootStore();
+const mockState = useSharedStore();
 const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
@@ -49,7 +49,7 @@ describe("userDetails.vue", () => {
     });
   });
 
-  it("correctly renders User details from rootStore", () => {
+  it("correctly renders User details from sharedStore", () => {
     component.getByTestId("user-details-username");
     component.getByTestId("user-details-email");
     component.getByTestId("user-details-firstname");

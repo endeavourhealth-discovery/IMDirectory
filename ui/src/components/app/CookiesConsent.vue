@@ -35,14 +35,16 @@
 <script setup lang="ts">
 import { ComputedRef, onMounted, ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useUserStore } from "@/stores/userStore";
 
-const rootStore = useRootStore();
+const sharedStore = useSharedStore();
+const userStore = useUserStore();
 const route = useRoute();
 
-const cookiesEssentialAccepted: ComputedRef<boolean> = computed(() => rootStore.cookiesEssentialAccepted);
-const cookiesOptionalAccepted: ComputedRef<boolean> = computed(() => rootStore.cookiesOptionalAccepted);
-const showCookieConsent: ComputedRef<boolean> = computed(() => rootStore.showCookieConsent);
+const cookiesEssentialAccepted: ComputedRef<boolean> = computed(() => userStore.cookiesEssentialAccepted);
+const cookiesOptionalAccepted: ComputedRef<boolean> = computed(() => userStore.cookiesOptionalAccepted);
+const showCookieConsent: ComputedRef<boolean> = computed(() => sharedStore.showCookieConsent);
 
 const essentialChecked = ref(false);
 const optionalChecked = ref(false);
@@ -55,23 +57,23 @@ onMounted(() => {
 });
 
 function handleAcceptAll() {
-  rootStore.updateCookiesEssentialAccepted(true);
-  rootStore.updateCookiesOptionalAccepted(true);
-  rootStore.updateShowCookieConsent(false);
+  userStore.updateCookiesEssentialAccepted(true);
+  userStore.updateCookiesOptionalAccepted(true);
+  sharedStore.updateShowCookieConsent(false);
 }
 
 function handleAcceptEssential() {
-  rootStore.updateCookiesEssentialAccepted(true);
-  rootStore.updateCookiesOptionalAccepted(false);
-  rootStore.clearOptionalCookies();
-  rootStore.updateShowCookieConsent(false);
+  userStore.updateCookiesEssentialAccepted(true);
+  userStore.updateCookiesOptionalAccepted(false);
+  userStore.clearOptionalCookies();
+  sharedStore.updateShowCookieConsent(false);
 }
 
 function handleSave() {
-  rootStore.updateCookiesEssentialAccepted(true);
-  rootStore.updateCookiesOptionalAccepted(optionalChecked.value);
-  if (!optionalChecked.value) rootStore.clearOptionalCookies();
-  rootStore.updateShowCookieConsent(false);
+  userStore.updateCookiesEssentialAccepted(true);
+  userStore.updateCookiesOptionalAccepted(optionalChecked.value);
+  if (!optionalChecked.value) userStore.clearOptionalCookies();
+  sharedStore.updateShowCookieConsent(false);
 }
 </script>
 

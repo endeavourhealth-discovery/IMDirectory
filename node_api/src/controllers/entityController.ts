@@ -1,3 +1,4 @@
+import { ContextMap } from "@im-library/interfaces";
 import EntityService from "@/services/entity.service";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
@@ -38,6 +39,11 @@ export default class EntityController {
         .then(data => res.send(data).end())
         .catch(next)
     );
+    this.router.get("/public/conceptContextMaps", (req, res, next) =>
+      this.getConceptContextMaps(req)
+        .then(data => res.send(data).end())
+        .catch(next)
+    );
   }
 
   async getPropertiesDisplay(req: Request) {
@@ -67,5 +73,9 @@ export default class EntityController {
     const pageSize = req.body.pageSize;
     const filters = req.body.filters;
     return await this.entityService.getSuperiorPropertiesBoolFocusPaged(focus, pageIndex, pageSize, filters);
+  }
+
+  async getConceptContextMaps(req: Request): Promise<ContextMap[]> {
+    return await this.entityService.getConceptContextMaps(req.query.iri as string);
   }
 }

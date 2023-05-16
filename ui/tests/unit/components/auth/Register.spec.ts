@@ -14,9 +14,9 @@ import { createTestingPinia } from "@pinia/testing";
 
 createTestingPinia({
   initialState: {
-    root: { registeredUsername: "" }
+    auth: { registeredUsername: "" }
   }
-})
+});
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

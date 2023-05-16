@@ -11,9 +11,9 @@
     <span v-if="checked" class="label">{{ shape.name }} ({{ shape.path["@id"] }})</span>
     <component
       v-if="checked"
-      :is="processComponentType(shape.subProperty[0].componentType)"
-      :value="processEntityValue(shape.subProperty[0])"
-      :shape="shape.subProperty[0]"
+      :is="processComponentType(shape.property[0].componentType)"
+      :value="processEntityValue(shape.property[0])"
+      :shape="shape.property[0]"
       :mode="mode"
     />
   </div>
@@ -29,7 +29,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { PropType, watch, onMounted, ref, inject } from "vue";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { EditorMode } from "@im-library/enums";
@@ -72,7 +72,7 @@ function setChecked() {
   }
 }
 
-function processEntityValue(property: PropertyShape | PropertyGroup) {
+function processEntityValue(property: PropertyShape) {
   if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
   }

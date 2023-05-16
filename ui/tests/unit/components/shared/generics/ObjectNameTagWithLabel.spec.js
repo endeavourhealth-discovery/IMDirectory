@@ -7,13 +7,15 @@ import { createTestingPinia } from "@pinia/testing";
 
 createTestingPinia({
   initialState: {
-    root: {
+    shared: {
       tagSeverityMatches: [
         { "@id": IM.ACTIVE, severity: "success" },
         { "@id": IM.DRAFT, severity: "warning" },
         { "@id": IM.INACTIVE, severity: "danger" }
       ]
-    }}});
+    }
+  }
+});
 
 describe("ObjectNameTagWithLabel.vue", () => {
   let component;

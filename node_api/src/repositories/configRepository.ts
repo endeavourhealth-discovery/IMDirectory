@@ -7,7 +7,7 @@ export default class ConfigRepository {
   private graph: GraphdbService;
 
   constructor() {
-    this.graph = new GraphdbService();
+    this.graph = GraphdbService.configRepo();
   }
 
   public async getConfig(url: string): Promise<any> {
@@ -20,8 +20,7 @@ export default class ConfigRepository {
         s: iri(url),
         label: iri(RDFS.LABEL),
         config: iri(IM.HAS_CONFIG)
-      },
-      true
+      }
     );
 
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"])) {
@@ -56,6 +55,6 @@ export default class ConfigRepository {
       "   }" +
       "}";
 
-    await this.graph.update(qry, true);
+    await this.graph.update(qry);
   }
 }

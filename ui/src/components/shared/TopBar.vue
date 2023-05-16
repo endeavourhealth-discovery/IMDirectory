@@ -86,16 +86,19 @@ import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
-import { useRootStore } from "@/stores/rootStore";
 import { useUserStore } from "@/stores/userStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useAuthStore } from "@/stores/authStore";
 
-const rootStore = useRootStore();
+const authStore = useAuthStore();
 const userStore = useUserStore();
-
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
-const currentTheme = computed(() => rootStore.currentTheme);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+const currentTheme = computed(() => userStore.currentTheme);
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -156,7 +159,10 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "login"
+      url: Env.DIRECTORY_URL + "user/" + "login",
+      command: () => {
+        authStore.updatePreviousAppUrl();
+      }
     },
     {
       label: "Register",
@@ -183,7 +189,10 @@ function setUserMenuItems(): void {
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      url: Env.DIRECTORY_URL + "user/" + "logout"
+      url: Env.DIRECTORY_URL + "user/" + "logout",
+      command: () => {
+        authStore.updatePreviousAppUrl();
+      }
     }
   ];
 }
@@ -573,11 +582,11 @@ function setAppMenuItems() {
 }
 
 function showReleaseNotes() {
-  rootStore.updateShowReleaseNotes(true);
+  sharedStore.updateShowReleaseNotes(true);
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => rootStore.updateCurrentTheme(newTheme));
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => userStore.updateCurrentTheme(newTheme));
 }
 </script>
 

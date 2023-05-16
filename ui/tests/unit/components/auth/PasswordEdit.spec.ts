@@ -10,16 +10,16 @@ import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
 import { createTestingPinia } from "@pinia/testing";
-import { useRootStore } from "@/stores/rootStore";
+import { useSharedStore } from "@/stores/sharedStore";
 import { User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
   initialState: {
-    root: { registeredUsername: "" }
+    auth: { registeredUsername: "" }
   }
 });
-const mockState = useRootStore();
+const mockState = useSharedStore();
 const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
@@ -57,7 +57,7 @@ describe("PasswordEdit.vue with registeredUser", () => {
     });
   });
 
-  it("renders username from rootStore currentUser", async () => {
+  it("renders username from sharedStore currentUser", async () => {
     component.getByTestId("password-edit-username");
     component.getByDisplayValue("testUser");
   });

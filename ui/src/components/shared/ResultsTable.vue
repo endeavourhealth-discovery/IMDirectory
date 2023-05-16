@@ -66,7 +66,9 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import setupDownloadFile from "@/composables/downloadFile";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useUserStore } from "@/stores/userStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const props = defineProps({
   searchResults: { type: Array as PropType<any[]>, default: [] },
@@ -74,10 +76,12 @@ const props = defineProps({
   loading: { type: Boolean, required: true }
 });
 
-const rootStore = useRootStore();
-const favourites = computed(() => rootStore.favourites);
-const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
-const searchLoading = computed(() => rootStore.searchLoading);
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
+const userStore = useUserStore();
+const favourites = computed(() => userStore.favourites);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+const searchLoading = computed(() => directoryStore.searchLoading);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
@@ -119,7 +123,7 @@ onMounted(() => init());
 
 function updateFavourites(row?: any) {
   if (row) selected.value = row.data;
-  rootStore.updateFavourites(selected.value.iri);
+  userStore.updateFavourites(selected.value.iri);
 }
 
 function isFavourite(iri: string) {

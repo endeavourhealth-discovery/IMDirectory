@@ -27,7 +27,8 @@
 <script setup lang="ts">
 import { computed, PropType } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { useRootStore } from "@/stores/rootStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const props = defineProps({
   proIcon: { type: String, required: false },
@@ -78,8 +79,8 @@ const props = defineProps({
   value: { type: Number, required: false }
 });
 
-const rootStore = useRootStore();
-const fontAwesomePro = computed(() => rootStore.fontAwesomePro);
+const sharedStore = useSharedStore();
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const getIcon = computed(() => (fontAwesomePro.value ? (props.proIcon ? props.proIcon : props.icon) : props.icon));
 </script>

@@ -29,7 +29,8 @@
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
-import { useRootStore } from "@/stores/rootStore";
+import { useFilterStore } from "@/stores/filterStore";
+import TextQuery from "@/components/query/RecursiveTextQuery.vue";
 import { ITextQuery, MatchClauseUI } from "@im-library/interfaces";
 import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import { QueryService } from "@/services";
@@ -37,13 +38,13 @@ import { IM } from "@im-library/vocabulary";
 import { Query } from "@im-library/interfaces/AutoGen";
 import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-const rootStore = useRootStore();
+const filterStore = useFilterStore();
 const query: Ref<Query> = ref({} as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const baseEntityIri = ref("");
 
 onMounted(async () => {
-  await rootStore.fetchFilterSettings();
+  await filterStore.fetchFilterSettings();
   query.value = await QueryService.getQueryDisplay(IM.NAMESPACE + "Q_TestQuery");
   const baseEntity = query.value.match[0];
   baseEntityIri.value = baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"];
