@@ -16,7 +16,6 @@
           :shape="item.shape"
           :mode="mode"
           :nextComponentOptions="getNextComponentOptions()"
-          :showTitles="item.showTitles"
           @deleteClicked="deleteItem"
           @addClicked="addItemWrapper"
           @updateClicked="updateItemWrapper"
@@ -149,8 +148,7 @@ function createDefaultBuild() {
           undefined,
           property,
           setButtonsByTypeAndPath(property.order - 1, true),
-          props.mode,
-          props.shape.path["@id"] === SHACL.PROPERTY
+          props.mode
         )
       );
     });
@@ -164,15 +162,8 @@ function processChild(child: any, position: number) {
     child,
     props.shape.property[0],
     setButtonsByTypeAndPath(position, true),
-    props.mode,
-    setTitleOnlyIfFirst(position, true)
+    props.mode
   );
-}
-
-function setTitleOnlyIfFirst(position: number, isNewItem: boolean): any {
-  if (props.shape.path["@id"] === SHACL.PROPERTY) {
-    return isNewItem && position === 0;
-  }
 }
 
 function setButtonsByTypeAndPath(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
@@ -247,7 +238,7 @@ function addItemWrapper(data: { selectedType: ComponentType; position: number; v
   if (data.selectedType !== ComponentType.BUILDER_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_CHILD_WRAPPER;
   }
-  if (shape) addItem(data, build.value, setButtonsByTypeAndPath(data.position, true), shape, props.mode, false);
+  if (shape) addItem(data, build.value, setButtonsByTypeAndPath(data.position, true), shape, props.mode);
   updateButtons();
 }
 
