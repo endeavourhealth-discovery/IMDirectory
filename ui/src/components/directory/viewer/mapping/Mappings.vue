@@ -86,56 +86,23 @@
       </div>
     </OverlayPanel>
     <div class="context-table">
-      <DataTable
-        :paginator="true"
-        :rows="10"
-        :value="contextMaps"
-        class="p-datatable-sm flex-grow-1"
-        :scrollable="true"
-        scrollHeight="flex"
-        :loading="loading"
-        ref="contextMapTable"
-        dataKey="iri"
-        :autoLayout="true"
-      >
-        <template #empty> None </template>
-        <Column field="publisher" header="Publisher" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
-          <template #body="{ data }: any">
-            <div class="datatable-flex-cell">
-              {{ data.publisher }}
-            </div>
-          </template>
-        </Column>
-        <Column field="system" header="System">
-          <template #body="{ data }: any">
-            <span>{{ data.system }}</span>
-          </template>
-        </Column>
-        <Column field="schema" header="Schema">
-          <template #body="{ data }: any">
-            <span>{{ data.schema }}</span>
-          </template>
-        </Column>
-        <Column field="table" header="Table">
-          <template #body="{ data }: any">
-            <span>{{ data.table }}</span>
-          </template>
-        </Column>
-        <Column field="field" header="Field">
-          <template #body="{ data }: any">
-            <span>{{ data.field }}</span>
-          </template>
-        </Column>
-        <Column field="value" header="Value">
-          <template #body="{ data }: any">
-            <span>{{ data.value }}</span>
-          </template>
-        </Column>
-        <Column field="regex" header="Expression">
-          <template #body="{ data }: any">
-            <span>{{ data.regex }}</span>
-          </template>
-        </Column>
+      <DataTable v-model:expandedRows="contextExpandedRows" :value="contextMaps" dataKey="node">
+        <Column expander style="width: 5rem" />
+        <Column field="property" header="Property"></Column>
+        <Column field="node" header="Map node"></Column>
+        <Column field="value" header="Value"></Column>
+        <Column field="regex" header="Regex"></Column>
+        <template #expansion="slotProps: any">
+          <div class="p-3">
+            <DataTable :value="slotProps.data.context">
+              <Column field="publisher" header="Publisher"></Column>
+              <Column field="system" header="System"></Column>
+              <Column field="schema" header="Schema"></Column>
+              <Column field="table" header="Table"></Column>
+              <Column field="field" header="Field"></Column>
+            </DataTable>
+          </div>
+        </template>
       </DataTable>
     </div>
   </div>
@@ -163,6 +130,7 @@ const matchedFrom: Ref<SimpleMap[]> = ref([]);
 const matchedTo: Ref<SimpleMap[]> = ref([]);
 const namespaces: Ref<Namespace[]> = ref([]);
 const loading = ref(false);
+const contextExpandedRows: Ref<ContextMap[]> = ref([]);
 
 const opMap = ref(null);
 const opMatchedTo = ref(null);
