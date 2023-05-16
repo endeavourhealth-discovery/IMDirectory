@@ -1,7 +1,7 @@
 import { IM } from "./IM";
 
 export class QUERY {
-  public static NAMESPACE = IM.DOMAIN + "Query_";
+  public static NAMESPACE = IM.NAMESPACE + "Query_";
 
   public static ALLOWABLE_RANGES = QUERY.NAMESPACE + "AllowableRanges";
   public static GET_ISAS = QUERY.NAMESPACE + "GetIsas";
