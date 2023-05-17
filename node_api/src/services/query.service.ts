@@ -20,12 +20,8 @@ export default class QueryService {
   }
 
   public async queryIM(query: QueryRequest, controller?: AbortController) {
-    try {
-      const response = await this.axios.post(Env.API + "api/query/public/queryIM", query);
-      return response.data;
-    } catch (error) {
-      return {} as any;
-    }
+    const response = await this.axios.post(Env.API + "api/query/public/queryIM", query);
+    return response.data;
   }
 
   public async getAllowableRangeSuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
@@ -56,23 +52,19 @@ export default class QueryService {
     } as QueryRequest;
 
     let suggestions = [] as AliasEntity[];
-    try {
-      const allowableRanges = await this.queryIM(allowableRangesQuery);
-      if (allowableRanges.entities) {
-        subtypesQuery.argument[0].valueIriList = allowableRanges.entities.map((entity: any) => {
-          return { "@id": entity["@id"] };
-        });
+    const allowableRanges = await this.queryIM(allowableRangesQuery);
+    if (allowableRanges.entities) {
+      subtypesQuery.argument[0].valueIriList = allowableRanges.entities.map((entity: any) => {
+        return { "@id": entity["@id"] };
+      });
 
-        if (searchTerm) {
-          subtypesQuery.textSearch = searchTerm;
-        }
-        suggestions = (await this.queryIM(subtypesQuery)).entities;
-        this.convertTTEntitiesToAlias(suggestions);
+      if (searchTerm) {
+        subtypesQuery.textSearch = searchTerm;
       }
-      return suggestions;
-    } catch (error) {
-      return suggestions;
+      suggestions = (await this.queryIM(subtypesQuery)).entities;
+      this.convertTTEntitiesToAlias(suggestions);
     }
+    return suggestions;
   }
 
   public async getAllowablePropertySuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
@@ -95,13 +87,25 @@ export default class QueryService {
     }
 
     let suggestions = [] as AliasEntity[];
-    try {
-      suggestions = (await this.queryIM(queryRequest)).entities;
-      this.convertTTEntitiesToAlias(suggestions);
-      return suggestions;
-    } catch (error) {
-      return suggestions;
-    }
+    const result = await this.queryIM(queryRequest);
+    if (isObjectHasKeys(result, ["entities"])) suggestions = result.entities;
+    this.convertTTEntitiesToAlias(suggestions);
+    return suggestions;
+  }
+
+  public async searchProperties(searchTerm: string): Promise<AliasEntity[]> {
+    const queryRequest = {
+      query: {
+        "@id": QUERY.SEARCH_PROPERTIES
+      },
+      textSearch: searchTerm
+    } as QueryRequest;
+
+    let properties = [] as AliasEntity[];
+    const result = await this.queryIM(queryRequest);
+    if (isObjectHasKeys(result, ["entities"])) properties = result.entities;
+    this.convertTTEntitiesToAlias(properties);
+    return properties;
   }
 
   public async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string): Promise<AliasEntity[]> {
@@ -130,11 +134,9 @@ export default class QueryService {
           if (searchTerm) {
             queryRequest.textSearch = searchTerm;
           }
-          try {
-            const queryResults = (await this.queryIM(queryRequest)).entities;
-            this.convertTTEntitiesToAlias(queryResults);
-            suggestions = suggestions.concat(queryRequest);
-          } catch (error) {}
+          const queryResults = (await this.queryIM(queryRequest)).entities;
+          this.convertTTEntitiesToAlias(queryResults);
+          suggestions = suggestions.concat(queryRequest);
         }
       }
     }
@@ -214,15 +216,12 @@ export default class QueryService {
       "bind(exists{?propIri ?isA ?dataProp} as ?dataProperty)" +
       "} ";
 
-    const rs = await this.graph.execute(
-      query,
-      {
-        propIri: iri(propIri),
-        isA: iri(IM.IS_A),
-        objProp: iri(IM.DATAMODEL_OBJECTPROPERTY),
-        dataProp: iri(IM.DATAMODEL_DATAPROPERTY)
-      }
-    );
+    const rs = await this.graph.execute(query, {
+      propIri: iri(propIri),
+      isA: iri(IM.IS_A),
+      objProp: iri(IM.DATAMODEL_OBJECTPROPERTY),
+      dataProp: iri(IM.DATAMODEL_DATAPROPERTY)
+    });
 
     if (isArrayHasLength(rs)) {
       return rs[0];
@@ -233,14 +232,11 @@ export default class QueryService {
     const isTrue = '"true"^^http://www.w3.org/2001/XMLSchema#boolean';
     const query = "SELECT ?functionProperty " + "WHERE {" + "bind(exists{?propIri ?isA  ?funcProp} as ?functionProperty)" + "} ";
 
-    const rs = await this.graph.execute(
-      query,
-      {
-        propIri: iri(propIri),
-        isA: iri(IM.IS_A),
-        funcProp: iri(IM.DATAMODEL_FUNCTIONPROPERTY)
-      }
-    );
+    const rs = await this.graph.execute(query, {
+      propIri: iri(propIri),
+      isA: iri(IM.IS_A),
+      funcProp: iri(IM.DATAMODEL_FUNCTIONPROPERTY)
+    });
 
     if (isArrayHasLength(rs)) {
       return rs[0].functionProperty.value;
