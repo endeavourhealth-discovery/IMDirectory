@@ -10,4 +10,5 @@ export class QUERY {
   public static OBJECT_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "ObjectPropertyRangeSuggestions";
   public static DATA_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "DataPropertyRangeSuggestions";
   public static ALLOWABLE_PROPERTIES = QUERY.NAMESPACE + "AllowableProperties";
+  public static SEARCH_PROPERTIES = QUERY.NAMESPACE + "SearchProperties";
 }
