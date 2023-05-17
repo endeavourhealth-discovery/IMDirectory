@@ -6,9 +6,9 @@ import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
-import StepsGroup from "@/components/editor/StepsGroup.vue";
 import { useRoute, useRouter } from "vue-router";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 export function setupEditorShape() {
   const router = useRouter();
@@ -110,15 +110,6 @@ export function setupEditorShape() {
     else return url;
   }
 
-  function processComponentType(type: TTIriRef) {
-    switch (type["@id"]) {
-      case IM.STEPS_GROUP_COMPONENT:
-        return StepsGroup;
-      default:
-        throw new Error("Invalid component type encountered in shape group" + type["@id"]);
-    }
-  }
-
   return {
     shape,
     targetShape,
@@ -129,7 +120,6 @@ export function setupEditorShape() {
     stepsItems,
     processShape,
     setEditorSteps,
-    setCreatorSteps,
-    processComponentType
+    setCreatorSteps
   };
 }

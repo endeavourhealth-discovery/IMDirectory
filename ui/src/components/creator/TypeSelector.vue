@@ -1,17 +1,19 @@
 <template>
-  <div class="type-selector">
-    <div v-if="loading" class="loading-container">
-      <ProgressSpinner />
-    </div>
-    <div v-else class="header-content-container">
-      <span class="text">Select entity type:</span>
-      <div class="type-buttons-container">
-        <button v-for="option in typeOptions" class="custom-button" @click="typeSelected(option)">
-          <span>{{ option.name }}</span>
-        </button>
+  <Dialog :visible="showTypeSelector" :modal="true" :closable="false" :close-on-escape="false">
+    <div class="type-selector">
+      <div v-if="loading" class="loading-container">
+        <ProgressSpinner />
+      </div>
+      <div v-else class="header-content-container">
+        <span class="text">Select entity type:</span>
+        <div class="type-buttons-container">
+          <button v-for="option in typeOptions" class="custom-button" @click="typeSelected(option)">
+            <span>{{ option.name }}</span>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -20,6 +22,11 @@ import { EntityReferenceNode } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import { RDF } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+
+const props = defineProps({
+  showTypeSelector: { type: Boolean, required: false, default: false },
+  updateShowTypeSelector: { type: Function, required: true }
+});
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 
@@ -34,13 +41,13 @@ async function setOptions() {
   loading.value = true;
   typeOptions.value = await EntityService.getEntityChildren("http://endhealth.info/im#EntityTypes");
   loading.value = false;
-  // typeOptions.value = filterOptions.value.types.filter((type: EntityReferenceNode) => type["@id"] === IM.CONCEPT || type["@id"] === IM.CONCEPT_SET);
 }
 
 function typeSelected(data: EntityReferenceNode) {
   const result = {} as any;
   result[RDF.TYPE] = [{ "@id": data["@id"], name: data.name }];
   if (entityUpdate) entityUpdate(result);
+  props.updateShowTypeSelector(false);
 }
 </script>
 

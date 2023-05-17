@@ -43,6 +43,7 @@
         </div>
       </div>
     </div>
+    <TypeSelector :showTypeSelector="showTypeSelector" :updateShowTypeSelector="updateShowTypeSelector" />
   </div>
 </template>
 
@@ -113,25 +114,20 @@ import { useUserStore } from "@/stores/userStore";
 
 const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
 
+const route = useRoute();
 const router = useRouter();
+const confirm = useConfirm();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
 const userStore = useUserStore();
-
-const confirm = useConfirm();
-
-const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const directService = new DirectService();
 
-onUnmounted(() => {
-  window.removeEventListener("beforeunload", beforeWindowUnload);
-});
-
+const currentUser = computed(() => userStore.currentUser).value;
+const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const hasType = computed<boolean>(() => {
   return isObjectHasKeys(editorEntity.value, [RDF.TYPE]);
 });
-
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
@@ -145,7 +141,7 @@ function onShowSidebar() {
 }
 
 const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
-const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupEditorShape();
+const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
@@ -154,12 +150,16 @@ const creatorValidity: Ref<{ key: string; valid: boolean }[]> = ref([]);
 const targetShape: Ref<TTIriRef | undefined> = ref();
 const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
 const showTestQueryResults: Ref<boolean> = ref(false);
-const route = useRoute();
+const showTypeSelector = ref(false);
 
 provide(injectionKeys.editorValidity, { validity: creatorValidity, updateValidity, removeValidity });
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
+
+onUnmounted(() => {
+  window.removeEventListener("beforeunload", beforeWindowUnload);
+});
 
 onMounted(async () => {
   loading.value = true;
@@ -184,6 +184,8 @@ onMounted(async () => {
       const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
       editorEntity.value[propertyIri as string] = [{ "@id": containingEntity["@id"], name: containingEntity[RDFS.LABEL] }];
     }
+  } else {
+    showTypeSelector.value = true;
   }
   loading.value = false;
 });
@@ -241,11 +243,13 @@ watch(
   }
 );
 
-const currentUser = computed(() => userStore.currentUser).value;
-
 const debouncedFiler = debounce((entity: any) => {
   fileChanges(entity);
 }, 500);
+
+function updateShowTypeSelector(bool: boolean) {
+  showTypeSelector.value = bool;
+}
 
 function updateValueVariableMap(key: string, value: any) {
   valueVariableMap.value.set(key, value);
@@ -260,11 +264,6 @@ function updateValidity(data: { key: string; valid: boolean }) {
 function removeValidity(data: { key: string; valid: boolean }) {
   const index = creatorValidity.value.findIndex(item => (item.key = data.key));
   if (index) creatorValidity.value.splice(index, 1);
-}
-
-function stepsClicked(event: any) {
-  console.log(event.target.innerHTML);
-  currentStep.value = event.target.innerHTML - 1;
 }
 
 function findPrimaryType(): TTIriRef | undefined {
@@ -473,7 +472,7 @@ function processEntityValue(property: PropertyShape) {
   position: relative;
 }
 
-.steps-content {
+.creator-layout-container {
   flex: 1 1 auto;
   width: 100%;
   overflow: auto;
@@ -557,11 +556,5 @@ function processEntityValue(property: PropertyShape) {
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
-}
-</style>
-
-<style>
-.p-steps-number {
-  z-index: 0 !important;
 }
 </style>
