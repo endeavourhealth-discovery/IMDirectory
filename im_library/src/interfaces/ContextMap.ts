@@ -1,9 +1,9 @@
+import { Context } from "./Context";
+
 export interface ContextMap {
-  publisher: string
-  system: string
-  schema: string
-  table: string
-  field: string
+  node: string
   value: string
   regex: string
+  property: string
+  context: Context[];
 }
