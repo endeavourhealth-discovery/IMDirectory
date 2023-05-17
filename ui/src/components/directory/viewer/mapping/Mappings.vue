@@ -92,9 +92,9 @@
         <Column field="node" header="Map node"></Column>
         <Column field="value" header="Value"></Column>
         <Column field="regex" header="Regex"></Column>
-        <template #expansion="slotProps: any">
+        <template #expansion="{ data }: { data: { context: Context[] } }">
           <div class="p-3">
-            <DataTable :value="slotProps.data.context">
+            <DataTable :value="data.context">
               <Column field="publisher" header="Publisher"></Column>
               <Column field="system" header="System"></Column>
               <Column field="schema" header="Schema"></Column>
@@ -115,12 +115,16 @@ import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNo
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
+import { Context } from "@im-library/interfaces/Context";
+
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPriority, byScheme } = Sorters;
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
 
 const mappings: Ref<any[]> = ref([]);
 const contextMaps: Ref<ContextMap[]> = ref([]);
