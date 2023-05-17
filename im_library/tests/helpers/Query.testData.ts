@@ -60,6 +60,21 @@ export const where = {
   withcomparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150" },
   withNull: {
     null: true
+  },
+  last6Months: {
+    "@id": "http://endhealth.info/im#effectiveDate",
+    operator: ">=",
+    value: "-6",
+    unit: "MONTHS",
+    relativeTo: { "@id": "http://endhealth.info/im#$referenceDate" }
+  },
+  last6MonthsWithValueLabel: {
+    "@id": "http://endhealth.info/im#effectiveDate",
+    operator: ">=",
+    value: "-6",
+    unit: "MONTHS",
+    relativeTo: { "@id": "http://endhealth.info/im#$referenceDate" },
+    valueLabel: "last 6 months"
   }
 };
 

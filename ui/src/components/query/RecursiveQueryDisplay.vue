@@ -1,5 +1,5 @@
 <template>
-  <div>{{ include }}-{{ include ? "Include if" : "Exclude if" }}</div>
+  <div v-if="!parentMatch">{{ include ? "Include if" : "Exclude if" }}</div>
   <ul class="feature">
     <li v-for="(match, index) of matches">
       <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch)"></span>
@@ -8,12 +8,14 @@
         <RecursiveQueryDisplay
           v-if="match.match.some(nestedMatch => !isObjectHasKeys(nestedMatch, ['exclude']))"
           :include="true"
-          :matches="match.match.filter(match => !isObjectHasKeys(match, ['exclude']))"
+          :matches="match.match.filter(nestedMatch => !isObjectHasKeys(nestedMatch, ['exclude']))"
+          :parent-match="match"
         />
         <RecursiveQueryDisplay
           v-if="match.match.some(nestedMatch => isObjectHasKeys(nestedMatch, ['exclude']))"
           :include="false"
-          :matches="match.match.filter(match => !isObjectHasKeys(match, ['exclude']))"
+          :matches="match.match.filter(nestedMatch => !isObjectHasKeys(nestedMatch, ['exclude']))"
+          :parent-match="match"
         />
       </span>
       <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">

@@ -1,4 +1,4 @@
-import { Match, Relationship, Where, Property, OrderLimit, Node, Query } from "../interfaces/AutoGen";
+import { Match, Path, Where, Property, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 
@@ -69,6 +69,7 @@ export function getDisplayFromWhereList(matchDisplay: string, where: Where[]) {
 }
 
 export function getDisplayFromWhere(where: Where) {
+  if (where.valueLabel && !where.in && !where.notIn) return where.valueLabel;
   let display = "";
   const propertyName = getNameFromRef(where);
   if (!propertyDropList.includes(propertyName)) display += propertyName;
@@ -176,7 +177,7 @@ export function getDisplayFromEntailment(node: Node) {
   return "";
 }
 
-export function getDisplayFromPath(pathOrNode: Relationship | Node) {
+export function getDisplayFromPath(pathOrNode: Path | Node) {
   const displayObject = { display: "" };
   getDisplayFromPathRecursively(displayObject, "path", pathOrNode);
   return displayObject.display;

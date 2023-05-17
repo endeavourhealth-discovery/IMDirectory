@@ -12,7 +12,7 @@ import {
   getDisplayFromOrderByList,
   getDisplayFromOrderBy
 } from "@/helpers/QueryDescriptor";
-import { Match, Node, OrderLimit, Relationship, Where } from "@/interfaces/AutoGen";
+import { Match, Node, OrderLimit, Where } from "@/interfaces/AutoGen";
 import { match, where } from "./Query.testData";
 
 describe("QueryDescriptor.ts ___", () => {
@@ -207,6 +207,16 @@ describe("QueryDescriptor.ts ___", () => {
     it("can get a display for a where with an in list and valueLabel", () => {
       const display = getDisplayFromWhere(where.withInAndValueLabel as Where);
       expect(display).toEqual("with Office or home systolic blood pressure");
+    });
+
+    it("can get a display for a where of last 6 months", () => {
+      const display = getDisplayFromWhere(where.last6Months as Where);
+      expect(display).toEqual("last 6 months");
+    });
+
+    it("can get a display for a where with valueLabel", () => {
+      const display = getDisplayFromWhere(where.last6MonthsWithValueLabel as Where);
+      expect(display).toEqual("last 6 months");
     });
 
     //     it("can get a display for a where null", () => {

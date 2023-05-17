@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 2.36.1070 on 2023-04-19 10:29:54.
+// Generated using typescript-generator version 2.36.1070 on 2023-05-17 10:39:10.
 
 /**
  * Structure containing search request parameters and filters
@@ -92,9 +92,9 @@ export interface FormGenerator {
   type: TTIriRef[];
   isContainedIn: TTIriRef[];
   subClassOf: TTIriRef[];
-  property: PropertyShape[];
   scheme: TTIriRef;
   iri: string;
+  property: PropertyShape[];
 }
 
 export interface FunctionRequest {
@@ -145,13 +145,13 @@ export interface PropertyShape {
   isNumericValue: string;
   forceIsValue: boolean;
   builderChild: boolean;
+  property: PropertyShape[];
   datatype: TTIriRef;
   clazz: TTIriRef;
   validationErrorMessage: string;
   function: TTIriRef;
-  expression: NodeShape;
-  property: PropertyShape[];
   valueIri: TTIriRef;
+  expression: NodeShape;
 }
 
 export interface TransformRequest {
@@ -204,9 +204,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-  descendantsOf: boolean;
-  descendantsOrSelfOf: boolean;
   ancestorsOf: boolean;
+  descendantsOrSelfOf: boolean;
+  descendantsOf: boolean;
 }
 
 export interface FunctionClause {
@@ -231,13 +231,17 @@ export interface Match extends Node, Whereable {
 }
 
 export interface Node extends Element {
-  path: Relationship;
+  path: Path;
 }
 
-export interface OrderLimit extends TripleVar {
+export interface OrderLimit extends Property {
   direction: Order;
   limit: number;
   id: string;
+}
+
+export interface Path extends Property {
+  node: Node;
 }
 
 export interface PathDocument {
@@ -252,23 +256,28 @@ export interface PathQuery extends TTIriRef {
 
 export interface Property extends Element {
   inverse: boolean;
+  nodeRef: string;
+  valueVariable: string;
 }
 
 export interface Query extends TTIriRef {
   match: Match[];
-  select: Select[];
-  groupBy: TripleVar[];
+  groupBy: Property[];
   orderBy: OrderLimit[];
   activeOnly: boolean;
   usePrefixes: boolean;
   query: Query[];
+  return: Return[];
 }
 
 export interface QueryEntity extends Entity {
   definition: Query;
 }
 
+export interface QueryException extends Exception {}
+
 export interface QueryRequest extends ContextMap {
+  "@context": { [index: string]: string };
   textSearch: string;
   argument: Argument[];
   referenceDate: string;
@@ -280,28 +289,27 @@ export interface QueryRequest extends ContextMap {
 }
 
 export interface Range {
-  to: Assignable;
   from: Assignable;
+  to: Assignable;
 }
 
-export interface Relationship extends Property {
-  node: Node;
-}
-
-export interface Select extends TripleVar {
-  inverse: boolean;
-  case: Case[];
-  select: Select[];
+export interface Return {
+  nodeRef: string;
   function: FunctionClause;
-  id: string;
+  property: ReturnProperty[];
+  as: string;
 }
 
-export interface TripleVar {
-  nodeVar: string;
-  pathVar: string;
-  variable: string;
-  name: string;
+export interface ReturnProperty {
+  node: Return;
   "@id": string;
+  name: string;
+  function: FunctionClause;
+  as: string;
+  propertyRef: string;
+  valueVariable: string;
+  inverse: boolean;
+  unit: string;
 }
 
 export interface Update extends TTIriRef {
@@ -374,9 +382,30 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-  prefixes: TTPrefix[];
   nameSpaces: TTPrefix[];
+  prefixes: TTPrefix[];
 }
+
+export interface Throwable extends Serializable {
+  cause: Throwable;
+  stackTrace: StackTraceElement[];
+  message: string;
+  suppressed: Throwable[];
+  localizedMessage: string;
+}
+
+export interface StackTraceElement extends Serializable {
+  classLoaderName: string;
+  moduleName: string;
+  moduleVersion: string;
+  methodName: string;
+  fileName: string;
+  lineNumber: number;
+  nativeMethod: boolean;
+  className: string;
+}
+
+export interface Exception extends Throwable {}
 
 export interface TTValue extends Serializable {
   order: number;
@@ -405,3 +434,5 @@ export type Function = "sum" | "count" | "average";
 export type Operator = "=" | ">=" | ">" | "<=" | "startsWith" | "contains";
 
 export type Order = "ascending" | "descending";
+
+export type VarType = "NODE" | "PATH" | "LITERAL";
