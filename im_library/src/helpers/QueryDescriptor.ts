@@ -72,7 +72,7 @@ export function getDisplayFromWhereList(matchDisplay: string, where: Where[]) {
 export function getDisplayFromWhere(where: Where) {
   if (where.valueLabel && !where.in && !where.notIn) return where.valueLabel;
   let display = "";
-  const propertyName = where.nodeRef ?? getNameFromRef(where);
+  const propertyName = getDisplayFromNodeRef(where.nodeRef) ?? getNameFromRef(where);
   if (!propertyDropList.includes(propertyName)) display += propertyName;
   if (where.in) display += "with " + (where.valueLabel ?? getDisplayFromList(where.in, true));
   if (where.notIn) display += "without " + (where.valueLabel ?? getDisplayFromList(where.notIn, false));
@@ -159,13 +159,18 @@ export function getDisplayFromDateComparison(where: Where) {
   if (where.value) {
     if (where.operator) display += getDisplayFromOperatorForDate(where.operator, true);
     display += getDisplayFromValueAndUnitForDate(where);
-    if (where.relativeTo) display += " from " + (where.relativeTo.nodeRef ?? getNameFromRef(where.relativeTo));
+    if (where.relativeTo) display += " from " + (getDisplayFromNodeRef(where.relativeTo.nodeRef) ?? getNameFromRef(where.relativeTo));
   } else {
     if (where.operator) display += getDisplayFromOperatorForDate(where.operator, false);
-    if (where.relativeTo) display += where.relativeTo.nodeRef ?? getNameFromRef(where.relativeTo);
+    if (where.relativeTo) display += getDisplayFromNodeRef(where.relativeTo.nodeRef) ?? getNameFromRef(where.relativeTo);
   }
 
   return display;
+}
+
+export function getDisplayFromNodeRef(nodeRef: string) {
+  if (!nodeRef) return undefined;
+  return "<span class='variable'>" + nodeRef + "</span> ";
 }
 
 export function getDisplayFromValueAndUnitForDate(where: Where) {

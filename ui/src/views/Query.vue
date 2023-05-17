@@ -15,9 +15,17 @@
     <div><Button label="Add clause" @click="addClause" /></div> -->
 
     <div class="include-title" style="color: green">Include if</div>
-    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match.filter(match => !isObjectHasKeys(match, ['exclude']))" />
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(query.match)"
+      :matches="query.match.filter(match => !isObjectHasKeys(match, ['exclude']))"
+      :full-query="query"
+    />
     <div class="include-title" style="color: red">Exclude if</div>
-    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match.filter(match => isObjectHasKeys(match, ['exclude']))" />
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(query.match)"
+      :matches="query.match.filter(match => isObjectHasKeys(match, ['exclude']))"
+      :full-query="query"
+    />
 
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
