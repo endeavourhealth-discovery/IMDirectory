@@ -86,7 +86,7 @@
       </div>
     </OverlayPanel>
     <div class="context-table">
-      <DataTable v-model:expandedRows="contextExpandedRows" :value="contextMaps" dataKey="node">
+      <DataTable v-model:expandedRows="contextExpandedRows" :value="contextMaps" dataKey="id">
         <Column expander style="width: 5rem" />
         <Column field="property" header="Property"></Column>
         <Column field="node" header="Map node"></Column>

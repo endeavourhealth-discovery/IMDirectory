@@ -1,6 +1,7 @@
 import { GraphdbService, iri } from "@/services/graphdb.service";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { ContextMap } from "@im-library/interfaces";
+import { v4 } from "uuid";
 
 export default class EntityRepository {
   private graph: GraphdbService;
@@ -52,6 +53,7 @@ export default class EntityRepository {
     for(const r of rs) {
       if (r.nodeName?.value !== map?.node || r.sourceVal?.value !== map?.value || r.sourceRegex?.value !== map?.regex) {
         map = {
+          id: v4(),
           node: r.nodeName?.value,
           value: r.sourceVal?.value,
           regex: r.sourceRegex?.value,
