@@ -1,3 +1,4 @@
+import { Operator } from "../interfaces/AutoGen";
 import { Match, Path, Where, Property, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
@@ -48,11 +49,11 @@ function describeWhere(where: Where[], type: string) {
 
 // getters
 export function getDisplayFromMatch(match: Match) {
-  // if (match.boolMatch) return getDisplayFromLogic("and");
+  if (match.variable) return "";
   let display = "";
-  // if (match.exclude) display += getDisplayFromLogic("exclude");
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
+  if (match["@set"]) display = "in " + display;
   if (match.path) display += getDisplayFromPath(match.path);
   if (match.orderBy) display += " " + getDisplayFromOrderByList(match.orderBy);
   return display;
@@ -71,12 +72,12 @@ export function getDisplayFromWhereList(matchDisplay: string, where: Where[]) {
 export function getDisplayFromWhere(where: Where) {
   if (where.valueLabel && !where.in && !where.notIn) return where.valueLabel;
   let display = "";
-  const propertyName = getNameFromRef(where);
+  const propertyName = where.nodeRef ?? getNameFromRef(where);
   if (!propertyDropList.includes(propertyName)) display += propertyName;
   if (where.in) display += "with " + (where.valueLabel ?? getDisplayFromList(where.in, true));
   if (where.notIn) display += "without " + (where.valueLabel ?? getDisplayFromList(where.notIn, false));
-  if (where.operator) display = getDisplayFromOperator(where);
-  if (where.range) display = getDisplayFromRange(where);
+  if (where.operator) display = getDisplayFromOperator(propertyName, where);
+  if (where.range) display = getDisplayFromRange(propertyName, where);
   if (where.null) display += " is null";
   return display;
 }
@@ -120,32 +121,74 @@ export function getDisplayFromLogic(title: string) {
   }
 }
 
-export function getDisplayFromRange(where: Where) {
-  const property = "has " + getNameFromRef(where);
+export function getDisplayFromRange(propertyName: string, where: Where) {
+  const property = "has " + propertyName;
   let display = property + " between ";
   display += where.range.from.value + " and " + where.range.to.value + " " + where.range.to.unit;
   return display;
 }
 
-export function getDisplayFromOperator(where: Where) {
-  const property = getNameFromRef(where);
+export function getDisplayFromOperator(property: string, where: Where) {
   let display = "";
-  if (where.variable) display += where.variable + ".";
-  display += property + " ";
-  display += where.operator + " ";
-  if (where.relativeTo) {
-    let relativeTo = "";
-    if (where.relativeTo.variable) relativeTo += where.relativeTo.variable;
-    if (relativeTo) relativeTo += ".";
-    relativeTo += getNameFromRef(where.relativeTo);
-    display += relativeTo;
+
+  if (property.toLowerCase().includes("date")) {
+    display += getDisplayFromDateComparison(where);
+  } else {
+    if (where.variable) display += where.variable + ".";
+    display += property + " ";
+    display += where.operator + " ";
+    if (where.relativeTo) {
+      let relativeTo = "";
+      if (where.relativeTo.variable) relativeTo += where.relativeTo.variable;
+      if (relativeTo) relativeTo += ".";
+      relativeTo += getNameFromRef(where.relativeTo);
+      display += relativeTo;
+    }
+    if (where.value) {
+      if (where.relativeTo) display += " by ";
+      display += where.value;
+    }
+    if (where.unit) display += " " + where.unit;
   }
-  if (where.value) {
-    if (where.relativeTo) display += " by ";
-    display += where.value;
-  }
-  if (where.unit) display += " " + where.unit;
+
   return display;
+}
+
+export function getDisplayFromDateComparison(where: Where) {
+  let display = "";
+  if (where.value) {
+    if (where.operator) display += getDisplayFromOperatorForDate(where.operator, true);
+    display += getDisplayFromValueAndUnitForDate(where);
+    if (where.relativeTo) display += " from " + (where.relativeTo.nodeRef ?? getNameFromRef(where.relativeTo));
+  } else {
+    if (where.operator) display += getDisplayFromOperatorForDate(where.operator, false);
+    if (where.relativeTo) display += where.relativeTo.nodeRef ?? getNameFromRef(where.relativeTo);
+  }
+
+  return display;
+}
+
+export function getDisplayFromValueAndUnitForDate(where: Where) {
+  let display = "";
+  if (where.value && where.value.includes("-")) display += "last " + where.value.replaceAll("-", "") + " ";
+  if (where.unit) display += where.unit;
+  return display;
+}
+
+export function getDisplayFromOperatorForDate(operator: Operator, withValue: boolean) {
+  switch (operator) {
+    case "=":
+      return withValue ? "on " : "on the same date as ";
+    case ">=":
+      return withValue ? "within the " : "after ";
+    case ">":
+      return withValue ? "in the " : "after ";
+    case "<=":
+      return withValue ? "within the " : "before ";
+
+    default:
+      return "on ";
+  }
 }
 
 export function getDisplayFromList(nodes: Node[], include: boolean) {

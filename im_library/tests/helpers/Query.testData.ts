@@ -11,10 +11,16 @@ export const match = {
     descendantsOrSelfOf: true,
     "@id": "http://endhealth.info/im#1681000252102"
   },
-  withExclude: { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives" }
+  withExclude: { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives" },
+  withVariable: {
+    path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+    bool: "and",
+    variable: "latestBP"
+  }
 };
 
 export const where = {
+  withNodeRefAndComparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150", nodeRef: "latestBP" },
   withRange: {
     "@id": "http://endhealth.info/im#age",
     range: {
@@ -60,6 +66,11 @@ export const where = {
   withcomparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150" },
   withNull: {
     null: true
+  },
+  after: {
+    "@id": "http://endhealth.info/im#effectiveDate",
+    operator: ">=",
+    relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", nodeRef: "latestBP" }
   },
   last6Months: {
     "@id": "http://endhealth.info/im#effectiveDate",
@@ -114,6 +125,7 @@ const fullTestQueryDefinition = {
     {
       path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
       bool: "and",
+      variable: "latestBP",
       where: [
         {
           "@id": "http://endhealth.info/im#concept",
@@ -141,7 +153,7 @@ const fullTestQueryDefinition = {
         {
           "@id": "http://endhealth.info/im#effectiveDate",
           operator: ">=",
-          relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", variable: "latestBP" }
+          relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", nodeRef: "latestBP" }
         }
       ]
     },

@@ -1,5 +1,5 @@
 import { ITextQuery } from "../interfaces";
-import { Match, Relationship, Where, Property, OrderLimit, Node } from "../interfaces/AutoGen";
+import { Match, Path, Where, Property, OrderLimit, Node } from "../interfaces/AutoGen";
 import { buildClauseUI } from "./ClauseUIBuilder";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
@@ -233,7 +233,7 @@ export function getDisplayFromEntailment(node: Node) {
   return "";
 }
 
-export function getDisplayFromPath(pathOrNode: Relationship | Node) {
+export function getDisplayFromPath(pathOrNode: Path | Node) {
   const displayObject = { display: "" };
   getDisplayFromPathRecursively(displayObject, "path", pathOrNode);
   return displayObject.display;

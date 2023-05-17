@@ -14,8 +14,10 @@
     ></TextQuery>
     <div><Button label="Add clause" @click="addClause" /></div> -->
 
-    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :include="true" :matches="query.match.filter(match => !isObjectHasKeys(match, ['exclude']))" />
-    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :include="false" :matches="query.match.filter(match => isObjectHasKeys(match, ['exclude']))" />
+    <div class="include-title" style="color: green">Include if</div>
+    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match.filter(match => !isObjectHasKeys(match, ['exclude']))" />
+    <div class="include-title" style="color: red">Exclude if</div>
+    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match.filter(match => isObjectHasKeys(match, ['exclude']))" />
 
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -81,5 +83,11 @@ onMounted(async () => {
 
 .button-bar-button {
   margin: 0.5rem;
+}
+
+.include-title {
+  margin-left: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.1rem;
 }
 </style>
