@@ -103,8 +103,7 @@ const fakerFactory = factory({
     json: Object,
     showButtons: nullable(Object),
     shape: oneOf("propertyShape"),
-    mode: String,
-    showTitles: Boolean
+    mode: String
   },
   propertyDisplay: {
     key: primaryKey(faker.datatype.uuid),

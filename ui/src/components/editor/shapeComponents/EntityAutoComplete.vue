@@ -71,6 +71,7 @@ import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethod
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
+import { byName } from "@im-library/helpers/Sorters";
 import { QueryService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { ConceptSummary } from "@im-library/interfaces";
@@ -201,21 +202,9 @@ async function getAutocompleteOptions() {
     }
     controller.value = new AbortController();
     if (controller.value) {
-      if (queryRequest.query["@id"] === "http://endhealth.info/im#Query_DataModelPropertyRange" && queryRequest.argument[1].valueIri["@id"]) {
-        const result = await QueryService.queryIM(queryRequest, controller.value);
-        if (result && isObjectHasKeys(result, ["entities"])) {
-          const range = result.entities[0] ? result.entities[0][SHACL.NODE] || result.entities[0][SHACL.CLASS] || result.entities[0][SHACL.DATATYPE] : {};
-          if (range) {
-            autocompleteOptions.value = convertToConceptSummary(range);
-          }
-        }
-      } else if (queryRequest.query["@id"] !== "http://endhealth.info/im#Query_DataModelPropertyRange") {
-        const result = await QueryService.queryIM(queryRequest, controller.value);
-        if (result && isObjectHasKeys(result, ["entities"])) {
-          autocompleteOptions.value = convertToConceptSummary(result.entities).sort((a: any, b: any) =>
-            a.name.toString().toLowerCase().localeCompare(b.name.toString().toLowerCase())
-          );
-        }
+      const result = await QueryService.queryIM(queryRequest, controller.value);
+      if (result && isObjectHasKeys(result, ["entities"])) {
+        autocompleteOptions.value = convertToConceptSummary(result.entities).sort(byName);
       }
     }
   } else {
