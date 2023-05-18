@@ -26,32 +26,37 @@ export default class UserController {
     );
     this.router.post("/public/updateUserTheme", async (req, res, next) =>
       this.updateUserTheme(req)
-        .then(data => res.send(data).end())
+        .then(data => res.setHeader("content-type", "application/sparql-update").send(data).end())
         .catch(next)
     );
     this.router.post("/public/updateUserMRU", async (req, res, next) =>
       this.updateUserMRU(req)
-        .then(data => res.send(data).end())
+        .then(data => res.setHeader("content-type", "application/sparql-update").send(data).end())
         .catch(next)
     );
   }
 
   async getUserTheme(req: Request) {
-    return await this.userService.getUserTheme(req.body.user);
+    if (typeof req.query.user === "string") {
+      return await this.userService.getUserTheme(req.query.user);
+    } else {
+      throw new TypeError(`Invalid user id type. User id must be of type string`);
+    }
   }
 
   async getUserMRU(req: Request) {
-    return await this.userService.getUserMRU(req.body.user);
+    if (typeof req.query.user === "string") {
+      return await this.userService.getUserMRU(req.query.user);
+    } else {
+      throw new TypeError(`Invalid user id type. User id must be of type string`);
+    }
   }
 
   async updateUserTheme(req: Request) {
-    console.log("b");
-    console.log(req.body.user);
-    console.log(req.body.theme);
-    return await this.userService.updateUserTheme(req.body.user, req.body.theme);
+    return await this.userService.updateUserTheme(req.body.params.user, req.body.params.theme);
   }
 
   async updateUserMRU(req: Request) {
-    return await this.userService.updateUserMRU(req.body.user, req.body.userMRU);
+    return await this.userService.updateUserMRU(req.body.params.user, req.body.params.mru);
   }
 }

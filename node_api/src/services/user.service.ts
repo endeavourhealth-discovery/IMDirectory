@@ -10,9 +10,6 @@ export default class UserService {
     return this.repo.getUserTheme(user);
   }
   public updateUserTheme(user: string, theme: string): Promise<void> {
-    console.log("c");
-    console.log(user);
-    console.log(theme);
     return this.repo.updateUserTheme(user, theme);
   }
   public async getUserMRU(user: string): Promise<any[]> {
