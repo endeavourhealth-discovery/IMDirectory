@@ -24,10 +24,11 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 const directService = new DirectService();
 
-const props = defineProps({
-  data: { type: Array as PropType<Array<TangledTreeData[]>>, required: true },
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  data: Array<TangledTreeData[]>;
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 watch(
   () => _.cloneDeep(props.data),

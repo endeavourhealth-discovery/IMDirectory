@@ -47,10 +47,13 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+}
+
+const props = defineProps<Props>();
+
 watch(
   () => props.shape,
   newValue => {

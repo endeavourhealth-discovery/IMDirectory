@@ -43,9 +43,10 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const directService = new DirectService();
 

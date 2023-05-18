@@ -51,11 +51,13 @@ import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Array as PropType<TTIriRef[]>, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: TTIriRef[];
+}
+
+const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;

@@ -16,9 +16,12 @@ import { DisplayQuery } from "@im-library/interfaces";
 import { Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { onMounted, watch, Ref, ref } from "vue";
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
+
 const expandedKeys: Ref<any> = ref({});
 const definition: Ref<any> = ref();
 const nodes: Ref<any[]> = ref([]);

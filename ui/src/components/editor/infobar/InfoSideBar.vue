@@ -65,9 +65,11 @@ import SecondaryTree from "@/components/shared/SecondaryTree.vue";
 
 const log = getLogger("components.editor.infobar.InfoSideBar");
 
-const props = defineProps({
-  selectedConceptIri: { type: String, required: true }
-});
+interface Props {
+  selectedConceptIri: string;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   closeBar: () => true

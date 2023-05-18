@@ -52,20 +52,18 @@ import { ToastSeverity } from "@im-library/enums";
 import _ from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 
-const props = defineProps({
+interface Props {
   value: {
-    type: Object as PropType<{
-      type: string;
-      operator: string;
-      property: { concept: any; descendants: string };
-      value: { concept: any; descendants: string };
-      ecl?: string;
-    }>,
-    required: true
-  },
-  parent: { type: Object, required: false },
-  focus: { type: Object, required: false }
-});
+    type: string;
+    operator: string;
+    property: { concept: any; descendants: string };
+    value: { concept: any; descendants: string };
+    ecl?: string;
+  };
+  parent?: any;
+  focus?: any;
+}
+const props = defineProps<Props>();
 
 watch(
   () => _.cloneDeep(props.value),

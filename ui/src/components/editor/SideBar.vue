@@ -22,9 +22,11 @@ import NavTree from "./sidebar/NavTree.vue";
 import SearchBar from "./sidebar/SearchBar.vue";
 import SearchResults from "./sidebar/SearchResults.vue";
 
-const props = defineProps({
-  editorEntity: { type: Object as PropType<any>, required: true }
-});
+interface Props {
+  editorEntity: any;
+}
+
+const props = defineProps<Props>();
 
 const searchResults: Ref<any[]> = ref([]);
 const searchLoading = ref(false);

@@ -15,9 +15,10 @@ import { ProvService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { onMounted, ref, Ref } from "vue";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const provenances: Ref<any[]> = ref([]);
 const loading: Ref<boolean> = ref(false);

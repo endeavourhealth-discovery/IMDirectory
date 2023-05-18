@@ -14,13 +14,15 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
-const props = defineProps({
-  types: { type: Array as PropType<Array<TTIriRef>>, required: true },
-  header: { type: String, required: true }
-});
+interface Props {
+  types: TTIriRef[];
+  header: string;
+}
 
-let icon: Ref<any[]> = ref([]);
-let colour = ref("");
+const props = defineProps<Props>();
+
+const icon: Ref<any[]> = ref([]);
+const colour = ref("");
 
 watch(
   () => _.cloneDeep(props.types),

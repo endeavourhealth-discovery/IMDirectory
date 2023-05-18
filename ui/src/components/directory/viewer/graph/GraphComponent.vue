@@ -37,9 +37,10 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
-const props = defineProps({
-  data: { type: Object as PropType<TTGraphData>, required: true, default: {} as TTGraphData }
-});
+interface Props {
+  data: TTGraphData;
+}
+const props = defineProps<Props>();
 
 const route = useRoute();
 const toast = useToast();

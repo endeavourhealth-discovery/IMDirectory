@@ -22,9 +22,11 @@
 import { Avatars } from "@im-library/constants";
 import { Ref, ref, watch } from "vue";
 
-const props = defineProps({
-  selectedAvatar: { type: String, required: true }
-});
+interface Props {
+  selectedAvatar: string;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   avatarSelected: (payload: string) => Avatars.includes(payload)

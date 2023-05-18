@@ -53,7 +53,11 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 const directoryStore = useDirectoryStore();
-const props = defineProps({ concept: { type: Object as any, required: true } });
+interface Props {
+  concept: any;
+}
+const props = defineProps<Props>();
+
 const conceptIri = computed(() => directoryStore.conceptIri);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 

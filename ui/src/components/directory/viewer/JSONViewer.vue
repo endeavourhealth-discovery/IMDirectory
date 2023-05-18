@@ -16,8 +16,12 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { IM } from "@im-library/vocabulary";
 
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
+
 const toast = useToast();
-const props = defineProps({ conceptIri: { type: String, required: true } });
 const entityJSON = ref({ entity: {}, predicates: {} });
 const loading = ref(false);
 onMounted(async () => {

@@ -33,7 +33,10 @@ import { useRoute, useRouter } from "vue-router";
 import { useSharedStore } from "@/stores/sharedStore";
 const { iriToUrl } = Converters;
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const router = useRouter();
 const route = useRoute();
