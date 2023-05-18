@@ -70,7 +70,11 @@ export default class QueryController {
   }
 
   async getAllowablePropertySuggestions(req: Request) {
-    return await this.queryService.getAllowablePropertySuggestions(req.query.iri as string, req.query.searchTerm as string);
+    const iri = req.query.iri;
+    const searchTerm = req.query.searchTerm;
+    if (iri && typeof iri === "string" && iri.startsWith("http"))
+      return await this.queryService.getAllowablePropertySuggestions(iri as string, searchTerm as string);
+    else return await this.queryService.searchProperties(searchTerm as string);
   }
 
   async getAllowablePropertySuggestionsBoolFocus(req: Request) {

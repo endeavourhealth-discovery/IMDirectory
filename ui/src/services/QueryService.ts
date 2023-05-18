@@ -62,15 +62,10 @@ const QueryService = {
   },
 
   async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
-    if (controller)
-      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
-        params: { iri: conceptIri, searchTerm: searchTerm },
-        signal: controller.signal
-      });
-    else
-      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
-        params: { iri: conceptIri, searchTerm: searchTerm }
-      });
+    return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
+      params: { iri: conceptIri, searchTerm: searchTerm },
+      signal: controller?.signal
+    });
   },
 
   async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {

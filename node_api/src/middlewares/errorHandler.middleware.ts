@@ -36,7 +36,6 @@ function errorHandler(error: any, request: Request, response: Response, next: Ne
 function handleResponse(response: any, newApiError: ApiError) {
   if (response.status) {
     newApiError.setStatus(response.status);
-    status = response.status;
   }
   if (response.data) {
     const errorData = response.data;

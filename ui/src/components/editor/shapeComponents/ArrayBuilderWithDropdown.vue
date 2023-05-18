@@ -152,8 +152,7 @@ function createDefaultBuild() {
           undefined,
           property,
           { minus: true, plus: true, up: true, down: true },
-          props.mode,
-          false
+          props.mode
         )
       );
     });
@@ -173,8 +172,7 @@ async function processChild(child: any, position: number) {
         up: true,
         down: true
       },
-      props.mode,
-      false
+      props.mode
     );
   } else {
     return generateNewComponent(
@@ -188,8 +186,7 @@ async function processChild(child: any, position: number) {
         up: true,
         down: true
       },
-      props.mode,
-      false
+      props.mode
     );
   }
 }
@@ -261,7 +258,7 @@ function addItemWrapper(data: { selectedType: ComponentType; position: number; v
   if (data.selectedType !== ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER;
   }
-  if (shape) addItem(data, build.value, { minus: true, plus: true, up: true, down: true }, shape, props.mode, false);
+  if (shape) addItem(data, build.value, { minus: true, plus: true, up: true, down: true }, shape, props.mode);
 }
 
 function deleteItem(data: ComponentDetails): void {

@@ -9,8 +9,7 @@ export function generateNewComponent(
   data: any,
   shape: PropertyShape,
   showButtons: { minus: boolean; plus: boolean; up: boolean; down: boolean },
-  mode: EditorMode,
-  showTitles: boolean
+  mode: EditorMode
 ): ComponentDetails {
   return {
     id: type + "_" + position,
@@ -20,8 +19,7 @@ export function generateNewComponent(
     json: {},
     showButtons: showButtons,
     shape: shape,
-    mode: mode,
-    showTitles: showTitles
+    mode: mode
   };
 }
 
@@ -79,10 +77,9 @@ export function addItem(
   build: ComponentDetails[],
   showButtons: { minus: boolean; plus: boolean; up: boolean; down: boolean },
   shape: PropertyShape,
-  mode: EditorMode,
-  showTitles: boolean
+  mode: EditorMode
 ) {
-  const newComponent = generateNewComponent(itemToAdd.selectedType, itemToAdd.position, itemToAdd.value, shape, showButtons, mode, showTitles);
+  const newComponent = generateNewComponent(itemToAdd.selectedType, itemToAdd.position, itemToAdd.value, shape, showButtons, mode);
   if (!newComponent) return;
   build.splice(itemToAdd.position, 0, newComponent);
   updatePositions(build);
