@@ -222,7 +222,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a where with after comparison date", () => {
       const display = getDisplayFromWhere(where.after as Where);
-      expect(display).toEqual("after latestBP");
+      expect(display).toEqual("after <span class='variable'>latestBP</span> ");
     });
 
     //     it("can get a display for a where null", () => {
@@ -240,7 +240,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a where with a nodeRef and comparison", () => {
       const display = getDisplayFromWhere(where.withNodeRefAndComparison as Where);
-      expect(display).toEqual("latestBP > 150");
+      expect(display).toEqual("<span class='variable'>latestBP</span>  > 150");
     });
 
     //     it("can get a display for a where with an in list with multiple items", () => {
