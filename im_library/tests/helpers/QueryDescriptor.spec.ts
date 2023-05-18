@@ -24,7 +24,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a set match clause without a name", () => {
       const display = getDisplayFromMatch(match.withSet as Match);
-      expect(display).toEqual("in 'CSET_EmailOnlineEncounter'");
+      expect(display).toEqual("in 'CSET_EmailOnlineEncounter'q");
     });
 
     it("can get a display for a match with entailment", () => {
