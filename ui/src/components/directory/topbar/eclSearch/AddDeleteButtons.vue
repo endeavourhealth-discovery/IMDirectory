@@ -22,12 +22,6 @@ const props = withDefaults(defineProps<Props>(), {
   show: { minus: true, plus: true } as any
 });
 
-// const props = defineProps({
-//   position: Number,
-//   show: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } },
-//   options: { type: Array as PropType<ECLComponent[]>, required: true }
-// });
-
 const emit = defineEmits({
   addNextClicked: (_payload: ECLComponent) => true,
   deleteClicked: () => true

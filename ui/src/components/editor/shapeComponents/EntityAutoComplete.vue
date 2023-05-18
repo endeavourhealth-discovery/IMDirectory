@@ -86,7 +86,9 @@ interface Props {
   disabled?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false
+});
 
 watch(
   () => _.cloneDeep(props.value),

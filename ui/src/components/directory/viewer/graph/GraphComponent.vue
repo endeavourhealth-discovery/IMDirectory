@@ -40,7 +40,10 @@ const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 interface Props {
   data: TTGraphData;
 }
-const props = defineProps<Props>();
+
+const props = withDefaults(defineProps<Props>(), {
+  data: {} as any
+});
 
 const route = useRoute();
 const toast = useToast();

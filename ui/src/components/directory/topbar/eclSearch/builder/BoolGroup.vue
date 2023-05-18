@@ -98,7 +98,10 @@ interface Props {
   rootBool?: boolean;
   index?: number;
 }
-const props = defineProps<Props>();
+
+const props = withDefaults(defineProps<Props>(), {
+  rootBool: false
+});
 
 watch(
   () => _.cloneDeep(props.value),

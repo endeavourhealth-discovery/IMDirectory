@@ -56,6 +56,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   size: "100%",
+  data: [] as any,
   id: "array-object-name-listbox-with-label"
 });
 

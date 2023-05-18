@@ -30,13 +30,6 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
-interface Props {
-  proIcon?: string;
-  icon: string[] | string;
-  size?: string;
-  position?: number;
-}
-
 const props = defineProps({
   proIcon: { type: String, required: false },
   icon: { type: [Array, String] as PropType<string[] | string>, required: true },

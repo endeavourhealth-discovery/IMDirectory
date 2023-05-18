@@ -11,12 +11,13 @@ interface Props {
   label: string;
   size?: string;
   id?: string;
-  show: boolean;
+  show?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: "100%",
-  id: "text-section-header"
+  id: "text-section-header",
+  show: true
 });
 </script>
 
