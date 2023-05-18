@@ -30,6 +30,7 @@ const SnomedLicense = () => import("@/views/SnomedLicense.vue");
 const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
 const Cookies = () => import("@/views/Cookies.vue");
 const Filer = () => import("@/views/Filer.vue");
+const Uprn = () => import("@/views/Uprn.vue");
 const Query = () => import("@/views/Query.vue");
 import { EntityService, Env } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -217,6 +218,11 @@ const routes: Array<RouteRecordRaw> = [
       requiresAuth: true,
       requiresLicense: true
     }
+  },
+  {
+    path: "/uprn",
+    name: "Uprn",
+    component: Uprn
   },
   // {
   //   path: "/query",

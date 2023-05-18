@@ -83,4 +83,8 @@ export default class DirectService {
       window.open(routeData.href, "_blank");
     }
   }
+
+  public uprn() {
+    window.open(Env.DIRECTORY_URL + "uprn");
+  }
 }
