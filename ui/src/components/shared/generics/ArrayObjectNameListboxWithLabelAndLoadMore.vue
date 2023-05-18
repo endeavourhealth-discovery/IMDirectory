@@ -60,12 +60,17 @@ import { useSharedStore } from "@/stores/sharedStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabelAndLoadMore");
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Object as PropType<{ children: any[]; totalCount: any; loadMore: Function }>, required: true },
-  size: { type: String, default: "100%", required: false },
-  id: { type: String, default: "array-object-name-listbox-with-label-and-load-more" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: { children: any[]; totalCount: any; loadMore: Function };
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "array-object-name-listbox-with-label-and-load-more"
 });
 
 const directoryStore = useDirectoryStore();

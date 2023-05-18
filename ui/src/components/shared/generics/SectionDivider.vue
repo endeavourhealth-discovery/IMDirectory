@@ -5,8 +5,12 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  size: { type: String, default: "100%" },
-  show: { type: Boolean }
+interface Props {
+  size?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%"
 });
 </script>

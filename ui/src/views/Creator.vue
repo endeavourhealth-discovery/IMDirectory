@@ -111,8 +111,11 @@ import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
+interface Props {
+  type?: TTIriRef;
+}
 
-const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
+const props = defineProps<Props>();
 
 const route = useRoute();
 const router = useRouter();

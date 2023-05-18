@@ -41,9 +41,11 @@ import { useRoute, useRouter } from "vue-router";
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
-const props = defineProps({
-  data: { type: Object, required: true }
-});
+interface Props {
+  data: any;
+}
+
+const props = defineProps<Props>();
 const emit = defineEmits({
   showDetails: (_payload: string) => true,
   updateSelected: (_payload: string) => true

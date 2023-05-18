@@ -14,7 +14,7 @@
       :expanded-keys="expandedKeys"
       @node-expand="expandNode"
     >
-      <template #default="{ node }: { node: any}">
+      <template #default="{ node }: { node: any }">
         {{ node.label }}
       </template>
     </Tree>
@@ -40,10 +40,13 @@ import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { getKey } from "@im-library/helpers";
 import { TreeNode } from "@im-library/interfaces/TreeNode";
 
-const props = defineProps({
-  selectedProperty: { type: Object as PropType<TreeNode>, required: true },
-  selectedValue: { type: Object as PropType<TreeNode>, required: true }
-});
+interface Props {
+  selectedProperty: TreeNode;
+  selectedValue: TreeNode;
+}
+
+const props = defineProps<Props>();
+
 const visible: Ref<boolean> = ref(false);
 const selectedKey: Ref<TreeSelectionKeys> = ref({} as TreeSelectionKeys);
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);

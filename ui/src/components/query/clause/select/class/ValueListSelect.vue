@@ -12,9 +12,13 @@ import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { Ref, onMounted, ref, watch } from "vue";
-const props = defineProps({
-  classIri: { type: String, required: true }
-});
+
+interface Props {
+  classIri: string;
+}
+
+const props = defineProps<Props>();
+
 const emit = defineEmits({ onSelect: (payload: any) => payload, close: () => true });
 
 const selectedValue: Ref<any> = ref({});

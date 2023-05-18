@@ -9,10 +9,13 @@ import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { onMounted, PropType, Ref, ref, computed, watch } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
 
+interface Props {
+  entityValue: ConceptSummary;
+}
+
+const props = defineProps<Props>();
+
 const filterStore = useFilterStore();
-const props = defineProps({
-  entityValue: { type: Object as PropType<ConceptSummary>, required: true }
-});
 
 watch(
   () => props.entityValue.iri,

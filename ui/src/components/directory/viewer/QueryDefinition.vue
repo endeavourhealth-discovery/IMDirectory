@@ -19,7 +19,10 @@ import { QueryObject } from "@im-library/interfaces";
 import { QueryService } from "@/services";
 import { TreeNode } from "primevue/tree";
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const queryDisplay = ref<QueryObject[]>();
 let expandedKeys = ref<any>({});
