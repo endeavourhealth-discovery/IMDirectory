@@ -24,7 +24,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a set match clause without a name", () => {
       const display = getDisplayFromMatch(match.withSet as Match);
-      expect(display).toEqual("in CSET_EmailOnlineEncounter");
+      expect(display).toEqual("in 'CSET_EmailOnlineEncounter'");
     });
 
     it("can get a display for a match with entailment", () => {
@@ -34,7 +34,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a match with entailment", () => {
       const display = getDisplayFromMatch(match.withNameAndEntailment as Match);
-      expect(display).toEqual("&lt;&lt;Text message consultation");
+      expect(display).toEqual("Text message consultation");
     });
 
     it("can not get a display for a match clause with a variable", () => {
@@ -197,17 +197,17 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getDisplayFromWhere", () => {
     it("can get a display for a where with an in list", () => {
       const display = getDisplayFromWhere(where.withIn as Where);
-      expect(display).toEqual("with &lt;714628002");
+      expect(display).toEqual(" descendants of 714628002");
     });
 
     it("can get a display for a where with an in list", () => {
       const display = getDisplayFromWhere(where.withIn as Where);
-      expect(display).toEqual("with &lt;714628002");
+      expect(display).toEqual(" descendants of 714628002");
     });
 
     it("can get a display for a where with an in list and valueLabel", () => {
       const display = getDisplayFromWhere(where.withInAndValueLabel as Where);
-      expect(display).toEqual("with Office or home systolic blood pressure");
+      expect(display).toEqual(" Office or home systolic blood pressure");
     });
 
     it("can get a display for a where of last 6 months", () => {
@@ -235,7 +235,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a where with a not in list", () => {
       const display = getDisplayFromWhere(where.withNotInAndName as Where);
-      expect(display).toEqual("without &lt;Prediabetes (finding)");
+      expect(display).toEqual("not descendants of Prediabetes (finding)");
     });
 
     it("can get a display for a where with a nodeRef and comparison", () => {
@@ -288,7 +288,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a where with a range", () => {
       const display = getDisplayFromWhere(where.withRange as Where);
-      expect(display).toEqual("has age between 65 and 70 YEARS");
+      expect(display).toEqual(" age between 65 and 70 YEARS");
     });
   });
 

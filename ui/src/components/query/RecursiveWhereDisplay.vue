@@ -2,7 +2,7 @@
   <div class="feature" v-for="(where, index) of wheres">
     <div>
       <span v-if="index" v-html="!parentWhere ? getDisplayFromLogic('and') : getDisplayFromLogic(parentWhere.bool)"></span>
-      <span v-if="hasNodeRef(where)" v-html="where.description" @mouseover="show(where, $event)" @mouseleave="hide($event)"></span>
+      <span v-if="hasNodeRef(where)" v-html="where.description" @click="show(where, $event)" @dblclick="hide($event)"></span>
       <span v-else v-html="where.description"></span>
       <span v-if="isArrayHasLength(where.where)">
         <RecursiveWhereDisplay :wheres="where.where" :parent-match="parentMatch" :parent-where="where" :full-query="fullQuery" />

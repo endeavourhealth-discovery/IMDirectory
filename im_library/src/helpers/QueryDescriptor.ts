@@ -53,7 +53,7 @@ export function getDisplayFromMatch(match: Match) {
   let display = "";
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
-  if (match["@set"]) display = "in " + display;
+  if (match["@set"]) display = "in '" + display + "'";
   if (match.path) display += getDisplayFromPath(match.path);
   if (match.orderBy) display += " " + getDisplayFromOrderByList(match.orderBy);
   return display;
@@ -74,8 +74,8 @@ export function getDisplayFromWhere(where: Where) {
   let display = "";
   const propertyName = getDisplayFromNodeRef(where.nodeRef) ?? getNameFromRef(where);
   if (!propertyDropList.includes(propertyName)) display += propertyName;
-  if (where.in) display += "with " + (where.valueLabel ?? getDisplayFromList(where.in, true));
-  if (where.notIn) display += "without " + (where.valueLabel ?? getDisplayFromList(where.notIn, false));
+  if (where.in) display += " " + (where.valueLabel ?? getDisplayFromList(where.in, true));
+  if (where.notIn) display += "not " + (where.valueLabel ?? getDisplayFromList(where.notIn, false));
   if (where.operator) display = getDisplayFromOperator(propertyName, where);
   if (where.range) display = getDisplayFromRange(propertyName, where);
   if (where.null) display += " is null";
@@ -122,7 +122,7 @@ export function getDisplayFromLogic(title: string) {
 }
 
 export function getDisplayFromRange(propertyName: string, where: Where) {
-  const property = "has " + propertyName;
+  const property = " " + propertyName;
   let display = property + " between ";
   display += where.range.from.value + " and " + where.range.to.value + " " + where.range.to.unit;
   return display;
@@ -219,9 +219,9 @@ export function getDisplayFromList(nodes: Node[], include: boolean) {
 }
 
 export function getDisplayFromEntailment(node: Node) {
-  if (node.ancestorsOf) return "&gt;";
-  if (node.descendantsOf) return "&lt;";
-  if (node.descendantsOrSelfOf) return "&lt;&lt;";
+  if (node.ancestorsOf) return "ancestors of ";
+  if (node.descendantsOf) return "descendants of ";
+  if (node.descendantsOrSelfOf) return "";
   return "";
 }
 

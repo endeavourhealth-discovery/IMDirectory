@@ -21,7 +21,7 @@
       </span>
       <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
         <span v-if="match.where.length == 1">
-          <span v-if="hasNodeRef(match.where[0])" v-html="match.where[0].description" @mouseover="show(match.where[0], $event)" @mouseleave="hide($event)">
+          <span v-if="hasNodeRef(match.where[0])" v-html="match.where[0].description" @click="show(match.where[0], $event)" @dblclick="hide($event)">
           </span>
           <span v-else v-html="match.where[0].description"></span>
         </span>
