@@ -20,7 +20,6 @@ describe("EditorBuilderJsonMethods", () => {
           plus: true,
           up: true
         },
-        showTitles: false,
         type: "EntityDropdown",
         value: {}
       });

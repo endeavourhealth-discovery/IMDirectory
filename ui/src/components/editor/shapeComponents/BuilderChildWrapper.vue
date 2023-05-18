@@ -1,10 +1,5 @@
 <template>
   <div class="builder-child">
-    <div>
-      <AddTitle
-          :show="showTitles"
-      />
-    </div>
     <div class="builder-child-wrapper">
       <div class="builder-child-container" :id="id">
         <component
@@ -19,13 +14,12 @@
       </div>
 
       <AddDeleteButtons
-          :show="{ minus: showButtons.minus, plus: false }"
-          :position="position"
-          :options="nextComponentOptions"
-          @deleteClicked="deleteClicked"
-          @addNextClicked="addNextClicked"
+        :show="{ minus: showButtons.minus, plus: false }"
+        :position="position"
+        :options="nextComponentOptions"
+        @deleteClicked="deleteClicked"
+        @addNextClicked="addNextClicked"
       />
-
     </div>
     <div class="indented-add-button">
       <AddDeleteButtons
@@ -69,8 +63,7 @@ const props = defineProps({
   showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean; up: boolean; down: boolean }>, required: true },
   shape: { type: Object as PropType<PropertyShape>, required: true },
   mode: { type: String as PropType<EditorMode>, required: true },
-  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true },
-  showTitles: {type: Boolean}
+  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true }
 });
 
 const emit = defineEmits({
@@ -92,8 +85,7 @@ function createEntity(data?: any): ComponentDetails {
       json: data,
       showButtons: props.showButtons,
       shape: props.shape,
-      mode: props.mode,
-      showTitles: props.showTitles
+      mode: props.mode
     };
   else {
     return {
@@ -104,8 +96,7 @@ function createEntity(data?: any): ComponentDetails {
       json: {},
       showButtons: props.showButtons,
       shape: props.shape,
-      mode: props.mode,
-      showTitles: props.showTitles
+      mode: props.mode
     };
   }
 }

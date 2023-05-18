@@ -56,6 +56,8 @@ export class IM {
   public static SOURCE_FIELD = IM.NAMESPACE + "sourceField";
   public static SOURCE_VALUE = IM.NAMESPACE + "sourceValue";
   public static SOURCE_REGEX = IM.NAMESPACE + "sourceRegex";
+  public static CONTEXT_NODE = IM.NAMESPACE + "contextNode";
+  public static TARGET_PROPERTY = IM.NAMESPACE + "targetProperty";
 
   public static QUERY_SET = IM.NAMESPACE + "QuerySet";
   public static QUERY_TEMPLATE = IM.NAMESPACE + "QueryTemplate";

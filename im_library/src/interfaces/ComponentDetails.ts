@@ -10,5 +10,4 @@ export interface ComponentDetails {
   showButtons?: { minus: boolean; plus: boolean; up: boolean; down: boolean };
   shape: PropertyShape;
   mode: EditorMode;
-  showTitles?: boolean;
 }
