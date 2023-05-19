@@ -14,13 +14,12 @@
     ></TextQuery>
     <div><Button label="Add clause" @click="addClause" /></div> -->
 
-    <div class="include-title" style="color: green">Include if</div>
+    <div class="include-title" style="color: green">include if</div>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(query.match)"
       :matches="query.match.filter(match => !isObjectHasKeys(match, ['exclude']))"
       :full-query="query"
     />
-    <div class="include-title" style="color: red">Exclude if</div>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(query.match)"
       :matches="query.match.filter(match => isObjectHasKeys(match, ['exclude']))"

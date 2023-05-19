@@ -2,7 +2,7 @@
   <div class="feature" v-for="(where, index) of wheres">
     <div>
       <span v-if="index" v-html="!parentWhere ? getDisplayFromLogic('and') : getDisplayFromLogic(parentWhere.bool)"></span>
-      <span v-if="hasNodeRef(where)" v-html="where.description" @click="show(where, $event)" @dblclick="hide($event)"></span>
+      <span v-if="hasNodeRef(where)" v-html="where.description" @click="onNodeRefClick(where, $event)"></span>
       <span v-else v-html="where.description"></span>
       <span v-if="isArrayHasLength(where.where)">
         <RecursiveWhereDisplay :wheres="where.where" :parent-match="parentMatch" :parent-where="where" :full-query="fullQuery" />
@@ -16,7 +16,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getDisplayFromLogic } from "@im-library/helpers/TextQueryBuilder";
 import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
-import { PropType, Ref, onMounted, watch } from "vue";
+import { PropType, Ref } from "vue";
 import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
 
@@ -30,13 +30,9 @@ const props = defineProps({
 const op: Ref<any> = ref();
 const hoveredWhere: Ref<any> = ref();
 
-function show(where: Where, event: any) {
+function onNodeRefClick(where: Where, event: any) {
   hoveredWhere.value = where;
-  op.value.show(event);
-}
-
-function hide(event: any) {
-  op.value.hide(event);
+  op.value.toggle(event);
 }
 
 function hasNodeRef(where: Where) {

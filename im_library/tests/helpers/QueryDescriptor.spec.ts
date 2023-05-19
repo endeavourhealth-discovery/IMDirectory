@@ -24,7 +24,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a set match clause without a name", () => {
       const display = getDisplayFromMatch(match.withSet as Match);
-      expect(display).toEqual("in 'CSET_EmailOnlineEncounter'q");
+      expect(display).toEqual("in 'CSET_EmailOnlineEncounter'");
     });
 
     it("can get a display for a match with entailment", () => {
@@ -40,6 +40,11 @@ describe("QueryDescriptor.ts ___", () => {
     it("can not get a display for a match clause with a variable", () => {
       const display = getDisplayFromMatch(match.withVariable as Match);
       expect(display).toEqual("");
+    });
+
+    it("can get a display for a complext query with orderBy", () => {
+      const display = getDisplayFromMatch(match.withOrderByWhereInAndWhereComparison as Match);
+      expect(display).toEqual(" ordered by latest effectiveDate");
     });
 
     //     it("can get a display for an exclude set match clause", () => {

@@ -2,6 +2,7 @@
   <div class="feature" v-for="(match, index) of matches">
     <div v-if="!match.variable || isVariable">
       <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch)"></span>
+      <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
       <span v-if="match.description" v-html="match.description"> </span>
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay
@@ -21,8 +22,7 @@
       </span>
       <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
         <span v-if="match.where.length == 1">
-          <span v-if="hasNodeRef(match.where[0])" v-html="match.where[0].description" @click="show(match.where[0], $event)" @dblclick="hide($event)">
-          </span>
+          <span v-if="hasNodeRef(match.where[0])" v-html="match.where[0].description" @click="onNodeRefClick(match.where[0], $event)"> </span>
           <span v-else v-html="match.where[0].description"></span>
         </span>
 
@@ -36,9 +36,8 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
-import { PropType, Ref, onMounted, ref, watch } from "vue";
+import { PropType, Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import { getDisplayFromLogic } from "@im-library/helpers/TextQueryBuilder";
 import QueryOverlay from "./QueryOverlay.vue";
@@ -56,13 +55,9 @@ function hasNodeRef(where: Where) {
   return isObjectHasKeys(where, ["nodeRef"]) || isObjectHasKeys(where.relativeTo, ["nodeRef"]);
 }
 
-function show(where: Where, event: any) {
+function onNodeRefClick(where: Where, event: any) {
   hoveredWhere.value = where;
-  op.value.show(event);
-}
-
-function hide(event: any) {
-  op.value.hide(event);
+  op.value.toggle(event);
 }
 
 function getNodeRef(where: Where) {

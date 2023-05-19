@@ -51,7 +51,6 @@ export function getNameFromRef(ref: any) {
   else if (isObjectHasKeys(ref, ["@set"])) return getNameFromIri(ref["@set"]);
   else if (isObjectHasKeys(ref, ["@type"])) return getNameFromIri(ref["@type"]);
   else if (isObjectHasKeys(ref, ["parameter"])) return ref["parameter"];
-
   return "";
 }
 

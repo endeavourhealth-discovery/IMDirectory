@@ -49,7 +49,6 @@ function describeWhere(where: Where[], type: string) {
 
 // getters
 export function getDisplayFromMatch(match: Match) {
-  if (match.variable) return "";
   let display = "";
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
@@ -139,7 +138,7 @@ export function getDisplayFromOperator(property: string, where: Where) {
     display += where.operator + " ";
     if (where.relativeTo) {
       let relativeTo = "";
-      if (where.relativeTo.variable) relativeTo += where.relativeTo.variable;
+      if (where.relativeTo.parameter) relativeTo += where.relativeTo.parameter;
       if (relativeTo) relativeTo += ".";
       relativeTo += getNameFromRef(where.relativeTo);
       display += relativeTo;
