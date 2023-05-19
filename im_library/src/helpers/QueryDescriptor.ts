@@ -3,7 +3,7 @@ import { Match, Path, Where, Property, OrderLimit, Node, Query } from "../interf
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 
-const propertyDropList = ["observation", "concept", "numericValue"];
+const propertyDropList = ["observation", "concept", "numericvalue", "effectiveDate", "effective date"];
 
 export function describeQuery(query: Query): Query {
   const describedQuery = { ...query };
@@ -99,7 +99,8 @@ export function getDisplayFromOrderByList(orderByList: OrderLimit[]) {
 export function getDisplayFromOrderBy(orderBy: OrderLimit) {
   let display = "";
   if (orderBy.variable) display += orderBy.variable + ".";
-  display += getNameFromRef(orderBy);
+  const propertyName = getNameFromRef(orderBy);
+  if (!propertyDropList.includes(propertyName)) display += propertyName + " ";
   if (orderBy.limit === 1) {
     if ("descending" === orderBy.direction) display = "latest " + display;
     if ("ascending" === orderBy.direction) display = "earliest " + display;

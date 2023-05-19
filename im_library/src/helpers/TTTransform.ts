@@ -45,7 +45,7 @@ function getNameFromIri(iri: string) {
   return iri;
 }
 
-export function getNameFromRef(ref: any) {
+export function getNameFromRef(ref: any): string {
   if (isObjectHasKeys(ref, ["name"])) return ref.name;
   else if (isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
   else if (isObjectHasKeys(ref, ["@set"])) return getNameFromIri(ref["@set"]);

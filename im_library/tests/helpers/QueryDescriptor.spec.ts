@@ -44,7 +44,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a complext query with orderBy", () => {
       const display = getDisplayFromMatch(match.withOrderByWhereInAndWhereComparison as Match);
-      expect(display).toEqual(" ordered by latest effectiveDate");
+      expect(display).toEqual(" ordered by latest ");
     });
 
     //     it("can get a display for an exclude set match clause", () => {
