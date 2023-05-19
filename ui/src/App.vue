@@ -26,7 +26,7 @@ import FooterBar from "./components/app/FooterBar.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Env, GithubService } from "@/services";
+import { Env, GithubService, UserService } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
@@ -46,27 +46,29 @@ const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 
-const currentTheme = computed(() => userStore.currentTheme);
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
+const currentTheme: Ref<string | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
   await userStore.authenticateCurrentUser();
-  if (currentTheme.value) {
-    if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
-  } else userStore.updateCurrentTheme("saga-blue");
+  if (currentUser.value) currentTheme.value = await UserService.getUserTheme(currentUser.value.id);
+  if (!currentTheme.value) currentTheme.value = "saga-blue";
+  changeTheme(currentTheme.value);
   await setShowBanner();
   loading.value = false;
 });
 
 function changeTheme(newTheme: string) {
   PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
-  userStore.updateCurrentTheme(newTheme);
+  if (currentUser.value) UserService.updateUserTheme(currentUser.value.id, currentTheme.value!);
+  currentTheme.value = newTheme;
 }
 
 async function setShowBanner() {

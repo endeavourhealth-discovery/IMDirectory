@@ -83,7 +83,7 @@
 import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
+import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
 import { useUserStore } from "@/stores/userStore";
@@ -98,7 +98,7 @@ const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-const currentTheme = computed(() => userStore.currentTheme);
+const currentTheme: Ref<string | undefined> = ref();
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -115,6 +115,8 @@ const appsOP = ref();
 const directService = new DirectService();
 
 onMounted(async () => {
+  if (currentUser.value) currentTheme.value = await UserService.getUserTheme(currentUser.value.id);
+  if (!currentTheme.value) currentTheme.value = "saga-blue";
   setUserMenuItems();
   setAppMenuItems();
   await getCurrentVersion();
@@ -586,7 +588,11 @@ function showReleaseNotes() {
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => userStore.updateCurrentTheme(newTheme));
+  console.log(currentTheme.value);
+  console.log(newTheme);
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {});
+  if (currentUser.value) UserService.updateUserTheme(currentUser.value.id, newTheme);
+  currentTheme.value = newTheme;
 }
 </script>
 

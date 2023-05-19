@@ -15,10 +15,9 @@ export default class UserRepository {
     const qry = "SELECT ?theme WHERE { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_THEME) + " ?theme }";
     const rs = await this.graph.execute(qry);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["theme"])) {
-      console.log(rs[0].theme.id);
       return rs[0].theme.id;
     } else {
-      //throw new CustomError(`User MRU not found: ${user}`, ErrorType.MRUNotFoundError);
+      //TODO: throw new error
     }
   }
 
@@ -29,11 +28,9 @@ export default class UserRepository {
       userMRU: iri(USER.USER_MRU)
     });
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["mru"])) {
-      console.log(rs[0].mru.id);
       return rs[0].mru.id;
     } else {
-      console.log("a");
-      //throw new CustomError(`User MRU not found: ${user}`, ErrorType.MRUNotFoundError);
+      //TODO: throw new error
     }
   }
 
