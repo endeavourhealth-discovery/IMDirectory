@@ -45,12 +45,14 @@ import { useEditorStore } from "@/stores/editorStore";
 
 const editorStore = useEditorStore();
 
-const props = defineProps({
-  value: { type: Object as PropType<TTIriRef>, required: false },
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: TTIriRef;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: TTIriRef) => true

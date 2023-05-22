@@ -53,11 +53,13 @@ import { isPropertyShape, isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService, EntityService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Object as PropType<any>, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: any;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: any) => true

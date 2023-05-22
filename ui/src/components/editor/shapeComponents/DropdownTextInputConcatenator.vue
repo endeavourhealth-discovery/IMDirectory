@@ -24,12 +24,14 @@ import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: String, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: string;
+}
+
+const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;

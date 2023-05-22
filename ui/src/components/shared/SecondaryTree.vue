@@ -113,9 +113,11 @@ import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
 
 const directService = new DirectService();
 

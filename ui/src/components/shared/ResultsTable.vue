@@ -70,10 +70,15 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
-const props = defineProps({
-  searchResults: { type: Array as PropType<any[]>, default: [] },
-  totalRecords: { type: Number, required: false, default: 0 },
-  loading: { type: Boolean, required: true }
+interface Props {
+  searchResults?: any[];
+  totalRecords?: number;
+  loading: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  searchResults: [] as any,
+  totalRecords: 0
 });
 
 const directoryStore = useDirectoryStore();
@@ -136,7 +141,7 @@ function init() {
 }
 
 function processSearchResults() {
-  for (const result of props.searchResults) {
+  for (const result of props.searchResults!) {
     if (isObjectHasKeys(result, ["entityType"])) {
       result.icon = getFAIconFromType(result.entityType);
       result.colour = getColourFromType(result.entityType);

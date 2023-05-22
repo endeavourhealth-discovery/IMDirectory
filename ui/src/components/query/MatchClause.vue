@@ -43,10 +43,12 @@ import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 
 const emit = defineEmits({ onCancel: () => true, onSave: (payload: any) => payload });
 
-const props = defineProps({
-  baseEntityIri: { type: String, required: true },
-  textQuery: { type: Object as PropType<ITextQuery>, required: true }
-});
+interface Props {
+  baseEntityIri: string;
+  textQuery: ITextQuery;
+}
+
+const props = defineProps<Props>();
 
 const jsonMode = ref(true);
 const editMatch: Ref<any> = ref();

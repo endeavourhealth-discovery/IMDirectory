@@ -12,10 +12,12 @@ import EntitySearch from "../editTextQuery/EntitySearch.vue";
 import EntailmentOptionsSelect from "../editTextQuery/EntailmentOptionsSelect.vue";
 import { ConceptSummary, MatchClauseUI, WhereClauseUI } from "@im-library/interfaces";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-const props = defineProps({
-  baseEntityIri: { type: String, required: true },
-  baseClause: { type: Object as PropType<MatchClauseUI>, required: true }
-});
+interface Props {
+  baseEntityIri: string;
+  baseClause: MatchClauseUI;
+}
+
+const props = defineProps<Props>();
 
 const clauseTypes = [
   { name: "Type", prop: "@type" },

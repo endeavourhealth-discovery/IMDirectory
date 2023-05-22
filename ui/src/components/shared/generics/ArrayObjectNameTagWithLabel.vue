@@ -18,12 +18,17 @@ import { useSharedStore } from "@/stores/sharedStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameTagWithLabel");
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Array as PropType<TTIriRef[]>, required: true },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "array-object-name-tag-with-label" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: TTIriRef[];
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "array-object-name-tag-with-label"
 });
 
 const sharedStore = useSharedStore();

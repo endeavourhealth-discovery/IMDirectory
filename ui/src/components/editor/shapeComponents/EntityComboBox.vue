@@ -34,12 +34,14 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Array as PropType<TTIriRef[]>, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: TTIriRef[];
+}
+
+const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;

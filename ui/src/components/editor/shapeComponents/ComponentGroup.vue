@@ -31,12 +31,14 @@ import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Array as PropType<TTIriRef[]>, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: TTIriRef[];
+}
+
+const props = defineProps<Props>();
 
 watch(
   () => props.shape,

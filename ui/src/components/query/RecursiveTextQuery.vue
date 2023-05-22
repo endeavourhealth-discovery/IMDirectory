@@ -26,11 +26,13 @@ import { getDisplayFromMatch } from "@im-library/helpers/TextQueryBuilder";
 import { buildClauseUI } from "@im-library/helpers/ClauseUIBuilder";
 import { MatchClauseUI, WhereClauseUI } from "@im-library/interfaces";
 import { SHACL } from "@im-library/vocabulary";
-const props = defineProps({
-  baseEntityIri: { type: String, required: true },
-  textQueries: { type: Object as PropType<ITextQuery[]>, required: true },
-  addedNewClause: { type: Boolean }
-});
+interface Props {
+  baseEntityIri: string;
+  addedNewClause?: boolean;
+  textQueries: ITextQuery[];
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({ onOpenNewClause: () => true });
 

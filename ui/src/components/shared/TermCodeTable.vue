@@ -11,9 +11,11 @@
 <script setup lang="ts">
 import { PropType } from "vue";
 
-const props = defineProps({
-  terms: { type: Array as PropType<Array<{ name: string; code: string }>>, required: true }
-});
+interface Props {
+  terms: { name: string; code: string }[];
+}
+
+const props = defineProps<Props>();
 </script>
 <style scoped>
 .term-code.table {

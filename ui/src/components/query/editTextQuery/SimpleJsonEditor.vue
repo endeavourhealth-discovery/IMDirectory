@@ -5,9 +5,13 @@
 
 <script setup lang="ts">
 import { onMounted, ref, PropType, Ref } from "vue";
-const props = defineProps({
-  jsonObject: { type: Object as PropType<any>, required: true }
-});
+
+interface Props {
+  jsonObject: any;
+}
+
+const props = defineProps<Props>();
+
 const jsonString: Ref<string> = ref("");
 const errorMessage: Ref<string> = ref("");
 

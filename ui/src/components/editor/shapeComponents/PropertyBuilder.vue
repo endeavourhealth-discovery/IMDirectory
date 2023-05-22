@@ -1,12 +1,12 @@
 <template>
   <div class="property-builder">
     <div class="content-container">
-      <ToggleButton v-model="isInherited" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" disabled />
+      <Tag v-if="isInherited" value="Inherited" class="inherited-tag" />
       <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
       <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
       <EntityAutoComplete :disabled="!isVisible" :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
-      <ToggleButton v-model="required" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
-      <ToggleButton v-model="unique" onLabel="" offLabel="" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <ToggleButton v-model="required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <ToggleButton v-model="unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
     </div>
   </div>
 </template>
@@ -27,12 +27,14 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import router from "@/router";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Object as PropType<Property>, required: false },
-  position: { type: Number, required: true }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: Property;
+  position?: number;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: Property) => true
@@ -155,9 +157,9 @@ function processProps() {
 }
 
 async function updatePath(data: any) {
-  if (data["@id"]  && await isFunctionProperty(data["@id"] )) {
+  if (data["@id"] && (await isFunctionProperty(data["@id"]))) {
     isVisible.value = false;
-    updateRange({"@id": IM.FUNCTION})
+    updateRange({ "@id": IM.FUNCTION });
   }
   if (props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
     props.value["http://www.w3.org/ns/shacl#path"][0] = { "@id": data["@id"] } as TTIriRef;
@@ -246,10 +248,12 @@ async function isFunctionProperty(propIri: string) {
 .content-container {
   display: flex;
   flex-flow: row wrap;
-  align-items: baseline;
+  align-items: center;
+  padding: 1rem 1rem;
+  gap: 0.5rem;
 }
 
-.p-togglebutton {
-  margin-right: 2.5rem;
+.content-container:deep(.label-container) {
+  padding: 0;
 }
 </style>

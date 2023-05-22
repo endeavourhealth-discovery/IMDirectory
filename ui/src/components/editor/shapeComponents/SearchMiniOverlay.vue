@@ -94,11 +94,13 @@ import { useEditorStore } from "@/stores/editorStore";
 
 const editorStore = useEditorStore();
 
-const props = defineProps({
-  searchTerm: { type: String, required: false },
-  searchResults: { type: Array as PropType<Array<ConceptSummary>>, required: false },
-  loading: { type: Boolean, required: true }
-});
+interface Props {
+  searchTerm?: string;
+  searchResults?: ConceptSummary[];
+  loading: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({ searchResultSelected: (_payload: ConceptSummary) => true });
 

@@ -24,7 +24,12 @@ import { TreeNode } from "primevue/tree";
 import { ITextQuery } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
+
 const loading = ref<boolean>(false);
 const queryDisplay: Ref<TreeNode[]> = ref([] as TreeNode[]);
 const expandedKeys = ref<any>({});

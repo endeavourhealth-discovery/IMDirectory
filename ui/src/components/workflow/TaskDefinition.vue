@@ -160,9 +160,11 @@ import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import { useFilterStore } from "@/stores/filterStore";
 
-const props = defineProps({
-  data: { type: Object, required: true }
-});
+interface Props {
+  data: any;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   nextPage: (_payload: { pageIndex: number; data: {} }) => true,
