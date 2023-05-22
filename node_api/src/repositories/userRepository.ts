@@ -15,22 +15,24 @@ export default class UserRepository {
     const qry = "SELECT ?theme WHERE { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_THEME) + " ?theme }";
     const rs = await this.graph.execute(qry);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["theme"])) {
-      return rs[0].theme.id;
+      return rs[0].theme.value;
     } else {
-      //TODO: throw new error
+      await this.updateUserTheme(user, "saga-blue");
+      const rs = await this.graph.execute(qry);
+      return rs[0].theme.value;
     }
   }
 
   public async getUserMRU(user: string): Promise<any> {
-    const qry = "SELECT ?mru WHERE {    ?user ?userMRU ?mru }";
-    const rs = await this.graph.execute(qry, {
-      user: iri(USER.NAMESPACE + user),
-      userMRU: iri(USER.USER_MRU)
-    });
+    const qry = "SELECT ?mru WHERE { " + iri(USER.NAMESPACE + user) + iri(USER.USER_MRU) + " ?mru }";
+    const rs = await this.graph.execute(qry);
+    //sort later
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["mru"])) {
-      return rs[0].mru.id;
+      return rs[0].mru.value;
     } else {
-      //TODO: throw new error
+      await this.updateUserMRU(user, "[]");
+      const rs = await this.graph.execute(qry);
+      return rs[0].mru.value;
     }
   }
 

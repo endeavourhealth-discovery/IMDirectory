@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { UserState } from "@/stores/types/userState";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { AuthService, EntityService } from "@/services";
+import { AuthService, EntityService, UserService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import { CustomAlert, HistoryItem, RecentActivityItem, User } from "@im-library/interfaces";
 
@@ -52,8 +52,8 @@ export const useUserStore = defineStore("user", {
       localStorage.setItem("favourites", JSON.stringify(favourites));
       this.favourites = favourites;
     },
-    updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
-      let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") ?? "[]");
+    async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
+      let activity: RecentActivityItem[] = this.currentUser.id ? await UserService.getUserMRU(this.currentUser.id) : this.recentLocalActivity;
       activity.forEach(activityItem => {
         activityItem.dateTime = new Date(activityItem.dateTime);
       });
@@ -75,8 +75,8 @@ export const useUserStore = defineStore("user", {
           activity.push(recentActivityItem);
         }
       }
-
-      if (this.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
+      //if (this.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
+      if (this.currentUser.id) await UserService.updateUserMRU(this.currentUser.id, JSON.stringify(activity));
       this.recentLocalActivity = activity;
     },
     updateFavourites(favourite: string) {
@@ -93,7 +93,6 @@ export const useUserStore = defineStore("user", {
     },
     updateCurrentTheme(theme: string) {
       this.currentTheme = theme;
-      if (this.cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;
