@@ -25,7 +25,11 @@ import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
 const subsets: Ref<{ "@id": string; name: string }[]> = ref([]);
 
 onMounted(async () => {

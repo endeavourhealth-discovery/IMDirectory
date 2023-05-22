@@ -30,53 +30,32 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 
-const props = defineProps({
-  proIcon: { type: String, required: false },
-  icon: { type: [Array, String] as PropType<string[] | string>, required: true },
-  size: {
-    type: String as PropType<"2xs" | "xs" | "sm" | "lg" | "xl" | "2xl" | "1x" | "2x" | "3x" | "4x" | "5x" | "6x" | "7x" | "8x" | "9x" | "10x">,
-    required: false,
-    validator(value: string) {
-      return ["2xs", "xs", "sm", "lg", "xl", "2xl", "1x", "2x", "3x", "4x", "5x", "6x", "7x", "8x", "9x", "10x"].includes(value);
-    }
-  },
-  fixedWidth: { type: Boolean, required: false, default: false },
-  rotation: {
-    type: (String as PropType<"90" | "180" | "270" | undefined>) || (Number as PropType<90 | 180 | 270>),
-    required: false,
-    validator(value: string) {
-      return [90, 180, 270, "90", "180", "270"].includes(value);
-    }
-  },
-  flip: {
-    type: String as PropType<"horizontal" | "vertical" | "both" | undefined>,
-    required: false,
-    validator(value: string) {
-      return ["horizontal", "vertical", "both"].includes(value);
-    }
-  },
-  beat: { type: Boolean, required: false },
-  beatFade: { type: Boolean, required: false },
-  bounce: { type: Boolean, required: false },
-  fade: { type: Boolean, required: false },
-  shake: { type: Boolean, required: false },
-  spin: { type: Boolean, required: false },
-  spinReverse: { type: Boolean, required: false },
-  spinPulse: { type: Boolean, required: false },
-  border: { type: Boolean, required: false },
-  pull: {
-    type: String as PropType<"left" | "right" | undefined>,
-    required: false,
-    validator(value: string) {
-      return ["right", "left"].includes(value);
-    }
-  },
-  transform: { type: String, required: false },
-  mask: { type: String, required: false },
-  swapOpacity: { type: Boolean, required: false },
-  inverse: { type: Boolean, required: false },
-  counter: { type: Boolean, required: false },
-  value: { type: Number, required: false }
+interface Props {
+  proIcon?: string;
+  icon: string[] | string;
+  size?: "2xs" | "xs" | "sm" | "lg" | "xl" | "2xl" | "1x" | "2x" | "3x" | "4x" | "5x" | "6x" | "7x" | "8x" | "9x" | "10x";
+  fixedWidth?: boolean;
+  rotation?: "90" | "180" | "270" | 90 | 180 | 270;
+  flip?: "horizontal" | "vertical" | "both";
+  beat?: boolean;
+  beatFade?: boolean;
+  bounce?: boolean;
+  fade?: boolean;
+  shake?: boolean;
+  spin?: boolean;
+  spinReverse?: boolean;
+  spinPulse?: boolean;
+  border?: boolean;
+  pull?: "left" | "right";
+  transform?: string;
+  mask?: string;
+  swapOpacity?: boolean;
+  inverse?: boolean;
+  counter?: boolean;
+  value?: number;
+}
+const props = withDefaults(defineProps<Props>(), {
+  fixedWidth: false
 });
 
 const sharedStore = useSharedStore();

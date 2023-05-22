@@ -52,8 +52,11 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
 
 const emit = defineEmits({ showDetails: (_payload: string) => true });
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  conceptIri: string;
+}
 
+const props = defineProps<Props>();
 watch(
   () => props.conceptIri,
   async newValue => {

@@ -15,11 +15,15 @@ import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: String, default: "" },
-  position: { type: Number, required: false }
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: string;
+  position?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  value: ""
 });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;

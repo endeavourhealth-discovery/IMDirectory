@@ -12,9 +12,10 @@ import TangledTree from "./TangledTree.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const directoryStore = useDirectoryStore();
 const conceptIri = computed(() => directoryStore.conceptIri);

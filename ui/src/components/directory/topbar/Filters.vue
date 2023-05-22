@@ -64,10 +64,10 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useFilterStore } from "@/stores/filterStore";
-
-const props = defineProps({
-  search: { type: Function, required: true }
-});
+interface Props {
+  search: Function;
+}
+const props = defineProps<Props>();
 
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);

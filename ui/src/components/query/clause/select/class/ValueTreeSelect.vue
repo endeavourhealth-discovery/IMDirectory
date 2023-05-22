@@ -7,7 +7,7 @@
     :expanded-keys="expandedKeys"
     @node-expand="expandNode"
   >
-    <template #default="{ node }: { node: any}">
+    <template #default="{ node }: { node: any }">
       {{ node.label }}
     </template>
   </Tree>
@@ -28,9 +28,11 @@ import { TreeSelectionKeys } from "primevue/tree";
 import { Ref, onMounted, ref } from "vue";
 const emit = defineEmits({ onSelect: (payload: TreeNode) => payload, close: () => true });
 
-const props = defineProps({
-  classIri: { type: String, required: true }
-});
+interface Props {
+  classIri: string;
+}
+
+const props = defineProps<Props>();
 const nodes: Ref<TreeNode[]> = ref([]);
 const selectedKey: Ref<TreeSelectionKeys> = ref({} as TreeSelectionKeys);
 const selectedNode: Ref<TreeNode> = ref({} as TreeNode);

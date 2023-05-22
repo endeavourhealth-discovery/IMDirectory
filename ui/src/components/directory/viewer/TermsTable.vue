@@ -42,12 +42,13 @@ import { TermCode } from "@im-library/interfaces";
 import { DataTypeCheckers } from "@im-library/helpers";
 const { isArrayHasLength } = DataTypeCheckers;
 
-const props = defineProps({
-  label: { type: String },
-  data: { type: Array as PropType<Array<TermCode>> },
-  size: { type: String },
-  id: { type: String }
-});
+interface Props {
+  label?: string;
+  data?: TermCode[];
+  size?: string;
+  id?: string;
+}
+const props = defineProps<Props>();
 
 const hasData = computed(() => isArrayHasLength(props.data));
 

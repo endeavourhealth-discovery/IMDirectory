@@ -5,9 +5,13 @@
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { PropType, Ref, onMounted, ref } from "vue";
-const props = defineProps({
-  entailmentOptions: { type: Object as PropType<string[]>, required: true }
-});
+
+interface Props {
+  entailmentOptions: string[];
+}
+
+const props = defineProps<Props>();
+
 const editOptions: Ref<string[]> = ref([]);
 
 const options = ["ancestorsOf", "descendantsOrSelfOf", "descendantsOf"];

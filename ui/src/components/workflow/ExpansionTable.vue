@@ -82,18 +82,20 @@ import { FilterMatchMode } from "primevue/api";
 import { useRouter } from "vue-router";
 import DataTable, { DataTableFilterMeta, DataTableFilterMetaData } from "primevue/datatable";
 
-const props = defineProps({
-  contents: { type: Array, required: true },
-  title: { type: String, required: false },
-  loading: { type: Boolean, required: false },
-  selectable: { type: Boolean, required: false },
-  inputSearch: { type: Boolean, required: false },
-  paginable: { type: Boolean, required: false },
-  rows: { type: Number, required: false },
-  drag: { type: Boolean, required: false },
-  removableRows: { type: Boolean, required: false },
-  showActions: { type: Boolean, required: false }
-});
+interface Props {
+  contents: [];
+  title?: string;
+  loading?: boolean;
+  selectable?: boolean;
+  inputSearch?: boolean;
+  paginable?: boolean;
+  rows?: number;
+  drag?: boolean;
+  removableRows?: boolean;
+  showActions?: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   search: (_payload: string) => true,

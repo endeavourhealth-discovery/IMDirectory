@@ -35,9 +35,12 @@ interface EditValue {
   entailmentOptions: string[];
 }
 
-const props = defineProps({
-  whereClause: { type: Object as PropType<WhereClauseUI>, required: true }
-});
+interface Props {
+  whereClause: WhereClauseUI;
+}
+
+const props = defineProps<Props>();
+
 const visible: Ref<boolean> = ref(false);
 const showTree: Ref<boolean> = ref(false);
 const editValues: Ref<EditValue[]> = ref([] as EditValue[]);

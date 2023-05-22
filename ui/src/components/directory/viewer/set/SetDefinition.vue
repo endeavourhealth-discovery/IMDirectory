@@ -52,7 +52,11 @@ import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
 const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();

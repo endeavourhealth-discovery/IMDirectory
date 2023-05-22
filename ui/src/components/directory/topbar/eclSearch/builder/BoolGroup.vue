@@ -91,12 +91,16 @@ import Refinement from "@/components/directory/topbar/eclSearch/builder/Refineme
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
-const props = defineProps({
-  value: { type: Object, required: true },
-  parent: { type: Object, required: false },
-  focus: { type: Object, required: false },
-  rootBool: { type: Boolean, default: false },
-  index: { type: Number, required: false }
+interface Props {
+  value: any;
+  parent?: any;
+  focus?: any;
+  rootBool?: boolean;
+  index?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  rootBool: false
 });
 
 watch(

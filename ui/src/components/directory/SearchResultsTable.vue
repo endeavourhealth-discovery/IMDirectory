@@ -32,8 +32,11 @@ import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useFilterStore } from "@/stores/filterStore";
 
-const props = defineProps({
-  showFilters: { type: Boolean, required: false, default: true }
+interface Props {
+  showFilters?: boolean;
+}
+const props = withDefaults(defineProps<Props>(), {
+  showFilters: true
 });
 
 const directoryStore = useDirectoryStore();

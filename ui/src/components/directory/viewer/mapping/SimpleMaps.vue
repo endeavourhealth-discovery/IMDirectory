@@ -48,12 +48,11 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import { SimpleMap } from "@im-library/interfaces";
 
-const props = defineProps({
-  data: {
-    type: Array,
-    required: true
-  }
-});
+interface Props {
+  data: [];
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   toggleOverlay: (event: any, data: SimpleMap) => true

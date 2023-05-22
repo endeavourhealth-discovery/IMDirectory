@@ -45,12 +45,14 @@ import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: ([Object, String] as PropType<any>) || String, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: string | any;
+  position?: number;
+}
+
+const props = defineProps<Props>();
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 

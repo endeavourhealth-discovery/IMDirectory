@@ -9,7 +9,7 @@
       :expanded-keys="expandedKeys"
       @node-expand="expandNode"
     >
-      <template #default="{ node }: { node: any}">
+      <template #default="{ node }: { node: any }">
         {{ node.label }}
       </template>
     </Tree>
@@ -32,11 +32,14 @@ import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
 import { SHACL } from "@im-library/vocabulary";
 import { IriLD, Node, Relationship } from "@im-library/interfaces/AutoGen";
 
-const props = defineProps({
-  baseEntityIri: { type: String, required: true },
-  property: { type: Object as PropType<TreeNode>, required: true },
-  path: { type: Object as PropType<Relationship>, required: true }
-});
+interface Props {
+  baseEntityIri: string;
+  property: TreeNode;
+  path: Relationship;
+}
+
+const props = defineProps<Props>();
+
 const visible: Ref<boolean> = ref(false);
 const selectedKey: Ref<TreeSelectionKeys> = ref({} as TreeSelectionKeys);
 const selectedProperty: Ref<TreeNode> = ref({} as TreeNode);

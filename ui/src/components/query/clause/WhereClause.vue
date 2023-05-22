@@ -30,11 +30,13 @@ import EntailmentOptionsSelect from "../editTextQuery/EntailmentOptionsSelect.vu
 import { SHACL } from "@im-library/vocabulary";
 import PropertySelect from "../editTextQuery/PropertySelect.vue";
 
-const props = defineProps({
-  baseEntityIri: { type: String, required: true },
-  baseClause: { type: Object as PropType<MatchClauseUI>, required: true },
-  whereClause: { type: Object as PropType<WhereClauseUI>, required: true }
-});
+interface Props {
+  baseEntityIri: string;
+  baseClause: MatchClauseUI;
+  whereClause: WhereClauseUI;
+}
+
+const props = defineProps<Props>();
 
 const editProperty: Ref<TreeNode> = ref({} as TreeNode);
 const editEntityValue: Ref<ConceptSummary> = ref({} as ConceptSummary);

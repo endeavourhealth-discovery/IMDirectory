@@ -102,22 +102,20 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 
-const props = defineProps({
+interface Props {
   value: {
-    type: Object as PropType<{
-      type: string;
-      descendants: string;
-      conjunction: string;
-      items: any[];
-      concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
-      ecl?: string;
-      exclude?: boolean;
-    }>,
-    required: true
-  },
-  parent: { type: Object as PropType<any>, required: false },
-  index: { type: Number, required: false }
-});
+    type: string;
+    descendants: string;
+    conjunction: string;
+    items: any[];
+    concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
+    ecl?: string;
+    exclude?: boolean;
+  };
+  parent?: any;
+  index?: number;
+}
+const props = defineProps<Props>();
 
 watch(
   () => _.cloneDeep(props.value),

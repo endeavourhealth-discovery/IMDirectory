@@ -27,12 +27,14 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import router from "@/router";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Object as PropType<Property>, required: false },
-  position: { type: Number, required: true }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: Property;
+  position?: number;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: Property) => true

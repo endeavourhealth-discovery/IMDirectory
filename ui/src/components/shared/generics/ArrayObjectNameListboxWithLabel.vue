@@ -46,13 +46,18 @@ import { getLogger } from "@im-library/logger/LogConfig";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabel");
+interface Props {
+  label: string;
+  data?: unknown[];
+  size?: string;
+  id?: string;
+  show: boolean;
+}
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Array as PropType<unknown[]>, required: false, default: [] },
-  size: { type: String, default: "100%", required: false },
-  id: { type: String, default: "array-object-name-listbox-with-label" },
-  show: { type: Boolean, required: true }
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  data: [] as any,
+  id: "array-object-name-listbox-with-label"
 });
 
 const directoryStore = useDirectoryStore();

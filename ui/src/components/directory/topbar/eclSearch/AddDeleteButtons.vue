@@ -1,8 +1,8 @@
 <template>
   <div class="switch-button-container">
     <div class="buttons-container">
-      <Button v-if="show.minus" icon="fa-solid fa-minus" severity="danger" class="p-button-rounded p-button-outlined" @click="deleteClicked" />
-      <Button v-if="show.plus" icon="fa-solid fa-plus" severity="success" class="p-button-rounded p-button-outlined" @click="addNextClicked" />
+      <Button v-if="show?.minus" icon="fa-solid fa-minus" severity="danger" class="p-button-rounded p-button-outlined" @click="deleteClicked" />
+      <Button v-if="show?.plus" icon="fa-solid fa-plus" severity="success" class="p-button-rounded p-button-outlined" @click="addNextClicked" />
     </div>
     <Menu ref="optionsMenu" :model="menuOptions" :popup="true" />
   </div>
@@ -12,10 +12,14 @@
 import { onMounted, PropType, ref, Ref, watch } from "vue";
 import { ECLComponent } from "@im-library/enums";
 
-const props = defineProps({
-  position: Number,
-  show: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } },
-  options: { type: Array as PropType<ECLComponent[]>, required: true }
+interface Props {
+  position?: number;
+  show?: { minus: boolean; plus: boolean };
+  options: ECLComponent[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  show: { minus: true, plus: true } as any
 });
 
 const emit = defineEmits({

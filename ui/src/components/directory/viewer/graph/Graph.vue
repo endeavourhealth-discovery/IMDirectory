@@ -26,9 +26,10 @@ import { IM } from "@im-library/vocabulary";
 const { translateFromEntityBundle } = GraphTranslator;
 const { isObjectHasKeys } = DataTypeCheckers;
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 watch(
   () => props.conceptIri,
