@@ -1,7 +1,6 @@
 <template>
   <div class="feature" v-for="(where, index) of wheres">
     <div>
-      {{ hasBigList(where) }}
       <span v-if="index" v-html="!parentWhere ? getDisplayFromLogic('and') : getDisplayFromLogic(parentWhere.bool)"></span>
       <span v-if="hasNodeRef(where)" v-html="where.description" @click="onNodeRefClick(where, $event)"></span>
       <span v-else-if="hasBigList(where)" v-html="where.description" @click="onWhereInClick(where, $event)"></span>
@@ -13,7 +12,7 @@
   </div>
   <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(hoveredWhere)" /> </OverlayPanel>
   <OverlayPanel ref="op1">
-    <div v-for="item in list">{{ item.name }}</div>
+    <ListOverlay :list="list" />
   </OverlayPanel>
 </template>
 
@@ -24,6 +23,7 @@ import { Match, Node, Query, Where } from "@im-library/interfaces/AutoGen";
 import { PropType, Ref } from "vue";
 import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
+import ListOverlay from "./ListOverlay.vue";
 
 interface Props {
   fullQuery: Query;

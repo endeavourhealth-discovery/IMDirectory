@@ -255,8 +255,7 @@ export default class QueryService {
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
     const labeledQuery = await this.getLabeledQuery(query);
-    const labeledQueryResponse = await this.getLabeledQuery(query);
-    return await this.generateQueryDescriptions(query);
+    return await this.generateQueryDescriptions(labeledQuery);
   }
 
   public async getLabeledQuery(query: Query) {
@@ -265,13 +264,14 @@ export default class QueryService {
     const sparqlEnd = "} }";
 
     const unnamedObjects = getUnnamedObjects(query);
-
     for (const iri of Object.keys(unnamedObjects)) {
       sparqlBody += "<" + iri + "> ";
     }
     const completeQuery = sparqlStart + sparqlBody + sparqlEnd;
     const iriToNameMap = new Map<string, string>();
+
     const rs = await this.graph.execute(completeQuery);
+
     if (isArrayHasLength(rs))
       for (const r of rs)
         if (isArrayHasLength(Object.keys(r)))
@@ -284,6 +284,7 @@ export default class QueryService {
         unnamedObject.name = iriToNameMap.get(iri) ?? getNameFromRef(unnamedObject);
       }
     }
+
     return query;
   }
 

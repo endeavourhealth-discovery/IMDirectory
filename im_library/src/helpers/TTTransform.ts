@@ -60,7 +60,7 @@ export function resolveIri(iri: string) {
     return iri;
   } else if (iri.includes(":")) {
     const splits = iri.split(":");
-    return prefixes[splits[0]] + splits[1];
+    return (prefixes[splits[0]] ?? prefixes.im) + splits[1];
   } else {
     return prefixes.im + iri;
   }
