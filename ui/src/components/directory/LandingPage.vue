@@ -76,7 +76,7 @@ import { getColourFromType, getFAIconFromType } from "@im-library/helpers/Concep
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { EntityService, ConfigService } from "@/services";
+import { EntityService, ConfigService, UserService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 import { useUserStore } from "@/stores/userStore";
@@ -85,6 +85,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { byOrder } from "@im-library/helpers/Sorters";
 const userStore = useUserStore();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
+const currentUser = computed(() => userStore.currentUser);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
@@ -109,12 +110,13 @@ async function init(): Promise<void> {
 }
 
 async function getRecentActivityDetails() {
-  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
+  const localActivity: RecentActivityItem[] = await UserService.getUserMRU(currentUser.value.id);
+  const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 
   const temp: RecentActivityItem[] = [];
 
-  for (const rla of recentLocalActivity.value) {
+  for (const rla of localActivity) {
     const clone = { ...rla };
 
     let result = null;
@@ -131,7 +133,6 @@ async function getRecentActivityDetails() {
   }
 
   temp.reverse();
-
   activities.value = temp;
 }
 

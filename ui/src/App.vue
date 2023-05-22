@@ -60,7 +60,7 @@ onMounted(async () => {
   await userStore.authenticateCurrentUser();
   if (currentUser.value) currentTheme.value = await UserService.getUserTheme(currentUser.value.id);
   if (!currentTheme.value) currentTheme.value = "saga-blue";
-  changeTheme(currentTheme.value);
+  changeTheme(currentTheme.value!);
   await setShowBanner();
   loading.value = false;
 });

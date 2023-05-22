@@ -588,10 +588,12 @@ function showReleaseNotes() {
 }
 
 function changeTheme(newTheme: string) {
-  console.log(currentTheme.value);
-  console.log(newTheme);
   PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {});
-  if (currentUser.value) UserService.updateUserTheme(currentUser.value.id, newTheme);
+  if (currentUser.value) {
+    UserService.updateUserTheme(currentUser.value.id, newTheme);
+  } else {
+    userStore.updateCurrentTheme(newTheme);
+  }
   currentTheme.value = newTheme;
 }
 </script>
