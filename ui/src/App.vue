@@ -50,25 +50,24 @@ const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showRe
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
+const currentTheme = computed(() => userStore.currentTheme);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
-const currentTheme: Ref<string | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
   await userStore.authenticateCurrentUser();
-  if (currentUser.value) currentTheme.value = await UserService.getUserTheme(currentUser.value.id);
-  if (!currentTheme.value) currentTheme.value = "saga-blue";
-  changeTheme(currentTheme.value!);
+  const theme = currentUser.value.id ? await UserService.getUserTheme(currentUser.value.id) : "saga-blue";
+  changeTheme(theme);
   await setShowBanner();
   loading.value = false;
 });
 
 function changeTheme(newTheme: string) {
   PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
-  if (currentUser.value) UserService.updateUserTheme(currentUser.value.id, currentTheme.value!);
-  currentTheme.value = newTheme;
+  if (currentUser.value) UserService.updateUserTheme(currentUser.value.id, newTheme);
+  userStore.updateCurrentTheme(newTheme);
 }
 
 async function setShowBanner() {
