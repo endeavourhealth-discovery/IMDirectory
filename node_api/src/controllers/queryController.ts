@@ -59,6 +59,12 @@ export default class QueryController {
         .then(data => res.send(data).end())
         .catch(next)
     );
+
+    this.router.post("/public/labeledQuery", (req, res, next) =>
+      this.getLabeledQuery(req)
+        .then(data => res.send(data).end())
+        .catch(next)
+    );
   }
 
   async getAllowableChildTypes(req: Request) {
@@ -97,5 +103,10 @@ export default class QueryController {
 
   async getQueryDisplay(req: Request) {
     return await this.queryService.getQueryDisplay(req.query.queryIri as string);
+  }
+
+  async getLabeledQuery(req: Request) {
+    const query: any = req.body;
+    return await this.queryService.getLabeledQuery(query);
   }
 }

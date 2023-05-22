@@ -111,7 +111,7 @@ const QueryService = {
   },
 
   async getLabeledQuery(query: Query): Promise<Query> {
-    return axios.post(Env.API + "api/query/public/labelQuery", query);
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/labeledQuery", query);
   },
 
   async getQueryDisplay(iri: string): Promise<Query> {

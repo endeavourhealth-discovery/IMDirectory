@@ -8,7 +8,8 @@ import { IM, QUERY, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, iri } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
-import { describeQuery } from "@im-library/helpers/QueryDescriptor";
+import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 export default class QueryService {
   axios: any;
@@ -253,8 +254,37 @@ export default class QueryService {
       return {};
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
-    const labeledQueryResponse = await this.axios.post(Env.API + "api/query/public/labelQuery", query);
-    return await this.generateQueryDescriptions(labeledQueryResponse.data);
+    const labeledQuery = await this.getLabeledQuery(query);
+    const labeledQueryResponse = await this.getLabeledQuery(query);
+    return await this.generateQueryDescriptions(query);
+  }
+
+  public async getLabeledQuery(query: Query) {
+    const sparqlStart = "SELECT ?s ?o {" + " ?s rdfs:label ?o " + "VALUES ?s { ";
+    let sparqlBody = "";
+    const sparqlEnd = "} }";
+
+    const unnamedObjects = getUnnamedObjects(query);
+
+    for (const iri of Object.keys(unnamedObjects)) {
+      sparqlBody += "<" + iri + "> ";
+    }
+    const completeQuery = sparqlStart + sparqlBody + sparqlEnd;
+    const iriToNameMap = new Map<string, string>();
+    const rs = await this.graph.execute(completeQuery);
+    if (isArrayHasLength(rs))
+      for (const r of rs)
+        if (isArrayHasLength(Object.keys(r)))
+          if (isObjectHasKeys(r, ["s", "o"])) {
+            if (r.s.id && r.o.id) iriToNameMap.set(r.s.id, r.o.id.replaceAll('"', ""));
+          }
+
+    for (const iri of Object.keys(unnamedObjects)) {
+      for (const unnamedObject of unnamedObjects[iri]) {
+        unnamedObject.name = iriToNameMap.get(iri) ?? getNameFromRef(unnamedObject);
+      }
+    }
+    return query;
   }
 
   public async generateQueryDescriptions(query: Query): Promise<Query> {

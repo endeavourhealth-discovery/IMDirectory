@@ -1,7 +1,7 @@
 import { Operator } from "../interfaces/AutoGen";
 import { Match, Path, Where, Property, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { getNameFromRef } from "./TTTransform";
+import { getNameFromRef, resolveIri } from "./TTTransform";
 
 const propertyDropList = ["observation", "concept", "numericvalue", "effectiveDate", "effective date"];
 
@@ -258,4 +258,36 @@ function isPrimitiveType(object: any) {
   return primitiveTypes.includes(typeof object);
 }
 
-export default { describeQuery };
+// get unnamed nested objects
+export function getUnnamedObjects(object: any) {
+  const unnamedObjects = {} as { [x: string]: any[] };
+  recursivelyAddUnnamedObjects(unnamedObjects, object);
+  return unnamedObjects;
+}
+
+function recursivelyAddUnnamedObjects(unnamedObjects: { [x: string]: any[] }, object: any) {
+  if (isArrayHasLength(object)) {
+    for (const value of object) {
+      recursivelyAddUnnamedObjects(unnamedObjects, value);
+    }
+  } else if (isObjectHasKeys(object)) {
+    if (!isObjectHasKeys(object, ["name"])) {
+      addUnnamedObject(unnamedObjects, object);
+    }
+
+    for (const key of Object.keys(object)) {
+      recursivelyAddUnnamedObjects(unnamedObjects, object[key]);
+    }
+  }
+}
+
+function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
+  const iri = object["@id"] || object["@set"] || object["@type"];
+  if (iri && !isObjectHasKeys(object, ["name"])) {
+    const resolvedIri = resolveIri(iri);
+    if (isArrayHasLength(unnamedObjects.resolvedIri)) unnamedObjects[resolvedIri].push(object);
+    else unnamedObjects[resolvedIri] = [object];
+  }
+}
+
+export default { describeQuery, getUnnamedObjects };
