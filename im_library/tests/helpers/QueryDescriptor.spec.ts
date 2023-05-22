@@ -212,7 +212,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a where with an in list and valueLabel", () => {
       const display = getDisplayFromWhere(where.withInAndValueLabel as Where);
-      expect(display).toEqual(" Office or home systolic blood pressure");
+      expect(display).toEqual(" <span class='variable'>Office or home systolic blood pressure</span> ");
     });
 
     it("can get a display for a where of last 6 months", () => {

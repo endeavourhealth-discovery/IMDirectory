@@ -73,8 +73,8 @@ export function getDisplayFromWhere(where: Where) {
   let display = "";
   const propertyName = getDisplayFromNodeRef(where.nodeRef) ?? getNameFromRef(where);
   if (!propertyDropList.includes(propertyName)) display += propertyName;
-  if (where.in) display += " " + (where.valueLabel ?? getDisplayFromList(where.in, true));
-  if (where.notIn) display += "not " + (where.valueLabel ?? getDisplayFromList(where.notIn, false));
+  if (where.in) display += " " + getDisplayFromList(where, true);
+  if (where.notIn) display += "not " + getDisplayFromList(where, false);
   if (where.operator) display = getDisplayFromOperator(propertyName, where);
   if (where.range) display = getDisplayFromRange(propertyName, where);
   if (where.null) display += " is null";
@@ -170,12 +170,16 @@ export function getDisplayFromDateComparison(where: Where) {
 
 export function getDisplayFromNodeRef(nodeRef: string) {
   if (!nodeRef) return undefined;
-  return "<span class='variable'>" + nodeRef + "</span> ";
+  return getDisplayForVariable(nodeRef);
+}
+
+export function getDisplayForVariable(variableName: string) {
+  return "<span class='variable'>" + variableName + "</span> ";
 }
 
 export function getDisplayFromValueAndUnitForDate(where: Where) {
   let display = "";
-  if (where.value && where.value.includes("-")) display += "last " + where.value.replaceAll("-", "") + " ";
+  if (where.value) display += "last " + where.value.replaceAll("-", "") + " ";
   if (where.unit) display += where.unit;
   return display;
 }
@@ -196,8 +200,15 @@ export function getDisplayFromOperatorForDate(operator: Operator, withValue: boo
   }
 }
 
-export function getDisplayFromList(nodes: Node[], include: boolean) {
+export function getDisplayFromList(where: Where, include: boolean) {
   let display = "";
+  const nodes = where.in ?? where.notIn;
+  if (where.valueLabel) {
+    if (nodes.length === 1) display = where.valueLabel;
+    else display = getDisplayForVariable(where.valueLabel);
+    return display;
+  }
+
   if (nodes.length === 1) {
     display += getDisplayFromEntailment(nodes[0]);
     display += getNameFromRef(nodes[0]);
@@ -213,7 +224,7 @@ export function getDisplayFromList(nodes: Node[], include: boolean) {
     display += include ? "a value of [" : " without a value of [";
     display += getDisplayFromEntailment(nodes[0]);
     display += getNameFromRef(nodes[0]);
-    display += " and more...]";
+    display += " and " + getDisplayForVariable("more...") + "]";
   }
   return display;
 }
