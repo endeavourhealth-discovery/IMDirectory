@@ -18,8 +18,11 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+interface Props {
+  requiredRole?: string;
+}
 
-const props = defineProps({ requiredRole: { type: String, required: false } });
+const props = defineProps<Props>();
 const router = useRouter();
 
 function goBack() {

@@ -121,10 +121,12 @@ import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
 
-const props = defineProps({
-  searchResults: { type: Array as PropType<any[]>, required: true },
-  searchLoading: { type: Boolean, required: true }
-});
+interface Props {
+  searchResults: any[];
+  searchLoading: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   openTreePanel: () => true

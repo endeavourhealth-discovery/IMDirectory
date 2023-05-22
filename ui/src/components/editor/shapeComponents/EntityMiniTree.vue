@@ -74,16 +74,11 @@ import { IM } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
 import { TreeNode } from "primevue/tree";
 
-const props = defineProps({
-  selectedEntity: { type: Object as PropType<TTIriRef>, required: true }
-});
+interface Props {
+  selectedEntity: TTIriRef;
+}
 
-// watch(
-//   () => props.selectedEntity,
-//   async newValue => {
-//     await findPathToNode(newValue["@id"]);
-//   }
-// );
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   treeNodeSelected: (_payload: TTIriRef) => true

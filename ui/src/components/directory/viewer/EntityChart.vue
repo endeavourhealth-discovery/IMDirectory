@@ -63,9 +63,10 @@ import { onMounted, Ref, ref, watch } from "vue";
 import { DirectService, EntityService } from "@/services";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const directService = new DirectService();
 

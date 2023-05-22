@@ -8,12 +8,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted,  ref } from "vue";
+import { onMounted, ref } from "vue";
 import { EclService } from "@/services";
 
-const props = defineProps({
-  definition: { type: String, required: true }
-});
+interface Props {
+  definition: string;
+}
+
+const props = defineProps<Props>();
 
 const eclString = ref("");
 const loading = ref(true);

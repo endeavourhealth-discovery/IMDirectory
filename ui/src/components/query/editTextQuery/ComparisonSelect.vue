@@ -12,9 +12,12 @@ import { PropType, ref, Ref } from "vue";
 import { Assignable, Where } from "@im-library/interfaces/AutoGen";
 const operatorOptions = ["=", ">=", ">", "<="];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
-const props = defineProps({
-  where: { type: Object as PropType<Assignable>, required: true }
-});
+
+interface Props {
+  where: Assignable;
+}
+
+const props = defineProps<Props>();
 
 const relativeTo = ref();
 </script>

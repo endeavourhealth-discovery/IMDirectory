@@ -78,12 +78,16 @@ import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Object as PropType<TTIriRef>, required: false },
-  disabled: { type: Boolean, required: false, default: false },
-  position: { type: Number, required: false }
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: TTIriRef;
+  disabled?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false
 });
 
 watch(

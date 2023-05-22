@@ -14,9 +14,11 @@ import { GithubRelease } from "@im-library/interfaces";
 import { PropType } from "vue";
 import { useSharedStore } from "@/stores/sharedStore";
 
-const props = defineProps({
-  latestRelease: { type: Object as PropType<GithubRelease>, required: false }
-});
+interface Props {
+  latestRelease?: GithubRelease;
+}
+
+const props = defineProps<Props>();
 
 const sharedStore = useSharedStore();
 

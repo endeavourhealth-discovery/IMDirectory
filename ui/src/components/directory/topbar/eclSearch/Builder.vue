@@ -73,10 +73,11 @@ import { ToastSeverity } from "@im-library/enums";
 import EclService from "@/services/EclService";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
-const props = defineProps({
-  showDialog: Boolean,
-  eclString: { type: String, required: false }
-});
+interface Props {
+  showDialog?: boolean;
+  eclString?: string;
+}
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   eclSubmitted: (_payload: string) => true,

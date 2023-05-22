@@ -35,9 +35,11 @@
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
-const props = defineProps({
-  hoveredResult: { type: Object, required: true }
-});
+interface Props {
+  hoveredResult: any;
+}
+
+const props = defineProps<Props>();
 
 function getConceptTypes(types: TTIriRef[]): string {
   return getNamesAsStringFromTypes(types);

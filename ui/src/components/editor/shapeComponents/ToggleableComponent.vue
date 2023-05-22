@@ -35,12 +35,14 @@ import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { EditorMode } from "@im-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  value: { type: Object as PropType<TTIriRef>, required: false },
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: TTIriRef;
+  position?: number;
+}
+
+const props = defineProps<Props>();
 
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;

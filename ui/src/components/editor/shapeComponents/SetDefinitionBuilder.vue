@@ -51,11 +51,13 @@ import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary } from "@im-library/interfaces";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: String, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: string;
+}
+
+const props = defineProps<Props>();
 
 const toast = useToast();
 

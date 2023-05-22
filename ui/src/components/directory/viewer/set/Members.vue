@@ -71,9 +71,11 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useUserStore } from "@/stores/userStore";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
 const { downloadFile } = setupDownloadFile(window, document);
 const toast = useToast();
 const userStore = useUserStore();

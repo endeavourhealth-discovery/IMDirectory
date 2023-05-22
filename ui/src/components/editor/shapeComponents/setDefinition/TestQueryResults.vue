@@ -40,11 +40,13 @@ const queryLoading: Ref<boolean> = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
 const testQueryResults: Ref<TTIriRef[]> = ref([]);
 
-const props = defineProps({
-  queryRequest: { type: Object as PropType<QueryRequest>, required: true },
-  showDialog: { type: Boolean, required: true },
-  results: { type: Array as PropType<TTIriRef[]>, required: false }
-});
+interface Props {
+  results?: TTIriRef[];
+  queryRequest: QueryRequest;
+  showDialog: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({ closeDialog: () => true });
 const internalShowDialog = ref(true);

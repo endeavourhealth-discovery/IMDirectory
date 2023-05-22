@@ -18,7 +18,7 @@
           <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
         </div>
 
-        <div v-else-if="node.data">{{ node.label + " - "}}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name " /></div>
+        <div v-else-if="node.data">{{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" /></div>
         <div v-else>{{ node.label }}</div>
       </template>
       <template #string="{ node }: any">{{ node.value }}</template>
@@ -43,9 +43,11 @@ import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const emit = defineEmits({ onOpenTab: (payload: string) => payload });
 

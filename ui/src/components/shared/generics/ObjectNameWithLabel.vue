@@ -12,12 +12,17 @@
 import { computed } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Object, required: true },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "object-name-with-label" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: any;
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "object-name-with-label"
 });
 
 const isObjectWithName = computed(() => isObjectHasKeys(props.data, ["name"]));

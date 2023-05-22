@@ -9,10 +9,12 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { WhereClauseUI } from "@im-library/interfaces";
 import { Where } from "@im-library/interfaces/AutoGen";
 import { PropType, Ref, onMounted, ref, watch } from "vue";
-const props = defineProps({
-  whereClause: { type: Object as PropType<WhereClauseUI>, required: true },
-  options: { type: Object as PropType<string[]>, required: true }
-});
+interface Props {
+  whereClause: WhereClauseUI;
+  options: string[];
+}
+
+const props = defineProps<Props>();
 </script>
 
 <style scoped>

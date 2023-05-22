@@ -27,10 +27,13 @@ import DropdownHeader from "../DropdownHeader.vue";
 import RangeSelect from "../../editTextQuery/RangeSelect.vue";
 import { IM, XMLS } from "@im-library/vocabulary";
 import { WhereClauseUI } from "@im-library/interfaces";
-const props = defineProps({
-  datatype: { type: String, required: true },
-  whereClause: { type: Object as PropType<WhereClauseUI>, required: true }
-});
+interface Props {
+  datatype: string;
+  whereClause: WhereClauseUI;
+}
+
+const props = defineProps<Props>();
+
 const emit = defineEmits({ onValueUpdate: (payload: any) => payload });
 const booleanOptions = [
   { name: "true", value: true },

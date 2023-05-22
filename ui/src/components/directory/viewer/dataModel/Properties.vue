@@ -92,9 +92,11 @@ import { PropertyDisplay } from "@im-library/interfaces";
 import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
+
 const directService = new DirectService();
 const loading = ref(false);
 const properties: Ref<PropertyDisplay[]> = ref([]);
