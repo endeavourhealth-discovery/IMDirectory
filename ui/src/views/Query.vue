@@ -5,21 +5,30 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    Defined as
-    <TextQuery
-      :baseEntityIri="baseEntityIri"
-      :text-queries="textQueries"
-      :parent="undefined"
-      :added-new-clause="addedNewClause"
-      @on-open-new-clause="addedNewClause = false"
-    ></TextQuery>
-    <div><Button label="Add clause" @click="addClause" /></div>
-
-    <div class="button-bar">
-      <Button class="button-bar-button" label="Run" />
-      <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
-      <Button class="button-bar-button" label="Save" severity="success" />
-    </div>
+    <Splitter class="query-splitter">
+      <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
+        <QueryNavTree />
+      </SplitterPanel>
+      <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right" class="splitter-right">
+        Defined as
+        <TextQuery
+          :baseEntityIri="baseEntityIri"
+          :text-queries="textQueries"
+          :parent="undefined"
+          :added-new-clause="addedNewClause"
+          @on-open-new-clause="addedNewClause = false"
+        >
+        </TextQuery>
+        <div>
+          <Button label="Add clause" @click="addClause" />
+        </div>
+        <div class="button-bar">
+          <Button class="button-bar-button" label="Run" />
+          <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
+          <Button class="button-bar-button" label="Save" severity="success" />
+        </div>
+      </SplitterPanel>
+    </Splitter>
   </div>
 </template>
 
@@ -33,6 +42,7 @@ import { ITextQuery, MatchClauseUI } from "@im-library/interfaces";
 import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import { EntityService, QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
+import QueryNavTree from "@/components/query/QueryNavTree.vue";
 const filterStore = useFilterStore();
 const textQueries: Ref<ITextQuery[]> = ref([]);
 const query: Ref<any> = ref();
@@ -90,5 +100,15 @@ async function getTextQuery() {
 
 .button-bar-button {
   margin: 0.5rem;
+}
+
+.query-splitter {
+  height: 100%;
+}
+
+.splitter-right {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
 }
 </style>
