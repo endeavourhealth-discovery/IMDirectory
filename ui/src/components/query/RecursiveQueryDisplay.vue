@@ -49,12 +49,15 @@ import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
 import { getDisplayFromLogic } from "@im-library/helpers/TextQueryBuilder";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
-const props = defineProps({
-  fullQuery: { type: Object as PropType<Query>, required: true },
-  parentMatch: { type: Object as PropType<Match>, required: false },
-  matches: { type: Object as PropType<Match[]>, required: true },
-  isVariable: { type: Boolean }
-});
+
+interface Props {
+  fullQuery: Query;
+  parentMatch?: Match;
+  matches: Match[];
+  isVariable?: Boolean;
+}
+
+const props = defineProps<Props>();
 
 const op: Ref<any> = ref();
 const hoveredWhere: Ref<Where> = ref({} as Where);

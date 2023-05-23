@@ -9,10 +9,12 @@ import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
 import { PropType, Ref, onMounted, ref, watch } from "vue";
 import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
-const props = defineProps({
-  fullQuery: { type: Object as PropType<Query>, required: true },
-  variableName: { type: String, required: true }
-});
+interface Props {
+  fullQuery: Query;
+  variableName: string;
+}
+
+const props = defineProps<Props>();
 
 onMounted(() => {
   overlayObject.value = findNestedQuery();
