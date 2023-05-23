@@ -90,7 +90,9 @@ import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
@@ -128,7 +130,8 @@ async function getCurrentVersion() {
 }
 
 function toLandingPage() {
-  window.location.href = "/";
+  router.push("/");
+  //window.location.href = "/";
 }
 
 function open(item: { icon: string; command: Function; label: string }) {

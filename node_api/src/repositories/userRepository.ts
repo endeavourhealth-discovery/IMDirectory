@@ -1,7 +1,5 @@
 import { GraphdbService, iri, sanitise } from "@/services/graphdb.service";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { CustomError } from "@im-library/models";
-import { ErrorType } from "@im-library/enums";
 import { USER } from "@im-library/vocabulary/USER";
 
 export default class UserRepository {
@@ -36,6 +34,18 @@ export default class UserRepository {
     }
   }
 
+  public async getUserFavourites(user: string): Promise<any> {
+    const qry = "SELECT ?favourites WHERE { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_FAVOURITES) + " ?favourites }";
+    const rs = await this.graph.execute(qry);
+    if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["favourites"])) {
+      return rs[0].favourites.value;
+    } else {
+      await this.updateUserFavourites(user, "[]");
+      const rs = await this.graph.execute(qry);
+      return rs[0].favourites.value;
+    }
+  }
+
   public async updateUserTheme(user: string, theme: string): Promise<void> {
     const deleteQry = "DELETE WHERE { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_THEME) + " ?theme }";
     await this.graph.update(deleteQry);
@@ -47,6 +57,12 @@ export default class UserRepository {
     const deleteQry = "DELETE WHERE { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_MRU) + " ?mru }";
     await this.graph.update(deleteQry);
     const qry = "INSERT DATA { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_MRU) + " " + sanitise(mru) + " }";
+    await this.graph.update(qry);
+  }
+  public async updateUserFavourites(user: string, favourites: any): Promise<void> {
+    const deleteQry = "DELETE WHERE { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_FAVOURITES) + " ?favourites }";
+    await this.graph.update(deleteQry);
+    const qry = "INSERT DATA { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_FAVOURITES) + " " + sanitise(favourites) + " }";
     await this.graph.update(qry);
   }
 }

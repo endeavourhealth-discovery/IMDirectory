@@ -10,9 +10,15 @@ const UserService = {
       }
     });
   },
-
   async getUserMRU(user: string): Promise<any> {
     return await axios.get(Env.VITE_NODE_API + "node_api/user/public/getUserMRU", {
+      params: {
+        user: user
+      }
+    });
+  },
+  async getUserFavourites(user: string): Promise<any> {
+    return await axios.get(Env.VITE_NODE_API + "node_api/user/public/getUserFavourites", {
       params: {
         user: user
       }
@@ -27,12 +33,20 @@ const UserService = {
       headers: { "Content-Type": "application/sparql-update" }
     });
   },
-
   async updateUserMRU(user: string, mru: any): Promise<any> {
     return await axios.post(Env.VITE_NODE_API + "node_api/user/public/updateUserMRU", {
       params: {
         user: user,
         mru: mru
+      },
+      headers: { "Content-Type": "application/sparql-update" }
+    });
+  },
+  async updateUserFavourites(user: string, favourites: any): Promise<any> {
+    return await axios.post(Env.VITE_NODE_API + "node_api/user/public/updateUserFavourites", {
+      params: {
+        user: user,
+        favourites: favourites
       },
       headers: { "Content-Type": "application/sparql-update" }
     });

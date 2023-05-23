@@ -21,9 +21,6 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     clearOptionalCookies() {
-      localStorage.removeItem("currentTheme");
-      localStorage.removeItem("favourites");
-      localStorage.removeItem("recentLocalActivity");
       localStorage.removeItem("directoryMainSplitterVertical");
       localStorage.removeItem("directoryMainSplitterHorizontal");
       localStorage.removeItem("viewerMainSplitterVertical");
@@ -42,18 +39,23 @@ export const useUserStore = defineStore("user", {
       localStorage.setItem("cookiesOptionalAccepted", String(bool));
     },
     async initFavourites() {
-      const favourites = JSON.parse(localStorage.getItem("favourites") ?? "[]") as string[];
+      const favourites: string[] = this.currentUser ? await UserService.getUserFavourites(this.currentUser.id) : this.favourites ? this.favourites : "[]";
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
           favourites.splice(index, 1);
         }
       }
-      localStorage.setItem("favourites", JSON.stringify(favourites));
+      if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, favourites);
+      //localStorage.setItem("favourites", JSON.stringify(favourites));
       this.favourites = favourites;
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
-      let activity: RecentActivityItem[] = this.currentUser.id ? await UserService.getUserMRU(this.currentUser.id) : this.recentLocalActivity;
+      let activity: RecentActivityItem[] = this.currentUser
+        ? await UserService.getUserMRU(this.currentUser.id)
+        : this.recentLocalActivity
+        ? this.recentLocalActivity
+        : "[]";
       activity.forEach(activityItem => {
         activityItem.dateTime = new Date(activityItem.dateTime);
       });
@@ -76,18 +78,19 @@ export const useUserStore = defineStore("user", {
         }
       }
       //if (this.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
-      if (this.currentUser.id) await UserService.updateUserMRU(this.currentUser.id, JSON.stringify(activity));
+      if (this.currentUser) await UserService.updateUserMRU(this.currentUser.id, JSON.stringify(activity));
       this.recentLocalActivity = activity;
     },
-    updateFavourites(favourite: string) {
+    async updateFavourites(favourite: string) {
       if (favourite !== "http://endhealth.info/im#Favourites") {
-        const favourites: string[] = JSON.parse(localStorage.getItem("favourites") ?? "[]");
+        const favourites: string[] = this.currentUser ? await UserService.getUserFavourites(this.currentUser.id) : this.favourites;
         if (!favourites.includes(favourite)) {
           favourites.push(favourite);
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        if (this.cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
+        //if (this.cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
+        if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, JSON.stringify(favourites));
         this.favourites = favourites;
       }
     },

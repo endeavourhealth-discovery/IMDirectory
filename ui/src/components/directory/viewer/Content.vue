@@ -55,7 +55,7 @@ import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { EntityService, DirectService } from "@/services";
+import { EntityService, DirectService, UserService } from "@/services";
 import rowClick from "@/composables/rowClick";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
@@ -68,6 +68,7 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const conceptIri = computed(() => directoryStore.conceptIri);
 const favourites = computed(() => userStore.favourites);
+const currentUser = computed(() => userStore.currentUser);
 
 const directService = new DirectService();
 const { onRowClick }: { onRowClick: Function } = rowClick();
@@ -125,7 +126,8 @@ async function init() {
 }
 
 async function getFavourites() {
-  const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
+  const favouriteList: string[] = currentUser.value ? await UserService.getUserFavourites(currentUser.value.id) : favourites ? favourites.value : "[]";
+  const result = await EntityService.getPartialEntities(favouriteList, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
     return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
   });

@@ -24,6 +24,11 @@ export default class UserController {
         .then(data => res.send(data).end())
         .catch(next)
     );
+    this.router.get("/public/getUserFavourites", async (req, res, next) =>
+      this.getUserFavourites(req)
+        .then(data => res.send(data).end())
+        .catch(next)
+    );
     this.router.post("/public/updateUserTheme", async (req, res, next) =>
       this.updateUserTheme(req)
         .then(data => res.setHeader("content-type", "application/sparql-update").send(data).end())
@@ -31,6 +36,11 @@ export default class UserController {
     );
     this.router.post("/public/updateUserMRU", async (req, res, next) =>
       this.updateUserMRU(req)
+        .then(data => res.setHeader("content-type", "application/sparql-update").send(data).end())
+        .catch(next)
+    );
+    this.router.post("/public/updateUserFavourites", async (req, res, next) =>
+      this.updateUserFavourites(req)
         .then(data => res.setHeader("content-type", "application/sparql-update").send(data).end())
         .catch(next)
     );
@@ -52,11 +62,23 @@ export default class UserController {
     }
   }
 
+  async getUserFavourites(req: Request) {
+    if (typeof req.query.user === "string") {
+      return await this.userService.getUserFavourites(req.query.user);
+    } else {
+      throw new TypeError(`Invalid user id type. User id must be of type string`);
+    }
+  }
+
   async updateUserTheme(req: Request) {
     return await this.userService.updateUserTheme(req.body.params.user, req.body.params.theme);
   }
 
   async updateUserMRU(req: Request) {
     return await this.userService.updateUserMRU(req.body.params.user, req.body.params.mru);
+  }
+
+  async updateUserFavourites(req: Request) {
+    return await this.userService.updateUserFavourites(req.body.params.user, req.body.params.favourites);
   }
 }
