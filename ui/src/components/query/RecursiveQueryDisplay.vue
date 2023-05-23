@@ -33,7 +33,6 @@
         <RecursiveWhereDisplay v-else :wheres="match.where" :parent-match="match" :full-query="fullQuery" />
       </span>
     </div>
-    <!-- <div v-else>{{ match }}</div> -->
   </div>
   <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(hoveredWhere)" /> </OverlayPanel>
   <OverlayPanel ref="op1">

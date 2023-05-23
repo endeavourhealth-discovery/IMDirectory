@@ -5,14 +5,6 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    <!-- <TextQuery
-      :baseEntityIri="baseEntityIri"
-      :text-queries="textQueries"
-      :parent="undefined"
-      :added-new-clause="addedNewClause"
-      @on-open-new-clause="addedNewClause = false"
-    ></TextQuery>
-    <div><Button label="Add clause" @click="addClause" /></div> -->
 
     <div class="include-title" style="color: green">include if</div>
     <RecursiveQueryDisplay
@@ -39,9 +31,6 @@ import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
-import TextQuery from "@/components/query/RecursiveTextQuery.vue";
-import { ITextQuery, MatchClauseUI } from "@im-library/interfaces";
-import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import { QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { Query } from "@im-library/interfaces/AutoGen";
