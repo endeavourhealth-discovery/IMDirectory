@@ -1,20 +1,24 @@
 <template>
   <div class="query-display-container">
-    <Tree :value="nodes" :expanded-keys="expandedKeys">
-      <template #default="{ node }: any">
-        <div v-html="node.display"></div>
-      </template>
-    </Tree>
+    <div class="include-title" style="color: green">include if</div>
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(query.match)"
+      :matches="query.match.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
+      :full-query="query"
+    />
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(query.match)"
+      :matches="query.match.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
+      :full-query="query"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { EntityService, QueryService } from "@/services";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
-import { DisplayQuery } from "@im-library/interfaces";
-import { Query } from "@im-library/interfaces/AutoGen";
-import { IM } from "@im-library/vocabulary";
+import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
+import { QueryService } from "@/services";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref } from "vue";
 
 interface Props {
@@ -26,6 +30,7 @@ const expandedKeys: Ref<any> = ref({});
 const definition: Ref<any> = ref();
 const nodes: Ref<any[]> = ref([]);
 
+const query: Ref<Query> = ref({} as Query);
 watch(
   () => props.conceptIri,
   async newValue => {
@@ -38,43 +43,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  definition.value = await getDefinition(props.conceptIri);
-  nodes.value = getNodes(definition.value);
-  expandAll();
-}
-
-async function getDefinition(iri: string) {
-  const responseEntity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
-  if (!isObjectHasKeys(responseEntity, [IM.DEFINITION])) return "";
-  const labeledQuery = await QueryService.getLabeledQuery(JSON.parse(responseEntity[IM.DEFINITION]));
-  return labeledQuery;
-}
-
-function getNodes(query: Query) {
-  return buildTextQuery(query);
-}
-
-function expandAll() {
-  for (let node of nodes.value) {
-    expandNode(node);
-  }
-
-  expandedKeys.value = { ...expandedKeys.value };
-}
-
-function collapseAll() {
-  expandedKeys.value = {};
-}
-
-function expandNode(node: DisplayQuery) {
-  const hasExpandToSeeMore = node.label ? (node.label as string).includes("(expand to see more...)") : false;
-  if (node.children && node.children.length && !hasExpandToSeeMore) {
-    expandedKeys.value[node.key] = true;
-
-    for (let child of node.children) {
-      expandNode(child);
-    }
-  }
+  query.value = await QueryService.getQueryDisplay(props.conceptIri);
 }
 </script>
 

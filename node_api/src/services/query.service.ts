@@ -3,20 +3,25 @@ import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
-import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, QUERY, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, iri } from "@/services/graphdb.service";
+import EntityService from "./entity.service";
+import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 export default class QueryService {
   axios: any;
   eclService: EclService;
+  entityService: EntityService;
   private graph: GraphdbService;
 
   constructor(axios: any) {
     this.axios = axios;
     this.eclService = new EclService(axios);
     this.graph = GraphdbService.imRepo();
+    this.entityService = new EntityService(axios);
   }
 
   public async queryIM(query: QueryRequest, controller?: AbortController) {
@@ -241,5 +246,49 @@ export default class QueryService {
     if (isArrayHasLength(rs)) {
       return rs[0].functionProperty.value;
     }
+  }
+
+  public async getQueryDisplay(queryIri: string) {
+    const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
+    if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
+      return {};
+    }
+    const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
+    const labeledQuery = await this.getLabeledQuery(query);
+    return await this.generateQueryDescriptions(labeledQuery);
+  }
+
+  public async getLabeledQuery(query: Query) {
+    const sparqlStart = "SELECT ?s ?o {" + " ?s rdfs:label ?o " + "VALUES ?s { ";
+    let sparqlBody = "";
+    const sparqlEnd = "} }";
+
+    const unnamedObjects = getUnnamedObjects(query);
+    for (const iri of Object.keys(unnamedObjects)) {
+      sparqlBody += "<" + iri + "> ";
+    }
+    const completeQuery = sparqlStart + sparqlBody + sparqlEnd;
+    const iriToNameMap = new Map<string, string>();
+
+    const rs = await this.graph.execute(completeQuery);
+
+    if (isArrayHasLength(rs))
+      for (const r of rs)
+        if (isArrayHasLength(Object.keys(r)))
+          if (isObjectHasKeys(r, ["s", "o"])) {
+            if (r.s.id && r.o.id) iriToNameMap.set(r.s.id, r.o.id.replaceAll('"', ""));
+          }
+
+    for (const iri of Object.keys(unnamedObjects)) {
+      for (const unnamedObject of unnamedObjects[iri]) {
+        unnamedObject.name = iriToNameMap.get(iri) ?? getNameFromRef(unnamedObject);
+      }
+    }
+
+    return query;
+  }
+
+  public async generateQueryDescriptions(query: Query): Promise<Query> {
+    return describeQuery(query);
   }
 }

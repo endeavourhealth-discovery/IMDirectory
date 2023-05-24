@@ -245,6 +245,10 @@ export interface Path extends Property {
     node?: Node;
 }
 
+export interface Path extends Property {
+    node: Node;
+}
+
 export interface PathDocument {
     match?: Match[];
 }
@@ -273,6 +277,9 @@ export interface Query extends TTIriRef {
 
 export interface QueryEntity extends Entity {
     definition?: Query;
+}
+
+export interface QueryException extends Exception {
 }
 
 export interface QueryException extends Exception {
@@ -406,6 +413,28 @@ export interface StackTraceElement extends Serializable {
     lineNumber?: number;
     nativeMethod?: boolean;
     className?: string;
+}
+
+export interface Exception extends Throwable {
+}
+
+export interface Throwable extends Serializable {
+    cause: Throwable;
+    stackTrace: StackTraceElement[];
+    message: string;
+    suppressed: Throwable[];
+    localizedMessage: string;
+}
+
+export interface StackTraceElement extends Serializable {
+    classLoaderName: string;
+    moduleName: string;
+    moduleVersion: string;
+    methodName: string;
+    fileName: string;
+    lineNumber: number;
+    nativeMethod: boolean;
+    className: string;
 }
 
 export interface Exception extends Throwable {

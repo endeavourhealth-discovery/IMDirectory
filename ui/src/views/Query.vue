@@ -5,15 +5,18 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    Defined as
-    <TextQuery
-      :baseEntityIri="baseEntityIri"
-      :text-queries="textQueries"
-      :parent="undefined"
-      :added-new-clause="addedNewClause"
-      @on-open-new-clause="addedNewClause = false"
-    ></TextQuery>
-    <div><Button label="Add clause" @click="addClause" /></div>
+
+    <div class="include-title" style="color: green">include if</div>
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(query.match)"
+      :matches="query.match.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
+      :full-query="query"
+    />
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(query.match)"
+      :matches="query.match.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
+      :full-query="query"
+    />
 
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -28,36 +31,22 @@ import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
-import TextQuery from "@/components/query/RecursiveTextQuery.vue";
-import { ITextQuery, MatchClauseUI } from "@im-library/interfaces";
-import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
-import { EntityService, QueryService } from "@/services";
+import { QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
+import { Match, Query } from "@im-library/interfaces/AutoGen";
+import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 const filterStore = useFilterStore();
-const textQueries: Ref<ITextQuery[]> = ref([]);
-const query: Ref<any> = ref();
+const query: Ref<Query> = ref({} as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const baseEntityIri = ref("");
-const addedNewClause: Ref<boolean> = ref(false);
 
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
-  textQueries.value = await getTextQuery();
-  const baseEntity = textQueries.value[0].data;
+  query.value = await QueryService.getQueryDisplay(IM.NAMESPACE + "Q_TestQuery");
+  const baseEntity = query.value.match[0];
   baseEntityIri.value = baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"];
 });
-
-function addClause() {
-  const newClause = { display: "New clause", data: {}, uiData: [{}] as MatchClauseUI[] } as ITextQuery;
-  textQueries.value.push(newClause);
-  addedNewClause.value = true;
-}
-
-async function getTextQuery() {
-  const entity = await EntityService.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
-  query.value = await QueryService.getLabeledQuery(JSON.parse(entity[IM.DEFINITION]));
-  return buildTextQuery(JSON.parse(entity[IM.DEFINITION]));
-}
 </script>
 
 <style scoped lang="scss">
@@ -90,5 +79,11 @@ async function getTextQuery() {
 
 .button-bar-button {
   margin: 0.5rem;
+}
+
+.include-title {
+  margin-left: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.1rem;
 }
 </style>
