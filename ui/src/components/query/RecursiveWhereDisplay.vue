@@ -1,7 +1,7 @@
 <template>
   <div class="feature" v-for="(where, index) of wheres">
     <div>
-      <span v-if="index" v-html="!parentWhere ? getDisplayFromLogic('and') : getDisplayFromLogic(parentWhere.bool)"></span>
+      <span v-if="index" v-html="parentWhere && parentWhere.bool === 'or' ? getDisplayFromLogic('or') : ''"></span>
       <span v-if="hasNodeRef(where)" v-html="where.description" @click="onNodeRefClick(where, $event)"></span>
       <span v-else-if="hasBigList(where)" v-html="where.description" @click="onWhereInClick(where, $event)"></span>
       <span v-else v-html="where.description"></span>
@@ -20,7 +20,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getDisplayFromLogic } from "@im-library/helpers/TextQueryBuilder";
 import { Match, Node, Query, Where } from "@im-library/interfaces/AutoGen";
-import { PropType, Ref } from "vue";
+import { Ref } from "vue";
 import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
@@ -73,7 +73,15 @@ function getNodeRef(where: Where) {
 }
 
 .variable {
-  color: blueviolet !important;
+  color: rgb(78, 2, 150) !important;
+}
+
+.variable-line {
+  margin-left: 1rem !important;
+}
+
+.node-ref {
+  color: rgb(138, 67, 138) !important;
   cursor: pointer !important;
 }
 </style>

@@ -1,9 +1,10 @@
 <template>
   <div class="feature" v-for="(match, index) of matches">
-    <div v-if="!match.variable || isVariable">
+    <div>
       <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch)"></span>
       <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
       <span v-if="match.description" v-html="match.description"> </span>
+      <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></span>
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay
           v-if="match.match.some(nestedMatch => !isObjectHasKeys(nestedMatch, ['exclude']))"
@@ -32,6 +33,7 @@
 
         <RecursiveWhereDisplay v-else :wheres="match.where" :parent-match="match" :full-query="fullQuery" />
       </span>
+      <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
   </div>
   <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(hoveredWhere)" /> </OverlayPanel>
@@ -45,7 +47,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { Match, Node, Query, Where } from "@im-library/interfaces/AutoGen";
 import { PropType, Ref, ref } from "vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
-import { getDisplayFromLogic } from "@im-library/helpers/TextQueryBuilder";
+import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 
@@ -53,7 +55,6 @@ interface Props {
   fullQuery: Query;
   parentMatch?: Match;
   matches: Match[];
-  isVariable?: Boolean;
 }
 
 const props = defineProps<Props>();

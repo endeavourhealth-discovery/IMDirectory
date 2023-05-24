@@ -52,9 +52,9 @@ export function getDisplayFromMatch(match: Match) {
   let display = "";
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
+  if (match.orderBy) display += getDisplayFromOrderByList(match.orderBy);
   if (match["@set"]) display = "in '" + display + "'";
   if (match.path) display += getDisplayFromPath(match.path);
-  if (match.orderBy) display += " " + getDisplayFromOrderByList(match.orderBy);
   return display;
 }
 
@@ -69,7 +69,6 @@ export function getDisplayFromWhereList(matchDisplay: string, where: Where[]) {
 }
 
 export function getDisplayFromWhere(where: Where) {
-  if (where.valueLabel && !where.in && !where.notIn) return where.valueLabel;
   let display = "";
   const propertyName = getDisplayFromNodeRef(where.nodeRef) ?? getNameFromRef(where);
   if (!propertyDropList.includes(propertyName)) display += propertyName;
@@ -82,7 +81,7 @@ export function getDisplayFromWhere(where: Where) {
 }
 
 export function getDisplayFromOrderByList(orderByList: OrderLimit[]) {
-  let display = "ordered by ";
+  let display = " the ";
   if (orderByList.length === 1) display += getDisplayFromOrderBy(orderByList[0]);
   else {
     display += "[";
@@ -93,7 +92,7 @@ export function getDisplayFromOrderByList(orderByList: OrderLimit[]) {
     display += "]";
   }
 
-  return display;
+  return display + " of the following ";
 }
 
 export function getDisplayFromOrderBy(orderBy: OrderLimit) {
@@ -159,7 +158,8 @@ export function getDisplayFromDateComparison(where: Where) {
   if (where.value) {
     if (where.operator) display += getDisplayFromOperatorForDate(where.operator, true);
     display += getDisplayFromValueAndUnitForDate(where);
-    if (where.relativeTo) display += " from " + (getDisplayFromNodeRef(where.relativeTo.nodeRef) ?? getNameFromRef(where.relativeTo));
+    if (where.relativeTo && "$referenceDate" !== where.relativeTo.parameter)
+      display += " from " + (getDisplayFromNodeRef(where.relativeTo.nodeRef) ?? getNameFromRef(where.relativeTo));
   } else {
     if (where.operator) display += getDisplayFromOperatorForDate(where.operator, false);
     if (where.relativeTo) display += getDisplayFromNodeRef(where.relativeTo.nodeRef) ?? getNameFromRef(where.relativeTo);
@@ -170,11 +170,12 @@ export function getDisplayFromDateComparison(where: Where) {
 
 export function getDisplayFromNodeRef(nodeRef: string) {
   if (!nodeRef) return undefined;
-  return getDisplayForVariable(nodeRef);
+  return "<span class='node-ref'>" + nodeRef + "</span> ";
 }
 
-export function getDisplayForVariable(variableName: string) {
-  return "<span class='variable'>" + variableName + "</span> ";
+export function getDisplayFromVariable(nodeRef: string) {
+  if (!nodeRef) return undefined;
+  return "<span class='variable-line'> keep as <span class='variable'>" + nodeRef + "</span></span> ";
 }
 
 export function getDisplayFromValueAndUnitForDate(where: Where) {
@@ -201,11 +202,11 @@ export function getDisplayFromOperatorForDate(operator: Operator, withValue: boo
 }
 
 export function getDisplayFromList(where: Where, include: boolean) {
-  let display = "";
+  let display = "is ";
   const nodes = where.in ?? where.notIn;
   if (where.valueLabel) {
-    if (nodes.length === 1) display = where.valueLabel;
-    else display = getDisplayForVariable(where.valueLabel);
+    if (nodes.length === 1) display += where.valueLabel;
+    else display += getDisplayFromNodeRef(where.valueLabel);
     return display;
   }
 
@@ -224,7 +225,7 @@ export function getDisplayFromList(where: Where, include: boolean) {
     display += include ? "a value of [" : " without a value of [";
     display += getDisplayFromEntailment(nodes[0]);
     display += getNameFromRef(nodes[0]);
-    display += " and " + getDisplayForVariable("more...") + "]";
+    display += " and " + getDisplayFromNodeRef("more...") + "]";
   }
   return display;
 }
