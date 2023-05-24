@@ -66,7 +66,6 @@ onMounted(async () => {
 
 function changeTheme(newTheme: string) {
   PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
-  if (currentUser.value) UserService.updateUserTheme(currentUser.value.id, newTheme);
   userStore.updateCurrentTheme(newTheme);
 }
 

@@ -95,7 +95,8 @@ export const useUserStore = defineStore("user", {
         this.favourites = favourites;
       }
     },
-    updateCurrentTheme(theme: string) {
+    async updateCurrentTheme(theme: string) {
+      if (this.currentUser) await UserService.updateUserTheme(this.currentUser.id, theme);
       this.currentTheme = theme;
     },
     updateCurrentUser(user: any) {
