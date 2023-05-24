@@ -137,9 +137,7 @@ export function getDisplayFromOperator(property: string, where: Where) {
     display += property + " ";
     display += where.operator + " ";
     if (where.relativeTo) {
-      let relativeTo = "";
-      if (where.relativeTo.parameter) relativeTo += where.relativeTo.parameter;
-      if (relativeTo) relativeTo += ".";
+      let relativeTo = where.relativeTo.parameter ? (where.relativeTo.parameter + ".")  : "";
       relativeTo += getNameFromRef(where.relativeTo);
       display += relativeTo;
     }
