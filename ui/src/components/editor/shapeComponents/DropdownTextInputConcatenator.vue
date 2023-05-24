@@ -64,14 +64,14 @@ onMounted(async () => {
 
 function setSelectedOption() {
   if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue) {
-    deconstructInputValue(props.shape.isIri["@id"]);
+    deconstructInputValue(props.shape.isIri!["@id"]);
     return;
   }
   if (props.value && typeof props.value === "string") {
     deconstructInputValue(props.value);
     return;
-  } else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri["@id"]) {
-    deconstructInputValue(props.shape.isIri["@id"]);
+  } else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!["@id"]) {
+    deconstructInputValue(props.shape.isIri!["@id"]);
     return;
   } else {
     selectedDropdownOption.value = null;
@@ -93,7 +93,7 @@ async function getDropdownOptions() {
     const args = processArguments(props.shape);
     const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
-    const query = { "@id": props.shape.select[0]["@id"] } as Query;
+    const query = { "@id": props.shape.select![0]["@id"] } as Query;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
     if (result)
@@ -102,7 +102,7 @@ async function getDropdownOptions() {
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await QueryService.runFunction(props.shape.function["@id"])).sort(byName);
+    return (await QueryService.runFunction(props.shape.function!["@id"])).sort(byName);
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
@@ -121,7 +121,7 @@ function updateValueVariableMap(data: string) {
 
 async function updateValidity(data: string) {
   if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   } else {
     invalid.value = !defaultValidation(data);
   }

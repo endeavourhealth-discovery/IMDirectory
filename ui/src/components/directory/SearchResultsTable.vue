@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useFilterStore } from "@/stores/filterStore";
@@ -94,11 +94,11 @@ function setFiltersFromSearchResults() {
   const types = [] as string[];
   const status = [] as string[];
   (localSearchResults.value as ConceptSummary[]).forEach(searchResult => {
-    schemes.push(searchResult.scheme?.name);
+    if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme.name!);
     searchResult.entityType.forEach((type: any) => {
       if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type.name);
     });
-    status.push(searchResult.status?.name);
+    if (isObjectHasKeys(searchResult.status, ["name"])) status.push(searchResult.status.name!);
   });
   schemeOptions.value = [...new Set(schemes)];
   typeOptions.value = [...new Set(types)];
@@ -119,7 +119,7 @@ function filterResults() {
       }
     });
 
-    if (selectedSchemes.value.indexOf(searchResult.scheme.name) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name) != -1) {
+    if (selectedSchemes.value.indexOf(searchResult.scheme.name!) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name!) != -1) {
       filteredSearchResults.push(searchResult);
     }
   });

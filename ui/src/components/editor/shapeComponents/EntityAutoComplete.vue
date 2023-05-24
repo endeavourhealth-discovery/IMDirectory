@@ -145,7 +145,7 @@ watch(selectedResult, (newValue, oldValue) => {
 
 async function init() {
   loading.value = true;
-  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path["@id"];
+  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
   getAssociatedProperty();
   if (autocompleteOptions.value.length === 0) {
     await getAutocompleteOptions();
@@ -159,29 +159,29 @@ async function init() {
 
 function getAssociatedProperty() {
   if (isObjectHasKeys(props.shape, ["argument"])) {
-    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument[0], ["valueVariable"]) && props.shape.argument[0].valueVariable) {
+    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueVariable"]) && props.shape.argument![0].valueVariable) {
       invalidAssociatedProperty.value = false;
       if (props.shape.builderChild) {
         if (
           valueVariableMap &&
-          (valueVariableMap.value.has(props.shape.argument[0].valueVariable + props.shape.order) ||
-            valueVariableMap.value.has(props.shape.argument[0].valueVariable))
+          (valueVariableMap.value.has(props.shape.argument![0].valueVariable + props.shape.order) ||
+            valueVariableMap.value.has(props.shape.argument![0].valueVariable))
         ) {
-          if (valueVariableMap.value.has(props.shape.argument[0].valueVariable)) {
-            associatedProperty.value = valueVariableMap.value.get(props.shape.argument[0].valueVariable);
+          if (valueVariableMap.value.has(props.shape.argument![0].valueVariable)) {
+            associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable);
           } else {
-            associatedProperty.value = valueVariableMap.value.get(props.shape.argument[0].valueVariable + props.shape.order);
+            associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable + props.shape.order);
           }
         } else {
           invalidAssociatedProperty.value = true;
         }
-      } else if (valueVariableMap && valueVariableMap.value.has(props.shape.argument[0].valueVariable)) {
-        associatedProperty.value = valueVariableMap.value.get(props.shape.argument[0].valueVariable);
+      } else if (valueVariableMap && valueVariableMap.value.has(props.shape.argument![0].valueVariable)) {
+        associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable);
       } else {
         invalidAssociatedProperty.value = true;
       }
-    } else if (isObjectHasKeys(props.shape.argument[0], ["valueIri"]) && props.shape.argument[0].valueIri) {
-      associatedProperty.value = props.shape.argument[0].valueIri["@id"];
+    } else if (isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri) {
+      associatedProperty.value = props.shape.argument![0].valueIri["@id"];
     } else {
       invalidAssociatedProperty.value = false;
     }
@@ -196,7 +196,7 @@ async function getAutocompleteOptions() {
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
       queryRequest.argument = processArguments(props.shape, valueVariableMap?.value);
-      query["@id"] = props.shape.select[0]["@id"];
+      query["@id"] = props.shape.select![0]["@id"];
       queryRequest.query = query;
     } else {
       throw new Error("EntityAutoComplete is missing 'select' or 'argument' in propertyShape object");
@@ -212,8 +212,8 @@ async function getAutocompleteOptions() {
       }
     }
   } else {
-    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument[0], ["valueIri"]) && props.shape.argument[0].valueIri["@id"]) {
-      const range = await QueryService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
+    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri!["@id"]) {
+      const range = await QueryService.getPropertyRange(props.shape?.argument![0].valueIri!["@id"]);
       if (range.length !== 0) {
         autocompleteOptions.value = convertToConceptSummary(range);
       }
@@ -275,7 +275,7 @@ function updateEntity(value: ConceptSummary) {
 
 async function updateValidity(value: ConceptSummary) {
   if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   } else {
     invalid.value = !defaultValidity();
   }

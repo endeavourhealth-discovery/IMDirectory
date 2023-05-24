@@ -65,7 +65,7 @@ onMounted(() => {
 });
 
 function setComponents() {
-  components.value = props.shape.property;
+  if (isObjectHasKeys(props.shape, ["property"])) components.value = props.shape.property!;
 }
 
 function setHeights() {
@@ -74,14 +74,16 @@ function setHeights() {
     if (splitArgs && splitArgs?.length) {
       heights.value = splitArgs;
     } else {
-      for (let i = 0; i < props.shape.property.length; i++) {
-        heights.value.push(100 / props.shape.property.length + "%");
-      }
+      if (isObjectHasKeys(props.shape, ["property"]))
+        for (let i = 0; i < props.shape.property!.length; i++) {
+          heights.value.push(100 / props.shape.property!.length + "%");
+        }
     }
   } else {
-    for (let i = 0; i < props.shape.property.length; i++) {
-      heights.value.push("fit-content");
-    }
+    if (isObjectHasKeys(props.shape, ["property"]))
+      for (let i = 0; i < props.shape.property!.length; i++) {
+        heights.value.push("fit-content");
+      }
   }
 }
 

@@ -1,9 +1,10 @@
 import { TreeNode } from "../interfaces/TreeNode";
-import { TTIriRef, TTProperty } from "../interfaces";
+import { TTProperty } from "../interfaces";
 import { IM, SHACL } from "../vocabulary";
 import { getFAIconFromType } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
+import { TTIriRef } from "../interfaces/AutoGen";
 
 export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
   const dataModelProperties = entity[SHACL.PROPERTY];

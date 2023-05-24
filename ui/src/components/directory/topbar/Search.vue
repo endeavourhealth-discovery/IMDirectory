@@ -88,12 +88,12 @@ async function search(): Promise<void> {
 
     searchRequest.statusFilter = [];
     selectedFilters.value.status.forEach((status: TTIriRef) => {
-      searchRequest.statusFilter.push(status["@id"]);
+      searchRequest.statusFilter!.push(status["@id"]);
     });
 
     searchRequest.typeFilter = [];
     selectedFilters.value.types.forEach((type: TTIriRef) => {
-      searchRequest.typeFilter.push(type["@id"]);
+      searchRequest.typeFilter!.push(type["@id"]);
     });
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
