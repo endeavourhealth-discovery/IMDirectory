@@ -4,7 +4,7 @@
       <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch)"></span>
       <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
       <span v-if="match.description" v-html="match.description"> </span>
-      <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></span>
+      <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay
           v-if="match.match.some((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
@@ -36,7 +36,7 @@
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
   </div>
-  <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(hoveredWhere)" /> </OverlayPanel>
+  <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedNodeRef)" /> </OverlayPanel>
   <OverlayPanel ref="op1">
     <ListOverlay :list="list" />
   </OverlayPanel>
@@ -60,7 +60,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const op: Ref<any> = ref();
-const hoveredWhere: Ref<Where> = ref({} as Where);
+const clickedNodeRef: Ref<Where | Match> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 const op1: Ref<any> = ref();
 
@@ -68,13 +68,13 @@ function hasNodeRef(where: Where) {
   return isObjectHasKeys(where, ["nodeRef"]) || isObjectHasKeys(where.relativeTo, ["nodeRef"]);
 }
 
-function onNodeRefClick(where: Where, event: any) {
-  hoveredWhere.value = where;
+function onNodeRefClick(whereOrMatch: Where | Match, event: any) {
+  clickedNodeRef.value = whereOrMatch;
   op.value.toggle(event);
 }
 
-function getNodeRef(where: Where) {
-  return where.nodeRef ?? where.relativeTo.nodeRef;
+function getNodeRef(whereOrMatch: Where | Match) {
+  return whereOrMatch.nodeRef ?? (whereOrMatch as Where)?.relativeTo.nodeRef;
 }
 
 function hasBigList(where: Where) {

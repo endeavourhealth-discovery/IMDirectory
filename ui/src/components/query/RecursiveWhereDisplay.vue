@@ -10,7 +10,7 @@
       </span>
     </div>
   </div>
-  <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(hoveredWhere)" /> </OverlayPanel>
+  <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedWhere)" /> </OverlayPanel>
   <OverlayPanel ref="op1">
     <ListOverlay :list="list" />
   </OverlayPanel>
@@ -37,7 +37,7 @@ const props = defineProps<Props>();
 const op: Ref<any> = ref();
 const op1: Ref<any> = ref();
 
-const hoveredWhere: Ref<Where> = ref({} as Where);
+const clickedWhere: Ref<Where> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 
 function hasBigList(where: Where) {
@@ -45,7 +45,7 @@ function hasBigList(where: Where) {
 }
 
 function onNodeRefClick(where: Where, event: any) {
-  hoveredWhere.value = where;
+  clickedWhere.value = where;
   op.value.toggle(event);
 }
 
