@@ -122,14 +122,14 @@ export const where = {
     operator: ">=",
     value: "-6",
     unit: "MONTHS",
-    relativeTo: { "@id": "http://endhealth.info/im#$referenceDate" }
+    relativeTo: { parameter: "$referenceDate" }
   },
   last6MonthsWithValueLabel: {
     "@id": "http://endhealth.info/im#effectiveDate",
     operator: ">=",
     value: "-6",
     unit: "MONTHS",
-    relativeTo: { "@id": "http://endhealth.info/im#$referenceDate" },
+    relativeTo: { parameter: "$referenceDate" },
     valueLabel: "last 6 months"
   }
 };

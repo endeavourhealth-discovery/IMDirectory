@@ -73,7 +73,7 @@ export function getDisplayFromWhere(where: Where) {
   const propertyName = getDisplayFromNodeRef(where.nodeRef) ?? getNameFromRef(where);
   if (!propertyDropList.includes(propertyName)) display += propertyName;
   if (where.in) display += " " + getDisplayFromList(where, true);
-  if (where.notIn) display += "not " + getDisplayFromList(where, false);
+  if (where.notIn) display += getDisplayFromList(where, false);
   if (where.operator) display = getDisplayFromOperator(propertyName, where);
   if (where.range) display = getDisplayFromRange(propertyName, where);
   if (where.null) display += " is null";
@@ -101,8 +101,8 @@ export function getDisplayFromOrderBy(orderBy: OrderLimit) {
   const propertyName = getNameFromRef(orderBy);
   if (!propertyDropList.includes(propertyName)) display += propertyName + " ";
   if (orderBy.limit === 1) {
-    if ("descending" === orderBy.direction) display = "latest " + display;
-    if ("ascending" === orderBy.direction) display = "earliest " + display;
+    if ("descending" === orderBy.direction) display = "latest" + display;
+    if ("ascending" === orderBy.direction) display = "earliest" + display;
   } else if (orderBy.direction) display = orderBy.direction + " " + display;
   return display;
 }
@@ -202,7 +202,7 @@ export function getDisplayFromOperatorForDate(operator: Operator, withValue: boo
 }
 
 export function getDisplayFromList(where: Where, include: boolean) {
-  let display = "is ";
+  let display = include ? "is " : "is not ";
   const nodes = where.in ?? where.notIn;
   if (where.valueLabel) {
     if (nodes.length === 1) display += where.valueLabel;

@@ -52,7 +52,7 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a complext query with orderBy", () => {
       const display = getDisplayFromMatch(match.withOrderByWhereInAndWhereComparison as Match);
-      expect(display).toEqual(" ordered by latest ");
+      expect(display).toEqual(" the latest of the following ");
     });
 
     //     it("can get a display for an exclude set match clause", () => {
@@ -210,32 +210,32 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getDisplayFromWhere", () => {
     it("can get a display for a where with an in list", () => {
       const display = getDisplayFromWhere(where.withIn as Where);
-      expect(display).toEqual(" descendants of 714628002");
+      expect(display).toEqual(" is descendants of 714628002");
     });
 
     it("can get a display for a where with an in list", () => {
       const display = getDisplayFromWhere(where.withIn as Where);
-      expect(display).toEqual(" descendants of 714628002");
+      expect(display).toEqual(" is descendants of 714628002");
     });
 
     it("can get a display for a where with an in list and valueLabel", () => {
       const display = getDisplayFromWhere(where.withInAndValueLabel as Where);
-      expect(display).toEqual(" <span class='variable'>Office or home systolic blood pressure</span> ");
+      expect(display).toEqual(" is <span class='node-ref'>Office or home systolic blood pressure</span> ");
     });
 
     it("can get a display for a where of last 6 months", () => {
       const display = getDisplayFromWhere(where.last6Months as Where);
-      expect(display).toEqual("within the last 6 MONTHS from $referenceDate");
+      expect(display).toEqual("within the last 6 MONTHS");
     });
 
     it("can get a display for a where with valueLabel", () => {
       const display = getDisplayFromWhere(where.last6MonthsWithValueLabel as Where);
-      expect(display).toEqual("last 6 months");
+      expect(display).toEqual("within the last 6 MONTHS");
     });
 
     it("can get a display for a where with after comparison date", () => {
       const display = getDisplayFromWhere(where.after as Where);
-      expect(display).toEqual("after <span class='variable'>latestBP</span> ");
+      expect(display).toEqual("after <span class='node-ref'>latestBP</span> ");
     });
 
     //     it("can get a display for a where null", () => {
@@ -248,12 +248,12 @@ describe("QueryDescriptor.ts ___", () => {
 
     it("can get a display for a where with a not in list", () => {
       const display = getDisplayFromWhere(where.withNotInAndName as Where);
-      expect(display).toEqual("not descendants of Prediabetes (finding)");
+      expect(display).toEqual("is not descendants of Prediabetes (finding)");
     });
 
     it("can get a display for a where with a nodeRef and comparison", () => {
       const display = getDisplayFromWhere(where.withNodeRefAndComparison as Where);
-      expect(display).toEqual("<span class='variable'>latestBP</span>  > 150");
+      expect(display).toEqual("<span class='node-ref'>latestBP</span>  > 150");
     });
 
     //     it("can get a display for a where with an in list with multiple items", () => {
