@@ -30,12 +30,12 @@ import { TreeSelectionKeys } from "primevue/tree";
 import { onMounted, PropType, Ref, ref } from "vue";
 import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
 import { SHACL } from "@im-library/vocabulary";
-import { IriLD, Node, Relationship } from "@im-library/interfaces/AutoGen";
+import { IriLD, Node, Path } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   baseEntityIri: string;
   property: TreeNode;
-  path: Relationship;
+  path: Path;
 }
 
 const props = defineProps<Props>();
@@ -103,9 +103,9 @@ function select() {
   visible.value = false;
 }
 
-function getLeafDataModelFromPath(pathOrNode: Relationship | Node, found: string[]) {
+function getLeafDataModelFromPath(pathOrNode: Path | Node, found: string[]) {
   if (isObjectHasKeys(pathOrNode, ["node"])) {
-    getLeafDataModelFromPath((pathOrNode as Relationship).node, found);
+    getLeafDataModelFromPath((pathOrNode as Path).node, found);
   } else if (isObjectHasKeys(pathOrNode, ["path"])) {
     getLeafDataModelFromPath((pathOrNode as Node).path, found);
   } else {
@@ -113,14 +113,14 @@ function getLeafDataModelFromPath(pathOrNode: Relationship | Node, found: string
   }
 }
 
-function findNodeWithPath(path: Relationship | Node, node: TreeNode, iri: string, nodes: TreeNode[]) {
+function findNodeWithPath(path: Path | Node, node: TreeNode, iri: string, nodes: TreeNode[]) {
   let pathIri = path["@id"] || path["@type"];
   pathIri = resolveIri(pathIri);
   const found = [] as TreeNode[];
   findNodeByIri(node, pathIri, found);
   if (isArrayHasLength(found)) {
     if (isObjectHasKeys(path, ["node"])) {
-      findNodeWithPath((path as Relationship).node, found[0], iri, nodes);
+      findNodeWithPath((path as Path).node, found[0], iri, nodes);
     } else if (isObjectHasKeys(path, ["path"])) {
       findNodeWithPath((path as Node).path, found[0], iri, nodes);
     } else {

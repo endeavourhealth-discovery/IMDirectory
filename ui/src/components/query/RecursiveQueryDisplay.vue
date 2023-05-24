@@ -7,16 +7,16 @@
       <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></span>
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay
-          v-if="match.match.some(nestedMatch => !isObjectHasKeys(nestedMatch, ['exclude']))"
+          v-if="match.match.some((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
           :include="true"
-          :matches="match.match.filter(nestedMatch => !isObjectHasKeys(nestedMatch, ['exclude']))"
+          :matches="match.match.filter((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
           :parent-match="match"
           :full-query="fullQuery"
         />
         <RecursiveQueryDisplay
-          v-if="match.match.some(nestedMatch => isObjectHasKeys(nestedMatch, ['exclude']))"
+          v-if="match.match.some((nestedMatch: Match) => isObjectHasKeys(nestedMatch, ['exclude']))"
           :include="false"
-          :matches="match.match.filter(nestedMatch => !isObjectHasKeys(nestedMatch, ['exclude']))"
+          :matches="match.match.filter((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
           :parent-match="match"
           :full-query="fullQuery"
         />

@@ -9,12 +9,12 @@
     <div class="include-title" style="color: green">include if</div>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(query.match)"
-      :matches="query.match.filter(match => !isObjectHasKeys(match, ['exclude']))"
+      :matches="query.match.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
       :full-query="query"
     />
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(query.match)"
-      :matches="query.match.filter(match => isObjectHasKeys(match, ['exclude']))"
+      :matches="query.match.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
       :full-query="query"
     />
 
@@ -33,7 +33,7 @@ import { ref, Ref, onMounted } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import { Query } from "@im-library/interfaces/AutoGen";
+import { Match, Query } from "@im-library/interfaces/AutoGen";
 import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 const filterStore = useFilterStore();
