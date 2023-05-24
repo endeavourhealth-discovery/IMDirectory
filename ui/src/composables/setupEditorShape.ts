@@ -1,5 +1,5 @@
 import { Ref, ref } from "vue";
-import { FormGenerator } from "@im-library/interfaces";
+import { FormGenerator } from "@im-library/interfaces/AutoGen";
 
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
@@ -9,6 +9,7 @@ import { EntityService } from "@/services";
 import { useRoute, useRouter } from "vue-router";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
+import editorShapes from "@/constants/editorShapes";
 
 export function setupEditorShape() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export function setupEditorShape() {
   let groups: Ref<PropertyShape[]> = ref([]);
   let stepsItems: Ref<{ label: string; to: string }[]> = ref([]);
 
-  async function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
+  function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
     let shapeCombined: FormGenerator = {} as FormGenerator;
     if (primaryType) {
       types.sort(function (x, y) {
@@ -26,7 +27,7 @@ export function setupEditorShape() {
       });
     }
     for (const type of types) {
-      const typeShape = await getShape(type["@id"]);
+      const typeShape = getShape(type["@id"]);
       if (isObjectHasKeys(shapeCombined, ["property"])) addToShape(shapeCombined, typeShape);
       else shapeCombined = typeShape;
     }
@@ -43,11 +44,16 @@ export function setupEditorShape() {
       }
   }
 
-  async function getShape(type: string): Promise<any> {
+  function getShape(type: string): FormGenerator {
     let newShape = {};
-    const shapeIri = await EntityService.getShapeFromType(type);
-    if (isObjectHasKeys(shapeIri)) newShape = await EntityService.getShape(shapeIri["@id"]);
+    newShape = getShapeFromType(type);
     return newShape;
+  }
+
+  function getShapeFromType(type: string) {
+    const found = editorShapes.find(shape => shape.targetShape?.["@id"] === type);
+    if (found) return found;
+    else throw new Error("No editor shape found for type: " + type);
   }
 
   function processShape(shape: FormGenerator, mode: EditorMode, entity: any) {

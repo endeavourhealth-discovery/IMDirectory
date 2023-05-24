@@ -1,21 +1,21 @@
-import { Argument, FormGenerator, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { EDITOR, FUNCTION, RDF, IM, XSD, RDFS, QUERY, COMPONENT } from "@im-library/vocabulary";
+import { FormGenerator } from "@im-library/interfaces/AutoGen";
+import { COMPONENT, EDITOR, FUNCTION, IM, QUERY, RDF, RDFS, VALIDATION, XSD } from "@im-library/vocabulary";
 
-const ConceptShape: FormGenerator = {
-  "@id": EDITOR.CONCEPT_SHAPE,
+const FolderShape: FormGenerator = {
+  "@id": EDITOR.FOLDER_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
     }
   ],
-  label: "Editor - Concept shape",
-  comment: "Form editor for a concept",
+  label: "Editor - folder shape",
+  comment: "Form editor for a folder",
   targetShape: {
-    "@id": IM.CONCEPT
+    "@id": IM.FOLDER
   },
   property: [
     {
-      comment: "A property that auto generates the type as  concept type",
+      comment: "A property that auto generates the type as  folder type",
       order: 1,
       function: {
         "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
@@ -26,14 +26,14 @@ const ConceptShape: FormGenerator = {
       },
       argument: [
         {
+          parameter: "entityIri",
           valueIri: {
-            "@id": IM.CONCEPT
-          },
-          parameter: "entityIri"
+            "@id": IM.FOLDER
+          }
         }
       ],
       isIri: {
-        "@id": IM.CONCEPT
+        "@id": IM.FOLDER
       },
       minCount: 1,
       componentType: {
@@ -87,9 +87,9 @@ const ConceptShape: FormGenerator = {
       }
     },
     {
-      comment: "name or main term of concept",
+      comment: "name or main term of entity",
       order: 4,
-      name: "Concept name",
+      name: "Folder name",
       maxCount: 1,
       path: {
         "@id": RDFS.LABEL
@@ -108,7 +108,7 @@ const ConceptShape: FormGenerator = {
       datatype: {
         "@id": XSD.STRING
       },
-      name: "Concept description",
+      name: "Folder description",
       maxCount: 1,
       path: {
         "@id": RDFS.COMMENT
@@ -174,7 +174,7 @@ const ConceptShape: FormGenerator = {
             {
               parameter: "this",
               valueIri: {
-                "@id": IM.CONCEPT
+                "@id": IM.FOLDER
               }
             }
           ],
@@ -190,103 +190,36 @@ const ConceptShape: FormGenerator = {
       ]
     },
     {
-      label: "Property Group - Role group array builder",
+      label: "Property group - Sub type array builder",
       order: 1,
-      maxCount: 1,
       path: {
-        "@id": IM.ROLE_GROUP
+        "@id": RDFS.SUBCLASS_OF
       },
-      property: [
-        {
-          label: "Property Group - Role group component group",
-          name: "Property refinement",
-          order: 1,
-          minCount: 1,
-          componentType: {
-            "@id": COMPONENT.COMPONENT_GROUP
-          },
-          path: {
-            "@id": IM.ROLE_GROUP
-          },
-          property: [
-            {
-              comment: "selects a property from allowable range from selected concept",
-              order: 1,
-              select: [
-                {
-                  "@id": QUERY.ALLOWABLE_PROPERTIES
-                }
-              ],
-              builderChild: true,
-              path: {
-                "@id": IM.ROLE_GROUP
-              },
-              argument: [
-                {
-                  parameter: "this",
-                  valueVariable: "concept"
-                }
-              ],
-              name: "Property",
-              minCount: 1,
-              componentType: {
-                "@id": COMPONENT.ENTITY_AUTO_COMPLETE
-              },
-              valueVariable: "propertyIri"
-            },
-            {
-              comment: "Selects a quantifier from allowable range from property",
-              order: 2,
-              select: [
-                {
-                  "@id": QUERY.ALLOWABLE_RANGES
-                }
-              ],
-              builderChild: true,
-              path: {
-                "@id": IM.ROLE_GROUP
-              },
-              argument: [
-                {
-                  parameter: "entityIri",
-                  valueVariable: "propertyIri"
-                }
-              ],
-              name: "Quantifier",
-              minCount: 1,
-              componentType: {
-                "@id": COMPONENT.ENTITY_AUTO_COMPLETE
-              }
-            }
-          ]
-        }
-      ],
-      name: "Role group",
-      minCount: 0,
-      componentType: {
-        "@id": COMPONENT.ARRAY_BUILDER
-      }
-    },
-    {
-      label: "Property Group - Mapped to array builder",
-      order: 1,
-      maxCount: 1,
-      path: {
-        "@id": IM.MAPPED_TO
+      validation: {
+        "@id": VALIDATION.HAS_PARENT
       },
+      validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
       property: [
         {
           comment: "selects an entity based on select query",
           order: 1,
           select: [
             {
-              "@id": QUERY.SEARCH_MAIN_TYPES
+              "@id": QUERY.SEARCH_ENTITIES
+            }
+          ],
+          argument: [
+            {
+              parameter: "this",
+              valueIri: {
+                "@id": IM.CONCEPT
+              }
             }
           ],
           builderChild: true,
           name: "Entity",
           path: {
-            "@id": IM.MAPPED_TO
+            "@id": RDFS.SUBCLASS_OF
           },
           minCount: 1,
           componentType: {
@@ -294,7 +227,47 @@ const ConceptShape: FormGenerator = {
           }
         }
       ],
-      name: "Mapped to",
+      name: "Subclass of",
+      minCount: 0,
+      componentType: {
+        "@id": COMPONENT.ARRAY_BUILDER
+      }
+    },
+    {
+      label: "Property group - Contained in array builder",
+      order: 1,
+      path: {
+        "@id": IM.IS_CONTAINED_IN
+      },
+      property: [
+        {
+          comment: "selects an entity based on select query",
+          order: 1,
+          select: [
+            {
+              "@id": QUERY.SEARCH_ENTITIES
+            }
+          ],
+          argument: [
+            {
+              parameter: "this",
+              valueIri: {
+                "@id": IM.FOLDER
+              }
+            }
+          ],
+          builderChild: true,
+          name: "Entity",
+          path: {
+            "@id": IM.IS_CONTAINED_IN
+          },
+          minCount: 1,
+          componentType: {
+            "@id": COMPONENT.ENTITY_SEARCH
+          }
+        }
+      ],
+      name: "Contained in",
       minCount: 0,
       componentType: {
         "@id": COMPONENT.ARRAY_BUILDER
@@ -303,4 +276,4 @@ const ConceptShape: FormGenerator = {
   ]
 };
 
-export default ConceptShape;
+export default FolderShape;

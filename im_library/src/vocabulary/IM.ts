@@ -124,33 +124,6 @@ export class IM {
   //shapes
   public static CONCEPT_SHAPE = IM.NAMESPACE + "ConceptShape";
   public static PROPERTY_SHAPE = IM.NAMESPACE + "PropertyShape";
-  public static EDITOR_CONCEPT_SHAPE = IM.NAMESPACE + "Editor_ConceptShape";
-
-  //editor components
-  public static TEXT_DISPLAY_COMPONENT = IM.NAMESPACE + "textDisplay";
-  public static TEXT_INPUT_COMPONENT = IM.NAMESPACE + "textInput";
-  public static HTML_INPUT_COMPONENT = IM.NAMESPACE + "htmlInput";
-  public static ENTITY_MULTI_SEARCH_COMPONENT = IM.NAMESPACE + "entityMultiSearch";
-  public static ENTITY_SEARCH_COMPONENT = IM.NAMESPACE + "entitySearch";
-  public static ENTITY_COMBOBOX_COMPONENT = IM.NAMESPACE + "entityComboBox";
-  public static ENTITY_DROPDOWN_COMPONENT = IM.NAMESPACE + "entityDropdown";
-  public static STEPS_GROUP_COMPONENT = IM.NAMESPACE + "stepsGroup";
-  public static ARRAY_BUILDER_COMPONENT = IM.NAMESPACE + "arrayBuilder";
-  public static ENTITY_AUTO_COMPLETE_COMPONENT = IM.NAMESPACE + "entityAutoComplete";
-  public static MEMBERS_BUILDER = IM.NAMESPACE + "membersBuilder";
-  public static COMPONENT_GROUP = IM.NAMESPACE + "componentGroup";
-  public static ARRAY_BUILDER_WITH_DROPDOWN = IM.NAMESPACE + "arrayBuilderWithDropdown";
-  public static PROPERTY_BUILDER = IM.NAMESPACE + "propertyBuilder";
-  public static SET_DEFINITION_BUILDER = IM.NAMESPACE + "SetDefinitionBuilder";
-  public static QUERY_DEFINITION_BUILDER = IM.NAMESPACE + "QueryDefinitionBuilder";
-  public static TOGGLEABLE_COMPONENT = IM.NAMESPACE + "ToggleableComponent";
-  public static HORIZONTAL_LAYOUT = IM.NAMESPACE + "HorizontalLayout";
-  public static VERTICAL_LAYOUT = IM.NAMESPACE + "VerticalLayout";
-  public static DROPDOWN_TEXT_INPUT_CONCATENATOR = IM.NAMESPACE + "dropdownTextInputConcatenator";
-
-  //editor validations
-  public static VALIDATION_HAS_PARENT = IM.NAMESPACE + "Validation_hasParent";
-  public static VALIDATION_IS_DEFINITION = IM.NAMESPACE + "Validation_isDefinition";
 
   //argument options
   public static VALUE_TEXT = IM.NAMESPACE + "valueText";

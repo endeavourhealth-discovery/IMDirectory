@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { FUNCTION, IM, QUERY, RDF, RDFS, SHACL, VALIDATION, XSD } from "@im-library/vocabulary";
+import { COMPONENT, EDITOR, FUNCTION, IM, QUERY, RDF, RDFS, SHACL, VALIDATION, XSD } from "@im-library/vocabulary";
 
 const DataModelShape: FormGenerator = {
-  "@id": "im:Editor_DataModelShape",
+  "@id": EDITOR.DATA_MODEL_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -24,7 +24,7 @@ const DataModelShape: FormGenerator = {
       minCount: 1,
       maxCount: 1,
       componentType: {
-        "@id": IM.HORIZONTAL_LAYOUT
+        "@id": COMPONENT.HORIZONTAL_LAYOUT
       },
       argument: [
         {
@@ -43,7 +43,7 @@ const DataModelShape: FormGenerator = {
           minCount: 1,
           maxCount: 1,
           componentType: {
-            "@id": IM.VERTICAL_LAYOUT
+            "@id": COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
@@ -69,7 +69,7 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.ENTITY_COMBOBOX_COMPONENT
+                "@id": COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -82,12 +82,9 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.TEXT_DISPLAY_COMPONENT
+                "@id": COMPONENT.TEXT_DISPLAY
               },
               valueVariable: "conceptIri",
-              class: {
-                "@id": SHACL.NODESHAPE
-              },
               function: {
                 "@id": FUNCTION.SNOMED_CONCEPT_GENERATOR
               }
@@ -112,9 +109,9 @@ const DataModelShape: FormGenerator = {
               ],
               minCount: 1,
               componentType: {
-                "@id": IM.TEXT_DISPLAY_COMPONENT
+                "@id": COMPONENT.TEXT_DISPLAY
               },
-              dataType: {
+              datatype: {
                 "@id": XSD.STRING
               },
               function: {
@@ -131,9 +128,9 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.TEXT_INPUT_COMPONENT
+                "@id": COMPONENT.TEXT_INPUT
               },
-              dataType: {
+              datatype: {
                 "@id": XSD.STRING
               }
             },
@@ -150,7 +147,7 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.HTML_INPUT_COMPONENT
+                "@id": COMPONENT.HTML_INPUT
               }
             },
             {
@@ -179,10 +176,7 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.ENTITY_DROPDOWN_COMPONENT
-              },
-              class: {
-                "@id": IM.STATUS
+                "@id": COMPONENT.ENTITY_DROPDOWN
               },
               forceIsValue: true
             },
@@ -197,7 +191,7 @@ const DataModelShape: FormGenerator = {
                 "@id": "http://snomed.info/sct#370124000"
               },
               componentType: {
-                "@id": IM.TOGGLEABLE_COMPONENT
+                "@id": COMPONENT.TOGGLEABLE
               },
               property: [
                 {
@@ -222,10 +216,7 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.ENTITY_SEARCH_COMPONENT
-                  },
-                  class: {
-                    "@id": IM.CONCEPT
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ]
@@ -256,17 +247,14 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.ENTITY_SEARCH_COMPONENT
-                  },
-                  class: {
-                    "@id": SHACL.NODESHAPE
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
               name: "Subclass of",
               minCount: 0,
               componentType: {
-                "@id": IM.ARRAY_BUILDER_COMPONENT
+                "@id": COMPONENT.ARRAY_BUILDER
               }
             },
             {
@@ -299,10 +287,7 @@ const DataModelShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.ENTITY_SEARCH_COMPONENT
-                  },
-                  class: {
-                    "@id": IM.CONCEPT
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ],
@@ -313,7 +298,7 @@ const DataModelShape: FormGenerator = {
               },
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               componentType: {
-                "@id": IM.ARRAY_BUILDER_COMPONENT
+                "@id": COMPONENT.ARRAY_BUILDER
               }
             }
           ]
@@ -334,14 +319,14 @@ const DataModelShape: FormGenerator = {
               },
               name: "Property",
               componentType: {
-                "@id": IM.PROPERTY_BUILDER
+                "@id": COMPONENT.PROPERTY_BUILDER
               }
             }
           ],
           name: "Property",
           minCount: 0,
           componentType: {
-            "@id": IM.ARRAY_BUILDER_COMPONENT
+            "@id": COMPONENT.ARRAY_BUILDER
           }
         }
       ]

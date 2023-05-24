@@ -1,7 +1,7 @@
 import { ComponentType } from "../enums";
 import { TTIriRef } from "../interfaces";
 import { Argument, PropertyShape } from "../interfaces/AutoGen";
-import { IM } from "../vocabulary";
+import { COMPONENT, IM } from "../vocabulary";
 import { isArrayHasLength } from "./DataTypeCheckers";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
@@ -36,43 +36,43 @@ export function getTreeQueryIri(select: TTIriRef[]) {
 
 export function processComponentType(type: TTIriRef): any {
   switch (type["@id"]) {
-    case IM.TEXT_DISPLAY_COMPONENT:
+    case COMPONENT.TEXT_DISPLAY:
       return ComponentType.TEXT_DISPLAY;
-    case IM.TEXT_INPUT_COMPONENT:
+    case COMPONENT.TEXT_INPUT:
       return ComponentType.TEXT_INPUT;
-    case IM.HTML_INPUT_COMPONENT:
+    case COMPONENT.HTML_INPUT:
       return ComponentType.HTML_INPUT;
-    case IM.ARRAY_BUILDER_COMPONENT:
+    case COMPONENT.ARRAY_BUILDER:
       return ComponentType.ARRAY_BUILDER;
-    case IM.ENTITY_SEARCH_COMPONENT:
+    case COMPONENT.ENTITY_SEARCH:
       return ComponentType.ENTITY_SEARCH;
-    case IM.ENTITY_COMBOBOX_COMPONENT:
+    case COMPONENT.ENTITY_COMBOBOX:
       return ComponentType.ENTITY_COMBOBOX;
-    case IM.ENTITY_DROPDOWN_COMPONENT:
+    case COMPONENT.ENTITY_DROPDOWN:
       return ComponentType.ENTITY_DROPDOWN;
-    case IM.ENTITY_AUTO_COMPLETE_COMPONENT:
+    case COMPONENT.ENTITY_AUTO_COMPLETE:
       return ComponentType.ENTITY_AUTO_COMPLETE;
-    case IM.COMPONENT_GROUP:
+    case COMPONENT.COMPONENT_GROUP:
       return ComponentType.COMPONENT_GROUP;
-    case IM.MEMBERS_BUILDER:
+    case COMPONENT.MEMBERS_BUILDER:
       return ComponentType.MEMBERS_BUILDER;
-    case IM.STEPS_GROUP_COMPONENT:
+    case COMPONENT.STEPS_GROUP:
       return ComponentType.STEPS_GROUP;
-    case IM.SET_DEFINITION_BUILDER:
+    case COMPONENT.SET_DEFINITION_BUILDER:
       return ComponentType.SET_DEFINITION_BUILDER;
-    case IM.QUERY_DEFINITION_BUILDER:
+    case COMPONENT.QUERY_DEFINITION_BUILDER:
       return ComponentType.QUERY_DEFINITION_BUILDER;
-    case IM.ARRAY_BUILDER_WITH_DROPDOWN:
+    case COMPONENT.ARRAY_BUILDER_WITH_DROPDOWN:
       return ComponentType.ARRAY_BUILDER_WITH_DROPDOWN;
-    case IM.PROPERTY_BUILDER:
+    case COMPONENT.PROPERTY_BUILDER:
       return ComponentType.PROPERTY_BUILDER;
-    case IM.TOGGLEABLE_COMPONENT:
+    case COMPONENT.TOGGLEABLE:
       return ComponentType.TOGGLEABLE_COMPONENT;
-    case IM.HORIZONTAL_LAYOUT:
+    case COMPONENT.HORIZONTAL_LAYOUT:
       return ComponentType.HORIZONTAL_LAYOUT;
-    case IM.VERTICAL_LAYOUT:
+    case COMPONENT.VERTICAL_LAYOUT:
       return ComponentType.VERTICAL_LAYOUT;
-    case IM.DROPDOWN_TEXT_INPUT_CONCATENATOR:
+    case COMPONENT.DROPDOWN_TEXT_INPUT_CONCATENATOR:
       return ComponentType.DROPDOWN_TEXT_INPUT_CONCATENATOR;
     default:
       throw new Error("Invalid component type encountered while processing component types: " + type["@id"]);

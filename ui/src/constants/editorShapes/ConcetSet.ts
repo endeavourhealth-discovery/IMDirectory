@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { FUNCTION, IM, QUERY, RDF, RDFS, VALIDATION, XSD } from "@im-library/vocabulary";
+import { COMPONENT, EDITOR, FUNCTION, IM, QUERY, RDF, RDFS, VALIDATION, XSD } from "@im-library/vocabulary";
 
 const ConceptSetShape: FormGenerator = {
-  "@id": "im:Editor_ConceptSetShape",
+  "@id": EDITOR.CONCEPT_SET_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -24,7 +24,7 @@ const ConceptSetShape: FormGenerator = {
       minCount: 1,
       maxCount: 1,
       componentType: {
-        "@id": IM.HORIZONTAL_LAYOUT
+        "@id": COMPONENT.HORIZONTAL_LAYOUT
       },
       argument: [
         {
@@ -43,7 +43,7 @@ const ConceptSetShape: FormGenerator = {
           minCount: 1,
           maxCount: 1,
           componentType: {
-            "@id": IM.VERTICAL_LAYOUT
+            "@id": COMPONENT.VERTICAL_LAYOUT
           },
           property: [
             {
@@ -69,7 +69,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.ENTITY_COMBOBOX_COMPONENT
+                "@id": COMPONENT.ENTITY_COMBOBOX
               }
             },
             {
@@ -82,10 +82,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.DROPDOWN_TEXT_INPUT_CONCATENATOR
-              },
-              class: {
-                "@id": IM.CONCEPT
+                "@id": COMPONENT.DROPDOWN_TEXT_INPUT_CONCATENATOR
               },
               function: {
                 "@id": FUNCTION.GET_SET_EDITOR_IRI_SCHEMES
@@ -101,9 +98,9 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.TEXT_INPUT_COMPONENT
+                "@id": COMPONENT.TEXT_INPUT
               },
-              dataType: {
+              datatype: {
                 "@id": XSD.STRING
               }
             },
@@ -120,7 +117,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.HTML_INPUT_COMPONENT
+                "@id": COMPONENT.HTML_INPUT
               }
             },
             {
@@ -149,10 +146,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.ENTITY_DROPDOWN_COMPONENT
-              },
-              class: {
-                "@id": IM.STATUS
+                "@id": COMPONENT.ENTITY_DROPDOWN
               },
               forceIsValue: true
             },
@@ -167,7 +161,7 @@ const ConceptSetShape: FormGenerator = {
                 "@id": "http://snomed.info/sct#370124000"
               },
               componentType: {
-                "@id": IM.TOGGLEABLE_COMPONENT
+                "@id": COMPONENT.TOGGLEABLE
               },
               property: [
                 {
@@ -192,10 +186,7 @@ const ConceptSetShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": IM.ENTITY_SEARCH_COMPONENT
-                  },
-                  class: {
-                    "@id": IM.CONCEPT
+                    "@id": COMPONENT.ENTITY_SEARCH
                   }
                 }
               ]
@@ -208,7 +199,7 @@ const ConceptSetShape: FormGenerator = {
           order: 2,
           minCount: 1,
           componentType: {
-            "@id": IM.SET_DEFINITION_BUILDER
+            "@id": COMPONENT.SET_DEFINITION_BUILDER
           },
           validation: {
             "@id": VALIDATION.IS_DEFINITION
@@ -226,7 +217,7 @@ const ConceptSetShape: FormGenerator = {
       order: 1,
       minCount: 1,
       componentType: {
-        "@id": IM.ARRAY_BUILDER_COMPONENT
+        "@id": COMPONENT.ARRAY_BUILDER
       },
       validation: {
         "@id": VALIDATION.HAS_PARENT
@@ -243,7 +234,7 @@ const ConceptSetShape: FormGenerator = {
           minCount: 1,
           builderChild: true,
           componentType: {
-            "@id": IM.ENTITY_SEARCH_COMPONENT
+            "@id": COMPONENT.ENTITY_SEARCH
           },
           select: [
             {
@@ -252,15 +243,7 @@ const ConceptSetShape: FormGenerator = {
           ],
           path: {
             "@id": IM.IS_CONTAINED_IN
-          },
-          class: [
-            {
-              "@id": IM.FOLDER
-            },
-            {
-              "@id": IM.CONCEPT_SET
-            }
-          ]
+          }
         }
       ]
     }

@@ -370,14 +370,6 @@ const EntityService = {
     });
   },
 
-  async getShape(iri: string): Promise<any> {
-    return axios.get(Env.API + "api/entity/public/entityAsPlainJson", { params: { iri: iri, depth: 10 } });
-  },
-
-  async getShapeFromType(iri: string): Promise<TTIriRef> {
-    return axios.get(Env.API + "api/entity/public/shapeFromType", { params: { iri: iri } });
-  },
-
   async getValidatedEntitiesBySnomedCodes(codes: string[]): Promise<any[]> {
     return axios.post(Env.VITE_NODE_API + "node_api/public/search/validatedEntity", codes);
   },

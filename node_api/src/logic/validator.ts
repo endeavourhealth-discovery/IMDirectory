@@ -1,13 +1,13 @@
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS, VALIDATION } from "@im-library/vocabulary";
 
 export default class Validator {
   constructor() {}
 
   public validate(iri: string, data: any): boolean {
-    if (iri === IM.VALIDATION_HAS_PARENT) return this.hasValidParents(data);
-    if (iri === IM.VALIDATION_IS_DEFINITION) return this.isValidDefinition(data);
+    if (iri === VALIDATION.HAS_PARENT) return this.hasValidParents(data);
+    if (iri === VALIDATION.IS_DEFINITION) return this.isValidDefinition(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
