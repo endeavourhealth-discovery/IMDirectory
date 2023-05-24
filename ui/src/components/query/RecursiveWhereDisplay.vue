@@ -6,7 +6,7 @@
       <span v-else-if="hasBigList(where)" v-html="where.description" @click="onWhereInClick(where, $event)"></span>
       <span v-else v-html="where.description"></span>
       <span v-if="isArrayHasLength(where.where)">
-        <RecursiveWhereDisplay :wheres="where.where" :parent-match="parentMatch" :parent-where="where" :full-query="fullQuery" />
+        <RecursiveWhereDisplay :wheres="where.where!" :parent-match="parentMatch" :parent-where="where" :full-query="fullQuery" />
       </span>
     </div>
   </div>
@@ -41,7 +41,7 @@ const clickedWhere: Ref<Where> = ref({} as Where);
 const list: Ref<Node[]> = ref([]);
 
 function hasBigList(where: Where) {
-  return (isArrayHasLength(where.in) && where.in.length > 1) || (isArrayHasLength(where.notIn) && where.notIn.length > 1);
+  return (isArrayHasLength(where.in) && where.in!.length > 1) || (isArrayHasLength(where.notIn) && where.notIn!.length > 1);
 }
 
 function onNodeRefClick(where: Where, event: any) {
@@ -50,7 +50,7 @@ function onNodeRefClick(where: Where, event: any) {
 }
 
 function onWhereInClick(where: Where, event: any) {
-  list.value = where.in ?? where.notIn;
+  list.value = (where.in ?? where.notIn) as Node[];
   op1.value.toggle(event);
 }
 
@@ -59,7 +59,7 @@ function hasNodeRef(where: Where) {
 }
 
 function getNodeRef(where: Where) {
-  return where.nodeRef ?? where.relativeTo.nodeRef;
+  return (where.nodeRef ?? where.relativeTo?.nodeRef) as string;
 }
 </script>
 

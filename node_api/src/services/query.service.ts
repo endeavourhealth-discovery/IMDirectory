@@ -59,7 +59,7 @@ export default class QueryService {
     let suggestions = [] as AliasEntity[];
     const allowableRanges = await this.queryIM(allowableRangesQuery);
     if (allowableRanges.entities) {
-      subtypesQuery.argument[0].valueIriList = allowableRanges.entities.map((entity: any) => {
+      subtypesQuery.argument![0].valueIriList = allowableRanges.entities.map((entity: any) => {
         return { "@id": entity["@id"] };
       });
 

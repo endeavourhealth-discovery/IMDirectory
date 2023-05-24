@@ -2,12 +2,13 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { EclSearchRequest, ITextQuery, PropertyDisplay, QueryObject, TTBundle, TTIriRef, ContextMap } from "@im-library/interfaces";
+import { EclSearchRequest, ITextQuery, PropertyDisplay, QueryObject, TTBundle, ContextMap } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import EntityRepository from "@/repositories/entityRepository";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 export default class EntityService {
   axios: any;

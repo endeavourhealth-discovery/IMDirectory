@@ -3,7 +3,7 @@
 // Class, Record Type
 // Everything else
 
-import { TTIriRef } from "../interfaces";
+import { TTIriRef } from "../interfaces/AutoGen";
 import { IM, RDF, SHACL } from "../vocabulary";
 import palette from "google-palette";
 

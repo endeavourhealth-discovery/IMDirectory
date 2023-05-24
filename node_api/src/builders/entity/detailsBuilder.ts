@@ -1,7 +1,8 @@
 import * as crypto from "crypto";
-import { TTBundle, TTIriRef } from "@im-library/interfaces";
+import { TTBundle } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 export function buildDetails(definition: TTBundle, types?: TTIriRef[]): any[] {
   const treeNode = { children: [] as any[] };

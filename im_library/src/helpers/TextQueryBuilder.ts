@@ -75,7 +75,7 @@ function addMatch(match: Match[], type: string, parent: ITextQuery) {
     label += getDisplayFromMatch(matchItem);
     const matchParent = addItem(label, matchItem, type, parent);
     if (matchItem.boolMatch) {
-      addMatch(matchItem.match, type, matchParent);
+      addMatch(matchItem.match!, type, matchParent);
     }
   }
 }
@@ -177,8 +177,8 @@ export function getDisplayFromLogic(title: string) {
 export function getDisplayFromRange(where: Where) {
   const property = getNameFromRef(where);
   let display = property;
-  display += " from " + where.range.from.operator + " " + where.range.from.value;
-  display += " to " + where.range.to.operator + " " + where.range.to.value;
+  display += " from " + where.range?.from.operator + " " + where.range?.from.value;
+  display += " to " + where.range?.to.operator + " " + where.range?.to.value;
   return display;
 }
 

@@ -1,37 +1,37 @@
 <template>
   <div class="feature" v-for="(match, index) of matches">
     <div>
-      <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch)"></span>
+      <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
       <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
       <span v-if="match.description" v-html="match.description"> </span>
       <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay
-          v-if="match.match.some((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
+          v-if="match.match!.some((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
           :include="true"
-          :matches="match.match.filter((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
+          :matches="match.match!.filter((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
           :parent-match="match"
           :full-query="fullQuery"
         />
         <RecursiveQueryDisplay
-          v-if="match.match.some((nestedMatch: Match) => isObjectHasKeys(nestedMatch, ['exclude']))"
+          v-if="match.match!.some((nestedMatch: Match) => isObjectHasKeys(nestedMatch, ['exclude']))"
           :include="false"
-          :matches="match.match.filter((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
+          :matches="match.match!.filter((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
           :parent-match="match"
           :full-query="fullQuery"
         />
       </span>
       <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
-        <span v-if="match.where.length == 1">
-          <span v-if="hasNodeRef(match.where[0])" v-html="match.where[0].description" @click="onNodeRefClick(match.where[0], $event)"></span>
-          <span v-else-if="hasBigList(match.where[0])" v-html="match.where[0].description" @click="onWhereInClick(match.where[0], $event)"></span>
-          <span v-else v-html="match.where[0].description"></span>
-          <span v-if="isArrayHasLength(match.where[0].where)">
-            <RecursiveWhereDisplay :wheres="match.where[0].where" :parent-match="parentMatch" :parent-where="match.where[0]" :full-query="fullQuery" />
+        <span v-if="match.where!.length == 1">
+          <span v-if="hasNodeRef(match.where![0])" v-html="match.where![0].description" @click="onNodeRefClick(match.where![0], $event)"></span>
+          <span v-else-if="hasBigList(match.where![0])" v-html="match.where![0].description" @click="onWhereInClick(match.where![0], $event)"></span>
+          <span v-else v-html="match.where![0].description"></span>
+          <span v-if="isArrayHasLength(match.where![0].where)">
+            <RecursiveWhereDisplay :wheres="match.where![0].where!" :parent-match="parentMatch" :parent-where="match.where![0]" :full-query="fullQuery" />
           </span>
         </span>
 
-        <RecursiveWhereDisplay v-else :wheres="match.where" :parent-match="match" :full-query="fullQuery" />
+        <RecursiveWhereDisplay v-else :wheres="match.where!" :parent-match="match" :full-query="fullQuery" />
       </span>
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
@@ -74,15 +74,15 @@ function onNodeRefClick(whereOrMatch: Where | Match, event: any) {
 }
 
 function getNodeRef(whereOrMatch: Where | Match) {
-  return whereOrMatch.nodeRef ?? (whereOrMatch as Where)?.relativeTo.nodeRef;
+  return (whereOrMatch.nodeRef ?? (whereOrMatch as Where)?.relativeTo?.nodeRef) as string;
 }
 
 function hasBigList(where: Where) {
-  return (isArrayHasLength(where.in) && where.in.length > 1) || (isArrayHasLength(where.notIn) && where.notIn.length > 1);
+  return (isArrayHasLength(where.in) && where.in!.length > 1) || (isArrayHasLength(where.notIn) && where.notIn!.length > 1);
 }
 
 function onWhereInClick(where: Where, event: any) {
-  list.value = where.in ?? where.notIn;
+  list.value = (where.in ?? where.notIn) as Node[];
   op1.value.toggle(event);
 }
 </script>
