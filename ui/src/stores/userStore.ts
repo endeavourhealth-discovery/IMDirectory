@@ -9,11 +9,11 @@ export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
-    currentTheme: localStorage.getItem("currentTheme") as string,
+    currentTheme: "" as string,
     currentUser: {} as User,
     favourites: [] as string[],
     history: [] as HistoryItem[],
-    recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") ?? "[]") as RecentActivityItem[],
+    recentLocalActivity: [] as RecentActivityItem[],
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false
   }),
   getters: {
@@ -40,13 +40,14 @@ export const useUserStore = defineStore("user", {
     },
     async initFavourites() {
       const favourites: string[] = this.currentUser ? await UserService.getUserFavourites(this.currentUser.id) : this.favourites ? this.favourites : "[]";
+      console.log(favourites);
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
           favourites.splice(index, 1);
         }
       }
-      if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, favourites);
+      if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, JSON.stringify(favourites));
       //localStorage.setItem("favourites", JSON.stringify(favourites));
       this.favourites = favourites;
     },
