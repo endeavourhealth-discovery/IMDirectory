@@ -1,4 +1,5 @@
-import { TTBundle, TTGraphData, TTIriRef } from "../interfaces";
+import { TTIriRef } from "../interfaces/AutoGen";
+import { TTBundle, TTGraphData } from "../interfaces";
 import { SHACL, OWL, IM, RDFS, SNOMED, XMLS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 

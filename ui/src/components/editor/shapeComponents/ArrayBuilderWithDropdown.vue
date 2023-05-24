@@ -81,7 +81,7 @@ let build: Ref<ComponentDetails[]> = ref([]);
 onMounted(async () => {
   loading.value = true;
   key = props.shape.path["@id"];
-  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage;
+  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
   dropdownOptions.value = await getDropdownOptions();
   await createBuild();
   if (entityUpdate) updateEntity();
@@ -93,7 +93,7 @@ watch(
   async () => {
     loading.value = true;
     key = props.shape.path["@id"];
-    if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage;
+    if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
     dropdownOptions.value = await getDropdownOptions();
     setDropdownFromValue();
     await createBuild();
@@ -134,7 +134,7 @@ async function createBuild() {
   let position = 0;
   if (selectedOption.value) {
     for (const item of props.value[selectedOption.value["@id"]]) {
-      build.value.push(await processChild(item, position));
+      build.value.push((await processChild(item, position)) as ComponentDetails);
       position++;
     }
   }
@@ -146,7 +146,7 @@ async function createBuild() {
 function createDefaultBuild() {
   build.value = [];
   if (isObjectHasKeys(props.shape, ["property"])) {
-    props.shape.property.forEach(property => {
+    props.shape.property!.forEach(property => {
       build.value.push(
         generateNewComponent(
           ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
@@ -163,33 +163,35 @@ function createDefaultBuild() {
 
 async function processChild(child: any, position: number) {
   if (isTTIriRef(child)) {
-    return generateNewComponent(
-      ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
-      position,
-      child,
-      props.shape.property[0],
-      {
-        minus: true,
-        plus: true,
-        up: true,
-        down: true
-      },
-      props.mode
-    );
+    if (isObjectHasKeys(props.shape, ["property"]))
+      return generateNewComponent(
+        ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
+        position,
+        child,
+        props.shape.property![0],
+        {
+          minus: true,
+          plus: true,
+          up: true,
+          down: true
+        },
+        props.mode
+      );
   } else {
-    return generateNewComponent(
-      ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
-      position,
-      await processComponentGroupData(child),
-      props.shape.property[0],
-      {
-        minus: true,
-        plus: true,
-        up: true,
-        down: true
-      },
-      props.mode
-    );
+    if (isObjectHasKeys(props.shape, ["property"]))
+      return generateNewComponent(
+        ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER,
+        position,
+        await processComponentGroupData(child),
+        props.shape.property![0],
+        {
+          minus: true,
+          plus: true,
+          up: true,
+          down: true
+        },
+        props.mode
+      );
   }
 }
 
@@ -220,7 +222,7 @@ function generateBuildAsJson() {
 
 async function getDropdownOptions() {
   if (isObjectHasKeys(props.shape, ["function"])) {
-    return await QueryService.runFunction(props.shape.function["@id"]);
+    return await QueryService.runFunction(props.shape.function!["@id"]);
   } else throw new Error("propertygroup is missing 'function' parameter to fetch dropdown options");
 }
 
@@ -241,7 +243,7 @@ function updateEntity() {
 
 async function updateValidity() {
   if (isPropertyShape(props.shape) && isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   } else {
     invalid.value = !defaultValidation();
   }
@@ -255,7 +257,7 @@ function defaultValidation() {
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
   let shape;
   if (isObjectHasKeys(props.shape, ["property"])) {
-    shape = props.shape.property.find(p => processComponentType(p.componentType) === data.selectedType);
+    shape = props.shape.property!.find(p => processComponentType(p.componentType) === data.selectedType);
   }
   if (data.selectedType !== ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER;
@@ -282,7 +284,7 @@ function getNextComponentOptions() {
   const options = [];
   if (isObjectHasKeys(props.shape, ["property"]))
     options.push(
-      props.shape.property.map(property => {
+      props.shape.property!.map(property => {
         return { type: processComponentType(property.componentType), name: property.name };
       })
     );

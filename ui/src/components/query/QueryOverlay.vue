@@ -4,7 +4,7 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
 import { PropType, Ref, onMounted, ref, watch } from "vue";
 import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
@@ -24,9 +24,10 @@ const overlayObject: Ref<{ type: string; data: any }> = ref({ type: "", data: ""
 
 function findNestedQuery() {
   const found = [] as any[];
-  for (const match of props.fullQuery.match) {
-    findRecursively(found, "match", match);
-  }
+  if (isArrayHasLength(props.fullQuery.match))
+    for (const match of props.fullQuery.match!) {
+      findRecursively(found, "match", match);
+    }
   return found[0] ?? {};
 }
 

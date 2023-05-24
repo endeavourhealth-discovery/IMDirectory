@@ -115,7 +115,7 @@ const finishedChildLoading = computed(
 
 function init() {
   key = props.shape.path["@id"];
-  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage;
+  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
   createBuild();
 }
 
@@ -142,7 +142,7 @@ function createBuild() {
 function createDefaultBuild() {
   build.value = [];
   if (isObjectHasKeys(props.shape, ["property"])) {
-    props.shape.property.forEach(property => {
+    props.shape.property!.forEach(property => {
       build.value.push(
         generateNewComponent(
           ComponentType.BUILDER_CHILD_WRAPPER,
@@ -162,7 +162,7 @@ function processChild(child: any, position: number) {
     ComponentType.BUILDER_CHILD_WRAPPER,
     position,
     child,
-    props.shape.property[0],
+    props.shape.property?.[0] ?? ({} as PropertyShape),
     setButtonsByTypeAndPath(position, true),
     props.mode
   );
@@ -221,7 +221,7 @@ function updateEntity() {
 
 async function updateValidity() {
   if (isPropertyShape(props.shape) && isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   } else {
     invalid.value = !defaultValidation();
   }
@@ -235,7 +235,7 @@ function defaultValidation() {
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
   let shape;
   if (isObjectHasKeys(props.shape, ["property"])) {
-    shape = props.shape.property.find(p => processComponentType(p.componentType) === data.selectedType);
+    shape = props.shape.property!.find(p => processComponentType(p.componentType) === data.selectedType);
   }
   if (data.selectedType !== ComponentType.BUILDER_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_CHILD_WRAPPER;
@@ -262,7 +262,7 @@ function updateItemWrapper(data: ComponentDetails) {
 
 function getNextComponentOptions() {
   if (isObjectHasKeys(props.shape, ["property"]))
-    return props.shape.property.map(property => {
+    return props.shape.property!.map(property => {
       return { type: processComponentType(property.componentType), name: property.name };
     });
   else return;

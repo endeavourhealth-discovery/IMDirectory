@@ -9,12 +9,12 @@
     <div class="include-title" style="color: green">include if</div>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(query.match)"
-      :matches="query.match.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
+      :matches="query.match!.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
       :full-query="query"
     />
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(query.match)"
-      :matches="query.match.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
+      :matches="query.match!.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
       :full-query="query"
     />
 
@@ -44,8 +44,10 @@ const baseEntityIri = ref("");
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
   query.value = await QueryService.getQueryDisplay(IM.NAMESPACE + "Q_TestQuery");
-  const baseEntity = query.value.match[0];
-  baseEntityIri.value = baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"];
+  if (isArrayHasLength(query.value?.match)) {
+    const baseEntity = query.value.match![0];
+    baseEntityIri.value = (baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"]) as string;
+  }
 });
 </script>
 

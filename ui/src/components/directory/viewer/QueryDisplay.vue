@@ -3,12 +3,12 @@
     <div class="include-title" style="color: green">include if</div>
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(query.match)"
-      :matches="query.match.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
+      :matches="query.match!.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
       :full-query="query"
     />
     <RecursiveQueryDisplay
       v-if="isArrayHasLength(query.match)"
-      :matches="query.match.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
+      :matches="query.match!.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
       :full-query="query"
     />
   </div>

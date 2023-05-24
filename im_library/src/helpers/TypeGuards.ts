@@ -1,5 +1,5 @@
-import { TTBundle, TTIriRef } from "../interfaces";
-import { PropertyShape } from "../interfaces/AutoGen";
+import { TTBundle } from "../interfaces";
+import { PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
 export function isTTIriRef(data: any): data is TTIriRef {
