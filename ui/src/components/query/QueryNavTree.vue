@@ -43,6 +43,7 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import { TTIriRef } from "@im-library/interfaces";
 import { getColourFromType, getFAIconFromType, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
+import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
 
 const toast = useToast();
 const sharedStore = useSharedStore();
@@ -81,9 +82,12 @@ watch(
   }
 );
 function onNodeSelect(node: any) {}
-function handleNodeExpand(node: any) {
-  SHACL.NODE;
-  console.log(node);
+async function handleNodeExpand(node: any) {
+  if (isRecordModel(node.conceptTypes)) {
+    const iri = node.data;
+    const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
+    node.children = getTreeNodes(entity, node);
+  }
   onNodeExpand(node);
 }
 
