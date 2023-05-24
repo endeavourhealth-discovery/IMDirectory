@@ -1,4 +1,4 @@
-import { IM } from "./IM";
+import { IM } from "../IM";
 
 export class QUERY {
   public static NAMESPACE = IM.NAMESPACE + "Query_";
@@ -11,4 +11,6 @@ export class QUERY {
   public static DATA_PROPERTY_RANGE_SUGGESTIONS = QUERY.NAMESPACE + "DataPropertyRangeSuggestions";
   public static ALLOWABLE_PROPERTIES = QUERY.NAMESPACE + "AllowableProperties";
   public static SEARCH_PROPERTIES = QUERY.NAMESPACE + "SearchProperties";
+  public static SEARCH_ENTITIES = QUERY.NAMESPACE + "SearchEntities";
+  public static SEARCH_MAIN_TYPES = QUERY.NAMESPACE + "SearchmainTypes";
 }

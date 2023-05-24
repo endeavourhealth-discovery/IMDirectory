@@ -1,0 +1,199 @@
+{
+  "@id": "im:Editor_PropertyShape",
+  "rdf:type": [
+    {
+      "@id": "im:FormGenerator"
+    }
+  ],
+  "rdfs:label": "Editor - Property shape",
+  "rdfs:comment": "Form editor for a property",
+  "im:targetShape": {
+    "@id": "rdf:Property"
+  },
+  "sh:property": [
+    {
+      "rdfs:comment": "A property that auto generates the type as property type",
+      "sh:order": 1,
+      "sh:function": {
+        "@id": "im:Function_GetAdditionalAllowableTypes"
+      },
+      "sh:name": "type",
+      "sh:path": {
+        "@id": "rdf:type"
+      },
+      "im:argument": [
+        {
+          "im:valueIri": {
+            "@id": "rdf:Property"
+          },
+          "sh:parameter": "entityIri"
+        }
+      ],
+      "im:isIri": {
+        "@id": "rdf:Property"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:entityComboBox"
+      }
+    },
+    {
+      "rdfs:comment": "A property that auto generates an entity iri from the snomed extension",
+      "sh:order": 2,
+      "sh:name": "iri",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "im:id"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:textDisplay"
+      },
+      "im:valueVariable": "propertyIri",
+      "sh:class": {
+        "@id": "rdf:Property"
+      },
+      "sh:function": {
+        "@id": "im:Function_SnomedConceptGenerator"
+      }
+    },
+    {
+      "rdfs:comment": "Property that derives an entity code from the entity iri",
+      "sh:order": 3,
+      "sh:name": "code",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "im:code"
+      },
+      "im:argument": [
+        {
+          "sh:parameter": "entityIri",
+          "im:valueVariable": "propertyIri"
+        },
+        {
+          "sh:parameter": "fieldName",
+          "im:valueData": "code"
+        }
+      ],
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:textDisplay"
+      },
+      "sh:dataType": {
+        "@id": "xsd:string"
+      },
+      "sh:function": {
+        "@id": "im:Function_LocalNameRetriever"
+      }
+    },
+    {
+      "rdfs:comment": "name or main term of entity",
+      "sh:order": 4,
+      "sh:name": "Property name",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "rdfs:label"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:textInput"
+      },
+      "sh:dataType": {
+        "@id": "xsd:string"
+      }
+    },
+    {
+      "rdfs:comment": "optional description",
+      "sh:order": 5,
+      "sh:datatype": {
+        "@id": "xsd:string"
+      },
+      "sh:name": "Property description",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "rdfs:comment"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:htmlInput"
+      }
+    },
+    {
+      "rdfs:comment": "selects the status with a default of draft",
+      "sh:order": 6,
+      "sh:select": [
+        {
+          "@id": "im:Query_GetIsas"
+        }
+      ],
+      "sh:name": "status",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "im:status"
+      },
+      "im:argument": [
+        {
+          "im:valueIri": {
+            "@id": "im:Status"
+          },
+          "sh:parameter": "this"
+        }
+      ],
+      "im:isIri": {
+        "@id": "im:Draft"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:entityDropdown"
+      },
+      "sh:class": {
+        "@id": "im:Status"
+      },
+      "im:forceIsValue": true
+    },
+    {
+      "rdfs:comment": "Toggle controlling sub components visibility",
+      "sh:order": 7,
+      "sh:name": "Replaced by",
+      "rdfs:label": "Deactivate | Activate",
+      "sh:minCount": 1,
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "http://snomed.info/sct#370124000"
+      },
+      "im:componentType": {
+        "@id": "im:ToggleableComponent"
+      },
+      "sh:property": [
+        {
+          "rdfs:comment": "selects an entity based on select query",
+          "sh:order": 1,
+          "sh:select": [
+            {
+              "@id": "im:Query_SearchEntities"
+            }
+          ],
+          "im:argument": [
+            {
+              "sh:parameter": "this",
+              "im:valueIri": {
+                "@id": "rdf:Property"
+              }
+            }
+          ],
+          "sh:name": "Replaced by",
+          "sh:path": {
+            "@id": "http://snomed.info/sct#370124000"
+          },
+          "sh:minCount": 1,
+          "im:componentType": {
+            "@id": "im:entitySearch"
+          },
+          "sh:class": {
+            "@id": "rdf:Property"
+          }
+        }
+      ]
+    }
+  ]
+}

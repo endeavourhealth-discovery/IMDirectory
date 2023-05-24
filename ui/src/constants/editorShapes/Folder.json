@@ -1,0 +1,289 @@
+{
+  "@id": "im:Editor_FolderShape",
+  "rdf:type": [
+    {
+      "@id": "im:FormGenerator"
+    }
+  ],
+  "rdfs:label": "Editor - folder shape",
+  "rdfs:comment": "Form editor for a folder",
+  "im:targetShape": {
+    "@id": "im:Folder"
+  },
+  "sh:property": [
+    {
+      "rdfs:comment": "A property that auto generates the type as  folder type",
+      "sh:order": 1,
+      "sh:function": {
+        "@id": "im:Function_GetAdditionalAllowableTypes"
+      },
+      "sh:name": "type",
+      "sh:path": {
+        "@id": "rdf:type"
+      },
+      "im:argument": [
+        {
+          "sh:parameter": "entityIri",
+          "im:valueIri": {
+            "@id": "im:Folder"
+          }
+        }
+      ],
+      "im:isIri": {
+        "@id": "im:Folder"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:entityComboBox"
+      }
+    },
+    {
+      "rdfs:comment": "A property that auto generates a concept iri from the snomed extension",
+      "sh:order": 2,
+      "sh:name": "iri",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "im:id"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:textDisplay"
+      },
+      "im:valueVariable": "conceptIri",
+      "sh:class": {
+        "@id": "im:Folder"
+      },
+      "sh:function": {
+        "@id": "im:Function_SnomedConceptGenerator"
+      }
+    },
+    {
+      "rdfs:comment": "Property that derives a concept code from the concept iri",
+      "sh:order": 3,
+      "sh:name": "code",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "im:code"
+      },
+      "im:argument": [
+        {
+          "sh:parameter": "entityIri",
+          "im:valueVariable": "conceptIri"
+        },
+        {
+          "sh:parameter": "fieldName",
+          "im:valueData": "code"
+        }
+      ],
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:textDisplay"
+      },
+      "sh:dataType": {
+        "@id": "xsd:string"
+      },
+      "sh:function": {
+        "@id": "im:Function_LocalNameRetriever"
+      }
+    },
+    {
+      "rdfs:comment": "name or main term of entity",
+      "sh:order": 4,
+      "sh:name": "Folder name",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "rdfs:label"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:textInput"
+      },
+      "sh:dataType": {
+        "@id": "xsd:string"
+      }
+    },
+    {
+      "rdfs:comment": "optional description",
+      "sh:order": 5,
+      "sh:datatype": {
+        "@id": "xsd:string"
+      },
+      "sh:name": "Folder description",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "rdfs:comment"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:htmlInput"
+      }
+    },
+    {
+      "rdfs:comment": "selects the status with a default of draft",
+      "sh:order": 6,
+      "sh:select": [
+        {
+          "@id": "im:Query_GetIsas"
+        }
+      ],
+      "sh:name": "status",
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "im:status"
+      },
+      "im:argument": [
+        {
+          "im:valueIri": {
+            "@id": "im:Status"
+          },
+          "sh:parameter": "this"
+        }
+      ],
+      "im:isIri": {
+        "@id": "im:Draft"
+      },
+      "sh:minCount": 1,
+      "im:componentType": {
+        "@id": "im:entityDropdown"
+      },
+      "sh:class": {
+        "@id": "im:Status"
+      },
+      "im:forceIsValue": true
+    },
+    {
+      "rdfs:comment": "Toggle controlling sub components visibility",
+      "sh:order": 7,
+      "sh:name": "Replaced by",
+      "rdfs:label": "Deactivate | Activate",
+      "sh:minCount": 1,
+      "sh:maxCount": 1,
+      "sh:path": {
+        "@id": "http://snomed.info/sct#370124000"
+      },
+      "im:componentType": {
+        "@id": "im:ToggleableComponent"
+      },
+      "sh:property": [
+        {
+          "rdfs:comment": "selects an entity based on select query",
+          "sh:order": 1,
+          "sh:select": [
+            {
+              "@id": "im:Query_SearchEntities"
+            }
+          ],
+          "im:argument": [
+            {
+              "sh:parameter": "this",
+              "im:valueIri": {
+                "@id": "im:Folder"
+              }
+            }
+          ],
+          "sh:name": "Replaced by",
+          "sh:path": {
+            "@id": "http://snomed.info/sct#370124000"
+          },
+          "sh:minCount": 1,
+          "im:componentType": {
+            "@id": "im:entitySearch"
+          },
+          "sh:class": {
+            "@id": "im:Concept"
+          }
+        }
+      ]
+    },
+    {
+      "rdfs:label": "Property group - Sub type array builder",
+      "sh:order": 1,
+      "sh:path": {
+        "@id": "rdfs:subClassOf"
+      },
+      "im:validation": {
+        "@id": "im:Validation_hasParent"
+      },
+      "im:validationErrorMessage": "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+      "sh:property": [
+        {
+          "rdfs:comment": "selects an entity based on select query",
+          "sh:order": 1,
+          "sh:select": [
+            {
+              "@id": "im:Query_SearchEntities"
+            }
+          ],
+          "im:argument": [
+            {
+              "sh:parameter": "this",
+              "im:valueIri": {
+                "@id": "im:Concept"
+              }
+            }
+          ],
+          "im:builderChild": true,
+          "sh:name": "Entity",
+          "sh:path": {
+            "@id": "rdfs:subClassOf"
+          },
+          "sh:minCount": 1,
+          "im:componentType": {
+            "@id": "im:entitySearch"
+          },
+          "sh:class": {
+            "@id": "im:Concept"
+          }
+        }
+      ],
+      "im:name": "Subclass of",
+      "sh:minCount": 0,
+      "im:componentType": {
+        "@id": "im:arrayBuilder"
+      }
+    },
+    {
+      "rdfs:label": "Property group - Contained in array builder",
+      "sh:order": 1,
+      "sh:path": {
+        "@id": "im:isContainedIn"
+      },
+      "sh:property": [
+        {
+          "rdfs:comment": "selects an entity based on select query",
+          "sh:order": 1,
+          "sh:select": [
+            {
+              "@id": "im:Query_SearchEntities"
+            }
+          ],
+          "im:argument": [
+            {
+              "sh:parameter": "this",
+              "im:valueIri": {
+                "@id": "im:Folder"
+              }
+            }
+          ],
+          "im:builderChild": true,
+          "sh:name": "Entity",
+          "sh:path": {
+            "@id": "im:isContainedIn"
+          },
+          "sh:minCount": 1,
+          "im:componentType": {
+            "@id": "im:entitySearch"
+          },
+          "sh:class": {
+            "@id": "im:Folder"
+          }
+        }
+      ],
+      "im:name": "Contained in",
+      "sh:minCount": 0,
+      "im:componentType": {
+        "@id": "im:arrayBuilder"
+      }
+    }
+  ]
+}

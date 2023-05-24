@@ -103,6 +103,8 @@ export class IM {
   public static DATAMODEL_DATAPROPERTY = IM.NAMESPACE + "dataModelDataProperty";
   public static DATAMODEL_FUNCTIONPROPERTY = IM.NAMESPACE + "functionProperty";
 
+  public static FORM_GENERATOR = IM.NAMESPACE + "FormGenerator";
+
   // Graphs
   public static GRAPH_EMIS = IM.DOMAIN + "emis#";
 

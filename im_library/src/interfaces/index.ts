@@ -14,7 +14,6 @@ import { EclSearchRequest } from "./EclSearchRequest";
 import { EntityReferenceNode } from "./EntityReferenceNode";
 import { ExportValueSet } from "./ExportValueSet";
 import { FiltersAsIris } from "./FiltersAsIris";
-import { FormGenerator } from "./FormGenerator";
 import GraphData from "./GraphData";
 import { HistoryItem } from "./HistoryItem";
 import { IriCount } from "./IriCount";
@@ -77,7 +76,6 @@ export {
   type EntityReferenceNode,
   type ExportValueSet,
   type FiltersAsIris,
-  type FormGenerator,
   type GraphData,
   type HistoryItem,
   type IriCount,
