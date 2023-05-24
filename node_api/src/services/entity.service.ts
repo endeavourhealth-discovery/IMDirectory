@@ -2,7 +2,6 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
 import { EclSearchRequest, ITextQuery, PropertyDisplay, QueryObject, TTBundle, TTIriRef, ContextMap } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
@@ -101,12 +100,6 @@ export default class EntityService {
     const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
     if (!entity[IM.DEFINITION]) return [] as ITextQuery[];
     return buildTextQuery(JSON.parse(entity[IM.DEFINITION]));
-  }
-
-  async getQueryObjectByIri(iri: string) {
-    const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
-    if (!entity[IM.DEFINITION]) return {} as QueryObject;
-    return buildQueryObjectFromQuery(JSON.parse(entity[IM.DEFINITION]));
   }
 
   async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
