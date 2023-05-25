@@ -47,14 +47,12 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
 import { ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
-import AddTitle from "@/components/editor/shapeComponents/AddTitle.vue";
 
 interface Props {
   id: string;

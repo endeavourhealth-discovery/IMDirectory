@@ -15,7 +15,7 @@ import { vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/vue";
 import { nextTick } from "vue";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
-import { GithubService } from "@/services";
+import { GithubService, UserService } from "@/services";
 import { createTestingPinia } from "@pinia/testing";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useCreatorStore } from "@/stores/creatorStore";
@@ -47,7 +47,8 @@ describe("router", () => {
       const userStore = useUserStore();
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
-      router.push("/");
+      UserService.getUserTheme = async () => "";
+      await router.push("/");
       await router.isReady();
 
       render(App, {
@@ -90,7 +91,8 @@ describe("router", () => {
       userStore.updateSnomedLicenseAccepted(true);
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: false });
-      router.push("/");
+      UserService.getUserTheme = async () => "";
+      await router.push("/");
       await router.isReady();
 
       render(App, {
@@ -137,7 +139,8 @@ describe("router", () => {
       userStore.snomedLicenseAccepted = true;
       getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
       authenticateCurrentUserSpy = vi.spyOn(userStore, "authenticateCurrentUser").mockResolvedValue({ authenticated: true });
-      router.push("/");
+      UserService.getUserTheme = async () => "";
+      await router.push("/");
       await router.isReady();
 
       render(App, {

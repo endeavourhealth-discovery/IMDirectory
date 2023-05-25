@@ -7,7 +7,7 @@ export default class UserService {
     this.repo = new UserRepository();
   }
 
-  public async getUserTheme(user: string): Promise<any[]> {
+  public async getUserTheme(user: string): Promise<string> {
     return this.repo.getUserTheme(user);
   }
 
@@ -23,11 +23,11 @@ export default class UserService {
     return this.repo.updateUserTheme(user, theme);
   }
 
-  public updateUserMRU(user: string, mru: any): Promise<void> {
+  public updateUserMRU(user: string, mru: any[]): Promise<void> {
     return this.repo.updateUserMRU(user, mru);
   }
 
-  public updateUserFavourites(user: string, favourites: any): Promise<void> {
+  public updateUserFavourites(user: string, favourites: any[]): Promise<void> {
     return this.repo.updateUserFavourites(user, favourites);
   }
 }
