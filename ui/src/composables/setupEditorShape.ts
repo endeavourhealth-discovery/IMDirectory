@@ -35,9 +35,9 @@ export function setupEditorShape() {
   }
 
   function addToShape(shape: FormGenerator, shapeToAdd: FormGenerator) {
-    if (isArrayHasLength(shapeToAdd.property))
+    if (shapeToAdd.property && isArrayHasLength(shapeToAdd.property))
       for (const groupToAdd of shapeToAdd.property) {
-        if (!shape.property.some((group: PropertyShape) => group.path["@id"] === groupToAdd.path["@id"])) {
+        if (shape.property && !shape.property.some((group: PropertyShape) => group.path["@id"] === groupToAdd.path["@id"])) {
           groupToAdd.order = shape.property.length + 1;
           shape.property.push(groupToAdd);
         }
@@ -51,9 +51,15 @@ export function setupEditorShape() {
   }
 
   function getShapeFromType(type: string) {
-    const found = editorShapes.find(shape => shape.targetShape?.["@id"] === type);
-    if (found) return found;
-    else throw new Error("No editor shape found for type: " + type);
+    if (type === IM.CONCEPT_SET || IM.VALUE_SET) {
+      const found = editorShapes.find(shape => shape.targetShape?.["@id"] === IM.SET);
+      if (found) return found;
+      else throw new Error("No editor shape found for type: " + type);
+    } else {
+      const found = editorShapes.find(shape => shape.targetShape?.["@id"] === type);
+      if (found) return found;
+      else throw new Error("No editor shape found for type: " + type);
+    }
   }
 
   function processShape(shape: FormGenerator, mode: EditorMode, entity: any) {
