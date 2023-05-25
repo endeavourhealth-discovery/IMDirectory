@@ -19,6 +19,10 @@ export class GraphdbService {
     return new GraphdbService(Env.GRAPH_REPO_CONFIG);
   }
 
+  public static userRepo() {
+    return new GraphdbService(Env.GRAPH_REPO_USER);
+  }
+
   private constructor(repoName: string) {
     this.repoName = repoName;
   }

@@ -22,7 +22,7 @@
       </template>
     </Tree>
     <OverlaySummary ref="OS" />
-    <Dialog header="New folder" :visible="newFolder !== null" :modal="true">
+    <Dialog header="New folder" :visible="newFolder !== null" :modal="true" :closable="false">
       <InputText type="text" v-model="newFolderName" autofocus />
       <template #footer>
         <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />

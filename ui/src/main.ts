@@ -187,8 +187,8 @@ addFontAwesomeProIcons(library);
 sharedStore.updateFontAwesomePro(true);
 // #v-endif
 // #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
-import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
-import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
+await import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
+await import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
 sharedStore.updateFontAwesomePro(false);
 // #v-endif
 
