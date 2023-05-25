@@ -6,7 +6,7 @@
       v-model:selectionKeys="selectedKeys"
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
-      @node-expand="handleNodeExpand"
+      @node-expand="handleTreeNodeExpand"
       class="tree-root"
       :loading="loading"
     >
@@ -27,8 +27,8 @@
 
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { EntityService, FilerService } from "@/services";
-import { IM, SHACL } from "@im-library/vocabulary";
+import { EntityService } from "@/services";
+import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
@@ -40,10 +40,9 @@ import { isArray } from "lodash";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { useUserStore } from "@/stores/userStore";
-import { getColourFromType, getFAIconFromType, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
-import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
+import { getColourFromType, getFAIconFromType, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTProperty } from "@im-library/interfaces";
 
 const toast = useToast();
 const sharedStore = useSharedStore();
@@ -59,7 +58,6 @@ const items: Ref<any[]> = ref([]);
 
 const menu = ref();
 const OS: Ref<any> = ref();
-const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 const { selectedKeys, selectedNode, root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild, findPathToNode } = setupTree();
 
 onMounted(async () => {
@@ -81,14 +79,18 @@ watch(
     if (findInTreeIri.value) await findPathToNode(findInTreeIri.value, loading, "hierarchy-tree-bar-container");
   }
 );
+
 function onNodeSelect(node: any) {}
-async function handleNodeExpand(node: any) {
+
+async function handleTreeNodeExpand(node: any) {
+  node.children = [];
   if (isRecordModel(node.conceptTypes)) {
-    const iri = node.data;
-    const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
-    node.children = getTreeNodes(entity, node);
+    onNodeExpand(node);
+  } else if (isProperty(node.conceptTypes)) {
+    onPropertyExpand(node);
+  } else {
+    onClassExpand(node);
   }
-  onNodeExpand(node);
 }
 
 function createTreeNode(
@@ -114,16 +116,48 @@ function createTreeNode(
   };
 }
 
-async function onNodeExpand(node: any) {
+async function onPropertyExpand(node: TreeNode) {
+  const ttProperty: TTProperty = node.ttproperty;
+  if (isArrayHasLength(ttProperty["http://www.w3.org/ns/shacl#node"])) {
+    const shaclNode = ttProperty["http://www.w3.org/ns/shacl#node"]!;
+    node.children!.push(createTreeNode(shaclNode[0].name as string, shaclNode[0]["@id"], [{ "@id": SHACL.NODESHAPE }], true, node));
+  } else if (isArrayHasLength(ttProperty["http://www.w3.org/ns/shacl#class"])) {
+    const shaclClass = ttProperty["http://www.w3.org/ns/shacl#class"]!;
+    node.children!.push(createTreeNode(shaclClass[0].name as string, shaclClass[0]["@id"], [{ "@id": SHACL.CLASS }], true, node));
+  }
+}
+
+async function onNodeExpand(node: TreeNode) {
+  const iri = node.data;
+  const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
+  const properties: TTProperty[] = entity[SHACL.PROPERTY];
+
+  for (const prop of properties) {
+    const child = createTreeNode(
+      prop["http://www.w3.org/ns/shacl#path"][0].name as string,
+      prop["http://www.w3.org/ns/shacl#path"][0]["@id"],
+      [{ "@id": RDF.PROPERTY }],
+      !isArrayHasLength(prop["http://www.w3.org/ns/shacl#datatype"]),
+      node
+    );
+    child.ttproperty = prop;
+    node.children!.push(child);
+  }
+}
+
+async function onClassExpand(node: TreeNode) {
+  node.children = [];
   if (isObjectHasKeys(node)) {
     node.loading = true;
-    if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
+    if (!isObjectHasKeys(expandedKeys.value, [node.key!])) expandedKeys.value[node.key!] = true;
+
     const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
+    if (children.totalCount === 0) node.leaf = true;
     children.result.forEach((child: any) => {
-      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+      if (!nodeHasChild(node, child)) node.children!.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
     });
     if (children.totalCount >= pageSize.value) {
-      node.children.push(createLoadMoreNode(node, 2, children.totalCount));
+      node.children!.push(createLoadMoreNode(node, 2, children.totalCount));
     }
     node.loading = false;
   }
