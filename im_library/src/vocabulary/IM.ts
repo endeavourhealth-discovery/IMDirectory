@@ -1,3 +1,9 @@
+import { componentVocabulary } from "./im/componentVocabulary";
+import { editorVocabulary } from "./im/editorVocabulary";
+import { functionVocabulary } from "./im/functionVocabulary";
+import { queryVocabulary } from "./im/queryVocabulary";
+import { validationVocabulary } from "./im/validationVocabulary";
+
 export class IM {
   public static DOMAIN = "http://endhealth.info/";
   public static NAMESPACE = IM.DOMAIN + "im#";
@@ -150,4 +156,11 @@ export class IM {
 
   // Config
   public static HAS_CONFIG = IM.NAMESPACE + "hasConfig";
+
+  // SUB VOCABULARIES
+  public static component = componentVocabulary;
+  public static editor = editorVocabulary;
+  public static function = functionVocabulary;
+  public static query = queryVocabulary;
+  public static validation = validationVocabulary;
 }

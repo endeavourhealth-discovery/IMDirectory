@@ -1,7 +1,5 @@
-import { IM } from "../IM";
-
-export class COMPONENT {
-  public static NAMESPACE = IM.NAMESPACE + "Component_";
+export class componentVocabulary {
+  public static NAMESPACE = "http://endhealth.info/im#Component_";
 
   //editor components
   public static TEXT_DISPLAY = this.NAMESPACE + "textDisplay";

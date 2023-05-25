@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { COMPONENT, EDITOR, FUNCTION, IM, QUERY, RDF, RDFS, VALIDATION, XSD } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD } from "@im-library/vocabulary";
 
 const ConceptSetShape: FormGenerator = {
-  "@id": EDITOR.CONCEPT_SET_SHAPE,
+  "@id": IM.editor.CONCEPT_SET_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -24,7 +24,7 @@ const ConceptSetShape: FormGenerator = {
       minCount: 1,
       maxCount: 1,
       componentType: {
-        "@id": COMPONENT.HORIZONTAL_LAYOUT
+        "@id": IM.component.HORIZONTAL_LAYOUT
       },
       argument: [
         {
@@ -43,14 +43,14 @@ const ConceptSetShape: FormGenerator = {
           minCount: 1,
           maxCount: 1,
           componentType: {
-            "@id": COMPONENT.VERTICAL_LAYOUT
+            "@id": IM.component.VERTICAL_LAYOUT
           },
           property: [
             {
               comment: "A property that auto generates the type as  concept type",
               order: 1,
               function: {
-                "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
               name: "type",
               path: {
@@ -69,7 +69,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.ENTITY_COMBOBOX
+                "@id": IM.component.ENTITY_COMBOBOX
               }
             },
             {
@@ -82,10 +82,10 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
               },
               function: {
-                "@id": FUNCTION.GET_SET_EDITOR_IRI_SCHEMES
+                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
               }
             },
             {
@@ -98,7 +98,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.TEXT_INPUT
+                "@id": IM.component.TEXT_INPUT
               },
               datatype: {
                 "@id": XSD.STRING
@@ -117,7 +117,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.HTML_INPUT
+                "@id": IM.component.HTML_INPUT
               }
             },
             {
@@ -125,7 +125,7 @@ const ConceptSetShape: FormGenerator = {
               order: 5,
               select: [
                 {
-                  "@id": QUERY.GET_ISAS
+                  "@id": IM.query.GET_ISAS
                 }
               ],
               name: "status",
@@ -146,7 +146,7 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.ENTITY_DROPDOWN
+                "@id": IM.component.ENTITY_DROPDOWN
               },
               forceIsValue: true
             },
@@ -161,7 +161,7 @@ const ConceptSetShape: FormGenerator = {
                 "@id": "http://snomed.info/sct#370124000"
               },
               componentType: {
-                "@id": COMPONENT.TOGGLEABLE
+                "@id": IM.component.TOGGLEABLE
               },
               property: [
                 {
@@ -169,7 +169,7 @@ const ConceptSetShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": QUERY.SEARCH_ENTITIES
+                      "@id": IM.query.SEARCH_ENTITIES
                     }
                   ],
                   argument: [
@@ -186,7 +186,7 @@ const ConceptSetShape: FormGenerator = {
                   },
                   minCount: 1,
                   componentType: {
-                    "@id": COMPONENT.ENTITY_SEARCH
+                    "@id": IM.component.ENTITY_SEARCH
                   }
                 }
               ]
@@ -199,10 +199,10 @@ const ConceptSetShape: FormGenerator = {
           order: 2,
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.SET_DEFINITION_BUILDER
+            "@id": IM.component.SET_DEFINITION_BUILDER
           },
           validation: {
-            "@id": VALIDATION.IS_DEFINITION
+            "@id": IM.validation.IS_DEFINITION
           },
           validationErrorMessage: "Set definition is not valid",
           path: {
@@ -217,10 +217,10 @@ const ConceptSetShape: FormGenerator = {
       order: 1,
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.ARRAY_BUILDER
+        "@id": IM.component.ARRAY_BUILDER
       },
       validation: {
-        "@id": VALIDATION.HAS_PARENT
+        "@id": IM.validation.HAS_PARENT
       },
       validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
       path: {
@@ -234,11 +234,11 @@ const ConceptSetShape: FormGenerator = {
           minCount: 1,
           builderChild: true,
           componentType: {
-            "@id": COMPONENT.ENTITY_SEARCH
+            "@id": IM.component.ENTITY_SEARCH
           },
           select: [
             {
-              "@id": QUERY.SEARCH_MAIN_TYPES
+              "@id": IM.query.SEARCH_MAIN_TYPES
             }
           ],
           path: {

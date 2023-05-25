@@ -1,7 +1,5 @@
-import { IM } from "../IM";
-
-export class EDITOR {
-  public static NAMESPACE = IM.NAMESPACE + "Editor_";
+export class editorVocabulary {
+  public static NAMESPACE = "http://endhealth.info/im#Editor_";
 
   public static CONCEPT_SHAPE = this.NAMESPACE + "ConceptShape";
   public static CONCEPT_SET_SHAPE = this.NAMESPACE + "ConceptSetShape";

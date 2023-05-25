@@ -1,8 +1,8 @@
 import { Argument, FormGenerator, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { EDITOR, FUNCTION, RDF, IM, XSD, RDFS, QUERY, COMPONENT } from "@im-library/vocabulary";
+import { RDF, IM, XSD, RDFS } from "@im-library/vocabulary";
 
 const ConceptShape: FormGenerator = {
-  "@id": EDITOR.CONCEPT_SHAPE,
+  "@id": IM.editor.CONCEPT_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -18,7 +18,7 @@ const ConceptShape: FormGenerator = {
       comment: "A property that auto generates the type as  concept type",
       order: 1,
       function: {
-        "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+        "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
       },
       name: "type",
       path: {
@@ -37,7 +37,7 @@ const ConceptShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.ENTITY_COMBOBOX
+        "@id": IM.component.ENTITY_COMBOBOX
       }
     },
     {
@@ -50,11 +50,11 @@ const ConceptShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.TEXT_DISPLAY
+        "@id": IM.component.TEXT_DISPLAY
       },
       valueVariable: "conceptIri",
       function: {
-        "@id": FUNCTION.SNOMED_CONCEPT_GENERATOR
+        "@id": IM.function.SNOMED_CONCEPT_GENERATOR
       }
     },
     {
@@ -77,13 +77,13 @@ const ConceptShape: FormGenerator = {
       ],
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.TEXT_DISPLAY
+        "@id": IM.component.TEXT_DISPLAY
       },
       datatype: {
         "@id": XSD.STRING
       },
       function: {
-        "@id": FUNCTION.LOCAL_NAME_RETRIEVER
+        "@id": IM.function.LOCAL_NAME_RETRIEVER
       }
     },
     {
@@ -96,7 +96,7 @@ const ConceptShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.TEXT_INPUT
+        "@id": IM.component.TEXT_INPUT
       },
       datatype: {
         "@id": XSD.STRING
@@ -115,7 +115,7 @@ const ConceptShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.HTML_INPUT
+        "@id": IM.component.HTML_INPUT
       }
     },
     {
@@ -123,7 +123,7 @@ const ConceptShape: FormGenerator = {
       order: 6,
       select: [
         {
-          "@id": QUERY.GET_ISAS
+          "@id": IM.query.GET_ISAS
         }
       ],
       name: "status",
@@ -144,7 +144,7 @@ const ConceptShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.ENTITY_DROPDOWN
+        "@id": IM.component.ENTITY_DROPDOWN
       },
       forceIsValue: true
     },
@@ -159,7 +159,7 @@ const ConceptShape: FormGenerator = {
         "@id": "http://snomed.info/sct#370124000"
       },
       componentType: {
-        "@id": COMPONENT.TOGGLEABLE
+        "@id": IM.component.TOGGLEABLE
       },
       property: [
         {
@@ -167,7 +167,7 @@ const ConceptShape: FormGenerator = {
           order: 1,
           select: [
             {
-              "@id": QUERY.SEARCH_ENTITIES
+              "@id": IM.query.SEARCH_ENTITIES
             }
           ],
           argument: [
@@ -184,7 +184,7 @@ const ConceptShape: FormGenerator = {
           },
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.ENTITY_SEARCH
+            "@id": IM.component.ENTITY_SEARCH
           }
         }
       ]
@@ -203,7 +203,7 @@ const ConceptShape: FormGenerator = {
           order: 1,
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.COMPONENT_GROUP
+            "@id": IM.component.COMPONENT_GROUP
           },
           path: {
             "@id": IM.ROLE_GROUP
@@ -214,7 +214,7 @@ const ConceptShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": QUERY.ALLOWABLE_PROPERTIES
+                  "@id": IM.query.ALLOWABLE_PROPERTIES
                 }
               ],
               builderChild: true,
@@ -230,7 +230,7 @@ const ConceptShape: FormGenerator = {
               name: "Property",
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.ENTITY_AUTO_COMPLETE
+                "@id": IM.component.ENTITY_AUTO_COMPLETE
               },
               valueVariable: "propertyIri"
             },
@@ -239,7 +239,7 @@ const ConceptShape: FormGenerator = {
               order: 2,
               select: [
                 {
-                  "@id": QUERY.ALLOWABLE_RANGES
+                  "@id": IM.query.ALLOWABLE_RANGES
                 }
               ],
               builderChild: true,
@@ -255,7 +255,7 @@ const ConceptShape: FormGenerator = {
               name: "Quantifier",
               minCount: 1,
               componentType: {
-                "@id": COMPONENT.ENTITY_AUTO_COMPLETE
+                "@id": IM.component.ENTITY_AUTO_COMPLETE
               }
             }
           ]
@@ -264,7 +264,7 @@ const ConceptShape: FormGenerator = {
       name: "Role group",
       minCount: 0,
       componentType: {
-        "@id": COMPONENT.ARRAY_BUILDER
+        "@id": IM.component.ARRAY_BUILDER
       }
     },
     {
@@ -280,7 +280,7 @@ const ConceptShape: FormGenerator = {
           order: 1,
           select: [
             {
-              "@id": QUERY.SEARCH_MAIN_TYPES
+              "@id": IM.query.SEARCH_MAIN_TYPES
             }
           ],
           builderChild: true,
@@ -290,14 +290,14 @@ const ConceptShape: FormGenerator = {
           },
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.ENTITY_SEARCH
+            "@id": IM.component.ENTITY_SEARCH
           }
         }
       ],
       name: "Mapped to",
       minCount: 0,
       componentType: {
-        "@id": COMPONENT.ARRAY_BUILDER
+        "@id": IM.component.ARRAY_BUILDER
       }
     }
   ]

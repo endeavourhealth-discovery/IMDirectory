@@ -1,8 +1,8 @@
 import { FormGenerator } from "@im-library/interfaces/AutoGen";
-import { COMPONENT, EDITOR, FUNCTION, IM, QUERY, RDF, RDFS, XSD } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, XSD } from "@im-library/vocabulary";
 
 const PropertyShape: FormGenerator = {
-  "@id": EDITOR.PROPERTY_SHAPE,
+  "@id": IM.editor.PROPERTY_SHAPE,
   type: [
     {
       "@id": IM.FORM_GENERATOR
@@ -18,7 +18,7 @@ const PropertyShape: FormGenerator = {
       comment: "A property that auto generates the type as property type",
       order: 1,
       function: {
-        "@id": FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES
+        "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
       },
       name: "type",
       path: {
@@ -37,7 +37,7 @@ const PropertyShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.ENTITY_COMBOBOX
+        "@id": IM.component.ENTITY_COMBOBOX
       }
     },
     {
@@ -50,11 +50,11 @@ const PropertyShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.TEXT_DISPLAY
+        "@id": IM.component.TEXT_DISPLAY
       },
       valueVariable: "propertyIri",
       function: {
-        "@id": FUNCTION.SNOMED_CONCEPT_GENERATOR
+        "@id": IM.function.SNOMED_CONCEPT_GENERATOR
       }
     },
     {
@@ -77,13 +77,13 @@ const PropertyShape: FormGenerator = {
       ],
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.TEXT_DISPLAY
+        "@id": IM.component.TEXT_DISPLAY
       },
       datatype: {
         "@id": XSD.STRING
       },
       function: {
-        "@id": FUNCTION.LOCAL_NAME_RETRIEVER
+        "@id": IM.function.LOCAL_NAME_RETRIEVER
       }
     },
     {
@@ -96,7 +96,7 @@ const PropertyShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.TEXT_INPUT
+        "@id": IM.component.TEXT_INPUT
       },
       datatype: {
         "@id": XSD.STRING
@@ -115,7 +115,7 @@ const PropertyShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.HTML_INPUT
+        "@id": IM.component.HTML_INPUT
       }
     },
     {
@@ -123,7 +123,7 @@ const PropertyShape: FormGenerator = {
       order: 6,
       select: [
         {
-          "@id": QUERY.GET_ISAS
+          "@id": IM.query.GET_ISAS
         }
       ],
       name: "status",
@@ -144,7 +144,7 @@ const PropertyShape: FormGenerator = {
       },
       minCount: 1,
       componentType: {
-        "@id": COMPONENT.ENTITY_DROPDOWN
+        "@id": IM.component.ENTITY_DROPDOWN
       },
       forceIsValue: true
     },
@@ -159,7 +159,7 @@ const PropertyShape: FormGenerator = {
         "@id": "http://snomed.info/sct#370124000"
       },
       componentType: {
-        "@id": COMPONENT.TOGGLEABLE
+        "@id": IM.component.TOGGLEABLE
       },
       property: [
         {
@@ -167,7 +167,7 @@ const PropertyShape: FormGenerator = {
           order: 1,
           select: [
             {
-              "@id": QUERY.SEARCH_ENTITIES
+              "@id": IM.query.SEARCH_ENTITIES
             }
           ],
           argument: [
@@ -184,7 +184,7 @@ const PropertyShape: FormGenerator = {
           },
           minCount: 1,
           componentType: {
-            "@id": COMPONENT.ENTITY_SEARCH
+            "@id": IM.component.ENTITY_SEARCH
           }
         }
       ]

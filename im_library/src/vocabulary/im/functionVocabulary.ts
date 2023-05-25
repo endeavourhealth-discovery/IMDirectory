@@ -1,7 +1,5 @@
-import { IM } from "../IM";
-
-export class FUNCTION {
-  public static NAMESPACE = IM.NAMESPACE + "Function_";
+export class functionVocabulary {
+  public static NAMESPACE = "http://endhealth.info/im#Function_";
 
   public static GET_ADDITIONAL_ALLOWABLE_TYPES = this.NAMESPACE + "GetAdditionalAllowableTypes";
   public static SNOMED_CONCEPT_GENERATOR = this.NAMESPACE + "SnomedConceptGenerator";
