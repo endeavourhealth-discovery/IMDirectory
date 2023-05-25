@@ -131,7 +131,6 @@ async function getCurrentVersion() {
 
 function toLandingPage() {
   router.push("/");
-  //window.location.href = "/";
 }
 
 function open(item: { icon: string; command: Function; label: string }) {
@@ -591,9 +590,10 @@ function showReleaseNotes() {
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {});
-  userStore.updateCurrentTheme(newTheme);
-  currentTheme.value = newTheme;
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
+    userStore.updateCurrentTheme(newTheme);
+    currentTheme.value = newTheme;
+  });
 }
 </script>
 

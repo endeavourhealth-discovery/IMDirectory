@@ -10,8 +10,11 @@ export default class UserRepository {
   }
 
   public async getUserTheme(user: string): Promise<any> {
-    const qry = "SELECT ?theme WHERE { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_THEME) + " ?theme }";
-    const rs = await this.graph.execute(qry);
+    const qry = "SELECT ?theme WHERE { ?user ?hasTheme ?theme }";
+    const rs = await this.graph.execute(qry, {
+      user: iri(USER.NAMESPACE + user),
+      hasTheme: iri(USER.USER_THEME)
+    });
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["theme"])) {
       return rs[0].theme.value;
     } else {
@@ -22,9 +25,11 @@ export default class UserRepository {
   }
 
   public async getUserMRU(user: string): Promise<any> {
-    const qry = "SELECT ?mru WHERE { " + iri(USER.NAMESPACE + user) + iri(USER.USER_MRU) + " ?mru }";
-    const rs = await this.graph.execute(qry);
-    //sort later
+    const qry = "SELECT ?mru WHERE { ?user ?hasMRU ?mru }";
+    const rs = await this.graph.execute(qry, {
+      user: iri(USER.NAMESPACE + user),
+      hasMRU: iri(USER.USER_MRU)
+    });
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["mru"])) {
       return rs[0].mru.value;
     } else {
@@ -35,8 +40,11 @@ export default class UserRepository {
   }
 
   public async getUserFavourites(user: string): Promise<any> {
-    const qry = "SELECT ?favourites WHERE { " + iri(USER.NAMESPACE + user) + " " + iri(USER.USER_FAVOURITES) + " ?favourites }";
-    const rs = await this.graph.execute(qry);
+    const qry = "SELECT ?favourites WHERE { ?user ?hasFavourites ?favourites }";
+    const rs = await this.graph.execute(qry, {
+      user: iri(USER.NAMESPACE + user),
+      hasFavourites: iri(USER.USER_FAVOURITES)
+    });
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["favourites"])) {
       return rs[0].favourites.value;
     } else {

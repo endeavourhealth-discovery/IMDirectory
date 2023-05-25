@@ -39,8 +39,10 @@ export const useUserStore = defineStore("user", {
       localStorage.setItem("cookiesOptionalAccepted", String(bool));
     },
     async initFavourites() {
-      const favourites: string[] = this.currentUser ? await UserService.getUserFavourites(this.currentUser.id) : this.favourites ? this.favourites : "[]";
-      console.log(favourites);
+      let favourites: string[];
+      if (this.currentUser) favourites = await UserService.getUserFavourites(this.currentUser.id);
+      else favourites = this.favourites ? this.favourites : [];
+
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
@@ -48,15 +50,14 @@ export const useUserStore = defineStore("user", {
         }
       }
       if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, JSON.stringify(favourites));
-      //localStorage.setItem("favourites", JSON.stringify(favourites));
       this.favourites = favourites;
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
-      let activity: RecentActivityItem[] = this.currentUser
-        ? await UserService.getUserMRU(this.currentUser.id)
-        : this.recentLocalActivity
-        ? this.recentLocalActivity
-        : "[]";
+      let activity: RecentActivityItem[];
+
+      if (this.currentUser) activity = await UserService.getUserMRU(this.currentUser.id);
+      else activity = this.recentLocalActivity ? this.recentLocalActivity : [];
+
       activity.forEach(activityItem => {
         activityItem.dateTime = new Date(activityItem.dateTime);
       });
@@ -78,7 +79,6 @@ export const useUserStore = defineStore("user", {
           activity.push(recentActivityItem);
         }
       }
-      //if (this.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
       if (this.currentUser) await UserService.updateUserMRU(this.currentUser.id, JSON.stringify(activity));
       this.recentLocalActivity = activity;
     },
@@ -90,7 +90,6 @@ export const useUserStore = defineStore("user", {
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        //if (this.cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
         if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, JSON.stringify(favourites));
         this.favourites = favourites;
       }

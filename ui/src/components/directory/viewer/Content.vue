@@ -126,7 +126,9 @@ async function init() {
 }
 
 async function getFavourites() {
-  const favouriteList: string[] = currentUser.value ? await UserService.getUserFavourites(currentUser.value.id) : favourites ? favourites.value : "[]";
+  let favouriteList: string[];
+  if (currentUser.value) favouriteList = await UserService.getUserFavourites(currentUser.value.id);
+  else favouriteList = favourites ? favourites.value : [];
   const result = await EntityService.getPartialEntities(favouriteList, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
     return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
