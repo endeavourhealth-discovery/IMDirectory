@@ -80,7 +80,7 @@ async function getMultiselectMenu(d: any) {
           if (node.id === r.group["@id"]) {
             multiselectMenu.value.push({
               iri: r.property["@id"],
-              label: r.property.name,
+              label: r.property.name as string,
               result: r
             });
           }
@@ -88,7 +88,7 @@ async function getMultiselectMenu(d: any) {
           if (!multiselectMenu.value.some((n: any) => n.iri === r.group["@id"])) {
             multiselectMenu.value.push({
               iri: r.group["@id"],
-              label: r.group.name,
+              label: r.group.name as string,
               result: r
             });
           }
@@ -96,7 +96,7 @@ async function getMultiselectMenu(d: any) {
       } else {
         multiselectMenu.value.push({
           iri: r.property["@id"],
-          label: r.property.name,
+          label: r.property.name as string,
           result: r
         });
       }
@@ -215,14 +215,14 @@ async function setSelected(iri: any) {
         if (!selected.value.some((n: any) => n.iri === r.group["@id"])) {
           selected.value.push({
             iri: r.group["@id"],
-            label: r.group.name,
+            label: r.group.name as string,
             result: r
           });
         }
       } else {
         selected.value.push({
           iri: r.property["@id"],
-          label: r.property.name,
+          label: r.property.name as string,
           result: r
         });
       }

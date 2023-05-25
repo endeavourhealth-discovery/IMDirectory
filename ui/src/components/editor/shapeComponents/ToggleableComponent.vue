@@ -10,10 +10,10 @@
     />
     <span v-if="checked" class="label">{{ shape.name }} ({{ shape.path["@id"] }})</span>
     <component
-      v-if="checked"
-      :is="processComponentType(shape.property[0].componentType)"
-      :value="processEntityValue(shape.property[0])"
-      :shape="shape.property[0]"
+      v-if="checked && isObjectHasKeys(shape, ['property'])"
+      :is="processComponentType(shape.property![0].componentType)"
+      :value="processEntityValue(shape.property![0])"
+      :shape="shape.property![0]"
       :mode="mode"
     />
   </div>
@@ -57,7 +57,7 @@ onMounted(() => {
 });
 
 watch(checked, newValue => {
-  if (!newValue && deleteEntityKey) deleteEntityKey(props.shape.path["@id"]);
+  if (!newValue && deleteEntityKey && isObjectHasKeys(props.shape, ["path"])) deleteEntityKey(props.shape.path!["@id"]);
 });
 
 function setLabels() {
@@ -69,14 +69,15 @@ function setLabels() {
 }
 
 function setChecked() {
-  if (isObjectHasKeys(editorEntity, [props.shape.path["@id"]])) {
+  if (isObjectHasKeys(props.shape, ["path"]) && isObjectHasKeys(editorEntity, [props.shape.path!["@id"]])) {
     checked.value = true;
   }
 }
 
-function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
-    return editorEntity[property.path["@id"]];
+function processEntityValue(property: PropertyShape | undefined) {
+  if (!property) throw new Error("Property is undefined");
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
+    return editorEntity[property.path!["@id"]];
   }
   return undefined;
 }

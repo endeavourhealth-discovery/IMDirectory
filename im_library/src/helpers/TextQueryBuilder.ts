@@ -1,5 +1,5 @@
 import { ITextQuery } from "../interfaces";
-import { Match, Relationship, Where, Property, OrderLimit, Node } from "../interfaces/AutoGen";
+import { Match, Path, Where, Property, OrderLimit, Node } from "../interfaces/AutoGen";
 import { buildClauseUI } from "./ClauseUIBuilder";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
@@ -75,7 +75,7 @@ function addMatch(match: Match[], type: string, parent: ITextQuery) {
     label += getDisplayFromMatch(matchItem);
     const matchParent = addItem(label, matchItem, type, parent);
     if (matchItem.boolMatch) {
-      addMatch(matchItem.match, type, matchParent);
+      addMatch(matchItem.match!, type, matchParent);
     }
   }
 }
@@ -177,8 +177,8 @@ export function getDisplayFromLogic(title: string) {
 export function getDisplayFromRange(where: Where) {
   const property = getNameFromRef(where);
   let display = property;
-  display += " from " + where.range.from.operator + " " + where.range.from.value;
-  display += " to " + where.range.to.operator + " " + where.range.to.value;
+  display += " from " + where.range?.from.operator + " " + where.range?.from.value;
+  display += " to " + where.range?.to.operator + " " + where.range?.to.value;
   return display;
 }
 
@@ -233,7 +233,7 @@ export function getDisplayFromEntailment(node: Node) {
   return "";
 }
 
-export function getDisplayFromPath(pathOrNode: Relationship | Node) {
+export function getDisplayFromPath(pathOrNode: Path | Node) {
   const displayObject = { display: "" };
   getDisplayFromPathRecursively(displayObject, "path", pathOrNode);
   return displayObject.display;

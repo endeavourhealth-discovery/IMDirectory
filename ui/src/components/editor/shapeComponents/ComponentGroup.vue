@@ -66,7 +66,7 @@ function processEntityValue(property: PropertyShape) {
 }
 
 function setProperties(shape: PropertyShape) {
-  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property;
+  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property!;
   else properties.value = [];
 }
 </script>

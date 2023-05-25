@@ -34,7 +34,6 @@ import { TermCode } from "./TermCode";
 import { TreeParent } from "./TreeParent";
 import { TTBundle } from "./TTBundle";
 import TTGraphData from "./TTGraphData";
-import { TTIriRef } from "./TTIriRef";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
 import { ValueSetMember } from "./ValueSetMember";
@@ -97,7 +96,6 @@ export {
   type TreeParent,
   type TTBundle,
   type TTGraphData,
-  type TTIriRef,
   type UPRN,
   type UprnSearchResponse,
   type ValueSetMember,

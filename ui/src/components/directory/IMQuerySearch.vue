@@ -28,7 +28,7 @@
 import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary } from "@im-library/interfaces";
-import { Query, QueryRequest, Select } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
@@ -95,14 +95,15 @@ function convertResultsToConceptSummaryList(entities: any[]) {
 }
 
 function addDefaultQuerySelect(query: Query) {
-  if (!isArrayHasLength(query.select)) query.select = [];
-  const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
-  for (const property of defaultProperties) {
-    const select = {
-      "@id": property
-    } as Select;
-    query.select.push(select);
-  }
+  // TODO add return when ready
+  // if (!isArrayHasLength(query.select)) query.select = [];
+  // const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
+  // for (const property of defaultProperties) {
+  //   const select = {
+  //     "@id": property
+  //   } as Select;
+  //   query.select.push(select);
+  // }
 }
 
 async function format() {
@@ -127,7 +128,6 @@ function onCopyError(): void {
 #query-search-container {
   height: 100%;
   width: 100%;
-  /* overflow: auto; */
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;

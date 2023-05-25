@@ -81,7 +81,7 @@ function addProperty(properties: TangledTreeData[], property: PropertyDisplay, p
   properties.push({
     id: property.property["@id"],
     parents: [parent],
-    name: property.property.name,
+    name: property.property.name as string,
     type: "property",
     cardinality: property.cardinality
   });
