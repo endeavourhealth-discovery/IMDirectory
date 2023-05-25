@@ -41,9 +41,9 @@ import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers
 import { useSharedStore } from "@/stores/sharedStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
-import { TTIriRef } from "@im-library/interfaces";
 import { getColourFromType, getFAIconFromType, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { getTreeNodes } from "@im-library/helpers/PropertyTreeNodeBuilder";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 const toast = useToast();
 const sharedStore = useSharedStore();
