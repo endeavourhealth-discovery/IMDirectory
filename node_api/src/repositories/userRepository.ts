@@ -10,47 +10,41 @@ export default class UserRepository {
   }
 
   public async getUserTheme(user: string): Promise<string> {
-    const qry = "SELECT ?theme WHERE { ?user ?hasTheme ?theme }";
-    const rs = await this.graph.execute(qry, {
-      user: iri(USER.NAMESPACE + user),
-      hasTheme: iri(USER.USER_THEME)
-    });
+    const qry = "SELECT * WHERE { ?user ?hasTheme ?theme }";
+    const bnd = { user: iri(USER.NAMESPACE + user), hasTheme: iri(USER.USER_THEME) };
+
+    const rs = await this.graph.execute(qry, bnd);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["theme"])) {
       return rs[0].theme.value;
     } else {
-      await this.updateUserTheme(user, "a");
-      const rs = await this.graph.execute(qry);
+      await this.updateUserTheme(user, "saga-blue");
+      const rs = await this.graph.execute(qry, bnd);
       return rs[0].theme.value;
     }
   }
 
   public async getUserMRU(user: string): Promise<any[]> {
-    const qry = "SELECT ?mru WHERE { ?user ?hasMRU ?mru }";
-    const rs = await this.graph.execute(qry, {
-      user: iri(USER.NAMESPACE + user),
-      hasMRU: iri(USER.USER_MRU)
-    });
+    const qry = "SELECT * WHERE { ?user ?hasmru ?mru }";
+    const bnd = { user: iri(USER.NAMESPACE + user), hasmru: iri(USER.USER_MRU) };
+    const rs = await this.graph.execute(qry, bnd);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["mru"])) {
       return JSON.parse(rs[0].mru.value);
     } else {
       await this.updateUserMRU(user, []);
-      const rs = await this.graph.execute(qry);
+      const rs = await this.graph.execute(qry, bnd);
       return JSON.parse(rs[0].mru.value);
     }
   }
 
   public async getUserFavourites(user: string): Promise<any[]> {
-    const qry = "SELECT ?favourites WHERE { ?user ?hasFavourites ?favourites }";
-    const rs = await this.graph.execute(qry, {
-      user: iri(USER.NAMESPACE + user),
-      hasFavourites: iri(USER.USER_FAVOURITES)
-    });
+    const qry = "SELECT * WHERE { ?user ?hasfav ?favourites }";
+    const bnd = { user: iri(USER.NAMESPACE + user), hasfav: iri(USER.USER_FAVOURITES) };
+    const rs = await this.graph.execute(qry, bnd);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["favourites"])) {
-      console.log(rs[0].favourites.value);
       return JSON.parse(rs[0].favourites.value);
     } else {
       await this.updateUserFavourites(user, []);
-      const rs = await this.graph.execute(qry);
+      const rs = await this.graph.execute(qry, bnd);
       return JSON.parse(rs[0].favourites.value);
     }
   }
