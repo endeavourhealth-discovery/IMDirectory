@@ -144,8 +144,7 @@ function showDetailsOverlay(event: any, data: ConceptSummary) {
 }
 
 function getConceptTypes(concept: ConceptSummary): any {
-  return concept.entityType
-    .map(function (type: any) {
+  return concept.entityType?.map(function (type: any) {
       return type.name;
     })
     .join(", ");

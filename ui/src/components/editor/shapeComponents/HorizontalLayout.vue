@@ -45,25 +45,27 @@ onMounted(() => {
 });
 
 function setComponents() {
-  components.value = props.shape.property;
+  if (isObjectHasKeys(props.shape, ["property"])) components.value = props.shape.property!;
 }
 
 function setWidths() {
-  if (props.shape.argument) {
-    const splitArgs = props.shape.argument[0].valueData?.split(",");
-    if (splitArgs && splitArgs?.length) {
-      widths.value = splitArgs;
+  if (isObjectHasKeys(props.shape, ["property"])) {
+    if (props.shape.argument) {
+      const splitArgs = props.shape.argument[0].valueData?.split(",");
+      if (splitArgs && splitArgs?.length) {
+        widths.value = splitArgs;
+      } else {
+        widths.value.push(100 / props.shape.property!.length + "%");
+      }
     } else {
-      widths.value.push(100 / props.shape.property.length + "%");
+      widths.value.push(100 / props.shape.property!.length + "%");
     }
-  } else {
-    widths.value.push(100 / props.shape.property.length + "%");
   }
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
-    return editorEntity[property.path["@id"]];
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
+    return editorEntity[property.path!["@id"]];
   }
   return undefined;
 }

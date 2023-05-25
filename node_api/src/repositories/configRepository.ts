@@ -12,18 +12,15 @@ export default class ConfigRepository {
 
   public async getConfig(url: string): Promise<any> {
     const qry = "SELECT ?name ?data WHERE {" + "  GRAPH ?c {" + "        ?s ?label   ?name ;" + "           ?config  ?data ." + "  }" + "}";
-
-    const rs = await this.graph.execute(
-      qry,
-      {
-        c: iri(CONFIG.NAMESPACE),
-        s: iri(url),
-        label: iri(RDFS.LABEL),
-        config: iri(IM.HAS_CONFIG)
-      }
-    );
-
-    if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"])) {
+    const rs = await this.graph.execute(qry, {
+      c: iri(CONFIG.NAMESPACE),
+      s: iri(url),
+      label: iri(RDFS.LABEL),
+      config: iri(IM.HAS_CONFIG)
+    });
+    if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"]) && isObjectHasKeys(rs[0].data, ["id"])) {
+      return rs[0].data.id;
+    } else if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"]) && isObjectHasKeys(rs[0].data, ["value"])) {
       return rs[0].data.value;
     } else {
       throw new CustomError(`Config not found: ${url}`, ErrorType.ConfigNotFoundError);

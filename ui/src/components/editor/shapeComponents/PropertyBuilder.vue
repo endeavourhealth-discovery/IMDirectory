@@ -94,7 +94,7 @@ const propertyRangeShape: Ref<PropertyShape> = ref({
 } as PropertyShape);
 
 watch(propertyPath, newValue => {
-  if (newValue["@id"] && propertyRangeShape.value.argument[0] && propertyRangeShape.value.argument[0].valueIri) {
+  if (newValue["@id"] && propertyRangeShape.value.argument?.[0] && propertyRangeShape.value.argument[0].valueIri) {
     propertyRangeShape.value.argument[0].valueIri["@id"] = newValue["@id"];
   }
 });
@@ -228,7 +228,7 @@ function updateValueVariableMap(data: Property) {
 
 async function updateValidity() {
   if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   } else {
     invalid.value = !defaultValidity();
   }

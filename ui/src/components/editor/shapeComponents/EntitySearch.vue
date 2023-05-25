@@ -86,8 +86,17 @@ let debounce = ref(0);
 
 const miniSearchOP = ref();
 
+watch(
+    () => (searchTerm.value),
+    () => {
+      if(searchTerm.value === "") {
+        hideOverlay();
+      }
+    }
+);
+
 async function init() {
-  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path["@id"];
+  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
   if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
     updateSelectedResult(props.value);
     await search();
@@ -95,7 +104,7 @@ async function init() {
     selectedResult.value = {} as TTIriRef;
     searchTerm.value = "";
   }
-  label.value = props.shape.name;
+  label.value = props.shape.name as string;
 }
 
 function debounceForSearch(): void {
@@ -113,12 +122,12 @@ async function search(): Promise<void> {
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
       queryRequest.argument = processArguments(props.shape);
       queryRequest.textSearch = searchTerm.value;
-      query["@id"] = props.shape.select[0]["@id"];
+      query["@id"] = props.shape.select![0]["@id"];
       queryRequest.query = query;
     }
     if (isObjectHasKeys(props.shape, ["select"])) {
       queryRequest.textSearch = searchTerm.value;
-      query["@id"] = props.shape.select[0]["@id"];
+      query["@id"] = props.shape.select![0]["@id"];
       queryRequest.query = query;
     }
     if (!isObjectHasKeys(query, ["@id"])) throw new Error("No query iri found for entity search");
@@ -157,7 +166,7 @@ function hideOverlay(): void {
 
 function showOverlay(event: any): void {
   const x = miniSearchOP.value as any;
-  if (x) x.show(event, event.target);
+  if (searchTerm.value !== "") x.show(event, event.target);
 }
 
 async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
@@ -166,7 +175,7 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
     searchTerm.value = "";
   } else if (isTTIriRef(data)) {
     selectedResult.value = data;
-    searchTerm.value = data.name;
+    searchTerm.value = data.name as string;
   } else {
     selectedResult.value = { "@id": data.iri, name: data.name } as TTIriRef;
     searchTerm.value = data.name;
@@ -196,7 +205,7 @@ function updateValueVariableMap(data: TTIriRef) {
 
 async function updateValidity() {
   if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   } else {
     invalid.value = !defaultValidity();
   }

@@ -86,9 +86,9 @@ export function setupEditorShape() {
       groups.value.forEach(group => {
         const component = processComponentType(group.componentType);
         if (editorRoute.children?.findIndex(route => route.name === group.name) === -1) {
-          editorRoute.children?.push({ path: group.name, name: group.name, component: component });
+          editorRoute.children?.push({ path: group.name as string, name: group.name, component: component });
         }
-        stepsItems.value.push({ label: group.name, to: currentPath + "/" + group.name });
+        stepsItems.value.push({ label: group.name as string, to: currentPath + "/" + group.name });
       });
       router.addRoute(editorRoute);
     }
@@ -102,9 +102,9 @@ export function setupEditorShape() {
       groups.value.forEach(group => {
         const component = processComponentType(group.componentType);
         if (creatorRoute.children?.findIndex(route => route.name === group.name) === -1) {
-          creatorRoute.children?.push({ path: group.name, name: group.name, component: component });
+          creatorRoute.children?.push({ path: group.name as string, name: group.name, component: component });
         }
-        stepsItems.value.push({ label: group.name, to: "/creator/" + group.name });
+        stepsItems.value.push({ label: group.name as string, to: "/creator/" + group.name });
       });
       router.addRoute(creatorRoute);
     }

@@ -1,12 +1,11 @@
 import { ComponentType } from "../enums";
-import { TTIriRef } from "../interfaces";
-import { Argument, PropertyShape } from "../interfaces/AutoGen";
-import { COMPONENT, IM } from "../vocabulary";
+import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
+import { IM, COMPONENT } from "../vocabulary";
 import { isArrayHasLength } from "./DataTypeCheckers";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
-  property.argument.forEach(arg => {
+  property.argument?.forEach(arg => {
     const argResult: any = {};
     for (const [key, value] of Object.entries(arg)) {
       if (key === "valueVariable") {
@@ -34,7 +33,8 @@ export function getTreeQueryIri(select: TTIriRef[]) {
   return select[1]["@id"];
 }
 
-export function processComponentType(type: TTIriRef): any {
+export function processComponentType(type: TTIriRef | undefined): any {
+  if (!type) throw new Error("Invalid component type: undefined");
   switch (type["@id"]) {
     case COMPONENT.TEXT_DISPLAY:
       return ComponentType.TEXT_DISPLAY;

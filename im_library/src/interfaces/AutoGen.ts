@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-05-24 10:04:41.
+// Generated using typescript-generator version 3.2.1263 on 2023-05-24 17:02:58.
 
 /**
  * Structure containing search request parameters and filters
@@ -129,11 +129,11 @@ export interface PropertyShape {
     label?: string;
     comment?: string;
     name?: string;
-    order?: number;
+    order: number;
     minCount?: number;
     maxCount?: number;
-    componentType?: TTIriRef;
-    path?: TTIriRef;
+    componentType: TTIriRef;
+    path: TTIriRef;
     node?: TTIriRef[];
     validation?: TTIriRef;
     search?: TTIriRef;
@@ -173,9 +173,9 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
     relativeTo?: Property;
     unit?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -204,8 +204,8 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
 }
 
@@ -283,7 +283,7 @@ export interface QueryRequest extends ContextMap {
     textSearch?: string;
     argument?: Argument[];
     referenceDate?: string;
-    query?: Query;
+    query: Query;
     pathQuery?: PathQuery;
     update?: Update;
     name?: string;
@@ -291,8 +291,8 @@ export interface QueryRequest extends ContextMap {
 }
 
 export interface Range {
-    from?: Assignable;
-    to?: Assignable;
+    from: Assignable;
+    to: Assignable;
 }
 
 export interface Return {
@@ -333,8 +333,8 @@ export interface Where extends Property, Assignable, Whereable {
 }
 
 export interface Whereable {
-    bool?: Bool;
     where?: Where[];
+    bool?: Bool;
 }
 
 export interface EntityDocument {
@@ -385,8 +385,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {

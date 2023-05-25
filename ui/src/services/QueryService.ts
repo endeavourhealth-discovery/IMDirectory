@@ -55,22 +55,8 @@ const QueryService = {
     else return await axios.post(Env.API + "api/query/public/entityQuery", query);
   },
 
-  async getSetQueryDisplay(query: any): Promise<TreeNode> {
-    return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", query);
-  },
-
-  async getQueryObject(query: any): Promise<QueryObject> {
-    return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryObject", query);
-  },
-
   async getQueryDefinitionDisplay(conceptIri: string): Promise<ITextQuery[]> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDefinitionDisplay", {
-      params: { iri: conceptIri }
-    });
-  },
-
-  async getQueryObjectByIri(conceptIri: string): Promise<QueryObject> {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryObjectDisplay", {
       params: { iri: conceptIri }
     });
   },
@@ -125,7 +111,11 @@ const QueryService = {
   },
 
   async getLabeledQuery(query: Query): Promise<Query> {
-    return axios.post(Env.API + "api/query/public/labelQuery", query);
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/labeledQuery", query);
+  },
+
+  async getQueryDisplay(iri: string): Promise<Query> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri } });
   }
 };
 

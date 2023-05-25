@@ -97,25 +97,25 @@ function compareMaps(map1: Map<string, any>, map2: Map<string, any>) {
 
 async function processPropertyValue(property: PropertyShape): Promise<string> {
   if (isObjectHasKeys(property, ["isIri"])) {
-    return property.isIri["@id"];
+    return property.isIri!["@id"];
   }
   if (isObjectHasKeys(property, ["function", "argument"])) {
     const args = processArguments(property, valueVariableMap?.value);
-    if (props.shape.argument.find((a: Argument) => a.valueVariable)) {
+    if (props.shape.argument!.find((a: Argument) => a.valueVariable)) {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
       if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
-        const result = await QueryService.runFunction(property.function["@id"], args);
+        const result = await QueryService.runFunction(property.function!["@id"], args);
         if (result) return result;
       } else return "";
     } else {
-      const result = await QueryService.runFunction(property.function["@id"], args);
+      const result = await QueryService.runFunction(property.function!["@id"], args);
       if (result) return result;
     }
   }
   if (isObjectHasKeys(property, ["function"])) {
-    const result = await QueryService.runFunction(property.function["@id"]);
+    const result = await QueryService.runFunction(property.function!["@id"]);
     if (result && isObjectHasKeys(result, ["iri"])) return result.iri["@id"];
-    else throw new Error("Failed to run function " + property.function["@id"]);
+    else throw new Error("Failed to run function " + property.function!["@id"]);
   }
   throw new Error("Property must have isIri or function key");
 }
@@ -150,7 +150,7 @@ function updateValueVariableMap(data: string) {
 
 async function updateValidity() {
   if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   } else {
     invalid.value = !defaultValidation();
   }

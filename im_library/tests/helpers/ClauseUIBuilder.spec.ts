@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Entailment, Match, Node, OrderLimit, Relationship, Where } from "@/interfaces/AutoGen";
+import { Entailment, Match, Node, OrderLimit, Path, Where } from "@/interfaces/AutoGen";
 import { buildClauseUI, getEntailmentOptions, getMatchType, getPropertyValue, getMatchValue } from "@/helpers/ClauseUIBuilder";
 import { MatchClauseUI } from "@/interfaces";
 

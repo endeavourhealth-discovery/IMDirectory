@@ -59,7 +59,7 @@ function updateEntity(data: string) {
 
 async function updateValidity(data: string) {
   if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity)
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   else invalid.value = !defaultValidation(data);
   if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
 }
