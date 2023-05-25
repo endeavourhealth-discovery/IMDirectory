@@ -229,7 +229,13 @@ async function updateValidity() {
 }
 
 function defaultValidation() {
-  return generateBuildAsJson().every(item => isObjectHasKeys(item, ["@id", "name"]));
+  return generateBuildAsJson().every(item => isObjectHasKeys(item, ["@id", "name"]) || isValidProperty(item));
+}
+
+function isValidProperty(property:any) {
+  return isObjectHasKeys(property[SHACL.PATH]?.[0] , ["@id"])
+      && isObjectHasKeys(property[SHACL.NODE]?.[0] || property[SHACL.DATATYPE]?.[0] || property[SHACL.CLASS]?.[0] || property[SHACL.FUNCTION]?.[0], ["@id"]);
+
 }
 
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
