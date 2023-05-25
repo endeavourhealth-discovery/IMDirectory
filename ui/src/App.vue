@@ -65,8 +65,11 @@ onMounted(async () => {
 });
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
-  userStore.updateCurrentTheme(newTheme);
+  if (userStore.currentTheme != newTheme) {
+    PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {
+      userStore.updateCurrentTheme(newTheme);
+    });
+  }
 }
 
 async function setShowBanner() {

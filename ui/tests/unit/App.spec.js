@@ -8,7 +8,7 @@ import Button from "primevue/button";
 import Menu from "primevue/menu";
 import { expect, vi } from "vitest";
 import PrimeVue from "primevue/config";
-import { GithubService } from "@/services";
+import { GithubService, UserService } from "@/services";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { createTestingPinia } from "@pinia/testing";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -46,6 +46,7 @@ describe("App.vue", () => {
   let component;
   let getLatestReleaseSpy;
   let testLatestRelease = fakerFactory.githubRelease.create();
+  UserService.getUserTheme = async () => "";
 
   beforeEach(async () => {
     vi.resetAllMocks();
