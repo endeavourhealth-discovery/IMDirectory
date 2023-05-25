@@ -42,7 +42,7 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { TTProperty } from "@im-library/interfaces";
-import { getKey } from "@im-library/helpers";
+import { getKey, getParentNode } from "@im-library/helpers";
 
 const emit = defineEmits({
   addRule: (payload: TreeNode) => true
@@ -111,7 +111,7 @@ function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: T
     loading: false,
     children: [] as TreeNode[],
     order: order,
-    parentNode: parent
+    parentNode: getParentNode(parent as any)
   };
 }
 
@@ -163,7 +163,8 @@ async function onClassExpand(node: TreeNode) {
 }
 
 function onNodeDblClick(node: any) {
-  emit("addRule", node);
+  console.log(JSON.stringify(node));
+  // emit("addRule", node);
 }
 
 async function addParentFoldersToRoot() {

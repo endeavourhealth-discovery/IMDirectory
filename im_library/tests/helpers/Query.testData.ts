@@ -267,22 +267,129 @@ export const treeNode = {
     loading: false,
     children: []
   },
+  dataModelMatch: {
+    "@type": "http://endhealth.info/im#Patient",
+    description: "Patient"
+  },
   classProperty: {
-    key: "0500",
-    label: "stated gender",
+    key: "1-5-0-43-0-6",
+    label: "concept",
     typeIcon: ["fa-solid", "fa-pen-to-square"],
     color: "#e68a3388",
     conceptTypes: [{ "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property" }],
-    data: "http://endhealth.info/im#statedGender",
+    data: "http://endhealth.info/im#concept",
     leaf: false,
     loading: false,
     children: [],
+    parentNode: {
+      key: "1-5-0-43-0",
+      label: "Observation",
+      typeIcon: ["fa-solid", "fa-diagram-project"],
+      color: "#781c8188",
+      conceptTypes: [{ "@id": "http://www.w3.org/ns/shacl#NodeShape" }],
+      data: "http://endhealth.info/im#Observation",
+      leaf: false,
+      loading: false,
+      parentNode: {
+        key: "1-5-0-43",
+        label: "observation",
+        typeIcon: ["fa-solid", "fa-pen-to-square"],
+        color: "#e68a3388",
+        conceptTypes: [{ "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property" }],
+        data: "http://endhealth.info/im#observation",
+        leaf: false,
+        loading: false,
+        parentNode: {
+          key: "1-5-0",
+          label: "Patient",
+          typeIcon: ["fa-solid", "fa-diagram-project"],
+          color: "#781c8188",
+          conceptTypes: [{ name: "Data model/Node shape ", "@id": "http://www.w3.org/ns/shacl#NodeShape" }],
+          data: "http://endhealth.info/im#Patient",
+          leaf: false,
+          loading: false,
+          parentNode: {
+            key: "1-5",
+            label: "People , things and organisations",
+            typeIcon: ["fa-solid", "fa-folder"],
+            color: "#3f51a388",
+            conceptTypes: [{ name: "Folder", "@id": "http://endhealth.info/im#Folder" }],
+            data: "http://endhealth.info/im#PeopleAndTeams",
+            leaf: false,
+            loading: true,
+            parentNode: {
+              key: "1",
+              label: "Data model",
+              typeIcon: ["fa-solid", "fa-folder"],
+              color: "#3f51a388",
+              conceptTypes: [{ name: "Folder", "@id": "http://endhealth.info/im#Folder" }],
+              data: "http://endhealth.info/im#HealthDataModel",
+              leaf: false,
+              loading: true,
+              order: 0
+            }
+          }
+        },
+        ttproperty: {
+          "http://www.w3.org/ns/shacl#order": 44,
+          "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#observation", name: "observation" }],
+          "http://www.w3.org/ns/shacl#node": [{ "@id": "http://endhealth.info/im#Observation", name: "Observation" }],
+          "http://www.w3.org/ns/shacl#group": [{ "@id": "http://endhealth.info/im#ClinicalGroup", name: "Clinical notes" }],
+          "http://endhealth.info/im#inversePath": [{ "@id": "http://endhealth.info/im#patient", name: "patient" }]
+        }
+      }
+    },
     ttproperty: {
       "http://www.w3.org/ns/shacl#order": 1,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#statedGender", name: "stated gender" }],
+      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#concept", name: "concept" }],
       "http://www.w3.org/ns/shacl#maxCount": 1,
-      "http://www.w3.org/ns/shacl#group": [{ "@id": "http://endhealth.info/im#DemographicsGroup", name: "Demographic details" }],
-      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://hl7.org/fhir/ValueSet/administrative-gender", name: "FHIR Administrative Gender" }]
+      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://endhealth.info/im#VSET_Observation", name: "Value set - Observation" }]
     }
+  },
+  classPropertyMatch: {},
+  entity: {
+    key: "3-2-8",
+    label: "Physical object (physical object)",
+    typeIcon: ["fa-solid", "fa-lightbulb"],
+    color: "#c3ba4588",
+    conceptTypes: [{ name: "Terminology concept", "@id": "http://endhealth.info/im#Concept" }],
+    data: "http://snomed.info/sct#260787004",
+    leaf: false,
+    loading: false,
+    children: []
+  },
+  entityMatch: {
+    "@id": "http://snomed.info/sct#260787004",
+    description: "Physical object (physical object)"
+  },
+  set: {
+    key: "0-0-0-0-0",
+    label: "Concept set - E-mail or text message consultation",
+    typeIcon: ["fa-solid", "fa-list-check"],
+    color: "#519cb888",
+    conceptTypes: [{ name: "Concept Set", "@id": "http://endhealth.info/im#ConceptSet" }],
+    data: "http://endhealth.info/im#CSET_EmailOnlineEncounter",
+    leaf: true,
+    loading: false,
+    children: []
+  },
+  setMatch: {
+    "@set": "http://endhealth.info/im#CSET_EmailOnlineEncounter",
+    description: "Concept set - E-mail or text message consultation"
+  },
+  query: {
+    key: "4-3-0",
+    label: "Patients registered for GMS services on the reference date",
+    typeIcon: ["fa-solid", "fa-magnifying-glass"],
+    color: "#83ba6d88",
+    conceptTypes: [{ name: "Query", "@id": "http://endhealth.info/im#Query" }],
+    data: "http://endhealth.info/im#Q_RegisteredGMS",
+    leaf: true,
+    loading: false,
+    children: []
+  },
+  queryMatch: {
+    "@set": "http://endhealth.info/im#Q_RegisteredGMS",
+    description: "Patients registered for GMS services on the reference date"
   }
 };
