@@ -26,7 +26,7 @@ function generateRecursively(query: any, type: string) {
 }
 
 // descriptors
-function describeMatch(match: Match[], type: string) {
+export function describeMatch(match: Match[], type: string) {
   for (const [index, matchItem] of match.entries()) {
     matchItem.description = getDisplayFromMatch(matchItem);
     if (isObjectHasKeys(matchItem, ["boolMatch"])) {

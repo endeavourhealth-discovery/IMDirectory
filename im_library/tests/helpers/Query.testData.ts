@@ -1,3 +1,6 @@
+import { Match } from "@/interfaces/AutoGen";
+import { IM } from "@/vocabulary";
+
 export const match = {
   withType: { "@type": "Patient" },
   withSet: { "@set": "CSET_EmailOnlineEncounter" },
@@ -233,4 +236,53 @@ export const fullTestQueryDefinition = {
     },
     { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives", name: "Hypertensives" }
   ]
+};
+
+export const treeNode = {
+  folder: {
+    key: "http://endhealth.info/im#HealthDataModel",
+    label: "Data model",
+    typeIcon: ["fa-solid", "fa-folder"],
+    color: "#3f51a388",
+    conceptTypes: [{ name: "Folder", "@id": "http://endhealth.info/im#Folder" }],
+    data: "http://endhealth.info/im#HealthDataModel",
+    leaf: false,
+    loading: false,
+    children: [],
+    order: 0,
+    parentNode: null
+  },
+  folderMatch: {
+    description: "",
+    where: [{ "@id": IM.IS_CONTAINED_IN, description: "isContainedIn is HealthDataModel", in: [{ "@id": IM.NAMESPACE + "HealthDataModel" }] }]
+  } as Match,
+  dataModel: {
+    key: "050",
+    label: "Patient",
+    typeIcon: ["fa-solid", "fa-diagram-project"],
+    color: "#781c8188",
+    conceptTypes: [{ name: "Data model/Node shape ", "@id": "http://www.w3.org/ns/shacl#NodeShape" }],
+    data: "http://endhealth.info/im#Patient",
+    leaf: false,
+    loading: false,
+    children: []
+  },
+  classProperty: {
+    key: "0500",
+    label: "stated gender",
+    typeIcon: ["fa-solid", "fa-pen-to-square"],
+    color: "#e68a3388",
+    conceptTypes: [{ "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property" }],
+    data: "http://endhealth.info/im#statedGender",
+    leaf: false,
+    loading: false,
+    children: [],
+    ttproperty: {
+      "http://www.w3.org/ns/shacl#order": 1,
+      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#statedGender", name: "stated gender" }],
+      "http://www.w3.org/ns/shacl#maxCount": 1,
+      "http://www.w3.org/ns/shacl#group": [{ "@id": "http://endhealth.info/im#DemographicsGroup", name: "Demographic details" }],
+      "http://www.w3.org/ns/shacl#class": [{ "@id": "http://hl7.org/fhir/ValueSet/administrative-gender", name: "FHIR Administrative Gender" }]
+    }
+  }
 };

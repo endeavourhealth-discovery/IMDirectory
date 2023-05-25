@@ -83,6 +83,7 @@ function buildDataModelTreeNode(property: TTProperty, parent: TreeNode) {
     label: property[SHACL.NODE][0].name,
     iri: property[SHACL.PATH][0]["@id"],
     data: property,
+    conceptTypes: [imtype],
     type: "dataModel",
     icon: getFAIconFromType([imtype]),
     leaf: false,

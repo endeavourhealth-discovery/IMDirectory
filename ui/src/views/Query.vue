@@ -8,7 +8,7 @@
 
     <Splitter class="query-splitter">
       <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
-        <QueryNavTree />
+        <QueryNavTree @add-rule="addRule" />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right" class="splitter-right">
         <div class="include-title" style="color: green">include if</div>
@@ -43,6 +43,8 @@ import { Match, Query } from "@im-library/interfaces/AutoGen";
 import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import QueryNavTree from "@/components/query/QueryNavTree.vue";
+import { buildMatchFromTreeNode } from "@im-library/helpers";
+import { TreeNode } from "primevue/tree";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({} as Query);
 const visibleDialog: Ref<boolean> = ref(false);
@@ -56,6 +58,12 @@ onMounted(async () => {
     baseEntityIri.value = (baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"]) as string;
   }
 });
+
+function addRule(treeNode: TreeNode) {
+  const match = buildMatchFromTreeNode(treeNode as any);
+  if (!isArrayHasLength(query.value.match)) query.value.match = [];
+  query.value.match!.push(match);
+}
 </script>
 
 <style scoped lang="scss">

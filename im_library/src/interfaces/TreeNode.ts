@@ -1,7 +1,10 @@
+import { TTIriRef } from "./AutoGen";
+
 export interface TreeNode {
   key: string;
   label: string;
   iri: string;
+  conceptTypes: TTIriRef[];
   type: string;
   icon: string[];
   children: TreeNode[];

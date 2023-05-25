@@ -11,7 +11,7 @@
       :loading="loading"
     >
       <template #default="{ node }: any">
-        <div class="tree-row" @dblclick="onNodeDblClick($event, node)" @contextmenu="onNodeContext($event, node)">
+        <div class="tree-row" @dblclick="onNodeDblClick(node)" @contextmenu="onNodeContext($event, node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
@@ -34,7 +34,6 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { useToast } from "primevue/usetoast";
 import setupTree from "@/composables/setupTree";
-import createNew from "@/composables/createNew";
 import { TreeNode } from "primevue/tree";
 import { isArray } from "lodash";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -43,6 +42,11 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { TTProperty } from "@im-library/interfaces";
+import { getKey } from "@im-library/helpers";
+
+const emit = defineEmits({
+  addRule: (payload: TreeNode) => true
+});
 
 const toast = useToast();
 const sharedStore = useSharedStore();
@@ -80,7 +84,9 @@ watch(
   }
 );
 
-function onNodeSelect(node: any) {}
+function onNodeSelect(node: any) {
+  selectedNode.value = node;
+}
 
 async function handleTreeNodeExpand(node: any) {
   node.children = [];
@@ -93,16 +99,9 @@ async function handleTreeNodeExpand(node: any) {
   }
 }
 
-function createTreeNode(
-  conceptName: string,
-  conceptIri: string,
-  conceptTypes: TTIriRef[],
-  hasChildren: boolean,
-  parent: TreeNode | null,
-  order?: number
-): TreeNode {
+function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, parent?: TreeNode, order?: number): TreeNode {
   return {
-    key: conceptIri,
+    key: getKey(parent as any),
     label: conceptName,
     typeIcon: getFAIconFromType(conceptTypes),
     color: getColourFromType(conceptTypes),
@@ -163,27 +162,33 @@ async function onClassExpand(node: TreeNode) {
   }
 }
 
-function onNodeDblClick(event: any, node: any) {}
+function onNodeDblClick(node: any) {
+  emit("addRule", node);
+}
 
 async function addParentFoldersToRoot() {
   let IMChildren: any[] = [];
   const results = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
   if (results && isArray(results)) IMChildren = results;
-  for (let IMchild of IMChildren) {
+  for (let [index, IMchild] of IMChildren.entries()) {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
-    if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
+    if (!hasNode) {
+      const node = createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, undefined, IMchild.orderNumber);
+      node.key = `${index}`;
+      root.value.push(node);
+    }
   }
-  root.value.sort(byKey);
+  root.value.sort(byData);
 }
 
-function byKey(a: any, b: any): number {
+function byData(a: any, b: any): number {
   // order by order number
   if (a.order && b.order) return a.order - b.order;
   else if (a.order && !b.order) return -1;
   else if (!a.order && b.order) return 1;
   // order alphabetically
-  else if (a.key > b.key) return 1;
-  else if (b.key > a.key) return -1;
+  else if (a.data > b.data) return 1;
+  else if (b.data > a.data) return -1;
   return 0;
 }
 
@@ -194,7 +199,7 @@ async function onNodeContext(event: any, node: any) {
 
 async function showOverlay(event: any, node: any): Promise<void> {
   if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
-    await OS.value.showOverlay(event, node.key);
+    await OS.value.showOverlay(event, node.data);
   }
 }
 
