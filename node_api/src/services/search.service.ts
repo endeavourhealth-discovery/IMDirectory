@@ -2,7 +2,7 @@ import Env from "@/services/env.service";
 import EntityService from "@/services/entity.service";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
-import { TTIriRef } from "@im-library/interfaces";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 export default class SearchService {
   axios: any;

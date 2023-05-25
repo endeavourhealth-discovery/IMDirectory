@@ -1,8 +1,8 @@
-import { Relationship } from "../AutoGen";
+import { Path } from "../AutoGen";
 import { TreeNode } from "../TreeNode";
 
 export interface WhereClauseUI {
-  path: Relationship;
+  path: Path;
   whereProperty: TreeNode;
   whereType: string;
   whereValue: any;

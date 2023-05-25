@@ -35,7 +35,7 @@
 import { ref, PropType, Ref, onMounted } from "vue";
 import BaseClause from "./clause/BaseClause.vue";
 import WhereClause from "./clause/WhereClause.vue";
-import { Match, Relationship } from "@im-library/interfaces/AutoGen";
+import { Match, Path } from "@im-library/interfaces/AutoGen";
 import SimpleJsonEditor from "./editTextQuery/SimpleJsonEditor.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary, ITextQuery, MatchClauseUI, TreeNode, WhereClauseUI } from "@im-library/interfaces";
@@ -70,7 +70,7 @@ function addMatch(editClause: MatchClauseUI) {
 
 function addProperty(editClause: MatchClauseUI) {
   if (!isArrayHasLength(editClause.where)) editClause.where = [];
-  editClause.where.push({ whereValue: "", whereType: "", whereProperty: {} as TreeNode, whereEntailment: [], path: {} as Relationship } as WhereClauseUI);
+  editClause.where.push({ whereValue: "", whereType: "", whereProperty: {} as TreeNode, whereEntailment: [], path: {} as Path } as WhereClauseUI);
 }
 </script>
 

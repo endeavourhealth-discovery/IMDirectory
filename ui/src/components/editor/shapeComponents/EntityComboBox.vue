@@ -81,8 +81,8 @@ function processPropsValue() {
     return;
   }
   if (isObjectHasKeys(props.shape, ["isIri"])) {
-    selectedEntities.value = props.value.filter(o => o["@id"] !== props.shape.isIri["@id"]);
-    const foundFixedOption = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri["@id"]);
+    selectedEntities.value = props.value.filter(o => o["@id"] !== props.shape.isIri!["@id"]);
+    const foundFixedOption = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
     if (!foundFixedOption) {
       throw new Error("shape isIri value did not match any dropdown option");
       return;
@@ -113,7 +113,7 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     const replacedArgs = mapToObject(args);
     const queryRequest = {} as QueryRequest;
     const query = {} as Query;
-    query["@id"] = props.shape.select[0]["@id"];
+    query["@id"] = props.shape.select![0]["@id"];
     queryRequest.argument = replacedArgs;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
@@ -124,9 +124,9 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape);
-    return QueryService.runFunction(props.shape.function["@id"], args);
+    return QueryService.runFunction(props.shape.function!["@id"], args);
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return QueryService.runFunction(props.shape.function["@id"]);
+    return QueryService.runFunction(props.shape.function!["@id"]);
   } else throw new Error("propertyshape is missing 'search' or 'function' parameter to fetch dropdown options");
 }
 
@@ -145,7 +145,7 @@ function updateValueVariableMap(data: TTIriRef[]) {
 
 async function updateValidity(data: TTIriRef[]) {
   if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
+    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
   } else {
     invalid.value = !defaultValidity(data);
   }

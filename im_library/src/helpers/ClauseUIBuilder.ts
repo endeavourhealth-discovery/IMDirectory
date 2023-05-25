@@ -13,7 +13,7 @@ export function buildClauseUI(match: Match): MatchClauseUI[] {
     include: !match.exclude
   } as MatchClauseUI;
   if (isObjectHasKeys(match, ["where"])) {
-    for (const where of match.where) {
+    for (const where of match.where!) {
       const { value, type } = getPropertyValue(where);
       const whereClause = {
         whereProperty: getWhereProperty(where),

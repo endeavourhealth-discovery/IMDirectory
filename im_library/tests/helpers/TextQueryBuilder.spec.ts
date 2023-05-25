@@ -13,7 +13,7 @@ import {
   getDisplayFromOrderByList,
   getDisplayFromOrderBy
 } from "@/helpers/TextQueryBuilder";
-import { Match, Node, OrderLimit, Relationship, Where } from "@/interfaces/AutoGen";
+import { Match, Node, OrderLimit, Path, Where } from "@/interfaces/AutoGen";
 
 describe("TextQueryBuilder.ts ___", () => {
   describe("buildTextQuery", () => {
@@ -434,7 +434,7 @@ describe("TextQueryBuilder.ts ___", () => {
 
   describe("getPathDisplay", () => {
     it("can get a display for a path", () => {
-      const display = getDisplayFromPath({ "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } } as Relationship);
+      const display = getDisplayFromPath({ "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } } as Path);
       expect(display).toEqual("observation");
     });
 
@@ -442,7 +442,7 @@ describe("TextQueryBuilder.ts ___", () => {
       const display = getDisplayFromPath({
         "@id": "http://endhealth.info/im#observation",
         node: { "@type": "Observation", path: { "@id": "http://endhealth.info/im#patient", node: { "@type": "http://endhealth.info/im#Patient" } } }
-      } as Relationship);
+      } as Path);
       expect(display).toEqual("observation.patient");
     });
   });
