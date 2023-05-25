@@ -199,7 +199,9 @@ function isFavourite(iri: string) {
 
 function init() {
   loading.value = true;
-  localSearchResults.value = [...props.searchResults];
+  if(props.searchResults) {
+    localSearchResults.value = [...props.searchResults];
+  }
   processSearchResults();
   if (isArrayHasLength(localSearchResults.value)) {
     setFiltersFromSearchResults();
