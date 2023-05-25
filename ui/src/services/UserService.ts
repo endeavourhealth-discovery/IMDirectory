@@ -33,7 +33,7 @@ const UserService = {
       headers: { "Content-Type": "application/sparql-update" }
     });
   },
-  async updateUserMRU(user: string, mru: any): Promise<any> {
+  async updateUserMRU(user: string, mru: any[]): Promise<any> {
     return await axios.post(Env.VITE_NODE_API + "node_api/user/public/updateUserMRU", {
       params: {
         user: user,
@@ -42,7 +42,7 @@ const UserService = {
       headers: { "Content-Type": "application/sparql-update" }
     });
   },
-  async updateUserFavourites(user: string, favourites: any): Promise<any> {
+  async updateUserFavourites(user: string, favourites: any[]): Promise<any> {
     return await axios.post(Env.VITE_NODE_API + "node_api/user/public/updateUserFavourites", {
       params: {
         user: user,

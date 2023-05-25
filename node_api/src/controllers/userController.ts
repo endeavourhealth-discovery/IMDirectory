@@ -46,7 +46,7 @@ export default class UserController {
     );
   }
 
-  async getUserTheme(req: Request) {
+  async getUserTheme(req: Request): Promise<string> {
     if (typeof req.query.user === "string") {
       return await this.userService.getUserTheme(req.query.user);
     } else {
@@ -54,7 +54,7 @@ export default class UserController {
     }
   }
 
-  async getUserMRU(req: Request) {
+  async getUserMRU(req: Request): Promise<any[]> {
     if (typeof req.query.user === "string") {
       return await this.userService.getUserMRU(req.query.user);
     } else {
@@ -62,7 +62,7 @@ export default class UserController {
     }
   }
 
-  async getUserFavourites(req: Request) {
+  async getUserFavourites(req: Request): Promise<any[]> {
     if (typeof req.query.user === "string") {
       return await this.userService.getUserFavourites(req.query.user);
     } else {

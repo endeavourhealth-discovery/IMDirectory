@@ -39,21 +39,20 @@ export const useUserStore = defineStore("user", {
       localStorage.setItem("cookiesOptionalAccepted", String(bool));
     },
     async initFavourites() {
-      let favourites: string[];
+      let favourites: string[] = [];
       if (this.currentUser) favourites = await UserService.getUserFavourites(this.currentUser.id);
       else favourites = this.favourites ? this.favourites : [];
-
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
           favourites.splice(index, 1);
         }
       }
-      if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, JSON.stringify(favourites));
+      if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, favourites);
       this.favourites = favourites;
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
-      let activity: RecentActivityItem[];
+      let activity: RecentActivityItem[] = [];
 
       if (this.currentUser) activity = await UserService.getUserMRU(this.currentUser.id);
       else activity = this.recentLocalActivity ? this.recentLocalActivity : [];
@@ -79,7 +78,7 @@ export const useUserStore = defineStore("user", {
           activity.push(recentActivityItem);
         }
       }
-      if (this.currentUser) await UserService.updateUserMRU(this.currentUser.id, JSON.stringify(activity));
+      if (this.currentUser) await UserService.updateUserMRU(this.currentUser.id, activity);
       this.recentLocalActivity = activity;
     },
     async updateFavourites(favourite: string) {
@@ -90,7 +89,7 @@ export const useUserStore = defineStore("user", {
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, JSON.stringify(favourites));
+        if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, favourites);
         this.favourites = favourites;
       }
     },
