@@ -105,5 +105,5 @@ export function sanitise(data: any) {
 }
 
 export function desanitise(data: string) {
-  return JSON.parse(data.slice(1, -1).replaceAll('"', "'").replaceAll("`", '"'));
+  return JSON.parse(data.replaceAll('"', "'").replaceAll("`", '"'));
 }
