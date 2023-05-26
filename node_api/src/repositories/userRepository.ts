@@ -28,11 +28,11 @@ export default class UserRepository {
     const bnd = { user: iri(USER.NAMESPACE + user), hasmru: iri(USER.USER_MRU) };
     const rs = await this.graph.execute(qry, bnd);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["mru"])) {
-      return JSON.parse(rs[0].mru.value);
+      return JSON.parse(desanitise(rs[0].mru.value));
     } else {
       await this.updateUserMRU(user, []);
       const rs = await this.graph.execute(qry, bnd);
-      return JSON.parse(rs[0].mru.value);
+      return JSON.parse(desanitise(rs[0].mru.value));
     }
   }
 
@@ -41,11 +41,11 @@ export default class UserRepository {
     const bnd = { user: iri(USER.NAMESPACE + user), hasfav: iri(USER.USER_FAVOURITES) };
     const rs = await this.graph.execute(qry, bnd);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["favourites"])) {
-      return JSON.parse(rs[0].favourites.value);
+      return JSON.parse(desanitise(rs[0].favourites.value));
     } else {
       await this.updateUserFavourites(user, []);
       const rs = await this.graph.execute(qry, bnd);
-      return JSON.parse(rs[0].favourites.value);
+      return JSON.parse(desanitise(rs[0].favourites.value));
     }
   }
 
