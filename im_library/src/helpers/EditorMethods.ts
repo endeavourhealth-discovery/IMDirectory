@@ -2,6 +2,7 @@ import { ComponentType } from "../enums";
 import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 import { IM } from "../vocabulary";
 import { isArrayHasLength } from "./DataTypeCheckers";
+import { getNameFromRef } from "./TTTransform";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
@@ -33,50 +34,28 @@ export function getTreeQueryIri(select: TTIriRef[]) {
   return select[1]["@id"];
 }
 
+function getNameFromIri(iri: string) {
+  if (!iri) throw new Error("Missing iri");
+  if (iri.includes("#")) {
+    const splits = iri.split("#");
+    return splits[1] || splits[0];
+  }
+  return iri;
+}
+
+function extractComponentFromIri(type: TTIriRef) {
+  let name = getNameFromIri(type["@id"]);
+  if (name.includes("_")) return name.split("_")[1];
+  else throw new Error("Iri is not of type ComponentType: " + type["@id"]);
+}
+
 export function processComponentType(type: TTIriRef | undefined): any {
   if (!type) throw new Error("Invalid component type: undefined");
-  switch (type["@id"]) {
-    case IM.component.TEXT_DISPLAY:
-      return ComponentType.TEXT_DISPLAY;
-    case IM.component.TEXT_INPUT:
-      return ComponentType.TEXT_INPUT;
-    case IM.component.HTML_INPUT:
-      return ComponentType.HTML_INPUT;
-    case IM.component.ARRAY_BUILDER:
-      return ComponentType.ARRAY_BUILDER;
-    case IM.component.ENTITY_SEARCH:
-      return ComponentType.ENTITY_SEARCH;
-    case IM.component.ENTITY_COMBOBOX:
-      return ComponentType.ENTITY_COMBOBOX;
-    case IM.component.ENTITY_DROPDOWN:
-      return ComponentType.ENTITY_DROPDOWN;
-    case IM.component.ENTITY_AUTO_COMPLETE:
-      return ComponentType.ENTITY_AUTO_COMPLETE;
-    case IM.component.COMPONENT_GROUP:
-      return ComponentType.COMPONENT_GROUP;
-    case IM.component.MEMBERS_BUILDER:
-      return ComponentType.MEMBERS_BUILDER;
-    case IM.component.STEPS_GROUP:
-      return ComponentType.STEPS_GROUP;
-    case IM.component.SET_DEFINITION_BUILDER:
-      return ComponentType.SET_DEFINITION_BUILDER;
-    case IM.component.QUERY_DEFINITION_BUILDER:
-      return ComponentType.QUERY_DEFINITION_BUILDER;
-    case IM.component.ARRAY_BUILDER_WITH_DROPDOWN:
-      return ComponentType.ARRAY_BUILDER_WITH_DROPDOWN;
-    case IM.component.PROPERTY_BUILDER:
-      return ComponentType.PROPERTY_BUILDER;
-    case IM.component.TOGGLEABLE:
-      return ComponentType.TOGGLEABLE_COMPONENT;
-    case IM.component.HORIZONTAL_LAYOUT:
-      return ComponentType.HORIZONTAL_LAYOUT;
-    case IM.component.VERTICAL_LAYOUT:
-      return ComponentType.VERTICAL_LAYOUT;
-    case IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR:
-      return ComponentType.DROPDOWN_TEXT_INPUT_CONCATENATOR;
-    default:
-      throw new Error("Invalid component type encountered while processing component types: " + type["@id"]);
-  }
+  const typeName = extractComponentFromIri(type);
+  const componentList = Object.values(ComponentType).filter(item => isNaN(Number(item)));
+  const found = componentList.find(c => c.toLowerCase() === typeName.toLowerCase());
+  if (found) return found;
+  else throw new Error("Invalid component type encountered while processing component types: " + type["@id"]);
 }
 
 export default { processArguments, processComponentType, getTreeQueryIri };

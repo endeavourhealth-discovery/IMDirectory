@@ -18,7 +18,7 @@ export class componentVocabulary {
   public static PROPERTY_BUILDER = this.NAMESPACE + "propertyBuilder";
   public static SET_DEFINITION_BUILDER = this.NAMESPACE + "SetDefinitionBuilder";
   public static QUERY_DEFINITION_BUILDER = this.NAMESPACE + "QueryDefinitionBuilder";
-  public static TOGGLEABLE = this.NAMESPACE + "Toggleable";
+  public static TOGGLEABLE = this.NAMESPACE + "ToggleableComponent";
   public static HORIZONTAL_LAYOUT = this.NAMESPACE + "HorizontalLayout";
   public static VERTICAL_LAYOUT = this.NAMESPACE + "VerticalLayout";
   public static DROPDOWN_TEXT_INPUT_CONCATENATOR = this.NAMESPACE + "dropdownTextInputConcatenator";

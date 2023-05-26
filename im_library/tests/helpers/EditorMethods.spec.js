@@ -39,8 +39,13 @@ describe("EditorMethods", () => {
   });
 
   describe("processComponentType", () => {
-    it("processes component type ___ invalid", () => {
+    it("processes component type ___ invalid not component", () => {
       const testIri = fakerFactory.iriRef.create();
+      expect(() => processComponentType(testIri)).toThrowError("Iri is not of type ComponentType: " + testIri["@id"]);
+    });
+
+    it("processes component type ___ invalid component", () => {
+      const testIri = { "@id": "http://endhealth.info/im#Component_TestError" };
       expect(() => processComponentType(testIri)).toThrowError("Invalid component type encountered while processing component types: " + testIri["@id"]);
     });
 
