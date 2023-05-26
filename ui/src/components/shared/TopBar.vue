@@ -83,14 +83,16 @@
 import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
+import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
@@ -98,7 +100,7 @@ const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-const currentTheme = computed(() => userStore.currentTheme);
+const currentTheme: Ref<string | undefined> = ref();
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -115,6 +117,8 @@ const appsOP = ref();
 const directService = new DirectService();
 
 onMounted(async () => {
+  if (currentUser.value) currentTheme.value = await UserService.getUserTheme(currentUser.value.id);
+  if (!currentTheme.value) currentTheme.value = "saga-blue";
   setUserMenuItems();
   setAppMenuItems();
   await getCurrentVersion();
@@ -126,7 +130,7 @@ async function getCurrentVersion() {
 }
 
 function toLandingPage() {
-  window.location.href = "/";
+  router.push("/");
 }
 
 function open(item: { icon: string; command: Function; label: string }) {
@@ -586,7 +590,10 @@ function showReleaseNotes() {
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => userStore.updateCurrentTheme(newTheme));
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
+    userStore.updateCurrentTheme(newTheme);
+    currentTheme.value = newTheme;
+  });
 }
 </script>
 

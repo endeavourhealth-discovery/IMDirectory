@@ -86,6 +86,15 @@ let debounce = ref(0);
 
 const miniSearchOP = ref();
 
+watch(
+    () => (searchTerm.value),
+    () => {
+      if(searchTerm.value === "") {
+        hideOverlay();
+      }
+    }
+);
+
 async function init() {
   if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
   if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
@@ -157,7 +166,7 @@ function hideOverlay(): void {
 
 function showOverlay(event: any): void {
   const x = miniSearchOP.value as any;
-  if (x) x.show(event, event.target);
+  if (searchTerm.value !== "") x.show(event, event.target);
 }
 
 async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
