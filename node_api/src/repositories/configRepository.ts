@@ -18,9 +18,8 @@ export default class ConfigRepository {
       label: iri(RDFS.LABEL),
       config: iri(IM.HAS_CONFIG)
     });
-    if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"]) && isObjectHasKeys(rs[0].data, ["id"])) {
-      return rs[0].data.id;
-    } else if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"]) && isObjectHasKeys(rs[0].data, ["value"])) {
+
+    if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"])) {
       return rs[0].data.value;
     } else {
       throw new CustomError(`Config not found: ${url}`, ErrorType.ConfigNotFoundError);

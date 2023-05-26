@@ -10,7 +10,7 @@ export default class UserRepository {
   }
 
   public async getUserTheme(user: string): Promise<string> {
-    const qry = "SELECT * WHERE { ?user ?hasTheme ?theme }";
+    const qry = "SELECT ?theme WHERE { ?user ?hasTheme ?theme }";
     const bnd = { user: iri(USER.NAMESPACE + user), hasTheme: iri(USER.USER_THEME) };
 
     const rs = await this.graph.execute(qry, bnd);
@@ -18,34 +18,31 @@ export default class UserRepository {
       return rs[0].theme.value;
     } else {
       await this.updateUserTheme(user, "saga-blue");
-      const rs = await this.graph.execute(qry, bnd);
-      return rs[0].theme.value;
+      return "saga-blue";
     }
   }
 
   public async getUserMRU(user: string): Promise<any[]> {
-    const qry = "SELECT * WHERE { ?user ?hasmru ?mru }";
+    const qry = "SELECT ?mru WHERE { ?user ?hasmru ?mru }";
     const bnd = { user: iri(USER.NAMESPACE + user), hasmru: iri(USER.USER_MRU) };
     const rs = await this.graph.execute(qry, bnd);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["mru"])) {
-      return JSON.parse(desanitise(rs[0].mru.value));
+      return desanitise(rs[0].mru.value);
     } else {
       await this.updateUserMRU(user, []);
-      const rs = await this.graph.execute(qry, bnd);
-      return JSON.parse(desanitise(rs[0].mru.value));
+      return [];
     }
   }
 
   public async getUserFavourites(user: string): Promise<any[]> {
-    const qry = "SELECT * WHERE { ?user ?hasfav ?favourites }";
+    const qry = "SELECT ?favourites WHERE { ?user ?hasfav ?favourites }";
     const bnd = { user: iri(USER.NAMESPACE + user), hasfav: iri(USER.USER_FAVOURITES) };
     const rs = await this.graph.execute(qry, bnd);
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["favourites"])) {
-      return JSON.parse(desanitise(rs[0].favourites.value));
+      return desanitise(rs[0].favourites.value);
     } else {
       await this.updateUserFavourites(user, []);
-      const rs = await this.graph.execute(qry, bnd);
-      return JSON.parse(desanitise(rs[0].favourites.value));
+      return [];
     }
   }
 

@@ -11,10 +11,8 @@ function setupConfig() {
   const configs: Ref<DefinitionConfig[]> = ref([]);
 
   async function getConfig(): Promise<void> {
-    const definitionConfigString = await ConfigService.getComponentLayout("definition");
-    const definitionConfig: DefinitionConfig[] = parseConfig(definitionConfigString);
-    const summaryConfigString = await ConfigService.getComponentLayout("summary");
-    const summaryConfig: DashboardLayout[] = parseConfig(summaryConfigString);
+    const definitionConfig: DefinitionConfig[] = await ConfigService.getComponentLayout("definition");
+    const summaryConfig: DashboardLayout[] = await ConfigService.getComponentLayout("summary");
 
     configs.value = definitionConfig.concat(summaryConfig as any[]) as DefinitionConfig[];
 
@@ -23,15 +21,6 @@ function setupConfig() {
     } else {
       log.error("Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
     }
-  }
-
-  function parseConfig(configString: string) {
-    if (!configString) {
-      return [];
-    }
-    const procString = configString.slice(1, -1);
-    const parsed = JSON.parse(procString);
-    return parsed as any[];
   }
 
   return { configs, getConfig };
