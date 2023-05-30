@@ -14,6 +14,9 @@
           :class="eclError ? 'p-invalid' : ''"
           data-testid="ecl-string"
           :disabled="loading"
+          @dragenter.prevent
+          @dragover.prevent
+          @drop="dropReceived($event)"
         />
       </div>
       <div class="button-container">
@@ -188,6 +191,13 @@ function onCopyError(): void {
 function updateError(errorUpdate: { error: boolean; message: string }): void {
   eclError.value = errorUpdate.error;
   eclErrorMessage.value = errorUpdate.message;
+}
+
+async function dropReceived(event: any) {
+  const data = event.dataTransfer.getData("conceptIri");
+  if (data) {
+    ecl.value = JSON.parse(data);
+  }
 }
 </script>
 

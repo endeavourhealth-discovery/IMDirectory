@@ -199,7 +199,9 @@ function isFavourite(iri: string) {
 
 function init() {
   loading.value = true;
-  localSearchResults.value = [...props.searchResults];
+  if(props.searchResults) {
+    localSearchResults.value = [...props.searchResults];
+  }
   processSearchResults();
   if (isArrayHasLength(localSearchResults.value)) {
     setFiltersFromSearchResults();
@@ -299,7 +301,7 @@ function locateInTree(event: any, iri: string) {
 }
 
 function dragStart(event: any, data: any) {
-  event.dataTransfer.setData("text/plain", JSON.stringify(data));
+  event.dataTransfer.setData("conceptIri", JSON.stringify(data));
   event.dataTransfer.effectAllowed = "copy";
   event.dataTransfer.dropEffect = "copy";
 }
