@@ -28,7 +28,7 @@ import { PropertyShape } from "@im-library/interfaces/AutoGen";
 interface Props {
   shape: PropertyShape;
   mode: EditorMode;
-  value?: string | any;
+  value?: any;
   position?: number;
 }
 

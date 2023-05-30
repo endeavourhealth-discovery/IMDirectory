@@ -66,7 +66,6 @@ import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayB
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
-import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 export default defineComponent({
   components: {
@@ -110,6 +109,7 @@ import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import { DirectService, EntityService, Env } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 const router = useRouter();
 const route = useRoute();

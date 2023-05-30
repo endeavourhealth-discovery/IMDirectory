@@ -7,7 +7,7 @@ import { SHACL } from "./SHACL";
 import { SNOMED } from "./SNOMED";
 import { CONFIG } from "./CONFIG";
 import { XMLS } from "./XMLS";
-import { QUERY } from "./QUERY";
+import { XSD } from "./XSD";
 import { USER } from "./USER";
 
-export { IM, NAMESPACES, OWL, RDF, RDFS, SHACL, SNOMED, CONFIG, XMLS, QUERY, USER };
+export { IM, NAMESPACES, OWL, RDF, RDFS, SHACL, SNOMED, CONFIG, XMLS, XSD, USER };
