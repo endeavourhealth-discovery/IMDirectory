@@ -12,7 +12,7 @@
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
         <div class="splitter-right">
-          <div class="query-display">
+          <div>
             <div class="include-title" style="color: green">include if</div>
             <RecursiveQueryDisplay
               v-if="isArrayHasLength(query.match)"

@@ -352,8 +352,9 @@ export const treeNode = {
     }
   },
   classPropertyMatch: {
+    description: "",
     path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "http://endhealth.info/im#Observation" } },
-    where: [{ "@id": "http://endhealth.info/im#concept", in: [{ "@id": "http://endhealth.info/im#ExampleConcept" }] }]
+    where: [{ "@id": "http://endhealth.info/im#concept", description: " is ExampleConcept", in: [{ "@id": "http://endhealth.info/im#ExampleConcept" }] }]
   },
   entity: {
     key: "3-2-8",

@@ -1,27 +1,30 @@
 <template>
-  <div class="flex flex-column justify-content-start" id="hierarchy-tree-bar-container">
-    <Tree
-      :value="root"
-      selectionMode="single"
-      v-model:selectionKeys="selectedKeys"
-      :expandedKeys="expandedKeys"
-      @node-select="onNodeSelect"
-      @node-expand="handleTreeNodeExpand"
-      class="tree-root"
-      :loading="loading"
-    >
-      <template #default="{ node }: any">
-        <div class="tree-row" @dblclick="onNodeDblClick(node)" @contextmenu="onNodeContext($event, node)">
-          <ContextMenu ref="menu" :model="items" />
-          <span v-if="!node.loading">
-            <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
-          </span>
-          <ProgressSpinner v-if="node.loading" />
-          <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
-        </div>
-      </template>
-    </Tree>
-    <OverlaySummary ref="OS" />
+  <div class="query-tree-wrapper">
+    <div class="query-tree-nav" id="hierarchy-tree-bar-container">
+      <Tree
+        :value="root"
+        selectionMode="single"
+        v-model:selectionKeys="selectedKeys"
+        :expandedKeys="expandedKeys"
+        @node-select="onNodeSelect"
+        @node-expand="handleTreeNodeExpand"
+        class="tree-root"
+        :loading="loading"
+      >
+        <template #default="{ node }: any">
+          <div class="tree-row" @dblclick="onNodeDblClick(node)" @contextmenu="onNodeContext($event, node)">
+            <ContextMenu ref="menu" :model="items" />
+            <span v-if="!node.loading">
+              <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
+            </span>
+            <ProgressSpinner v-if="node.loading" />
+            <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+          </div>
+        </template>
+      </Tree>
+      <OverlaySummary ref="OS" />
+    </div>
+    <div class="add-button"><Button label="Add to clauses" :disabled="!isObjectHasKeys(selectedNode)" /></div>
   </div>
 </template>
 
@@ -167,6 +170,10 @@ function onNodeDblClick(node: any) {
   emit("addRule", node);
 }
 
+function addRule() {
+  emit("addRule", selectedNode.value);
+}
+
 async function addParentFoldersToRoot() {
   let IMChildren: any[] = [];
   const results = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
@@ -281,5 +288,19 @@ function hideOverlay(event: any): void {
 #hierarchy-tree-bar-container::v-deep(.p-tree-toggler) {
   height: 1.25rem !important;
   margin: 0 0 0 0 !important;
+}
+
+.query-tree-wrapper {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.add-button {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
 }
 </style>
