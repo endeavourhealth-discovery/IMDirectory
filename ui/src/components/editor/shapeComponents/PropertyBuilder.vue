@@ -72,7 +72,7 @@ const order = computed(() => props.position);
 const propertyPathShape: PropertyShape = {
   comment: "selects an entity based on select query",
   name: "Path",
-  componentType: { "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT },
+  componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
   path: props.shape.path,
   builderChild: true,
   order: 1,
@@ -83,7 +83,7 @@ const propertyRangeShape: Ref<PropertyShape> = ref({
   comment: "selects an entity based on select query",
   name: "Range",
   order: 1,
-  componentType: { "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT },
+  componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
   path: props.shape.path,
   select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_DataModelPropertyRange" }],
   argument: [
