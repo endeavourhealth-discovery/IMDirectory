@@ -35,7 +35,8 @@ const ConceptSetShape: FormGenerator = {
       property: [
         {
           comment: "summary vertical row layout",
-          name: "vertical row",
+          name: "Summary",
+          showTitle: true,
           path: {
             "@id": RDF.TYPE
           },
@@ -52,7 +53,8 @@ const ConceptSetShape: FormGenerator = {
               function: {
                 "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
-              name: "type",
+              name: "Type",
+              showTitle: true,
               path: {
                 "@id": RDF.TYPE
               },
@@ -75,7 +77,8 @@ const ConceptSetShape: FormGenerator = {
             {
               comment: "User generates iri based on scheme and user text input",
               order: 2,
-              name: "iri",
+              name: "Iri",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": IM.ID
@@ -91,7 +94,8 @@ const ConceptSetShape: FormGenerator = {
             {
               comment: "name or main term of concept",
               order: 3,
-              name: "Concept name",
+              name: "Name",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": RDFS.LABEL
@@ -110,7 +114,8 @@ const ConceptSetShape: FormGenerator = {
               datatype: {
                 "@id": XSD.STRING
               },
-              name: "Concept description",
+              name: "Description",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": RDFS.COMMENT
@@ -128,7 +133,8 @@ const ConceptSetShape: FormGenerator = {
                   "@id": IM.query.GET_ISAS
                 }
               ],
-              name: "status",
+              name: "Status",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": IM.STATUS
@@ -181,12 +187,50 @@ const ConceptSetShape: FormGenerator = {
                     }
                   ],
                   name: "Replaced by",
+                  showTitle: true,
                   path: {
                     "@id": "http://snomed.info/sct#370124000"
                   },
                   minCount: 1,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
+                  }
+                }
+              ]
+            },
+            {
+              label: "Property group - contained in array builder",
+              name: "isContainedIn",
+              showTitle: true,
+              order: 1,
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ARRAY_BUILDER
+              },
+              validation: {
+                "@id": IM.validation.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              path: {
+                "@id": IM.IS_CONTAINED_IN
+              },
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 1,
+                  builderChild: true,
+                  componentType: {
+                    "@id": IM.component.ENTITY_SEARCH
+                  },
+                  select: [
+                    {
+                      "@id": IM.query.SEARCH_MAIN_TYPES
+                    }
+                  ],
+                  path: {
+                    "@id": IM.IS_CONTAINED_IN
                   }
                 }
               ]
@@ -207,42 +251,6 @@ const ConceptSetShape: FormGenerator = {
           validationErrorMessage: "Set definition is not valid",
           path: {
             "@id": IM.DEFINITION
-          }
-        }
-      ]
-    },
-    {
-      label: "Property group - contained in array builder",
-      name: "isContainedIn",
-      order: 1,
-      minCount: 1,
-      componentType: {
-        "@id": IM.component.ARRAY_BUILDER
-      },
-      validation: {
-        "@id": IM.validation.HAS_PARENT
-      },
-      validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-      path: {
-        "@id": IM.IS_CONTAINED_IN
-      },
-      property: [
-        {
-          comment: "selects an entity based on select query",
-          name: "Entity",
-          order: 1,
-          minCount: 1,
-          builderChild: true,
-          componentType: {
-            "@id": IM.component.ENTITY_SEARCH
-          },
-          select: [
-            {
-              "@id": IM.query.SEARCH_MAIN_TYPES
-            }
-          ],
-          path: {
-            "@id": IM.IS_CONTAINED_IN
           }
         }
       ]

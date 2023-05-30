@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-05-24 17:02:58.
+// Generated using typescript-generator version 3.2.1263 on 2023-05-30 11:30:19.
 
 /**
  * Structure containing search request parameters and filters
@@ -145,6 +145,7 @@ export interface PropertyShape {
     isNumericValue?: string;
     forceIsValue?: boolean;
     builderChild?: boolean;
+    showTitle?: boolean;
     property?: PropertyShape[];
     datatype?: TTIriRef;
     clazz?: TTIriRef;
@@ -173,8 +174,8 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    relativeTo?: Property;
     unit?: string;
+    relativeTo?: Property;
     operator?: Operator;
 }
 
@@ -238,6 +239,7 @@ export interface Node extends Element {
 export interface OrderLimit extends Property {
     direction?: Order;
     limit?: number;
+    description?: string;
     id?: string;
 }
 
@@ -333,8 +335,8 @@ export interface Where extends Property, Assignable, Whereable {
 }
 
 export interface Whereable {
-    where?: Where[];
     bool?: Bool;
+    where?: Where[];
 }
 
 export interface EntityDocument {

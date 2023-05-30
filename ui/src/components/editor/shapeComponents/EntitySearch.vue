@@ -1,5 +1,6 @@
 <template>
   <div class="entity-search-item-container">
+    <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="label-container">
       <InputText
         ref="miniSearchInput"
@@ -87,12 +88,12 @@ let debounce = ref(0);
 const miniSearchOP = ref();
 
 watch(
-    () => (searchTerm.value),
-    () => {
-      if(searchTerm.value === "") {
-        hideOverlay();
-      }
+  () => searchTerm.value,
+  () => {
+    if (searchTerm.value === "") {
+      hideOverlay();
     }
+  }
 );
 
 async function init() {
@@ -232,21 +233,18 @@ function dropReceived(event: any) {
 
 <style scoped>
 .entity-search-item-container {
-  flex: 0 1 auto;
+  width: 100%;
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  max-width: 100%;
+  align-items: flex-start;
 }
 
 .label-container {
-  flex: 0 1 auto;
-  padding: 1rem;
+  flex: 1 1 auto;
   border-radius: 3px;
-  position: relative;
-  min-width: 15rem;
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
 }
@@ -268,7 +266,8 @@ function dropReceived(event: any) {
 }
 
 .search-input {
-  width: 25rem;
+  flex: 1 1 auto;
+  min-width: 25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

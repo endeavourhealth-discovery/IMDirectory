@@ -1,9 +1,7 @@
 <template>
   <div class="html-input-container">
-    <span class="p-float-label">
-      <Textarea class="p-inputtext-lg input-html" :class="invalid && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
-      <label>{{ shape.name }}</label>
-    </span>
+    <label v-if="shape.showTitle">{{ shape.name }}</label>
+    <Textarea class="p-inputtext-lg input-html" :class="invalid && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
   </div>
 </template>
 
@@ -80,8 +78,7 @@ function htmlToText(text: string): string {
 
 <style scoped>
 .html-input-container {
-  width: 25rem;
-  padding: 2rem 0 0 0;
+  min-width: 25rem;
 }
 .input-html {
   width: 100%;
