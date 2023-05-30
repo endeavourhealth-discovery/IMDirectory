@@ -238,6 +238,11 @@ async function dropReceived(event: any) {
   margin: 0 0 1rem 0;
 }
 
+Textarea {
+  max-width: 90%;
+  resize: none;
+}
+
 .button-container {
   display: flex;
   flex-flow: row;

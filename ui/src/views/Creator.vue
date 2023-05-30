@@ -514,8 +514,8 @@ function processEntityValue(property: PropertyShape) {
 
 .sidebar-toggle {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 0.5rem;
+  right: 1.5rem;
   background-color: #ffffff !important;
 }
 
