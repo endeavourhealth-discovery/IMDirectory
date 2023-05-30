@@ -10,22 +10,26 @@
       <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
         <QueryNavTree @add-rule="addRule" />
       </SplitterPanel>
-      <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right" class="splitter-right">
-        <div class="include-title" style="color: green">include if</div>
-        <RecursiveQueryDisplay
-          v-if="isArrayHasLength(query.match)"
-          :matches="query.match!.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
-          :full-query="query"
-        />
-        <RecursiveQueryDisplay
-          v-if="isArrayHasLength(query.match)"
-          :matches="query.match!.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
-          :full-query="query"
-        />
-        <div class="button-bar">
-          <Button class="button-bar-button" label="Run" />
-          <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
-          <Button class="button-bar-button" label="Save" severity="success" />
+      <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
+        <div class="splitter-right">
+          <div class="query-display">
+            <div class="include-title" style="color: green">include if</div>
+            <RecursiveQueryDisplay
+              v-if="isArrayHasLength(query.match)"
+              :matches="query.match!.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
+              :full-query="query"
+            />
+            <RecursiveQueryDisplay
+              v-if="isArrayHasLength(query.match)"
+              :matches="query.match!.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
+              :full-query="query"
+            />
+          </div>
+
+          <div class="button-bar">
+            <Button class="button-bar-button" label="Run" />
+            <Button class="button-bar-button" label="Save" severity="success" />
+          </div>
         </div>
       </SplitterPanel>
     </Splitter>
@@ -106,6 +110,7 @@ function addRule(treeNode: TreeNode) {
   display: flex;
   flex-flow: column;
   height: 100%;
+  justify-content: space-between;
 }
 
 .include-title {
