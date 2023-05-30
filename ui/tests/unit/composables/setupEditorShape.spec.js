@@ -22,7 +22,7 @@ describe("setupShape", async () => {
 
     it("gets shape from a type iri ___ fail", () => {
       wrapper = mountComposable(setupEditorShape, undefined, createTestRouter());
-      expect(() => wrapper.vm.getShape("testErrorTypeIri")).toThrowError("");
+      expect(() => wrapper.vm.getShape("testErrorTypeIri")).toThrowError("No editor shape found for type: testErrorTypeIri");
     });
   });
 

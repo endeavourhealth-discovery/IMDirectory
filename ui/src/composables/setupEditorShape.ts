@@ -51,7 +51,7 @@ export function setupEditorShape() {
   }
 
   function getShapeFromType(type: string) {
-    if (type === IM.CONCEPT_SET || IM.VALUE_SET) {
+    if (type === IM.CONCEPT_SET || type === IM.VALUE_SET) {
       const found = editorShapes.find(shape => shape.targetShape?.["@id"] === IM.SET);
       if (found) return found;
       else throw new Error("No editor shape found for type: " + type);
