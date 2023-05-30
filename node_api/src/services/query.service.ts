@@ -4,7 +4,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, QUERY, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, iri } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
@@ -32,7 +32,7 @@ export default class QueryService {
   public async getAllowableRangeSuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
     const allowableRangesQuery = {
       query: {
-        "@id": QUERY.ALLOWABLE_RANGES
+        "@id": IM.query.ALLOWABLE_RANGES
       },
       argument: [
         {
@@ -46,7 +46,7 @@ export default class QueryService {
 
     const subtypesQuery = {
       query: {
-        "@id": QUERY.GET_ISAS
+        "@id": IM.query.GET_ISAS
       },
       argument: [
         {
@@ -75,7 +75,7 @@ export default class QueryService {
   public async getAllowablePropertySuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
     const queryRequest = {
       query: {
-        "@id": QUERY.ALLOWABLE_PROPERTIES
+        "@id": IM.query.ALLOWABLE_PROPERTIES
       },
       argument: [
         {
@@ -101,7 +101,7 @@ export default class QueryService {
   public async searchProperties(searchTerm: string): Promise<AliasEntity[]> {
     const queryRequest = {
       query: {
-        "@id": QUERY.SEARCH_PROPERTIES
+        "@id": IM.query.SEARCH_PROPERTIES
       },
       textSearch: searchTerm
     } as QueryRequest;
@@ -124,7 +124,7 @@ export default class QueryService {
         for (const result of results) {
           const queryRequest = {
             query: {
-              "@id": QUERY.ALLOWABLE_PROPERTIES
+              "@id": IM.query.ALLOWABLE_PROPERTIES
             },
             argument: [
               {
@@ -163,7 +163,7 @@ export default class QueryService {
         }
       ],
       query: {
-        "@id": QUERY.ALLOWABLE_CHILD_TYPES
+        "@id": IM.query.ALLOWABLE_CHILD_TYPES
       }
     } as any as QueryRequest;
 
@@ -185,7 +185,7 @@ export default class QueryService {
         }
       ],
       query: {
-        "@id": QUERY.ALLOWABLE_RANGES
+        "@id": IM.query.ALLOWABLE_RANGES
       }
     } as any as QueryRequest;
 
@@ -196,7 +196,7 @@ export default class QueryService {
     } else {
       const propType = await this.checkPropertyType(propIri);
       if (propType.objectProperty.id === isTrue) {
-        queryRequest.query = { "@id": QUERY.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as any;
+        queryRequest.query = { "@id": IM.query.OBJECT_PROPERTY_RANGE_SUGGESTIONS } as any;
         const suggestions = await this.queryIM(queryRequest);
         suggestions.entities.push({
           "@id": IM.CONCEPT,
@@ -204,7 +204,7 @@ export default class QueryService {
         });
         return suggestions.entities;
       } else if (propType.dataProperty.id === isTrue) {
-        queryRequest.query = { "@id": QUERY.DATA_PROPERTY_RANGE_SUGGESTIONS } as any;
+        queryRequest.query = { "@id": IM.query.DATA_PROPERTY_RANGE_SUGGESTIONS } as any;
         const dataTypes = await this.queryIM(queryRequest);
         if (isObjectHasKeys(dataTypes, ["entities"]) && dataTypes.entities.length !== 0) {
           return dataTypes.entities;

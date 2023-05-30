@@ -1,36 +1,28 @@
 import { expect, vi } from "vitest";
-import { EntityService } from "@/services";
 import testData from "./setupEditorShape.testData";
 import { createTestRouter, mountComposable } from "../TestMethods";
 
 import { setupEditorShape } from "@/composables/setupEditorShape";
+import { IM } from "@im-library/vocabulary";
+import ConceptShape from "@/constants/editorShapes/Concept";
 
 describe("setupShape", async () => {
-  let getShapeFromTypeSpy;
-  let getShapeSpy;
   let wrapper;
 
   describe("getShape", () => {
     beforeEach(() => {
       vi.resetAllMocks();
-      getShapeFromTypeSpy = vi.spyOn(EntityService, "getShapeFromType");
-      getShapeSpy = vi.spyOn(EntityService, "getShape");
     });
 
-    it("gets shape from a type iri ___ success", async () => {
-      getShapeFromTypeSpy.mockResolvedValue({ "@id": testData.CONCEPT_SHAPE["@id"] });
-      getShapeSpy.mockResolvedValue(testData.CONCEPT_SHAPE);
+    it("gets shape from a type iri ___ success", () => {
       wrapper = mountComposable(setupEditorShape, undefined, createTestRouter());
-      const shape = await wrapper.vm.getShape("testTypeIri");
-      expect(shape).toEqual(testData.CONCEPT_SHAPE);
+      const shape = wrapper.vm.getShape(IM.CONCEPT);
+      expect(shape).toEqual(ConceptShape);
     });
 
-    it("gets shape from a type iri ___ fail", async () => {
-      getShapeFromTypeSpy.mockResolvedValue({});
-      getShapeSpy.mockResolvedValue(testData.CONCEPT_SHAPE);
+    it("gets shape from a type iri ___ fail", () => {
       wrapper = mountComposable(setupEditorShape, undefined, createTestRouter());
-      const shape = await wrapper.vm.getShape("testTypeIri");
-      expect(shape).toEqual({});
+      expect(() => wrapper.vm.getShape("testErrorTypeIri")).toThrowError("");
     });
   });
 

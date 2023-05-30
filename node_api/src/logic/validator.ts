@@ -6,8 +6,8 @@ export default class Validator {
   constructor() {}
 
   public validate(iri: string, data: any): boolean {
-    if (iri === IM.VALIDATION_HAS_PARENT) return this.hasValidParents(data);
-    if (iri === IM.VALIDATION_IS_DEFINITION) return this.isValidDefinition(data);
+    if (iri === IM.validation.HAS_PARENT) return this.hasValidParents(data);
+    if (iri === IM.validation.IS_DEFINITION) return this.isValidDefinition(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
