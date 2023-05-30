@@ -250,7 +250,7 @@ export const treeNode = {
     loading: false,
     children: [],
     order: 0,
-    parentNode: null
+    parent: null
   },
   folderMatch: {
     description: "",
@@ -281,7 +281,7 @@ export const treeNode = {
     leaf: false,
     loading: false,
     children: [],
-    parentNode: {
+    parent: {
       key: "1-5-0-43-0",
       label: "Observation",
       typeIcon: ["fa-solid", "fa-diagram-project"],
@@ -290,7 +290,7 @@ export const treeNode = {
       data: "http://endhealth.info/im#Observation",
       leaf: false,
       loading: false,
-      parentNode: {
+      parent: {
         key: "1-5-0-43",
         label: "observation",
         typeIcon: ["fa-solid", "fa-pen-to-square"],
@@ -299,7 +299,7 @@ export const treeNode = {
         data: "http://endhealth.info/im#observation",
         leaf: false,
         loading: false,
-        parentNode: {
+        parent: {
           key: "1-5-0",
           label: "Patient",
           typeIcon: ["fa-solid", "fa-diagram-project"],
@@ -308,7 +308,7 @@ export const treeNode = {
           data: "http://endhealth.info/im#Patient",
           leaf: false,
           loading: false,
-          parentNode: {
+          parent: {
             key: "1-5",
             label: "People , things and organisations",
             typeIcon: ["fa-solid", "fa-folder"],
@@ -317,7 +317,7 @@ export const treeNode = {
             data: "http://endhealth.info/im#PeopleAndTeams",
             leaf: false,
             loading: true,
-            parentNode: {
+            parent: {
               key: "1",
               label: "Data model",
               typeIcon: ["fa-solid", "fa-folder"],
@@ -346,7 +346,10 @@ export const treeNode = {
       "http://www.w3.org/ns/shacl#class": [{ "@id": "http://endhealth.info/im#VSET_Observation", name: "Value set - Observation" }]
     }
   },
-  classPropertyMatch: {},
+  classPropertyMatch: {
+    path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "http://endhealth.info/im#Observation" } },
+    where: [{ "@id": "http://endhealth.info/im#concept", in: [{ "@id": "http://endhealth.info/im#ExampleConcept" }] }]
+  },
   entity: {
     key: "3-2-8",
     label: "Physical object (physical object)",
@@ -360,7 +363,7 @@ export const treeNode = {
   },
   entityMatch: {
     "@id": "http://snomed.info/sct#260787004",
-    description: "Physical object (physical object)"
+    description: "260787004"
   },
   set: {
     key: "0-0-0-0-0",
@@ -375,7 +378,7 @@ export const treeNode = {
   },
   setMatch: {
     "@set": "http://endhealth.info/im#CSET_EmailOnlineEncounter",
-    description: "Concept set - E-mail or text message consultation"
+    description: "in 'CSET_EmailOnlineEncounter'"
   },
   query: {
     key: "4-3-0",
@@ -390,6 +393,6 @@ export const treeNode = {
   },
   queryMatch: {
     "@set": "http://endhealth.info/im#Q_RegisteredGMS",
-    description: "Patients registered for GMS services on the reference date"
+    description: "in 'Q_RegisteredGMS'"
   }
 };

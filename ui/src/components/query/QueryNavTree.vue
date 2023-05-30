@@ -111,7 +111,7 @@ function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: T
     loading: false,
     children: [] as TreeNode[],
     order: order,
-    parentNode: getParentNode(parent as any)
+    parent: getParentNode(parent as any)
   };
 }
 
@@ -164,7 +164,7 @@ async function onClassExpand(node: TreeNode) {
 
 function onNodeDblClick(node: any) {
   console.log(JSON.stringify(node));
-  // emit("addRule", node);
+  emit("addRule", node);
 }
 
 async function addParentFoldersToRoot() {
