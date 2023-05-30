@@ -1,26 +1,24 @@
 import { describe, expect, it } from "vitest";
-import {
-  getDisplayFromMatch,
-  getDisplayFromWhere,
-  getDisplayFromList,
-  getDisplayFromEntailment,
-  getDisplayFromPath,
-  getDisplayFromOperator,
-  getDisplayFromRange,
-  getDisplayFromLogic,
-  getDisplayFromWhereList,
-  getDisplayFromOrderByList,
-  getDisplayFromOrderBy,
-  getUnnamedObjects
-} from "@/helpers/QueryDescriptor";
+import { getDisplayFromMatch, getDisplayFromWhere, getDisplayFromOrderBy, getUnnamedObjects } from "@/helpers/QueryDescriptor";
 import { Match, Node, OrderLimit, Where } from "@/interfaces/AutoGen";
-import { fullTestQueryDefinition, match, where } from "./Query.testData";
+import { fullTestQueryDefinition, match, where, orderBy } from "./Query.testData";
 
 describe("QueryDescriptor.ts ___", () => {
   describe("getUnnamedObjects", () => {
     it("can get all resolved object iris without a name in query with a reference to the object", () => {
       const unnamedObjects = getUnnamedObjects(fullTestQueryDefinition as Match);
       expect(Object.keys(unnamedObjects).length).toEqual(10);
+    });
+  });
+
+  describe("getDisplayFromOrderBy", () => {
+    it("can get description from OrderBy latest", () => {
+      const description = getDisplayFromOrderBy(orderBy.getLatest as OrderLimit);
+      expect(description).toEqual("<div class='variable-line'>get latest</div>");
+    });
+    it("can get description from OrderBy earliest", () => {
+      const description = getDisplayFromOrderBy(orderBy.getEarliest as OrderLimit);
+      expect(description).toEqual("<div class='variable-line'>get earliest</div>");
     });
   });
 
@@ -48,11 +46,6 @@ describe("QueryDescriptor.ts ___", () => {
     it("can not get a display for a match clause with a variable", () => {
       const display = getDisplayFromMatch(match.withVariable as Match);
       expect(display).toEqual("");
-    });
-
-    it("can get a display for a complext query with orderBy", () => {
-      const display = getDisplayFromMatch(match.withOrderByWhereInAndWhereComparison as Match);
-      expect(display).toEqual(" the latest of the following ");
     });
 
     //     it("can get a display for an exclude set match clause", () => {
