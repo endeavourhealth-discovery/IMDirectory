@@ -35,7 +35,8 @@ const DataModelShape: FormGenerator = {
       property: [
         {
           comment: "summary vertical row layout",
-          name: "vertical row",
+          name: "Summary",
+          showTitle: true,
           path: {
             "@id": RDF.PROPERTY
           },
@@ -52,7 +53,8 @@ const DataModelShape: FormGenerator = {
               function: {
                 "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
               },
-              name: "type",
+              name: "Type",
+              showTitle: true,
               path: {
                 "@id": RDF.TYPE
               },
@@ -75,7 +77,8 @@ const DataModelShape: FormGenerator = {
             {
               comment: "A property that auto generates a concept iri from the snomed extension",
               order: 2,
-              name: "iri",
+              name: "Iri",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": IM.ID
@@ -92,7 +95,8 @@ const DataModelShape: FormGenerator = {
             {
               comment: "Property that derives a concept code from the concept iri",
               order: 3,
-              name: "code",
+              name: "Code",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": IM.CODE
@@ -121,7 +125,8 @@ const DataModelShape: FormGenerator = {
             {
               comment: "name or main term of entity",
               order: 4,
-              name: "Data model name",
+              name: "Name",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": RDFS.LABEL
@@ -140,7 +145,8 @@ const DataModelShape: FormGenerator = {
               datatype: {
                 "@id": XSD.STRING
               },
-              name: "Data model description",
+              name: "Description",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": RDFS.COMMENT
@@ -158,7 +164,8 @@ const DataModelShape: FormGenerator = {
                   "@id": IM.query.GET_ISAS
                 }
               ],
-              name: "status",
+              name: "Status",
+              showTitle: true,
               maxCount: 1,
               path: {
                 "@id": IM.STATUS
@@ -211,6 +218,7 @@ const DataModelShape: FormGenerator = {
                     }
                   ],
                   name: "Replaced by",
+                  showTitle: true,
                   path: {
                     "@id": "http://snomed.info/sct#370124000"
                   },
@@ -252,6 +260,7 @@ const DataModelShape: FormGenerator = {
                 }
               ],
               name: "Subclass of",
+              showTitle: true,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -292,6 +301,7 @@ const DataModelShape: FormGenerator = {
                 }
               ],
               name: "Is contained in",
+              showTitle: true,
               minCount: 0,
               validation: {
                 "@id": IM.validation.HAS_PARENT

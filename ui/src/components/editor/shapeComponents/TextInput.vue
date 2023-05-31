@@ -1,9 +1,15 @@
 <template>
   <div class="string-single-select-container">
-    <span class="p-float-label" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }">
-      <InputText class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" @drop.prevent @dragover.prevent />
-      <label>{{ shape.name }}</label>
-    </span>
+    <label v-if="shape.showTitle">{{ shape.name }}</label>
+    <InputText
+      class="p-inputtext-lg input-text"
+      :class="invalid && 'invalid'"
+      v-model="userInput"
+      type="text"
+      @drop.prevent
+      @dragover.prevent
+      v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }"
+    />
   </div>
 </template>
 
@@ -78,10 +84,11 @@ function defaultValidation(string: string) {
 
 <style scoped>
 .string-single-select-container {
-  padding: 2rem 0 0 0;
+  display: flex;
+  flex-flow: column nowrap;
 }
 .input-text {
-  width: 25rem;
+  min-width: 25rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
