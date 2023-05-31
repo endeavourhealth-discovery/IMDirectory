@@ -106,7 +106,7 @@ function setupTree() {
       children.result.forEach((child: any) => {
         if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
       });
-      if (children.totalCount >= pageSize.value && node.children[node.children.length - 1].data !== "loadMore") {
+      if (children.totalCount > pageSize.value && node.children[node.children.length - 1].data !== "loadMore") {
         node.children.push(createLoadMoreNode(node, 2, children.totalCount));
       }
       node.loading = false;
