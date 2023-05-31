@@ -103,7 +103,6 @@ function setupTree() {
       node.loading = true;
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
-      console.log(children);
       children.result.forEach((child: any) => {
         if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
       });
