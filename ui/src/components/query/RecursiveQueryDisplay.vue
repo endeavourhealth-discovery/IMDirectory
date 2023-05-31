@@ -4,6 +4,7 @@
       <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
       <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
       <span v-if="match.description" v-html="match.description"> </span>
+
       <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay
@@ -33,6 +34,8 @@
 
         <RecursiveWhereDisplay v-else :wheres="match.where!" :parent-match="match" :full-query="fullQuery" />
       </span>
+      <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
+
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
   </div>

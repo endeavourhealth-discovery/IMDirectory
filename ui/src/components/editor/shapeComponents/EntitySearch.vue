@@ -38,7 +38,7 @@ import { isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers"
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { mapToObject } from "@im-library/helpers/Transforms";
-import { QueryService } from "@/services";
+import { QueryService, EntityService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
@@ -221,12 +221,13 @@ function findInTree(iri: string) {
   if (iri) editorStore.updateFindInEditorTreeIri(iri);
 }
 
-function dropReceived(event: any) {
-  const data = event.dataTransfer.getData("text/plain");
+async function dropReceived(event: any) {
+  const data = event.dataTransfer.getData("conceptIri");
   if (data) {
-    const json = JSON.parse(data);
-    const iriRef = { "@id": json.data, name: json.label } as TTIriRef;
-    updateSelectedResult(iriRef);
+    const conceptIri = JSON.parse(data);
+    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
+    const iriRef = {"@id": conceptIri, name: conceptName} as TTIriRef;
+    await updateSelectedResult(iriRef);
   }
 }
 </script>

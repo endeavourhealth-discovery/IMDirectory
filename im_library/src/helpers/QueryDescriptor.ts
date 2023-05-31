@@ -52,7 +52,7 @@ export function getDisplayFromMatch(match: Match) {
   let display = "";
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
-  if (match.orderBy) display += getDisplayFromOrderByList(match.orderBy);
+  if (match.orderBy) describeOrderByList(match.orderBy);
   if (match["@set"]) display = "in '" + display + "'";
   if (match.path) display += getDisplayFromPath(match.path);
   return display;
@@ -80,19 +80,10 @@ export function getDisplayFromWhere(where: Where) {
   return display;
 }
 
-export function getDisplayFromOrderByList(orderByList: OrderLimit[]) {
-  let display = " the ";
-  if (orderByList.length === 1) display += getDisplayFromOrderBy(orderByList[0]);
-  else {
-    display += "[";
-    for (const [index, orderBy] of orderByList.entries()) {
-      display += getDisplayFromOrderBy(orderBy);
-      if (index !== orderByList.length - 1) display += ",";
-    }
-    display += "]";
+export function describeOrderByList(orderByList: OrderLimit[]) {
+  for (const orderBy of orderByList) {
+    orderBy.description = getDisplayFromOrderBy(orderBy);
   }
-
-  return display + " of the following ";
 }
 
 export function getDisplayFromOrderBy(orderBy: OrderLimit) {
@@ -101,10 +92,10 @@ export function getDisplayFromOrderBy(orderBy: OrderLimit) {
   const propertyName = getNameFromRef(orderBy);
   if (!propertyDropList.includes(propertyName)) display += propertyName + " ";
   if (orderBy.limit === 1) {
-    if ("descending" === orderBy.direction) display = "latest" + display;
-    if ("ascending" === orderBy.direction) display = "earliest" + display;
+    if ("descending" === orderBy.direction) display = "get latest" + display;
+    if ("ascending" === orderBy.direction) display = "get earliest" + display;
   } else if (orderBy.direction) display = orderBy.direction + " " + display;
-  return display;
+  return "<div class='variable-line'>" + display + "</div>";
 }
 
 export function getDisplayFromLogic(title: string) {
