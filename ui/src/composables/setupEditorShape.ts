@@ -52,15 +52,9 @@ export function setupEditorShape() {
   }
 
   function getShapeFromType(type: string) {
-    if (type === IM.CONCEPT_SET || type === IM.VALUE_SET) {
-      const found = editorShapes.find(shape => shape.targetShape?.["@id"] === IM.SET);
-      if (found) return found;
-      else throw new Error("No editor shape found for type: " + type);
-    } else {
-      const found = editorShapes.find(shape => shape.targetShape?.["@id"] === type);
-      if (found) return found;
-      else throw new Error("No editor shape found for type: " + type);
-    }
+    const found = editorShapes.find(shape => shape.targetShape?.["@id"] === type);
+    if (found) return found;
+    else throw new Error("No editor shape found for type: " + type);
   }
 
   function processShape(shape: FormGenerator, mode: EditorMode, entity: any) {

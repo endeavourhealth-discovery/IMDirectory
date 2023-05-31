@@ -111,6 +111,7 @@ import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
 interface Props {
   type?: TTIriRef;
 }
