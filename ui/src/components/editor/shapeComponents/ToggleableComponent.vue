@@ -8,7 +8,6 @@
       :class="checked ? 'p-button-success' : 'p-button-danger'"
       class="toggle-button"
     />
-    <span v-if="checked" class="label">{{ shape.name }} ({{ shape.path["@id"] }})</span>
     <component
       v-if="checked && isObjectHasKeys(shape, ['property'])"
       :is="processComponentType(shape.property![0].componentType)"
@@ -85,18 +84,19 @@ function processEntityValue(property: PropertyShape | undefined) {
 
 <style scoped>
 .toggleable-entity-search {
-  flex: 0 1 auto;
+  width: 100%;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: flex-start;
-  max-width: 25rem;
+  min-width: 25rem;
 }
 
 .toggle-button {
   align-self: center;
   order: 3;
-  margin: 0.5rem 0 0 0;
+  margin: 0.25rem 0;
 }
 
 .toggleable-entity-search:deep(.label-container) {

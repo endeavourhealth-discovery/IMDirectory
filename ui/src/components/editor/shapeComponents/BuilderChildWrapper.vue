@@ -127,11 +127,11 @@ function addNextClicked(item: any): void {
 
 <style scoped>
 .builder-child-container {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
   align-items: baseline;
-  width: 100%;
+  overflow: auto;
 }
 
 .label-container {
@@ -166,6 +166,7 @@ function addNextClicked(item: any): void {
 }
 
 .builder-child-wrapper {
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
@@ -174,6 +175,11 @@ function addNextClicked(item: any): void {
 }
 
 .builder-child {
+  width: 100%;
+  flex: 1 1 auto;
   align-self: flex-start;
+  overflow: auto;
+  display: flex;
+  flex-flow: column;
 }
 </style>

@@ -78,6 +78,8 @@ function setMenuOptions() {
 
 <style scoped>
 .switch-button-container {
+  flex: 0 0 auto;
+  height: 100%;
   display: flex;
   align-items: center;
 }

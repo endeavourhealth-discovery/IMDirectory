@@ -1,10 +1,11 @@
 <template>
   <div class="string-single-display-container">
+    <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="input-loading-container">
-      <span class="p-float-label" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
+      <div class="tooltip-container" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
         <InputText disabled class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" />
-        <label>{{ shape.name }}</label>
-      </span>
+      </div>
+
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     </div>
   </div>
@@ -163,12 +164,15 @@ function defaultValidation() {
 </script>
 
 <style scoped>
+.string-single-display-container {
+  display: flex;
+  flex-flow: column nowrap;
+}
 .input-loading-container {
   display: flex;
   flex-flow: row nowrap;
-  width: 25rem;
+  min-width: 25rem;
   align-items: center;
-  padding: 2rem 0 0 0;
 }
 .p-float-label {
   flex: 1 1 auto;
@@ -180,6 +184,11 @@ function defaultValidation() {
   width: 2rem;
   height: 2rem;
 }
+
+.tooltip-container {
+  width: 100%;
+}
+
 .input-text {
   width: 100%;
   text-overflow: ellipsis;

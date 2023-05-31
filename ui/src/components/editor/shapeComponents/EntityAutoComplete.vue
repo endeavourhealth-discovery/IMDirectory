@@ -1,5 +1,6 @@
 <template>
   <div class="autocomplete-container">
+    <label v-if="shape.showTitle" for="name">{{ shape.name }}</label>
     <div class="label-container">
       <div v-if="loading" class="loading-container">
         <ProgressSpinner style="width: 1.5rem; height: 1.5rem" strokeWidth="6" />
@@ -302,11 +303,12 @@ function hideOptionsOverlay(event: any): void {
 
 <style scoped>
 .autocomplete-container {
+  width: 100%;
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
+  align-items: flex-start;
 }
 
 .loading-container {
@@ -319,8 +321,8 @@ function hideOptionsOverlay(event: any): void {
 }
 
 .label-container {
-  flex: 0 1 auto;
-  padding: 1rem;
+  width: 100%;
+  flex: 1 1 auto;
   border-radius: 3px;
   position: relative;
   min-width: 15rem;
@@ -334,16 +336,9 @@ function hideOptionsOverlay(event: any): void {
   padding: 0.25rem;
 }
 
-.float-text {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 0.75rem;
-  color: var(--text-color);
-}
-
 .search-input {
-  width: 19rem;
+  flex: 1 1 auto;
+  min-width: 19rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

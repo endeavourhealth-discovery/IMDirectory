@@ -1,5 +1,6 @@
 <template>
   <div class="component-group-container">
+    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
     <div class="label-container">
       <div v-for="(property, index) in properties" class="components-container">
         <component :is="processComponentType(property.componentType)" :shape="property" :value="processEntityValue(property)" :mode="mode" />
@@ -73,22 +74,25 @@ function setProperties(shape: PropertyShape) {
 
 <style scoped>
 .component-group-container {
-  flex: 0 1 auto;
+  width: 100%;
+  flex: 1 1 auto;
   overflow: auto;
+  display: flex;
+  flex-flow: row wrap;
 }
 
 .components-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column;
   align-items: baseline;
 }
 
 .label-container {
-  flex: 0 1 auto;
+  width: 100%;
+  flex: 1 1 auto;
   padding: 1rem;
   border-radius: 3px;
-  position: relative;
-  min-width: 15rem;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;

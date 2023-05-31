@@ -134,6 +134,11 @@ export const where = {
   }
 };
 
+export const orderBy = {
+  getLatest: { direction: "descending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" },
+  getEarliest: { direction: "ascending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" }
+};
+
 export const fullTestQueryDefinition = {
   "@id": "http://endhealth.info/im#Q_TestQuery",
   name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
