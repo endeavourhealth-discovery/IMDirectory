@@ -15,263 +15,284 @@ const FolderShape: FormGenerator = {
   },
   property: [
     {
-      comment: "A property that auto generates the type as  folder type",
+      name: "Summary",
+      comment: "Vertical splitter",
+      path: { "@id": IM.FOLDER },
+      showTitle: true,
+      componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+      minCount: 1,
+      maxCount: 1,
       order: 1,
-      function: {
-        "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
-      },
-      name: "type",
-      path: {
-        "@id": RDF.TYPE
-      },
-      argument: [
-        {
-          parameter: "entityIri",
-          valueIri: {
-            "@id": IM.FOLDER
-          }
-        }
-      ],
-      isIri: {
-        "@id": IM.FOLDER
-      },
-      minCount: 1,
-      componentType: {
-        "@id": IM.component.ENTITY_COMBOBOX
-      }
-    },
-    {
-      comment: "A property that auto generates a concept iri from the snomed extension",
-      order: 2,
-      name: "iri",
-      maxCount: 1,
-      path: {
-        "@id": IM.ID
-      },
-      minCount: 1,
-      componentType: {
-        "@id": IM.component.TEXT_DISPLAY
-      },
-      valueVariable: "conceptIri",
-      function: {
-        "@id": IM.function.SNOMED_CONCEPT_GENERATOR
-      }
-    },
-    {
-      comment: "Property that derives a concept code from the concept iri",
-      order: 3,
-      name: "code",
-      maxCount: 1,
-      path: {
-        "@id": IM.CODE
-      },
-      argument: [
-        {
-          parameter: "entityIri",
-          valueVariable: "conceptIri"
-        },
-        {
-          parameter: "fieldName",
-          valueData: "code"
-        }
-      ],
-      minCount: 1,
-      componentType: {
-        "@id": IM.component.TEXT_DISPLAY
-      },
-      datatype: {
-        "@id": XSD.STRING
-      },
-      function: {
-        "@id": IM.function.LOCAL_NAME_RETRIEVER
-      }
-    },
-    {
-      comment: "name or main term of entity",
-      order: 4,
-      name: "Folder name",
-      maxCount: 1,
-      path: {
-        "@id": RDFS.LABEL
-      },
-      minCount: 1,
-      componentType: {
-        "@id": IM.component.TEXT_INPUT
-      },
-      datatype: {
-        "@id": XSD.STRING
-      }
-    },
-    {
-      comment: "optional description",
-      order: 5,
-      datatype: {
-        "@id": XSD.STRING
-      },
-      name: "Folder description",
-      maxCount: 1,
-      path: {
-        "@id": RDFS.COMMENT
-      },
-      minCount: 1,
-      componentType: {
-        "@id": IM.component.HTML_INPUT
-      }
-    },
-    {
-      comment: "selects the status with a default of draft",
-      order: 6,
-      select: [
-        {
-          "@id": IM.query.GET_ISAS
-        }
-      ],
-      name: "status",
-      maxCount: 1,
-      path: {
-        "@id": IM.STATUS
-      },
-      argument: [
-        {
-          valueIri: {
-            "@id": IM.STATUS
-          },
-          parameter: "this"
-        }
-      ],
-      isIri: {
-        "@id": IM.DRAFT
-      },
-      minCount: 1,
-      componentType: {
-        "@id": IM.component.ENTITY_DROPDOWN
-      },
-      forceIsValue: true
-    },
-    {
-      comment: "Toggle controlling sub components visibility",
-      order: 7,
-      name: "Replaced by",
-      label: "Deactivate | Activate",
-      minCount: 1,
-      maxCount: 1,
-      path: {
-        "@id": "http://snomed.info/sct#370124000"
-      },
-      componentType: {
-        "@id": IM.component.TOGGLEABLE
-      },
       property: [
         {
-          comment: "selects an entity based on select query",
+          comment: "A property that auto generates the type as  folder type",
           order: 1,
-          select: [
-            {
-              "@id": IM.query.SEARCH_ENTITIES
-            }
-          ],
+          function: {
+            "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+          },
+          name: "Type",
+          showTitle: true,
+          path: {
+            "@id": RDF.TYPE
+          },
           argument: [
             {
-              parameter: "this",
+              parameter: "entityIri",
               valueIri: {
                 "@id": IM.FOLDER
               }
             }
           ],
+          isIri: {
+            "@id": IM.FOLDER
+          },
+          minCount: 1,
+          componentType: {
+            "@id": IM.component.ENTITY_COMBOBOX
+          }
+        },
+        {
+          comment: "A property that auto generates a concept iri from the snomed extension",
+          order: 2,
+          name: "Iri",
+          showTitle: true,
+          maxCount: 1,
+          path: {
+            "@id": IM.ID
+          },
+          minCount: 1,
+          componentType: {
+            "@id": IM.component.TEXT_DISPLAY
+          },
+          valueVariable: "conceptIri",
+          function: {
+            "@id": IM.function.SNOMED_CONCEPT_GENERATOR
+          }
+        },
+        {
+          comment: "Property that derives a concept code from the concept iri",
+          order: 3,
+          name: "Code",
+          showTitle: true,
+          maxCount: 1,
+          path: {
+            "@id": IM.CODE
+          },
+          argument: [
+            {
+              parameter: "entityIri",
+              valueVariable: "conceptIri"
+            },
+            {
+              parameter: "fieldName",
+              valueData: "code"
+            }
+          ],
+          minCount: 1,
+          componentType: {
+            "@id": IM.component.TEXT_DISPLAY
+          },
+          datatype: {
+            "@id": XSD.STRING
+          },
+          function: {
+            "@id": IM.function.LOCAL_NAME_RETRIEVER
+          }
+        },
+        {
+          comment: "name or main term of entity",
+          order: 4,
+          name: "Name",
+          showTitle: true,
+          maxCount: 1,
+          path: {
+            "@id": RDFS.LABEL
+          },
+          minCount: 1,
+          componentType: {
+            "@id": IM.component.TEXT_INPUT
+          },
+          datatype: {
+            "@id": XSD.STRING
+          }
+        },
+        {
+          comment: "optional description",
+          order: 5,
+          datatype: {
+            "@id": XSD.STRING
+          },
+          name: "Description",
+          showTitle: true,
+          maxCount: 1,
+          path: {
+            "@id": RDFS.COMMENT
+          },
+          minCount: 1,
+          componentType: {
+            "@id": IM.component.HTML_INPUT
+          }
+        },
+        {
+          comment: "selects the status with a default of draft",
+          order: 6,
+          select: [
+            {
+              "@id": IM.query.GET_ISAS
+            }
+          ],
+          name: "Status",
+          showTitle: true,
+          maxCount: 1,
+          path: {
+            "@id": IM.STATUS
+          },
+          argument: [
+            {
+              valueIri: {
+                "@id": IM.STATUS
+              },
+              parameter: "this"
+            }
+          ],
+          isIri: {
+            "@id": IM.DRAFT
+          },
+          minCount: 1,
+          componentType: {
+            "@id": IM.component.ENTITY_DROPDOWN
+          },
+          forceIsValue: true
+        },
+        {
+          comment: "Toggle controlling sub components visibility",
+          order: 7,
           name: "Replaced by",
+          label: "Deactivate | Activate",
+          minCount: 1,
+          maxCount: 1,
           path: {
             "@id": "http://snomed.info/sct#370124000"
           },
-          minCount: 1,
           componentType: {
-            "@id": IM.component.ENTITY_SEARCH
-          }
-        }
-      ]
-    },
-    {
-      label: "Property group - Sub type array builder",
-      order: 1,
-      path: {
-        "@id": RDFS.SUBCLASS_OF
-      },
-      validation: {
-        "@id": IM.validation.HAS_PARENT
-      },
-      validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-      property: [
-        {
-          comment: "selects an entity based on select query",
-          order: 1,
-          select: [
+            "@id": IM.component.TOGGLEABLE
+          },
+          property: [
             {
-              "@id": IM.query.SEARCH_ENTITIES
-            }
-          ],
-          argument: [
-            {
-              parameter: "this",
-              valueIri: {
-                "@id": IM.CONCEPT
+              comment: "selects an entity based on select query",
+              order: 1,
+              select: [
+                {
+                  "@id": IM.query.SEARCH_ENTITIES
+                }
+              ],
+              argument: [
+                {
+                  parameter: "this",
+                  valueIri: {
+                    "@id": IM.FOLDER
+                  }
+                }
+              ],
+              name: "Replaced by",
+              showTitle: true,
+              path: {
+                "@id": "http://snomed.info/sct#370124000"
+              },
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ENTITY_SEARCH
               }
             }
-          ],
-          builderChild: true,
-          name: "Entity",
+          ]
+        },
+        {
+          label: "Property group - Sub type array builder",
+          order: 1,
           path: {
             "@id": RDFS.SUBCLASS_OF
           },
-          minCount: 1,
-          componentType: {
-            "@id": IM.component.ENTITY_SEARCH
-          }
-        }
-      ],
-      name: "Subclass of",
-      minCount: 0,
-      componentType: {
-        "@id": IM.component.ARRAY_BUILDER
-      }
-    },
-    {
-      label: "Property group - Contained in array builder",
-      order: 1,
-      path: {
-        "@id": IM.IS_CONTAINED_IN
-      },
-      property: [
-        {
-          comment: "selects an entity based on select query",
-          order: 1,
-          select: [
+          validation: {
+            "@id": IM.validation.HAS_PARENT
+          },
+          validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+          property: [
             {
-              "@id": IM.query.SEARCH_ENTITIES
-            }
-          ],
-          argument: [
-            {
-              parameter: "this",
-              valueIri: {
-                "@id": IM.FOLDER
+              comment: "selects an entity based on select query",
+              order: 1,
+              select: [
+                {
+                  "@id": IM.query.SEARCH_ENTITIES
+                }
+              ],
+              argument: [
+                {
+                  parameter: "this",
+                  valueIri: {
+                    "@id": IM.CONCEPT
+                  }
+                }
+              ],
+              builderChild: true,
+              name: "Entity",
+              path: {
+                "@id": RDFS.SUBCLASS_OF
+              },
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ENTITY_SEARCH
               }
             }
           ],
-          builderChild: true,
-          name: "Entity",
+          name: "Subclass of",
+          showTitle: true,
+          minCount: 0,
+          componentType: {
+            "@id": IM.component.ARRAY_BUILDER
+          }
+        },
+        {
+          label: "Property group - Contained in array builder",
+          order: 1,
           path: {
             "@id": IM.IS_CONTAINED_IN
           },
-          minCount: 1,
+          property: [
+            {
+              comment: "selects an entity based on select query",
+              order: 1,
+              select: [
+                {
+                  "@id": IM.query.SEARCH_ENTITIES
+                }
+              ],
+              argument: [
+                {
+                  parameter: "this",
+                  valueIri: {
+                    "@id": IM.FOLDER
+                  }
+                }
+              ],
+              builderChild: true,
+              name: "Entity",
+              path: {
+                "@id": IM.IS_CONTAINED_IN
+              },
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ENTITY_SEARCH
+              }
+            }
+          ],
+          name: "Contained in",
+          showTitle: true,
+          minCount: 0,
           componentType: {
-            "@id": IM.component.ENTITY_SEARCH
+            "@id": IM.component.ARRAY_BUILDER
           }
         }
-      ],
-      name: "Contained in",
-      minCount: 0,
-      componentType: {
-        "@id": IM.component.ARRAY_BUILDER
-      }
+      ]
     }
   ]
 };

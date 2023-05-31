@@ -16,7 +16,8 @@ const QueryShape: FormGenerator = {
   property: [
     {
       label: "Property group - Summary details",
-      name: "Summary details",
+      name: "Summary",
+      showTitle: true,
       order: 1,
       minCount: 1,
       maxCount: 1,
@@ -33,7 +34,8 @@ const QueryShape: FormGenerator = {
           function: {
             "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
           },
-          name: "type",
+          name: "Type",
+          showTitle: true,
           path: {
             "@id": RDF.TYPE
           },
@@ -56,7 +58,8 @@ const QueryShape: FormGenerator = {
         {
           comment: "A property that auto generates a concept iri from the snomed extension",
           order: 2,
-          name: "iri",
+          name: "Iri",
+          showTitle: true,
           maxCount: 1,
           path: {
             "@id": IM.ID
@@ -73,7 +76,8 @@ const QueryShape: FormGenerator = {
         {
           comment: "Property that derives a concept code from the concept iri",
           order: 3,
-          name: "code",
+          name: "Code",
+          showTitle: true,
           maxCount: 1,
           path: {
             "@id": IM.CODE
@@ -102,7 +106,8 @@ const QueryShape: FormGenerator = {
         {
           comment: "name or main term of concept",
           order: 4,
-          name: "Concept name",
+          name: "Name",
+          showTitle: true,
           maxCount: 1,
           path: {
             "@id": RDFS.LABEL
@@ -121,7 +126,8 @@ const QueryShape: FormGenerator = {
           datatype: {
             "@id": XSD.STRING
           },
-          name: "Concept description",
+          name: "Description",
+          showTitle: true,
           maxCount: 1,
           path: {
             "@id": RDFS.COMMENT
@@ -139,7 +145,8 @@ const QueryShape: FormGenerator = {
               "@id": IM.query.GET_ISAS
             }
           ],
-          name: "status",
+          name: "Status",
+          showTitle: true,
           maxCount: 1,
           path: {
             "@id": IM.STATUS
@@ -192,6 +199,7 @@ const QueryShape: FormGenerator = {
                 }
               ],
               name: "Replaced by",
+              showTitle: true,
               path: {
                 "@id": "http://snomed.info/sct#370124000"
               },
@@ -244,6 +252,7 @@ const QueryShape: FormGenerator = {
         }
       ],
       name: "Subclass of",
+      showTitle: true,
       minCount: 1,
       componentType: {
         "@id": IM.component.ARRAY_BUILDER
@@ -253,6 +262,7 @@ const QueryShape: FormGenerator = {
     {
       label: "Property group - contained in array builder",
       name: "isContainedIn",
+      showTitle: true,
       order: 1,
       minCount: 1,
       componentType: {

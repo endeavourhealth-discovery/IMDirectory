@@ -1,21 +1,19 @@
 <template>
   <div class="entity-combobox-container">
     <div class="multiselect-loading-container">
-      <span class="field">
-        <label for="chip-group">{{ shape.name }}</label>
-        <div id="chip-group" class="chip-group">
-          <Chip v-if="fixedOption" :label="fixedOption.name" class="fixed-chip" />
-          <MultiSelect
-            :disabled="loading"
-            class="multi-select"
-            :class="invalid && 'invalid'"
-            v-model="selectedEntities"
-            :options="dropdownOptions"
-            optionLabel="name"
-            display="chip"
-          />
-        </div>
-      </span>
+      <label v-if="shape.showTitle" for="chip-group">{{ shape.name }}</label>
+      <div id="chip-group" class="chip-group">
+        <Chip v-if="fixedOption" :label="fixedOption.name" class="fixed-chip" />
+        <MultiSelect
+          :disabled="loading"
+          class="multi-select"
+          :class="invalid && 'invalid'"
+          v-model="selectedEntities"
+          :options="dropdownOptions"
+          optionLabel="name"
+          display="chip"
+        />
+      </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     </div>
   </div>
@@ -160,15 +158,10 @@ function defaultValidity(data: TTIriRef[]) {
 <style scoped>
 .multiselect-loading-container {
   display: flex;
-  flex-flow: row nowrap;
-  width: 25rem;
-  align-items: center;
+  flex-flow: column nowrap;
+  min-width: 25rem;
+  align-items: flex-start;
   height: fit-content;
-  padding: 0.5rem 0 0 0;
-}
-
-.field {
-  width: 100%;
 }
 
 .chip-group {

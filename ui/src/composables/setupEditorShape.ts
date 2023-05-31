@@ -4,7 +4,7 @@ import { FormGenerator } from "@im-library/interfaces/AutoGen";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF,RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
 import { useRoute, useRouter } from "vue-router";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
@@ -47,7 +47,7 @@ export function setupEditorShape() {
 
   function getShape(type: string): FormGenerator {
     let newShape = {};
-    newShape = getShapeFromType(type);
+    if (type !== RDFS.CLASS) newShape = getShapeFromType(type);
     return newShape;
   }
 

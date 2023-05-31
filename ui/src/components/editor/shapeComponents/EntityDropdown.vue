@@ -1,8 +1,8 @@
 <template>
   <div class="entity-single-dropdown-container">
-    <span class="p-float-label dropdown-container">
+    <span class="dropdown-container">
+      <label v-if="shape.showTitle">{{ shape.name }}</label>
       <Dropdown class="entity-single-dropdown" :class="invalid && 'invalid'" v-model="selectedEntity" :options="dropdownOptions" optionLabel="name" />
-      <label>{{ shape.name }}</label>
     </span>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
   </div>
@@ -24,7 +24,7 @@ interface Props {
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
-  value?: TTIriRef | TTIriRef[];
+  value?: TTIriRef;
 }
 
 const props = defineProps<Props>();
@@ -116,10 +116,9 @@ function defaultValidation(data: TTIriRef) {
 
 <style scoped>
 .entity-single-dropdown-container {
-  padding: 2rem 0 0 0;
   display: flex;
   flex-flow: row nowrap;
-  width: 25rem;
+  min-width: 25rem;
   align-items: center;
   height: fit-content;
 }

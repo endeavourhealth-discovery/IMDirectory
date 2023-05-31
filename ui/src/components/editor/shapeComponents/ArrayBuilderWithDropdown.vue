@@ -1,5 +1,6 @@
 <template>
   <div class="array-dropdown-builder-container">
+    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>

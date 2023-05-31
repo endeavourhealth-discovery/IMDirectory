@@ -1,5 +1,6 @@
 <template>
   <div class="horizontal-row-container">
+    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
     <div v-for="(component, index) in components" class="component-container" :style="'width:' + widths[index]">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>

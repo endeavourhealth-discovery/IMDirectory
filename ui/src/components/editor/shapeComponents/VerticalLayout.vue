@@ -1,5 +1,6 @@
 <template>
   <div class="vertical-layout-container">
+    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
     <div v-for="(component, index) in components" class="component-container" :style="'height:' + heights[index]">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
@@ -104,5 +105,11 @@ function processEntityValue(property: PropertyShape) {
   align-items: center;
   overflow: auto;
   padding: 1rem;
+  gap: 1rem;
+}
+
+.component-container {
+  width: 100%;
+  overflow: auto;
 }
 </style>

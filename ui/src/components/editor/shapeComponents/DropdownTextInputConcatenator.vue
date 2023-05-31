@@ -1,7 +1,7 @@
 <template>
   <div class="dropdown-text-input-concatenator-container">
     <div class="label-content-container">
-      <label>{{ shape.name }}</label>
+      <label v-if="shape.showTitle">{{ shape.name }}</label>
       <div class="content-container">
         <Dropdown :disabled="loading" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
         <InputText :disabled="loading" class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" />
@@ -135,9 +135,10 @@ function defaultValidation(data: string) {
 
 <style scoped>
 .dropdown-text-input-concatenator-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  width: 25rem;
+  min-width: 25rem;
   height: fit-content;
 }
 .label-content-container {
