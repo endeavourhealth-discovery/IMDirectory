@@ -103,10 +103,17 @@ function setupTree() {
       node.loading = true;
       if (!isObjectHasKeys(expandedKeys.value, [node.key])) expandedKeys.value[node.key] = true;
       const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
+      console.log(children);
       children.result.forEach((child: any) => {
         if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
       });
-      if (children.totalCount > pageSize.value && node.children[node.children.length - 1].data !== "loadMore") {
+      if (
+        children.totalCount >= pageSize.value &&
+        node.children.length !== children.totalCount &&
+        node.children[node.children.length - 1].data !== "loadMore"
+      ) {
+        console.log(children.totalCount);
+        console.log(node.children.length);
         node.children.push(createLoadMoreNode(node, 2, children.totalCount));
       }
       node.loading = false;
