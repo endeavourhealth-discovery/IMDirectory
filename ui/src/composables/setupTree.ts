@@ -112,8 +112,6 @@ function setupTree() {
         node.children.length !== children.totalCount &&
         node.children[node.children.length - 1].data !== "loadMore"
       ) {
-        console.log(children.totalCount);
-        console.log(node.children.length);
         node.children.push(createLoadMoreNode(node, 2, children.totalCount));
       }
       node.loading = false;
