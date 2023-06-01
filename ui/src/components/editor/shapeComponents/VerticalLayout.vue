@@ -110,6 +110,5 @@ function processEntityValue(property: PropertyShape) {
 
 .component-container {
   width: 100%;
-  overflow: auto;
 }
 </style>

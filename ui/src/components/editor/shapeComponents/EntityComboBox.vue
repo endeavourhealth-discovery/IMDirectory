@@ -171,11 +171,11 @@ function defaultValidity(data: TTIriRef[]) {
 
 .chip-group {
   flex: 1 1 auto;
+  gap: 0.5rem;
   display: flex;
 }
 
 .fixed-chip {
-  flex-basis: content;
   flex: 0 1 auto;
 }
 

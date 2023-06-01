@@ -4,52 +4,24 @@ import axios from "axios";
 
 const UserService = {
   async getUserTheme(user: string): Promise<string> {
-    return await axios.get(Env.VITE_NODE_API + "node_api/user/public/getUserTheme", {
-      params: {
-        user: user
-      }
-    });
+    return await axios.get(Env.API + "api/public/user/" + user + "/theme");
   },
   async getUserMRU(user: string): Promise<any> {
-    return await axios.get(Env.VITE_NODE_API + "node_api/user/public/getUserMRU", {
-      params: {
-        user: user
-      }
-    });
+    return await axios.get(Env.API + "api/public/user/" + user + "/MRU");
   },
   async getUserFavourites(user: string): Promise<any> {
-    return await axios.get(Env.VITE_NODE_API + "node_api/user/public/getUserFavourites", {
-      params: {
-        user: user
-      }
-    });
+    return await axios.get(Env.API + "api/public/user/" + user + "/favourites");
   },
   async updateUserTheme(user: string, theme: string): Promise<string> {
-    return await axios.post(Env.VITE_NODE_API + "node_api/user/public/updateUserTheme", {
-      params: {
-        user: user,
-        theme: theme
-      },
-      headers: { "Content-Type": "application/sparql-update" }
+    return await axios.post(Env.API + "api/public/user/" + user + "/theme", {
+      themeValue: theme
     });
   },
   async updateUserMRU(user: string, mru: any[]): Promise<any> {
-    return await axios.post(Env.VITE_NODE_API + "node_api/user/public/updateUserMRU", {
-      params: {
-        user: user,
-        mru: mru
-      },
-      headers: { "Content-Type": "application/sparql-update" }
-    });
+    return await axios.post(Env.API + "api/public/user/" + user + "/MRU", mru);
   },
   async updateUserFavourites(user: string, favourites: any[]): Promise<any> {
-    return await axios.post(Env.VITE_NODE_API + "node_api/user/public/updateUserFavourites", {
-      params: {
-        user: user,
-        favourites: favourites
-      },
-      headers: { "Content-Type": "application/sparql-update" }
-    });
+    return await axios.post(Env.API + "api/public/user/" + user + "/favourites", favourites);
   }
 };
 

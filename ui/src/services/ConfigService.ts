@@ -4,7 +4,7 @@ import axios from "axios";
 
 const ConfigService = {
   async getComponentLayout(name: string): Promise<any[]> {
-    return await axios.get(Env.VITE_NODE_API + "node_api/config/public/componentLayout", {
+    return await axios.get(Env.API + "api/config/public/componentLayout", {
       params: {
         name: name
       }
@@ -12,7 +12,7 @@ const ConfigService = {
   },
 
   async getDashboardLayout(name: string): Promise<any[]> {
-    return await axios.get(Env.VITE_NODE_API + "node_api/config/public/dashboardLayout", {
+    return await axios.get(Env.API + "api/config/public/dashboardLayout", {
       params: {
         name: name
       }

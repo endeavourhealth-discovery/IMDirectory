@@ -65,7 +65,6 @@ import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayB
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
-import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 export default defineComponent({
   components: {
@@ -111,6 +110,7 @@ import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
 interface Props {
   type?: TTIriRef;
 }
@@ -514,8 +514,8 @@ function processEntityValue(property: PropertyShape) {
 
 .sidebar-toggle {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 0.5rem;
+  right: 1.5rem;
   background-color: #ffffff !important;
 }
 
