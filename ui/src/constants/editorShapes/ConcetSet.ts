@@ -11,7 +11,7 @@ const ConceptSetShape: FormGenerator = {
   label: "Editor - Concept set shape",
   comment: "Form editor for a concept set",
   targetShape: {
-    "@id": IM.SET
+    "@id": IM.CONCEPT_SET
   },
   property: [
     {
