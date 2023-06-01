@@ -165,6 +165,7 @@ function defaultValidation() {
 
 <style scoped>
 .string-single-display-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
 }

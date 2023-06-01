@@ -84,6 +84,7 @@ function defaultValidation(string: string) {
 
 <style scoped>
 .string-single-select-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
 }

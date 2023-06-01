@@ -84,7 +84,6 @@ function processEntityValue(property: PropertyShape | undefined) {
 
 <style scoped>
 .toggleable-entity-search {
-  width: 100%;
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
