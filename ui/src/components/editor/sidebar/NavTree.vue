@@ -3,7 +3,7 @@
     <Tree
       :value="root"
       selectionMode="single"
-      v-model:selectionKeys="selected"
+      v-model:selectionKeys="selectedKeys"
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
@@ -93,6 +93,7 @@ const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTree
 
 const {
   root,
+  selectedKeys,
   selectedNode,
   expandedKeys,
   pageSize,
@@ -109,7 +110,6 @@ const {
   nodeHasChild
 } = setupTree();
 
-let selected: Ref<any> = ref({});
 let loading = ref(true);
 let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 let overlayLocation: Ref<any> = ref({});
