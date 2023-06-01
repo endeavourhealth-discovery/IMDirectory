@@ -65,7 +65,6 @@ import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayB
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
-import { processComponentType } from "@im-library/helpers/EditorMethods";
 
 export default defineComponent({
   components: {
