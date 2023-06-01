@@ -116,6 +116,7 @@ function defaultValidation(data: TTIriRef) {
 
 <style scoped>
 .entity-single-dropdown-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
   min-width: 25rem;

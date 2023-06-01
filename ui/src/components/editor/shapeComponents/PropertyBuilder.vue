@@ -1,12 +1,19 @@
 <template>
   <div class="property-builder">
     <div class="content-container">
-      <Tag v-if="isInherited" value="Inherited" class="inherited-tag" />
-      <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
+      <div class="path-container">
+        <TextDisplay v-if="isInherited" :value="propertyPath.name" :shape="propertyPathShape" :mode="mode" />
+        <EntityAutoComplete v-else :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" />
+        <Tag v-if="isInherited" value="Inherited" class="inherited-tag" severity="warning" />
+      </div>
       <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
-      <EntityAutoComplete :disabled="!isVisible" :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
-      <ToggleButton v-model="required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
-      <ToggleButton v-model="unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+      <div class="range-container">
+        <EntityAutoComplete :disabled="!isVisible" :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
+      </div>
+      <div class="toggle-buttons-contaner">
+        <ToggleButton v-model="required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
+        <ToggleButton v-model="unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+      </div>
     </div>
   </div>
 </template>
@@ -18,6 +25,7 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
+import TextDisplay from "./TextDisplay.vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes } from "@im-library/config";
 import { EditorMode } from "@im-library/enums";
@@ -72,6 +80,7 @@ const order = computed(() => props.position);
 const propertyPathShape: PropertyShape = {
   comment: "selects an entity based on select query",
   name: "Path",
+  showTitle: true,
   componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
   path: props.shape.path,
   builderChild: true,
@@ -82,6 +91,7 @@ const propertyPathShape: PropertyShape = {
 const propertyRangeShape: Ref<PropertyShape> = ref({
   comment: "selects an entity based on select query",
   name: "Range",
+  showTitle: true,
   order: 1,
   componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
   path: props.shape.path,
@@ -245,12 +255,33 @@ async function isFunctionProperty(propIri: string) {
 </script>
 
 <style scoped>
+.property-builder {
+  flex: 1 1 auto;
+}
 .content-container {
   display: flex;
   flex-flow: row wrap;
   align-items: center;
   padding: 1rem 1rem;
   gap: 0.5rem;
+}
+
+.path-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inherited-tag {
+  height: fit-content;
+  flex: 0 1 auto;
+}
+
+.range-container {
+  flex: 1 1 auto;
 }
 
 .content-container:deep(.label-container) {

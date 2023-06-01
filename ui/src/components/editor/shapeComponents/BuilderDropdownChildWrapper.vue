@@ -98,7 +98,6 @@ function addNextClicked(item: any): void {
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
-  width: 100%;
 }
 
 .label-container {

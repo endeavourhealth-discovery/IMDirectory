@@ -303,7 +303,6 @@ function hideOptionsOverlay(event: any): void {
 
 <style scoped>
 .autocomplete-container {
-  width: 100%;
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;

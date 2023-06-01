@@ -126,11 +126,28 @@ function addNextClicked(item: any): void {
 </script>
 
 <style scoped>
+.builder-child-wrapper {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: auto;
+}
+
+.builder-child {
+  width: 100%;
+  flex: 1 1 auto;
+  align-self: flex-start;
+  overflow: auto;
+  display: flex;
+  flex-flow: column;
+}
 .builder-child-container {
   flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
-  align-items: baseline;
+  align-items: center;
   overflow: auto;
 }
 
@@ -163,23 +180,5 @@ function addNextClicked(item: any): void {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.builder-child-wrapper {
-  width: 100%;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: baseline;
-  overflow: auto;
-}
-
-.builder-child {
-  width: 100%;
-  flex: 1 1 auto;
-  align-self: flex-start;
-  overflow: auto;
-  display: flex;
-  flex-flow: column;
 }
 </style>
