@@ -95,9 +95,9 @@ const propertyRangeShape: Ref<PropertyShape> = ref({
   order: 1,
   componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
   path: props.shape.path,
-  select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_DataModelPropertyRange" }],
+  select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_ObjectPropertyRangeSuggestions" }],
   argument: [
-    { valueIri: { "@id": propertyPath.value["@id"] }, parameter: "myProperty" },
+    { valueIri: { "@id": propertyPath.value["@id"] }, parameter: "this" },
     { valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "myDataModel" }
   ],
   builderChild: true
