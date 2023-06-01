@@ -156,6 +156,7 @@ function defaultValidation(data: string) {
 }
 
 .dropdown:deep(.p-inputtext) {
+  padding-top: 0.7rem;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
