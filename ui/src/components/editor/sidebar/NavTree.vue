@@ -92,6 +92,7 @@ const toast = useToast();
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
 const {
+  root,
   selectedNode,
   expandedKeys,
   pageSize,
@@ -109,7 +110,6 @@ const {
 } = setupTree();
 
 let selected: Ref<any> = ref({});
-let root: Ref<TreeNode[]> = ref([]);
 let loading = ref(true);
 let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 let overlayLocation: Ref<any> = ref({});
