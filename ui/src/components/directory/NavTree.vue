@@ -23,10 +23,10 @@
     </Tree>
     <OverlaySummary ref="OS" />
     <Dialog header="New folder" :visible="newFolder !== null" :modal="true" :closable="false">
-      <InputText type="text" v-model="newFolderName" autofocus />
+      <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
       <template #footer>
         <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
-        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" @click="createFolder" />
+        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" :disabled="!newFolderName" @click="createFolder" />
       </template>
     </Dialog>
   </div>
@@ -218,7 +218,7 @@ async function addConcept(target: TreeNode) {
 }
 
 async function createFolder() {
-  if (!newFolder.value || !newFolder.value.key) return;
+  if (!newFolder.value || !newFolder.value.key || !newFolderName.value) return;
 
   console.log("Create new folder " + newFolderName.value + " in " + newFolder.value.key);
   try {
