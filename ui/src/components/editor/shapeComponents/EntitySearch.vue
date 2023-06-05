@@ -226,7 +226,7 @@ async function dropReceived(event: any) {
   if (data) {
     const conceptIri = JSON.parse(data);
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
-    const iriRef = {"@id": conceptIri, name: conceptName} as TTIriRef;
+    const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
     await updateSelectedResult(iriRef);
   }
 }
@@ -234,7 +234,6 @@ async function dropReceived(event: any) {
 
 <style scoped>
 .entity-search-item-container {
-  width: 100%;
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;

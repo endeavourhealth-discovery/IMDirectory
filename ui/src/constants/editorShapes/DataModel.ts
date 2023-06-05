@@ -334,6 +334,7 @@ const DataModelShape: FormGenerator = {
             }
           ],
           name: "Property",
+          showTitle: true,
           minCount: 0,
           componentType: {
             "@id": IM.component.ARRAY_BUILDER

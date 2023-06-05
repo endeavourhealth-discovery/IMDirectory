@@ -1,7 +1,7 @@
 <template>
   <div class="entity-combobox-container">
+    <label v-if="shape.showTitle" for="chip-group">{{ shape.name }}</label>
     <div class="multiselect-loading-container">
-      <label v-if="shape.showTitle" for="chip-group">{{ shape.name }}</label>
       <div id="chip-group" class="chip-group">
         <Chip v-if="fixedOption" :label="fixedOption.name" class="fixed-chip" />
         <MultiSelect
@@ -156,22 +156,27 @@ function defaultValidity(data: TTIriRef[]) {
 </script>
 
 <style scoped>
-.multiselect-loading-container {
+.entity-combobox-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
+}
+.multiselect-loading-container {
+  display: flex;
+  flex-flow: row wrap;
   min-width: 25rem;
   align-items: flex-start;
   height: fit-content;
 }
 
 .chip-group {
+  flex: 1 1 auto;
   gap: 0.5rem;
   display: flex;
-  width: 100%;
 }
 
 .fixed-chip {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
 }
 
 .multi-select {
@@ -179,7 +184,7 @@ function defaultValidity(data: TTIriRef[]) {
 }
 
 .loading-icon {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
 }
 
 .p-progress-spinner {

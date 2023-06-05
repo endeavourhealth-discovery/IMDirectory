@@ -78,6 +78,7 @@ function htmlToText(text: string): string {
 
 <style scoped>
 .html-input-container {
+  flex: 1 1 auto;
   min-width: 25rem;
 }
 .input-html {

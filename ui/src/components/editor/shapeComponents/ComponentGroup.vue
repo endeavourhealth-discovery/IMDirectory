@@ -74,7 +74,6 @@ function setProperties(shape: PropertyShape) {
 
 <style scoped>
 .component-group-container {
-  width: 100%;
   flex: 1 1 auto;
   overflow: auto;
   display: flex;
@@ -94,7 +93,7 @@ function setProperties(shape: PropertyShape) {
   padding: 1rem;
   border-radius: 3px;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: flex-start;
   align-items: flex-start;
   overflow: auto;

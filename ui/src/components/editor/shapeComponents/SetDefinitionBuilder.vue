@@ -98,11 +98,9 @@ watch(
 
 watch(ecl, async newValue => {
   // eclNoNames.value = ecl.value.replace(/\|.*?\|/g, "").replace(/\s\s+/g, " ");
-  loading.value = true;
   if (await EclService.isValidECL(newValue)) {
     eclAsQuery.value = await EclService.getQueryFromECL(newValue);
   }
-  loading.value = false;
 });
 
 watch(
