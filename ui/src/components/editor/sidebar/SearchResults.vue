@@ -199,7 +199,7 @@ function isFavourite(iri: string) {
 
 function init() {
   loading.value = true;
-  if(props.searchResults) {
+  if (props.searchResults) {
     localSearchResults.value = [...props.searchResults];
   }
   processSearchResults();
