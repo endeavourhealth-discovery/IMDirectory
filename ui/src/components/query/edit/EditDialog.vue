@@ -1,6 +1,11 @@
 <template>
   <div>
-    {{ match }}
+    <Splitter class="query-splitter">
+      <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
+        <QueryNavTree :base-entity-iri="baseEntityIri" @add-rule="addRule" />
+      </SplitterPanel>
+      <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right"> Edit Rules </SplitterPanel>
+    </Splitter>
     <div class="footer">
       <Button label="Discard" severity="secondary" @click="discard" text />
       <Button label="Save" @click="save" text />
@@ -11,8 +16,11 @@
 <script setup lang="ts">
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match } from "@im-library/interfaces/AutoGen";
+import { TreeNode } from "primevue/tree";
 import { Ref, onMounted, ref } from "vue";
+import QueryNavTree from "../QueryNavTree.vue";
 interface Props {
+  baseEntityIri?: string;
   match?: Match;
 }
 const props = defineProps<Props>();
@@ -23,6 +31,14 @@ const emit = defineEmits({ onClose: () => true });
 onMounted(() => {
   if (isObjectHasKeys(props.match)) editMatch.value = { ...props.match };
 });
+
+function addRule(treeNode: TreeNode) {
+  //   const match = buildMatchFromTreeNode(treeNode as any);
+  //   if (!isArrayHasLength(query.value.match)) query.value.match = [];
+  //   query.value.match!.push(match);
+}
+
+function removeRule(treeNode: TreeNode) {}
 
 function save() {
   if (isObjectHasKeys(props.match)) {

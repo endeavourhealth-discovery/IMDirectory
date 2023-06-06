@@ -19,58 +19,53 @@
             </span>
             <ProgressSpinner v-if="node.loading" />
             <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+            <Checkbox v-if="isProperty(node.conceptTypes)" v-model="node.selected" :binary="true" />
           </div>
+         
         </template>
       </Tree>
       <OverlaySummary ref="OS" />
     </div>
-    <div class="add-button"><Button label="Add to clauses" :disabled="!isObjectHasKeys(selectedNode)" /></div>
   </div>
 </template>
 
 <script async setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, Ref } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { useToast } from "primevue/usetoast";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 import { isArray } from "lodash";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useSharedStore } from "@/stores/sharedStore";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { getColourFromType, getFAIconFromType, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { TTProperty } from "@im-library/interfaces";
 import { getKey, getParentNode } from "@im-library/helpers";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
+
+interface Props {
+  baseEntityIri?: string;
+}
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   addRule: (payload: TreeNode) => true
 });
 
-const toast = useToast();
-const sharedStore = useSharedStore();
-const directoryStore = useDirectoryStore();
-
-const conceptIri = computed(() => directoryStore.conceptIri);
-const findInTreeIri = computed(() => directoryStore.findInTreeIri);
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-
 const loading = ref(true);
 const overlayLocation: Ref<any> = ref({});
 const items: Ref<any[]> = ref([]);
-
+const selectedProperties = ref([]);
 const menu = ref();
 const OS: Ref<any> = ref();
-const { selectedKeys, selectedNode, root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild, findPathToNode } = setupTree();
+const { selectedKeys, selectedNode, root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
 
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  if (conceptIri.value) await findPathToNode(conceptIri.value, loading, "hierarchy-tree-bar-container");
   loading.value = false;
 });
 
@@ -79,13 +74,6 @@ onUnmounted(() => {
     hideOverlay(overlayLocation.value);
   }
 });
-
-watch(
-  () => findInTreeIri.value,
-  async () => {
-    if (findInTreeIri.value) await findPathToNode(findInTreeIri.value, loading, "hierarchy-tree-bar-container");
-  }
-);
 
 function onNodeSelect(node: any) {
   selectedNode.value = node;
@@ -170,34 +158,33 @@ function onNodeDblClick(node: any) {
   emit("addRule", node);
 }
 
-function addRule() {
-  emit("addRule", selectedNode.value);
+async function addParentFoldersToRoot() {
+  if (props.baseEntityIri) {
+    await addBaseEntityToRoot(props.baseEntityIri);
+  } else {
+    await addFolderToRoot(IM.NAMESPACE + "HealthDataModel", "Data models");
+    await addFolderToRoot(IM.NAMESPACE + "Q_Queries", "Queries");
+  }
 }
 
-async function addParentFoldersToRoot() {
+async function addBaseEntityToRoot(iri: string) {
+  const name = getNameFromRef({ "@id": iri });
+  const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, undefined);
+  root.value.push(parent);
+}
+
+async function addFolderToRoot(iri: string, name: string) {
+  const parent = createTreeNode(name, iri, [{ "@id": IM.FOLDER }], true, undefined);
+  parent.key = "" + root.value.length;
   let IMChildren: any[] = [];
-  const results = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
+  const results = await EntityService.getEntityChildren(iri);
   if (results && isArray(results)) IMChildren = results;
   for (let [index, IMchild] of IMChildren.entries()) {
-    const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
-    if (!hasNode) {
-      const node = createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, undefined, IMchild.orderNumber);
-      node.key = `${index}`;
-      root.value.push(node);
-    }
+    const node = createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, undefined, IMchild.orderNumber);
+    node.key = `${index}`;
+    parent.children!.push(node);
   }
-  root.value.sort(byData);
-}
-
-function byData(a: any, b: any): number {
-  // order by order number
-  if (a.order && b.order) return a.order - b.order;
-  else if (a.order && !b.order) return -1;
-  else if (!a.order && b.order) return 1;
-  // order alphabetically
-  else if (a.data > b.data) return 1;
-  else if (b.data > a.data) return -1;
-  return 0;
+  root.value.push(parent);
 }
 
 async function onNodeContext(event: any, node: any) {

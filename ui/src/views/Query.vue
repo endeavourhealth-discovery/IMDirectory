@@ -35,7 +35,13 @@
     </Splitter> -->
 
     <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryEdit v-if="isArrayHasLength(query.match)" :matches="query.match!" :full-query="query" :selectedMatches="selectedMatches" />
+    <RecursiveQueryEdit
+      v-if="isArrayHasLength(query.match)"
+      :base-entity-iri="baseEntityIri"
+      :matches="query.match!"
+      :full-query="query"
+      :selectedMatches="selectedMatches"
+    />
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -57,6 +63,7 @@ import QueryNavTree from "@/components/query/QueryNavTree.vue";
 import { buildMatchFromTreeNode } from "@im-library/helpers";
 import { TreeNode } from "primevue/tree";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
+import { resolveIri } from "@im-library/helpers/TTTransform";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({} as Query);
 const visibleDialog: Ref<boolean> = ref(false);
@@ -68,7 +75,8 @@ onMounted(async () => {
   query.value = await QueryService.getQueryDisplay(IM.NAMESPACE + "Q_TestQuery");
   if (isArrayHasLength(query.value?.match)) {
     const baseEntity = query.value.match![0];
-    baseEntityIri.value = (baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"]) as string;
+    const iri = (baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"]) as string;
+    baseEntityIri.value = resolveIri(iri);
   }
 });
 

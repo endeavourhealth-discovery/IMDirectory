@@ -8,6 +8,7 @@
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryEdit
           v-if="match.match"
+          :base-entity-iri="baseEntityIri"
           :include="true"
           :matches="match.match"
           :parent-match="match"
@@ -31,8 +32,8 @@
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
   </div>
-  <Dialog v-model:visible="editDialog" modal header="Header" :style="{ width: '50vw' }">
-    <EditDialog v-if="isArrayHasLength(selectedMatches)" :match="selectedMatches[0]" @on-close="onEditDialogClose" />
+  <Dialog v-model:visible="editDialog" modal header="Header" :style="{ width: '75vw' }">
+    <EditDialog v-if="isArrayHasLength(selectedMatches)" :base-entity-iri="baseEntityIri" :match="selectedMatches[0]" @on-close="onEditDialogClose" />
   </Dialog>
   <ContextMenu ref="rClickMenu" :model="props.selectedMatches.length > 1 ? rClickItemsGroup : rClickItems" />
 </template>
@@ -51,6 +52,7 @@ interface Props {
   parentMatch?: Match;
   matches: Match[];
   selectedMatches: Match[];
+  baseEntityIri?: string;
 }
 
 enum Direction {
