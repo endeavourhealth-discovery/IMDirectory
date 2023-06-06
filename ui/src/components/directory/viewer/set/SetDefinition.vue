@@ -45,7 +45,6 @@ import SubsetDisplay from "./SubsetDisplay.vue";
 import { onMounted, ref } from "@vue/runtime-core";
 import { EntityService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
-import QuerySetDefinition from "@/components/shared/query/QuerySetDefinition.vue";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
