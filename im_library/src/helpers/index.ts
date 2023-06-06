@@ -22,7 +22,8 @@ import { dateNow } from "./Datetime/DateNow";
 import { timeNow } from "./Datetime/TimeNow";
 import { timeNow12Hr } from "./Datetime/TimeNow12Hr";
 import PropertyTreeNodeBuilder from "./PropertyTreeNodeBuilder";
-import { getKey } from "./TreeHelper";
+import { getKey, getParentNode } from "./TreeHelper";
+import { buildMatchFromTreeNode } from "./QueryBuilder";
 
 export {
   ChartRescale,
@@ -41,6 +42,7 @@ export {
   UtililityMethods,
   StringManipulators,
   EclBuilderConceptToEcl,
+  buildMatchFromTreeNode,
   eclToBuild,
   eclToIMQ,
   validateEcl,
@@ -49,5 +51,6 @@ export {
   timeNow,
   timeNow12Hr,
   getKey,
+  getParentNode,
   PropertyTreeNodeBuilder
 };
