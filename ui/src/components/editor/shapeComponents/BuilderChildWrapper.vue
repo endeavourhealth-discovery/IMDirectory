@@ -143,6 +143,7 @@ function addNextClicked(item: any): void {
   display: flex;
   flex-flow: column;
 }
+
 .builder-child-container {
   flex: 1 1 auto;
   display: flex;
@@ -180,5 +181,9 @@ function addNextClicked(item: any): void {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.indented-add-button {
+  margin-top: 0.5rem;
 }
 </style>

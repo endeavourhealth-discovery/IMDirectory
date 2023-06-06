@@ -454,7 +454,7 @@ function processEntityValue(property: PropertyShape) {
   height: calc(100% - 3.5rem);
   width: 100%;
   overflow: auto;
-  background-color: #ffffff;
+  overflow: auto;
 }
 
 .content-buttons-container {
@@ -515,8 +515,7 @@ function processEntityValue(property: PropertyShape) {
 .sidebar-toggle {
   position: absolute;
   top: 0.5rem;
-  right: 1.5rem;
-  background-color: #ffffff !important;
+  right: 0.5rem;
 }
 
 .topbar-content {
@@ -551,11 +550,6 @@ function processEntityValue(property: PropertyShape) {
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
   width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
-  border-radius: 3px;
-  background-color: #ffffff;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;

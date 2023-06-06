@@ -247,6 +247,7 @@ async function dropReceived(event: any) {
   width: 100%;
   display: flex;
   flex-flow: row nowrap;
+  gap: 0.5rem;
 }
 
 .label {

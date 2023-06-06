@@ -377,7 +377,6 @@ function processEntityValue(property: PropertyShape) {
   width: 100%;
   height: calc(100% - 3.5rem);
   overflow: auto;
-  background-color: #ffffff;
 }
 
 .content-buttons-container {
@@ -425,7 +424,6 @@ function processEntityValue(property: PropertyShape) {
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: #ffffff !important;
 }
 
 .loading-container {
@@ -466,11 +464,6 @@ function processEntityValue(property: PropertyShape) {
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
   width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
-  border-radius: 3px;
-  background-color: #ffffff;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
@@ -503,9 +496,8 @@ function processEntityValue(property: PropertyShape) {
 
 .sidebar-toggle {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #ffffff !important;
+  top: 0.5rem;
+  right: 1.5rem;
 }
 
 #summary-editor-container {
