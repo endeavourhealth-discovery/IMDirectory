@@ -5,19 +5,8 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-
     <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryDisplay
-      v-if="isArrayHasLength(query.match)"
-      :matches="query.match!.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
-      :full-query="query"
-    />
-    <RecursiveQueryDisplay
-      v-if="isArrayHasLength(query.match)"
-      :matches="query.match!.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
-      :full-query="query"
-    />
-
+    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match!" :full-query="query" />
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -33,9 +22,9 @@ import { ref, Ref, onMounted } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import { Match, Query } from "@im-library/interfaces/AutoGen";
+import { Query } from "@im-library/interfaces/AutoGen";
 import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({} as Query);
 const visibleDialog: Ref<boolean> = ref(false);
