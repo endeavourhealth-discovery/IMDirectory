@@ -1,8 +1,9 @@
 import { ComponentType } from "../enums";
 import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 import { IM } from "../vocabulary";
-import { isArrayHasLength } from "./DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
+import { isTTIriRef } from "./TypeGuards";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
@@ -17,7 +18,14 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
         } else if (valueVariableMap && valueVariableMap.has(value)) {
           foundValueVariable = valueVariableMap.get(value);
         }
-        argResult[key] = foundValueVariable;
+        if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item)))
+          argResult["valueIriList"] = foundValueVariable;
+        else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
+          argResult["valueDataList"] = foundValueVariable;
+        else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
+        else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
+        else if (typeof foundValueVariable === "string") argResult["valueData"] = foundValueVariable;
+        else argResult[key] = foundValueVariable;
       } else {
         argResult[key] = value;
       }

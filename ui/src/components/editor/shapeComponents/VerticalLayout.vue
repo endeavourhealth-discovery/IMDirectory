@@ -19,6 +19,7 @@ import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinit
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
+import RoleGroupBuilder from "./RoleGroupBuilder.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -33,7 +34,8 @@ export default defineComponent({
     TextDisplay,
     TextInput,
     ToggleableComponent,
-    DropdownTextInputConcatenator
+    DropdownTextInputConcatenator,
+    RoleGroupBuilder
   }
 });
 </script>

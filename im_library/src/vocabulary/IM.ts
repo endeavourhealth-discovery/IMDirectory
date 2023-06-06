@@ -132,9 +132,12 @@ export class IM {
   public static PROPERTY_SHAPE = IM.NAMESPACE + "PropertyShape";
 
   //argument options
-  public static VALUE_TEXT = IM.NAMESPACE + "valueText";
+  public static VALUE_DATA = IM.NAMESPACE + "valueData";
   public static VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
+  public static VALUE_OBJECT = IM.NAMESPACE + "valueObject";
   public static VALUE_IRI = IM.NAMESPACE + "valueIri";
+  public static VALUE_IRI_LIST = IM.NAMESPACE + "valueIriList";
+  public static VALUE_DATA_LIST = IM.NAMESPACE + "valueDataList";
 
   // IM1
   public static IM_1_ID = IM.NAMESPACE + "im1Id";

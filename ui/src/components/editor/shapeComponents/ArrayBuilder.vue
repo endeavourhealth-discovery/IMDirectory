@@ -54,7 +54,7 @@ import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 interface Props {
   shape: PropertyShape;
   mode: EditorMode;
-  value?: TTIriRef[];
+  value?: any[];
 }
 
 const props = defineProps<Props>();
@@ -63,6 +63,7 @@ const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
 let key = props.shape.path["@id"];
 
@@ -85,6 +86,7 @@ watch(
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
       if (validityUpdate) await updateValidity();
+      updateValueVariableMap(props.value);
     }
   }
 );
@@ -317,6 +319,13 @@ function moveItemDown(item: ComponentDetails) {
     }
     updatePositions(build.value);
   }
+}
+
+function updateValueVariableMap(data: any[] | undefined) {
+  if (!props.shape.valueVariable) return;
+  let mapKey = props.shape.valueVariable;
+  if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
+  if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 </script>
 
