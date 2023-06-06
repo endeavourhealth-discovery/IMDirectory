@@ -1,6 +1,6 @@
 <template>
   <div class="feature" v-for="(match, index) of matches">
-    <div :class="isSelected(match) ? 'selected' : ''" @click="edit($event, match)">
+    <div :class="isSelected(match) ? 'selected' : ''" @click="select($event, match)" @contextmenu="onRightClick($event, match)">
       <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
       <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
       <span v-if="match.description" v-html="match.description"> </span>
@@ -32,8 +32,9 @@
     </div>
   </div>
   <Dialog v-model:visible="editDialog" modal header="Header" :style="{ width: '50vw' }">
-    <EditDialog v-if="isArrayHasLength(selectedMatches)" :match="selectedMatches[0]" />
+    <EditDialog v-if="isArrayHasLength(selectedMatches)" :match="selectedMatches[0]" @on-close="onEditDialogClose" />
   </Dialog>
+  <ContextMenu ref="rClickMenu" :model="props.selectedMatches.length > 1 ? rClickItemsGroup : rClickItems" />
 </template>
 
 <script setup lang="ts">
@@ -43,6 +44,7 @@ import { Ref, ref } from "vue";
 import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import RecursiveWhereEdit from "./RecursiveWhereEdit.vue";
 import EditDialog from "./EditDialog.vue";
+import { MenuItem } from "primevue/menuitem";
 
 interface Props {
   fullQuery: Query;
@@ -51,17 +53,95 @@ interface Props {
   selectedMatches: Match[];
 }
 
+enum Direction {
+  ABOVE,
+  BELOW
+}
+
 const props = defineProps<Props>();
 const editDialog: Ref<boolean> = ref(false);
+const rClickItems: Ref<MenuItem[]> = ref([
+  {
+    label: "Add",
+    icon: "pi pi-fw pi-plus",
+    items: [
+      {
+        label: "Above",
+        command: () => {
+          add(Direction.ABOVE);
+          edit();
+        }
+      },
+      {
+        label: "Below",
+        command: () => {
+          add(Direction.BELOW);
+          edit();
+        }
+      }
+    ]
+  },
+  {
+    label: "Edit",
+    icon: "pi pi-fw pi-pencil",
+    command: () => {
+      edit();
+    }
+  },
+  { label: "Delete", icon: "pi pi-fw pi-trash" }
+]);
 
-function edit(event: any, match: Match) {
+const rClickItemsGroup = ref([
+  { label: "Group", icon: "pi pi-fw pi-trash" },
+  { label: "Delete", icon: "pi pi-fw pi-trash" }
+]);
+
+const rClickMenu = ref();
+
+function onEditDialogClose() {
+  if (!isObjectHasKeys(props.selectedMatches[0])) {
+    const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
+    if (index !== -1) props.matches.splice(index, 1);
+    props.selectedMatches.splice(0, 1);
+  }
+  editDialog.value = false;
+}
+
+function add(direction: Direction) {
+  const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
+  if (index >= 1 || (index === 0 && direction !== Direction.ABOVE)) {
+    let indexToAdd = 0;
+    if (direction === Direction.ABOVE) indexToAdd = index;
+    if (direction === Direction.BELOW) indexToAdd = index + 1;
+    if (indexToAdd) {
+      const newMatch = {} as Match;
+      props.matches.splice(indexToAdd, 0, newMatch);
+      singleselect(newMatch);
+    }
+  }
+}
+
+function edit() {
+  editDialog.value = true;
+}
+
+function onRightClick(event: any, match: Match) {
+  if (!isSelected(match) || props.selectedMatches.length <= 1) singleselect(match);
+  rClickMenu.value.show(event);
+}
+
+function select(event: any, match: Match) {
   if (event.ctrlKey) {
     multiselect(match);
   } else {
-    props.selectedMatches.length = 0;
-    props.selectedMatches.push(match);
-    editDialog.value = true;
+    singleselect(match);
+    edit();
   }
+}
+
+function singleselect(match: Match) {
+  props.selectedMatches.length = 0;
+  props.selectedMatches.push(match);
 }
 
 function multiselect(match: Match) {
