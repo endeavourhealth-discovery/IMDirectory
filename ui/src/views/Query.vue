@@ -6,7 +6,7 @@
       </template>
     </TopBar>
     <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match!" :full-query="query" />
+    <RecursiveQueryEdit v-if="isArrayHasLength(query.match)" :matches="query.match!" :full-query="query" :selectedMatches="selectedMatches" />
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -22,13 +22,14 @@ import { ref, Ref, onMounted } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import { Query } from "@im-library/interfaces/AutoGen";
-import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
+import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({} as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const baseEntityIri = ref("");
+const selectedMatches: Ref<Match[]> = ref([]);
 
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
