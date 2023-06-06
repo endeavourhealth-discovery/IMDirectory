@@ -17,7 +17,7 @@
           @mouseover="showOverlay($event, node)"
           @mouseleave="hideOverlay($event)"
           draggable="true"
-          @dragstart="dragStart($event, node)"
+          @dragstart="dragStart($event, node.data)"
         >
           <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
           <span v-if="!node.loading">
@@ -180,7 +180,7 @@ function hideOverlay(event: any): void {
 }
 
 function dragStart(event: any, data: any) {
-  event.dataTransfer.setData("text/plain", JSON.stringify(data));
+  event.dataTransfer.setData("conceptIri", JSON.stringify(data));
   event.dataTransfer.effectAllowed = "copy";
   event.dataTransfer.dropEffect = "copy";
   hideOverlay(overlayLocation.value);
