@@ -111,6 +111,10 @@ async function onCopy(event: any) {
   width: 100%;
 }
 
+.concept-button {
+  margin-right: 0.5rem;
+}
+
 .concept-button:hover {
   background-color: var(--highlight-bg) !important;
   color: var(--text-color) !important;
