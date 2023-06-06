@@ -7,20 +7,7 @@
 
       <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
       <span v-if="isArrayHasLength(match.match)">
-        <RecursiveQueryDisplay
-          v-if="match.match!.some((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
-          :include="true"
-          :matches="match.match!.filter((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
-          :parent-match="match"
-          :full-query="fullQuery"
-        />
-        <RecursiveQueryDisplay
-          v-if="match.match!.some((nestedMatch: Match) => isObjectHasKeys(nestedMatch, ['exclude']))"
-          :include="false"
-          :matches="match.match!.filter((nestedMatch: Match) => !isObjectHasKeys(nestedMatch, ['exclude']))"
-          :parent-match="match"
-          :full-query="fullQuery"
-        />
+        <RecursiveQueryDisplay v-if="match.match" :include="true" :matches="match.match" :parent-match="match" :full-query="fullQuery" />
       </span>
       <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
         <span v-if="match.where!.length == 1">
