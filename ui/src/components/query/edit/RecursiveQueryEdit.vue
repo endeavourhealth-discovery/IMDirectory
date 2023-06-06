@@ -1,8 +1,6 @@
 <template>
-  {{ selectedMatches.length }}
   <div class="feature" v-for="(match, index) of matches">
     <div :class="isSelected(match) ? 'selected' : ''" @click="edit($event, match)">
-      <span>{{ isSelected(match) }}</span>
       <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
       <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
       <span v-if="match.description" v-html="match.description"> </span>
@@ -34,7 +32,7 @@
     </div>
   </div>
   <Dialog v-model:visible="editDialog" modal header="Header" :style="{ width: '50vw' }">
-    {{ selectedMatches[0] }}
+    <EditDialog v-if="isArrayHasLength(selectedMatches)" :match="selectedMatches[0]" />
   </Dialog>
 </template>
 
@@ -44,6 +42,7 @@ import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import RecursiveWhereEdit from "./RecursiveWhereEdit.vue";
+import EditDialog from "./EditDialog.vue";
 
 interface Props {
   fullQuery: Query;
