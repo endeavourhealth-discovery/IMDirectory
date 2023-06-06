@@ -27,7 +27,7 @@
           </div>
         </template>
         <div class="set-accordion-content" id="set-definition-container">
-          <QuerySetDefinition :conceptIri="props.conceptIri" />
+          <QueryDisplay :conceptIri="props.conceptIri" />
         </div>
       </AccordionTab>
       <AccordionTab header="Direct Members">
@@ -51,6 +51,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 
 interface Props {
   conceptIri: string;
