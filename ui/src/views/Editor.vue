@@ -123,7 +123,19 @@ onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
+const {
+  editorEntity,
+  editorEntityOriginal,
+  fetchEntity,
+  processEntity,
+  editorIri,
+  editorSavedEntity,
+  entityName,
+  findPrimaryType,
+  updateEntity,
+  deleteEntityKey,
+  checkForChanges
+} = setupEditorEntity(EditorMode.EDIT, updateType);
 const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 const { editorValidity, updateValidity, removeValidity, isValidEntity } = setupValidity();
 const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
@@ -140,7 +152,6 @@ function onShowSidebar() {
 }
 
 const loading = ref(true);
-const currentStep = ref(0);
 const showSidebar = ref(false);
 const showTestQueryResults: Ref<boolean> = ref(false);
 
@@ -153,7 +164,7 @@ onMounted(async () => {
   await filterStore.fetchFilterSettings();
   await fetchEntity();
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
-    await getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
+    getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
   } else window.location.href = Env.DIRECTORY_URL;
   loading.value = false;
@@ -172,26 +183,6 @@ watch(
 
 const directService = new DirectService();
 const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
-
-function findPrimaryType(): TTIriRef | undefined {
-  if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]))) return undefined;
-  if (
-    isObjectHasKeys(editorEntityOriginal, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntityOriginal.value[RDF.TYPE]) &&
-    editorEntityOriginal.value[RDF.TYPE].length === 1 &&
-    isObjectHasKeys(editorEntity.value, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntity.value[RDF.TYPE])
-  ) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type === editorEntityOriginal.value[RDF.TYPE][0]);
-    if (found) return found;
-  }
-  if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
-  if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE)) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE);
-    if (found) return found;
-  }
-  return editorEntity.value[0];
-}
 
 function updateType(types: TTIriRef[]) {
   loading.value = true;
@@ -220,42 +211,6 @@ function beforeWindowUnload(e: any) {
   if (checkForChanges()) {
     e.preventDefault();
     e.returnValue = "";
-  }
-}
-
-function updateEntity(data: any) {
-  if (isArrayHasLength(data)) {
-    data.forEach((item: any) => {
-      if (isObjectHasKeys(item)) {
-        for (const [key, value] of Object.entries(item)) {
-          editorEntity.value[key] = value;
-        }
-      }
-    });
-  } else if (isObjectHasKeys(data)) {
-    if (isObjectHasKeys(data, [RDF.TYPE])) {
-      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) updateType(data[RDF.TYPE]);
-      else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) updateType(data[RDF.TYPE]);
-    } else {
-      for (const [key, value] of Object.entries(data)) {
-        editorEntity.value[key] = value;
-      }
-    }
-  }
-  editorStore.updateEditorSavedEntity(editorEntity.value);
-}
-
-function deleteEntityKey(data: string) {
-  if (data) delete editorEntity.value[data];
-}
-
-function checkForChanges() {
-  if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
-    editorStore.updateEditorHasChanges(false);
-    return false;
-  } else {
-    editorStore.updateEditorHasChanges(true);
-    return true;
   }
 }
 
@@ -330,8 +285,6 @@ function refreshEditor() {
   }).then((result: any) => {
     if (result.isConfirmed) {
       editorEntity.value = { ...editorEntityOriginal.value };
-      currentStep.value = 0;
-      router.push(stepsItems.value[currentStep.value].to);
     }
   });
 }

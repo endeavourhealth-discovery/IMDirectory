@@ -130,9 +130,6 @@ const directService = new DirectService();
 
 const currentUser = computed(() => userStore.currentUser).value;
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
-const hasType = computed<boolean>(() => {
-  return isObjectHasKeys(editorEntity.value, [RDF.TYPE]);
-});
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
@@ -145,7 +142,20 @@ function onShowSidebar() {
   editorStore.updateFindInEditorTreeIri("");
 }
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
+const {
+  editorEntity,
+  editorEntityOriginal,
+  fetchEntity,
+  processEntity,
+  editorIri,
+  editorSavedEntity,
+  entityName,
+  hasType,
+  findPrimaryType,
+  updateEntity,
+  deleteEntityKey,
+  checkForChanges
+} = setupEditorEntity(EditorMode.CREATE, updateType);
 const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
 const { editorValidity, updateValidity, removeValidity, isValidEntity } = setupValidity();
 const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
@@ -174,16 +184,16 @@ onMounted(async () => {
     await showEntityFoundWarning();
   }
   if (props.type) {
-    await getShape(props.type["@id"]);
+    getShape(props.type["@id"]);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-    await getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
+    getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (typeIri) {
     currentStep.value = 1;
     const typeEntity = await EntityService.getPartialEntity(typeIri as string, [RDFS.LABEL]);
     editorEntity.value[RDF.TYPE] = [{ "@id": typeIri, name: typeEntity[RDFS.LABEL] }];
-    shape.value = await getShape(typeIri as string);
+    shape.value = getShape(typeIri as string);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
       const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
@@ -256,29 +266,9 @@ function updateShowTypeSelector(bool: boolean) {
   showTypeSelector.value = bool;
 }
 
-function findPrimaryType(): TTIriRef | undefined {
-  if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]))) return undefined;
-  if (
-    isObjectHasKeys(editorEntityOriginal, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntityOriginal.value[RDF.TYPE]) &&
-    editorEntityOriginal.value[RDF.TYPE].length === 1 &&
-    isObjectHasKeys(editorEntity.value, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntity.value[RDF.TYPE])
-  ) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type === editorEntityOriginal.value[RDF.TYPE][0]);
-    if (found) return found;
-  }
-  if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
-  if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE)) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE);
-    if (found) return found;
-  }
-  return editorEntity.value[0];
-}
-
-async function updateType(types: TTIriRef[]) {
+function updateType(types: TTIriRef[]) {
   loading.value = true;
-  await getShapesCombined(types, findPrimaryType());
+  getShapesCombined(types, findPrimaryType());
   if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   editorEntity.value[RDF.TYPE] = types;
   loading.value = false;
@@ -291,54 +281,8 @@ function beforeWindowUnload(e: any) {
   }
 }
 
-function updateEntity(data: any) {
-  let wasUpdated = false;
-  if (isArrayHasLength(data)) {
-    data.forEach((item: any) => {
-      if (isObjectHasKeys(item)) {
-        for (const [key, value] of Object.entries(item)) {
-          editorEntity.value[key] = value;
-          wasUpdated = true;
-        }
-      }
-    });
-  } else if (isObjectHasKeys(data)) {
-    if (isObjectHasKeys(data, [RDF.TYPE])) {
-      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-        updateType(data[RDF.TYPE]);
-        wasUpdated = true;
-      } else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
-        updateType(data[RDF.TYPE]);
-        wasUpdated = true;
-      }
-    } else {
-      for (const [key, value] of Object.entries(data)) {
-        editorEntity.value[key] = value;
-        wasUpdated = true;
-      }
-    }
-  }
-  if (wasUpdated && isValidEntity(editorEntity.value)) {
-    creatorStore.updateCreatorSavedEntity(editorEntity.value);
-  }
-}
-
-function deleteEntityKey(data: string) {
-  if (data) delete editorEntity.value[data];
-}
-
 function fileChanges(entity: any) {
   FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser.id + "#", IM.UPDATE_ALL);
-}
-
-function checkForChanges() {
-  if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
-    creatorStore.updateCreatorHasChanges(false);
-    return false;
-  } else {
-    creatorStore.updateCreatorHasChanges(true);
-    return true;
-  }
 }
 
 async function submit(): Promise<void> {
