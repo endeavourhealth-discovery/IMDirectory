@@ -29,5 +29,6 @@ export enum ComponentType {
   TOGGLEABLE_COMPONENT = "ToggleableComponent",
   HORIZONTAL_LAYOUT = "HorizontalLayout",
   VERTICAL_LAYOUT = "VerticalLayout",
-  DROPDOWN_TEXT_INPUT_CONCATENATOR = "DropdownTextInputConcatenator"
+  DROPDOWN_TEXT_INPUT_CONCATENATOR = "DropdownTextInputConcatenator",
+  ROLE_GROUP_BUILDER = "RoleGroupBuilder"
 }

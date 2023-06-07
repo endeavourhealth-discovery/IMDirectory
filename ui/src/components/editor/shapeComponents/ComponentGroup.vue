@@ -36,7 +36,7 @@ interface Props {
   shape: PropertyShape;
   mode: EditorMode;
   position?: number;
-  value?: TTIriRef[];
+  value?: any;
 }
 
 const props = defineProps<Props>();
@@ -57,8 +57,8 @@ onMounted(() => {
 });
 
 function processEntityValue(property: PropertyShape) {
-  if (props.value && isPropertyShape(property)) {
-    return props.value[property.order - 1];
+  if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path["@id"]])) {
+    return props.value[property.path["@id"]];
   }
   if (isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
