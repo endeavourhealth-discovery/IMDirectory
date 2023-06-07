@@ -1,6 +1,6 @@
 <template>
   <div v-if="datatype === XMLS.NAMESPACE + 'string'">
-    <DropdownHeader :options="['is', 'startsWith', 'contains']" :whereClause="whereClause" />
+    <Dropdown :options="['is', 'startsWith', 'contains']" v-model:model-value="whereType" />
     <InputText type="text" v-model:model-value="selectedValue" @change="emit('onValueUpdate', $event)" />
   </div>
   <Dropdown
@@ -12,29 +12,29 @@
     @change="emit('onValueUpdate', $event)"
   />
   <div v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer'">
-    <DropdownHeader :options="['is', 'range']" :whereClause="whereClause" />
-    <ComparisonSelect v-if="whereClause.whereType === 'is'" :where="whereClause.whereValue" />
-    <RangeSelect v-else-if="whereClause.whereType === 'range'" :range="whereClause.whereValue" />
+    <Dropdown :options="['is', 'startsWith', 'contains']" v-model:model-value="whereType" />
+    <ComparisonSelect v-if="whereType === 'is'" :where="where" />
+    <RangeSelect v-else-if="whereType === 'range'" :where="where" />
   </div>
   <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'"><Calendar v-model:model-value="selectedValue" @change="emit('onValueUpdate', $event)" /></div>
 </template>
 
 <script setup lang="ts">
 import Dropdown from "primevue/dropdown";
-import { PropType, Ref, ref } from "vue";
+import { Ref, ref } from "vue";
 import ComparisonSelect from "../../editTextQuery/ComparisonSelect.vue";
-import DropdownHeader from "../DropdownHeader.vue";
 import RangeSelect from "../../editTextQuery/RangeSelect.vue";
 import { IM, XMLS } from "@im-library/vocabulary";
-import { WhereClauseUI } from "@im-library/interfaces";
+import { Where } from "@im-library/interfaces/AutoGen";
 interface Props {
+  where: Where;
   datatype: string;
-  whereClause: WhereClauseUI;
 }
 
 const props = defineProps<Props>();
 
 const emit = defineEmits({ onValueUpdate: (payload: any) => payload });
+const whereType: Ref<string> = ref("");
 const booleanOptions = [
   { name: "true", value: true },
   { name: "false", value: false }

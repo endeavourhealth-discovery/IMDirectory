@@ -1,4 +1,4 @@
-<template>From: <ComparisonSelect :where="range.from" /> To: <ComparisonSelect :where="range.to" /></template>
+<template>From: <ComparisonSelect :where="where.range!.from" /> To: <ComparisonSelect :where="where.range!.to" /></template>
 
 <script setup lang="ts">
 import { Where, Range } from "@im-library/interfaces/AutoGen";
@@ -7,7 +7,7 @@ import ComparisonSelect from "./ComparisonSelect.vue";
 import { PropType } from "vue";
 
 interface Props {
-  range: Range;
+  where: Where;
 }
 
 const props = defineProps<Props>();

@@ -12,16 +12,14 @@
         :loading="loading"
       >
         <template #default="{ node }: any">
-          <div class="tree-row" @dblclick="onNodeDblClick(node)" @contextmenu="onNodeContext($event, node)">
-            <ContextMenu ref="menu" :model="items" />
+          <div class="tree-row">
             <span v-if="!node.loading">
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>
             <ProgressSpinner v-if="node.loading" />
             <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
-            <Checkbox v-if="isProperty(node.conceptTypes)" v-model="node.selected" :binary="true" />
+            <Checkbox v-if="isProperty(node.conceptTypes)" v-model="node.selected" :binary="true" @input="onInput(node, $event)" />
           </div>
-         
         </template>
       </Tree>
       <OverlaySummary ref="OS" />
@@ -52,14 +50,13 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  addRule: (payload: TreeNode) => true
+  addProperty: (_payload: TreeNode) => true,
+  removeProperty: (_payload: TreeNode) => true
 });
 
 const loading = ref(true);
 const overlayLocation: Ref<any> = ref({});
-const items: Ref<any[]> = ref([]);
-const selectedProperties = ref([]);
-const menu = ref();
+const selectedProperties: Ref<TreeNode> = ref([]);
 const OS: Ref<any> = ref();
 const { selectedKeys, selectedNode, root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
 
@@ -74,6 +71,18 @@ onUnmounted(() => {
     hideOverlay(overlayLocation.value);
   }
 });
+
+function onInput(node: TreeNode, bool: boolean) {
+  if (bool) {
+    selectedProperties.value.push(node);
+    emit("addProperty", node);
+  }
+  if (!bool) {
+    selectedProperties.value = selectedProperties.value.filter((selected: TreeNode) => selected.key !== node.key);
+    emit("removeProperty", node);
+  }
+  console.log(node, bool);
+}
 
 function onNodeSelect(node: any) {
   selectedNode.value = node;
@@ -140,7 +149,6 @@ async function onClassExpand(node: TreeNode) {
   if (isObjectHasKeys(node)) {
     node.loading = true;
     if (!isObjectHasKeys(expandedKeys.value, [node.key!])) expandedKeys.value[node.key!] = true;
-
     const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
     if (children.totalCount === 0) node.leaf = true;
     children.result.forEach((child: any) => {
@@ -151,11 +159,6 @@ async function onClassExpand(node: TreeNode) {
     }
     node.loading = false;
   }
-}
-
-function onNodeDblClick(node: any) {
-  console.log(JSON.stringify(node));
-  emit("addRule", node);
 }
 
 async function addParentFoldersToRoot() {
@@ -185,11 +188,6 @@ async function addFolderToRoot(iri: string, name: string) {
     parent.children!.push(node);
   }
   root.value.push(parent);
-}
-
-async function onNodeContext(event: any, node: any) {
-  event.preventDefault();
-  items.value = [];
 }
 
 async function showOverlay(event: any, node: any): Promise<void> {

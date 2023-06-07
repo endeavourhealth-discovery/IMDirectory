@@ -8,24 +8,28 @@ import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
   if (isFolder(treeNode.conceptTypes)) {
     const match = {
+      key: treeNode.key,
       where: [{ "@id": IM.IS_CONTAINED_IN, in: [{ "@id": IM.NAMESPACE + "HealthDataModel" }] }]
     } as Match;
     describeMatch([match], "match");
     return match;
   } else if (isRecordModel(treeNode.conceptTypes)) {
     const match = {
+      key: treeNode.key,
       "@type": treeNode.data
     } as Match;
     describeMatch([match], "match");
     return match;
   } else if (isValueSet(treeNode.conceptTypes) || isQuery(treeNode.conceptTypes)) {
     const match = {
+      key: treeNode.key,
       "@set": treeNode.data
     } as Match;
     describeMatch([match], "match");
     return match;
   } else if (isProperty(treeNode.conceptTypes)) {
     const match = {
+      key: treeNode.key,
       path: buildPath(treeNode),
       where: [{ "@id": treeNode.data, in: [{ "@id": "http://endhealth.info/im#ExampleConcept" }] }]
     };
@@ -33,6 +37,7 @@ export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
     return match;
   }
   const match = {
+    key: treeNode.key,
     "@id": treeNode.data
   } as Match;
   describeMatch([match], "match");

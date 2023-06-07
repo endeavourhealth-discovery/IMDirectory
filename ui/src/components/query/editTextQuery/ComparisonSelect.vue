@@ -14,7 +14,7 @@ const operatorOptions = ["=", ">=", ">", "<="];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 
 interface Props {
-  where: Assignable;
+  where: Where;
 }
 
 const props = defineProps<Props>();

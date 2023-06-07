@@ -32,7 +32,7 @@
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
   </div>
-  <Dialog v-model:visible="editDialog" modal header="Header" :style="{ width: '75vw' }">
+  <Dialog v-model:visible="editDialog" maximizable modal header="Header" :style="{ width: '75vw' }">
     <EditDialog v-if="isArrayHasLength(selectedMatches)" :base-entity-iri="baseEntityIri" :match="selectedMatches[0]" @on-close="onEditDialogClose" />
   </Dialog>
   <ContextMenu ref="rClickMenu" :model="props.selectedMatches.length > 1 ? rClickItemsGroup : rClickItems" />
@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
-import { Ref, ref } from "vue";
+import { ComputedRef, Ref, computed, ref } from "vue";
 import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import RecursiveWhereEdit from "./RecursiveWhereEdit.vue";
 import EditDialog from "./EditDialog.vue";
@@ -62,6 +62,10 @@ enum Direction {
 
 const props = defineProps<Props>();
 const editDialog: Ref<boolean> = ref(false);
+const rClickMenu = ref();
+const isBaseSelected: ComputedRef<boolean> = computed(() => {
+  return JSON.stringify(props.selectedMatches[0]) === JSON.stringify(props.fullQuery.match![0]);
+});
 const rClickItems: Ref<MenuItem[]> = ref([
   {
     label: "Add",
@@ -72,7 +76,8 @@ const rClickItems: Ref<MenuItem[]> = ref([
         command: () => {
           add(Direction.ABOVE);
           edit();
-        }
+        },
+        disabled: isBaseSelected
       },
       {
         label: "Below",
@@ -97,8 +102,6 @@ const rClickItemsGroup = ref([
   { label: "Group", icon: "pi pi-fw pi-trash" },
   { label: "Delete", icon: "pi pi-fw pi-trash" }
 ]);
-
-const rClickMenu = ref();
 
 function onEditDialogClose() {
   if (!isObjectHasKeys(props.selectedMatches[0])) {
