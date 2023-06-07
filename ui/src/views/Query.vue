@@ -5,35 +5,6 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-
-    <!-- <Splitter class="query-splitter">
-      <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
-        <QueryNavTree @add-rule="addRule" />
-      </SplitterPanel>
-      <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
-        <div class="splitter-right">
-          <div>
-            <div class="include-title" style="color: green">include if</div>
-            <RecursiveQueryDisplay
-              v-if="isArrayHasLength(query.match)"
-              :matches="query.match!.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
-              :full-query="query"
-            />
-            <RecursiveQueryDisplay
-              v-if="isArrayHasLength(query.match)"
-              :matches="query.match!.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
-              :full-query="query"
-            />
-          </div>
-
-          <div class="button-bar">
-            <Button class="button-bar-button" label="Run" />
-            <Button class="button-bar-button" label="Save" severity="success" />
-          </div>
-        </div>
-      </SplitterPanel>
-    </Splitter> -->
-
     <div class="include-title" style="color: green">include if</div>
     <RecursiveQueryEdit
       v-if="isArrayHasLength(query.match)"
@@ -59,9 +30,6 @@ import { QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import QueryNavTree from "@/components/query/QueryNavTree.vue";
-import { buildMatchFromTreeNode } from "@im-library/helpers";
-import { TreeNode } from "primevue/tree";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 const filterStore = useFilterStore();
@@ -79,12 +47,6 @@ onMounted(async () => {
     baseEntityIri.value = resolveIri(iri);
   }
 });
-
-// function addRule(treeNode: TreeNode) {
-//   const match = buildMatchFromTreeNode(treeNode as any);
-//   if (!isArrayHasLength(query.value.match)) query.value.match = [];
-//   query.value.match!.push(match);
-// }
 </script>
 
 <style scoped lang="scss">
@@ -117,17 +79,6 @@ onMounted(async () => {
 
 .button-bar-button {
   margin: 0.5rem;
-}
-
-.query-splitter {
-  height: 100%;
-}
-
-.splitter-right {
-  display: flex;
-  flex-flow: column;
-  height: 100%;
-  justify-content: space-between;
 }
 
 .include-title {

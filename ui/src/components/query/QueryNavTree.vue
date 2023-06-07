@@ -81,7 +81,6 @@ function onInput(node: TreeNode, bool: boolean) {
     selectedProperties.value = selectedProperties.value.filter((selected: TreeNode) => selected.key !== node.key);
     emit("removeProperty", node);
   }
-  console.log(node, bool);
 }
 
 function onNodeSelect(node: any) {
@@ -89,14 +88,14 @@ function onNodeSelect(node: any) {
 }
 
 async function handleTreeNodeExpand(node: any) {
-  node.children = [];
-  if (isRecordModel(node.conceptTypes)) {
-    onNodeExpand(node);
-  } else if (isProperty(node.conceptTypes)) {
-    onPropertyExpand(node);
-  } else {
-    onClassExpand(node);
-  }
+  if (!isArrayHasLength(node.children))
+    if (isRecordModel(node.conceptTypes)) {
+      onNodeExpand(node);
+    } else if (isProperty(node.conceptTypes)) {
+      onPropertyExpand(node);
+    } else {
+      onClassExpand(node);
+    }
 }
 
 function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, parent?: TreeNode, order?: number): TreeNode {
@@ -107,7 +106,7 @@ function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: T
     color: getColourFromType(conceptTypes),
     conceptTypes: conceptTypes,
     data: conceptIri,
-    leaf: !hasChildren && !isRecordModel(conceptTypes),
+    leaf: !hasChildren,
     loading: false,
     children: [] as TreeNode[],
     order: order,
@@ -122,7 +121,7 @@ async function onPropertyExpand(node: TreeNode) {
     node.children!.push(createTreeNode(shaclNode[0].name as string, shaclNode[0]["@id"], [{ "@id": SHACL.NODESHAPE }], true, node));
   } else if (isArrayHasLength(ttProperty["http://www.w3.org/ns/shacl#class"])) {
     const shaclClass = ttProperty["http://www.w3.org/ns/shacl#class"]!;
-    node.children!.push(createTreeNode(shaclClass[0].name as string, shaclClass[0]["@id"], [{ "@id": SHACL.CLASS }], true, node));
+    node.children!.push(createTreeNode(shaclClass[0].name as string, shaclClass[0]["@id"], [{ "@id": SHACL.CLASS }], false, node));
   }
 }
 
@@ -136,7 +135,7 @@ async function onNodeExpand(node: TreeNode) {
       prop["http://www.w3.org/ns/shacl#path"][0].name as string,
       prop["http://www.w3.org/ns/shacl#path"][0]["@id"],
       [{ "@id": RDF.PROPERTY }],
-      !isArrayHasLength(prop["http://www.w3.org/ns/shacl#datatype"]),
+      !isArrayHasLength(prop["http://www.w3.org/ns/shacl#datatype"]) && !isArrayHasLength(prop["http://www.w3.org/ns/shacl#class"]),
       node
     );
     child.ttproperty = prop;
@@ -249,27 +248,6 @@ function hideOverlay(event: any): void {
   gap: 0.25rem;
 }
 
-#parent-button-bar {
-  display: flex;
-  flex-flow: row;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.toggle-buttons-container {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.tree-locked-button,
-.tree-lock-button,
-.home-button,
-.next-parent-button {
-  width: fit-content !important;
-}
-
 #hierarchy-tree-bar-container::v-deep(.p-tree-toggler) {
   height: 1.25rem !important;
   margin: 0 0 0 0 !important;
@@ -281,11 +259,5 @@ function hideOverlay(event: any): void {
   height: 100%;
   width: 100%;
   justify-content: space-between;
-}
-
-.add-button {
-  width: 100%;
-  display: flex;
-  flex-flow: column;
 }
 </style>

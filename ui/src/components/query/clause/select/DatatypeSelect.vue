@@ -1,18 +1,17 @@
 <template>
   <div v-if="datatype === XMLS.NAMESPACE + 'string'">
     <Dropdown :options="['is', 'startsWith', 'contains']" v-model:model-value="whereType" />
-    <InputText type="text" v-model:model-value="selectedValue" @change="emit('onValueUpdate', $event)" />
+    <InputText type="text" v-model:model-value="where.value" />
   </div>
   <Dropdown
     v-else-if="datatype === XMLS.NAMESPACE + 'boolean'"
     :options="booleanOptions"
     option-label="name"
     option-value="value"
-    v-model:model-value="selectedValue"
-    @change="emit('onValueUpdate', $event)"
+    v-model:model-value="where.value"
   />
   <div v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer'">
-    <Dropdown :options="['is', 'startsWith', 'contains']" v-model:model-value="whereType" />
+    <Dropdown :options="['is', 'range']" v-model:model-value="whereType" />
     <ComparisonSelect v-if="whereType === 'is'" :where="where" />
     <RangeSelect v-else-if="whereType === 'range'" :where="where" />
   </div>
@@ -21,18 +20,23 @@
 
 <script setup lang="ts">
 import Dropdown from "primevue/dropdown";
-import { Ref, ref } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 import ComparisonSelect from "../../editTextQuery/ComparisonSelect.vue";
 import RangeSelect from "../../editTextQuery/RangeSelect.vue";
 import { IM, XMLS } from "@im-library/vocabulary";
 import { Where } from "@im-library/interfaces/AutoGen";
+import { describeWhere } from "@im-library/helpers/QueryDescriptor";
 interface Props {
   where: Where;
   datatype: string;
 }
 
-const props = defineProps<Props>();
+watch(
+  () => props.where.value,
+  () => describeWhere([props.where], "where")
+);
 
+const props = defineProps<Props>();
 const emit = defineEmits({ onValueUpdate: (payload: any) => payload });
 const whereType: Ref<string> = ref("");
 const booleanOptions = [
@@ -40,6 +44,10 @@ const booleanOptions = [
   { name: "false", value: false }
 ];
 const selectedValue: Ref<any> = ref();
+
+onMounted(() => {
+  whereType.value = "is";
+});
 </script>
 
 <style scoped></style>

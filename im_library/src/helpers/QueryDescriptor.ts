@@ -38,7 +38,7 @@ export function describeMatch(match: Match[], type: string) {
   }
 }
 
-function describeWhere(where: Where[], type: string) {
+export function describeWhere(where: Where[], type: string) {
   for (const [index, whereItem] of where.entries()) {
     whereItem.description = getDisplayFromWhere(whereItem);
     if (isObjectHasKeys(whereItem, ["bool"])) {

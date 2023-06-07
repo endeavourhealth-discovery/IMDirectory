@@ -17,7 +17,7 @@
         />
       </span>
       <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
-        <span v-if="match.where!.length == 1">
+        <span v-if="match.where!.length === 1">
           <span v-if="hasNodeRef(match.where![0])" v-html="match.where![0].description"></span>
           <span v-else-if="hasBigList(match.where![0])" v-html="match.where![0].description"></span>
           <span v-else v-html="match.where![0].description"></span>
@@ -32,7 +32,7 @@
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
   </div>
-  <Dialog v-model:visible="editDialog" maximizable modal header="Header" :style="{ width: '75vw' }">
+  <Dialog v-model:visible="editDialog" maximizable modal header="Edit" :style="{ width: '80vw' }">
     <EditDialog v-if="isArrayHasLength(selectedMatches)" :base-entity-iri="baseEntityIri" :match="selectedMatches[0]" @on-close="onEditDialogClose" />
   </Dialog>
   <ContextMenu ref="rClickMenu" :model="props.selectedMatches.length > 1 ? rClickItemsGroup : rClickItems" />
@@ -191,5 +191,9 @@ function hasBigList(where: Where) {
   color: var(--text-color);
   border-color: var(--focus-ring);
   border-radius: var(--border-radius);
+}
+
+.p-dialog-content {
+  height: 100% !important;
 }
 </style>

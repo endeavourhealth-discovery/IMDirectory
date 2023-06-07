@@ -6,7 +6,6 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import DropdownHeader from "../DropdownHeader.vue";
 import EntitySearch from "../../editTextQuery/EntitySearch.vue";
 import EntailmentOptionsSelect from "../../editTextQuery/EntailmentOptionsSelect.vue";
 import { ConceptSummary } from "@im-library/interfaces";

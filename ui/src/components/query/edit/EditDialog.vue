@@ -1,12 +1,11 @@
 <template>
-  <div>
+  <div class="editor-dialog-container">
     <Splitter class="query-splitter">
-      <SplitterPanel :size="30" :minSize="10" style="overflow: auto" data-testid="splitter-left">
+      <SplitterPanel :size="30" :minSize="10" style="overflow: auto" class="splitter-left">
         <QueryNavTree :base-entity-iri="baseEntityIri" @add-property="addProperty" @remove-property="removeProperty" />
       </SplitterPanel>
-      <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
+      <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
         <div v-for="editMatch in editMatches">
-          <Divider />
           <EditMatch :data-model-iri="baseEntityIri" :property-iri="editMatch.where?.[0]['@id']" :edit-match="editMatch" />
           <Divider />
         </div>
@@ -27,6 +26,8 @@ import { Ref, onMounted, ref } from "vue";
 import QueryNavTree from "../QueryNavTree.vue";
 import { buildMatchFromTreeNode } from "@im-library/helpers";
 import EditMatch from "./EditMatch.vue";
+import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
 interface Props {
   baseEntityIri?: string;
   match?: Match;
@@ -41,6 +42,7 @@ onMounted(() => {
 });
 
 function addProperty(treeNode: TreeNode) {
+  buildMatchFromProperty(treeNode as any);
   editMatches.value.push(buildMatchFromTreeNode(treeNode as any));
 }
 
@@ -56,10 +58,14 @@ function save() {
     }
   }
 
-  if (editMatches.value.length === 1)
-    for (const key of Object.keys(editMatches.value[0])) {
-      (props.match as any)[key] = (editMatches.value[0] as any)[key];
+  if (editMatches.value.length === 1) {
+    const editMatch = editMatches.value[0];
+    describeMatch([editMatch], "match");
+    console.log(editMatch);
+    for (const key of Object.keys(editMatch)) {
+      (props.match as any)[key] = (editMatch as any)[key];
     }
+  }
 
   emit("onClose");
 }
@@ -74,5 +80,28 @@ function discard() {
 .footer {
   display: flex;
   justify-content: end;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.editor-dialog-container {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.query-splitter {
+  display: flex;
+  height: 70vh;
+}
+
+.splitter-right {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.splitter-left {
+  height: 100%;
 }
 </style>
