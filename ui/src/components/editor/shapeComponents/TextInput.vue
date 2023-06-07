@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
 let key = props.shape.path["@id"];
@@ -54,7 +54,7 @@ watch(
 watch(userInput, async newValue => {
   updateEntity(newValue);
   updateValueVariableMap(newValue);
-  await updateValidity(newValue);
+  if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
 });
 
 function updateEntity(data: string) {
@@ -63,22 +63,11 @@ function updateEntity(data: string) {
   if (entityUpdate) entityUpdate(result);
 }
 
-async function updateValidity(data: string) {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity)
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  else invalid.value = !defaultValidation(data);
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
 function updateValueVariableMap(data: string) {
   if (!props.shape.valueVariable) return;
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-function defaultValidation(string: string) {
-  return true;
 }
 </script>
 

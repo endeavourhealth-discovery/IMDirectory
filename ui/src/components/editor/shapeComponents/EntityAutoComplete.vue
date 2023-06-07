@@ -104,7 +104,7 @@ const emit = defineEmits({
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
@@ -249,7 +249,7 @@ async function itemSelected(value: ConceptSummary) {
   if (isObjectHasKeys(value)) {
     if (!props.shape.builderChild && key.value) {
       updateEntity(value);
-      await updateValidity(value);
+      if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
     } else {
       emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
@@ -272,19 +272,6 @@ function updateEntity(value: ConceptSummary) {
   const result = {} as any;
   result[key.value] = summaryToTTIriRef(value);
   if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
-}
-
-async function updateValidity(value: ConceptSummary) {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity() {
-  return true;
 }
 
 function showOptionsOverlay(event: any, data?: any) {

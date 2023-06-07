@@ -50,7 +50,7 @@ const emit = defineEmits({
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
 const propertyPath: Ref<TTIriRef> = ref({} as TTIriRef);
@@ -188,7 +188,7 @@ async function updateAll() {
     emit("updateClicked", property);
   }
   updateValueVariableMap(property);
-  await updateValidity();
+  if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
 }
 
 async function createProperty() {
@@ -234,19 +234,6 @@ function updateValueVariableMap(data: Property) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity() {
-  return true;
 }
 
 async function isFunctionProperty(propIri: string) {

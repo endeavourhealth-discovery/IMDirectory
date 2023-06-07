@@ -43,7 +43,7 @@ const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
@@ -102,7 +102,7 @@ function combineSelectedAndFixed(selected: TTIriRef[], fixed: TTIriRef) {
 async function updateAll(selected: TTIriRef[]) {
   updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
   updateValueVariableMap(combineSelectedAndFixed(selected, fixedOption.value));
-  await updateValidity(combineSelectedAndFixed(selected, fixedOption.value));
+  if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
 }
 
 async function getDropdownOptions(): Promise<TTIriRef[]> {
@@ -139,19 +139,6 @@ function updateValueVariableMap(data: TTIriRef[]) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-async function updateValidity(data: TTIriRef[]) {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity(data);
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity(data: TTIriRef[]) {
-  return true;
 }
 </script>
 

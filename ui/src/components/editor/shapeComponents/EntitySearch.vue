@@ -61,7 +61,7 @@ const emit = defineEmits({
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
 watch(
@@ -186,7 +186,7 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
   } else {
     emit("updateClicked", selectedResult.value);
   }
-  await updateValidity();
+  if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
   updateValueVariableMap(selectedResult.value);
   hideOverlay();
 }
@@ -202,19 +202,6 @@ function updateValueVariableMap(data: TTIriRef) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity() {
-  return isTTIriRef(selectedResult.value);
 }
 
 function findInTree(iri: string) {

@@ -35,7 +35,7 @@ const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
@@ -49,7 +49,7 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
     const concatenated = newSelectedDropdownOption["@id"] + newUserInput;
     updateEntity(concatenated);
     updateValueVariableMap(concatenated);
-    await updateValidity(concatenated);
+    if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
   }
 });
 
@@ -117,15 +117,6 @@ function updateValueVariableMap(data: string) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-async function updateValidity(data: string) {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation(data);
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
 }
 
 function defaultValidation(data: string) {

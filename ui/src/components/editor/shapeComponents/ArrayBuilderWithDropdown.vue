@@ -69,7 +69,7 @@ const emit = defineEmits({
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 
 let key = props.shape.path["@id"];
 
@@ -86,7 +86,7 @@ onMounted(async () => {
   dropdownOptions.value = await getDropdownOptions();
   await createBuild();
   if (entityUpdate) updateEntity();
-  if (validityUpdate) await updateValidity();
+  if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
   loading.value = false;
 });
 watch(
@@ -99,7 +99,7 @@ watch(
     setDropdownFromValue();
     await createBuild();
     if (entityUpdate) updateEntity();
-    if (validityUpdate) await updateValidity();
+    if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
     loading.value = false;
   }
 );
@@ -108,7 +108,7 @@ watch(
   async () => {
     if (!loading.value && finishedChildLoading()) {
       if (entityUpdate) updateEntity();
-      if (validityUpdate) await updateValidity();
+      if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
     }
   }
 );
@@ -240,19 +240,6 @@ function updateEntity() {
   result[key] = value;
   if (entityUpdate && isObjectHasKeys(value) && !props.shape.builderChild) entityUpdate(result);
   else if (entityUpdate && isObjectHasKeys(value)) emit("updateClicked", value);
-}
-
-async function updateValidity() {
-  if (isPropertyShape(props.shape) && isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return generateBuildAsJson().every((item: any) => isObjectHasKeys(item, ["@id", "name"]));
 }
 
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {

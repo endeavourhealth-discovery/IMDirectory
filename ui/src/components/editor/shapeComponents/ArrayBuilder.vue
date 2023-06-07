@@ -62,7 +62,7 @@ const props = defineProps<Props>();
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
 let key = props.shape.path["@id"];
@@ -85,7 +85,7 @@ watch(
   async newValue => {
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
-      if (validityUpdate) await updateValidity();
+      if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
       updateValueVariableMap(props.value);
     }
   }
@@ -219,26 +219,6 @@ function updateEntity() {
   const result = {} as any;
   result[key] = value;
   if (entityUpdate && value.length) entityUpdate(result);
-}
-
-async function updateValidity() {
-  if (isPropertyShape(props.shape) && isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return generateBuildAsJson().every(item => isObjectHasKeys(item, ["@id", "name"]) || isValidProperty(item));
-}
-
-function isValidProperty(property: any) {
-  return (
-    isObjectHasKeys(property[SHACL.PATH]?.[0], ["@id"]) &&
-    isObjectHasKeys(property[SHACL.NODE]?.[0] || property[SHACL.DATATYPE]?.[0] || property[SHACL.CLASS]?.[0] || property[SHACL.FUNCTION]?.[0], ["@id"])
-  );
 }
 
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
