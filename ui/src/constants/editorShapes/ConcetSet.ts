@@ -157,6 +157,81 @@ const ConceptSetShape: FormGenerator = {
               forceIsValue: true
             },
             {
+              label: "Contained in array builder",
+              name: "isContainedIn",
+              showTitle: true,
+              order: 1,
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ARRAY_BUILDER
+              },
+              validation: {
+                "@id": IM.validation.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              path: {
+                "@id": IM.IS_CONTAINED_IN
+              },
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 1,
+                  builderChild: true,
+                  componentType: {
+                    "@id": IM.component.ENTITY_SEARCH
+                  },
+                  select: [
+                    {
+                      "@id": IM.query.SEARCH_MAIN_TYPES
+                    }
+                  ],
+                  path: {
+                    "@id": IM.IS_CONTAINED_IN
+                  }
+                }
+              ]
+            },
+            {
+              label: "Subclass of array builder",
+              name: "subclassOf",
+              showTitle: true,
+              order: 1,
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ARRAY_BUILDER
+              },
+              validation: {
+                "@id": IM.validation.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              path: {
+                "@id": RDFS.SUBCLASS_OF
+              },
+              valueVariable: "subClassOf",
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 1,
+                  builderChild: true,
+                  componentType: {
+                    "@id": IM.component.ENTITY_SEARCH
+                  },
+                  select: [
+                    {
+                      "@id": IM.query.SEARCH_MAIN_TYPES
+                    }
+                  ],
+                  path: {
+                    "@id": RDFS.SUBCLASS_OF
+                  }
+                }
+              ]
+            },
+            {
               comment: "Toggle controlling sub components visibility",
               order: 6,
               name: "Replaced by",
