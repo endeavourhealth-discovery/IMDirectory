@@ -2,7 +2,7 @@
   <div class="component-group-container">
     <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
     <div class="label-container">
-      <div v-for="(property, index) in properties" class="components-container">
+      <div v-for="(property, index) in properties" class="component-container">
         <component :is="processComponentType(property.componentType)" :shape="property" :value="processEntityValue(property)" :mode="mode" />
       </div>
     </div>
@@ -80,10 +80,10 @@ function setProperties(shape: PropertyShape) {
   flex-flow: row wrap;
 }
 
-.components-container {
+.component-container {
   flex: 1 1 auto;
   display: flex;
-  flex-flow: column;
+  flex-flow: row;
   align-items: baseline;
 }
 
@@ -91,6 +91,7 @@ function setProperties(shape: PropertyShape) {
   width: 100%;
   flex: 1 1 auto;
   padding: 1rem;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
   display: flex;
   flex-flow: row wrap;
