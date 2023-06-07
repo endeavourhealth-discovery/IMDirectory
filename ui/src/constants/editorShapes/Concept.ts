@@ -1,5 +1,5 @@
 import { Argument, FormGenerator, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { RDF, IM, XSD, RDFS } from "@im-library/vocabulary";
+import { RDF, IM, XSD, RDFS, SHACL } from "@im-library/vocabulary";
 
 const ConceptShape: FormGenerator = {
   "@id": IM.editor.CONCEPT_SHAPE,
@@ -175,8 +175,83 @@ const ConceptShape: FormGenerator = {
               forceIsValue: true
             },
             {
+              label: "Contained in array builder",
+              name: "isContainedIn",
+              showTitle: true,
+              order: 1,
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ARRAY_BUILDER
+              },
+              validation: {
+                "@id": IM.validation.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              path: {
+                "@id": IM.IS_CONTAINED_IN
+              },
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 1,
+                  builderChild: true,
+                  componentType: {
+                    "@id": IM.component.ENTITY_SEARCH
+                  },
+                  select: [
+                    {
+                      "@id": IM.query.SEARCH_MAIN_TYPES
+                    }
+                  ],
+                  path: {
+                    "@id": IM.IS_CONTAINED_IN
+                  }
+                }
+              ]
+            },
+            {
+              label: "Subclass of array builder",
+              name: "subclassOf",
+              showTitle: true,
+              order: 1,
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ARRAY_BUILDER
+              },
+              validation: {
+                "@id": IM.validation.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              path: {
+                "@id": RDFS.SUBCLASS_OF
+              },
+              valueVariable: "subClassOf",
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 1,
+                  builderChild: true,
+                  componentType: {
+                    "@id": IM.component.ENTITY_SEARCH
+                  },
+                  select: [
+                    {
+                      "@id": IM.query.SEARCH_MAIN_TYPES
+                    }
+                  ],
+                  path: {
+                    "@id": RDFS.SUBCLASS_OF
+                  }
+                }
+              ]
+            },
+            {
               comment: "Toggle controlling sub components visibility",
-              order: 7,
+              order: 8,
               name: "Replaced by",
               label: "Deactivate | Activate",
               minCount: 1,
@@ -228,84 +303,16 @@ const ConceptShape: FormGenerator = {
           componentType: { "@id": IM.component.VERTICAL_LAYOUT },
           property: [
             {
-              label: "Property Group - Role group array builder",
+              label: "Property Group - Role group builder",
               order: 1,
               maxCount: 1,
-              showTitle: true,
               path: {
                 "@id": IM.ROLE_GROUP
               },
-              property: [
-                {
-                  label: "Property Group - Role group component group",
-                  name: "Property refinement",
-                  order: 1,
-                  minCount: 1,
-                  componentType: {
-                    "@id": IM.component.COMPONENT_GROUP
-                  },
-                  path: {
-                    "@id": IM.ROLE_GROUP
-                  },
-                  property: [
-                    {
-                      comment: "selects a property from allowable range from selected concept",
-                      order: 1,
-                      select: [
-                        {
-                          "@id": IM.query.ALLOWABLE_PROPERTIES
-                        }
-                      ],
-                      builderChild: true,
-                      path: {
-                        "@id": IM.ROLE_GROUP
-                      },
-                      argument: [
-                        {
-                          parameter: "entityIri",
-                          valueVariable: "conceptIri"
-                        }
-                      ],
-                      name: "Property",
-                      showTitle: true,
-                      minCount: 1,
-                      componentType: {
-                        "@id": IM.component.ENTITY_AUTO_COMPLETE
-                      },
-                      valueVariable: "propertyIri"
-                    },
-                    {
-                      comment: "Selects a quantifier from allowable range from property",
-                      order: 2,
-                      select: [
-                        {
-                          "@id": IM.query.ALLOWABLE_RANGES
-                        }
-                      ],
-                      builderChild: true,
-                      path: {
-                        "@id": IM.ROLE_GROUP
-                      },
-                      argument: [
-                        {
-                          parameter: "entityIri",
-                          valueVariable: "propertyIri"
-                        }
-                      ],
-                      name: "Quantifier",
-                      showTitle: true,
-                      minCount: 1,
-                      componentType: {
-                        "@id": IM.component.ENTITY_AUTO_COMPLETE
-                      }
-                    }
-                  ]
-                }
-              ],
               name: "Role group",
               minCount: 0,
               componentType: {
-                "@id": IM.component.ARRAY_BUILDER
+                "@id": IM.component.ROLE_GROUP_BUILDER
               }
             },
             {

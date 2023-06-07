@@ -12,11 +12,11 @@ describe("EditorMethods", () => {
       const shape = fakerFactory.propertyShape.create({ argument: [argument1, argument2, argument3], builderChild: true, order: 2 });
       const valueVariableMap = new Map().set("testVariable", { id: "testId" }).set("testVariableWithOrder2", { id: "testOrderId" });
       const results = processArguments(shape, valueVariableMap);
-      expect(results[0]).toEqual(expect.objectContaining({ valueVariable: { id: "testId" } }));
+      expect(results[0]).toEqual(expect.objectContaining({ valueObject: { id: "testId" } }));
       expect(results[0]).toEqual(expect.objectContaining({ valueData: argument1.valueData }));
       expect(results[1]).toEqual(expect.objectContaining({ valueVariable: null }));
       expect(results[1]).toEqual(expect.objectContaining({ valueData: argument2.valueData }));
-      expect(results[2]).toEqual(expect.objectContaining({ valueVariable: { id: "testOrderId" } }));
+      expect(results[2]).toEqual(expect.objectContaining({ valueObject: { id: "testOrderId" } }));
       expect(results[2]).toEqual(expect.objectContaining({ valueData: argument3.valueData }));
     });
   });
