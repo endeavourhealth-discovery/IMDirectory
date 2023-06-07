@@ -65,6 +65,8 @@ import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayB
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
+import { setupValidity } from "@/composables/setupValidity";
+import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 
 export default defineComponent({
   components: {
@@ -145,17 +147,17 @@ function onShowSidebar() {
 
 const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
 const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { editorValidity, updateValidity, removeValidity, isValidEntity } = setupValidity();
+const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
-const creatorValidity: Ref<{ key: string; valid: boolean }[]> = ref([]);
 const targetShape: Ref<TTIriRef | undefined> = ref();
-const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
 const showTestQueryResults: Ref<boolean> = ref(false);
 const showTypeSelector = ref(false);
 
-provide(injectionKeys.editorValidity, { validity: creatorValidity, updateValidity, removeValidity });
+provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
@@ -252,21 +254,6 @@ const debouncedFiler = debounce((entity: any) => {
 
 function updateShowTypeSelector(bool: boolean) {
   showTypeSelector.value = bool;
-}
-
-function updateValueVariableMap(key: string, value: any) {
-  valueVariableMap.value.set(key, value);
-}
-
-function updateValidity(data: { key: string; valid: boolean }) {
-  const index = creatorValidity.value.findIndex(item => item.key === data.key);
-  if (index != -1) creatorValidity.value[index] = data;
-  else creatorValidity.value.push(data);
-}
-
-function removeValidity(data: { key: string; valid: boolean }) {
-  const index = creatorValidity.value.findIndex(item => (item.key = data.key));
-  if (index) creatorValidity.value.splice(index, 1);
 }
 
 function findPrimaryType(): TTIriRef | undefined {
@@ -409,10 +396,6 @@ async function submit(): Promise<void> {
 
 function testQuery() {
   if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
-}
-
-function isValidEntity(entity: any): boolean {
-  return isObjectHasKeys(entity) && entity["http://endhealth.info/im#id"] && creatorValidity.value.every(validity => validity.valid);
 }
 
 function refreshCreator() {

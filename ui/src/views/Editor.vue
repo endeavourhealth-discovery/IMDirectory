@@ -66,6 +66,8 @@ import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayB
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
+import { setupValidity } from "@/composables/setupValidity";
+import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 
 export default defineComponent({
   components: {
@@ -123,6 +125,8 @@ onUnmounted(() => {
 
 const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
 const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const { editorValidity, updateValidity, removeValidity, isValidEntity } = setupValidity();
+const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
 
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
@@ -138,14 +142,11 @@ function onShowSidebar() {
 const loading = ref(true);
 const currentStep = ref(0);
 const showSidebar = ref(false);
-const editorValidity: Ref<{ key: string; valid: boolean }[]> = ref([]);
-const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
 const showTestQueryResults: Ref<boolean> = ref(false);
-
-provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
+provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
 
 onMounted(async () => {
   loading.value = true;
@@ -192,31 +193,12 @@ function findPrimaryType(): TTIriRef | undefined {
   return editorEntity.value[0];
 }
 
-function updateValueVariableMap(key: string, value: any) {
-  valueVariableMap.value.set(key, value);
-}
-
-function updateValidity(data: { key: string; valid: boolean }) {
-  const index = editorValidity.value.findIndex(item => item.key === data.key);
-  if (index) editorValidity.value[index] = data;
-  else editorValidity.value.push(data);
-}
-
-function removeValidity(data: { key: string; valid: boolean }) {
-  const index = editorValidity.value.findIndex(item => (item.key = data.key));
-  if (index) editorValidity.value.splice(index, 1);
-}
-
-function stepsClicked(event: any) {
-  currentStep.value = event.target.innerHTML - 1;
-}
-
-async function updateType(types: TTIriRef[]) {
+function updateType(types: TTIriRef[]) {
   loading.value = true;
-  await getShapesCombined(types, findPrimaryType());
+  getShapesCombined(types, findPrimaryType());
   if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
   editorEntity.value[RDF.TYPE] = types;
-  // removeEroneousKeys();
+  removeEroneousKeys();
   loading.value = false;
 }
 
@@ -278,7 +260,7 @@ function checkForChanges() {
 }
 
 async function submit(): Promise<void> {
-  if (await isValidEntity(editorEntity.value)) {
+  if (isValidEntity(editorEntity.value)) {
     console.log("submit");
     await Swal.fire({
       icon: "info",
@@ -328,10 +310,6 @@ async function submit(): Promise<void> {
       confirmButtonColor: "#689F38"
     });
   }
-}
-
-async function isValidEntity(entity: any): Promise<boolean> {
-  return isObjectHasKeys(entity) && editorValidity.value.every(validity => validity.valid);
 }
 
 function testQuery() {
