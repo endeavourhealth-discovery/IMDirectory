@@ -254,8 +254,15 @@ export default class QueryService {
       return {};
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
-    const labeledQuery = await this.getLabeledQuery(query);
-    return await this.generateQueryDescriptions(labeledQuery);
+    if (query.query) {
+      for (const a in query.query) {
+        if (!query.query[a].match) {
+          query.query[a].return = [];
+        }
+      }
+    }
+    await this.getLabeledQuery(query);
+    return await this.generateQueryDescriptions(query);
   }
 
   public async getLabeledQuery(query: Query) {
