@@ -261,8 +261,9 @@ export default class QueryService {
         }
       }
     }
-    await this.getLabeledQuery(query);
-    return await this.generateQueryDescriptions(query);
+
+    const labeledQuery = await this.getLabeledQuery(query);
+    return await this.generateQueryDescriptions(labeledQuery);
   }
 
   public async getLabeledQuery(query: Query) {
