@@ -3,7 +3,7 @@
     <Tree
       :value="root"
       selectionMode="single"
-      v-model:selectionKeys="selected"
+      v-model:selectionKeys="selectedKeys"
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
@@ -17,7 +17,7 @@
           @mouseover="showOverlay($event, node)"
           @mouseleave="hideOverlay($event)"
           draggable="true"
-          @dragstart="dragStart($event, node)"
+          @dragstart="dragStart($event, node.data)"
         >
           <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
           <span v-if="!node.loading">
@@ -92,6 +92,8 @@ const toast = useToast();
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
 const {
+  root,
+  selectedKeys,
   selectedNode,
   expandedKeys,
   pageSize,
@@ -108,8 +110,6 @@ const {
   nodeHasChild
 } = setupTree();
 
-let selected: Ref<any> = ref({});
-let root: Ref<TreeNode[]> = ref([]);
 let loading = ref(true);
 let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 let overlayLocation: Ref<any> = ref({});
@@ -180,7 +180,7 @@ function hideOverlay(event: any): void {
 }
 
 function dragStart(event: any, data: any) {
-  event.dataTransfer.setData("text/plain", JSON.stringify(data));
+  event.dataTransfer.setData("conceptIri", JSON.stringify(data));
   event.dataTransfer.effectAllowed = "copy";
   event.dataTransfer.dropEffect = "copy";
   hideOverlay(overlayLocation.value);

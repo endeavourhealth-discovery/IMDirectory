@@ -41,8 +41,9 @@
       <template #empty><div style="flex: 0 1 14rem">None</div></template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #body="{ data }: any">
-          <div class="ml-2">
-            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color: ' + data.colour" class="p-mx-1" />
+          <div class="ml-2" draggable="true" @dragstart="dragStart($event, data.iri)">
+            <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="row-icon" />
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color: ' + data.colour" class="p-mx-1 row-icon" />
             <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.match }}</span>
           </div>
         </template>
@@ -91,12 +92,6 @@
               @click="updateFavourites(data)"
               v-tooltip.left="'Favourite'"
               data-testid="favourite-button"
-            />
-            <Button
-              class="p-button-rounded p-button-text p-button-plain row-button drag-icon grabbable"
-              icon="fa-solid fa-grip-vertical"
-              draggable="true"
-              @dragstart="dragStart($event, data.iri)"
             />
           </div>
         </template>
@@ -176,7 +171,6 @@ const rClickOptions: Ref<any[]> = ref([
 const OS: Ref<any> = ref();
 const contextMenu = ref();
 const menu = ref();
-const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => props.searchResults,
@@ -199,7 +193,7 @@ function isFavourite(iri: string) {
 
 function init() {
   loading.value = true;
-  if(props.searchResults) {
+  if (props.searchResults) {
     localSearchResults.value = [...props.searchResults];
   }
   processSearchResults();
@@ -284,7 +278,7 @@ function onRowContextMenu(event: any) {
 }
 
 function onRowSelect(event: any) {
-  onRowClick(event.data.iri);
+  directService.view(event.data.iri);
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {
@@ -363,5 +357,9 @@ label {
 .row-button-fav:hover {
   background-color: var(--yellow-500) !important;
   color: var(--text-color) !important;
+}
+
+.row-icon {
+  margin-right: 0.5rem;
 }
 </style>
