@@ -35,14 +35,14 @@
   <Dialog v-model:visible="editDialog" maximizable modal header="Edit" :style="{ width: '80vw' }">
     <EditDialog v-if="isArrayHasLength(selectedMatches)" :base-entity-iri="baseEntityIri" :match="selectedMatches[0]" @on-close="onEditDialogClose" />
   </Dialog>
-  <ContextMenu ref="rClickMenu" :model="props.selectedMatches.length > 1 ? rClickItemsGroup : rClickItems" />
+  <ContextMenu ref="rClickMenu" :model="rClickOptions" />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, ref } from "vue";
-import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
+import { describeMatch, getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import RecursiveWhereEdit from "./RecursiveWhereEdit.vue";
 import EditDialog from "./EditDialog.vue";
 import { MenuItem } from "primevue/menuitem";
@@ -66,7 +66,8 @@ const rClickMenu = ref();
 const isBaseSelected: ComputedRef<boolean> = computed(() => {
   return JSON.stringify(props.selectedMatches[0]) === JSON.stringify(props.fullQuery.match![0]);
 });
-const rClickItems: Ref<MenuItem[]> = ref([
+const rClickOptions: Ref<MenuItem[]> = ref([]);
+const rClickItemsSingle: Ref<MenuItem[]> = ref([
   {
     label: "Add",
     icon: "pi pi-fw pi-plus",
@@ -95,12 +96,30 @@ const rClickItems: Ref<MenuItem[]> = ref([
       edit();
     }
   },
-  { label: "Delete", icon: "pi pi-fw pi-trash" }
+  {
+    label: "Delete",
+    icon: "pi pi-fw pi-trash",
+    command: () => {
+      remove();
+    }
+  }
 ]);
 
 const rClickItemsGroup = ref([
-  { label: "Group", icon: "pi pi-fw pi-trash" },
-  { label: "Delete", icon: "pi pi-fw pi-trash" }
+  {
+    label: "Group",
+    icon: "pi pi-fw pi-trash",
+    command: () => {
+      group();
+    }
+  },
+  {
+    label: "Delete",
+    icon: "pi pi-fw pi-trash",
+    command: () => {
+      remove();
+    }
+  }
 ]);
 
 function onEditDialogClose() {
@@ -130,9 +149,65 @@ function edit() {
   editDialog.value = true;
 }
 
+function remove() {
+  for (const selectedMatch of props.selectedMatches) {
+    const index = getIndexOfMatch(selectedMatch, props.matches);
+    if (index !== -1) props.matches.splice(index, 1);
+  }
+  props.selectedMatches.length = 0;
+}
+
+function group() {
+  const groupedMatch = { boolMatch: "and", match: [] } as Match;
+  for (const selectedMatch of props.selectedMatches) {
+    groupedMatch.match!.push(selectedMatch);
+  }
+  describeMatch([groupedMatch], "match");
+  remove();
+  props.matches.push(groupedMatch);
+  props.selectedMatches.push(groupedMatch);
+}
+
+function ungroup() {
+  props.parentMatch;
+  for (const selectedMatch of props.selectedMatches) {
+    if (isArrayHasLength(selectedMatch.match))
+      for (const nestedMatch of selectedMatch.match!) {
+        props.matches.push(nestedMatch);
+      }
+    const index = getIndexOfMatch(selectedMatch, props.matches);
+    if (index !== -1) props.matches.splice(index, 1);
+    const selectedIndex = getIndexOfMatch(selectedMatch, props.selectedMatches);
+    if (selectedIndex !== -1) props.selectedMatches.splice(index, 1);
+  }
+}
+
+function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
+  return (searchMatch as any).key
+    ? matchList.findIndex(match => (searchMatch as any).key === (match as any).key)
+    : matchList.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
+}
+
 function onRightClick(event: any, match: Match) {
   if (!isSelected(match) || props.selectedMatches.length <= 1) singleselect(match);
+  rClickOptions.value = getRightClickOptions();
   rClickMenu.value.show(event);
+}
+
+function getRightClickOptions() {
+  if (props.selectedMatches.length > 1) {
+    return rClickItemsGroup.value;
+  }
+  const options = rClickItemsSingle.value;
+  if (isArrayHasLength(props.selectedMatches[0].match))
+    options.push({
+      label: "Ungroup",
+      icon: "pi pi-fw pi-trash",
+      command: () => {
+        ungroup();
+      }
+    });
+  return options;
 }
 
 function select(event: any, match: Match) {
@@ -187,6 +262,7 @@ function hasBigList(where: Where) {
 }
 
 .selected {
+  border: 1px dotted;
   background-color: var(--highlight-bg);
   color: var(--text-color);
   border-color: var(--focus-ring);
