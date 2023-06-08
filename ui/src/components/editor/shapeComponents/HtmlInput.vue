@@ -70,10 +70,13 @@ function htmlToText(text: string): string {
 
 <style scoped>
 .html-input-container {
-  flex: 1 1 auto;
   min-width: 25rem;
+  flex: 1 1 auto;
+  flex-flow: column nowrap;
 }
+
 .input-html {
+  resize: none;
   width: 100%;
 }
 

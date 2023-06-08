@@ -254,6 +254,14 @@ export default class QueryService {
       return {};
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
+    if (query.query) {
+      for (const a in query.query) {
+        if (!query.query[a].match) {
+          query.query[a].return = [];
+        }
+      }
+    }
+
     const labeledQuery = await this.getLabeledQuery(query);
     return await this.generateQueryDescriptions(labeledQuery);
   }

@@ -17,12 +17,6 @@ export default class QueryController {
   }
 
   private initRoutes() {
-    this.router.get("/public/queryDefinitionDisplay", (req, res, next) =>
-      this.getQueryDefinitionDisplay(req)
-        .then(data => res.send(data).end())
-        .catch(next)
-    );
-
     this.router.get("/public/queryDisplay", (req, res, next) =>
       this.getQueryDisplay(req)
         .then(data => res.send(data).end())
@@ -69,10 +63,6 @@ export default class QueryController {
 
   async getAllowableChildTypes(req: Request) {
     return await this.queryService.getAllowableChildTypes(req.query.iri as string);
-  }
-
-  async getQueryDefinitionDisplay(req: Request) {
-    return await this.entityService.getQueryDefinitionDisplayByIri(req.query.iri as string);
   }
 
   async getAllowablePropertySuggestions(req: Request) {

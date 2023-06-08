@@ -155,7 +155,7 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.STATUS
+                "@id": IM.HAS_STATUS
               },
               argument: [
                 {

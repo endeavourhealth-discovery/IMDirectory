@@ -55,12 +55,6 @@ const QueryService = {
     else return await axios.post(Env.API + "api/query/public/entityQuery", query);
   },
 
-  async getQueryDefinitionDisplay(conceptIri: string): Promise<ITextQuery[]> {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDefinitionDisplay", {
-      params: { iri: conceptIri }
-    });
-  },
-
   async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
     return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
       params: { iri: conceptIri, searchTerm: searchTerm },

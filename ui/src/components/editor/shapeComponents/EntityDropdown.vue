@@ -118,6 +118,10 @@ function updateValueVariableMap(data: TTIriRef) {
   flex: 1 1 auto;
 }
 
+.dropdown-container:deep(label) {
+  display: block;
+}
+
 .entity-single-dropdown {
   width: 100%;
 }

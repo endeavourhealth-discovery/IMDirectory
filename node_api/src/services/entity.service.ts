@@ -97,12 +97,6 @@ export default class EntityService {
     ).data;
   }
 
-  async getQueryDefinitionDisplayByIri(iri: string): Promise<ITextQuery[]> {
-    const entity = (await this.getPartialEntity(iri, [IM.DEFINITION])).data;
-    if (!entity[IM.DEFINITION]) return [] as ITextQuery[];
-    return buildTextQuery(JSON.parse(entity[IM.DEFINITION]));
-  }
-
   async getPropertiesDisplay(iri: string): Promise<PropertyDisplay[]> {
     const entity = (await this.getPartialEntity(iri, [SHACL.PROPERTY])).data;
     const propertyList = [] as PropertyDisplay[];
