@@ -52,7 +52,7 @@ interface Props {
   parentMatch?: Match;
   matches: Match[];
   selectedMatches: Match[];
-  baseEntityIri?: string;
+  baseEntityIri: string;
 }
 
 enum Direction {

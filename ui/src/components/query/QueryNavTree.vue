@@ -76,8 +76,7 @@ function onInput(node: TreeNode, bool: boolean) {
   if (bool) {
     selectedProperties.value.push(node);
     emit("addProperty", node);
-  }
-  if (!bool) {
+  } else {
     selectedProperties.value = selectedProperties.value.filter((selected: TreeNode) => selected.key !== node.key);
     emit("removeProperty", node);
   }

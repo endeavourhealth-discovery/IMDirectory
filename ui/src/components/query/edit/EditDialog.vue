@@ -6,7 +6,7 @@
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
         <div v-for="editMatch in editMatches">
-          <EditMatch :data-model-iri="baseEntityIri" :property-iri="editMatch.where?.[0]['@id']" :edit-match="editMatch" />
+          <EditMatch :base-entity-iri="baseEntityIri" :edit-match="editMatch" />
           <Divider />
         </div>
       </SplitterPanel>
@@ -28,7 +28,7 @@ import EditMatch from "./EditMatch.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
 interface Props {
-  baseEntityIri?: string;
+  baseEntityIri: string;
   match?: Match;
 }
 const props = defineProps<Props>();
@@ -41,7 +41,8 @@ onMounted(() => {
 });
 
 function addProperty(treeNode: TreeNode) {
-  editMatches.value.push(buildMatchFromProperty(treeNode as any));
+  const newMatch = buildMatchFromProperty(treeNode as any);
+  editMatches.value.push(newMatch);
 }
 
 function removeProperty(treeNode: TreeNode) {
