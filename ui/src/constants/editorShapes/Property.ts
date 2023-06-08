@@ -128,7 +128,7 @@ const PropertyShape: FormGenerator = {
           path: {
             "@id": RDFS.COMMENT
           },
-          minCount: 1,
+          minCount: 0,
           componentType: {
             "@id": IM.component.HTML_INPUT
           }
@@ -196,7 +196,7 @@ const PropertyShape: FormGenerator = {
               path: {
                 "@id": RDFS.SUBCLASS_OF
               },
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": IM.component.ENTITY_SEARCH
               }
@@ -237,7 +237,7 @@ const PropertyShape: FormGenerator = {
               path: {
                 "@id": IM.IS_CONTAINED_IN
               },
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": IM.component.ENTITY_SEARCH
               }

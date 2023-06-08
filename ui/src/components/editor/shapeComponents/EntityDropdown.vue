@@ -5,6 +5,7 @@
       <Dropdown class="entity-single-dropdown" :class="invalid && 'invalid'" v-model="selectedEntity" :options="dropdownOptions" optionLabel="name" />
     </span>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
+    <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
@@ -33,10 +34,12 @@ const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const loading = ref(false);
 const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
 
 let key = props.shape.path["@id"];
 
@@ -45,7 +48,7 @@ watch(selectedEntity, async newValue => {
   if (isTTIriRef(newValue)) {
     updateEntity(newValue);
     updateValueVariableMap(newValue);
-    if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
+    if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
   }
 });
 
@@ -127,7 +130,14 @@ function updateValueVariableMap(data: TTIriRef) {
   width: 2rem;
   height: 2rem;
 }
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
 .invalid {
-  border-color: var(--red-500);
+  border: 1px solid var(--red-500);
 }
 </style>

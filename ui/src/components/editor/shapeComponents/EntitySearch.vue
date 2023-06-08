@@ -17,9 +17,11 @@
         @dragenter.prevent
         @dragover.prevent
         @drop="dropReceived"
+        :class="invalid && 'invalid'"
       />
       <Button :disabled="!selectedResult['@id']" icon="fa-solid fa-sitemap" @click="findInTree(selectedResult['@id'])" />
     </div>
+    <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
   <OverlayPanel class="search-op" ref="miniSearchOP" :showCloseIcon="true" :dismissable="true">
     <SearchMiniOverlay :searchTerm="searchTerm" :searchResults="searchResults" :loading="loading" @searchResultSelected="updateSelectedResult" />
@@ -63,6 +65,7 @@ const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 
 watch(
   () => _.cloneDeep(props.value),
@@ -75,15 +78,16 @@ onMounted(async () => {
   await init();
 });
 
-let loading = ref(false);
-let controller: Ref<AbortController> = ref({} as AbortController);
-let selectedResult: Ref<TTIriRef> = ref({} as TTIriRef);
-let searchTerm = ref("");
-let searchResults: Ref<ConceptSummary[]> = ref([]);
-let label = ref("");
-let key = ref("");
-let invalid = ref(false);
-let debounce = ref(0);
+const loading = ref(false);
+const controller: Ref<AbortController> = ref({} as AbortController);
+const selectedResult: Ref<TTIriRef> = ref({} as TTIriRef);
+const searchTerm = ref("");
+const searchResults: Ref<ConceptSummary[]> = ref([]);
+const label = ref("");
+const key = ref("");
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const debounce = ref(0);
 
 const miniSearchOP = ref();
 
@@ -186,7 +190,7 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
   } else {
     emit("updateClicked", selectedResult.value);
   }
-  if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
+  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
   updateValueVariableMap(selectedResult.value);
   hideOverlay();
 }
@@ -258,5 +262,15 @@ async function dropReceived(event: any) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
 }
 </style>

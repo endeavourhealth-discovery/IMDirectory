@@ -116,7 +116,7 @@ const ValueSetShape: FormGenerator = {
               },
               name: "Description",
               showTitle: true,
-              maxCount: 1,
+              maxCount: 0,
               path: {
                 "@id": RDFS.COMMENT
               },
@@ -188,7 +188,7 @@ const ValueSetShape: FormGenerator = {
                   path: {
                     "@id": RDFS.SUBCLASS_OF
                   },
-                  minCount: 1,
+                  minCount: 0,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
                   }
@@ -229,7 +229,7 @@ const ValueSetShape: FormGenerator = {
                   path: {
                     "@id": IM.IS_CONTAINED_IN
                   },
-                  minCount: 1,
+                  minCount: 0,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
                   }

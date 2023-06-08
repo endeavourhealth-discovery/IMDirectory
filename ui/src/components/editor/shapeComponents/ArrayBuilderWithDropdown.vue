@@ -70,6 +70,7 @@ const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 
 let key = props.shape.path["@id"];
 
@@ -77,16 +78,15 @@ let loading = ref(true);
 let invalid = ref(false);
 let selectedOption: Ref<TTIriRef | undefined> = ref();
 let dropdownOptions: Ref<TTIriRef[]> = ref([]);
-let validationErrorMessage = "Failed validation";
+let validationErrorMessage: Ref<string | undefined> = ref();
 let build: Ref<ComponentDetails[]> = ref([]);
 onMounted(async () => {
   loading.value = true;
   key = props.shape.path["@id"];
-  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
   dropdownOptions.value = await getDropdownOptions();
   await createBuild();
   if (entityUpdate) updateEntity();
-  if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
+  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
   loading.value = false;
 });
 watch(
@@ -94,12 +94,11 @@ watch(
   async () => {
     loading.value = true;
     key = props.shape.path["@id"];
-    if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
     dropdownOptions.value = await getDropdownOptions();
     setDropdownFromValue();
     await createBuild();
     if (entityUpdate) updateEntity();
-    if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
+    if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     loading.value = false;
   }
 );
@@ -108,7 +107,7 @@ watch(
   async () => {
     if (!loading.value && finishedChildLoading()) {
       if (entityUpdate) updateEntity();
-      if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
+      if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     }
   }
 );

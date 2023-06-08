@@ -18,6 +18,7 @@
           :disabled="invalidAssociatedProperty || disabled"
           class="search-input"
           @drop.prevent
+          :class="invalid && 'invalid'"
         >
           <template #item="{ item }: any">
             <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, item)" @mouseleave="hideOptionsOverlay($event)">
@@ -27,6 +28,7 @@
         </AutoComplete>
       </div>
       <small v-if="invalidAssociatedProperty" class="validate-error">Missing property for refinement. Please select a property first.</small>
+      <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
   <OverlayPanel class="options-op" ref="optionsOP" :dismissable="true" stype="width: 50vw" :breakpoints="{ '960px': '75vw' }">
@@ -64,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch } from "vue";
+import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
 import { EditorMode } from "@im-library/enums";
@@ -121,16 +123,20 @@ onMounted(async () => {
   await init();
 });
 
-let loading = ref(false);
-let selectedResult: Ref<ConceptSummary | undefined> = ref();
-let invalidAssociatedProperty = ref(false);
-let invalid = ref(false);
-let associatedProperty = ref("");
-let controller: Ref<AbortController> = ref({} as AbortController);
-let autocompleteOptions: Ref<ConceptSummary[]> = ref([]);
-let key = ref("");
-let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-let optionsOverlayLocation: Ref<any> = ref({});
+const loading = ref(false);
+const selectedResult: Ref<ConceptSummary | undefined> = ref();
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const associatedProperty = ref("");
+const controller: Ref<AbortController> = ref({} as AbortController);
+const autocompleteOptions: Ref<ConceptSummary[]> = ref([]);
+const key = ref("");
+const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const optionsOverlayLocation: Ref<any> = ref({});
+
+const invalidAssociatedProperty: ComputedRef<boolean> = computed(
+  () => validationErrorMessage.value === `Missing required related item: ${props.shape.argument![0].valueVariable}`
+);
 
 onBeforeUnmount(() => {
   if (isObjectHasKeys(optionsOverlayLocation.value)) {
@@ -161,7 +167,6 @@ async function init() {
 function getAssociatedProperty() {
   if (isObjectHasKeys(props.shape, ["argument"])) {
     if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueVariable"]) && props.shape.argument![0].valueVariable) {
-      invalidAssociatedProperty.value = false;
       if (props.shape.builderChild) {
         if (
           valueVariableMap &&
@@ -173,21 +178,13 @@ function getAssociatedProperty() {
           } else {
             associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable + props.shape.order);
           }
-        } else {
-          invalidAssociatedProperty.value = true;
         }
       } else if (valueVariableMap && valueVariableMap.value.has(props.shape.argument![0].valueVariable)) {
         associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable);
-      } else {
-        invalidAssociatedProperty.value = true;
       }
     } else if (isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri) {
       associatedProperty.value = props.shape.argument![0].valueIri["@id"];
-    } else {
-      invalidAssociatedProperty.value = false;
     }
-  } else {
-    invalidAssociatedProperty.value = false;
   }
 }
 
@@ -249,7 +246,7 @@ async function itemSelected(value: ConceptSummary) {
   if (isObjectHasKeys(value)) {
     if (!props.shape.builderChild && key.value) {
       updateEntity(value);
-      if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
+      if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     } else {
       emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
@@ -340,6 +337,10 @@ function hideOptionsOverlay(event: any): void {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
 }
 
 .autocomplete-option {

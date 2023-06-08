@@ -2,11 +2,12 @@
   <div class="html-input-container">
     <label v-if="shape.showTitle">{{ shape.name }}</label>
     <Textarea class="p-inputtext-lg input-html" :class="invalid && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
+    <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, watch, onMounted, inject, PropType, Ref } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
@@ -28,19 +29,21 @@ const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 
 let key = props.shape.path["@id"];
 
-let invalid = ref(false);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
 
-let userInput = ref("");
+const userInput = ref("");
 onMounted(() => {
   if (props.value) userInput.value = htmlToText(props.value);
 });
 watch(userInput, async newValue => {
   updateEntity(newValue);
   updateValueVariableMap(newValue);
-  if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
+  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
 });
 
 function updateEntity(data: string) {

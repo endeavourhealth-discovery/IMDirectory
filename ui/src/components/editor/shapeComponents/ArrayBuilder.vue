@@ -63,12 +63,14 @@ const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 
 let key = props.shape.path["@id"];
 
 let loading = ref(true);
-let validationErrorMessage = "Failed validation";
+let invalid = ref(false);
+let validationErrorMessage: Ref<string | undefined> = ref();
 let build: Ref<ComponentDetails[]> = ref([]);
 onMounted(() => {
   init();
@@ -85,7 +87,7 @@ watch(
   async newValue => {
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
-      if (updateValidity) await updateValidity(props.shape, editorEntity, key, invalid);
+      if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
       updateValueVariableMap(props.value);
     }
   }
@@ -117,7 +119,6 @@ const finishedChildLoading = computed(
 
 function init() {
   key = props.shape.path["@id"];
-  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
   createBuild();
 }
 
@@ -211,8 +212,6 @@ function generateBuildAsJson() {
   });
   return jsonBuild;
 }
-
-let invalid = ref(false);
 
 function updateEntity() {
   const value = generateBuildAsJson();
@@ -339,5 +338,9 @@ function updateValueVariableMap(data: any[] | undefined) {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
 }
 </style>
