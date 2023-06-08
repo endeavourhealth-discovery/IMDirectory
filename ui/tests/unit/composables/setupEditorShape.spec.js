@@ -15,7 +15,7 @@ describe("setupShape", async () => {
     });
 
     it("gets shape from a type iri ___ success", () => {
-      wrapper = mountComposable(setupEditorShape, undefined, createTestRouter());
+      wrapper = mountComposable(setupEditorShape, undefined, undefined, createTestRouter());
       const shape = wrapper.vm.getShape(IM.CONCEPT);
       expect(shape).toEqual(ConceptShape);
     });
@@ -31,7 +31,7 @@ describe("setupShape", async () => {
       const startShape = { ...testData.CONCEPT_SHAPE };
       const shapeToAdd = { ...testData.CONCEPT_SET_SHAPE };
       expect(startShape.property.length).toBe(4);
-      wrapper = mountComposable(setupEditorShape, undefined, createTestRouter());
+      wrapper = mountComposable(setupEditorShape, undefined, undefined, createTestRouter());
       wrapper.vm.addToShape(startShape, shapeToAdd);
       expect(startShape.property.length).toBe(5);
       expect(startShape.property[0]).toEqual(testData.CONCEPT_SHAPE.property[0]);
