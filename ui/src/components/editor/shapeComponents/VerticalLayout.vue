@@ -113,4 +113,9 @@ function processEntityValue(property: PropertyShape) {
 .component-container {
   width: 100%;
 }
+
+.vertical-layout-container:deep(label) {
+  display: block;
+  margin-bottom: 0.5rem !important;
+}
 </style>
