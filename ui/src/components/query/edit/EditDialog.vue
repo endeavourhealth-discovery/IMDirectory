@@ -29,7 +29,7 @@ import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
 interface Props {
   baseEntityIri: string;
-  match?: Match;
+  match: Match;
 }
 const props = defineProps<Props>();
 const editMatches: Ref<Match[]> = ref([]);
@@ -60,10 +60,16 @@ function save() {
   if (editMatches.value.length === 1) {
     const editMatch = editMatches.value[0];
     describeMatch([editMatch], "match");
-    console.log(editMatch);
     for (const key of Object.keys(editMatch)) {
       (props.match as any)[key] = (editMatch as any)[key];
     }
+  } else {
+    props.match.match = [];
+    props.match.boolMatch = "and";
+    for (const editMatch of editMatches.value) {
+      props.match.match.push(editMatch);
+    }
+    describeMatch([props.match], "match");
   }
 
   emit("onClose");
