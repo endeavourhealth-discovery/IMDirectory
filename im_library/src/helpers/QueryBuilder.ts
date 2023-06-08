@@ -46,6 +46,7 @@ export function buildMatchFromProperty(treeNode: TreeNode) {
   // DateTime - is today's date
 
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
+    where.operator = "=";
     where.value = "";
   }
   describeWhere([where], "where");

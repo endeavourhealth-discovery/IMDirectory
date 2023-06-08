@@ -24,17 +24,12 @@ import { Ref, onMounted, ref, watch } from "vue";
 import ComparisonSelect from "../../editTextQuery/ComparisonSelect.vue";
 import RangeSelect from "../../editTextQuery/RangeSelect.vue";
 import { IM, XMLS } from "@im-library/vocabulary";
-import { Where } from "@im-library/interfaces/AutoGen";
+import { Assignable, Range, Where } from "@im-library/interfaces/AutoGen";
 import { describeWhere } from "@im-library/helpers/QueryDescriptor";
 interface Props {
   where: Where;
   datatype: string;
 }
-
-watch(
-  () => props.where.value,
-  () => describeWhere([props.where], "where")
-);
 
 const props = defineProps<Props>();
 const emit = defineEmits({ onValueUpdate: (payload: any) => payload });
@@ -44,6 +39,20 @@ const booleanOptions = [
   { name: "false", value: false }
 ];
 const selectedValue: Ref<any> = ref();
+
+watch(
+  () => props.where.value,
+  () => describeWhere([props.where], "where")
+);
+
+watch(
+  () => whereType.value,
+  () => {
+    if (whereType.value === "range") {
+      props.where.range = { from: {} as Assignable, to: {} as Assignable } as Range;
+    }
+  }
+);
 
 onMounted(() => {
   whereType.value = "is";

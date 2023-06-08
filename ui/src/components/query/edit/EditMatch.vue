@@ -38,8 +38,7 @@ const property: Ref<TTProperty | undefined> = ref({} as TTProperty);
 const where: Ref<Where> = ref({} as Where);
 
 onMounted(async () => {
-  where.value = props.editMatch.where![0];
-  console.log(where.value);
+  where.value = isObjectHasKeys(props.editMatch, ["where"]) ? props.editMatch.where![0] : ({} as Where);
   if (props.dataModelIri && props.propertyIri) {
     const iri = resolveIri(props.dataModelIri);
     const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);

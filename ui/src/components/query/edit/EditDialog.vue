@@ -24,7 +24,6 @@ import { Match } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/tree";
 import { Ref, onMounted, ref } from "vue";
 import QueryNavTree from "../QueryNavTree.vue";
-import { buildMatchFromTreeNode } from "@im-library/helpers";
 import EditMatch from "./EditMatch.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
@@ -42,8 +41,7 @@ onMounted(() => {
 });
 
 function addProperty(treeNode: TreeNode) {
-  buildMatchFromProperty(treeNode as any);
-  editMatches.value.push(buildMatchFromTreeNode(treeNode as any));
+  editMatches.value.push(buildMatchFromProperty(treeNode as any));
 }
 
 function removeProperty(treeNode: TreeNode) {
