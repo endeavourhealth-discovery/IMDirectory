@@ -180,7 +180,7 @@ function toggleListen() {
 }
 
 .search-group {
-  width: 50%
+  width: 30%;
 }
 
 #autocomplete-search {
