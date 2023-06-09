@@ -5,9 +5,11 @@
         <QueryNavTree :base-entity-iri="baseEntityIri" @add-property="addProperty" @remove-property="removeProperty" />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
-        <div v-for="editMatch in editMatches">
+        <div v-for="(editMatch, index) in editMatches">
+          <Divider v-if="index" align="center">
+            <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch }}</div>
+          </Divider>
           <EditMatch :base-entity-iri="baseEntityIri" :edit-match="editMatch" />
-          <Divider />
         </div>
       </SplitterPanel>
     </Splitter>
@@ -20,7 +22,7 @@
 
 <script setup lang="ts">
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Bool, Match } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/tree";
 import { Ref, onMounted, ref } from "vue";
 import QueryNavTree from "../QueryNavTree.vue";
@@ -33,12 +35,18 @@ interface Props {
 }
 const props = defineProps<Props>();
 const editMatches: Ref<Match[]> = ref([]);
+const editBoolMatch: Ref<Bool> = ref("and");
 
 const emit = defineEmits({ onClose: () => true });
 
 onMounted(() => {
   if (isObjectHasKeys(props.match)) editMatches.value = [{ ...props.match }];
 });
+
+function toggleBoolMatch() {
+  if (editBoolMatch.value === "and") editBoolMatch.value = "or";
+  else if (editBoolMatch.value === "or") editBoolMatch.value = "and";
+}
 
 function addProperty(treeNode: TreeNode) {
   const newMatch = buildMatchFromProperty(treeNode as any);
@@ -65,7 +73,7 @@ function save() {
     }
   } else {
     props.match.match = [];
-    props.match.boolMatch = "and";
+    props.match.boolMatch = editBoolMatch.value;
     for (const editMatch of editMatches.value) {
       props.match.match.push(editMatch);
     }
@@ -108,5 +116,15 @@ function discard() {
 
 .splitter-left {
   height: 100%;
+}
+
+.and {
+  color: orange;
+  cursor: pointer;
+}
+
+.or {
+  color: blue;
+  cursor: pointer;
 }
 </style>

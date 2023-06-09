@@ -1,8 +1,7 @@
 <template>
   <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="whereType" />
   <div v-if="whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="class-select">
-    <span><InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" /></span>
-
+    <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
     <EntailmentOptionsSelect :entailment-options="editValue.entailmentOptions" />
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ name: '' } as EditValue)" />
     <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
@@ -25,7 +24,6 @@ import ValueListSelect from "./class/ValueListSelect.vue";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { getEntailmentOptions } from "@im-library/helpers/ClauseUIBuilder";
 import _ from "lodash";
-import { Where } from "@im-library/interfaces/AutoGen";
 
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 

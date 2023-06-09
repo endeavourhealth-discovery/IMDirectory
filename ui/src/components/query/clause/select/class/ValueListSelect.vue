@@ -9,9 +9,9 @@
 <script setup lang="ts">
 import { EntityService, QueryService } from "@/services";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
-import { QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS } from "@im-library/vocabulary";
-import { Ref, onMounted, ref, watch } from "vue";
+import { Ref, onMounted, ref } from "vue";
 
 interface Props {
   classIri: string;
@@ -27,12 +27,11 @@ const options: Ref<TTIriRef[]> = ref([]);
 onMounted(async () => {
   const entity = await EntityService.getPartialEntity(props.classIri, [IM.DEFINITION]);
   const definition = JSON.parse(entity[IM.DEFINITION]);
-  definition.select = [{ "@id": RDFS.LABEL }];
+  (definition as Query).return = [{ property: [{ "@id": RDFS.LABEL }] }];
   const queryRequest = { query: definition } as QueryRequest;
   const results = await QueryService.queryIM(queryRequest);
-
   options.value = results.entities.map(entity => {
-    return { "@id": entity["@id"], name: getNameFromRef(entity) } as TTIriRef;
+    return { "@id": entity["@id"], name: entity[RDFS.LABEL] ?? getNameFromRef(entity) } as TTIriRef;
   });
 });
 </script>
