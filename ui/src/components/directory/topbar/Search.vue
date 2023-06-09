@@ -1,6 +1,9 @@
 <template>
   <div class="search-container">
-    <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" data-testid="search-input" />
+    <span class="p-input-icon-right">
+      <i class="pi pi-microphone" @mousedown="startListen" @mouseup="endListen"></i>
+      <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" data-testid="search-input" />
+    </span>
     <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
       <Button @click="search" class="search-button p-button-secondary" label="Search" />
     </SplitButton>
@@ -23,7 +26,7 @@
 <script setup lang="ts">
 import Filters from "./Filters.vue";
 
-import { computed, ComputedRef, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
@@ -42,6 +45,8 @@ const sharedStore = useSharedStore();
 const filterStore = useFilterStore();
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+const speech = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+let recog: any = false;
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
@@ -61,6 +66,15 @@ const buttonActions = ref([
   }
 ]);
 
+
+onMounted(() => {
+  if (speech) {
+    recog = new speech();
+    recog.addEventListener("result", (ev: any) => {
+      searchText.value = ev.results[0][0].transcript;
+    })
+  }
+})
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
 }
@@ -117,6 +131,15 @@ async function search(): Promise<void> {
     });
     directoryStore.updateSearchLoading(false);
   }
+}
+function startListen() {
+  if (recog)
+    recog.start();
+}
+
+function endListen() {
+  if (recog)
+    recog.stop();
 }
 </script>
 
