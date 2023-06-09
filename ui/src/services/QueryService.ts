@@ -114,6 +114,10 @@ const QueryService = {
 
   async getAllQueries(): Promise<any> {
     return axios.get(Env.API + "api/query/public/allQueries");
+  },
+
+  async getAllQByType(iri: string): Promise<any> {
+    return axios.get(Env.API + "api/query/public/allByType", {params: {iri:iri}});
   }
 };
 
