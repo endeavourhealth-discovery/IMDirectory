@@ -1,7 +1,7 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group" >
-      <i class="pi pi-microphone" @mousedown="startListen" :style="{ 'color': listening ? 'red' : 'black'}"></i>
+      <i class="pi pi-microphone" @click="toggleListen" :style="{ 'color': listening ? 'red' : 'black'}"></i>
       <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
     </span>
     <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
@@ -45,13 +45,13 @@ const sharedStore = useSharedStore();
 const filterStore = useFilterStore();
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-const speech = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-let recog: any = false;
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
 const searchPlaceholder = ref("Search")
 const listening = ref(false);
+const speech = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+let recog: any = false;
 
 watch(searchText, async () => await search());
 
@@ -146,7 +146,7 @@ async function search(): Promise<void> {
     directoryStore.updateSearchLoading(false);
   }
 }
-function startListen() {
+function toggleListen() {
   if (recog) {
     if (listening.value) {
       listening.value = false;
