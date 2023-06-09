@@ -1,6 +1,6 @@
 <template>
   <div class="search-container">
-    <span class="p-input-icon-right" >
+    <span class="p-input-icon-right search-group" >
       <i class="pi pi-microphone" @mousedown="startListen" :style="{ 'color': listening ? 'red' : 'black'}"></i>
       <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
     </span>
@@ -74,7 +74,13 @@ onMounted(() => {
     recog = new speech();
     recog.interimResults = true;
     recog.addEventListener("result", (ev: any) => {
-      searchPlaceholder.value = ev.results[0][0].transcript;
+      if (ev && ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) {
+        const t = Array.from(ev.results)
+          .map((r:any) => r[0])
+          .map((r:any) => r.transcript)
+          .join("");
+        searchPlaceholder.value = t;
+      }
     })
     recog.addEventListener("speechend", () => {
       searchText.value = searchPlaceholder.value
@@ -173,12 +179,16 @@ function startListen() {
   overflow: auto;
 }
 
+.search-group {
+  width: 50%
+}
+
 #autocomplete-search {
   font-size: 1rem;
   border: none;
-  max-width: 25rem;
   height: 2.25rem;
   flex: 1 1 auto;
+  width: 100%;
 }
 
 .fa-icon {
