@@ -1,7 +1,7 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group" >
-      <i class="pi pi-microphone" @click="toggleListen" :style="{ 'color': listening ? 'red' : 'black'}"></i>
+      <i class="pi pi-microphone" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
     </span>
     <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
@@ -181,6 +181,10 @@ function toggleListen() {
 
 .search-group {
   width: 30%;
+}
+
+.listening {
+  color: red !important;
 }
 
 #autocomplete-search {
