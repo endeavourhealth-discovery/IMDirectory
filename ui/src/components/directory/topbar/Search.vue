@@ -1,8 +1,8 @@
 <template>
   <div class="search-container">
-    <span class="p-input-icon-right">
-      <i class="pi pi-microphone" @mousedown="startListen" @mouseup="endListen"></i>
-      <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" data-testid="search-input" />
+    <span class="p-input-icon-right" >
+      <i class="pi pi-microphone" @mousedown="startListen" :style="{ 'color': listening ? 'red' : 'black'}"></i>
+      <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
     </span>
     <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
       <Button @click="search" class="search-button p-button-secondary" label="Search" />
@@ -50,6 +50,8 @@ let recog: any = false;
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
+const searchPlaceholder = ref("Search")
+const listening = ref(false);
 
 watch(searchText, async () => await search());
 
@@ -70,8 +72,14 @@ const buttonActions = ref([
 onMounted(() => {
   if (speech) {
     recog = new speech();
+    recog.interimResults = true;
     recog.addEventListener("result", (ev: any) => {
-      searchText.value = ev.results[0][0].transcript;
+      searchPlaceholder.value = ev.results[0][0].transcript;
+    })
+    recog.addEventListener("speechend", () => {
+      searchText.value = searchPlaceholder.value
+      searchPlaceholder.value = "Search";
+      listening.value = false;
     })
   }
 })
@@ -133,14 +141,20 @@ async function search(): Promise<void> {
   }
 }
 function startListen() {
-  if (recog)
-    recog.start();
+  if (recog) {
+    if (listening.value) {
+      listening.value = false;
+      recog.stop();
+      searchPlaceholder.value = "Search";
+    } else {
+      searchText.value = "";
+      recog.start();
+      searchPlaceholder.value = "Listening...";
+      listening.value = true;
+    }
+  }
 }
 
-function endListen() {
-  if (recog)
-    recog.stop();
-}
 </script>
 
 <style scoped>
