@@ -2,13 +2,38 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
-import { PropertyShape } from "@im-library/interfaces/AutoGen";
+import { FormGenerator, PropertyShape } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { isArray } from "lodash";
 import { Ref, provide, ref } from "vue";
 
-export function setupValidity() {
+export function setupValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);
+  const validationCheckStatus: Ref<{ key: string; checkCompleted: boolean }[]> = ref([]);
+
+  constructValidationCheckStatus(shape);
+  function constructValidationCheckStatus(shape?: FormGenerator) {
+    if (shape && shape.property) {
+      for (const property of shape.property) {
+        addPropertyToValidationCheckStatus(property);
+      }
+    }
+  }
+
+  function addPropertyToValidationCheckStatus(shape: PropertyShape) {
+    if (shape.property) {
+      for (const property of shape.property) {
+        if (validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1)
+          validationCheckStatus.value.push({ key: property.path["@id"], checkCompleted: false });
+        addPropertyToValidationCheckStatus(property);
+      }
+    }
+  }
+
+  function updateValidationCheckStatus(key: string) {
+    const found = validationCheckStatus.value.find(item => item.key === key);
+    if (found) found.checkCompleted = true;
+  }
 
   async function updateValidity(
     componentShape: PropertyShape,
@@ -82,5 +107,5 @@ export function setupValidity() {
     return isObjectHasKeys(entity) && entity[IM.ID] && editorValidity.value.every(validity => validity.valid);
   }
 
-  return { editorValidity, updateValidity, removeValidity, isValidEntity };
+  return { editorValidity, updateValidity, removeValidity, isValidEntity, constructValidationCheckStatus, validationCheckStatus, updateValidationCheckStatus };
 }

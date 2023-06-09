@@ -6,9 +6,15 @@ const editorValidity = Symbol("editorValidity") as InjectionKey<{
 }>;
 const editorEntity = Symbol("editorEntity") as InjectionKey<{ editorEntity: Ref<any>; updateEntity: Function; deleteEntityKey: Function }>;
 const valueVariableMap = Symbol("valueVariableMap") as InjectionKey<{ valueVariableMap: Ref<Map<string, any>>; updateValueVariableMap: Function }>;
+const forceValidation = Symbol("forceValidation") as InjectionKey<{
+  forceValidation: Ref<boolean>;
+  validationCheckStatus: Ref<{ key: string; checkCompleted: boolean }[]>;
+  updateValidationCheckStatus: Function;
+}>;
 
 export default {
   editorValidity,
   editorEntity,
-  valueVariableMap
+  valueVariableMap,
+  forceValidation
 };

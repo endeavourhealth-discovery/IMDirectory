@@ -7,7 +7,7 @@
         <MultiSelect
           :disabled="loading"
           class="multi-select"
-          :class="invalid && 'invalid'"
+          :class="invalid && showValidation && 'invalid'"
           v-model="selectedEntities"
           :options="dropdownOptions"
           optionLabel="name"
@@ -15,7 +15,7 @@
         />
       </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-      <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
 </template>
@@ -47,6 +47,18 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const fixedOption: Ref<TTIriRef> = ref({} as TTIriRef);
@@ -54,6 +66,7 @@ const loading = ref(false);
 const selectedEntities: Ref<TTIriRef[]> = ref([]);
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(true);
 
 let key = props.shape.path["@id"];
 
@@ -105,7 +118,10 @@ function combineSelectedAndFixed(selected: TTIriRef[], fixed: TTIriRef) {
 async function updateAll(selected: TTIriRef[]) {
   updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
   updateValueVariableMap(combineSelectedAndFixed(selected, fixedOption.value));
-  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    showValidation.value = true;
+  }
 }
 
 async function getDropdownOptions(): Promise<TTIriRef[]> {

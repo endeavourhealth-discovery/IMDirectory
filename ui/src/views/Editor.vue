@@ -137,7 +137,8 @@ const {
   checkForChanges
 } = setupEditorEntity(EditorMode.EDIT, updateType);
 const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
-const { editorValidity, updateValidity, removeValidity, isValidEntity } = setupValidity();
+const { editorValidity, updateValidity, removeValidity, isValidEntity, constructValidationCheckStatus, validationCheckStatus, updateValidationCheckStatus } =
+  setupValidity(shape.value);
 const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
 
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
@@ -154,10 +155,12 @@ function onShowSidebar() {
 const loading = ref(true);
 const showSidebar = ref(false);
 const showTestQueryResults: Ref<boolean> = ref(false);
+const forceValidation = ref(false);
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
+provide(injectionKeys.forceValidation, { forceValidation, validationCheckStatus, updateValidationCheckStatus });
 
 onMounted(async () => {
   loading.value = true;

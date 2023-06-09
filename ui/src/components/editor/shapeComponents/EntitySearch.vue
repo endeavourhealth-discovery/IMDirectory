@@ -17,11 +17,11 @@
         @dragenter.prevent
         @dragover.prevent
         @drop="dropReceived"
-        :class="invalid && 'invalid'"
+        :class="invalid && showValidation && 'invalid'"
       />
       <Button :disabled="!selectedResult['@id']" icon="fa-solid fa-sitemap" @click="findInTree(selectedResult['@id'])" />
     </div>
-    <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
   <OverlayPanel class="search-op" ref="miniSearchOP" :showCloseIcon="true" :dismissable="true">
     <SearchMiniOverlay :searchTerm="searchTerm" :searchResults="searchResults" :loading="loading" @searchResultSelected="updateSelectedResult" />
@@ -66,6 +66,18 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      showValidation.value = true;
+    }
+  });
+}
 
 watch(
   () => _.cloneDeep(props.value),
@@ -88,6 +100,7 @@ const key = ref("");
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const debounce = ref(0);
+const showValidation = ref(false);
 
 const miniSearchOP = ref();
 
@@ -190,7 +203,10 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
   } else {
     emit("updateClicked", selectedResult.value);
   }
-  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+    showValidation.value = true;
+  }
   updateValueVariableMap(selectedResult.value);
   hideOverlay();
 }

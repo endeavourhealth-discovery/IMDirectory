@@ -157,7 +157,8 @@ const {
   checkForChanges
 } = setupEditorEntity(EditorMode.CREATE, updateType);
 const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
-const { editorValidity, updateValidity, removeValidity, isValidEntity } = setupValidity();
+const { editorValidity, updateValidity, removeValidity, isValidEntity, constructValidationCheckStatus, validationCheckStatus, updateValidationCheckStatus } =
+  setupValidity(shape.value);
 const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
@@ -166,11 +167,13 @@ const showSidebar: Ref<boolean> = ref(false);
 const targetShape: Ref<TTIriRef | undefined> = ref();
 const showTestQueryResults: Ref<boolean> = ref(false);
 const showTypeSelector = ref(false);
+const forceValidation = ref(false);
 
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
+provide(injectionKeys.forceValidation, { forceValidation, validationCheckStatus, updateValidationCheckStatus });
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -286,6 +289,8 @@ function fileChanges(entity: any) {
 }
 
 async function submit(): Promise<void> {
+  constructValidationCheckStatus(shape.value);
+  forceValidation.value = true;
   if (isValidEntity(editorEntity.value)) {
     console.log("submit");
     await Swal.fire({
