@@ -106,6 +106,7 @@ describe("SearchResultsTable.vue", () => {
   });
 
   it("shows page 2", async () => {
+    window.HTMLElement.prototype.scrollIntoView = function () {};
     const buttons = component.getAllByRole("button");
     const paginatorButtons = buttons.filter(button => button.classList.contains("p-paginator-page"));
     await fireEvent.click(paginatorButtons[1]);
