@@ -13,6 +13,7 @@ export function setupValidity(shape?: FormGenerator) {
 
   constructValidationCheckStatus(shape);
   function constructValidationCheckStatus(shape?: FormGenerator) {
+    validationCheckStatus.value = [];
     if (shape && shape.property) {
       for (const property of shape.property) {
         addPropertyToValidationCheckStatus(property);
@@ -20,12 +21,41 @@ export function setupValidity(shape?: FormGenerator) {
     }
   }
 
+  function removeValidationCheckStatus(shape: PropertyShape) {
+    if (shape && validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]) !== -1) {
+      validationCheckStatus.value.splice(validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]));
+    }
+  }
+
+  function clearValidationCheckStatus() {
+    validationCheckStatus.value = [];
+  }
+
+  async function validationChecksCompleted(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now();
+      let delta = Date.now() - startTime;
+      const interval = setInterval(() => {
+        delta = Date.now() - startTime;
+        if (Math.floor(delta / 1000) >= 10 /* 10s timeout */ || validationCheckStatus.value.every(item => item.checkCompleted === true))
+          clearInterval(interval);
+      }, 500);
+      if (Math.floor(delta / 1000) >= 10) {
+        reject(`Validation checks timed out: ${JSON.stringify(validationCheckStatus.value.filter(item => item.checkCompleted === false))}`);
+      }
+      resolve(true);
+    });
+  }
+
   function addPropertyToValidationCheckStatus(shape: PropertyShape) {
     if (shape.property) {
       for (const property of shape.property) {
-        if (validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1)
+        if (
+          ![IM.component.HORIZONTAL_LAYOUT, IM.component.VERTICAL_LAYOUT, IM.component.TOGGLEABLE].includes(property.componentType["@id"]) &&
+          validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1
+        )
           validationCheckStatus.value.push({ key: property.path["@id"], checkCompleted: false });
-        addPropertyToValidationCheckStatus(property);
+        if (property.componentType["@id"] !== IM.component.TOGGLEABLE) addPropertyToValidationCheckStatus(property);
       }
     }
   }
@@ -107,5 +137,17 @@ export function setupValidity(shape?: FormGenerator) {
     return isObjectHasKeys(entity) && entity[IM.ID] && editorValidity.value.every(validity => validity.valid);
   }
 
-  return { editorValidity, updateValidity, removeValidity, isValidEntity, constructValidationCheckStatus, validationCheckStatus, updateValidationCheckStatus };
+  return {
+    editorValidity,
+    updateValidity,
+    removeValidity,
+    isValidEntity,
+    constructValidationCheckStatus,
+    validationCheckStatus,
+    updateValidationCheckStatus,
+    removeValidationCheckStatus,
+    clearValidationCheckStatus,
+    addPropertyToValidationCheckStatus,
+    validationChecksCompleted
+  };
 }

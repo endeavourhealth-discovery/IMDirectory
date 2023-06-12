@@ -10,6 +10,8 @@ const forceValidation = Symbol("forceValidation") as InjectionKey<{
   forceValidation: Ref<boolean>;
   validationCheckStatus: Ref<{ key: string; checkCompleted: boolean }[]>;
   updateValidationCheckStatus: Function;
+  addPropertyToValidationCheckStatus: Function;
+  removeValidationCheckStatus: Function;
 }>;
 
 export default {

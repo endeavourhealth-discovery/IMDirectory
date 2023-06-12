@@ -67,6 +67,7 @@ import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { useDialog } from "primevue/usedialog";
 
 export default defineComponent({
   components: {
@@ -95,6 +96,7 @@ import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, n
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import _ from "lodash";
 import Swal from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
@@ -122,6 +124,7 @@ const props = defineProps<Props>();
 const route = useRoute();
 const router = useRouter();
 const confirm = useConfirm();
+const dynamicDialog = useDialog();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
@@ -157,8 +160,18 @@ const {
   checkForChanges
 } = setupEditorEntity(EditorMode.CREATE, updateType);
 const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
-const { editorValidity, updateValidity, removeValidity, isValidEntity, constructValidationCheckStatus, validationCheckStatus, updateValidationCheckStatus } =
-  setupValidity(shape.value);
+const {
+  editorValidity,
+  updateValidity,
+  removeValidity,
+  isValidEntity,
+  constructValidationCheckStatus,
+  validationCheckStatus,
+  updateValidationCheckStatus,
+  addPropertyToValidationCheckStatus,
+  removeValidationCheckStatus,
+  validationChecksCompleted
+} = setupValidity(shape.value);
 const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
@@ -173,7 +186,13 @@ provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
-provide(injectionKeys.forceValidation, { forceValidation, validationCheckStatus, updateValidationCheckStatus });
+provide(injectionKeys.forceValidation, {
+  forceValidation,
+  validationCheckStatus,
+  updateValidationCheckStatus,
+  addPropertyToValidationCheckStatus,
+  removeValidationCheckStatus
+});
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -288,59 +307,77 @@ function fileChanges(entity: any) {
   FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser.id + "#", IM.UPDATE_ALL);
 }
 
-async function submit(): Promise<void> {
+function submit(): void {
+  const verificationDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Validating", text: "Running validation checks..." }
+  });
   constructValidationCheckStatus(shape.value);
   forceValidation.value = true;
-  if (isValidEntity(editorEntity.value)) {
-    console.log("submit");
-    await Swal.fire({
-      icon: "info",
-      title: "Confirm create",
-      text: "Are you sure you want to create this entity?",
-      showCancelButton: true,
-      confirmButtonText: "Create",
-      reverseButtons: true,
-      confirmButtonColor: "#689F38",
-      cancelButtonColor: "#607D8B",
-      showLoaderOnConfirm: true,
-      allowOutsideClick: () => !Swal.isLoading(),
-      preConfirm: async () => {
-        const res = await EntityService.createEntity(editorEntity.value);
-        if (res) {
-          creatorStore.updateCreatorSavedEntity(undefined);
-          return res;
-        } else Swal.showValidationMessage("Error creating entity from server.");
-      }
-    }).then((result: any) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Success",
-          text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
-          icon: "success",
+  validationChecksCompleted()
+    .then(async () => {
+      forceValidation.value = false;
+      verificationDialog.close();
+      if (isValidEntity(editorEntity.value)) {
+        console.log("submit");
+        await Swal.fire({
+          icon: "info",
+          title: "Confirm create",
+          text: "Are you sure you want to create this entity?",
           showCancelButton: true,
+          confirmButtonText: "Create",
           reverseButtons: true,
-          confirmButtonText: "Open in Viewer",
-          confirmButtonColor: "#2196F3",
-          cancelButtonColor: "#607D8B"
+          confirmButtonColor: "#689F38",
+          cancelButtonColor: "#607D8B",
+          showLoaderOnConfirm: true,
+          allowOutsideClick: () => !Swal.isLoading(),
+          preConfirm: async () => {
+            const res = await EntityService.createEntity(editorEntity.value);
+            if (res) {
+              creatorStore.updateCreatorSavedEntity(undefined);
+              return res;
+            } else Swal.showValidationMessage("Error creating entity from server.");
+          }
         }).then((result: any) => {
           if (result.isConfirmed) {
-            directService.view(editorEntity.value["http://endhealth.info/im#id"]);
-          } else {
-            directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
+            Swal.fire({
+              title: "Success",
+              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
+              icon: "success",
+              showCancelButton: true,
+              reverseButtons: true,
+              confirmButtonText: "Open in Viewer",
+              confirmButtonColor: "#2196F3",
+              cancelButtonColor: "#607D8B"
+            }).then((result: any) => {
+              if (result.isConfirmed) {
+                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
+              } else {
+                directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
+              }
+            });
           }
         });
+      } else {
+        console.log("invalid entity");
+        Swal.fire({
+          icon: "warning",
+          title: "Warning",
+          text: "Invalid values found. Please review your entries.",
+          confirmButtonText: "Close",
+          confirmButtonColor: "#689F38"
+        });
       }
+    })
+    .catch(err => {
+      Swal.fire({
+        icon: "error",
+        title: "Timeout",
+        text: "Validation timed out. Please contact an admin for support",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
     });
-  } else {
-    console.log("invalid entity");
-    Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
-    });
-  }
 }
 
 function testQuery() {
