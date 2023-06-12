@@ -6,7 +6,7 @@
       <span v-else-if="hasBigList(where)" v-html="where.description"></span>
       <span v-else v-html="where.description"></span>
       <span v-if="isArrayHasLength(where.where)">
-        <RecursiveWhereEdit :wheres="where.where!" :parent-match="parentMatch" :parent-where="where" :full-query="fullQuery" />
+        <RecursiveWhereEdit :wheres="where.where!" :parent-match="parentMatch" :parent-where="where" />
       </span>
     </div>
   </div>
@@ -15,10 +15,9 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getDisplayFromLogic } from "@im-library/helpers/TextQueryBuilder";
-import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 
 interface Props {
-  fullQuery: Query;
   parentMatch?: Match;
   parentWhere?: Where;
   wheres: Where[];

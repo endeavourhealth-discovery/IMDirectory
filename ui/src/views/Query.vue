@@ -6,13 +6,8 @@
       </template>
     </TopBar>
     <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryEdit
-      v-if="isArrayHasLength(query.match)"
-      :base-entity-iri="baseEntityIri"
-      :matches="query.match!"
-      :full-query="query"
-      :selectedMatches="selectedMatches"
-    />
+    <RecursiveQueryEdit :base-entity-iri="baseEntityIri" :matches="query.match!" :selectedMatches="selectedMatches" />
+
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -27,26 +22,32 @@ import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { QueryService } from "@/services";
-import { IM } from "@im-library/vocabulary";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
 import { resolveIri } from "@im-library/helpers/TTTransform";
+import { useRoute } from "vue-router";
 const filterStore = useFilterStore();
-const query: Ref<Query> = ref({} as Query);
+const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const baseEntityIri = ref("");
 const selectedMatches: Ref<Match[]> = ref([]);
+const route = useRoute();
 
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
-  query.value = await QueryService.getQueryDisplay(IM.NAMESPACE + "Q_TestQuery");
+  if (route.params.queryIri) setQuery();
+});
+
+async function setQuery() {
+  const queryIri = resolveIri(route.params.queryIri as string);
+  query.value = await QueryService.getQueryDisplay(queryIri);
   if (isArrayHasLength(query.value?.match)) {
     const baseEntity = query.value.match![0];
     const iri = (baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"]) as string;
     baseEntityIri.value = resolveIri(iri);
   }
-});
+}
 </script>
 
 <style scoped lang="scss">

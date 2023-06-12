@@ -1,5 +1,5 @@
 <template>
-  <div class="feature" v-for="(match, index) of matches">
+  <div v-if="isArrayHasLength(matches)" class="feature" v-for="(match, index) of matches">
     <div :class="isSelected(match) ? 'selected' : ''" @click="select($event, match)" @contextmenu="onRightClick($event, match)">
       <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
       <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
@@ -12,7 +12,6 @@
           :include="true"
           :matches="match.match"
           :parent-match="match"
-          :full-query="fullQuery"
           :selectedMatches="selectedMatches"
         />
       </span>
@@ -22,18 +21,26 @@
           <span v-else-if="hasBigList(match.where![0])" v-html="match.where![0].description"></span>
           <span v-else v-html="match.where![0].description"></span>
           <span v-if="isArrayHasLength(match.where![0].where)">
-            <RecursiveWhereEdit :wheres="match.where![0].where!" :parent-match="parentMatch" :parent-where="match.where![0]" :full-query="fullQuery" />
+            <RecursiveWhereEdit :wheres="match.where![0].where!" :parent-match="parentMatch" :parent-where="match.where![0]" />
           </span>
         </span>
 
-        <RecursiveWhereEdit v-else :wheres="match.where!" :parent-match="match" :full-query="fullQuery" />
+        <RecursiveWhereEdit v-else :wheres="match.where!" :parent-match="match" />
       </span>
       <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
   </div>
+  <Button v-else label="Add" @click="addFirstMatch" />
+
   <Dialog v-model:visible="editDialog" maximizable modal header="Edit" :style="{ width: '80vw' }">
-    <EditDialog v-if="isArrayHasLength(selectedMatches)" :base-entity-iri="baseEntityIri" :match="selectedMatches[0]" @on-close="onEditDialogClose" />
+    <EditDialog
+      v-if="isArrayHasLength(selectedMatches) && !isBaseSelected"
+      :base-entity-iri="baseEntityIri"
+      :match="selectedMatches[0]"
+      @on-close="onEditDialogClose"
+    />
+    <AddBaseType v-else :matches="matches" @on-close="editDialog = false" />
   </Dialog>
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
 </template>
@@ -46,9 +53,9 @@ import { describeMatch, getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFr
 import RecursiveWhereEdit from "./RecursiveWhereEdit.vue";
 import EditDialog from "./EditDialog.vue";
 import { MenuItem } from "primevue/menuitem";
+import AddBaseType from "./AddBaseType.vue";
 
 interface Props {
-  fullQuery: Query;
   parentMatch?: Match;
   matches: Match[];
   selectedMatches: Match[];
@@ -62,9 +69,10 @@ enum Direction {
 
 const props = defineProps<Props>();
 const editDialog: Ref<boolean> = ref(false);
+
 const rClickMenu = ref();
 const isBaseSelected: ComputedRef<boolean> = computed(() => {
-  return JSON.stringify(props.selectedMatches[0]) === JSON.stringify(props.fullQuery.match![0]);
+  return JSON.stringify(props.selectedMatches[0]) === JSON.stringify(props.matches[0]);
 });
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 const rClickItemsSingle: Ref<MenuItem[]> = ref([
@@ -78,7 +86,7 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
           add(Direction.ABOVE);
           edit();
         },
-        disabled: isBaseSelected
+        disabled: isBaseSelected.value
       },
       {
         label: "Below",
@@ -121,6 +129,10 @@ const rClickItemsGroup = ref([
     }
   }
 ]);
+
+function addFirstMatch() {
+  editDialog.value = true;
+}
 
 function onEditDialogClose() {
   if (!isObjectHasKeys(props.selectedMatches[0])) {

@@ -470,6 +470,22 @@ const EntityService = {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/conceptContextMaps", {
       params: { iri: conceptIri }
     });
+  },
+
+  async getAllByType(conceptTypeIri: string): Promise<TTIriRef[]> {
+    return axios.get(Env.API + "api/query/public/allByType", {
+      params: { iri: conceptTypeIri }
+    });
+  },
+
+  async getAllQueries(): Promise<TTIriRef[]> {
+    return axios.get(Env.API + "api/query/public/allQueries");
+  },
+
+  async getQueriesByReturnType(returnTypeIri: string): Promise<TTIriRef[]> {
+    return axios.get(Env.API + "api/query/public/allQueries", {
+      params: { iri: returnTypeIri }
+    });
   }
 };
 

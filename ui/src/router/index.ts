@@ -219,7 +219,7 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   // {
-  //   path: "/query",
+  //   path: "/query/:queryIri?",
   //   name: "Query",
   //   component: Query,
   //   meta: {
