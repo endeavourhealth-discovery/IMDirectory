@@ -104,6 +104,7 @@ function toIMQuerySearch() {
 }
 
 async function search(): Promise<void> {
+  searchPlaceholder.value = "Search";
   if (searchText.value) {
     router.push({
       name: "Search"
