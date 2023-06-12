@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
-import { ref, Ref, onMounted } from "vue";
+import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { QueryService } from "@/services";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
@@ -33,10 +33,16 @@ const visibleDialog: Ref<boolean> = ref(false);
 const baseEntityMatch = ref({} as Match);
 const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
+const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
+
+watch(
+  () => queryIri.value,
+  async () => await setQuery()
+);
 
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
-  if (route.params.queryIri) setQuery();
+  if (queryIri.value) setQuery();
 });
 
 async function setQuery() {

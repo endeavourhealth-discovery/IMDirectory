@@ -149,6 +149,8 @@ async function addParentFoldersToRoot() {
 async function addBaseEntityToRoot(iri: string) {
   const name = getNameFromRef({ "@id": iri });
   const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, undefined);
+  expandedKeys.value[parent.key!] = true;
+  await onNodeExpand(parent);
   root.value.push(parent);
 }
 </script>
