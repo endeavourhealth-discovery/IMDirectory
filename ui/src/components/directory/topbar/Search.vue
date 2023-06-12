@@ -1,7 +1,7 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group" >
-      <i class="pi pi-microphone" :class="listening && 'listening'" @click="toggleListen"></i>
+      <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
     </span>
     <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
@@ -50,7 +50,7 @@ const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
 const searchPlaceholder = ref("Search")
 const listening = ref(false);
-const speech = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+const speech = ref(false);
 let recog: any = false;
 
 watch(searchText, async () => await search());
@@ -70,8 +70,9 @@ const buttonActions = ref([
 
 
 onMounted(() => {
-  if (speech) {
-    recog = new speech();
+  const speechEngine = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (speechEngine) {
+    recog = new speechEngine();
     recog.interimResults = true;
     recog.addEventListener("result", (ev: any) => {
       if (ev && ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) {
@@ -87,6 +88,7 @@ onMounted(() => {
       searchPlaceholder.value = "Search";
       listening.value = false;
     })
+    speech.value = true;
   }
 })
 function openFiltersOverlay(event: any) {
@@ -181,6 +183,10 @@ function toggleListen() {
 
 .search-group {
   width: 30%;
+}
+
+.mic {
+  cursor: pointer;
 }
 
 .listening {
