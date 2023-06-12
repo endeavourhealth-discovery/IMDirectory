@@ -1,42 +1,22 @@
 <template>
   <div v-if="isArrayHasLength(matches)" class="feature" v-for="(match, index) of matches">
-    <div :class="isSelected(match) ? 'selected' : ''" @click="select($event, match)" @contextmenu="onRightClick($event, match)">
-      <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
-      <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
-      <span v-if="match.description" v-html="match.description"> </span>
-      <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></span>
-      <span v-if="isArrayHasLength(match.match)">
-        <RecursiveQueryEdit
-          v-if="match.match"
-          :base-entity-iri="baseEntityIri"
-          :include="true"
-          :matches="match.match"
-          :parent-match="match"
-          :selectedMatches="selectedMatches"
-        />
-      </span>
-      <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
-        <span v-if="match.where!.length === 1">
-          <span v-if="hasNodeRef(match.where![0])" v-html="match.where![0].description"></span>
-          <span v-else-if="hasBigList(match.where![0])" v-html="match.where![0].description"></span>
-          <span v-else v-html="match.where![0].description"></span>
-          <span v-if="isArrayHasLength(match.where![0].where)">
-            <RecursiveWhereEdit :wheres="match.where![0].where!" :parent-match="parentMatch" :parent-where="match.where![0]" />
-          </span>
-        </span>
-
-        <RecursiveWhereEdit v-else :wheres="match.where!" :parent-match="match" />
-      </span>
-      <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
-      <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
-    </div>
+    <RecursiveQueryEditDisplay
+      :selected-matches="selectedMatches"
+      :parent-match="parentMatch"
+      :base-entity-match="baseEntityMatch"
+      :index="index"
+      :match="match"
+      :class="isSelected(match) ? 'selected' : ''"
+      @click="select($event, match)"
+      @contextmenu="onRightClick($event, match)"
+    />
   </div>
   <Button v-else label="Add" @click="addFirstMatch" />
 
   <Dialog v-model:visible="editDialog" maximizable modal header="Edit" :style="{ width: '80vw' }">
     <EditDialog
       v-if="isArrayHasLength(selectedMatches) && !isBaseSelected"
-      :base-entity-iri="baseEntityIri"
+      :base-entity-match="baseEntityMatch"
       :match="selectedMatches[0]"
       @on-close="onEditDialogClose"
     />
@@ -47,19 +27,19 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, ref } from "vue";
-import { describeMatch, getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
-import RecursiveWhereEdit from "./RecursiveWhereEdit.vue";
+import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import EditDialog from "./EditDialog.vue";
 import { MenuItem } from "primevue/menuitem";
 import AddBaseType from "./AddBaseType.vue";
+import RecursiveQueryEditDisplay from "./RecursiveQueryEditDisplay.vue";
 
 interface Props {
   parentMatch?: Match;
   matches: Match[];
   selectedMatches: Match[];
-  baseEntityIri: string;
+  baseEntityMatch: Match;
 }
 
 enum Direction {
@@ -248,14 +228,6 @@ function multiselect(match: Match) {
 
 function isSelected(match: Match) {
   return !!props.selectedMatches.find(selected => JSON.stringify(selected) === JSON.stringify(match));
-}
-
-function hasNodeRef(where: Where) {
-  return isObjectHasKeys(where, ["nodeRef"]) || isObjectHasKeys(where.relativeTo, ["nodeRef"]);
-}
-
-function hasBigList(where: Where) {
-  return (isArrayHasLength(where.in) && where.in!.length > 1) || (isArrayHasLength(where.notIn) && where.notIn!.length > 1);
 }
 </script>
 

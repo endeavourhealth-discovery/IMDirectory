@@ -2,14 +2,14 @@
   <div class="editor-dialog-container">
     <Splitter class="query-splitter">
       <SplitterPanel :size="30" :minSize="10" style="overflow: auto" class="splitter-left">
-        <QueryNavTree :base-entity-iri="baseEntityIri" @add-property="addProperty" @remove-property="removeProperty" />
+        <QueryNavTree :base-entity-match="baseEntityMatch" @add-property="addProperty" @remove-property="removeProperty" />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
         <div v-for="(editMatch, index) in editMatches">
           <Divider v-if="index" align="center">
             <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch }}</div>
           </Divider>
-          <EditMatch :base-entity-iri="baseEntityIri" :edit-match="editMatch" />
+          <EditMatch :base-entity-match="baseEntityMatch" :edit-match="editMatch" />
         </div>
       </SplitterPanel>
     </Splitter>
@@ -30,7 +30,7 @@ import EditMatch from "./EditMatch.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
 interface Props {
-  baseEntityIri: string;
+  baseEntityMatch: Match;
   match: Match;
 }
 const props = defineProps<Props>();

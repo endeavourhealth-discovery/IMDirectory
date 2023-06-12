@@ -35,24 +35,16 @@ import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getColourFromType, getFAIconFromType, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { getKey, getParentNode } from "@im-library/helpers";
 import { byLabel } from "@im-library/helpers/Sorters";
-
-interface Props {
-  baseEntityIri?: string;
-}
-const props = defineProps<Props>();
+import setupQueryTree from "@/composables/setupQueryTree";
+const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay } = setupQueryTree();
 
 const emit = defineEmits({
   addBaseEntity: (_payload: TreeNode) => true
 });
 
 const loading = ref(true);
-const overlayLocation: Ref<any> = ref({});
-const OS: Ref<any> = ref();
 const { selectedKeys, selectedNode, root, expandedKeys } = setupTree();
 
 onMounted(async () => {
@@ -62,30 +54,12 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  if (isObject(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
-    hideOverlay(overlayLocation.value);
-  }
+  removeOverlay();
 });
 
 function onNodeSelect(node: any) {
   selectedNode.value = node;
   emit("addBaseEntity", selectedNode.value);
-}
-
-function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, parent?: TreeNode, order?: number): TreeNode {
-  return {
-    key: getKey(parent as any),
-    label: conceptName,
-    typeIcon: getFAIconFromType(conceptTypes),
-    color: getColourFromType(conceptTypes),
-    conceptTypes: conceptTypes,
-    data: conceptIri,
-    leaf: !hasChildren,
-    loading: false,
-    children: [] as TreeNode[],
-    order: order,
-    parent: getParentNode(parent as any)
-  };
 }
 
 async function populateTree() {
@@ -106,16 +80,6 @@ async function addFolder(folderName: string, children: TTIriRef[], conceptTypes:
   }
   parent.children?.sort(byLabel);
   root.value.push(parent);
-}
-
-async function showOverlay(event: any, node: any): Promise<void> {
-  if (node.data !== "loadMore" && node.data !== IM.NAMESPACE + "Data models" && node.data !== IM.NAMESPACE + "Queries") {
-    await OS.value.showOverlay(event, node.data);
-  }
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 </script>
 

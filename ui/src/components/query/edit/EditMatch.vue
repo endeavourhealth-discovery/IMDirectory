@@ -22,7 +22,7 @@ import { SHACL } from "@im-library/vocabulary";
 import EntitySelect from "../clause/select/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 interface Props {
-  baseEntityIri: string;
+  baseEntityMatch: Match;
   editMatch: Match;
 }
 
@@ -40,7 +40,15 @@ const propertyIri: Ref<string> = ref("");
 const toolTip: Ref<string> = ref("");
 
 onMounted(async () => {
-  dataModelIri.value = getDataModelIri(props.editMatch) ?? props.baseEntityIri;
+  const iri = (props.baseEntityMatch["@id"] || props.baseEntityMatch["@set"] || props.baseEntityMatch["@type"]) as string;
+  if (iri) {
+    await init(iri);
+  }
+});
+
+async function init(iri: string) {
+  const resolvedIri = resolveIri(iri);
+  dataModelIri.value = getDataModelIri(props.editMatch) ?? resolvedIri;
   propertyIri.value = isObjectHasKeys(props.editMatch, ["where"]) ? props.editMatch.where?.[0]["@id"]! : "";
   where.value = isObjectHasKeys(props.editMatch, ["where"]) ? props.editMatch.where![0] : ({} as Where);
 
@@ -55,7 +63,7 @@ onMounted(async () => {
   }
 
   if (property.value) toolTip.value = getTooltip(property.value);
-});
+}
 
 function getTooltip(property: TTProperty) {
   let tooltip = "";

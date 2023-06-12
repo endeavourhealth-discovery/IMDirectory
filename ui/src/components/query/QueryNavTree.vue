@@ -30,22 +30,20 @@
 <script async setup lang="ts">
 import { onMounted, onUnmounted, ref, Ref } from "vue";
 import { EntityService } from "@/services";
-import { IM, RDF, SHACL } from "@im-library/vocabulary";
-import ContextMenu from "primevue/contextmenu";
+import { RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
+import setupQueryTree from "@/composables/setupQueryTree";
 import { TreeNode } from "primevue/tree";
-import { isArray } from "lodash";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getColourFromType, getFAIconFromType, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTProperty } from "@im-library/interfaces";
-import { getKey, getParentNode } from "@im-library/helpers";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
+import { Match } from "@im-library/interfaces/AutoGen";
 
 interface Props {
-  baseEntityIri: string;
+  baseEntityMatch: Match;
 }
 const props = defineProps<Props>();
 
@@ -55,10 +53,9 @@ const emit = defineEmits({
 });
 
 const loading = ref(true);
-const overlayLocation: Ref<any> = ref({});
 const selectedProperties: Ref<TreeNode> = ref([]);
-const OS: Ref<any> = ref();
 const { selectedKeys, selectedNode, root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
+const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay } = setupQueryTree();
 
 onMounted(async () => {
   loading.value = true;
@@ -67,9 +64,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  if (isObject(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
-    hideOverlay(overlayLocation.value);
-  }
+  removeOverlay();
 });
 
 function onInput(node: TreeNode, bool: boolean) {
@@ -95,22 +90,6 @@ async function handleTreeNodeExpand(node: any) {
     } else {
       onClassExpand(node);
     }
-}
-
-function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean, parent?: TreeNode, order?: number): TreeNode {
-  return {
-    key: getKey(parent as any),
-    label: conceptName,
-    typeIcon: getFAIconFromType(conceptTypes),
-    color: getColourFromType(conceptTypes),
-    conceptTypes: conceptTypes,
-    data: conceptIri,
-    leaf: !hasChildren,
-    loading: false,
-    children: [] as TreeNode[],
-    order: order,
-    parent: getParentNode(parent as any)
-  };
 }
 
 async function onPropertyExpand(node: TreeNode) {
@@ -160,8 +139,10 @@ async function onClassExpand(node: TreeNode) {
 }
 
 async function addParentFoldersToRoot() {
-  if (props.baseEntityIri) {
-    await addBaseEntityToRoot(props.baseEntityIri);
+  const iri = (props.baseEntityMatch["@id"] || props.baseEntityMatch["@set"] || props.baseEntityMatch["@type"]) as string;
+  if (iri) {
+    const resolvedIri = resolveIri(iri);
+    await addBaseEntityToRoot(resolvedIri);
   }
 }
 
@@ -169,16 +150,6 @@ async function addBaseEntityToRoot(iri: string) {
   const name = getNameFromRef({ "@id": iri });
   const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, undefined);
   root.value.push(parent);
-}
-
-async function showOverlay(event: any, node: any): Promise<void> {
-  if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
-    await OS.value.showOverlay(event, node.data);
-  }
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 </script>
 

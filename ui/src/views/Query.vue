@@ -6,7 +6,7 @@
       </template>
     </TopBar>
     <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryEdit :base-entity-iri="baseEntityIri" :matches="query.match!" :selectedMatches="selectedMatches" />
+    <RecursiveQueryEdit :base-entity-match="baseEntityMatch" :matches="query.match!" :selectedMatches="selectedMatches" />
 
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -30,7 +30,7 @@ import { useRoute } from "vue-router";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
-const baseEntityIri = ref("");
+const baseEntityMatch = ref({} as Match);
 const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
 
@@ -43,9 +43,7 @@ async function setQuery() {
   const queryIri = resolveIri(route.params.queryIri as string);
   query.value = await QueryService.getQueryDisplay(queryIri);
   if (isArrayHasLength(query.value?.match)) {
-    const baseEntity = query.value.match![0];
-    const iri = (baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"]) as string;
-    baseEntityIri.value = resolveIri(iri);
+    baseEntityMatch.value = query.value.match![0];
   }
 }
 </script>
