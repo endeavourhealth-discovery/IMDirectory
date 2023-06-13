@@ -23,7 +23,10 @@ export function setupValidity(shape?: FormGenerator) {
 
   function removeValidationCheckStatus(shape: PropertyShape) {
     if (shape && validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]) !== -1) {
-      validationCheckStatus.value.splice(validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]));
+      validationCheckStatus.value.splice(
+        validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]),
+        1
+      );
     }
   }
 
@@ -47,17 +50,18 @@ export function setupValidity(shape?: FormGenerator) {
     });
   }
 
-  function addPropertyToValidationCheckStatus(shape: PropertyShape) {
-    if (shape.property) {
-      for (const property of shape.property) {
-        if (
-          ![IM.component.HORIZONTAL_LAYOUT, IM.component.VERTICAL_LAYOUT, IM.component.TOGGLEABLE].includes(property.componentType["@id"]) &&
-          validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1
-        )
-          validationCheckStatus.value.push({ key: property.path["@id"], checkCompleted: false });
-        if (property.componentType["@id"] !== IM.component.TOGGLEABLE) addPropertyToValidationCheckStatus(property);
+  function addPropertyToValidationCheckStatus(property: PropertyShape) {
+    if (
+      ![IM.component.HORIZONTAL_LAYOUT, IM.component.VERTICAL_LAYOUT, IM.component.TOGGLEABLE].includes(property.componentType["@id"]) &&
+      validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1
+    )
+      validationCheckStatus.value.push({ key: property.path["@id"], checkCompleted: false });
+    if (property.componentType["@id"] !== IM.component.TOGGLEABLE)
+      if (property.property) {
+        for (const subProperty of property.property) {
+          addPropertyToValidationCheckStatus(subProperty);
+        }
       }
-    }
   }
 
   function updateValidationCheckStatus(key: string) {
