@@ -18,7 +18,7 @@
           :disabled="invalidAssociatedProperty || disabled"
           class="search-input"
           @drop.prevent
-          :class="invalid && 'invalid'"
+          :class="invalid && showValidation && 'invalid'"
         >
           <template #item="{ item }: any">
             <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, item)" @mouseleave="hideOptionsOverlay($event)">
@@ -28,7 +28,7 @@
         </AutoComplete>
       </div>
       <small v-if="invalidAssociatedProperty" class="validate-error">Missing property for refinement. Please select a property first.</small>
-      <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
   <OverlayPanel class="options-op" ref="optionsOP" :dismissable="true" stype="width: 50vw" :breakpoints="{ '960px': '75vw' }">
@@ -109,6 +109,18 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      showValidation.value = true;
+    }
+  });
+}
 
 watch(
   () => _.cloneDeep(valueVariableMap?.value),
@@ -133,6 +145,7 @@ const autocompleteOptions: Ref<ConceptSummary[]> = ref([]);
 const key = ref("");
 const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const optionsOverlayLocation: Ref<any> = ref({});
+const showValidation = ref(false);
 
 const invalidAssociatedProperty: ComputedRef<boolean> = computed(
   () => validationErrorMessage.value === `Missing required related item: ${props.shape.argument![0].valueVariable}`
@@ -246,7 +259,10 @@ async function itemSelected(value: ConceptSummary) {
   if (isObjectHasKeys(value)) {
     if (!props.shape.builderChild && key.value) {
       updateEntity(value);
-      if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
     } else {
       emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }

@@ -1,8 +1,8 @@
 <template>
   <div class="html-input-container">
     <label v-if="shape.showTitle">{{ shape.name }}</label>
-    <Textarea class="p-inputtext-lg input-html" :class="invalid && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
-    <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+    <Textarea class="p-inputtext-lg input-html" :class="invalid && showValidation && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
@@ -30,11 +30,24 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 let key = props.shape.path["@id"];
 
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
 
 const userInput = ref("");
 onMounted(() => {
@@ -43,7 +56,10 @@ onMounted(() => {
 watch(userInput, async newValue => {
   updateEntity(newValue);
   updateValueVariableMap(newValue);
-  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    showValidation.value = true;
+  }
 });
 
 function updateEntity(data: string) {

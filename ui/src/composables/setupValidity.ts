@@ -2,13 +2,68 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
-import { PropertyShape } from "@im-library/interfaces/AutoGen";
+import { FormGenerator, PropertyShape } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { isArray } from "lodash";
 import { Ref, provide, ref } from "vue";
 
-export function setupValidity() {
+export function setupValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);
+  const validationCheckStatus: Ref<{ key: string; checkCompleted: boolean }[]> = ref([]);
+
+  constructValidationCheckStatus(shape);
+  function constructValidationCheckStatus(shape?: FormGenerator) {
+    validationCheckStatus.value = [];
+    if (shape && shape.property) {
+      for (const property of shape.property) {
+        addPropertyToValidationCheckStatus(property);
+      }
+    }
+  }
+
+  function removeValidationCheckStatus(shape: PropertyShape) {
+    if (shape && validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]) !== -1) {
+      validationCheckStatus.value.splice(validationCheckStatus.value.findIndex(item => item.key === shape.path["@id"]));
+    }
+  }
+
+  function clearValidationCheckStatus() {
+    validationCheckStatus.value = [];
+  }
+
+  async function validationChecksCompleted(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now();
+      let delta = Date.now() - startTime;
+      const interval = setInterval(() => {
+        delta = Date.now() - startTime;
+        if (Math.floor(delta / 1000) >= 10 /* 10s timeout */ || validationCheckStatus.value.every(item => item.checkCompleted === true))
+          clearInterval(interval);
+      }, 500);
+      if (Math.floor(delta / 1000) >= 10) {
+        reject(`Validation checks timed out: ${JSON.stringify(validationCheckStatus.value.filter(item => item.checkCompleted === false))}`);
+      }
+      resolve(true);
+    });
+  }
+
+  function addPropertyToValidationCheckStatus(shape: PropertyShape) {
+    if (shape.property) {
+      for (const property of shape.property) {
+        if (
+          ![IM.component.HORIZONTAL_LAYOUT, IM.component.VERTICAL_LAYOUT, IM.component.TOGGLEABLE].includes(property.componentType["@id"]) &&
+          validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1
+        )
+          validationCheckStatus.value.push({ key: property.path["@id"], checkCompleted: false });
+        if (property.componentType["@id"] !== IM.component.TOGGLEABLE) addPropertyToValidationCheckStatus(property);
+      }
+    }
+  }
+
+  function updateValidationCheckStatus(key: string) {
+    const found = validationCheckStatus.value.find(item => item.key === key);
+    if (found) found.checkCompleted = true;
+  }
 
   async function updateValidity(
     componentShape: PropertyShape,
@@ -82,5 +137,17 @@ export function setupValidity() {
     return isObjectHasKeys(entity) && entity[IM.ID] && editorValidity.value.every(validity => validity.valid);
   }
 
-  return { editorValidity, updateValidity, removeValidity, isValidEntity };
+  return {
+    editorValidity,
+    updateValidity,
+    removeValidity,
+    isValidEntity,
+    constructValidationCheckStatus,
+    validationCheckStatus,
+    updateValidationCheckStatus,
+    removeValidationCheckStatus,
+    clearValidationCheckStatus,
+    addPropertyToValidationCheckStatus,
+    validationChecksCompleted
+  };
 }

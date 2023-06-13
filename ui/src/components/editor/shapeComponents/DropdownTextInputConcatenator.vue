@@ -4,11 +4,11 @@
       <label v-if="shape.showTitle">{{ shape.name }}</label>
       <div class="content-container">
         <Dropdown :disabled="loading" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
-        <InputText :disabled="loading" class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" />
+        <InputText :disabled="loading" class="p-inputtext-lg input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
         <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
       </div>
       <span>{{ selectedDropdownOption ? selectedDropdownOption["@id"] : "" }}{{ userInput }}</span>
-      <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
 </template>
@@ -39,6 +39,18 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const loading = ref(false);
@@ -46,13 +58,17 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const selectedDropdownOption: Ref<TTIriRef | null> = ref(null);
 const userInput = ref("");
+const showValidation = ref(false);
 
 watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, newUserInput], [oldSelectedDropdownOption, oldUserInput]) => {
   if (isTTIriRef(newSelectedDropdownOption) && newUserInput && (newSelectedDropdownOption !== oldSelectedDropdownOption || newUserInput !== oldUserInput)) {
     const concatenated = newSelectedDropdownOption["@id"] + newUserInput;
     updateEntity(concatenated);
     updateValueVariableMap(concatenated);
-    if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      showValidation.value = true;
+    }
   }
 });
 

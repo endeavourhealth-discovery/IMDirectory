@@ -4,8 +4,8 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else class="children-container" :class="invalid && 'invalid'">
-      <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+    <div v-else class="children-container" :class="invalid && showValidation && 'invalid'">
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
       <template v-for="(item, index) in build" :key="item.id">
         <component
           :is="item.type"
@@ -65,15 +65,32 @@ const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 let key = props.shape.path["@id"];
 
-let loading = ref(true);
-let invalid = ref(false);
-let validationErrorMessage: Ref<string | undefined> = ref();
-let build: Ref<ComponentDetails[]> = ref([]);
-onMounted(() => {
+const loading = ref(true);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
+const build: Ref<ComponentDetails[]> = ref([]);
+onMounted(async () => {
   init();
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    showValidation.value = false;
+  }
 });
 
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
@@ -87,7 +104,10 @@ watch(
   async newValue => {
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
-      if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
       updateValueVariableMap(props.value);
     }
   }

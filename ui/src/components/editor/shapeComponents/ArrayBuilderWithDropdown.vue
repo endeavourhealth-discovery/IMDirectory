@@ -6,8 +6,8 @@
     </div>
     <div v-else class="dropdown-children-container">
       <Dropdown v-model="selectedOption" :options="dropdownOptions" optionLabel="name" placeholder="Select..." />
-      <div class="children-container" :class="invalid && 'invalid'">
-        <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+      <div class="children-container" :class="invalid && showValidation && 'invalid'">
+        <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
         <template v-for="item of build" :key="item.id">
           <component
             :is="item.type"
@@ -71,15 +71,28 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 let key = props.shape.path["@id"];
 
-let loading = ref(true);
-let invalid = ref(false);
-let selectedOption: Ref<TTIriRef | undefined> = ref();
-let dropdownOptions: Ref<TTIriRef[]> = ref([]);
-let validationErrorMessage: Ref<string | undefined> = ref();
-let build: Ref<ComponentDetails[]> = ref([]);
+const loading = ref(true);
+const invalid = ref(false);
+const selectedOption: Ref<TTIriRef | undefined> = ref();
+const dropdownOptions: Ref<TTIriRef[]> = ref([]);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const build: Ref<ComponentDetails[]> = ref([]);
+const showValidation = ref(false);
 onMounted(async () => {
   loading.value = true;
   key = props.shape.path["@id"];
@@ -107,7 +120,10 @@ watch(
   async () => {
     if (!loading.value && finishedChildLoading()) {
       if (entityUpdate) updateEntity();
-      if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
     }
   }
 );
