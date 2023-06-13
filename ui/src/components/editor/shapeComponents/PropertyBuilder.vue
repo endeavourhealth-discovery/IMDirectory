@@ -1,6 +1,6 @@
 <template>
   <div class="property-builder">
-    <div class="content-container">
+    <div class="content-container" :class="invalid && 'invalid'">
       <div class="path-container">
         <TextDisplay v-if="isInherited" :value="propertyPath.name" :shape="propertyPathShape" :mode="mode" />
         <EntityAutoComplete v-else :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" />
@@ -15,6 +15,7 @@
         <ToggleButton v-model="unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
       </div>
     </div>
+    <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
@@ -50,8 +51,9 @@ const emit = defineEmits({
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 
 const propertyPath: Ref<TTIriRef> = ref({} as TTIriRef);
 const propertyRange: Ref<TTIriRef | undefined> = ref(undefined);
@@ -60,7 +62,8 @@ const required = ref(false);
 const unique = ref(false);
 const loading = ref(true);
 const invalid = ref(false);
-let isInherited = false;
+const validationErrorMessage: Ref<string | undefined> = ref();
+const isInherited = ref(false);
 const isVisible = ref(true);
 
 watch(
@@ -151,7 +154,7 @@ function processProps() {
       props.value["http://endhealth.info/im#inheritedFrom"].length === 1
     ) {
       inheritedFrom.value = props.value["http://endhealth.info/im#inheritedFrom"][0];
-      isInherited = true;
+      isInherited.value = true;
     }
     if (isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#minCount"]) && typeof props.value["http://www.w3.org/ns/shacl#minCount"] === "number")
       required.value = props.value["http://www.w3.org/ns/shacl#minCount"] > 0;
@@ -188,7 +191,7 @@ async function updateAll() {
     emit("updateClicked", property);
   }
   updateValueVariableMap(property);
-  await updateValidity();
+  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
 }
 
 async function createProperty() {
@@ -236,19 +239,6 @@ function updateValueVariableMap(data: Property) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity() {
-  return true;
-}
-
 async function isFunctionProperty(propIri: string) {
   return await QueryService.isFunctionProperty(propIri);
 }
@@ -286,5 +276,15 @@ async function isFunctionProperty(propIri: string) {
 
 .content-container:deep(.label-container) {
   padding: 0;
+}
+
+.invalid {
+  border-color: var(--red-500);
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
 }
 </style>

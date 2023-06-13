@@ -3,16 +3,16 @@
     <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="input-loading-container">
       <div class="tooltip-container" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
-        <InputText disabled class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" />
+        <InputText disabled class="p-inputtext-lg input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
       </div>
-
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     </div>
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, watch, onMounted, inject, PropType, Ref } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";
@@ -29,52 +29,62 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
-const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-if (valueVariableMap) {
-  watch(
-    () => _.cloneDeep(valueVariableMap.value),
-    async () => {
-      if (props.shape.argument && props.shape.argument.some(a => a.valueVariable)) await init();
-    }
-  );
-}
-
-let key = props.shape.path["@id"];
-let loading = ref(false);
-
-let invalid = ref(false);
-
-let userInput = ref("");
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], async ([newPropsValue, newShapeValue]) => {
   if (newPropsValue && newShapeValue) userInput.value = newPropsValue;
   else userInput.value = await processPropertyValue(newShapeValue);
 });
-watch(userInput, async newValue => {
-  if (newValue) {
-    updateEntity(newValue);
-    updateValueVariableMap(newValue);
-    await updateValidity();
-  }
-});
-onMounted(async () => {
-  await init();
-});
 
+const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 watch(
   () => _.cloneDeep(valueVariableMap?.value),
   async (newValue, oldValue) => {
-    if (!userInput.value && newValue && oldValue && !compareMaps(newValue, oldValue)) {
+    // check if argument uses variable and find and use that variable if it has been added to valueVariableMap.
+    if (props.shape.argument && props.shape.argument.some(a => a.valueVariable)) await init();
+    else if (!userInput.value && newValue && oldValue && !compareMaps(newValue, oldValue)) {
       loading.value = true;
       if (newValue?.size) userInput.value = await processPropertyValue(props.shape);
       loading.value = false;
     }
   }
 );
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
+
+let key = props.shape.path["@id"];
+
+const loading = ref(false);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const userInput = ref("");
+const showValidation = ref(false);
+
+watch(userInput, async newValue => {
+  if (newValue) {
+    updateEntity(newValue);
+    updateValueVariableMap(newValue);
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      showValidation.value = true;
+    }
+  }
+});
+onMounted(async () => {
+  await init();
+});
 
 async function init() {
   if (props.value) userInput.value = props.value;
@@ -147,19 +157,6 @@ function updateValueVariableMap(data: string) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return true;
 }
 </script>
 

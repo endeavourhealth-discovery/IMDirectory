@@ -3,18 +3,21 @@ import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { mountComposable } from "../TestMethods";
+import { EditorMode } from "@im-library/enums";
 
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 
 describe("fetchEntity", () => {
   let getFullEntitySpy;
+  let mockUpdateType;
   beforeEach(async () => {
     vi.resetAllMocks();
     getFullEntitySpy = vi.spyOn(EntityService, "getFullEntity");
+    mockUpdateType = vi.fn();
   });
 
   it("does nothing if no editorIri", async () => {
-    const wrapper = mountComposable(setupEditorEntity, { editor: { editorIri: undefined}});
+    const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: undefined } });
 
     await wrapper.vm.fetchEntity();
     expect(wrapper.vm.editorEntity).toEqual({});
@@ -25,7 +28,7 @@ describe("fetchEntity", () => {
   it("gets full entity by iri and process entity", async () => {
     const testEntity = fakerFactory.entity.create();
     getFullEntitySpy.mockResolvedValue(testEntity);
-    const wrapper = mountComposable(setupEditorEntity, { editor: { editorIri: "testIri"}});
+    const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType], { editor: { editorIri: "testIri" } });
 
     await wrapper.vm.fetchEntity();
     expect(getFullEntitySpy).toHaveBeenCalled();
@@ -36,11 +39,16 @@ describe("fetchEntity", () => {
 });
 
 describe("processEntity", () => {
+  let mockUpdateType;
+  beforeEach(async () => {
+    vi.resetAllMocks();
+    mockUpdateType = vi.fn();
+  });
   it("changes @id to full iri and removes im1id and im1scheme", async () => {
     const testEntity = fakerFactory.entity.create();
     testEntity[IM.IM_1_ID] = "testIri";
     testEntity[IM.IM_1_SCHEME] = [{ "@id": "testScheme" }];
-    const wrapper = mountComposable(setupEditorEntity);
+    const wrapper = mountComposable(setupEditorEntity, [EditorMode.EDIT, mockUpdateType]);
     const result = wrapper.vm.processEntity(testEntity);
     expect(result).toEqual(expect.objectContaining({ "http://endhealth.info/im#id": testEntity["@id"] }));
     expect(result).toEqual(

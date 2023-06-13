@@ -20,7 +20,7 @@ export default class ValidationController {
     );
   }
 
-  async validate(req: Request) {
+  async validate(req: Request): Promise<{ isValid: boolean; message?: string }> {
     const validationIri = req.query.iri as string;
     if (!validationIri) throw new Error("Missing validation iri");
     const data = req.body;
