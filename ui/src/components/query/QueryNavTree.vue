@@ -30,7 +30,7 @@
 <script async setup lang="ts">
 import { onMounted, onUnmounted, ref, Ref } from "vue";
 import { EntityService } from "@/services";
-import { RDF, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
@@ -109,16 +109,31 @@ async function onNodeExpand(node: TreeNode) {
   const properties: TTProperty[] = entity[SHACL.PROPERTY];
 
   for (const prop of properties) {
-    const child = createTreeNode(
-      prop["http://www.w3.org/ns/shacl#path"][0].name as string,
-      prop["http://www.w3.org/ns/shacl#path"][0]["@id"],
-      [{ "@id": RDF.PROPERTY }],
-      !isArrayHasLength(prop["http://www.w3.org/ns/shacl#datatype"]) && !isArrayHasLength(prop["http://www.w3.org/ns/shacl#class"]),
-      node
-    );
-    child.ttproperty = prop;
-    node.children!.push(child);
+    const propertyNode = buildTreeNodeFromTTProperty(prop, node);
+    if (isObjectHasKeys(prop, ["http://www.w3.org/ns/shacl#group"])) {
+      const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
+      let groupNode = node.children?.find(child => child.data === groupRef["@id"]);
+      if (!groupNode) {
+        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, node, groupRef.order);
+        node.children?.push(groupNode);
+      }
+      groupNode.children?.push(propertyNode);
+    } else {
+      node.children!.push(propertyNode);
+    }
   }
+}
+
+function buildTreeNodeFromTTProperty(property: TTProperty, parent?: TreeNode) {
+  const child = createTreeNode(
+    property["http://www.w3.org/ns/shacl#path"][0].name as string,
+    property["http://www.w3.org/ns/shacl#path"][0]["@id"],
+    [{ "@id": RDF.PROPERTY }],
+    !isArrayHasLength(property["http://www.w3.org/ns/shacl#datatype"]) && !isArrayHasLength(property["http://www.w3.org/ns/shacl#class"]),
+    parent
+  );
+  child.ttproperty = property;
+  return child;
 }
 
 async function onClassExpand(node: TreeNode) {
