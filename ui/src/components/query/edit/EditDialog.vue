@@ -2,7 +2,7 @@
   <div class="editor-dialog-container">
     <Splitter class="query-splitter">
       <SplitterPanel :size="30" :minSize="10" style="overflow: auto" class="splitter-left">
-        <QueryNavTree :base-entity-match="baseEntityMatch" @add-property="addProperty" @remove-property="removeProperty" />
+        <QueryNavTree :base-entity-match="baseEntityMatch" :editMatches="editMatches" />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
         <div v-for="(editMatch, index) in editMatches">
@@ -23,12 +23,10 @@
 <script setup lang="ts">
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Bool, Match } from "@im-library/interfaces/AutoGen";
-import { TreeNode } from "primevue/tree";
 import { Ref, onMounted, ref } from "vue";
 import QueryNavTree from "../QueryNavTree.vue";
 import EditMatch from "./EditMatch.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
 interface Props {
   baseEntityMatch: Match;
   match: Match;
@@ -46,16 +44,6 @@ onMounted(() => {
 function toggleBoolMatch() {
   if (editBoolMatch.value === "and") editBoolMatch.value = "or";
   else if (editBoolMatch.value === "or") editBoolMatch.value = "and";
-}
-
-function addProperty(treeNode: TreeNode) {
-  const newMatch = buildMatchFromProperty(treeNode as any);
-  editMatches.value.push(newMatch);
-}
-
-function removeProperty(treeNode: TreeNode) {
-  const removeIndex = editMatches.value.findIndex(editMatch => (editMatch as any).key === treeNode.key);
-  if (removeIndex != -1) editMatches.value.splice(removeIndex, 1);
 }
 
 function save() {

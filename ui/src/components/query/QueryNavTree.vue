@@ -28,7 +28,7 @@
 </template>
 
 <script async setup lang="ts">
-import { onMounted, onUnmounted, ref, Ref } from "vue";
+import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
@@ -41,9 +41,12 @@ import { isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethod
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match } from "@im-library/interfaces/AutoGen";
+import _ from "lodash";
+import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   baseEntityMatch: Match;
+  editMatches: Match[];
 }
 const props = defineProps<Props>();
 
@@ -51,6 +54,13 @@ const emit = defineEmits({
   addProperty: (_payload: TreeNode) => true,
   removeProperty: (_payload: TreeNode) => true
 });
+
+watch(
+  () => _.cloneDeep(props.editMatches),
+  () => {
+    if (isArrayHasLength(root.value)) populateFromMatches(props.editMatches);
+  }
+);
 
 const loading = ref(true);
 const selectedProperties: Ref<TreeNode> = ref([]);
@@ -60,6 +70,7 @@ const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay } = setupQue
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
+  populateFromMatches(props.editMatches);
   loading.value = false;
 });
 
@@ -67,13 +78,79 @@ onUnmounted(() => {
   removeOverlay();
 });
 
+function populateFromMatches(matches: Match[]) {
+  for (const match of matches) {
+    if (isObjectHasKeys(match, ["where"]) && isArrayHasLength(match.where)) {
+      for (const whereValue of match.where!) {
+        if (!match.path) {
+          if ((match as any).key) {
+            const key = (match as any).key;
+            selectByKey(key);
+          } else {
+            const key = whereValue["@id"]!;
+            selectByIri(key, root.value[0].children!);
+          }
+        }
+      }
+    }
+
+    if (isObjectHasKeys(match, ["match"]) && isArrayHasLength(match.match)) {
+      populateFromMatches(match.match!);
+    }
+  }
+}
+
+function selectByKey(key: string) {
+  const keys = key.split("-");
+  const lastKey = keys.length;
+  let nodes = root.value;
+  for (const [index, keySplit] of keys.entries()) {
+    if (index !== lastKey - 1) {
+      expandedKeys.value[nodes[+keySplit].key!] = true;
+      nodes = nodes[+keySplit].children!;
+    } else {
+      selectedNode.value = nodes[+keySplit];
+      selectedNode.value.selected = true;
+      selectedKeys.value[nodes[+keySplit].key!] = true;
+    }
+  }
+}
+
+function selectByIri(key: string, nodes: TreeNode[]) {
+  console.log(nodes);
+  let found = nodes.find(node => node.key === key);
+  console.log(found?.key);
+  if (found) {
+    selectedProperties.value.push(found);
+  } else {
+    found = nodes.find(node => node.children!.some(grandChild => grandChild.key === key));
+    console.log(found?.key);
+    if (found) {
+      expandedKeys.value[found.parent.key!] = true;
+      selectedProperties.value.push(found);
+    }
+  }
+}
+
+function findByPath() {}
+
+function addProperty(treeNode: TreeNode) {
+  const newMatch = buildMatchFromProperty(treeNode as any);
+  props.editMatches.push(newMatch);
+}
+
+function removeProperty(treeNode: TreeNode) {
+  const removeIndex = props.editMatches.findIndex(editMatch => (editMatch as any).key === treeNode.key);
+  if (removeIndex != -1) props.editMatches.splice(removeIndex, 1);
+}
+
 function onInput(node: TreeNode, bool: boolean) {
   if (bool) {
     selectedProperties.value.push(node);
-    emit("addProperty", node);
+    addProperty(node);
   } else {
     selectedProperties.value = selectedProperties.value.filter((selected: TreeNode) => selected.key !== node.key);
-    emit("removeProperty", node);
+    removeProperty(node);
   }
 }
 
@@ -109,7 +186,6 @@ async function onNodeExpand(node: TreeNode) {
   const properties: TTProperty[] = entity[SHACL.PROPERTY];
 
   for (const prop of properties) {
-    const propertyNode = buildTreeNodeFromTTProperty(prop, node);
     if (isObjectHasKeys(prop, ["http://www.w3.org/ns/shacl#group"])) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
       let groupNode = node.children?.find(child => child.data === groupRef["@id"]);
@@ -117,8 +193,10 @@ async function onNodeExpand(node: TreeNode) {
         groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, node, groupRef.order);
         node.children?.push(groupNode);
       }
+      const propertyNode = buildTreeNodeFromTTProperty(prop, groupNode);
       groupNode.children?.push(propertyNode);
     } else {
+      const propertyNode = buildTreeNodeFromTTProperty(prop, node);
       node.children!.push(propertyNode);
     }
   }
