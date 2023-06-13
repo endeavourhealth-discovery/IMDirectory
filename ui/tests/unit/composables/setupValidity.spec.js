@@ -11,7 +11,7 @@ describe("constructValidationCheckStatus", () => {
     const testShape = testData.testShape;
     const wrapper = mountComposable(setupValidity, [testShape]);
 
-    wrapper.vm.constructValidationCheckStatus();
+    wrapper.vm.constructValidationCheckStatus(testShape);
     expect(wrapper.vm.validationCheckStatus).toEqual(testData.validationCheckStatus);
   });
 });

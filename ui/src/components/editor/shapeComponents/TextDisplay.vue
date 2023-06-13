@@ -42,6 +42,7 @@ const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateVal
 watch(
   () => _.cloneDeep(valueVariableMap?.value),
   async (newValue, oldValue) => {
+    // check if argument uses variable and find and use that variable if it has been added to valueVariableMap.
     if (props.shape.argument && props.shape.argument.some(a => a.valueVariable)) await init();
     else if (!userInput.value && newValue && oldValue && !compareMaps(newValue, oldValue)) {
       loading.value = true;

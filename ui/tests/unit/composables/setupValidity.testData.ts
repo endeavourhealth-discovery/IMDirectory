@@ -223,10 +223,6 @@ export default {
   validationCheckStatus: [
     {
       checkCompleted: false,
-      key: "http://endhealth.info/im#Concept"
-    },
-    {
-      checkCompleted: false,
       key: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
     },
     {
@@ -256,10 +252,6 @@ export default {
     {
       checkCompleted: false,
       key: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
-    },
-    {
-      checkCompleted: false,
-      key: "http://snomed.info/sct#370124000"
     },
     {
       checkCompleted: false,
