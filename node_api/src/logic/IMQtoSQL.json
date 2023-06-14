@@ -1,0 +1,22 @@
+{
+  "typeTables": {
+    "Patient": {
+      "table": "patient",
+      "fields": {
+        "http://endhealth.info/im#age": "age"
+      }
+    },
+    "Observation": {
+      "table": "event",
+      "condition": "type = 'Observation'",
+      "fields": {
+        "http://endhealth.info/im#concept": "concept",
+        "http://endhealth.info/im#effectiveDate": "clinical_effective_date",
+        "http://endhealth.info/im#numericValue": "value"
+      },
+      "relationships": {
+        "patient": {"fromField": "patient_id", "toField": "id"}
+      }
+    }
+  }
+}
