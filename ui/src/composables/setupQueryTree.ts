@@ -1,5 +1,5 @@
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getColourFromType, getFAIconFromType, isProperty } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/tree";
 import { ref, Ref } from "vue";
@@ -18,7 +18,7 @@ function setupQueryTree() {
   const selectedNode: Ref<TreeNode> = ref({});
   const root: Ref<TreeNode[]> = ref([]);
   const expandedKeys: Ref<any> = ref({});
-  const pageSize = ref(20);
+  const selectedNodes: Ref<TreeNode[]> = ref([]);
 
   function createTreeNode(
     conceptName: string,
@@ -39,7 +39,8 @@ function setupQueryTree() {
       loading: false,
       children: [] as TreeNode[],
       order: order,
-      parent: getParentNode(parent as any)
+      parent: getParentNode(parent as any),
+      selectable: isProperty(conceptTypes)
     };
   }
 
@@ -60,6 +61,20 @@ function setupQueryTree() {
     }
   }
 
+  function select(node: TreeNode) {
+    selectedNodes.value.push(node);
+    selectedKeys.value[node.key!] = { checked: true, partialChecked: false };
+  }
+
+  function unselect(key: string) {
+    selectedNodes.value = selectedNodes.value.filter((selected: TreeNode) => selected.key !== key);
+    delete selectedKeys.value[key];
+  }
+
+  function partialSelect(key: string) {
+    selectedKeys.value[key] = { checked: true, partialChecked: false };
+  }
+
   return {
     selectedKeys,
     selectedNode,
@@ -67,12 +82,15 @@ function setupQueryTree() {
     expandedKeys,
     createTreeNode,
     onRowClick,
-    pageSize,
     OS,
     showOverlay,
     hideOverlay,
     overlayLocation,
-    removeOverlay
+    removeOverlay,
+    unselect,
+    select,
+    partialSelect,
+    selectedNodes
   };
 }
 

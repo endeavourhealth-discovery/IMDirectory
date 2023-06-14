@@ -96,7 +96,7 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
 const rClickItemsGroup = ref([
   {
     label: "Group",
-    icon: "pi pi-fw pi-trash",
+    icon: "pi pi-fw pi-link",
     command: () => {
       group();
     }
@@ -190,11 +190,11 @@ function getRightClickOptions() {
   if (props.selectedMatches.length > 1) {
     return rClickItemsGroup.value;
   }
-  const options = rClickItemsSingle.value;
+  const options = [...rClickItemsSingle.value];
   if (isArrayHasLength(props.selectedMatches[0].match))
     options.push({
       label: "Ungroup",
-      icon: "pi pi-fw pi-trash",
+      icon: "pi pi-fw pi-eject",
       command: () => {
         ungroup();
       }
