@@ -115,7 +115,7 @@ export function setupValidity(shape?: FormGenerator) {
     if (shape.maxCount && shape.maxCount > 0) {
       if (isObjectHasKeys(editorEntity.value, [key]) && isArray(editorEntity.value[key]) && editorEntity.value[key].length > shape.maxCount) {
         valid = false;
-        message = `A maximum of ${shape.maxCount} is required`;
+        message = `A maximum of ${shape.maxCount} is required.`;
       }
     }
     if (isObjectHasKeys(shape, ["argument"]) && isArrayHasLength(shape.argument) && shape.argument![0].valueVariable) {

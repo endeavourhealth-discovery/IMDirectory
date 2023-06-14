@@ -3,6 +3,9 @@ import testData from "./setupValidity.testData";
 import { mountComposable } from "../TestMethods";
 import { flushPromises } from "@vue/test-utils";
 import { IM } from "@im-library/vocabulary";
+import { ref } from "vue";
+import { QueryService } from "@/services";
+import _ from "lodash";
 
 describe("setupValidity", () => {
   describe("constructValidationCheckStatus", () => {
@@ -119,6 +122,188 @@ describe("setupValidity", () => {
       expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, checkCompleted: false });
       wrapper.vm.updateValidationCheckStatus(testData.validationCheckStatus[0].key);
       expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, checkCompleted: true });
+    });
+  });
+
+  describe("updateValidity", () => {
+    let checkValidationSpy;
+    beforeEach(() => {
+      vi.resetAllMocks();
+      checkValidationSpy = vi.spyOn(QueryService, "checkValidation");
+    });
+
+    it("can update validity ___ shape validation ___ valid", async () => {
+      const invalid = ref(true);
+      const validationErrorMessage = ref("test");
+      const editorEntity = ref({ ...testData.testEntity });
+      const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
+      checkValidationSpy.mockResolvedValue({ isValid: true, message: undefined });
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      expect(testData.testShape.property[0].property[0].property[7].validation).toBeDefined();
+      await wrapper.vm.updateValidity(
+        testData.testShape.property[0].property[0].property[7],
+        editorEntity,
+        valueVariableMap,
+        testData.testShape.property[0].property[0].property[7].path["@id"],
+        invalid,
+        validationErrorMessage
+      );
+      await flushPromises();
+      expect(invalid.value).toEqual(false);
+      expect(validationErrorMessage.value).toEqual();
+    });
+
+    it("can update validity ___ shape validation ___ invalid", async () => {
+      const invalid = ref(false);
+      const validationErrorMessage = ref();
+      const editorEntity = ref({ ...testData.testEntity });
+      const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
+      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      expect(testData.testShape.property[0].property[0].property[7].validation).toBeDefined();
+      await wrapper.vm.updateValidity(
+        testData.testShape.property[0].property[0].property[7],
+        editorEntity,
+        valueVariableMap,
+        testData.testShape.property[0].property[0].property[7].path["@id"],
+        invalid,
+        validationErrorMessage
+      );
+      await flushPromises();
+      expect(invalid.value).toEqual(true);
+      expect(validationErrorMessage.value).toEqual("Test error");
+    });
+
+    it("can update validity ___ default validation ___ valid", async () => {
+      const invalid = ref(true);
+      const validationErrorMessage = ref("test");
+      const editorEntity = ref({ ...testData.testEntity });
+      const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
+      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
+      await wrapper.vm.updateValidity(
+        testData.testShape.property[0].property[0].property[0],
+        editorEntity,
+        valueVariableMap,
+        testData.testShape.property[0].property[0].property[0].path["@id"],
+        invalid,
+        validationErrorMessage
+      );
+      await flushPromises();
+      expect(invalid.value).toEqual(false);
+      expect(validationErrorMessage.value).toEqual();
+    });
+
+    it("can update validity ___ default validation ___ invalid ___ minCount", async () => {
+      const invalid = ref(false);
+      const validationErrorMessage = ref();
+      const editorEntity = ref({ ...testData.testEntity });
+      delete editorEntity.value[testData.testShape.property[0].property[0].property[0].path["@id"]];
+      const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
+      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
+      await wrapper.vm.updateValidity(
+        testData.testShape.property[0].property[0].property[0],
+        editorEntity,
+        valueVariableMap,
+        testData.testShape.property[0].property[0].property[0].path["@id"],
+        invalid,
+        validationErrorMessage
+      );
+      await flushPromises();
+      expect(invalid.value).toEqual(true);
+      expect(validationErrorMessage.value).toEqual(`A minimum of ${testData.testShape.property[0].property[0].property[0].minCount} is required.`);
+    });
+
+    it("can update validity ___ default validation ___ invalid ___ maxCount", async () => {
+      const invalid = ref(false);
+      const validationErrorMessage = ref();
+      const editorEntity = ref({ ...testData.testEntity });
+      editorEntity.value[testData.testShape.property[0].property[0].property[0].path["@id"]] = [
+        { "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" },
+        { "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" },
+        { "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" }
+      ];
+      const testShape = { ...testData.testShape.property[0].property[0].property[0] };
+      testShape.maxCount = 1;
+      const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
+      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
+      await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path["@id"], invalid, validationErrorMessage);
+      await flushPromises();
+      expect(invalid.value).toEqual(true);
+      expect(validationErrorMessage.value).toEqual(`A maximum of ${testShape.maxCount} is required.`);
+    });
+
+    it("can update validity ___ default validation ___ invalid ___ valueVariable", async () => {
+      const invalid = ref(false);
+      const validationErrorMessage = ref();
+      const editorEntity = ref({ ...testData.testEntity });
+      const testShape = { ...testData.testShape.property[0].property[0].property[2] };
+      const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
+      valueVariableMap.value.delete("conceptIri");
+      checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      expect(testData.testShape.property[0].property[0].property[2].validation).toBeUndefined();
+      await wrapper.vm.updateValidity(testShape, editorEntity, valueVariableMap, testShape.path["@id"], invalid, validationErrorMessage);
+      await flushPromises();
+      expect(invalid.value).toEqual(true);
+      expect(validationErrorMessage.value).toEqual(`Missing required related item: ${testShape.argument[0].valueVariable}.`);
+    });
+  });
+
+  describe("removeValidity", () => {
+    let checkValidationSpy;
+    beforeEach(() => {
+      vi.resetAllMocks();
+      checkValidationSpy = vi.spyOn(QueryService, "checkValidation");
+    });
+
+    it("can remove a validity", () => {
+      it("can update validity ___ default validation ___ valid", async () => {
+        const invalid = ref(true);
+        const validationErrorMessage = ref("test");
+        const editorEntity = ref({ ...testData.testEntity });
+        const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
+        checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
+        const wrapper = mountComposable(setupValidity, [testData.testShape]);
+        expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
+        await wrapper.vm.updateValidity(
+          testData.testShape.property[0].property[0].property[0],
+          editorEntity,
+          valueVariableMap,
+          testData.testShape.property[0].property[0].property[0].path["@id"],
+          invalid,
+          validationErrorMessage
+        );
+        await flushPromises();
+        expect(wrapper.vm.editorEntity.value).toHaveLength(1);
+        wrapper.vm.removeValidity({ key: testData.testShape.property[0].property[0].property[0].path["@id"], valid: true });
+        expect(wrapper.vm.editorEntity.value).toHaveLength(0);
+      });
+    });
+  });
+
+  describe("isValidEntity", () => {
+    it("can check if entity is valid ___ true", () => {
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      wrapper.vm.editorValidity.value = [
+        { key: "test1", valid: true },
+        { key: "test2", valid: true }
+      ];
+      expect(wrapper.vm.isValidEntity({ "http://endhealth.info/im#id": "testIri" })).toBe(true);
+    });
+
+    it("can check if entity is valid ___ false", () => {
+      const wrapper = mountComposable(setupValidity, [testData.testShape]);
+      wrapper.vm.editorValidity.value = [
+        { key: "test1", valid: true },
+        { key: "test2", valid: false }
+      ];
+      expect(wrapper.vm.isValidEntity({ "http://endhealth.info/im#id": "testIri" })).toBe(false);
     });
   });
 });
