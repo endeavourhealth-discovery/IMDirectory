@@ -27,6 +27,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
 import { resolveIri } from "@im-library/helpers/TTTransform";
 import { useRoute } from "vue-router";
+import _ from "lodash";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
@@ -37,17 +38,30 @@ const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as st
 
 watch(
   () => queryIri.value,
-  async () => await setQuery()
+  async () => await init()
+);
+
+watch(
+  () => _.cloneDeep(query.value),
+  () => setBaseEntityMatch()
 );
 
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
-  if (queryIri.value) setQuery();
+  if (queryIri.value) await init();
 });
+
+async function init() {
+  await setQuery();
+  setBaseEntityMatch();
+}
 
 async function setQuery() {
   const queryIri = resolveIri(route.params.queryIri as string);
   query.value = await QueryService.getQueryDisplay(queryIri);
+}
+
+async function setBaseEntityMatch() {
   if (isArrayHasLength(query.value?.match)) {
     baseEntityMatch.value = query.value.match![0];
   }

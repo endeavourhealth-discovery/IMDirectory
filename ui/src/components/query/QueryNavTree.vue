@@ -116,18 +116,18 @@ function selectByKey(key: string) {
   }
 }
 
-function selectByIri(key: string, nodes: TreeNode[]) {
-  console.log(nodes);
-  let found = nodes.find(node => node.key === key);
-  console.log(found?.key);
+function selectByIri(iri: string, nodes: TreeNode[]) {
+  let found = nodes.find(node => node.data === iri);
   if (found) {
+    selectedNode.value = found;
+    selectedNode.value.selected = true;
+    selectedKeys.value[found.key!] = true;
     selectedProperties.value.push(found);
   } else {
-    found = nodes.find(node => node.children!.some(grandChild => grandChild.key === key));
-    console.log(found?.key);
+    found = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
     if (found) {
-      expandedKeys.value[found.parent.key!] = true;
-      selectedProperties.value.push(found);
+      expandedKeys.value[found.key!] = true;
+      if (isArrayHasLength(found.children)) selectByIri(iri, found.children!);
     }
   }
 }
