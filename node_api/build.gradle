@@ -5,7 +5,7 @@
  * Learn more about Gradle by exploring our samples at https://docs.gradle.org/6.7.1/samples
  */
 plugins {
-    id 'org.siouan.frontend-jdk11'
+    id 'com.github.node-gradle.node' version '5.0.0'
     id "org.sonarqube" version "3.5.0.2730"
 }
 
