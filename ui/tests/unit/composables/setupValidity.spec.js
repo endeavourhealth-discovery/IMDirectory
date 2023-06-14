@@ -59,7 +59,7 @@ describe("setupValidity", () => {
     it("checks if validations are completed ___ true", async () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       wrapper.vm.validationChecksCompleted().then(res => expect(res).toBe(true));
-      wrapper.vm.validationCheckStatus.value = [...testData.validationCheckStatus].map(item => {
+      wrapper.vm.validationCheckStatus = [...testData.validationCheckStatus].map(item => {
         return { key: item.key, checkCompleted: true };
       });
       vi.advanceTimersByTime(500);
@@ -70,7 +70,7 @@ describe("setupValidity", () => {
     it("checks if validations are completed ___ false", async () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       wrapper.vm.validationChecksCompleted().catch(err => expect(err).toBe(expect.stringContaining("Validation checks timed out:")));
-      wrapper.vm.validationCheckStatus.value = [...testData.validationCheckStatus].map(item => {
+      wrapper.vm.validationCheckStatus = [...testData.validationCheckStatus].map(item => {
         return { key: item.key, checkCompleted: true };
       });
       vi.advanceTimersByTime(500);
@@ -280,9 +280,9 @@ describe("setupValidity", () => {
           validationErrorMessage
         );
         await flushPromises();
-        expect(wrapper.vm.editorEntity.value).toHaveLength(1);
+        expect(wrapper.vm.editorEntity).toHaveLength(1);
         wrapper.vm.removeValidity({ key: testData.testShape.property[0].property[0].property[0].path["@id"], valid: true });
-        expect(wrapper.vm.editorEntity.value).toHaveLength(0);
+        expect(wrapper.vm.editorEntity).toHaveLength(0);
       });
     });
   });
@@ -290,7 +290,7 @@ describe("setupValidity", () => {
   describe("isValidEntity", () => {
     it("can check if entity is valid ___ true", () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      wrapper.vm.editorValidity.value = [
+      wrapper.vm.editorValidity = [
         { key: "test1", valid: true },
         { key: "test2", valid: true }
       ];
@@ -299,7 +299,7 @@ describe("setupValidity", () => {
 
     it("can check if entity is valid ___ false", () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      wrapper.vm.editorValidity.value = [
+      wrapper.vm.editorValidity = [
         { key: "test1", valid: true },
         { key: "test2", valid: false }
       ];
