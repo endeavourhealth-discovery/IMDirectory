@@ -18,8 +18,6 @@ export class IMQtoSQL {
       wheres: []
     };
 
-    console.log(JSON.stringify(definition, null, 2))
-
     this.convertMatches(qry, focus, definition.match.slice(1));
 
     console.log("================================================================")
@@ -43,7 +41,7 @@ export class IMQtoSQL {
     return sql;
   }
 
-  private focusTable(tableType: string) : any {
+  private focusTable(tableType: string, variable?: string) : any {
 
     const map = (mapData.typeTables as any)[tableType];
 
@@ -53,7 +51,13 @@ export class IMQtoSQL {
     }
 
     const table: any = { map: map };
-    table.alias = this.getAlias(table);
+
+    if (variable) {
+      table.alias = variable;
+      this.tableMap[variable] = table;
+    } else {
+      table.alias = this.getAlias(table);
+    }
 
     return table;
   }
@@ -66,12 +70,15 @@ export class IMQtoSQL {
 
   private convertMatch(qry: any, focus: any, match: Match) {
     if (match.path && match.path['@id'] && match.path.node && match.path.node['@type']) {
-      const newFocus = this.focusTable(match.path.node['@type'])
+      const newFocus = this.focusTable(match.path.node['@type'], match.variable)
       // TODO: Map based join between table types
       qry.joins.push(newFocus.map.table + " AS " + newFocus.alias + " ON " + newFocus.alias + ".patient = " + focus.alias + ".id")
       focus = newFocus;
     } else if (match.nodeRef) {
-      console.log("SWITCH FOCUS TO " + match.nodeRef)
+      if (this.tableMap[match.nodeRef])
+        focus = this.tableMap[match.nodeRef]
+      else
+        console.log("Unknown focus!")
     }
 
     if (match["@set"]) this.convertSet(qry, focus, match)
