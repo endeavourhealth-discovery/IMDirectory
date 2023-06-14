@@ -44,13 +44,13 @@ async function addPropertiesAndTypes(iri: any) {
   if (groups.length) data.value.push(groups.sort((a: TangledTreeData, b: TangledTreeData) => a.name.localeCompare(b.name)));
   else {
     data.value.push(properties);
-    data.value.push(types);
+    //data.value.push(types);
   }
 }
 
 function getGroupsPropertiesTypes(iri: any, twinNode: any, propertyDisplay: PropertyDisplay[]) {
-  const properties = [] as TangledTreeData[];
-  const types = [] as any[];
+  let properties = [] as TangledTreeData[];
+  let types = [] as any[];
   const groups = [] as TangledTreeData[];
   propertyDisplay.forEach(property => {
     if (isObjectHasKeys(property, ["group"])) {
@@ -58,18 +58,24 @@ function getGroupsPropertiesTypes(iri: any, twinNode: any, propertyDisplay: Prop
     } else {
       addProperty(properties, property, iri);
     }
-    addTypes(types, property, twinNode, iri);
+    // types = types.filter( element => {
+    //   return element.id !== undefined;
+    // });
+    //addTypes(types, property, twinNode, iri);
   });
+  properties = Object.values(
+      properties.reduce((acc, obj) => ({ ...acc, [obj.id]: obj }), {})
+  );
   return { properties, types, groups };
 }
 
 function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], property: PropertyDisplay, parent: any) {
-  let groupData = groups.find(prop => prop.id === property.group["@id"]);
+  let groupData = groups.find(prop => prop.id === property.group?.["@id"]);
   if (!groupData) {
     groupData = {
-      id: property.group["@id"],
+      id: property.group?.["@id"],
       parents: [parent],
-      name: property.group.name || property.group["@id"],
+      name: property.group?.name || property.group?.["@id"],
       type: "group"
     };
     groups.push(groupData);
@@ -78,41 +84,47 @@ function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], prop
   addProperty(properties, property, groupData);
 }
 function addProperty(properties: TangledTreeData[], property: PropertyDisplay, parent: any) {
+  let propId = "";
+  let propName = "";
+  property.property.forEach(p => {
+    propId = propId +  p["@id"];
+    propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name as string}`;
+  })
   properties.push({
-    id: property.property["@id"],
+    id: propId,
     parents: [parent],
-    name: property.property.name as string,
+    name: propName,
     type: "property",
     cardinality: property.cardinality
   });
 }
-function addTypes(types: any[], property: PropertyDisplay, twinNode: any, iri: any) {
-  if (property.type["@id"] === iri) {
-    if (types.some((type: any) => type.id === twinNode + property.type["@id"])) {
-      const index = types.findIndex((t: any) => t.id === twinNode + property.type["@id"]);
-      types[index].parents.push(property.property["@id"]);
-    } else {
-      types.push({
-        id: twinNode + property.type["@id"],
-        parents: [property.property["@id"]],
-        name: property.type.name || property.type["@id"],
-        type: "type"
-      });
-    }
-  } else {
-    if (types.some((type: any) => type.id === property.type["@id"])) {
-      const index = types.findIndex((type: any) => type.id === property.type["@id"]);
-      types[index].parents.push(property.property["@id"]);
-    } else {
-      types.push({
-        id: property.type["@id"],
-        parents: [property.property["@id"]],
-        name: property.type.name || property.type["@id"],
-        type: "type"
-      });
-    }
-  }
-}
+// function addTypes(types: any[], property: PropertyDisplay, twinNode: any, iri: any) {
+//   if (property.type["@id"] === iri) {
+//     if (types.some((type: any) => type.id === twinNode + property.type["@id"])) {
+//       const index = types.findIndex((t: any) => t.id === twinNode + property.type["@id"]);
+//       types[index].parents.push(property.property["@id"]);
+//     } else {
+//       types.push({
+//         id: twinNode + property.type["@id"],
+//         parents: [property.property["@id"]],
+//         name: property.type.name || property.type["@id"],
+//         type: "type"
+//       });
+//     }
+//   } else {
+//     if (types.some((type: any) => type.id === property.type["@id"])) {
+//       const index = types.findIndex((type: any) => type.id === property.type["@id"]);
+//       types[index].parents.push(property.property["@id"]);
+//     } else {
+//       types.push({
+//         id: property.type["@id"],
+//         parents: [property.property["@id"]],
+//         name: property.type.name || property.type["@id"],
+//         type: "type"
+//       });
+//     }
+//   }
+// }
 </script>
 
 <style scoped>

@@ -103,16 +103,35 @@ export default class EntityService {
     if (isObjectHasKeys(entity, [SHACL.PROPERTY]) && isArrayHasLength(entity[SHACL.PROPERTY])) {
       for (const ttproperty of entity[SHACL.PROPERTY]) {
         const cardinality = `${ttproperty[SHACL.MINCOUNT] || 0} : ${ttproperty[SHACL.MAXCOUNT] || "*"}`;
-        const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
-        const group = ttproperty?.[SHACL.GROUP]?.[0];
-        const property = {
-          order: ttproperty[SHACL.ORDER],
-          property: ttproperty[SHACL.PATH][0],
-          type: isArrayHasLength(type) ? type[0] : "",
-          cardinality: cardinality
-        } as PropertyDisplay;
-        if (group) property.group = group;
-        propertyList.push(property);
+        if(isObjectHasKeys(ttproperty, [SHACL.OR])) {
+          const property= {
+            order: ttproperty[SHACL.ORDER],
+            property: [],
+            type: [],
+            cardinality: cardinality,
+          }
+          for(const orProperty of ttproperty[SHACL.OR]) {
+            const type = orProperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
+            const name= `${orProperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? type[0].name : "undefined"})`;
+            property.property.push({"@id": orProperty[SHACL.PATH]?.[0]["@id"],"name":name});
+            property.type.push(isArrayHasLength(type) ? type[0] : "");
+          }
+          propertyList.push(property);
+        } else {
+          const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
+          const group = ttproperty?.[SHACL.GROUP]?.[0];
+          const name= `${ttproperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? type[0].name : "undefined"})`;
+          const property = {
+            order: ttproperty[SHACL.ORDER],
+            property:[{ "@id": ttproperty[SHACL.PATH]?.[0]["@id"],"name":name}],
+            type: [isArrayHasLength(type) ? type[0] : ""],
+            cardinality: cardinality
+          } as PropertyDisplay;
+          if (group) {
+            property.group = group;
+          }
+          propertyList.push(property);
+        }
       }
     }
 

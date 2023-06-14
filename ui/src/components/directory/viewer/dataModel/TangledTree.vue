@@ -44,7 +44,7 @@ const chartData: Ref<TangledTreeData[][]> = ref([]);
 const multiselectMenu: Ref<{ iri: string; label: string; result: {}; disabled?: boolean }[]> = ref([]);
 const twinNode = ref("twin-node-");
 const selected: Ref<{ iri: string; label: string; result: {} }[]> = ref([]);
-const selectedNode: Ref<TangledTreeData> = ref({} as TangledTreeData);
+const selectedNode = ref({} as TangledTreeData);
 const nodeMap = reactive(new Map<string, any[]>());
 const overlayTop = ref(0);
 const displayMenu = ref(true);
@@ -387,7 +387,7 @@ function renderChart() {
     .append("text")
     .attr("x", (n: any) => n.x + 4)
     .attr("y", (n: any) => n.y - n.height / 2 - 4)
-    .text((d: any) => (d.name?.length < 26 ? d.name : d.name?.slice(0, 25) + "..."))
+    .text((d: any) => d.name)
     .attr("stroke", "black")
     .attr("stroke-width", 0.1)
     .style("font-size", 12)
