@@ -6,7 +6,7 @@
  */
 plugins {
     id 'groovy-gradle-plugin'
-    id 'org.siouan.frontend-jdk11'
+    id 'com.github.node-gradle.node" version "5.0.0'
 }
 
 repositories {
