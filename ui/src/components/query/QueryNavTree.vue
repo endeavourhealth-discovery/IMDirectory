@@ -42,11 +42,11 @@ import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
-import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   baseEntityMatch: Match;
   editMatches: Match[];
+  updatedKey: string;
 }
 const props = defineProps<Props>();
 
@@ -54,6 +54,11 @@ const emit = defineEmits({
   addProperty: (_payload: TreeNode) => true,
   removeProperty: (_payload: TreeNode) => true
 });
+
+watch(
+  () => props.updatedKey,
+  () => unselect(props.updatedKey)
+);
 
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
@@ -162,18 +167,11 @@ async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], n
 }
 
 function addProperty(treeNode: TreeNode) {
-  const newMatch = buildMatchFromProperty(treeNode as any);
-  props.editMatches.push(newMatch);
+  emit("addProperty", treeNode);
 }
 
 function removeProperty(treeNode: TreeNode) {
-  let removeIndex = props.editMatches.findIndex(editMatch => (editMatch as any).key === treeNode.key);
-  if (removeIndex !== -1) {
-    props.editMatches.splice(removeIndex, 1);
-  } else {
-    removeIndex = props.editMatches.findIndex(match => match.match?.some(nestedMatch => (nestedMatch as any).key === treeNode.key));
-    if (removeIndex !== -1) props.editMatches[removeIndex].match!.splice(removeIndex, 1);
-  }
+  emit("removeProperty", treeNode);
 }
 
 function onNodeUnselect(node: any) {

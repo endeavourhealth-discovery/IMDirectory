@@ -1,5 +1,6 @@
 <template>
   <div v-if="property">
+    <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
     <div v-tooltip.right="toolTip">
       {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
     </div>
@@ -21,6 +22,10 @@ import { EntityService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
 import EntitySelect from "../clause/select/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+const emit = defineEmits({
+  removeProperty: (_payload: Match, _flag: boolean) => true
+});
+
 interface Props {
   baseEntityMatch: Match;
   editMatch: Match;
@@ -45,6 +50,10 @@ onMounted(async () => {
     await init(iri);
   }
 });
+
+function deleteProperty() {
+  emit("removeProperty", props.editMatch, true);
+}
 
 async function init(iri: string) {
   const resolvedIri = resolveIri(iri);
@@ -89,4 +98,8 @@ function getLastNode(pathOrNode: any, found: string[]) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.property-delete-button {
+  float: right;
+}
+</style>
