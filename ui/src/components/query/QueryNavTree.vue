@@ -18,7 +18,13 @@
             </span>
             <ProgressSpinner v-if="node.loading" />
             <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
-            <Checkbox v-if="isProperty(node.conceptTypes)" v-model="node.selected" :binary="true" @input="onInput(node, $event)" />
+            <Checkbox
+              v-if="isProperty(node.conceptTypes)"
+              v-model="node.selected"
+              :value="node.selected = editMatches.some((obj: any) => obj.key === node.key)"
+              :binary="true"
+              @input="onInput(node, $event)"
+            />
           </div>
         </template>
       </Tree>
@@ -52,6 +58,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits({
   addProperty: (_payload: TreeNode) => true,
+  Property: (_payload: TreeNode) => true,
   removeProperty: (_payload: TreeNode) => true
 });
 
@@ -140,8 +147,7 @@ function addProperty(treeNode: TreeNode) {
 }
 
 function removeProperty(treeNode: TreeNode) {
-  const removeIndex = props.editMatches.findIndex(editMatch => (editMatch as any).key === treeNode.key);
-  if (removeIndex != -1) props.editMatches.splice(removeIndex, 1);
+  emit("removeProperty", treeNode);
 }
 
 function onInput(node: TreeNode, bool: boolean) {
