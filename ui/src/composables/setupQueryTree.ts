@@ -72,7 +72,7 @@ function setupQueryTree() {
   }
 
   function partialSelect(key: string) {
-    selectedKeys.value[key] = { checked: true, partialChecked: false };
+    selectedKeys.value[key] = { checked: false, partialChecked: true };
   }
 
   return {

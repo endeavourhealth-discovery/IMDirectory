@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Bool, Match } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 import QueryNavTree from "../QueryNavTree.vue";
@@ -38,7 +38,10 @@ const editBoolMatch: Ref<Bool> = ref("and");
 const emit = defineEmits({ onClose: () => true });
 
 onMounted(() => {
-  if (isObjectHasKeys(props.match)) editMatches.value = [{ ...props.match }];
+  if (isObjectHasKeys(props.match)) {
+    if (isArrayHasLength(props.match.match)) editMatches.value = [...props.match.match!];
+    else editMatches.value = [{ ...props.match }];
+  }
 });
 
 function toggleBoolMatch() {
@@ -52,14 +55,13 @@ function save() {
       delete (props.match as any)[key];
     }
   }
-
   if (editMatches.value.length === 1) {
     const editMatch = editMatches.value[0];
     describeMatch([editMatch], "match");
     for (const key of Object.keys(editMatch)) {
       (props.match as any)[key] = (editMatch as any)[key];
     }
-  } else {
+  } else if (editMatches.value.length > 1) {
     props.match.match = [];
     props.match.boolMatch = editBoolMatch.value;
     for (const editMatch of editMatches.value) {

@@ -62,7 +62,7 @@ const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, par
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  populateCheckBoxes(props.editMatches);
+  await populateCheckBoxes(props.editMatches);
   loading.value = false;
 });
 
@@ -70,45 +70,49 @@ onUnmounted(() => {
   removeOverlay();
 });
 
-function populateCheckBoxes(matches: Match[]) {
+async function populateCheckBoxes(matches: Match[]) {
   for (const match of matches) {
     if (isObjectHasKeys(match, ["where"]) && isArrayHasLength(match.where)) {
       for (const whereValue of match.where!) {
-        if (!match.path) {
-          if ((match as any).key) {
-            const key = (match as any).key;
-            selectByKey(key);
-          } else {
-            const key = whereValue["@id"]!;
-            selectByIri(key, root.value[0].children!);
-          }
+        if ((match as any).key) {
+          const key = (match as any).key;
+          await selectByKey(key);
+        } else if (!match.path) {
+          const key = whereValue["@id"]!;
+          await selectByIri(key, root.value[0].children!);
+        } else {
+          const nodeKeys = [] as string[];
+          const key = whereValue["@id"]!;
+          await selectByPath(match.path, key, root.value[0].children!, nodeKeys);
+          if (isArrayHasLength(nodeKeys)) (match as any).key = nodeKeys[0];
         }
       }
     }
 
     if (isObjectHasKeys(match, ["match"]) && isArrayHasLength(match.match)) {
-      populateCheckBoxes(match.match!);
+      await populateCheckBoxes(match.match!);
     }
   }
 }
 
-function selectByKey(key: string) {
+async function selectByKey(key: string) {
   const keys = key.split("-");
   const lastKey = keys.length;
   let nodes = root.value;
   for (const [index, keySplit] of keys.entries()) {
     if (index !== lastKey - 1) {
-      const parentKey = nodes[+keySplit].key as string;
-      expandedKeys.value[parentKey] = true;
-      partialSelect(parentKey);
-      nodes = nodes[+keySplit].children!;
+      const parentNode = nodes[+keySplit];
+      expandedKeys.value[parentNode.key!] = true;
+      partialSelect(parentNode.key!);
+      if (!isArrayHasLength(parentNode.children)) await handleTreeNodeExpand(parentNode);
+      if (isArrayHasLength(parentNode.children)) nodes = parentNode.children!;
     } else {
       select(nodes[+keySplit]);
     }
   }
 }
 
-function selectByIri(iri: string, nodes: TreeNode[]) {
+async function selectByIri(iri: string, nodes: TreeNode[]) {
   let found = nodes.find(node => node.data === iri);
   if (found) {
     select(found);
@@ -117,12 +121,45 @@ function selectByIri(iri: string, nodes: TreeNode[]) {
     if (found) {
       expandedKeys.value[found.key!] = true;
       partialSelect(found.key!);
-      if (isArrayHasLength(found.children)) selectByIri(iri, found.children!);
+      if (isArrayHasLength(found.children)) {
+        await handleTreeNodeExpand(found);
+        if (isArrayHasLength(found.children)) selectByIri(iri, found.children!);
+      }
     }
   }
 }
 
-function findByPath() {}
+async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], nodeKeys: string[]) {
+  const iri = path["@id"] ?? path["@type"];
+  let foundLeafProperty = nodes.find(node => node.data === propertyIri);
+  let found = nodes.find(node => node.data === iri);
+  let foundNested = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
+
+  if (foundLeafProperty) {
+    select(foundLeafProperty);
+  } else if (found) {
+    expandedKeys.value[found.key!] = true;
+    partialSelect(found.key!);
+    if (!isArrayHasLength(found)) await handleTreeNodeExpand(found);
+    if (isArrayHasLength(found.children)) {
+      if (path.path || path.node) await selectByPath(path.node ?? path.path, propertyIri, found.children!, nodeKeys);
+      else {
+        foundLeafProperty = found.children!.find(node => node.data === propertyIri);
+        if (foundLeafProperty) {
+          select(foundLeafProperty);
+          nodeKeys.push(foundLeafProperty.key!);
+        }
+      }
+    }
+  } else if (foundNested) {
+    expandedKeys.value[foundNested.key!] = true;
+    partialSelect(foundNested.key!);
+    if (!isArrayHasLength(foundNested.children)) await handleTreeNodeExpand(found);
+    if (isArrayHasLength(foundNested.children) && (path.path || path.node)) {
+      await selectByPath(path, propertyIri, foundNested.children!, nodeKeys);
+    }
+  }
+}
 
 function addProperty(treeNode: TreeNode) {
   const newMatch = buildMatchFromProperty(treeNode as any);
@@ -130,8 +167,13 @@ function addProperty(treeNode: TreeNode) {
 }
 
 function removeProperty(treeNode: TreeNode) {
-  const removeIndex = props.editMatches.findIndex(editMatch => (editMatch as any).key === treeNode.key);
-  if (removeIndex != -1) props.editMatches.splice(removeIndex, 1);
+  let removeIndex = props.editMatches.findIndex(editMatch => (editMatch as any).key === treeNode.key);
+  if (removeIndex !== -1) {
+    props.editMatches.splice(removeIndex, 1);
+  } else {
+    removeIndex = props.editMatches.findIndex(match => match.match?.some(nestedMatch => (nestedMatch as any).key === treeNode.key));
+    if (removeIndex !== -1) props.editMatches[removeIndex].match!.splice(removeIndex, 1);
+  }
 }
 
 function onNodeUnselect(node: any) {
@@ -147,11 +189,11 @@ function onNodeSelect(node: any) {
 async function handleTreeNodeExpand(node: any) {
   if (!isArrayHasLength(node.children))
     if (isRecordModel(node.conceptTypes)) {
-      onNodeExpand(node);
+      await onNodeExpand(node);
     } else if (isProperty(node.conceptTypes)) {
-      onPropertyExpand(node);
+      await onPropertyExpand(node);
     } else {
-      onClassExpand(node);
+      await onClassExpand(node);
     }
 }
 
