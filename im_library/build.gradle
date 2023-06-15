@@ -7,7 +7,7 @@
 plugins {
     id 'base'
     id 'com.github.node-gradle.node'
-    id 'org.sonarqube'
+    id "org.sonarqube" version "3.5.0.2730"
 }
 
 def sonarLogin= System.getenv('SONAR_LOGIN')
@@ -27,12 +27,12 @@ sonar {
     }
 }
 
-task pnpmBuild(type: PnpmTask) {
+tasks.register('pnpmBuild', PnpmTask) {
     dependsOn pnpmInstall
     args = ['run', 'build']
 }
 
-task pnpmTest(type: PnpmTask) {
+tasks.register('pnpmTest', PnpmTask) {
     dependsOn pnpmInstall
     args = ['run', 'test:coverage']
 }
