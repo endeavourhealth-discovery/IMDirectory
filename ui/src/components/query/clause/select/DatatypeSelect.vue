@@ -13,9 +13,11 @@
   <div v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer'">
     <Dropdown :options="['is', 'range']" v-model:model-value="whereType" />
     <ComparisonSelect v-if="whereType === 'is'" :where="where" />
-    <RangeSelect v-else-if="whereType === 'range'" :where="where" />
+    <RangeSelect v-else-if="whereType === 'range'" :from="where.range!.from" :to="where.range!.to" />
   </div>
-  <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'"><Calendar v-model:model-value="selectedValue" @change="emit('onValueUpdate', $event)" /></div>
+  <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'">
+    <Calendar v-model:model-value="selectedValue" @change="emit('onValueUpdate', $event)" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -25,7 +27,7 @@ import ComparisonSelect from "../../editTextQuery/ComparisonSelect.vue";
 import RangeSelect from "../../editTextQuery/RangeSelect.vue";
 import { IM, XMLS } from "@im-library/vocabulary";
 import { Assignable, Range, Where } from "@im-library/interfaces/AutoGen";
-import { describeWhere } from "@im-library/helpers/QueryDescriptor";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 interface Props {
   where: Where;
   datatype: string;
@@ -41,21 +43,17 @@ const booleanOptions = [
 const selectedValue: Ref<any> = ref();
 
 watch(
-  () => props.where.value,
-  () => describeWhere([props.where], "where")
-);
-
-watch(
   () => whereType.value,
   () => {
-    if (whereType.value === "range") {
+    if (whereType.value === "range" && !isObjectHasKeys(props.where, ["range"])) {
       props.where.range = { from: {} as Assignable, to: {} as Assignable } as Range;
     }
   }
 );
 
 onMounted(() => {
-  whereType.value = "is";
+  if (isObjectHasKeys(props.where.range)) whereType.value = "range";
+  else whereType.value = "is";
 });
 </script>
 

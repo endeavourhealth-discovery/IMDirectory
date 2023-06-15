@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { Match, Where } from "@im-library/interfaces/AutoGen";
+import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref, watch } from "vue";
 import ClassSelect from "../clause/select/ClassSelect.vue";
 import DatatypeSelect from "../clause/select/DatatypeSelect.vue";
@@ -39,7 +39,6 @@ watch(
 );
 
 const property: Ref<TTProperty | undefined> = ref({} as TTProperty);
-const where: Ref<Where> = ref({} as Where);
 const dataModelIri: Ref<string> = ref("");
 const propertyIri: Ref<string> = ref("");
 const toolTip: Ref<string> = ref("");
@@ -59,7 +58,6 @@ async function init(iri: string) {
   const resolvedIri = resolveIri(iri);
   dataModelIri.value = getDataModelIri(props.editMatch) ?? resolvedIri;
   propertyIri.value = isObjectHasKeys(props.editMatch, ["where"]) ? props.editMatch.where?.[0]["@id"]! : "";
-  where.value = isObjectHasKeys(props.editMatch, ["where"]) ? props.editMatch.where![0] : ({} as Where);
 
   if (dataModelIri.value && propertyIri.value) {
     const iri = resolveIri(dataModelIri.value);
