@@ -27,7 +27,7 @@ import { Ref, onMounted, ref } from "vue";
 import QueryNavTree from "../QueryNavTree.vue";
 import EditMatch from "./EditMatch.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import { TreeNode } from "primevue/tree";
+
 interface Props {
   baseEntityMatch: Match;
   match: Match;

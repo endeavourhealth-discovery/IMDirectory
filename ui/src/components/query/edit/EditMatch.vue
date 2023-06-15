@@ -22,7 +22,6 @@ import { EntityService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
 import EntitySelect from "../clause/select/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import { TreeNode } from "primevue/tree";
 interface Props {
   baseEntityMatch: Match;
   editMatch: Match;

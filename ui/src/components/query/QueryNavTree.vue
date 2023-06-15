@@ -58,7 +58,6 @@ const props = defineProps<Props>();
 
 const emit = defineEmits({
   addProperty: (_payload: TreeNode) => true,
-  Property: (_payload: TreeNode) => true,
   removeProperty: (_payload: TreeNode) => true
 });
 
