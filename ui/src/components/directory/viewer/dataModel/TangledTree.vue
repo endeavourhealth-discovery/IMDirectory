@@ -75,28 +75,32 @@ async function getMultiselectMenu(d: any) {
   }
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
+      let propId = "";
+      let propLabel = "";
+      r.property.forEach(p => {
+        propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+        propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
+      })
       if (r.group) {
         if (node.type === "group") {
-          if (node.id === r.group["@id"]) {
+          if (node.id === r.group?.["@id"]) {
             multiselectMenu.value.push({
-              iri: r.property["@id"],
-              label: r.property.name as string,
+              iri: propId,
+              label: propLabel,
               result: r
             });
           }
         } else {
-          if (!multiselectMenu.value.some((n: any) => n.iri === r.group["@id"])) {
-            multiselectMenu.value.push({
-              iri: r.group["@id"],
-              label: r.group.name as string,
-              result: r
-            });
-          }
+          multiselectMenu.value.push({
+            iri: propId,
+            label: propLabel,
+            result: r
+          });
         }
       } else {
         multiselectMenu.value.push({
-          iri: r.property["@id"],
-          label: r.property.name as string,
+          iri: propId,
+          label: propLabel,
           result: r
         });
       }
@@ -106,6 +110,12 @@ async function getMultiselectMenu(d: any) {
 }
 
 function addNode(node: any, r: PropertyDisplay, typeId: any) {
+  let propId = "";
+  let propLabel = "";
+  r.property.forEach(p => {
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
+  })
   if (r.group && node.type !== "group") {
     if (chartData.value.length < node.level + 1) {
       chartData.value.push([
@@ -128,44 +138,23 @@ function addNode(node: any, r: PropertyDisplay, typeId: any) {
     if (chartData.value.length < node.level + 2) {
       chartData.value.push([
         {
-          id: r.property["@id"],
+          id: propId,
           parents: [node.id],
-          name: r.property.name || r.property["@id"],
+          name: propLabel,
           type: "property",
-          cardinality: r.cardinality
-        }
-      ]);
-      chartData.value.push([
-        {
-          id: typeId,
-          parents: [r.property["@id"] as any],
-          name: r.type.name || r.type["@id"],
-          type: "type"
+          cardinality: r.cardinality,
+          isOr: r.isOr
         }
       ]);
     } else {
-      if (!chartData.value[node.level + 1].some((d: any) => d.id === r.property["@id"])) {
-        chartData.value[node.level + 1].push({
-          id: r.property["@id"],
-          parents: [node.id],
-          name: r.property.name || r.property["@id"],
-          type: "property",
-          cardinality: r.cardinality
-        });
-        if (chartData.value[node.level + 2].some((t: any) => t.id === typeId)) {
-          const findIndex = chartData.value[node.level + 2].findIndex((t: any) => t.id === typeId);
-          if (!chartData.value[node.level + 2][findIndex].parents?.some((p: any) => p.id === r.property["@id"])) {
-            chartData.value[node.level + 2][findIndex].parents?.push(r.property["@id"] as any);
-          }
-        } else {
-          chartData.value[node.level + 2].push({
-            id: typeId,
-            parents: [r.property["@id"] as any],
-            name: r.type.name || r.type["@id"],
-            type: "type"
-          });
-        }
-      }
+      chartData.value[node.level + 1].push({
+        id: propId,
+        parents: [node.id],
+        name: propLabel,
+        type: "property",
+        cardinality: r.cardinality,
+        isOr: r.isOr
+      });
     }
   }
   renderChart();
@@ -212,17 +201,23 @@ async function setSelected(iri: any) {
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
       if (r.group) {
-        if (!selected.value.some((n: any) => n.iri === r.group["@id"])) {
+        if (!selected.value.some((n: any) => n.iri === r.group?.["@id"])) {
           selected.value.push({
-            iri: r.group["@id"],
+            iri: r.group?.["@id"],
             label: r.group.name as string,
             result: r
           });
         }
       } else {
+        let propId = "";
+        let propLabel = "";
+        r.property.forEach(p => {
+          propId = `${propId}${propId !== "" ? "OR" : ""}  ${p["@id"]}`;
+          propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
+        })
         selected.value.push({
-          iri: r.property["@id"],
-          label: r.property.name as string,
+          iri: propId,
+          label: propLabel,
           result: r
         });
       }
@@ -406,19 +401,21 @@ function renderChart() {
     .on("click", (d: any) => {
       div.transition().duration(500).style("opacity", 0);
       const node = d["target"]["__data__"];
-      if (d.metaKey || d.ctrlKey) {
-        if (node.id.startsWith(twinNode)) {
-          const iri = node.id.slice(15);
-          directService.select(iri);
+      if(!node.isOr) {
+        if (d.metaKey || d.ctrlKey) {
+          if (node.id.startsWith(twinNode)) {
+            const iri = node.id.slice(15);
+            directService.select(iri);
+          } else {
+            directService.select(node.id);
+          }
         } else {
-          directService.select(node.id);
-        }
-      } else {
-        d.preventDefault();
-        toggleSubProperties(d);
-        if (selectedNode.value !== node) {
-          selectedNode.value = node;
-          selected.value = (nodeMap.get(node.id) as any) || [];
+          d.preventDefault();
+          toggleSubProperties(d);
+          if (selectedNode.value !== node) {
+            selectedNode.value = node;
+            selected.value = (nodeMap.get(node.id) as any) || [];
+          }
         }
       }
     });

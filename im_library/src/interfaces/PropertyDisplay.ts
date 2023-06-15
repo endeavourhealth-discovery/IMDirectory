@@ -6,4 +6,5 @@ export interface PropertyDisplay {
   property: TTIriRef[]; // path
   type: TTIriRef[]; // class/datatype/node
   cardinality: string;
+  isOr: boolean;
 }

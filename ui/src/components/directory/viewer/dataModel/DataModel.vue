@@ -73,9 +73,9 @@ function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], prop
   let groupData = groups.find(prop => prop.id === property.group?.["@id"]);
   if (!groupData) {
     groupData = {
-      id: property.group?.["@id"],
+      id: property.group?.["@id"] as string,
       parents: [parent],
-      name: property.group?.name || property.group?.["@id"],
+      name: (property.group?.name || property.group?.["@id"]) as string,
       type: "group"
     };
     groups.push(groupData);
@@ -87,7 +87,7 @@ function addProperty(properties: TangledTreeData[], property: PropertyDisplay, p
   let propId = "";
   let propName = "";
   property.property.forEach(p => {
-    propId = propId +  p["@id"];
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
     propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name as string}`;
   })
   properties.push({
@@ -95,7 +95,8 @@ function addProperty(properties: TangledTreeData[], property: PropertyDisplay, p
     parents: [parent],
     name: propName,
     type: "property",
-    cardinality: property.cardinality
+    cardinality: property.cardinality,
+    isOr: property.isOr
   });
 }
 // function addTypes(types: any[], property: PropertyDisplay, twinNode: any, iri: any) {

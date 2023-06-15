@@ -106,15 +106,16 @@ export default class EntityService {
         if(isObjectHasKeys(ttproperty, [SHACL.OR])) {
           const property= {
             order: ttproperty[SHACL.ORDER],
-            property: [],
-            type: [],
+            property: [] as TTIriRef[],
+            type: [] as TTIriRef[],
             cardinality: cardinality,
+            isOr: true
           }
           for(const orProperty of ttproperty[SHACL.OR]) {
             const type = orProperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
             const name= `${orProperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? type[0].name : "undefined"})`;
             property.property.push({"@id": orProperty[SHACL.PATH]?.[0]["@id"],"name":name});
-            property.type.push(isArrayHasLength(type) ? type[0] : "");
+            property.type.push(isArrayHasLength(type) ? type[0] : {});
           }
           propertyList.push(property);
         } else {
@@ -125,7 +126,8 @@ export default class EntityService {
             order: ttproperty[SHACL.ORDER],
             property:[{ "@id": ttproperty[SHACL.PATH]?.[0]["@id"],"name":name}],
             type: [isArrayHasLength(type) ? type[0] : ""],
-            cardinality: cardinality
+            cardinality: cardinality,
+            isOr: false
           } as PropertyDisplay;
           if (group) {
             property.group = group;
