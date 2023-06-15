@@ -16,13 +16,13 @@
     "build-library": "cd im_library && pnpm build",
     "build-api": "cd node_api && pnpm build",
     "build-ui": "cd ui && pnpm build",
-    "clean-install-all": "pnpm install && rimraf ui/node_modules && rimraf node_api/node_modules && rimraf im_library/node_modules && rimraf node_modules && pnpm install-all",
+    "clean-install-all": "pnpm install && rimraf ui/node_modules && rimraf node_api/node_modules && rimraf im_library/node_modules && pnpm install-all",
     "install-all": "pnpm install && run-p install-library install-api install-ui",
     "install-library": "cd im_library && pnpm install",
     "install-api": "cd node_api && pnpm install",
     "install-ui": "cd ui && pnpm install",
-    "test:unit": "cd im_library && pnpm dlx vitest run && cd ../node_api && pnpm dlx vitest run && cd ../ui && pnpm dlx vitest run",
-    "test:coverage": "cd im_library && pnpm dlx vitest run --coverage && cd ../node_api && pnpm dlx vitest run --coverage && cd ../ui && pnpm dlx vitest run --coverage"
+    "test:unit": "cd im_library && pnpm vitest run && cd ../node_api && pnpm vitest run && cd ../ui && pnpm vitest run",
+    "test:coverage": "cd im_library && pnpm run test:coverage && cd ../node_api && pnpm run test:coverage && cd ../ui && pnpm run test:coverage"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5",
