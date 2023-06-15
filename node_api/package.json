@@ -13,7 +13,7 @@
     "debug:run": "nodemon dist/server.js",
     "start": "set NODE_ENV=production && ts-node dist/server",
     "nodemon": "set NODE_ENV=production && nodemon dist/server",
-    "build": "rimraf dist && npm run swagger-autogen && npm run tsc:build && vite build",
+    "build": "rimraf dist && pnpm swagger-autogen && pnpm tsc:build && vite build",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "swagger-autogen": "node ./src/swagger.js"
@@ -41,7 +41,7 @@
     "jsonwebtoken": "9.0.0",
     "jwk-to-pem": "2.0.5",
     "lodash": "4.17.21",
-    "morgan": "^1.10.0",
+    "morgan": "1.10.0",
     "msw": "1.2.1",
     "mysql2": "2.3.3",
     "n3": "1.16.2",

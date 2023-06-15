@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import Members from "./Members.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
-import { onMounted, ref } from "@vue/runtime-core";
+import { onMounted, ref } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
