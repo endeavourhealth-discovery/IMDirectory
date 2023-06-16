@@ -143,20 +143,22 @@ function edit() {
 
 function remove() {
   for (const selectedMatch of props.selectedMatches) {
-    const index = getIndexOfMatch(selectedMatch, props.matches);
+    const index = props.matches.findIndex(match => JSON.stringify(selectedMatch) === JSON.stringify(match));
     if (index !== -1) props.matches.splice(index, 1);
   }
   props.selectedMatches.length = 0;
 }
 
 function group() {
+  const firstSelected = props.selectedMatches[0];
+  const indexOfFirstSelected = props.matches.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
   const groupedMatch = { boolMatch: "and", match: [] } as Match;
   for (const selectedMatch of props.selectedMatches) {
     groupedMatch.match!.push(selectedMatch);
   }
   describeMatch([groupedMatch], "match");
   remove();
-  props.matches.push(groupedMatch);
+  props.matches.splice(indexOfFirstSelected, 0, groupedMatch);
   props.selectedMatches.push(groupedMatch);
 }
 
