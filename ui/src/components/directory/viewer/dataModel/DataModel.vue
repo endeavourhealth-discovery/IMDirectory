@@ -86,9 +86,13 @@ function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], prop
 function addProperty(properties: TangledTreeData[], property: PropertyDisplay, parent: any) {
   let propId = "";
   let propName = "";
+  const range = [];
   property.property.forEach(p => {
     propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
     propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name as string}`;
+  })
+  property.type.forEach(t => {
+    range.push(t);
   })
   properties.push({
     id: propId,
@@ -96,7 +100,8 @@ function addProperty(properties: TangledTreeData[], property: PropertyDisplay, p
     name: propName,
     type: "property",
     cardinality: property.cardinality,
-    isOr: property.isOr
+    isOr: property.isOr,
+    range: range
   });
 }
 // function addTypes(types: any[], property: PropertyDisplay, twinNode: any, iri: any) {
