@@ -1,9 +1,10 @@
 <template>
   <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="whereType" />
+  <InputText type="text" placeholder="Value label" v-model:model-value="props.where.valueLabel" />
   <div v-if="whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
-    <EntailmentOptionsSelect :entailment-options="editValue.entailmentOptions" />
-    <Button icon="fa-solid fa-plus" text @click="editValues.push({ name: '' } as EditValue)" />
+    <EntailmentOptionsSelect />
+    <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
     <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
   </div>
   <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
@@ -24,37 +25,21 @@ import ValueListSelect from "./class/ValueListSelect.vue";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { getEntailmentOptions } from "@im-library/helpers/ClauseUIBuilder";
 import _ from "lodash";
+import { Node, Where } from "@im-library/interfaces/AutoGen";
 
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
-interface EditValue {
-  iri: string;
-  name: string;
-  entailmentOptions: string[];
-}
-
 interface Props {
+  where: Where;
   classIri: string;
 }
 
 const props = defineProps<Props>();
-const whereType: Ref<string> = ref("");
+const whereType: Ref<string> = ref("in");
 const visible: Ref<boolean> = ref(false);
 const showTree: Ref<boolean> = ref(false);
-const editValues: Ref<EditValue[]> = ref([] as EditValue[]);
+const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
-watch(
-  () => _.cloneDeep(editValues.value),
-  () => {
-    for (const editValue of editValues.value) {
-      const whereValue = { "@id": editValue.iri, name: editValue.name } as any;
-      if (isArrayHasLength(editValue.entailmentOptions))
-        for (const entailment of editValue.entailmentOptions) {
-          whereValue[entailment] = true;
-        }
-    }
-  }
-);
 
 onMounted(async () => {
   initEditValues();
@@ -67,27 +52,22 @@ onMounted(async () => {
 });
 
 function initEditValues() {
-  editValues.value.push({} as EditValue);
+  if (isObjectHasKeys(props.where, ["notIn"])) whereType.value = "notIn";
+  else if (isObjectHasKeys(props.where, ["null"])) whereType.value = "isNull";
 
-  // TODO populate if edit
-
-  // for (const value of props.whereClause.whereValue) {
-  //   editValues.value.push({
-  //     name: getNameFromRef(value),
-  //     iri: value["@id"],
-  //     entailmentOptions: getEntailmentOptions(value)
-  //   } as EditValue);
-  // }
+  if (whereType.value && whereType.value !== "isNull") {
+    editValues.value = (props.where as any)[whereType.value];
+  } else {
+    editValues.value.push({} as Node);
+  }
 }
 
 function onSelect(event: any) {
   visible.value = false;
   editValues.value[selectedIndex.value] = {
     name: event.name || event.label || getNameFromRef(event),
-    iri: event["@id"],
-    entailmentOptions: getEntailmentOptions(event)
-  } as EditValue;
-  emit("onSelect", event);
+    "@id": event["@id"]
+  } as Node;
 }
 
 function openDialog(index: number) {
