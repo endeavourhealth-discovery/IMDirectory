@@ -68,7 +68,6 @@ async function init(iri: string) {
       property.value = found;
     }
   }
-
   if (property.value) toolTip.value = getTooltip(property.value);
 }
 

@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
 import { onMounted, Ref, ref } from "vue";
 import EntailmentOptionsSelect from "../../editTextQuery/EntailmentOptionsSelect.vue";
@@ -55,6 +55,7 @@ function initEditValues() {
   else if (isObjectHasKeys(props.where, ["null"])) whereType.value = "isNull";
 
   if (whereType.value && whereType.value !== "isNull") {
+    if (!isArrayHasLength((props.where as any)[whereType.value])) (props.where as any)[whereType.value] = [{} as Node];
     editValues.value = (props.where as any)[whereType.value];
   } else {
     editValues.value.push({} as Node);
