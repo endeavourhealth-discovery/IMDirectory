@@ -3,33 +3,35 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { Entailment } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 
 interface Props {
-  entailmentOptions: string[];
+  entailmentObject: Entailment;
 }
 
 const props = defineProps<Props>();
 
-const editOptions: Ref<string[]> = ref([]);
+const editOptions: Ref<string[]> = ref(["descendantsOrSelfOf"]);
 
 const options = ["ancestorsOf", "descendantsOrSelfOf", "descendantsOf"];
 
 onMounted(() => {
-  if (isArrayHasLength(props.entailmentOptions)) {
-    for (const option of props.entailmentOptions) {
-      editOptions.value.push(option);
-    }
-  } else {
-    editOptions.value.push("descendantsOrSelfOf");
+  if (isObjectHasKeys(props.entailmentObject)) {
+    editOptions.value = [];
+    if (props.entailmentObject.ancestorsOf) editOptions.value.push("ancestorsOf");
+    else if (props.entailmentObject.descendantsOrSelfOf) editOptions.value.push("descendantsOrSelfOf");
+    else if (props.entailmentObject.descendantsOf) editOptions.value.push("descendantsOf");
   }
 });
 
 function onChange() {
-  props.entailmentOptions.length = 0;
+  for (const option of options) {
+    if (isObjectHasKeys(props.entailmentObject, [option])) delete (props.entailmentObject as any)[option];
+  }
   for (const selectedOption of editOptions.value) {
-    props.entailmentOptions.push(selectedOption);
+    (props.entailmentObject as any)[selectedOption] = true;
   }
 }
 </script>

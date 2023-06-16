@@ -46,8 +46,10 @@ const emit = defineEmits({ onClose: () => true });
 
 onMounted(() => {
   if (isObjectHasKeys(props.match)) {
-    if (isArrayHasLength(props.match.match)) editMatches.value = [...props.match.match!];
-    else editMatches.value = [{ ...props.match }];
+    if (isArrayHasLength(props.match.match)) {
+      editMatches.value = [...props.match.match!];
+      if (props.match.boolMatch === "or") editBoolMatch.value = "or";
+    } else editMatches.value = [{ ...props.match }];
   }
 });
 
@@ -142,7 +144,7 @@ function discard() {
   cursor: pointer;
 }
 
-.edit-component{
+.edit-component {
   padding: 1rem;
 }
 </style>

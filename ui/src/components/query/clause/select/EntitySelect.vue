@@ -1,7 +1,7 @@
 <template>
   <Dropdown :options="['in', 'notIn']" v-model:model-value="whereType" />
   <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" @item-select="onSelect" />
-  <EntailmentOptionsSelect :entailmentOptions="entailmentOptions" />
+  <EntailmentOptionsSelect :entailment-object="editMatch" />
 </template>
 
 <script setup lang="ts">

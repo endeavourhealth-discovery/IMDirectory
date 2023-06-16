@@ -3,7 +3,7 @@
   <InputText type="text" placeholder="Value label" v-model:model-value="props.where.valueLabel" />
   <div v-if="whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
-    <EntailmentOptionsSelect />
+    <EntailmentOptionsSelect :entailment-object="editValue" />
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
     <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
   </div>
@@ -16,14 +16,13 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF, SHACL } from "@im-library/vocabulary";
-import { onMounted, Ref, ref, watch } from "vue";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { IM, RDF } from "@im-library/vocabulary";
+import { onMounted, Ref, ref } from "vue";
 import EntailmentOptionsSelect from "../../editTextQuery/EntailmentOptionsSelect.vue";
 import ValueTreeSelect from "./class/ValueTreeSelect.vue";
 import ValueListSelect from "./class/ValueListSelect.vue";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
-import { getEntailmentOptions } from "@im-library/helpers/ClauseUIBuilder";
 import _ from "lodash";
 import { Node, Where } from "@im-library/interfaces/AutoGen";
 
