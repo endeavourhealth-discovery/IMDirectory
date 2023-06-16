@@ -21,6 +21,7 @@ import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import _ from "lodash";
 import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 const directService = new DirectService();
 
@@ -67,15 +68,16 @@ onMounted(() => {
 async function getMultiselectMenu(d: any) {
   let node = d["target"]["__data__"] as any;
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
-  let result = [];
+  let result = [] as PropertyDisplay[];
   if (node.type === "group") {
     result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.parents[0].id) : [];
   } else if(node.type === "property") {
-    node.range?.forEach( range => {
+    const ranges = (Array.from(new Set(node.range?.map(JSON.stringify))) as any).map(JSON.parse);
+    ranges?.forEach( (range: any) => {
       result.push({
-        property: [{"@id": range["@id"], name:range.name}],
+        property: [{"@id": range["@id"], name:range.name ? range.name : range["@id"]}],
         isType: true
-      })
+      } as PropertyDisplay)
     })
   }else {
     result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.id) : [];
@@ -119,6 +121,10 @@ async function getMultiselectMenu(d: any) {
 function addNode(node: any, r: PropertyDisplay) {
   let propId = "";
   let propLabel = "";
+  const range = [] as TTIriRef[];
+  r.type?.forEach(t => {
+    range.push(t);
+  })
   r.property.forEach(p => {
     propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
     propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
@@ -142,32 +148,52 @@ function addNode(node: any, r: PropertyDisplay) {
       });
     }
   } else {
-    let nodeType;
     if(r.isType) {
-      nodeType = "type";
-    } else {
-      nodeType = "property";
-    }
-    if (chartData.value.length < node.level + 2) {
-      chartData.value.push([
-        {
+      if (chartData.value.length < node.level + 2) {
+        chartData.value.push([
+          {
+            id: propId,
+            parents: [node.id],
+            name: propLabel,
+            type: "type",
+            cardinality: r.cardinality,
+            isOr: r.isOr
+          }
+        ]);
+      } else {
+        chartData.value[node.level + 1].push({
           id: propId,
           parents: [node.id],
           name: propLabel,
-          type: nodeType,
+          type: "type",
           cardinality: r.cardinality,
           isOr: r.isOr
-        }
-      ]);
+        });
+      }
     } else {
-      chartData.value[node.level + 1].push({
-        id: propId,
-        parents: [node.id],
-        name: propLabel,
-        type: nodeType,
-        cardinality: r.cardinality,
-        isOr: r.isOr
-      });
+      if (chartData.value.length < node.level + 2) {
+        chartData.value.push([
+          {
+            id: propId,
+            parents: [node.id],
+            name: propLabel,
+            type: "property",
+            cardinality: r.cardinality,
+            isOr: r.isOr,
+            range: range
+          }
+        ]);
+      } else {
+        chartData.value[node.level + 1].push({
+          id: propId,
+          parents: [node.id],
+          name: propLabel,
+          type: "property",
+          cardinality: r.cardinality,
+          isOr: r.isOr,
+          range: range
+        });
+      }
     }
   }
   renderChart();

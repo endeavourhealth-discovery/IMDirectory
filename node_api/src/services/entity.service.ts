@@ -6,7 +6,6 @@ import { EclSearchRequest, ITextQuery, PropertyDisplay, QueryObject, TTBundle, C
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { buildTextQuery } from "@im-library/helpers/TextQueryBuilder";
 import EntityRepository from "@/repositories/entityRepository";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
@@ -112,8 +111,8 @@ export default class EntityService {
             isOr: true
           }
           for(const orProperty of ttproperty[SHACL.OR]) {
-            const type = orProperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
-            const name= `${orProperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? type[0].name : "undefined"})`;
+            const type = orProperty[SHACL.CLASS] || orProperty[SHACL.NODE] || orProperty[SHACL.DATATYPE] || [];
+            const name= `${orProperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? type[0].name ? type[0].name : type[0]["@id"].slice(type[0]["@id"].indexOf("#") + 1) : ""})`;
             property.property.push({"@id": orProperty[SHACL.PATH]?.[0]["@id"],"name":name});
             property.type.push(isArrayHasLength(type) ? type[0] : {});
           }
@@ -121,7 +120,7 @@ export default class EntityService {
         } else {
           const type = ttproperty[SHACL.CLASS] || ttproperty[SHACL.NODE] || ttproperty[SHACL.DATATYPE] || [];
           const group = ttproperty?.[SHACL.GROUP]?.[0];
-          const name= `${ttproperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? type[0].name : "undefined"})`;
+          const name= `${ttproperty[SHACL.PATH]?.[0].name}  (${isArrayHasLength(type) ? type[0].name ? type[0].name : type[0]["@id"] : ""})`;
           const property = {
             order: ttproperty[SHACL.ORDER],
             property:[{ "@id": ttproperty[SHACL.PATH]?.[0]["@id"],"name":name}],

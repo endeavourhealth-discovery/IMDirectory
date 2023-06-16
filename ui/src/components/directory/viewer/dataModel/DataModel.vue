@@ -11,6 +11,7 @@ import { EntityService } from "@/services";
 import TangledTree from "./TangledTree.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   conceptIri: string;
@@ -86,12 +87,12 @@ function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], prop
 function addProperty(properties: TangledTreeData[], property: PropertyDisplay, parent: any) {
   let propId = "";
   let propName = "";
-  const range = [];
+  const range = [] as TTIriRef[];
   property.property.forEach(p => {
     propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
     propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name as string}`;
   })
-  property.type.forEach(t => {
+  property.type?.forEach(t => {
     range.push(t);
   })
   properties.push({
