@@ -15,6 +15,9 @@
           <Divider v-if="index" align="center">
             <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch }}</div>
           </Divider>
+          <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
+            {{ editMatch.exclude ? "exclude" : "include" }}
+          </div>
           <EditMatch :base-entity-match="baseEntityMatch" :edit-match="editMatch" @remove-property="removeProperty" />
         </div>
       </SplitterPanel>
@@ -142,6 +145,18 @@ function discard() {
 .or {
   color: blue;
   cursor: pointer;
+}
+
+.include {
+  color: green;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.exclude {
+  color: red;
+  cursor: pointer;
+  margin-bottom: 1rem;
 }
 
 .edit-component {
