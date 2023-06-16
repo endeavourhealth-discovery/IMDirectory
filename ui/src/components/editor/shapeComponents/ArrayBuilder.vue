@@ -4,8 +4,8 @@
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else class="children-container" :class="invalid && 'invalid'">
-      <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+    <div v-else class="children-container" :class="invalid && showValidation && 'invalid'">
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
       <template v-for="(item, index) in build" :key="item.id">
         <component
           :is="item.type"
@@ -62,16 +62,35 @@ const props = defineProps<Props>();
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 let key = props.shape.path["@id"];
 
-let loading = ref(true);
-let validationErrorMessage = "Failed validation";
-let build: Ref<ComponentDetails[]> = ref([]);
-onMounted(() => {
+const loading = ref(true);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
+const build: Ref<ComponentDetails[]> = ref([]);
+onMounted(async () => {
   init();
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    showValidation.value = false;
+  }
 });
 
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
@@ -85,7 +104,10 @@ watch(
   async newValue => {
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
-      if (validityUpdate) await updateValidity();
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
       updateValueVariableMap(props.value);
     }
   }
@@ -117,7 +139,6 @@ const finishedChildLoading = computed(
 
 function init() {
   key = props.shape.path["@id"];
-  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
   createBuild();
 }
 
@@ -212,33 +233,11 @@ function generateBuildAsJson() {
   return jsonBuild;
 }
 
-let invalid = ref(false);
-
 function updateEntity() {
   const value = generateBuildAsJson();
   const result = {} as any;
   result[key] = value;
   if (entityUpdate && value.length) entityUpdate(result);
-}
-
-async function updateValidity() {
-  if (isPropertyShape(props.shape) && isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return generateBuildAsJson().every(item => isObjectHasKeys(item, ["@id", "name"]) || isValidProperty(item));
-}
-
-function isValidProperty(property: any) {
-  return (
-    isObjectHasKeys(property[SHACL.PATH]?.[0], ["@id"]) &&
-    isObjectHasKeys(property[SHACL.NODE]?.[0] || property[SHACL.DATATYPE]?.[0] || property[SHACL.CLASS]?.[0] || property[SHACL.FUNCTION]?.[0], ["@id"])
-  );
 }
 
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
@@ -359,5 +358,9 @@ function updateValueVariableMap(data: any[] | undefined) {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
 }
 </style>

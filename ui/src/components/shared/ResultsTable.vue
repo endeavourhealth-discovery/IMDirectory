@@ -16,6 +16,7 @@
       ref="searchTable"
       dataKey="iri"
       :autoLayout="true"
+      @page="scrollToTop"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
@@ -158,6 +159,11 @@ function processSearchResults() {
 
 function updateRClickOptions() {
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
+}
+
+async function scrollToTop() {
+  const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
+  scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
 function onRowContextMenu(event: any) {

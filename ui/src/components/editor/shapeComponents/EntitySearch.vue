@@ -17,9 +17,11 @@
         @dragenter.prevent
         @dragover.prevent
         @drop="dropReceived"
+        :class="invalid && showValidation && 'invalid'"
       />
       <Button :disabled="!selectedResult['@id']" icon="fa-solid fa-sitemap" @click="findInTree(selectedResult['@id'])" />
     </div>
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
   <OverlayPanel class="search-op" ref="miniSearchOP" :showCloseIcon="true" :dismissable="true">
     <SearchMiniOverlay :searchTerm="searchTerm" :searchResults="searchResults" :loading="loading" @searchResultSelected="updateSelectedResult" />
@@ -61,8 +63,21 @@ const emit = defineEmits({
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      showValidation.value = true;
+    }
+  });
+}
 
 watch(
   () => _.cloneDeep(props.value),
@@ -75,15 +90,17 @@ onMounted(async () => {
   await init();
 });
 
-let loading = ref(false);
-let controller: Ref<AbortController> = ref({} as AbortController);
-let selectedResult: Ref<TTIriRef> = ref({} as TTIriRef);
-let searchTerm = ref("");
-let searchResults: Ref<ConceptSummary[]> = ref([]);
-let label = ref("");
-let key = ref("");
-let invalid = ref(false);
-let debounce = ref(0);
+const loading = ref(false);
+const controller: Ref<AbortController> = ref({} as AbortController);
+const selectedResult: Ref<TTIriRef> = ref({} as TTIriRef);
+const searchTerm = ref("");
+const searchResults: Ref<ConceptSummary[]> = ref([]);
+const label = ref("");
+const key = ref("");
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const debounce = ref(0);
+const showValidation = ref(false);
 
 const miniSearchOP = ref();
 
@@ -186,7 +203,10 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
   } else {
     emit("updateClicked", selectedResult.value);
   }
-  await updateValidity();
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+    showValidation.value = true;
+  }
   updateValueVariableMap(selectedResult.value);
   hideOverlay();
 }
@@ -202,19 +222,6 @@ function updateValueVariableMap(data: TTIriRef) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity() {
-  return isTTIriRef(selectedResult.value);
 }
 
 function findInTree(iri: string) {
@@ -247,6 +254,7 @@ async function dropReceived(event: any) {
   width: 100%;
   display: flex;
   flex-flow: row nowrap;
+  gap: 0.5rem;
 }
 
 .label {
@@ -271,5 +279,15 @@ async function dropReceived(event: any) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
 }
 </style>

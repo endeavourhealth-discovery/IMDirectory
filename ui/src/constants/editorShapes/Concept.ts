@@ -138,7 +138,7 @@ const ConceptShape: FormGenerator = {
               path: {
                 "@id": RDFS.COMMENT
               },
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": IM.component.HTML_INPUT
               }
@@ -155,7 +155,7 @@ const ConceptShape: FormGenerator = {
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.STATUS
+                "@id": IM.HAS_STATUS
               },
               argument: [
                 {
@@ -179,7 +179,7 @@ const ConceptShape: FormGenerator = {
               name: "isContainedIn",
               showTitle: true,
               order: 1,
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
@@ -195,7 +195,7 @@ const ConceptShape: FormGenerator = {
                   comment: "selects an entity based on select query",
                   name: "Entity",
                   order: 1,
-                  minCount: 1,
+                  minCount: 0,
                   builderChild: true,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
@@ -216,7 +216,7 @@ const ConceptShape: FormGenerator = {
               name: "subclassOf",
               showTitle: true,
               order: 1,
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
@@ -233,7 +233,7 @@ const ConceptShape: FormGenerator = {
                   comment: "selects an entity based on select query",
                   name: "Entity",
                   order: 1,
-                  minCount: 1,
+                  minCount: 0,
                   builderChild: true,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH

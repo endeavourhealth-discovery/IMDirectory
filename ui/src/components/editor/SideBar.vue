@@ -59,6 +59,8 @@ function handleClick(data: any) {
   display: flex;
   flex-flow: column nowrap;
   overflow-y: hidden;
+  padding-top: 0.75rem;
+  gap: 0.5rem;
 }
 
 .p-tabview {

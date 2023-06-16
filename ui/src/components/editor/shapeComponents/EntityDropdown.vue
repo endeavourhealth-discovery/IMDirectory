@@ -2,9 +2,16 @@
   <div class="entity-single-dropdown-container">
     <span class="dropdown-container">
       <label v-if="shape.showTitle">{{ shape.name }}</label>
-      <Dropdown class="entity-single-dropdown" :class="invalid && 'invalid'" v-model="selectedEntity" :options="dropdownOptions" optionLabel="name" />
+      <Dropdown
+        class="entity-single-dropdown"
+        :class="invalid && showValidation && 'invalid'"
+        v-model="selectedEntity"
+        :options="dropdownOptions"
+        optionLabel="name"
+      />
     </span>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
@@ -31,12 +38,27 @@ const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const loading = ref(false);
 const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
 
 let key = props.shape.path["@id"];
 
@@ -45,7 +67,10 @@ watch(selectedEntity, async newValue => {
   if (isTTIriRef(newValue)) {
     updateEntity(newValue);
     updateValueVariableMap(newValue);
-    await updateValidity(newValue);
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      showValidation.value = true;
+    }
   }
 });
 
@@ -99,19 +124,6 @@ function updateValueVariableMap(data: TTIriRef) {
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
-
-async function updateValidity(data: TTIriRef) {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation(data);
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation(data: TTIriRef) {
-  return true;
-}
 </script>
 
 <style scoped>
@@ -128,6 +140,10 @@ function defaultValidation(data: TTIriRef) {
   flex: 1 1 auto;
 }
 
+.dropdown-container:deep(label) {
+  display: block;
+}
+
 .entity-single-dropdown {
   width: 100%;
 }
@@ -140,7 +156,14 @@ function defaultValidation(data: TTIriRef) {
   width: 2rem;
   height: 2rem;
 }
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
 .invalid {
-  border-color: var(--red-500);
+  border: 1px solid var(--red-500);
 }
 </style>

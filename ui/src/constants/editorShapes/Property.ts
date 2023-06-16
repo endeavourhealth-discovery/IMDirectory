@@ -128,7 +128,7 @@ const PropertyShape: FormGenerator = {
           path: {
             "@id": RDFS.COMMENT
           },
-          minCount: 1,
+          minCount: 0,
           componentType: {
             "@id": IM.component.HTML_INPUT
           }
@@ -145,7 +145,7 @@ const PropertyShape: FormGenerator = {
           showTitle: true,
           maxCount: 1,
           path: {
-            "@id": IM.STATUS
+            "@id": IM.HAS_STATUS
           },
           argument: [
             {
@@ -163,6 +163,92 @@ const PropertyShape: FormGenerator = {
             "@id": IM.component.ENTITY_DROPDOWN
           },
           forceIsValue: true
+        },
+        {
+          label: "Property group - Sub type array builder",
+          order: 1,
+          path: {
+            "@id": RDFS.SUBCLASS_OF
+          },
+          validation: {
+            "@id": IM.validation.HAS_PARENT
+          },
+          validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+          property: [
+            {
+              comment: "selects an entity based on select query",
+              order: 1,
+              select: [
+                {
+                  "@id": IM.query.SEARCH_ENTITIES
+                }
+              ],
+              argument: [
+                {
+                  parameter: "this",
+                  valueIri: {
+                    "@id": IM.CONCEPT
+                  }
+                }
+              ],
+              builderChild: true,
+              name: "Entity",
+              path: {
+                "@id": RDFS.SUBCLASS_OF
+              },
+              minCount: 0,
+              componentType: {
+                "@id": IM.component.ENTITY_SEARCH
+              }
+            }
+          ],
+          name: "Subclass of",
+          showTitle: true,
+          minCount: 0,
+          componentType: {
+            "@id": IM.component.ARRAY_BUILDER
+          }
+        },
+        {
+          label: "Property group - Contained in array builder",
+          order: 1,
+          path: {
+            "@id": IM.IS_CONTAINED_IN
+          },
+          property: [
+            {
+              comment: "selects an entity based on select query",
+              order: 1,
+              select: [
+                {
+                  "@id": IM.query.SEARCH_ENTITIES
+                }
+              ],
+              argument: [
+                {
+                  parameter: "this",
+                  valueIri: {
+                    "@id": IM.FOLDER
+                  }
+                }
+              ],
+              builderChild: true,
+              name: "Entity",
+              path: {
+                "@id": IM.IS_CONTAINED_IN
+              },
+              minCount: 0,
+              componentType: {
+                "@id": IM.component.ENTITY_SEARCH
+              }
+            }
+          ],
+          name: "Contained in",
+          showTitle: true,
+          minCount: 0,
+          componentType: {
+            "@id": IM.component.ARRAY_BUILDER
+          }
         },
         {
           comment: "Toggle controlling sub components visibility",

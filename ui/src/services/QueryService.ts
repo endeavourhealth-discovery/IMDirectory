@@ -35,7 +35,7 @@ const QueryService = {
     else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
   },
 
-  async checkValidation(validationIri: string, data: any): Promise<boolean> {
+  async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
     return axios.post(Env.VITE_NODE_API + "node_api/validation/public/validate", data, { params: { iri: validationIri } });
   },
 
@@ -53,12 +53,6 @@ const QueryService = {
   async entityQuery(query: QueryRequest, controller?: AbortController) {
     if (controller) return await axios.post(Env.API + "api/query/public/entityQuery", query, { signal: controller.signal });
     else return await axios.post(Env.API + "api/query/public/entityQuery", query);
-  },
-
-  async getQueryDefinitionDisplay(conceptIri: string): Promise<ITextQuery[]> {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDefinitionDisplay", {
-      params: { iri: conceptIri }
-    });
   },
 
   async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
@@ -116,6 +110,14 @@ const QueryService = {
 
   async getQueryDisplay(iri: string): Promise<Query> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri } });
+  },
+
+  async getAllQueries(): Promise<any> {
+    return axios.get(Env.API + "api/query/public/allQueries");
+  },
+
+  async getAllQByType(iri: string): Promise<any> {
+    return axios.get(Env.API + "api/query/public/allByType", {params: {iri:iri}});
   }
 };
 
