@@ -21,15 +21,13 @@ export function mountComposable(composable: any, composableInputs?: any[], initi
     template: "<template></template>"
   });
 
-  createTestingPinia({ initialState: initialState });
-
   if (mockRouter)
     return mount(TestComponent, {
       global: {
-        plugins: [mockRouter]
+        plugins: [mockRouter, createTestingPinia({ initialState: initialState })]
       }
     });
-  else return mount(TestComponent);
+  else return mount(TestComponent, { global: { plugins: [createTestingPinia({ initialState: initialState })] } });
 }
 
 export default { createTestRouter, mountComposable };
