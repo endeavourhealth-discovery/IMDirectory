@@ -1,13 +1,13 @@
 <template>
-  <div v-if="property">
-    <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
+  <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
+  <div v-if="property && isObjectHasKeys(property)">
     <div v-tooltip.right="toolTip">
       {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
     </div>
     <ClassSelect v-if="isObjectHasKeys(property, [SHACL.CLASS])" :class-iri="property[SHACL.CLASS][0]['@id']" />
     <DatatypeSelect v-else-if="isObjectHasKeys(property, [SHACL.DATATYPE])" :where="editMatch.where![0]" :datatype="property[SHACL.DATATYPE][0]['@id']" />
-    <EntitySelect v-else />
   </div>
+  <EntitySelect :edit-match="editMatch" v-else />
 </template>
 
 <script setup lang="ts">

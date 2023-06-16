@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { PropType, Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 
 interface Props {
   entailmentOptions: string[];
@@ -17,10 +17,13 @@ const editOptions: Ref<string[]> = ref([]);
 const options = ["ancestorsOf", "descendantsOrSelfOf", "descendantsOf"];
 
 onMounted(() => {
-  if (isArrayHasLength(props.entailmentOptions))
+  if (isArrayHasLength(props.entailmentOptions)) {
     for (const option of props.entailmentOptions) {
       editOptions.value.push(option);
     }
+  } else {
+    editOptions.value.push("descendantsOrSelfOf");
+  }
 });
 
 function onChange() {

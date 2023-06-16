@@ -11,7 +11,7 @@
         />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
-        <div v-for="(editMatch, index) in editMatches">
+        <div v-for="(editMatch, index) in editMatches" class="edit-component">
           <Divider v-if="index" align="center">
             <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch }}</div>
           </Divider>
@@ -140,5 +140,9 @@ function discard() {
 .or {
   color: blue;
   cursor: pointer;
+}
+
+.edit-component{
+  padding: 1rem;
 }
 </style>
