@@ -45,7 +45,6 @@ async function addPropertiesAndTypes(iri: any) {
   if (groups.length) data.value.push(groups.sort((a: TangledTreeData, b: TangledTreeData) => a.name.localeCompare(b.name)));
   else {
     data.value.push(properties);
-    //data.value.push(types);
   }
 }
 
@@ -59,10 +58,6 @@ function getGroupsPropertiesTypes(iri: any, twinNode: any, propertyDisplay: Prop
     } else {
       addProperty(properties, property, iri);
     }
-    // types = types.filter( element => {
-    //   return element.id !== undefined;
-    // });
-    //addTypes(types, property, twinNode, iri);
   });
   properties = Object.values(
       properties.reduce((acc, obj) => ({ ...acc, [obj.id]: obj }), {})
@@ -105,33 +100,7 @@ function addProperty(properties: TangledTreeData[], property: PropertyDisplay, p
     range: range
   });
 }
-// function addTypes(types: any[], property: PropertyDisplay, twinNode: any, iri: any) {
-//   if (property.type["@id"] === iri) {
-//     if (types.some((type: any) => type.id === twinNode + property.type["@id"])) {
-//       const index = types.findIndex((t: any) => t.id === twinNode + property.type["@id"]);
-//       types[index].parents.push(property.property["@id"]);
-//     } else {
-//       types.push({
-//         id: twinNode + property.type["@id"],
-//         parents: [property.property["@id"]],
-//         name: property.type.name || property.type["@id"],
-//         type: "type"
-//       });
-//     }
-//   } else {
-//     if (types.some((type: any) => type.id === property.type["@id"])) {
-//       const index = types.findIndex((type: any) => type.id === property.type["@id"]);
-//       types[index].parents.push(property.property["@id"]);
-//     } else {
-//       types.push({
-//         id: property.type["@id"],
-//         parents: [property.property["@id"]],
-//         name: property.type.name || property.type["@id"],
-//         type: "type"
-//       });
-//     }
-//   }
-// }
+
 </script>
 
 <style scoped>
