@@ -16,32 +16,32 @@ export default class EntityController {
   private initRoutes() {
     this.router.get("/public/detailsDisplay", (req, res, next) =>
       this.getDetailsDisplay(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/propertiesDisplay", (req, res, next) =>
       this.getPropertiesDisplay(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/detailsDisplay/loadMore", (req, res, next) =>
       this.loadMoreDetailsTab(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/public/isValidPropertyBoolFocus", (req, res, next) =>
       this.isValidPropertyBoolFocus(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/public/superiorPropertiesBoolFocusPaged", (req, res, next) =>
       this.getSuperiorPropertiesBoolFocusPaged(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/conceptContextMaps", (req, res, next) =>
       this.getConceptContextMaps(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
   }

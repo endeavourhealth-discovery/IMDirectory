@@ -11,9 +11,9 @@ import _ from "lodash";
 export function setupEditorEntity(mode: EditorMode, updateType: Function) {
   const editorStore = useEditorStore();
   const creatorStore = useCreatorStore();
-  let editorEntityOriginal: Ref<any> = ref({});
-  let editorEntity: Ref<any> = ref({});
-  let entityName = ref("");
+  const editorEntityOriginal: Ref<any> = ref({});
+  const editorEntity: Ref<any> = ref({});
+  const entityName = ref("");
 
   const editorIri = computed(() => editorStore.editorIri).value;
   const editorSavedEntity = computed(() => editorStore.editorSavedEntity).value;
@@ -52,7 +52,7 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
   function findPrimaryType(): TTIriRef | undefined {
     if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]))) return undefined;
     if (
-      isObjectHasKeys(editorEntityOriginal, [RDF.TYPE]) &&
+      isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE]) &&
       isArrayHasLength(editorEntityOriginal.value[RDF.TYPE]) &&
       editorEntityOriginal.value[RDF.TYPE].length === 1 &&
       isObjectHasKeys(editorEntity.value, [RDF.TYPE]) &&
@@ -62,11 +62,11 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
       if (found) return found;
     }
     if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
-    if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE)) {
+    if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE) !== -1) {
       const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE);
       if (found) return found;
     }
-    return editorEntity.value[0];
+    return editorEntity.value[RDF.TYPE][0];
   }
 
   function updateEntity(data: any) {
