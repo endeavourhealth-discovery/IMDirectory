@@ -2,7 +2,7 @@ import { defineComponent } from "vue";
 import { mount } from "@vue/test-utils";
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import { vi } from "vitest";
-import { createTestingPinia } from '@pinia/testing'
+import { createTestingPinia } from "@pinia/testing";
 
 export function createTestRouter(routes?: RouteRecordRaw[], mockPush?: any, mockGo?: any, mockBack?: any, mockForward?: any) {
   const router = createRouter({ routes: routes || [], history: createWebHashHistory() });
@@ -13,23 +13,21 @@ export function createTestRouter(routes?: RouteRecordRaw[], mockPush?: any, mock
   return router;
 }
 
-export function mountComposable(composable: any, initialState?: any, mockRouter?: any) {
+export function mountComposable(composable: any, composableInputs?: any[], initialState?: any, mockRouter?: any) {
   const TestComponent = defineComponent({
     setup() {
-      return { ...composable() };
+      return { ...composable.apply(null, composableInputs) };
     },
     template: "<template></template>"
   });
 
-  createTestingPinia({initialState: initialState});
-
   if (mockRouter)
     return mount(TestComponent, {
       global: {
-        plugins: [mockRouter]
+        plugins: [mockRouter, createTestingPinia({ initialState: initialState })]
       }
     });
-  else return mount(TestComponent);
+  else return mount(TestComponent, { global: { plugins: [createTestingPinia({ initialState: initialState })] } });
 }
 
 export default { createTestRouter, mountComposable };

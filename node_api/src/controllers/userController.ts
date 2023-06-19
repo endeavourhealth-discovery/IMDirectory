@@ -16,32 +16,32 @@ export default class UserController {
   private initRoutes() {
     this.router.get("/public/getUserTheme", async (req, res, next) =>
       this.getUserTheme(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/getUserMRU", async (req, res, next) =>
       this.getUserMRU(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/getUserFavourites", async (req, res, next) =>
       this.getUserFavourites(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/public/updateUserTheme", async (req, res, next) =>
       this.updateUserTheme(req)
-        .then(data => res.setHeader("content-type", "application/sparql-update").send(data).end())
+        .then(data => res.setHeader("content-type", "application/sparql-update").send(data))
         .catch(next)
     );
     this.router.post("/public/updateUserMRU", async (req, res, next) =>
       this.updateUserMRU(req)
-        .then(data => res.setHeader("content-type", "application/sparql-update").send(data).end())
+        .then(data => res.setHeader("content-type", "application/sparql-update").send(data))
         .catch(next)
     );
     this.router.post("/public/updateUserFavourites", async (req, res, next) =>
       this.updateUserFavourites(req)
-        .then(data => res.setHeader("content-type", "application/sparql-update").send(data).end())
+        .then(data => res.setHeader("content-type", "application/sparql-update").send(data))
         .catch(next)
     );
   }

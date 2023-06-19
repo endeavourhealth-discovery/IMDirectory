@@ -2,10 +2,11 @@
   <div id="content-table-container" class="content-wrapper">
     <DataTable
       :value="children"
-      class="concept-data-table p-datatable-sm scrollbar"
+      class="concept-data-table p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
       dataKey="@id"
+      :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
       :lazy="true"
@@ -190,11 +191,8 @@ async function onPage(event: any) {
 }
 
 function scrollToTop(): void {
-  const resultsContainer = document.getElementById("content-table-container") as HTMLElement;
-  const scrollBox = resultsContainer?.getElementsByClassName("scrollbar")[0] as HTMLElement;
-  if (scrollBox) {
-    scrollBox.scrollTop = 0;
-  }
+  const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
+  scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {

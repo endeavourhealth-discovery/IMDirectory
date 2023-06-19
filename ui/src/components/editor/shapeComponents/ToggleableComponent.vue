@@ -29,7 +29,7 @@ export default defineComponent({
 <script setup lang="ts">
 import { PropType, watch, onMounted, ref, inject } from "vue";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { EditorMode } from "@im-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -45,10 +45,21 @@ const props = defineProps<Props>();
 
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const addPropertyToValidationCheckStatus = inject(injectionKeys.forceValidation)?.addPropertyToValidationCheckStatus;
+const removeValidationCheckStatus = inject(injectionKeys.forceValidation)?.removeValidationCheckStatus;
 
 const checked = ref(false);
 const onLabel = ref("");
 const offLabel = ref("");
+
+if (forceValidation && checked.value) {
+  if (props.shape.property && isArrayHasLength(props.shape.property) && addPropertyToValidationCheckStatus) {
+    for (const property of props.shape.property) {
+      addPropertyToValidationCheckStatus(property);
+    }
+  }
+}
 
 onMounted(() => {
   setLabels();
@@ -56,7 +67,14 @@ onMounted(() => {
 });
 
 watch(checked, newValue => {
-  if (!newValue && deleteEntityKey && isObjectHasKeys(props.shape, ["path"])) deleteEntityKey(props.shape.path!["@id"]);
+  if (!newValue && deleteEntityKey && isObjectHasKeys(props.shape, ["path"])) {
+    deleteEntityKey(props.shape.path!["@id"]);
+    if (removeValidationCheckStatus && props.shape.property && isArrayHasLength(props.shape.property)) {
+      for (const property of props.shape.property) {
+        removeValidationCheckStatus(property);
+      }
+    }
+  }
 });
 
 function setLabels() {

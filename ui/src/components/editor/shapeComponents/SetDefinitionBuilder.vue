@@ -76,10 +76,11 @@ const eclError = ref(false);
 const eclErrorMessage = ref("");
 const loading = ref(false);
 const showNames = ref(false);
+const invalid = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 
 const key = props.shape.path["@id"];
 const buttonOptions = [
@@ -107,7 +108,7 @@ watch(
   () => _.cloneDeep(eclAsQuery.value),
   async () => {
     updateEntity();
-    updateValidity();
+    if (updateValidity) updateValidity(props.shape, editorEntity, key, invalid);
   }
 );
 
@@ -151,12 +152,6 @@ function processCodeList(data: ConceptSummary[]) {
       return itemAsString;
     });
     ecl.value = arrayAsStrings.join(" AND ");
-  }
-}
-
-async function updateValidity() {
-  if (validityUpdate) {
-    validityUpdate({ key: key, valid: true });
   }
 }
 

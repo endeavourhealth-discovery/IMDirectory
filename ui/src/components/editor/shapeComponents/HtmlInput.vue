@@ -1,12 +1,13 @@
 <template>
   <div class="html-input-container">
     <label v-if="shape.showTitle">{{ shape.name }}</label>
-    <Textarea class="p-inputtext-lg input-html" :class="invalid && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
+    <Textarea class="p-inputtext-lg input-html" :class="invalid && showValidation && 'invalid'" v-model="userInput" rows="4" @drop.prevent />
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, watch, onMounted, inject, PropType, Ref } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
@@ -26,21 +27,39 @@ const props = withDefaults(defineProps<Props>(), {
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 let key = props.shape.path["@id"];
 
-let invalid = ref(false);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
 
-let userInput = ref("");
+const userInput = ref("");
 onMounted(() => {
   if (props.value) userInput.value = htmlToText(props.value);
 });
 watch(userInput, async newValue => {
   updateEntity(newValue);
   updateValueVariableMap(newValue);
-  await updateValidity();
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    showValidation.value = true;
+  }
 });
 
 function updateEntity(data: string) {
@@ -54,17 +73,6 @@ function updateValueVariableMap(data: string) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
-}
-
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity)
-    invalid.value = await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value);
-  else invalid.value = !defaultValidation(userInput.value);
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation(userInput: string) {
-  return userInput.length < 500;
 }
 
 function textToHtml(text: string): string {
