@@ -16,7 +16,7 @@ export default class CognitoController {
   private initRoutes() {
     this.router.get("/public/isEmailRegistered", (req, res, next) =>
       this.isEmailRegistered(req)
-        .then(data => res.send(data).end)
+        .then(data => res.send(data))
         .catch(next)
     );
   }

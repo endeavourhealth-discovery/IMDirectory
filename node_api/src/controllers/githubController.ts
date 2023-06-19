@@ -21,12 +21,12 @@ export default class GithubController {
   private initRoutes() {
     this.router.get("/node_api/github/public/latestRelease", (req, res, next) =>
       this.getLatestRelease(req, res, next)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/node_api/github/public/releases", (req, res, next) =>
       this.getReleases(req, res, next)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/node_api/github/updateGithubConfig", this.auth.secure("IMAdmin"), (req, res, next) =>

@@ -22,7 +22,7 @@ export default class FhirController {
         }
       */
       this.getValueSet(req, false)
-        .then(data => res.setHeader("content-type", "application/fhir+json").send(data).end())
+        .then(data => res.setHeader("content-type", "application/fhir+json").send(data))
         .catch(next)
     );
     this.router.get("/ValueSet/[$]expand", (req, res, next) =>
@@ -35,12 +35,12 @@ export default class FhirController {
         }
       */
       this.getValueSet(req, true)
-        .then(data => res.setHeader("content-type", "application/fhir+json").send(data).end())
+        .then(data => res.setHeader("content-type", "application/fhir+json").send(data))
         .catch(next)
     );
     this.router.post("/ValueSet/ECL", (req, res, next) =>
       this.eclToFhir(req)
-        .then(data => res.setHeader("content-type", "text/plain").send(data).end())
+        .then(data => res.setHeader("content-type", "text/plain").send(data))
         .catch(next)
     );
   }
