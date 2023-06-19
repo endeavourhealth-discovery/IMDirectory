@@ -1,6 +1,6 @@
 <template>
   <div class="search-container">
-    <span class="p-input-icon-right search-group" >
+    <span class="p-input-icon-right search-group">
       <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
     </span>
@@ -34,6 +34,7 @@ import { DataTypeCheckers } from "@im-library/helpers";
 import { useRouter } from "vue-router";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
+import setupSpeechToText from "@/composables/setupSpeechToText";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -43,15 +44,15 @@ const router = useRouter();
 const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
 const filterStore = useFilterStore();
+
 const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
-const searchPlaceholder = ref("Search")
-const listening = ref(false);
-const speech = ref(false);
-let recog: any = false;
+const searchPlaceholder = ref("Search");
+
+const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 
 watch(searchText, async () => await search());
 
@@ -68,29 +69,6 @@ const buttonActions = ref([
   }
 ]);
 
-
-onMounted(() => {
-  const speechEngine = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-  if (speechEngine) {
-    recog = new speechEngine();
-    recog.interimResults = true;
-    recog.addEventListener("result", (ev: any) => {
-      if (ev && ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) {
-        const t = Array.from(ev.results)
-          .map((r:any) => r[0])
-          .map((r:any) => r.transcript)
-          .join("");
-        searchPlaceholder.value = t;
-      }
-    })
-    recog.addEventListener("speechend", () => {
-      searchText.value = searchPlaceholder.value
-      searchPlaceholder.value = "Search";
-      listening.value = false;
-    })
-    speech.value = true;
-  }
-})
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
 }
@@ -149,21 +127,6 @@ async function search(): Promise<void> {
     directoryStore.updateSearchLoading(false);
   }
 }
-function toggleListen() {
-  if (recog) {
-    if (listening.value) {
-      listening.value = false;
-      recog.stop();
-      searchPlaceholder.value = "Search";
-    } else {
-      searchText.value = "";
-      recog.start();
-      searchPlaceholder.value = "Listening...";
-      listening.value = true;
-    }
-  }
-}
-
 </script>
 
 <style scoped>
