@@ -25,6 +25,7 @@ function setupQueryTree() {
     conceptIri: string,
     conceptTypes: TTIriRef[],
     hasChildren: boolean,
+    selectable: boolean,
     parent?: TreeNode,
     order?: number
   ): TreeNode {
@@ -38,9 +39,9 @@ function setupQueryTree() {
       leaf: !hasChildren,
       loading: false,
       children: [] as TreeNode[],
-      order: order,
       parent: getParentNode(parent as any),
-      selectable: isProperty(conceptTypes)
+      order: order,
+      selectable: selectable
     };
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :options="['in', 'notIn']" v-model:model-value="whereType" />
+  in
   <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" @item-select="onSelect" />
   <EntailmentOptionsSelect :entailment-object="editMatch" />
 </template>
@@ -22,8 +22,6 @@ interface Props {
 
 const props = defineProps<Props>();
 const filterStore = useFilterStore();
-const whereType = ref("in");
-const entailmentOptions: Ref<string[]> = ref([]);
 const controller: Ref<AbortController> = ref({} as AbortController);
 const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
 const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
@@ -33,7 +31,6 @@ const debounce = ref(0);
 onMounted(() => {
   selected.value.iri = props.editMatch["@id"] ?? props.editMatch["@set"] ?? (props.editMatch["@type"] as string);
   selected.value.name = getNameFromRef(props.editMatch);
-  if (props.editMatch.exclude) whereType.value = "notIn";
 });
 
 function onSelect(event: any) {

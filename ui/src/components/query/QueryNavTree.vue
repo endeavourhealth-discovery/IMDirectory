@@ -135,7 +135,8 @@ async function selectByIri(iri: string, nodes: TreeNode[]) {
 }
 
 async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], nodeKeys: string[]) {
-  const iri = path["@id"] ?? path["@type"];
+  const iriUnresolved = path["@id"] ?? path["@type"];
+  const iri = resolveIri(iriUnresolved);
   let foundLeafProperty = nodes.find(node => node.data === propertyIri);
   let found = nodes.find(node => node.data === iri);
   let foundNested = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
@@ -199,10 +200,10 @@ async function onPropertyExpand(node: TreeNode) {
   const ttProperty: TTProperty = node.ttproperty;
   if (isArrayHasLength(ttProperty["http://www.w3.org/ns/shacl#node"])) {
     const shaclNode = ttProperty["http://www.w3.org/ns/shacl#node"]!;
-    node.children!.push(createTreeNode(shaclNode[0].name as string, shaclNode[0]["@id"], [{ "@id": SHACL.NODESHAPE }], true, node));
+    node.children!.push(createTreeNode(shaclNode[0].name as string, shaclNode[0]["@id"], [{ "@id": SHACL.NODESHAPE }], true, false, node));
   } else if (isArrayHasLength(ttProperty["http://www.w3.org/ns/shacl#class"])) {
     const shaclClass = ttProperty["http://www.w3.org/ns/shacl#class"]!;
-    node.children!.push(createTreeNode(shaclClass[0].name as string, shaclClass[0]["@id"], [{ "@id": SHACL.CLASS }], false, node));
+    node.children!.push(createTreeNode(shaclClass[0].name as string, shaclClass[0]["@id"], [{ "@id": SHACL.CLASS }], false, false, node));
   }
 }
 
@@ -216,7 +217,7 @@ async function onNodeExpand(node: TreeNode) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
       let groupNode = node.children?.find(child => child.data === groupRef["@id"]);
       if (!groupNode) {
-        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, node, groupRef.order);
+        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, true, node, groupRef.order);
         node.children?.push(groupNode);
       }
       const propertyNode = buildTreeNodeFromTTProperty(prop, groupNode);
@@ -234,6 +235,7 @@ function buildTreeNodeFromTTProperty(property: TTProperty, parent?: TreeNode) {
     property["http://www.w3.org/ns/shacl#path"][0]["@id"],
     [{ "@id": RDF.PROPERTY }],
     !isArrayHasLength(property["http://www.w3.org/ns/shacl#datatype"]) && !isArrayHasLength(property["http://www.w3.org/ns/shacl#class"]),
+    true,
     parent
   );
   child.ttproperty = property;
@@ -248,7 +250,7 @@ async function onClassExpand(node: TreeNode) {
     const children = await EntityService.getPagedChildren(node.data, 1, pageSize.value);
     if (children.totalCount === 0) node.leaf = true;
     children.result.forEach((child: any) => {
-      if (!nodeHasChild(node, child)) node.children!.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
+      if (!nodeHasChild(node, child)) node.children!.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, false, node));
     });
     if (children.totalCount >= pageSize.value) {
       node.children!.push(createLoadMoreNode(node, 2, children.totalCount));
@@ -267,7 +269,7 @@ async function addParentFoldersToRoot() {
 
 async function addBaseEntityToRoot(iri: string) {
   const name = getNameFromRef({ "@id": iri });
-  const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, undefined);
+  const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, false, undefined);
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
   root.value.push(parent);
