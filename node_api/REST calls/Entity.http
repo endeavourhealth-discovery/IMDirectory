@@ -29,3 +29,12 @@ GET http://localhost:3000/node_api/entity/public/propertyRange?propIri=http://en
 GET http://localhost:3000/node_api/entity/public/propertyRange?propIri=http://endhealth.info/im#usedEntity
 
 ###
+
+#Get properties display
+
+GET http://localhost:3000/node_api/entity/public/propertiesDisplay?iri=http:%2F%2Fendhealth.info%2Fim%23QueryDefinition
+
+###
+
+GET http://localhost:3000/node_api/entity/public/propertiesDisplay?iri=http://www.w3.org/2000/01/rdf-schema#Resource
+
