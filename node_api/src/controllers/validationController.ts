@@ -15,7 +15,7 @@ export default class ValidationController {
   private initRoutes() {
     this.router.post("/node_api/validation/public/validate", (req, res, next) =>
       this.validate(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
   }
