@@ -1,11 +1,23 @@
 <template>
-  <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
-  <div v-if="property && isObjectHasKeys(property)">
-    <div v-tooltip.right="toolTip">
-      {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
+  <div v-if="property && isObjectHasKeys(property)" class="property-container">
+    <div class="property-label-button-container">
+      <div v-tooltip.right="toolTip" class="property-label">
+        {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
+      </div>
+      <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
     </div>
-    <ClassSelect v-if="isObjectHasKeys(property, [SHACL.CLASS])" :class-iri="property[SHACL.CLASS][0]['@id']" :where="editMatch.where![0]" />
-    <DatatypeSelect v-else-if="isObjectHasKeys(property, [SHACL.DATATYPE])" :where="editMatch.where![0]" :datatype="property[SHACL.DATATYPE][0]['@id']" />
+    <ClassSelect
+      class="property-input-container"
+      v-if="isObjectHasKeys(property, [SHACL.CLASS])"
+      :class-iri="property[SHACL.CLASS][0]['@id']"
+      :where="editMatch.where![0]"
+    />
+    <DatatypeSelect
+      class="property-input-container"
+      v-else-if="isObjectHasKeys(property, [SHACL.DATATYPE])"
+      :where="editMatch.where![0]"
+      :datatype="property[SHACL.DATATYPE][0]['@id']"
+    />
   </div>
   <EntitySelect :edit-match="editMatch" v-else />
 </template>
@@ -96,7 +108,28 @@ function getLastNode(pathOrNode: any, found: string[]) {
 </script>
 
 <style scoped>
+.property-container {
+  display: flex;
+  flex-flow: wrap;
+  width: 100%;
+}
+
+.property-label-button-container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.property-input-container {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem !important;
+}
+
 .property-delete-button {
-  float: right;
+  position: relative;
+  top: 0;
+  right: 0;
 }
 </style>
