@@ -11,7 +11,7 @@
         />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
-        <div v-for="(editMatch, index) in editMatches" class="edit-component">
+        <div v-for="(editMatch, index) in editMatches" class="edit-component" :key="editMatch.key">
           <Divider v-if="index" align="center">
             <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch }}</div>
           </Divider>
