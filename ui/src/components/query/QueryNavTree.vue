@@ -1,19 +1,11 @@
 <template>
   <div class="query-tree-wrapper">
     <div class="query-tree-nav" id="hierarchy-tree-bar-container">
-      <Tree
-        :value="root"
-        selectionMode="checkbox"
-        v-model:selectionKeys="selectedKeys"
-        :expandedKeys="expandedKeys"
-        @node-select="onNodeSelect"
-        @node-unselect="onNodeUnselect"
-        @node-expand="handleTreeNodeExpand"
-        class="tree-root"
-        :loading="loading"
-      >
+      <Tree :value="root" :expandedKeys="expandedKeys" @node-expand="handleTreeNodeExpand" class="tree-root" :loading="loading">
         <template #default="{ node }: any">
           <div class="tree-row">
+            <span v-if="node.selectable"><Checkbox v-model="node.selected" :binary="true" @input="onCheckInput($event, node)" /></span>
+            <span>{{ node.key }}</span>
             <span v-if="!node.loading">
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>
@@ -57,12 +49,17 @@ const emit = defineEmits({
 
 watch(
   () => props.updatedKey,
-  () => unselect(props.updatedKey)
+  () => {
+    const found = selectedNodes.value.find((selected: TreeNode) => selected.key === props.updatedKey);
+    if (found) {
+      unselect(found);
+    }
+  }
 );
 
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
-const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, partialSelect, unselect, selectedNodes, selectedKeys } = setupQueryTree();
+const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, unselect, selectedNodes } = setupQueryTree();
 
 onMounted(async () => {
   loading.value = true;
@@ -74,6 +71,11 @@ onMounted(async () => {
 onUnmounted(() => {
   removeOverlay();
 });
+
+async function onCheckInput(check: boolean, node: TreeNode) {
+  if (check) onSelect(node);
+  else onUnselect(node);
+}
 
 async function populateCheckBoxes(matches: Match[]) {
   for (const match of matches) {
@@ -108,7 +110,6 @@ async function selectByKey(key: string) {
     if (index !== lastKey - 1) {
       const parentNode = nodes[+keySplit];
       expandedKeys.value[parentNode.key!] = true;
-      partialSelect(parentNode.key!);
       if (!isArrayHasLength(parentNode.children)) await handleTreeNodeExpand(parentNode);
       if (isArrayHasLength(parentNode.children)) nodes = parentNode.children!;
     } else {
@@ -125,7 +126,6 @@ async function selectByIri(iri: string, nodes: TreeNode[]) {
     found = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
     if (found) {
       expandedKeys.value[found.key!] = true;
-      partialSelect(found.key!);
       if (isArrayHasLength(found.children)) {
         await handleTreeNodeExpand(found);
         if (isArrayHasLength(found.children)) selectByIri(iri, found.children!);
@@ -145,7 +145,6 @@ async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], n
     select(foundLeafProperty);
   } else if (found) {
     expandedKeys.value[found.key!] = true;
-    partialSelect(found.key!);
     if (!isArrayHasLength(found)) await handleTreeNodeExpand(found);
     if (isArrayHasLength(found.children)) {
       if (path.path || path.node) await selectByPath(path.node ?? path.path, propertyIri, found.children!, nodeKeys);
@@ -159,7 +158,6 @@ async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], n
     }
   } else if (foundNested) {
     expandedKeys.value[foundNested.key!] = true;
-    partialSelect(foundNested.key!);
     if (!isArrayHasLength(foundNested.children)) await handleTreeNodeExpand(found);
     if (isArrayHasLength(foundNested.children) && (path.path || path.node)) {
       await selectByPath(path, propertyIri, foundNested.children!, nodeKeys);
@@ -175,12 +173,12 @@ function removeProperty(treeNode: TreeNode) {
   emit("removeProperty", treeNode);
 }
 
-function onNodeUnselect(node: any) {
-  unselect(node.key);
+function onUnselect(node: any) {
+  unselect(node);
   removeProperty(node);
 }
 
-function onNodeSelect(node: any) {
+function onSelect(node: any) {
   select(node);
   addProperty(node);
 }

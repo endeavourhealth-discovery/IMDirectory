@@ -63,17 +63,13 @@ function setupQueryTree() {
   }
 
   function select(node: TreeNode) {
+    node.selected = true;
     selectedNodes.value.push(node);
-    selectedKeys.value[node.key!] = { checked: true, partialChecked: false };
   }
 
-  function unselect(key: string) {
-    selectedNodes.value = selectedNodes.value.filter((selected: TreeNode) => selected.key !== key);
-    delete selectedKeys.value[key];
-  }
-
-  function partialSelect(key: string) {
-    selectedKeys.value[key] = { checked: false, partialChecked: true };
+  function unselect(node: TreeNode) {
+    node.selected = false;
+    selectedNodes.value = selectedNodes.value.filter((selected: TreeNode) => selected.key !== node.key);
   }
 
   return {
@@ -90,7 +86,6 @@ function setupQueryTree() {
     removeOverlay,
     unselect,
     select,
-    partialSelect,
     selectedNodes
   };
 }
