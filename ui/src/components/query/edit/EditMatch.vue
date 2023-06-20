@@ -7,7 +7,7 @@
     <ClassSelect v-if="isObjectHasKeys(property, [SHACL.CLASS])" :class-iri="property[SHACL.CLASS][0]['@id']" :where="editMatch.where![0]" />
     <DatatypeSelect v-else-if="isObjectHasKeys(property, [SHACL.DATATYPE])" :where="editMatch.where![0]" :datatype="property[SHACL.DATATYPE][0]['@id']" />
   </div>
-  <EntitySelect :edit-match="editMatch" v-else />
+  <EntitySelect v-else :edit-match="editMatch" :base-entity-match="baseEntityMatch" />
 </template>
 
 <script setup lang="ts">
