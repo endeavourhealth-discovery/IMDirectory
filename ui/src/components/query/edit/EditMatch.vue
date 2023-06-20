@@ -124,7 +124,7 @@ function getLastNode(pathOrNode: any, found: string[]) {
 .property-input-container {
   display: flex;
   width: 100%;
-  gap: 0.5rem !important;
+  gap: 0.5rem;
 }
 
 .property-delete-button {
