@@ -13,7 +13,7 @@
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
         <div v-for="(childMatch, index) in editMatch.match" class="edit-component">
           <Divider v-if="index" align="center">
-            <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch }}</div>
+            <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch.toUpperCase() }}</div>
           </Divider>
           <div @click="childMatch.exclude = !childMatch.exclude" :class="childMatch.exclude ? 'exclude' : 'include'">
             {{ childMatch.exclude ? "exclude" : "include" }}

@@ -16,7 +16,7 @@
     <RangeSelect v-else-if="whereType === 'range'" :from="where.range!.from" :to="where.range!.to" />
   </div>
   <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'">
-    <Calendar v-model:model-value="selectedValue" @change="emit('onValueUpdate', $event)" />
+    <DateSelect :where="where" />
   </div>
 </template>
 
@@ -28,6 +28,7 @@ import RangeSelect from "../../editTextQuery/RangeSelect.vue";
 import { IM, XMLS } from "@im-library/vocabulary";
 import { Assignable, Range, Where } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import DateSelect from "./datatype/DateSelect.vue";
 interface Props {
   where: Where;
   datatype: string;

@@ -1,18 +1,23 @@
 <template>
-  <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
-  <div v-if="property && isObjectHasKeys(property)">
-    <div v-tooltip.right="toolTip">
-      {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
+  <div v-if="isArrayHasLength(properties)" v-for="(property, index) in properties">
+    <Divider v-if="index" align="center">
+      <div :class="editBoolWhere" @click="toggleBoolWhere">{{ editBoolWhere }}</div>
+    </Divider>
+    <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
+    <div v-if="property && isObjectHasKeys(property)">
+      <div v-tooltip.right="property.toolTip">
+        {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
+      </div>
+      <ClassSelect v-if="isObjectHasKeys(property, [SHACL.CLASS])" :class-iri="property[SHACL.CLASS][0]['@id']" :where="property.where" />
+      <DatatypeSelect v-else-if="isObjectHasKeys(property, [SHACL.DATATYPE])" :datatype="property[SHACL.DATATYPE][0]['@id']" :where="property.where" />
+      <EntitySelect v-else :edit-match="editMatch" :base-entity-match="baseEntityMatch" />
     </div>
-    <ClassSelect v-if="isObjectHasKeys(property, [SHACL.CLASS])" :class-iri="property[SHACL.CLASS][0]['@id']" :where="editMatch.where![0]" />
-    <DatatypeSelect v-else-if="isObjectHasKeys(property, [SHACL.DATATYPE])" :where="editMatch.where![0]" :datatype="property[SHACL.DATATYPE][0]['@id']" />
-    <EntitySelect v-else :edit-match="editMatch" :base-entity-match="baseEntityMatch" />
   </div>
   <EntitySelect v-else :edit-match="editMatch" :base-entity-match="baseEntityMatch" />
 </template>
 
 <script setup lang="ts">
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Bool, Match } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref, watch } from "vue";
 import ClassSelect from "../clause/select/ClassSelect.vue";
 import DatatypeSelect from "../clause/select/DatatypeSelect.vue";
@@ -38,11 +43,9 @@ watch(
   () => props.editMatch.where,
   () => describeMatch([props.editMatch], "match")
 );
-
-const property: Ref<TTProperty | undefined> = ref({} as TTProperty);
+const editBoolWhere: Ref<Bool> = ref("and");
+const properties: Ref<TTProperty[]> = ref([]);
 const dataModelIri: Ref<string> = ref("");
-const propertyIri: Ref<string> = ref("");
-const toolTip: Ref<string> = ref("");
 
 onMounted(async () => {
   const iri = (props.baseEntityMatch["@id"] || props.baseEntityMatch["@set"] || props.baseEntityMatch["@type"]) as string;
@@ -55,21 +58,36 @@ function deleteProperty() {
   emit("removeProperty", props.editMatch, true);
 }
 
+function toggleBoolWhere() {
+  if (editBoolWhere.value === "and") editBoolWhere.value = "or";
+  else if (editBoolWhere.value === "or") editBoolWhere.value = "and";
+}
+
 async function init(iri: string) {
+  if (props.editMatch.bool === "or") editBoolWhere.value = "or";
   const resolvedIri = resolveIri(iri);
   dataModelIri.value = getDataModelIri(props.editMatch) ?? resolvedIri;
-  propertyIri.value = isObjectHasKeys(props.editMatch, ["where"]) ? props.editMatch.where?.[0]["@id"]! : "";
+  if (isObjectHasKeys(props.editMatch, ["where"]) && isArrayHasLength(props.editMatch.where)) {
+    for (const where of props.editMatch.where!) {
+      let property;
+      const propertyIri = where["@id"];
 
-  if (dataModelIri.value && propertyIri.value) {
-    const iri = resolveIri(dataModelIri.value);
-    const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
-    if (isArrayHasLength(entity[SHACL.PROPERTY])) {
-      const properties = entity[SHACL.PROPERTY];
-      const found = (properties as TTProperty[]).find(prop => prop["http://www.w3.org/ns/shacl#path"][0]["@id"] === propertyIri.value);
-      property.value = found;
+      if (dataModelIri.value && propertyIri) {
+        const iri = resolveIri(dataModelIri.value);
+        const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
+        if (isArrayHasLength(entity[SHACL.PROPERTY])) {
+          const ttproperties = entity[SHACL.PROPERTY];
+          const found = (ttproperties as TTProperty[]).find(prop => prop["http://www.w3.org/ns/shacl#path"][0]["@id"] === propertyIri);
+          if (found) {
+            property = found;
+            property.tooltip = getTooltip(property);
+            property.where = where;
+            properties.value.push(property);
+          }
+        }
+      }
     }
   }
-  if (property.value) toolTip.value = getTooltip(property.value);
 }
 
 function getTooltip(property: TTProperty) {
@@ -99,5 +117,15 @@ function getLastNode(pathOrNode: any, found: string[]) {
 <style scoped>
 .property-delete-button {
   float: right;
+}
+
+.and {
+  color: orange;
+  cursor: pointer;
+}
+
+.or {
+  color: blue;
+  cursor: pointer;
 }
 </style>
