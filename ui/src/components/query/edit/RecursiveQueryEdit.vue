@@ -163,17 +163,16 @@ function group() {
 }
 
 function ungroup() {
-  props.parentMatch;
   for (const selectedMatch of props.selectedMatches) {
-    if (isArrayHasLength(selectedMatch.match))
+    if (isArrayHasLength(selectedMatch.match)) {
+      const index = getIndexOfMatch(selectedMatch, props.matches);
+      if (index !== -1) props.matches.splice(index, 1);
       for (const nestedMatch of selectedMatch.match!) {
-        props.matches.push(nestedMatch);
+        props.matches.splice(index, 0, nestedMatch);
       }
-    const index = getIndexOfMatch(selectedMatch, props.matches);
-    if (index !== -1) props.matches.splice(index, 1);
-    const selectedIndex = getIndexOfMatch(selectedMatch, props.selectedMatches);
-    if (selectedIndex !== -1) props.selectedMatches.splice(index, 1);
+    }
   }
+  remove();
 }
 
 function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
