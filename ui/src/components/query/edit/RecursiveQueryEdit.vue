@@ -34,6 +34,7 @@ import EditDialog from "./EditDialog.vue";
 import { MenuItem } from "primevue/menuitem";
 import AddBaseType from "./AddBaseType.vue";
 import RecursiveQueryEditDisplay from "./RecursiveQueryEditDisplay.vue";
+import Swal from "sweetalert2";
 
 interface Props {
   parentMatch?: Match;
@@ -65,8 +66,7 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
         command: () => {
           add(Direction.ABOVE);
           edit();
-        },
-        disabled: isBaseSelected.value
+        }
       },
       {
         label: "Below",
@@ -144,9 +144,28 @@ function edit() {
 function remove() {
   for (const selectedMatch of props.selectedMatches) {
     const index = props.matches.findIndex(match => JSON.stringify(selectedMatch) === JSON.stringify(match));
-    if (index !== -1) props.matches.splice(index, 1);
+    if (index === 0) deleteBaseType();
+    else if (index !== -1) props.matches.splice(index, 1);
   }
   props.selectedMatches.length = 0;
+}
+
+function deleteBaseType() {
+  Swal.fire({
+    icon: "info",
+    title: "Confirm delete",
+    text: "Are you sure you want to delete the base type of your query? All other clauses will be deleted.",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    reverseButtons: true,
+    confirmButtonColor: "#2196F3",
+    cancelButtonColor: "#607D8B",
+    showLoaderOnConfirm: true,
+    allowOutsideClick: () => !Swal.isLoading(),
+    backdrop: true
+  }).then((result: any) => {
+    if (result.isConfirmed) props.matches.length = 0;
+  });
 }
 
 function group() {
@@ -192,6 +211,8 @@ function getRightClickOptions() {
     return rClickItemsGroup.value;
   }
   const options = [...rClickItemsSingle.value];
+  const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
+  if (index === 0) options[0].items![0].disabled = true;
   if (isArrayHasLength(props.selectedMatches[0].match))
     options.push({
       label: "Ungroup",
@@ -242,9 +263,17 @@ function isSelected(match: Match) {
   cursor: pointer;
 }
 
-.feature:hover > div.feature:hover {
+/* .feature:hover .feature {
+  background-color: var(--highlight-bg);
+} */
+
+.feature:hover .feature:hover > * {
   background-color: var(--highlight-bg);
 }
+
+/* .feature:hover {
+  background-color: var(--highlight-bg);
+} */
 
 .selected {
   border: 1px dotted;
