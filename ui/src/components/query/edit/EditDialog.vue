@@ -4,22 +4,36 @@
       <SplitterPanel :size="30" :minSize="10" style="overflow: auto" class="splitter-left">
         <QueryNavTree
           :base-entity-match="baseEntityMatch"
-          :editMatches="editMatches"
+          :editMatches="editMatch.match!"
           :updated-key="updatedKey"
           @add-property="addProperty"
           @remove-property="removeProperty"
         />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
-        <div v-for="(editMatch, index) in editMatches" class="edit-component">
+        <div v-for="(childMatch, index) in editMatch.match" class="edit-component">
           <Divider v-if="index" align="center">
             <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch }}</div>
           </Divider>
-          <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
-            {{ editMatch.exclude ? "exclude" : "include" }}
+          <div @click="childMatch.exclude = !childMatch.exclude" :class="childMatch.exclude ? 'exclude' : 'include'">
+            {{ childMatch.exclude ? "exclude" : "include" }}
           </div>
-          <EditMatch :base-entity-match="baseEntityMatch" :edit-match="editMatch" @remove-property="removeProperty" />
+          <EditMatch
+            v-if="!isArrayHasLength(childMatch.match)"
+            :base-entity-match="baseEntityMatch"
+            :edit-match="childMatch"
+            @remove-property="removeProperty"
+          />
+          <RecursiveQueryEditDisplay v-else :selected-matches="[]" :base-entity-match="baseEntityMatch" :index="index" :match="childMatch" />
         </div>
+        <Button :label="editMatch.variable ? 'Keep as ' + editMatch.variable : 'Keep as'" text severity="help" @click="keepAsDialog = true" />
+        <Dialog v-model:visible="keepAsDialog" modal :header="'Keep as variable'" :style="{ width: '20vw' }">
+          <InputText type="text" v-model="editMatch.variable" />
+          <template #footer>
+            <Button label="Discard" severity="secondary" @click="discardKeepAs" text />
+            <Button label="Save" @click="keepAsDialog = false" text />
+          </template>
+        </Dialog>
       </SplitterPanel>
     </Splitter>
     <div class="footer">
@@ -37,37 +51,47 @@ import QueryNavTree from "../QueryNavTree.vue";
 import EditMatch from "./EditMatch.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
+import RecursiveQueryEditDisplay from "./RecursiveQueryEditDisplay.vue";
+
+const emit = defineEmits({ onClose: () => true });
+
 interface Props {
   baseEntityMatch: Match;
   match: Match;
 }
 const props = defineProps<Props>();
-const editMatches: Ref<Match[]> = ref([]);
+const editMatch: Ref<Match> = ref({ match: [] } as Match);
 const editBoolMatch: Ref<Bool> = ref("and");
 const updatedKey: Ref<string> = ref("");
-const emit = defineEmits({ onClose: () => true });
+const keepAsDialog = ref(false);
 
 onMounted(() => {
   if (isObjectHasKeys(props.match)) {
+    if (props.match.variable) editMatch.value.variable = props.match.variable;
     if (isArrayHasLength(props.match.match)) {
-      editMatches.value = [...props.match.match!];
+      editMatch.value.match = [...props.match.match!];
       if (props.match.boolMatch === "or") editBoolMatch.value = "or";
-    } else editMatches.value = [{ ...props.match }];
+    } else editMatch.value.match = [{ ...props.match }];
   }
 });
 
+function discardKeepAs() {
+  delete editMatch.value.variable;
+  keepAsDialog.value = false;
+}
+
 function addProperty(treeNode: any) {
   const newMatch = buildMatchFromProperty(treeNode as any);
-  editMatches.value.push(newMatch);
+  editMatch.value.match!.push(newMatch);
 }
 
 function removeProperty(treeNode: any, updatedFlag?: boolean) {
-  let removeIndex = editMatches.value.findIndex(editMatch => (editMatch as any).key === treeNode.key);
+  let removeIndex = editMatch.value.match!.findIndex(editMatch => (editMatch as any).key === treeNode.key);
   if (removeIndex !== -1) {
-    editMatches.value.splice(removeIndex, 1);
+    editMatch.value.match!.splice(removeIndex, 1);
   } else {
-    removeIndex = editMatches.value.findIndex(match => match.match?.some(nestedMatch => (nestedMatch as any).key === treeNode.key));
-    if (removeIndex !== -1) editMatches.value[removeIndex].match!.splice(removeIndex, 1);
+    removeIndex = editMatch.value.match!.findIndex(match => match.match?.some(nestedMatch => (nestedMatch as any).key === treeNode.key));
+    if (removeIndex !== -1) editMatch.value.match![removeIndex].match!.splice(removeIndex, 1);
   }
 
   if (updatedFlag) updatedKey.value = treeNode.key;
@@ -80,21 +104,22 @@ function toggleBoolMatch() {
 
 function save() {
   if (isObjectHasKeys(props.match)) {
-    for (const key of Object.keys(props.match!)) {
+    for (const key of Object.keys(props.match)) {
       delete (props.match as any)[key];
     }
   }
-  if (editMatches.value.length === 1) {
-    const editMatch = editMatches.value[0];
-    describeMatch([editMatch], "match");
-    for (const key of Object.keys(editMatch)) {
-      (props.match as any)[key] = (editMatch as any)[key];
+  if (editMatch.value.variable) props.match.variable = editMatch.value.variable;
+  if (editMatch.value.match!.length === 1) {
+    const saveMatch = editMatch.value.match![0];
+    describeMatch([saveMatch], "match");
+    for (const key of Object.keys(saveMatch)) {
+      (props.match as any)[key] = (saveMatch as any)[key];
     }
-  } else if (editMatches.value.length > 1) {
+  } else if (editMatch.value.match!.length > 1) {
     props.match.match = [];
     props.match.boolMatch = editBoolMatch.value;
-    for (const editMatch of editMatches.value) {
-      props.match.match.push(editMatch);
+    for (const saveMatch of editMatch.value.match!) {
+      props.match.match.push(saveMatch);
     }
     describeMatch([props.match], "match");
   }
@@ -103,7 +128,7 @@ function save() {
 }
 
 function discard() {
-  editMatches.value = [];
+  editMatch.value.match = [];
   emit("onClose");
 }
 </script>

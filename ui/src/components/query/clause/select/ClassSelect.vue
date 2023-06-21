@@ -1,6 +1,7 @@
 <template>
   <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="whereType" />
   <InputText type="text" placeholder="Value label" v-model:model-value="props.where.valueLabel" />
+  <Button label="Save custom set" text severity="info" />
   <div v-if="whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
     <EntailmentOptionsSelect :entailment-object="editValue" />
@@ -39,6 +40,7 @@ const visible: Ref<boolean> = ref(false);
 const showTree: Ref<boolean> = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
+const setType: Ref<string> = ref("set");
 
 onMounted(async () => {
   initEditValues();

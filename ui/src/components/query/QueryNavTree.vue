@@ -5,7 +5,6 @@
         <template #default="{ node }: any">
           <div class="tree-row">
             <span v-if="node.selectable"><Checkbox v-model="node.selected" :binary="true" @input="onCheckInput($event, node)" /></span>
-            <span>{{ node.key }}</span>
             <span v-if="!node.loading">
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>

@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Where } from "@im-library/interfaces/AutoGen";
+import { Match } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import EditDialog from "./EditDialog.vue";
@@ -243,7 +243,7 @@ function isSelected(match: Match) {
   cursor: pointer;
 }
 
-.feature:hover {
+.feature:hover > div.feature:hover {
   background-color: var(--highlight-bg);
 }
 
