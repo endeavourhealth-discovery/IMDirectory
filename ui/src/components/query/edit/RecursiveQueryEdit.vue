@@ -86,6 +86,26 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     ]
   },
   {
+    label: "Move",
+    icon: PrimeIcons.SORT,
+    items: [
+      {
+        label: "Up",
+        icon: PrimeIcons.SORT_UP,
+        command: () => {
+          moveUp();
+        }
+      },
+      {
+        label: "Down",
+        icon: PrimeIcons.SORT_DOWN,
+        command: () => {
+          moveDown();
+        }
+      }
+    ]
+  },
+  {
     label: "Edit",
     icon: "pi pi-fw pi-pencil",
     command: () => {
@@ -97,6 +117,13 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     icon: PrimeIcons.SAVE,
     command: () => {
       keepAs();
+    }
+  },
+  {
+    label: "Toggle bool",
+    icon: PrimeIcons.ARROW_V,
+    command: () => {
+      toggleBoolMatch(props.selectedMatches[0]);
     }
   },
   {
@@ -136,6 +163,22 @@ function addFirstMatch() {
 function discardKeepAs() {
   delete props.selectedMatches[0].variable;
   keepAsDialog.value = false;
+}
+
+function moveUp() {
+  const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
+  if (index !== -1 && index !== 0) {
+    props.matches.splice(index - 1, 0, { ...props.selectedMatches[0] });
+    props.matches.splice(index + 1, 1);
+  }
+}
+
+function moveDown() {
+  const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
+  if (index !== -1 && index !== 0) {
+    props.matches.splice(index + 2, 0, { ...props.selectedMatches[0] });
+    props.matches.splice(index, 1);
+  }
 }
 
 function onEditDialogClose() {
@@ -253,8 +296,13 @@ function select(event: any, match: Match) {
     multiselect(match);
   } else {
     singleselect(match);
-    edit();
+    if (!isArrayHasLength(match.match)) edit();
   }
+}
+
+function toggleBoolMatch(match: Match) {
+  if (match.boolMatch === "and") match.boolMatch = "or";
+  else if (match.boolMatch === "or") match.boolMatch = "and";
 }
 
 function singleselect(match: Match) {
