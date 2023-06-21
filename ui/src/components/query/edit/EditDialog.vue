@@ -26,14 +26,6 @@
           />
           <RecursiveQueryEditDisplay v-else :selected-matches="[]" :base-entity-match="baseEntityMatch" :index="index" :match="childMatch" />
         </div>
-        <Button :label="editMatch.variable ? 'Keep as ' + editMatch.variable : 'Keep as'" text severity="help" @click="keepAsDialog = true" />
-        <Dialog v-model:visible="keepAsDialog" modal :header="'Keep as variable'" :style="{ width: '20vw' }">
-          <InputText type="text" v-model="editMatch.variable" />
-          <template #footer>
-            <Button label="Discard" severity="secondary" @click="discardKeepAs" text />
-            <Button label="Save" @click="keepAsDialog = false" text />
-          </template>
-        </Dialog>
       </SplitterPanel>
     </Splitter>
     <div class="footer">
@@ -63,7 +55,6 @@ const props = defineProps<Props>();
 const editMatch: Ref<Match> = ref({ match: [] } as Match);
 const editBoolMatch: Ref<Bool> = ref("and");
 const updatedKey: Ref<string> = ref("");
-const keepAsDialog = ref(false);
 
 onMounted(() => {
   if (isObjectHasKeys(props.match)) {
@@ -74,11 +65,6 @@ onMounted(() => {
     } else editMatch.value.match = [{ ...props.match }];
   }
 });
-
-function discardKeepAs() {
-  delete editMatch.value.variable;
-  keepAsDialog.value = false;
-}
 
 function addProperty(treeNode: any) {
   const newMatch = buildMatchFromProperty(treeNode as any);

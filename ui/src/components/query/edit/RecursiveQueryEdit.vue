@@ -22,6 +22,13 @@
     />
     <AddBaseType v-else :matches="matches" @on-close="editDialog = false" />
   </Dialog>
+  <Dialog v-model:visible="keepAsDialog" modal :header="'Keep as variable'" :style="{ width: '20vw' }">
+    <InputText type="text" v-model="selectedMatches[0].variable" />
+    <template #footer>
+      <Button label="Discard" severity="secondary" @click="discardKeepAs" text />
+      <Button label="Save" @click="keepAsDialog = false" text />
+    </template>
+  </Dialog>
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
 </template>
 
@@ -35,6 +42,7 @@ import { MenuItem } from "primevue/menuitem";
 import AddBaseType from "./AddBaseType.vue";
 import RecursiveQueryEditDisplay from "./RecursiveQueryEditDisplay.vue";
 import Swal from "sweetalert2";
+import { PrimeIcons } from "primevue/api";
 
 interface Props {
   parentMatch?: Match;
@@ -50,7 +58,7 @@ enum Direction {
 
 const props = defineProps<Props>();
 const editDialog: Ref<boolean> = ref(false);
-
+const keepAsDialog: Ref<boolean> = ref(false);
 const rClickMenu = ref();
 const isBaseSelected: ComputedRef<boolean> = computed(() => {
   return JSON.stringify(props.selectedMatches[0]) === JSON.stringify(props.matches[0]);
@@ -85,6 +93,13 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     }
   },
   {
+    label: "Keep as",
+    icon: PrimeIcons.SAVE,
+    command: () => {
+      keepAs();
+    }
+  },
+  {
     label: "Delete",
     icon: "pi pi-fw pi-trash",
     command: () => {
@@ -110,8 +125,17 @@ const rClickItemsGroup = ref([
   }
 ]);
 
+function keepAs() {
+  keepAsDialog.value = true;
+}
+
 function addFirstMatch() {
   editDialog.value = true;
+}
+
+function discardKeepAs() {
+  delete props.selectedMatches[0].variable;
+  keepAsDialog.value = false;
 }
 
 function onEditDialogClose() {
