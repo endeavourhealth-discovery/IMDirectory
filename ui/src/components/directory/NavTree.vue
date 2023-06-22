@@ -135,7 +135,7 @@ function byKey(a: any, b: any): number {
 
 async function onNodeContext(event: any) {
   event.preventDefault();
-  const node = event.target["__vueParentComponent"].props.node
+  const node = event.target["__vueParentComponent"]?.props.node;
   items.value = [];
 
   if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
