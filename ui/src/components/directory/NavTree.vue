@@ -9,9 +9,10 @@
       @node-expand="onNodeExpand"
       class="tree-root"
       :loading="loading"
+      @contextmenu="onNodeContext($event)"
     >
       <template #default="{ node }: any">
-        <div class="tree-row" @dblclick="onNodeDblClick($event, node)" @contextmenu="onNodeContext($event, node)">
+        <div class="tree-row" @dblclick="onNodeDblClick($event, node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
@@ -132,8 +133,9 @@ function byKey(a: any, b: any): number {
   return 0;
 }
 
-async function onNodeContext(event: any, node: any) {
+async function onNodeContext(event: any) {
   event.preventDefault();
+  const node = event.target["__vueParentComponent"].props.node
   items.value = [];
 
   if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
