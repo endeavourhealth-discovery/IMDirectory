@@ -29,10 +29,18 @@
       <Button label="Save" @click="keepAsDialog = false" text />
     </template>
   </Dialog>
+  <Dialog v-model:visible="viewDialog" modal :header="'JSON Viewer'" :style="{ width: '75vw' }">
+    <VueJsonPretty class="json" :path="'res'" :data="(selectedMatches[0] as any)" />
+    <template #footer>
+      <Button label="OK" @click="viewDialog = false" text />
+    </template>
+  </Dialog>
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
 </template>
 
 <script setup lang="ts">
+import VueJsonPretty from "vue-json-pretty";
+import "vue-json-pretty/lib/styles.css";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, ref } from "vue";
@@ -59,9 +67,10 @@ enum Direction {
 const props = defineProps<Props>();
 const editDialog: Ref<boolean> = ref(false);
 const keepAsDialog: Ref<boolean> = ref(false);
+const viewDialog: Ref<boolean> = ref(false);
 const rClickMenu = ref();
 const isBaseSelected: ComputedRef<boolean> = computed(() => {
-  return JSON.stringify(props.selectedMatches[0]) === JSON.stringify(props.matches[0]);
+  return JSON.stringify(props.selectedMatches[0]) === JSON.stringify(props.baseEntityMatch);
 });
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 const rClickItemsSingle: Ref<MenuItem[]> = ref([
@@ -127,6 +136,13 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     }
   },
   {
+    label: "View",
+    icon: PrimeIcons.EYE,
+    command: () => {
+      view();
+    }
+  },
+  {
     label: "Delete",
     icon: "pi pi-fw pi-trash",
     command: () => {
@@ -151,6 +167,10 @@ const rClickItemsGroup = ref([
     }
   }
 ]);
+
+function view() {
+  viewDialog.value = true;
+}
 
 function keepAs() {
   keepAsDialog.value = true;

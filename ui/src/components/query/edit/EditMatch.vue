@@ -28,6 +28,7 @@ import { EntityService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
 import EntitySelect from "../clause/select/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import _ from "lodash";
 const emit = defineEmits({
   removeProperty: (_payload: Match, _flag: boolean) => true
 });
@@ -43,15 +44,17 @@ watch(
   () => props.editMatch.where,
   () => describeMatch([props.editMatch], "match")
 );
+
+watch(
+  () => _.cloneDeep(props.editMatch.where),
+  async () => await init()
+);
 const editBoolWhere: Ref<Bool> = ref("and");
 const properties: Ref<TTProperty[]> = ref([]);
 const dataModelIri: Ref<string> = ref("");
 
 onMounted(async () => {
-  const iri = (props.baseEntityMatch["@id"] || props.baseEntityMatch["@set"] || props.baseEntityMatch["@type"]) as string;
-  if (iri) {
-    await init(iri);
-  }
+  await init();
 });
 
 function deleteProperty() {
@@ -63,15 +66,15 @@ function toggleBoolWhere() {
   else if (editBoolWhere.value === "or") editBoolWhere.value = "and";
 }
 
-async function init(iri: string) {
-  if (props.editMatch.bool === "or") editBoolWhere.value = "or";
+async function init() {
+  const iri = (props.baseEntityMatch["@id"] || props.baseEntityMatch["@set"] || props.baseEntityMatch["@type"]) as string;
   const resolvedIri = resolveIri(iri);
+  properties.value = [];
   dataModelIri.value = getDataModelIri(props.editMatch) ?? resolvedIri;
   if (isObjectHasKeys(props.editMatch, ["where"]) && isArrayHasLength(props.editMatch.where)) {
     for (const where of props.editMatch.where!) {
       let property;
       const propertyIri = where["@id"];
-
       if (dataModelIri.value && propertyIri) {
         const iri = resolveIri(dataModelIri.value);
         const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);

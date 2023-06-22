@@ -36,7 +36,7 @@ import _ from "lodash";
 
 interface Props {
   baseEntityMatch: Match;
-  editMatches: Match[];
+  editMatch: Match;
   updatedKey: string;
 }
 const props = defineProps<Props>();
@@ -63,7 +63,7 @@ const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, uns
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  await populateCheckBoxes(props.editMatches);
+  await populateCheckBoxes(props.editMatch);
   loading.value = false;
 });
 
@@ -76,27 +76,21 @@ async function onCheckInput(check: boolean, node: TreeNode) {
   else onUnselect(node);
 }
 
-async function populateCheckBoxes(matches: Match[]) {
-  for (const match of matches) {
-    if (isObjectHasKeys(match, ["where"]) && isArrayHasLength(match.where)) {
-      for (const whereValue of match.where!) {
-        if ((match as any).key) {
-          const key = (match as any).key;
-          await selectByKey(key);
-        } else if (!match.path) {
-          const key = whereValue["@id"]!;
-          await selectByIri(key, root.value[0].children!);
-        } else {
-          const nodeKeys = [] as string[];
-          const key = whereValue["@id"]!;
-          await selectByPath(match.path, key, root.value[0].children!, nodeKeys);
-          if (isArrayHasLength(nodeKeys)) (match as any).key = nodeKeys[0];
-        }
+async function populateCheckBoxes(match: Match) {
+  if (isObjectHasKeys(match, ["where"]) && isArrayHasLength(match.where)) {
+    for (const whereValue of match.where!) {
+      if ((match as any).key) {
+        const key = (match as any).key;
+        await selectByKey(key);
+      } else if (!match.path) {
+        const key = whereValue["@id"]!;
+        await selectByIri(key, root.value[0].children!);
+      } else {
+        const nodeKeys = [] as string[];
+        const key = whereValue["@id"]!;
+        await selectByPath(match.path, key, root.value[0].children!, nodeKeys);
+        if (isArrayHasLength(nodeKeys)) (match as any).key = nodeKeys[0];
       }
-    }
-
-    if (isObjectHasKeys(match, ["match"]) && isArrayHasLength(match.match)) {
-      await populateCheckBoxes(match.match!);
     }
   }
 }

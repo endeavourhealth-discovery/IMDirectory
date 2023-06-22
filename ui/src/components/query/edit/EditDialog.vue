@@ -4,27 +4,18 @@
       <SplitterPanel :size="30" :minSize="10" style="overflow: auto" class="splitter-left">
         <QueryNavTree
           :base-entity-match="baseEntityMatch"
-          :editMatches="editMatch.match!"
+          :editMatch="editMatch"
           :updated-key="updatedKey"
           @add-property="addProperty"
           @remove-property="removeProperty"
         />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
-        <div v-for="(childMatch, index) in editMatch.match" class="edit-component">
-          <Divider v-if="index" align="center">
-            <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch.toUpperCase() }}</div>
-          </Divider>
-          <div @click="childMatch.exclude = !childMatch.exclude" :class="childMatch.exclude ? 'exclude' : 'include'">
-            {{ childMatch.exclude ? "exclude" : "include" }}
+        <div>
+          <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
+            {{ editMatch.exclude ? "exclude" : "include" }}
           </div>
-          <EditMatch
-            v-if="!isArrayHasLength(childMatch.match)"
-            :base-entity-match="baseEntityMatch"
-            :edit-match="childMatch"
-            @remove-property="removeProperty"
-          />
-          <RecursiveQueryEditDisplay v-else :selected-matches="[]" :base-entity-match="baseEntityMatch" :index="index" :match="childMatch" />
+          <EditMatch :base-entity-match="baseEntityMatch" :edit-match="editMatch" @remove-property="removeProperty" />
         </div>
       </SplitterPanel>
     </Splitter>
@@ -37,13 +28,13 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Bool, Match } from "@im-library/interfaces/AutoGen";
+import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 import QueryNavTree from "../QueryNavTree.vue";
 import EditMatch from "./EditMatch.vue";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
-import RecursiveQueryEditDisplay from "./RecursiveQueryEditDisplay.vue";
+import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
+import { buildMatchFromProperty, buildWhereFromProperty } from "@im-library/helpers/QueryBuilder";
+import _ from "lodash";
 
 const emit = defineEmits({ onClose: () => true });
 
@@ -52,63 +43,43 @@ interface Props {
   match: Match;
 }
 const props = defineProps<Props>();
-const editMatch: Ref<Match> = ref({ match: [] } as Match);
-const editBoolMatch: Ref<Bool> = ref("and");
+const editMatch: Ref<Match> = ref({ where: [] } as Match);
 const updatedKey: Ref<string> = ref("");
 
 onMounted(() => {
   if (isObjectHasKeys(props.match)) {
-    if (props.match.variable) editMatch.value.variable = props.match.variable;
-    if (isArrayHasLength(props.match.match)) {
-      editMatch.value.match = [...props.match.match!];
-      if (props.match.boolMatch === "or") editBoolMatch.value = "or";
-    } else editMatch.value.match = [{ ...props.match }];
+    editMatch.value = _.cloneDeep(props.match);
   }
 });
 
 function addProperty(treeNode: any) {
-  const newMatch = buildMatchFromProperty(treeNode as any);
-  editMatch.value.match!.push(newMatch);
+  const newWhere = buildWhereFromProperty(treeNode as any);
+  editMatch.value.where!.push(newWhere);
 }
 
 function removeProperty(treeNode: any, updatedFlag?: boolean) {
-  let removeIndex = editMatch.value.match!.findIndex(editMatch => (editMatch as any).key === treeNode.key);
+  let removeIndex = editMatch.value.where!.findIndex(editWhere => (editWhere as any).key === treeNode.key);
   if (removeIndex !== -1) {
-    editMatch.value.match!.splice(removeIndex, 1);
+    editMatch.value.where!.splice(removeIndex, 1);
   } else {
-    removeIndex = editMatch.value.match!.findIndex(match => match.match?.some(nestedMatch => (nestedMatch as any).key === treeNode.key));
-    if (removeIndex !== -1) editMatch.value.match![removeIndex].match!.splice(removeIndex, 1);
+    removeIndex = editMatch.value.where!.findIndex(editWhere => JSON.stringify(editWhere) === treeNode.key);
+    if (removeIndex !== -1) editMatch.value.where!.splice(removeIndex, 1);
   }
 
   if (updatedFlag) updatedKey.value = treeNode.key;
 }
 
-function toggleBoolMatch() {
-  if (editBoolMatch.value === "and") editBoolMatch.value = "or";
-  else if (editBoolMatch.value === "or") editBoolMatch.value = "and";
-}
-
 function save() {
-  if (isObjectHasKeys(props.match)) {
-    for (const key of Object.keys(props.match)) {
-      delete (props.match as any)[key];
-    }
-  }
+  console.log(JSON.stringify(props.match));
   if (editMatch.value.variable) props.match.variable = editMatch.value.variable;
-  if (editMatch.value.match!.length === 1) {
-    const saveMatch = editMatch.value.match![0];
-    describeMatch([saveMatch], "match");
-    for (const key of Object.keys(saveMatch)) {
-      (props.match as any)[key] = (saveMatch as any)[key];
-    }
-  } else if (editMatch.value.match!.length > 1) {
-    props.match.match = [];
-    props.match.boolMatch = editBoolMatch.value;
-    for (const saveMatch of editMatch.value.match!) {
-      props.match.match.push(saveMatch);
-    }
+  if (editMatch.value.bool) props.match.bool = editMatch.value.bool;
+
+  if (isArrayHasLength(editMatch.value.where)) {
+    props.match.where = editMatch.value.where;
     describeMatch([props.match], "match");
+    describeWhere(editMatch.value.where!, "where");
   }
+  console.log(JSON.stringify(props.match));
 
   emit("onClose");
 }
