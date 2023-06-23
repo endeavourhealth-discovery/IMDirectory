@@ -12,6 +12,7 @@
           :buttons="hasQueryDefinition ? ['runQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
           :iri="concept['@id']"
           :type="'conceptButton'"
+          :locate-in-tree-function="locateInTree"
         />
       </div>
     </div>
@@ -83,6 +84,10 @@ function getIcon(concept: any) {
 
 function getColour(concept: any) {
   return "color: " + getColourFromType(concept[RDF.TYPE]);
+}
+
+function locateInTree($event: any, iri: string) {
+  directoryStore.updateFindInTreeIri(iri);
 }
 </script>
 

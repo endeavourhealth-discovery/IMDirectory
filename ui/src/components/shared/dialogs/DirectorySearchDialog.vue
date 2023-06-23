@@ -16,7 +16,7 @@
             :searchLoading="searchLoading"
             :selected="selected"
             @selectedUpdated="updateSelected"
-            :locate-intree-function="locateInTree"
+            :locateInTreeFunction="locateInTree"
           />
         </div>
       </div>
@@ -27,7 +27,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, Ref, computed } from "vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { MenuItem } from "primevue/menuitem";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";

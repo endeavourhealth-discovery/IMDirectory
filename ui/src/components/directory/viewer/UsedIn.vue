@@ -39,7 +39,7 @@ import { onMounted, ref, Ref, watch } from "vue";
 import { DirectService, EntityService } from "@/services";
 import { RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 

@@ -72,7 +72,6 @@
 
 <script setup lang="ts">
 import { PropType, computed } from "vue";
-import findInTree from "@/composables/findInTree";
 import setupRunQuery from "@/composables/setupRunQuery";
 import { DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -84,7 +83,6 @@ import { useUserStore } from "@/stores/userStore";
 
 const directService = new DirectService();
 const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
-const { locateInTree }: { locateInTree: Function } = findInTree();
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
@@ -149,8 +147,11 @@ async function onParamsPopulated() {
 }
 
 function locateInTreeRouter(event: any, iri: string) {
-  if (props.locateInTreeFunction) props.locateInTreeFunction(event, iri);
-  else locateInTree(event, iri);
+  if (props.locateInTreeFunction) {
+    props.locateInTreeFunction(event, iri);
+  } else {
+    throw new Error("Missing 'locateInTreeFunction'");
+  }
 }
 </script>
 

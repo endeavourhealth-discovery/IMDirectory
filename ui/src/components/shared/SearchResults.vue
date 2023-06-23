@@ -20,7 +20,7 @@
         </span>
       </div>
     </div>
-    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" @rowSelected="updateSelected" :locateIntreeFunction="locateIntreeFunction" />
+    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" @rowSelected="updateSelected" :locateInTreeFunction="locateInTreeFunction" />
   </div>
 </template>
 
@@ -36,7 +36,7 @@ interface Props {
   showFilters?: boolean;
   searchResults: ConceptSummary[];
   searchLoading?: boolean;
-  locateIntreeFunction?: Function;
+  locateInTreeFunction?: Function;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,

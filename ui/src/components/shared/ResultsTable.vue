@@ -47,7 +47,7 @@
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" :locate-in-tree-function="locateIntreeFunction" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" :locate-in-tree-function="locateInTreeFunction" />
           </div>
         </template>
       </Column>
@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
 import { DirectService } from "@/services";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
@@ -74,7 +74,7 @@ interface Props {
   searchResults?: ConceptSummary[];
   totalRecords?: number;
   loading: boolean;
-  locateIntreeFunction?: Function;
+  locateInTreeFunction?: Function;
 }
 
 const props = withDefaults(defineProps<Props>(), {

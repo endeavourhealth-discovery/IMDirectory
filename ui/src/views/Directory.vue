@@ -55,6 +55,7 @@ onMounted(async () => {
 
 function updateSearchResults(data: ConceptSummary[]) {
   directoryStore.updateSearchResults(data);
+  router.push({ name: "Search" });
 }
 
 function updateSearchLoading(data: boolean) {

@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import Filters from "@/components/directory/topbar/Filters.vue";
+import Filters from "@/components/shared/Filters.vue";
 
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions, ConceptSummary } from "@im-library/interfaces";

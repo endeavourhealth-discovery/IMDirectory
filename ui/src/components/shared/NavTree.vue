@@ -14,88 +14,75 @@
       <template #default="{ node }: any">
         <div
           class="tree-row grabbable"
-          @mouseover="showOverlay($event, node)"
-          @mouseleave="hideOverlay($event)"
           :draggable="allowDragAndDrop"
           @dragstart="dragStart($event, node.data)"
+          @dblclick="emit('rowDblClicked', node)"
+          @contextmenu="onNodeContext($event, node)"
         >
           <IMFontAwesomeIcon v-if="allowDragAndDrop" icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
+          <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-if="node.loading" />
-          <span>{{ node.label }}</span>
+          <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
         </div>
       </template>
     </Tree>
-
-    <OverlayPanel v-if="hoveredResult.iri === 'load'" ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-      <div class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
-        <span>{{ hoveredResult.name }}</span>
-      </div>
-    </OverlayPanel>
-    <OverlayPanel v-else ref="navTreeOP" id="nav_tree_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
-      <div v-if="hoveredResult.name" class="flex flex-row justify-contents-start result-overlay" style="width: 100%; gap: 1rem">
-        <div class="left-side" style="width: 50%">
-          <p>
-            <strong>Name: </strong>
-            <span>{{ hoveredResult.name }}</span>
-          </p>
-          <p>
-            <strong>Iri: </strong>
-            <span style="word-break: break-all">{{ hoveredResult.iri }}</span>
-          </p>
-          <p v-if="hoveredResult.code">
-            <strong>Code: </strong>
-            <span>{{ hoveredResult.code }}</span>
-          </p>
-        </div>
-        <div class="right-side" style="width: 50%">
-          <p v-if="hoveredResult.status">
-            <strong>Status: </strong>
-            <span>{{ hoveredResult.status.name }}</span>
-          </p>
-          <p v-if="hoveredResult.scheme">
-            <strong>Scheme: </strong>
-            <span>{{ hoveredResult.scheme.name }}</span>
-          </p>
-          <p v-if="hoveredResult.entityType">
-            <strong>Type: </strong>
-            <span>{{ getNamesAsStringFromTypes(hoveredResult.entityType) }}</span>
-          </p>
-        </div>
-      </div>
-    </OverlayPanel>
+    <OverlaySummary ref="OS" />
+    <Dialog header="New folder" :visible="newFolder !== null" :modal="true" :closable="false">
+      <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
+      <template #footer>
+        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
+        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" :disabled="!newFolderName" @click="createFolder" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
 import { ConceptSummary } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { byKey } from "@im-library/helpers/Sorters";
-import { EntityService } from "@/services";
+import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/tree";
 import setupTree from "@/composables/setupTree";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { useEditorStore } from "@/stores/editorStore";
+import { useUserStore } from "@/stores/userStore";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useConfirm } from "primevue/useconfirm";
+import createNew from "@/composables/createNew";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   allowDragAndDrop?: boolean;
+  allowRightClick?: boolean;
   rootEntities?: string[];
   selectedIri?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[] });
+const props = withDefaults(defineProps<Props>(), { rootEntities: () => [] as string[], allowRightClick: false, allowDragAndDrop: false });
 
-const editorStore = useEditorStore();
+const emit = defineEmits({
+  rowSelected: payload => true,
+  rowDblClicked: payload => true
+});
+
 const router = useRouter();
 const toast = useToast();
+const confirm = useConfirm();
+const userStore = useUserStore();
+const sharedStore = useSharedStore();
+
+const currentUser = computed(() => userStore.currentUser);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const {
   root,
@@ -115,12 +102,17 @@ const {
   selectAndExpand,
   nodeHasChild
 } = setupTree();
+const { getCreateOptions }: { getCreateOptions: Function } = createNew();
 
-let loading = ref(true);
-let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-let overlayLocation: Ref<any> = ref({});
+const loading = ref(true);
+const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const overlayLocation: Ref<any> = ref({});
+const items: Ref<any[]> = ref([]);
+const newFolder: Ref<null | TreeNode> = ref(null);
+const newFolderName = ref("");
 
-const navTreeOP = ref();
+const menu = ref();
+const OS = ref();
 
 watch(
   () => props.selectedIri,
@@ -134,7 +126,7 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
-  if (isObjectHasKeys(overlayLocation.value)) {
+  if (isObjectHasKeys(overlayLocation.value) && isArrayHasLength(Object.keys(overlayLocation.value))) {
     hideOverlay(overlayLocation.value);
   }
 });
@@ -169,33 +161,126 @@ async function addRootEntitiesToTree() {
   root.value.sort(byKey);
 }
 
+async function onNodeContext(event: any, node: any) {
+  event.preventDefault();
+  items.value = [];
+
+  if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
+
+  items.value = await getCreateOptions(newFolderName, newFolder, node);
+
+  if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
+    items.value.push({
+      label: "Move selection here",
+      icon: "fa-solid fa-fw fa-file-import",
+      command: () => {
+        confirmMove(node);
+      }
+    });
+    items.value.push({
+      label: "Add selection here",
+      icon: "fa-solid fa-fw fa-copy",
+      command: () => {
+        confirmAdd(node);
+      }
+    });
+  }
+  if (items.value.length > 0) menu.value.show(event);
+}
+
+function confirmMove(node: TreeNode) {
+  if (selectedNode.value) {
+    confirm.require({
+      header: "Confirm move",
+      message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
+      icon: "pi pi-exclamation-triangle",
+      accept: () => {
+        moveConcept(node);
+      },
+      reject: () => {
+        toast.add({ severity: "warn", summary: "Cancelled", detail: "Move cancelled", life: 3000 });
+      }
+    });
+  }
+}
+
+async function moveConcept(target: TreeNode) {
+  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+    try {
+      await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
+      toast.add({ severity: "success", summary: "Move", detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
+      selectedNode.value.parentNode.children = selectedNode.value.parentNode.children.filter((v: TreeNode) => v != selectedNode.value);
+      selectedNode.value.parentNode = target;
+      target.children.push(selectedNode.value);
+    } catch (e: any) {
+      toast.add({ severity: "error", summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
+    }
+  }
+}
+
+function confirmAdd(node: TreeNode) {
+  if (selectedNode.value) {
+    confirm.require({
+      header: "Confirm add",
+      message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
+      icon: "pi pi-exclamation-triangle",
+      accept: () => {
+        addConcept(node);
+      },
+      reject: () => {
+        toast.add({ severity: "warn", summary: "Cancelled", detail: "Add cancelled", life: 3000 });
+      }
+    });
+  }
+}
+
+async function addConcept(target: TreeNode) {
+  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+    try {
+      await FilerService.addToFolder(selectedNode.value.key, target.key);
+      toast.add({ severity: "success", summary: "Add", detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
+      target.children.push(selectedNode.value); // Does this need to be a (deep) clone?
+    } catch (e: any) {
+      toast.add({ severity: "error", summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
+    }
+  }
+}
+
+async function createFolder() {
+  if (!newFolder.value || !newFolder.value.key || !newFolderName.value) return;
+
+  console.log("Create new folder " + newFolderName.value + " in " + newFolder.value.key);
+  try {
+    const iri = await FilerService.createFolder(newFolder.value.key, newFolderName.value);
+    console.log("Created folder");
+    console.log(iri);
+    toast.add({ severity: "success", summary: "New folder", detail: 'New folder "' + newFolderName.value + '" created', life: 3000 });
+    if (newFolder.value.children) {
+      newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" } as TTIriRef], false, newFolder.value));
+    }
+  } catch (e) {
+    toast.add({ severity: "error", summary: "New folder", detail: '"' + newFolderName.value + '" already exists', life: 3000 });
+  }
+  newFolder.value = null;
+}
+
+async function showOverlay(event: any, node: any): Promise<void> {
+  if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
+    await OS.value.showOverlay(event, node.key);
+  }
+}
+
 function onNodeSelect(node: any): void {
   if (node.data === "loadMore") {
     if (!node.loading) loadMore(node);
   } else {
     selectedNode.value = node;
-  }
-}
-
-async function showOverlay(event: any, node?: any): Promise<void> {
-  if (node.data === "loadMore") {
-    const x: any = navTreeOP.value;
-    overlayLocation.value = event;
-    x.show(overlayLocation.value);
-    hoveredResult.value.iri = "load";
-    hoveredResult.value.name = node.parentNode.label;
-  } else if (node.data && node.data !== IM.FAVOURITES) {
-    const x: any = navTreeOP.value;
-    overlayLocation.value = event;
-    x.show(overlayLocation.value);
-    hoveredResult.value = await EntityService.getEntitySummary(node.data);
+    emit("rowSelected", node);
   }
 }
 
 function hideOverlay(event: any): void {
-  const x: any = navTreeOP.value;
-  x.hide(event);
-  overlayLocation.value = {};
+  OS.value.hideOverlay(event);
 }
 
 function dragStart(event: any, data: any) {
