@@ -1,4 +1,7 @@
 <template>
+  <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
+    {{ editMatch.exclude ? "exclude" : "include" }}
+  </div>
   <div v-if="isArrayHasLength(properties)" v-for="(property, index) in properties">
     <Divider v-if="index" align="center">
       <div :class="editBoolWhere" @click="toggleBoolWhere">{{ editBoolWhere }}</div>
@@ -14,6 +17,11 @@
     </div>
   </div>
   <EntitySelect v-else :edit-match="editMatch" :base-entity-match="baseEntityMatch" />
+
+  <div class="button-bar">
+    <Button class="button-bar-button" label="Cancel" severity="secondary" @click="emit('cancel')" />
+    <Button class="button-bar-button" label="Save" @click="emit('save', editMatch)" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -30,23 +38,26 @@ import EntitySelect from "../clause/select/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import _ from "lodash";
 const emit = defineEmits({
-  removeProperty: (_payload: Match, _flag: boolean) => true
+  removeProperty: (_payload: Match, _flag: boolean) => true,
+  save: (_payload: Match) => true,
+  cancel: () => true
 });
 
 interface Props {
   baseEntityMatch: Match;
-  editMatch: Match;
+  match: Match;
 }
 
 const props = defineProps<Props>();
+const editMatch: Ref<Match> = ref({} as Match);
 
 watch(
-  () => props.editMatch.where,
-  () => describeMatch([props.editMatch], "match")
+  () => editMatch.value.where,
+  () => describeMatch([editMatch.value], "match")
 );
 
 watch(
-  () => _.cloneDeep(props.editMatch.where),
+  () => _.cloneDeep(editMatch.value.where),
   async () => await init()
 );
 const editBoolWhere: Ref<Bool> = ref("and");
@@ -58,7 +69,7 @@ onMounted(async () => {
 });
 
 function deleteProperty() {
-  emit("removeProperty", props.editMatch, true);
+  emit("removeProperty", editMatch.value, true);
 }
 
 function toggleBoolWhere() {
@@ -67,12 +78,13 @@ function toggleBoolWhere() {
 }
 
 async function init() {
+  editMatch.value = _.cloneDeep(props.match);
   const iri = (props.baseEntityMatch["@id"] || props.baseEntityMatch["@set"] || props.baseEntityMatch["@type"]) as string;
   const resolvedIri = resolveIri(iri);
   properties.value = [];
-  dataModelIri.value = getDataModelIri(props.editMatch) ?? resolvedIri;
-  if (isObjectHasKeys(props.editMatch, ["where"]) && isArrayHasLength(props.editMatch.where)) {
-    for (const where of props.editMatch.where!) {
+  dataModelIri.value = getDataModelIri(editMatch.value) ?? resolvedIri;
+  if (isObjectHasKeys(editMatch.value, ["where"]) && isArrayHasLength(editMatch.value.where)) {
+    for (const where of editMatch.value.where!) {
       let property;
       const propertyIri = where["@id"];
       if (dataModelIri.value && propertyIri) {
@@ -102,7 +114,7 @@ function getTooltip(property: TTProperty) {
 }
 
 function getDataModelIri(match: Match) {
-  if (!isObjectHasKeys(props.editMatch.path)) {
+  if (!isObjectHasKeys(editMatch.value.path)) {
     return undefined;
   }
   const found: string[] = [];
@@ -122,13 +134,8 @@ function getLastNode(pathOrNode: any, found: string[]) {
   float: right;
 }
 
-.and {
-  color: orange;
-  cursor: pointer;
-}
-
-.or {
-  color: blue;
-  cursor: pointer;
+.button-bar {
+  display: flex;
+  justify-content: end;
 }
 </style>

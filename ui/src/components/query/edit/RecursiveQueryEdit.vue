@@ -1,27 +1,36 @@
 <template>
-  <div v-if="isArrayHasLength(matches)" class="feature" v-for="(match, index) of matches">
-    <RecursiveQueryEditDisplay
-      :selected-matches="selectedMatches"
-      :parent-match="parentMatch"
+  <div class="feature">
+    <DisplayMatch
+      v-if="!showEdit"
       :base-entity-match="baseEntityMatch"
-      :index="index"
       :match="match"
-      :class="isSelected(match) ? 'selected' : ''"
-      @click="select($event, match)"
-      @contextmenu="onRightClick($event, match)"
+      :parent-match="parentMatch"
+      :index="index"
+      @dblclick="showEdit = !showEdit"
+      @contextmenu="onRightClick"
     />
-  </div>
-  <Button v-else label="Add" @click="addFirstMatch" />
 
-  <Dialog v-model:visible="editDialog" maximizable modal header="Edit" :style="{ width: '80vw' }">
-    <EditDialog
-      v-if="isArrayHasLength(selectedMatches) && !isBaseSelected"
-      :base-entity-match="baseEntityMatch"
-      :match="selectedMatches[0]"
-      @on-close="onEditDialogClose"
-    />
-    <AddBaseType v-else :matches="matches" @on-close="editDialog = false" />
-  </Dialog>
+    <Card v-if="showEdit">
+      <template #title>
+        <DisplayMatch :base-entity-match="baseEntityMatch" :match="match" :index="index" />
+      </template>
+      <template #content>
+        <EditMatch :base-entity-match="baseEntityMatch" :match="match" @cancel="showEdit = false" @save="save" />
+      </template>
+    </Card>
+
+    <ul class="list-item" v-if="isArrayHasLength(props.match.match)" v-for="(nestedMatch, index) of props.match.match">
+      <RecursiveQueryEdit
+        class="nested-feature"
+        :base-entity-match="baseEntityMatch"
+        :match="nestedMatch"
+        :selectedMatches="selectedMatches"
+        :index="index"
+        :parent-match="match"
+      />
+    </ul>
+  </div>
+
   <Dialog v-model:visible="keepAsDialog" modal :header="'Keep as variable'" :style="{ width: '20vw' }">
     <InputText type="text" v-model="selectedMatches[0].variable" />
     <template #footer>
@@ -44,19 +53,22 @@ import "vue-json-pretty/lib/styles.css";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, ref } from "vue";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
 import EditDialog from "./EditDialog.vue";
 import { MenuItem } from "primevue/menuitem";
 import AddBaseType from "./AddBaseType.vue";
 import RecursiveQueryEditDisplay from "./RecursiveQueryEditDisplay.vue";
 import Swal from "sweetalert2";
 import { PrimeIcons } from "primevue/api";
+import EditMatch from "./EditMatch.vue";
+import DisplayMatch from "../editTextQuery/DisplayMatch.vue";
 
 interface Props {
   parentMatch?: Match;
-  matches: Match[];
+  match: Match;
   selectedMatches: Match[];
   baseEntityMatch: Match;
+  index: number;
 }
 
 enum Direction {
@@ -65,6 +77,7 @@ enum Direction {
 }
 
 const props = defineProps<Props>();
+const showEdit: Ref<boolean> = ref(false);
 const editDialog: Ref<boolean> = ref(false);
 const keepAsDialog: Ref<boolean> = ref(false);
 const viewDialog: Ref<boolean> = ref(false);
@@ -78,20 +91,20 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     label: "Add",
     icon: "pi pi-fw pi-plus",
     items: [
-      {
-        label: "Above",
-        command: () => {
-          add(Direction.ABOVE);
-          edit();
-        }
-      },
-      {
-        label: "Below",
-        command: () => {
-          add(Direction.BELOW);
-          edit();
-        }
-      }
+      // {
+      //   label: "Above",
+      //   command: () => {
+      //     add(Direction.ABOVE);
+      //     edit();
+      //   }
+      // },
+      // {
+      //   label: "Below",
+      //   command: () => {
+      //     add(Direction.BELOW);
+      //     edit();
+      //   }
+      // }
     ]
   },
   {
@@ -99,18 +112,18 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     icon: PrimeIcons.SORT,
     items: [
       {
-        label: "Up",
-        icon: PrimeIcons.SORT_UP,
-        command: () => {
-          moveUp();
-        }
-      },
-      {
-        label: "Down",
-        icon: PrimeIcons.SORT_DOWN,
-        command: () => {
-          moveDown();
-        }
+        //   label: "Up",
+        //   icon: PrimeIcons.SORT_UP,
+        //   command: () => {
+        //     moveUp();
+        //   }
+        // },
+        // {
+        //   label: "Down",
+        //   icon: PrimeIcons.SORT_DOWN,
+        //   command: () => {
+        //     moveDown();
+        //   }
       }
     ]
   },
@@ -141,15 +154,17 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     command: () => {
       view();
     }
-  },
-  {
-    label: "Delete",
-    icon: "pi pi-fw pi-trash",
-    command: () => {
-      remove();
-    }
   }
+  // {
+  //   label: "Delete",
+  //   icon: "pi pi-fw pi-trash",
+  //   command: () => {
+  //     remove();
+  //   }
+  // }
 ]);
+
+function toggleSelect() {}
 
 const rClickItemsGroup = ref([
   {
@@ -185,101 +200,115 @@ function discardKeepAs() {
   keepAsDialog.value = false;
 }
 
-function moveUp() {
-  const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
-  if (index !== -1 && index !== 0) {
-    props.matches.splice(index - 1, 0, { ...props.selectedMatches[0] });
-    props.matches.splice(index + 1, 1);
+function save(editMatch: Match) {
+  console.log(JSON.stringify(props.match));
+  if (editMatch.variable) props.match.variable = editMatch.variable;
+  if (editMatch.bool) props.match.bool = editMatch.bool;
+
+  if (isArrayHasLength(editMatch.where)) {
+    props.match.where = editMatch.where;
+    describeMatch([props.match], "match");
+    describeWhere(editMatch.where!, "where");
   }
+  console.log(JSON.stringify(props.match));
+  showEdit.value = false;
 }
 
-function moveDown() {
-  const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
-  if (index !== -1 && index !== 0) {
-    props.matches.splice(index + 2, 0, { ...props.selectedMatches[0] });
-    props.matches.splice(index, 1);
-  }
-}
+// function moveUp() {
+//   const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
+//   if (index !== -1 && index !== 0) {
+//     props.matches.splice(index - 1, 0, { ...props.selectedMatches[0] });
+//     props.matches.splice(index + 1, 1);
+//   }
+// }
 
-function onEditDialogClose() {
-  if (!isObjectHasKeys(props.selectedMatches[0])) {
-    const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
-    if (index !== -1) props.matches.splice(index, 1);
-    props.selectedMatches.splice(0, 1);
-  }
-  editDialog.value = false;
-}
+// function moveDown() {
+//   const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
+//   if (index !== -1 && index !== 0) {
+//     props.matches.splice(index + 2, 0, { ...props.selectedMatches[0] });
+//     props.matches.splice(index, 1);
+//   }
+// }
 
-function add(direction: Direction) {
-  const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
-  if (index >= 1 || (index === 0 && direction !== Direction.ABOVE)) {
-    let indexToAdd = 0;
-    if (direction === Direction.ABOVE) indexToAdd = index;
-    if (direction === Direction.BELOW) indexToAdd = index + 1;
-    if (indexToAdd) {
-      const newMatch = {} as Match;
-      props.matches.splice(indexToAdd, 0, newMatch);
-      singleselect(newMatch);
-    }
-  }
-}
+// function onEditDialogClose() {
+//   if (!isObjectHasKeys(props.selectedMatches[0])) {
+//     const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
+//     if (index !== -1) props.matches.splice(index, 1);
+//     props.selectedMatches.splice(0, 1);
+//   }
+//   editDialog.value = false;
+// }
+
+// function add(direction: Direction) {
+//   const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
+//   if (index >= 1 || (index === 0 && direction !== Direction.ABOVE)) {
+//     let indexToAdd = 0;
+//     if (direction === Direction.ABOVE) indexToAdd = index;
+//     if (direction === Direction.BELOW) indexToAdd = index + 1;
+//     if (indexToAdd) {
+//       const newMatch = {} as Match;
+//       props.matches.splice(indexToAdd, 0, newMatch);
+//       singleselect(newMatch);
+//     }
+//   }
+// }
 
 function edit() {
   editDialog.value = true;
 }
 
 function remove() {
-  for (const selectedMatch of props.selectedMatches) {
-    const index = props.matches.findIndex(match => JSON.stringify(selectedMatch) === JSON.stringify(match));
-    if (index === 0) deleteBaseType();
-    else if (index !== -1) props.matches.splice(index, 1);
-  }
-  props.selectedMatches.length = 0;
+  //   for (const selectedMatch of props.selectedMatches) {
+  //     const index = props.matches.findIndex(match => JSON.stringify(selectedMatch) === JSON.stringify(match));
+  //     if (index === 0) deleteBaseType();
+  //     else if (index !== -1) props.matches.splice(index, 1);
+  //   }
+  //   props.selectedMatches.length = 0;
 }
 
-function deleteBaseType() {
-  Swal.fire({
-    icon: "info",
-    title: "Confirm delete",
-    text: "Are you sure you want to delete the base type of your query? All other clauses will be deleted.",
-    showCancelButton: true,
-    confirmButtonText: "Yes",
-    reverseButtons: true,
-    confirmButtonColor: "#2196F3",
-    cancelButtonColor: "#607D8B",
-    showLoaderOnConfirm: true,
-    allowOutsideClick: () => !Swal.isLoading(),
-    backdrop: true
-  }).then((result: any) => {
-    if (result.isConfirmed) props.matches.length = 0;
-  });
-}
+// function deleteBaseType() {
+//   Swal.fire({
+//     icon: "info",
+//     title: "Confirm delete",
+//     text: "Are you sure you want to delete the base type of your query? All other clauses will be deleted.",
+//     showCancelButton: true,
+//     confirmButtonText: "Yes",
+//     reverseButtons: true,
+//     confirmButtonColor: "#2196F3",
+//     cancelButtonColor: "#607D8B",
+//     showLoaderOnConfirm: true,
+//     allowOutsideClick: () => !Swal.isLoading(),
+//     backdrop: true
+//   }).then((result: any) => {
+//     if (result.isConfirmed) props.matches.length = 0;
+//   });
+// }
 
 function group() {
-  const firstSelected = props.selectedMatches[0];
-  const indexOfFirstSelected = props.matches.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-  const groupedMatch = { boolMatch: "and", match: [] } as Match;
-  for (const selectedMatch of props.selectedMatches) {
-    groupedMatch.match!.push(selectedMatch);
-  }
-  describeMatch([groupedMatch], "match");
-  remove();
-  props.matches.splice(indexOfFirstSelected, 0, groupedMatch);
-  props.selectedMatches.push(groupedMatch);
+  //   const firstSelected = props.selectedMatches[0];
+  //   const indexOfFirstSelected = props.matches.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
+  //   const groupedMatch = { boolMatch: "and", match: [] } as Match;
+  //   for (const selectedMatch of props.selectedMatches) {
+  //     groupedMatch.match!.push(selectedMatch);
+  //   }
+  //   describeMatch([groupedMatch], "match");
+  //   remove();
+  //   props.matches.splice(indexOfFirstSelected, 0, groupedMatch);
+  //   props.selectedMatches.push(groupedMatch);
 }
 
-function ungroup() {
-  for (const selectedMatch of props.selectedMatches) {
-    if (isArrayHasLength(selectedMatch.match)) {
-      const index = getIndexOfMatch(selectedMatch, props.matches);
-      if (index !== -1) props.matches.splice(index, 1);
-      for (const nestedMatch of selectedMatch.match!) {
-        props.matches.splice(index, 0, nestedMatch);
-      }
-    }
-  }
-  remove();
-}
+// function ungroup() {
+//   for (const selectedMatch of props.selectedMatches) {
+//     if (isArrayHasLength(selectedMatch.match)) {
+//       const index = getIndexOfMatch(selectedMatch, props.matches);
+//       if (index !== -1) props.matches.splice(index, 1);
+//       for (const nestedMatch of selectedMatch.match!) {
+//         props.matches.splice(index, 0, nestedMatch);
+//       }
+//     }
+//   }
+//   remove();
+// }
 
 function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
   return (searchMatch as any).key
@@ -287,29 +316,28 @@ function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
     : matchList.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
 }
 
-function onRightClick(event: any, match: Match) {
-  if (!isSelected(match) || props.selectedMatches.length <= 1) singleselect(match);
-  rClickOptions.value = getRightClickOptions();
+function onRightClick(event: any) {
+  rClickOptions.value = rClickItemsGroup.value;
   rClickMenu.value.show(event);
 }
 
-function getRightClickOptions() {
-  if (props.selectedMatches.length > 1) {
-    return rClickItemsGroup.value;
-  }
-  const options = [...rClickItemsSingle.value];
-  const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
-  if (index === 0) options[0].items![0].disabled = true;
-  if (isArrayHasLength(props.selectedMatches[0].match))
-    options.push({
-      label: "Ungroup",
-      icon: "pi pi-fw pi-eject",
-      command: () => {
-        ungroup();
-      }
-    });
-  return options;
-}
+// function getRightClickOptions() {
+//   if (props.selectedMatches.length > 1) {
+//     return rClickItemsGroup.value;
+//   }
+//   const options = [...rClickItemsSingle.value];
+
+//   if (index === 0) options[0].items![0].disabled = true;
+//   if (isArrayHasLength(props.selectedMatches[0].match))
+//     options.push({
+//       label: "Ungroup",
+//       icon: "pi pi-fw pi-eject",
+//       command: () => {
+//         ungroup();
+//       }
+//     });
+//   return options;
+// }
 
 function select(event: any, match: Match) {
   if (event.ctrlKey) {
@@ -347,25 +375,21 @@ function isSelected(match: Match) {
 
 <style scoped>
 .feature {
-  display: flex;
-  flex-flow: column;
   margin-left: 1rem;
-  margin-top: 0.1rem;
-  margin-bottom: 0.1rem;
   cursor: pointer;
 }
 
-/* .feature:hover .feature {
+/* .feature:hover .ul {
   background-color: var(--highlight-bg);
 } */
 
-.feature:hover .feature:hover > * {
+/* .feature:hover .feature:hover > * {
+  background-color: var(--highlight-bg);
+} */
+
+.feature:hover {
   background-color: var(--highlight-bg);
 }
-
-/* .feature:hover {
-  background-color: var(--highlight-bg);
-} */
 
 .selected {
   border: 1px dotted;
@@ -377,5 +401,10 @@ function isSelected(match: Match) {
 
 .p-dialog-content {
   height: 100% !important;
+}
+
+.list-item {
+  margin-top: 0;
+  padding-left: 1rem;
 }
 </style>

@@ -5,8 +5,15 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryEdit :base-entity-match="baseEntityMatch" :matches="query.match!" :selectedMatches="selectedMatches" />
+    <div class="include-title include">include if</div>
+
+    <RecursiveQueryEdit
+      v-for="(match, index) of query.match"
+      :base-entity-match="baseEntityMatch"
+      :match="match"
+      :selectedMatches="selectedMatches"
+      :index="index"
+    />
 
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -68,7 +75,7 @@ async function setBaseEntityMatch() {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 #topbar-query-container {
   height: 100vh;
   width: 100vw;
@@ -104,5 +111,40 @@ async function setBaseEntityMatch() {
   margin-left: 0.5rem;
   margin-top: 1rem;
   margin-bottom: 0.1rem;
+}
+
+.variable {
+  color: rgb(78, 2, 150) !important;
+}
+
+.variable-line {
+  margin-left: 1rem !important;
+}
+
+.node-ref {
+  color: rgb(138, 67, 138) !important;
+  cursor: pointer !important;
+}
+
+.and {
+  color: orange;
+  cursor: pointer;
+}
+
+.or {
+  color: blue;
+  cursor: pointer;
+}
+
+.include {
+  color: green;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.exclude {
+  color: red;
+  cursor: pointer;
+  margin-bottom: 1rem;
 }
 </style>
