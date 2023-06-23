@@ -9,7 +9,7 @@
       @node-expand="onNodeExpand"
       class="tree-root"
       :loading="loading"
-      @contextmenu="onNodeContext($event)"
+      @contextmenu="onNodeContext"
     >
       <template #default="{ node }: any">
         <div class="tree-row" @dblclick="onNodeDblClick($event, node)">
@@ -135,30 +135,31 @@ function byKey(a: any, b: any): number {
 
 async function onNodeContext(event: any) {
   event.preventDefault();
-  const node = event.target["__vueParentComponent"]?.props.node;
   items.value = [];
-
   if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
 
-  items.value = await getCreateOptions(newFolderName, newFolder, node);
+  const node = event.target["__vueParentComponent"]?.props.node;
+  if(node) {
+    items.value = await getCreateOptions(newFolderName, newFolder, node);
 
-  if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
-    items.value.push({
-      label: "Move selection here",
-      icon: "fa-solid fa-fw fa-file-import",
-      command: () => {
-        confirmMove(node);
-      }
-    });
-    items.value.push({
-      label: "Add selection here",
-      icon: "fa-solid fa-fw fa-copy",
-      command: () => {
-        confirmAdd(node);
-      }
-    });
+    if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
+      items.value.push({
+        label: "Move selection here",
+        icon: "fa-solid fa-fw fa-file-import",
+        command: () => {
+          confirmMove(node);
+        }
+      });
+      items.value.push({
+        label: "Add selection here",
+        icon: "fa-solid fa-fw fa-copy",
+        command: () => {
+          confirmAdd(node);
+        }
+      });
+    }
+    if (items.value.length > 0) menu.value.show(event);
   }
-  if (items.value.length > 0) menu.value.show(event);
 }
 
 function confirmMove(node: TreeNode) {
