@@ -280,7 +280,7 @@ function hideOverlay(event: any): void {
   min-width: 2rem;
 }
 
->>>.p-treenode-label {
+::v-deep(.p-treenode-label) {
   width: 100% !important;
 }
 
