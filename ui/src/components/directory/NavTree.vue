@@ -9,10 +9,9 @@
       @node-expand="onNodeExpand"
       class="tree-root"
       :loading="loading"
-      @contextmenu="onNodeContext"
     >
       <template #default="{ node }: any">
-        <div class="tree-row" @dblclick="onNodeDblClick($event, node)">
+        <div class="tree-row" @dblclick="onNodeDblClick($event, node)" @contextmenu="onNodeContext($event, node)">
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
@@ -133,33 +132,30 @@ function byKey(a: any, b: any): number {
   return 0;
 }
 
-async function onNodeContext(event: any) {
+async function onNodeContext(event: any, node: any) {
   event.preventDefault();
   items.value = [];
   if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
+  items.value = await getCreateOptions(newFolderName, newFolder, node);
 
-  const node = event.target["__vueParentComponent"]?.props.node;
-  if(node) {
-    items.value = await getCreateOptions(newFolderName, newFolder, node);
-
-    if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
-      items.value.push({
-        label: "Move selection here",
-        icon: "fa-solid fa-fw fa-file-import",
-        command: () => {
-          confirmMove(node);
-        }
-      });
-      items.value.push({
-        label: "Add selection here",
-        icon: "fa-solid fa-fw fa-copy",
-        command: () => {
-          confirmAdd(node);
-        }
-      });
-    }
-    if (items.value.length > 0) menu.value.show(event);
+  if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
+    items.value.push({
+      label: "Move selection here",
+      icon: "fa-solid fa-fw fa-file-import",
+      command: () => {
+        confirmMove(node);
+      }
+    });
+    items.value.push({
+      label: "Add selection here",
+      icon: "fa-solid fa-fw fa-copy",
+      command: () => {
+        confirmAdd(node);
+      }
+    });
   }
+  if (items.value.length > 0) menu.value.show(event);
+
 }
 
 function confirmMove(node: TreeNode) {
@@ -282,6 +278,10 @@ function hideOverlay(event: any): void {
 }
 .tree-root ::v-deep(.p-tree-toggler) {
   min-width: 2rem;
+}
+
+>>>.p-treenode-label {
+  width: 100% !important;
 }
 
 .tree-row .p-progress-spinner {
