@@ -27,7 +27,6 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
 import { SearchRequest, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
-import { useRouter } from "vue-router";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import setupSpeechToText from "@/composables/setupSpeechToText";
