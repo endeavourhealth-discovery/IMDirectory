@@ -20,7 +20,7 @@
         </span>
       </div>
     </div>
-    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" />
+    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" @rowSelected="updateSelected" :locateIntreeFunction="locateIntreeFunction" />
   </div>
 </template>
 
@@ -29,18 +29,21 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
 
 interface Props {
   showFilters?: boolean;
   searchResults: ConceptSummary[];
-  searchLoading: boolean;
+  searchLoading?: boolean;
+  locateIntreeFunction?: Function;
 }
 const props = withDefaults(defineProps<Props>(), {
-  showFilters: true
+  showFilters: true,
+  searchLoading: false
 });
+
+const emit = defineEmits({ selectedUpdated: (_payload: ConceptSummary) => true });
 
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
@@ -124,6 +127,10 @@ function filterResults() {
     }
   });
   localSearchResults.value = [...filteredSearchResults];
+}
+
+function updateSelected(selected: ConceptSummary) {
+  emit("selectedUpdated", selected);
 }
 </script>
 

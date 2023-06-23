@@ -3,7 +3,12 @@
     <TopBar>
       <template #content>
         <div id="topbar-content-container">
-          <Search />
+          <SearchBar
+            :search-results="searchResults"
+            @update:search-results="updateSearchResults"
+            :search-loading="searchLoading"
+            @update:search-loading="updateSearchLoading"
+          />
         </div>
       </template>
     </TopBar>
@@ -19,20 +24,25 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
-import Search from "@/components/directory/topbar/Search.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { ConceptSummary } from "@im-library/interfaces";
 
 const router = useRouter();
 const toast = useToast();
 const filterStore = useFilterStore();
 const userStore = useUserStore();
+const directoryStore = useDirectoryStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const searchResults = computed(() => directoryStore.searchResults);
+const searchLoading = computed(() => directoryStore.searchLoading);
 
 const loading = ref(true);
 
@@ -42,6 +52,14 @@ onMounted(async () => {
   await userStore.initFavourites();
   loading.value = false;
 });
+
+function updateSearchResults(data: ConceptSummary[]) {
+  directoryStore.updateSearchResults(data);
+}
+
+function updateSearchLoading(data: boolean) {
+  directoryStore.updateSearchLoading(data);
+}
 </script>
 
 <style scoped>

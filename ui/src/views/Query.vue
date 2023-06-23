@@ -9,11 +9,14 @@
     <RecursiveQueryEdit :base-entity-match="baseEntityMatch" :matches="query.match!" :selectedMatches="selectedMatches" />
 
     <div class="button-bar">
+      <Button label="showDialog" @click="showSearchDialog = true" />
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
       <Button class="button-bar-button" label="Save" severity="success" />
     </div>
   </div>
+
+  <DirectorySearchDialog v-model:showDialog="showSearchDialog" />
 </template>
 
 <script setup lang="ts">
@@ -24,6 +27,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { useRoute } from "vue-router";
 import _ from "lodash";
 import { resolveIri } from "@im-library/helpers/TTTransform";
@@ -35,6 +39,7 @@ const baseEntityMatch = ref({} as Match);
 const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
+const showSearchDialog = ref(false);
 
 watch(
   () => queryIri.value,

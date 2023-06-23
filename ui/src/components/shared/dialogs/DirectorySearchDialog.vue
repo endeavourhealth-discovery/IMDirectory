@@ -1,10 +1,24 @@
 <template>
-  <Dialog v-model:visible="visible" modal header="Search" :style="{ minWidth: '80vw', minHeight: '80vh', backgroundColor: 'var(--surface-section)' }">
-    <div class="directory-search-dialog">
+  <Dialog
+    v-model:visible="visible"
+    modal
+    header="Search"
+    :style="{ minWidth: '80vw', minHeight: '80vh', backgroundColor: 'var(--surface-section)' }"
+    class="search-dialog"
+  >
+    <div class="directory-search-dialog-content">
       <div class="search-bar"><SearchBar v-model:searchResults="searchResults" v-model:searchLoading="searchLoading" :searchByQuery="searchByQuery" /></div>
       <div class="vertical-divider">
-        <div class="left-container">tree</div>
-        <div class="right-container"><SearchResults :searchResults="searchResults" :searchLoading="searchLoading" /></div>
+        <div class="left-container"><NavTree :selectedIri="treeIri" @selectedUpdated="updateSelected" /></div>
+        <div class="right-container">
+          <SearchResults
+            :searchResults="searchResults"
+            :searchLoading="searchLoading"
+            :selected="selected"
+            @selectedUpdated="updateSelected"
+            :locate-intree-function="locateInTree"
+          />
+        </div>
       </div>
     </div>
   </Dialog>
@@ -16,12 +30,14 @@ import { ConceptSummary } from "@im-library/interfaces";
 import { MenuItem } from "primevue/menuitem";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
+import NavTree from "@/components/shared/NavTree.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _ from "lodash";
 
 interface Props {
   showDialog: boolean;
   searchByQuery?: string;
+  selected?: ConceptSummary;
 }
 const props = defineProps<Props>();
 watch(
@@ -29,7 +45,7 @@ watch(
   newValue => (visible.value = newValue)
 );
 
-const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean" });
+const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean", "update:selected": payload => true });
 
 const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
@@ -39,14 +55,23 @@ watch(visible, newValue => emit("update:showDialog", newValue));
 const active = ref(0);
 const searchResults: Ref<ConceptSummary[]> = ref([]);
 const searchLoading = ref(false);
+const treeIri = ref("");
 
 onMounted(() => {
   visible.value = props.showDialog;
 });
+
+function updateSelected(data: ConceptSummary) {
+  emit("update:selected", data);
+}
+
+function locateInTree(event: any, iri: string) {
+  treeIri.value = iri;
+}
 </script>
 
 <style scoped>
-.directory-search-dialog {
+.directory-search-dialog-content {
   width: 100%;
   height: 100%;
   overflow: auto;
@@ -75,5 +100,11 @@ onMounted(() => {
   flex-flow: row nowrap;
   align-items: center;
   padding: 0 0.5rem;
+}
+</style>
+
+<style>
+.search-dialog:deep(.p-dialog-content) {
+  flex: 1 1 auto;
 }
 </style>
