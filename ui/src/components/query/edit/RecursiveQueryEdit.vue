@@ -6,8 +6,10 @@
       :match="match"
       :parent-match="parentMatch"
       :index="index"
+      @click="select"
       @dblclick="showEdit = !showEdit"
       @contextmenu="onRightClick"
+      :class="isSelected() ? 'selected' : ''"
     />
 
     <Card v-if="showEdit">
@@ -202,42 +204,31 @@ function discardKeepAs() {
 
 function save(editMatch: Match) {
   console.log(JSON.stringify(props.match));
-  if (editMatch.variable) props.match.variable = editMatch.variable;
-  if (editMatch.bool) props.match.bool = editMatch.bool;
-
-  if (isArrayHasLength(editMatch.where)) {
-    props.match.where = editMatch.where;
-    describeMatch([props.match], "match");
-    describeWhere(editMatch.where!, "where");
+  for (const key of Object.keys(editMatch)) {
+    (props.match as any)[key] = (editMatch as any)[key];
   }
+  describeMatch([props.match], "match");
   console.log(JSON.stringify(props.match));
   showEdit.value = false;
 }
 
-// function moveUp() {
-//   const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
-//   if (index !== -1 && index !== 0) {
-//     props.matches.splice(index - 1, 0, { ...props.selectedMatches[0] });
-//     props.matches.splice(index + 1, 1);
-//   }
-// }
+function moveUp() {
+  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
+    if (props.index !== 0) {
+      props.parentMatch.match!.splice(props.index - 1, 0, { ...props.match });
+      props.parentMatch.match!.splice(props.index + 1, 1);
+    }
+  }
+}
 
-// function moveDown() {
-//   const index = getIndexOfMatch(props.selectedMatches[0], props.matches);
-//   if (index !== -1 && index !== 0) {
-//     props.matches.splice(index + 2, 0, { ...props.selectedMatches[0] });
-//     props.matches.splice(index, 1);
-//   }
-// }
-
-// function onEditDialogClose() {
-//   if (!isObjectHasKeys(props.selectedMatches[0])) {
-//     const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
-//     if (index !== -1) props.matches.splice(index, 1);
-//     props.selectedMatches.splice(0, 1);
-//   }
-//   editDialog.value = false;
-// }
+function moveDown() {
+  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
+    if (props.index !== props.parentMatch.match!.length - 1) {
+      props.parentMatch.match!.splice(props.index + 2, 0, { ...props.match });
+      props.parentMatch.match!.splice(props.index, 1);
+    }
+  }
+}
 
 // function add(direction: Direction) {
 //   const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
@@ -258,12 +249,10 @@ function edit() {
 }
 
 function remove() {
-  //   for (const selectedMatch of props.selectedMatches) {
-  //     const index = props.matches.findIndex(match => JSON.stringify(selectedMatch) === JSON.stringify(match));
-  //     if (index === 0) deleteBaseType();
-  //     else if (index !== -1) props.matches.splice(index, 1);
-  //   }
-  //   props.selectedMatches.length = 0;
+  if (props.parentMatch) {
+    props.parentMatch.match?.splice(props.index, 1);
+  }
+  props.selectedMatches.length = 0;
 }
 
 // function deleteBaseType() {
@@ -317,6 +306,7 @@ function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
 }
 
 function onRightClick(event: any) {
+  select(event);
   rClickOptions.value = rClickItemsGroup.value;
   rClickMenu.value.show(event);
 }
@@ -339,12 +329,11 @@ function onRightClick(event: any) {
 //   return options;
 // }
 
-function select(event: any, match: Match) {
+function select(event: any) {
   if (event.ctrlKey) {
-    multiselect(match);
+    multiselect();
   } else {
-    singleselect(match);
-    if (!isArrayHasLength(match.match)) edit();
+    singleselect();
   }
 }
 
@@ -353,23 +342,23 @@ function toggleBoolMatch(match: Match) {
   else if (match.boolMatch === "or") match.boolMatch = "and";
 }
 
-function singleselect(match: Match) {
+function singleselect() {
   props.selectedMatches.length = 0;
-  props.selectedMatches.push(match);
+  props.selectedMatches.push(props.match);
 }
 
-function multiselect(match: Match) {
-  if (isSelected(match)) {
-    const toAddList = props.selectedMatches.filter(selected => JSON.stringify(selected) !== JSON.stringify(match));
+function multiselect() {
+  if (isSelected()) {
+    const toAddList = props.selectedMatches.filter(selected => JSON.stringify(selected) !== JSON.stringify(props.match));
     props.selectedMatches.length = 0;
     for (const toAddItem of toAddList) {
       props.selectedMatches.push(toAddItem);
     }
-  } else props.selectedMatches.push(match);
+  } else props.selectedMatches.push(props.match);
 }
 
-function isSelected(match: Match) {
-  return !!props.selectedMatches.find(selected => JSON.stringify(selected) === JSON.stringify(match));
+function isSelected() {
+  return !!props.selectedMatches.find(selected => JSON.stringify(selected) === JSON.stringify(props.match));
 }
 </script>
 
@@ -378,14 +367,6 @@ function isSelected(match: Match) {
   margin-left: 1rem;
   cursor: pointer;
 }
-
-/* .feature:hover .ul {
-  background-color: var(--highlight-bg);
-} */
-
-/* .feature:hover .feature:hover > * {
-  background-color: var(--highlight-bg);
-} */
 
 .feature:hover {
   background-color: var(--highlight-bg);

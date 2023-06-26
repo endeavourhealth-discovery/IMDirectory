@@ -56,10 +56,6 @@ watch(
   () => describeMatch([editMatch.value], "match")
 );
 
-watch(
-  () => _.cloneDeep(editMatch.value.where),
-  async () => await init()
-);
 const editBoolWhere: Ref<Bool> = ref("and");
 const properties: Ref<TTProperty[]> = ref([]);
 const dataModelIri: Ref<string> = ref("");

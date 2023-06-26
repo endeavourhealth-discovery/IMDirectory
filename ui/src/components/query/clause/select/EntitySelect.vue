@@ -28,15 +28,24 @@ const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const suggestions: Ref<ConceptSummary[]> = ref([]);
 const debounce = ref(0);
 
+watch(
+  () => props.editMatch,
+  () => populateSelected()
+);
+
 onMounted(() => {
+  populateSelected();
+});
+
+function populateSelected() {
   selected.value.iri = props.editMatch["@id"] ?? props.editMatch["@set"] ?? (props.editMatch["@type"] as string);
   selected.value.name = getNameFromRef(props.editMatch);
-});
+}
 
 function onSelect(event: any) {
   props.editMatch.name = selected.value.name;
-  if (isValueSet(selected.value.entityType)) props.editMatch["@id"] = selected.value.iri;
-  else if (isRecordModel(selected.value.entityType)) props.editMatch["@id"] = selected.value.iri;
+  if (isValueSet(selected.value.entityType)) props.editMatch["@set"] = selected.value.iri;
+  else if (isRecordModel(selected.value.entityType)) props.editMatch["@type"] = selected.value.iri;
   else props.editMatch["@id"] = selected.value.iri;
 }
 
