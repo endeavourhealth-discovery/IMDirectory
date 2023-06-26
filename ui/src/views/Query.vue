@@ -6,14 +6,28 @@
       </template>
     </TopBar>
     <div class="include-title include">include if</div>
+    <div v-if="query.type" class="type-title">{{ getNameFromRef({ "@id": query.type }) }}</div>
 
     <RecursiveQueryEdit
+      v-if="isArrayHasLength(query.match)"
       v-for="(match, index) of query.match"
       :base-entity-match="baseEntityMatch"
       :match="match"
       :selectedMatches="selectedMatches"
       :index="index"
+      @on-add="add"
     />
+
+    <Button v-else-if="!query.type" label="Add base type" @click="showAddBaseType = true" />
+    <Button v-if="!isArrayHasLength(query.match) && query.type" label="Add feature" @click="showAddMatch = true" />
+
+    <Dialog v-model:visible="showAddMatch" modal :header="'Add rule'" :style="{ width: '60vw' }">
+      <AddFeature :query="query" @on-close="showAddMatch = false" />
+    </Dialog>
+
+    <Dialog v-model:visible="showAddBaseType" modal :header="'Add base type'" :style="{ width: '60vw' }">
+      <AddBaseType :query="query" @on-close="showAddBaseType = false" />
+    </Dialog>
 
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -33,8 +47,11 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
 import { useRoute } from "vue-router";
 import _ from "lodash";
-import { resolveIri } from "@im-library/helpers/TTTransform";
+import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
+import AddBaseType from "@/components/query/edit/AddBaseType.vue";
+import AddFeature from "@/components/query/edit/AddFeature.vue";
+
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
@@ -42,6 +59,8 @@ const baseEntityMatch = ref({} as Match);
 const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
+const showAddBaseType: Ref<boolean> = ref(false);
+const showAddMatch: Ref<boolean> = ref(false);
 
 watch(
   () => queryIri.value,
@@ -71,6 +90,16 @@ async function setQuery() {
 async function setBaseEntityMatch() {
   if (isArrayHasLength(query.value?.match)) {
     baseEntityMatch.value = query.value.match![0];
+  }
+}
+
+function add(matchIndex: number) {
+  if (isArrayHasLength(query.value.match)) {
+    const indexToAdd = matchIndex + 1;
+    if (indexToAdd) {
+      const newMatch = {} as Match;
+      query.value.match!.splice(indexToAdd, 0, newMatch);
+    }
   }
 }
 </script>
@@ -105,6 +134,10 @@ async function setBaseEntityMatch() {
 
 .button-bar-button {
   margin: 0.5rem;
+}
+
+.type-title {
+  margin-left: 0.5rem;
 }
 
 .include-title {

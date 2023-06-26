@@ -35,9 +35,8 @@ import { Match } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 
 interface Props {
-  baseEntityMatch: Match;
+  baseType: string;
   editMatch: Match;
-  updatedKey: string;
 }
 const props = defineProps<Props>();
 
@@ -45,16 +44,6 @@ const emit = defineEmits({
   addProperty: (_payload: TreeNode) => true,
   removeProperty: (_payload: TreeNode) => true
 });
-
-watch(
-  () => props.updatedKey,
-  () => {
-    const found = selectedNodes.value.find((selected: TreeNode) => selected.key === props.updatedKey);
-    if (found) {
-      unselect(found);
-    }
-  }
-);
 
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
@@ -251,9 +240,8 @@ async function onClassExpand(node: TreeNode) {
 }
 
 async function addParentFoldersToRoot() {
-  const iri = (props.baseEntityMatch["@id"] || props.baseEntityMatch["@set"] || props.baseEntityMatch["@type"]) as string;
-  if (iri) {
-    const resolvedIri = resolveIri(iri);
+  if (props.baseType) {
+    const resolvedIri = resolveIri(props.baseType);
     await addBaseEntityToRoot(resolvedIri);
   }
 }

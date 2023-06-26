@@ -1,6 +1,6 @@
 <template>
   <div class="add-base-container">
-    <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
+    <QueryNavTree :base-type="query.type!" :editMatch="editMatch" />
     <div class="footer">
       <Button label="Discard" severity="secondary" @click="discard" text />
       <Button label="Save" @click="save" text />
@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 import BaseEntityTree from "../BaseEntityTree.vue";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
@@ -18,19 +18,24 @@ import { IM } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { TreeNode } from "primevue/tree";
+import QueryNavTree from "../QueryNavTree.vue";
+import _ from "lodash";
 
 interface Props {
   query: Query;
+  match?: Match;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits({ onClose: () => true });
 const baseNode: Ref<TreeNode> = ref({} as TreeNode);
+const editMatch: Ref<Match> = ref({} as Match);
+
+onMounted(() => {
+  if (props.match) editMatch.value = _.cloneDeep(props.match);
+});
 
 async function save() {
-  if (isObjectHasKeys(baseNode.value)) {
-    props.query.type = baseNode.value.data;
-  }
   emit("onClose");
 }
 

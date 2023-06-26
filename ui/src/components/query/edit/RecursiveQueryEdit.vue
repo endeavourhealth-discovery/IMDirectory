@@ -56,14 +56,14 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { Match } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
-import EditDialog from "./EditDialog.vue";
 import { MenuItem } from "primevue/menuitem";
 import AddBaseType from "./AddBaseType.vue";
-import RecursiveQueryEditDisplay from "./RecursiveQueryEditDisplay.vue";
 import Swal from "sweetalert2";
 import { PrimeIcons } from "primevue/api";
 import EditMatch from "./EditMatch.vue";
 import DisplayMatch from "../editTextQuery/DisplayMatch.vue";
+
+const emit = defineEmits({ onAdd: (matchIndex: number) => true });
 
 interface Props {
   parentMatch?: Match;
@@ -73,40 +73,29 @@ interface Props {
   index: number;
 }
 
-enum Direction {
-  ABOVE,
-  BELOW
-}
-
 const props = defineProps<Props>();
 const showEdit: Ref<boolean> = ref(false);
-const editDialog: Ref<boolean> = ref(false);
 const keepAsDialog: Ref<boolean> = ref(false);
 const viewDialog: Ref<boolean> = ref(false);
 const rClickMenu = ref();
-const isBaseSelected: ComputedRef<boolean> = computed(() => {
-  return JSON.stringify(props.selectedMatches[0]) === JSON.stringify(props.baseEntityMatch);
-});
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 const rClickItemsSingle: Ref<MenuItem[]> = ref([
   {
     label: "Add",
     icon: "pi pi-fw pi-plus",
     items: [
-      // {
-      //   label: "Above",
-      //   command: () => {
-      //     add(Direction.ABOVE);
-      //     edit();
-      //   }
-      // },
-      // {
-      //   label: "Below",
-      //   command: () => {
-      //     add(Direction.BELOW);
-      //     edit();
-      //   }
-      // }
+      {
+        label: "Below",
+        command: () => {
+          add();
+        }
+      },
+      {
+        label: "Nested",
+        command: () => {
+          addNested();
+        }
+      }
     ]
   },
   {
@@ -114,18 +103,18 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     icon: PrimeIcons.SORT,
     items: [
       {
-        //   label: "Up",
-        //   icon: PrimeIcons.SORT_UP,
-        //   command: () => {
-        //     moveUp();
-        //   }
-        // },
-        // {
-        //   label: "Down",
-        //   icon: PrimeIcons.SORT_DOWN,
-        //   command: () => {
-        //     moveDown();
-        //   }
+        label: "Up",
+        icon: PrimeIcons.SORT_UP,
+        command: () => {
+          moveUp();
+        }
+      },
+      {
+        label: "Down",
+        icon: PrimeIcons.SORT_DOWN,
+        command: () => {
+          moveDown();
+        }
       }
     ]
   },
@@ -156,17 +145,15 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     command: () => {
       view();
     }
+  },
+  {
+    label: "Delete",
+    icon: "pi pi-fw pi-trash",
+    command: () => {
+      remove();
+    }
   }
-  // {
-  //   label: "Delete",
-  //   icon: "pi pi-fw pi-trash",
-  //   command: () => {
-  //     remove();
-  //   }
-  // }
 ]);
-
-function toggleSelect() {}
 
 const rClickItemsGroup = ref([
   {
@@ -193,8 +180,8 @@ function keepAs() {
   keepAsDialog.value = true;
 }
 
-function addFirstMatch() {
-  editDialog.value = true;
+function edit() {
+  showEdit.value = !showEdit;
 }
 
 function discardKeepAs() {
@@ -230,27 +217,29 @@ function moveDown() {
   }
 }
 
-// function add(direction: Direction) {
-//   const index = props.matches.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
-//   if (index >= 1 || (index === 0 && direction !== Direction.ABOVE)) {
-//     let indexToAdd = 0;
-//     if (direction === Direction.ABOVE) indexToAdd = index;
-//     if (direction === Direction.BELOW) indexToAdd = index + 1;
-//     if (indexToAdd) {
-//       const newMatch = {} as Match;
-//       props.matches.splice(indexToAdd, 0, newMatch);
-//       singleselect(newMatch);
-//     }
-//   }
-// }
+function add() {
+  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
+    const index = props.parentMatch.match!.findIndex(match => JSON.stringify(props.match) === JSON.stringify(match));
+    if (index !== -1) {
+      const indexToAdd = index + 1;
+      if (indexToAdd) {
+        const newMatch = {} as Match;
+        props.parentMatch.match!.splice(indexToAdd, 0, newMatch);
+      }
+    }
+  } else {
+    emit("onAdd", props.index);
+  }
+}
 
-function edit() {
-  editDialog.value = true;
+function addNested() {
+  if (!isArrayHasLength(props.match.match)) props.match.match = [];
+  props.match.match!.push({});
 }
 
 function remove() {
-  if (props.parentMatch) {
-    props.parentMatch.match?.splice(props.index, 1);
+  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
+    props.parentMatch.match!.splice(props.index, 1);
   }
   props.selectedMatches.length = 0;
 }
@@ -307,7 +296,7 @@ function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
 
 function onRightClick(event: any) {
   select(event);
-  rClickOptions.value = rClickItemsGroup.value;
+  rClickOptions.value = rClickItemsSingle.value;
   rClickMenu.value.show(event);
 }
 

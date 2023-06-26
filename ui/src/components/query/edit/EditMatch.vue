@@ -2,7 +2,7 @@
   <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
     {{ editMatch.exclude ? "exclude" : "include" }}
   </div>
-  <div v-if="isArrayHasLength(properties)" v-for="(property, index) in properties">
+  <div v-if="isArrayHasLength(properties)" v-for="(property, index) in properties" class="property-container">
     <Divider v-if="index" align="center">
       <div :class="editBoolWhere" @click="toggleBoolWhere">{{ editBoolWhere }}</div>
     </Divider>
@@ -11,8 +11,18 @@
       <div v-tooltip.right="property.toolTip">
         {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
       </div>
-      <ClassSelect v-if="isObjectHasKeys(property, [SHACL.CLASS])" :class-iri="property[SHACL.CLASS][0]['@id']" :where="property.where" />
-      <DatatypeSelect v-else-if="isObjectHasKeys(property, [SHACL.DATATYPE])" :datatype="property[SHACL.DATATYPE][0]['@id']" :where="property.where" />
+      <ClassSelect
+        v-if="isObjectHasKeys(property, [SHACL.CLASS])"
+        :class-iri="property[SHACL.CLASS][0]['@id']"
+        :where="property.where"
+        class="property-input-container"
+      />
+      <DatatypeSelect
+        v-else-if="isObjectHasKeys(property, [SHACL.DATATYPE])"
+        :datatype="property[SHACL.DATATYPE][0]['@id']"
+        :where="property.where"
+        class="property-input-container"
+      />
       <EntitySelect v-else :edit-match="editMatch" :base-entity-match="baseEntityMatch" />
     </div>
   </div>
@@ -127,11 +137,32 @@ function getLastNode(pathOrNode: any, found: string[]) {
 
 <style scoped>
 .property-delete-button {
-  float: right;
+  position: relative;
+  top: 0;
+  right: 0;
 }
 
 .button-bar {
   display: flex;
   justify-content: end;
+}
+
+.property-container {
+  display: flex;
+  flex-flow: wrap;
+  width: 100%;
+}
+
+.property-label-button-container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.property-input-container {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
 }
 </style>
