@@ -65,6 +65,7 @@ const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const showAddBaseType: Ref<boolean> = ref(false);
 const showAddMatch: Ref<boolean> = ref(false);
+const showSearchDialog: Ref<boolean> = ref(false);
 
 watch(
   () => queryIri.value,

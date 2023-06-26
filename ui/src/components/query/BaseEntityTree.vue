@@ -31,7 +31,7 @@
 import { onMounted, onUnmounted, ref, Ref } from "vue";
 import { EntityService } from "@/services";
 import { IM, SHACL } from "@im-library/vocabulary";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
