@@ -16,7 +16,7 @@ import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
 interface Props {
-  baseEntityMatch: Match;
+  baseEntityMatchIri: string;
   editMatch: Match;
 }
 
