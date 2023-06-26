@@ -11,7 +11,7 @@
     <RecursiveQueryEdit
       v-if="isArrayHasLength(query.match)"
       v-for="(match, index) of query.match"
-      :base-entity-match="baseEntityMatch"
+      :base-entity-match-iri="baseEntityMatchIri"
       :match="match"
       :selectedMatches="selectedMatches"
       :index="index"
@@ -22,7 +22,7 @@
     <Button v-if="!isArrayHasLength(query.match) && query.type" label="Add feature" @click="showAddMatch = true" />
 
     <Dialog v-model:visible="showAddMatch" modal :header="'Add rule'" :style="{ width: '60vw' }">
-      <AddFeature :query="query" @on-close="showAddMatch = false" />
+      <AddFeature :base-type="query.type ?? baseEntityMatchIri" @on-close="showAddMatch = false" />
     </Dialog>
 
     <Dialog v-model:visible="showAddBaseType" modal :header="'Add base type'" :style="{ width: '60vw' }">
@@ -30,11 +30,14 @@
     </Dialog>
 
     <div class="button-bar">
+      <Button label="showDialog" @click="showSearchDialog = true" />
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
       <Button class="button-bar-button" label="Save" severity="success" />
     </div>
   </div>
+
+  <DirectorySearchDialog v-model:showDialog="showSearchDialog" />
 </template>
 
 <script setup lang="ts">
@@ -45,6 +48,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
@@ -55,7 +59,7 @@ import AddFeature from "@/components/query/edit/AddFeature.vue";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
-const baseEntityMatch = ref({} as Match);
+const baseEntityMatchIri: Ref<string> = ref("");
 const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
@@ -89,7 +93,7 @@ async function setQuery() {
 
 async function setBaseEntityMatch() {
   if (isArrayHasLength(query.value?.match)) {
-    baseEntityMatch.value = query.value.match![0];
+    baseEntityMatchIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
   }
 }
 

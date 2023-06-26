@@ -1,6 +1,6 @@
 <template>
   <div class="add-base-container">
-    <QueryNavTree :base-type="query.type!" :editMatch="editMatch" />
+    <QueryNavTree :base-type="baseType" :editMatch="editMatch" />
     <div class="footer">
       <Button label="Discard" severity="secondary" @click="discard" text />
       <Button label="Save" @click="save" text />
@@ -22,7 +22,7 @@ import QueryNavTree from "../QueryNavTree.vue";
 import _ from "lodash";
 
 interface Props {
-  query: Query;
+  baseType: string;
   match?: Match;
 }
 

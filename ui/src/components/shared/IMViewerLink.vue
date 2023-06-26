@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { DirectService } from "../../services";
-import OverlaySummary from "../directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "./OverlaySummary.vue";
 
 interface Props {
   iri: string;

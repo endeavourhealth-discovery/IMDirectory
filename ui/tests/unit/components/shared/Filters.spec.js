@@ -1,5 +1,5 @@
 import { flushPromises } from "@vue/test-utils";
-import Filters from "@/components/directory/topbar/Filters.vue";
+import Filters from "@/components/shared/Filters.vue";
 import MultiSelect from "primevue/multiselect";
 import InputSwitch from "primevue/inputswitch";
 import Tooltip from "primevue/tooltip";

@@ -2,7 +2,7 @@
   <div class="feature">
     <DisplayMatch
       v-if="!showEdit"
-      :base-entity-match="baseEntityMatch"
+      :base-entity-match-iri="baseEntityMatchIri"
       :match="match"
       :parent-match="parentMatch"
       :index="index"
@@ -14,17 +14,17 @@
 
     <Card v-if="showEdit">
       <template #title>
-        <DisplayMatch :base-entity-match="baseEntityMatch" :match="match" :index="index" />
+        <DisplayMatch :match="match" :index="index" />
       </template>
       <template #content>
-        <EditMatch :base-entity-match="baseEntityMatch" :match="match" @cancel="showEdit = false" @save="save" />
+        <EditMatch :base-entity-match-iri="baseEntityMatchIri" :match="match" @cancel="showEdit = false" @save="save" />
       </template>
     </Card>
 
     <ul class="list-item" v-if="isArrayHasLength(props.match.match)" v-for="(nestedMatch, index) of props.match.match">
       <RecursiveQueryEdit
         class="nested-feature"
-        :base-entity-match="baseEntityMatch"
+        :base-entity-match-iri="baseEntityMatchIri"
         :match="nestedMatch"
         :selectedMatches="selectedMatches"
         :index="index"
@@ -46,6 +46,9 @@
       <Button label="OK" @click="viewDialog = false" text />
     </template>
   </Dialog>
+  <Dialog v-model:visible="showAddMatch" modal :header="'Add rule'" :style="{ width: '60vw' }">
+    <AddFeature :base-type="baseEntityMatchIri" @on-close="showAddMatch = false" />
+  </Dialog>
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
 </template>
 
@@ -53,7 +56,7 @@
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
 import { MenuItem } from "primevue/menuitem";
@@ -62,6 +65,7 @@ import Swal from "sweetalert2";
 import { PrimeIcons } from "primevue/api";
 import EditMatch from "./EditMatch.vue";
 import DisplayMatch from "../editTextQuery/DisplayMatch.vue";
+import AddFeature from "./AddFeature.vue";
 
 const emit = defineEmits({ onAdd: (matchIndex: number) => true });
 
@@ -69,8 +73,8 @@ interface Props {
   parentMatch?: Match;
   match: Match;
   selectedMatches: Match[];
-  baseEntityMatch: Match;
   index: number;
+  baseEntityMatchIri: string;
 }
 
 const props = defineProps<Props>();
@@ -78,6 +82,8 @@ const showEdit: Ref<boolean> = ref(false);
 const keepAsDialog: Ref<boolean> = ref(false);
 const viewDialog: Ref<boolean> = ref(false);
 const rClickMenu = ref();
+const showAddMatch: Ref<boolean> = ref(false);
+
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 const rClickItemsSingle: Ref<MenuItem[]> = ref([
   {
@@ -218,6 +224,10 @@ function moveDown() {
 }
 
 function add() {
+  showAddMatch.value = true;
+}
+
+function saveAdd() {
   if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
     const index = props.parentMatch.match!.findIndex(match => JSON.stringify(props.match) === JSON.stringify(match));
     if (index !== -1) {
