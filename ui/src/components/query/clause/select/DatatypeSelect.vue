@@ -1,5 +1,5 @@
 <template>
-  <div v-if="datatype === XMLS.NAMESPACE + 'string'">
+  <div v-if="datatype === XMLS.NAMESPACE + 'string'" class="property-input-container">
     <Dropdown :options="['is', 'startsWith', 'contains']" v-model:model-value="whereType" />
     <InputText type="text" v-model:model-value="where.value" />
   </div>
@@ -10,12 +10,12 @@
     option-value="value"
     v-model:model-value="where.value"
   />
-  <div v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer'">
+  <div v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer'" class="property-input-container">
     <Dropdown :options="['is', 'range']" v-model:model-value="whereType" />
     <ComparisonSelect v-if="whereType === 'is'" :where="where" />
     <RangeSelect v-else-if="whereType === 'range'" :from="where.range!.from" :to="where.range!.to" />
   </div>
-  <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'">
+  <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'" class="property-input-container">
     <DateSelect :where="where" />
   </div>
 </template>
@@ -58,4 +58,10 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.property-input-container {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+}
+</style>

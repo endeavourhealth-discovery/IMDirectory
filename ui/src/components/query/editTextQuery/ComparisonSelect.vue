@@ -22,4 +22,10 @@ const props = defineProps<Props>();
 const relativeTo = ref();
 </script>
 
-<style scoped></style>
+<style scoped>
+.comparison-wrapper {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+}
+</style>

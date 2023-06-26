@@ -1,4 +1,11 @@
-<template>From: <ComparisonSelect :where="from" /> To: <ComparisonSelect :where="to" /></template>
+<template>
+  <div class="property-input-container">
+    From:
+    <ComparisonSelect :where="from" />
+    To:
+    <ComparisonSelect :where="to" />
+  </div>
+</template>
 
 <script setup lang="ts">
 import { Assignable } from "@im-library/interfaces/AutoGen";
@@ -12,4 +19,8 @@ interface Props {
 const props = defineProps<Props>();
 </script>
 
-<style scoped></style>
+<style scoped>
+.property-input-container {
+  flex-flow: wrap;
+}
+</style>

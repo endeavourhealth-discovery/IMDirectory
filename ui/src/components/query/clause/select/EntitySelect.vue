@@ -1,7 +1,9 @@
 <template>
-  in
-  <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" @item-select="onSelect" />
-  <EntailmentOptionsSelect :entailment-object="editMatch" />
+  <div class="property-input-container">
+    in
+    <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" @item-select="onSelect" />
+    <EntailmentOptionsSelect :entailment-object="editMatch" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -65,4 +67,8 @@ function debounceForSearch(searchTerm: any): void {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.property-input-container {
+  align-items: center;
+}
+</style>
