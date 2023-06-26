@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-06-26 10:29:17.
+// Generated using typescript-generator version 3.2.1263 on 2023-06-26 13:42:51.
 
 /**
  * Structure containing search request parameters and filters
@@ -174,9 +174,9 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
+    unit?: string;
     operator?: Operator;
     relativeTo?: Property;
-    unit?: string;
 }
 
 export interface Case {
@@ -338,8 +338,8 @@ export interface Where extends Property, Assignable, Whereable {
 }
 
 export interface Whereable {
-    where?: Where[];
     boolWhere?: Bool;
+    where?: Where[];
 }
 
 export interface EntityDocument {
