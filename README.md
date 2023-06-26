@@ -14,15 +14,17 @@
 
 ## Setup
 
+### NOTE: This repository now uses [pnpm](https://pnpm.io/)
+
 ### Fontawesome
 
-Information Model (v2) optionally uses FontAwesome Pro. To use FontAwesome Pro add a valid [FONT-AWESOME-PACKAGE-TOKEN](https://fontawesome.com/sessions/sign-in?next=%2Faccount%23pro-package-tokens) to the npm config prior to running the install script:
+Information Model (v2) optionally uses FontAwesome Pro. To use FontAwesome Pro add a valid [FONT-AWESOME-PACKAGE-TOKEN](https://fontawesome.com/sessions/sign-in?next=%2Faccount%23pro-package-tokens) to the pnpm config prior to running the `install` script:
 
 Terminal
 
 ```console
-npm config set "@fortawesome:registry" https://npm.fontawesome.com/
-npm config set "//npm.fontawesome.com/:_authToken" FONT-AWESOME-PACKAGE-TOKEN
+pnpm config set "@fortawesome:registry" https://npm.fontawesome.com/
+pnpm config set "//npm.fontawesome.com/:_authToken" FONT-AWESOME-PACKAGE-TOKEN
 ```
 
 And add the environment variable `VITE_FONT_AWESOME_PACKAGE_TOKEN` withinthe ui package .env files
@@ -32,9 +34,9 @@ And add the environment variable `VITE_FONT_AWESOME_PACKAGE_TOKEN` withinthe ui 
 Run the following terminal command in the project root:
 
 ```console
-npm run install-all
+pnpm run install-all
 ```
 
 ## Execute
 
-To run both the UI and API from the root folder (in parallel), run `npm run dev`. Alternatively, cd into the relevant module and `npm run dev` from there.
+To run both the UI and API from the root folder (in parallel), run `pnpm run dev`. Alternatively, cd into the relevant module and `pnpm run dev` from there.

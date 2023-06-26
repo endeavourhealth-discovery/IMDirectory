@@ -135,9 +135,7 @@ function byKey(a: any, b: any): number {
 async function onNodeContext(event: any, node: any) {
   event.preventDefault();
   items.value = [];
-
   if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
-
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 
   if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
@@ -157,6 +155,7 @@ async function onNodeContext(event: any, node: any) {
     });
   }
   if (items.value.length > 0) menu.value.show(event);
+
 }
 
 function confirmMove(node: TreeNode) {
@@ -279,6 +278,10 @@ function hideOverlay(event: any): void {
 }
 .tree-root ::v-deep(.p-tree-toggler) {
   min-width: 2rem;
+}
+
+::v-deep(.p-treenode-label) {
+  width: 100% !important;
 }
 
 .tree-row .p-progress-spinner {
