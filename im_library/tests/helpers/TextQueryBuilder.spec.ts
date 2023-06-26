@@ -24,7 +24,7 @@ describe("TextQueryBuilder.ts ___", () => {
             "@id": "http://snomed.info/sct#763158003",
             name: "Medicinal product (product)",
             descendantsOrSelfOf: true,
-            bool: "and",
+            boolWhere: "and",
             where: [
               {
                 "@id": "http://snomed.info/sct#127489000",
@@ -96,7 +96,7 @@ describe("TextQueryBuilder.ts ___", () => {
                 "@id": "http://endhealth.info/im#GPRegistration"
               }
             },
-            bool: "and",
+            boolWhere: "and",
             where: [
               {
                 in: [
@@ -224,7 +224,7 @@ describe("TextQueryBuilder.ts ___", () => {
             "@id": "http://endhealth.info/im#GPRegistration"
           }
         },
-        bool: "and",
+        boolWhere: "and",
         where: [
           {
             in: [
@@ -255,7 +255,7 @@ describe("TextQueryBuilder.ts ___", () => {
         exclude: true,
         description: "High BP not followed by screening invite",
         path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-        bool: "and",
+        boolWhere: "and",
         where: [
           {
             description: "Invited for Screening after BP",

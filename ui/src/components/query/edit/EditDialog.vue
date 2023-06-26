@@ -4,17 +4,14 @@
       <SplitterPanel :size="30" :minSize="10" style="overflow: auto" class="splitter-left">
         <QueryNavTree
           :base-entity-match="baseEntityMatch"
-          :editMatches="editMatches"
+          :editMatch="editMatch"
           :updated-key="updatedKey"
           @add-property="addProperty"
           @remove-property="removeProperty"
         />
       </SplitterPanel>
       <SplitterPanel :size="70" :minSize="10" style="overflow: auto" class="splitter-right">
-        <div v-for="(editMatch, index) in editMatches" class="edit-component">
-          <Divider v-if="index" align="center">
-            <div :class="editBoolMatch" @click="toggleBoolMatch">{{ editBoolMatch }}</div>
-          </Divider>
+        <div>
           <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
             {{ editMatch.exclude ? "exclude" : "include" }}
           </div>
@@ -31,79 +28,64 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Bool, Match } from "@im-library/interfaces/AutoGen";
+import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 import QueryNavTree from "../QueryNavTree.vue";
 import EditMatch from "./EditMatch.vue";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import { buildMatchFromProperty } from "@im-library/helpers/QueryBuilder";
+import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
+import { buildMatchFromProperty, buildWhereFromProperty } from "@im-library/helpers/QueryBuilder";
+import _ from "lodash";
+
+const emit = defineEmits({ onClose: () => true });
+
 interface Props {
   baseEntityMatch: Match;
   match: Match;
 }
 const props = defineProps<Props>();
-const editMatches: Ref<Match[]> = ref([]);
-const editBoolMatch: Ref<Bool> = ref("and");
+const editMatch: Ref<Match> = ref({ where: [] } as Match);
 const updatedKey: Ref<string> = ref("");
-const emit = defineEmits({ onClose: () => true });
 
 onMounted(() => {
   if (isObjectHasKeys(props.match)) {
-    if (isArrayHasLength(props.match.match)) {
-      editMatches.value = [...props.match.match!];
-      if (props.match.boolMatch === "or") editBoolMatch.value = "or";
-    } else editMatches.value = [{ ...props.match }];
+    editMatch.value = _.cloneDeep(props.match);
   }
 });
 
 function addProperty(treeNode: any) {
-  const newMatch = buildMatchFromProperty(treeNode as any);
-  editMatches.value.push(newMatch);
+  const newWhere = buildWhereFromProperty(treeNode as any);
+  editMatch.value.where!.push(newWhere);
 }
 
 function removeProperty(treeNode: any, updatedFlag?: boolean) {
-  let removeIndex = editMatches.value.findIndex(editMatch => (editMatch as any).key === treeNode.key);
+  let removeIndex = editMatch.value.where!.findIndex(editWhere => (editWhere as any).key === treeNode.key);
   if (removeIndex !== -1) {
-    editMatches.value.splice(removeIndex, 1);
+    editMatch.value.where!.splice(removeIndex, 1);
   } else {
-    removeIndex = editMatches.value.findIndex(match => match.match?.some(nestedMatch => (nestedMatch as any).key === treeNode.key));
-    if (removeIndex !== -1) editMatches.value[removeIndex].match!.splice(removeIndex, 1);
+    removeIndex = editMatch.value.where!.findIndex(editWhere => JSON.stringify(editWhere) === treeNode.key);
+    if (removeIndex !== -1) editMatch.value.where!.splice(removeIndex, 1);
   }
 
   if (updatedFlag) updatedKey.value = treeNode.key;
 }
 
-function toggleBoolMatch() {
-  if (editBoolMatch.value === "and") editBoolMatch.value = "or";
-  else if (editBoolMatch.value === "or") editBoolMatch.value = "and";
-}
-
 function save() {
-  if (isObjectHasKeys(props.match)) {
-    for (const key of Object.keys(props.match!)) {
-      delete (props.match as any)[key];
-    }
-  }
-  if (editMatches.value.length === 1) {
-    const editMatch = editMatches.value[0];
-    describeMatch([editMatch], "match");
-    for (const key of Object.keys(editMatch)) {
-      (props.match as any)[key] = (editMatch as any)[key];
-    }
-  } else if (editMatches.value.length > 1) {
-    props.match.match = [];
-    props.match.boolMatch = editBoolMatch.value;
-    for (const editMatch of editMatches.value) {
-      props.match.match.push(editMatch);
-    }
+  console.log(JSON.stringify(props.match));
+  if (editMatch.value.variable) props.match.variable = editMatch.value.variable;
+  if (editMatch.value.bool) props.match.bool = editMatch.value.bool;
+
+  if (isArrayHasLength(editMatch.value.where)) {
+    props.match.where = editMatch.value.where;
     describeMatch([props.match], "match");
+    describeWhere(editMatch.value.where!, "where");
   }
+  console.log(JSON.stringify(props.match));
 
   emit("onClose");
 }
 
 function discard() {
-  editMatches.value = [];
+  editMatch.value.match = [];
   emit("onClose");
 }
 </script>

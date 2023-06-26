@@ -4,16 +4,7 @@
     <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
     <span v-if="match.description" v-html="match.description"> </span>
     <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></span>
-    <!-- <span v-if="isArrayHasLength(match.match)">
-      <RecursiveQueryEdit
-        v-if="match.match"
-        :base-entity-match="baseEntityMatch"
-        :include="true"
-        :matches="match.match"
-        :parent-match="match"
-        :selectedMatches="selectedMatches"
-      />
-    </span> -->
+
     <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
       <span v-if="match.where!.length === 1">
         <span v-if="hasNodeRef(match.where![0])" v-html="match.where![0].description"></span>
@@ -35,14 +26,12 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
-import RecursiveWhereEdit from "./RecursiveWhereEdit.vue";
-import RecursiveQueryEdit from "./RecursiveQueryEdit.vue";
+import RecursiveWhereEdit from "../edit/RecursiveWhereEdit.vue";
 
 interface Props {
   parentMatch?: Match;
   match: Match;
   index: number;
-  selectedMatches: Match[];
   baseEntityMatch: Match;
 }
 
@@ -58,7 +47,7 @@ function hasBigList(where: Where) {
 </script>
 
 <style scoped>
-.feature {
+/* .feature {
   display: flex;
   flex-flow: column;
   margin-left: 1rem;
@@ -69,7 +58,7 @@ function hasBigList(where: Where) {
 
 .feature:hover {
   background-color: var(--highlight-bg);
-}
+} */
 
 .selected {
   border: 1px dotted;

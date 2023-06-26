@@ -15,7 +15,7 @@ export default class ProvController {
   private initRoutes() {
     this.router.get("/public/history", async (req, res, next) =>
       this.getProvHistory(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
   }

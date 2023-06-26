@@ -38,6 +38,23 @@ export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
   return match;
 }
 
+export function buildWhereFromProperty(treeNode: TreeNode) {
+  const where = { "@id": treeNode.data } as Where;
+  // string - is ""
+  // boolean - is true
+  // long - is true
+  // DateTime - is today's date
+
+  if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
+    where.operator = "=";
+    where.value = "";
+  }
+  describeWhere([where], "where");
+  (where as any).key = treeNode.key;
+  (where as any).path = buildPath(treeNode);
+  return where;
+}
+
 export function buildMatchFromProperty(treeNode: TreeNode) {
   const where = { "@id": treeNode.data } as Where;
   // string - is ""

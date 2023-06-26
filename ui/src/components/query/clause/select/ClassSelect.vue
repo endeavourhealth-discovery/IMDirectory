@@ -1,7 +1,10 @@
 <template>
-  <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="whereType" />
-  <InputText type="text" placeholder="Value label" v-model:model-value="props.where.valueLabel" />
-  <div v-if="whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="class-select">
+  <div class="property-input-container">
+    <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="whereType" />
+    <InputText type="text" placeholder="Value label" v-model:model-value="props.where.valueLabel" />
+    <Button label="Save custom set" text severity="info" />
+  </div>
+  <div v-if="whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
     <EntailmentOptionsSelect :entailment-object="editValue" />
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
@@ -39,6 +42,7 @@ const visible: Ref<boolean> = ref(false);
 const showTree: Ref<boolean> = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
+const setType: Ref<string> = ref("set");
 
 onMounted(async () => {
   initEditValues();
@@ -90,5 +94,12 @@ function deleteItem(index: number) {
 }
 .class-select:hover .hidden-button {
   display: flex;
+}
+
+.property-input-container {
+  display: flex;
+  width: 100%;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 </style>

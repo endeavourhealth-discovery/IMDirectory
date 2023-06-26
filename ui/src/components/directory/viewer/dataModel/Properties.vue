@@ -35,14 +35,14 @@
 
       <Column field="property" header="Name">
         <template #body="{ data }: any">
-          <div class="link" @click="directService.select(data.property['@id'])" data-testid="name">
+          <div class="link" @click="navigate(data.property['@id'])" data-testid="name">
             {{ data.property.name || data.property["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
         <template #body="{ data }: any">
-          <div class="link" @click="directService.select(data.type['@id'])">
+          <div class="link" @click="navigate(data.type['@id'])">
             {{ data.type.name || data.type["@id"] }}
           </div>
         </template>
@@ -66,14 +66,14 @@
 
       <Column field="property" header="Name">
         <template #body="{ data }: any">
-          <div class="link" @click="directService.select(data.property['@id'])" data-testid="name">
+          <div class="link" @click="navigate(data.property['@id'])" data-testid="name">
             {{ data.property.name || data.property["@id"] }}
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
         <template #body="{ data }: any">
-          <div class="link" @click="directService.select(data.type['@id'])">
+          <div class="link" @click="navigate(data.type['@id'])">
             {{ data.type.name || data.type["@id"] }}
           </div>
         </template>
@@ -99,7 +99,7 @@ const props = defineProps<Props>();
 
 const directService = new DirectService();
 const loading = ref(false);
-const properties: Ref<PropertyDisplay[]> = ref([]);
+const properties: Ref<any[]> = ref([]);
 const propertiesTable = ref();
 const expandedRowGroups = ref();
 
@@ -114,8 +114,44 @@ onMounted(async () => {
 
 async function getDataModelProps(iri: string): Promise<void> {
   loading.value = true;
-  properties.value = await EntityService.getPropertiesDisplay(iri);
+  const results = await EntityService.getPropertiesDisplay(iri);
+  if(results && results.length !== 0) {
+    results.forEach((result: PropertyDisplay) => {
+      if(result.group){
+        properties.value.push(result);
+      } else {
+        addProperty(result);
+      }
+    })
+  }
   loading.value = false;
+}
+
+function addProperty(result: PropertyDisplay): void {
+  let propId = "";
+  let propName = "";
+  let typeName = "";
+  let typeId = "";
+  result.property.forEach(p => {
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name?.slice(0, p.name?.indexOf("(")) as string}`;
+  })
+  const ranges = (Array.from(new Set((result.type as any)?.map(JSON.stringify))) as any).map(JSON.parse);
+  ranges.forEach((t:any) => {
+    typeId = `${typeId}${typeId !== "" ? "OR" : ""}${t["@id"]}`;
+    typeName = `${typeName} ${typeName !== "" ? "OR" : ""} ${t.name as string}`;
+  })
+  properties.value.push({
+    property: {"@id": propId, name: propName},
+    type: {"@id": typeId, name: typeName},
+    cardinality: result.cardinality
+  } as any);
+}
+
+function navigate(iri: any): void {
+  if(!iri.includes("OR")) {
+    directService.select(iri);
+  }
 }
 
 function exportCSV(): void {

@@ -16,12 +16,12 @@ export default class ConfigController {
   private initRoutes() {
     this.router.get("/public/componentLayout", async (req, res, next) =>
       this.getComponentLayout(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/dashboardLayout", async (req, res, next) =>
       this.getDashboardLayout(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
   }

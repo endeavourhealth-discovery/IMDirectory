@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-05-30 13:33:52.
+// Generated using typescript-generator version 3.2.1263 on 2023-06-26 10:29:17.
 
 /**
  * Structure containing search request parameters and filters
@@ -205,9 +205,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
-    descendantsOf?: boolean;
 }
 
 export interface FunctionClause {
@@ -226,14 +226,15 @@ export interface Match extends Node, Whereable {
     exclude?: boolean;
     nodeRef?: string;
     boolMatch?: Bool;
+    boolPath?: Bool;
     description?: string;
     graph?: Element;
+    path?: Path[];
     match?: Match[];
     orderBy?: OrderLimit[];
 }
 
 export interface Node extends Element {
-    path?: Path;
 }
 
 export interface OrderLimit extends Property {
@@ -244,7 +245,7 @@ export interface OrderLimit extends Property {
 }
 
 export interface Path extends Property {
-    node?: Node;
+    match?: Match;
 }
 
 export interface PathDocument {
@@ -267,6 +268,8 @@ export interface Query extends TTIriRef {
     match?: Match[];
     groupBy?: Property[];
     orderBy?: OrderLimit[];
+    type?: string;
+    set?: string;
     activeOnly?: boolean;
     usePrefixes?: boolean;
     query?: Query[];
@@ -335,8 +338,8 @@ export interface Where extends Property, Assignable, Whereable {
 }
 
 export interface Whereable {
-    bool?: Bool;
     where?: Where[];
+    boolWhere?: Bool;
 }
 
 export interface EntityDocument {
@@ -387,8 +390,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {

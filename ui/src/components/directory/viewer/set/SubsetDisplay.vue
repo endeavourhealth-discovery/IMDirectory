@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref } from "@vue/runtime-core";
+import { onMounted, Ref, ref } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";

@@ -102,7 +102,7 @@ export function getDisplayFromMatch(match: Match) {
     let whereDisplay = "";
     const whereDisplays = getDisplayFromWhereList(getNameFromRef(match) ? " with " : display, match.where);
     for (let [index, value] of whereDisplays.entries()) {
-      if (match.bool && index !== 0) whereDisplay += " " + getDisplayFromLogic(match.bool);
+      if (match.boolWhere && index !== 0) whereDisplay += " " + getDisplayFromLogic(match.boolWhere);
       whereDisplay += value;
     }
 

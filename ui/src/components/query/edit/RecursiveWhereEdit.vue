@@ -34,25 +34,12 @@ function hasNodeRef(where: Where) {
 }
 </script>
 
-<style>
+<style scoped>
 .feature {
   display: flex;
   flex-flow: column;
   margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
-}
-
-.variable {
-  color: rgb(78, 2, 150) !important;
-}
-
-.variable-line {
-  margin-left: 1rem !important;
-}
-
-.node-ref {
-  color: rgb(138, 67, 138) !important;
-  cursor: pointer !important;
 }
 </style>

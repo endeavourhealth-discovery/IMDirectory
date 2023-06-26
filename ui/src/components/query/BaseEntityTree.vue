@@ -38,6 +38,7 @@ import { TreeNode } from "primevue/tree";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { byLabel } from "@im-library/helpers/Sorters";
 import setupQueryTree from "@/composables/setupQueryTree";
+import { isFolder } from "@im-library/helpers/ConceptTypeMethods";
 const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay } = setupQueryTree();
 
 const emit = defineEmits({
@@ -71,10 +72,10 @@ async function populateTree() {
 }
 
 async function addFolder(folderName: string, children: TTIriRef[], conceptTypes: TTIriRef[]) {
-  const parent = createTreeNode(folderName, IM.NAMESPACE + folderName, [{ "@id": IM.FOLDER }], true, undefined);
+  const parent = createTreeNode(folderName, IM.NAMESPACE + folderName, [{ "@id": IM.FOLDER }], true, false, undefined);
   parent.key = "" + root.value.length;
   for (const [index, child] of children.entries()) {
-    const node = createTreeNode(child.name!, child["@id"], conceptTypes, false, parent);
+    const node = createTreeNode(child.name!, child["@id"], conceptTypes, false, !isFolder(conceptTypes), parent);
     node.key = `${index}`;
     parent.children!.push(node);
   }

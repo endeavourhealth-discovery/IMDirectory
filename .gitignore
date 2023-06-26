@@ -58,3 +58,5 @@ coverage
 build
 .env
 
+# Ignore pnpm lock files
+pnpm-lock.yaml
