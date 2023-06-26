@@ -25,10 +25,10 @@
         :where="property.where"
         class="property-input-container"
       />
-      <EntitySelect v-else :edit-match="editMatch" :base-entity-match="baseEntityMatch" />
+      <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" />
     </div>
   </div>
-  <EntitySelect v-else :edit-match="editMatch" :base-entity-match="baseEntityMatch" />
+  <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" />
 
   <div class="button-bar">
     <Button class="button-bar-button" label="Cancel" severity="secondary" @click="emit('cancel')" />
@@ -56,7 +56,7 @@ const emit = defineEmits({
 });
 
 interface Props {
-  baseEntityMatch: Match;
+  baseEntityMatchIri: string;
   match: Match;
 }
 
@@ -87,8 +87,7 @@ function toggleBoolWhere() {
 
 async function init() {
   editMatch.value = _.cloneDeep(props.match);
-  const iri = (props.baseEntityMatch["@id"] || props.baseEntityMatch["@set"] || props.baseEntityMatch["@type"]) as string;
-  const resolvedIri = resolveIri(iri);
+  const resolvedIri = resolveIri(props.baseEntityMatchIri);
   properties.value = [];
   dataModelIri.value = getDataModelIri(editMatch.value) ?? resolvedIri;
   if (isObjectHasKeys(editMatch.value, ["where"]) && isArrayHasLength(editMatch.value.where)) {
