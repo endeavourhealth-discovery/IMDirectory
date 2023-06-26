@@ -40,7 +40,7 @@
       <Column :exportable="false" style="justify-content: flex-end">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" :locate-in-tree-function="locateInTree" />
           </div>
         </template>
       </Column>
@@ -58,7 +58,7 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService, UserService } from "@/services";
 import rowClick from "@/composables/rowClick";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -201,6 +201,10 @@ async function showOverlay(event: any, data: any): Promise<void> {
 
 function hideOverlay(event: any): void {
   OS.value.hideOverlay(event);
+}
+
+function locateInTree(event: any, iri: string) {
+  directoryStore.updateFindInTreeIri(iri);
 }
 </script>
 

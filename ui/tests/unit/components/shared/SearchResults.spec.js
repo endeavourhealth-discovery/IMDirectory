@@ -1,5 +1,5 @@
 import { render, fireEvent, within } from "@testing-library/vue";
-import SearchResultsTable from "@/components/directory/SearchResultsTable.vue";
+import SearchResults from "@/components/shared/SearchResults.vue";
 import DataTable from "primevue/datatable";
 import ProgressSpinner from "primevue/progressspinner";
 import Column from "primevue/column";
@@ -12,7 +12,7 @@ import MultiSelect from "primevue/multiselect";
 import PrimeVue from "primevue/config";
 import { DirectService } from "@/services";
 import { expect, it, vi } from "vitest";
-import testData from "./SearchResultsTable.testData";
+import testData from "./SearchResults.testData";
 import { createTestingPinia } from "@pinia/testing";
 import { useFilterStore } from "@/stores/filterStore.ts";
 import { useUserStore } from "@/stores/userStore.ts";
@@ -41,8 +41,8 @@ createTestingPinia({
     }
   }
 });
-const mockStateDirectory = useDirectoryStore();
-const mockStateUser = useUserStore();
+const mockFilterStore = useFilterStore();
+const mockUserStore = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -69,12 +69,13 @@ describe("SearchResultsTable.vue", () => {
     docSpy.mockReturnValue(undefined);
     directToSpy = vi.spyOn(DirectService.prototype, "directTo");
 
-    component = render(SearchResultsTable, {
+    component = render(SearchResults, {
       global: {
         components: { DataTable, ProgressSpinner, Column, OverlayPanel, ContextMenu, Button, MultiSelect },
         directives: { tooltip: Tooltip, clipboard: VueClipboard },
         plugins: [PrimeVue]
-      }
+      },
+      props: { searchResults: testData.SEARCH_RESULTS }
     });
   });
 
@@ -83,9 +84,9 @@ describe("SearchResultsTable.vue", () => {
   });
 
   it("displays first page of search results", () => {
-    component.getByText(mockStateDirectory.searchResults[0].name + " | " + mockStateDirectory.searchResults[0].code);
-    component.getByText(mockStateDirectory.searchResults[19].name + " | " + mockStateDirectory.searchResults[19].code);
-    const aboveLimit = component.queryByText(mockStateDirectory.searchResults[20].name);
+    component.getByText(testData.SEARCH_RESULTS[0].name + " | " + testData.SEARCH_RESULTS[0].code);
+    component.getByText(testData.SEARCH_RESULTS[19].name + " | " + testData.SEARCH_RESULTS[19].code);
+    const aboveLimit = component.queryByText(testData.SEARCH_RESULTS[20].name);
     expect(aboveLimit).toBeFalsy();
   });
 
@@ -97,9 +98,7 @@ describe("SearchResultsTable.vue", () => {
 
   it("identifies favourites", () => {
     const rows = component.getAllByRole("row");
-    const favourite = rows.filter(item =>
-      within(item).queryByText(mockStateDirectory.searchResults[0].name + " | " + mockStateDirectory.searchResults[0].code)
-    )[0];
+    const favourite = rows.filter(item => within(item).queryByText(testData.SEARCH_RESULTS[0].name + " | " + testData.SEARCH_RESULTS[0].code))[0];
     const buttons = within(favourite).getAllByRole("button");
     const favButton = buttons.filter(button => button.classList.contains("row-button-fav"));
     expect(favButton).toBeTruthy();
@@ -110,7 +109,7 @@ describe("SearchResultsTable.vue", () => {
     const buttons = component.getAllByRole("button");
     const paginatorButtons = buttons.filter(button => button.classList.contains("p-paginator-page"));
     await fireEvent.click(paginatorButtons[1]);
-    component.getByText(mockStateDirectory.searchResults[20].name + " | " + mockStateDirectory.searchResults[20].code);
+    component.getByText(testData.SEARCH_RESULTS[20].name + " | " + testData.SEARCH_RESULTS[20].code);
   });
 
   it("routes on edit", async () => {
@@ -124,22 +123,18 @@ describe("SearchResultsTable.vue", () => {
   it("can unfavourite", async () => {
     vi.clearAllMocks();
     let rows = component.getAllByRole("row");
-    let favourite = rows.filter(item =>
-      within(item).queryByText(mockStateDirectory.searchResults[0].name + " | " + mockStateDirectory.searchResults[0].code)
-    )[0];
+    let favourite = rows.filter(item => within(item).queryByText(testData.SEARCH_RESULTS[0].name + " | " + testData.SEARCH_RESULTS[0].code))[0];
     let favButton = within(favourite).getByTestId("unfavourite-button");
     await fireEvent.click(favButton);
-    expect(mockStateUser.updateFavourites).toHaveBeenCalledTimes(1);
+    expect(mockUserStore.updateFavourites).toHaveBeenCalledTimes(1);
   });
 
   it("can favourite", async () => {
     vi.clearAllMocks();
     let rows = component.getAllByRole("row");
-    let favourite = rows.filter(item =>
-      within(item).queryByText(mockStateDirectory.searchResults[1].name + " | " + mockStateDirectory.searchResults[1].code)
-    )[0];
+    let favourite = rows.filter(item => within(item).queryByText(testData.SEARCH_RESULTS[1].name + " | " + testData.SEARCH_RESULTS[1].code))[0];
     let favButton = within(favourite).getByTestId("favourite-button");
     await fireEvent.click(favButton);
-    expect(mockStateUser.updateFavourites).toHaveBeenCalledTimes(1);
+    expect(mockUserStore.updateFavourites).toHaveBeenCalledTimes(1);
   });
 });
