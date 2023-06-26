@@ -27,7 +27,7 @@ const directService = new DirectService();
 
 interface Props {
   data: Array<TangledTreeData[]>;
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
@@ -62,7 +62,7 @@ const menu = ref();
 onMounted(() => {
   chartData.value = props.data;
   renderChart();
-  setSelected(props.conceptIri);
+  setSelected(props.entityIri);
 });
 
 async function getMultiselectMenu(d: any) {
@@ -71,15 +71,15 @@ async function getMultiselectMenu(d: any) {
   let result = [] as PropertyDisplay[];
   if (node.type === "group") {
     result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.parents[0].id) : [];
-  } else if(node.type === "property") {
+  } else if (node.type === "property") {
     const ranges = (Array.from(new Set(node.range?.map(JSON.stringify))) as any).map(JSON.parse);
-    ranges?.forEach( (range: any) => {
+    ranges?.forEach((range: any) => {
       result.push({
-        property: [{"@id": range["@id"], name:range.name ? range.name : range["@id"]}],
+        property: [{ "@id": range["@id"], name: range.name ? range.name : range["@id"] }],
         isType: true
-      } as PropertyDisplay)
-    })
-  }else {
+      } as PropertyDisplay);
+    });
+  } else {
     result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.id) : [];
   }
   if (result && result.length > 0) {
@@ -89,7 +89,7 @@ async function getMultiselectMenu(d: any) {
       r.property.forEach(p => {
         propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
         propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
-      })
+      });
       if (r.group) {
         if (node.type === "group") {
           if (node.id === r.group?.["@id"]) {
@@ -124,11 +124,11 @@ function addNode(node: any, r: PropertyDisplay) {
   const range = [] as TTIriRef[];
   r.type?.forEach(t => {
     range.push(t);
-  })
+  });
   r.property.forEach(p => {
     propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
     propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
-  })
+  });
   if (r.group && node.type !== "group") {
     if (chartData.value.length < node.level + 1) {
       chartData.value.push([
@@ -148,7 +148,7 @@ function addNode(node: any, r: PropertyDisplay) {
       });
     }
   } else {
-    if(r.isType) {
+    if (r.isType) {
       if (chartData.value.length < node.level + 2) {
         chartData.value.push([
           {
@@ -253,7 +253,7 @@ async function setSelected(iri: any) {
         r.property.forEach(p => {
           propId = `${propId}${propId !== "" ? "OR" : ""}  ${p["@id"]}`;
           propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
-        })
+        });
         selected.value.push({
           iri: propId,
           label: propLabel,
@@ -441,7 +441,7 @@ function renderChart() {
     .on("click", (d: any) => {
       div.transition().duration(500).style("opacity", 0);
       const node = d["target"]["__data__"];
-      if(!node.isOr) {
+      if (!node.isOr) {
         if (d.metaKey || d.ctrlKey) {
           if (node.id.startsWith(twinNode)) {
             const iri = node.id.slice(15);

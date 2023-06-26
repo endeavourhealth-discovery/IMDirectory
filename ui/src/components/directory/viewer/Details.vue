@@ -45,7 +45,7 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
@@ -59,8 +59,8 @@ const selectedKeys: Ref<any> = ref({});
 const predicatePageIndexMap: Ref<Map<string, { pageIndex: number; node: TreeNode }>> = ref(new Map<string, { pageIndex: number; node: TreeNode }>());
 
 watch(
-  () => props.conceptIri,
-  async newValue => getDefinition()
+  () => props.entityIri,
+  async () => getDefinition()
 );
 
 onMounted(async () => await getDefinition());
@@ -88,14 +88,14 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  definition.value = (await EntityService.getEntityDetailsDisplay(props.conceptIri)).filter((c: any) => c.key !== IM.IS_A);
+  definition.value = (await EntityService.getEntityDetailsDisplay(props.entityIri)).filter((c: any) => c.key !== IM.IS_A);
 }
 
 async function onSelect(node: TreeNode) {
   if (node.key === IM.NAMESPACE + "loadMore") {
     const pageIndexInfo = predicatePageIndexMap.value.get(node.data.predicate);
     if (pageIndexInfo) {
-      const entityDetails = await EntityService.loadMoreDetailsDisplay(props.conceptIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
+      const entityDetails = await EntityService.loadMoreDetailsDisplay(props.entityIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
       const predicateValueNode = entityDetails.find(loadMoreNode => loadMoreNode.key === node.data.predicate);
       if (isArrayHasLength(predicateValueNode?.children)) {
         pageIndexInfo.node.children = pageIndexInfo.node.children?.concat(predicateValueNode!.children!);

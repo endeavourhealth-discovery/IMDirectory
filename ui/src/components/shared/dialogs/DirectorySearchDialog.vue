@@ -3,15 +3,17 @@
     v-model:visible="visible"
     modal
     header="Search"
-    :style="{ minWidth: '80vw', minHeight: '80vh', backgroundColor: 'var(--surface-section)' }"
+    :style="{ minWidth: '90vw', maxWidth: '90vw', minHeight: '90vh', maxHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     class="search-dialog"
   >
     <div class="directory-search-dialog-content">
       <div class="search-bar"><SearchBar v-model:searchResults="searchResults" v-model:searchLoading="searchLoading" :searchByQuery="searchByQuery" /></div>
       <div class="vertical-divider">
-        <div class="left-container"><NavTree :selectedIri="treeIri" @selectedUpdated="updateSelected" /></div>
+        <div class="left-container"><NavTree :selectedIri="treeIri" @selectedUpdated="updateSelected" @row-selected="showDetails" /></div>
         <div class="right-container">
+          <DirectoryDetails v-if="detailsIri" :selected-iri="detailsIri" />
           <SearchResults
+            v-else
             :searchResults="searchResults"
             :searchLoading="searchLoading"
             :selected="selected"
@@ -30,6 +32,7 @@ import { ConceptSummary } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
+import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _ from "lodash";
 
@@ -55,6 +58,11 @@ const active = ref(0);
 const searchResults: Ref<ConceptSummary[]> = ref([]);
 const searchLoading = ref(false);
 const treeIri = ref("");
+const detailsIri = ref("");
+
+watch(searchResults, newValue => {
+  detailsIri.value = "";
+});
 
 onMounted(() => {
   visible.value = props.showDialog;
@@ -66,6 +74,10 @@ function updateSelected(data: ConceptSummary) {
 
 function locateInTree(event: any, iri: string) {
   treeIri.value = iri;
+}
+
+function showDetails(data: any) {
+  detailsIri.value = data.key;
 }
 </script>
 

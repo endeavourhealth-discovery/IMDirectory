@@ -34,7 +34,7 @@ import { useSharedStore } from "@/stores/sharedStore";
 const { iriToUrl } = Converters;
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
@@ -44,7 +44,7 @@ const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   () => init()
 );
 
@@ -72,19 +72,19 @@ function goForward() {
 }
 
 function init() {
-  if (props.conceptIri) {
+  if (props.entityIri) {
     getPath();
     setBackForwardDisables();
   }
 }
 
 async function getPath() {
-  if (props.conceptIri === IM.NAMESPACE + "Favourites") {
+  if (props.entityIri === IM.NAMESPACE + "Favourites") {
     pathItems.value = [{ label: "Favourites", to: iriToUrl(IM.NAMESPACE) + "Favourites" }];
     return;
   }
-  let folderPath = (await EntityService.getPathBetweenNodes(props.conceptIri, IM.MODULE_IM)).reverse();
-  if (!folderPath.length) folderPath = await EntityService.getFolderPath(props.conceptIri);
+  let folderPath = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
+  if (!folderPath.length) folderPath = await EntityService.getFolderPath(props.entityIri);
   pathItems.value = folderPath.map((iriRef: TTIriRef) => {
     return { label: iriRef.name, to: iriToUrl(iriRef["@id"]) };
   });

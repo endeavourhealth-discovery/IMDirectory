@@ -3,38 +3,38 @@
     <div class="title-buttons-container">
       <div class="title-container">
         <h4 class="title">
-          <IMFontAwesomeIcon :icon="getIcon(concept)" :style="getColour(concept)" :key="concept['@id']" class="p-mx-1 type-icon" />
-          <span>{{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}</span>
+          <IMFontAwesomeIcon :icon="getIcon(entity)" :style="getColour(entity)" :key="entity['@id']" class="p-mx-1 type-icon" />
+          <span>{{ entity["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}</span>
         </h4>
       </div>
-      <div class="concept-buttons-container">
+      <div class="entity-buttons-container">
         <ActionButtons
           :buttons="hasQueryDefinition ? ['runQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
-          :iri="concept['@id']"
-          :type="'conceptButton'"
+          :iri="entity['@id']"
+          :type="'entityButton'"
           :locate-in-tree-function="locateInTree"
         />
       </div>
     </div>
-    <TextWithLabel label="Iri" :data="concept['@id']" :show="concept['@id'] ? true : false" />
-    <TextWithLabel label="Code" :data="concept['http://endhealth.info/im#code']" :show="concept['http://endhealth.info/im#code'] ? true : false" />
+    <TextWithLabel label="Iri" :data="entity['@id']" :show="entity['@id'] ? true : false" />
+    <TextWithLabel label="Code" :data="entity['http://endhealth.info/im#code']" :show="entity['http://endhealth.info/im#code'] ? true : false" />
     <div class="flex flex-row justify-content-start">
       <ArrayObjectNameTagWithLabel
         label="Status"
-        :data="concept['http://endhealth.info/im#status']"
-        :show="concept['http://endhealth.info/im#status'] ? true : false"
+        :data="entity['http://endhealth.info/im#status']"
+        :show="entity['http://endhealth.info/im#status'] ? true : false"
       />
       <ArrayObjectNamesToStringWithLabel
         label="Types"
-        :data="concept['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
-        :show="concept['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] ? true : false"
+        :data="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
+        :show="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] ? true : false"
       />
     </div>
 
     <TextHTMLWithLabel
       label="Description"
-      :data="concept['http://www.w3.org/2000/01/rdf-schema#comment']"
-      :show="concept['http://www.w3.org/2000/01/rdf-schema#comment'] ? true : false"
+      :data="entity['http://www.w3.org/2000/01/rdf-schema#comment']"
+      :show="entity['http://www.w3.org/2000/01/rdf-schema#comment'] ? true : false"
     />
   </div>
 </template>
@@ -52,38 +52,41 @@ import { computed, Ref, watch, ref, onMounted } from "vue";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
+import _ from "lodash";
 
 const directoryStore = useDirectoryStore();
 interface Props {
-  concept: any;
+  entity: any;
 }
 const props = defineProps<Props>();
 
-const conceptIri = computed(() => directoryStore.conceptIri);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 
 onMounted(async () => {
-  hasQueryDefinition.value = await getHasQueryDefinition();
+  if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
 });
 
-watch(conceptIri, async () => {
-  hasQueryDefinition.value = await getHasQueryDefinition();
-});
+watch(
+  () => _.cloneDeep(props.entity),
+  async () => {
+    if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
+  }
+);
 
-async function getHasQueryDefinition() {
-  const entity = await EntityService.getPartialEntity(conceptIri.value, [RDF.TYPE, IM.DEFINITION]);
+async function getHasQueryDefinition(entityIri: string) {
+  const entity = await EntityService.getPartialEntity(entityIri, [RDF.TYPE, IM.DEFINITION]);
   const hasDefinition = isObjectHasKeys(entity, [RDF.TYPE, IM.DEFINITION]);
   const isQueryOrSet = isQuery(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]);
   return hasDefinition && isQueryOrSet;
 }
 
-function getIcon(concept: any) {
-  if (concept["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
-  return getFAIconFromType(concept[RDF.TYPE]);
+function getIcon(entity: any) {
+  if (entity["@id"] === IM.NAMESPACE + "Favourites") return ["fa-solid", "star"];
+  return getFAIconFromType(entity[RDF.TYPE]);
 }
 
-function getColour(concept: any) {
-  return "color: " + getColourFromType(concept[RDF.TYPE]);
+function getColour(entity: any) {
+  return "color: " + getColourFromType(entity[RDF.TYPE]);
 }
 
 function locateInTree($event: any, iri: string) {

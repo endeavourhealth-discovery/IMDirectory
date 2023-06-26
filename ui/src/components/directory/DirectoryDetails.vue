@@ -4,11 +4,11 @@
   </div>
   <div v-else id="directory-table-container">
     <div class="header-container">
-      <ParentHierarchy :conceptIri="concept['@id']" />
-      <ParentHeader v-if="conceptIri !== 'http://endhealth.info/im#Favourites'" :concept="concept" />
+      <ParentHierarchy :entityIri="entity['@id']" />
+      <ParentHeader v-if="selectedIri !== 'http://endhealth.info/im#Favourites'" :entity="entity" />
     </div>
     <div class="datatable-container">
-      <Viewer />
+      <Viewer :entityIri="entity['@id']" />
     </div>
   </div>
 </template>
@@ -20,24 +20,25 @@ import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
 
-const directoryStore = useDirectoryStore();
-const conceptIri = computed(() => directoryStore.conceptIri);
+interface Props {
+  selectedIri: string;
+}
+const props = defineProps<Props>();
 
 watch(
-  () => conceptIri.value,
+  () => props.selectedIri,
   async () => await init()
 );
 
-const concept: Ref<any> = ref({});
+const entity: Ref<any> = ref({});
 const loading = ref(true);
 
 onMounted(async () => await init());
 
 async function init() {
   loading.value = true;
-  concept.value = await EntityService.getEntityByPredicateExclusions(conceptIri.value, [IM.HAS_MEMBER]);
+  entity.value = await EntityService.getEntityByPredicateExclusions(props.selectedIri, [IM.HAS_MEMBER]);
   loading.value = false;
 }
 </script>

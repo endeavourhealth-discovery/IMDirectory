@@ -114,7 +114,7 @@ import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 
 const props = defineProps<Props>();
@@ -137,7 +137,7 @@ const pageSize = ref(20);
 const altTreeOP = ref();
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => {
     selectedKeys.value = {};
     alternateParents.value = [];
@@ -152,7 +152,7 @@ watch(loading, newValue => {
 });
 
 onMounted(async () => {
-  await getConceptAggregate(props.conceptIri);
+  await getConceptAggregate(props.entityIri);
   await createTree(conceptAggregate.value.concept, conceptAggregate.value.parents, conceptAggregate.value.children, 0);
 });
 
