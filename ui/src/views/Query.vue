@@ -2,7 +2,9 @@
   <div id="topbar-query-container">
     <TopBar>
       <template #content>
-        <span class="title"><strong>IM Query</strong></span>
+        <div class="topbar-content">
+          <span class="title"><strong>IM Query</strong></span>
+        </div>
       </template>
     </TopBar>
     <div class="include-title include">include if</div>
@@ -117,6 +119,16 @@ function add(matchIndex: number) {
   display: flex;
   flex-flow: column;
 }
+
+.topbar-content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 .title {
   font-size: 2rem;
   white-space: nowrap;
