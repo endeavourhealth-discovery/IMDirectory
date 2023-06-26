@@ -32,7 +32,6 @@ interface Props {
   parentMatch?: Match;
   match: Match;
   index: number;
-  baseEntityMatch: Match;
 }
 
 const props = defineProps<Props>();
