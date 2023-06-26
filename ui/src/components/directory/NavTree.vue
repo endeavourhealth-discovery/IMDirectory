@@ -38,7 +38,7 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
