@@ -68,7 +68,8 @@ const routes: Array<RouteRecordRaw> = [
         component: DirectoryDetails,
         meta: {
           requiresLicense: true
-        }
+        },
+        props: true
       },
       {
         path: "search",
@@ -171,6 +172,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/editor/:selectedIri?",
     name: "Editor",
+    props: true,
     component: Editor,
     meta: {
       requiresAuth: true,
