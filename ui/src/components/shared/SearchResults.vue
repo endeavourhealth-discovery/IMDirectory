@@ -20,7 +20,7 @@
         </span>
       </div>
     </div>
-    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" />
+    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" @rowSelected="updateSelected" :locateInTreeFunction="locateInTreeFunction" />
   </div>
 </template>
 
@@ -29,22 +29,25 @@ import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { useFilterStore } from "@/stores/filterStore";
+import _ from "lodash";
 
 interface Props {
   showFilters?: boolean;
+  searchResults: ConceptSummary[];
+  searchLoading?: boolean;
+  locateInTreeFunction?: Function;
 }
 const props = withDefaults(defineProps<Props>(), {
-  showFilters: true
+  showFilters: true,
+  searchLoading: false
 });
 
-const directoryStore = useDirectoryStore();
+const emit = defineEmits({ selectedUpdated: (_payload: ConceptSummary) => true });
+
 const filterStore = useFilterStore();
-const searchLoading = computed(() => directoryStore.searchLoading);
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
-const searchResults = computed(() => directoryStore.searchResults);
 
 const selectedSchemes: Ref<string[]> = ref([]);
 const selectedStatus: Ref<string[]> = ref([]);
@@ -56,17 +59,17 @@ const localSearchResults: Ref<any[]> = ref([]);
 const loading = ref(true);
 
 watch(
-  () => searchResults.value,
+  () => _.cloneDeep(props.searchResults),
   () => init()
 );
 
 onMounted(() => init());
 
-const isLoading = computed(() => loading.value || searchLoading.value);
+const isLoading = computed(() => loading.value || props.searchLoading);
 
 function init() {
   loading.value = true;
-  localSearchResults.value = [...searchResults.value];
+  localSearchResults.value = _.cloneDeep(props.searchResults);
 
   if (isArrayHasLength(localSearchResults.value)) {
     setFiltersFromSearchResults();
@@ -111,7 +114,7 @@ function setFiltersFromSearchResults() {
 
 function filterResults() {
   const filteredSearchResults = [] as ConceptSummary[];
-  (searchResults.value as ConceptSummary[]).forEach(searchResult => {
+  localSearchResults.value.forEach(searchResult => {
     let isSelectedType = false;
     searchResult.entityType.forEach((type: any) => {
       if (selectedTypes.value.indexOf(type.name) != -1) {
@@ -125,6 +128,10 @@ function filterResults() {
   });
   localSearchResults.value = [...filteredSearchResults];
 }
+
+function updateSelected(selected: ConceptSummary) {
+  emit("selectedUpdated", selected);
+}
 </script>
 
 <style scoped>
@@ -133,7 +140,6 @@ label {
 }
 
 #search-results-main-container {
-  height: 100%;
   flex: 1 1 auto;
   overflow: auto;
   background-color: var(--surface-a);

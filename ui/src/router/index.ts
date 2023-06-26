@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 const Directory = () => import("@/views/Directory.vue");
 const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.vue");
-const SearchResultsTable = () => import("@/components/directory/SearchResultsTable.vue");
+const SearchResults = () => import("@/components/shared/SearchResults.vue");
 const LandingPage = () => import("@/components/directory/LandingPage.vue");
 const EclSearch = () => import("@/components/directory/EclSearch.vue");
 const IMQuerySearch = () => import("@/components/directory/IMQuerySearch.vue");
@@ -73,7 +73,7 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "search",
         name: "Search",
-        component: SearchResultsTable,
+        component: SearchResults,
         meta: {
           requiresLicense: true
         }

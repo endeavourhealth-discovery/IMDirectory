@@ -1,58 +1,51 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Search from "@/components/directory/topbar/Search.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import OverlayPanel from "primevue/overlaypanel";
-import testData from "./Search.testData";
+import testData from "./SearchBar.testData";
 import PrimeVue from "primevue/config";
 import SplitButton from "primevue/splitbutton";
+import Tooltip from "primevue/tooltip";
 import { fireEvent, render } from "@testing-library/vue";
 import { createTestingPinia } from "@pinia/testing";
 import { useFilterStore } from "@/stores/filterStore.ts";
-import { useDirectoryStore } from "@/stores/directoryStore.ts";
+import { EntityService, QueryService } from "@/services";
 
 createTestingPinia({
   initialState: {
     filter: {
       selectedFilters: testData.SELECTED_FILTERS
-    }
+    },
+    shared: { fontAwesomePro: false }
   }
 });
-const mockStoreDirectory = useDirectoryStore();
+const mockFilterStore = useFilterStore();
 
-const mockPush = vi.fn();
-const mockGo = vi.fn();
-const mockRoute = { name: "Concept" };
-
-vi.mock("vue-router", () => ({
-  useRouter: () => ({
-    push: mockPush,
-    go: mockGo
-  }),
-  useRoute: () => mockRoute
-}));
-
-describe("Search.vue", () => {
+describe("SearchBar.vue", () => {
   let component;
+  let advancedSearchSpy;
+  let queryIMSpy;
 
   beforeEach(() => {
     vi.resetAllMocks();
-    component = render(Search, {
+    advancedSearchSpy = vi.spyOn(EntityService, "advancedSearch").mockResolvedValue(testData.SEARCH_RESULTS);
+    queryIMSpy = vi.spyOn(QueryService, "queryIM").mockResolvedValue(testData.SEARCH_RESULTS);
+    component = render(SearchBar, {
       global: {
         components: { InputText, Button, OverlayPanel, SplitButton },
         plugins: [PrimeVue],
-        stubs: { Filters: true }
-      }
+        stubs: { Filters: true },
+        directives: { tooltip: Tooltip }
+      },
+      props: { searchResults: [], searchLoading: false }
     });
   });
 
   it("searches when user inputs", async () => {
     const input = component.getByTestId("search-input");
     await fireEvent.update(input, "Scoliosis");
-    expect(mockPush).toHaveBeenCalledOnce();
-    expect(mockPush).toHaveBeenCalledWith({ name: "Search" });
-    expect(mockStoreDirectory.updateSearchLoading).toHaveBeenCalledTimes(2);
-    expect(mockStoreDirectory.fetchSearchResults).toHaveBeenCalledOnce();
+    expect(advancedSearchSpy).toHaveBeenCalledTimes(1);
   });
 
   it("opens filters", async () => {
