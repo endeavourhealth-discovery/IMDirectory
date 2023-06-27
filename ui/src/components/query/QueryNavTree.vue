@@ -33,6 +33,8 @@ import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
+import { buildWhereFromProperty } from "@im-library/helpers/QueryBuilder";
+import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   baseType: string;
@@ -148,7 +150,15 @@ async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], n
 }
 
 function addProperty(treeNode: TreeNode) {
-  emit("addProperty", treeNode);
+  if (isDirectProperty(treeNode)) {
+    if (!isArrayHasLength(props.editMatch.where)) props.editMatch.where = [];
+    props.editMatch.where?.push(buildWhereFromProperty(treeNode as any));
+    describeMatch([props.editMatch], "match");
+  }
+}
+
+function isDirectProperty(treeNode: TreeNode) {
+  return (treeNode.parent && treeNode.parent.key === "0") || (treeNode.parent.parent && treeNode.parent.parent.key === "0");
 }
 
 function removeProperty(treeNode: TreeNode) {

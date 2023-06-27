@@ -16,6 +16,7 @@
       :selectedMatches="selectedMatches"
       :index="index"
       @on-add="add"
+      @on-remove="remove"
     />
 
     <Button v-else-if="!query.type" label="Add base type" @click="showAddBaseType = true" />
@@ -94,14 +95,17 @@ async function setBaseEntityMatch() {
   }
 }
 
-function add(matchIndex: number) {
+function add(matchIndex: number, newMatch: Match) {
   if (isArrayHasLength(query.value.match)) {
     const indexToAdd = matchIndex + 1;
     if (indexToAdd) {
-      const newMatch = {} as Match;
       query.value.match!.splice(indexToAdd, 0, newMatch);
     }
   }
+}
+
+function remove(matchIndex: number) {
+  query.value.match!.splice(matchIndex, 1);
 }
 </script>
 

@@ -10,14 +10,7 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
-import BaseEntityTree from "../BaseEntityTree.vue";
-import { Match, Query } from "@im-library/interfaces/AutoGen";
-import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
-import { EntityService } from "@/services";
-import { IM } from "@im-library/vocabulary";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
-import { TreeNode } from "primevue/tree";
+import { Match } from "@im-library/interfaces/AutoGen";
 import QueryNavTree from "../QueryNavTree.vue";
 import _ from "lodash";
 
@@ -27,40 +20,19 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onClose: () => true });
-const baseNode: Ref<TreeNode> = ref({} as TreeNode);
-const editMatch: Ref<Match> = ref({} as Match);
+const emit = defineEmits({ onClose: () => true, onAddProperty: (_payload: Match) => true });
+const editMatch: Ref<Match> = ref({ where: [] } as Match);
 
 onMounted(() => {
   if (props.match) editMatch.value = _.cloneDeep(props.match);
 });
 
 async function save() {
-  emit("onClose");
+  emit("onAddProperty", editMatch.value);
 }
 
 function discard() {
   emit("onClose");
-}
-
-function addBaseEntity(selected: TreeNode) {
-  baseNode.value = selected;
-}
-
-async function getMatchFromNode(baseNode: TreeNode) {
-  let baseEntityMatch = {} as Match;
-  if (isQuery(baseNode.conceptTypes)) {
-    const entity = await EntityService.getPartialEntity(baseNode.data, [IM.DEFINITION]);
-    if (!isObjectHasKeys(entity, [IM.DEFINITION])) baseEntityMatch = { "@type": IM.NAMESPACE + "Entity" } as Match;
-    else {
-      const definition = entity[IM.DEFINITION] as Query;
-      if (isObjectHasKeys(definition.match?.[0], ["@type"])) baseEntityMatch = { "@type": definition.match?.[0]["@type"] } as Match;
-    }
-  } else {
-    baseEntityMatch = { "@type": baseNode.data, name: baseNode.label } as Match;
-  }
-
-  return baseEntityMatch;
 }
 </script>
 

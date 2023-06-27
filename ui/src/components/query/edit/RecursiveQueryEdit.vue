@@ -46,8 +46,8 @@
       <Button label="OK" @click="viewDialog = false" text />
     </template>
   </Dialog>
-  <Dialog v-model:visible="showAddProperty" modal :header="'Add rule'" :style="{ width: '60vw' }">
-    <AddProperty :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" />
+  <Dialog v-model:visible="showAddProperty" modal :header="'Add property'" :style="{ width: '60vw' }">
+    <AddProperty :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
   </Dialog>
   <DirectorySearchDialog v-model:showDialog="showSearchDialog" @on-close="showSearchDialog = false" />
 
@@ -70,7 +70,7 @@ import DisplayMatch from "../editTextQuery/DisplayMatch.vue";
 import AddProperty from "./AddProperty.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 
-const emit = defineEmits({ onAdd: (matchIndex: number) => true });
+const emit = defineEmits({ onAdd: (_matchIndex: number, _newMatch: Match) => true, onRemove: (_matchIndex: number) => true });
 
 interface Props {
   parentMatch?: Match;
@@ -87,6 +87,7 @@ const viewDialog: Ref<boolean> = ref(false);
 const rClickMenu = ref();
 const showAddProperty: Ref<boolean> = ref(false);
 const showSearchDialog: Ref<boolean> = ref(false);
+const editMatch: Ref<Match> = ref({ where: [] } as Match);
 
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 const rClickItemsSingle: Ref<MenuItem[]> = ref([
@@ -97,13 +98,13 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
       {
         label: "Property",
         command: () => {
-          addProperty();
+          showAddPropertyDialog();
         }
       },
       {
         label: "Match",
         command: () => {
-          addMatch();
+          showAddMatchDialog();
         }
       }
     ]
@@ -200,12 +201,10 @@ function discardKeepAs() {
 }
 
 function save(editMatch: Match) {
-  console.log(JSON.stringify(props.match));
   for (const key of Object.keys(editMatch)) {
     (props.match as any)[key] = (editMatch as any)[key];
   }
   describeMatch([props.match], "match");
-  console.log(JSON.stringify(props.match));
   showEdit.value = false;
 }
 
@@ -227,27 +226,21 @@ function moveDown() {
   }
 }
 
-function addProperty() {
+function showAddPropertyDialog() {
   showAddProperty.value = true;
 }
 
-function addMatch() {
-  showSearchDialog.value = true;
+function addProperty(newMatch: Match) {
+  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
+    props.parentMatch.match!.splice(props.index + 1, 0, newMatch);
+  } else {
+    emit("onAdd", props.index, newMatch);
+  }
+  showAddProperty.value = false;
 }
 
-function saveAdd() {
-  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
-    const index = props.parentMatch.match!.findIndex(match => JSON.stringify(props.match) === JSON.stringify(match));
-    if (index !== -1) {
-      const indexToAdd = index + 1;
-      if (indexToAdd) {
-        const newMatch = {} as Match;
-        props.parentMatch.match!.splice(indexToAdd, 0, newMatch);
-      }
-    }
-  } else {
-    emit("onAdd", props.index);
-  }
+function showAddMatchDialog() {
+  showSearchDialog.value = true;
 }
 
 function addNested() {
@@ -258,6 +251,8 @@ function addNested() {
 function remove() {
   if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
     props.parentMatch.match!.splice(props.index, 1);
+  } else {
+    emit("onRemove", props.index);
   }
   props.selectedMatches.length = 0;
 }

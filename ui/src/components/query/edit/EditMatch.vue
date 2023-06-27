@@ -4,7 +4,7 @@
   </div>
   <div v-if="isArrayHasLength(properties)" v-for="(property, index) in properties" class="property-container">
     <Divider v-if="index" align="center">
-      <div :class="editBoolWhere" @click="toggleBoolWhere">{{ editBoolWhere }}</div>
+      <div :class="editMatch.boolWhere" @click="toggleBoolWhere">{{ editMatch.boolWhere }}</div>
     </Divider>
     <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
     <div v-if="property && isObjectHasKeys(property)">
@@ -30,7 +30,7 @@
 
   <div class="button-bar">
     <Button class="button-bar-button" label="Cancel" severity="secondary" @click="emit('cancel')" />
-    <Button class="button-bar-button" label="Save" @click="emit('save', editMatch)" />
+    <Button class="button-bar-button" label="Save" @click="save" />
   </div>
 </template>
 
@@ -66,7 +66,6 @@ watch(
   () => describeMatch([editMatch.value], "match")
 );
 
-const editBoolWhere: Ref<Bool> = ref("and");
 const properties: Ref<TTProperty[]> = ref([]);
 const dataModelIri: Ref<string> = ref("");
 
@@ -79,8 +78,13 @@ function deleteProperty() {
 }
 
 function toggleBoolWhere() {
-  if (editBoolWhere.value === "and") editBoolWhere.value = "or";
-  else if (editBoolWhere.value === "or") editBoolWhere.value = "and";
+  if (editMatch.value.boolWhere === "and") editMatch.value.boolWhere = "or";
+  else if (editMatch.value.boolWhere === "or") editMatch.value.boolWhere = "and";
+}
+
+function save() {
+  console.log(editMatch.value.boolWhere);
+  emit("save", editMatch.value);
 }
 
 async function init() {
