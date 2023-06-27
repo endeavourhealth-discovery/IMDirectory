@@ -9,8 +9,9 @@
     <Divider v-if="index" align="center">
       <div :class="editMatch.boolWhere" @click="toggleBoolWhere">{{ editMatch.boolWhere }}</div>
     </Divider>
-    <Button icon="fa-solid fa-xmark" :severity="'danger'" @click="properties.splice(index, 1)"></Button>
-
+    <div class="remove-property">
+      <Button icon="fa-solid fa-xmark" :severity="'danger'" @click="properties.splice(index, 1)"></Button>
+    </div>
     <div v-if="property && isObjectHasKeys(property)">
       <div v-tooltip.right="property.toolTip" class="property-label">
         {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
@@ -193,5 +194,11 @@ function getLastNode(pathOrNode: any, found: string[]) {
   display: flex;
   flex-flow: wrap;
   gap: 0.5rem;
+}
+
+.remove-property {
+  display: flex;
+  align-items: center;
+  padding-right: 1rem;
 }
 </style>
