@@ -97,7 +97,7 @@ export function getDisplayFromMatch(match: Match) {
   if (match.exclude) display += getDisplayFromLogic("exclude");
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
-  if (match.path) display += getDisplayFromPath(match.path);
+  if (match.path) display += getDisplayFromPath(match.path[0]);
   if (match.where) {
     let whereDisplay = "";
     const whereDisplays = getDisplayFromWhereList(getNameFromRef(match) ? " with " : display, match.where);

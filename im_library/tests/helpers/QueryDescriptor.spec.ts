@@ -44,7 +44,7 @@ describe("QueryDescriptor.ts ___", () => {
     });
 
     it("can not get a display for a match clause with a variable", () => {
-      const display = getDisplayFromMatch(match.withVariable as Match);
+      const display = getDisplayFromMatch(match.withVariable as any);
       expect(display).toEqual("");
     });
 
