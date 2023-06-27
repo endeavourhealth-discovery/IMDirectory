@@ -16,7 +16,7 @@
     "build-library": "cd im_library && pnpm build",
     "build-api": "cd node_api && pnpm build",
     "build-ui": "cd ui && pnpm build",
-    "clean-install-all": "pnpm install && rimraf ui/node_modules && rimraf node_api/node_modules && rimraf im_library/node_modules && pnpm install-all",
+    "clean-install-all": "rimraf pnpm-lock.yaml && pnpm install && rimraf ui/node_modules && rimraf ui/pnpm-lock.yaml && rimraf node_api/node_modules && rimraf node_api/pnpm-lock.yaml && rimraf im_library/node_modules && rimraf im_library/pnpm-lock.yaml && pnpm install-all",
     "install-all": "pnpm install && run-p install-library install-api install-ui",
     "install-library": "cd im_library && pnpm install",
     "install-api": "cd node_api && pnpm install",
