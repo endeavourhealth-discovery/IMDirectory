@@ -17,7 +17,7 @@
         <DisplayMatch :match="match" :index="index" />
       </template>
       <template #content>
-        <EditMatch :base-entity-match-iri="baseEntityMatchIri" :match="match" @cancel="showEdit = false" @save="save" />
+        <EditMatch :base-entity-match-iri="baseEntityMatchIri" :match="match" @removeProperty="remove()" @cancel="showEdit = false" @save="save" />
       </template>
     </Card>
 
