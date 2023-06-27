@@ -6,7 +6,7 @@
       </template>
     </TopBar>
     <div class="include-title include">include if</div>
-    <div v-if="query.type" class="type-title">{{ getNameFromRef({ "@id": query.type }) }}</div>
+    <div v-if="baseEntityMatchIri" class="type-title">{{ getNameFromRef({ "@id": baseEntityMatchIri }) }}</div>
 
     <RecursiveQueryEdit
       v-if="isArrayHasLength(query.match)"
@@ -19,11 +19,15 @@
       @on-remove="remove"
     />
 
-    <Button v-else-if="!query.type" label="Add base type" @click="showAddBaseType = true" />
-    <Button v-if="!isArrayHasLength(query.match) && query.type" label="Add feature" @click="showAddMatch = true" />
+    <div v-else-if="!baseEntityMatchIri">
+      <Button label="Add base type" @click="showAddBaseType = true" />
+    </div>
+    <div v-if="!isArrayHasLength(query.match) && query.type">
+      <Button label="Add feature" @click="showAddProperty = true" />
+    </div>
 
-    <Dialog v-model:visible="showAddMatch" modal :header="'Add rule'" :style="{ width: '60vw' }">
-      <AddProperty :base-type="query.type ?? baseEntityMatchIri" @on-close="showAddMatch = false" />
+    <Dialog v-model:visible="showAddProperty" modal :header="'Add rule'" :style="{ width: '60vw' }">
+      <AddProperty :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
     </Dialog>
 
     <Dialog v-model:visible="showAddBaseType" modal :header="'Add base type'" :style="{ width: '60vw' }">
@@ -46,7 +50,6 @@ import { useFilterStore } from "@/stores/filterStore";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
-import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
@@ -62,7 +65,7 @@ const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const showAddBaseType: Ref<boolean> = ref(false);
-const showAddMatch: Ref<boolean> = ref(false);
+const showAddProperty: Ref<boolean> = ref(false);
 
 watch(
   () => queryIri.value,
@@ -90,7 +93,8 @@ async function setQuery() {
 }
 
 async function setBaseEntityMatch() {
-  if (isArrayHasLength(query.value?.match)) {
+  if (query.value.type) baseEntityMatchIri.value = query.value.type;
+  else if (isArrayHasLength(query.value?.match)) {
     baseEntityMatchIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
   }
 }
@@ -102,6 +106,12 @@ function add(matchIndex: number, newMatch: Match) {
       query.value.match!.splice(indexToAdd, 0, newMatch);
     }
   }
+}
+
+function addProperty(newMatch: Match) {
+  if (!isArrayHasLength(query.value.match)) query.value.match = [];
+  query.value.match!.push(newMatch);
+  showAddProperty.value = false;
 }
 
 function remove(matchIndex: number) {
