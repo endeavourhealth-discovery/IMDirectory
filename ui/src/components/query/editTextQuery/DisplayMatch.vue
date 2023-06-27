@@ -19,6 +19,21 @@
     </span>
     <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
+
+    <span v-if="isArrayHasLength(match.path)">
+      <span v-if="isObjectHasKeys(match.path![0].match, ['where']) && isArrayHasLength(match.path![0].match!.where)">
+        <span v-if="match.path![0].match!.where!.length == 1">
+          <span v-if="hasNodeRef(match.path![0].match!.where![0])" v-html="match.path![0].match!.where![0].description"> </span>
+          <span v-else-if="hasBigList(match.path![0].match!.where![0])" v-html="match.path![0].match!.where![0].description"> </span>
+          <span v-else v-html="match.path![0].match!.where![0].description"></span>
+          <span v-if="isArrayHasLength(match.path![0].match!.where![0].where)">
+            <RecursiveWhereEdit :wheres="match.path![0].match!.where![0].where!" :parent-match="parentMatch" :parent-where="match.path![0].match!.where![0]" />
+          </span>
+        </span>
+
+        <RecursiveWhereEdit v-else :wheres="match.path![0].match!.where!" :parent-match="match.path![0].match" />
+      </span>
+    </span>
   </div>
 </template>
 
