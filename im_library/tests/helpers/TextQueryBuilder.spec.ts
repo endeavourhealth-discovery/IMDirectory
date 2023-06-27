@@ -58,7 +58,7 @@ describe("TextQueryBuilder.ts ___", () => {
       } as Match);
       expect(textQuery.length).toEqual(1);
       expect(textQuery[0].display).toEqual(
-        "&lt;&lt;Medicinal product (product) with .Has active ingredient (attribute): &lt;&lt;Non-steroidal anti-inflammatory agent (substance) with .Has manufactured dose form (attribute): &lt;&lt;Oral dose form (dose form)"
+        "&lt;&lt;Medicinal product (product) with .Has active ingredient (attribute): &lt;&lt;Non-steroidal anti-inflammatory agent (substance) <span style=\'color: orange;\'>and</span>  with .Has manufactured dose form (attribute): &lt;&lt;Oral dose form (dose form)"
       );
     });
 
