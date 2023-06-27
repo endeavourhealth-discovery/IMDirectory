@@ -17,7 +17,7 @@
         <DisplayMatch :match="match" :index="index" />
       </template>
       <template #content>
-        <EditMatch :base-entity-match-iri="baseEntityMatchIri" :match="match" @removeProperty="remove()" @cancel="showEdit = false" @save="save" />
+        <EditMatch :base-entity-match-iri="baseEntityMatchIri" :match="match" @remove-match="remove()" @cancel="showEdit = false" @save="save" />
       </template>
     </Card>
 
@@ -255,6 +255,7 @@ function remove() {
     emit("onRemove", props.index);
   }
   props.selectedMatches.length = 0;
+  showEdit.value = false;
 }
 
 // function deleteBaseType() {

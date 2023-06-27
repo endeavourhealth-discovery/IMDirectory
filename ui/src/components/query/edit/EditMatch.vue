@@ -3,14 +3,14 @@
     <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
       {{ editMatch.exclude ? "exclude" : "include" }}
     </div>
-    <Button class="button-bar-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
+    <Button class="button-bar-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="emit('removeMatch')"></Button>
   </div>
   <div v-if="isArrayHasLength(properties)" v-for="(property, index) in properties" class="property-container">
     <Divider v-if="index" align="center">
       <div :class="editMatch.boolWhere" @click="toggleBoolWhere">{{ editMatch.boolWhere }}</div>
     </Divider>
+    <Button icon="fa-solid fa-xmark" :severity="'danger'" @click="properties.splice(index, 1)"></Button>
 
-    <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="properties.splice(index, 1)"></Button>
     <div v-if="property && isObjectHasKeys(property)">
       <div v-tooltip.right="property.toolTip" class="property-label">
         {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
@@ -30,6 +30,7 @@
       <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" />
     </div>
   </div>
+  <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" />
 
   <Dialog v-model:visible="showAddProperty" modal :header="'Add property'" :style="{ width: '60vw' }">
     <AddProperty :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
@@ -61,7 +62,7 @@ import _ from "lodash";
 import AddProperty from "./AddProperty.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 const emit = defineEmits({
-  removeProperty: (_payload: Match, _flag: boolean) => true,
+  removeMatch: () => true,
   save: (_payload: Match) => true,
   cancel: () => true
 });
