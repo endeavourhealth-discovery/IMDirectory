@@ -6,7 +6,7 @@
     <Divider v-if="index" align="center">
       <div :class="editMatch.boolWhere" @click="toggleBoolWhere">{{ editMatch.boolWhere }}</div>
     </Divider>
-    <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
+    <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="properties.splice(index, 1)"></Button>
     <div v-if="property && isObjectHasKeys(property)">
       <div v-tooltip.right="property.toolTip">
         {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
@@ -26,16 +26,23 @@
       <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" />
     </div>
   </div>
-  <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" />
 
+  <Dialog v-model:visible="showAddProperty" modal :header="'Add property'" :style="{ width: '60vw' }">
+    <AddProperty :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
+  </Dialog>
+
+  <DirectorySearchDialog v-model:showDialog="showSearchDialog" @on-close="showSearchDialog = false" />
+  <Button class="button-bar-button" label="Add property" @click="showAddProperty = true" />
+  <Button class="button-bar-button" label="Add match" @click="showSearchDialog = true" />
   <div class="button-bar">
     <Button class="button-bar-button" label="Cancel" severity="secondary" @click="emit('cancel')" />
+
     <Button class="button-bar-button" label="Save" @click="save" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Bool, Match } from "@im-library/interfaces/AutoGen";
+import { Bool, Match, Where } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref, watch } from "vue";
 import ClassSelect from "../clause/select/ClassSelect.vue";
 import DatatypeSelect from "../clause/select/DatatypeSelect.vue";
@@ -47,6 +54,8 @@ import { SHACL } from "@im-library/vocabulary";
 import EntitySelect from "../clause/select/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import _ from "lodash";
+import AddProperty from "./AddProperty.vue";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 const emit = defineEmits({
   removeProperty: (_payload: Match, _flag: boolean) => true,
   save: (_payload: Match) => true,
@@ -60,7 +69,8 @@ interface Props {
 
 const props = defineProps<Props>();
 const editMatch: Ref<Match> = ref({} as Match);
-
+const showAddProperty: Ref<boolean> = ref(false);
+const showSearchDialog: Ref<boolean> = ref(false);
 watch(
   () => editMatch.value.where,
   () => describeMatch([editMatch.value], "match")
@@ -73,17 +83,25 @@ onMounted(async () => {
   await init();
 });
 
-function deleteProperty() {
-  emit("removeProperty", editMatch.value, true);
-}
-
 function toggleBoolWhere() {
   if (editMatch.value.boolWhere === "and") editMatch.value.boolWhere = "or";
   else if (editMatch.value.boolWhere === "or") editMatch.value.boolWhere = "and";
 }
 
+function addProperty(newMatch: Match) {
+  console.log(newMatch.where);
+
+  if (!newMatch.boolWhere) newMatch.boolWhere = "and";
+  properties.value = [];
+  if (isArrayHasLength(newMatch.where))
+    for (const where of newMatch.where!) {
+      addPropertyFromWhere(where);
+    }
+  editMatch.value.where = newMatch.where;
+  showAddProperty.value = false;
+}
+
 function save() {
-  console.log(editMatch.value.boolWhere);
   emit("save", editMatch.value);
 }
 
@@ -94,21 +112,25 @@ async function init() {
   dataModelIri.value = getDataModelIri(editMatch.value) ?? resolvedIri;
   if (isObjectHasKeys(editMatch.value, ["where"]) && isArrayHasLength(editMatch.value.where)) {
     for (const where of editMatch.value.where!) {
-      let property;
-      const propertyIri = where["@id"];
-      if (dataModelIri.value && propertyIri) {
-        const iri = resolveIri(dataModelIri.value);
-        const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
-        if (isArrayHasLength(entity[SHACL.PROPERTY])) {
-          const ttproperties = entity[SHACL.PROPERTY];
-          const found = (ttproperties as TTProperty[]).find(prop => prop["http://www.w3.org/ns/shacl#path"][0]["@id"] === propertyIri);
-          if (found) {
-            property = found;
-            property.tooltip = getTooltip(property);
-            property.where = where;
-            properties.value.push(property);
-          }
-        }
+      addPropertyFromWhere(where);
+    }
+  }
+}
+
+async function addPropertyFromWhere(where: Where) {
+  let property;
+  const propertyIri = where["@id"];
+  if (dataModelIri.value && propertyIri) {
+    const iri = resolveIri(dataModelIri.value);
+    const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
+    if (isArrayHasLength(entity[SHACL.PROPERTY])) {
+      const ttproperties = entity[SHACL.PROPERTY];
+      const found = (ttproperties as TTProperty[]).find(prop => prop["http://www.w3.org/ns/shacl#path"][0]["@id"] === propertyIri);
+      if (found) {
+        property = found;
+        property.tooltip = getTooltip(property);
+        property.where = where;
+        properties.value.push(property);
       }
     }
   }

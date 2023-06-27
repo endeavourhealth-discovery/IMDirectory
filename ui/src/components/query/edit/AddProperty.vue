@@ -1,6 +1,6 @@
 <template>
   <div class="add-base-container">
-    <QueryNavTree :base-type="baseType" :editMatch="editMatch" :selected-properties="selectedProperties"/>
+    <QueryNavTree :base-type="baseType" :editMatch="editMatch" :selected-properties="selectedProperties" />
     <div class="footer">
       <Button label="Discard" severity="secondary" @click="discard" text />
       <Button label="Save" @click="save" text />
@@ -37,14 +37,12 @@ function isDirectProperty(treeNode: TreeNode) {
 }
 
 function addProperty(treeNode: TreeNode) {
-  if (isDirectProperty(treeNode)) {
-    if (!isArrayHasLength(editMatch.value.where)) editMatch.value.where = [];
-    editMatch.value.where?.push(buildWhereFromProperty(treeNode as any));
-    describeMatch([editMatch.value], "match");
-  }
+  editMatch.value.where?.push(buildWhereFromProperty(treeNode as any));
+  describeMatch([editMatch.value], "match");
 }
 
 async function save() {
+  if (!isArrayHasLength(editMatch.value.where)) editMatch.value.where = [];
   for (const treeNodeProperty of selectedProperties.value) {
     addProperty(treeNodeProperty);
   }
