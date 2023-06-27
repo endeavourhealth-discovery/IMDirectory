@@ -39,6 +39,7 @@ import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 interface Props {
   baseType: string;
   editMatch: Match;
+  selectedProperties: TreeNode[];
 }
 const props = defineProps<Props>();
 
@@ -149,20 +150,9 @@ async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], n
   }
 }
 
-function addProperty(treeNode: TreeNode) {
-  if (isDirectProperty(treeNode)) {
-    if (!isArrayHasLength(props.editMatch.where)) props.editMatch.where = [];
-    props.editMatch.where?.push(buildWhereFromProperty(treeNode as any));
-    describeMatch([props.editMatch], "match");
-  }
-}
-
-function isDirectProperty(treeNode: TreeNode) {
-  return (treeNode.parent && treeNode.parent.key === "0") || (treeNode.parent.parent && treeNode.parent.parent.key === "0");
-}
-
 function removeProperty(treeNode: TreeNode) {
-  emit("removeProperty", treeNode);
+  const index = props.selectedProperties.findIndex(selected => selected.key === treeNode.key);
+  if (index !== -1) props.selectedProperties.splice(index, 1);
 }
 
 function onUnselect(node: any) {
@@ -173,6 +163,10 @@ function onUnselect(node: any) {
 function onSelect(node: any) {
   select(node);
   addProperty(node);
+}
+
+function addProperty(node: any) {
+  props.selectedProperties.push(node);
 }
 
 async function handleTreeNodeExpand(node: any) {
