@@ -82,7 +82,15 @@ describe("ClauseUIBuilder.ts ___", () => {
       const uiData = buildClauseUI({
         exclude: true,
         description: "High BP not followed by screening invite",
-        path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+        path: [
+          {
+            "@id": "http://endhealth.info/im#observation",
+            match: {
+              "@type": "Observation",
+              description: "Observation"
+            }
+          }
+        ],
         bool: "and",
         where: [
           {
@@ -106,12 +114,15 @@ describe("ClauseUIBuilder.ts ___", () => {
           matchValue: undefined,
           where: [
             {
-              path: {
-                "@id": "http://endhealth.info/im#observation",
-                node: {
-                  "@type": "Observation"
+              path: [
+                {
+                  "@id": "http://endhealth.info/im#observation",
+                  "match": {
+                    "@type": "Observation",
+                    "description": "Observation"
+                  }
                 }
-              },
+              ],
               whereProperty: {
                 data: {
                   "http://www.w3.org/ns/shacl#path": [
@@ -126,12 +137,15 @@ describe("ClauseUIBuilder.ts ___", () => {
               whereEntailment: []
             },
             {
-              path: {
-                "@id": "http://endhealth.info/im#observation",
-                node: {
-                  "@type": "Observation"
+              path: [
+                {
+                  "@id": "http://endhealth.info/im#observation",
+                  "match": {
+                    "@type": "Observation",
+                    "description": "Observation"
+                  }
                 }
-              },
+              ],
               whereProperty: {
                 data: {
                   "http://www.w3.org/ns/shacl#path": [

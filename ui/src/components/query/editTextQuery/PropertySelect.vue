@@ -105,9 +105,9 @@ function select() {
 
 function getLeafDataModelFromPath(pathOrNode: Path | Node, found: string[]) {
   if (isObjectHasKeys(pathOrNode, ["node"])) {
-    getLeafDataModelFromPath((pathOrNode as Path).node!, found);
+    getLeafDataModelFromPath((pathOrNode as any).node!, found);
   } else if (isObjectHasKeys(pathOrNode, ["path"])) {
-    getLeafDataModelFromPath((pathOrNode as Node).path!, found);
+    getLeafDataModelFromPath((pathOrNode as any).path!, found);
   } else {
     found.push((pathOrNode["@id"] || pathOrNode["@type"]) as string);
   }
@@ -120,9 +120,9 @@ function findNodeWithPath(path: Path | Node, node: TreeNode, iri: string, nodes:
   findNodeByIri(node, pathIri, found);
   if (isArrayHasLength(found)) {
     if (isObjectHasKeys(path, ["node"])) {
-      findNodeWithPath((path as Path).node!, found[0], iri, nodes);
+      findNodeWithPath((path as any).node!, found[0], iri, nodes);
     } else if (isObjectHasKeys(path, ["path"])) {
-      findNodeWithPath((path as Node).path!, found[0], iri, nodes);
+      findNodeWithPath((path as any).path!, found[0], iri, nodes);
     } else {
       findNodeByIri(found[0], iri, nodes);
     }

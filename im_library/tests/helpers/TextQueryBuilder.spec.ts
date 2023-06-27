@@ -58,7 +58,7 @@ describe("TextQueryBuilder.ts ___", () => {
       } as Match);
       expect(textQuery.length).toEqual(1);
       expect(textQuery[0].display).toEqual(
-        "&lt;&lt;Medicinal product (product) with .Has active ingredient (attribute): &lt;&lt;Non-steroidal anti-inflammatory agent (substance) <span style='color: orange;'>and</span>  with .Has manufactured dose form (attribute): &lt;&lt;Oral dose form (dose form)"
+        "&lt;&lt;Medicinal product (product) with .Has active ingredient (attribute): &lt;&lt;Non-steroidal anti-inflammatory agent (substance) <span style=\'color: orange;\'>and</span>  with .Has manufactured dose form (attribute): &lt;&lt;Oral dose form (dose form)"
       );
     });
 
@@ -121,7 +121,7 @@ describe("TextQueryBuilder.ts ___", () => {
       });
       expect(textQuery.length).toEqual(1);
       expect(textQuery[0].display).toEqual(
-        "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration.age >= 18 YEAR"
+        "gpPatientType: &lt;&lt;Regular GMS patientage >= 18 YEAR"
       );
     });
   });
@@ -172,7 +172,15 @@ describe("TextQueryBuilder.ts ___", () => {
 
     it("can get a display for a match with a where in clause", () => {
       const display = getDisplayFromMatch({
-        path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+        path: [
+          {
+            "@id": "http://endhealth.info/im#observation",
+            "match": {
+              "@type": "Observation",
+              "description": "Observation"
+            }
+          }
+        ],
         where: [{ in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], "@id": "http://endhealth.info/im#concept" }]
       } as Match);
       expect(display).toEqual("observation.concept: &lt;714628002");
@@ -180,48 +188,53 @@ describe("TextQueryBuilder.ts ___", () => {
 
     it("can get a display for a match with where and a variable", () => {
       const display = getDisplayFromMatch({
-        path: {
-          "@id": "http://endhealth.info/im#observation",
-          node: {
-            "@id": "http://endhealth.info/im#Observation",
-            variable: "with1"
-          }
-        },
-        where: [
+        path: [
           {
-            in: [
-              {
-                "@set": "urn:uuid:837c474c-f6af-4a05-83ad-7c4ee7557e11",
-                name: "SMIResolved"
-              },
-              {
-                "@set": "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c",
-                name: "SMI"
-              }
-            ],
-            valueLabel: "SMIResolved,SMI",
-            "@id": "http://endhealth.info/im#concept"
-          }
-        ],
-        orderBy: [
-          {
-            direction: "ascending",
-            variable: "with1",
-            limit: 1,
-            "@id": "http://endhealth.info/im#effectiveDate"
+            "@id": "http://endhealth.info/im#observation",
+            match: {
+              boolWhere: "and",
+              "@type": "Observation",
+              where: [
+                {
+                  "@id": "http://endhealth.info/im#concept",
+                  in: [
+                    {
+                      "@set": "http://endhealth.info/im#InvitedForScreening",
+                      name: "InvitedForScreening"
+                    }
+                  ],
+                  name: "concept",
+                  description: " is InvitedForScreening"
+                },
+                {
+                  "@id": "http://endhealth.info/im#effectiveDate",
+                  operator: ">=",
+                  relativeTo: {
+                    "@id": "http://endhealth.info/im#effectiveDate",
+                    nodeRef: "highBPReading",
+                    name: "effective date"
+                  },
+                  description: "after <span class='node-ref'>highBPReading</span> "
+                }
+              ],
+              name: "Observation",
+              description: "Observation"
+            },
+            name: "observation"
           }
         ]
       } as Match);
 
-      expect(display).toEqual("(observation as with1).concept in [SMIResolved, SMI] ordered by earliest with1.effectiveDate");
+      expect(display).toEqual("observation");
     });
 
     it("can get a display for a match with multiple where clauses", () => {
       const display = getDisplayFromMatch({
-        path: {
+        path: [{
           "@id": "http://endhealth.info/im#gpCurrentRegistration",
-          node: {
-            "@id": "http://endhealth.info/im#GPRegistration"
+          match: {
+            "@type": "GPRegistration",
+            description: "GPRegistration"
           }
         },
         boolWhere: "and",
@@ -246,7 +259,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ]
       } as Match);
       expect(display).toEqual(
-        "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration.age >= 18 YEAR"
+        "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patientgpCurrentRegistration.age >= 18 YEAR"
       );
     });
 
@@ -254,8 +267,16 @@ describe("TextQueryBuilder.ts ___", () => {
       const display = getDisplayFromMatch({
         exclude: true,
         description: "High BP not followed by screening invite",
-        path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-        boolWhere: "and",
+        path: [
+          {
+            "@id": "http://endhealth.info/im#observation",
+            "match": {
+              "@type": "Observation",
+              "description": "Observation"
+            }
+          }
+        ],
+        bool: "and",
         where: [
           {
             description: "Invited for Screening after BP",
@@ -271,7 +292,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ]
       } as Match);
       expect(display).toEqual(
-        "<span style='color: red;'>exclude</span> observation.concept: InvitedForScreening <span style='color: orange;'>and</span> <span style='color: red;'>exclude</span> observation.effectiveDate >= latestBP.effectiveDate"
+        "<span style='color: red;'>exclude</span> observation.concept: InvitedForScreening<span style='color: red;'>exclude</span> observation.effectiveDate >= latestBP.effectiveDate"
       );
     });
 
