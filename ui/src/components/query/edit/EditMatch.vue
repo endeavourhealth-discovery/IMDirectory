@@ -1,14 +1,18 @@
 <template>
-  <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
-    {{ editMatch.exclude ? "exclude" : "include" }}
+  <div class="property-match-button-container">
+    <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
+      {{ editMatch.exclude ? "exclude" : "include" }}
+    </div>
+    <Button class="button-bar-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="deleteProperty"></Button>
   </div>
   <div v-if="isArrayHasLength(properties)" v-for="(property, index) in properties" class="property-container">
     <Divider v-if="index" align="center">
       <div :class="editMatch.boolWhere" @click="toggleBoolWhere">{{ editMatch.boolWhere }}</div>
     </Divider>
+
     <Button class="property-delete-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="properties.splice(index, 1)"></Button>
     <div v-if="property && isObjectHasKeys(property)">
-      <div v-tooltip.right="property.toolTip">
+      <div v-tooltip.right="property.toolTip" class="property-label">
         {{ property?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? property?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
       </div>
       <ClassSelect
@@ -161,12 +165,6 @@ function getLastNode(pathOrNode: any, found: string[]) {
 </script>
 
 <style scoped>
-.property-delete-button {
-  position: relative;
-  top: 0;
-  right: 0;
-}
-
 .button-bar {
   display: flex;
   justify-content: end;
@@ -178,16 +176,21 @@ function getLastNode(pathOrNode: any, found: string[]) {
   width: 100%;
 }
 
-.property-label-button-container {
+.property-label {
+  margin-bottom: 0.5rem;
+}
+
+.property-match-button-container {
   display: flex;
-  width: 100%;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  margin-bottom: 0;
 }
 
 .property-input-container {
   display: flex;
-  width: 100%;
+  flex-flow: wrap;
   gap: 0.5rem;
 }
 </style>
