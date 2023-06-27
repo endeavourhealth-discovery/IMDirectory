@@ -22,6 +22,21 @@
           :full-query="fullQuery"
         />
       </span>
+      <span v-if="isArrayHasLength(match.path)">
+          <span v-if="isObjectHasKeys(match.path[0].match, ['where']) && isArrayHasLength(match.path[0].match.where)">
+        <span v-if="match.path[0].match.where!.length == 1">
+          <span v-if="hasNodeRef(match.path[0].match.where![0])" v-html="match.path[0].match.where![0].description" @click="onNodeRefClick(match.path[0].match.where![0], $event)"></span>
+          <span v-else-if="hasBigList(match.path[0].match.where![0])" v-html="match.path[0].match.where![0].description" @click="onWhereInClick(match.path[0].match.where![0], $event)"></span>
+          <span v-else v-html="match.path[0].match.where![0].description"></span>
+          <span v-if="isArrayHasLength(match.path[0].match.where![0].where)">
+            <RecursiveWhereDisplay :wheres="match.path[0].match.where![0].where!" :parent-match="parentMatch" :parent-where="match.path[0].match.where![0]" :full-query="fullQuery" />
+          </span>
+        </span>
+
+        <RecursiveWhereDisplay v-else :wheres="match.path[0].match.where!" :parent-match="match.path[0].match" :full-query="fullQuery" />
+      </span>
+
+      </span>
       <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
         <span v-if="match.where!.length == 1">
           <span v-if="hasNodeRef(match.where![0])" v-html="match.where![0].description" @click="onNodeRefClick(match.where![0], $event)"></span>

@@ -35,6 +35,9 @@ function describeMatch(match: Match[], type: string) {
     if (isArrayHasLength(matchItem.where)) {
       describeWhere(matchItem.where!, type);
     }
+    if(isArrayHasLength(matchItem.path)) {
+      describeMatch([matchItem.path?.[0].match!], type)
+    }
   }
 }
 
@@ -54,7 +57,7 @@ export function getDisplayFromMatch(match: Match) {
   display += getNameFromRef(match);
   if (match.orderBy) describeOrderByList(match.orderBy);
   if (match["@set"]) display = "in '" + display + "'";
-  if (match.path) display += getDisplayFromPath(match.path);
+  if (match.path) display += getDisplayFromPath(match.path[0]);
   return display;
 }
 

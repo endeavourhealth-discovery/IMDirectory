@@ -97,12 +97,12 @@ export function getDisplayFromMatch(match: Match) {
   if (match.exclude) display += getDisplayFromLogic("exclude");
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
-  if (match.path) display += getDisplayFromPath(match.path);
+  if (match.path) display += getDisplayFromPath(match.path[0]);
   if (match.where) {
     let whereDisplay = "";
     const whereDisplays = getDisplayFromWhereList(getNameFromRef(match) ? " with " : display, match.where);
     for (let [index, value] of whereDisplays.entries()) {
-      if (match.bool && index !== 0) whereDisplay += " " + getDisplayFromLogic(match.bool);
+      if (match.boolWhere && index !== 0) whereDisplay += " " + getDisplayFromLogic(match.boolWhere);
       whereDisplay += value;
     }
 
