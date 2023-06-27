@@ -22,7 +22,7 @@
     <Button v-if="!isArrayHasLength(query.match) && query.type" label="Add feature" @click="showAddMatch = true" />
 
     <Dialog v-model:visible="showAddMatch" modal :header="'Add rule'" :style="{ width: '60vw' }">
-      <AddFeature :base-type="query.type ?? baseEntityMatchIri" @on-close="showAddMatch = false" />
+      <AddProperty :base-type="query.type ?? baseEntityMatchIri" @on-close="showAddMatch = false" />
     </Dialog>
 
     <Dialog v-model:visible="showAddBaseType" modal :header="'Add base type'" :style="{ width: '60vw' }">
@@ -30,14 +30,11 @@
     </Dialog>
 
     <div class="button-bar">
-      <Button label="showDialog" @click="showSearchDialog = true" />
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
       <Button class="button-bar-button" label="Save" severity="success" />
     </div>
   </div>
-
-  <DirectorySearchDialog v-model:showDialog="showSearchDialog" />
 </template>
 
 <script setup lang="ts">
@@ -54,7 +51,7 @@ import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
 import AddBaseType from "@/components/query/edit/AddBaseType.vue";
-import AddFeature from "@/components/query/edit/AddFeature.vue";
+import AddProperty from "@/components/query/edit/AddProperty.vue";
 
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
@@ -65,7 +62,6 @@ const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const showAddBaseType: Ref<boolean> = ref(false);
 const showAddMatch: Ref<boolean> = ref(false);
-const showSearchDialog: Ref<boolean> = ref(false);
 
 watch(
   () => queryIri.value,

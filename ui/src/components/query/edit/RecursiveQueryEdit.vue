@@ -46,9 +46,11 @@
       <Button label="OK" @click="viewDialog = false" text />
     </template>
   </Dialog>
-  <Dialog v-model:visible="showAddMatch" modal :header="'Add rule'" :style="{ width: '60vw' }">
-    <AddFeature :base-type="baseEntityMatchIri" @on-close="showAddMatch = false" />
+  <Dialog v-model:visible="showAddProperty" modal :header="'Add rule'" :style="{ width: '60vw' }">
+    <AddProperty :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" />
   </Dialog>
+  <DirectorySearchDialog v-model:showDialog="showSearchDialog" @on-close="showSearchDialog = false" />
+
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
 </template>
 
@@ -65,7 +67,8 @@ import Swal from "sweetalert2";
 import { PrimeIcons } from "primevue/api";
 import EditMatch from "./EditMatch.vue";
 import DisplayMatch from "../editTextQuery/DisplayMatch.vue";
-import AddFeature from "./AddFeature.vue";
+import AddProperty from "./AddProperty.vue";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 
 const emit = defineEmits({ onAdd: (matchIndex: number) => true });
 
@@ -82,7 +85,8 @@ const showEdit: Ref<boolean> = ref(false);
 const keepAsDialog: Ref<boolean> = ref(false);
 const viewDialog: Ref<boolean> = ref(false);
 const rClickMenu = ref();
-const showAddMatch: Ref<boolean> = ref(false);
+const showAddProperty: Ref<boolean> = ref(false);
+const showSearchDialog: Ref<boolean> = ref(false);
 
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 const rClickItemsSingle: Ref<MenuItem[]> = ref([
@@ -91,15 +95,15 @@ const rClickItemsSingle: Ref<MenuItem[]> = ref([
     icon: "pi pi-fw pi-plus",
     items: [
       {
-        label: "Below",
+        label: "Property",
         command: () => {
-          add();
+          addProperty();
         }
       },
       {
-        label: "Nested",
+        label: "Match",
         command: () => {
-          addNested();
+          addMatch();
         }
       }
     ]
@@ -223,8 +227,12 @@ function moveDown() {
   }
 }
 
-function add() {
-  showAddMatch.value = true;
+function addProperty() {
+  showAddProperty.value = true;
+}
+
+function addMatch() {
+  showSearchDialog.value = true;
 }
 
 function saveAdd() {

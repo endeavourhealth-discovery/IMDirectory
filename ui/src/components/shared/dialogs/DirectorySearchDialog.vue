@@ -2,6 +2,7 @@
   <Dialog
     v-model:visible="visible"
     modal
+    maximizable
     header="Search"
     :style="{ minWidth: '80vw', minHeight: '80vh', backgroundColor: 'var(--surface-section)' }"
     class="search-dialog"
@@ -21,6 +22,12 @@
         </div>
       </div>
     </div>
+    <template #footer>
+      <!-- <div class="footer"> -->
+      <Button label="Discard" severity="secondary" @click="discard" text />
+      <Button label="Save" @click="save" text />
+      <!-- </div> -->
+    </template>
   </Dialog>
 </template>
 
@@ -44,7 +51,7 @@ watch(
   newValue => (visible.value = newValue)
 );
 
-const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean", "update:selected": payload => true });
+const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean", "update:selected": payload => true, onClose: () => true });
 
 const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
@@ -66,6 +73,14 @@ function updateSelected(data: ConceptSummary) {
 
 function locateInTree(event: any, iri: string) {
   treeIri.value = iri;
+}
+
+async function save() {
+  emit("onClose");
+}
+
+function discard() {
+  emit("onClose");
 }
 </script>
 

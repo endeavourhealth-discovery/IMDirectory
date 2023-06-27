@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-06-26 10:29:17.
+// Generated using typescript-generator version 3.2.1263 on 2023-06-26 17:02:57.
 
 /**
  * Structure containing search request parameters and filters
@@ -174,9 +174,9 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    operator?: Operator;
     relativeTo?: Property;
     unit?: string;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -390,8 +390,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
