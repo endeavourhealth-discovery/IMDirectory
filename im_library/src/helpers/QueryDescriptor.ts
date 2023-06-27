@@ -36,7 +36,7 @@ function describeMatch(match: Match[], type: string) {
       describeWhere(matchItem.where!, type);
     }
     if(isArrayHasLength(matchItem.path)) {
-      describeMatch([matchItem.path?.[0].match], type)
+      describeMatch([matchItem.path?.[0].match!], type)
     }
   }
 }
