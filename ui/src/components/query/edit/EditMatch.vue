@@ -3,7 +3,6 @@
     <div @click="editMatch.exclude = !editMatch.exclude" :class="editMatch.exclude ? 'exclude' : 'include'">
       {{ editMatch.exclude ? "exclude" : "include" }}
     </div>
-    <Button class="button-bar-button" icon="fa-solid fa-xmark" :severity="'danger'" @click="emit('removeMatch')"></Button>
   </div>
   <div v-if="isArrayHasLength(properties)" v-for="(property, index) in properties" class="property-container">
     <Divider v-if="index" align="center">
