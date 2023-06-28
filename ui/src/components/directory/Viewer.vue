@@ -11,7 +11,7 @@
         <TabView :lazy="true" v-model:active-index="activeTab" id="info-side-bar-tabs">
           <TabPanel header="Details">
             <div class="concept-panel-content" id="details-container">
-              <Details :entityIri="entityIri" @on-open-tab="onOpenTab" />
+              <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="iri => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel v-if="terms" header="Terms">
@@ -36,12 +36,12 @@
           </TabPanel>
           <TabPanel v-if="isRecordModel(types)" header="Data Model">
             <div class="concept-panel-content" id="data-model-container">
-              <DataModel :entityIri="entityIri" />
+              <DataModel :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Properties" v-if="isRecordModel(types)">
             <div class="concept-panel-content" id="properties-container">
-              <Properties :entityIri="entityIri" />
+              <Properties :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel v-if="isQuery(types)" header="Query">
@@ -61,7 +61,7 @@
           </TabPanel>
           <TabPanel header="Hierarchy position">
             <div class="concept-panel-content" id="secondary-tree-container">
-              <SecondaryTree :entityIri="entityIri" />
+              <SecondaryTree :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Entity chart" v-if="showGraph">
@@ -125,6 +125,10 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 const router = useRouter();
 

@@ -18,14 +18,16 @@
           <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
         </div>
 
-        <div v-else-if="node.data">{{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" /></div>
+        <div v-else-if="node.data">
+          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="iri => emit('navigateTo', iri)" />
+        </div>
         <div v-else>{{ node.label }}</div>
       </template>
       <template #string="{ node }: any">{{ node.value }}</template>
-      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" /></template>
+      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" @navigateTo="iri => emit('navigateTo', iri)" /></template>
       <template #boolean="{ node }: any">{{ node.label }}</template>
       <template #link="{ node }: any">
-        <IMViewerLink :iri="node.key!" :label="node.label" />
+        <IMViewerLink :iri="node.key!" :label="node.label" @navigateTo="iri => emit('navigateTo', iri)" />
       </template>
       <template #loadMore="{ node }: any">
         <b>{{ node.label }}...</b>
@@ -49,7 +51,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload });
+const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
 
 const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
 const OS: Ref<any> = ref();

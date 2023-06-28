@@ -21,13 +21,17 @@ const props = withDefaults(defineProps<Props>(), {
   html: false
 });
 
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
+
 const OS: Ref<any> = ref();
 const directService = new DirectService();
 
 async function click() {
   switch (props.action) {
     case "select":
-      directService.select(props.iri);
+      emit("navigateTo", props.iri);
       break;
     case "view":
       directService.view(props.iri);

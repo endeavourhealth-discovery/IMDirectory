@@ -1,6 +1,6 @@
 <template>
   <div id="tree-container">
-    <TangledTree :entityIri="entityIri" :data="data" />
+    <TangledTree :entityIri="entityIri" :data="data" @navigateTo="iri => emit('navigateTo', iri)" />
   </div>
 </template>
 
@@ -16,6 +16,10 @@ interface Props {
   entityIri: string;
 }
 const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 watch(
   () => props.entityIri,

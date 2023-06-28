@@ -23,13 +23,15 @@ import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
-const directService = new DirectService();
-
 interface Props {
   data: Array<TangledTreeData[]>;
   entityIri: string;
 }
 const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 watch(
   () => _.cloneDeep(props.data),
@@ -445,9 +447,9 @@ function renderChart() {
         if (d.metaKey || d.ctrlKey) {
           if (node.id.startsWith(twinNode)) {
             const iri = node.id.slice(15);
-            directService.select(iri);
+            emit("navigateTo", iri);
           } else {
-            directService.select(node.id);
+            emit("navigateTo", node.id);
           }
         } else {
           d.preventDefault();

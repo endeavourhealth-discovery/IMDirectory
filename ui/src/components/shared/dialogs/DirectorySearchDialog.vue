@@ -11,7 +11,13 @@
       <div class="vertical-divider">
         <div class="left-container"><NavTree :selectedIri="treeIri" @selectedUpdated="updateSelected" @row-selected="showDetails" /></div>
         <div class="right-container">
-          <DirectoryDetails v-if="detailsIri" :selected-iri="detailsIri" />
+          <DirectoryDetails
+            v-if="detailsIri"
+            :selected-iri="detailsIri"
+            :locateInTreeFunction="locateInTree"
+            :navigateToFunction="navigateTo"
+            :validationQuery="searchByQuery"
+          />
           <SearchResults
             v-else
             :searchResults="searchResults"
@@ -78,6 +84,10 @@ function locateInTree(event: any, iri: string) {
 
 function showDetails(data: any) {
   detailsIri.value = data.key;
+}
+
+function navigateTo(iri: string) {
+  detailsIri.value = iri;
 }
 </script>
 

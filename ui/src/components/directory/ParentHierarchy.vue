@@ -8,13 +8,13 @@
       <div class="col-2 header-button-group p-buttonset">
         <Button
           :icon="fontAwesomePro ? 'fa-regular fa-angle-left' : 'pi pi-angle-left'"
-          :disabled="canGoBack"
+          :disabled="!canGoBack"
           class="go-back p-button-rounded p-button-text p-button-plain"
           @click="goBack"
         />
         <Button
           :icon="fontAwesomePro ? 'fa-regular fa-angle-right' : 'pi pi-angle-right'"
-          :disabled="canGoForward"
+          :disabled="!canGoForward"
           class="go-forward p-button-rounded p-button-text p-button-plain"
           @click="goForward"
         />
@@ -25,23 +25,29 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, computed } from "vue";
-import { Converters } from "@im-library/helpers";
+import { iriToUrl } from "@im-library/helpers/Converters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import { useSharedStore } from "@/stores/sharedStore";
-const { iriToUrl } = Converters;
 
 interface Props {
   entityIri: string;
 }
 const props = defineProps<Props>();
 
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
+
 const router = useRouter();
 const route = useRoute();
 const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+
+const canGoBack = computed(() => history.value.length > 0 && history.value.indexOf(props.entityIri) > 0);
+const canGoForward = computed(() => history.value.length > 0 && history.value.indexOf(props.entityIri) < history.value.length);
 
 watch(
   () => props.entityIri,
@@ -50,10 +56,13 @@ watch(
 
 const pathItems: Ref<any[]> = ref([]);
 const pathOptions: Ref<any[]> = ref([]);
-const canGoBack = ref(false);
-const canGoForward = ref(false);
+const history: Ref<string[]> = ref([]);
 
-const home = { icon: fontAwesomePro.value ? "fa-duotone fa-house-chimney" : "fa-solid fa-house", to: "/" };
+const home = {
+  icon: fontAwesomePro.value ? "fa-duotone fa-house-chimney" : "fa-solid fa-house",
+  command: (data: any) => emit("navigateTo", data),
+  to: route.fullPath
+};
 
 const pathOverlayMenu = ref();
 
@@ -64,46 +73,40 @@ function openPathOverlaymenu(event: any) {
 }
 
 function goBack() {
-  if (window.history.length > 0) router.back();
+  if (canGoBack.value) emit("navigateTo", history.value[history.value.indexOf(props.entityIri) - 1]);
 }
 
 function goForward() {
-  if (window.history.length > window.history.state.position + 1) router.forward();
+  if (canGoForward.value) router.forward();
 }
 
 function init() {
   if (props.entityIri) {
     getPath();
-    setBackForwardDisables();
   }
 }
 
 async function getPath() {
   if (props.entityIri === IM.NAMESPACE + "Favourites") {
-    pathItems.value = [{ label: "Favourites", to: iriToUrl(IM.NAMESPACE) + "Favourites" }];
+    pathItems.value = [{ label: "Favourites", command: () => emit("navigateTo", IM.NAMESPACE + "Favourites"), to: route.fullPath }];
     return;
   }
   let folderPath = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
   if (!folderPath.length) folderPath = await EntityService.getFolderPath(props.entityIri);
   pathItems.value = folderPath.map((iriRef: TTIriRef) => {
-    return { label: iriRef.name, to: iriToUrl(iriRef["@id"]) };
+    return { label: iriRef.name, command: () => emit("navigateTo", iriRef["@id"]), to: route.fullPath };
   });
   if (pathItems.value.length > 2) {
     const filteredOutPathItems = pathItems.value.splice(1, pathItems.value.length - 2);
     pathItems.value.splice(pathItems.value.length - 1, 0, {
       label: "...",
-      to: route.fullPath,
       command: () => {
         openPathOverlaymenu(event);
-      }
+      },
+      to: route.fullPath
     });
     pathOptions.value = filteredOutPathItems;
   }
-}
-
-function setBackForwardDisables() {
-  canGoForward.value = window.history.length === window.history.state.position + 1;
-  canGoBack.value = window.history.state.position === 0;
 }
 </script>
 

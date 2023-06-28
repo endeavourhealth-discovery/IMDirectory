@@ -8,11 +8,12 @@
         </h4>
       </div>
       <div class="entity-buttons-container">
+        <Button v-if="showSelectButton" :disabled="!isSelectableEntity()" label="Select" @click="emit('entitySelected', entity['@id'])" />
         <ActionButtons
           :buttons="hasQueryDefinition ? ['runQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
           :iri="entity['@id']"
           :type="'entityButton'"
-          :locate-in-tree-function="locateInTree"
+          @locate-in-tree="iri => emit('locateInTree', iri)"
         />
       </div>
     </div>
@@ -46,19 +47,27 @@ import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjec
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { IM, RDF } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { computed, Ref, watch, ref, onMounted } from "vue";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import _ from "lodash";
+import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
-const directoryStore = useDirectoryStore();
 interface Props {
   entity: any;
+  showSelectButton?: boolean;
+  validationQuery?: string;
 }
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
+
+const emit = defineEmits({
+  entitySelected: (_payload: string) => true,
+  locateInTree: (_payload: string) => true,
+  navigateTo: (_payload: string) => true
+});
 
 const hasQueryDefinition: Ref<boolean> = ref(false);
 
@@ -89,8 +98,13 @@ function getColour(entity: any) {
   return "color: " + getColourFromType(entity[RDF.TYPE]);
 }
 
-function locateInTree($event: any, iri: string) {
-  directoryStore.updateFindInTreeIri(iri);
+async function isSelectableEntity(): Promise<boolean> {
+  if (props.validationQuery) {
+    const queryRequest = { query: { "@id": props.validationQuery }, textSearch: props.entity[RDFS.LABEL] } as QueryRequest;
+    const queryResults = await QueryService.queryIM(queryRequest);
+    if (queryResults.entities && queryResults.entities.findIndex(item => item.iri === props.entity[RDFS.LABEL])) return true;
+    else return false;
+  } else return true;
 }
 </script>
 

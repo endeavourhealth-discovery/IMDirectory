@@ -97,7 +97,10 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const directService = new DirectService();
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
+
 const loading = ref(false);
 const properties: Ref<any[]> = ref([]);
 const propertiesTable = ref();
@@ -150,7 +153,7 @@ function getProperty(result: PropertyDisplay): PropertyDisplay {
 
 function navigate(iri: any): void {
   if (!iri.includes("OR")) {
-    directService.select(iri);
+    emit("navigateTo", iri);
   }
 }
 

@@ -4,11 +4,17 @@
   </div>
   <div v-else id="directory-table-container">
     <div class="header-container">
-      <ParentHierarchy :entityIri="entity['@id']" />
-      <ParentHeader v-if="selectedIri !== 'http://endhealth.info/im#Favourites'" :entity="entity" />
+      <ParentHierarchy :entityIri="entity['@id']" @navigateTo="iri => $emit('navigateTo', iri)" />
+      <ParentHeader
+        v-if="selectedIri !== 'http://endhealth.info/im#Favourites'"
+        :entity="entity"
+        @locateInTree="iri => $emit('locateInTree', iri)"
+        :showSelectButton="showSelectButton"
+        :validationQuery="validationQuery"
+      />
     </div>
     <div class="datatable-container">
-      <Viewer :entityIri="entity['@id']" />
+      <Viewer :entityIri="entity['@id']" @navigateTo="iri => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>
@@ -23,8 +29,15 @@ import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
 
 interface Props {
   selectedIri: string;
+  showSelectButton?: boolean;
+  validationQuery?: string;
 }
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true,
+  locateInTree: (_payload: string) => true
+});
 
 watch(
   () => props.selectedIri,
