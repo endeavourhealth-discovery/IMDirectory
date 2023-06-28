@@ -93,14 +93,12 @@ function toggleBoolWhere() {
   else if (editMatch.value.boolWhere === "or") editMatch.value.boolWhere = "and";
 }
 
-function addProperty(newMatch: Match) {
-  console.log(newMatch.where);
-
+async function addProperty(newMatch: Match) {
   if (!newMatch.boolWhere) newMatch.boolWhere = "and";
-  properties.value = [];
   if (isArrayHasLength(newMatch.where))
     for (const where of newMatch.where!) {
-      addPropertyFromWhere(where);
+      const property = await getPropertyFromWhere(where);
+      if (property && !hasProperty(properties.value, property)) properties.value.push(property);
     }
   editMatch.value.where = newMatch.where;
   showAddProperty.value = false;
@@ -117,12 +115,18 @@ async function init() {
   dataModelIri.value = getDataModelIri(editMatch.value) ?? resolvedIri;
   if (isObjectHasKeys(editMatch.value, ["where"]) && isArrayHasLength(editMatch.value.where)) {
     for (const where of editMatch.value.where!) {
-      addPropertyFromWhere(where);
+      const property = await getPropertyFromWhere(where);
+      if (property) properties.value.push(property);
     }
   }
 }
 
-async function addPropertyFromWhere(where: Where) {
+function hasProperty(properties: TTProperty[], ttproperty: TTProperty) {
+  const found = properties.find(property => property["http://www.w3.org/ns/shacl#path"][0]["@id"] === ttproperty["http://www.w3.org/ns/shacl#path"][0]["@id"]);
+  return !!found;
+}
+
+async function getPropertyFromWhere(where: Where) {
   let property;
   const propertyIri = where["@id"];
   if (dataModelIri.value && propertyIri) {
@@ -135,7 +139,7 @@ async function addPropertyFromWhere(where: Where) {
         property = found;
         property.tooltip = getTooltip(property);
         property.where = where;
-        properties.value.push(property);
+        return property;
       }
     }
   }

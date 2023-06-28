@@ -14,7 +14,6 @@ import { Match } from "@im-library/interfaces/AutoGen";
 import QueryNavTree from "../QueryNavTree.vue";
 import _ from "lodash";
 import { TreeNode } from "primevue/tree";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { buildWhereFromProperty } from "@im-library/helpers/QueryBuilder";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
@@ -40,7 +39,13 @@ function onSelectedUpdate(selected: TreeNode[]) {
   selectedProperties.value = selected;
 }
 
-function addProperty(treeNode: TreeNode) {
+function addDirectProperty(treeNode: TreeNode) {
+  editMatch.value.where?.push(buildWhereFromProperty(treeNode as any));
+  describeMatch([editMatch.value], "match");
+}
+
+function addNestedProperty(treeNode: TreeNode) {
+  // TODO refactor to UIProperty
   editMatch.value.where?.push(buildWhereFromProperty(treeNode as any));
   describeMatch([editMatch.value], "match");
 }
@@ -48,7 +53,8 @@ function addProperty(treeNode: TreeNode) {
 async function save() {
   editMatch.value.where = [];
   for (const treeNodeProperty of selectedProperties.value) {
-    addProperty(treeNodeProperty);
+    if (isDirectProperty(treeNodeProperty)) addDirectProperty(treeNodeProperty);
+    else addNestedProperty(treeNodeProperty);
   }
 
   emit("onAddProperty", editMatch.value);

@@ -47,10 +47,14 @@
     </template>
   </Dialog>
   <Dialog v-model:visible="showAddProperty" modal :header="'Add property'" :style="{ width: '60vw' }">
-    <AddProperty :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
+    <AddProperty :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addMatch" />
   </Dialog>
-  <DirectorySearchDialog v-model:showDialog="showSearchDialog" @on-close="showSearchDialog = false" />
-
+  <DirectorySearchDialog
+    v-model:showDialog="showSearchDialog"
+    @on-close="showSearchDialog = false"
+    @on-save="saveConceptSummaryAsMatch"
+    @update:selected="onUpdateSelected"
+  />
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
 </template>
 
@@ -62,13 +66,12 @@ import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
 import { MenuItem } from "primevue/menuitem";
-import AddBaseType from "./AddBaseType.vue";
-import Swal from "sweetalert2";
 import { PrimeIcons } from "primevue/api";
 import EditMatch from "./EditMatch.vue";
 import DisplayMatch from "../editTextQuery/DisplayMatch.vue";
 import AddProperty from "./AddProperty.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
 const emit = defineEmits({ onAdd: (_matchIndex: number, _newMatch: Match) => true, onRemove: (_matchIndex: number) => true });
 
@@ -88,6 +91,7 @@ const rClickMenu = ref();
 const showAddProperty: Ref<boolean> = ref(false);
 const showSearchDialog: Ref<boolean> = ref(false);
 const editMatch: Ref<Match> = ref({ where: [] } as Match);
+const selectedCS: Ref<any> = ref({} as any);
 
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 const rClickItemsSingle: Ref<MenuItem[]> = ref([
@@ -230,7 +234,7 @@ function showAddPropertyDialog() {
   showAddProperty.value = true;
 }
 
-function addProperty(newMatch: Match) {
+function addMatch(newMatch: Match) {
   if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
     props.parentMatch.match!.splice(props.index + 1, 0, newMatch);
   } else {
@@ -256,6 +260,21 @@ function remove() {
   }
   props.selectedMatches.length = 0;
   showEdit.value = false;
+}
+
+function saveConceptSummaryAsMatch() {
+  const match = {} as Match;
+  match.name = selectedCS.value.label;
+  if (isRecordModel(selectedCS.value.entityType)) match["@type"] = selectedCS.value.data;
+  if (isValueSet(selectedCS.value.entityType)) match["@set"] = selectedCS.value.data;
+  else match["@id"] = selectedCS.value.data;
+  describeMatch([match], "match");
+  addMatch(match);
+  showSearchDialog.value = false;
+}
+
+function onUpdateSelected(cs: any) {
+  selectedCS.value = cs;
 }
 
 // function deleteBaseType() {

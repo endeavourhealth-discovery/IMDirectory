@@ -10,7 +10,7 @@
     <div class="directory-search-dialog-content">
       <div class="search-bar"><SearchBar v-model:searchResults="searchResults" v-model:searchLoading="searchLoading" :searchByQuery="searchByQuery" /></div>
       <div class="vertical-divider">
-        <div class="left-container"><NavTree :selectedIri="treeIri" @selectedUpdated="updateSelected" /></div>
+        <div class="left-container"><NavTree :selectedIri="treeIri" @rowSelected="updateSelected" /></div>
         <div class="right-container">
           <SearchResults
             :searchResults="searchResults"
@@ -23,10 +23,8 @@
       </div>
     </div>
     <template #footer>
-      <!-- <div class="footer"> -->
       <Button label="Discard" severity="secondary" @click="discard" text />
       <Button label="Save" @click="save" text />
-      <!-- </div> -->
     </template>
   </Dialog>
 </template>
@@ -51,7 +49,12 @@ watch(
   newValue => (visible.value = newValue)
 );
 
-const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean", "update:selected": payload => true, onClose: () => true });
+const emit = defineEmits({
+  "update:showDialog": payload => typeof payload === "boolean",
+  "update:selected": payload => true,
+  onClose: () => true,
+  onSave: () => true
+});
 
 const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
@@ -76,7 +79,7 @@ function locateInTree(event: any, iri: string) {
 }
 
 async function save() {
-  emit("onClose");
+  emit("onSave");
 }
 
 function discard() {
