@@ -11,6 +11,7 @@
           :searchLoading="searchLoading"
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
+          v-model:history="history"
         />
       </div>
     </SplitterPanel>
@@ -22,7 +23,7 @@ import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { TreeNode } from "@im-library/interfaces";
 import { DirectService } from "@/services";
-import { computed, ref } from "vue";
+import { Ref, computed, ref } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 const directoryStore = useDirectoryStore();
@@ -31,6 +32,8 @@ const directService = new DirectService();
 const searchResults = computed(() => directoryStore.searchResults);
 const searchLoading = computed(() => directoryStore.searchLoading);
 const findInTreeIri = computed(() => directoryStore.findInTreeIri);
+
+const history: Ref<string[]> = ref([]);
 
 function updateSplitter(event: any) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);

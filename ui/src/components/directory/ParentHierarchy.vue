@@ -2,7 +2,14 @@
   <div class="breadcrumb-container">
     <div class="padding-container grid">
       <div class="col-10 table-header">
-        <Breadcrumb :home="home" :model="pathItems" />
+        <Breadcrumb :home="home" :model="pathItems">
+          <template #item="{ item }">
+            <div class="p-menuitem" @click="onClick($event, item)">
+              <span v-if="item.icon" :class="item.icon"></span>
+              <span v-if="item.label" class="p-menuitem-text">{{ item.label }}</span>
+            </div>
+          </template>
+        </Breadcrumb>
         <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
       </div>
       <div class="col-2 header-button-group p-buttonset">
@@ -31,14 +38,19 @@ import { IM } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import { useSharedStore } from "@/stores/sharedStore";
+import Breadcrumbs from "@/components/shared/Breadcrumbs.vue";
+import { MenuItem } from "primevue/menuitem";
+import _ from "lodash";
 
 interface Props {
   entityIri: string;
+  history: string[];
 }
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  navigateTo: (_payload: string) => true
+  navigateTo: (_payload: string) => true,
+  "update:history": (_payload: string[]) => true
 });
 
 const router = useRouter();
@@ -46,8 +58,8 @@ const route = useRoute();
 const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
-const canGoBack = computed(() => history.value.length > 0 && history.value.indexOf(props.entityIri) > 0);
-const canGoForward = computed(() => history.value.length > 0 && history.value.indexOf(props.entityIri) < history.value.length);
+const canGoBack = computed(() => props.history.length > 0 && props.history.indexOf(props.entityIri) > 0);
+const canGoForward = computed(() => props.history.length > 0 && props.history.indexOf(props.entityIri) < props.history.length - 1);
 
 watch(
   () => props.entityIri,
@@ -56,12 +68,11 @@ watch(
 
 const pathItems: Ref<any[]> = ref([]);
 const pathOptions: Ref<any[]> = ref([]);
-const history: Ref<string[]> = ref([]);
+const folderPath: Ref<TTIriRef[]> = ref([]);
 
 const home = {
   icon: fontAwesomePro.value ? "fa-duotone fa-house-chimney" : "fa-solid fa-house",
-  command: (data: any) => emit("navigateTo", data),
-  to: route.fullPath
+  command: (data: any) => emit("navigateTo", data)
 };
 
 const pathOverlayMenu = ref();
@@ -73,28 +84,31 @@ function openPathOverlaymenu(event: any) {
 }
 
 function goBack() {
-  if (canGoBack.value) emit("navigateTo", history.value[history.value.indexOf(props.entityIri) - 1]);
+  if (canGoBack.value) emit("navigateTo", props.history[props.history.indexOf(props.entityIri) - 1]);
 }
 
 function goForward() {
-  if (canGoForward.value) router.forward();
+  if (canGoForward.value) emit("navigateTo", props.history[props.history.indexOf(props.entityIri) + 1]);
 }
 
 function init() {
   if (props.entityIri) {
+    const newHistory: string[] = [...props.history];
+    if (!newHistory.includes(props.entityIri)) newHistory.push(props.entityIri);
+    emit("update:history", newHistory);
     getPath();
   }
 }
 
 async function getPath() {
   if (props.entityIri === IM.NAMESPACE + "Favourites") {
-    pathItems.value = [{ label: "Favourites", command: () => emit("navigateTo", IM.NAMESPACE + "Favourites"), to: route.fullPath }];
+    pathItems.value = [{ label: "Favourites", command: () => emit("navigateTo", IM.NAMESPACE + "Favourites") }];
     return;
   }
-  let folderPath = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
-  if (!folderPath.length) folderPath = await EntityService.getFolderPath(props.entityIri);
-  pathItems.value = folderPath.map((iriRef: TTIriRef) => {
-    return { label: iriRef.name, command: () => emit("navigateTo", iriRef["@id"]), to: route.fullPath };
+  folderPath.value = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
+  if (!folderPath.value.length) folderPath.value = await EntityService.getFolderPath(props.entityIri);
+  pathItems.value = folderPath.value.map((iriRef: TTIriRef) => {
+    return { label: iriRef.name, command: () => emit("navigateTo", iriRef["@id"]) };
   });
   if (pathItems.value.length > 2) {
     const filteredOutPathItems = pathItems.value.splice(1, pathItems.value.length - 2);
@@ -102,11 +116,14 @@ async function getPath() {
       label: "...",
       command: () => {
         openPathOverlaymenu(event);
-      },
-      to: route.fullPath
+      }
     });
     pathOptions.value = filteredOutPathItems;
   }
+}
+
+function onClick(event: any, item: MenuItem) {
+  if (item.command) item.command({ originalEvent: event, item: item });
 }
 </script>
 
@@ -146,5 +163,9 @@ async function getPath() {
   padding: 0;
   margin: 0;
   background-color: var(--surface-a);
+}
+
+.p-menuitem {
+  cursor: pointer;
 }
 </style>

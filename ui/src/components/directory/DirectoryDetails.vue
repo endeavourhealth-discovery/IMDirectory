@@ -4,7 +4,12 @@
   </div>
   <div v-else id="directory-table-container">
     <div class="header-container">
-      <ParentHierarchy :entityIri="entity['@id']" @navigateTo="iri => $emit('navigateTo', iri)" />
+      <ParentHierarchy
+        :entityIri="entity['@id']"
+        @navigateTo="iri => $emit('navigateTo', iri)"
+        :history="history"
+        @update:history="newHistory => $emit('update:history', newHistory)"
+      />
       <ParentHeader
         v-if="selectedIri !== 'http://endhealth.info/im#Favourites'"
         :entity="entity"
@@ -31,12 +36,14 @@ interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
   validationQuery?: string;
+  history: string[];
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 
 const emit = defineEmits({
   navigateTo: (_payload: string) => true,
-  locateInTree: (_payload: string) => true
+  locateInTree: (_payload: string) => true,
+  "update:history": (_payload: string[]) => true
 });
 
 watch(
