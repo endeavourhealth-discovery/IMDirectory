@@ -58,7 +58,7 @@ describe("TextQueryBuilder.ts ___", () => {
       } as Match);
       expect(textQuery.length).toEqual(1);
       expect(textQuery[0].display).toEqual(
-        "&lt;&lt;Medicinal product (product) with .Has active ingredient (attribute): &lt;&lt;Non-steroidal anti-inflammatory agent (substance) <span style=\'color: orange;\'>and</span>  with .Has manufactured dose form (attribute): &lt;&lt;Oral dose form (dose form)"
+        "&lt;&lt;Medicinal product (product) with .Has active ingredient (attribute): &lt;&lt;Non-steroidal anti-inflammatory agent (substance) <span style='color: orange;'>and</span>  with .Has manufactured dose form (attribute): &lt;&lt;Oral dose form (dose form)"
       );
     });
 
@@ -120,9 +120,7 @@ describe("TextQueryBuilder.ts ___", () => {
         ]
       });
       expect(textQuery.length).toEqual(1);
-      expect(textQuery[0].display).toEqual(
-        "gpPatientType: &lt;&lt;Regular GMS patientage >= 18 YEAR"
-      );
+      expect(textQuery[0].display).toEqual("gpPatientType: &lt;&lt;Regular GMS patient <span style=\'color: orange;\'>and</span> age >= 18 YEAR");
     });
   });
 
@@ -175,9 +173,9 @@ describe("TextQueryBuilder.ts ___", () => {
         path: [
           {
             "@id": "http://endhealth.info/im#observation",
-            "match": {
+            match: {
               "@type": "Observation",
-              "description": "Observation"
+              description: "Observation"
             }
           }
         ],
@@ -230,13 +228,15 @@ describe("TextQueryBuilder.ts ___", () => {
 
     it("can get a display for a match with multiple where clauses", () => {
       const display = getDisplayFromMatch({
-        path: [{
-          "@id": "http://endhealth.info/im#gpCurrentRegistration",
-          match: {
-            "@type": "GPRegistration",
-            description: "GPRegistration"
+        path: [
+          {
+            "@id": "http://endhealth.info/im#gpCurrentRegistration",
+            match: {
+              "@type": "GPRegistration",
+              description: "GPRegistration"
+            }
           }
-        },
+        ],
         boolWhere: "and",
         where: [
           {
@@ -257,9 +257,9 @@ describe("TextQueryBuilder.ts ___", () => {
             "@id": "http://endhealth.info/im#age"
           }
         ]
-      } as Match);
+      });
       expect(display).toEqual(
-        "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patientgpCurrentRegistration.age >= 18 YEAR"
+        "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration.age >= 18 YEAR"
       );
     });
 
@@ -270,9 +270,9 @@ describe("TextQueryBuilder.ts ___", () => {
         path: [
           {
             "@id": "http://endhealth.info/im#observation",
-            "match": {
+            match: {
               "@type": "Observation",
-              "description": "Observation"
+              description: "Observation"
             }
           }
         ],
