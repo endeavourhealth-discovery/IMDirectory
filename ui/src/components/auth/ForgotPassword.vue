@@ -2,7 +2,7 @@
   <div class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center recovery-card">
       <template #header>
-        <i class="fa-solid fa-user icon-header" aria-hidden="true"></i>
+        <IMFontAwesomeIcon icon="fa-solid fa-user" class="icon-header" />
       </template>
       <template #title> Account Recovery: <br /><br />Password Reset </template>
       <template #content>
@@ -35,13 +35,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { AuthService } from "@/services";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { SweetAlertResult } from "sweetalert2";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import { useStore } from "vuex";
+import { useAuthStore } from "@/stores/authStore";
 
 const router = useRouter();
-const store = useStore();
+const authStore = useAuthStore();
 
 let username = ref("");
 
@@ -62,7 +63,7 @@ function handleSubmit(): void {
             title: "Success",
             text: "Password has been reset for account: " + username.value + ". An email has been sent with a recovery code."
           }).then(() => {
-            store.commit("updateRegisteredUsername", username.value);
+            authStore.updateRegisteredUsername(username.value);
             router.push({ name: "ForgotPasswordSubmit" });
           });
         } else {

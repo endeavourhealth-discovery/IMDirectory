@@ -6,18 +6,14 @@ import { Avatars } from "@im-library/constants";
 import PrimeVue from "primevue/config";
 import { vi, describe, beforeEach, it, expect } from "vitest";
 import { render, RenderResult } from "@testing-library/vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useSharedStore } from "@/stores/sharedStore";
+import { User } from "@im-library/interfaces";
+import { useUserStore } from "@/stores/userStore";
 
-const mockDispatch = vi.fn();
-const mockState = {} as any;
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia();
+const mockState = useSharedStore();
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -34,6 +30,7 @@ describe("userDetails.vue", () => {
 
   beforeEach(() => {
     const user = {
+      id: "1234",
       username: "testUser",
       firstName: "John",
       lastName: "Doe",
@@ -41,10 +38,9 @@ describe("userDetails.vue", () => {
       password: "",
       avatar: Avatars[0],
       roles: []
-    };
+    } as User;
     vi.clearAllMocks();
-    mockState.currentUser = user;
-    mockState.isLoggedIn = true;
+    mockUserState.currentUser = user;
     component = render(UserDetails, {
       global: {
         plugins: [PrimeVue],
@@ -53,7 +49,7 @@ describe("userDetails.vue", () => {
     });
   });
 
-  it("correctly renders User details from store", () => {
+  it("correctly renders User details from sharedStore", () => {
     component.getByTestId("user-details-username");
     component.getByTestId("user-details-email");
     component.getByTestId("user-details-firstname");

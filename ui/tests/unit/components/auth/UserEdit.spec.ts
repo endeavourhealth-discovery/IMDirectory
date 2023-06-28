@@ -8,23 +8,21 @@ import OverlayPanel from "primevue/overlaypanel";
 import AvatarWithSelector from "@/components/auth/AvatarWithSelector.vue";
 import { AuthService } from "@/services";
 import { setupServer } from "msw/node";
-import { User } from "@im-library/models";
 import PrimeVue from "primevue/config";
 import { afterAll, beforeAll, vi } from "vitest";
 import { render, RenderResult } from "@testing-library/vue";
 import { RequestHandler } from "msw";
+import { User } from "@im-library/interfaces";
+import { createTestingPinia } from "@pinia/testing";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useUserStore } from "@/stores/userStore";
 
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" } as any;
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    auth: { registeredUsername: "" }
+  }
+});
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -73,8 +71,7 @@ describe("userEdit.vue ___ user", () => {
 
     AuthService.updateUser = vi.fn().mockResolvedValue({ status: 200, message: "User Update successful", user: testUser });
 
-    mockState.currentUser = testUser;
-    mockState.isLoggedIn = true;
+    mockUserState.currentUser = testUser;
 
     component = render(UserEdit, {
       global: {
@@ -238,7 +235,7 @@ describe("userEdit.vue ___ user", () => {
   //   });
   // });
 
-  // it("updates store and reroutes if all verified _ no password", async () => {
+  // it("updates sharedStore and reroutes if all verified _ no password", async () => {
   //   wrapper.vm.firstName = "Johnny";
   //   await wrapper.vm.$nextTick();
   //   wrapper.vm.handleEditSubmit();
@@ -327,7 +324,7 @@ describe("userEdit.vue ___ user", () => {
   //   });
   // });
 
-  // it("updates store and reroutes if password 200 received ___ password edit", async () => {
+  // it("updates sharedStore and reroutes if password 200 received ___ password edit", async () => {
   //   wrapper.vm.showPasswordEdit = true;
   //   wrapper.vm.passwordOld = "12345678";
   //   wrapper.vm.passwordNew1 = "87654321";

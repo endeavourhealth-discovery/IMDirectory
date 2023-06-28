@@ -1,27 +1,18 @@
-import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
+import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import { render, fireEvent } from "@testing-library/vue";
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import ProgressSpinner from "primevue/progressspinner";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fakerFactory } from "@/mocks/factory";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import axios from "axios";
 import { flushPromises } from "@vue/test-utils";
 import { GithubService } from "@/services";
 import PrimeVue from "primevue/config";
 import StyleClass from "primevue/styleclass";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = {};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia();
 
 describe("ReleaseNotes.vue", () => {
   let component;
@@ -37,7 +28,7 @@ describe("ReleaseNotes.vue", () => {
     getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
     getReleasesSpy = vi.spyOn(GithubService, "getReleases").mockResolvedValue(testReleases);
     setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => vi.fn());
-    getItemSpy = vi.spyOn(Storage.prototype, "getItem").mockReturnValue("v0.1.0");
+    getItemSpy = vi.spyOn(Storage.prototype, "getItem").mockReturnValue(undefined);
 
     component = render(ReleaseNotes, {
       global: {
@@ -65,7 +56,7 @@ describe("ReleaseNotes.vue", () => {
     const button = component.getByTestId("expand-all-button");
     await fireEvent.click(button);
     await flushPromises();
-    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(1);
+    expect(getLatestReleaseSpy).toHaveBeenCalledTimes(2);
     expect(getLatestReleaseSpy).toHaveBeenCalledWith("ImportData");
     const directoryButton = component.getByTestId("expand-button-directory");
     expect(directoryButton.classList.contains("pi-minus"));
@@ -125,6 +116,7 @@ describe("ReleaseNotes.vue", () => {
     await flushPromises();
     const button = component.getByTestId("close-button");
     await fireEvent.click(button);
+    await flushPromises();
     expect(setItemSpy).toHaveBeenCalledTimes(2);
     expect(setItemSpy).toHaveBeenCalledWith("IMDirectoryVersion", testLatestRelease.version);
     expect(setItemSpy).toHaveBeenCalledWith("ImportDataVersion", testLatestRelease.version);

@@ -4,15 +4,15 @@
       <svg id="force-layout-svg">
         <defs id="defs">
           <marker id="arrow" markerUnits="strokeWidth" markerWidth="12" markerHeight="12" viewBox="0 0 12 12" refX="25" refY="6" orient="auto-start-reverse">
-            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--purple-500)"></path>
+            <path d="M2,2 L10,6 L2,10 L6,6 L2,2" style="fill: var(--surface-500)"></path>
           </marker>
         </defs>
       </svg>
     </div>
     <div class="custom-control-buttons">
-      <Button class="svg-pan-zoom-control p-button-secondary" icon="pi pi-plus" @click="zoomIn" />
-      <Button class="svg-pan-zoom-control p-button-secondary" label="RESET" @click="resetZoom" />
-      <Button class="svg-pan-zoom-control p-button-secondary" icon="pi pi-minus" @click="zoomOut" />
+      <Button class="svg-pan-zoom-control" severity="secondary" icon="pi pi-plus" @click="zoomIn" />
+      <Button class="svg-pan-zoom-control" severity="secondary" label="RESET" @click="resetZoom" />
+      <Button class="svg-pan-zoom-control" severity="secondary" icon="pi pi-minus" @click="zoomOut" />
     </div>
   </div>
   <ContextMenu ref="menu" :model="contextMenu" />
@@ -30,28 +30,33 @@ import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
-import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import { useDirectoryStore } from "@/stores/directoryStore";
 const { translateFromEntityBundle, toggleNodeByName, hasNodeChildrenByName, addNodes } = GraphTranslator;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
-const props = defineProps({
-  data: { type: Object as PropType<TTGraphData>, required: true, default: {} as TTGraphData }
+interface Props {
+  data: TTGraphData;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  data: {} as any
 });
 
 const route = useRoute();
 const toast = useToast();
-const store = useStore();
+const directoryStore = useDirectoryStore();
+const graphData = ref();
 const directService = new DirectService();
-const splitterRightSize = computed(() => store.state.splitterRightSize);
+const splitterRightSize = computed(() => directoryStore.splitterRightSize);
 
 watch(
   () => _.cloneDeep(props.data),
   newValue => {
-    root.value = d3.hierarchy(newValue);
-    drawGraph();
+    graphData.value = newValue;
+    setRoot();
   }
 );
 
@@ -68,14 +73,11 @@ const width = ref(400);
 const force = ref(-5000);
 const radius = ref(16);
 const colour = ref({
-  activeNode: { fill: "var(--background-a)", stroke: "#AAAAAA" },
-  inactiveNode: { fill: "var(--purple-500)", stroke: "#AAAAAA" },
-  centerNode: {
-    fill: "var(--yellow-500)",
-    stroke: "var(--text-color)"
-  },
+  activeNode: { fill: "var(--surface-100)", stroke: "var(--surface-500)" },
+  inactiveNode: { fill: "var(--primary-200)", stroke: "var(--surface-500)" },
+  centerNode: { fill: "var(--primary-color)", stroke: "var(--text-color)" },
   font: {},
-  path: { fill: "", stroke: "#AAAAAA" }
+  path: { fill: "", stroke: "var(--surface-500)" }
 });
 const contextMenu: Ref<{ iri: string; label: string; command: (d: any) => void; disabled?: boolean }[]> = ref([]);
 
@@ -90,13 +92,26 @@ const menu = ref();
 
 onMounted(() => {
   window.addEventListener("resize", onResize);
-  root.value = d3.hierarchy(props.data);
-  drawGraph();
+  graphData.value = props.data;
+  setRoot();
 });
+
+watch(
+  () => _.cloneDeep(graphData),
+  newValue => {
+    root.value = d3.hierarchy(newValue);
+    drawGraph();
+  }
+);
 
 onUnmounted(() => window.removeEventListener("resize", onResize));
 
 function onResize() {
+  drawGraph();
+}
+
+function setRoot() {
+  root.value = d3.hierarchy(props.data);
   drawGraph();
 }
 
@@ -194,7 +209,8 @@ function drawGraph() {
     .style("text-anchor", "middle")
     .attr("startOffset", "50%")
     .attr("font-size", () => `${pathFontSize.value}px`)
-    .text((d: any) => d.target.data.relToParent);
+    .text((d: any) => d.target.data.relToParent)
+    .style("fill", "var(--text-color)");
 
   const node = svg
     .append("g")
@@ -206,9 +222,9 @@ function drawGraph() {
     .join("circle")
     .attr("fill", (d: any) => {
       if (d.depth === 0) return colour.value.centerNode.fill;
-      return hasNodeChildrenByName(props.data, d.data.name) ? colour.value.inactiveNode.fill : colour.value.activeNode.fill;
+      return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.inactiveNode.fill : colour.value.activeNode.fill;
     })
-    .attr("stroke", (d: any) => (hasNodeChildrenByName(props.data, d.data.name) ? colour.value.inactiveNode.stroke : colour.value.activeNode.stroke))
+    .attr("stroke", (d: any) => (hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.inactiveNode.stroke : colour.value.activeNode.stroke))
     .attr("r", (d: any) => {
       if (d.data.name !== undefined && typeof d.data.name === "string" && d.data.name.startsWith("middle-node")) {
         return 3;
@@ -230,7 +246,10 @@ function drawGraph() {
     .attr("y", (d: any) => getFODimensions(d).y)
     .attr("width", (d: any) => getFODimensions(d).width)
     .attr("height", (d: any) => getFODimensions(d).height)
-    .attr("color", (d: any) => (hasNodeChildrenByName(props.data, d.data.name) ? colour.value.activeNode.fill : colour.value.inactiveNode.fill))
+    .attr("color", (d: any) => {
+      if (d.depth === 0) return colour.value.activeNode.fill;
+      return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
+    })
     .style("font-size", () => `${nodeFontSize.value}px`)
     .on("dblclick", (d: any) => dblclick(d))
     .on("click", (d: any) => click(d))
@@ -308,23 +327,22 @@ async function click(d: any) {
 }
 
 function navigate(iri: string) {
-  const currentRoute = route.name as RouteRecordName | undefined;
   if (iri === "seeMore") {
-    store.commit("updateConceptActivePanel", 2);
+    directoryStore.updateSidebarControlActivePanel(2);
   } else if (iri) {
     directService.select(iri);
   }
 }
 
 function redrawGraph() {
-  root.value = d3.hierarchy(props.data);
+  root.value = d3.hierarchy(graphData.value);
   drawGraph();
 }
 
 async function dblclick(d: any) {
   const node = d["target"]["__data__"]["data"] as TTGraphData;
   if (isArrayHasLength(node.children) || isArrayHasLength(node._children)) {
-    toggleNodeByName(props.data, node.name);
+    toggleNodeByName(graphData.value, node.name);
     redrawGraph();
   } else {
     if (node.iri) {
@@ -334,7 +352,7 @@ async function dblclick(d: any) {
         data.children.forEach((child: any) => {
           node._children.push(child);
         });
-        toggleNodeByName(props.data, node.name);
+        toggleNodeByName(graphData.value, node.name);
         redrawGraph();
       }
     } else {
@@ -412,10 +430,12 @@ function zoomOut() {
   padding: 0.25rem !important;
   width: auto !important;
   background-color: var(--surface-b) !important;
+  color: var(--text-color);
 }
 
 .svg-pan-zoom-control:hover {
   opacity: 100%;
+  color: var(--text-color) !important;
 }
 
 #force-layout-svg {
@@ -435,12 +455,12 @@ function zoomOut() {
   cursor: -webkit-grabbing;
 }
 #force-layout-graph:deep(p) {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: inherit;
   text-align: center;
-  position: relative;
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  -webkit-transform: translateY(-50%);
-  transform: translateY(-50%);
 }
 
 #force-layout-graph:deep(foreignObject):hover {

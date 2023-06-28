@@ -65,20 +65,23 @@ import { EntityService, SetService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
-import { useStore } from "vuex";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import setupDownloadFile from "@/composables/downloadFile";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useUserStore } from "@/stores/userStore";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
 const { downloadFile } = setupDownloadFile(window, document);
 const toast = useToast();
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
+const userStore = useUserStore();
+
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 const hasDefintion: Ref<boolean> = ref(false);
 
 const loading = ref(false);

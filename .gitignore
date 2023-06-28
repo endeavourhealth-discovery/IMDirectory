@@ -6,6 +6,9 @@
 **/coverage
 node
 
+#ignore types
+**/types
+
 # local env files
 **/.env.**
 
@@ -55,3 +58,5 @@ coverage
 build
 .env
 
+# Ignore pnpm lock files
+pnpm-lock.yaml

@@ -10,23 +10,23 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
-        <div class="tree-row" @dblclick="onNodeDblClick($event, slotProps.node)" @contextmenu="onNodeContext($event, slotProps.node)">
+      <template #default="{ node }: any">
+        <div class="tree-row" @dblclick="onNodeDblClick($event, node)" @contextmenu="onNodeContext($event, node)">
           <ContextMenu ref="menu" :model="items" />
-          <span v-if="!slotProps.node.loading">
-            <i :style="'color:' + slotProps.node.color" :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
+          <span v-if="!node.loading">
+            <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">{{ slotProps.node.label }}</span>
+          <ProgressSpinner v-if="node.loading" />
+          <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
         </div>
       </template>
     </Tree>
     <OverlaySummary ref="OS" />
-    <Dialog header="New folder" :visible="newFolder !== null" :modal="true">
-      <InputText type="text" v-model="newFolderName" autofocus />
+    <Dialog header="New folder" :visible="newFolder !== null" :modal="true" :closable="false">
+      <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
       <template #footer>
         <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
-        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" @click="createFolder" />
+        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" :disabled="!newFolderName" @click="createFolder" />
       </template>
     </Dialog>
   </div>
@@ -34,12 +34,12 @@
 
 <script async setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { useStore } from "vuex";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, FilerService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import setupTree from "@/composables/setupTree";
@@ -47,14 +47,20 @@ import createNew from "@/composables/createNew";
 import { TreeNode } from "primevue/tree";
 import { isArray } from "lodash";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useUserStore } from "@/stores/userStore";
 
 const toast = useToast();
 const confirm = useConfirm();
-const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
-const currentUser = computed(() => store.state.currentUser);
-const findInTreeIri = computed(() => store.state.findInTreeIri);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
+const sharedStore = useSharedStore();
+const directoryStore = useDirectoryStore();
+const userStore = useUserStore();
+
+const conceptIri = computed(() => directoryStore.conceptIri);
+const currentUser = computed(() => userStore.currentUser);
+const findInTreeIri = computed(() => directoryStore.findInTreeIri);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const loading = ref(true);
 const overlayLocation: Ref<any> = ref({});
@@ -129,28 +135,27 @@ function byKey(a: any, b: any): number {
 async function onNodeContext(event: any, node: any) {
   event.preventDefault();
   items.value = [];
-
   if (currentUser.value === null || !currentUser.value.roles.includes("IMAdmin")) return;
-
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 
   if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
     items.value.push({
       label: "Move selection here",
-      icon: "fas fa-fw fa-file-import",
+      icon: "fa-solid fa-fw fa-file-import",
       command: () => {
         confirmMove(node);
       }
     });
     items.value.push({
       label: "Add selection here",
-      icon: "fas fa-fw fa-copy",
+      icon: "fa-solid fa-fw fa-copy",
       command: () => {
         confirmAdd(node);
       }
     });
   }
   if (items.value.length > 0) menu.value.show(event);
+
 }
 
 function confirmMove(node: TreeNode) {
@@ -212,7 +217,7 @@ async function addConcept(target: TreeNode) {
 }
 
 async function createFolder() {
-  if (!newFolder.value || !newFolder.value.key) return;
+  if (!newFolder.value || !newFolder.value.key || !newFolderName.value) return;
 
   console.log("Create new folder " + newFolderName.value + " in " + newFolder.value.key);
   try {
@@ -273,6 +278,10 @@ function hideOverlay(event: any): void {
 }
 .tree-root ::v-deep(.p-tree-toggler) {
   min-width: 2rem;
+}
+
+::v-deep(.p-treenode-label) {
+  width: 100% !important;
 }
 
 .tree-row .p-progress-spinner {

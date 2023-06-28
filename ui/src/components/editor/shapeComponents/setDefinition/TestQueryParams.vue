@@ -28,27 +28,29 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, computed } from "vue";
+import { PropType, ref, Ref, computed, ComputedRef } from "vue";
 import { QueryRequest, Argument, TTIriRef } from "@im-library/interfaces/AutoGen";
 import AutoComplete from "primevue/autocomplete";
 import { EntityService } from "@/services";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { useStore } from "vuex";
+import { useFilterStore } from "@/stores/filterStore";
 
-const store = useStore();
+const filterStore = useFilterStore();
 const controller: Ref<AbortController> = ref({} as AbortController);
 
 const queryLoading: Ref<boolean> = ref(false);
 const debounce = ref(0);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
+const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
 const suggestions: Ref<ConceptSummary[]> = ref([]);
 
-const props = defineProps({
-  params: { type: Object as PropType<{ name: string; desc: string; type: string; minCount: number; maxCount: number; value: any }[]>, required: true },
-  queryRequest: { type: Object as PropType<QueryRequest>, required: true },
-  showDialog: { type: Boolean, required: true }
-});
+interface Props {
+  params: { name: string; desc: string; type: string; minCount: number; maxCount: number; value: any }[];
+  queryRequest: QueryRequest;
+  showDialog: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({ closeDialog: () => true, onParamsPopulated: () => true });
 const internalShowDialog = ref(true);

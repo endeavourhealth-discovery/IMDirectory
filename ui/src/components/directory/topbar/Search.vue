@@ -1,10 +1,14 @@
 <template>
   <div class="search-container">
-    <InputText id="autocomplete-search" v-model="searchText" placeholder="Search" @keyup.enter="search" data-testid="search-input" />
+    <span class="p-input-icon-right search-group" >
+      <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
+      <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
+    </span>
     <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
       <Button @click="search" class="search-button p-button-secondary" label="Search" />
     </SplitButton>
     <Button
+      v-tooltip.bottom="'Filters'"
       id="filter-button"
       :icon="fontAwesomePro ? 'fa-duotone fa-sliders' : 'pi pi-sliders-h'"
       class="p-button-rounded p-button-text p-button-plain p-button-lg"
@@ -22,9 +26,7 @@
 <script setup lang="ts">
 import Filters from "./Filters.vue";
 
-import { computed, ComputedRef, ref, Ref, watch } from "vue";
-import { useStore } from "vuex";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
+import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
@@ -32,15 +34,24 @@ import { DataTypeCheckers } from "@im-library/helpers";
 import { useRouter } from "vue-router";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useFilterStore } from "@/stores/filterStore";
+import { useSharedStore } from "@/stores/sharedStore";
 const { isObject } = DataTypeCheckers;
 
 const router = useRouter();
-const store = useStore();
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
+const filterStore = useFilterStore();
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
+const searchPlaceholder = ref("Search")
+const listening = ref(false);
+const speech = ref(false);
+let recog: any = false;
 
 watch(searchText, async () => await search());
 
@@ -57,6 +68,29 @@ const buttonActions = ref([
   }
 ]);
 
+
+onMounted(() => {
+  const speechEngine = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  if (speechEngine) {
+    recog = new speechEngine();
+    recog.interimResults = true;
+    recog.addEventListener("result", (ev: any) => {
+      if (ev && ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) {
+        const t = Array.from(ev.results)
+          .map((r:any) => r[0])
+          .map((r:any) => r.transcript)
+          .join("");
+        searchPlaceholder.value = t;
+      }
+    })
+    recog.addEventListener("speechend", () => {
+      searchText.value = searchPlaceholder.value
+      searchPlaceholder.value = "Search";
+      listening.value = false;
+    })
+    speech.value = true;
+  }
+})
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
 }
@@ -70,11 +104,12 @@ function toIMQuerySearch() {
 }
 
 async function search(): Promise<void> {
+  searchPlaceholder.value = "Search";
   if (searchText.value) {
     router.push({
       name: "Search"
     });
-    store.commit("updateSearchLoading", true);
+    directoryStore.updateSearchLoading(true);
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;
     searchRequest.sortField = "weighting";
@@ -84,12 +119,12 @@ async function search(): Promise<void> {
 
     searchRequest.statusFilter = [];
     selectedFilters.value.status.forEach((status: TTIriRef) => {
-      searchRequest.statusFilter.push(status["@id"]);
+      searchRequest.statusFilter!.push(status["@id"]);
     });
 
     searchRequest.typeFilter = [];
     selectedFilters.value.types.forEach((type: TTIriRef) => {
-      searchRequest.typeFilter.push(type["@id"]);
+      searchRequest.typeFilter!.push(type["@id"]);
     });
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
@@ -107,13 +142,28 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    await store.dispatch("fetchSearchResults", {
+    await directoryStore.fetchSearchResults({
       searchRequest: searchRequest,
       controller: controller.value
     });
-    store.commit("updateSearchLoading", false);
+    directoryStore.updateSearchLoading(false);
   }
 }
+function toggleListen() {
+  if (recog) {
+    if (listening.value) {
+      listening.value = false;
+      recog.stop();
+      searchPlaceholder.value = "Search";
+    } else {
+      searchText.value = "";
+      recog.start();
+      searchPlaceholder.value = "Listening...";
+      listening.value = true;
+    }
+  }
+}
+
 </script>
 
 <style scoped>
@@ -132,12 +182,24 @@ async function search(): Promise<void> {
   overflow: auto;
 }
 
+.search-group {
+  width: 30%;
+}
+
+.mic {
+  cursor: pointer;
+}
+
+.listening {
+  color: red !important;
+}
+
 #autocomplete-search {
   font-size: 1rem;
   border: none;
-  max-width: 25rem;
   height: 2.25rem;
   flex: 1 1 auto;
+  width: 100%;
 }
 
 .fa-icon {

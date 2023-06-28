@@ -8,12 +8,11 @@
       :class="checked ? 'p-button-success' : 'p-button-danger'"
       class="toggle-button"
     />
-    <span v-if="checked" class="label">{{ shape.name }} ({{ shape.path["@id"] }})</span>
     <component
-      v-if="checked"
-      :is="processComponentType(shape.subProperty[0].componentType)"
-      :value="processEntityValue(shape.subProperty[0])"
-      :shape="shape.subProperty[0]"
+      v-if="checked && isObjectHasKeys(shape, ['property'])"
+      :is="processComponentType(shape.property![0].componentType)"
+      :value="processEntityValue(shape.property![0])"
+      :shape="shape.property![0]"
       :mode="mode"
     />
   </div>
@@ -29,25 +28,38 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { PropType, watch, onMounted, ref, inject } from "vue";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { EditorMode } from "@im-library/enums";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  value: { type: Object as PropType<TTIriRef>, required: false },
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: TTIriRef;
+  position?: number;
+}
+
+const props = defineProps<Props>();
 
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const addPropertyToValidationCheckStatus = inject(injectionKeys.forceValidation)?.addPropertyToValidationCheckStatus;
+const removeValidationCheckStatus = inject(injectionKeys.forceValidation)?.removeValidationCheckStatus;
 
 const checked = ref(false);
 const onLabel = ref("");
 const offLabel = ref("");
+
+if (forceValidation && checked.value) {
+  if (props.shape.property && isArrayHasLength(props.shape.property) && addPropertyToValidationCheckStatus) {
+    for (const property of props.shape.property) {
+      addPropertyToValidationCheckStatus(property);
+    }
+  }
+}
 
 onMounted(() => {
   setLabels();
@@ -55,7 +67,14 @@ onMounted(() => {
 });
 
 watch(checked, newValue => {
-  if (!newValue && deleteEntityKey) deleteEntityKey(props.shape.path["@id"]);
+  if (!newValue && deleteEntityKey && isObjectHasKeys(props.shape, ["path"])) {
+    deleteEntityKey(props.shape.path!["@id"]);
+    if (removeValidationCheckStatus && props.shape.property && isArrayHasLength(props.shape.property)) {
+      for (const property of props.shape.property) {
+        removeValidationCheckStatus(property);
+      }
+    }
+  }
 });
 
 function setLabels() {
@@ -67,14 +86,15 @@ function setLabels() {
 }
 
 function setChecked() {
-  if (isObjectHasKeys(editorEntity, [props.shape.path["@id"]])) {
+  if (isObjectHasKeys(props.shape, ["path"]) && isObjectHasKeys(editorEntity, [props.shape.path!["@id"]])) {
     checked.value = true;
   }
 }
 
-function processEntityValue(property: PropertyShape | PropertyGroup) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
-    return editorEntity[property.path["@id"]];
+function processEntityValue(property: PropertyShape | undefined) {
+  if (!property) throw new Error("Property is undefined");
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
+    return editorEntity[property.path!["@id"]];
   }
   return undefined;
 }
@@ -82,18 +102,18 @@ function processEntityValue(property: PropertyShape | PropertyGroup) {
 
 <style scoped>
 .toggleable-entity-search {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: flex-start;
-  max-width: 25rem;
+  min-width: 25rem;
 }
 
 .toggle-button {
   align-self: center;
   order: 3;
-  margin: 0.5rem 0 0 0;
+  margin: 0.25rem 0;
 }
 
 .toggleable-entity-search:deep(.label-container) {

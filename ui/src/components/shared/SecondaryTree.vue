@@ -37,32 +37,26 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
-        <div v-if="slotProps.node.data === 'loadMore'" class="tree-row">
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span class="tree-node-label">{{ slotProps.node.label }}</span>
+      <template #default="{ node }: any">
+        <div v-if="node.data === 'loadMore'" class="tree-row">
+          <ProgressSpinner v-if="node.loading" />
+          <span class="tree-node-label">{{ node.label }}</span>
         </div>
         <div
           v-else
           class="tree-row"
-          @click="navigate($event, slotProps.node.data)"
-          @dblclick="onNodeDblClick($event, slotProps.node)"
+          @click="navigate($event, node.data)"
+          @dblclick="onNodeDblClick($event, node)"
           v-tooltip.top="'CTRL+click to navigate'"
           data-testid="row"
         >
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true" />
-            </div>
+          <span v-if="!node.loading">
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span
-            class="tree-node-label"
-            data-testid="row-label"
-            @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
-            @mouseleave="hidePopup($event)"
-            >{{ slotProps.node.label }}</span
-          >
+          <ProgressSpinner v-if="node.loading" />
+          <span class="tree-node-label" data-testid="row-label" @mouseover="showPopup($event, node.data, node)" @mouseleave="hidePopup($event)">{{
+            node.label
+          }}</span>
         </div>
       </template>
     </Tree>
@@ -109,6 +103,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
+import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent } from "@im-library/interfaces";
@@ -118,9 +113,11 @@ import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
 
 const directService = new DirectService();
 

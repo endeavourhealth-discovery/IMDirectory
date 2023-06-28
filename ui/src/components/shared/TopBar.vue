@@ -7,8 +7,22 @@
       <slot name="content" />
     </div>
     <div id="topbar-end">
-      <Button label="Releases" class="p-button-outlined" @click="showReleaseNotes" />
-      <Button :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'" rounded text plain class="topbar-end-button" @click="openThemesMenu" />
+      <Button
+        v-tooltip.bottom="'Releases'"
+        v-if="currentVersion"
+        :label="currentVersion"
+        class="p-button-rounded p-button-outlined p-button-plain topbar-end-button"
+        @click="showReleaseNotes"
+      />
+      <Button
+        v-tooltip.bottom="'Themes'"
+        :icon="fontAwesomePro ? 'fa-regular fa-palette' : 'fa-solid fa-palette'"
+        rounded
+        text
+        plain
+        class="topbar-end-button"
+        @click="openThemesMenu"
+      />
       <Menu ref="themesMenu" id="themes-menu" :model="getThemes()" :popup="true">
         <template #item="{ item }: any">
           <div class="theme-row p-link">
@@ -18,12 +32,14 @@
         </template>
       </Menu>
       <Button
+        v-tooltip.bottom="'Upload/Download'"
         :icon="fontAwesomePro ? 'fa-duotone fa-arrow-down-up-across-line' : 'fa-solid fa-arrow-down-up-across-line'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button ml-auto"
         @click="openAdminMenu"
       />
       <Menu ref="adminMenu" :model="getAdminItems()" :popup="true" />
       <Button
+        v-tooltip.bottom="'Apps'"
         :icon="fontAwesomePro ? 'fa-regular fa-grid-2' : 'pi pi-th-large'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openAppsOverlay"
@@ -40,6 +56,7 @@
         </div>
       </OverlayPanel>
       <Button
+        v-tooltip.left="'Account'"
         v-if="!isLoggedIn"
         :icon="fontAwesomePro ? 'fa-duotone fa-user' : 'fa-regular fa-user'"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
@@ -48,6 +65,7 @@
         aria-controls="overlay_menu"
       />
       <Button
+        v-tooltip.left="'Account'"
         v-if="currentUser && isLoggedIn"
         class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
         @click="openUserMenu"
@@ -64,22 +82,31 @@
 <script setup lang="ts">
 import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
-import { useStore } from "vuex";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, DataModelService } from "@/services";
+import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
+import { useUserStore } from "@/stores/userStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "vue-router";
 
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
-const currentTheme = computed(() => store.state.currentTheme);
+const router = useRouter();
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+const currentTheme: Ref<string | undefined> = ref();
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
 const accountItems: Ref<AccountItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
+const currentVersion: Ref<undefined | string> = ref();
 
 const PrimeVue: any = usePrimeVue();
 const toast = useToast();
@@ -89,13 +116,21 @@ const userMenu = ref();
 const appsOP = ref();
 const directService = new DirectService();
 
-onMounted(() => {
+onMounted(async () => {
+  if (currentUser.value) currentTheme.value = await UserService.getUserTheme(currentUser.value.id);
+  if (!currentTheme.value) currentTheme.value = "saga-blue";
   setUserMenuItems();
   setAppMenuItems();
+  await getCurrentVersion();
 });
 
+async function getCurrentVersion() {
+  const latestRelease = await GithubService.getLatestRelease("IMDirectory");
+  if (latestRelease && latestRelease.version) currentVersion.value = latestRelease.version;
+}
+
 function toLandingPage() {
-  window.location.href = "/";
+  router.push("/");
 }
 
 function open(item: { icon: string; command: Function; label: string }) {
@@ -128,7 +163,10 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "login"
+      url: Env.DIRECTORY_URL + "user/" + "login",
+      command: () => {
+        authStore.updatePreviousAppUrl();
+      }
     },
     {
       label: "Register",
@@ -155,7 +193,10 @@ function setUserMenuItems(): void {
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      url: Env.DIRECTORY_URL + "user/" + "logout"
+      url: Env.DIRECTORY_URL + "user/" + "logout",
+      command: () => {
+        authStore.updatePreviousAppUrl();
+      }
     }
   ];
 }
@@ -168,7 +209,7 @@ function openThemesMenu(event: any): void {
   themesMenu.value.toggle(event);
 }
 
-function isLoggedInWithRole(role: String): boolean {
+function isLoggedInWithRole(role: string): boolean {
   return isLoggedIn.value && currentUser.value && currentUser.value.roles.includes(role);
 }
 
@@ -545,11 +586,14 @@ function setAppMenuItems() {
 }
 
 function showReleaseNotes() {
-  store.commit("updateShowReleaseNotes", true);
+  sharedStore.updateShowReleaseNotes(true);
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => store.commit("updateCurrentTheme", newTheme));
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
+    userStore.updateCurrentTheme(newTheme);
+    currentTheme.value = newTheme;
+  });
 }
 </script>
 
@@ -561,7 +605,7 @@ function changeTheme(newTheme: string) {
 }
 
 #topbar {
-  height: 3.5rem;
+  min-height: 3.5rem;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;

@@ -22,12 +22,19 @@ export default class EclService {
     return validateEcl(ecl);
   }
 
+  public async evaluateEcl(ecl: string) {
+    const esr = {
+      eclString: ecl
+    } as EclSearchRequest;
+
+    return await this.eclSearch(esr);
+  }
+
   public async eclSearch(eclSearchRequest: EclSearchRequest) {
     if (isObjectHasKeys(eclSearchRequest, ["eclString"]) && eclSearchRequest.eclString) {
       eclSearchRequest.eclQuery = eclToIMQ(eclSearchRequest.eclString);
       delete eclSearchRequest.eclString;
     } else if (isObjectHasKeys(eclSearchRequest, ["eclQuery"]) && eclSearchRequest.eclQuery) {
-      eclSearchRequest.eclQuery = eclSearchRequest.eclQuery;
       delete eclSearchRequest.eclString;
     } else throw new Error("eclString or eclQuery required for eclSearch");
     return (await this.axios.post(Env.API + "api/ecl/public/evaluateEclQuery", eclSearchRequest)).data;

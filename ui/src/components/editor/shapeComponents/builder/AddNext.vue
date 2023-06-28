@@ -13,17 +13,16 @@ import { NextComponentSummary, ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 
-const props = defineProps({
-  id: { type: String, required: true },
-  position: { type: Number, required: true },
-  last: Boolean,
-  value: {
-    type: Object as PropType<NextComponentSummary>,
-    required: true
-  },
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true }
-});
+interface Props {
+  id: string;
+  shape: PropertyShape;
+  mode: EditorMode;
+  value: NextComponentSummary;
+  position: number;
+  last: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   addClicked: (_payload: { selectedType: ComponentType; position: number }) => true,

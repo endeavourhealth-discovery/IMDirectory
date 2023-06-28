@@ -65,10 +65,13 @@ import * as d3 from "d3";
 import { DSVRowArray } from "d3";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 
-const props = defineProps({
-  showAddByList: { type: Boolean, required: true },
-  showAddByFile: { type: Boolean, required: true }
-});
+interface Props {
+  showAddByList: boolean;
+  showAddByFile: boolean;
+}
+
+const props = defineProps<Props>();
+
 const emit = defineEmits({
   addCodeList: (_payload: any) => true,
   closeDialog: () => true

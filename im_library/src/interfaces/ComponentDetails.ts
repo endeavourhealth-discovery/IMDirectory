@@ -1,5 +1,5 @@
 import { ComponentType, EditorMode } from "../enums";
-import { PropertyGroup, PropertyShape } from "../interfaces/AutoGen";
+import { PropertyShape } from "../interfaces/AutoGen";
 
 export interface ComponentDetails {
   id: string;
@@ -8,6 +8,6 @@ export interface ComponentDetails {
   type: ComponentType;
   json: any;
   showButtons?: { minus: boolean; plus: boolean; up: boolean; down: boolean };
-  shape: PropertyShape | PropertyGroup;
+  shape: PropertyShape;
   mode: EditorMode;
 }

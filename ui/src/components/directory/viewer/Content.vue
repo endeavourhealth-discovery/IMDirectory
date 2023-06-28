@@ -2,10 +2,11 @@
   <div id="content-table-container" class="content-wrapper">
     <DataTable
       :value="children"
-      class="concept-data-table p-datatable-sm scrollbar"
+      class="concept-data-table p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
       dataKey="@id"
+      :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
       :lazy="true"
@@ -26,9 +27,7 @@
       <Column field="name" header="Name">
         <template #body="{ data }: any">
           <div>
-            <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-              <i :class="data.icon" aria-hidden="true" />
-            </span>
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
             <span @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
@@ -53,21 +52,24 @@
 
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
-import { useStore } from "vuex";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { EntityService, DirectService } from "@/services";
+import { EntityService, DirectService, UserService } from "@/services";
 import rowClick from "@/composables/rowClick";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-const { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } = ConceptTypeMethods;
-const { isArrayHasLength } = DataTypeCheckers;
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useUserStore } from "@/stores/userStore";
 
-const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
-const favourites = computed(() => store.state.favourites);
+const directoryStore = useDirectoryStore();
+const userStore = useUserStore();
+const conceptIri = computed(() => directoryStore.conceptIri);
+const favourites = computed(() => userStore.favourites);
+const currentUser = computed(() => userStore.currentUser);
 
 const directService = new DirectService();
 const { onRowClick }: { onRowClick: Function } = rowClick();
@@ -125,7 +127,10 @@ async function init() {
 }
 
 async function getFavourites() {
-  const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
+  let favouriteList: string[];
+  if (currentUser.value) favouriteList = await UserService.getUserFavourites(currentUser.value.id);
+  else favouriteList = favourites ? favourites.value : [];
+  const result = await EntityService.getPartialEntities(favouriteList, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
     return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
   });
@@ -167,7 +172,7 @@ function onRowContextMenu(data: any) {
 }
 
 function updateFavourites(iri: string) {
-  store.commit("updateFavourites", iri);
+  userStore.updateFavourites(iri);
 }
 
 function onRowSelect(event: any) {
@@ -186,11 +191,8 @@ async function onPage(event: any) {
 }
 
 function scrollToTop(): void {
-  const resultsContainer = document.getElementById("content-table-container") as HTMLElement;
-  const scrollBox = resultsContainer?.getElementsByClassName("scrollbar")[0] as HTMLElement;
-  if (scrollBox) {
-    scrollBox.scrollTop = 0;
-  }
+  const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
+  scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {

@@ -25,9 +25,7 @@
       <Column field="name" filter-field="name" header="Name">
         <template #body="{ data }: any">
           <div>
-            <span :style="'color:' + data.colour" class="p-mx-1 type-icon">
-              <i :class="data.icon" aria-hidden="true" />
-            </span>
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color:' + data.colour" class="p-mx-1 type-icon" />
             <span class="text-name" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
@@ -38,17 +36,17 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
-import { DataTypeCheckers, ConceptTypeMethods } from "@im-library/helpers";
 import { DirectService, EntityService } from "@/services";
 import { RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
-const { isObjectHasKeys } = DataTypeCheckers;
-const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const directService = new DirectService();
 

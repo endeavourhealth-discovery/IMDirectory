@@ -1,6 +1,6 @@
 <template>
   <div class="sidebar">
-    <SearchBar @open-search-panel="openSearchPanel" @search-loading="updateSearchLoading" @search-results="updateSearchResults" class="searchbar" />
+    <SearchBar @open-search-panel="openSearchPanel" @search-loading="updateSearchLoading" @search-results="updateSearchResults" />
     <TabView :lazy="true" v-model:activeIndex="activeIndex">
       <TabPanel header="NavTree">
         <NavTree />
@@ -22,9 +22,11 @@ import NavTree from "./sidebar/NavTree.vue";
 import SearchBar from "./sidebar/SearchBar.vue";
 import SearchResults from "./sidebar/SearchResults.vue";
 
-const props = defineProps({
-  editorEntity: { type: Object as PropType<any>, required: true }
-});
+interface Props {
+  editorEntity: any;
+}
+
+const props = defineProps<Props>();
 
 const searchResults: Ref<any[]> = ref([]);
 const searchLoading = ref(false);
@@ -53,14 +55,12 @@ function handleClick(data: any) {
 </script>
 
 <style scoped>
-.searchbar {
-  display: flex;
-  flex-flow: column;
-}
 .sidebar {
   display: flex;
   flex-flow: column nowrap;
   overflow-y: hidden;
+  padding-top: 0.75rem;
+  gap: 0.5rem;
 }
 
 .p-tabview {

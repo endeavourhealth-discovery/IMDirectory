@@ -19,16 +19,16 @@
     <DataTable :value="data" :paginator="data.length > 5 ? true : false" :rows="5" id="term-codes-table" class="hidden">
       <template #empty> No records found </template>
       <Column field="name" header="Name" :sortable="true">
-        <template #body="slotProps: any">
+        <template #body="{ data }: any">
           <div>
-            {{ slotProps.data.name }}
+            {{ data.name }}
           </div>
         </template>
       </Column>
       <Column field="code" header="Code" :sortable="true">
-        <template #body="slotProps: any">
+        <template #body="{ data }: any">
           <div>
-            {{ slotProps.data.code || "None" }}
+            {{ data.code || "None" }}
           </div>
         </template>
       </Column>
@@ -42,12 +42,13 @@ import { TermCode } from "@im-library/interfaces";
 import { DataTypeCheckers } from "@im-library/helpers";
 const { isArrayHasLength } = DataTypeCheckers;
 
-const props = defineProps({
-  label: { type: String },
-  data: { type: Array as PropType<Array<TermCode>> },
-  size: { type: String },
-  id: { type: String }
-});
+interface Props {
+  label?: string;
+  data?: TermCode[];
+  size?: string;
+  id?: string;
+}
+const props = defineProps<Props>();
 
 const hasData = computed(() => isArrayHasLength(props.data));
 

@@ -15,15 +15,15 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref, watch } from "vue";
-import { useStore } from "vuex";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
-const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
+const directoryStore = useDirectoryStore();
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 watch(
   () => conceptIri.value,

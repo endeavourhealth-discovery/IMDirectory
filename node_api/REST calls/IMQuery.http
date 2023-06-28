@@ -89,6 +89,18 @@ GET http://localhost:3000/node_api/query/public/getSQL?iri=http://endhealth.info
 
 ###
 
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http:%2F%2Fendhealth.info%2Fim%23concept
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http:%2F%2Fendhealth.info%2Fim%23address
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http:%2F%2Fendhealth.info%2Fim%23addressLine
+
+###
+
 GET http://localhost:3000/node_api/query/public/getSQL?iri=urn%3Auuid%3A6d517466-813b-46a8-b848-aaf5a4fbdcbf
 
 ###
@@ -620,3 +632,40 @@ Content-Type: application/json
     ]
   }
 }
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#recordOwner
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#text
+
+###
+
+GET http://localhost:3000/node_api/query/public/propertyRange?propIri=http://endhealth.info/im#age
+
+###
+
+GET http://localhost:3000/node_api/query/public/isFunctionProperty?propIri=http://endhealth.info/im#age
+
+###
+
+GET http://localhost:3000/node_api/query/public/isFunctionProperty?propIri=http://endhealth.info/im#recordOwner
+
+###
+
+GET http://localhost:3000/node_api/query/public/isFunctionProperty?propIri=http://endhealth.info/im#text
+
+###
+
+POST http://localhost:8080/api/query/public/queryIM
+content-type: application/json
+
+{
+  "query": {
+    "@id": "http://endhealth.info/im#Query_dataPropertyRangeSuggestions"
+  }
+}
+
+###

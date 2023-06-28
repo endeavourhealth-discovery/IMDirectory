@@ -30,7 +30,7 @@
     <Menu ref="menuBool" :model="boolOptions" :popup="true" />
     <div v-for="(item, index) in value.items" class="refinement-container">
       <span class="left-container">
-        <div v-if="index === 0" class="spacer">&nbsp;</div>
+        <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
         <Button v-else-if="index === 1" :label="value.conjunction" @click="toggleBool" class="builder-button conjunction-button" />
         <Button v-else-if="index > 1" :label="value.conjunction" severity="secondary" class="builder-button conjunction-button" disabled />
       </span>
@@ -102,22 +102,20 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 
-const props = defineProps({
+interface Props {
   value: {
-    type: Object as PropType<{
-      type: string;
-      descendants: string;
-      conjunction: string;
-      items: any[];
-      concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
-      ecl?: string;
-      exclude?: boolean;
-    }>,
-    required: true
-  },
-  parent: { type: Object as PropType<any>, required: false },
-  index: { type: Number, required: false }
-});
+    type: string;
+    descendants: string;
+    conjunction: string;
+    items: any[];
+    concept: { iri: string; name?: string } | { conjunction: string; items: any[]; type: string; ecl?: string } | undefined;
+    ecl?: string;
+    exclude?: boolean;
+  };
+  parent?: any;
+  index?: number;
+}
+const props = defineProps<Props>();
 
 watch(
   () => _.cloneDeep(props.value),
@@ -364,5 +362,9 @@ function unGroupItems(groupedItems: any) {
   height: 2.357rem !important;
   width: 2.357rem !important;
   padding: 0.5rem !important;
+}
+
+.spacer {
+  width: 4rem;
 }
 </style>

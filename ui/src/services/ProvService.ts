@@ -5,8 +5,8 @@ const node_api = Env.VITE_NODE_API;
 
 const ProvService = {
   async getProvHistory(iri: string): Promise<TTIriRef[]> {
-    return axios.get(node_api + "node_api/prov/public/history", {
-      params: { url: iri }
+    return axios.get(Env.API + "api/prov/public/history", {
+      params: { iri: iri }
     });
   }
 };

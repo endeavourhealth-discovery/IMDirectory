@@ -17,14 +17,15 @@ import { getLogger } from "@im-library/logger/LogConfig";
 
 const log = getLogger("components.PieChartDashCam");
 
-const props = defineProps({
-  name: { type: String, required: false },
-  description: { type: String, required: false },
-  inputData: { type: Array as PropType<any[]>, required: true },
-  id: { type: String, required: true },
-  labelKey: { type: String, required: true },
-  dataKey: { type: String, required: true }
-});
+interface Props {
+  name?: string;
+  description?: string;
+  inputData: any[];
+  id: string;
+  labelKey: string;
+  dataKey: string;
+}
+const props = defineProps<Props>();
 
 onMounted(async () => {
   await nextTick();

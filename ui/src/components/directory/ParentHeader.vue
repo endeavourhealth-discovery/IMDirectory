@@ -3,10 +3,8 @@
     <div class="title-buttons-container">
       <div class="title-container">
         <h4 class="title">
-          <span :style="getColour(concept)" class="p-mx-1 type-icon" :key="concept['@id']">
-            <i :class="getIcon(concept)" aria-hidden="true" />
-          </span>
-          {{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}
+          <IMFontAwesomeIcon :icon="getIcon(concept)" :style="getColour(concept)" :key="concept['@id']" class="p-mx-1 type-icon" />
+          <span>{{ concept["http://www.w3.org/2000/01/rdf-schema#label"] || "Favourites" }}</span>
         </h4>
       </div>
       <div class="concept-buttons-container">
@@ -46,16 +44,21 @@ import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/Arra
 import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { IM, RDF } from "@im-library/vocabulary";
 import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { computed, Ref, watch, ref, onMounted } from "vue";
-import { useStore } from "vuex";
 import { EntityService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
-const store = useStore();
-const props = defineProps({ concept: { type: Object as any, required: true } });
-const conceptIri = computed(() => store.state.conceptIri);
+const directoryStore = useDirectoryStore();
+interface Props {
+  concept: any;
+}
+const props = defineProps<Props>();
+
+const conceptIri = computed(() => directoryStore.conceptIri);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 
 onMounted(async () => {

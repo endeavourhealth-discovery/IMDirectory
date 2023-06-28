@@ -28,7 +28,7 @@
 import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary } from "@im-library/interfaces";
-import { Query, QueryRequest, Select } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
@@ -36,18 +36,19 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import SearchResultsTable from "./SearchResultsTable.vue";
-import store from "@/store";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 const toast = useToast();
+const directoryStore = useDirectoryStore();
 const queryString = ref("");
 const searchResults: Ref<ConceptSummary[]> = ref([]);
 const controller: Ref<AbortController> = ref({} as AbortController);
 
 async function search(): Promise<void> {
   if (queryString.value) {
-    store.commit("updateSearchLoading", true);
+    directoryStore.updateSearchLoading(true);
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
@@ -60,13 +61,13 @@ async function search(): Promise<void> {
       const result = await QueryService.queryIM(queryRequest);
       searchResults.value = result.entities;
       const queryResults = convertResultsToConceptSummaryList(result.entities);
-      store.commit("updateSearchResults", queryResults);
+      directoryStore.updateSearchResults(queryResults);
     } catch (error) {
       if (!(error instanceof SyntaxError) && !(error instanceof TypeError))
         toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
     }
 
-    store.commit("updateSearchLoading", false);
+    directoryStore.updateSearchLoading(false);
   }
 }
 
@@ -94,14 +95,15 @@ function convertResultsToConceptSummaryList(entities: any[]) {
 }
 
 function addDefaultQuerySelect(query: Query) {
-  if (!isArrayHasLength(query.select)) query.select = [];
-  const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
-  for (const property of defaultProperties) {
-    const select = {
-      "@id": property
-    } as Select;
-    query.select.push(select);
-  }
+  // TODO add return when ready
+  // if (!isArrayHasLength(query.select)) query.select = [];
+  // const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
+  // for (const property of defaultProperties) {
+  //   const select = {
+  //     "@id": property
+  //   } as Select;
+  //   query.select.push(select);
+  // }
 }
 
 async function format() {
@@ -126,7 +128,6 @@ function onCopyError(): void {
 #query-search-container {
   height: 100%;
   width: 100%;
-  /* overflow: auto; */
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;

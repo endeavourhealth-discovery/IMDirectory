@@ -1,7 +1,6 @@
 import { createApp, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import store from "./store";
 import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
@@ -19,17 +18,6 @@ import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(fab);
-
-// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
-import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
-addFontAwesomeProIcons(library);
-store.commit("updateFontAwesomePro", true);
-// #v-endif
-// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
-import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
-import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-store.commit("updateFontAwesomePro", false);
-// #v-endif
 
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
@@ -97,9 +85,14 @@ import Skeleton from "primevue/skeleton";
 import DialogService from "primevue/dialogservice";
 import DynamicDialog from "primevue/dynamicdialog";
 import Image from "primevue/image";
+import InputNumber from "primevue/inputnumber";
+import Calendar from "primevue/calendar";
+import Inplace from "primevue/inplace";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
+import { createPinia } from "pinia";
+import { useSharedStore } from "@/stores/sharedStore";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -109,8 +102,10 @@ if (import.meta.env.MODE === "mock") {
   worker.start();
 }
 
+const pinia = createPinia();
+
 const app = createApp(App)
-  .use(store)
+  .use(pinia)
   .use(router)
   .use(PrimeVue, { ripple: true, local: { dateFormat: "dd/mm/yyyy" } })
   .use(ConfirmationService)
@@ -179,7 +174,24 @@ const app = createApp(App)
   .component("ToggleButton", ToggleButton)
   .component("Skeleton", Skeleton)
   .component("DynamicDialog", DynamicDialog)
-  .component("Image", Image);
+  .component("Image", Image)
+  .component("Calendar", Calendar)
+  .component("InputNumber", InputNumber)
+  .component("Inplace", Inplace);
+
+const sharedStore = useSharedStore();
+
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
+addFontAwesomeProIcons(library);
+sharedStore.updateFontAwesomePro(true);
+// #v-endif
+// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
+await import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
+await import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
+sharedStore.updateFontAwesomePro(false);
+// #v-endif
+
 const vm = app.mount("#app");
 
 // Vue application exceptions

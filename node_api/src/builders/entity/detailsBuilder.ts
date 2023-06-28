@@ -1,36 +1,19 @@
-import * as crypto from "crypto";
-import { TTBundle, TTIriRef } from "@im-library/interfaces";
+import { randomBytes } from "node:crypto";
+import { TTBundle } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 export function buildDetails(definition: TTBundle, types?: TTIriRef[]): any[] {
   const treeNode = { children: [] as any[] };
   buildTreeDataRecursively(treeNode, definition.entity, definition.predicates, types);
-  return treeNode.children!;
+  return treeNode.children;
 }
 
 function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any, types?: TTIriRef[]) {
   if (isObjectHasKeys(entity)) {
     for (const key of Object.keys(entity)) {
-      if (key === IM.ROLE_GROUP) {
-        addRoleGroup(treeNode, entity, predicates, key);
-      } else if (key === IM.HAS_TERM_CODE) {
-        addTermCodes(treeNode, entity, predicates, key);
-      } else if (key === SHACL.PROPERTY) {
-        addProperty(treeNode, entity, predicates, key);
-      } else if (key === SHACL.PARAMETER) {
-        addParameter(treeNode, entity, predicates, key);
-      } else if (key === IM.DEFINITION) {
-        addDefinition(treeNode, entity, predicates, key, types || []);
-      } else if (key === IM.HAS_MAP) {
-        const defaultNode = { key: key, label: predicates[key], children: [] };
-        treeNode.children.push(defaultNode);
-        addDefault(defaultNode, entity, predicates);
-      } else if (key !== "@id") {
-        const newTreeNode = { key: key, label: predicates[key] || key, children: [] };
-        treeNode.children?.push(newTreeNode);
-        buildTreeDataRecursively(newTreeNode, entity[key], predicates);
-      }
+      processEntityKey(key, treeNode, entity, predicates);
     }
   } else if (isArrayHasLength(entity)) {
     for (const item of entity) {
@@ -38,6 +21,28 @@ function buildTreeDataRecursively(treeNode: any, entity: any, predicates: any, t
     }
   } else {
     addValueToLabel(treeNode, ": ", entity);
+  }
+}
+
+function processEntityKey(key: string, treeNode: any, entity: any, predicates: any, types?: TTIriRef[]) {
+  if (key === IM.ROLE_GROUP) {
+    addRoleGroup(treeNode, entity, predicates, key);
+  } else if (key === IM.HAS_TERM_CODE) {
+    addTermCodes(treeNode, entity, predicates, key);
+  } else if (key === SHACL.PROPERTY) {
+    addProperty(treeNode, entity, predicates, key);
+  } else if (key === SHACL.PARAMETER) {
+    addParameter(treeNode, entity, predicates, key);
+  } else if (key === IM.DEFINITION) {
+    addDefinition(treeNode, entity, predicates, key, types ?? []);
+  } else if (key === IM.HAS_MAP) {
+    const defaultNode = { key: key, label: predicates[key], children: [] };
+    treeNode.children.push(defaultNode);
+    addDefault(defaultNode, entity, predicates);
+  } else if (key !== "@id") {
+    const newTreeNode = { key: key, label: predicates[key] ?? key, children: [] };
+    treeNode.children?.push(newTreeNode);
+    buildTreeDataRecursively(newTreeNode, entity[key], predicates);
   }
 }
 
@@ -62,7 +67,7 @@ function addParameter(treeNode: any, entity: any, predicates: any, key: string) 
   if (isArrayHasLength(entity[key])) {
     for (const parameter of entity[key]) {
       const parameterNode = {
-        key: String(crypto.randomBytes(64).readBigUInt64BE()),
+        key: String(randomBytes(64).readBigUInt64BE()),
         label: parameter[RDFS.LABEL],
         children: [] as any[]
       };
@@ -85,8 +90,8 @@ function addDefault(treeNode: any, entity: any, predicates: any) {
     } else if (isObjectHasKeys(entity[key])) {
       for (const objectKey of Object.keys(entity[key])) {
         const objectNode = {
-          key: String(crypto.randomBytes(64).readBigUInt64BE()),
-          label: predicates[objectKey] || objectKey,
+          key: String(randomBytes(64).readBigUInt64BE()),
+          label: predicates[objectKey] ?? objectKey,
           children: [] as any
         };
 

@@ -12,22 +12,27 @@
 import { computed, PropType } from "vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useStore } from "vuex";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { TagSeverity } from "@im-library/enums";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameTagWithLabel");
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Array as PropType<TTIriRef[]>, required: true },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "array-object-name-tag-with-label" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: TTIriRef[];
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "array-object-name-tag-with-label"
 });
 
-const store = useStore();
-const tagSeverityMatches = computed(() => store.state.tagSeverityMatches);
+const sharedStore = useSharedStore();
+const tagSeverityMatches = computed(() => sharedStore.tagSeverityMatches);
 
 const isArrayObject = computed(() => {
   if (props.data && isArrayHasLength(props.data) && isObjectHasKeys(props.data[0], ["@id"])) {
@@ -39,7 +44,7 @@ const isArrayObject = computed(() => {
 
 function getSeverity(item: TTIriRef): TagSeverity {
   let result = TagSeverity.INFO;
-  if (!tagSeverityMatches.value) throw new Error("Missing vuex store property 'tagSeverityMatches'");
+  if (!tagSeverityMatches.value) throw new Error("Missing vuex sharedStore property 'tagSeverityMatches'");
   if (item && isObjectHasKeys(item, ["name"])) {
     const found = tagSeverityMatches.value.find((severity: { "@id": string; severity: string }) => severity["@id"] === item["@id"]);
     if (found) result = found.severity;

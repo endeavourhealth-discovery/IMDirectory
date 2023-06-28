@@ -1,10 +1,11 @@
 import express, { NextFunction, Request, Response } from "express";
 import axios from "axios";
 import SearchService from "@/services/search.service";
+import router from "express-promise-router";
 
 export default class SearchController {
   public path = "/";
-  public router = express.Router();
+  public router = router();
   private searchService: SearchService;
 
   constructor() {
@@ -13,16 +14,28 @@ export default class SearchController {
   }
 
   private initRoutes() {
-    this.router.post("/api/entity/public/search", (req, res) => this.advancedSearch(req, res));
-    this.router.post("/node_api/public/search/entity", (req, res, next) => this.getEntitiesBySnomedCodes(req, res, next));
-    this.router.post("/node_api/public/search/validatedEntity", (req, res, next) => this.getValidatedEntitiesBySnomedCodes(req, res, next));
+    this.router.post("/api/entity/public/search", (req, res, next) =>
+      this.advancedSearch(req, res)
+        .then(data => res.setHeader("Content-Type", "application/json").send(data))
+        .catch(next)
+    );
+    this.router.post("/node_api/public/search/entity", (req, res, next) =>
+      this.getEntitiesBySnomedCodes(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+    this.router.post("/node_api/public/search/validatedEntity", (req, res, next) =>
+      this.getValidatedEntitiesBySnomedCodes(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
   }
 
   async advancedSearch(req: Request, res: Response) {
     const searchRequest = req.body;
     let result = [];
 
-    if (searchRequest != null && searchRequest.termFilter) {
+    if (searchRequest?.termFilter) {
       if (!searchRequest.index) searchRequest.index = "concept";
 
       if (searchRequest.termFilter.length < 3) {
@@ -40,28 +53,16 @@ export default class SearchController {
         }
       }
     }
-
-    res.setHeader("Content-Type", "application/json").send(result);
-    res.end();
+    return result;
   }
 
-  async getEntitiesBySnomedCodes(req: Request, res: Response, next: NextFunction) {
-    try {
-      const codes = req.body;
-      const result = await this.searchService.findEntitiesBySnomedCodes(codes);
-      res.send(result).end();
-    } catch (error) {
-      next(error);
-    }
+  async getEntitiesBySnomedCodes(req: Request) {
+    const codes = req.body;
+    return await this.searchService.findEntitiesBySnomedCodes(codes);
   }
 
-  async getValidatedEntitiesBySnomedCodes(req: Request, res: Response, next: NextFunction) {
-    try {
-      const codes = req.body;
-      const result = await this.searchService.findValidatedEntitiesBySnomedCodes(codes);
-      res.send(result).end();
-    } catch (error) {
-      next(error);
-    }
+  async getValidatedEntitiesBySnomedCodes(req: Request) {
+    const codes = req.body;
+    return await this.searchService.findValidatedEntitiesBySnomedCodes(codes);
   }
 }

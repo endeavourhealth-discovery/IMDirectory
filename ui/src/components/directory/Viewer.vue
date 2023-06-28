@@ -113,18 +113,18 @@ import { EntityService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import Details from "./viewer/Details.vue";
 
-import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import setupConcept from "@/composables/setupConcept";
 import setupConfig from "@/composables/setupConfig";
 import setupTerms from "@/composables/setupTerms";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
+import { useDirectoryStore } from "@/stores/directoryStore";
 const { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
 const { isObjectHasKeys } = DataTypeCheckers;
 
 const router = useRouter();
-const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
+const directoryStore = useDirectoryStore();
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);

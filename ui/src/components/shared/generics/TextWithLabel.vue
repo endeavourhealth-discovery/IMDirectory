@@ -19,12 +19,18 @@ import { ToastOptions } from "@im-library/models";
 import { useToast } from "primevue/usetoast";
 
 const toast = useToast();
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: String, required: false },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "text-with-label" },
-  show: { type: Boolean, required: true }
+
+interface Props {
+  label: string;
+  data?: string;
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "text-with-label"
 });
 
 function copyToClipboard(): string {

@@ -2,7 +2,7 @@
   <div class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center logout-card">
       <template #header>
-        <i class="fa-solid fa-arrow-right-from-bracket icon-header" aria-hidden="true" />
+        <IMFontAwesomeIcon icon="fa-solid fa-arrow-right-from-bracket" class="icon-header" />
       </template>
       <template #title> Logout </template>
       <template #content>
@@ -37,16 +37,19 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useStore } from "vuex";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
 import { CustomAlert } from "@im-library/interfaces";
+import { useAuthStore } from "@/stores/authStore";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
-const previousAppUrl = computed(() => store.state.previousAppUrl);
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const previousAppUrl = computed(() => authStore.previousAppUrl);
 
 function handleSubmit(): void {
   Swal.fire({
@@ -58,18 +61,20 @@ function handleSubmit(): void {
     reverseButtons: true
   }).then((result: SweetAlertResult) => {
     if (result.isConfirmed) {
-      store.dispatch("logoutCurrentUser").then((res: CustomAlert) => {
+      userStore.logoutCurrentUser().then((res: CustomAlert) => {
         if (res.status === 200) {
           Swal.fire({
             icon: "success",
             title: "Success",
             text: res.message
           }).then(() => {
+            userStore.clearOptionalCookies();
             if (previousAppUrl.value) {
               window.location.href = previousAppUrl.value;
             } else {
-              router.push({ name: "Login" });
+              router.push({ name: "LandingPage" });
             }
+            window.location.reload();
           });
         } else {
           Swal.fire({

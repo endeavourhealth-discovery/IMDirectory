@@ -1,4 +1,4 @@
-import { DefinitionConfig } from "@im-library/interfaces";
+import { DashboardLayout, DefinitionConfig } from "@im-library/interfaces";
 import { ref, Ref } from "vue";
 import { ConfigService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -11,9 +11,10 @@ function setupConfig() {
   const configs: Ref<DefinitionConfig[]> = ref([]);
 
   async function getConfig(): Promise<void> {
-    const definitionConfig = await ConfigService.getComponentLayout("definition");
-    const summaryConfig = await ConfigService.getComponentLayout("summary");
-    configs.value = definitionConfig.concat(summaryConfig);
+    const definitionConfig: DefinitionConfig[] = await ConfigService.getComponentLayout("definition");
+    const summaryConfig: DashboardLayout[] = await ConfigService.getComponentLayout("summary");
+
+    configs.value = definitionConfig.concat(summaryConfig as any[]) as DefinitionConfig[];
 
     if (configs.value.every(config => isObjectHasKeys(config, ["order"]))) {
       configs.value.sort(byOrder);

@@ -1,16 +1,27 @@
 <template>
-  <a class="clickable" @click="click()">{{ label || iri }}</a>
+  <a v-if="html" class="clickable" @click="click()" @mouseover="showOverlay($event)" @mouseleave="hideOverlay($event)" v-html="label"></a>
+  <a v-else class="clickable" @click="click()" @mouseover="showOverlay($event)" @mouseleave="hideOverlay($event)">{{ label || iri }}</a>
+  <OverlaySummary ref="OS" />
 </template>
 
 <script setup lang="ts">
+import { Ref, ref } from "vue";
 import { DirectService } from "../../services";
+import OverlaySummary from "../directory/viewer/OverlaySummary.vue";
 
-const props = defineProps({
-  iri: { type: String, required: true },
-  label: { type: String, required: false },
-  action: { type: String, required: false, default: "view" }
+interface Props {
+  iri: string;
+  label?: string;
+  action?: string;
+  html?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  action: "view",
+  html: false
 });
 
+const OS: Ref<any> = ref();
 const directService = new DirectService();
 
 async function click() {
@@ -28,6 +39,14 @@ async function click() {
       directService.view(props.iri);
       break;
   }
+}
+
+async function showOverlay(event: any): Promise<void> {
+  await OS.value.showOverlay(event, props.iri);
+}
+
+function hideOverlay(event: any): void {
+  OS.value.hideOverlay(event);
 }
 </script>
 

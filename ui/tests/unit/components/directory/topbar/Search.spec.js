@@ -7,20 +7,18 @@ import testData from "./Search.testData";
 import PrimeVue from "primevue/config";
 import SplitButton from "primevue/splitbutton";
 import { fireEvent, render } from "@testing-library/vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useFilterStore } from "@/stores/filterStore.ts";
+import { useDirectoryStore } from "@/stores/directoryStore.ts";
 
-const mockDispatch = vi.fn();
-const mockState = {
-  selectedFilters: testData.SELECTED_FILTERS
-};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    filter: {
+      selectedFilters: testData.SELECTED_FILTERS
+    }
+  }
+});
+const mockStoreDirectory = useDirectoryStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -53,10 +51,8 @@ describe("Search.vue", () => {
     await fireEvent.update(input, "Scoliosis");
     expect(mockPush).toHaveBeenCalledOnce();
     expect(mockPush).toHaveBeenCalledWith({ name: "Search" });
-    expect(mockCommit).toHaveBeenCalledTimes(2);
-    expect(mockCommit).toHaveBeenCalledWith("updateSearchLoading", true);
-    expect(mockDispatch).toHaveBeenCalledOnce();
-    expect(mockDispatch).toHaveBeenCalledWith("fetchSearchResults", expect.anything());
+    expect(mockStoreDirectory.updateSearchLoading).toHaveBeenCalledTimes(2);
+    expect(mockStoreDirectory.fetchSearchResults).toHaveBeenCalledOnce();
   });
 
   it("opens filters", async () => {

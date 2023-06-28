@@ -5,58 +5,50 @@
         <span class="title"><strong>IM Query</strong></span>
       </template>
     </TopBar>
-    <div id="query-main-container">
-      <RecursiveTableQuery :bool="'and'" :query-data="data" :selected="selected" :level="0" />
-    </div>
+
+    <div class="include-title" style="color: green">include if</div>
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(query.match)"
+      :matches="query.match!.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
+      :full-query="query"
+    />
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(query.match)"
+      :matches="query.match!.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
+      :full-query="query"
+    />
+
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
       <Button class="button-bar-button" label="Save" severity="success" />
     </div>
   </div>
-  <Dialog v-model:visible="visibleDialog" modal header="Header" :style="{ width: '50vw' }">
-    <VueJsonPretty class="json" :path="'res'" :data="query" @nodeClick="copy" />
-  </Dialog>
 </template>
 
 <script setup lang="ts">
-import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted } from "vue";
-// import { queryDefinition } from "./query-json";
-import RecursiveTableQuery from "../components/query/RecursiveTableQuery.vue";
-import { TableQuery } from "@im-library/interfaces";
-import { buildTableQuery } from "@im-library/helpers/TableQueryBuilder";
-import { useStore } from "vuex";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
-const toast = useToast();
-const store = useStore();
-const selected = ref([] as any[]);
-const data: Ref<TableQuery[]> = ref({} as TableQuery[]);
-const query: Ref<any> = ref();
+import { useFilterStore } from "@/stores/filterStore";
+import { QueryService } from "@/services";
+import { IM } from "@im-library/vocabulary";
+import { Match, Query } from "@im-library/interfaces/AutoGen";
+import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+const filterStore = useFilterStore();
+const query: Ref<Query> = ref({} as Query);
 const visibleDialog: Ref<boolean> = ref(false);
-
-function getTableQuery() {
-  // query.value = { ...queryDefinition };
-  query.value = {};
-  const tableQuery = buildTableQuery(query.value);
-  console.log(tableQuery);
-  data.value = tableQuery;
-}
+const baseEntityIri = ref("");
 
 onMounted(async () => {
-  await store.dispatch("fetchFilterSettings");
-
-  getTableQuery();
+  await filterStore.fetchFilterSettings();
+  query.value = await QueryService.getQueryDisplay(IM.NAMESPACE + "Q_TestQuery");
+  if (isArrayHasLength(query.value?.match)) {
+    const baseEntity = query.value.match![0];
+    baseEntityIri.value = (baseEntity["@id"] || baseEntity["@set"] || baseEntity["@type"]) as string;
+  }
 });
-
-async function copy() {
-  await navigator.clipboard.writeText(JSON.stringify(query.value));
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "JSON value copied to clipboard"));
-}
 </script>
 
 <style scoped lang="scss">
@@ -89,5 +81,11 @@ async function copy() {
 
 .button-bar-button {
   margin: 0.5rem;
+}
+
+.include-title {
+  margin-left: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.1rem;
 }
 </style>

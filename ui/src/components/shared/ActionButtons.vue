@@ -76,22 +76,28 @@ import findInTree from "@/composables/findInTree";
 import setupRunQuery from "@/composables/setupRunQuery";
 import { DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { State } from "@/store/stateType";
-import { Store, useStore } from "vuex";
 import TestQueryResults from "../editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TestQueryParams from "../editor/shapeComponents/setDefinition/TestQueryParams.vue";
 import { Query } from "@im-library/interfaces/AutoGen";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useUserStore } from "@/stores/userStore";
+
 const directService = new DirectService();
 const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
 const { locateInTree }: { locateInTree: Function } = findInTree();
-const store: Store<State> = useStore();
-const favourites = computed(() => store.state.favourites);
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
+const sharedStore = useSharedStore();
+const userStore = useUserStore();
+const favourites = computed(() => userStore.favourites);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
-const props = defineProps({
-  buttons: { type: Array as PropType<Array<string>>, required: true },
-  iri: { type: String, required: true },
-  type: { type: String, required: false, default: "activityRowButton" }
+interface Props {
+  buttons: string[];
+  iri: string;
+  type?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  type: "activityRowButton"
 });
 
 function getClass() {
@@ -123,7 +129,7 @@ function isFavourite(iri: string) {
 }
 
 function updateFavourites(iri: string) {
-  store.commit("updateFavourites", iri);
+  userStore.updateFavourites(iri);
 }
 
 async function onRunQuery(iri: string) {

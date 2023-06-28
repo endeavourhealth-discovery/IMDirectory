@@ -12,12 +12,17 @@ import { computed, PropType } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { SHACL } from "@im-library/vocabulary";
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Array as PropType<string[]>, required: true },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "array-object-names-to-string-with-label" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: string[];
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "array-object-names-to-string-with-label"
 });
 
 const arrayToString = computed(() => {

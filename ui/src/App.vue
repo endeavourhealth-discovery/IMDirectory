@@ -3,28 +3,38 @@
     <Toast />
     <ConfirmDialog />
     <DynamicDialog class="dynamic-dialog" />
-    <ReleaseNotes v-if="!loading && showReleaseNotes" repositoryName="IMDirectory" />
+    <ReleaseNotes v-if="!loading && showReleaseNotes" />
+    <CookiesConsent />
+    <SnomedConsent />
     <div id="main-container">
+      <BannerBar v-if="!loading && showBanner" :latestRelease="latestRelease" />
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
       <router-view v-else />
+      <FooterBar />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef } from "vue";
-import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
-import { useStore } from "vuex";
+import { onMounted, ref, computed, ComputedRef, Ref } from "vue";
+import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
+import CookiesConsent from "./components/app/CookiesConsent.vue";
+import BannerBar from "./components/app/BannerBar.vue";
+import FooterBar from "./components/app/FooterBar.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Env } from "@/services";
+import { Env, GithubService, UserService } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
 import { usePrimeVue } from "primevue/config";
+import { GithubRelease } from "./interfaces";
+import { useUserStore } from "./stores/userStore";
+import SnomedConsent from "./components/app/SnomedConsent.vue";
+import { useSharedStore } from "@/stores/sharedStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -33,38 +43,46 @@ const PrimeVue: any = usePrimeVue();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const store = useStore();
+const userStore = useUserStore();
+const sharedStore = useSharedStore();
 
-const currentTheme = computed(() => store.state.currentTheme);
-const showReleaseNotes: ComputedRef<boolean> = computed(() => store.state.showReleaseNotes);
+const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
+const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
+const currentTheme = computed(() => userStore.currentTheme);
 
-const appVersion = __APP_VERSION__;
-
+const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
-  await store.dispatch("authenticateCurrentUser");
-  if (currentTheme.value) {
-    if (currentTheme.value !== "saga-blue") changeTheme(currentTheme.value);
-  } else store.commit("updateCurrentTheme", "saga-blue");
-  setShowReleaseNotes();
+  await userStore.authenticateCurrentUser();
+  const theme = currentUser.value ? await UserService.getUserTheme(currentUser.value.id) : "saga-blue";
+  changeTheme(theme);
+  await setShowBanner();
   loading.value = false;
 });
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {});
-  store.commit("updateCurrentTheme", newTheme);
+  if (userStore.currentTheme != newTheme) {
+    PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {
+      userStore.updateCurrentTheme(newTheme);
+    });
+  }
 }
 
-function setShowReleaseNotes() {
+async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
-  if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, appVersion)) {
-    store.commit("updateShowReleaseNotes", true);
-  } else if (semver.valid(lastVersion) && semver.gt(lastVersion, appVersion)) {
-    setLocalVersion("IMDirectory", appVersion);
-    store.commit("updateShowReleaseNotes", true);
-  } else store.commit("updateShowReleaseNotes", false);
+  latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
+  let currentVersion = "v0.0.0";
+  if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
+  if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
+    sharedStore.updateShowBanner(true);
+  } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
+    localStorage.removeItem("IMDirectoryVersion");
+    sharedStore.updateShowBanner(true);
+  } else sharedStore.updateShowBanner(false);
 }
 
 function getLocalVersion(repoName: string): string | null {
@@ -77,7 +95,7 @@ function setLocalVersion(repoName: string, versionNo: string) {
 
 async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
-    if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
+    if (isLoggedIn.value && Env.API && request.url?.startsWith(Env.API)) {
       if (!request.headers) request.headers = {};
       request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
     }
@@ -91,12 +109,24 @@ async function setupAxiosInterceptors(axios: any) {
     (error: any) => {
       if (error?.response?.config?.raw) return Promise.reject(error);
       if (error?.response?.status === 403) {
-        toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-        });
-        window.location.href = Env.AUTH_URL + "login?returnUrl=" + route.fullPath;
+        if (error.response.data) {
+          toast.add({
+            severity: "error",
+            summary: "Access denied",
+            detail: error.response.data.debugMessage
+          });
+        } else if (error.config.url) {
+          toast.add({
+            severity: "error",
+            summary: "Access denied",
+            detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Access denied"
+          });
+        }
       } else if (error?.response?.status === 401) {
         toast.add({
           severity: "error",
@@ -107,12 +137,18 @@ async function setupAxiosInterceptors(axios: any) {
             ". Please contact an admin to change your account security clearance if you require access to this resource."
         });
         router.push({ name: "AccessDenied" }).then();
+      } else if (error?.response?.data?.code && error?.response?.status > 399 && error?.response?.status < 500) {
+        console.error(error.response.data);
+        toast.add({
+          severity: "error",
+          summary: error.response.data.code,
+          detail: error.response.data.debugMessage
+        });
       } else if (error?.response?.status === 500 && error.code === "ERR_BAD_RESPONSE") {
         router.push({ name: "ServerOffline" }).then();
       } else if (error.code === "ERR_CANCELED") {
         return;
       } else {
-        console.log(error);
         return Promise.reject(error);
       }
     }
@@ -168,17 +204,23 @@ function setupExternalErrorHandler() {
   max-height: 100vh;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: flex-start;
+  justify-content: space-between;
   overflow: auto;
   background-color: var(--surface-ground);
 }
 .loading-container {
   width: 100%;
-  height: 100%;
+  flex: 1 1 auto;
 }
 </style>
 
 <style>
+:root {
+  --hyperlink-blue: #2196f3;
+}
+.p-dialog-mask {
+  z-index: 1;
+}
 .swal2-popup {
   background-color: var(--surface-a);
 }
@@ -198,5 +240,9 @@ function setupExternalErrorHandler() {
 .p-dialog-header-icons {
   flex: 1 0 auto;
   justify-content: flex-end;
+}
+
+.p-progress-spinner {
+  overflow: hidden;
 }
 </style>

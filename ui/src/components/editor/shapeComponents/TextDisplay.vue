@@ -1,17 +1,18 @@
 <template>
   <div class="string-single-display-container">
+    <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="input-loading-container">
-      <span class="p-float-label" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
-        <InputText disabled class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" />
-        <label>{{ shape.name }}</label>
-      </span>
+      <div class="tooltip-container" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
+        <InputText disabled class="p-inputtext-lg input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
+      </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     </div>
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, watch, onMounted, inject, PropType, Ref } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";
@@ -20,58 +21,70 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { QueryService } from "@/services";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: String, required: false },
-  position: { type: Number, required: false }
-});
-
-const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
-const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-if (valueVariableMap) {
-  watch(
-    () => _.cloneDeep(valueVariableMap.value),
-    async () => {
-      if (props.shape.argument && props.shape.argument.some(a => a.valueVariable)) await init();
-    }
-  );
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: string;
+  position?: number;
 }
 
-let key = props.shape.path["@id"];
-let loading = ref(false);
-
-let invalid = ref(false);
-
-let userInput = ref("");
+const props = defineProps<Props>();
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], async ([newPropsValue, newShapeValue]) => {
   if (newPropsValue && newShapeValue) userInput.value = newPropsValue;
   else userInput.value = await processPropertyValue(newShapeValue);
 });
-watch(userInput, async newValue => {
-  if (newValue) {
-    updateEntity(newValue);
-    updateValueVariableMap(newValue);
-    await updateValidity();
-  }
-});
-onMounted(async () => {
-  await init();
-});
 
+const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
 watch(
   () => _.cloneDeep(valueVariableMap?.value),
   async (newValue, oldValue) => {
-    if (!userInput.value && newValue && oldValue && !compareMaps(newValue, oldValue)) {
+    // check if argument uses variable and find and use that variable if it has been added to valueVariableMap.
+    if (props.shape.argument && props.shape.argument.some(a => a.valueVariable)) await init();
+    else if (!userInput.value && newValue && oldValue && !compareMaps(newValue, oldValue)) {
       loading.value = true;
       if (newValue?.size) userInput.value = await processPropertyValue(props.shape);
       loading.value = false;
     }
   }
 );
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
+
+let key = props.shape.path["@id"];
+
+const loading = ref(false);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const userInput = ref("");
+const showValidation = ref(false);
+
+watch(userInput, async newValue => {
+  if (newValue) {
+    updateEntity(newValue);
+    updateValueVariableMap(newValue);
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      showValidation.value = true;
+    }
+  }
+});
+onMounted(async () => {
+  await init();
+});
 
 async function init() {
   if (props.value) userInput.value = props.value;
@@ -95,25 +108,25 @@ function compareMaps(map1: Map<string, any>, map2: Map<string, any>) {
 
 async function processPropertyValue(property: PropertyShape): Promise<string> {
   if (isObjectHasKeys(property, ["isIri"])) {
-    return property.isIri["@id"];
+    return property.isIri!["@id"];
   }
   if (isObjectHasKeys(property, ["function", "argument"])) {
     const args = processArguments(property, valueVariableMap?.value);
-    if (props.shape.argument.find((a: Argument) => a.valueVariable)) {
+    if (props.shape.argument!.find((a: Argument) => a.valueVariable)) {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
       if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
-        const result = await QueryService.runFunction(property.function["@id"], args);
+        const result = await QueryService.runFunction(property.function!["@id"], args);
         if (result) return result;
       } else return "";
     } else {
-      const result = await QueryService.runFunction(property.function["@id"], args);
+      const result = await QueryService.runFunction(property.function!["@id"], args);
       if (result) return result;
     }
   }
   if (isObjectHasKeys(property, ["function"])) {
-    const result = await QueryService.runFunction(property.function["@id"]);
+    const result = await QueryService.runFunction(property.function!["@id"]);
     if (result && isObjectHasKeys(result, ["iri"])) return result.iri["@id"];
-    else throw new Error("Failed to run function " + property.function["@id"]);
+    else throw new Error("Failed to run function " + property.function!["@id"]);
   }
   throw new Error("Property must have isIri or function key");
 }
@@ -145,28 +158,19 @@ function updateValueVariableMap(data: string) {
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
-
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return true;
-}
 </script>
 
 <style scoped>
+.string-single-display-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
 .input-loading-container {
   display: flex;
   flex-flow: row nowrap;
-  width: 25rem;
+  min-width: 25rem;
   align-items: center;
-  padding: 2rem 0 0 0;
 }
 .p-float-label {
   flex: 1 1 auto;
@@ -178,6 +182,11 @@ function defaultValidation() {
   width: 2rem;
   height: 2rem;
 }
+
+.tooltip-container {
+  width: 100%;
+}
+
 .input-text {
   width: 100%;
   text-overflow: ellipsis;

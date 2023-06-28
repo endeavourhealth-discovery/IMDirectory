@@ -6,6 +6,7 @@
           <Checkbox inputId="showNames" v-model="showNames" :binary="true" />
           <label for="showNames">Show names</label>
         </div> -->
+        <h1>{{ shape.name }}</h1>
         <Textarea
           v-model="ecl"
           id="ecl-string-container"
@@ -13,6 +14,9 @@
           :class="eclError ? 'p-invalid' : ''"
           data-testid="ecl-string"
           :disabled="loading"
+          @dragenter.prevent
+          @dragover.prevent
+          @drop="dropReceived($event)"
         />
       </div>
       <div class="button-container">
@@ -31,13 +35,7 @@
     </div>
     <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
   </div>
-  <Builder
-    :showDialog="showDialog"
-    :eclString="ecl"
-    @eclSubmitted="updateECL"
-    @closeDialog="() => (showDialog = false)"
-    @eclConversionError="updateError"
-  />
+  <Builder :showDialog="showDialog" :eclString="ecl" @eclSubmitted="updateECL" @closeDialog="() => (showDialog = false)" @eclConversionError="updateError" />
   <AddByCodeList :showAddByFile="showAddByFileDialog" :showAddByList="showAddByCodeListDialog" @closeDialog="closeAddByDialog" @addCodeList="processCodeList" />
 </template>
 
@@ -49,18 +47,20 @@ import { EditorMode } from "@im-library/enums";
 import { EclService } from "@/services";
 import _ from "lodash";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { PropertyGroup, Query } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary } from "@im-library/interfaces";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: String, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: string;
+}
+
+const props = defineProps<Props>();
 
 const toast = useToast();
 
@@ -76,10 +76,11 @@ const eclError = ref(false);
 const eclErrorMessage = ref("");
 const loading = ref(false);
 const showNames = ref(false);
+const invalid = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 
 const key = props.shape.path["@id"];
 const buttonOptions = [
@@ -98,18 +99,16 @@ watch(
 
 watch(ecl, async newValue => {
   // eclNoNames.value = ecl.value.replace(/\|.*?\|/g, "").replace(/\s\s+/g, " ");
-  loading.value = true;
   if (await EclService.isValidECL(newValue)) {
     eclAsQuery.value = await EclService.getQueryFromECL(newValue);
   }
-  loading.value = false;
 });
 
 watch(
   () => _.cloneDeep(eclAsQuery.value),
   async () => {
     updateEntity();
-    updateValidity();
+    if (updateValidity) updateValidity(props.shape, editorEntity, key, invalid);
   }
 );
 
@@ -156,12 +155,6 @@ function processCodeList(data: ConceptSummary[]) {
   }
 }
 
-async function updateValidity() {
-  if (validityUpdate) {
-    validityUpdate({ key: key, valid: true });
-  }
-}
-
 function updateEntity() {
   if (entityUpdate) {
     const result = {} as any;
@@ -191,6 +184,13 @@ function onCopyError(): void {
 function updateError(errorUpdate: { error: boolean; message: string }): void {
   eclError.value = errorUpdate.error;
   eclErrorMessage.value = errorUpdate.message;
+}
+
+async function dropReceived(event: any) {
+  const data = event.dataTransfer.getData("conceptIri");
+  if (data) {
+    ecl.value = JSON.parse(data);
+  }
 }
 </script>
 
@@ -229,6 +229,11 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
   flex-flow: column;
   align-items: center;
   margin: 0 0 1rem 0;
+}
+
+Textarea {
+  max-width: 90%;
+  resize: none;
 }
 
 .button-container {

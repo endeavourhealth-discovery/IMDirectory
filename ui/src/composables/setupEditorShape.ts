@@ -1,74 +1,81 @@
 import { Ref, ref } from "vue";
-import { FormGenerator } from "@im-library/interfaces";
+import { FormGenerator } from "@im-library/interfaces/AutoGen";
 
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
-import StepsGroup from "@/components/editor/StepsGroup.vue";
 import { useRoute, useRouter } from "vue-router";
-import { PropertyGroup } from "@im-library/interfaces/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
+import editorShapes from "@/constants/editorShapes";
 
 export function setupEditorShape() {
   const router = useRouter();
   const route = useRoute();
   let shape: Ref<FormGenerator | undefined> = ref();
   let targetShape: Ref<TTIriRef | undefined> = ref();
-  let groups: Ref<PropertyGroup[]> = ref([]);
+  let groups: Ref<PropertyShape[]> = ref([]);
   let stepsItems: Ref<{ label: string; to: string }[]> = ref([]);
 
-  async function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
+  function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
     let shapeCombined: FormGenerator = {} as FormGenerator;
+    types = types.filter((item) => item["@id"] !== RDFS.CLASS);
     if (primaryType) {
       types.sort(function (x, y) {
         return x["@id"] == primaryType["@id"] ? -1 : y["@id"] == primaryType["@id"] ? 1 : 0;
       });
     }
     for (const type of types) {
-      const typeShape = await getShape(type["@id"]);
-      if (isObjectHasKeys(shapeCombined, ["group"])) addToShape(shapeCombined, typeShape);
+      const typeShape = getShape(type["@id"]);
+      if (isObjectHasKeys(shapeCombined, ["property"])) addToShape(shapeCombined, typeShape);
       else shapeCombined = typeShape;
     }
     shape.value = { ...shapeCombined };
   }
 
   function addToShape(shape: FormGenerator, shapeToAdd: FormGenerator) {
-    if (isArrayHasLength(shapeToAdd.group))
-      for (const groupToAdd of shapeToAdd.group) {
-        if (!shape.group.some((group: PropertyGroup) => group.path["@id"] === groupToAdd.path["@id"])) {
-          groupToAdd.order = shape.group.length + 1;
-          shape.group.push(groupToAdd);
+    if (shapeToAdd.property && isArrayHasLength(shapeToAdd.property))
+      for (const groupToAdd of shapeToAdd.property) {
+        if (shape.property && !shape.property.some((group: PropertyShape) => group.path["@id"] === groupToAdd.path["@id"])) {
+          groupToAdd.order = shape.property.length + 1;
+          shape.property.push(groupToAdd);
         }
       }
   }
 
-  async function getShape(type: string): Promise<any> {
+  function getShape(type: string): FormGenerator {
     let newShape = {};
-    const shapeIri = await EntityService.getShapeFromType(type);
-    if (isObjectHasKeys(shapeIri)) newShape = await EntityService.getShape(shapeIri["@id"]);
+    if (type !== RDFS.CLASS) newShape = getShapeFromType(type);
     return newShape;
   }
 
+  function getShapeFromType(type: string) {
+    const found = editorShapes.find(shape => shape.targetShape?.["@id"] === type);
+    if (found) return found;
+    else throw new Error("No editor shape found for type: " + type);
+  }
+
   function processShape(shape: FormGenerator, mode: EditorMode, entity: any) {
-    if (shape.group && shape.targetShape) {
+    if (shape.property && shape.targetShape) {
       const validMappingSchemes = ["http://endhealth.info/emis#", "http://endhealth.info/tpp#"];
-      if (shape.group.findIndex(group => group.path["@id"] === IM.MAPPED_TO) !== -1) {
+      if (shape.property.findIndex(property => property.path["@id"] === IM.MAPPED_TO) !== -1) {
         if (
           isObjectHasKeys(entity, [RDF.TYPE, IM.SCHEME]) &&
           entity[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === IM.CONCEPT) !== -1 &&
           !validMappingSchemes.includes(entity[IM.SCHEME][0]["@id"])
         ) {
-          shape.group.splice(
-            shape.group.findIndex(group => group.path["@id"] === IM.MAPPED_TO),
+          shape.property.splice(
+            shape.property.findIndex(property => property.path["@id"] === IM.MAPPED_TO),
             1
           );
         }
       }
       targetShape.value = shape.targetShape;
-      groups.value = shape.group;
-      if (mode === EditorMode.EDIT) setEditorSteps();
-      if (mode === EditorMode.CREATE) setCreatorSteps();
+      groups.value = shape.property;
+      // if (mode === EditorMode.EDIT) setEditorSteps();
+      // if (mode === EditorMode.CREATE) setCreatorSteps();
     }
   }
 
@@ -80,9 +87,9 @@ export function setupEditorShape() {
       groups.value.forEach(group => {
         const component = processComponentType(group.componentType);
         if (editorRoute.children?.findIndex(route => route.name === group.name) === -1) {
-          editorRoute.children?.push({ path: group.name, name: group.name, component: component });
+          editorRoute.children?.push({ path: group.name as string, name: group.name, component: component });
         }
-        stepsItems.value.push({ label: group.name, to: currentPath + "/" + group.name });
+        stepsItems.value.push({ label: group.name as string, to: currentPath + "/" + group.name });
       });
       router.addRoute(editorRoute);
     }
@@ -96,9 +103,9 @@ export function setupEditorShape() {
       groups.value.forEach(group => {
         const component = processComponentType(group.componentType);
         if (creatorRoute.children?.findIndex(route => route.name === group.name) === -1) {
-          creatorRoute.children?.push({ path: group.name, name: group.name, component: component });
+          creatorRoute.children?.push({ path: group.name as string, name: group.name, component: component });
         }
-        stepsItems.value.push({ label: group.name, to: "/creator/" + group.name });
+        stepsItems.value.push({ label: group.name as string, to: "/creator/" + group.name });
       });
       router.addRoute(creatorRoute);
     }
@@ -108,15 +115,6 @@ export function setupEditorShape() {
     const splitString = url.split("/");
     if (splitString.length >= 3) return splitString[0] + "/" + splitString[1] + "/" + splitString[2];
     else return url;
-  }
-
-  function processComponentType(type: TTIriRef) {
-    switch (type["@id"]) {
-      case IM.STEPS_GROUP_COMPONENT:
-        return StepsGroup;
-      default:
-        throw new Error("Invalid component type encountered in shape group" + type["@id"]);
-    }
   }
 
   return {
@@ -129,7 +127,6 @@ export function setupEditorShape() {
     stepsItems,
     processShape,
     setEditorSteps,
-    setCreatorSteps,
-    processComponentType
+    setCreatorSteps
   };
 }

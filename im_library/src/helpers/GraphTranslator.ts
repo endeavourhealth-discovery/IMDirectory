@@ -1,5 +1,6 @@
-import { TTBundle, TTGraphData, TTIriRef } from "../interfaces";
-import { SHACL, OWL, IM, RDFS } from "../vocabulary";
+import { TTIriRef } from "../interfaces/AutoGen";
+import { TTBundle, TTGraphData } from "../interfaces";
+import { SHACL, OWL, IM, RDFS, SNOMED, XMLS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function translateFromEntityBundle(bundle: TTBundle, includedPredicates: string[]): TTGraphData {
@@ -55,10 +56,10 @@ function getPropertyName(nested: any): string {
 
 function getNameFromIri(iri: string): string {
   if (!iri) return iri;
-  if (iri.startsWith("http://www.w3.org/2001/XMLSchema#") || iri.startsWith("http://snomed.info/sct#")) return iri.split("#")[1];
-  if (iri.startsWith("http://endhealth.info/im#im:")) return iri.substring("http://endhealth.info/im#im:".length);
-  if (iri.startsWith("http://endhealth.info/im#")) return iri.substring("http://endhealth.info/im#".length);
-  if (iri.startsWith("http://www.w3.org/2000/01/rdf-schema#")) return iri.substring("http://www.w3.org/2000/01/rdf-schema#".length);
+  if (iri.startsWith(XMLS.NAMESPACE) || iri.startsWith(SNOMED.NAMESPACE)) return iri.split("#")[1];
+  if (iri.startsWith(IM.NAMESPACE + "im:")) return iri.substring(IM.NAMESPACE.length + "im:".length);
+  if (iri.startsWith(IM.NAMESPACE)) return iri.substring(IM.NAMESPACE.length);
+  if (iri.startsWith(RDFS.NAMESPACE)) return iri.substring(RDFS.NAMESPACE.length);
   return "undefined";
 }
 
@@ -87,7 +88,7 @@ function addMaps(firstNode: TTGraphData, entity: any, key: string) {
       });
     });
   });
-  if (preNode.children.length > 1) {
+  if (preNode.children.length < 1) {
     if (!firstNode.children.some((c: any) => c.relToParent === preNode.relToParent)) {
       firstNode.children.push(preNode);
     }
@@ -125,7 +126,7 @@ function addProperties(firstNode: TTGraphData, entity: any, key: string) {
 
 function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: any) {
   entity[key].forEach((nested: any) => {
-    const groupID = nested["http://endhealth.info/im#groupNumber"];
+    const groupID = nested[IM.GROUP_NUMBER];
     let preNode = {
       name: "middle-node-" + groupID,
       iri: "",
@@ -134,7 +135,7 @@ function addRoles(firstNode: TTGraphData, entity: any, key: string, predicates: 
       _children: []
     };
     Object.keys(nested).forEach(predicate => {
-      if (predicate !== "http://endhealth.info/im#groupNumber" && isArrayHasLength(nested[predicate])) {
+      if (predicate !== IM.GROUP_NUMBER && isArrayHasLength(nested[predicate])) {
         nested[predicate].forEach((role: any) => {
           addChild(preNode, role.name, role["@id"], predicates[predicate] || predicate);
         });

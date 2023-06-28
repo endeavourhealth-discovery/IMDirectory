@@ -2,7 +2,7 @@
   <div class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center login-card">
       <template #header>
-        <i class="fa-solid fa-users icon-header" aria-hidden="true" />
+        <IMFontAwesomeIcon icon="fa-solid fa-users" class="icon-header" />
       </template>
       <template #title> Login </template>
       <template #content>
@@ -37,17 +37,20 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { useStore } from "vuex";
 import { AuthService } from "@/services";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
 import { SweetAlertResult } from "sweetalert2";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const store = useStore();
-const registeredUsername = computed(() => store.state.registeredUsername);
-const previousAppUrl = computed(() => store.state.previousAppUrl);
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const registeredUsername = computed(() => authStore.registeredUsername);
+const previousAppUrl = computed(() => authStore.previousAppUrl);
 
 let username = ref("");
 let password = ref("");
@@ -68,19 +71,20 @@ function handleSubmit(): void {
         if (!result) {
           loggedInUser.avatar = Avatars[0];
         }
-        store.commit("updateCurrentUser", loggedInUser);
-        store.commit("updateRegisteredUsername", null);
-        store.commit("updateIsLoggedIn", true);
+        userStore.updateCurrentUser(loggedInUser);
+        authStore.updateRegisteredUsername(null);
         Swal.fire({
           icon: "success",
           title: "Success",
           text: "Login successful"
         }).then(() => {
+          userStore.clearOptionalCookies();
           if (previousAppUrl.value) {
             window.location.href = previousAppUrl.value;
           } else {
-            router.push({ name: "UserDetails" });
+            router.push({ name: "LandingPage" });
           }
+          window.location.reload();
         });
       } else if (res.status === 401) {
         Swal.fire({
@@ -92,7 +96,7 @@ function handleSubmit(): void {
           confirmButtonText: "Confirm Account"
         }).then((result: SweetAlertResult) => {
           if (result.isConfirmed) {
-            store.commit("updateRegisteredUsername", username.value);
+            authStore.updateRegisteredUsername(username.value);
             router.push({ name: "ConfirmCode" });
           }
         });

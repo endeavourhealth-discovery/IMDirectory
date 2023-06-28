@@ -1,5 +1,5 @@
 <template>
-  <div class="p-inputgroup">
+  <div class="p-inputgroup searchbar">
     <InputText id="editor-search" v-model="searchText" placeholder="Search..." @keyup.enter="search" data-testid="editor-search-input" />
     <Button
       id="filter=button"
@@ -18,7 +18,6 @@
 
 <script setup lang="ts">
 import { Ref, ref, watch, computed, ComputedRef } from "vue";
-import { useStore } from "vuex";
 import Filters from "@/components/directory/topbar/Filters.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { FilterOptions } from "@im-library/interfaces";
@@ -28,6 +27,7 @@ import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers
 import { EntityService } from "@/services";
 import { isArray } from "lodash";
 import { IM } from "@im-library/vocabulary";
+import { useFilterStore } from "@/stores/filterStore";
 
 const emit = defineEmits({
   openSearchPanel: () => true,
@@ -35,8 +35,8 @@ const emit = defineEmits({
   searchResults: (payload: any[]) => isArray(payload)
 });
 
-const store = useStore();
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
+const filterStore = useFilterStore();
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 
 const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
@@ -63,12 +63,12 @@ async function search(): Promise<void> {
 
     searchRequest.statusFilter = [];
     selectedFilters.value.status.forEach(status => {
-      searchRequest.statusFilter.push(status["@id"]);
+      searchRequest.statusFilter!.push(status["@id"]);
     });
 
     searchRequest.typeFilter = [];
     selectedFilters.value.types.forEach((type: TTIriRef) => {
-      searchRequest.typeFilter.push(type["@id"]);
+      searchRequest.typeFilter!.push(type["@id"]);
     });
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
@@ -93,4 +93,9 @@ async function search(): Promise<void> {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.searchbar {
+  display: flex;
+  flex-flow: row;
+}
+</style>

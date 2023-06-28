@@ -3,7 +3,7 @@
     <Tree
       :value="root"
       selectionMode="single"
-      v-model:selectionKeys="selected"
+      v-model:selectionKeys="selectedKeys"
       :expandedKeys="expandedKeys"
       @node-select="onNodeSelect"
       @node-expand="onNodeExpand"
@@ -11,22 +11,20 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
+      <template #default="{ node }: any">
         <div
           class="tree-row grabbable"
-          @mouseover="showOverlay($event, slotProps.node)"
+          @mouseover="showOverlay($event, node)"
           @mouseleave="hideOverlay($event)"
           draggable="true"
-          @dragstart="dragStart($event, slotProps.node)"
+          @dragstart="dragStart($event, node.data)"
         >
-          <i class="fa-solid fa-grip-vertical drag-icon grabbable"></i>
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true"></i>
-            </div>
+          <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
+          <span v-if="!node.loading">
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span>{{ slotProps.node.label }}</span>
+          <ProgressSpinner v-if="node.loading" />
+          <span>{{ node.label }}</span>
         </div>
       </template>
     </Tree>
@@ -73,7 +71,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
-import { useStore } from "vuex";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { useToast } from "primevue/usetoast";
 import { ConceptSummary } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -84,14 +82,18 @@ import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/tree";
 import setupTree from "@/composables/setupTree";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { useEditorStore } from "@/stores/editorStore";
 
-const store = useStore();
+const editorStore = useEditorStore();
 const router = useRouter();
 const toast = useToast();
 
-const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
+const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
 const {
+  root,
+  selectedKeys,
   selectedNode,
   expandedKeys,
   pageSize,
@@ -108,8 +110,6 @@ const {
   nodeHasChild
 } = setupTree();
 
-let selected: Ref<any> = ref({});
-let root: Ref<TreeNode[]> = ref([]);
 let loading = ref(true);
 let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 let overlayLocation: Ref<any> = ref({});
@@ -155,11 +155,6 @@ function onNodeSelect(node: any): void {
     if (!node.loading) loadMore(node);
   } else {
     selectedNode.value = node;
-    // router.push({
-    //   name: "Folder",
-    //   params: { selectedIri: node.data }
-    // });
-    store.commit("updateSelectedConceptIri", node.data);
   }
 }
 
@@ -185,7 +180,7 @@ function hideOverlay(event: any): void {
 }
 
 function dragStart(event: any, data: any) {
-  event.dataTransfer.setData("text/plain", JSON.stringify(data));
+  event.dataTransfer.setData("conceptIri", JSON.stringify(data));
   event.dataTransfer.effectAllowed = "copy";
   event.dataTransfer.dropEffect = "copy";
   hideOverlay(overlayLocation.value);

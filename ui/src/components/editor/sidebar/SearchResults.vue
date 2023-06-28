@@ -40,49 +40,48 @@
     >
       <template #empty><div style="flex: 0 1 14rem">None</div></template>
       <Column field="name" header="Name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
-        <template #body="slotProps: any">
-          <div class="ml-2">
-            <span :style="'color: ' + slotProps.data.colour" class="p-mx-1">
-              <i v-if="slotProps.data.icon" :class="slotProps.data.icon" aria-hidden="true" />
-            </span>
-            <span class="break-word" @mouseover="showOverlay($event, slotProps.data)" @mouseleave="hideOverlay($event)">{{ slotProps.data.match }}</span>
+        <template #body="{ data }: any">
+          <div class="ml-2" draggable="true" @dragstart="dragStart($event, data.iri)">
+            <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="row-icon" />
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color: ' + data.colour" class="p-mx-1 row-icon" />
+            <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.match }}</span>
           </div>
         </template>
       </Column>
       <Column field="weighting" header="Usage" headerStyle="flex: 0 0 5rem;" bodyStyle="flex: 0 0 5rem; text-align: center;">
-        <template #body="slotProps: any">
-          <span class="break-all">{{ slotProps.data.weighting }}</span>
+        <template #body="{ data }: any">
+          <span class="break-all">{{ data.weighting }}</span>
         </template>
       </Column>
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
-        <template #body="slotProps: any">
+        <template #body="{ data }: any">
           <div class="buttons-container">
             <Button
               :icon="'fa-solid fa-sitemap'"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="locateInTree($event, slotProps.data.iri)"
+              @click="locateInTree($event, data.iri)"
               v-tooltip.top="'Find in tree'"
               data-testid="select-button"
             />
             <Button
               icon="pi pi-fw pi-external-link"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.view(slotProps.data.iri)"
+              @click="directService.view(data.iri)"
               v-tooltip.top="'View in new tab'"
             />
             <Button
               icon="fa-solid fa-pen-to-square"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="directService.edit(slotProps.data.iri)"
+              @click="directService.edit(data.iri)"
               v-tooltip.top="'Edit'"
               data-testid="edit-button"
             />
             <Button
-              v-if="isFavourite(slotProps.data.iri)"
+              v-if="isFavourite(data.iri)"
               style="color: var(--yellow-500)"
               icon="pi pi-fw pi-star-fill"
               class="p-button-rounded p-button-text row-button-fav"
-              @click="updateFavourites(slotProps)"
+              @click="updateFavourites(data)"
               v-tooltip.left="'Unfavourite'"
               data-testid="unfavourite-button"
             />
@@ -90,15 +89,9 @@
               v-else
               icon="pi pi-fw pi-star"
               class="p-button-rounded p-button-text p-button-plain row-button"
-              @click="updateFavourites(slotProps)"
+              @click="updateFavourites(data)"
               v-tooltip.left="'Favourite'"
               data-testid="favourite-button"
-            />
-            <Button
-              class="p-button-rounded p-button-text p-button-plain row-button drag-icon grabbable"
-              icon="fa-solid fa-grip-vertical"
-              draggable="true"
-              @dragstart="dragStart($event, slotProps.data.iri)"
             />
           </div>
         </template>
@@ -110,30 +103,38 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch, PropType } from "vue";
-import { useStore } from "vuex";
+import { computed, onMounted, ref, Ref, watch, PropType, ComputedRef } from "vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { DirectService } from "@/services";
 import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
 import rowClick from "@/composables/rowClick";
-const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useFilterStore } from "@/stores/filterStore";
+import { useUserStore } from "@/stores/userStore";
 
-const props = defineProps({
-  searchResults: { type: Array as PropType<any[]>, required: true },
-  searchLoading: { type: Boolean, required: true }
-});
+interface Props {
+  searchResults: any[];
+  searchLoading: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   openTreePanel: () => true
 });
 
-const store = useStore();
-const searchLoading = computed(() => store.state.searchLoading);
-const filterOptions: Ref<FilterOptions> = computed(() => store.state.filterOptions);
-const filterDefaults: Ref<FilterOptions> = computed(() => store.state.filterDefaults);
-const favourites = computed(() => store.state.favourites);
+const directoryStore = useDirectoryStore();
+const editorStore = useEditorStore();
+const filterStore = useFilterStore();
+const userStore = useUserStore();
+const searchLoading = computed(() => directoryStore.searchLoading);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
+const favourites = computed(() => userStore.favourites);
 
 const directService = new DirectService();
 
@@ -170,7 +171,6 @@ const rClickOptions: Ref<any[]> = ref([
 const OS: Ref<any> = ref();
 const contextMenu = ref();
 const menu = ref();
-const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => props.searchResults,
@@ -181,9 +181,9 @@ onMounted(() => init());
 
 const isLoading = computed(() => loading.value || searchLoading.value);
 
-function updateFavourites(row?: any) {
-  if (row) selected.value = row.data;
-  store.commit("updateFavourites", selected.value.iri);
+function updateFavourites(data?: any) {
+  if (data) selected.value = data;
+  userStore.updateFavourites(selected.value.iri);
 }
 
 function isFavourite(iri: string) {
@@ -193,7 +193,9 @@ function isFavourite(iri: string) {
 
 function init() {
   loading.value = true;
-  localSearchResults.value = [...props.searchResults];
+  if (props.searchResults) {
+    localSearchResults.value = [...props.searchResults];
+  }
   processSearchResults();
   if (isArrayHasLength(localSearchResults.value)) {
     setFiltersFromSearchResults();
@@ -232,11 +234,11 @@ function setFiltersFromSearchResults() {
   const types = [] as string[];
   const status = [] as string[];
   (localSearchResults.value as ConceptSummary[]).forEach(searchResult => {
-    schemes.push(searchResult.scheme?.name);
+    if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme.name!);
     searchResult.entityType.forEach((type: any) => {
       if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type.name);
     });
-    status.push(searchResult.status?.name);
+    if (isObjectHasKeys(searchResult.status, ["name"])) status.push(searchResult.status.name!);
   });
   schemeOptions.value = [...new Set(schemes)];
   typeOptions.value = [...new Set(types)];
@@ -257,7 +259,7 @@ function filterResults() {
       }
     });
 
-    if (selectedSchemes.value.indexOf(searchResult.scheme.name) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name) != -1) {
+    if (selectedSchemes.value.indexOf(searchResult.scheme.name!) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name!) != -1) {
       filteredSearchResults.push(searchResult);
     }
   });
@@ -276,7 +278,7 @@ function onRowContextMenu(event: any) {
 }
 
 function onRowSelect(event: any) {
-  onRowClick(event.data.iri);
+  directService.view(event.data.iri);
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {
@@ -288,12 +290,12 @@ function hideOverlay(event: any): void {
 }
 
 function locateInTree(event: any, iri: string) {
-  store.commit("updateFindInEditorTreeIri", iri);
+  editorStore.updateFindInEditorTreeIri(iri);
   emit("openTreePanel");
 }
 
 function dragStart(event: any, data: any) {
-  event.dataTransfer.setData("text/plain", JSON.stringify(data));
+  event.dataTransfer.setData("conceptIri", JSON.stringify(data));
   event.dataTransfer.effectAllowed = "copy";
   event.dataTransfer.dropEffect = "copy";
 }
@@ -331,10 +333,6 @@ label {
   overflow: auto;
 }
 
-#search-results-main-container:deep(.p-datatable-thead) {
-  z-index: 0 !important;
-}
-
 .buttons-container {
   display: flex;
   flex-flow: row wrap;
@@ -359,5 +357,9 @@ label {
 .row-button-fav:hover {
   background-color: var(--yellow-500) !important;
   color: var(--text-color) !important;
+}
+
+.row-icon {
+  margin-right: 0.5rem;
 }
 </style>

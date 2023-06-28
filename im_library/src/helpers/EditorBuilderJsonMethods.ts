@@ -1,13 +1,13 @@
 import { ComponentType } from "../enums/ComponentType";
 import { NextComponentSummary, ComponentDetails } from "../interfaces";
 import { EditorMode } from "../enums";
-import { PropertyGroup, PropertyShape } from "../interfaces/AutoGen";
+import { PropertyShape } from "../interfaces/AutoGen";
 
 export function generateNewComponent(
   type: ComponentType,
   position: number,
   data: any,
-  shape: PropertyShape | PropertyGroup,
+  shape: PropertyShape,
   showButtons: { minus: boolean; plus: boolean; up: boolean; down: boolean },
   mode: EditorMode
 ): ComponentDetails {
@@ -23,13 +23,7 @@ export function generateNewComponent(
   };
 }
 
-export function genNextOptions(
-  position: number,
-  previous: ComponentType,
-  shape: PropertyGroup | PropertyShape,
-  mode: EditorMode,
-  group?: ComponentType
-): ComponentDetails {
+export function genNextOptions(position: number, previous: ComponentType, shape: PropertyShape, mode: EditorMode, group?: ComponentType): ComponentDetails {
   return {
     id: "addNext_" + (position + 1),
     value: {
@@ -56,12 +50,7 @@ export function updateItem(itemToUpdate: ComponentDetails, build: ComponentDetai
   build[index] = itemToUpdate;
 }
 
-export function addNextOptions(
-  previousComponent: NextComponentSummary,
-  build: ComponentDetails[],
-  shape: PropertyGroup | PropertyShape,
-  mode: EditorMode
-): ComponentDetails {
+export function addNextOptions(previousComponent: NextComponentSummary, build: ComponentDetails[], shape: PropertyShape, mode: EditorMode): ComponentDetails {
   const nextOptionsComponent = genNextOptions(
     previousComponent.previousPosition,
     previousComponent.previousComponentType,
@@ -87,7 +76,7 @@ export function addItem(
   itemToAdd: { selectedType: ComponentType; position: number; value: any },
   build: ComponentDetails[],
   showButtons: { minus: boolean; plus: boolean; up: boolean; down: boolean },
-  shape: PropertyGroup | PropertyShape,
+  shape: PropertyShape,
   mode: EditorMode
 ) {
   const newComponent = generateNewComponent(itemToAdd.selectedType, itemToAdd.position, itemToAdd.value, shape, showButtons, mode);

@@ -10,157 +10,156 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
+      <template #default="{ node }: any">
         <div class="tree-row">
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw"></i>
-            </div>
+          <span v-if="!node.loading">
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-else />
-          <span>{{ slotProps.node.label }}</span>
+          <span>{{ node.label }}</span>
         </div>
       </template>
     </Tree>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "@vue/runtime-core";
+<script setup lang="ts">
+import { PropType, onMounted, ref, Ref } from "vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
-import {TreeNode} from 'primevue/tree';
+import { TreeNode } from "primevue/tree";
+import { useToast } from "primevue/usetoast";
 
-export default defineComponent({
-  name: "QuantifierTree",
-  props: {
-    quantifier: { type: Object as PropType<TTIriRef>, required: false },
-    isAs: { type: Array as PropType<string[]>, required: true }
-  },
-  emits: { treeNodeSelected: (_payload: TTIriRef) => true },
-  async mounted() {
-    this.loading = true;
-    await this.addIsAsToRoot();
-    if (this.quantifier) await this.findPathToNode(this.quantifier["@id"]);
-    this.loading = false;
-  },
-  data() {
-    return {
-      selected: {} as any,
-      selectedNode: {} as TreeNode,
-      root: [] as TreeNode[],
-      loading: true,
-      expandedKeys: {} as any
-    };
-  },
-  methods: {
-    async addIsAsToRoot() {
-      for (const isA of this.isAs) {
-        const asNode = await EntityService.getEntityAsEntityReferenceNode(isA);
-        const hasNode = !!this.root.find(node => node.data === asNode["@id"]);
-        if (!hasNode) this.root.push(this.createTreeNode(asNode.name, asNode["@id"], asNode.type, asNode.hasGrandChildren));
-      }
-      this.root.sort(byKey);
-    },
+interface Props {
+  quantifier?: TTIriRef;
+  isAs: string[];
+}
 
-    createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
-      return {
-        key: conceptName,
-        label: conceptName,
-        typeIcon: getFAIconFromType(conceptTypes),
-        color: getColourFromType(conceptTypes),
-        data: conceptIri,
-        leaf: !hasChildren,
-        loading: false,
-        children: [] as TreeNode[]
-      };
-    },
+const props = defineProps<Props>();
 
-    onNodeSelect(node: any): void {
-      this.selectedNode = node;
-      this.$emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
-    },
+const emit = defineEmits({ treeNodeSelected: (_payload: TTIriRef) => true });
 
-    async onNodeExpand(node: any) {
-      if (isObjectHasKeys(node)) {
-        node.loading = true;
-        const children = await EntityService.getEntityChildren(node.data);
-        children.forEach(child => {
-          if (!this.nodeHasChild(node, child)) node.children.push(this.createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
-        });
-        node.loading = false;
-      }
-    },
+const toast = useToast();
 
-    nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
-      return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
-    },
+const selected: Ref<any> = ref({});
+const selectedNode: Ref<TreeNode> = ref({} as TreeNode);
+const root: Ref<TreeNode[]> = ref([]);
+const loading = ref(true);
+const expandedKeys: Ref<any> = ref({});
 
-    selectKey(selectedKey: string) {
-      Object.keys(this.selected).forEach(key => {
-        this.selected[key] = false;
-      });
-      this.selected[selectedKey] = true;
-    },
-
-    async findPathToNode(iri: string) {
-      this.loading = true;
-      let path = [] as any[];
-      for (const isA of this.isAs) {
-        const result = await EntityService.getPathBetweenNodes(iri, isA);
-        if (isArrayHasLength(result)) path = result;
-      }
-      if (!isArrayHasLength(path)) {
-        this.loading = false;
-        return;
-      }
-      // Recursively expand
-      let n = this.root.find(c => path.find(p => p["@id"] === c.data));
-      let i = 0;
-      if (n) {
-        this.expandedKeys = {};
-        while (n && n.data != path[0]["@id"] && i++ < 50) {
-          this.selectKey(n.key!);
-          if (!n.children || n.children.length == 0) {
-            await this.onNodeExpand(n);
-          }
-          this.expandedKeys[n.key!] = true;
-
-          // Find relevant child
-          n = n.children?.find(c => path.find(p => p["@id"] === c.data));
-        }
-
-        if (n && n.data === path[0]["@id"]) {
-          this.selectKey(n.key!);
-          // Expand node if necessary
-          if (!n.children || n.children.length == 0) {
-            await this.onNodeExpand(n);
-          }
-          for (const gc of n.children!) {
-            if (gc.data === iri) {
-              this.selectKey(gc.key!);
-            }
-          }
-          this.expandedKeys[n.key!] = true;
-          this.selectedNode = n;
-        } else {
-          this.$toast.add({
-            severity: "warn",
-            summary: "Unable to locate",
-            detail: "Unable to locate concept in the current hierarchy"
-          });
-        }
-        const container = document.getElementById("quantifier-tree-container") as HTMLElement;
-        const highlighted = container.getElementsByClassName("p-highlight")[0];
-        if (highlighted) highlighted.scrollIntoView();
-      }
-    }
-  }
+onMounted(async () => {
+  loading.value = true;
+  await addIsAsToRoot();
+  if (props.quantifier) await findPathToNode(props.quantifier["@id"]);
+  loading.value = false;
 });
+
+async function addIsAsToRoot() {
+  for (const isA of props.isAs) {
+    const asNode = await EntityService.getEntityAsEntityReferenceNode(isA);
+    const hasNode = !!root.value.find(node => node.data === asNode["@id"]);
+    if (!hasNode) root.value.push(createTreeNode(asNode.name, asNode["@id"], asNode.type, asNode.hasGrandChildren));
+  }
+  root.value.sort(byKey);
+}
+
+function createTreeNode(conceptName: string, conceptIri: string, conceptTypes: TTIriRef[], hasChildren: boolean): TreeNode {
+  return {
+    key: conceptName,
+    label: conceptName,
+    typeIcon: getFAIconFromType(conceptTypes),
+    color: getColourFromType(conceptTypes),
+    data: conceptIri,
+    leaf: !hasChildren,
+    loading: false,
+    children: [] as TreeNode[]
+  };
+}
+
+function onNodeSelect(node: any): void {
+  selectedNode.value = node;
+  emit("treeNodeSelected", { "@id": node.data, name: node.label } as TTIriRef);
+}
+
+async function onNodeExpand(node: any) {
+  if (isObjectHasKeys(node)) {
+    node.loading = true;
+    const children = await EntityService.getEntityChildren(node.data);
+    children.forEach(child => {
+      if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
+    });
+    node.loading = false;
+  }
+}
+
+function nodeHasChild(node: TreeNode, child: EntityReferenceNode) {
+  return !!node.children?.find(nodeChild => child["@id"] === nodeChild.data);
+}
+
+function selectKey(selectedKey: string) {
+  Object.keys(selected.value).forEach(key => {
+    selected.value[key] = false;
+  });
+  selected.value[selectedKey] = true;
+}
+
+async function findPathToNode(iri: string) {
+  loading.value = true;
+  let path = [] as any[];
+  for (const isA of props.isAs) {
+    const result = await EntityService.getPathBetweenNodes(iri, isA);
+    if (isArrayHasLength(result)) path = result;
+  }
+  if (!isArrayHasLength(path)) {
+    loading.value = false;
+    return;
+  }
+  // Recursively expand
+  let n = root.value.find(c => path.find(p => p["@id"] === c.data));
+  let i = 0;
+  if (n) {
+    expandedKeys.value = {};
+    while (n && n.data != path[0]["@id"] && i++ < 50) {
+      selectKey(n.key!);
+      if (!n.children || n.children.length == 0) {
+        await onNodeExpand(n);
+      }
+      expandedKeys.value[n.key!] = true;
+
+      // Find relevant child
+      n = n.children?.find(c => path.find(p => p["@id"] === c.data));
+    }
+
+    if (n && n.data === path[0]["@id"]) {
+      selectKey(n.key!);
+      // Expand node if necessary
+      if (!n.children || n.children.length == 0) {
+        await onNodeExpand(n);
+      }
+      for (const gc of n.children!) {
+        if (gc.data === iri) {
+          selectKey(gc.key!);
+        }
+      }
+      expandedKeys.value[n.key!] = true;
+      selectedNode.value = n;
+    } else {
+      toast.add({
+        severity: "warn",
+        summary: "Unable to locate",
+        detail: "Unable to locate concept in the current hierarchy"
+      });
+    }
+    const container = document.getElementById("quantifier-tree-container") as HTMLElement;
+    const highlighted = container.getElementsByClassName("p-highlight")[0];
+    if (highlighted) highlighted.scrollIntoView();
+  }
+}
 </script>
 
 <style scoped>

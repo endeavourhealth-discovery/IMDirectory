@@ -23,30 +23,34 @@ import Search from "@/components/directory/topbar/Search.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import { useStore } from "vuex";
+import { useFilterStore } from "@/stores/filterStore";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
 const toast = useToast();
-const store = useStore();
+const filterStore = useFilterStore();
+const userStore = useUserStore();
 
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
-  await store.dispatch("fetchFilterSettings");
-  await store.dispatch("initFavourites");
+  await filterStore.fetchFilterSettings();
+  await userStore.initFavourites();
   loading.value = false;
 });
-
 </script>
 
 <style scoped>
 #directory-main-container {
-  height: 100%;
+  flex: 1 1 auto;
   width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
 }
 
 #topbar-content-container {
@@ -67,7 +71,8 @@ body {
 }
 
 #app-content-container {
-  height: calc(100% - 3.5rem);
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
 #topbar-container {

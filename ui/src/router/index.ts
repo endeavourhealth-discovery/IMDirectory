@@ -22,18 +22,26 @@ const Mapper = () => import("@/views/Mapper.vue");
 const Workflow = () => import("@/views/Workflow.vue");
 const TaskDefinition = () => import("@/components/workflow/TaskDefinition.vue");
 const TaskViewer = () => import("@/components/workflow/TaskViewer.vue");
-const AccessDenied = () => import("@/components/shared/errorPages/AccessDenied.vue");
-const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.vue");
-const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
-const ServerOffline = () => import("@/components/shared/errorPages/ServerOffline.vue");
-const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
+const AccessDenied = () => import("@/views/AccessDenied.vue");
+const PageNotFound = () => import("@/views/PageNotFound.vue");
+const EntityNotFound = () => import("@/views/EntityNotFound.vue");
+const ServerOffline = () => import("@/views/ServerOffline.vue");
+const SnomedLicense = () => import("@/views/SnomedLicense.vue");
+const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
+const Cookies = () => import("@/views/Cookies.vue");
 const Filer = () => import("@/views/Filer.vue");
 const Query = () => import("@/views/Query.vue");
 import { EntityService, Env } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import store from "@/store/index";
+
 import { nextTick } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useUserStore } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useCreatorStore } from "@/stores/creatorStore";
+import Swal, { SweetAlertResult } from "sweetalert2";
 
 const APP_TITLE = "IM Directory";
 
@@ -42,7 +50,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/directory",
     name: "Directory",
     component: Directory,
-    meta: { requiredLicense: true },
+    meta: { requiresLicense: true },
     redirect: { name: "LandingPage" },
     children: [
       {
@@ -225,6 +233,12 @@ const routes: Array<RouteRecordRaw> = [
     component: SnomedLicense
   },
   {
+    path: "/privacy",
+    name: "Privacy",
+    component: PrivacyPolicy
+  },
+  { path: "/cookies", name: "Cookies", component: Cookies },
+  {
     path: "/401/:requiredRole?",
     name: "AccessDenied",
     component: AccessDenied,
@@ -252,18 +266,41 @@ const router = createRouter({
   routes
 });
 
+const directToLogin = () => {
+  Swal.fire({
+    icon: "warning",
+    title: "Please Login to continue",
+    showCancelButton: true,
+    confirmButtonText: "Login",
+    reverseButtons: true
+  }).then((result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      console.log("redirecting to login");
+      router.push({ name: "Login" });
+    } else {
+      console.log("redirecting to landing page");
+      router.push({ name: "LandingPage" });
+    }
+  });
+};
+
 router.beforeEach(async (to, from) => {
+  const directoryStore = useDirectoryStore();
+  const authStore = useAuthStore();
+  const creatorStore = useCreatorStore();
+  const editorStore = useEditorStore();
+  const userStore = useUserStore();
+
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
-  if (to.path !== "/snomedLicense") {
-    store.commit("updateSnomedReturnUrl", currentUrl);
-    store.commit("updateAuthReturnUrl", currentUrl);
-  }
+
+  authStore.updateAuthReturnUrl(currentUrl);
+
   const iri = to.params.selectedIri;
   if (iri) {
-    store.commit("updateConceptIri", iri as string);
+    directoryStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
-    if (iri) store.commit("updateEditorIri", iri);
+    if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
         router.push({ name: "EntityNotFound" });
@@ -273,43 +310,36 @@ router.beforeEach(async (to, from) => {
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
+      authStore.updatePreviousAppUrl();
+      directToLogin();
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
-    } else if (!store.state.currentUser.roles.includes("create")) {
+      directToLogin();
+    } else if (!userStore.currentUser?.roles?.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
-    } else if (!store.state.currentUser.roles.includes("edit")) {
+      directToLogin();
+    } else if (!userStore.currentUser?.roles?.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
-    console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
-    if (store.state.snomedLicenseAccepted !== "true") {
-      return {
-        path: "/snomedLicense"
-      };
-    }
+    console.log("snomed license accepted:" + userStore.snomedLicenseAccepted);
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {
@@ -337,7 +367,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/creator/") && !to.path.startsWith("/creator/")) {
-    if (store.state.creatorHasChanges) {
+    if (creatorStore.creatorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }
@@ -345,7 +375,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/editor/") && !to.path.startsWith("/editor/")) {
-    if (store.state.editorHasChanges) {
+    if (editorStore.editorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }

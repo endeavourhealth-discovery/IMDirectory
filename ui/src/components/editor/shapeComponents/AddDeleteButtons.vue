@@ -1,8 +1,8 @@
 <template>
   <div class="switch-button-container">
     <div class="buttons-container">
-      <Button v-if="show.minus" icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="deleteClicked" />
-      <Button v-if="show.plus" icon="pi pi-plus" label="Add" severity="success" @click="addNextClicked" />
+      <Button v-if="show?.minus" icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteClicked" />
+      <Button v-if="show?.plus" icon="pi pi-plus" label="Add" severity="success" @click="addNextClicked" />
     </div>
     <Menu ref="optionsMenu" :model="menuOptions" :popup="true" />
   </div>
@@ -13,10 +13,14 @@ import { onMounted, PropType, ref, Ref, watch } from "vue";
 import { ComponentType } from "@im-library/enums";
 import _ from "lodash";
 
-const props = defineProps({
-  position: Number,
-  show: { type: Object as PropType<{ minus: boolean; plus: boolean }>, default: { minus: true, plus: true } },
-  options: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true }
+interface Props {
+  position?: number;
+  show?: { minus: boolean; plus: boolean };
+  options: { type: ComponentType; name: string }[];
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  show: { minus: true, plus: true } as any
 });
 
 const emit = defineEmits({
@@ -48,7 +52,11 @@ onMounted(() => {
 });
 
 function addNextClicked(event: any) {
-  (optionsMenu.value as any).toggle(event);
+  if (props.options?.length === 1) {
+    selected.value = props.options[0];
+  } else {
+    (optionsMenu.value as any).toggle(event);
+  }
 }
 
 function deleteClicked() {
@@ -70,6 +78,8 @@ function setMenuOptions() {
 
 <style scoped>
 .switch-button-container {
+  flex: 0 0 auto;
+  height: 100%;
   display: flex;
   align-items: center;
 }

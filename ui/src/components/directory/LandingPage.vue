@@ -21,7 +21,7 @@
             <Column field="name" header="Name">
               <template #body="{ data }: any">
                 <div class="activity-name-icon-container">
-                  <i :class="data.icon" class="recent-icon" :style="data.color" aria-hidden="true" />
+                  <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
                   <span class="activity-name">{{ data.name }}</span>
                 </div>
               </template>
@@ -63,27 +63,29 @@ import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
 import ActionButtons from "../shared/ActionButtons.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 
 export default defineComponent({
-  components: { ReportTable, PieChartDashCard, ActionButtons }
+  components: { ReportTable, PieChartDashCard, ActionButtons, IMFontAwesomeIcon }
 });
 </script>
 
 <script setup lang="ts">
 import { computed, Ref, ref, watch, onMounted } from "vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { useStore } from "vuex";
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DataTypeCheckers, Sorters } from "@im-library/helpers";
-import { EntityService, ConfigService } from "@/services";
+import { EntityService, ConfigService, UserService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
-const { byOrder } = Sorters;
-const store = useStore();
-const recentLocalActivity = computed(() => store.state.recentLocalActivity);
+import { useUserStore } from "@/stores/userStore";
+
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { byOrder } from "@im-library/helpers/Sorters";
+const userStore = useUserStore();
+const recentLocalActivity = computed(() => userStore.recentLocalActivity);
+const currentUser = computed(() => userStore.currentUser);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
@@ -108,12 +110,16 @@ async function init(): Promise<void> {
 }
 
 async function getRecentActivityDetails() {
-  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
+  let localActivity: RecentActivityItem[];
+  if (currentUser.value) {
+    localActivity = await UserService.getUserMRU(currentUser.value.id);
+  } else localActivity = recentLocalActivity.value ? recentLocalActivity.value : [];
+  const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 
   const temp: RecentActivityItem[] = [];
 
-  for (const rla of recentLocalActivity.value) {
+  for (const rla of localActivity) {
     const clone = { ...rla };
 
     let result = null;
@@ -130,7 +136,6 @@ async function getRecentActivityDetails() {
   }
 
   temp.reverse();
-
   activities.value = temp;
 }
 

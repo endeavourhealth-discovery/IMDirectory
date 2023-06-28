@@ -27,7 +27,6 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from "vue";
-import { useStore } from "vuex";
 import { TTBundle } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { bundleToText } from "@im-library/helpers/Transforms";
@@ -35,21 +34,26 @@ import { isTTBundle } from "@im-library/helpers/TypeGuards";
 import { TextDefinitionExcludePredicates, DefaultPredicateNames, XmlSchemaDatatypes } from "@im-library/config";
 import { IM } from "@im-library/vocabulary";
 import _ from "lodash";
+import { useSharedStore } from "@/stores/sharedStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: {
-    type: Object as () => TTBundle,
-    required: true
-  },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "text-definition" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: TTBundle;
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "text-definition"
 });
 
-const store = useStore();
-const textDefinitionStartExpanded = computed(() => store.state.textDefinitionStartExpanded);
-const conceptIri = computed(() => store.state.conceptIri);
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
+const textDefinitionStartExpanded = computed(() => directoryStore.textDefinitionStartExpanded);
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 const hasData = computed(() => isTTBundle(data.value) && isObjectHasKeys(data.value.entity));
 watch(
@@ -73,7 +77,7 @@ function init(): void {
 }
 
 function startExpanded() {
-  if (!Array.isArray(textDefinitionStartExpanded.value)) throw new Error("TextDefinition missing vuex store property 'textDefinitionStartExpanded'");
+  if (!Array.isArray(textDefinitionStartExpanded.value)) throw new Error("TextDefinition missing vuex sharedStore property 'textDefinitionStartExpanded'");
   if (textDefinitionStartExpanded.value.includes(props.label)) {
     const button = document.getElementById(`expand-button-${props.label}`) as HTMLElement;
     if (button) button.click();

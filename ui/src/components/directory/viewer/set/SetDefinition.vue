@@ -27,7 +27,7 @@
           </div>
         </template>
         <div class="set-accordion-content" id="set-definition-container">
-          <QuerySetDefinition :conceptIri="props.conceptIri" />
+          <QueryDisplay :conceptIri="props.conceptIri" />
         </div>
       </AccordionTab>
       <AccordionTab header="Direct Members">
@@ -42,17 +42,21 @@
 <script setup lang="ts">
 import Members from "./Members.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
-import { onMounted, ref } from "@vue/runtime-core";
+import { onMounted, ref } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
-import QuerySetDefinition from "@/components/shared/query/QuerySetDefinition.vue";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  conceptIri: string;
+}
+
+const props = defineProps<Props>();
 const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();
@@ -104,6 +108,10 @@ async function onCopy(event: any) {
   align-items: baseline;
   justify-content: space-between;
   width: 100%;
+}
+
+.concept-button {
+  margin-right: 0.5rem;
 }
 
 .concept-button:hover {

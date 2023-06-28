@@ -11,11 +11,9 @@
           :loading="loading"
           class="task-tree-container"
         >
-          <template #default="slotProps: any">
-            <span :style="'color: ' + slotProps.node.colour" class="p-mx-1 type-icon">
-              <i :class="slotProps.node.treeIcon" aria-hidden="true" />
-            </span>
-            <span>{{ slotProps.node.label }}</span>
+          <template #default="{ node }: any">
+            <IMFontAwesomeIcon v-if="node.treeIcon" :icon="node.treeIcon" :style="'color: ' + node.colour" class="p-mx-1 type-icon" />
+            <span>{{ node.label }}</span>
           </template>
         </Tree>
         <Button label="Create task" @click="createTask" />
@@ -32,6 +30,7 @@
 
 <script setup lang="ts">
 import { computed, onUnmounted, ref, Ref, watch } from "vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import ExpansionTable from "./ExpansionTable.vue";
 import ParentHeader from "./ParentHeader.vue";
 import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
@@ -42,9 +41,11 @@ import { useRoute, useRouter } from "vue-router";
 const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
-const props = defineProps({
-  data: { type: Object, required: true }
-});
+interface Props {
+  data: any;
+}
+
+const props = defineProps<Props>();
 const emit = defineEmits({
   showDetails: (_payload: string) => true,
   updateSelected: (_payload: string) => true

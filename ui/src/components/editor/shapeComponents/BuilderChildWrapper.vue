@@ -1,14 +1,6 @@
 <template>
   <div class="builder-child">
     <div class="builder-child-wrapper">
-      <AddDeleteButtons
-        :show="{ minus: showButtons.minus, plus: false }"
-        :position="position"
-        :options="nextComponentOptions"
-        @deleteClicked="deleteClicked"
-        @addNextClicked="addNextClicked"
-      />
-
       <div class="builder-child-container" :id="id">
         <component
           :is="processComponentType(shape.componentType)"
@@ -20,6 +12,14 @@
         />
         <UpDownButtons :show="{ up: showButtons.up, down: showButtons.down }" :position="position" @moveUpClicked="upClicked" @moveDownClicked="downClicked" />
       </div>
+
+      <AddDeleteButtons
+        :show="{ minus: showButtons.minus, plus: false }"
+        :position="position"
+        :options="nextComponentOptions"
+        @deleteClicked="deleteClicked"
+        @addNextClicked="addNextClicked"
+      />
     </div>
     <div class="indented-add-button">
       <AddDeleteButtons
@@ -47,7 +47,6 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType } from "vue";
 import AddDeleteButtons from "@/components/editor/shapeComponents/AddDeleteButtons.vue";
 import UpDownButtons from "@/components/editor/shapeComponents/UpDownButtons.vue";
 import { ComponentDetails } from "@im-library/interfaces";
@@ -55,15 +54,17 @@ import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 
-const props = defineProps({
-  id: { type: String, required: true },
-  position: { type: Number, required: true },
-  value: { type: Object as PropType<any>, required: false },
-  showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean; up: boolean; down: boolean }>, required: true },
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true }
-});
+interface Props {
+  id: string;
+  position: number;
+  value?: any;
+  showButtons: { minus: boolean; plus: boolean; up: boolean; down: boolean };
+  shape: PropertyShape;
+  mode: EditorMode;
+  nextComponentOptions: { type: ComponentType; name: string }[];
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: ComponentDetails) => true,
@@ -125,12 +126,30 @@ function addNextClicked(item: any): void {
 </script>
 
 <style scoped>
-.builder-child-container {
-  flex: 0 1 auto;
+.builder-child-wrapper {
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
-  align-items: baseline;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: auto;
+}
+
+.builder-child {
   width: 100%;
+  flex: 1 1 auto;
+  align-self: flex-start;
+  overflow: auto;
+  display: flex;
+  flex-flow: column;
+}
+
+.builder-child-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  overflow: auto;
 }
 
 .label-container {
@@ -164,15 +183,7 @@ function addNextClicked(item: any): void {
   white-space: nowrap;
 }
 
-.builder-child-wrapper {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: baseline;
-  overflow: auto;
-}
-
-.builder-child {
-  align-self: center;
+.indented-add-button {
+  margin-top: 0.5rem;
 }
 </style>

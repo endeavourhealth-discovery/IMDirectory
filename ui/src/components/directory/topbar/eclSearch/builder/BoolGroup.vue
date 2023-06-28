@@ -7,7 +7,7 @@
           <Tag v-if="value.exclude" severity="danger" value="NOT" class="builder-button conjunction-button" />
         </div>
         <span class="left-container">
-          <div v-if="index === 0 && value.items.length > 1">&nbsp;</div>
+          <div v-if="index === 0 && value.items.length > 1" class="spacer">&nbsp;</div>
           <Button v-else-if="index === 1" class="builder-button conjunction-button" :label="value.conjunction" @click="toggleBool" />
           <Button v-else-if="index > 1" class="builder-button conjunction-button" severity="secondary" :label="value.conjunction" disabled />
         </span>
@@ -91,12 +91,16 @@ import Refinement from "@/components/directory/topbar/eclSearch/builder/Refineme
 import _ from "lodash";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
-const props = defineProps({
-  value: { type: Object, required: true },
-  parent: { type: Object, required: false },
-  focus: { type: Object, required: false },
-  rootBool: { type: Boolean, default: false },
-  index: { type: Number, required: false }
+interface Props {
+  value: any;
+  parent?: any;
+  focus?: any;
+  rootBool?: boolean;
+  index?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  rootBool: false
 });
 
 watch(
@@ -267,6 +271,10 @@ function unGroupItems(groupedItems: any) {
 .conjunction-button {
   width: 4rem;
   margin: 0;
+}
+
+.spacer {
+  width: 4rem;
 }
 
 .add-group {

@@ -2,7 +2,7 @@
   <div class="flex flex-row align-items-center">
     <Card class="flex flex-column justify-content-sm-around align-items-center confirm-card">
       <template #header>
-        <i class="fa-solid fa-key icon-header" aria-hidden="true" />
+        <IMFontAwesomeIcon icon="fa-solid fa-key" class="icon-header" />
       </template>
       <template #title> Confirmation Code </template>
       <template #content>
@@ -15,8 +15,8 @@
             <label for="fieldCode">Confirmation code</label>
             <div class="flex flex-row align-items-center">
               <InputText data-testid="confirm-code-input" id="fieldCode" type="password" v-model="code" />
-              <i v-if="codeVerified" class="pi pi-check-circle password-check" aria-hidden="true" />
-              <i v-if="!codeVerified && code !== ''" class="pi pi-times-circle password-times" aria-hidden="true" />
+              <IMFontAwesomeIcon v-if="codeVerified" icon="fa-regular fa-circle-check" class="password-check" />
+              <IMFontAwesomeIcon v-if="!codeVerified && code" icon="fa-regular fa-circle-xmark" class="password-times" />
             </div>
             <small id="code-help">Your 6-digit code should arrive by email from<br />no-reply@verificationemail.com</small>
           </div>
@@ -53,16 +53,17 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { computed, onMounted, ref } from "vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { useAuthStore } from "@/stores/authStore";
 
-const store = useStore();
+const authStore = useAuthStore();
 const router = useRouter();
 
-const registeredUsername = computed(() => store.state.registeredUsername);
+const registeredUsername = computed(() => authStore.registeredUsername);
 
 let code = ref("");
 let username = ref("");
@@ -81,7 +82,7 @@ onMounted(() => {
 });
 
 function verifyCode(code: string) {
-  return /^(?=.{6,})/.test(code);
+  return /^.{6,}$/.test(code) && code.length <= 6;
 }
 
 function handleSubmit() {
@@ -95,7 +96,7 @@ function handleSubmit() {
             text: res.message,
             confirmButtonText: "Login"
           }).then(() => {
-            store.commit("updateRegisteredUsername", username.value);
+            authStore.updateRegisteredUsername(username.value);
             router.push({ name: "Login" });
           });
         } else {

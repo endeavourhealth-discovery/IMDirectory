@@ -1,7 +1,7 @@
 import { describe } from "vitest";
 import { EclService, Env } from "@/services";
 import axios from "axios";
-import { fakerFactory } from "../../../src/mocks/factory";
+import { fakerFactory } from "@im-library/mocks/fakerFactory";
 
 describe("EclService ___ axios success", () => {
   beforeEach(() => {

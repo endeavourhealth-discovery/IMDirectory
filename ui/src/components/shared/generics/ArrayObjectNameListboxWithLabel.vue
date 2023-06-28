@@ -29,9 +29,9 @@
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >
-      <template #option="slotProps: any">
+      <template #option="{ option }: any">
         <div class="data-name" data-testid="row-text">
-          {{ slotProps.option?.name || slotProps.option?.["@id"] }}
+          {{ option?.name || option?.["@id"] }}
         </div>
       </template>
     </Listbox>
@@ -41,23 +41,28 @@
 <script setup lang="ts">
 import { DirectService } from "@/services";
 import { computed, onMounted, PropType, ref, Ref } from "vue";
-import { useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getLogger } from "@im-library/logger/LogConfig";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabel");
+interface Props {
+  label: string;
+  data?: unknown[];
+  size?: string;
+  id?: string;
+  show: boolean;
+}
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Array as PropType<unknown[]>, required: false, default: [] },
-  size: { type: String, default: "100%", required: false },
-  id: { type: String, default: "array-object-name-listbox-with-label" },
-  show: { type: Boolean, required: true }
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  data: [] as any,
+  id: "array-object-name-listbox-with-label"
 });
 
-const store = useStore();
+const directoryStore = useDirectoryStore();
 const directService = new DirectService();
-const arrayObjectNameListboxWithLabelStartExpanded = computed(() => store.state.arrayObjectNameListboxWithLabelStartExpanded);
+const arrayObjectNameListboxWithLabelStartExpanded = computed(() => directoryStore.arrayObjectNameListboxWithLabelStartExpanded);
 
 const selected: Ref = ref({});
 const buttonExpanded = ref(false);

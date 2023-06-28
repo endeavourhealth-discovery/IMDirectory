@@ -33,9 +33,9 @@
         </span>
       </div>
     </div>
+    <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
     <div class="results-container">
-      <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
-      <SearchResults :searchResults="searchResults" :totalRecords="totalCount" :loading="loading" />
+      <ResultsTable :searchResults="searchResults" :loading="loading" />
     </div>
   </div>
   <Builder
@@ -52,7 +52,6 @@
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import SearchResults from "@/components/directory/topbar/eclSearch/SearchResults.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -62,14 +61,17 @@ import { EclService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import { useStore } from "vuex";
 import { byName } from "@im-library/helpers/Sorters";
+import ResultsTable from "@/components/shared/ResultsTable.vue";
+import { useEditorStore } from "@/stores/editorStore";
+import { useFilterStore } from "@/stores/filterStore";
 
 const toast = useToast();
-const store = useStore();
+const filterStore = useFilterStore();
+const editorStore = useEditorStore();
 
-const statusOptions = computed(() => store.state.filterOptions.status);
-const savedEcl = computed(() => store.state.eclEditorSavedString);
+const statusOptions = computed(() => filterStore.filterOptions.status);
+const savedEcl = computed(() => editorStore.eclEditorSavedString);
 
 const queryString = ref("");
 const showDialog = ref(false);
@@ -84,7 +86,7 @@ const builderKey = ref(0);
 
 watch(queryString, () => {
   eclError.value = false;
-  store.commit("updateEclEditorSavedString", queryString.value);
+  editorStore.updateEclEditorSavedString(queryString.value);
 });
 
 watch(selectedStatus, async () => {
@@ -200,6 +202,11 @@ function onCopyError(): void {
   width: 100%;
   flex: 0 1 auto;
   overflow: auto;
+}
+
+.result-summary {
+  width: 100%;
+  padding-left: 8px;
 }
 
 .error-message {

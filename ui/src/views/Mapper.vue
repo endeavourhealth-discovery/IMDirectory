@@ -19,12 +19,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import InfoSideBar from "@/components/editor/infobar/InfoSideBar.vue";
 import EntityMapper from "@/components/mapper/EntityMapper.vue";
+import TopBar from "@/components/shared/TopBar.vue";
+import { useFilterStore } from "@/stores/filterStore";
 
-let showInfo = ref(false);
-let selectedConceptIri = ref("");
+const filterStore = useFilterStore();
+
+onMounted(async () => {
+  await filterStore.fetchFilterSettings();
+});
+
+const showInfo = ref(false);
+const selectedConceptIri = ref("");
 
 function updateSelected(selectedIri: string) {
   selectedConceptIri.value = selectedIri;

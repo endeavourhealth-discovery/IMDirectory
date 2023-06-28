@@ -30,15 +30,18 @@ import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
-import { useStore } from "vuex";
+import { useSharedStore } from "@/stores/sharedStore";
 const { iriToUrl } = Converters;
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  conceptIri: string;
+}
+const props = defineProps<Props>();
 
 const router = useRouter();
 const route = useRoute();
-const store = useStore();
-const fontAwesomePro = computed(() => store.state.fontAwesomePro);
+const sharedStore = useSharedStore();
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 watch(
   () => props.conceptIri,

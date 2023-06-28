@@ -17,16 +17,21 @@
       <template #empty> None </template>
       <template #loading> Loading... </template>
       <Column field="name" header="Results">
-        <template #body="slotProps: any">
-          <div class="result-container" @mouseenter="showDetailsOverlay($event, slotProps.data)" @mouseleave="hideDetailsOverlay()">
-            <div class="result-icon-container" :style="getColorByConceptType(slotProps.data.entityType)">
-              <i :class="getPerspectiveByConceptType(slotProps.data.entityType)" class="result-icon fa-fw" />
+        <template #body="{ data }: any">
+          <div class="result-container" @mouseenter="showDetailsOverlay($event, data)" @mouseleave="hideDetailsOverlay()">
+            <div class="result-icon-container">
+              <IMFontAwesomeIcon
+                :icon="getPerspectiveByConceptType(data.entityType)"
+                fixed-width
+                class="result-icon"
+                :style="getColorByConceptType(data.entityType)"
+              />
             </div>
             <div class="result-text-container">
-              {{ slotProps.data.name }}<br />
-              <small style="color: lightgrey">{{ slotProps.data.name }}</small>
+              {{ data.name }}<br />
+              <small style="color: lightgrey">{{ data.name }}</small>
             </div>
-            <Button :disabled="!slotProps.data.iri" icon="fa-solid fa-sitemap" @click="findInTree(slotProps.data.iri)" />
+            <Button :disabled="!data.iri" icon="fa-solid fa-sitemap" @click="findInTree(data.iri)" />
           </div>
         </template>
       </Column>
@@ -81,18 +86,21 @@
 
 <script setup lang="ts">
 import { PropType, ref } from "vue";
-import { useStore } from "vuex";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getFAIconFromType, getColourFromType } from "@im-library/helpers/ConceptTypeMethods";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { useEditorStore } from "@/stores/editorStore";
 
-const store = useStore();
+const editorStore = useEditorStore();
 
-const props = defineProps({
-  searchTerm: { type: String, required: false },
-  searchResults: { type: Array as PropType<Array<ConceptSummary>>, required: false },
-  loading: { type: Boolean, required: true }
-});
+interface Props {
+  searchTerm?: string;
+  searchResults?: ConceptSummary[];
+  loading: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({ searchResultSelected: (_payload: ConceptSummary) => true });
 
@@ -136,15 +144,14 @@ function showDetailsOverlay(event: any, data: ConceptSummary) {
 }
 
 function getConceptTypes(concept: ConceptSummary): any {
-  return concept.entityType
-    .map(function (type: any) {
+  return concept.entityType?.map(function (type: any) {
       return type.name;
     })
     .join(", ");
 }
 
 function findInTree(iri: string) {
-  if (iri) store.commit("updateFindInEditorTreeIri", iri);
+  if (iri) editorStore.updateFindInEditorTreeIri(iri);
 }
 </script>
 

@@ -13,14 +13,14 @@
 </template>
 
 <script setup lang="ts">
-import { useStore } from "vuex";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
 
-const store = useStore();
+const authStore = useAuthStore();
 const router = useRouter();
 
-const previousAppUrl = computed(() => store.state.previousAppUrl);
+const previousAppUrl = computed(() => authStore.previousAppUrl);
 
 function clickedBack(): void {
   router.back();

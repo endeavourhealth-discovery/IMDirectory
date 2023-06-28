@@ -10,15 +10,13 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps: any">
-        <div class="tree-row" @mouseover="showOverlay($event, slotProps.node)" @mouseleave="hideOverlay($event)">
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw"></i>
-            </div>
+      <template #default="{ node }: any">
+        <div class="tree-row" @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">
+          <span v-if="!node.loading">
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" :style="'color:' + node.color" fixed-width />
           </span>
           <ProgressSpinner v-else />
-          <span>{{ slotProps.node.label }}</span>
+          <span>{{ node.label }}</span>
         </div>
       </template>
     </Tree>
@@ -66,6 +64,7 @@
 <script setup lang="ts">
 import { onMounted, PropType, ref, Ref } from "vue";
 import { ConceptSummary, EntityReferenceNode } from "@im-library/interfaces";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -73,18 +72,13 @@ import { byKey } from "@im-library/helpers/Sorters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
-import {TreeNode} from 'primevue/tree';
+import { TreeNode } from "primevue/tree";
 
-const props = defineProps({
-  selectedEntity: { type: Object as PropType<TTIriRef>, required: true }
-});
+interface Props {
+  selectedEntity: TTIriRef;
+}
 
-// watch(
-//   () => props.selectedEntity,
-//   async newValue => {
-//     await findPathToNode(newValue["@id"]);
-//   }
-// );
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   treeNodeSelected: (_payload: TTIriRef) => true
@@ -186,7 +180,7 @@ async function onNodeExpand(node: any) {
     children.result.forEach((child: any) => {
       if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren));
     });
-    if (children.totalCount >= pageSize) {
+    if (children.totalCount >= pageSize && node.children[node.children.length - 1].data !== "loadMore") {
       node.children.push(createLoadMoreNode(node, 2, children.totalCount));
     }
     node.loading = false;

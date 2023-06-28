@@ -1,21 +1,32 @@
 <template>
   <div class="property-builder">
-    <div class="content-container">
-      <EntityAutoComplete :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" :disabled="!!inheritedFrom" />
-      <i class="icon pi pi-arrow-right" />
-      <EntityAutoComplete :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
-      <Tag v-if="inheritedFrom" value="Inherited" />
-      <ToggleButton v-model="required" onLabel="Required" offLabel="Not required" onIcon="pi pi-check" offIcon="pi pi-times" />
-      <ToggleButton v-model="unique" onLabel="Unique" offLabel="Not unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+    <div class="content-container" :class="invalid && 'invalid'">
+      <div class="path-container">
+        <TextDisplay v-if="isInherited" :value="propertyPath.name" :shape="propertyPathShape" :mode="mode" />
+        <EntityAutoComplete v-else :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" />
+        <Tag v-if="isInherited" value="Inherited" class="inherited-tag" severity="warning" />
+      </div>
+      <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
+      <div class="range-container">
+        <EntityAutoComplete :disabled="!isVisible" :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
+      </div>
+      <div class="toggle-buttons-contaner">
+        <ToggleButton v-model="required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
+        <ToggleButton v-model="unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+      </div>
     </div>
+    <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
+import TextDisplay from "./TextDisplay.vue";
 import _ from "lodash";
 import { XmlSchemaDatatypes } from "@im-library/config";
 import { EditorMode } from "@im-library/enums";
@@ -23,13 +34,16 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import router from "@/router";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Object as PropType<Property>, required: false },
-  position: { type: Number, required: true }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: Property;
+  position?: number;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: Property) => true
@@ -37,8 +51,9 @@ const emit = defineEmits({
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 
 const propertyPath: Ref<TTIriRef> = ref({} as TTIriRef);
 const propertyRange: Ref<TTIriRef | undefined> = ref(undefined);
@@ -47,6 +62,9 @@ const required = ref(false);
 const unique = ref(false);
 const loading = ref(true);
 const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const isInherited = ref(false);
+const isVisible = ref(true);
 
 watch(
   [propertyPath, propertyRange, inheritedFrom, required, unique],
@@ -65,7 +83,8 @@ const order = computed(() => props.position);
 const propertyPathShape: PropertyShape = {
   comment: "selects an entity based on select query",
   name: "Path",
-  componentType: { "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT },
+  showTitle: true,
+  componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
   path: props.shape.path,
   builderChild: true,
   order: 1,
@@ -75,16 +94,20 @@ const propertyPathShape: PropertyShape = {
 const propertyRangeShape: Ref<PropertyShape> = ref({
   comment: "selects an entity based on select query",
   name: "Range",
+  showTitle: true,
   order: 1,
-  componentType: { "@id": IM.ENTITY_AUTO_COMPLETE_COMPONENT },
+  componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
   path: props.shape.path,
-  select: [{ name: "Search for concepts", "@id": "http://endhealth.info/im#Query_AllowableRanges" }],
-  argument: [{ valueIri: { "@id": propertyPath.value["@id"] }, parameter: "this" }],
+  select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_ObjectPropertyRangeSuggestions" }],
+  argument: [
+    { valueIri: { "@id": propertyPath.value["@id"] }, parameter: "this" },
+    { valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "myDataModel" }
+  ],
   builderChild: true
 } as PropertyShape);
 
 watch(propertyPath, newValue => {
-  if (newValue["@id"] && propertyRangeShape.value.argument[0] && propertyRangeShape.value.argument[0].valueIri) {
+  if (newValue["@id"] && propertyRangeShape.value.argument?.[0] && propertyRangeShape.value.argument[0].valueIri) {
     propertyRangeShape.value.argument[0].valueIri["@id"] = newValue["@id"];
   }
 });
@@ -129,8 +152,10 @@ function processProps() {
       isObjectHasKeys(props.value, ["http://endhealth.info/im#inheritedFrom"]) &&
       _.isArray(props.value["http://endhealth.info/im#inheritedFrom"]) &&
       props.value["http://endhealth.info/im#inheritedFrom"].length === 1
-    )
+    ) {
       inheritedFrom.value = props.value["http://endhealth.info/im#inheritedFrom"][0];
+      isInherited.value = true;
+    }
     if (isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#minCount"]) && typeof props.value["http://www.w3.org/ns/shacl#minCount"] === "number")
       required.value = props.value["http://www.w3.org/ns/shacl#minCount"] > 0;
     else required.value = false;
@@ -145,14 +170,13 @@ function processProps() {
 }
 
 async function updatePath(data: any) {
-  await getRange(data["@id"]);
-}
-
-async function getRange(iri: string) {
-  const rangeIri = await EntityService.getPartialEntity(iri, [RDFS.RANGE]);
-  let result;
-  if (rangeIri && isObjectHasKeys(rangeIri, [RDFS.RANGE])) result = await EntityService.getPartialEntity(rangeIri[RDFS.RANGE][0]["@id"], [RDFS.LABEL]);
-  if (result) propertyRange.value = { "@id": result["@id"], name: result[RDFS.LABEL] } as TTIriRef;
+  if (data["@id"] && (await isFunctionProperty(data["@id"]))) {
+    isVisible.value = false;
+    updateRange({ "@id": IM.FUNCTION });
+  }
+  if (props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
+    props.value["http://www.w3.org/ns/shacl#path"][0] = { "@id": data["@id"] } as TTIriRef;
+  }
 }
 
 function updateRange(data: any) {
@@ -167,7 +191,7 @@ async function updateAll() {
     emit("updateClicked", property);
   }
   updateValueVariableMap(property);
-  await updateValidity();
+  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
 }
 
 async function createProperty() {
@@ -215,29 +239,52 @@ function updateValueVariableMap(data: Property) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity() {
-  return true;
+async function isFunctionProperty(propIri: string) {
+  return await QueryService.isFunctionProperty(propIri);
 }
 </script>
 
 <style scoped>
+.property-builder {
+  flex: 1 1 auto;
+}
 .content-container {
   display: flex;
   flex-flow: row wrap;
-  /* border: solid 1px; */
-  align-items: baseline;
+  align-items: center;
+  padding: 1rem 1rem;
+  gap: 0.5rem;
 }
 
-.p-togglebutton {
-  margin-right: 1rem;
+.path-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inherited-tag {
+  height: fit-content;
+  flex: 0 1 auto;
+}
+
+.range-container {
+  flex: 1 1 auto;
+}
+
+.content-container:deep(.label-container) {
+  padding: 0;
+}
+
+.invalid {
+  border-color: var(--red-500);
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
 }
 </style>

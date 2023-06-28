@@ -1,5 +1,6 @@
 <template>
   <div class="entity-search-item-container">
+    <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="label-container">
       <InputText
         ref="miniSearchInput"
@@ -12,13 +13,15 @@
         placeholder="Search"
         class="p-inputtext search-input"
         autoWidth="true"
-        v-tooltip="{ value: selectedResult.name, class: 'entity-tooltip' }"
+        v-tooltip="{ value: selectedResult.name ?? '', class: 'entity-tooltip' }"
         @dragenter.prevent
         @dragover.prevent
         @drop="dropReceived"
+        :class="invalid && showValidation && 'invalid'"
       />
       <Button :disabled="!selectedResult['@id']" icon="fa-solid fa-sitemap" @click="findInTree(selectedResult['@id'])" />
     </div>
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
   <OverlayPanel class="search-op" ref="miniSearchOP" :showCloseIcon="true" :dismissable="true">
     <SearchMiniOverlay :searchTerm="searchTerm" :searchResults="searchResults" :loading="loading" @searchResultSelected="updateSelectedResult" />
@@ -37,20 +40,22 @@ import { isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers"
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { mapToObject } from "@im-library/helpers/Transforms";
-import { QueryService } from "@/services";
+import { QueryService, EntityService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { useStore } from "vuex";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { useEditorStore } from "@/stores/editorStore";
 
-const store = useStore();
+const editorStore = useEditorStore();
 
-const props = defineProps({
-  value: { type: Object as PropType<TTIriRef>, required: false },
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: TTIriRef;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: TTIriRef) => true
@@ -58,8 +63,21 @@ const emit = defineEmits({
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      showValidation.value = true;
+    }
+  });
+}
 
 watch(
   () => _.cloneDeep(props.value),
@@ -72,20 +90,31 @@ onMounted(async () => {
   await init();
 });
 
-let loading = ref(false);
-let controller: Ref<AbortController> = ref({} as AbortController);
-let selectedResult: Ref<TTIriRef> = ref({} as TTIriRef);
-let searchTerm = ref("");
-let searchResults: Ref<ConceptSummary[]> = ref([]);
-let label = ref("");
-let key = ref("");
-let invalid = ref(false);
-let debounce = ref(0);
+const loading = ref(false);
+const controller: Ref<AbortController> = ref({} as AbortController);
+const selectedResult: Ref<TTIriRef> = ref({} as TTIriRef);
+const searchTerm = ref("");
+const searchResults: Ref<ConceptSummary[]> = ref([]);
+const label = ref("");
+const key = ref("");
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const debounce = ref(0);
+const showValidation = ref(false);
 
 const miniSearchOP = ref();
 
+watch(
+  () => searchTerm.value,
+  () => {
+    if (searchTerm.value === "") {
+      hideOverlay();
+    }
+  }
+);
+
 async function init() {
-  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path["@id"];
+  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
   if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
     updateSelectedResult(props.value);
     await search();
@@ -93,7 +122,7 @@ async function init() {
     selectedResult.value = {} as TTIriRef;
     searchTerm.value = "";
   }
-  label.value = props.shape.name;
+  label.value = props.shape.name as string;
 }
 
 function debounceForSearch(): void {
@@ -109,16 +138,14 @@ async function search(): Promise<void> {
     let queryRequest = {} as QueryRequest;
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
-      const args = processArguments(props.shape);
-      const replacedArgs = mapToObject(args);
-      queryRequest.argument = replacedArgs;
+      queryRequest.argument = processArguments(props.shape);
       queryRequest.textSearch = searchTerm.value;
-      query["@id"] = props.shape.select[0]["@id"];
+      query["@id"] = props.shape.select![0]["@id"];
       queryRequest.query = query;
     }
     if (isObjectHasKeys(props.shape, ["select"])) {
       queryRequest.textSearch = searchTerm.value;
-      query["@id"] = props.shape.select[0]["@id"];
+      query["@id"] = props.shape.select![0]["@id"];
       queryRequest.query = query;
     }
     if (!isObjectHasKeys(query, ["@id"])) throw new Error("No query iri found for entity search");
@@ -157,7 +184,7 @@ function hideOverlay(): void {
 
 function showOverlay(event: any): void {
   const x = miniSearchOP.value as any;
-  if (x) x.show(event, event.target);
+  if (searchTerm.value !== "") x.show(event, event.target);
 }
 
 async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
@@ -166,7 +193,7 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
     searchTerm.value = "";
   } else if (isTTIriRef(data)) {
     selectedResult.value = data;
-    searchTerm.value = data.name;
+    searchTerm.value = data.name as string;
   } else {
     selectedResult.value = { "@id": data.iri, name: data.name } as TTIriRef;
     searchTerm.value = data.name;
@@ -176,7 +203,10 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
   } else {
     emit("updateClicked", selectedResult.value);
   }
-  await updateValidity();
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+    showValidation.value = true;
+  }
   updateValueVariableMap(selectedResult.value);
   hideOverlay();
 }
@@ -194,52 +224,37 @@ function updateValueVariableMap(data: TTIriRef) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity() {
-  return isTTIriRef(selectedResult.value);
-}
-
 function findInTree(iri: string) {
-  if (iri) store.commit("updateFindInEditorTreeIri", iri);
+  if (iri) editorStore.updateFindInEditorTreeIri(iri);
 }
 
-function dropReceived(event: any) {
-  const data = event.dataTransfer.getData("text/plain");
+async function dropReceived(event: any) {
+  const data = event.dataTransfer.getData("conceptIri");
   if (data) {
-    const json = JSON.parse(data);
-    const iriRef = { "@id": json.data, name: json.label } as TTIriRef;
-    updateSelectedResult(iriRef);
+    const conceptIri = JSON.parse(data);
+    const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
+    const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
+    await updateSelectedResult(iriRef);
   }
 }
 </script>
 
 <style scoped>
 .entity-search-item-container {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
-  max-width: 100%;
+  align-items: flex-start;
 }
 
 .label-container {
-  flex: 0 1 auto;
-  padding: 1rem;
+  flex: 1 1 auto;
   border-radius: 3px;
-  position: relative;
-  min-width: 15rem;
+  width: 100%;
   display: flex;
   flex-flow: row nowrap;
+  gap: 0.5rem;
 }
 
 .label {
@@ -259,9 +274,20 @@ function dropReceived(event: any) {
 }
 
 .search-input {
-  width: 25rem;
+  flex: 1 1 auto;
+  min-width: 25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
 }
 </style>
