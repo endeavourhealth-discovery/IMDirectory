@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getDisplayFromLogic } from "@im-library/helpers/TextQueryBuilder";
+import { getDisplayFromLogic } from "@im-library/helpers/QueryDescriptor";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 
 interface Props {

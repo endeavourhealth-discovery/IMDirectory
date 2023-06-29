@@ -18,12 +18,12 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getDisplayFromLogic } from "@im-library/helpers/TextQueryBuilder";
 import { Match, Node, Query, Where } from "@im-library/interfaces/AutoGen";
 import { Ref } from "vue";
 import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
+import { getDisplayFromLogic } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   fullQuery: Query;

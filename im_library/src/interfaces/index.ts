@@ -38,10 +38,7 @@ import { UprnSearchResponse } from "./UprnSearchResponse";
 import { ValueSetMember } from "./ValueSetMember";
 import { Field } from "./queryBuilder/Field";
 import { FieldDto } from "./queryBuilder/FieldDto";
-import { FieldUI } from "./queryBuilder/FieldUI";
 import { GenericType } from "./queryBuilder/GenericType";
-import { QueryObject } from "./queryBuilder/QueryObject";
-import { SimplifiedType } from "./queryBuilder/SimplifiedType";
 import { GithubRelease } from "./GithubRelease";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
@@ -52,9 +49,6 @@ import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
 import { DisplayQuery } from "./DisplayQuery";
-import { ITextQuery } from "./query/TextQuery";
-import { MatchClauseUI } from "./query/MatchClauseUI";
-import { WhereClauseUI } from "./query/WhereClauseUI";
 import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 import { ContextMap } from "./ContextMap";
@@ -100,9 +94,6 @@ export {
   type Field,
   type FieldDto,
   type GenericType,
-  type QueryObject,
-  type FieldUI,
-  type SimplifiedType,
   type GithubRelease,
   type TangledTreeData,
   type AllowableChildProperty,
@@ -113,10 +104,7 @@ export {
   type AliasEntity,
   type PropertyDisplay,
   type DisplayQuery,
-  type ITextQuery,
   type TTProperty,
-  type MatchClauseUI,
-  type WhereClauseUI,
   type TreeNode,
   type ContextMap
 };
