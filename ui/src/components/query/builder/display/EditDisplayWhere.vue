@@ -6,7 +6,7 @@
       <span v-else-if="hasBigList(where)" v-html="where.description"></span>
       <span v-else v-html="where.description"></span>
       <span v-if="isArrayHasLength(where.where)">
-        <RecursiveWhereEdit :wheres="where.where!" :parent-match="parentMatch" :parent-where="where" />
+        <EditDisplayWhere :wheres="where.where!" :parent-match="parentMatch" :parent-where="where" />
       </span>
     </div>
   </div>
