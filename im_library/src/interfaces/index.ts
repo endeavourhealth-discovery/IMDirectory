@@ -36,9 +36,9 @@ import TTGraphData from "./TTGraphData";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
 import { ValueSetMember } from "./ValueSetMember";
-import { Field } from "./queryBuilder/Field";
-import { FieldDto } from "./queryBuilder/FieldDto";
-import { GenericType } from "./queryBuilder/GenericType";
+import { Field } from "./Field";
+import { FieldDto } from "./FieldDto";
+import { GenericType } from "./GenericType";
 import { GithubRelease } from "./GithubRelease";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
@@ -48,7 +48,6 @@ import { PropertyDisplay } from "./PropertyDisplay";
 import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
-import { DisplayQuery } from "./DisplayQuery";
 import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 import { ContextMap } from "./ContextMap";
@@ -103,7 +102,6 @@ export {
   type CustomAlert,
   type AliasEntity,
   type PropertyDisplay,
-  type DisplayQuery,
   type TTProperty,
   type TreeNode,
   type ContextMap
