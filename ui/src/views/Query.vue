@@ -9,7 +9,6 @@
     </TopBar>
     <div class="include-title include">include if</div>
     <div v-if="baseEntityMatchIri" class="type-title">{{ getNameFromRef({ "@id": baseEntityMatchIri }) }}</div>
-
     <RecursiveQueryEdit
       v-if="isArrayHasLength(query.match)"
       v-for="(match, index) of query.match"
@@ -19,6 +18,8 @@
       :index="index"
       @on-add="add"
       @on-remove="remove"
+      @on-group="group"
+      @on-ungroup="ungroup"
     />
 
     <div v-else-if="!baseEntityMatchIri">
@@ -52,6 +53,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
+import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
 import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
@@ -118,6 +120,33 @@ function addProperty(newMatch: Match) {
 
 function remove(matchIndex: number) {
   query.value.match!.splice(matchIndex, 1);
+}
+
+function group(matchIndex: number) {
+  const firstSelected = selectedMatches.value[0];
+  const indexOfFirstSelected = query.value!.match.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
+  const groupedMatch = { boolMatch: "and", match: [] } as Match;
+  for (const selectedMatch of selectedMatches.value) {
+    groupedMatch.match!.push(selectedMatch);
+    remove(query.value!.match.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch)));
+  }
+  console.log(groupedMatch);
+  describeMatch([groupedMatch], "match");
+  query.value!.match.splice(indexOfFirstSelected, 0, groupedMatch);
+}
+
+function ungroup(matchIndex: number) {
+  console.log("UNGROUP");
+  console.log(selectedMatches.value[0]);
+  remove(matchIndex);
+  const tempArray = selectedMatches.value[0].match.reverse();
+  for (const ungroupedMatch of tempArray) query.value.match.splice(matchIndex, 0, ungroupedMatch);
+}
+
+function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
+  return (searchMatch as any).key
+    ? matchList.findIndex(match => (searchMatch as any).key === (match as any).key)
+    : matchList.findIndex(match => JSON.stringify(selectedMatches.value[0]) === JSON.stringify(match));
 }
 </script>
 
