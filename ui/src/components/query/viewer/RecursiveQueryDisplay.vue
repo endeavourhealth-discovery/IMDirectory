@@ -5,7 +5,7 @@
       <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
       <span v-if="match.description" v-html="match.description"> </span>
 
-      <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
+      <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay v-if="match.match" :include="true" :matches="match.match" :parent-match="match" :full-query="fullQuery" />
       </span>
