@@ -77,7 +77,9 @@ const emit = defineEmits({
   onAdd: (_matchIndex: number, _newMatch: Match) => true,
   onRemove: (_matchIndex: number) => true,
   onGroup: (_matchIndex: number) => true,
-  onUngroup: (_matchIndex: number) => true
+  onUngroup: (_matchIndex: number) => true,
+  onMoveUp: (_matchIndex: number) => true,
+  onMoveDown: (_matchIndex: number) => true
 });
 
 interface Props {
@@ -223,6 +225,8 @@ function moveUp() {
       props.parentMatch.match!.splice(props.index - 1, 0, { ...props.match });
       props.parentMatch.match!.splice(props.index + 1, 1);
     }
+  } else {
+    emit("onMoveUp", props.index);
   }
 }
 
@@ -232,6 +236,8 @@ function moveDown() {
       props.parentMatch.match!.splice(props.index + 2, 0, { ...props.match });
       props.parentMatch.match!.splice(props.index, 1);
     }
+  } else {
+    emit("onMoveDown", props.index);
   }
 }
 

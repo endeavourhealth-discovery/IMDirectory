@@ -20,6 +20,8 @@
       @on-remove="remove"
       @on-group="group"
       @on-ungroup="ungroup"
+      @on-move-up="moveUp"
+      @on-move-down="moveDown"
     />
 
     <div v-else-if="!baseEntityMatchIri">
@@ -141,6 +143,20 @@ function ungroup(matchIndex: number) {
   remove(matchIndex);
   const tempArray = selectedMatches.value[0].match.reverse();
   for (const ungroupedMatch of tempArray) query.value.match.splice(matchIndex, 0, ungroupedMatch);
+}
+
+function moveUp(matchIndex: number) {
+  if (matchIndex !== 0 && matchIndex !== 1) {
+    query.value.match.splice(matchIndex - 1, 0, query.value?.match[matchIndex]);
+    query.value.match.splice(matchIndex + 1, 1);
+  }
+}
+
+function moveDown(matchIndex: number) {
+  if (matchIndex !== query.value.match.length - 1) {
+    query.value.match.splice(matchIndex + 2, 0, query.value?.match[matchIndex]);
+    query.value.match.splice(matchIndex, 1);
+  }
 }
 
 function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
