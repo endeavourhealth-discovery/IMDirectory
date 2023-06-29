@@ -1,9 +1,8 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { QueryObject, AllowableChildProperty, AliasEntity, ITextQuery } from "@im-library/interfaces";
+import { AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
 import { PathDocument, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
-import { TreeNode } from "primevue/tree";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -117,7 +116,7 @@ const QueryService = {
   },
 
   async getAllQByType(iri: string): Promise<any> {
-    return axios.get(Env.API + "api/query/public/allByType", {params: {iri:iri}});
+    return axios.get(Env.API + "api/query/public/allByType", { params: { iri: iri } });
   }
 };
 

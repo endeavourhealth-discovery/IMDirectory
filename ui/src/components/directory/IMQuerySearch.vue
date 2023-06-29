@@ -19,7 +19,7 @@
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
-      <SearchResultsTable :show-filters="false" />
+      <!-- <SearchResultsTable :show-filters="false" /> -->
     </div>
   </div>
 </template>
@@ -35,7 +35,7 @@ import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import SearchResultsTable from "./SearchResultsTable.vue";
+// import SearchResultsTable from "./SearchResultsTable.vue";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
 import { useDirectoryStore } from "@/stores/directoryStore";

@@ -93,7 +93,7 @@ function buildPathRecursively(path: any, pathList: any[]) {
     populatedPath = path.path;
   } else if (isObjectHasKeys(pathItem, ["@type"])) {
     path.node = pathItem;
-    populatedPath = path.node;
+    populatedPath = path.match;
   }
   if (isArrayHasLength(pathList)) {
     buildPathRecursively(populatedPath, pathList);

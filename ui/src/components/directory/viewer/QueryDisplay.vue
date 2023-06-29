@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
+import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
 import { QueryService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Query } from "@im-library/interfaces/AutoGen";

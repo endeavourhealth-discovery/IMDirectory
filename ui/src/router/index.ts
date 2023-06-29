@@ -220,15 +220,16 @@ const routes: Array<RouteRecordRaw> = [
       requiresLicense: true
     }
   },
-  // {
-  //   path: "/query/:queryIri?",
-  //   name: "Query",
-  //   component: Query,
-  //   meta: {
-  //     requiresAuth: true,
-  //     requiresLicense: true
-  //   }
-  // },
+  {
+    path: "/query/:queryIri?",
+    name: "Query",
+    component: Query,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true,
+      requiresCreateRole: true
+    }
+  },
   {
     path: "/snomedLicense",
     name: "License",

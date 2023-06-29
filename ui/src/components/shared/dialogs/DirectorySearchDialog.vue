@@ -2,6 +2,7 @@
   <Dialog
     v-model:visible="visible"
     modal
+    maximizable
     header="Search"
     :style="{ minWidth: '90vw', maxWidth: '90vw', minHeight: '90vh', maxHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     class="search-dialog"
@@ -63,7 +64,10 @@ watch(
   }
 );
 
-const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean", "update:selected": payload => true });
+const emit = defineEmits({
+  "update:showDialog": payload => typeof payload === "boolean",
+  "update:selected": payload => true,
+});
 
 const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
