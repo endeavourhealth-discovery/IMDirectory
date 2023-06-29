@@ -8,9 +8,9 @@
       </template>
     </TopBar>
     <div class="include-title include">include if</div>
-    <div v-if="baseEntityMatchIri" class="type-title">{{ getNameFromRef({ "@id": baseEntityMatchIri }) }}</div>
+    <div v-if="queryTypeIri" class="type-title">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
-    <RecursiveQueryEdit
+    <!-- <RecursiveQueryEdit
       v-if="isArrayHasLength(query.match)"
       v-for="(match, index) of query.match"
       :base-entity-match-iri="baseEntityMatchIri"
@@ -19,9 +19,11 @@
       :index="index"
       @on-add="add"
       @on-remove="remove"
-    />
+    /> -->
 
-    <div v-else-if="!baseEntityMatchIri">
+    <RecursiveQueryEdit v-if="isArrayHasLength(query.match)" :matches="query.match!" :query-type-iri="queryTypeIri" />
+
+    <div v-else-if="!queryTypeIri">
       <Button label="Add base type" @click="showAddBaseType = true" />
     </div>
     <div v-if="!isArrayHasLength(query.match) && query.type">
@@ -29,7 +31,7 @@
     </div>
 
     <Dialog v-model:visible="showAddProperty" modal :header="'Add rule'" :style="{ width: '60vw' }">
-      <AddProperty :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
+      <AddProperty :base-type="queryTypeIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
     </Dialog>
 
     <Dialog v-model:visible="showAddBaseType" modal :header="'Add base type'" :style="{ width: '60vw' }">
@@ -62,7 +64,7 @@ import AddProperty from "@/components/query/builder/edit/AddProperty.vue";
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
-const baseEntityMatchIri: Ref<string> = ref("");
+const queryTypeIri: Ref<string> = ref("");
 const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
@@ -95,9 +97,9 @@ async function setQuery() {
 }
 
 async function setBaseEntityMatch() {
-  if (query.value.type) baseEntityMatchIri.value = query.value.type;
+  if (query.value.type) queryTypeIri.value = query.value.type;
   else if (isArrayHasLength(query.value?.match)) {
-    baseEntityMatchIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
+    queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
   }
 }
 

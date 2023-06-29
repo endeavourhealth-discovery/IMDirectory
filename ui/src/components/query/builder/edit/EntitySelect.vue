@@ -2,7 +2,9 @@
   <div class="property-input-container">
     in
     <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" @item-select="onSelect" />
-    <EntailmentOptionsSelect :entailment-object="editMatch" />
+    <EntailmentOptionsSelect :entailment-object="editNode" />
+    <Button label="Cancel" severity="secondary" @click="emit('onCancel')" />
+    <Button label="Save" />
   </div>
 </template>
 
@@ -10,16 +12,18 @@
 import { Ref, computed, onMounted, ref, watch } from "vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Node, Where } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";
 import { isObject } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
+const emit = defineEmits({ onSave: (payload: string) => payload, onCancel: () => true });
+
 interface Props {
-  baseEntityMatchIri: string;
-  editMatch: Match;
+  queryTypeIri: string;
+  editNode: Node;
 }
 
 const props = defineProps<Props>();
@@ -31,7 +35,7 @@ const suggestions: Ref<ConceptSummary[]> = ref([]);
 const debounce = ref(0);
 
 watch(
-  () => props.editMatch,
+  () => props.editNode,
   () => populateSelected()
 );
 
@@ -40,15 +44,15 @@ onMounted(() => {
 });
 
 function populateSelected() {
-  selected.value.iri = props.editMatch["@id"] ?? props.editMatch["@set"] ?? (props.editMatch["@type"] as string);
-  selected.value.name = getNameFromRef(props.editMatch);
+  selected.value.iri = props.editNode["@id"] ?? props.editNode["@set"] ?? (props.editNode["@type"] as string);
+  selected.value.name = getNameFromRef(props.editNode);
 }
 
 function onSelect(event: any) {
-  props.editMatch.name = selected.value.name;
-  if (isValueSet(selected.value.entityType)) props.editMatch["@set"] = selected.value.iri;
-  else if (isRecordModel(selected.value.entityType)) props.editMatch["@type"] = selected.value.iri;
-  else props.editMatch["@id"] = selected.value.iri;
+  props.editNode.name = selected.value.name;
+  if (isValueSet(selected.value.entityType)) props.editNode["@set"] = selected.value.iri;
+  else if (isRecordModel(selected.value.entityType)) props.editNode["@type"] = selected.value.iri;
+  else props.editNode["@id"] = selected.value.iri;
 }
 
 async function search(searchTerm: any) {
