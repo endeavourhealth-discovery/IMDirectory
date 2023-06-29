@@ -49,17 +49,17 @@
 <script setup lang="ts">
 import { Bool, Match, Where } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref, watch } from "vue";
-import ClassSelect from "../clause/select/ClassSelect.vue";
-import DatatypeSelect from "../clause/select/DatatypeSelect.vue";
+import ClassSelect from "./edit/class/ClassSelect.vue";
+import DatatypeSelect from "./edit/datatype/DatatypeSelect.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { EntityService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
-import EntitySelect from "../clause/select/EntitySelect.vue";
+import EntitySelect from "./edit/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import _ from "lodash";
-import AddProperty from "./AddProperty.vue";
+import AddProperty from "./edit/AddProperty.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 const emit = defineEmits({
   removeMatch: () => true,

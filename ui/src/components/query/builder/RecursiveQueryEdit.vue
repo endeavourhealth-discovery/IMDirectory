@@ -1,6 +1,6 @@
 <template>
   <div class="feature">
-    <DisplayMatch
+    <EditDisplayMatch
       v-if="!showEdit"
       :base-entity-match-iri="baseEntityMatchIri"
       :match="match"
@@ -14,7 +14,7 @@
 
     <Card v-if="showEdit">
       <template #title>
-        <DisplayMatch :match="match" :index="index" />
+        <EditDisplayMatch :match="match" :index="index" />
       </template>
       <template #content>
         <EditMatch :base-entity-match-iri="baseEntityMatchIri" :match="match" @remove-match="remove()" @cancel="showEdit = false" @save="save" />
@@ -68,8 +68,8 @@ import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescripto
 import { MenuItem } from "primevue/menuitem";
 import { PrimeIcons } from "primevue/api";
 import EditMatch from "./EditMatch.vue";
-import DisplayMatch from "../editTextQuery/DisplayMatch.vue";
-import AddProperty from "./AddProperty.vue";
+import EditDisplayMatch from "./display/EditDisplayMatch.vue";
+import AddProperty from "./edit/AddProperty.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 

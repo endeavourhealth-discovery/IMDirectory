@@ -51,13 +51,13 @@ import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import RecursiveQueryEdit from "@/components/query/edit/RecursiveQueryEdit.vue";
+import RecursiveQueryEdit from "@/components/query/builder/RecursiveQueryEdit.vue";
 import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
-import AddBaseType from "@/components/query/edit/AddBaseType.vue";
-import AddProperty from "@/components/query/edit/AddProperty.vue";
+import AddBaseType from "@/components/query/builder/edit/baseType/AddBaseType.vue";
+import AddProperty from "@/components/query/builder/edit/AddProperty.vue";
 
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);

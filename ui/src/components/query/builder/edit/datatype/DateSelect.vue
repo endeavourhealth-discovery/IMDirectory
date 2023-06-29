@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import ComparisonSelect from "@/components/query/editTextQuery/ComparisonSelect.vue";
+import ComparisonSelect from "./ComparisonSelect.vue";
 import { Where } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 interface Props {

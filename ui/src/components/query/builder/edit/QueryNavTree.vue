@@ -23,7 +23,7 @@ import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
 import setupQueryTree from "@/composables/setupQueryTree";
 import { TreeNode } from "primevue/tree";

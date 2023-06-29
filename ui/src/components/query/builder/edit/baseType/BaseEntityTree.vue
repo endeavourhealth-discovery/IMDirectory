@@ -32,13 +32,13 @@ import { onMounted, onUnmounted, ref, Ref } from "vue";
 import { EntityService } from "@/services";
 import { IM, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
-import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { byLabel } from "@im-library/helpers/Sorters";
 import setupQueryTree from "@/composables/setupQueryTree";
 import { isFolder } from "@im-library/helpers/ConceptTypeMethods";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay } = setupQueryTree();
 
 const emit = defineEmits({
