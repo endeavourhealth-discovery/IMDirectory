@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { Ref, ref } from "vue";
-import BaseEntityTree from "../BaseEntityTree.vue";
+import BaseEntityTree from "./BaseEntityTree.vue";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
 import { EntityService } from "@/services";

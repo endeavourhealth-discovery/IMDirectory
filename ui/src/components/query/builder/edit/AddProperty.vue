@@ -11,7 +11,7 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref } from "vue";
 import { Match } from "@im-library/interfaces/AutoGen";
-import QueryNavTree from "../QueryNavTree.vue";
+import QueryNavTree from "./QueryNavTree.vue";
 import _ from "lodash";
 import { TreeNode } from "primevue/tree";
 import { buildWhereFromProperty } from "@im-library/helpers/QueryBuilder";

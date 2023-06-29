@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { Ref, computed, onMounted, ref, watch } from "vue";
-import EntailmentOptionsSelect from "../../editTextQuery/EntailmentOptionsSelect.vue";
+import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { useFilterStore } from "@/stores/filterStore";

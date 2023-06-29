@@ -41,7 +41,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Where } from "@im-library/interfaces/AutoGen";
 import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
-import RecursiveWhereEdit from "../edit/RecursiveWhereEdit.vue";
+import RecursiveWhereEdit from "./RecursiveWhereEdit.vue";
 
 interface Props {
   parentMatch?: Match;

@@ -68,8 +68,8 @@ import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescripto
 import { MenuItem } from "primevue/menuitem";
 import { PrimeIcons } from "primevue/api";
 import EditMatch from "./EditMatch.vue";
-import DisplayMatch from "../editTextQuery/DisplayMatch.vue";
-import AddProperty from "./AddProperty.vue";
+import DisplayMatch from "./display/DisplayMatch.vue";
+import AddProperty from "./edit/AddProperty.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 

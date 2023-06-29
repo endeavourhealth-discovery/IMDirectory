@@ -23,12 +23,12 @@
 <script setup lang="ts">
 import Dropdown from "primevue/dropdown";
 import { Ref, onMounted, ref, watch } from "vue";
-import ComparisonSelect from "../../editTextQuery/ComparisonSelect.vue";
-import RangeSelect from "../../editTextQuery/RangeSelect.vue";
+import ComparisonSelect from "./ComparisonSelect.vue";
+import RangeSelect from "./RangeSelect.vue";
 import { IM, XMLS } from "@im-library/vocabulary";
 import { Assignable, Range, Where } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import DateSelect from "./datatype/DateSelect.vue";
+import DateSelect from "./DateSelect.vue";
 interface Props {
   where: Where;
   datatype: string;
