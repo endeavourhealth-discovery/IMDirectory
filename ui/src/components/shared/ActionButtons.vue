@@ -13,7 +13,7 @@
     :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
     :severity="getSeverity()"
     :class="getClass()"
-    @click="locateInTreeRouter($event, iri)"
+    @click="locateInTree(iri)"
     v-tooltip.top="'Find in tree'"
     data-testid="select-button"
   />
@@ -92,11 +92,14 @@ interface Props {
   buttons: string[];
   iri: string;
   type?: string;
-  locateInTreeFunction?: Function;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: "activityRowButton"
+});
+
+const emit = defineEmits({
+  locateInTree: (_payload: string) => true
 });
 
 function getClass() {
@@ -146,12 +149,8 @@ async function onParamsPopulated() {
   showTestQueryResults.value = true;
 }
 
-function locateInTreeRouter(event: any, iri: string) {
-  if (props.locateInTreeFunction) {
-    props.locateInTreeFunction(event, iri);
-  } else {
-    throw new Error("Missing 'locateInTreeFunction'");
-  }
+function locateInTree(iri: string) {
+  emit("locateInTree", iri);
 }
 </script>
 

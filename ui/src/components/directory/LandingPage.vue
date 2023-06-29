@@ -34,7 +34,7 @@
             <Column :exportable="false">
               <template #body="{ data }: any">
                 <div class="action-buttons-container">
-                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" :locate-in-tree-function="locateInTree" />
+                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" @locate-in-tree="locateInTree" />
                 </div>
               </template>
             </Column>
@@ -189,7 +189,7 @@ async function getCardsData(): Promise<void> {
   cardsData.value = cards;
 }
 
-function locateInTree(event: any, iri: string) {
+function locateInTree(iri: string) {
   directoryStore.updateFindInTreeIri(iri);
 }
 </script>

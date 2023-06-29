@@ -20,7 +20,7 @@
         </span>
       </div>
     </div>
-    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" @rowSelected="updateSelected" :locateInTreeFunction="locateInTreeFunction" />
+    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" @rowSelected="updateSelected" @locateInTree="iri => $emit('locateInTree', iri)" />
   </div>
 </template>
 
@@ -36,14 +36,13 @@ interface Props {
   showFilters?: boolean;
   searchResults: ConceptSummary[];
   searchLoading?: boolean;
-  locateInTreeFunction?: Function;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
   searchLoading: false
 });
 
-const emit = defineEmits({ selectedUpdated: (_payload: ConceptSummary) => true });
+const emit = defineEmits({ selectedUpdated: (_payload: ConceptSummary) => true, locateInTree: (_payload: string) => true });
 
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);

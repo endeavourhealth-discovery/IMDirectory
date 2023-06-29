@@ -1,6 +1,6 @@
 <template>
   <div id="concept-main-container">
-    <div v-if="conceptIri === 'http://endhealth.info/im#Favourites'">
+    <div v-if="entityIri === 'http://endhealth.info/im#Favourites'">
       <Content />
     </div>
     <div v-else-if="loading" class="loading-container">
@@ -11,7 +11,7 @@
         <TabView :lazy="true" v-model:active-index="activeTab" id="info-side-bar-tabs">
           <TabPanel header="Details">
             <div class="concept-panel-content" id="details-container">
-              <Details :conceptIri="conceptIri" @on-open-tab="onOpenTab" />
+              <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="iri => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel v-if="terms" header="Terms">
@@ -21,12 +21,12 @@
           </TabPanel>
           <TabPanel v-if="showMappings" header="Maps">
             <div class="concept-panel-content" id="mappings-container">
-              <Mappings :conceptIri="conceptIri" />
+              <Mappings :entityIri="entityIri" />
             </div>
           </TabPanel>
           <TabPanel v-if="isValueSet(types)" header="Set">
             <div class="concept-panel-content" id="set-container">
-              <SetDefinition :conceptIri="conceptIri" />
+              <SetDefinition :entityIri="entityIri" />
             </div>
           </TabPanel>
           <TabPanel header="ECL" v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])">
@@ -36,17 +36,17 @@
           </TabPanel>
           <TabPanel v-if="isRecordModel(types)" header="Data Model">
             <div class="concept-panel-content" id="data-model-container">
-              <DataModel :conceptIri="conceptIri" />
+              <DataModel :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Properties" v-if="isRecordModel(types)">
             <div class="concept-panel-content" id="properties-container">
-              <Properties :conceptIri="conceptIri" />
+              <Properties :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel v-if="isQuery(types)" header="Query">
             <div class="concept-panel-content" id="query-container">
-              <QueryDisplay :conceptIri="conceptIri" />
+              <QueryDisplay :entityIri="entityIri" />
             </div>
           </TabPanel>
           <TabPanel header="Contents">
@@ -56,32 +56,32 @@
           </TabPanel>
           <TabPanel header="Used in">
             <div class="concept-panel-content" id="usedin-container">
-              <UsedIn :conceptIri="conceptIri" />
+              <UsedIn :entityIri="entityIri" />
             </div>
           </TabPanel>
           <TabPanel header="Hierarchy position">
             <div class="concept-panel-content" id="secondary-tree-container">
-              <SecondaryTree :conceptIri="conceptIri" />
+              <SecondaryTree :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Entity chart" v-if="showGraph">
             <div class="concept-panel-content" id="entity-chart-container">
-              <EntityChart :conceptIri="conceptIri" />
+              <EntityChart :entityIri="entityIri" />
             </div>
           </TabPanel>
           <TabPanel header="Graph">
             <div class="concept-panel-content" id="graph-container">
-              <Graph :conceptIri="conceptIri" />
+              <Graph :entityIri="entityIri" />
             </div>
           </TabPanel>
           <TabPanel header="JSON">
             <div class="concept-panel-content" id="json-container">
-              <JSONViewer :conceptIri="conceptIri" />
+              <JSONViewer :entityIri="entityIri" />
             </div>
           </TabPanel>
           <TabPanel header="Provenance">
             <div class="concept-panel-content" id="provenance-container">
-              <Provenance :conceptIri="conceptIri" />
+              <Provenance :entityIri="entityIri" />
             </div>
           </TabPanel>
         </TabView>
@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref, reactive } from "vue";
+import { computed, onMounted, Ref, ref, reactive, watch } from "vue";
 import DataModel from "./viewer/dataModel/DataModel.vue";
 import SetDefinition from "./viewer/set/SetDefinition.vue";
 import Content from "./viewer/Content.vue";
@@ -108,7 +108,8 @@ import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 
 import { DefinitionConfig } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { EntityService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import Details from "./viewer/Details.vue";
@@ -118,13 +119,18 @@ import setupConcept from "@/composables/setupConcept";
 import setupConfig from "@/composables/setupConfig";
 import setupTerms from "@/composables/setupTerms";
 import QueryDisplay from "./viewer/QueryDisplay.vue";
-import { useDirectoryStore } from "@/stores/directoryStore";
-const { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } = ConceptTypeMethods;
-const { isObjectHasKeys } = DataTypeCheckers;
+
+interface Props {
+  entityIri: string;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 const router = useRouter();
-const directoryStore = useDirectoryStore();
-const conceptIri = computed(() => directoryStore.conceptIri);
 
 const loading = ref(true);
 const types: Ref<TTIriRef[]> = ref([]);
@@ -141,9 +147,12 @@ let tabMap = reactive(new Map<string, number>());
 
 onMounted(async () => {
   await init();
-  setTabMap();
-  setDefaultTab();
 });
+
+watch(
+  () => props.entityIri,
+  async () => await init()
+);
 
 function setDefaultTab() {
   if (isFolder(types.value)) {
@@ -173,11 +182,13 @@ function setTabMap() {
 async function init(): Promise<void> {
   loading.value = true;
   await getConfig();
-  await getConcept(conceptIri.value, configs);
-  await getInferred(conceptIri.value, concept);
-  await getTerms(conceptIri.value);
+  await getConcept(props.entityIri, configs);
+  await getInferred(props.entityIri, concept);
+  await getTerms(props.entityIri);
   types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
   header.value = concept.value[RDFS.LABEL];
+  setTabMap();
+  setDefaultTab();
   loading.value = false;
 }
 

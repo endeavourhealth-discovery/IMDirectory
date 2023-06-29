@@ -16,14 +16,14 @@ import { IM } from "@im-library/vocabulary";
 import { onMounted, ref, Ref } from "vue";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
 const provenances: Ref<any[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
-onMounted(async () => await getProvHistory(props.conceptIri));
+onMounted(async () => await getProvHistory(props.entityIri));
 
 async function getProvHistory(iri: string) {
   loading.value = true;

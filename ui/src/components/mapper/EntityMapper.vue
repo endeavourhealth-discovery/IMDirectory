@@ -3,7 +3,7 @@
     <h5>Map: {{ taskName }}</h5>
     <div class="grid">
       <div class="col-4">
-        <SecondaryTree v-if="taskIri" :conceptIri="taskIri" />
+        <SecondaryTree v-if="taskIri" :entityIri="taskIri" />
       </div>
       <div class="col-8">
         <OverlayPanel ref="summary_overlay" id="summary_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">

@@ -338,8 +338,8 @@ export interface Where extends Property, Assignable, Whereable {
 }
 
 export interface Whereable {
-    where?: Where[];
     boolWhere?: Bool;
+    where?: Where[];
 }
 
 export interface EntityDocument {

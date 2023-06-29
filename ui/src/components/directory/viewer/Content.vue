@@ -40,7 +40,7 @@
       <Column :exportable="false" style="justify-content: flex-end">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" :locate-in-tree-function="locateInTree" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" @locate-in-tree="locateInTree" />
           </div>
         </template>
       </Column>
@@ -203,7 +203,7 @@ function hideOverlay(event: any): void {
   OS.value.hideOverlay(event);
 }
 
-function locateInTree(event: any, iri: string) {
+function locateInTree(iri: string) {
   directoryStore.updateFindInTreeIri(iri);
 }
 </script>
