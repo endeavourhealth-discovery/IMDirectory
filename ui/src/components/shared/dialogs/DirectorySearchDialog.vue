@@ -12,7 +12,7 @@
       </div>
       <div class="vertical-divider">
         <div class="left-container">
-          <NavTree :selectedIri="treeIri" @selectedUpdated="updateSelected" @row-selected="showDetails" />
+          <NavTree :selectedIri="treeIri" @row-selected="showDetails" />
         </div>
         <div class="right-container">
           <DirectoryDetails
@@ -23,7 +23,7 @@
             :validationQuery="searchByQuery"
             :showSelectButton="true"
             v-model:history="history"
-            @selected-updated="data => $emit('update:selected', data)"
+            @selected-updated="updateSelectedFromIri"
           />
           <SearchResults
             v-else
@@ -48,6 +48,7 @@ import NavTree from "@/components/shared/NavTree.vue";
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _ from "lodash";
+import { EntityService } from "@/services";
 
 interface Props {
   showDialog: boolean;
@@ -56,8 +57,10 @@ interface Props {
 }
 const props = defineProps<Props>();
 watch(
-  () => _.cloneDeep(props.showDialog),
-  newValue => (visible.value = newValue)
+  () => props.showDialog,
+  newValue => {
+    visible.value = newValue;
+  }
 );
 
 const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean", "update:selected": payload => true });
@@ -66,7 +69,12 @@ const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const visible = ref(false);
-watch(visible, newValue => emit("update:showDialog", newValue));
+watch(visible, newValue => {
+  if (!newValue) {
+    emit("update:showDialog", newValue);
+    resetDialog();
+  }
+});
 const searchResults: Ref<ConceptSummary[]> = ref([]);
 const searchLoading = ref(false);
 const treeIri = ref("");
@@ -83,6 +91,13 @@ onMounted(() => {
 
 function updateSelected(data: ConceptSummary) {
   emit("update:selected", data);
+  visible.value = false;
+}
+
+async function updateSelectedFromIri(iri: string) {
+  const entity = await EntityService.getEntitySummary(iri);
+  emit("update:selected", entity);
+  visible.value = false;
 }
 
 function locateInTree(iri: string) {
@@ -95,6 +110,14 @@ function showDetails(data: any) {
 
 function navigateTo(iri: string) {
   detailsIri.value = iri;
+}
+
+function resetDialog() {
+  searchResults.value = [];
+  searchLoading.value = false;
+  treeIri.value = "";
+  detailsIri.value = "";
+  history.value = [];
 }
 </script>
 
