@@ -21,7 +21,6 @@
 <script setup lang="ts">
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { TreeNode } from "@im-library/interfaces";
 import { DirectService } from "@/services";
 import { Ref, computed, ref } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -39,9 +38,10 @@ function updateSplitter(event: any) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
 }
 
-function routeToSelected(selected: TreeNode) {
+function routeToSelected(selected: any) {
   if (isObjectHasKeys(selected, ["key"])) directService.select(selected.key, "Folder");
   else if (isObjectHasKeys(selected, ["iri"])) directService.select(selected.iri, "Folder");
+  else if (typeof selected === "string") directService.select(selected, "Folder");
 }
 
 function navigateTo(iri: string) {

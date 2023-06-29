@@ -47,7 +47,7 @@
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" :locate-in-tree-function="locateInTreeFunction" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="iri => emit('locateInTree', iri)" />
           </div>
         </template>
       </Column>
@@ -74,7 +74,6 @@ interface Props {
   searchResults?: ConceptSummary[];
   totalRecords?: number;
   loading: boolean;
-  locateInTreeFunction?: Function;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -82,7 +81,7 @@ const props = withDefaults(defineProps<Props>(), {
   totalRecords: 0
 });
 
-const emit = defineEmits({ rowSelected: (_payload: ConceptSummary) => true });
+const emit = defineEmits({ rowSelected: (_payload: ConceptSummary) => true, locateInTree: (_payload: string) => true });
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();

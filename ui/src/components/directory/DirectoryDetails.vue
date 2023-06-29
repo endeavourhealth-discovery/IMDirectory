@@ -16,6 +16,7 @@
         @locateInTree="iri => $emit('locateInTree', iri)"
         :showSelectButton="showSelectButton"
         :validationQuery="validationQuery"
+        @entitySelected="iri => emit('selectedUpdated', iri)"
       />
     </div>
     <div class="datatable-container">
@@ -31,6 +32,7 @@ import { IM } from "@im-library/vocabulary";
 import Viewer from "@/components/directory/Viewer.vue";
 import ParentHeader from "@/components/directory/ParentHeader.vue";
 import ParentHierarchy from "@/components/directory/ParentHierarchy.vue";
+import { ConceptSummary } from "@im-library/interfaces";
 
 interface Props {
   selectedIri: string;
@@ -43,7 +45,8 @@ const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 const emit = defineEmits({
   navigateTo: (_payload: string) => true,
   locateInTree: (_payload: string) => true,
-  "update:history": (_payload: string[]) => true
+  "update:history": (_payload: string[]) => true,
+  selectedUpdated: (_payload: string) => true
 });
 
 watch(

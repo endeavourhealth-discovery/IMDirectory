@@ -7,16 +7,23 @@
     class="search-dialog"
   >
     <div class="directory-search-dialog-content">
-      <div class="search-bar"><SearchBar v-model:searchResults="searchResults" v-model:searchLoading="searchLoading" :searchByQuery="searchByQuery" /></div>
+      <div class="search-bar">
+        <SearchBar v-model:searchResults="searchResults" v-model:searchLoading="searchLoading" :searchByQuery="searchByQuery" />
+      </div>
       <div class="vertical-divider">
-        <div class="left-container"><NavTree :selectedIri="treeIri" @selectedUpdated="updateSelected" @row-selected="showDetails" /></div>
+        <div class="left-container">
+          <NavTree :selectedIri="treeIri" @selectedUpdated="updateSelected" @row-selected="showDetails" />
+        </div>
         <div class="right-container">
           <DirectoryDetails
             v-if="detailsIri"
             :selected-iri="detailsIri"
-            :locateInTreeFunction="locateInTree"
-            :navigateToFunction="navigateTo"
+            @locateInTree="locateInTree"
+            @navigateTo="navigateTo"
             :validationQuery="searchByQuery"
+            :showSelectButton="true"
+            v-model:history="history"
+            @selected-updated="data => $emit('update:selected', data)"
           />
           <SearchResults
             v-else
@@ -24,7 +31,7 @@
             :searchLoading="searchLoading"
             :selected="selected"
             @selectedUpdated="updateSelected"
-            :locateInTreeFunction="locateInTree"
+            @locate-in-tree="locateInTree"
           />
         </div>
       </div>
@@ -60,11 +67,11 @@ const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const visible = ref(false);
 watch(visible, newValue => emit("update:showDialog", newValue));
-const active = ref(0);
 const searchResults: Ref<ConceptSummary[]> = ref([]);
 const searchLoading = ref(false);
 const treeIri = ref("");
 const detailsIri = ref("");
+const history: Ref<string[]> = ref([]);
 
 watch(searchResults, newValue => {
   detailsIri.value = "";
@@ -78,7 +85,7 @@ function updateSelected(data: ConceptSummary) {
   emit("update:selected", data);
 }
 
-function locateInTree(event: any, iri: string) {
+function locateInTree(iri: string) {
   treeIri.value = iri;
 }
 
@@ -94,24 +101,28 @@ function navigateTo(iri: string) {
 <style scoped>
 .directory-search-dialog-content {
   width: 100%;
-  height: 100%;
-  overflow: auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
+  overflow: auto;
 }
 
 .vertical-divider {
   width: 100%;
+  flex: 1 1 auto;
+  overflow: auto;
   display: flex;
   flex-flow: row nowrap;
 }
 
 .left-container {
   flex: 0 0 30%;
+  overflow: auto;
 }
 
 .right-container {
   flex: 1 1 auto;
+  overflow: auto;
 }
 
 .search-bar {
@@ -125,7 +136,8 @@ function navigateTo(iri: string) {
 </style>
 
 <style>
-.search-dialog:deep(.p-dialog-content) {
+.p-dialog-content {
   flex: 1 1 auto;
+  display: flex;
 }
 </style>
