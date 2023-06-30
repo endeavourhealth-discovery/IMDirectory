@@ -9,15 +9,29 @@
   >
     <div class="directory-search-dialog-content">
       <div class="search-bar">
-        <SearchBar v-model:searchResults="searchResults" v-model:searchLoading="searchLoading" :searchByQuery="searchByQuery" />
+        <SearchBar
+          v-model:searchResults="searchResults"
+          v-model:searchLoading="searchLoading"
+          :searchByQuery="searchByQuery"
+          @to-ecl-search="showEclSearch"
+          @to-query-search="showQuerySearch"
+        />
       </div>
       <div class="vertical-divider">
         <div class="left-container">
           <NavTree :selectedIri="treeIri" @row-selected="showDetails" />
         </div>
         <div class="right-container">
+          <SearchResults
+            v-if="activePage === 0"
+            :searchResults="searchResults"
+            :searchLoading="searchLoading"
+            :selected="selected"
+            @selectedUpdated="updateSelected"
+            @locate-in-tree="locateInTree"
+          />
           <DirectoryDetails
-            v-if="detailsIri"
+            v-if="activePage === 1"
             :selected-iri="detailsIri"
             @locateInTree="locateInTree"
             @navigateTo="navigateTo"
@@ -26,14 +40,8 @@
             v-model:history="history"
             @selected-updated="updateSelectedFromIri"
           />
-          <SearchResults
-            v-else
-            :searchResults="searchResults"
-            :searchLoading="searchLoading"
-            :selected="selected"
-            @selectedUpdated="updateSelected"
-            @locate-in-tree="locateInTree"
-          />
+          <EclSearch v-if="activePage === 2" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
+          <IMQuerySearch v-if="activePage === 3" @locate-in-tree="locateInTree" @selected-updated="updateSelected" />
         </div>
       </div>
     </div>
@@ -47,6 +55,8 @@ import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
 import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
+import EclSearch from "@/components/directory/EclSearch.vue";
+import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _ from "lodash";
 import { EntityService } from "@/services";
@@ -66,7 +76,7 @@ watch(
 
 const emit = defineEmits({
   "update:showDialog": payload => typeof payload === "boolean",
-  "update:selected": payload => true,
+  "update:selected": payload => true
 });
 
 const sharedStore = useSharedStore();
@@ -84,9 +94,11 @@ const searchLoading = ref(false);
 const treeIri = ref("");
 const detailsIri = ref("");
 const history: Ref<string[]> = ref([]);
+const activePage = ref(0);
 
 watch(searchResults, newValue => {
   detailsIri.value = "";
+  activePage.value = 0;
 });
 
 onMounted(() => {
@@ -110,10 +122,12 @@ function locateInTree(iri: string) {
 
 function showDetails(data: any) {
   detailsIri.value = data.key;
+  activePage.value = 1;
 }
 
 function navigateTo(iri: string) {
   detailsIri.value = iri;
+  activePage.value = 1;
 }
 
 function resetDialog() {
@@ -122,6 +136,15 @@ function resetDialog() {
   treeIri.value = "";
   detailsIri.value = "";
   history.value = [];
+  activePage.value = 0;
+}
+
+function showEclSearch() {
+  activePage.value = 2;
+}
+
+function showQuerySearch() {
+  activePage.value = 3;
 }
 </script>
 

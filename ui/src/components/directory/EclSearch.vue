@@ -35,7 +35,12 @@
     </div>
     <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
     <div class="results-container">
-      <ResultsTable :searchResults="searchResults" :loading="loading" />
+      <ResultsTable
+        :searchResults="searchResults"
+        :loading="loading"
+        @locate-in-tree="iri => $emit('locateInTree', iri)"
+        @row-selected="selected => emit('selectedUpdated', selected)"
+      />
     </div>
   </div>
   <Builder
@@ -65,6 +70,11 @@ import { byName } from "@im-library/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
+
+const emit = defineEmits({
+  locateInTree: (_payload: string) => true,
+  selectedUpdated: (_payload: ConceptSummary) => true
+});
 
 const toast = useToast();
 const filterStore = useFilterStore();

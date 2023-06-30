@@ -8,6 +8,8 @@
             @update:search-results="updateSearchResults"
             :search-loading="searchLoading"
             @update:search-loading="updateSearchLoading"
+            @to-ecl-search="toEclSearch"
+            @to-query-search="toQuerySearch"
           />
         </div>
       </template>
@@ -60,6 +62,14 @@ function updateSearchResults(data: ConceptSummary[]) {
 
 function updateSearchLoading(data: boolean) {
   directoryStore.updateSearchLoading(data);
+}
+
+function toEclSearch() {
+  router.push({ name: "EclSearch" });
+}
+
+function toQuerySearch() {
+  router.push({ name: "IMQuerySearch" });
 }
 </script>
 
