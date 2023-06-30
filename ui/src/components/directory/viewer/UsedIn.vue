@@ -39,12 +39,12 @@ import { onMounted, ref, Ref, watch } from "vue";
 import { DirectService, EntityService } from "@/services";
 import { RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
@@ -65,15 +65,15 @@ onMounted(async () => {
 });
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async () => await init()
 );
 
 async function init() {
   loading.value = true;
-  await getUsages(props.conceptIri, currentPage.value, pageSize.value);
+  await getUsages(props.entityIri, currentPage.value, pageSize.value);
   loading.value = false;
-  await getRecordsSize(props.conceptIri);
+  await getRecordsSize(props.entityIri);
 }
 
 function onRowSelect(event: any) {
@@ -101,7 +101,7 @@ async function handlePage(event: any): Promise<void> {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  await getUsages(props.conceptIri, currentPage.value, pageSize.value);
+  await getUsages(props.entityIri, currentPage.value, pageSize.value);
   scrollToTop();
   loading.value = false;
 }

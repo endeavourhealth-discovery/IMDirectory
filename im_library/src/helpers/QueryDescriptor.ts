@@ -1,9 +1,9 @@
 import { Operator } from "../interfaces/AutoGen";
-import { Match, Path, Where, Property, OrderLimit, Node, Query } from "../interfaces/AutoGen";
+import { Match, Path, Where, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
 
-const propertyDropList = ["observation", "concept", "numericvalue", "effectiveDate", "effective date"];
+const propertyDisplayMap = { concept: "of" } as any;
 
 export function describeQuery(query: Query): Query {
   const describedQuery = { ...query };
@@ -26,7 +26,7 @@ function generateRecursively(query: any, type: string) {
 }
 
 // descriptors
-function describeMatch(match: Match[], type: string) {
+export function describeMatch(match: Match[], type: string) {
   for (const [index, matchItem] of match.entries()) {
     matchItem.description = getDisplayFromMatch(matchItem);
     if (isObjectHasKeys(matchItem, ["boolMatch"])) {
@@ -41,7 +41,7 @@ function describeMatch(match: Match[], type: string) {
   }
 }
 
-function describeWhere(where: Where[], type: string) {
+export function describeWhere(where: Where[], type: string) {
   for (const [index, whereItem] of where.entries()) {
     whereItem.description = getDisplayFromWhere(whereItem);
     if (isObjectHasKeys(whereItem, ["bool"])) {
@@ -74,7 +74,7 @@ export function getDisplayFromWhereList(matchDisplay: string, where: Where[]) {
 export function getDisplayFromWhere(where: Where) {
   let display = "";
   const propertyName = getDisplayFromNodeRef(where.nodeRef) ?? getNameFromRef(where);
-  if (!propertyDropList.includes(propertyName)) display += propertyName;
+  if (propertyDisplayMap[propertyName]) display += " " + propertyDisplayMap[propertyName];
   if (where.in) display += " " + getDisplayFromList(where, true);
   if (where.notIn) display += getDisplayFromList(where, false);
   if (where.operator) display = getDisplayFromOperator(propertyName, where);
@@ -93,7 +93,7 @@ export function getDisplayFromOrderBy(orderBy: OrderLimit) {
   let display = "";
   if (orderBy.variable) display += orderBy.variable + ".";
   const propertyName = getNameFromRef(orderBy);
-  if (!propertyDropList.includes(propertyName)) display += propertyName + " ";
+  if (propertyDisplayMap[propertyName]) display += propertyDisplayMap[propertyName] + " ";
   if (orderBy.limit === 1) {
     if ("descending" === orderBy.direction) display = "get latest" + display;
     if ("ascending" === orderBy.direction) display = "get earliest" + display;
@@ -194,7 +194,7 @@ export function getDisplayFromOperatorForDate(operator: Operator, withValue: boo
 }
 
 export function getDisplayFromList(where: Where, include: boolean) {
-  let display = include ? "is " : "is not ";
+  let display = include ? " " : " not ";
   const nodes: Node[] = where.in ?? where.notIn ?? [];
   if (where.valueLabel) {
     if (nodes.length === 1) display += where.valueLabel;
@@ -236,7 +236,7 @@ export function getDisplayFromPath(pathOrNode: Path | Node) {
 }
 
 function getDisplayFromPathRecursively(displayObject: { display: string }, type: string, pathOrNode: any) {
-  if ("node" !== type && !propertyDropList.includes(getNameFromRef(pathOrNode))) {
+  if ("node" !== type && !propertyDisplayMap[getNameFromRef(pathOrNode)]) {
     if (displayObject.display) displayObject.display += ".";
     displayObject.display += getNameFromRef(pathOrNode);
   }

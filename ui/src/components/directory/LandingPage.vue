@@ -34,7 +34,7 @@
             <Column :exportable="false">
               <template #body="{ data }: any">
                 <div class="action-buttons-container">
-                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
+                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" @locate-in-tree="locateInTree" />
                 </div>
               </template>
             </Column>
@@ -64,6 +64,7 @@ import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
 import ActionButtons from "../shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 export default defineComponent({
   components: { ReportTable, PieChartDashCard, ActionButtons, IMFontAwesomeIcon }
@@ -84,6 +85,7 @@ import { useUserStore } from "@/stores/userStore";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byOrder } from "@im-library/helpers/Sorters";
 const userStore = useUserStore();
+const directoryStore = useDirectoryStore();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
 const currentUser = computed(() => userStore.currentUser);
 
@@ -185,6 +187,10 @@ async function getCardsData(): Promise<void> {
     cards.push(cardData);
   }
   cardsData.value = cards;
+}
+
+function locateInTree(iri: string) {
+  directoryStore.updateFindInTreeIri(iri);
 }
 </script>
 

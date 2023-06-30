@@ -1,38 +1,24 @@
 <template>
   <div class="query-display-container">
     <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryDisplay
-      v-if="isArrayHasLength(query.match)"
-      :matches="query.match!.filter((match: Match) => !isObjectHasKeys(match, ['exclude']))"
-      :full-query="query"
-    />
-    <RecursiveQueryDisplay
-      v-if="isArrayHasLength(query.match)"
-      :matches="query.match!.filter((match: Match) => isObjectHasKeys(match, ['exclude']))"
-      :full-query="query"
-    />
+    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match!" :full-query="query" />
   </div>
 </template>
 
 <script setup lang="ts">
-import RecursiveQueryDisplay from "@/components/query/RecursiveQueryDisplay.vue";
+import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
 import { QueryService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Query } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { Query } from "@im-library/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref } from "vue";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
-
-const expandedKeys: Ref<any> = ref({});
-const definition: Ref<any> = ref();
-const nodes: Ref<any[]> = ref([]);
-
 const query: Ref<Query> = ref({} as Query);
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => {
     init();
   }
@@ -43,7 +29,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  query.value = await QueryService.getQueryDisplay(props.conceptIri);
+  query.value = await QueryService.getQueryDisplay(props.entityIri);
 }
 </script>
 

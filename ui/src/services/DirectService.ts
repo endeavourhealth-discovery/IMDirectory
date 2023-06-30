@@ -59,12 +59,12 @@ export default class DirectService {
     if (iri) {
       const currentRoute = this.route.name as RouteRecordName | undefined;
       this.router.push({
-        name: routeName || currentRoute,
+        name: routeName ?? currentRoute,
         params: { selectedIri: iri }
       });
       this.directoryStore.updateConceptIri(iri);
+      this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: "Viewed" } as RecentActivityItem);
     }
-    this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: "Viewed" } as RecentActivityItem);
   }
 
   public edit(iri?: string) {

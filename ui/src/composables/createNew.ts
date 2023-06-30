@@ -20,7 +20,7 @@ function createNew() {
     let allowableTypes = [] as AllowableChildProperty[];
     for (const conceptType of node.conceptTypes) {
       const types = await QueryService.getAllowableChildTypes(conceptType["@id"]);
-      allowableTypes = allowableTypes.concat(types);
+      if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
     }
 
     if (!isArrayHasLength(allowableTypes)) {
@@ -34,7 +34,10 @@ function createNew() {
     for (const allowableType of allowableTypes) {
       const item = {
         label: allowableType["http://www.w3.org/2000/01/rdf-schema#label"],
-        data: { type: allowableType["@id"], property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id" as any].toString() },
+        data: {
+          type: allowableType["@id"],
+          property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id" as any].toString()
+        },
         icon: getFAIconFromType([{ "@id": allowableType["@id"], name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
         command: {} as Function
       };

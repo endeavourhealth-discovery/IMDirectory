@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 const Directory = () => import("@/views/Directory.vue");
 const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.vue");
-const SearchResultsTable = () => import("@/components/directory/SearchResultsTable.vue");
+const SearchResults = () => import("@/components/shared/SearchResults.vue");
 const LandingPage = () => import("@/components/directory/LandingPage.vue");
 const EclSearch = () => import("@/components/directory/EclSearch.vue");
 const IMQuerySearch = () => import("@/components/directory/IMQuerySearch.vue");
@@ -68,12 +68,13 @@ const routes: Array<RouteRecordRaw> = [
         component: DirectoryDetails,
         meta: {
           requiresLicense: true
-        }
+        },
+        props: true
       },
       {
         path: "search",
         name: "Search",
-        component: SearchResultsTable,
+        component: SearchResults,
         meta: {
           requiresLicense: true
         }
@@ -171,6 +172,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/editor/:selectedIri?",
     name: "Editor",
+    props: true,
     component: Editor,
     meta: {
       requiresAuth: true,
@@ -218,15 +220,16 @@ const routes: Array<RouteRecordRaw> = [
       requiresLicense: true
     }
   },
-  // {
-  //   path: "/query",
-  //   name: "Query",
-  //   component: Query,
-  //   meta: {
-  //     requiresAuth: true,
-  //     requiresLicense: true
-  //   }
-  // },
+  {
+    path: "/query/:queryIri?",
+    name: "Query",
+    component: Query,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true,
+      requiresCreateRole: true
+    }
+  },
   {
     path: "/snomedLicense",
     name: "License",
