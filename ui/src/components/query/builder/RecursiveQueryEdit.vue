@@ -73,7 +73,14 @@ import AddProperty from "./edit/AddProperty.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
-const emit = defineEmits({ onAdd: (_matchIndex: number, _newMatch: Match) => true, onRemove: (_matchIndex: number) => true });
+const emit = defineEmits({
+  onAdd: (_matchIndex: number, _newMatch: Match) => true,
+  onRemove: (_matchIndex: number) => true,
+  onGroup: (_matchIndex: number) => true,
+  onUngroup: (_matchIndex: number) => true,
+  onMoveUp: (_matchIndex: number) => true,
+  onMoveDown: (_matchIndex: number) => true
+});
 
 interface Props {
   parentMatch?: Match;
@@ -218,6 +225,8 @@ function moveUp() {
       props.parentMatch.match!.splice(props.index - 1, 0, { ...props.match });
       props.parentMatch.match!.splice(props.index + 1, 1);
     }
+  } else {
+    emit("onMoveUp", props.index);
   }
 }
 
@@ -227,6 +236,8 @@ function moveDown() {
       props.parentMatch.match!.splice(props.index + 2, 0, { ...props.match });
       props.parentMatch.match!.splice(props.index, 1);
     }
+  } else {
+    emit("onMoveDown", props.index);
   }
 }
 
@@ -296,30 +307,38 @@ function onUpdateSelected(cs: any) {
 // }
 
 function group() {
-  //   const firstSelected = props.selectedMatches[0];
-  //   const indexOfFirstSelected = props.matches.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-  //   const groupedMatch = { boolMatch: "and", match: [] } as Match;
-  //   for (const selectedMatch of props.selectedMatches) {
-  //     groupedMatch.match!.push(selectedMatch);
-  //   }
-  //   describeMatch([groupedMatch], "match");
-  //   remove();
-  //   props.matches.splice(indexOfFirstSelected, 0, groupedMatch);
-  //   props.selectedMatches.push(groupedMatch);
+  if (props.parentMatch) {
+    console.log(props.parentMatch);
+    const firstSelected = props.selectedMatches[0];
+    const indexOfFirstSelected = props.parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
+    const groupedMatch = { boolMatch: "and", match: [] } as Match;
+    for (const selectedMatch of props.selectedMatches) {
+      groupedMatch.match!.push(selectedMatch);
+      props.parentMatch.match!.splice(indexOfFirstSelected, 1);
+    }
+    remove();
+    describeMatch([groupedMatch], "match");
+    props.parentMatch.match!.splice(indexOfFirstSelected, 0, groupedMatch);
+  } else {
+    emit("onGroup", props.index);
+  }
 }
 
-// function ungroup() {
-//   for (const selectedMatch of props.selectedMatches) {
-//     if (isArrayHasLength(selectedMatch.match)) {
-//       const index = getIndexOfMatch(selectedMatch, props.matches);
-//       if (index !== -1) props.matches.splice(index, 1);
-//       for (const nestedMatch of selectedMatch.match!) {
-//         props.matches.splice(index, 0, nestedMatch);
-//       }
-//     }
-//   }
-//   remove();
-// }
+function ungroup() {
+  if (props.parentMatch) {
+    for (const selectedMatch of props.selectedMatches) {
+      if (isArrayHasLength(selectedMatch.match)) {
+        const index = getIndexOfMatch(selectedMatch, props.parentMatch.match!);
+        if (index !== -1) props.parentMatch.match!.splice(index, 1);
+        for (const nestedMatch of selectedMatch.match!.reverse()) {
+          props.parentMatch.match!.splice(index, 0, nestedMatch);
+        }
+      }
+    }
+  } else {
+    emit("onUngroup", props.index);
+  }
+}
 
 function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
   return (searchMatch as any).key
@@ -329,27 +348,27 @@ function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
 
 function onRightClick(event: any) {
   select(event);
-  rClickOptions.value = rClickItemsSingle.value;
+  rClickOptions.value = getRightClickOptions();
   rClickMenu.value.show(event);
 }
 
-// function getRightClickOptions() {
-//   if (props.selectedMatches.length > 1) {
-//     return rClickItemsGroup.value;
-//   }
-//   const options = [...rClickItemsSingle.value];
+function getRightClickOptions() {
+  if (props.selectedMatches.length > 1) {
+    return rClickItemsGroup.value;
+  }
+  const options = [...rClickItemsSingle.value];
 
-//   if (index === 0) options[0].items![0].disabled = true;
-//   if (isArrayHasLength(props.selectedMatches[0].match))
-//     options.push({
-//       label: "Ungroup",
-//       icon: "pi pi-fw pi-eject",
-//       command: () => {
-//         ungroup();
-//       }
-//     });
-//   return options;
-// }
+  if (props.index === 0) options[0].items![0].disabled = true;
+  if (isArrayHasLength(props.selectedMatches[0].match))
+    options.push({
+      label: "Ungroup",
+      icon: "pi pi-fw pi-eject",
+      command: () => {
+        ungroup();
+      }
+    });
+  return options;
+}
 
 function select(event: any) {
   if (event.ctrlKey) {
