@@ -4,6 +4,9 @@
       <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" />
     </span>
+    <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
+      <Button @click="search" class="search-button p-button-secondary" label="Search" />
+    </SplitButton>
     <Button
       v-tooltip.bottom="'Filters'"
       id="filter-button"
@@ -44,7 +47,12 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits({ "update:searchResults": payload => _.isArray(payload), "update:searchLoading": payload => typeof payload === "boolean" });
+const emit = defineEmits({
+  "update:searchResults": payload => _.isArray(payload),
+  "update:searchLoading": payload => typeof payload === "boolean",
+  toEclSearch: () => true,
+  toQuerySearch: () => true
+});
 
 const filterStore = useFilterStore();
 const sharedStore = useSharedStore();
@@ -57,6 +65,10 @@ const searchText = ref("");
 const searchPlaceholder = ref("Search");
 const loading = ref(false);
 const results: Ref<ConceptSummary[]> = ref([]);
+const buttonActions = ref([
+  { label: "ECL", command: () => emit("toEclSearch") },
+  { label: "IMQuery", command: () => emit("toQuerySearch") }
+]);
 
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 

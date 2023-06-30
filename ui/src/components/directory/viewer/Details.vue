@@ -19,15 +19,15 @@
         </div>
 
         <div v-else-if="node.data">
-          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="iri => emit('navigateTo', iri)" />
+          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
         </div>
         <div v-else>{{ node.label }}</div>
       </template>
       <template #string="{ node }: any">{{ node.value }}</template>
-      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" @navigateTo="iri => emit('navigateTo', iri)" /></template>
+      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" @navigateTo="(iri:string) => emit('navigateTo', iri)" /></template>
       <template #boolean="{ node }: any">{{ node.label }}</template>
       <template #link="{ node }: any">
-        <IMViewerLink :iri="node.key!" :label="node.label" @navigateTo="iri => emit('navigateTo', iri)" />
+        <IMViewerLink :iri="node.key!" :label="node.label" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
       </template>
       <template #loadMore="{ node }: any">
         <b>{{ node.label }}...</b>
