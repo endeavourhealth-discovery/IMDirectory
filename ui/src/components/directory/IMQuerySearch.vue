@@ -23,8 +23,8 @@
         :show-filters="false"
         :search-results="searchResults"
         :search-loading="loading"
-        @locate-in-tree="iri => emit('locateInTree', iri)"
-        @selected-updated="selected => emit('selectedUpdated', selected)"
+        @locate-in-tree="(iri:string) => emit('locateInTree', iri)"
+        @selected-updated="(selected:ConceptSummary) => emit('selectedUpdated', selected)"
       />
     </div>
   </div>

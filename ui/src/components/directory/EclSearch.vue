@@ -38,8 +38,8 @@
       <ResultsTable
         :searchResults="searchResults"
         :loading="loading"
-        @locate-in-tree="iri => $emit('locateInTree', iri)"
-        @row-selected="selected => emit('selectedUpdated', selected)"
+        @locate-in-tree="(iri:string) => $emit('locateInTree', iri)"
+        @row-selected="(selected:ConceptSummary) => emit('selectedUpdated', selected)"
       />
     </div>
   </div>

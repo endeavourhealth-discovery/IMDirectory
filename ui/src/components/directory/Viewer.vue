@@ -11,7 +11,7 @@
         <TabView :lazy="true" v-model:active-index="activeTab" id="info-side-bar-tabs">
           <TabPanel header="Details">
             <div class="concept-panel-content" id="details-container">
-              <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="iri => emit('navigateTo', iri)" />
+              <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel v-if="terms" header="Terms">
@@ -36,12 +36,12 @@
           </TabPanel>
           <TabPanel v-if="isRecordModel(types)" header="Data Model">
             <div class="concept-panel-content" id="data-model-container">
-              <DataModel :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
+              <DataModel :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Properties" v-if="isRecordModel(types)">
             <div class="concept-panel-content" id="properties-container">
-              <Properties :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
+              <Properties :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel v-if="isQuery(types)" header="Query">
@@ -61,7 +61,7 @@
           </TabPanel>
           <TabPanel header="Hierarchy position">
             <div class="concept-panel-content" id="secondary-tree-container">
-              <SecondaryTree :entityIri="entityIri" @navigateTo="iri => emit('navigateTo', iri)" />
+              <SecondaryTree :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Entity chart" v-if="showGraph">
