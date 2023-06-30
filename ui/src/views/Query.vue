@@ -126,43 +126,36 @@ function remove(matchIndex: number) {
 
 function group(matchIndex: number) {
   const firstSelected = selectedMatches.value[0];
-  const indexOfFirstSelected = query.value!.match.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
+  const indexOfFirstSelected = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
   const groupedMatch = { boolMatch: "and", match: [] } as Match;
   for (const selectedMatch of selectedMatches.value) {
-    groupedMatch.match!.push(selectedMatch);
-    remove(query.value!.match.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch)));
+    const index = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch));
+    groupedMatch.match!.splice(index, 0, selectedMatch);
+    console.log(index);
   }
-  console.log(groupedMatch);
+  for (const selectedMatch of selectedMatches.value) remove(query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch)));
   describeMatch([groupedMatch], "match");
-  query.value!.match.splice(indexOfFirstSelected, 0, groupedMatch);
+  query.value.match!.splice(indexOfFirstSelected, 0, groupedMatch);
 }
 
 function ungroup(matchIndex: number) {
-  console.log("UNGROUP");
-  console.log(selectedMatches.value[0]);
   remove(matchIndex);
-  const tempArray = selectedMatches.value[0].match.reverse();
-  for (const ungroupedMatch of tempArray) query.value.match.splice(matchIndex, 0, ungroupedMatch);
+  const tempArray = selectedMatches.value[0].match!.reverse();
+  for (const ungroupedMatch of tempArray) query.value.match!.splice(matchIndex, 0, ungroupedMatch);
 }
 
 function moveUp(matchIndex: number) {
-  if (matchIndex !== 0 && matchIndex !== 1) {
+  if (query.value.match && matchIndex !== 0 && matchIndex !== 1) {
     query.value.match.splice(matchIndex - 1, 0, query.value?.match[matchIndex]);
     query.value.match.splice(matchIndex + 1, 1);
   }
 }
 
 function moveDown(matchIndex: number) {
-  if (matchIndex !== query.value.match.length - 1) {
+  if (query.value.match && matchIndex !== query.value.match.length - 1) {
     query.value.match.splice(matchIndex + 2, 0, query.value?.match[matchIndex]);
     query.value.match.splice(matchIndex, 1);
   }
-}
-
-function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
-  return (searchMatch as any).key
-    ? matchList.findIndex(match => (searchMatch as any).key === (match as any).key)
-    : matchList.findIndex(match => JSON.stringify(selectedMatches.value[0]) === JSON.stringify(match));
 }
 </script>
 

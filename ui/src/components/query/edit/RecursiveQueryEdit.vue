@@ -310,7 +310,7 @@ function group() {
   if (props.parentMatch) {
     console.log(props.parentMatch);
     const firstSelected = props.selectedMatches[0];
-    const indexOfFirstSelected = props.parentMatch.match.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
+    const indexOfFirstSelected = props.parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
     const groupedMatch = { boolMatch: "and", match: [] } as Match;
     for (const selectedMatch of props.selectedMatches) {
       groupedMatch.match!.push(selectedMatch);
@@ -318,7 +318,7 @@ function group() {
     }
     remove();
     describeMatch([groupedMatch], "match");
-    props.parentMatch.match.splice(indexOfFirstSelected, 0, groupedMatch);
+    props.parentMatch.match!.splice(indexOfFirstSelected, 0, groupedMatch);
   } else {
     emit("onGroup", props.index);
   }
@@ -328,10 +328,10 @@ function ungroup() {
   if (props.parentMatch) {
     for (const selectedMatch of props.selectedMatches) {
       if (isArrayHasLength(selectedMatch.match)) {
-        const index = getIndexOfMatch(selectedMatch, props.parentMatch.match);
-        if (index !== -1) props.parentMatch.match.splice(index, 1);
+        const index = getIndexOfMatch(selectedMatch, props.parentMatch.match!);
+        if (index !== -1) props.parentMatch.match!.splice(index, 1);
         for (const nestedMatch of selectedMatch.match!.reverse()) {
-          props.parentMatch.match.splice(index, 0, nestedMatch);
+          props.parentMatch.match!.splice(index, 0, nestedMatch);
         }
       }
     }
