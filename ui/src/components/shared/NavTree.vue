@@ -330,6 +330,10 @@ function dragStart(event: any, data: any) {
   min-width: 2rem;
 }
 
+.tree-root ::v-deep(.p-treenode-label) {
+  width: 100% !important;
+}
+
 .tree-row .p-progress-spinner {
   width: 1.25em !important;
   height: 1.25em !important;
