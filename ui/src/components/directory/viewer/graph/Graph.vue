@@ -27,12 +27,12 @@ const { translateFromEntityBundle } = GraphTranslator;
 const { isObjectHasKeys } = DataTypeCheckers;
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => await getEntityBundle(newValue)
 );
 
@@ -47,7 +47,7 @@ const predicates: Ref<any[]> = ref([]);
 
 const graphExcludePredicates = GraphExcludePredicates;
 
-onMounted(async () => await getEntityBundle(props.conceptIri));
+onMounted(async () => await getEntityBundle(props.entityIri));
 
 async function updatePredicates() {
   selectedIris.value = [];

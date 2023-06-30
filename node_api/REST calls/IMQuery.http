@@ -669,3 +669,56 @@ content-type: application/json
 }
 
 ###
+
+POST http://localhost:8080/api/query/public/queryIM
+content-type: application/json
+
+{
+  "query": {
+    "@id": "http://endhealth.info/im#Query_DataModelPropertyByShape"
+  },
+  "argument": [
+    {
+      "parameter": "myDataModel",
+      "valueIri":{
+        "@id": "http://endhealth.info/im#Patient"
+      }
+    },
+    {
+      "parameter": "myProperty",
+      "valueIri":{
+        "@id": "http://endhealth.info/im#appointment"
+      }
+    }
+  ]
+}
+
+
+###
+
+POST http://localhost:8080/api/query/public/queryIM
+content-type: application/json
+
+{
+  "query": {
+    "@id": "http://endhealth.info/im#Query_DataModelPropertyByShape"
+  },
+  "argument": [
+    {
+      "parameter": "myDataModel",
+      "valueIri":{
+        "@id": "http://endhealth.info/im#AdministrationNote"
+      }
+    },
+    {
+      "parameter": "myProperty",
+      "valueIri":{
+        "@id": "http://endhealth.info/im#recordOwner"
+      }
+    }
+  ]
+}
+
+###
+
+GET http://localhost:3000/node_api/query/public/dataModelProperty?dataModelIri=http://endhealth.info/im#AdministrationNote&propertyIri=http://endhealth.info/im#recordOwner

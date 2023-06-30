@@ -10,18 +10,15 @@
     <div class="include-title include">include if</div>
     <div v-if="queryTypeIri" class="type-title">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
-    <!-- <RecursiveQueryEdit
+    <RecursiveQueryEdit
       v-if="isArrayHasLength(query.match)"
-      v-for="(match, index) of query.match"
-      :base-entity-match-iri="baseEntityMatchIri"
-      :match="match"
-      :selectedMatches="selectedMatches"
-      :index="index"
-      @on-add="add"
-      @on-remove="remove"
-    /> -->
-
-    <RecursiveQueryEdit v-if="isArrayHasLength(query.match)" :matches="query.match!" :query-type-iri="queryTypeIri" />
+      :matches="query.match!"
+      :query-type-iri="queryTypeIri"
+      @on-group="group"
+      @on-ungroup="ungroup"
+      @on-move-up="moveUp"
+      @on-move-down="moveDown"
+    />
 
     <div v-else-if="!queryTypeIri">
       <Button label="Add base type" @click="showAddBaseType = true" />
@@ -54,6 +51,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import RecursiveQueryEdit from "@/components/query/builder/RecursiveQueryEdit.vue";
+import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
 import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
@@ -120,6 +118,40 @@ function addProperty(newMatch: Match) {
 
 function remove(matchIndex: number) {
   query.value.match!.splice(matchIndex, 1);
+}
+
+function group(matchIndex: number) {
+  const firstSelected = selectedMatches.value[0];
+  const indexOfFirstSelected = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
+  const groupedMatch = { boolMatch: "and", match: [] } as Match;
+  for (const selectedMatch of selectedMatches.value) {
+    const index = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch));
+    groupedMatch.match!.splice(index, 0, selectedMatch);
+    console.log(index);
+  }
+  for (const selectedMatch of selectedMatches.value) remove(query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch)));
+  describeMatch([groupedMatch], "match");
+  query.value.match!.splice(indexOfFirstSelected, 0, groupedMatch);
+}
+
+function ungroup(matchIndex: number) {
+  remove(matchIndex);
+  const tempArray = selectedMatches.value[0].match!.reverse();
+  for (const ungroupedMatch of tempArray) query.value.match!.splice(matchIndex, 0, ungroupedMatch);
+}
+
+function moveUp(matchIndex: number) {
+  if (query.value.match && matchIndex !== 0 && matchIndex !== 1) {
+    query.value.match.splice(matchIndex - 1, 0, query.value?.match[matchIndex]);
+    query.value.match.splice(matchIndex + 1, 1);
+  }
+}
+
+function moveDown(matchIndex: number) {
+  if (query.value.match && matchIndex !== query.value.match.length - 1) {
+    query.value.match.splice(matchIndex + 2, 0, query.value?.match[matchIndex]);
+    query.value.match.splice(matchIndex, 1);
+  }
 }
 </script>
 

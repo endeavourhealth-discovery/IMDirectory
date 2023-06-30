@@ -73,7 +73,14 @@ import AddProperty from "./edit/AddProperty.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
-const emit = defineEmits({ onAdd: (_matchIndex: number, _newMatch: Match) => true, onRemove: (_matchIndex: number) => true });
+const emit = defineEmits({
+  onAdd: (_matchIndex: number, _newMatch: Match) => true,
+  onRemove: (_matchIndex: number) => true,
+  onGroup: (_matchIndex: number) => true,
+  onUngroup: (_matchIndex: number) => true,
+  onMoveUp: (_matchIndex: number) => true,
+  onMoveDown: (_matchIndex: number) => true
+});
 
 interface Props {
   // parentMatch?: Match;
@@ -213,40 +220,44 @@ const props = defineProps<Props>();
 //   showEdit.value = false;
 // }
 
-// function moveUp() {
-//   if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
-//     if (props.index !== 0) {
-//       props.parentMatch.match!.splice(props.index - 1, 0, { ...props.match });
-//       props.parentMatch.match!.splice(props.index + 1, 1);
-//     }
-//   }
-// }
+function moveUp() {
+  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
+    if (props.index !== 0) {
+      props.parentMatch.match!.splice(props.index - 1, 0, { ...props.match });
+      props.parentMatch.match!.splice(props.index + 1, 1);
+    }
+  } else {
+    emit("onMoveUp", props.index);
+  }
+}
 
-// function moveDown() {
-//   if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
-//     if (props.index !== props.parentMatch.match!.length - 1) {
-//       props.parentMatch.match!.splice(props.index + 2, 0, { ...props.match });
-//       props.parentMatch.match!.splice(props.index, 1);
-//     }
-//   }
-// }
+function moveDown() {
+  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
+    if (props.index !== props.parentMatch.match!.length - 1) {
+      props.parentMatch.match!.splice(props.index + 2, 0, { ...props.match });
+      props.parentMatch.match!.splice(props.index, 1);
+    }
+  } else {
+    emit("onMoveDown", props.index);
+  }
+}
 
-// function showAddPropertyDialog() {
-//   showAddProperty.value = true;
-// }
+function showAddPropertyDialog() {
+  showAddProperty.value = true;
+}
 
-// function addMatch(newMatch: Match) {
-//   if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
-//     props.parentMatch.match!.splice(props.index + 1, 0, newMatch);
-//   } else {
-//     emit("onAdd", props.index, newMatch);
-//   }
-//   showAddProperty.value = false;
-// }
+function addMatch(newMatch: Match) {
+  if (props.parentMatch && isArrayHasLength(props.parentMatch.match)) {
+    props.parentMatch.match!.splice(props.index + 1, 0, newMatch);
+  } else {
+    emit("onAdd", props.index, newMatch);
+  }
+  showAddProperty.value = false;
+}
 
-// function showAddMatchDialog() {
-//   showSearchDialog.value = true;
-// }
+function showAddMatchDialog() {
+  showSearchDialog.value = true;
+}
 
 // function addNested() {
 //   if (!isArrayHasLength(props.match.match)) props.match.match = [];
@@ -297,92 +308,100 @@ const props = defineProps<Props>();
 // }
 
 function group() {
-  //   const firstSelected = props.selectedMatches[0];
-  //   const indexOfFirstSelected = props.matches.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-  //   const groupedMatch = { boolMatch: "and", match: [] } as Match;
-  //   for (const selectedMatch of props.selectedMatches) {
-  //     groupedMatch.match!.push(selectedMatch);
-  //   }
-  //   describeMatch([groupedMatch], "match");
-  //   remove();
-  //   props.matches.splice(indexOfFirstSelected, 0, groupedMatch);
-  //   props.selectedMatches.push(groupedMatch);
+  if (props.parentMatch) {
+    console.log(props.parentMatch);
+    const firstSelected = props.selectedMatches[0];
+    const indexOfFirstSelected = props.parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
+    const groupedMatch = { boolMatch: "and", match: [] } as Match;
+    for (const selectedMatch of props.selectedMatches) {
+      groupedMatch.match!.push(selectedMatch);
+      props.parentMatch.match!.splice(indexOfFirstSelected, 1);
+    }
+    remove();
+    describeMatch([groupedMatch], "match");
+    props.parentMatch.match!.splice(indexOfFirstSelected, 0, groupedMatch);
+  } else {
+    emit("onGroup", props.index);
+  }
 }
 
-// function ungroup() {
-//   for (const selectedMatch of props.selectedMatches) {
-//     if (isArrayHasLength(selectedMatch.match)) {
-//       const index = getIndexOfMatch(selectedMatch, props.matches);
-//       if (index !== -1) props.matches.splice(index, 1);
-//       for (const nestedMatch of selectedMatch.match!) {
-//         props.matches.splice(index, 0, nestedMatch);
-//       }
-//     }
-//   }
-//   remove();
-// }
+function ungroup() {
+  if (props.parentMatch) {
+    for (const selectedMatch of props.selectedMatches) {
+      if (isArrayHasLength(selectedMatch.match)) {
+        const index = getIndexOfMatch(selectedMatch, props.parentMatch.match!);
+        if (index !== -1) props.parentMatch.match!.splice(index, 1);
+        for (const nestedMatch of selectedMatch.match!.reverse()) {
+          props.parentMatch.match!.splice(index, 0, nestedMatch);
+        }
+      }
+    }
+  } else {
+    emit("onUngroup", props.index);
+  }
+}
 
-// function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
-//   return (searchMatch as any).key
-//     ? matchList.findIndex(match => (searchMatch as any).key === (match as any).key)
-//     : matchList.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
-// }
+function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
+  return (searchMatch as any).key
+    ? matchList.findIndex(match => (searchMatch as any).key === (match as any).key)
+    : matchList.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
+}
 
-// function onRightClick(event: any) {
-//   select(event);
-//   rClickOptions.value = rClickItemsSingle.value;
-//   rClickMenu.value.show(event);
-// }
+function onRightClick(event: any) {
+  select(event);
+  rClickOptions.value = getRightClickOptions();
+  rClickMenu.value.show(event);
+}
 
-// function getRightClickOptions() {
-//   if (props.selectedMatches.length > 1) {
-//     return rClickItemsGroup.value;
-//   }
-//   const options = [...rClickItemsSingle.value];
+function getRightClickOptions() {
+  if (props.selectedMatches.length > 1) {
+    return rClickItemsGroup.value;
+  }
+  const options = [...rClickItemsSingle.value];
 
-//   if (index === 0) options[0].items![0].disabled = true;
-//   if (isArrayHasLength(props.selectedMatches[0].match))
-//     options.push({
-//       label: "Ungroup",
-//       icon: "pi pi-fw pi-eject",
-//       command: () => {
-//         ungroup();
-//       }
-//     });
-//   return options;
-// }
+  if (props.index === 0) options[0].items![0].disabled = true;
+  if (isArrayHasLength(props.selectedMatches[0].match))
+    options.push({
+      label: "Ungroup",
+      icon: "pi pi-fw pi-eject",
+      command: () => {
+        ungroup();
+      }
+    });
+  return options;
+}
 
-// function select(event: any) {
-//   if (event.ctrlKey) {
-//     multiselect();
-//   } else {
-//     singleselect();
-//   }
-// }
+function select(event: any) {
+  if (event.ctrlKey) {
+    multiselect();
+  } else {
+    singleselect();
+  }
+}
 
-// function toggleBoolMatch(match: Match) {
-//   if (match.boolMatch === "and") match.boolMatch = "or";
-//   else if (match.boolMatch === "or") match.boolMatch = "and";
-// }
+function toggleBoolMatch(match: Match) {
+  if (match.boolMatch === "and") match.boolMatch = "or";
+  else if (match.boolMatch === "or") match.boolMatch = "and";
+}
 
-// function singleselect() {
-//   props.selectedMatches.length = 0;
-//   props.selectedMatches.push(props.match);
-// }
+function singleselect() {
+  props.selectedMatches.length = 0;
+  props.selectedMatches.push(props.match);
+}
 
-// function multiselect() {
-//   if (isSelected()) {
-//     const toAddList = props.selectedMatches.filter(selected => JSON.stringify(selected) !== JSON.stringify(props.match));
-//     props.selectedMatches.length = 0;
-//     for (const toAddItem of toAddList) {
-//       props.selectedMatches.push(toAddItem);
-//     }
-//   } else props.selectedMatches.push(props.match);
-// }
+function multiselect() {
+  if (isSelected()) {
+    const toAddList = props.selectedMatches.filter(selected => JSON.stringify(selected) !== JSON.stringify(props.match));
+    props.selectedMatches.length = 0;
+    for (const toAddItem of toAddList) {
+      props.selectedMatches.push(toAddItem);
+    }
+  } else props.selectedMatches.push(props.match);
+}
 
-// function isSelected() {
-//   return !!props.selectedMatches.find(selected => JSON.stringify(selected) === JSON.stringify(props.match));
-// }
+function isSelected() {
+  return !!props.selectedMatches.find(selected => JSON.stringify(selected) === JSON.stringify(props.match));
+}
 </script>
 
 <style>

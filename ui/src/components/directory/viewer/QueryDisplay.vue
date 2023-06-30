@@ -13,12 +13,12 @@ import { Query } from "@im-library/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref } from "vue";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 const query: Ref<Query> = ref({} as Query);
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => {
     init();
   }
@@ -29,7 +29,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  query.value = await QueryService.getQueryDisplay(props.conceptIri);
+  query.value = await QueryService.getQueryDisplay(props.entityIri);
 }
 </script>
 

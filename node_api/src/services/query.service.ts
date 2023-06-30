@@ -299,4 +299,27 @@ export default class QueryService {
   public async generateQueryDescriptions(query: Query): Promise<Query> {
     return describeQuery(query);
   }
+  public async getDataModelProperty(dataModelIri: string, propertyIri:string) {
+    const queryRequest = {
+      query: { "@id": IM.query.DM_PROPERTY },
+      argument: [
+        {
+          parameter: "myDataModel",
+          valueIri: {
+            "@id": dataModelIri
+          }
+        },
+        {
+          parameter: "myProperty",
+          valueIri: {
+            "@id": propertyIri
+          }
+        }
+      ]
+    } as any as QueryRequest;
+    const results = await this.queryIM(queryRequest);
+    if (isObjectHasKeys(results, ["entities"]) && results.entities.length !== 0) {
+      return results.entities;
+    } else return [];
+  }
 }

@@ -13,7 +13,8 @@
     >
       <template #default="{ node }: any">
         <div
-          class="tree-row grabbable"
+          class="tree-row"
+          :class="allowDragAndDrop && 'grabbable'"
           :draggable="allowDragAndDrop"
           @dragstart="dragStart($event, node.data)"
           @dblclick="emit('rowDblClicked', node)"
@@ -296,6 +297,7 @@ function dragStart(event: any, data: any) {
 <style scoped>
 #hierarchy-tree-bar-container {
   height: 100%;
+  overflow: auto;
   display: flex;
   flex-flow: column nowrap;
 }
@@ -326,6 +328,10 @@ function dragStart(event: any, data: any) {
 }
 .tree-root ::v-deep(.p-tree-toggler) {
   min-width: 2rem;
+}
+
+.tree-root ::v-deep(.p-treenode-label) {
+  width: 100% !important;
 }
 
 .tree-row .p-progress-spinner {

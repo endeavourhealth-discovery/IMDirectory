@@ -59,6 +59,12 @@ export default class QueryController {
         .then(data => res.send(data))
         .catch(next)
     );
+
+    this.router.get("/public/dataModelProperty", (req, res, next) =>
+        this.getDataModelProperty(req)
+            .then(data => res.send(data))
+            .catch(next)
+    );
   }
 
   async getAllowableChildTypes(req: Request) {
@@ -98,5 +104,8 @@ export default class QueryController {
   async getLabeledQuery(req: Request) {
     const query: any = req.body;
     return await this.queryService.getLabeledQuery(query);
+  }
+  async getDataModelProperty(req: Request) {
+    return await this.queryService.getDataModelProperty(req.query.dataModelIri as string, req.query.propertyIri as string);
   }
 }
