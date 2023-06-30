@@ -3,7 +3,7 @@
     <DataTable
       :paginator="true"
       :rows="20"
-      :value="searchResults"
+      :value="processedSearchResults"
       class="p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
