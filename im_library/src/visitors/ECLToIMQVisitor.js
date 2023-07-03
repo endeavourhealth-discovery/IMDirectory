@@ -55,6 +55,10 @@ export default class ECLBuilderVisitor extends ECLVisitor {
             const subExpressionConstraint = result.subExpressionConstraint;
             query.expressionConstraint = subExpressionConstraint;
           }
+          if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"])) {
+            const bracketCompoundExpressionConstraint = result.bracketCompoundExpressionConstraint;
+            query.expressionConstraint = bracketCompoundExpressionConstraint;
+          }
         }
       }
     }
