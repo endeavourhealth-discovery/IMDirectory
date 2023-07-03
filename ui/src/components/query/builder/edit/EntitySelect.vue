@@ -44,8 +44,10 @@ onMounted(() => {
 });
 
 function populateSelected() {
-  selected.value.iri = props.editNode["@id"] ?? props.editNode["@set"] ?? (props.editNode["@type"] as string);
-  selected.value.name = getNameFromRef(props.editNode);
+  if (props.editNode) {
+    selected.value.iri = props.editNode["@id"] ?? props.editNode["@set"] ?? (props.editNode["@type"] as string);
+    selected.value.name = getNameFromRef(props.editNode);
+  }
 }
 
 function onSelect(event: any) {

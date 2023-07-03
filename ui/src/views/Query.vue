@@ -20,7 +20,7 @@
     />
 
     <div v-else-if="!queryTypeIri">
-      <Button label="Add base type" @click="showAddBaseType = true" />
+      <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
     </div>
     <div v-if="!isArrayHasLength(query.match) && query.type">
       <Button label="Add feature" @click="showAddDialog = true" />
@@ -61,7 +61,6 @@ const queryTypeIri: Ref<string> = ref("");
 const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
-const showAddBaseType: Ref<boolean> = ref(false);
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
 
 watch(

@@ -3,7 +3,7 @@
     <div class="add-base-container">
       <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
       <div class="footer">
-        <Button label="Discard" severity="secondary" @click="discard" text />
+        <Button label="Discard" severity="secondary" @click="visible = false" text />
         <Button label="Save" @click="save" text />
       </div>
     </div>
@@ -50,11 +50,7 @@ async function save() {
   if (isObjectHasKeys(baseNode.value)) {
     props.query.type = baseNode.value.data;
   }
-  emit("onClose");
-}
-
-function discard() {
-  emit("onClose");
+  visible.value = false;
 }
 
 function addBaseEntity(selected: TreeNode) {
