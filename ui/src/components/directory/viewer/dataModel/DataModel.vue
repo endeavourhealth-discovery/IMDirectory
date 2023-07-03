@@ -1,6 +1,6 @@
 <template>
   <div id="tree-container">
-    <TangledTree :entityIri="entityIri" :data="data" @navigateTo="iri => emit('navigateTo', iri)" />
+    <TangledTree :entityIri="entityIri" :data="data" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
   </div>
 </template>
 

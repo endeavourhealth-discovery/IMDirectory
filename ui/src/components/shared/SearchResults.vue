@@ -20,7 +20,12 @@
         </span>
       </div>
     </div>
-    <ResultsTable :searchResults="localSearchResults" :loading="isLoading" @rowSelected="updateSelected" @locateInTree="iri => $emit('locateInTree', iri)" />
+    <ResultsTable
+      :searchResults="localSearchResults"
+      :loading="isLoading"
+      @rowSelected="updateSelected"
+      @locateInTree="(iri:string) => $emit('locateInTree', iri)"
+    />
   </div>
 </template>
 

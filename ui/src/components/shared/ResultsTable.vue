@@ -3,7 +3,7 @@
     <DataTable
       :paginator="true"
       :rows="20"
-      :value="searchResults"
+      :value="processedSearchResults"
       class="p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
@@ -47,7 +47,7 @@
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="iri => emit('locateInTree', iri)" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="(iri:string) => emit('locateInTree', iri)" />
           </div>
         </template>
       </Column>

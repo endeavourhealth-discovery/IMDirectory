@@ -3,7 +3,7 @@
     <div class="padding-container grid">
       <div class="col-10 table-header">
         <Breadcrumb :home="home" :model="pathItems">
-          <template #item="{ item }">
+          <template #item="{ item }: { item: any }">
             <div class="p-menuitem" @click="onClick($event, item)">
               <span v-if="item.icon" :class="item.icon"></span>
               <span v-if="item.label" class="p-menuitem-text">{{ item.label }}</span>
