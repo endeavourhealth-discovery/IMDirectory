@@ -1,5 +1,5 @@
 <template>
-  <div class="feature" @contextmenu="onRightClick($event, match)">
+  <div class="feature" @click="select($event, match)" @contextmenu="onRightClick($event, match)">
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" />
     </div>
@@ -36,17 +36,16 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Path, Where } from "@im-library/interfaces/AutoGen";
-import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
+import { Match, Path } from "@im-library/interfaces/AutoGen";
 import EditDisplayWhere from "./EditDisplayWhere.vue";
 import { Ref, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
 import { MenuItem } from "primevue/menuitem";
 import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
-import AddPropertyDialog from "../edit/AddPropertyDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
-import KeepAsDialog from "../edit/KeepAsDialog.vue";
+import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
+import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
 
 interface Props {
   queryTypeIri: string;
@@ -59,21 +58,66 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { add, view, keepAs, moveUp, moveDown, remove, showAddDialog, showViewDialog, showKeepAsDialog } = setupQueryBuilderActions();
+const { add, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const rClickMenu = ref();
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 
-const listToAddTo: Ref<Match[]> = ref([]);
+// function saveConceptSummaryAsMatch() {
+//   const match = {} as Match;
+//   match.name = selectedCS.value.label;
+//   if (isRecordModel(selectedCS.value.entityType)) match["@type"] = selectedCS.value.data;
+//   if (isValueSet(selectedCS.value.entityType)) match["@set"] = selectedCS.value.data;
+//   else match["@id"] = selectedCS.value.data;
+//   describeMatch([match], "match");
+//   addMatch(match);
+//   showSearchDialog.value = false;
+// }
+
+function addBelow() {
+  if (props.parentMatch) {
+    add(props.parentMatch.match!);
+  } else if (isArrayHasLength(props.parentMatchList)) {
+    add(props.parentMatchList!);
+  }
+}
+
+function addNested() {
+  if (!isArrayHasLength(props.match)) props.match.match = [];
+  add(props.match.match!);
+}
+
+function toggleBoolMatch() {
+  if (props.match.boolMatch === "and") props.match.boolMatch = "or";
+  else if (props.match.boolMatch === "or") props.match.boolMatch = "and";
+}
 
 function onRightClick(event: any, match: Match) {
-  // select(event, match);
   rClickOptions.value = getSingleRCOptions();
   rClickMenu.value.show(event);
 }
 
+function getMultipleRCOptions() {
+  const multipleRCOptions = [
+    {
+      label: "Ungroup",
+      icon: PrimeIcons.EJECT,
+      command: () => {
+        ungroup();
+      }
+    },
+    {
+      label: "Delete",
+      icon: PrimeIcons.TRASH,
+      command: () => {
+        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!);
+      }
+    }
+  ];
+}
+
 function getSingleRCOptions() {
-  return [
+  const singleRCOptions = [
     {
       label: "Add",
       icon: PrimeIcons.PLUS,
@@ -138,40 +182,45 @@ function getSingleRCOptions() {
         remove(props.index, props.parentMatch?.match ?? props.parentMatchList!);
       }
     }
-    //   {
-    //     label: "Group",
-    //     icon: "pi pi-fw pi-link",
-    //     command: () => {
-    //       group();
-    //     }
-    //   },
-    // {
-    //   label: "Ungroup",
-    //   icon: "pi pi-fw pi-eject",
-    //   command: () => {
-    //     ungroup();
-    //   }
-    // }
   ];
-}
 
-function addBelow() {
-  if (props.parentMatch) {
-    add(props.parentMatch.match!);
-  } else if (isArrayHasLength(props.parentMatchList)) {
-    add(props.parentMatchList!);
-  }
-}
+  if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
+    singleRCOptions.push({
+      label: "Group",
+      icon: PrimeIcons.LINK,
+      command: () => {
+        group();
+      }
+    });
 
-function addNested() {
-  if (!isArrayHasLength(props.match)) props.match.match = [];
-  add(props.match.match!);
-}
-
-function toggleBoolMatch() {
-  if (props.match.boolMatch === "and") props.match.boolMatch = "or";
-  else if (props.match.boolMatch === "or") props.match.boolMatch = "and";
+  return singleRCOptions;
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.feature {
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+.feature:hover {
+  background-color: var(--highlight-bg);
+}
+
+.selected {
+  border: 1px dotted;
+  background-color: var(--highlight-bg);
+  color: var(--text-color);
+  border-color: var(--focus-ring);
+  border-radius: var(--border-radius);
+}
+
+.p-dialog-content {
+  height: 100% !important;
+}
+
+.list-item {
+  margin-top: 0;
+  padding-left: 1rem;
+}
+</style>

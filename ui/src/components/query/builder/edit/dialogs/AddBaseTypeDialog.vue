@@ -1,16 +1,18 @@
 <template>
-  <div class="add-base-container">
-    <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
-    <div class="footer">
-      <Button label="Discard" severity="secondary" @click="discard" text />
-      <Button label="Save" @click="save" text />
+  <Dialog v-model:visible="visible" modal maximizable :header="'Add property'" :style="{ width: '60vw' }">
+    <div class="add-base-container">
+      <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
+      <div class="footer">
+        <Button label="Discard" severity="secondary" @click="discard" text />
+        <Button label="Save" @click="save" text />
+      </div>
     </div>
-  </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref } from "vue";
-import BaseEntityTree from "./BaseEntityTree.vue";
+import { Ref, ref, watch } from "vue";
+
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
 import { EntityService } from "@/services";
@@ -18,13 +20,30 @@ import { IM } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import { TreeNode } from "primevue/tree";
+import BaseEntityTree from "../BaseEntityTree.vue";
 
 interface Props {
   query: Query;
+  showDialog: boolean;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onClose: () => true });
+const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
+const visible: Ref<boolean> = ref(false);
+
+watch(
+  () => props.showDialog,
+  newValue => {
+    visible.value = newValue;
+  }
+);
+
+watch(visible, newValue => {
+  if (!newValue) {
+    emit("update:showDialog", newValue);
+  }
+});
+
 const baseNode: Ref<TreeNode> = ref({} as TreeNode);
 
 async function save() {

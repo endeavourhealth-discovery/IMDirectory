@@ -13,11 +13,11 @@
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
 import { Match } from "@im-library/interfaces/AutoGen";
-import QueryNavTree from "./QueryNavTree.vue";
 import _ from "lodash";
 import { TreeNode } from "primevue/tree";
 import { buildWhereFromProperty } from "@im-library/helpers/QueryBuilder";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import QueryNavTree from "../QueryNavTree.vue";
 
 interface Props {
   showDialog: boolean;

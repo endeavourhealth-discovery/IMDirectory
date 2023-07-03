@@ -51,6 +51,7 @@ import { CustomAlert } from "./CustomAlert";
 import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 import { ContextMap } from "./ContextMap";
+import { SelectedMatch } from "./SelectedMatch";
 export {
   type AccountItem,
   type Address,
@@ -104,5 +105,6 @@ export {
   type PropertyDisplay,
   type TTProperty,
   type TreeNode,
-  type ContextMap
+  type ContextMap,
+  type SelectedMatch
 };
