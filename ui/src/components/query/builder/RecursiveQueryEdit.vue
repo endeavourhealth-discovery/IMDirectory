@@ -54,8 +54,7 @@
     @on-close="showSearchDialog = false"
     @on-save="saveConceptSummaryAsMatch"
     @update:selected="onUpdateSelected"
-  />
-  <ContextMenu ref="rClickMenu" :model="rClickOptions" /> -->
+  /> -->
 </template>
 
 <script setup lang="ts">
@@ -85,115 +84,24 @@ const emit = defineEmits({
 interface Props {
   // parentMatch?: Match;
   // match: Match;
-  // selectedMatches: Match[];
   // index: number;
   matches: Match[];
   queryTypeIri: string;
 }
 
 const props = defineProps<Props>();
+
+const rClickOptions: Ref<MenuItem[]> = ref([]);
+const rClickMenu = ref();
+const selectedMatches: Ref<Match[]> = ref([]);
+
 // const showEdit: Ref<boolean> = ref(false);
 // const keepAsDialog: Ref<boolean> = ref(false);
 // const viewDialog: Ref<boolean> = ref(false);
-// const rClickMenu = ref();
 // const showAddProperty: Ref<boolean> = ref(false);
 // const showSearchDialog: Ref<boolean> = ref(false);
 // const editMatch: Ref<Match> = ref({ where: [] } as Match);
 // const selectedCS: Ref<any> = ref({} as any);
-
-// const rClickOptions: Ref<MenuItem[]> = ref([]);
-// const rClickItemsSingle: Ref<MenuItem[]> = ref([
-//   {
-//     label: "Add",
-//     icon: "pi pi-fw pi-plus",
-//     items: [
-//       {
-//         label: "Property",
-//         command: () => {
-//           showAddPropertyDialog();
-//         }
-//       },
-//       {
-//         label: "Match",
-//         command: () => {
-//           showAddMatchDialog();
-//         }
-//       }
-//     ]
-//   },
-//   {
-//     label: "Move",
-//     icon: PrimeIcons.SORT,
-//     items: [
-//       {
-//         label: "Up",
-//         icon: PrimeIcons.SORT_UP,
-//         command: () => {
-//           moveUp();
-//         }
-//       },
-//       {
-//         label: "Down",
-//         icon: PrimeIcons.SORT_DOWN,
-//         command: () => {
-//           moveDown();
-//         }
-//       }
-//     ]
-//   },
-//   {
-//     label: "Edit",
-//     icon: "pi pi-fw pi-pencil",
-//     command: () => {
-//       edit();
-//     }
-//   },
-//   {
-//     label: "Keep as",
-//     icon: PrimeIcons.SAVE,
-//     command: () => {
-//       keepAs();
-//     }
-//   },
-//   {
-//     label: "Toggle bool",
-//     icon: PrimeIcons.ARROW_V,
-//     command: () => {
-//       toggleBoolMatch(props.selectedMatches[0]);
-//     }
-//   },
-//   {
-//     label: "View",
-//     icon: PrimeIcons.EYE,
-//     command: () => {
-//       view();
-//     }
-//   },
-//   {
-//     label: "Delete",
-//     icon: "pi pi-fw pi-trash",
-//     command: () => {
-//       remove();
-//     }
-//   }
-// ]);
-
-// const rClickItemsGroup = ref([
-//   {
-//     label: "Group",
-//     icon: "pi pi-fw pi-link",
-//     command: () => {
-//       group();
-//     }
-//   },
-//   {
-//     label: "Delete",
-//     icon: "pi pi-fw pi-trash",
-//     command: () => {
-//       remove();
-//     }
-//   }
-// ]);
 
 // function view() {
 //   viewDialog.value = true;
@@ -208,7 +116,7 @@ const props = defineProps<Props>();
 // }
 
 // function discardKeepAs() {
-//   delete props.selectedMatches[0].variable;
+//   delete selectedMatches.value[0].variable;
 //   keepAsDialog.value = false;
 // }
 
@@ -270,7 +178,7 @@ function showAddMatchDialog() {
 //   } else {
 //     emit("onRemove", props.index);
 //   }
-//   props.selectedMatches.length = 0;
+//   selectedMatches.value.length = 0;
 //   showEdit.value = false;
 // }
 
@@ -310,10 +218,10 @@ function showAddMatchDialog() {
 function group() {
   if (props.parentMatch) {
     console.log(props.parentMatch);
-    const firstSelected = props.selectedMatches[0];
+    const firstSelected = selectedMatches.value[0];
     const indexOfFirstSelected = props.parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
     const groupedMatch = { boolMatch: "and", match: [] } as Match;
-    for (const selectedMatch of props.selectedMatches) {
+    for (const selectedMatch of selectedMatches.value) {
       groupedMatch.match!.push(selectedMatch);
       props.parentMatch.match!.splice(indexOfFirstSelected, 1);
     }
@@ -327,7 +235,7 @@ function group() {
 
 function ungroup() {
   if (props.parentMatch) {
-    for (const selectedMatch of props.selectedMatches) {
+    for (const selectedMatch of selectedMatches.value) {
       if (isArrayHasLength(selectedMatch.match)) {
         const index = getIndexOfMatch(selectedMatch, props.parentMatch.match!);
         if (index !== -1) props.parentMatch.match!.splice(index, 1);
@@ -336,31 +244,28 @@ function ungroup() {
         }
       }
     }
-  } else {
-    emit("onUngroup", props.index);
   }
 }
 
 function getIndexOfMatch(searchMatch: Match, matchList: Match[]) {
   return (searchMatch as any).key
     ? matchList.findIndex(match => (searchMatch as any).key === (match as any).key)
-    : matchList.findIndex(match => JSON.stringify(props.selectedMatches[0]) === JSON.stringify(match));
+    : matchList.findIndex(match => JSON.stringify(selectedMatches.value[0]) === JSON.stringify(match));
 }
 
-function onRightClick(event: any) {
-  select(event);
+function onRightClick(event: any, match: Match) {
+  select(event, match);
   rClickOptions.value = getRightClickOptions();
   rClickMenu.value.show(event);
 }
 
 function getRightClickOptions() {
-  if (props.selectedMatches.length > 1) {
+  if (selectedMatches.value.length > 1) {
     return rClickItemsGroup.value;
   }
   const options = [...rClickItemsSingle.value];
 
-  if (props.index === 0) options[0].items![0].disabled = true;
-  if (isArrayHasLength(props.selectedMatches[0].match))
+  if (isArrayHasLength(selectedMatches.value[0].match))
     options.push({
       label: "Ungroup",
       icon: "pi pi-fw pi-eject",
@@ -371,11 +276,11 @@ function getRightClickOptions() {
   return options;
 }
 
-function select(event: any) {
+function select(event: any, match: Match) {
   if (event.ctrlKey) {
-    multiselect();
+    multiselect(match);
   } else {
-    singleselect();
+    singleselect(match);
   }
 }
 
@@ -384,23 +289,23 @@ function toggleBoolMatch(match: Match) {
   else if (match.boolMatch === "or") match.boolMatch = "and";
 }
 
-function singleselect() {
-  props.selectedMatches.length = 0;
-  props.selectedMatches.push(props.match);
+function singleselect(match: Match) {
+  selectedMatches.value.length = 0;
+  selectedMatches.value.push(match);
 }
 
-function multiselect() {
-  if (isSelected()) {
-    const toAddList = props.selectedMatches.filter(selected => JSON.stringify(selected) !== JSON.stringify(props.match));
-    props.selectedMatches.length = 0;
+function multiselect(match: Match) {
+  if (isSelected(match)) {
+    const toAddList = selectedMatches.value.filter(selected => JSON.stringify(selected) !== JSON.stringify(match));
+    selectedMatches.value.length = 0;
     for (const toAddItem of toAddList) {
-      props.selectedMatches.push(toAddItem);
+      selectedMatches.value.push(toAddItem);
     }
-  } else props.selectedMatches.push(props.match);
+  } else selectedMatches.value.push(match);
 }
 
-function isSelected() {
-  return !!props.selectedMatches.find(selected => JSON.stringify(selected) === JSON.stringify(props.match));
+function isSelected(match: Match) {
+  return !!selectedMatches.value.find(selected => JSON.stringify(selected) === JSON.stringify(match));
 }
 </script>
 

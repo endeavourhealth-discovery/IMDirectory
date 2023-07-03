@@ -1,5 +1,7 @@
 <template>
-  <div class="feature">
+  <ContextMenu ref="rClickMenu" :model="rClickOptions" />
+
+  <div class="feature" @contextmenu="onRightClick($event, match)">
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" />
     </div>
@@ -26,6 +28,8 @@
     <div v-if="isArrayHasLength(match.path)" v-for="(path, index) of match.path">
       <EditDisplayMatch v-if="isObjectHasKeys(path, ['match'])" :index="index" :parent-path="path" :match="path.match!" :query-type-iri="queryTypeIri" />
     </div>
+
+    <JSONViewerDialog v-model:showDialog="viewDialog" :data="match" />
 
     <!-- <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
     <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
@@ -71,6 +75,9 @@ import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } fr
 import EditDisplayWhere from "./EditDisplayWhere.vue";
 import { Ref, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
+import { MenuItem } from "primevue/menuitem";
+import { PrimeIcons } from "primevue/api";
+import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 
 interface Props {
   queryTypeIri: string;
@@ -83,13 +90,65 @@ interface Props {
 const props = defineProps<Props>();
 
 const editMode: Ref<boolean> = ref(false);
+const rClickMenu = ref();
+const rClickOptions: Ref<MenuItem[]> = ref([]);
+const viewDialog: Ref<boolean> = ref(false);
 
-function hasNodeRef(where: Where) {
-  return isObjectHasKeys(where, ["nodeRef"]) || isObjectHasKeys(where.relativeTo, ["nodeRef"]);
+function onRightClick(event: any, match: Match) {
+  // select(event, match);
+  rClickOptions.value = getRightClickOptions();
+  rClickMenu.value.show(event);
 }
 
-function hasBigList(where: Where) {
-  return (isArrayHasLength(where.in) && where.in!.length > 1) || (isArrayHasLength(where.notIn) && where.notIn!.length > 1);
+function getRightClickOptions() {
+  return [
+    {
+      label: "Add",
+      icon: "pi pi-fw pi-plus",
+      items: [
+        {
+          label: "Below",
+          command: () => {
+            addBelow();
+          }
+        },
+        {
+          label: "Nested",
+          command: () => {
+            addNested();
+          }
+        }
+      ]
+    },
+    {
+      label: "View",
+      icon: PrimeIcons.EYE,
+      command: () => {
+        view();
+      }
+    }
+  ];
+}
+
+function addBelow() {
+  if (props.parentMatch) {
+    add(props.parentMatch.match!);
+  }
+}
+
+function addNested() {
+  if (!isArrayHasLength(props.match)) props.match.match = [];
+  add(props.match.match!);
+}
+
+function add(matches: Match[]): Match {
+  const newMatch = {} as Match;
+  matches.push(newMatch);
+  return newMatch;
+}
+
+function view() {
+  viewDialog.value = true;
 }
 </script>
 
