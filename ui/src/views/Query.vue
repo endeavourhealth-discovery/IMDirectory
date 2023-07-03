@@ -27,9 +27,7 @@
       <Button label="Add feature" @click="showAddProperty = true" />
     </div>
 
-    <Dialog v-model:visible="showAddProperty" modal :header="'Add rule'" :style="{ width: '60vw' }">
-      <AddProperty :base-type="queryTypeIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
-    </Dialog>
+    <AddPropertyDialog v-model:show-dialog="showAddProperty" :base-type="queryTypeIri" @on-add-property="addProperty" />
 
     <Dialog v-model:visible="showAddBaseType" modal :header="'Add base type'" :style="{ width: '60vw' }">
       <AddBaseType :query="query" @on-close="showAddBaseType = false" />
@@ -57,7 +55,7 @@ import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
 import AddBaseType from "@/components/query/builder/edit/baseType/AddBaseType.vue";
-import AddProperty from "@/components/query/builder/edit/AddProperty.vue";
+import AddPropertyDialog from "@/components/query/builder/edit/AddPropertyDialog.vue";
 
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);

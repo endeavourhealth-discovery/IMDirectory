@@ -1,15 +1,17 @@
 <template>
-  <div class="add-base-container">
-    <QueryNavTree :base-type="baseType" :editMatch="editMatch" :selected-properties="selectedProperties" @on-selected-update="onSelectedUpdate" />
-    <div class="footer">
-      <Button label="Discard" severity="secondary" @click="discard" text />
-      <Button label="Save" @click="save" text />
+  <Dialog v-model:visible="visible" modal maximizable :header="'Add property'" :style="{ width: '60vw' }">
+    <div class="add-base-container">
+      <QueryNavTree :base-type="baseType" :editMatch="editMatch" :selected-properties="selectedProperties" @on-selected-update="onSelectedUpdate" />
+      <div class="footer">
+        <Button label="Discard" severity="secondary" @click="visible = false" text />
+        <Button label="Save" @click="save" text />
+      </div>
     </div>
-  </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
-import { Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 import { Match } from "@im-library/interfaces/AutoGen";
 import QueryNavTree from "./QueryNavTree.vue";
 import _ from "lodash";
@@ -18,14 +20,29 @@ import { buildWhereFromProperty } from "@im-library/helpers/QueryBuilder";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
+  showDialog: boolean;
   baseType: string;
   match?: Match;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onClose: () => true, onAddProperty: (_payload: Match) => true });
+const emit = defineEmits({ onClose: () => true, onAddProperty: (_payload: Match) => true, "update:showDialog": payload => typeof payload === "boolean" });
 const editMatch: Ref<Match> = ref({ where: [] } as Match);
 const selectedProperties: Ref<TreeNode[]> = ref([]);
+const visible: Ref<boolean> = ref(false);
+
+watch(
+  () => props.showDialog,
+  newValue => {
+    visible.value = newValue;
+  }
+);
+
+watch(visible, newValue => {
+  if (!newValue) {
+    emit("update:showDialog", newValue);
+  }
+});
 
 onMounted(() => {
   if (props.match) editMatch.value = _.cloneDeep(props.match);
@@ -58,10 +75,6 @@ async function save() {
   }
 
   emit("onAddProperty", editMatch.value);
-}
-
-function discard() {
-  emit("onClose");
 }
 </script>
 

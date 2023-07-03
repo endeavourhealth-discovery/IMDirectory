@@ -33,7 +33,7 @@
   <!-- <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" /> -->
 
   <Dialog v-model:visible="showAddProperty" modal :header="'Add property'" :style="{ width: '60vw' }">
-    <AddProperty :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
+    <AddPropertyDialog :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
   </Dialog>
 
   <DirectorySearchDialog v-model:showDialog="showSearchDialog" @on-close="showSearchDialog = false" />
@@ -58,7 +58,7 @@ import { SHACL } from "@im-library/vocabulary";
 import EntitySelect from "./edit/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import _ from "lodash";
-import AddProperty from "./edit/AddProperty.vue";
+import AddPropertyDialog from "./edit/AddPropertyDialog.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 const emit = defineEmits({
   removeMatch: () => true,

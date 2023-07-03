@@ -1,6 +1,4 @@
 <template>
-  <ContextMenu ref="rClickMenu" :model="rClickOptions" />
-
   <div class="feature" @contextmenu="onRightClick($event, match)">
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" />
@@ -28,44 +26,11 @@
     <div v-if="isArrayHasLength(match.path)" v-for="(path, index) of match.path">
       <EditDisplayMatch v-if="isObjectHasKeys(path, ['match'])" :index="index" :parent-path="path" :match="path.match!" :query-type-iri="queryTypeIri" />
     </div>
-
-    <JSONViewerDialog v-model:showDialog="viewDialog" :data="match" />
-
-    <!-- <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
-    <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
-    <span v-if="match.description" v-html="match.description"> </span>
-    <span v-if="!index && match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></span>
-
-    <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
-      <span v-if="match.where!.length === 1">
-        <span v-if="hasNodeRef(match.where![0])" v-html="match.where![0].description"></span>
-        <span v-else-if="hasBigList(match.where![0])" v-html="match.where![0].description"></span>
-        <span v-else v-html="match.where![0].description"></span>
-        <span v-if="isArrayHasLength(match.where![0].where)">
-          <EditDisplayWhere :wheres="match.where![0].where!" :parent-match="parentMatch" :parent-where="match.where![0]" />
-        </span>
-      </span>
-
-      <EditDisplayWhere v-else :wheres="match.where!" :parent-match="match" />
-    </span>
-    <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
-    <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
-
-    <span v-if="isArrayHasLength(match.path)">
-      <span v-if="isObjectHasKeys(match.path![0].match, ['where']) && isArrayHasLength(match.path![0].match!.where)">
-        <span v-if="match.path![0].match!.where!.length == 1">
-          <span v-if="hasNodeRef(match.path![0].match!.where![0])" v-html="match.path![0].match!.where![0].description"> </span>
-          <span v-else-if="hasBigList(match.path![0].match!.where![0])" v-html="match.path![0].match!.where![0].description"> </span>
-          <span v-else v-html="match.path![0].match!.where![0].description"></span>
-          <span v-if="isArrayHasLength(match.path![0].match!.where![0].where)">
-            <EditDisplayWhere :wheres="match.path![0].match!.where![0].where!" :parent-match="parentMatch" :parent-where="match.path![0].match!.where![0]" />
-          </span>
-        </span>
-
-        <EditDisplayWhere v-else :wheres="match.path![0].match!.where!" :parent-match="match.path![0].match" />
-      </span>
-    </span> -->
   </div>
+
+  <ContextMenu ref="rClickMenu" :model="rClickOptions" />
+  <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
+  <AddPropertyDialog v-model:showDialog="showAddDialog" :match="match" :base-type="queryTypeIri" />
 </template>
 
 <script setup lang="ts">
@@ -78,10 +43,13 @@ import EntitySelect from "../edit/EntitySelect.vue";
 import { MenuItem } from "primevue/menuitem";
 import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
+import AddPropertyDialog from "../edit/AddPropertyDialog.vue";
+import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 
 interface Props {
   queryTypeIri: string;
   parentMatch?: Match;
+  parentMatchList?: Match[];
   parentPath?: Path;
   match: Match;
   index: number;
@@ -89,18 +57,20 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const { add, view, showAddDialog, showViewDialog } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const rClickMenu = ref();
 const rClickOptions: Ref<MenuItem[]> = ref([]);
-const viewDialog: Ref<boolean> = ref(false);
+
+const listToAddTo: Ref<Match[]> = ref([]);
 
 function onRightClick(event: any, match: Match) {
   // select(event, match);
-  rClickOptions.value = getRightClickOptions();
+  rClickOptions.value = getSingleRCOptions();
   rClickMenu.value.show(event);
 }
 
-function getRightClickOptions() {
+function getSingleRCOptions() {
   return [
     {
       label: "Add",
@@ -133,6 +103,8 @@ function getRightClickOptions() {
 function addBelow() {
   if (props.parentMatch) {
     add(props.parentMatch.match!);
+  } else if (isArrayHasLength(props.parentMatchList)) {
+    add(props.parentMatchList!);
   }
 }
 
@@ -141,14 +113,18 @@ function addNested() {
   add(props.match.match!);
 }
 
-function add(matches: Match[]): Match {
-  const newMatch = {} as Match;
-  matches.push(newMatch);
-  return newMatch;
+function moveUp(matchIndex: number, matches: Match[]) {
+  if (isArrayHasLength(matches) && matchIndex !== 0 && matchIndex !== 1) {
+    matches.splice(matchIndex - 1, 0, matches[matchIndex]);
+    matches.splice(matchIndex + 1, 1);
+  }
 }
 
-function view() {
-  viewDialog.value = true;
+function moveDown(matchIndex: number, matches: Match[]) {
+  if (isArrayHasLength(matches) && matchIndex !== matches.length - 1) {
+    matches.splice(matchIndex + 2, 0, matches[matchIndex]);
+    matches.splice(matchIndex, 1);
+  }
 }
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <EditDisplayMatch :match="match" :index="index" v-for="(match, index) of matches" :query-type-iri="queryTypeIri" />
+  <EditDisplayMatch v-for="(match, index) of matches" :match="match" :index="index" :query-type-iri="queryTypeIri" :parentMatchList="matches" />
 
   <!-- <EditDisplayMatch
       v-if="!showEdit"
@@ -68,7 +68,7 @@ import { MenuItem } from "primevue/menuitem";
 import { PrimeIcons } from "primevue/api";
 import EditMatch from "./EditMatch.vue";
 import EditDisplayMatch from "./display/EditDisplayMatch.vue";
-import AddProperty from "./edit/AddProperty.vue";
+import AddPropertyDialog from "./edit/AddPropertyDialog.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 
