@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, Ref, ref, reactive, watch } from "vue";
+import { computed, onMounted, Ref, ref, reactive, watch, nextTick } from "vue";
 import DataModel from "./viewer/dataModel/DataModel.vue";
 import SetDefinition from "./viewer/set/SetDefinition.vue";
 import Content from "./viewer/Content.vue";
@@ -187,9 +187,10 @@ async function init(): Promise<void> {
   await getTerms(props.entityIri);
   types.value = isObjectHasKeys(concept.value, [RDF.TYPE]) ? concept.value[RDF.TYPE] : ([] as TTIriRef[]);
   header.value = concept.value[RDFS.LABEL];
+  loading.value = false;
+  await nextTick();
   setTabMap();
   setDefaultTab();
-  loading.value = false;
 }
 
 async function getInferred(iri: string, concept: Ref<any>): Promise<void> {
