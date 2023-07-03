@@ -1,60 +1,5 @@
 <template>
   <EditDisplayMatch v-for="(match, index) of matches" :match="match" :index="index" :query-type-iri="queryTypeIri" :parentMatchList="matches" />
-
-  <!-- <EditDisplayMatch
-      v-if="!showEdit"
-      :base-entity-match-iri="baseEntityMatchIri"
-      :match="match"
-      :parent-match="parentMatch"
-      :index="index"
-      @click="select"
-      @dblclick="showEdit = !showEdit"
-      @contextmenu="onRightClick"
-      :class="isSelected() ? 'selected' : ''"
-    />
-
-    <Card v-if="showEdit">
-      <template #title>
-        <EditDisplayMatch :match="match" :index="index" />
-      </template>
-      <template #content>
-        <EditMatch :base-entity-match-iri="baseEntityMatchIri" :match="match" @remove-match="remove()" @cancel="showEdit = false" @save="save" />
-      </template>
-    </Card>
-
-    <ul class="list-item" v-if="isArrayHasLength(props.match.match)" v-for="(nestedMatch, index) of props.match.match">
-      <RecursiveQueryEdit
-        class="nested-feature"
-        :base-entity-match-iri="baseEntityMatchIri"
-        :match="nestedMatch"
-        :selectedMatches="selectedMatches"
-        :index="index"
-        :parent-match="match"
-      />
-    </ul> -->
-
-  <!-- <Dialog v-model:visible="keepAsDialog" modal :header="'Keep as variable'" :style="{ width: '20vw' }">
-    <InputText type="text" v-model="selectedMatches[0].variable" />
-    <template #footer>
-      <Button label="Discard" severity="secondary" @click="discardKeepAs" text />
-      <Button label="Save" @click="keepAsDialog = false" text />
-    </template>
-  </Dialog>
-  <Dialog v-model:visible="viewDialog" modal :header="'JSON Viewer'" :style="{ width: '75vw' }">
-    <VueJsonPretty class="json" :path="'res'" :data="(selectedMatches[0] as any)" />
-    <template #footer>
-      <Button label="OK" @click="viewDialog = false" text />
-    </template>
-  </Dialog>
-  <Dialog v-model:visible="showAddProperty" modal :header="'Add property'" :style="{ width: '60vw' }">
-    <AddProperty :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addMatch" />
-  </Dialog>
-  <DirectorySearchDialog
-    v-model:showDialog="showSearchDialog"
-    @on-close="showSearchDialog = false"
-    @on-save="saveConceptSummaryAsMatch"
-    @update:selected="onUpdateSelected"
-  /> -->
 </template>
 
 <script setup lang="ts">
@@ -82,9 +27,6 @@ const emit = defineEmits({
 });
 
 interface Props {
-  // parentMatch?: Match;
-  // match: Match;
-  // index: number;
   matches: Match[];
   queryTypeIri: string;
 }
@@ -95,30 +37,7 @@ const rClickOptions: Ref<MenuItem[]> = ref([]);
 const rClickMenu = ref();
 const selectedMatches: Ref<Match[]> = ref([]);
 
-// const showEdit: Ref<boolean> = ref(false);
-// const keepAsDialog: Ref<boolean> = ref(false);
-// const viewDialog: Ref<boolean> = ref(false);
-// const showAddProperty: Ref<boolean> = ref(false);
-// const showSearchDialog: Ref<boolean> = ref(false);
-// const editMatch: Ref<Match> = ref({ where: [] } as Match);
-// const selectedCS: Ref<any> = ref({} as any);
 
-// function view() {
-//   viewDialog.value = true;
-// }
-
-// function keepAs() {
-//   keepAsDialog.value = true;
-// }
-
-// function edit() {
-//   showEdit.value = !showEdit;
-// }
-
-// function discardKeepAs() {
-//   delete selectedMatches.value[0].variable;
-//   keepAsDialog.value = false;
-// }
 
 // function save(editMatch: Match) {
 //   for (const key of Object.keys(editMatch)) {

@@ -31,6 +31,7 @@
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog v-model:showDialog="showAddDialog" :match="match" :base-type="queryTypeIri" />
+  <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
 </template>
 
 <script setup lang="ts">
@@ -45,6 +46,7 @@ import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import AddPropertyDialog from "../edit/AddPropertyDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
+import KeepAsDialog from "../edit/KeepAsDialog.vue";
 
 interface Props {
   queryTypeIri: string;
@@ -57,7 +59,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { add, view, showAddDialog, showViewDialog } = setupQueryBuilderActions();
+const { add, view, keepAs, moveUp, moveDown, remove, showAddDialog, showViewDialog, showKeepAsDialog } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const rClickMenu = ref();
 const rClickOptions: Ref<MenuItem[]> = ref([]);
@@ -74,7 +76,7 @@ function getSingleRCOptions() {
   return [
     {
       label: "Add",
-      icon: "pi pi-fw pi-plus",
+      icon: PrimeIcons.PLUS,
       items: [
         {
           label: "Below",
@@ -91,12 +93,65 @@ function getSingleRCOptions() {
       ]
     },
     {
+      label: "Toggle bool",
+      icon: PrimeIcons.ARROW_V,
+      command: () => {
+        toggleBoolMatch();
+      }
+    },
+    {
+      label: "Keep as",
+      icon: PrimeIcons.SAVE,
+      command: () => {
+        keepAs();
+      }
+    },
+    {
+      label: "Move",
+      icon: PrimeIcons.SORT,
+      items: [
+        {
+          label: "Up",
+          command: () => {
+            moveUp(props.index, props.parentMatch?.match ?? props.parentMatchList!);
+          }
+        },
+        {
+          label: "Down",
+          command: () => {
+            moveDown(props.index, props.parentMatch?.match ?? props.parentMatchList!);
+          }
+        }
+      ]
+    },
+    {
       label: "View",
       icon: PrimeIcons.EYE,
       command: () => {
         view();
       }
+    },
+    {
+      label: "Delete",
+      icon: PrimeIcons.TRASH,
+      command: () => {
+        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!);
+      }
     }
+    //   {
+    //     label: "Group",
+    //     icon: "pi pi-fw pi-link",
+    //     command: () => {
+    //       group();
+    //     }
+    //   },
+    // {
+    //   label: "Ungroup",
+    //   icon: "pi pi-fw pi-eject",
+    //   command: () => {
+    //     ungroup();
+    //   }
+    // }
   ];
 }
 
@@ -113,18 +168,9 @@ function addNested() {
   add(props.match.match!);
 }
 
-function moveUp(matchIndex: number, matches: Match[]) {
-  if (isArrayHasLength(matches) && matchIndex !== 0 && matchIndex !== 1) {
-    matches.splice(matchIndex - 1, 0, matches[matchIndex]);
-    matches.splice(matchIndex + 1, 1);
-  }
-}
-
-function moveDown(matchIndex: number, matches: Match[]) {
-  if (isArrayHasLength(matches) && matchIndex !== matches.length - 1) {
-    matches.splice(matchIndex + 2, 0, matches[matchIndex]);
-    matches.splice(matchIndex, 1);
-  }
+function toggleBoolMatch() {
+  if (props.match.boolMatch === "and") props.match.boolMatch = "or";
+  else if (props.match.boolMatch === "or") props.match.boolMatch = "and";
 }
 </script>
 
