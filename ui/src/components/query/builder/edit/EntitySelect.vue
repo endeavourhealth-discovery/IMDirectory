@@ -1,25 +1,23 @@
 <template>
   <div class="property-input-container">
     in
-    <AutoComplete v-model="selected" optionLabel="name" :suggestions="suggestions" @complete="debounceForSearch" @item-select="onSelect" />
+    <InputText type="text" @click="showDialog = true" placeholder="Value" v-model:model-value="selected.name" />
+    <DirectorySearchDialog :selected="selected" :show-dialog="showDialog" @update:selected="onSelect" />
     <EntailmentOptionsSelect :entailment-object="editNode" />
     <Button label="Cancel" severity="secondary" @click="emit('onCancel')" />
-    <Button label="Save" />
+    <Button label="Save" @click="emit('onSave', selected)" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, onMounted, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { Match, Node, Where } from "@im-library/interfaces/AutoGen";
-import { useFilterStore } from "@/stores/filterStore";
-import { isObject } from "@im-library/helpers/DataTypeCheckers";
-import { EntityService } from "@/services";
+import { ConceptSummary } from "@im-library/interfaces";
+import { Node } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
-import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 
-const emit = defineEmits({ onSave: (payload: string) => payload, onCancel: () => true });
+const emit = defineEmits({ onCancel: () => true, onSave: (_payload: ConceptSummary) => true, "update:selected": payload => true });
 
 interface Props {
   queryTypeIri: string;
@@ -27,12 +25,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const filterStore = useFilterStore();
-const controller: Ref<AbortController> = ref({} as AbortController);
-const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
 const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const suggestions: Ref<ConceptSummary[]> = ref([]);
-const debounce = ref(0);
+const showDialog = ref(false);
 
 watch(
   () => props.editNode,
@@ -50,26 +44,8 @@ function populateSelected() {
   }
 }
 
-function onSelect(event: any) {
-  props.editNode.name = selected.value.name;
-  if (isValueSet(selected.value.entityType)) props.editNode["@set"] = selected.value.iri;
-  else if (isRecordModel(selected.value.entityType)) props.editNode["@type"] = selected.value.iri;
-  else props.editNode["@id"] = selected.value.iri;
-}
-
-async function search(searchTerm: any) {
-  if (!isObject(controller.value)) {
-    controller.value.abort();
-  }
-  controller.value = new AbortController();
-  suggestions.value = await EntityService.simpleSearch(searchTerm.query, filterDefaults.value, controller.value);
-}
-
-function debounceForSearch(searchTerm: any): void {
-  clearTimeout(debounce.value);
-  debounce.value = window.setTimeout(() => {
-    search(searchTerm);
-  }, 600);
+function onSelect(cs: ConceptSummary) {
+  selected.value = cs;
 }
 </script>
 
