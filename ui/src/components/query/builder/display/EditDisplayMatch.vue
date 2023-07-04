@@ -5,7 +5,7 @@
     @contextmenu="onRightClick($event, match)"
   >
     <div v-if="editMode">
-      <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" />
+      <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMode = true"></div>
 
@@ -58,7 +58,9 @@ import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
 import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
-import { SelectedMatch } from "@im-library/interfaces";
+import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
+import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   queryTypeIri: string;
@@ -82,16 +84,15 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 const rClickMenu = ref();
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 
-// function saveConceptSummaryAsMatch() {
-//   const match = {} as Match;
-//   match.name = selectedCS.value.label;
-//   if (isRecordModel(selectedCS.value.entityType)) match["@type"] = selectedCS.value.data;
-//   if (isValueSet(selectedCS.value.entityType)) match["@set"] = selectedCS.value.data;
-//   else match["@id"] = selectedCS.value.data;
-//   describeMatch([match], "match");
-//   addMatch(match);
-//   showSearchDialog.value = false;
-// }
+function saveSelect(selectedCS: ConceptSummary) {
+  console.log(selectedCS);
+  props.match.name = selectedCS.name;
+  if (isRecordModel(selectedCS.entityType)) props.match["@type"] = selectedCS.iri;
+  if (isValueSet(selectedCS.entityType)) props.match["@set"] = selectedCS.iri;
+  else props.match["@id"] = selectedCS.iri;
+  describeMatch([props.match], "match");
+  editMode.value = false;
+}
 
 function addBelow() {
   if (props.parentMatch) {
