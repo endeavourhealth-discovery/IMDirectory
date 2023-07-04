@@ -1,5 +1,9 @@
 <template>
-  <div class="feature" @click="select($event, match)" @contextmenu="onRightClick($event, match)">
+  <div
+    :class="isSelected ? 'selected feature' : 'feature'"
+    @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
+    @contextmenu="onRightClick($event, match)"
+  >
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" />
     </div>
@@ -12,6 +16,7 @@
       :parent-match="match"
       :match="nestedMatch"
       :query-type-iri="queryTypeIri"
+      :selected-matches="selectedMatches"
     />
 
     <EditDisplayWhere
@@ -24,7 +29,14 @@
     />
 
     <div v-if="isArrayHasLength(match.path)" v-for="(path, index) of match.path">
-      <EditDisplayMatch v-if="isObjectHasKeys(path, ['match'])" :index="index" :parent-path="path" :match="path.match!" :query-type-iri="queryTypeIri" />
+      <EditDisplayMatch
+        v-if="isObjectHasKeys(path, ['match'])"
+        :index="index"
+        :parent-path="path"
+        :match="path.match!"
+        :query-type-iri="queryTypeIri"
+        :selected-matches="selectedMatches"
+      />
     </div>
   </div>
 
@@ -38,7 +50,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Path } from "@im-library/interfaces/AutoGen";
 import EditDisplayWhere from "./EditDisplayWhere.vue";
-import { Ref, ref } from "vue";
+import { ComputedRef, Ref, computed, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
 import { MenuItem } from "primevue/menuitem";
 import { PrimeIcons } from "primevue/api";
@@ -46,12 +58,14 @@ import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
 import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
+import { SelectedMatch } from "@im-library/interfaces";
 
 interface Props {
   queryTypeIri: string;
   parentMatch?: Match;
   parentMatchList?: Match[];
   parentPath?: Path;
+  selectedMatches: SelectedMatch[];
   match: Match;
   index: number;
 }
@@ -60,6 +74,11 @@ const props = defineProps<Props>();
 
 const { add, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
+const isSelected: ComputedRef<boolean> = computed(() => {
+  const found = props.selectedMatches.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
+  return !!found;
+});
+
 const rClickMenu = ref();
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 
@@ -93,17 +112,17 @@ function toggleBoolMatch() {
 }
 
 function onRightClick(event: any, match: Match) {
-  rClickOptions.value = getSingleRCOptions();
+  rClickOptions.value = isArrayHasLength(props.selectedMatches) && props.selectedMatches.length === 1 ? getSingleRCOptions() : getMultipleRCOptions();
   rClickMenu.value.show(event);
 }
 
 function getMultipleRCOptions() {
   const multipleRCOptions = [
     {
-      label: "Ungroup",
+      label: "Group",
       icon: PrimeIcons.EJECT,
       command: () => {
-        // ungroup();
+        // group();
       }
     },
     {
@@ -114,6 +133,7 @@ function getMultipleRCOptions() {
       }
     }
   ];
+  return multipleRCOptions;
 }
 
 function getSingleRCOptions() {

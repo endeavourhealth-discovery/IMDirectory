@@ -1,4 +1,5 @@
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 
@@ -89,22 +90,41 @@ function setupQueryBuilderActions() {
   //   for (const ungroupedMatch of tempArray) query.value.match!.splice(matchIndex, 0, ungroupedMatch);
   // }
 
-  function select(event: any, match: Match) {
+  function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, memberOfList?: Match[]) {
+    const selectedMatch = { index: index, selected: match } as SelectedMatch;
+    if (parentMatch) selectedMatch.parent = parentMatch;
+    else if (memberOfList) selectedMatch.memberOfList = memberOfList;
+
     if (event.ctrlKey) {
-      // selectedMatches.value.length = 0;
-      // selectedMatches.value.push(match);
+      if (!isSelected) {
+        selectedMatches.push(selectedMatch);
+      } else {
+        const foundIndex = selectedMatches.findIndex(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(match));
+        if (foundIndex !== -1) {
+          selectedMatches.splice(foundIndex, 1);
+        }
+      }
     } else {
-      // if (isSelected(match)) {
-      //   const toAddList = selectedMatches.value.filter(selected => JSON.stringify(selected) !== JSON.stringify(match));
-      //   selectedMatches.value.length = 0;
-      //   for (const toAddItem of toAddList) {
-      //     selectedMatches.value.push(toAddItem);
-      //   }
-      // } else selectedMatches.value.push(match);
+      selectedMatches.length = 0;
+      selectedMatches.push(selectedMatch);
     }
   }
 
-  return { add, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showViewDialog, showAddDialog, showKeepAsDialog, showAddBaseTypeDialog };
+  return {
+    add,
+    view,
+    keepAs,
+    moveUp,
+    moveDown,
+    remove,
+    group,
+    ungroup,
+    select,
+    showViewDialog,
+    showAddDialog,
+    showKeepAsDialog,
+    showAddBaseTypeDialog
+  };
 }
 
 export default setupQueryBuilderActions;
