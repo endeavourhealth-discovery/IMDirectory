@@ -114,7 +114,7 @@ async function init(): Promise<void> {
 async function getRecentActivityDetails() {
   let localActivity: RecentActivityItem[];
   if (currentUser.value) {
-    localActivity = await UserService.getUserMRU(currentUser.value.id);
+    localActivity = await UserService.getUserMRU();
   } else localActivity = recentLocalActivity.value ? recentLocalActivity.value : [];
   const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);

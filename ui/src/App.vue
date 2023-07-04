@@ -58,14 +58,14 @@ const loading = ref(true);
 onMounted(async () => {
   loading.value = true;
   await userStore.authenticateCurrentUser();
-  const theme = currentUser.value ? await UserService.getUserTheme(currentUser.value.id) : "saga-blue";
+  const theme = currentUser.value ? (await UserService.getUserTheme()) ?? "saga-blue" : "saga-blue";
   changeTheme(theme);
   await setShowBanner();
   loading.value = false;
 });
 
 function changeTheme(newTheme: string) {
-  if (userStore.currentTheme != newTheme) {
+  if (currentTheme.value != newTheme) {
     PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {
       userStore.updateCurrentTheme(newTheme);
     });

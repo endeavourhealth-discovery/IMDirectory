@@ -100,7 +100,7 @@ const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-const currentTheme: Ref<string | undefined> = ref();
+const currentTheme = computed(() => userStore.currentTheme);
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -117,8 +117,6 @@ const appsOP = ref();
 const directService = new DirectService();
 
 onMounted(async () => {
-  if (currentUser.value) currentTheme.value = await UserService.getUserTheme(currentUser.value.id);
-  if (!currentTheme.value) currentTheme.value = "saga-blue";
   setUserMenuItems();
   setAppMenuItems();
   await getCurrentVersion();
@@ -592,7 +590,6 @@ function showReleaseNotes() {
 function changeTheme(newTheme: string) {
   PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
     userStore.updateCurrentTheme(newTheme);
-    currentTheme.value = newTheme;
   });
 }
 </script>
