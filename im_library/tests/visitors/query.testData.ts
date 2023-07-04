@@ -864,5 +864,19 @@ export default {
         ]
       }
     ]
+  },
+  groupedAnd: {
+    match: [
+      {
+        boolMatch: "and",
+        match: [
+          {
+            "@id": "http://snomed.info/sct#298705000",
+            descendantsOrSelfOf: true
+          },
+          { "@id": "http://snomed.info/sct#298705001", descendantsOrSelfOf: true }
+        ]
+      }
+    ]
   }
 };

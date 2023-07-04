@@ -77,4 +77,7 @@ describe("eclToIMQ", () => {
   it("converts startGroupedConceptWithRefinement", () => {
     expect(eclToIMQ(eclTestData.startGroupedConceptWithRefinement)).toEqual(queryTestData.startGroupedConceptWithRefinement);
   });
+  it("converts groupedAnd", () => {
+    expect(eclToIMQ(eclTestData.groupedAnd)).toEqual(queryTestData.groupedAnd);
+  });
 });
