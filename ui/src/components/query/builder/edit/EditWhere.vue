@@ -58,6 +58,8 @@ onMounted(async () => {
   await init();
 });
 
+function save() {}
+
 async function init() {
   const dataModelIri = props.match?.["@id"] ?? resolveIri(props.queryTypeIri);
 

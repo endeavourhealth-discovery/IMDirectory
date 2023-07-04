@@ -103,7 +103,7 @@ function getMultipleRCOptions() {
       label: "Ungroup",
       icon: PrimeIcons.EJECT,
       command: () => {
-        ungroup();
+        // ungroup();
       }
     },
     {
@@ -189,7 +189,7 @@ function getSingleRCOptions() {
       label: "Group",
       icon: PrimeIcons.LINK,
       command: () => {
-        group();
+        // group();
       }
     });
 
