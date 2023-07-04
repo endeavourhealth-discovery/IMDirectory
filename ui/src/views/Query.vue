@@ -17,6 +17,7 @@
       :index="index"
       :query-type-iri="queryTypeIri"
       :parentMatchList="query.match"
+      :selected-matches="selectedMatches"
     />
 
     <div v-else-if="!queryTypeIri">
@@ -53,12 +54,13 @@ import EditDisplayMatch from "@/components/query/builder/display/EditDisplayMatc
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTypeDialog.vue";
 import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddPropertyDialog.vue";
+import { SelectedMatch } from "@im-library/interfaces";
 
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const queryTypeIri: Ref<string> = ref("");
-const selectedMatches: Ref<Match[]> = ref([]);
+const selectedMatches: Ref<SelectedMatch[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
