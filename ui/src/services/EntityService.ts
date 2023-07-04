@@ -192,11 +192,11 @@ const EntityService = {
   },
 
   async getFilterDefaultOptions(): Promise<FilterOptions> {
-    const schemeDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "SchemeFilterDefaultOptions");
-    const statusDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "StatusFilterDefaultOptions");
-    const typeDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "TypeFilterDefaultOptions");
-    const sortDefaultFieldOptions = await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterDefaultOptions");
-    const sortDefaultDirectionOptions = await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterDefaultOptions");
+    const schemeDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "SchemeFilterDefaultOptions")) ?? [];
+    const statusDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "StatusFilterDefaultOptions")) ?? [];
+    const typeDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "TypeFilterDefaultOptions")) ?? [];
+    const sortDefaultFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterDefaultOptions")) ?? [];
+    const sortDefaultDirectionOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterDefaultOptions")) ?? [];
 
     return {
       status: statusDefaultOptions.map(option => {

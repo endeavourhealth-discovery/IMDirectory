@@ -40,7 +40,7 @@ export const useUserStore = defineStore("user", {
     },
     async initFavourites() {
       let favourites: string[] = [];
-      if (this.currentUser) favourites = await UserService.getUserFavourites(this.currentUser.id);
+      if (this.currentUser) favourites = await UserService.getUserFavourites();
       else favourites = this.favourites ? this.favourites : [];
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
@@ -48,13 +48,13 @@ export const useUserStore = defineStore("user", {
           favourites.splice(index, 1);
         }
       }
-      if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, favourites);
+      if (this.currentUser) await UserService.updateUserFavourites(favourites);
       this.favourites = favourites;
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
       let activity: RecentActivityItem[] = [];
 
-      if (this.currentUser) activity = await UserService.getUserMRU(this.currentUser.id);
+      if (this.currentUser) activity = await UserService.getUserMRU();
       else activity = this.recentLocalActivity ? this.recentLocalActivity : [];
 
       activity.forEach(activityItem => {
@@ -78,23 +78,23 @@ export const useUserStore = defineStore("user", {
           activity.push(recentActivityItem);
         }
       }
-      if (this.currentUser) await UserService.updateUserMRU(this.currentUser.id, activity);
+      if (this.currentUser) await UserService.updateUserMRU(activity);
       this.recentLocalActivity = activity;
     },
     async updateFavourites(favourite: string) {
       if (favourite !== "http://endhealth.info/im#Favourites") {
-        const favourites: string[] = this.currentUser ? await UserService.getUserFavourites(this.currentUser.id) : this.favourites;
+        const favourites: string[] = this.currentUser ? await UserService.getUserFavourites() : this.favourites;
         if (!favourites.includes(favourite)) {
           favourites.push(favourite);
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, favourites);
+        if (this.currentUser) await UserService.updateUserFavourites(favourites);
         this.favourites = favourites;
       }
     },
     async updateCurrentTheme(theme: string) {
-      if (this.currentUser) await UserService.updateUserTheme(this.currentUser.id, theme);
+      if (this.currentUser) await UserService.updateUserTheme(theme);
       this.currentTheme = theme;
     },
     updateCurrentUser(user: any) {

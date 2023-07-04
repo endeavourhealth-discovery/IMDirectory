@@ -20,26 +20,25 @@
 
   <div class="button-bar">
     <Button class="button-bar-button" label="Cancel" severity="secondary" @click="emit('onCancel')" />
-    <Button class="button-bar-button" label="Save" @click="save" />
+    <Button class="button-bar-button" label="Save" @click="emit('onSave', where)" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Bool, Match, Where } from "@im-library/interfaces/AutoGen";
-import { Ref, onMounted, ref, watch } from "vue";
+import { Match, Where } from "@im-library/interfaces/AutoGen";
+import { Ref, onMounted, ref } from "vue";
 import ClassSelect from "./class/ClassSelect.vue";
 import DatatypeSelect from "./datatype/DatatypeSelect.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
-import { EntityService, QueryService } from "@/services";
+import { QueryService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import _ from "lodash";
 import EntitySelect from "./EntitySelect.vue";
 const emit = defineEmits({
   removeMatch: () => true,
-  save: (_payload: Match) => true,
+  onSave: (_payload: Match) => true,
   onCancel: () => true
 });
 
@@ -57,8 +56,6 @@ const propertyDisplay: Ref<string> = ref("");
 onMounted(async () => {
   await init();
 });
-
-function save() {}
 
 async function init() {
   const dataModelIri = props.match?.["@id"] ?? resolveIri(props.queryTypeIri);
