@@ -85,7 +85,6 @@ const rClickMenu = ref();
 const rClickOptions: Ref<MenuItem[]> = ref([]);
 
 function saveSelect(selectedCS: ConceptSummary) {
-  console.log(selectedCS);
   props.match.name = selectedCS.name;
   if (isRecordModel(selectedCS.entityType)) props.match["@type"] = selectedCS.iri;
   if (isValueSet(selectedCS.entityType)) props.match["@set"] = selectedCS.iri;
