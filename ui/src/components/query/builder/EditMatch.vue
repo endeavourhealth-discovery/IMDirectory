@@ -27,18 +27,17 @@
         :where="property.where"
         class="property-input-container"
       />
-      <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" />
+      <!-- <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" /> -->
     </div>
   </div>
-  <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" />
+  <!-- <EntitySelect v-else :edit-match="editMatch" :base-entity-match-iri="baseEntityMatchIri" /> -->
 
   <Dialog v-model:visible="showAddProperty" modal :header="'Add property'" :style="{ width: '60vw' }">
-    <AddProperty :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
+    <AddPropertyDialog :match="editMatch" :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
   </Dialog>
 
   <DirectorySearchDialog v-model:showDialog="showSearchDialog" @on-close="showSearchDialog = false" />
-  <Button class="button-bar-button" label="Add property" @click="showAddProperty = true" />
-  <Button class="button-bar-button" label="Add match" @click="showSearchDialog = true" />
+
   <div class="button-bar">
     <Button class="button-bar-button" label="Cancel" severity="secondary" @click="emit('cancel')" />
 
@@ -49,7 +48,7 @@
 <script setup lang="ts">
 import { Bool, Match, Where } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref, watch } from "vue";
-import ClassSelect from "./edit/class/ClassSelect.vue";
+// import ClassSelect from "./edit/class/ClassSelect.vue";
 import DatatypeSelect from "./edit/datatype/DatatypeSelect.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { TTProperty } from "@im-library/interfaces";
@@ -59,7 +58,7 @@ import { SHACL } from "@im-library/vocabulary";
 import EntitySelect from "./edit/EntitySelect.vue";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import _ from "lodash";
-import AddProperty from "./edit/AddProperty.vue";
+import AddPropertyDialog from "./edit/AddPropertyDialog.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 const emit = defineEmits({
   removeMatch: () => true,

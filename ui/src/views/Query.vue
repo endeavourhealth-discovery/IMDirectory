@@ -8,36 +8,26 @@
       </template>
     </TopBar>
     <div class="include-title include">include if</div>
-    <div v-if="baseEntityMatchIri" class="type-title">{{ getNameFromRef({ "@id": baseEntityMatchIri }) }}</div>
-    <RecursiveQueryEdit
+    <div v-if="queryTypeIri" class="type-title">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
+
+    <EditDisplayMatch
       v-if="isArrayHasLength(query.match)"
       v-for="(match, index) of query.match"
-      :base-entity-match-iri="baseEntityMatchIri"
       :match="match"
-      :selectedMatches="selectedMatches"
       :index="index"
-      @on-add="add"
-      @on-remove="remove"
-      @on-group="group"
-      @on-ungroup="ungroup"
-      @on-move-up="moveUp"
-      @on-move-down="moveDown"
+      :query-type-iri="queryTypeIri"
+      :parentMatchList="query.match"
     />
 
-    <div v-else-if="!baseEntityMatchIri">
-      <Button label="Add base type" @click="showAddBaseType = true" />
+    <div v-else-if="!queryTypeIri">
+      <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
     </div>
     <div v-if="!isArrayHasLength(query.match) && query.type">
-      <Button label="Add feature" @click="showAddProperty = true" />
+      <Button label="Add feature" @click="showAddDialog = true" />
     </div>
 
-    <Dialog v-model:visible="showAddProperty" modal :header="'Add rule'" :style="{ width: '60vw' }">
-      <AddProperty :base-type="baseEntityMatchIri" @on-close="showAddProperty = false" @on-add-property="addProperty" />
-    </Dialog>
-
-    <Dialog v-model:visible="showAddBaseType" modal :header="'Add base type'" :style="{ width: '60vw' }">
-      <AddBaseType :query="query" @on-close="showAddBaseType = false" />
-    </Dialog>
+    <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" @on-add-property="addProperty" />
+    <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
 
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -54,24 +44,24 @@ import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
 import { Match, Query } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import RecursiveQueryEdit from "@/components/query/builder/RecursiveQueryEdit.vue";
-import { describeMatch, describeWhere } from "@im-library/helpers/QueryDescriptor";
 import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
 import AddBaseType from "@/components/query/builder/edit/baseType/AddBaseType.vue";
-import AddProperty from "@/components/query/builder/edit/AddProperty.vue";
+import EditDisplayMatch from "@/components/query/builder/display/EditDisplayMatch.vue";
+import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
+import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTypeDialog.vue";
+import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddPropertyDialog.vue";
 
 const filterStore = useFilterStore();
 const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
-const baseEntityMatchIri: Ref<string> = ref("");
+const queryTypeIri: Ref<string> = ref("");
 const selectedMatches: Ref<Match[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
-const showAddBaseType: Ref<boolean> = ref(false);
-const showAddProperty: Ref<boolean> = ref(false);
+const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
 
 watch(
   () => queryIri.value,
@@ -99,63 +89,34 @@ async function setQuery() {
 }
 
 async function setBaseEntityMatch() {
-  if (query.value.type) baseEntityMatchIri.value = query.value.type;
+  if (query.value.type) queryTypeIri.value = query.value.type;
   else if (isArrayHasLength(query.value?.match)) {
-    baseEntityMatchIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
+    queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
   }
 }
 
-function add(matchIndex: number, newMatch: Match) {
-  if (isArrayHasLength(query.value.match)) {
-    const indexToAdd = matchIndex + 1;
-    if (indexToAdd) {
-      query.value.match!.splice(indexToAdd, 0, newMatch);
-    }
-  }
-}
+// function deleteBaseType() {
+//   Swal.fire({
+//     icon: "info",
+//     title: "Confirm delete",
+//     text: "Are you sure you want to delete the base type of your query? All other clauses will be deleted.",
+//     showCancelButton: true,
+//     confirmButtonText: "Yes",
+//     reverseButtons: true,
+//     confirmButtonColor: "#2196F3",
+//     cancelButtonColor: "#607D8B",
+//     showLoaderOnConfirm: true,
+//     allowOutsideClick: () => !Swal.isLoading(),
+//     backdrop: true
+//   }).then((result: any) => {
+//     if (result.isConfirmed) props.matches.length = 0;
+//   });
+// }
 
 function addProperty(newMatch: Match) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match!.push(newMatch);
-  showAddProperty.value = false;
-}
-
-function remove(matchIndex: number) {
-  query.value.match!.splice(matchIndex, 1);
-}
-
-function group(matchIndex: number) {
-  const firstSelected = selectedMatches.value[0];
-  const indexOfFirstSelected = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-  const groupedMatch = { boolMatch: "and", match: [] } as Match;
-  for (const selectedMatch of selectedMatches.value) {
-    const index = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch));
-    groupedMatch.match!.splice(index, 0, selectedMatch);
-    console.log(index);
-  }
-  for (const selectedMatch of selectedMatches.value) remove(query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch)));
-  describeMatch([groupedMatch], "match");
-  query.value.match!.splice(indexOfFirstSelected, 0, groupedMatch);
-}
-
-function ungroup(matchIndex: number) {
-  remove(matchIndex);
-  const tempArray = selectedMatches.value[0].match!.reverse();
-  for (const ungroupedMatch of tempArray) query.value.match!.splice(matchIndex, 0, ungroupedMatch);
-}
-
-function moveUp(matchIndex: number) {
-  if (query.value.match && matchIndex !== 0 && matchIndex !== 1) {
-    query.value.match.splice(matchIndex - 1, 0, query.value?.match[matchIndex]);
-    query.value.match.splice(matchIndex + 1, 1);
-  }
-}
-
-function moveDown(matchIndex: number) {
-  if (query.value.match && matchIndex !== query.value.match.length - 1) {
-    query.value.match.splice(matchIndex + 2, 0, query.value?.match[matchIndex]);
-    query.value.match.splice(matchIndex, 1);
-  }
+  showAddDialog.value = false;
 }
 </script>
 

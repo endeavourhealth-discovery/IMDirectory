@@ -117,6 +117,10 @@ const QueryService = {
 
   async getAllQByType(iri: string): Promise<any> {
     return axios.get(Env.API + "api/query/public/allByType", { params: { iri: iri } });
+  },
+
+  async getDataModelProperty(dataModelIri: string, propertyIri: string) {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/dataModelProperty", { params: { dataModelIri: dataModelIri, propertyIri: propertyIri } });
   }
 };
 

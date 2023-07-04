@@ -1,4 +1,6 @@
 <template>
+  <DirectorySearchDialog v-model:showDialog="showSearchDialog" />
+
   <div class="property-input-container">
     <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="whereType" />
     <InputText type="text" placeholder="Value label" v-model:model-value="props.where.valueLabel" />
@@ -28,6 +30,7 @@ import ValueListSelect from "./ValueListSelect.vue";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import _ from "lodash";
 import { Node, Where } from "@im-library/interfaces/AutoGen";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
@@ -43,6 +46,7 @@ const showTree: Ref<boolean> = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
 const setType: Ref<string> = ref("set");
+const showSearchDialog: Ref<boolean> = ref(false);
 
 onMounted(async () => {
   initEditValues();
