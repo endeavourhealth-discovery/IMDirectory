@@ -15,6 +15,7 @@
           :searchByQuery="searchByQuery"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
+          :selected="selected"
         />
       </div>
       <div class="vertical-divider">
@@ -60,10 +61,11 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _ from "lodash";
 import { EntityService } from "@/services";
+import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   showDialog: boolean;
-  searchByQuery?: string;
+  searchByQuery?: QueryRequest;
   selected?: ConceptSummary;
 }
 const props = defineProps<Props>();

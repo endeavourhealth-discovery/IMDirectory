@@ -31,7 +31,7 @@ import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
 import { SearchRequest, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
-import { IM } from "@im-library/vocabulary";
+import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import { useFilterStore } from "@/stores/filterStore";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -42,7 +42,8 @@ import _ from "lodash";
 interface Props {
   searchResults: ConceptSummary[];
   searchLoading: boolean;
-  searchByQuery?: string;
+  searchByQuery?: QueryRequest;
+  selected?: ConceptSummary;
 }
 
 const props = defineProps<Props>();
@@ -77,6 +78,12 @@ watch(results, newValue => emit("update:searchResults", newValue));
 watch(loading, newValue => emit("update:searchLoading", newValue));
 
 const filtersOP = ref();
+
+onMounted(() => {
+  if (props.selected) {
+    searchText.value = props.selected.name;
+  }
+});
 
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
@@ -120,11 +127,10 @@ async function search(): Promise<void> {
     controller.value = new AbortController();
     let result;
     if (props.searchByQuery) {
-      const queryResult = await QueryService.queryIM(
-        { query: { "@id": props.searchByQuery } as Query, textSearch: searchText.value } as QueryRequest,
-        controller.value
-      );
-      if (queryResult && queryResult.entities) result = queryResult.entities;
+      const queryRequest = _.cloneDeep(props.searchByQuery);
+      queryRequest.textSearch = searchText.value;
+      const queryResult = await QueryService.queryIM(queryRequest, controller.value);
+      if (queryResult && queryResult.entities) result = convertToConceptSummary(queryResult.entities);
     } else {
       result = await EntityService.advancedSearch(searchRequest, controller.value);
     }
@@ -132,6 +138,19 @@ async function search(): Promise<void> {
     else results.value = [];
     loading.value = false;
   }
+}
+
+function convertToConceptSummary(results: any[]) {
+  return results.map(result => {
+    const conceptSummary = {} as ConceptSummary;
+    conceptSummary.iri = result["@id"];
+    conceptSummary.name = result[RDFS.LABEL];
+    conceptSummary.code = result[IM.CODE];
+    conceptSummary.entityType = result[RDF.TYPE];
+    conceptSummary.scheme = result[IM.SCHEME];
+    conceptSummary.status = result[IM.HAS_STATUS];
+    return conceptSummary;
+  });
 }
 </script>
 
