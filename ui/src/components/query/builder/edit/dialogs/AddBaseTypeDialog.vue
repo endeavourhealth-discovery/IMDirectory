@@ -4,9 +4,25 @@
       <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
       <div class="footer">
         <Button label="Discard" severity="secondary" @click="visible = false" text />
-        <Button label="Save" @click="save" text />
+        <Button label="Save" @click="confirmVisible = true" text />
       </div>
     </div>
+  </Dialog>
+
+  <Dialog v-model:visible="confirmVisible" modal header="Confirm" :style="{ width: '50vw' }">
+    Are you sure you want to change the base type? All current query content will be discarded.
+    <template #footer>
+      <Button label="Cancel" icon="pi pi-times" @click="confirmVisible = false" text />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        @click="
+          confirmVisible = false;
+          visible = false;
+          save();
+        "
+      />
+    </template>
   </Dialog>
 </template>
 
@@ -28,8 +44,12 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
+const emit = defineEmits({
+  onClose: () => true,
+  "update:showDialog": payload => typeof payload === "boolean"
+});
 const visible: Ref<boolean> = ref(false);
+const confirmVisible: Ref<boolean> = ref(false);
 
 watch(
   () => props.showDialog,
@@ -46,11 +66,12 @@ watch(visible, newValue => {
 
 const baseNode: Ref<TreeNode> = ref({} as TreeNode);
 
-async function save() {
+function save() {
   if (isObjectHasKeys(baseNode.value)) {
     props.query.type = baseNode.value.data;
   }
   visible.value = false;
+  props.query.match = [];
 }
 
 function addBaseEntity(selected: TreeNode) {
