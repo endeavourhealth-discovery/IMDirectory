@@ -2,7 +2,7 @@
   <div
     :class="isSelected ? 'selected feature' : 'feature'"
     @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
-    @contextmenu="onRightClick($event, match)"
+    @contextmenu="onRightClick($event)"
   >
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
@@ -111,7 +111,9 @@ function toggleBoolMatch() {
   else if (props.match.boolMatch === "or") props.match.boolMatch = "and";
 }
 
-function onRightClick(event: any, match: Match) {
+function onRightClick(event: any) {
+  if (!isArrayHasLength(props.selectedMatches) || props.selectedMatches.length === 1)
+    select(event, isSelected.value, props.selectedMatches, props.match, props.index, props.parentMatch, props.parentMatchList);
   rClickOptions.value = isArrayHasLength(props.selectedMatches) && props.selectedMatches.length === 1 ? getSingleRCOptions() : getMultipleRCOptions();
   rClickMenu.value.show(event);
 }
@@ -204,12 +206,21 @@ function getSingleRCOptions() {
     }
   ];
 
+  if (isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]))
+    singleRCOptions.splice(1, 0, {
+      label: "Edit",
+      icon: PrimeIcons.PENCIL,
+      command: () => {
+        if (isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"])) editMode.value = true;
+      }
+    });
+
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
     singleRCOptions.push({
-      label: "Group",
+      label: "Ungroup",
       icon: PrimeIcons.LINK,
       command: () => {
-        // group();
+        // ungroup();
       }
     });
 
