@@ -1,12 +1,10 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="'Add property'" :style="{ width: '60vw' }">
-    <div class="add-base-container">
-      <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
-      <div class="footer">
-        <Button label="Discard" severity="secondary" @click="visible = false" text />
-        <Button label="Save" @click="confirmVisible = true" text />
-      </div>
-    </div>
+  <Dialog v-model:visible="visible" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
+    <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
+    <template #footer>
+      <Button label="Discard" severity="secondary" @click="visible = false" text />
+      <Button label="Save" @click="confirmVisible = true" text />
+    </template>
   </Dialog>
 
   <Dialog v-model:visible="confirmVisible" modal header="Confirm" :style="{ width: '50vw' }">
@@ -44,10 +42,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({
-  onClose: () => true,
-  "update:showDialog": payload => typeof payload === "boolean"
-});
+const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
 const visible: Ref<boolean> = ref(false);
 const confirmVisible: Ref<boolean> = ref(false);
 
@@ -66,7 +61,7 @@ watch(visible, newValue => {
 
 const baseNode: Ref<TreeNode> = ref({} as TreeNode);
 
-function save() {
+async function save() {
   if (isObjectHasKeys(baseNode.value)) {
     props.query.type = baseNode.value.data;
   }
