@@ -2,6 +2,9 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+
+import { parent } from "jsonpath";
 
 function setupQueryBuilderActions() {
   const showViewDialog: Ref<boolean> = ref(false);
@@ -42,29 +45,57 @@ function setupQueryBuilderActions() {
     if (isArrayHasLength(matches)) matches.splice(matchIndex, 1);
   }
 
-  function group(selectedMatches: Match[], parentMatch: Match) {
-    if (parentMatch) {
-      const firstSelected = selectedMatches[0];
-      const indexOfFirstSelected = parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-      const groupedMatch = { boolMatch: "and", match: [] } as Match;
-      for (const selectedMatch of selectedMatches) {
-        groupedMatch.match!.push(selectedMatch);
-        parentMatch.match!.splice(indexOfFirstSelected, 1);
+  function group(selectedMatches: SelectedMatch[], parentMatch: Match, matches: Match[]) {
+    let index = selectedMatches[0].index;
+    const groupedMatch = { boolMatch: "and", match: [] } as Match;
+
+    for (const selectedMatch of selectedMatches) {
+      if (selectedMatch.index < index) index = selectedMatch.index;
+      groupedMatch.match!.push(selectedMatch.selected);
+    }
+
+    if (isObjectHasKeys(parentMatch, ["match"]) && isArrayHasLength(parentMatch.match)) {
+      groupedMatch.match!.sort((a, b) => parentMatch.match!.indexOf(a) - parentMatch.match!.indexOf(b));
+      parentMatch.match!.splice(index, 0, groupedMatch);
+    } else {
+      groupedMatch.match!.sort((a, b) => matches.indexOf(a) - matches.indexOf(b));
+      matches.splice(index, 0, groupedMatch);
+    }
+
+    for (const selectedMatch of selectedMatches) {
+      if (isObjectHasKeys(parentMatch, ["match"]) && isArrayHasLength(parentMatch.match)) {
+        parentMatch.match!.splice(
+          parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+          1
+        );
+      } else {
+        matches.splice(
+          matches.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+          1
+        );
       }
-      // remove();
-      // describeMatch([groupedMatch], "match");
-      parentMatch.match!.splice(indexOfFirstSelected, 0, groupedMatch);
     }
   }
+  // if (parentMatch) {
+  //   const firstSelected = selectedMatches[0];
+  //   const indexOfFirstSelected = parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
+  //   const groupedMatch = { boolMatch: "and", match: [] } as Match;
+  //   for (const selectedMatch of selectedMatches) {
+  //     selectedMatch.memberOfList;
+  //     groupedMatch.match!.push(selectedMatch.selected);
+  //     parentMatch.match!.splice(indexOfFirstSelected, 1);
+  //   }
+  //   // remove();
+  //   // describeMatch([groupedMatch], "match");
+  //   parentMatch.match!.splice(indexOfFirstSelected, 0, groupedMatch);
+  // }
 
-  function ungroup(index: number, selectedMatches: Match[], parentMatch: Match) {
-    if (parentMatch) {
-      for (const selectedMatch of selectedMatches) {
-        if (isArrayHasLength(selectedMatch.match)) {
-          if (index !== -1) parentMatch.match!.splice(index, 1);
-          for (const nestedMatch of selectedMatch.match!.reverse()) {
-            parentMatch.match!.splice(index, 0, nestedMatch);
-          }
+  function ungroup(index: number, selectedMatches: SelectedMatch[], parentMatch: Match, matches: Match[]) {
+    for (const selectedMatch of selectedMatches) {
+      if (isArrayHasLength(selectedMatch.selected.match)) {
+        if (index !== -1) matches.splice(index, 1);
+        for (const nestedMatch of selectedMatch.selected.match!.reverse()) {
+          matches.splice(index, 0, nestedMatch);
         }
       }
     }

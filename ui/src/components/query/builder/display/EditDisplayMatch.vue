@@ -122,7 +122,7 @@ function getMultipleRCOptions() {
   const multipleRCOptions = [
     {
       label: "Group",
-      icon: PrimeIcons.EJECT,
+      icon: PrimeIcons.LINK,
       command: () => {
         group(props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
@@ -218,7 +218,7 @@ function getSingleRCOptions() {
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
     singleRCOptions.push({
       label: "Ungroup",
-      icon: PrimeIcons.LINK,
+      icon: PrimeIcons.EJECT,
       command: () => {
         ungroup(props.index, props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
