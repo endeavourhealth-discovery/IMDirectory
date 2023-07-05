@@ -1,12 +1,10 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="'Add property'" :style="{ width: '60vw' }">
-    <div class="add-base-container">
-      <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
-      <div class="footer">
-        <Button label="Discard" severity="secondary" @click="visible = false" text />
-        <Button label="Save" @click="save" text />
-      </div>
-    </div>
+  <Dialog v-model:visible="visible" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
+    <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
+    <template #footer>
+      <Button label="Discard" severity="secondary" @click="visible = false" text />
+      <Button label="Save" @click="save" text />
+    </template>
   </Dialog>
 </template>
 
