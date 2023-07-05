@@ -42,7 +42,11 @@
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
-  <AddPropertyDialog v-model:showDialog="showAddDialog" :match="match" :base-type="queryTypeIri" />
+  <AddPropertyDialog
+    v-model:showDialog="showAddDialog"
+    :base-type="queryTypeIri"
+    @on-add-property="(match: Match) => add((parentMatch?.match ?? parentMatchList)!, match, index)"
+  />
   <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
 </template>
 
@@ -93,19 +97,6 @@ function saveSelect(selectedCS: ConceptSummary) {
   editMode.value = false;
 }
 
-function addBelow() {
-  if (props.parentMatch) {
-    add(props.parentMatch.match!);
-  } else if (isArrayHasLength(props.parentMatchList)) {
-    add(props.parentMatchList!);
-  }
-}
-
-function addNested() {
-  if (!isArrayHasLength(props.match)) props.match.match = [];
-  add(props.match.match!);
-}
-
 function toggleBoolMatch() {
   if (props.match.boolMatch === "and") props.match.boolMatch = "or";
   else if (props.match.boolMatch === "or") props.match.boolMatch = "and";
@@ -147,14 +138,12 @@ function getSingleRCOptions() {
         {
           label: "Below",
           command: () => {
-            addBelow();
+            showAddDialog.value = true;
           }
         },
         {
           label: "Nested",
-          command: () => {
-            addNested();
-          }
+          command: () => {}
         }
       ]
     },
