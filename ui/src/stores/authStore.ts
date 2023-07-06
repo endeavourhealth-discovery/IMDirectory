@@ -12,7 +12,15 @@ export const useAuthStore = defineStore("auth", {
       this.registeredUsername = username;
     },
     updateAuthReturnUrl(url: string) {
-      if (!(url.startsWith("/#/user/login") || url.startsWith("/#/user/register") || url.startsWith("/#/user/password-recovery"))) this.authReturnUrl = url;
+      if (
+        !(
+          url.startsWith("/#/user/login") ||
+          url.startsWith("/#/user/register") ||
+          url.startsWith("/#/user/password-recovery") ||
+          url.startsWith("/#/user/confirm-code")
+        )
+      )
+        this.authReturnUrl = url;
     },
     updatePreviousAppUrl() {
       this.previousAppUrl = window.location.href;
