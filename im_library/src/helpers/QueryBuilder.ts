@@ -9,7 +9,7 @@ export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
   if (isFolder(treeNode.conceptTypes)) {
     const match = {
       key: treeNode.key,
-      where: [{ "@id": IM.IS_CONTAINED_IN, in: [{ "@id": IM.NAMESPACE + "HealthDataModel" }] }]
+      property: [{ "@id": IM.IS_CONTAINED_IN, in: [{ "@id": IM.NAMESPACE + "HealthDataModel" }] }]
     } as Match;
     describeMatch([match]);
     return match;
@@ -38,7 +38,7 @@ export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
   return match;
 }
 
-export function buildWhereFromProperty(treeNode: TreeNode) {
+export function buildPropertyFromTreeNode(treeNode: TreeNode) {
   const property = { "@id": treeNode.data } as Property;
   // string - is ""
   // boolean - is true

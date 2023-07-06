@@ -9,7 +9,7 @@
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay v-if="match.match" :include="true" :matches="match.match" :parent-match="match" :full-query="fullQuery" />
       </span>
-      <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.property)">
+      <span v-if="isObjectHasKeys(match, ['property']) && isArrayHasLength(match.property)">
         <span v-if="match.property!.length == 1">
           <span v-if="hasNodeRef(match.property![0])" v-html="match.property![0].description" @click="onNodeRefClick(match.property![0], $event)"></span>
           <span
@@ -19,7 +19,7 @@
           ></span>
           <span v-else v-html="match.property![0].description"></span>
           <span v-if="isArrayHasLength(match.property![0].property)">
-            <RecursiveWhereDisplay
+            <RecursivePropertyDisplay
               :properties="match.property![0].property!"
               :parent-match="parentMatch"
               :parent-property="match.property![0]"
@@ -28,7 +28,7 @@
           </span>
         </span>
 
-        <RecursiveWhereDisplay v-else :properties="match.property!" :parent-match="match" :full-query="fullQuery" />
+        <RecursivePropertyDisplay v-else :properties="match.property!" :parent-match="match" :full-query="fullQuery" />
       </span>
       <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
 
@@ -45,7 +45,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Node, Query, Property } from "@im-library/interfaces/AutoGen";
 import { PropType, Ref, ref } from "vue";
-import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
+import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
 import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";

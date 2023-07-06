@@ -1,8 +1,8 @@
 <template>
-  <EditWhere v-if="editMode" :property="editProperty" :query-type-iri="queryTypeIri" :match="parentMatch" @on-cancel="editMode = false" @on-save="save" />
+  <EditProperty v-if="editMode" :property="editProperty" :query-type-iri="queryTypeIri" :match="parentMatch" @on-cancel="editMode = false" @on-save="save" />
   <div class="property" v-else-if="property.description" v-html="property.description" @dblclick="editMode = true"></div>
   <div v-if="isArrayHasLength(property.property)" v-for="(nestedProperty, index) of property.property">
-    <EditDisplayWhere :index="index" :parent-property="property" :property="nestedProperty" :query-type-iri="queryTypeIri" />
+    <EditDisplayProperty :index="index" :parent-property="property" :property="nestedProperty" :query-type-iri="queryTypeIri" />
   </div>
 </template>
 
@@ -11,7 +11,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { describeProperty, getDisplayFromLogic } from "@im-library/helpers/QueryDescriptor";
 import { Match, Property } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
-import EditWhere from "../edit/EditWhere.vue";
+import EditProperty from "../edit/EditProperty.vue";
 import _ from "lodash";
 
 interface Props {

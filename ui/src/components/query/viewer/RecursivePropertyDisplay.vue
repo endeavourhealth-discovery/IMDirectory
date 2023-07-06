@@ -6,7 +6,7 @@
       <span v-else-if="hasBigList(property)" v-html="property.description" @click="onPropertyInClick(property, $event)"></span>
       <span v-else v-html="property.description"></span>
       <span v-if="isArrayHasLength(property.property)">
-        <RecursiveWhereDisplay :properties="property.property!" :parent-match="parentMatch" :parent-property="property" :full-query="fullQuery" />
+        <RecursivePropertyDisplay :properties="property.property!" :parent-match="parentMatch" :parent-property="property" :full-query="fullQuery" />
       </span>
     </div>
   </div>

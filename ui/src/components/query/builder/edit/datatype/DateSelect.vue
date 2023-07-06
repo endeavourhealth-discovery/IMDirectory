@@ -1,12 +1,12 @@
 <template>
-  <Dropdown :options="['is', 'between', 'comparison']" v-model:model-value="whereType" />
-  <Calendar v-if="whereType === 'is'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
-  <div v-else-if="whereType === 'between'">
+  <Dropdown :options="['is', 'between', 'comparison']" v-model:model-value="propertyType" />
+  <Calendar v-if="propertyType === 'is'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
+  <div v-else-if="propertyType === 'between'">
     <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
     <span> and </span>
     <Calendar v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
   </div>
-  <ComparisonSelect v-else-if="whereType === 'comparison'" :property="property" />
+  <ComparisonSelect v-else-if="propertyType === 'comparison'" :property="property" />
   <Dropdown :options="['get all', 'get latest', 'get earliest']" v-model:model-value="get" />
 </template>
 
@@ -18,13 +18,13 @@ interface Props {
   property: Property;
 }
 const props = defineProps<Props>();
-const whereType: Ref<string> = ref("is");
+const propertyType: Ref<string> = ref("is");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
 const get: Ref<any> = ref();
 
 onMounted(() => {
-  if (props.property.operator) whereType.value = "comparison";
+  if (props.property.operator) propertyType.value = "comparison";
 });
 </script>
 

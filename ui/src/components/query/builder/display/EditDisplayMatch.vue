@@ -19,7 +19,7 @@
       :selected-matches="selectedMatches"
     />
 
-    <EditDisplayWhere
+    <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
       v-for="(property, index) of match.property"
       :index="index"
@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match } from "@im-library/interfaces/AutoGen";
-import EditDisplayWhere from "./EditDisplayWhere.vue";
+import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
 import { MenuItem } from "primevue/menuitem";
