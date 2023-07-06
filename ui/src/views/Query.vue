@@ -8,7 +8,7 @@
       </template>
     </TopBar>
     <div class="include-title include">include if</div>
-    <div v-if="queryTypeIri" class="type-title">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
+    <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
     <EditDisplayMatch
       v-if="isArrayHasLength(query.match)"
@@ -166,6 +166,11 @@ function addProperty(newMatch: Match) {
 
 .type-title {
   margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.type-title:hover {
+  background-color: var(--highlight-bg);
 }
 
 .include-title {
