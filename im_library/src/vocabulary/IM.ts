@@ -103,6 +103,8 @@ export class IM {
   public static DATAMODEL_ENTITY = IM.NAMESPACE + "DataModelEntity";
   public static DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
   public static QUERY = IM.NAMESPACE + "Query";
+  public static DATASET_QUERY = IM.NAMESPACE + "DatasetQuery";
+  public static COHORT_QUERY = IM.NAMESPACE + "CohortQuery";
 
   //Property types
   public static DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";

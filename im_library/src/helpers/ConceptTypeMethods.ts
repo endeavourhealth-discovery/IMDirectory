@@ -39,7 +39,7 @@ export function isConcept(conceptTypes: TTIriRef[]): boolean {
 }
 
 export function isQuery(entityTypes: TTIriRef[]): boolean {
-  return isOfTypes(entityTypes, IM.QUERY);
+  return isOfTypes(entityTypes, IM.QUERY, IM.COHORT_QUERY, IM.DATASET_QUERY);
 }
 
 export function isRecordModel(entityTypes: TTIriRef[]): boolean {
