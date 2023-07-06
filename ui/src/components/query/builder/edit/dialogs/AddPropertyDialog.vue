@@ -20,7 +20,6 @@ import QueryNavTree from "../QueryNavTree.vue";
 interface Props {
   showDialog: boolean;
   baseType: string;
-  match?: Match;
 }
 
 const props = defineProps<Props>();
@@ -40,10 +39,6 @@ watch(visible, newValue => {
   if (!newValue) {
     emit("update:showDialog", newValue);
   }
-});
-
-onMounted(() => {
-  if (props.match) editMatch.value = _.cloneDeep(props.match);
 });
 
 function isDirectProperty(treeNode: TreeNode) {

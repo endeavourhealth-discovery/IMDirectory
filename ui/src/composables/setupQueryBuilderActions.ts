@@ -12,11 +12,11 @@ function setupQueryBuilderActions() {
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
 
-  function add(matches: Match[]): Match {
+  function add(matches: Match[], match: Match, index: number) {
     showAddDialog.value = true;
-    const newMatch = {} as Match;
-    matches.push(newMatch);
-    return newMatch;
+    if (index !== matches.length) matches.splice(index + 1, 0, match);
+    else matches.push(match);
+    showAddDialog.value = false;
   }
 
   function view() {
