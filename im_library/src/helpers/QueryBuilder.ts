@@ -11,21 +11,21 @@ export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
       key: treeNode.key,
       property: [{ "@id": IM.IS_CONTAINED_IN, in: [{ "@id": IM.NAMESPACE + "HealthDataModel" }] }]
     } as Match;
-    describeMatch([match]);
+    // describeMatch([match]);
     return match;
   } else if (isRecordModel(treeNode.conceptTypes)) {
     const match = {
       key: treeNode.key,
       "@type": treeNode.data
     } as Match;
-    describeMatch([match]);
+    // describeMatch([match]);
     return match;
   } else if (isValueSet(treeNode.conceptTypes) || isQuery(treeNode.conceptTypes)) {
     const match = {
       key: treeNode.key,
       "@set": treeNode.data
     } as Match;
-    describeMatch([match]);
+    // describeMatch([match]);
     return match;
   } else if (isProperty(treeNode.conceptTypes)) {
     return buildMatchFromProperty(treeNode);
@@ -34,7 +34,7 @@ export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
     key: treeNode.key,
     "@id": treeNode.data
   } as Match;
-  describeMatch([match]);
+  // describeMatch([match]);
   return match;
 }
 
@@ -49,7 +49,7 @@ export function buildPropertyFromTreeNode(treeNode: TreeNode) {
     property.operator = "=";
     property.value = "";
   }
-  describeProperty([property]);
+  // describeProperty([property]);
   (property as any).key = treeNode.key;
   (property as any).path = buildPath(treeNode);
   return property;
@@ -66,14 +66,14 @@ export function buildMatchFromProperty(treeNode: TreeNode) {
     property.operator = "=";
     property.value = "";
   }
-  describeProperty([property]);
+  // describeProperty([property]);
 
   const match = {
     key: treeNode.key,
     path: buildPath(treeNode),
     property: [property]
   } as Match;
-  describeMatch([match]);
+  // describeMatch([match]);
   return match;
 }
 

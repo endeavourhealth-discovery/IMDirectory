@@ -5,111 +5,40 @@ import { getNameFromRef, resolveIri } from "./TTTransform";
 
 const propertyDisplayMap = { concept: "of" } as any;
 
+// descriptors
 export function describeQuery(query: Query): Query {
   const describedQuery = { ...query };
   if (isArrayHasLength(describedQuery.match))
-    for (const [index, match] of describedQuery.match.entries()) {
-      describeMatchNew(match, index, [], "and");
+    for (const [index, match] of describedQuery.match!.entries()) {
+      describeMatch(match, index, "and");
     }
   describedQuery.query;
   return describedQuery;
 }
 
-export function describeMatchNew(match: Match, index: number, parents: any[], bool: Bool) {
+export function describeMatch(match: Match, index: number, bool: Bool) {
   let display = getDisplayFromMatch(match);
   if (match.exclude) display = "exclude if " + display;
   if (index && bool) display = bool + " " + display;
   match.description = display;
 
   if (isArrayHasLength(match.match))
-    for (const [index, nestedMatch] of match.match.entries()) {
-      describeMatchNew(nestedMatch, index, parents, match.bool);
+    for (const [index, nestedMatch] of match.match!.entries()) {
+      describeMatch(nestedMatch, index, match.bool!);
     }
 
   if (isArrayHasLength(match.property))
-    for (const [index, property] of match.property.entries()) {
-      describePropertyNew(property, index, parents, property.bool);
+    for (const [index, property] of match.property!.entries()) {
+      describeProperty(property, index, property.bool!);
     }
 }
 
-export function describePropertyNew(property: Property, index: number, parents: any[], bool: Bool) {
+export function describeProperty(property: Property, index: number, bool: Bool) {
   if (property.match) getDisplayFromNestedProperties(property);
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromProperty(property);
     if (index && bool) display = bool + " " + display;
     property.description = display;
-  }
-}
-
-function getDisplayFromNestedProperties(property: Property) {
-  const pathList = [property["@id"]];
-  const lastMatch: Match[] = [];
-  recursePath(property, pathList, lastMatch);
-  const propertyPathDisplay = getPropertyPathDisplay(pathList);
-  if (isArrayHasLength(lastMatch) && isArrayHasLength(lastMatch[0].property))
-    for (const [index, nestedProperty] of lastMatch[0].property.entries()) {
-      let display = propertyPathDisplay + "->" + getDisplayFromProperty(nestedProperty);
-      if (index && lastMatch[0].bool) display = lastMatch[0].bool + " " + display;
-      nestedProperty.description = display;
-    }
-}
-
-function getPropertyPathDisplay(pathList: string[]) {
-  const pathDisplay = [];
-  for (const [index, value] of pathList.entries()) {
-    if (index % 2 === 0) {
-      // TODO propertyDisplayMap check
-      const valueToAdd = getNameFromRef({ "@id": value });
-      pathDisplay.push(valueToAdd);
-    }
-  }
-  return pathDisplay.join("->");
-}
-
-function recursePath(propertyOrMatch: any, pathList: string[], lastMatch: Match[]) {
-  if (isObjectHasKeys(propertyOrMatch, ["property"]) && isArrayHasLength(propertyOrMatch.property)) {
-    for (const nestedProperty of propertyOrMatch.property) {
-      pathList.push(nestedProperty["@id"]);
-      recursePath(nestedProperty, pathList, lastMatch);
-    }
-  } else if (isObjectHasKeys(propertyOrMatch, ["match"])) {
-    if (isLastMatch(propertyOrMatch.match)) {
-      if (isArrayHasLength(lastMatch)) lastMatch.splice(0, 1, propertyOrMatch);
-      else lastMatch.push(propertyOrMatch.match);
-    } else {
-      pathList.push(propertyOrMatch.match["@type"]);
-      recursePath(propertyOrMatch.match, pathList, lastMatch);
-    }
-  }
-}
-
-function isLastMatch(match: Match) {
-  return isArrayHasLength(match.property) && match.property.some(property => !isObjectHasKeys(property, ["match"]));
-}
-
-// descriptors
-export function describeMatch(match: Match[]) {
-  for (const [index, matchItem] of match.entries()) {
-    matchItem.description = getDisplayFromMatch(matchItem);
-    if (isObjectHasKeys(matchItem, ["boolMatch"])) {
-      describeMatch(matchItem.match!);
-    }
-    if (isArrayHasLength(matchItem.property)) {
-      describeProperty(matchItem.property!);
-    }
-  }
-}
-
-export function describeProperty(property: Property[]) {
-  for (const [index, propertyItem] of property.entries()) {
-    propertyItem.description = getDisplayFromProperty(propertyItem);
-    if (isObjectHasKeys(propertyItem, ["bool"])) {
-      describeProperty(propertyItem.property!);
-    }
-
-    if (isObjectHasKeys(propertyItem, ["match"])) {
-      describeMatch([propertyItem.match!]);
-    }
   }
 }
 
@@ -133,16 +62,45 @@ export function getDisplayFromPropertyList(matchDisplay: string, propertyList: P
   return propertyDisplays;
 }
 
-export function getDisplayFromProperty(property: Property) {
+export function getDisplayFromProperty(property: Property, propertyPathDisplay?: string) {
   let display = "";
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
-  if (propertyDisplayMap[propertyName]) display += " " + propertyDisplayMap[propertyName];
-  if (property.in) display += " " + getDisplayFromList(property, true);
+  if (propertyDisplayMap[propertyName]) display += propertyDisplayMap[propertyName];
+  if (property.in) display += getDisplayFromList(property, true);
   if (property.notIn) display += getDisplayFromList(property, false);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);
   if (property.range) display = getDisplayFromRange(propertyName, property);
   if (property.null) display += " is null";
+  if (propertyPathDisplay) {
+    const connectingString = propertyDisplayMap[propertyName] ? " " : "->";
+    display = propertyPathDisplay + connectingString + display;
+  }
   return display;
+}
+
+function getDisplayFromNestedProperties(property: Property) {
+  const pathList: string[] = [property["@id"]!];
+  const lastMatch: Match[] = [];
+  getDisplayFromPathRecursively(property, pathList, lastMatch);
+  const propertyPathDisplay = getPropertyPathDisplay(pathList);
+  if (isArrayHasLength(lastMatch) && isArrayHasLength(lastMatch[0].property))
+    for (const [index, nestedProperty] of lastMatch[0].property!.entries()) {
+      let propertyDisplay = getDisplayFromProperty(nestedProperty, propertyPathDisplay);
+      if (index && lastMatch[0].bool) propertyDisplay = lastMatch[0].bool + " " + propertyDisplay;
+      nestedProperty.description = propertyDisplay;
+    }
+}
+
+function getPropertyPathDisplay(pathList: string[]) {
+  const pathDisplay = [];
+  for (const [index, value] of pathList.entries()) {
+    if (index % 2 === 0) {
+      // TODO propertyDisplayMap check
+      const valueToAdd = getNameFromRef({ "@id": value });
+      pathDisplay.push(valueToAdd);
+    }
+  }
+  return pathDisplay.join("->");
 }
 
 export function describeOrderByList(orderByList: OrderLimit[]) {
@@ -177,7 +135,7 @@ export function getDisplayFromLogic(title: string) {
 }
 
 export function getDisplayFromRange(propertyName: string, property: Property) {
-  const propertyDisplay = " " + propertyName;
+  const propertyDisplay = propertyName;
   let display = propertyDisplay + " between ";
   display += property.range?.from.value + " and " + property.range?.to.value + " " + property.range?.to.unit;
   return display;
@@ -291,14 +249,21 @@ export function getDisplayFromEntailment(node: Node) {
   return "";
 }
 
-function getDisplayFromPathRecursively(displayObject: { display: string }, type: string, pathOrNode: any) {
-  if ("node" !== type && !propertyDisplayMap[getNameFromRef(pathOrNode)]) {
-    if (displayObject.display) displayObject.display += ".";
-    displayObject.display += getNameFromRef(pathOrNode);
+function getDisplayFromPathRecursively(propertyOrMatch: any, pathList: string[], lastMatch: Match[]) {
+  if (isObjectHasKeys(propertyOrMatch, ["property"]) && isArrayHasLength(propertyOrMatch.property)) {
+    for (const nestedProperty of propertyOrMatch.property) {
+      pathList.push(nestedProperty["@id"]);
+      getDisplayFromPathRecursively(nestedProperty, pathList, lastMatch);
+    }
+  } else if (isObjectHasKeys(propertyOrMatch, ["match"])) {
+    if (isLastMatch(propertyOrMatch.match)) {
+      if (isArrayHasLength(lastMatch)) lastMatch.splice(0, 1, propertyOrMatch);
+      else lastMatch.push(propertyOrMatch.match);
+    } else {
+      pathList.push(propertyOrMatch.match["@type"]);
+      getDisplayFromPathRecursively(propertyOrMatch.match, pathList, lastMatch);
+    }
   }
-  if (isObjectHasKeys(pathOrNode, ["node"])) getDisplayFromPathRecursively(displayObject, "node", pathOrNode.node);
-  if (isObjectHasKeys(pathOrNode, ["path"])) getDisplayFromPathRecursively(displayObject, "path", pathOrNode.path);
-  if (isObjectHasKeys(pathOrNode, ["variable"])) displayObject.display = "(" + displayObject.display + " as " + pathOrNode.variable + ")";
 }
 
 // checkers
@@ -337,6 +302,10 @@ function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
     if (isArrayHasLength(unnamedObjects.resolvedIri)) unnamedObjects[resolvedIri].push(object);
     else unnamedObjects[resolvedIri] = [object];
   }
+}
+
+function isLastMatch(match: Match) {
+  return isArrayHasLength(match.property) && match.property!.some(property => !isObjectHasKeys(property, ["match"]));
 }
 
 export default { describeQuery, getUnnamedObjects };
