@@ -59,7 +59,7 @@ import { QueryRequest } from "@im-library/interfaces/AutoGen";
 interface Props {
   entity: any;
   showSelectButton?: boolean;
-  validationQuery?: string;
+  validationQuery?: QueryRequest;
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
 
@@ -100,7 +100,8 @@ function getColour(entity: any) {
 
 async function isSelectableEntity(): Promise<boolean> {
   if (props.validationQuery) {
-    const queryRequest = { query: { "@id": props.validationQuery }, textSearch: props.entity[RDFS.LABEL] } as QueryRequest;
+    const queryRequest = _.cloneDeep(props.validationQuery);
+    queryRequest.textSearch = props.entity[RDFS.LABEL];
     const queryResults = await QueryService.queryIM(queryRequest);
     if (queryResults.entities && queryResults.entities.findIndex(item => item.iri === props.entity[RDFS.LABEL])) return true;
     else return false;

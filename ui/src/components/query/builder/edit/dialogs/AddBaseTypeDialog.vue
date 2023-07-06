@@ -1,12 +1,26 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="'Add property'" :style="{ width: '60vw' }">
-    <div class="add-base-container">
-      <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
-      <div class="footer">
-        <Button label="Discard" severity="secondary" @click="visible = false" text />
-        <Button label="Save" @click="save" text />
-      </div>
-    </div>
+  <Dialog v-model:visible="visible" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
+    <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
+    <template #footer>
+      <Button label="Discard" severity="secondary" @click="visible = false" text />
+      <Button label="Save" @click="confirmVisible = true" text />
+    </template>
+  </Dialog>
+
+  <Dialog v-model:visible="confirmVisible" modal header="Confirm" :style="{ width: '50vw' }">
+    Are you sure you want to change the base type? All current query content will be discarded.
+    <template #footer>
+      <Button label="Cancel" icon="pi pi-times" @click="confirmVisible = false" text />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        @click="
+          confirmVisible = false;
+          visible = false;
+          save();
+        "
+      />
+    </template>
   </Dialog>
 </template>
 
@@ -30,6 +44,7 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
 const visible: Ref<boolean> = ref(false);
+const confirmVisible: Ref<boolean> = ref(false);
 
 watch(
   () => props.showDialog,
@@ -51,6 +66,7 @@ async function save() {
     props.query.type = baseNode.value.data;
   }
   visible.value = false;
+  props.query.match = [];
 }
 
 function addBaseEntity(selected: TreeNode) {

@@ -2,7 +2,7 @@
   <div
     :class="isSelected ? 'selected feature' : 'feature'"
     @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
-    @contextmenu="onRightClick($event, match)"
+    @contextmenu="onRightClick($event)"
   >
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
@@ -42,7 +42,11 @@
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
-  <AddPropertyDialog v-model:showDialog="showAddDialog" :match="match" :base-type="queryTypeIri" />
+  <AddPropertyDialog
+    v-model:showDialog="showAddDialog"
+    :base-type="queryTypeIri"
+    @on-add-property="(match: Match) => add((parentMatch?.match ?? parentMatchList)!, match, index)"
+  />
   <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
 </template>
 
@@ -92,25 +96,14 @@ function saveSelect(selectedCS: ConceptSummary) {
   editMode.value = false;
 }
 
-function addBelow() {
-  if (props.parentMatch) {
-    add(props.parentMatch.match!);
-  } else if (isArrayHasLength(props.parentMatchList)) {
-    add(props.parentMatchList!);
-  }
-}
-
-function addNested() {
-  if (!isArrayHasLength(props.match)) props.match.match = [];
-  add(props.match.match!);
-}
-
 function toggleBoolMatch() {
   if (props.match.boolMatch === "and") props.match.boolMatch = "or";
   else if (props.match.boolMatch === "or") props.match.boolMatch = "and";
 }
 
-function onRightClick(event: any, match: Match) {
+function onRightClick(event: any) {
+  if (!isArrayHasLength(props.selectedMatches) || props.selectedMatches.length === 1)
+    select(event, isSelected.value, props.selectedMatches, props.match, props.index, props.parentMatch, props.parentMatchList);
   rClickOptions.value = isArrayHasLength(props.selectedMatches) && props.selectedMatches.length === 1 ? getSingleRCOptions() : getMultipleRCOptions();
   rClickMenu.value.show(event);
 }
@@ -119,9 +112,9 @@ function getMultipleRCOptions() {
   const multipleRCOptions = [
     {
       label: "Group",
-      icon: PrimeIcons.EJECT,
+      icon: PrimeIcons.LINK,
       command: () => {
-        // group();
+        group(props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
     },
     {
@@ -144,14 +137,12 @@ function getSingleRCOptions() {
         {
           label: "Below",
           command: () => {
-            addBelow();
+            showAddDialog.value = true;
           }
         },
         {
           label: "Nested",
-          command: () => {
-            addNested();
-          }
+          command: () => {}
         }
       ]
     },
@@ -203,12 +194,21 @@ function getSingleRCOptions() {
     }
   ];
 
+  if (isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]))
+    singleRCOptions.splice(1, 0, {
+      label: "Edit",
+      icon: PrimeIcons.PENCIL,
+      command: () => {
+        if (isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"])) editMode.value = true;
+      }
+    });
+
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
     singleRCOptions.push({
-      label: "Group",
-      icon: PrimeIcons.LINK,
+      label: "Ungroup",
+      icon: PrimeIcons.EJECT,
       command: () => {
-        // group();
+        ungroup(props.index, props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
     });
 
