@@ -1,11 +1,11 @@
 <template>
   <RecursiveQueryDisplay v-if="'match' === overlayObject.type" :matches="[overlayObject.data]" :full-query="fullQuery" :isVariable="true" />
-  <RecursiveWhereDisplay v-else-if="'where' === overlayObject.type" :wheres="[overlayObject.data]" :full-query="fullQuery" />
+  <RecursiveWhereDisplay v-else-if="'property' === overlayObject.type" :properties="[overlayObject.data]" :full-query="fullQuery" />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Query, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Query, Property } from "@im-library/interfaces/AutoGen";
 import { PropType, Ref, onMounted, ref, watch } from "vue";
 import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
 import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
@@ -31,18 +31,18 @@ function findNestedQuery() {
   return found[0] ?? {};
 }
 
-function findRecursively(found: any[], type: string, matchOrWhere: any): any {
-  if (matchOrWhere.variable === props.variableName) found.push({ type: type, data: matchOrWhere });
+function findRecursively(found: any[], type: string, matchOrProperty: any): any {
+  if (matchOrProperty.variable === props.variableName) found.push({ type: type, data: matchOrProperty });
 
-  if (isArrayHasLength(matchOrWhere.match)) {
-    for (const match of matchOrWhere.match) {
+  if (isArrayHasLength(matchOrProperty.match)) {
+    for (const match of matchOrProperty.match) {
       findRecursively(found, "match", match);
     }
   }
 
-  if (isArrayHasLength(matchOrWhere.where)) {
-    for (const where of matchOrWhere.where) {
-      findRecursively(found, "where", where);
+  if (isArrayHasLength(matchOrProperty.property)) {
+    for (const property of matchOrProperty.property) {
+      findRecursively(found, "property", property);
     }
   }
 }

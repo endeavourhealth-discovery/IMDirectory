@@ -50,18 +50,18 @@ function onSelectedUpdate(selected: TreeNode[]) {
 }
 
 function addDirectProperty(treeNode: TreeNode) {
-  editMatch.value.where?.push(buildWhereFromProperty(treeNode as any));
-  describeMatch([editMatch.value], "match");
+  editMatch.value.property?.push(buildWhereFromProperty(treeNode as any));
+  describeMatch([editMatch.value]);
 }
 
 function addNestedProperty(treeNode: TreeNode) {
   // TODO refactor to UIProperty
-  editMatch.value.where?.push(buildWhereFromProperty(treeNode as any));
-  describeMatch([editMatch.value], "match");
+  editMatch.value.property?.push(buildWhereFromProperty(treeNode as any));
+  describeMatch([editMatch.value]);
 }
 
 async function save() {
-  editMatch.value.where = [];
+  editMatch.value.property = [];
   for (const treeNodeProperty of selectedProperties.value) {
     if (isDirectProperty(treeNodeProperty)) addDirectProperty(treeNodeProperty);
     else addNestedProperty(treeNodeProperty);

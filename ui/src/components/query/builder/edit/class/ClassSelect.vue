@@ -3,7 +3,7 @@
 
   <div class="property-input-container">
     <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="whereType" />
-    <InputText type="text" placeholder="Value label" v-model:model-value="props.where.valueLabel" />
+    <InputText type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
     <Button label="Save custom set" text severity="info" />
   </div>
   <div v-if="whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
@@ -29,13 +29,13 @@ import ValueTreeSelect from "./ValueTreeSelect.vue";
 import ValueListSelect from "./ValueListSelect.vue";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import _ from "lodash";
-import { Node, Where } from "@im-library/interfaces/AutoGen";
+import { Node, Property } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
 interface Props {
-  where: Where;
+  property: Property;
   classIri: string;
 }
 
@@ -59,12 +59,12 @@ onMounted(async () => {
 });
 
 function initEditValues() {
-  if (isObjectHasKeys(props.where, ["notIn"])) whereType.value = "notIn";
-  else if (isObjectHasKeys(props.where, ["null"])) whereType.value = "isNull";
+  if (isObjectHasKeys(props.property, ["notIn"])) whereType.value = "notIn";
+  else if (isObjectHasKeys(props.property, ["null"])) whereType.value = "isNull";
 
   if (whereType.value && whereType.value !== "isNull") {
-    if (!isArrayHasLength((props.where as any)[whereType.value])) (props.where as any)[whereType.value] = [{} as Node];
-    editValues.value = (props.where as any)[whereType.value];
+    if (!isArrayHasLength((props.property as any)[whereType.value])) (props.property as any)[whereType.value] = [{} as Node];
+    editValues.value = (props.property as any)[whereType.value];
   } else {
     editValues.value.push({} as Node);
   }

@@ -6,16 +6,16 @@
     <span> and </span>
     <Calendar v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
   </div>
-  <ComparisonSelect v-else-if="whereType === 'comparison'" :where="where" />
+  <ComparisonSelect v-else-if="whereType === 'comparison'" :property="property" />
   <Dropdown :options="['get all', 'get latest', 'get earliest']" v-model:model-value="get" />
 </template>
 
 <script setup lang="ts">
 import ComparisonSelect from "./ComparisonSelect.vue";
-import { Where } from "@im-library/interfaces/AutoGen";
+import { Property } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 interface Props {
-  where: Where;
+  property: Property;
 }
 const props = defineProps<Props>();
 const whereType: Ref<string> = ref("is");
@@ -24,7 +24,7 @@ const selectedValueB: Ref<any> = ref();
 const get: Ref<any> = ref();
 
 onMounted(() => {
-  if (props.where.operator) whereType.value = "comparison";
+  if (props.property.operator) whereType.value = "comparison";
 });
 </script>
 

@@ -1,16 +1,16 @@
 <template>
-  <div class="feature" v-for="(where, index) of wheres">
+  <div class="feature" v-for="(property, index) of properties">
     <div>
-      <span v-if="index" v-html="parentWhere && parentWhere.boolWhere === 'or' ? getDisplayFromLogic('or') : ''"></span>
-      <span v-if="hasNodeRef(where)" v-html="where.description" @click="onNodeRefClick(where, $event)"></span>
-      <span v-else-if="hasBigList(where)" v-html="where.description" @click="onWhereInClick(where, $event)"></span>
-      <span v-else v-html="where.description"></span>
-      <span v-if="isArrayHasLength(where.where)">
-        <RecursiveWhereDisplay :wheres="where.where!" :parent-match="parentMatch" :parent-where="where" :full-query="fullQuery" />
+      <span v-if="index" v-html="parentProperty && parentProperty.bool === 'or' ? getDisplayFromLogic('or') : ''"></span>
+      <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
+      <span v-else-if="hasBigList(property)" v-html="property.description" @click="onPropertyInClick(property, $event)"></span>
+      <span v-else v-html="property.description"></span>
+      <span v-if="isArrayHasLength(property.property)">
+        <RecursiveWhereDisplay :properties="property.property!" :parent-match="parentMatch" :parent-property="property" :full-query="fullQuery" />
       </span>
     </div>
   </div>
-  <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedWhere)" /> </OverlayPanel>
+  <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedProperty)" /> </OverlayPanel>
   <OverlayPanel ref="op1">
     <ListOverlay :list="list" />
   </OverlayPanel>
@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, Query, Where } from "@im-library/interfaces/AutoGen";
+import { Match, Node, Query, Property } from "@im-library/interfaces/AutoGen";
 import { Ref } from "vue";
 import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
@@ -28,8 +28,8 @@ import { getDisplayFromLogic } from "@im-library/helpers/QueryDescriptor";
 interface Props {
   fullQuery: Query;
   parentMatch?: Match;
-  parentWhere?: Where;
-  wheres: Where[];
+  parentProperty?: Property;
+  properties: Property[];
 }
 
 const props = defineProps<Props>();
@@ -37,29 +37,29 @@ const props = defineProps<Props>();
 const op: Ref<any> = ref();
 const op1: Ref<any> = ref();
 
-const clickedWhere: Ref<Where> = ref({} as Where);
+const clickedProperty: Ref<Property> = ref({} as Property);
 const list: Ref<Node[]> = ref([]);
 
-function hasBigList(where: Where) {
-  return (isArrayHasLength(where.in) && where.in!.length > 1) || (isArrayHasLength(where.notIn) && where.notIn!.length > 1);
+function hasBigList(property: Property) {
+  return (isArrayHasLength(property.in) && property.in!.length > 1) || (isArrayHasLength(property.notIn) && property.notIn!.length > 1);
 }
 
-function onNodeRefClick(where: Where, event: any) {
-  clickedWhere.value = where;
+function onNodeRefClick(property: Property, event: any) {
+  clickedProperty.value = property;
   op.value.toggle(event);
 }
 
-function onWhereInClick(where: Where, event: any) {
-  list.value = (where.in ?? where.notIn) as Node[];
+function onPropertyInClick(property: Property, event: any) {
+  list.value = (property.in ?? property.notIn) as Node[];
   op1.value.toggle(event);
 }
 
-function hasNodeRef(where: Where) {
-  return isObjectHasKeys(where, ["nodeRef"]) || isObjectHasKeys(where.relativeTo, ["nodeRef"]);
+function hasNodeRef(property: Property) {
+  return isObjectHasKeys(property, ["nodeRef"]) || isObjectHasKeys(property.relativeTo, ["nodeRef"]);
 }
 
-function getNodeRef(where: Where) {
-  return (where.nodeRef ?? where.relativeTo?.nodeRef) as string;
+function getNodeRef(property: Property) {
+  return (property.nodeRef ?? property.relativeTo?.nodeRef) as string;
 }
 </script>
 

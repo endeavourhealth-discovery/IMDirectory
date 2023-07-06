@@ -65,24 +65,7 @@ async function onCheckInput(check: boolean, node: TreeNode) {
   emit("onSelectedUpdate", selectedNodes.value);
 }
 
-async function populateCheckBoxes(match: Match) {
-  if (isObjectHasKeys(match, ["where"]) && isArrayHasLength(match.where)) {
-    for (const whereValue of match.where!) {
-      if ((match as any).key) {
-        const key = (match as any).key;
-        await selectByKey(key);
-      } else if (!match.path) {
-        const key = whereValue["@id"]!;
-        await selectByIri(key, root.value[0].children!);
-      } else {
-        const nodeKeys = [] as string[];
-        const key = whereValue["@id"]!;
-        await selectByPath(match.path, key, root.value[0].children!, nodeKeys);
-        if (isArrayHasLength(nodeKeys)) (match as any).key = nodeKeys[0];
-      }
-    }
-  }
-}
+async function populateCheckBoxes(match: Match) {}
 
 async function selectByKey(key: string) {
   const keys = key.split("-");

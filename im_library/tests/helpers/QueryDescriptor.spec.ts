@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { getDisplayFromMatch, getDisplayFromWhere, getDisplayFromOrderBy, getUnnamedObjects } from "@/helpers/QueryDescriptor";
-import { Match, Node, OrderLimit, Where } from "@/interfaces/AutoGen";
+import { getDisplayFromMatch, getDisplayFromProperty, getDisplayFromOrderBy, getUnnamedObjects } from "@/helpers/QueryDescriptor";
+import { Match, Node, OrderLimit, Property } from "@/interfaces/AutoGen";
 import { fullTestQueryDefinition, match, where, orderBy } from "./Query.testData";
 
 describe("QueryDescriptor.ts ___", () => {
@@ -200,34 +200,34 @@ describe("QueryDescriptor.ts ___", () => {
     //     });
   });
 
-  describe("getDisplayFromWhere", () => {
+  describe("getDisplayFromProperty", () => {
     it("can get a display for a where with an in list", () => {
-      const display = getDisplayFromWhere(where.withIn as Where);
+      const display = getDisplayFromProperty(where.withIn as Property);
       expect(display).toEqual(" of  descendants of 714628002");
     });
 
     it("can get a display for a where with an in list", () => {
-      const display = getDisplayFromWhere(where.withIn as Where);
+      const display = getDisplayFromProperty(where.withIn as Property);
       expect(display).toEqual(" of  descendants of 714628002");
     });
 
     it("can get a display for a where with an in list and valueLabel", () => {
-      const display = getDisplayFromWhere(where.withInAndValueLabel as Where);
+      const display = getDisplayFromProperty(where.withInAndValueLabel as Property);
       expect(display).toEqual(" of  <span class='node-ref'>Office or home systolic blood pressure</span> ");
     });
 
     it("can get a display for a where of last 6 months", () => {
-      const display = getDisplayFromWhere(where.last6Months as Where);
+      const display = getDisplayFromProperty(where.last6Months as Property);
       expect(display).toEqual("within the last 6 MONTHS");
     });
 
     it("can get a display for a where with valueLabel", () => {
-      const display = getDisplayFromWhere(where.last6MonthsWithValueLabel as Where);
+      const display = getDisplayFromProperty(where.last6MonthsWithValueLabel as Property);
       expect(display).toEqual("within the last 6 MONTHS");
     });
 
     it("can get a display for a where with after comparison date", () => {
-      const display = getDisplayFromWhere(where.after as Where);
+      const display = getDisplayFromProperty(where.after as Property);
       expect(display).toEqual("after <span class='node-ref'>latestBP</span> ");
     });
 
@@ -240,12 +240,12 @@ describe("QueryDescriptor.ts ___", () => {
     //     });
 
     it("can get a display for a where with a not in list", () => {
-      const display = getDisplayFromWhere(where.withNotInAndName as Where);
+      const display = getDisplayFromProperty(where.withNotInAndName as Property);
       expect(display).toEqual(" of not descendants of Prediabetes (finding)");
     });
 
     it("can get a display for a where with a nodeRef and comparison", () => {
-      const display = getDisplayFromWhere(where.withNodeRefAndComparison as Where);
+      const display = getDisplayFromProperty(where.withNodeRefAndComparison as Property);
       expect(display).toEqual("<span class='node-ref'>latestBP</span>  > 150");
     });
 
@@ -293,7 +293,7 @@ describe("QueryDescriptor.ts ___", () => {
     //     });
 
     it("can get a display for a where with a range", () => {
-      const display = getDisplayFromWhere(where.withRange as Where);
+      const display = getDisplayFromProperty(where.withRange as Property);
       expect(display).toEqual(" age between 65 and 70 YEARS");
     });
   });
