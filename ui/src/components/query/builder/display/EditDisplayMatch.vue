@@ -52,7 +52,6 @@ import { Match, Path } from "@im-library/interfaces/AutoGen";
 import EditDisplayWhere from "./EditDisplayWhere.vue";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
-import { MenuItem } from "primevue/menuitem";
 import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
@@ -82,7 +81,7 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 });
 
 const rClickMenu = ref();
-const rClickOptions: Ref<MenuItem[]> = ref([]);
+const rClickOptions: Ref<any[]> = ref([]);
 
 function saveSelect(selectedCS: ConceptSummary) {
   props.match.name = selectedCS.name;
