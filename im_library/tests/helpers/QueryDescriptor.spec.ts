@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { getDisplayFromMatch, getDisplayFromProperty, getDisplayFromOrderBy, getUnnamedObjects } from "@/helpers/QueryDescriptor";
+import { getDisplayFromMatch, getDisplayFromProperty, getDisplayFromOrderBy, getUnnamedObjects, describeMatchNew } from "@/helpers/QueryDescriptor";
 import { Match, Node, OrderLimit, Property } from "@/interfaces/AutoGen";
 import { fullTestQueryDefinition, match, where, orderBy } from "./Query.testData";
+import _ from "lodash";
 
 describe("QueryDescriptor.ts ___", () => {
   describe("getUnnamedObjects", () => {
@@ -22,183 +23,254 @@ describe("QueryDescriptor.ts ___", () => {
     });
   });
 
-  describe("getDisplayFromMatch", () => {
-    it("can get a display for a type match clause without a name", () => {
-      const display = getDisplayFromMatch(match.withType as Match);
-      expect(display).toEqual("Patient");
+  describe("describeMatch", () => {
+    it("can describe a type match", () => {
+      const testMatch: Match = _.cloneDeep(match.withType);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.description).toEqual("Patient");
     });
 
-    it("can get a display for a set match clause without a name", () => {
-      const display = getDisplayFromMatch(match.withSet as Match);
-      expect(display).toEqual("in 'CSET_EmailOnlineEncounter'");
+    it("can describe a set match", () => {
+      const testMatch: Match = _.cloneDeep(match.withSet);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.description).toEqual("in 'CSET_EmailOnlineEncounter'");
     });
 
-    it("can get a display for a match with entailment", () => {
-      const display = getDisplayFromMatch(match.withName as Match);
-      expect(display).toEqual("Text message consultation");
+    it("can describe a concept match", () => {
+      const testMatch: Match = _.cloneDeep(match.withIri);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.description).toEqual("325841000000109");
     });
 
-    it("can get a display for a match with entailment", () => {
-      const display = getDisplayFromMatch(match.withNameAndEntailment as Match);
-      expect(display).toEqual("Text message consultation");
+    it("can describe a concept match with name", () => {
+      const testMatch: Match = _.cloneDeep(match.withName);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.description).toEqual("Text message consultation");
     });
 
-    it("can not get a display for a match clause with a variable", () => {
-      const display = getDisplayFromMatch(match.withVariable as any);
-      expect(display).toEqual("");
+    it("can describe a concept match with name", () => {
+      const testMatch: Match = _.cloneDeep(match.withDescendantsOrSelfOf);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.description).toEqual("Text message consultation");
     });
 
-    //     it("can get a display for an exclude set match clause", () => {
-    //       const display = getDisplayFromMatch({
-    //         exclude: true,
-    //         description: "not hypertensive",
-    //         "@set": "http://endhealth.info/im#Q_Hypertensives",
-    //         name: "Hypertensives"
-    //       } as Match);
-    //       expect(display).toEqual("<span style='color: red;'>exclude</span> Hypertensives");
-    //     });
+    it("can describe a concept match with name", () => {
+      const testMatch: Match = _.cloneDeep(match.withAncestorsOf);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.description).toEqual("ancestors of Text message consultation");
+    });
 
-    //     it("can get a display for an exclude set match clause", () => {
-    //       const display = getDisplayFromMatch({
-    //         exclude: true,
-    //         description: "not hypertensive",
-    //         "@set": "http://endhealth.info/im#Q_Hypertensives",
-    //         name: "Hypertensives"
-    //       } as Match);
-    //       expect(display).toEqual("<span style='color: red;'>exclude</span> Hypertensives");
-    //     });
+    it("can describe a concept match with name", () => {
+      const testMatch: Match = _.cloneDeep(match.withDescendantsOf);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.description).toEqual("descendants of Text message consultation");
+    });
 
-    //     it("can get a display for a match with a where in clause", () => {
-    //       const display = getDisplayFromMatch({
-    //         path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-    //         where: [{ in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], "@id": "http://endhealth.info/im#concept" }]
-    //       } as Match);
-    //       expect(display).toEqual("observation.concept: &lt;714628002");
-    //     });
+    it("can describe a concept match with name", () => {
+      const testMatch: Match = _.cloneDeep(match.withExclude);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.description).toEqual("exclude if in 'Q_Hypertensives'");
+    });
 
-    //     it("can get a display for a match with where and a variable", () => {
-    //       const display = getDisplayFromMatch({
-    //         path: {
-    //           "@id": "http://endhealth.info/im#observation",
-    //           node: {
-    //             "@id": "http://endhealth.info/im#Observation",
-    //             variable: "with1"
-    //           }
-    //         },
-    //         where: [
-    //           {
-    //             in: [
-    //               {
-    //                 "@set": "urn:uuid:837c474c-f6af-4a05-83ad-7c4ee7557e11",
-    //                 name: "SMIResolved"
-    //               },
-    //               {
-    //                 "@set": "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c",
-    //                 name: "SMI"
-    //               }
-    //             ],
-    //             valueLabel: "SMIResolved,SMI",
-    //             "@id": "http://endhealth.info/im#concept"
-    //           }
-    //         ],
-    //         orderBy: [
-    //           {
-    //             direction: "ascending",
-    //             variable: "with1",
-    //             limit: 1,
-    //             "@id": "http://endhealth.info/im#effectiveDate"
-    //           }
-    //         ]
-    //       } as Match);
+    it("can describe a match with one direct property of range", () => {
+      const testMatch: Match = _.cloneDeep(match.withOneDirectPropertyOfRange as Match);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.property[0].description).toEqual("age between 65 and 70 YEARS");
+    });
 
-    //       expect(display).toEqual("(observation as with1).concept in [SMIResolved, SMI] ordered by earliest with1.effectiveDate");
-    //     });
+    // it("can describe a match with one direct property of in", () => {
+    //   const testMatch: Match = _.cloneDeep(match.withOneDirectPropertyOfIn as Match);
+    //   describeMatchNew(testMatch, 0, [], "and");
+    //   expect(testMatch.property[0].description).toEqual("statedGender is Female (stated gender)");
+    // });
 
-    //     it("can get a display for a match with multiple where clauses", () => {
-    //       const display = getDisplayFromMatch({
-    //         path: {
-    //           "@id": "http://endhealth.info/im#gpCurrentRegistration",
-    //           node: {
-    //             "@id": "http://endhealth.info/im#GPRegistration"
-    //           }
-    //         },
-    //         bool: "and",
-    //         where: [
-    //           {
-    //             in: [
-    //               {
-    //                 "@id": "http://endhealth.info/im#2751000252106",
-    //                 name: "Regular GMS patient",
-    //                 descendantsOrSelfOf: true
-    //               }
-    //             ],
-    //             valueLabel: "GMSpatient",
-    //             "@id": "http://endhealth.info/im#gpPatientType"
-    //           },
-    //           {
-    //             operator: ">=",
-    //             value: "18",
-    //             unit: "YEAR",
-    //             "@id": "http://endhealth.info/im#age"
-    //           }
-    //         ]
-    //       } as Match);
-    //       expect(display).toEqual(
-    //         "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration.age >= 18 YEAR"
-    //       );
-    //     });
+    // it("can describe a match with multiple direct properties", () => {
+    //   const testMatch: Match = _.cloneDeep(match.withMultipleDirectProperties as Match);
+    //   describeMatchNew(testMatch, 0, [], "and");
+    //   expect(testMatch.property[0].description).toEqual("age between 65 and 70 YEARS");
+    //   expect(testMatch.property[1].description).toEqual("statedGender is Female (stated gender)");
+    // });
 
-    //     it("can get a display for a match with multiple where clauses", () => {
-    //       const display = getDisplayFromMatch({
-    //         exclude: true,
-    //         description: "High BP not followed by screening invite",
-    //         path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-    //         bool: "and",
-    //         where: [
-    //           {
-    //             description: "Invited for Screening after BP",
-    //             in: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }],
-    //             "@id": "http://endhealth.info/im#concept"
-    //           },
-    //           {
-    //             description: "after high BP",
-    //             operator: ">=",
-    //             relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", variable: "latestBP" },
-    //             "@id": "http://endhealth.info/im#effectiveDate"
-    //           }
-    //         ]
-    //       } as Match);
-    //       expect(display).toEqual(
-    //         "<span style='color: red;'>exclude</span> observation.concept: InvitedForScreening <span style='color: orange;'>and</span> <span style='color: red;'>exclude</span> observation.effectiveDate >= latestBP.effectiveDate"
-    //       );
-    //     });
-
-    //     it("can get a display for a match with nested matches", () => {
-    //       const display = getDisplayFromMatch({
-    //         boolMatch: "or",
-    //         match: [
-    //           {
-    //             description: "aged between 65 and 70",
-    //             where: [
-    //               {
-    //                 range: {
-    //                   to: { operator: ">", value: "70", unit: null, relativeTo: null },
-    //                   from: { operator: ">=", value: "65", unit: null, relativeTo: null }
-    //                 },
-    //                 "@id": "http://endhealth.info/im#age"
-    //               }
-    //             ]
-    //           },
-    //           { description: "Diabetic", "@set": "http://example/queries#Q_Diabetics" },
-    //           {
-    //             path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-    //             where: [{ in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], "@id": "http://endhealth.info/im#concept" }]
-    //           }
-    //         ]
-    //       } as Match);
-    //       expect(display).toEqual("<span style='color: orange;'>and</span> ");
-    //     });
+    it("can describe a match with one nested property of in", () => {
+      const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfIn);
+      describeMatchNew(testMatch, 0, [], "and");
+      expect(testMatch.property[0].match.property[0].description).toEqual("observation of Prediabetes");
+    });
   });
+
+  // describe("getDisplayFromMatch", () => {
+  // it("can get display for a type match with a name", () => {
+  //   const match = describeMatchNew(Q_TestQuery.match[0] as Match);
+  //   expect(display).toEqual(Q_TestQueryWithDesc.match[0].description);
+  // });
+  // it("can get display for a parent match with a bool", () => {
+  //   const display = getDisplayFromMatch(Q_TestQuery.match[1] as Match);
+  //   expect(display).toEqual(Q_TestQueryWithDesc.match[1].description);
+  // });
+  // it("can get a display for a type match clause without a name", () => {
+  //   const display = getDisplayFromMatch(match.withType as Match);
+  //   expect(display).toEqual("Patient");
+  // });
+  // it("can get a display for a set match clause without a name", () => {
+  //   const display = getDisplayFromMatch(match.withSet as Match);
+  //   expect(display).toEqual("in 'CSET_EmailOnlineEncounter'");
+  // });
+  // it("can get a display for a match with entailment", () => {
+  //   const display = getDisplayFromMatch(match.withName as Match);
+  //   expect(display).toEqual("Text message consultation");
+  // });
+  // it("can get a display for a match with entailment", () => {
+  //   const display = getDisplayFromMatch(match.withNameAndEntailment as Match);
+  //   expect(display).toEqual("Text message consultation");
+  // });
+  // it("can not get a display for a match clause with a variable", () => {
+  //   const display = getDisplayFromMatch(match.withVariable as any);
+  //   expect(display).toEqual("");
+  // });
+  //     it("can get a display for an exclude set match clause", () => {
+  //       const display = getDisplayFromMatch({
+  //         exclude: true,
+  //         description: "not hypertensive",
+  //         "@set": "http://endhealth.info/im#Q_Hypertensives",
+  //         name: "Hypertensives"
+  //       } as Match);
+  //       expect(display).toEqual("<span style='color: red;'>exclude</span> Hypertensives");
+  //     });
+  //     it("can get a display for an exclude set match clause", () => {
+  //       const display = getDisplayFromMatch({
+  //         exclude: true,
+  //         description: "not hypertensive",
+  //         "@set": "http://endhealth.info/im#Q_Hypertensives",
+  //         name: "Hypertensives"
+  //       } as Match);
+  //       expect(display).toEqual("<span style='color: red;'>exclude</span> Hypertensives");
+  //     });
+  //     it("can get a display for a match with a where in clause", () => {
+  //       const display = getDisplayFromMatch({
+  //         path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+  //         where: [{ in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], "@id": "http://endhealth.info/im#concept" }]
+  //       } as Match);
+  //       expect(display).toEqual("observation.concept: &lt;714628002");
+  //     });
+  //     it("can get a display for a match with where and a variable", () => {
+  //       const display = getDisplayFromMatch({
+  //         path: {
+  //           "@id": "http://endhealth.info/im#observation",
+  //           node: {
+  //             "@id": "http://endhealth.info/im#Observation",
+  //             variable: "with1"
+  //           }
+  //         },
+  //         where: [
+  //           {
+  //             in: [
+  //               {
+  //                 "@set": "urn:uuid:837c474c-f6af-4a05-83ad-7c4ee7557e11",
+  //                 name: "SMIResolved"
+  //               },
+  //               {
+  //                 "@set": "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c",
+  //                 name: "SMI"
+  //               }
+  //             ],
+  //             valueLabel: "SMIResolved,SMI",
+  //             "@id": "http://endhealth.info/im#concept"
+  //           }
+  //         ],
+  //         orderBy: [
+  //           {
+  //             direction: "ascending",
+  //             variable: "with1",
+  //             limit: 1,
+  //             "@id": "http://endhealth.info/im#effectiveDate"
+  //           }
+  //         ]
+  //       } as Match);
+  //       expect(display).toEqual("(observation as with1).concept in [SMIResolved, SMI] ordered by earliest with1.effectiveDate");
+  //     });
+  //     it("can get a display for a match with multiple where clauses", () => {
+  //       const display = getDisplayFromMatch({
+  //         path: {
+  //           "@id": "http://endhealth.info/im#gpCurrentRegistration",
+  //           node: {
+  //             "@id": "http://endhealth.info/im#GPRegistration"
+  //           }
+  //         },
+  //         bool: "and",
+  //         where: [
+  //           {
+  //             in: [
+  //               {
+  //                 "@id": "http://endhealth.info/im#2751000252106",
+  //                 name: "Regular GMS patient",
+  //                 descendantsOrSelfOf: true
+  //               }
+  //             ],
+  //             valueLabel: "GMSpatient",
+  //             "@id": "http://endhealth.info/im#gpPatientType"
+  //           },
+  //           {
+  //             operator: ">=",
+  //             value: "18",
+  //             unit: "YEAR",
+  //             "@id": "http://endhealth.info/im#age"
+  //           }
+  //         ]
+  //       } as Match);
+  //       expect(display).toEqual(
+  //         "gpCurrentRegistration.gpPatientType: &lt;&lt;Regular GMS patient <span style='color: orange;'>and</span> gpCurrentRegistration.age >= 18 YEAR"
+  //       );
+  //     });
+  //     it("can get a display for a match with multiple where clauses", () => {
+  //       const display = getDisplayFromMatch({
+  //         exclude: true,
+  //         description: "High BP not followed by screening invite",
+  //         path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+  //         bool: "and",
+  //         where: [
+  //           {
+  //             description: "Invited for Screening after BP",
+  //             in: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }],
+  //             "@id": "http://endhealth.info/im#concept"
+  //           },
+  //           {
+  //             description: "after high BP",
+  //             operator: ">=",
+  //             relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", variable: "latestBP" },
+  //             "@id": "http://endhealth.info/im#effectiveDate"
+  //           }
+  //         ]
+  //       } as Match);
+  //       expect(display).toEqual(
+  //         "<span style='color: red;'>exclude</span> observation.concept: InvitedForScreening <span style='color: orange;'>and</span> <span style='color: red;'>exclude</span> observation.effectiveDate >= latestBP.effectiveDate"
+  //       );
+  //     });
+  //     it("can get a display for a match with nested matches", () => {
+  //       const display = getDisplayFromMatch({
+  //         boolMatch: "or",
+  //         match: [
+  //           {
+  //             description: "aged between 65 and 70",
+  //             where: [
+  //               {
+  //                 range: {
+  //                   to: { operator: ">", value: "70", unit: null, relativeTo: null },
+  //                   from: { operator: ">=", value: "65", unit: null, relativeTo: null }
+  //                 },
+  //                 "@id": "http://endhealth.info/im#age"
+  //               }
+  //             ]
+  //           },
+  //           { description: "Diabetic", "@set": "http://example/queries#Q_Diabetics" },
+  //           {
+  //             path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+  //             where: [{ in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], "@id": "http://endhealth.info/im#concept" }]
+  //           }
+  //         ]
+  //       } as Match);
+  //       expect(display).toEqual("<span style='color: orange;'>and</span> ");
+  //     });
+  // });
 
   describe("getDisplayFromProperty", () => {
     it("can get a display for a where with an in list", () => {

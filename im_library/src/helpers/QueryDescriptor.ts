@@ -1,4 +1,4 @@
-import { Operator, Property } from "../interfaces/AutoGen";
+import { Bool, Operator, Property } from "../interfaces/AutoGen";
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
@@ -7,22 +7,84 @@ const propertyDisplayMap = { concept: "of" } as any;
 
 export function describeQuery(query: Query): Query {
   const describedQuery = { ...query };
-  generateRecursively(describedQuery, "query");
+  if (isArrayHasLength(describedQuery.match))
+    for (const [index, match] of describedQuery.match.entries()) {
+      describeMatchNew(match, index, [], "and");
+    }
+  describedQuery.query;
   return describedQuery;
 }
 
-function generateRecursively(query: any, type: string) {
-  if ("match" === type) {
-    describeMatch(query);
-  } else if (isObjectHasKeys(query)) {
-    for (const key of Object.keys(query)) {
-      if (!isPrimitiveType(query[key])) generateRecursively(query[key], key);
+export function describeMatchNew(match: Match, index: number, parents: any[], bool: Bool) {
+  let display = getDisplayFromMatch(match);
+  if (match.exclude) display = "exclude if " + display;
+  if (index && bool) display = bool + " " + display;
+  match.description = display;
+
+  if (isArrayHasLength(match.match))
+    for (const [index, nestedMatch] of match.match.entries()) {
+      describeMatchNew(nestedMatch, index, parents, match.bool);
     }
-  } else if (isArrayHasLength(query)) {
-    for (const nested of query) {
-      generateRecursively(nested, type);
+
+  if (isArrayHasLength(match.property))
+    for (const [index, property] of match.property.entries()) {
+      describePropertyNew(property, index, parents, property.bool);
+    }
+}
+
+export function describePropertyNew(property: Property, index: number, parents: any[], bool: Bool) {
+  if (property.match) getDisplayFromNestedProperties(property);
+  if (isObjectHasKeys(property, ["@id"])) {
+    let display = getDisplayFromProperty(property);
+    if (index && bool) display = bool + " " + display;
+    property.description = display;
+  }
+}
+
+function getDisplayFromNestedProperties(property: Property) {
+  const pathList = [property["@id"]];
+  const lastMatch: Match[] = [];
+  recursePath(property, pathList, lastMatch);
+  const propertyPathDisplay = getPropertyPathDisplay(pathList);
+  if (isArrayHasLength(lastMatch) && isArrayHasLength(lastMatch[0].property))
+    for (const [index, nestedProperty] of lastMatch[0].property.entries()) {
+      let display = propertyPathDisplay + "->" + getDisplayFromProperty(nestedProperty);
+      if (index && lastMatch[0].bool) display = lastMatch[0].bool + " " + display;
+      nestedProperty.description = display;
+    }
+}
+
+function getPropertyPathDisplay(pathList: string[]) {
+  const pathDisplay = [];
+  for (const [index, value] of pathList.entries()) {
+    if (index % 2 === 0) {
+      // TODO propertyDisplayMap check
+      const valueToAdd = getNameFromRef({ "@id": value });
+      pathDisplay.push(valueToAdd);
     }
   }
+  return pathDisplay.join("->");
+}
+
+function recursePath(propertyOrMatch: any, pathList: string[], lastMatch: Match[]) {
+  if (isObjectHasKeys(propertyOrMatch, ["property"]) && isArrayHasLength(propertyOrMatch.property)) {
+    for (const nestedProperty of propertyOrMatch.property) {
+      pathList.push(nestedProperty["@id"]);
+      recursePath(nestedProperty, pathList, lastMatch);
+    }
+  } else if (isObjectHasKeys(propertyOrMatch, ["match"])) {
+    if (isLastMatch(propertyOrMatch.match)) {
+      if (isArrayHasLength(lastMatch)) lastMatch.splice(0, 1, propertyOrMatch);
+      else lastMatch.push(propertyOrMatch.match);
+    } else {
+      pathList.push(propertyOrMatch.match["@type"]);
+      recursePath(propertyOrMatch.match, pathList, lastMatch);
+    }
+  }
+}
+
+function isLastMatch(match: Match) {
+  return isArrayHasLength(match.property) && match.property.some(property => !isObjectHasKeys(property, ["match"]));
 }
 
 // descriptors

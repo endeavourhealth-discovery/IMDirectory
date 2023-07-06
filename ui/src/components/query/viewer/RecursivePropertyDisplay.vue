@@ -24,6 +24,7 @@ import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 import { getDisplayFromLogic } from "@im-library/helpers/QueryDescriptor";
+import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
 
 interface Props {
   fullQuery: Query;
