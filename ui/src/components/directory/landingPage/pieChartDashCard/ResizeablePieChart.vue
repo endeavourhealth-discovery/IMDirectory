@@ -14,11 +14,12 @@ import _ from "lodash";
 import { ChartOptions, PieChartData } from "@im-library/interfaces";
 import { setTooltips, rescaleData } from "@im-library/helpers/ChartRescale";
 
-const props = defineProps({
-  inputData: { type: Array as PropType<any[]>, required: true },
-  labelKey: { type: String, required: true },
-  dataKey: { type: String, required: true }
-});
+interface Props {
+  inputData: any[];
+  labelKey: string;
+  dataKey: string;
+}
+const props = defineProps<Props>();
 
 watch(
   () => _.cloneDeep(props.inputData),

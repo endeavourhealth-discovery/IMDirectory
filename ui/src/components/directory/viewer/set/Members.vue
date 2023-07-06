@@ -71,9 +71,11 @@ import setupDownloadFile from "@/composables/downloadFile";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useUserStore } from "@/stores/userStore";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  entityIri: string;
+}
+
+const props = defineProps<Props>();
 const { downloadFile } = setupDownloadFile(window, document);
 const toast = useToast();
 const userStore = useUserStore();
@@ -107,7 +109,7 @@ const currentPage = ref(0);
 const pageSize = ref(25);
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async () => {
     await init();
   }
@@ -123,7 +125,7 @@ async function init() {
 }
 
 async function setHasDefinition() {
-  const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.DEFINITION]);
+  const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   hasDefintion.value = isObjectHasKeys(entity, [IM.DEFINITION]);
 }
 
@@ -134,7 +136,7 @@ function toggle(event: any) {
 
 async function getMembers(): Promise<void> {
   loading.value = true;
-  const paged = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
+  const paged = await EntityService.getPartialAndTotalCount(props.entityIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
   members.value = paged.result;
   totalCount.value = paged.totalCount;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
@@ -145,8 +147,8 @@ async function downloadIMV1(): Promise<void> {
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const result = await SetService.IMV1(props.conceptIri);
-    const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
+    const result = await SetService.IMV1(props.entityIri);
+    const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, label + ".txt");
   } catch (err) {
     toast.add(new ToastOptions(ToastSeverity.ERROR, "Download  failed from server", err));
@@ -159,8 +161,8 @@ async function download(core: boolean, legacy: boolean, flat: boolean = false): 
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const result = (await EntityService.getFullExportSet(props.conceptIri, core, legacy, flat)).data;
-    const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
+    const result = (await EntityService.getFullExportSet(props.entityIri, core, legacy, flat)).data;
+    const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, getFileName(label));
   } catch (error) {
     toast.add(new ToastOptions(ToastSeverity.ERROR, "Download failed from server", error));
@@ -178,14 +180,14 @@ function getFileName(label: string) {
 
 function publish() {
   isPublishing.value = true;
-  SetService.publish(props.conceptIri)
+  SetService.publish(props.entityIri)
     .then(() => {
       isPublishing.value = false;
-      toast.add(new ToastOptions(ToastSeverity.SUCCESS, `Value set published to IM1 : ${props.conceptIri}`));
+      toast.add(new ToastOptions(ToastSeverity.SUCCESS, `Value set published to IM1 : ${props.entityIri}`));
     })
     .catch(() => {
       isPublishing.value = false;
-      toast.add(new ToastOptions(ToastSeverity.ERROR, `Failed to publish value set to IM1 : ${props.conceptIri}`));
+      toast.add(new ToastOptions(ToastSeverity.ERROR, `Failed to publish value set to IM1 : ${props.entityIri}`));
     });
 }
 
@@ -199,7 +201,7 @@ async function getPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  let pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
+  let pagedNewMembers = await EntityService.getPartialAndTotalCount(props.entityIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
   members.value = pagedNewMembers.result;
   loading.value = false;
 }

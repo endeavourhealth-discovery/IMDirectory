@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { UserState } from "@/stores/types/userState";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { AuthService, EntityService } from "@/services";
+import { AuthService, EntityService, UserService } from "@/services";
 import { Avatars } from "@im-library/constants";
 import { CustomAlert, HistoryItem, RecentActivityItem, User } from "@im-library/interfaces";
 
@@ -9,11 +9,11 @@ export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     cookiesEssentialAccepted: localStorage.getItem("cookiesEssentialAccepted") === "true" ? true : false,
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
-    currentTheme: localStorage.getItem("currentTheme") as string,
+    currentTheme: "" as string,
     currentUser: {} as User,
     favourites: [] as string[],
     history: [] as HistoryItem[],
-    recentLocalActivity: JSON.parse(localStorage.getItem("recentLocalActivity") ?? "[]") as RecentActivityItem[],
+    recentLocalActivity: [] as RecentActivityItem[],
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false
   }),
   getters: {
@@ -21,9 +21,6 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     clearOptionalCookies() {
-      localStorage.removeItem("currentTheme");
-      localStorage.removeItem("favourites");
-      localStorage.removeItem("recentLocalActivity");
       localStorage.removeItem("directoryMainSplitterVertical");
       localStorage.removeItem("directoryMainSplitterHorizontal");
       localStorage.removeItem("viewerMainSplitterVertical");
@@ -42,18 +39,24 @@ export const useUserStore = defineStore("user", {
       localStorage.setItem("cookiesOptionalAccepted", String(bool));
     },
     async initFavourites() {
-      const favourites = JSON.parse(localStorage.getItem("favourites") ?? "[]") as string[];
+      let favourites: string[] = [];
+      if (this.currentUser) favourites = await UserService.getUserFavourites();
+      else favourites = this.favourites ? this.favourites : [];
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
           favourites.splice(index, 1);
         }
       }
-      localStorage.setItem("favourites", JSON.stringify(favourites));
+      if (this.currentUser) await UserService.updateUserFavourites(favourites);
       this.favourites = favourites;
     },
-    updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
-      let activity: RecentActivityItem[] = JSON.parse(localStorage.getItem("recentLocalActivity") ?? "[]");
+    async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
+      let activity: RecentActivityItem[] = [];
+
+      if (this.currentUser) activity = await UserService.getUserMRU();
+      else activity = this.recentLocalActivity ? this.recentLocalActivity : [];
+
       activity.forEach(activityItem => {
         activityItem.dateTime = new Date(activityItem.dateTime);
       });
@@ -75,25 +78,24 @@ export const useUserStore = defineStore("user", {
           activity.push(recentActivityItem);
         }
       }
-
-      if (this.cookiesOptionalAccepted) localStorage.setItem("recentLocalActivity", JSON.stringify(activity));
+      if (this.currentUser) await UserService.updateUserMRU(activity);
       this.recentLocalActivity = activity;
     },
-    updateFavourites(favourite: string) {
+    async updateFavourites(favourite: string) {
       if (favourite !== "http://endhealth.info/im#Favourites") {
-        const favourites: string[] = JSON.parse(localStorage.getItem("favourites") ?? "[]");
+        const favourites: string[] = this.currentUser ? await UserService.getUserFavourites() : this.favourites;
         if (!favourites.includes(favourite)) {
           favourites.push(favourite);
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        if (this.cookiesOptionalAccepted) localStorage.setItem("favourites", JSON.stringify(favourites));
+        if (this.currentUser) await UserService.updateUserFavourites(favourites);
         this.favourites = favourites;
       }
     },
-    updateCurrentTheme(theme: string) {
+    async updateCurrentTheme(theme: string) {
+      if (this.currentUser) await UserService.updateUserTheme(theme);
       this.currentTheme = theme;
-      if (this.cookiesOptionalAccepted) localStorage.setItem("currentTheme", theme);
     },
     updateCurrentUser(user: any) {
       this.currentUser = user;

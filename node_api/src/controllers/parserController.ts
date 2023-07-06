@@ -15,12 +15,12 @@ export default class ParserController {
   private initRoutes() {
     this.router.post("/public/text/list", (req, res, next) =>
       this.getListFromText(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/public/file/list", (req, res, next) =>
       this.getListFromFile(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
   }

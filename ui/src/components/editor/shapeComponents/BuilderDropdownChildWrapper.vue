@@ -29,16 +29,17 @@ import { ComponentDetails } from "@im-library/interfaces";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
+interface Props {
+  id: string;
+  position: number;
+  value?: any;
+  showButtons: { minus: boolean; plus: boolean; up: boolean; down: boolean };
+  shape: PropertyShape;
+  mode: EditorMode;
+  nextComponentOptions: { type: ComponentType; name: string }[];
+}
 
-const props = defineProps({
-  id: { type: String, required: true },
-  position: { type: Number, required: true },
-  value: { type: Object as PropType<any>, required: false },
-  showButtons: { type: Object as PropType<{ minus: boolean; plus: boolean; up: boolean; down: boolean }>, required: true },
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  nextComponentOptions: { type: Array as PropType<{ type: ComponentType; name: string }[]>, required: true }
-});
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   updateClicked: (_payload: ComponentDetails) => true,
@@ -97,7 +98,6 @@ function addNextClicked(item: any): void {
   justify-content: flex-start;
   align-items: center;
   gap: 1rem;
-  width: 100%;
 }
 
 .label-container {

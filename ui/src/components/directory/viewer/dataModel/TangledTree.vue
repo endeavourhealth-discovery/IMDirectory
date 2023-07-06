@@ -21,12 +21,16 @@ import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import _ from "lodash";
 import { DirectService, EntityService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
-const directService = new DirectService();
+interface Props {
+  data: Array<TangledTreeData[]>;
+  entityIri: string;
+}
+const props = defineProps<Props>();
 
-const props = defineProps({
-  data: { type: Array as PropType<Array<TangledTreeData[]>>, required: true },
-  conceptIri: { type: String, required: true }
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
 });
 
 watch(
@@ -43,7 +47,7 @@ const chartData: Ref<TangledTreeData[][]> = ref([]);
 const multiselectMenu: Ref<{ iri: string; label: string; result: {}; disabled?: boolean }[]> = ref([]);
 const twinNode = ref("twin-node-");
 const selected: Ref<{ iri: string; label: string; result: {} }[]> = ref([]);
-const selectedNode: Ref<TangledTreeData> = ref({} as TangledTreeData);
+const selectedNode = ref({} as TangledTreeData);
 const nodeMap = reactive(new Map<string, any[]>());
 const overlayTop = ref(0);
 const displayMenu = ref(true);
@@ -60,42 +64,54 @@ const menu = ref();
 onMounted(() => {
   chartData.value = props.data;
   renderChart();
-  setSelected(props.conceptIri);
+  setSelected(props.entityIri);
 });
 
 async function getMultiselectMenu(d: any) {
   let node = d["target"]["__data__"] as any;
   multiselectMenu.value = [] as { iri: string; label: string; result: {}; disabled?: boolean }[];
-  let result;
+  let result = [] as PropertyDisplay[];
   if (node.type === "group") {
     result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.parents[0].id) : [];
+  } else if (node.type === "property") {
+    const ranges = (Array.from(new Set(node.range?.map(JSON.stringify))) as any).map(JSON.parse);
+    ranges?.forEach((range: any) => {
+      result.push({
+        property: [{ "@id": range["@id"], name: range.name ? range.name : range["@id"] }],
+        isType: true
+      } as PropertyDisplay);
+    });
   } else {
     result = !node.id.startsWith(twinNode) ? await EntityService.getPropertiesDisplay(node.id) : [];
   }
-  if (result.length > 0) {
+  if (result && result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
+      let propId = "";
+      let propLabel = "";
+      r.property.forEach(p => {
+        propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+        propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
+      });
       if (r.group) {
         if (node.type === "group") {
-          if (node.id === r.group["@id"]) {
+          if (node.id === r.group?.["@id"]) {
             multiselectMenu.value.push({
-              iri: r.property["@id"],
-              label: r.property.name,
+              iri: propId,
+              label: propLabel,
               result: r
             });
           }
         } else {
-          if (!multiselectMenu.value.some((n: any) => n.iri === r.group["@id"])) {
-            multiselectMenu.value.push({
-              iri: r.group["@id"],
-              label: r.group.name,
-              result: r
-            });
-          }
+          multiselectMenu.value.push({
+            iri: propId,
+            label: propLabel,
+            result: r
+          });
         }
       } else {
         multiselectMenu.value.push({
-          iri: r.property["@id"],
-          label: r.property.name,
+          iri: propId,
+          label: propLabel,
           result: r
         });
       }
@@ -104,7 +120,17 @@ async function getMultiselectMenu(d: any) {
   displayMenu.value = multiselectMenu.value.length !== 0;
 }
 
-function addNode(node: any, r: PropertyDisplay, typeId: any) {
+function addNode(node: any, r: PropertyDisplay) {
+  let propId = "";
+  let propLabel = "";
+  const range = [] as TTIriRef[];
+  r.type?.forEach(t => {
+    range.push(t);
+  });
+  r.property.forEach(p => {
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
+  });
   if (r.group && node.type !== "group") {
     if (chartData.value.length < node.level + 1) {
       chartData.value.push([
@@ -124,46 +150,51 @@ function addNode(node: any, r: PropertyDisplay, typeId: any) {
       });
     }
   } else {
-    if (chartData.value.length < node.level + 2) {
-      chartData.value.push([
-        {
-          id: r.property["@id"],
-          parents: [node.id],
-          name: r.property.name || r.property["@id"],
-          type: "property",
-          cardinality: r.cardinality
-        }
-      ]);
-      chartData.value.push([
-        {
-          id: typeId,
-          parents: [r.property["@id"] as any],
-          name: r.type.name || r.type["@id"],
-          type: "type"
-        }
-      ]);
-    } else {
-      if (!chartData.value[node.level + 1].some((d: any) => d.id === r.property["@id"])) {
-        chartData.value[node.level + 1].push({
-          id: r.property["@id"],
-          parents: [node.id],
-          name: r.property.name || r.property["@id"],
-          type: "property",
-          cardinality: r.cardinality
-        });
-        if (chartData.value[node.level + 2].some((t: any) => t.id === typeId)) {
-          const findIndex = chartData.value[node.level + 2].findIndex((t: any) => t.id === typeId);
-          if (!chartData.value[node.level + 2][findIndex].parents?.some((p: any) => p.id === r.property["@id"])) {
-            chartData.value[node.level + 2][findIndex].parents?.push(r.property["@id"] as any);
+    if (r.isType) {
+      if (chartData.value.length < node.level + 2) {
+        chartData.value.push([
+          {
+            id: propId,
+            parents: [node.id],
+            name: propLabel,
+            type: "type",
+            cardinality: r.cardinality,
+            isOr: r.isOr
           }
-        } else {
-          chartData.value[node.level + 2].push({
-            id: typeId,
-            parents: [r.property["@id"] as any],
-            name: r.type.name || r.type["@id"],
-            type: "type"
-          });
-        }
+        ]);
+      } else {
+        chartData.value[node.level + 1].push({
+          id: propId,
+          parents: [node.id],
+          name: propLabel,
+          type: "type",
+          cardinality: r.cardinality,
+          isOr: r.isOr
+        });
+      }
+    } else {
+      if (chartData.value.length < node.level + 2) {
+        chartData.value.push([
+          {
+            id: propId,
+            parents: [node.id],
+            name: propLabel,
+            type: "property",
+            cardinality: r.cardinality,
+            isOr: r.isOr,
+            range: range
+          }
+        ]);
+      } else {
+        chartData.value[node.level + 1].push({
+          id: propId,
+          parents: [node.id],
+          name: propLabel,
+          type: "property",
+          cardinality: r.cardinality,
+          isOr: r.isOr,
+          range: range
+        });
       }
     }
   }
@@ -211,17 +242,23 @@ async function setSelected(iri: any) {
   if (result.length > 0) {
     result.forEach((r: PropertyDisplay) => {
       if (r.group) {
-        if (!selected.value.some((n: any) => n.iri === r.group["@id"])) {
+        if (!selected.value.some((n: any) => n.iri === r.group?.["@id"])) {
           selected.value.push({
-            iri: r.group["@id"],
-            label: r.group.name,
+            iri: r.group?.["@id"],
+            label: r.group.name as string,
             result: r
           });
         }
       } else {
+        let propId = "";
+        let propLabel = "";
+        r.property.forEach(p => {
+          propId = `${propId}${propId !== "" ? "OR" : ""}  ${p["@id"]}`;
+          propLabel = `${propLabel} ${propLabel !== "" ? "OR" : ""} ${p.name as string}`;
+        });
         selected.value.push({
-          iri: r.property["@id"],
-          label: r.property.name,
+          iri: propId,
+          label: propLabel,
           result: r
         });
       }
@@ -235,20 +272,21 @@ function change(event: any) {
   if (event.value.length > 0) {
     event.value.forEach((p: any) => {
       let isExist = false;
-      chartData.value.forEach((d: any) => {
-        const result = d[0]?.level !== chartData.value.length - 1 && d.some((n: any) => n.id == p.result.type["@id"]);
-        if (result) isExist = true;
-      });
-      if (isExist) {
-        addNode(selectedNode.value, p.result, twinNode + p.result.type["@id"]);
-      } else {
-        addNode(selectedNode.value, p.result, p.result.type["@id"]);
-      }
+      // chartData.value.forEach((d: any) => {
+      //   const result = d[0]?.level !== chartData.value.length - 1 && d.some((n: any) => n.id == p.result.type?.["@id"]);
+      //   if (result) isExist = true;
+      // });
+      // if (isExist) {
+      //   addNode(selectedNode.value, p.result, twinNode + p.result.type?.["@id"]);
+      // } else {
+      //   addNode(selectedNode.value, p.result, p.result.type?.["@id"]);
+      // }
+      addNode(selectedNode.value, p.result);
     });
   }
 
   selected.value.forEach((s: any) => {
-    if (nodeMap.has(s.result.type["@id"])) nodeMap.set(s.result.type["@id"], []);
+    if (nodeMap.has(s.result.type["@id"])) nodeMap.set(s.result.type?.["@id"], []);
   });
   nodeMap.set(selectedNode.value.id, selected.value);
 }
@@ -386,7 +424,7 @@ function renderChart() {
     .append("text")
     .attr("x", (n: any) => n.x + 4)
     .attr("y", (n: any) => n.y - n.height / 2 - 4)
-    .text((d: any) => (d.name?.length < 26 ? d.name : d.name?.slice(0, 25) + "..."))
+    .text((d: any) => d.name)
     .attr("stroke", "black")
     .attr("stroke-width", 0.1)
     .style("font-size", 12)
@@ -405,19 +443,21 @@ function renderChart() {
     .on("click", (d: any) => {
       div.transition().duration(500).style("opacity", 0);
       const node = d["target"]["__data__"];
-      if (d.metaKey || d.ctrlKey) {
-        if (node.id.startsWith(twinNode)) {
-          const iri = node.id.slice(15);
-          directService.select(iri);
+      if (!node.isOr) {
+        if (d.metaKey || d.ctrlKey) {
+          if (node.id.startsWith(twinNode)) {
+            const iri = node.id.slice(15);
+            emit("navigateTo", iri);
+          } else {
+            emit("navigateTo", node.id);
+          }
         } else {
-          directService.select(node.id);
-        }
-      } else {
-        d.preventDefault();
-        toggleSubProperties(d);
-        if (selectedNode.value !== node) {
-          selectedNode.value = node;
-          selected.value = (nodeMap.get(node.id) as any) || [];
+          d.preventDefault();
+          toggleSubProperties(d);
+          if (selectedNode.value !== node) {
+            selectedNode.value = node;
+            selected.value = (nodeMap.get(node.id) as any) || [];
+          }
         }
       }
     });

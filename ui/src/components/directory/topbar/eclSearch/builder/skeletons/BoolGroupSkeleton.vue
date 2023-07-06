@@ -29,11 +29,12 @@ import BoolGroupSkeleton from "./BoolGroupSkeleton.vue";
 import ConceptSkeleton from "./ConceptSkeleton.vue";
 import RefinementSkeleton from "./RefinementSkeleton.vue";
 
-const props = defineProps({
-  value: { type: Object as PropType<any>, required: true },
-  parent: { type: Object as PropType<any>, required: false },
-  focus: { type: Object as PropType<any>, required: false }
-});
+interface Props {
+  value: any;
+  parent?: any;
+  focus?: any;
+}
+const props = defineProps<Props>();
 
 function getSkeletonComponent(componentName: string) {
   switch (componentName) {

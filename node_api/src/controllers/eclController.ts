@@ -16,27 +16,27 @@ export default class EclController {
   private initRoutes() {
     this.router.post("/public/eclToBuilder", (req, res, next) =>
       this.eclToBuild(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/public/eclToIMQ", (req, res, next) =>
       this.eclToIMQ(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/public/eclSearch", (req, res, next) =>
       this.eclSearch(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/public/validateEcl", (req, res, next) =>
       this.validateEcl(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/public/evaluateEcl", (req, res, next) =>
       this.evaluateEcl(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
   }

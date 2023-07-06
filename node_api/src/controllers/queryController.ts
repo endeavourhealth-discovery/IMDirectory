@@ -1,5 +1,3 @@
-import { buildQueryDisplayFromQuery } from "@/builders/query/displayBuilder";
-import { buildQueryObjectFromQuery } from "@/builders/query/objectBuilder";
 import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
 import axios from "axios";
@@ -19,76 +17,58 @@ export default class QueryController {
   }
 
   private initRoutes() {
-    this.router.post("/public/queryDisplay", (req, res, next) =>
+    this.router.get("/public/queryDisplay", (req, res, next) =>
       this.getQueryDisplay(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
-    this.router.post("/public/queryObject", (req, res, next) =>
-      this.getQueryObject(req)
-        .then(data => res.send(data).end())
-        .catch(next)
-    );
-    this.router.get("/public/queryDefinitionDisplay", (req, res, next) =>
-      this.getQueryDefinitionDisplay(req)
-        .then(data => res.send(data).end())
-        .catch(next)
-    );
-    this.router.get("/public/queryObjectDisplay", (req, res, next) =>
-      this.getQueryObjectByIri(req)
-        .then(data => res.send(data).end())
-        .catch(next)
-    );
+
     this.router.get("/public/allowablePropertySuggestions", (req, res, next) =>
       this.getAllowablePropertySuggestions(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/allowablePropertySuggestionsBoolFocus", (req, res, next) =>
       this.getAllowablePropertySuggestionsBoolFocus(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/allowableRangeSuggestions", (req, res, next) =>
       this.getAllowableRangeSuggestions(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/allowableChildTypes", (req, res, next) =>
       this.getAllowableChildTypes(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/propertyRange", (req, res, next) =>
       this.getPropertyRange(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/isFunctionProperty", (req, res, next) =>
       this.isFunctionProperty(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
+    );
+
+    this.router.post("/public/labeledQuery", (req, res, next) =>
+      this.getLabeledQuery(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
+    this.router.get("/public/dataModelProperty", (req, res, next) =>
+        this.getDataModelProperty(req)
+            .then(data => res.send(data))
+            .catch(next)
     );
   }
 
   async getAllowableChildTypes(req: Request) {
     return await this.queryService.getAllowableChildTypes(req.query.iri as string);
-  }
-
-  async getQueryDisplay(req: Request) {
-    return buildQueryDisplayFromQuery(req.body);
-  }
-
-  async getQueryObject(req: Request) {
-    return buildQueryObjectFromQuery(req.body);
-  }
-
-  async getQueryObjectByIri(req: Request) {
-    return await this.entityService.getQueryObjectByIri(req.query.iri as string);
-  }
-
-  async getQueryDefinitionDisplay(req: Request) {
-    return await this.entityService.getQueryDefinitionDisplayByIri(req.query.iri as string);
   }
 
   async getAllowablePropertySuggestions(req: Request) {
@@ -115,5 +95,17 @@ export default class QueryController {
 
   async isFunctionProperty(req: Request) {
     return await this.queryService.isFunctionProperty(req.query.propIri as string);
+  }
+
+  async getQueryDisplay(req: Request) {
+    return await this.queryService.getQueryDisplay(req.query.queryIri as string);
+  }
+
+  async getLabeledQuery(req: Request) {
+    const query: any = req.body;
+    return await this.queryService.getLabeledQuery(query);
+  }
+  async getDataModelProperty(req: Request) {
+    return await this.queryService.getDataModelProperty(req.query.dataModelIri as string, req.query.propertyIri as string);
   }
 }

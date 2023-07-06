@@ -37,15 +37,17 @@ import _ from "lodash";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: {
-    type: Object as () => TTBundle,
-    required: true
-  },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "text-definition" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: TTBundle;
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "text-definition"
 });
 
 const directoryStore = useDirectoryStore();

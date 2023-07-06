@@ -1,6 +1,6 @@
 <template>
   <div id="tree-container">
-    <TangledTree :conceptIri="conceptIri" :data="data" />
+    <TangledTree :entityIri="entityIri" :data="data" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
   </div>
 </template>
 
@@ -10,17 +10,19 @@ import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import TangledTree from "./TangledTree.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useDirectoryStore } from "@/stores/directoryStore";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
+interface Props {
+  entityIri: string;
+}
+const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
 });
 
-const directoryStore = useDirectoryStore();
-const conceptIri = computed(() => directoryStore.conceptIri);
-
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => await getDataModel(newValue)
 );
 
@@ -28,7 +30,7 @@ const loading = ref(false);
 const data: Ref<TangledTreeData[][]> = ref([]);
 const twinNode = ref("twin-node-");
 
-onMounted(async () => await getDataModel(props.conceptIri));
+onMounted(async () => await getDataModel(props.entityIri));
 
 async function getDataModel(iri: string) {
   loading.value = true;
@@ -43,13 +45,12 @@ async function addPropertiesAndTypes(iri: any) {
   if (groups.length) data.value.push(groups.sort((a: TangledTreeData, b: TangledTreeData) => a.name.localeCompare(b.name)));
   else {
     data.value.push(properties);
-    data.value.push(types);
   }
 }
 
 function getGroupsPropertiesTypes(iri: any, twinNode: any, propertyDisplay: PropertyDisplay[]) {
-  const properties = [] as TangledTreeData[];
-  const types = [] as any[];
+  let properties = [] as TangledTreeData[];
+  let types = [] as any[];
   const groups = [] as TangledTreeData[];
   propertyDisplay.forEach(property => {
     if (isObjectHasKeys(property, ["group"])) {
@@ -57,18 +58,18 @@ function getGroupsPropertiesTypes(iri: any, twinNode: any, propertyDisplay: Prop
     } else {
       addProperty(properties, property, iri);
     }
-    addTypes(types, property, twinNode, iri);
   });
+  properties = Object.values(properties.reduce((acc, obj) => ({ ...acc, [obj.id]: obj }), {}));
   return { properties, types, groups };
 }
 
 function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], property: PropertyDisplay, parent: any) {
-  let groupData = groups.find(prop => prop.id === property.group["@id"]);
+  let groupData = groups.find(prop => prop.id === property.group?.["@id"]);
   if (!groupData) {
     groupData = {
-      id: property.group["@id"],
+      id: property.group?.["@id"] as string,
       parents: [parent],
-      name: property.group.name || property.group["@id"],
+      name: (property.group?.name || property.group?.["@id"]) as string,
       type: "group"
     };
     groups.push(groupData);
@@ -77,40 +78,25 @@ function addGroup(groups: TangledTreeData[], properties: TangledTreeData[], prop
   addProperty(properties, property, groupData);
 }
 function addProperty(properties: TangledTreeData[], property: PropertyDisplay, parent: any) {
-  properties.push({
-    id: property.property["@id"],
-    parents: [parent],
-    name: property.property.name,
-    type: "property",
-    cardinality: property.cardinality
+  let propId = "";
+  let propName = "";
+  const range = [] as TTIriRef[];
+  property.property.forEach(p => {
+    propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
+    propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name as string}`;
   });
-}
-function addTypes(types: any[], property: PropertyDisplay, twinNode: any, iri: any) {
-  if (property.type["@id"] === iri) {
-    if (types.some((type: any) => type.id === twinNode + property.type["@id"])) {
-      const index = types.findIndex((t: any) => t.id === twinNode + property.type["@id"]);
-      types[index].parents.push(property.property["@id"]);
-    } else {
-      types.push({
-        id: twinNode + property.type["@id"],
-        parents: [property.property["@id"]],
-        name: property.type.name || property.type["@id"],
-        type: "type"
-      });
-    }
-  } else {
-    if (types.some((type: any) => type.id === property.type["@id"])) {
-      const index = types.findIndex((type: any) => type.id === property.type["@id"]);
-      types[index].parents.push(property.property["@id"]);
-    } else {
-      types.push({
-        id: property.type["@id"],
-        parents: [property.property["@id"]],
-        name: property.type.name || property.type["@id"],
-        type: "type"
-      });
-    }
-  }
+  property.type?.forEach(t => {
+    range.push(t);
+  });
+  properties.push({
+    id: propId,
+    parents: [parent],
+    name: propName,
+    type: "property",
+    cardinality: property.cardinality,
+    isOr: property.isOr,
+    range: range
+  });
 }
 </script>
 

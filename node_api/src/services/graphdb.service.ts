@@ -19,6 +19,10 @@ export class GraphdbService {
     return new GraphdbService(Env.GRAPH_REPO_CONFIG);
   }
 
+  public static userRepo() {
+    return new GraphdbService(Env.GRAPH_REPO_USER);
+  }
+
   private constructor(repoName: string) {
     this.repoName = repoName;
   }
@@ -32,7 +36,6 @@ export class GraphdbService {
   public async update(sparql: string): Promise<boolean> {
     const client = await this.getRepo();
     const stmt = new UpdateQueryPayload().setQuery(sparql).setContentType(QueryContentType.X_WWW_FORM_URLENCODED).setInference(true).setTimeout(5);
-
     return client.update(stmt).then(() => {
       return true;
     });
@@ -40,7 +43,6 @@ export class GraphdbService {
 
   public async execute(sparql: string, bindings?: any): Promise<any[]> {
     const client = await this.getRepo();
-
     const stmt = new GetQueryPayload().setQuery(sparql).setQueryType(QueryType.SELECT).setResponseType(RDFMimeType.SPARQL_RESULTS_JSON);
 
     if (bindings) {
@@ -70,7 +72,6 @@ export class GraphdbService {
     if (this.repo == null) {
       this.repo = await this.connect();
     }
-
     return this.repo;
   }
 
@@ -82,14 +83,11 @@ export class GraphdbService {
         Accept: RDFMimeType.SPARQL_RESULTS_JSON
       })
       .setKeepAlive(true);
-
     this.server = new ServerClient(this.serverConfig);
-
     this.repoConfig = new RepositoryClientConfig(Env.GRAPH_HOST)
       .setEndpoints([Env.GRAPH_HOST + "/repositories/" + this.repoName])
       .setReadTimeout(timeout)
       .setWriteTimeout(timeout);
-
     const repo = await this.server.getRepository(this.repoName, this.repoConfig);
     repo.registerParser(new SparqlJsonResultParser());
     return repo;

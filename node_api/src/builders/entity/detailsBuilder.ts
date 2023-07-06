@@ -1,7 +1,8 @@
-import * as crypto from "crypto";
-import { TTBundle, TTIriRef } from "@im-library/interfaces";
+import { randomBytes } from "node:crypto";
+import { TTBundle } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 export function buildDetails(definition: TTBundle, types?: TTIriRef[]): any[] {
   const treeNode = { children: [] as any[] };
@@ -66,7 +67,7 @@ function addParameter(treeNode: any, entity: any, predicates: any, key: string) 
   if (isArrayHasLength(entity[key])) {
     for (const parameter of entity[key]) {
       const parameterNode = {
-        key: String(crypto.randomBytes(64).readBigUInt64BE()),
+        key: String(randomBytes(64).readBigUInt64BE()),
         label: parameter[RDFS.LABEL],
         children: [] as any[]
       };
@@ -89,7 +90,7 @@ function addDefault(treeNode: any, entity: any, predicates: any) {
     } else if (isObjectHasKeys(entity[key])) {
       for (const objectKey of Object.keys(entity[key])) {
         const objectNode = {
-          key: String(crypto.randomBytes(64).readBigUInt64BE()),
+          key: String(randomBytes(64).readBigUInt64BE()),
           label: predicates[objectKey] ?? objectKey,
           children: [] as any
         };

@@ -16,17 +16,17 @@ export default class SearchController {
   private initRoutes() {
     this.router.post("/api/entity/public/search", (req, res, next) =>
       this.advancedSearch(req, res)
-        .then(data => res.setHeader("Content-Type", "application/json").send(data).end())
+        .then(data => res.setHeader("Content-Type", "application/json").send(data))
         .catch(next)
     );
     this.router.post("/node_api/public/search/entity", (req, res, next) =>
       this.getEntitiesBySnomedCodes(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.post("/node_api/public/search/validatedEntity", (req, res, next) =>
       this.getValidatedEntitiesBySnomedCodes(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
   }

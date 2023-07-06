@@ -10,7 +10,7 @@ export default class StatusController {
 
   private initRoutes() {
     this.router.get("/node_api/status/public/healthCheck", (req, res, next) => {
-      res.status(200).send("OK").end();
+      res.status(200).send("OK");
     });
   }
 }

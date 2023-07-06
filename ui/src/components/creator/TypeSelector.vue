@@ -23,9 +23,12 @@ import { EntityService } from "@/services";
 import { RDF } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  showTypeSelector: { type: Boolean, required: false, default: false },
-  updateShowTypeSelector: { type: Function, required: true }
+interface Props {
+  showTypeSelector?: boolean;
+  updateShowTypeSelector: Function;
+}
+const props = withDefaults(defineProps<Props>(), {
+  showTypeSelector: false
 });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;

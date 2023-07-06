@@ -2,19 +2,26 @@
   <div class="breadcrumb-container">
     <div class="padding-container grid">
       <div class="col-10 table-header">
-        <Breadcrumb :home="home" :model="pathItems" />
+        <Breadcrumb :home="home" :model="pathItems">
+          <template #item="{ item }: { item: any }">
+            <div class="p-menuitem" @click="onClick($event, item)">
+              <span v-if="item.icon" :class="item.icon"></span>
+              <span v-if="item.label" class="p-menuitem-text">{{ item.label }}</span>
+            </div>
+          </template>
+        </Breadcrumb>
         <Menu id="path_overlay_menu" ref="pathOverlayMenu" :model="pathOptions" :popup="true" />
       </div>
       <div class="col-2 header-button-group p-buttonset">
         <Button
           :icon="fontAwesomePro ? 'fa-regular fa-angle-left' : 'pi pi-angle-left'"
-          :disabled="canGoBack"
+          :disabled="!canGoBack"
           class="go-back p-button-rounded p-button-text p-button-plain"
           @click="goBack"
         />
         <Button
           :icon="fontAwesomePro ? 'fa-regular fa-angle-right' : 'pi pi-angle-right'"
-          :disabled="canGoForward"
+          :disabled="!canGoForward"
           class="go-forward p-button-rounded p-button-text p-button-plain"
           @click="goForward"
         />
@@ -25,32 +32,48 @@
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch, computed } from "vue";
-import { Converters } from "@im-library/helpers";
+import { iriToUrl } from "@im-library/helpers/Converters";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import { useSharedStore } from "@/stores/sharedStore";
-const { iriToUrl } = Converters;
+import Breadcrumbs from "@/components/shared/Breadcrumbs.vue";
+import { MenuItem } from "primevue/menuitem";
+import _ from "lodash";
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  entityIri: string;
+  history: string[];
+}
+const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true,
+  "update:history": (_payload: string[]) => true
+});
 
 const router = useRouter();
 const route = useRoute();
 const sharedStore = useSharedStore();
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
+const canGoBack = computed(() => props.history.length > 0 && props.history.indexOf(props.entityIri) > 0);
+const canGoForward = computed(() => props.history.length > 0 && props.history.indexOf(props.entityIri) < props.history.length - 1);
+
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   () => init()
 );
 
 const pathItems: Ref<any[]> = ref([]);
 const pathOptions: Ref<any[]> = ref([]);
-const canGoBack = ref(false);
-const canGoForward = ref(false);
+const folderPath: Ref<TTIriRef[]> = ref([]);
 
-const home = { icon: fontAwesomePro.value ? "fa-duotone fa-house-chimney" : "fa-solid fa-house", to: "/" };
+const home = {
+  icon: fontAwesomePro.value ? "fa-duotone fa-house-chimney" : "fa-solid fa-house",
+  command: (data: any) => emit("navigateTo", data)
+};
 
 const pathOverlayMenu = ref();
 
@@ -61,35 +84,36 @@ function openPathOverlaymenu(event: any) {
 }
 
 function goBack() {
-  if (window.history.length > 0) router.back();
+  if (canGoBack.value) emit("navigateTo", props.history[props.history.indexOf(props.entityIri) - 1]);
 }
 
 function goForward() {
-  if (window.history.length > window.history.state.position + 1) router.forward();
+  if (canGoForward.value) emit("navigateTo", props.history[props.history.indexOf(props.entityIri) + 1]);
 }
 
 function init() {
-  if (props.conceptIri) {
+  if (props.entityIri) {
+    const newHistory: string[] = [...props.history];
+    if (!newHistory.includes(props.entityIri)) newHistory.push(props.entityIri);
+    emit("update:history", newHistory);
     getPath();
-    setBackForwardDisables();
   }
 }
 
 async function getPath() {
-  if (props.conceptIri === IM.NAMESPACE + "Favourites") {
-    pathItems.value = [{ label: "Favourites", to: iriToUrl(IM.NAMESPACE) + "Favourites" }];
+  if (props.entityIri === IM.NAMESPACE + "Favourites") {
+    pathItems.value = [{ label: "Favourites", command: () => emit("navigateTo", IM.NAMESPACE + "Favourites") }];
     return;
   }
-  let folderPath = (await EntityService.getPathBetweenNodes(props.conceptIri, IM.MODULE_IM)).reverse();
-  if (!folderPath.length) folderPath = await EntityService.getFolderPath(props.conceptIri);
-  pathItems.value = folderPath.map((iriRef: TTIriRef) => {
-    return { label: iriRef.name, to: iriToUrl(iriRef["@id"]) };
+  folderPath.value = (await EntityService.getPathBetweenNodes(props.entityIri, IM.MODULE_IM)).reverse();
+  if (!folderPath.value.length) folderPath.value = await EntityService.getFolderPath(props.entityIri);
+  pathItems.value = folderPath.value.map((iriRef: TTIriRef) => {
+    return { label: iriRef.name, command: () => emit("navigateTo", iriRef["@id"]) };
   });
   if (pathItems.value.length > 2) {
     const filteredOutPathItems = pathItems.value.splice(1, pathItems.value.length - 2);
     pathItems.value.splice(pathItems.value.length - 1, 0, {
       label: "...",
-      to: route.fullPath,
       command: () => {
         openPathOverlaymenu(event);
       }
@@ -98,9 +122,8 @@ async function getPath() {
   }
 }
 
-function setBackForwardDisables() {
-  canGoForward.value = window.history.length === window.history.state.position + 1;
-  canGoBack.value = window.history.state.position === 0;
+function onClick(event: any, item: MenuItem) {
+  if (item.command) item.command({ originalEvent: event, item: item });
 }
 </script>
 
@@ -140,5 +163,9 @@ function setBackForwardDisables() {
   padding: 0;
   margin: 0;
   background-color: var(--surface-a);
+}
+
+.p-menuitem {
+  cursor: pointer;
 }
 </style>

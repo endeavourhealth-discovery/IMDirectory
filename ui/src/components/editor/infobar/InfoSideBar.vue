@@ -37,7 +37,7 @@
             </TabPanel>
             <TabPanel header="Hierarchy position">
               <div class="concept-panel-content" id="secondary-tree-container" :style="contentHeight">
-                <SecondaryTree :conceptIri="selectedConceptIri" />
+                <SecondaryTree :entityIri="selectedConceptIri" />
               </div>
             </TabPanel>
           </TabView>
@@ -62,12 +62,16 @@ import { useRouter } from "vue-router";
 import { getLogger } from "@im-library/logger/LogConfig";
 import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 import SecondaryTree from "@/components/shared/SecondaryTree.vue";
+import setupConfig from "@/composables/setupConfig";
+const { configs, getConfig }: { configs: Ref<DefinitionConfig[]>; getConfig: Function } = setupConfig();
 
 const log = getLogger("components.editor.infobar.InfoSideBar");
 
-const props = defineProps({
-  selectedConceptIri: { type: String, required: true }
-});
+interface Props {
+  selectedConceptIri: string;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   closeBar: () => true
@@ -89,7 +93,6 @@ let types: Ref<TTIriRef[]> = ref([]);
 let header = ref("");
 let contentHeight = ref("");
 let contentHeightValue = ref(0);
-let configs: Ref<DefinitionConfig[]> = ref([]);
 let conceptAsString = ref("");
 let terms: Ref<any[] | undefined> = ref([]);
 // let isQuery = ref(false);
@@ -193,18 +196,6 @@ async function getInferred(iri: string): Promise<void> {
     result.entity[RDFS.SUBCLASS_OF].push(newRoleGroup);
   }
   concept.value["inferred"] = result;
-}
-
-async function getConfig(): Promise<void> {
-  const definitionConfig = await ConfigService.getComponentLayout("definition");
-  const summaryConfig = await ConfigService.getComponentLayout("summary");
-  configs.value = definitionConfig.concat(summaryConfig);
-
-  if (configs.value.every(config => isObjectHasKeys(config, ["order"]))) {
-    configs.value.sort(byOrder);
-  } else {
-    log.error("Failed to sort config for definition component layout. One or more config items are missing 'order' property.");
-  }
 }
 
 async function init(): Promise<void> {

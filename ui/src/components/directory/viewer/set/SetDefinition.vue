@@ -9,7 +9,7 @@
     <Accordion multiple v-model:activeIndex="active">
       <AccordionTab header="Subsets">
         <div class="set-accordion-content" id="set-definition-container">
-          <SubsetDisplay :conceptIri="props.conceptIri" />
+          <SubsetDisplay :entityIri="props.entityIri" />
         </div>
       </AccordionTab>
       <AccordionTab>
@@ -27,12 +27,12 @@
           </div>
         </template>
         <div class="set-accordion-content" id="set-definition-container">
-          <QuerySetDefinition :conceptIri="props.conceptIri" />
+          <QueryDisplay :entityIri="props.entityIri" />
         </div>
       </AccordionTab>
       <AccordionTab header="Direct Members">
         <div class="set-accordion-content" id="members-container">
-          <Members :conceptIri="props.conceptIri" />
+          <Members :entityIri="props.entityIri" />
         </div>
       </AccordionTab>
     </Accordion>
@@ -42,17 +42,21 @@
 <script setup lang="ts">
 import Members from "./Members.vue";
 import SubsetDisplay from "./SubsetDisplay.vue";
-import { onMounted, ref } from "@vue/runtime-core";
+import { onMounted, ref } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDFS } from "@im-library/vocabulary";
-import QuerySetDefinition from "@/components/shared/query/QuerySetDefinition.vue";
 import ArrayObjectNamesToStringWithLabel from "@/components/shared/generics/ArrayObjectNamesToStringWithLabel.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import QueryDisplay from "@/components/directory/viewer/QueryDisplay.vue";
 
-const props = defineProps({ conceptIri: { type: String, required: true } });
+interface Props {
+  entityIri: string;
+}
+
+const props = defineProps<Props>();
 const toast = useToast();
 const subsetOf = ref();
 const isContainedIn = ref();
@@ -62,7 +66,7 @@ const active = ref([] as number[]);
 
 onMounted(async () => {
   active.value = [0, 1, 2];
-  const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF]);
+  const entity = await EntityService.getPartialEntity(props.entityIri, [IM.IS_SUBSET_OF, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF]);
   ttentity.value = entity;
   if (entity[IM.IS_SUBSET_OF]) {
     subsetOf.value = entity[IM.IS_SUBSET_OF];
@@ -77,7 +81,7 @@ onMounted(async () => {
 
 async function onCopy(event: any) {
   event.stopPropagation();
-  const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.DEFINITION]);
+  const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   if (isObjectHasKeys(entity, [IM.DEFINITION])) {
     await navigator.clipboard.writeText(entity[IM.DEFINITION]);
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Definition copied to clipboard"));
@@ -104,6 +108,10 @@ async function onCopy(event: any) {
   align-items: baseline;
   justify-content: space-between;
   width: 100%;
+}
+
+.concept-button {
+  margin-right: 0.5rem;
 }
 
 .concept-button:hover {

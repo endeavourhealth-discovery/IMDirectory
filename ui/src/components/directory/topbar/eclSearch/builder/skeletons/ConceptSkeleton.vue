@@ -31,11 +31,12 @@ import { PropType, ref, Ref } from "vue";
 import BoolGroupSkeleton from "./BoolGroupSkeleton.vue";
 import ConceptSkeleton from "./ConceptSkeleton.vue";
 
-const props = defineProps({
-  value: { type: Object as PropType<any>, required: false },
-  parent: { type: Object as PropType<any>, required: false },
-  focus: { type: Object as PropType<any>, required: false }
-});
+interface Props {
+  value?: any;
+  parent?: any;
+  focus?: any;
+}
+const props = defineProps<Props>();
 
 const children: Ref<any[]> = ref([]);
 

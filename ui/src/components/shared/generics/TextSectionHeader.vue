@@ -7,12 +7,17 @@
 </template>
 
 <script setup lang="ts">
+interface Props {
+  label: string;
+  size?: string;
+  id?: string;
+  show?: boolean;
+}
 
-const props = defineProps({
-  label: { type: String, required: true },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "text-section-header" },
-  show: { type: Boolean, required: false, default: true }
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "text-section-header",
+  show: true
 });
 </script>
 

@@ -1,7 +1,8 @@
 <template>
   <div class="component-group-container">
+    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
     <div class="label-container">
-      <div v-for="(property, index) in properties" class="components-container">
+      <div v-for="(property, index) in properties" class="component-container">
         <component :is="processComponentType(property.componentType)" :shape="property" :value="processEntityValue(property)" :mode="mode" />
       </div>
     </div>
@@ -31,12 +32,14 @@ import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Array as PropType<TTIriRef[]>, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: any;
+}
+
+const props = defineProps<Props>();
 
 watch(
   () => props.shape,
@@ -54,8 +57,8 @@ onMounted(() => {
 });
 
 function processEntityValue(property: PropertyShape) {
-  if (props.value && isPropertyShape(property)) {
-    return props.value[property.order - 1];
+  if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path["@id"]])) {
+    return props.value[property.path["@id"]];
   }
   if (isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
@@ -64,31 +67,34 @@ function processEntityValue(property: PropertyShape) {
 }
 
 function setProperties(shape: PropertyShape) {
-  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property;
+  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property!;
   else properties.value = [];
 }
 </script>
 
 <style scoped>
 .component-group-container {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   overflow: auto;
+  display: flex;
+  flex-flow: row wrap;
 }
 
-.components-container {
+.component-container {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: column;
+  flex-flow: row;
   align-items: baseline;
 }
 
 .label-container {
-  flex: 0 1 auto;
+  width: 100%;
+  flex: 1 1 auto;
   padding: 1rem;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
-  position: relative;
-  min-width: 15rem;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: flex-start;
   align-items: flex-start;
   overflow: auto;

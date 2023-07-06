@@ -1,5 +1,6 @@
 <template>
   <div class="horizontal-row-container">
+    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
     <div v-for="(component, index) in components" class="component-container" :style="'width:' + widths[index]">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
@@ -25,12 +26,14 @@ import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: ([Object, String] as PropType<any>) || String, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: any;
+  position?: number;
+}
+
+const props = defineProps<Props>();
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 
@@ -43,25 +46,27 @@ onMounted(() => {
 });
 
 function setComponents() {
-  components.value = props.shape.property;
+  if (isObjectHasKeys(props.shape, ["property"])) components.value = props.shape.property!;
 }
 
 function setWidths() {
-  if (props.shape.argument) {
-    const splitArgs = props.shape.argument[0].valueData?.split(",");
-    if (splitArgs && splitArgs?.length) {
-      widths.value = splitArgs;
+  if (isObjectHasKeys(props.shape, ["property"])) {
+    if (props.shape.argument) {
+      const splitArgs = props.shape.argument[0].valueData?.split(",");
+      if (splitArgs && splitArgs?.length) {
+        widths.value = splitArgs;
+      } else {
+        widths.value.push(100 / props.shape.property!.length + "%");
+      }
     } else {
-      widths.value.push(100 / props.shape.property.length + "%");
+      widths.value.push(100 / props.shape.property!.length + "%");
     }
-  } else {
-    widths.value.push(100 / props.shape.property.length + "%");
   }
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
-    return editorEntity[property.path["@id"]];
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path!["@id"]])) {
+    return editorEntity[property.path!["@id"]];
   }
   return undefined;
 }

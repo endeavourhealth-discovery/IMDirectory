@@ -1,9 +1,11 @@
 import { TreeNode } from "../interfaces/TreeNode";
-import { TTIriRef, TTProperty } from "../interfaces";
+import { TTProperty } from "../interfaces";
 import { IM, SHACL } from "../vocabulary";
 import { getFAIconFromType } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
+import { TTIriRef } from "../interfaces/AutoGen";
+import { getParentNode } from "./TreeHelper";
 
 export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
   const dataModelProperties = entity[SHACL.PROPERTY];
@@ -39,7 +41,7 @@ export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
     icon: getFAIconFromType([imtype]),
     leaf: "node" === type ? false : true,
     children: [] as TreeNode[],
-    parent: parent
+    parent: getParentNode(parent)
   } as TreeNode;
 }
 
@@ -82,12 +84,13 @@ function buildDataModelTreeNode(property: TTProperty, parent: TreeNode) {
     label: property[SHACL.NODE][0].name,
     iri: property[SHACL.PATH][0]["@id"],
     data: property,
+    conceptTypes: [imtype],
     type: "dataModel",
     icon: getFAIconFromType([imtype]),
     leaf: false,
     children: [],
     selectable: false,
-    parent: parent
+    parent: getParentNode(parent)
   } as TreeNode;
 }
 

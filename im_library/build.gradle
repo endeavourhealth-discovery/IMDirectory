@@ -5,7 +5,8 @@
  * Learn more about Gradle by exploring our samples at https://docs.gradle.org/6.7.1/samples
  */
 plugins {
-    id 'org.siouan.frontend-jdk11'
+    id 'base'
+    id 'com.github.node-gradle.node'
     id "org.sonarqube" version "3.5.0.2730"
 }
 
@@ -26,15 +27,23 @@ sonar {
     }
 }
 
+tasks.register('pnpmBuild', PnpmTask) {
+    dependsOn pnpmInstall
+    args = ['run', 'build']
+}
+
+tasks.register('pnpmTest', PnpmTask) {
+    dependsOn pnpmInstall
+    args = ['run', 'test:coverage']
+}
+
+assemble.dependsOn pnpmBuild
+
+check.dependsOn pnpmTest
+
 clean.doLast {
     file('coverage').deleteDir()
     file('dist').deleteDir()
-}
-
-frontend {
-    nodeDistributionProvided = true
-    checkScript = 'run test:coverage'
-    installScript = 'install --legacy-peer-deps'
 }
 
 if (env == 'prod') {

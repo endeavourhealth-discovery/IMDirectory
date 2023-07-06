@@ -44,11 +44,13 @@ const debounce = ref(0);
 const filterDefaults: ComputedRef<FilterOptions> = computed(() => filterStore.filterDefaults);
 const suggestions: Ref<ConceptSummary[]> = ref([]);
 
-const props = defineProps({
-  params: { type: Object as PropType<{ name: string; desc: string; type: string; minCount: number; maxCount: number; value: any }[]>, required: true },
-  queryRequest: { type: Object as PropType<QueryRequest>, required: true },
-  showDialog: { type: Boolean, required: true }
-});
+interface Props {
+  params: { name: string; desc: string; type: string; minCount: number; maxCount: number; value: any }[];
+  queryRequest: QueryRequest;
+  showDialog: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({ closeDialog: () => true, onParamsPopulated: () => true });
 const internalShowDialog = ref(true);

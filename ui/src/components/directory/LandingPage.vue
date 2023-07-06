@@ -34,7 +34,7 @@
             <Column :exportable="false">
               <template #body="{ data }: any">
                 <div class="action-buttons-container">
-                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
+                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" @locate-in-tree="locateInTree" />
                 </div>
               </template>
             </Column>
@@ -64,6 +64,7 @@ import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
 import ActionButtons from "../shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 export default defineComponent({
   components: { ReportTable, PieChartDashCard, ActionButtons, IMFontAwesomeIcon }
@@ -76,7 +77,7 @@ import { getColourFromType, getFAIconFromType } from "@im-library/helpers/Concep
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { EntityService, ConfigService } from "@/services";
+import { EntityService, ConfigService, UserService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
 import { useUserStore } from "@/stores/userStore";
@@ -84,7 +85,9 @@ import { useUserStore } from "@/stores/userStore";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { byOrder } from "@im-library/helpers/Sorters";
 const userStore = useUserStore();
+const directoryStore = useDirectoryStore();
 const recentLocalActivity = computed(() => userStore.recentLocalActivity);
+const currentUser = computed(() => userStore.currentUser);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
@@ -109,12 +112,16 @@ async function init(): Promise<void> {
 }
 
 async function getRecentActivityDetails() {
-  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
+  let localActivity: RecentActivityItem[];
+  if (currentUser.value) {
+    localActivity = await UserService.getUserMRU();
+  } else localActivity = recentLocalActivity.value ? recentLocalActivity.value : [];
+  const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 
   const temp: RecentActivityItem[] = [];
 
-  for (const rla of recentLocalActivity.value) {
+  for (const rla of localActivity) {
     const clone = { ...rla };
 
     let result = null;
@@ -131,7 +138,6 @@ async function getRecentActivityDetails() {
   }
 
   temp.reverse();
-
   activities.value = temp;
 }
 
@@ -181,6 +187,10 @@ async function getCardsData(): Promise<void> {
     cards.push(cardData);
   }
   cardsData.value = cards;
+}
+
+function locateInTree(iri: string) {
+  directoryStore.updateFindInTreeIri(iri);
 }
 </script>
 

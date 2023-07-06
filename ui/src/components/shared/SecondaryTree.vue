@@ -113,11 +113,15 @@ import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  entityIri: string;
+}
 
-const directService = new DirectService();
+const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, onRowClick, loadMore } =
   setupTree();
@@ -135,7 +139,7 @@ const pageSize = ref(20);
 const altTreeOP = ref();
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => {
     selectedKeys.value = {};
     alternateParents.value = [];
@@ -150,7 +154,7 @@ watch(loading, newValue => {
 });
 
 onMounted(async () => {
-  await getConceptAggregate(props.conceptIri);
+  await getConceptAggregate(props.entityIri);
   await createTree(conceptAggregate.value.concept, conceptAggregate.value.parents, conceptAggregate.value.children, 0);
 });
 
@@ -327,7 +331,7 @@ function getConceptTypes(types: TTIriRef[]): string {
 }
 
 function navigate(event: any, iri: string): void {
-  if (event.metaKey || event.ctrlKey) directService.select(iri);
+  if (event.metaKey || event.ctrlKey) emit("navigateTo", iri);
 }
 </script>
 

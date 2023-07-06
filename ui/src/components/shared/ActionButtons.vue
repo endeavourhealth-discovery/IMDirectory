@@ -13,7 +13,7 @@
     :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
     :severity="getSeverity()"
     :class="getClass()"
-    @click="locateInTree($event, iri)"
+    @click="locateInTree(iri)"
     v-tooltip.top="'Find in tree'"
     data-testid="select-button"
   />
@@ -72,7 +72,6 @@
 
 <script setup lang="ts">
 import { PropType, computed } from "vue";
-import findInTree from "@/composables/findInTree";
 import setupRunQuery from "@/composables/setupRunQuery";
 import { DirectService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -84,16 +83,23 @@ import { useUserStore } from "@/stores/userStore";
 
 const directService = new DirectService();
 const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQueryResults, queryRequest, showTestQueryParams } = setupRunQuery();
-const { locateInTree }: { locateInTree: Function } = findInTree();
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
-const props = defineProps({
-  buttons: { type: Array as PropType<Array<string>>, required: true },
-  iri: { type: String, required: true },
-  type: { type: String, required: false, default: "activityRowButton" }
+interface Props {
+  buttons: string[];
+  iri: string;
+  type?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  type: "activityRowButton"
+});
+
+const emit = defineEmits({
+  locateInTree: (_payload: string) => true
 });
 
 function getClass() {
@@ -141,6 +147,10 @@ async function onRunQuery(iri: string) {
 async function onParamsPopulated() {
   showTestQueryParams.value = false;
   showTestQueryResults.value = true;
+}
+
+function locateInTree(iri: string) {
+  emit("locateInTree", iri);
 }
 </script>
 

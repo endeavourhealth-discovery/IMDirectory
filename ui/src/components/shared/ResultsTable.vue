@@ -3,7 +3,7 @@
     <DataTable
       :paginator="true"
       :rows="20"
-      :value="searchResults"
+      :value="processedSearchResults"
       class="p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
@@ -16,6 +16,7 @@
       ref="searchTable"
       dataKey="iri"
       :autoLayout="true"
+      @page="scrollToTop"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
@@ -46,7 +47,7 @@
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="(iri:string) => emit('locateInTree', iri)" />
           </div>
         </template>
       </Column>
@@ -59,35 +60,40 @@
 <script setup lang="ts">
 import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
 import { DirectService } from "@/services";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
-import rowClick from "@/composables/rowClick";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import setupDownloadFile from "@/composables/downloadFile";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
+import { ConceptSummary } from "@im-library/interfaces";
+import _ from "lodash";
 
-const props = defineProps({
-  searchResults: { type: Array as PropType<any[]>, default: [] },
-  totalRecords: { type: Number, required: false, default: 0 },
-  loading: { type: Boolean, required: true }
+interface Props {
+  searchResults?: ConceptSummary[];
+  totalRecords?: number;
+  loading: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  searchResults: () => [] as ConceptSummary[],
+  totalRecords: 0
 });
 
-const directoryStore = useDirectoryStore();
+const emit = defineEmits({ rowSelected: (_payload: ConceptSummary) => true, locateInTree: (_payload: string) => true });
+
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-const searchLoading = computed(() => directoryStore.searchLoading);
 
 const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
 const selected: Ref<any> = ref({});
+const processedSearchResults: Ref<any[]> = ref([]);
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Select",
@@ -108,11 +114,12 @@ const rClickOptions: Ref<any[]> = ref([
     command: () => updateFavourites()
   }
 ]);
+const delay = ref(200);
+const clicks = ref(0);
+const timer: Ref<NodeJS.Timeout> = ref({} as NodeJS.Timeout);
 
 const OS: Ref<any> = ref();
 const contextMenu = ref();
-const menu = ref();
-const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => props.searchResults,
@@ -132,27 +139,27 @@ function isFavourite(iri: string) {
 }
 
 function init() {
-  processSearchResults();
+  processedSearchResults.value = processSearchResults(props.searchResults);
 }
 
-function processSearchResults() {
-  for (const result of props.searchResults) {
-    if (isObjectHasKeys(result, ["entityType"])) {
-      result.icon = getFAIconFromType(result.entityType);
-      result.colour = getColourFromType(result.entityType);
-      result.typeNames = getNamesAsStringFromTypes(result.entityType);
-      result.favourite = isFavourite(result.iri);
-    } else if (isObjectHasKeys(result, ["type"])) {
-      result.icon = getFAIconFromType(result.type);
-      result.colour = getColourFromType(result.type);
-      result.typeNames = getNamesAsStringFromTypes(result.type);
-      result.favourite = isFavourite(result.iri);
-    }
-  }
+function processSearchResults(searchResults: ConceptSummary[]): any[] {
+  return searchResults.map(result => {
+    const copy: any = _.cloneDeep(result);
+    copy.icon = getFAIconFromType(result.entityType);
+    copy.colour = getColourFromType(result.entityType);
+    copy.typeNames = getNamesAsStringFromTypes(result.entityType);
+    copy.favourite = isFavourite(result.iri);
+    return copy;
+  });
 }
 
 function updateRClickOptions() {
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
+}
+
+async function scrollToTop() {
+  const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
+  scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
 function onRowContextMenu(event: any) {
@@ -162,7 +169,19 @@ function onRowContextMenu(event: any) {
 }
 
 function onRowSelect(event: any) {
-  onRowClick(event.data.iri);
+  clicks.value++;
+  if (clicks.value === 1) {
+    timer.value = setTimeout(() => {
+      const found = props.searchResults.find(result => event.data.iri === result.iri);
+      if (found) emit("rowSelected", found);
+      clicks.value = 0;
+    }, delay.value);
+  } else {
+    clearTimeout(timer.value);
+    const found = props.searchResults.find(result => event.data.iri === result.iri);
+    if (found) emit("rowSelected", found);
+    clicks.value = 0;
+  }
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {

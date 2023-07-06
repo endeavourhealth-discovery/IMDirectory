@@ -150,6 +150,10 @@ describe("eclToBuild", () => {
     expect(eclToBuild(eclTestData.multipleOrRefinement)).toEqual(buildTestData.multipleOrRefinement);
   });
 
+  it("converts groupedAnd", () => {
+    expect(eclToBuild(eclTestData.groupedAnd)).toEqual(buildTestData.groupedAnd);
+  });
+
   it("converts startGroupedConceptWithRefinement", () => {
     expect(eclToBuild(eclTestData.startGroupedConceptWithRefinement)).toEqual({
       type: "BoolGroup",

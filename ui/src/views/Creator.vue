@@ -65,7 +65,9 @@ import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayB
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
-import { processComponentType } from "@im-library/helpers/EditorMethods";
+import { setupValidity } from "@/composables/setupValidity";
+import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { useDialog } from "primevue/usedialog";
 
 export default defineComponent({
   components: {
@@ -94,6 +96,7 @@ import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, n
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import _ from "lodash";
 import Swal from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
@@ -111,12 +114,17 @@ import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
+interface Props {
+  type?: TTIriRef;
+}
 
-const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
+const props = defineProps<Props>();
 
 const route = useRoute();
 const router = useRouter();
 const confirm = useConfirm();
+const dynamicDialog = useDialog();
 const creatorStore = useCreatorStore();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
@@ -125,9 +133,6 @@ const directService = new DirectService();
 
 const currentUser = computed(() => userStore.currentUser).value;
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
-const hasType = computed<boolean>(() => {
-  return isObjectHasKeys(editorEntity.value, [RDF.TYPE]);
-});
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
@@ -140,22 +145,54 @@ function onShowSidebar() {
   editorStore.updateFindInEditorTreeIri("");
 }
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
+const {
+  editorEntity,
+  editorEntityOriginal,
+  fetchEntity,
+  processEntity,
+  editorIri,
+  editorSavedEntity,
+  entityName,
+  hasType,
+  findPrimaryType,
+  updateEntity,
+  deleteEntityKey,
+  checkForChanges
+} = setupEditorEntity(EditorMode.CREATE, updateType);
 const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const {
+  editorValidity,
+  updateValidity,
+  removeValidity,
+  isValidEntity,
+  constructValidationCheckStatus,
+  validationCheckStatus,
+  updateValidationCheckStatus,
+  addPropertyToValidationCheckStatus,
+  removeValidationCheckStatus,
+  validationChecksCompleted
+} = setupValidity(shape.value);
+const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
-const creatorValidity: Ref<{ key: string; valid: boolean }[]> = ref([]);
 const targetShape: Ref<TTIriRef | undefined> = ref();
-const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
 const showTestQueryResults: Ref<boolean> = ref(false);
 const showTypeSelector = ref(false);
+const forceValidation = ref(false);
 
-provide(injectionKeys.editorValidity, { validity: creatorValidity, updateValidity, removeValidity });
+provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
+provide(injectionKeys.forceValidation, {
+  forceValidation,
+  validationCheckStatus,
+  updateValidationCheckStatus,
+  addPropertyToValidationCheckStatus,
+  removeValidationCheckStatus
+});
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -169,16 +206,16 @@ onMounted(async () => {
     await showEntityFoundWarning();
   }
   if (props.type) {
-    await getShape(props.type["@id"]);
+    getShape(props.type["@id"]);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-    await getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
+    getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (typeIri) {
     currentStep.value = 1;
     const typeEntity = await EntityService.getPartialEntity(typeIri as string, [RDFS.LABEL]);
     editorEntity.value[RDF.TYPE] = [{ "@id": typeIri, name: typeEntity[RDFS.LABEL] }];
-    shape.value = await getShape(typeIri as string);
+    shape.value = getShape(typeIri as string);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
       const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
@@ -251,44 +288,9 @@ function updateShowTypeSelector(bool: boolean) {
   showTypeSelector.value = bool;
 }
 
-function updateValueVariableMap(key: string, value: any) {
-  valueVariableMap.value.set(key, value);
-}
-
-function updateValidity(data: { key: string; valid: boolean }) {
-  const index = creatorValidity.value.findIndex(item => item.key === data.key);
-  if (index != -1) creatorValidity.value[index] = data;
-  else creatorValidity.value.push(data);
-}
-
-function removeValidity(data: { key: string; valid: boolean }) {
-  const index = creatorValidity.value.findIndex(item => (item.key = data.key));
-  if (index) creatorValidity.value.splice(index, 1);
-}
-
-function findPrimaryType(): TTIriRef | undefined {
-  if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]))) return undefined;
-  if (
-    isObjectHasKeys(editorEntityOriginal, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntityOriginal.value[RDF.TYPE]) &&
-    editorEntityOriginal.value[RDF.TYPE].length === 1 &&
-    isObjectHasKeys(editorEntity.value, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntity.value[RDF.TYPE])
-  ) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type === editorEntityOriginal.value[RDF.TYPE][0]);
-    if (found) return found;
-  }
-  if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
-  if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE)) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE);
-    if (found) return found;
-  }
-  return editorEntity.value[0];
-}
-
-async function updateType(types: TTIriRef[]) {
+function updateType(types: TTIriRef[]) {
   loading.value = true;
-  await getShapesCombined(types, findPrimaryType());
+  getShapesCombined(types, findPrimaryType());
   if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   editorEntity.value[RDF.TYPE] = types;
   loading.value = false;
@@ -301,115 +303,85 @@ function beforeWindowUnload(e: any) {
   }
 }
 
-function updateEntity(data: any) {
-  let wasUpdated = false;
-  if (isArrayHasLength(data)) {
-    data.forEach((item: any) => {
-      if (isObjectHasKeys(item)) {
-        for (const [key, value] of Object.entries(item)) {
-          editorEntity.value[key] = value;
-          wasUpdated = true;
-        }
-      }
-    });
-  } else if (isObjectHasKeys(data)) {
-    if (isObjectHasKeys(data, [RDF.TYPE])) {
-      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-        updateType(data[RDF.TYPE]);
-        wasUpdated = true;
-      } else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
-        updateType(data[RDF.TYPE]);
-        wasUpdated = true;
-      }
-    } else {
-      for (const [key, value] of Object.entries(data)) {
-        editorEntity.value[key] = value;
-        wasUpdated = true;
-      }
-    }
-  }
-  if (wasUpdated && isValidEntity(editorEntity.value)) {
-    creatorStore.updateCreatorSavedEntity(editorEntity.value);
-  }
-}
-
-function deleteEntityKey(data: string) {
-  if (data) delete editorEntity.value[data];
-}
-
 function fileChanges(entity: any) {
   FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser.id + "#", IM.UPDATE_ALL);
 }
 
-function checkForChanges() {
-  if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
-    creatorStore.updateCreatorHasChanges(false);
-    return false;
-  } else {
-    creatorStore.updateCreatorHasChanges(true);
-    return true;
-  }
-}
-
-async function submit(): Promise<void> {
-  if (isValidEntity(editorEntity.value)) {
-    console.log("submit");
-    await Swal.fire({
-      icon: "info",
-      title: "Confirm create",
-      text: "Are you sure you want to create this entity?",
-      showCancelButton: true,
-      confirmButtonText: "Create",
-      reverseButtons: true,
-      confirmButtonColor: "#689F38",
-      cancelButtonColor: "#607D8B",
-      showLoaderOnConfirm: true,
-      allowOutsideClick: () => !Swal.isLoading(),
-      preConfirm: async () => {
-        const res = await EntityService.createEntity(editorEntity.value);
-        if (res) {
-          creatorStore.updateCreatorSavedEntity(undefined);
-          return res;
-        } else Swal.showValidationMessage("Error creating entity from server.");
-      }
-    }).then((result: any) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Success",
-          text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
-          icon: "success",
+function submit(): void {
+  const verificationDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Validating", text: "Running validation checks..." }
+  });
+  constructValidationCheckStatus(shape.value);
+  forceValidation.value = true;
+  validationChecksCompleted()
+    .then(async () => {
+      forceValidation.value = false;
+      verificationDialog.close();
+      if (isValidEntity(editorEntity.value)) {
+        console.log("submit");
+        await Swal.fire({
+          icon: "info",
+          title: "Confirm create",
+          text: "Are you sure you want to create this entity?",
           showCancelButton: true,
+          confirmButtonText: "Create",
           reverseButtons: true,
-          confirmButtonText: "Open in Viewer",
-          confirmButtonColor: "#2196F3",
-          cancelButtonColor: "#607D8B"
+          confirmButtonColor: "#689F38",
+          cancelButtonColor: "#607D8B",
+          showLoaderOnConfirm: true,
+          allowOutsideClick: () => !Swal.isLoading(),
+          preConfirm: async () => {
+            const res = await EntityService.createEntity(editorEntity.value);
+            if (res) {
+              creatorStore.updateCreatorSavedEntity(undefined);
+              return res;
+            } else Swal.showValidationMessage("Error creating entity from server.");
+          }
         }).then((result: any) => {
           if (result.isConfirmed) {
-            directService.view(editorEntity.value["http://endhealth.info/im#id"]);
-          } else {
-            directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
+            Swal.fire({
+              title: "Success",
+              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
+              icon: "success",
+              showCancelButton: true,
+              reverseButtons: true,
+              confirmButtonText: "Open in Viewer",
+              confirmButtonColor: "#2196F3",
+              cancelButtonColor: "#607D8B"
+            }).then((result: any) => {
+              if (result.isConfirmed) {
+                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
+              } else {
+                directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
+              }
+            });
           }
         });
+      } else {
+        console.log("invalid entity");
+        Swal.fire({
+          icon: "warning",
+          title: "Warning",
+          text: "Invalid values found. Please review your entries.",
+          confirmButtonText: "Close",
+          confirmButtonColor: "#689F38"
+        });
       }
+    })
+    .catch(err => {
+      Swal.fire({
+        icon: "error",
+        title: "Timeout",
+        text: "Validation timed out. Please contact an admin for support",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
     });
-  } else {
-    console.log("invalid entity");
-    Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
-    });
-  }
 }
 
 function testQuery() {
   if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
-}
-
-function isValidEntity(entity: any): boolean {
-  return isObjectHasKeys(entity) && entity["http://endhealth.info/im#id"] && creatorValidity.value.every(validity => validity.valid);
 }
 
 function refreshCreator() {
@@ -433,8 +405,8 @@ function refreshCreator() {
 }
 
 function processEntityValue(property: PropertyShape) {
-  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path["@id"]])) {
-    return editorEntity.value[property.path["@id"]];
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!["@id"]])) {
+    return editorEntity.value[property.path!["@id"]];
   }
   return undefined;
 }
@@ -451,7 +423,7 @@ function processEntityValue(property: PropertyShape) {
   height: calc(100% - 3.5rem);
   width: 100%;
   overflow: auto;
-  background-color: #ffffff;
+  overflow: auto;
 }
 
 .content-buttons-container {
@@ -511,9 +483,8 @@ function processEntityValue(property: PropertyShape) {
 
 .sidebar-toggle {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #ffffff !important;
+  top: 0.5rem;
+  right: 0.5rem;
 }
 
 .topbar-content {
@@ -548,11 +519,6 @@ function processEntityValue(property: PropertyShape) {
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
   width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
-  border-radius: 3px;
-  background-color: #ffffff;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;

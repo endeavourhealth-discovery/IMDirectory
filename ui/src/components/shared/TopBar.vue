@@ -83,14 +83,16 @@
 import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
-import { DirectService, Env, FilerService, DataModelService, GithubService } from "@/services";
+import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
 
 import { usePrimeVue } from "primevue/config";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const directoryStore = useDirectoryStore();
@@ -126,7 +128,7 @@ async function getCurrentVersion() {
 }
 
 function toLandingPage() {
-  window.location.href = "/";
+  router.push("/");
 }
 
 function open(item: { icon: string; command: Function; label: string }) {
@@ -587,7 +589,9 @@ function showReleaseNotes() {
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => userStore.updateCurrentTheme(newTheme));
+  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
+    userStore.updateCurrentTheme(newTheme);
+  });
 }
 </script>
 

@@ -7,21 +7,31 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { DirectService } from "../../services";
-import OverlaySummary from "../directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "./OverlaySummary.vue";
 
-const props = defineProps({
-  iri: { type: String, required: true },
-  label: { type: String, required: false },
-  action: { type: String, required: false, default: "view" },
-  html: { type: Boolean, required: false, default: false }
+interface Props {
+  iri: string;
+  label?: string;
+  action?: string;
+  html?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  action: "view",
+  html: false
 });
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
+
 const OS: Ref<any> = ref();
 const directService = new DirectService();
 
 async function click() {
   switch (props.action) {
     case "select":
-      directService.select(props.iri);
+      emit("navigateTo", props.iri);
       break;
     case "view":
       directService.view(props.iri);

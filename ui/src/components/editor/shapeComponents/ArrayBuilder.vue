@@ -1,11 +1,11 @@
 <template>
   <div class="array-builder-container">
-    <h2 v-if="shape.name">{{ shape.name }}</h2>
+    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else class="children-container" :class="invalid && 'invalid'">
-      <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+    <div v-else class="children-container" :class="invalid && showValidation && 'invalid'">
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
       <template v-for="(item, index) in build" :key="item.id">
         <component
           :is="item.type"
@@ -51,24 +51,46 @@ import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Array as PropType<TTIriRef[]>, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: any[];
+}
+
+const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 let key = props.shape.path["@id"];
 
-let loading = ref(true);
-let validationErrorMessage = "Failed validation";
-let build: Ref<ComponentDetails[]> = ref([]);
-onMounted(() => {
+const loading = ref(true);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
+const build: Ref<ComponentDetails[]> = ref([]);
+onMounted(async () => {
   init();
+  if (updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    showValidation.value = false;
+  }
 });
 
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
@@ -82,7 +104,11 @@ watch(
   async newValue => {
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
-      if (validityUpdate) await updateValidity();
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
+      updateValueVariableMap(props.value);
     }
   }
 );
@@ -113,7 +139,6 @@ const finishedChildLoading = computed(
 
 function init() {
   key = props.shape.path["@id"];
-  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage;
   createBuild();
 }
 
@@ -140,7 +165,7 @@ function createBuild() {
 function createDefaultBuild() {
   build.value = [];
   if (isObjectHasKeys(props.shape, ["property"])) {
-    props.shape.property.forEach(property => {
+    props.shape.property!.forEach(property => {
       build.value.push(
         generateNewComponent(
           ComponentType.BUILDER_CHILD_WRAPPER,
@@ -160,7 +185,7 @@ function processChild(child: any, position: number) {
     ComponentType.BUILDER_CHILD_WRAPPER,
     position,
     child,
-    props.shape.property[0],
+    props.shape.property?.[0] ?? ({} as PropertyShape),
     setButtonsByTypeAndPath(position, true),
     props.mode
   );
@@ -208,8 +233,6 @@ function generateBuildAsJson() {
   return jsonBuild;
 }
 
-let invalid = ref(false);
-
 function updateEntity() {
   const value = generateBuildAsJson();
   const result = {} as any;
@@ -217,23 +240,10 @@ function updateEntity() {
   if (entityUpdate && value.length) entityUpdate(result);
 }
 
-async function updateValidity() {
-  if (isPropertyShape(props.shape) && isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return generateBuildAsJson().every(item => isObjectHasKeys(item, ["@id", "name"]));
-}
-
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
   let shape;
   if (isObjectHasKeys(props.shape, ["property"])) {
-    shape = props.shape.property.find(p => processComponentType(p.componentType) === data.selectedType);
+    shape = props.shape.property!.find(p => processComponentType(p.componentType) === data.selectedType);
   }
   if (data.selectedType !== ComponentType.BUILDER_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_CHILD_WRAPPER;
@@ -260,7 +270,7 @@ function updateItemWrapper(data: ComponentDetails) {
 
 function getNextComponentOptions() {
   if (isObjectHasKeys(props.shape, ["property"]))
-    return props.shape.property.map(property => {
+    return props.shape.property!.map(property => {
       return { type: processComponentType(property.componentType), name: property.name };
     });
   else return;
@@ -309,6 +319,13 @@ function moveItemDown(item: ComponentDetails) {
     updatePositions(build.value);
   }
 }
+
+function updateValueVariableMap(data: any[] | undefined) {
+  if (!props.shape.valueVariable) return;
+  let mapKey = props.shape.valueVariable;
+  if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
+  if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
+}
 </script>
 
 <style scoped>
@@ -317,6 +334,7 @@ function moveItemDown(item: ComponentDetails) {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
+  overflow: auto;
 }
 .loading-container {
   flex: 1 1 auto;
@@ -327,7 +345,7 @@ function moveItemDown(item: ComponentDetails) {
   flex-flow: column;
 }
 .children-container {
-  padding-left: 1rem;
+  width: 100%;
   border-radius: 3px;
   flex: 1 1 auto;
   display: flex;
@@ -340,5 +358,9 @@ function moveItemDown(item: ComponentDetails) {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
 }
 </style>

@@ -1,5 +1,6 @@
 <template>
   <div class="autocomplete-container">
+    <label v-if="shape.showTitle" for="name">{{ shape.name }}</label>
     <div class="label-container">
       <div v-if="loading" class="loading-container">
         <ProgressSpinner style="width: 1.5rem; height: 1.5rem" strokeWidth="6" />
@@ -17,6 +18,7 @@
           :disabled="invalidAssociatedProperty || disabled"
           class="search-input"
           @drop.prevent
+          :class="invalid && showValidation && 'invalid'"
         >
           <template #item="{ item }: any">
             <div class="autocomplete-option" @mouseenter="showOptionsOverlay($event, item)" @mouseleave="hideOptionsOverlay($event)">
@@ -26,6 +28,7 @@
         </AutoComplete>
       </div>
       <small v-if="invalidAssociatedProperty" class="validate-error">Missing property for refinement. Please select a property first.</small>
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
   <OverlayPanel class="options-op" ref="optionsOP" :dismissable="true" stype="width: 50vw" :breakpoints="{ '960px': '75vw' }">
@@ -63,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch } from "vue";
+import { computed, ComputedRef, inject, onBeforeUnmount, onMounted, PropType, Ref, ref, watch } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
 import { EditorMode } from "@im-library/enums";
@@ -78,12 +81,16 @@ import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Object as PropType<TTIriRef>, required: false },
-  disabled: { type: Boolean, required: false, default: false },
-  position: { type: Number, required: false }
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: TTIriRef;
+  disabled?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  disabled: false
 });
 
 watch(
@@ -99,9 +106,21 @@ const emit = defineEmits({
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      showValidation.value = true;
+    }
+  });
+}
 
 watch(
   () => _.cloneDeep(valueVariableMap?.value),
@@ -116,16 +135,21 @@ onMounted(async () => {
   await init();
 });
 
-let loading = ref(false);
-let selectedResult: Ref<ConceptSummary | undefined> = ref();
-let invalidAssociatedProperty = ref(false);
-let invalid = ref(false);
-let associatedProperty = ref("");
-let controller: Ref<AbortController> = ref({} as AbortController);
-let autocompleteOptions: Ref<ConceptSummary[]> = ref([]);
-let key = ref("");
-let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-let optionsOverlayLocation: Ref<any> = ref({});
+const loading = ref(false);
+const selectedResult: Ref<ConceptSummary | undefined> = ref();
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const associatedProperty = ref("");
+const controller: Ref<AbortController> = ref({} as AbortController);
+const autocompleteOptions: Ref<ConceptSummary[]> = ref([]);
+const key = ref("");
+const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const optionsOverlayLocation: Ref<any> = ref({});
+const showValidation = ref(false);
+
+const invalidAssociatedProperty: ComputedRef<boolean> = computed(
+  () => validationErrorMessage.value === `Missing required related item: ${props.shape.argument![0].valueVariable}`
+);
 
 onBeforeUnmount(() => {
   if (isObjectHasKeys(optionsOverlayLocation.value)) {
@@ -141,7 +165,7 @@ watch(selectedResult, (newValue, oldValue) => {
 
 async function init() {
   loading.value = true;
-  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path["@id"];
+  if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
   getAssociatedProperty();
   if (autocompleteOptions.value.length === 0) {
     await getAutocompleteOptions();
@@ -155,34 +179,25 @@ async function init() {
 
 function getAssociatedProperty() {
   if (isObjectHasKeys(props.shape, ["argument"])) {
-    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument[0], ["valueVariable"]) && props.shape.argument[0].valueVariable) {
-      invalidAssociatedProperty.value = false;
+    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueVariable"]) && props.shape.argument![0].valueVariable) {
       if (props.shape.builderChild) {
         if (
           valueVariableMap &&
-          (valueVariableMap.value.has(props.shape.argument[0].valueVariable + props.shape.order) ||
-            valueVariableMap.value.has(props.shape.argument[0].valueVariable))
+          (valueVariableMap.value.has(props.shape.argument![0].valueVariable + props.shape.order) ||
+            valueVariableMap.value.has(props.shape.argument![0].valueVariable))
         ) {
-          if (valueVariableMap.value.has(props.shape.argument[0].valueVariable)) {
-            associatedProperty.value = valueVariableMap.value.get(props.shape.argument[0].valueVariable);
+          if (valueVariableMap.value.has(props.shape.argument![0].valueVariable)) {
+            associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable);
           } else {
-            associatedProperty.value = valueVariableMap.value.get(props.shape.argument[0].valueVariable + props.shape.order);
+            associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable + props.shape.order);
           }
-        } else {
-          invalidAssociatedProperty.value = true;
         }
-      } else if (valueVariableMap && valueVariableMap.value.has(props.shape.argument[0].valueVariable)) {
-        associatedProperty.value = valueVariableMap.value.get(props.shape.argument[0].valueVariable);
-      } else {
-        invalidAssociatedProperty.value = true;
+      } else if (valueVariableMap && valueVariableMap.value.has(props.shape.argument![0].valueVariable)) {
+        associatedProperty.value = valueVariableMap.value.get(props.shape.argument![0].valueVariable);
       }
-    } else if (isObjectHasKeys(props.shape.argument[0], ["valueIri"]) && props.shape.argument[0].valueIri) {
-      associatedProperty.value = props.shape.argument[0].valueIri["@id"];
-    } else {
-      invalidAssociatedProperty.value = false;
+    } else if (isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri) {
+      associatedProperty.value = props.shape.argument![0].valueIri["@id"];
     }
-  } else {
-    invalidAssociatedProperty.value = false;
   }
 }
 
@@ -192,7 +207,7 @@ async function getAutocompleteOptions() {
     let query = {} as Query;
     if (isObjectHasKeys(props.shape, ["select", "argument"])) {
       queryRequest.argument = processArguments(props.shape, valueVariableMap?.value);
-      query["@id"] = props.shape.select[0]["@id"];
+      query["@id"] = props.shape.select![0]["@id"];
       queryRequest.query = query;
     } else {
       throw new Error("EntityAutoComplete is missing 'select' or 'argument' in propertyShape object");
@@ -208,8 +223,8 @@ async function getAutocompleteOptions() {
       }
     }
   } else {
-    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument[0], ["valueIri"]) && props.shape.argument[0].valueIri["@id"]) {
-      const range = await QueryService.getPropertyRange(props.shape?.argument[0].valueIri["@id"]);
+    if (isArrayHasLength(props.shape.argument) && isObjectHasKeys(props.shape.argument![0], ["valueIri"]) && props.shape.argument![0].valueIri!["@id"]) {
+      const range = await QueryService.getPropertyRange(props.shape?.argument![0].valueIri!["@id"]);
       if (range.length !== 0) {
         autocompleteOptions.value = convertToConceptSummary(range);
       }
@@ -244,7 +259,10 @@ async function itemSelected(value: ConceptSummary) {
   if (isObjectHasKeys(value)) {
     if (!props.shape.builderChild && key.value) {
       updateEntity(value);
-      await updateValidity(value);
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
     } else {
       emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
@@ -269,19 +287,6 @@ function updateEntity(value: ConceptSummary) {
   if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }
 
-async function updateValidity(value: ConceptSummary) {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity() {
-  return true;
-}
-
 function showOptionsOverlay(event: any, data?: any) {
   if (data) {
     optionsOverlayLocation.value = event;
@@ -298,11 +303,11 @@ function hideOptionsOverlay(event: any): void {
 
 <style scoped>
 .autocomplete-container {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   justify-content: flex-start;
-  align-items: center;
-  gap: 1rem;
+  align-items: flex-start;
 }
 
 .loading-container {
@@ -315,8 +320,8 @@ function hideOptionsOverlay(event: any): void {
 }
 
 .label-container {
-  flex: 0 1 auto;
-  padding: 1rem;
+  width: 100%;
+  flex: 1 1 auto;
   border-radius: 3px;
   position: relative;
   min-width: 15rem;
@@ -330,16 +335,9 @@ function hideOptionsOverlay(event: any): void {
   padding: 0.25rem;
 }
 
-.float-text {
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 0.75rem;
-  color: var(--text-color);
-}
-
 .search-input {
-  width: 19rem;
+  flex: 1 1 auto;
+  min-width: 19rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -355,6 +353,10 @@ function hideOptionsOverlay(event: any): void {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
 }
 
 .autocomplete-option {
