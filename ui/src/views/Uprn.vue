@@ -8,32 +8,36 @@
       </template>
     </TopBar>
     <div id="uprn-content">
-      <TabView v-model:activeIndex="active" :lazy="true">
-        <TabPanel header="Single address lookup">
-          <div class="uprn-panel-content">
-            <AddressLookup />
-          </div>
-        </TabPanel>
-        <TabPanel header="Address file workflow">
-          <div class="uprn-panel-content">
-            <FileWorkflow />
-          </div>
-        </TabPanel>
-      </TabView>
+      <TabMenu :model="items" />
+      <router-view />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import AddressLookup from "@/components/uprn/AddressLookup.vue";
-import FileWorkflow from "@/components/uprn/FileWorkflow.vue";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useUprnStore } from "@/stores/uprnStore";
+import { useRouter } from "vue-router";
 
 const uprnStore = useUprnStore();
+const uprnService = useUprnStore();
+const router = useRouter();
 
-const active = ref(0);
+const items = ref([
+  {
+    label: "Single address lookup",
+    to: "/uprn/singleAddressLookup"
+  },
+  {
+    label: "Address file workflow",
+    to: "/uprn/addressFileWorkflow"
+  }
+]);
+
+onMounted(() => {
+  router.push({ name: "SingleAddressLookup" });
+});
 </script>
 
 <style scoped>

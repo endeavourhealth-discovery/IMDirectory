@@ -88,6 +88,7 @@ import Image from "primevue/image";
 import InputNumber from "primevue/inputnumber";
 import Calendar from "primevue/calendar";
 import Inplace from "primevue/inplace";
+import TabMenu from "primevue/tabmenu";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
@@ -177,7 +178,8 @@ const app = createApp(App)
   .component("Image", Image)
   .component("Calendar", Calendar)
   .component("InputNumber", InputNumber)
-  .component("Inplace", Inplace);
+  .component("Inplace", Inplace)
+  .component("TabMenu", TabMenu);
 
 const sharedStore = useSharedStore();
 
