@@ -63,7 +63,6 @@ async function init() {
 
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
-    console.log(ttproperties)
     if (isArrayHasLength(ttproperties)) {
       tooltip.value = getTooltip(ttproperties[0]);
       ttproperty.value = ttproperties[0];

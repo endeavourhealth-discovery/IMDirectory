@@ -7,29 +7,33 @@
         </div>
       </template>
     </TopBar>
-    <div class="include-title include">include if</div>
-    <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
-
-    <EditDisplayMatch
-      v-if="isArrayHasLength(query.match)"
-      v-for="(match, index) of query.match"
-      :match="match"
-      :index="index"
-      :query-type-iri="queryTypeIri"
-      :parentMatchList="query.match"
-      :selected-matches="selectedMatches"
-    />
-
-    <div v-else-if="!queryTypeIri">
-      <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
     </div>
-    <div v-if="!isArrayHasLength(query.match) && query.type">
-      <Button label="Add feature" @click="showAddDialog = true" />
+    <div v-else>
+      <div class="include-title include">include if</div>
+      <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
+
+      <EditDisplayMatch
+        v-if="isArrayHasLength(query.match)"
+        v-for="(match, index) of query.match"
+        :match="match"
+        :index="index"
+        :query-type-iri="queryTypeIri"
+        :parentMatchList="query.match"
+        :selected-matches="selectedMatches"
+      />
+
+      <div v-else-if="!queryTypeIri">
+        <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
+      </div>
+      <div v-if="!isArrayHasLength(query.match) && query.type">
+        <Button label="Add feature" @click="showAddDialog = true" />
+      </div>
+
+      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" @on-add-property="addProperty" />
+      <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     </div>
-
-    <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" @on-add-property="addProperty" />
-    <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
-
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -64,6 +68,7 @@ const selectedMatches: Ref<SelectedMatch[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
+const loading = ref(true);
 
 watch(
   () => queryIri.value,
@@ -88,6 +93,7 @@ onMounted(async () => {
 async function init() {
   await setQuery();
   setBaseEntityMatch();
+  loading.value = false;
 }
 
 async function setQuery() {
@@ -96,6 +102,7 @@ async function setQuery() {
 }
 
 async function setBaseEntityMatch() {
+  console.log(query.value);
   if (query.value.type) queryTypeIri.value = query.value.type;
   else if (isArrayHasLength(query.value?.match)) {
     queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
@@ -217,5 +224,14 @@ function addProperty(newMatch: Match) {
   color: red;
   cursor: pointer;
   margin-bottom: 1rem;
+}
+
+.loading-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>
