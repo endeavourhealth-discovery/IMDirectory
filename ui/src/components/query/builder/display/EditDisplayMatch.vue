@@ -19,25 +19,14 @@
       :selected-matches="selectedMatches"
     />
 
-    <EditDisplayWhere
-      v-if="isArrayHasLength(match.where)"
-      v-for="(where, index) of match.where"
+    <EditDisplayProperty
+      v-if="isArrayHasLength(match.property)"
+      v-for="(property, index) of match.property"
       :index="index"
       :parent-match="match"
-      :where="where"
+      :property="property"
       :query-type-iri="queryTypeIri"
     />
-
-    <div v-if="isArrayHasLength(match.path)" v-for="(path, index) of match.path">
-      <EditDisplayMatch
-        v-if="isObjectHasKeys(path, ['match'])"
-        :index="index"
-        :parent-path="path"
-        :match="path.match!"
-        :query-type-iri="queryTypeIri"
-        :selected-matches="selectedMatches"
-      />
-    </div>
   </div>
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
@@ -52,8 +41,8 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Path } from "@im-library/interfaces/AutoGen";
-import EditDisplayWhere from "./EditDisplayWhere.vue";
+import { Match } from "@im-library/interfaces/AutoGen";
+import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
 import { PrimeIcons } from "primevue/api";
@@ -69,7 +58,6 @@ interface Props {
   queryTypeIri: string;
   parentMatch?: Match;
   parentMatchList?: Match[];
-  parentPath?: Path;
   selectedMatches: SelectedMatch[];
   match: Match;
   index: number;
@@ -92,13 +80,13 @@ function saveSelect(selectedCS: ConceptSummary) {
   if (isRecordModel(selectedCS.entityType)) props.match["@type"] = selectedCS.iri;
   if (isValueSet(selectedCS.entityType)) props.match["@set"] = selectedCS.iri;
   else props.match["@id"] = selectedCS.iri;
-  describeMatch([props.match], "match");
+  // describeMatch([props.match]);
   editMode.value = false;
 }
 
 function toggleBoolMatch() {
-  if (props.match.boolMatch === "and") props.match.boolMatch = "or";
-  else if (props.match.boolMatch === "or") props.match.boolMatch = "and";
+  if (props.match.bool === "and") props.match.bool = "or";
+  else if (props.match.bool === "or") props.match.bool = "and";
 }
 
 function onRightClick(event: any) {

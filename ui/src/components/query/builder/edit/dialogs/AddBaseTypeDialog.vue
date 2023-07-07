@@ -37,7 +37,7 @@ import { TreeNode } from "primevue/tree";
 import BaseEntityTree from "../BaseEntityTree.vue";
 
 interface Props {
-  query: Query;
+  query: any;
   showDialog: boolean;
 }
 

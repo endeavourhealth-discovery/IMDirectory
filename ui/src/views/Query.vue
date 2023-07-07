@@ -56,7 +56,7 @@ import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddProper
 import { SelectedMatch } from "@im-library/interfaces";
 
 const filterStore = useFilterStore();
-const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
+const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const queryTypeIri: Ref<string> = ref("");
 const selectedMatches: Ref<SelectedMatch[]> = ref([]);

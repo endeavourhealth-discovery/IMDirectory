@@ -1,7 +1,7 @@
 <template>
   <div class="query-display-container">
     <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" :matches="query.match!" :full-query="query" />
+    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" v-for="match of query.match" :match="match" :parent-match="undefined" :full-query="query" />
   </div>
 </template>
 

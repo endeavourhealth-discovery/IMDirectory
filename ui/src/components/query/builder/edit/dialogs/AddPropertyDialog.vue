@@ -13,7 +13,7 @@ import { Ref, onMounted, ref, watch } from "vue";
 import { Match } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 import { TreeNode } from "primevue/tree";
-import { buildWhereFromProperty } from "@im-library/helpers/QueryBuilder";
+import { buildPropertyFromTreeNode } from "@im-library/helpers/QueryBuilder";
 import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import QueryNavTree from "../QueryNavTree.vue";
 
@@ -24,7 +24,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const emit = defineEmits({ onClose: () => true, onAddProperty: (_payload: Match) => true, "update:showDialog": payload => typeof payload === "boolean" });
-const editMatch: Ref<Match> = ref({ where: [] } as Match);
+const editMatch: Ref<Match> = ref({ property: [] } as Match);
 const selectedProperties: Ref<TreeNode[]> = ref([]);
 const visible: Ref<boolean> = ref(false);
 
@@ -50,18 +50,18 @@ function onSelectedUpdate(selected: TreeNode[]) {
 }
 
 function addDirectProperty(treeNode: TreeNode) {
-  editMatch.value.where?.push(buildWhereFromProperty(treeNode as any));
-  describeMatch([editMatch.value], "match");
+  editMatch.value.property?.push(buildPropertyFromTreeNode(treeNode as any));
+  // describeMatch([editMatch.value]);
 }
 
 function addNestedProperty(treeNode: TreeNode) {
   // TODO refactor to UIProperty
-  editMatch.value.where?.push(buildWhereFromProperty(treeNode as any));
-  describeMatch([editMatch.value], "match");
+  editMatch.value.property?.push(buildPropertyFromTreeNode(treeNode as any));
+  // describeMatch([editMatch.value]);
 }
 
 async function save() {
-  editMatch.value.where = [];
+  editMatch.value.property = [];
   for (const treeNodeProperty of selectedProperties.value) {
     if (isDirectProperty(treeNodeProperty)) addDirectProperty(treeNodeProperty);
     else addNestedProperty(treeNodeProperty);
