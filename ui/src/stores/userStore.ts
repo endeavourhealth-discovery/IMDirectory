@@ -44,7 +44,6 @@ export const useUserStore = defineStore("user", {
         const result = await UserService.getUserFavourites();
         if (result) favourites = result;
       } else favourites = this.favourites ? this.favourites : [];
-      console.log(favourites);
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {

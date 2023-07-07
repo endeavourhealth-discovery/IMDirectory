@@ -65,7 +65,9 @@ const loading = ref(true);
 onMounted(async () => {
   loading.value = true;
   await userStore.authenticateCurrentUser();
-  const theme = currentUser.value ? (await UserService.getUserTheme()) ?? "saga-blue" : "saga-blue";
+  let theme = "saga-blue";
+  if (currentUser.value) await UserService.getUserTheme();
+  if (currentTheme.value) theme = currentTheme.value;
   changeTheme(theme);
   await setShowBanner();
   loading.value = false;
