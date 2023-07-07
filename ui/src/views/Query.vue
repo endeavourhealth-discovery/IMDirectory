@@ -102,8 +102,7 @@ async function setQuery() {
 }
 
 async function setBaseEntityMatch() {
-  console.log(query.value);
-  if (query.value.type) queryTypeIri.value = query.value.type;
+  if (query.value["@type"]) queryTypeIri.value = query.value["@type"];
   else if (isArrayHasLength(query.value?.match)) {
     queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
   }

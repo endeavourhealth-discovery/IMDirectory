@@ -1,5 +1,4 @@
 <template>
-  {{ ttproperty }}
   <div class="property-container">
     <span v-tooltip.right="ttproperty.toolTip" class="property-label">
       {{ ttproperty?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? ttproperty?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
