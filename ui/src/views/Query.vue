@@ -7,29 +7,33 @@
         </div>
       </template>
     </TopBar>
-    <div class="include-title include">include if</div>
-    <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
-
-    <EditDisplayMatch
-      v-if="isArrayHasLength(query.match)"
-      v-for="(match, index) of query.match"
-      :match="match"
-      :index="index"
-      :query-type-iri="queryTypeIri"
-      :parentMatchList="query.match"
-      :selected-matches="selectedMatches"
-    />
-
-    <div v-else-if="!queryTypeIri">
-      <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
     </div>
-    <div v-if="!isArrayHasLength(query.match) && query.type">
-      <Button label="Add feature" @click="showAddDialog = true" />
+    <div v-else>
+      <div class="include-title include">include if</div>
+      <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
+
+      <EditDisplayMatch
+        v-if="isArrayHasLength(query.match)"
+        v-for="(match, index) of query.match"
+        :match="match"
+        :index="index"
+        :query-type-iri="queryTypeIri"
+        :parentMatchList="query.match"
+        :selected-matches="selectedMatches"
+      />
+
+      <div v-else-if="!queryTypeIri">
+        <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
+      </div>
+      <div v-if="!isArrayHasLength(query.match) && query.type">
+        <Button label="Add feature" @click="showAddDialog = true" />
+      </div>
+
+      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" @on-add-property="addProperty" />
+      <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     </div>
-
-    <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" @on-add-property="addProperty" />
-    <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
-
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
       <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
@@ -54,6 +58,7 @@ import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTypeDialog.vue";
 import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddPropertyDialog.vue";
 import { SelectedMatch } from "@im-library/interfaces";
+import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 
 const filterStore = useFilterStore();
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
@@ -63,6 +68,7 @@ const selectedMatches: Ref<SelectedMatch[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
+const loading = ref(true);
 
 watch(
   () => queryIri.value,
@@ -74,6 +80,11 @@ watch(
   () => setBaseEntityMatch()
 );
 
+watch(
+  () => _.cloneDeep(query.value),
+  () => describeQuery(query.value)
+);
+
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
   if (queryIri.value) await init();
@@ -82,6 +93,7 @@ onMounted(async () => {
 async function init() {
   await setQuery();
   setBaseEntityMatch();
+  loading.value = false;
 }
 
 async function setQuery() {
@@ -90,7 +102,7 @@ async function setQuery() {
 }
 
 async function setBaseEntityMatch() {
-  if (query.value.type) queryTypeIri.value = query.value.type;
+  if (query.value["@type"]) queryTypeIri.value = query.value["@type"];
   else if (isArrayHasLength(query.value?.match)) {
     queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
   }
@@ -211,5 +223,14 @@ function addProperty(newMatch: Match) {
   color: red;
   cursor: pointer;
   margin-bottom: 1rem;
+}
+
+.loading-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>
