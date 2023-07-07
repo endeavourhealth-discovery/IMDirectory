@@ -254,14 +254,14 @@ function drawGraph() {
     .on("dblclick", (d: any) => dblclick(d))
     .on("click", (d: any) => click(d))
     .on("mouseover", (d: any) => {
-      const a = d3.select("#force-layout-graph").node() as Element;
+      const graphContainer = d3.select("#force-layout-graph").node() as Element;
       const name = d["target"]["__data__"]["data"]["name"];
       if (name !== undefined && typeof name === "string" && !name.startsWith("middle-node")) {
         div.transition().duration(200).style("opacity", 0.9);
         div
           .html(name + "<div/> Press ctr+click to navigate")
-          .style("left", d.target.getBoundingClientRect().x - a.getBoundingClientRect().x + d.target.getBoundingClientRect().width + 10 + "px")
-          .style("top", d.target.getBoundingClientRect().y - a.getBoundingClientRect().y + "px");
+          .style("left", d.target.getBoundingClientRect().x - graphContainer.getBoundingClientRect().x + d.target.getBoundingClientRect().width + 10 + "px")
+          .style("top", d.target.getBoundingClientRect().y - graphContainer.getBoundingClientRect().y + "px");
       }
     })
     .on("mouseout", (_d: any) => {
