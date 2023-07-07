@@ -22,7 +22,7 @@ describe("state", () => {
 });
 
 describe("getters", () => {
-  it("can get isLoggedIn ___ true", () => {
+  it("can get isLoggedIn ___ true", async () => {
     const userStore = useUserStore();
     const testUser = {
       username: "testUser",
@@ -34,24 +34,27 @@ describe("getters", () => {
       roles: []
     };
     userStore.updateCurrentUser(testUser);
+    await flushPromises();
     expect(userStore.isLoggedIn).toEqual(true);
   });
 
-  it("can get isLoggedIn ___ false", () => {
+  it("can get isLoggedIn ___ false", async () => {
     const userStore = useUserStore();
     userStore.updateCurrentUser(undefined);
+    await flushPromises();
     expect(userStore.isLoggedIn).toEqual(false);
   });
 
-  it("can get isLoggedIn ___ false", () => {
+  it("can get isLoggedIn ___ false", async () => {
     const userStore = useUserStore();
     userStore.updateCurrentUser({});
+    await flushPromises();
     expect(userStore.isLoggedIn).toEqual(false);
   });
 });
 
 describe("mutations", () => {
-  it("can updateCurrentUser", () => {
+  it("can updateCurrentUser", async () => {
     const userStore = useUserStore();
 
     const testUser = {
@@ -64,6 +67,7 @@ describe("mutations", () => {
       roles: []
     };
     userStore.updateCurrentUser(testUser);
+    await flushPromises();
     expect(userStore.currentUser).toEqual(testUser);
   });
 });

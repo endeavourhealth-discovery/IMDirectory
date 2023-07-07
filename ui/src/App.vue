@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef, Ref } from "vue";
+import { onMounted, ref, computed, ComputedRef, Ref, watch } from "vue";
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
@@ -52,6 +52,13 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentTheme = computed(() => userStore.currentTheme);
 
+watch(
+  () => currentTheme.value,
+  (newValue, oldValue) => {
+    changeTheme(newValue, oldValue);
+  }
+);
+
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
 
@@ -64,11 +71,17 @@ onMounted(async () => {
   loading.value = false;
 });
 
-function changeTheme(newTheme: string) {
-  if (currentTheme.value != newTheme) {
+function changeTheme(newTheme: string, oldTheme?: string) {
+  if (!oldTheme) {
     PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {
       userStore.updateCurrentTheme(newTheme);
     });
+  } else {
+    if (newTheme !== oldTheme) {
+      PrimeVue.changeTheme(oldTheme, newTheme, "theme-link", () => {
+        userStore.updateCurrentTheme(newTheme);
+      });
+    }
   }
 }
 
