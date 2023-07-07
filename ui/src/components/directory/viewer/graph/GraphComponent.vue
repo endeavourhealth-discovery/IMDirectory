@@ -260,8 +260,11 @@ function drawGraph() {
         div.transition().duration(200).style("opacity", 0.9);
         div
           .html(name + "<div/> Press ctr+click to navigate")
-          .style("left", d.target.getBoundingClientRect().x - graphContainer.getBoundingClientRect().x + d.target.getBoundingClientRect().width + 10 + "px")
-          .style("top", d.target.getBoundingClientRect().y - graphContainer.getBoundingClientRect().y + "px");
+          .style(
+            "left",
+            (d.target.getBoundingClientRect().left + d.target.getBoundingClientRect().right) / 2 - graphContainer.getBoundingClientRect().x + 10 + "px"
+          )
+          .style("top", (d.target.getBoundingClientRect().top + d.target.getBoundingClientRect().bottom) / 2 - graphContainer.getBoundingClientRect().y + "px");
       }
     })
     .on("mouseout", (_d: any) => {
