@@ -1,13 +1,13 @@
 <template>
-  <div class="feature" v-for="(match, index) of matches">
+  <div class="feature">
     <div>
       <span v-if="match.description" v-html="match.description"> </span>
       <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
       <span v-if="isArrayHasLength(match.match)">
-        <RecursiveQueryDisplay v-if="match.match" :include="true" :matches="match.match" :parent-match="match" :full-query="fullQuery" />
+        <RecursiveQueryDisplay v-for="nestedMatch of match.match" :match="nestedMatch" :parent-match="match" :full-query="fullQuery" />
       </span>
       <span v-if="isArrayHasLength(match.property)">
-        <RecursivePropertyDisplay :properties="match.property!" :parent-match="match" :full-query="fullQuery" />
+        <RecursivePropertyDisplay v-for="property of match.property" :property="property" :parent-match="match" :full-query="fullQuery" />
       </span>
       <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
@@ -31,7 +31,7 @@ import ListOverlay from "./ListOverlay.vue";
 interface Props {
   fullQuery: Query;
   parentMatch?: Match;
-  matches: Match[];
+  match: Match;
 }
 
 const props = defineProps<Props>();
