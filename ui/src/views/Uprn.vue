@@ -19,9 +19,9 @@ import TopBar from "@/components/shared/TopBar.vue";
 import { onMounted, ref } from "vue";
 import { useUprnStore } from "@/stores/uprnStore";
 import { useRouter } from "vue-router";
+import UprnService from "@/services/UprnService";
 
 const uprnStore = useUprnStore();
-const uprnService = useUprnStore();
 const router = useRouter();
 
 const items = ref([
