@@ -155,6 +155,7 @@ async function getMembers(): Promise<void> {
 }
 
 async function downloadIMV1(): Promise<void> {
+  showOptions.value = false;
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
@@ -169,6 +170,7 @@ async function downloadIMV1(): Promise<void> {
 }
 
 async function download(core: boolean, legacy: boolean, flat: boolean = false): Promise<void> {
+  showOptions.value = false;
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
