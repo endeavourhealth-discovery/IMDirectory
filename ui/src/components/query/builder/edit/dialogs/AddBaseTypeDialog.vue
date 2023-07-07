@@ -3,7 +3,23 @@
     <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
     <template #footer>
       <Button label="Discard" severity="secondary" @click="visible = false" text />
-      <Button label="Save" @click="save" text />
+      <Button label="Save" @click="confirmVisible = true" text />
+    </template>
+  </Dialog>
+
+  <Dialog v-model:visible="confirmVisible" modal header="Confirm" :style="{ width: '50vw' }">
+    Are you sure you want to change the base type? All current query content will be discarded.
+    <template #footer>
+      <Button label="Cancel" icon="pi pi-times" @click="confirmVisible = false" text />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        @click="
+          confirmVisible = false;
+          visible = false;
+          save();
+        "
+      />
     </template>
   </Dialog>
 </template>
@@ -21,13 +37,14 @@ import { TreeNode } from "primevue/tree";
 import BaseEntityTree from "../BaseEntityTree.vue";
 
 interface Props {
-  query: Query;
+  query: any;
   showDialog: boolean;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
 const visible: Ref<boolean> = ref(false);
+const confirmVisible: Ref<boolean> = ref(false);
 
 watch(
   () => props.showDialog,
@@ -49,6 +66,7 @@ async function save() {
     props.query.type = baseNode.value.data;
   }
   visible.value = false;
+  props.query.match = [];
 }
 
 function addBaseEntity(selected: TreeNode) {

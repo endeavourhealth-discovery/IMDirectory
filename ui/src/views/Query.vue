@@ -8,7 +8,7 @@
       </template>
     </TopBar>
     <div class="include-title include">include if</div>
-    <div v-if="queryTypeIri" class="type-title">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
+    <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
     <EditDisplayMatch
       v-if="isArrayHasLength(query.match)"
@@ -49,7 +49,6 @@ import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
-import AddBaseType from "@/components/query/builder/edit/baseType/AddBaseType.vue";
 import EditDisplayMatch from "@/components/query/builder/display/EditDisplayMatch.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTypeDialog.vue";
@@ -57,7 +56,7 @@ import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddProper
 import { SelectedMatch } from "@im-library/interfaces";
 
 const filterStore = useFilterStore();
-const query: Ref<Query> = ref({ match: [] as Match[] } as Query);
+const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const queryTypeIri: Ref<string> = ref("");
 const selectedMatches: Ref<SelectedMatch[]> = ref([]);
@@ -166,6 +165,11 @@ function addProperty(newMatch: Match) {
 
 .type-title {
   margin-left: 0.5rem;
+  cursor: pointer;
+}
+
+.type-title:hover {
+  background-color: var(--highlight-bg);
 }
 
 .include-title {

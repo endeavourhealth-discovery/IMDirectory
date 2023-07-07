@@ -1,9 +1,9 @@
 <template>
   <div class="property-input-container">
     From:
-    <ComparisonSelect :where="from" />
+    <ComparisonSelect :property="from" />
     To:
-    <ComparisonSelect :where="to" />
+    <ComparisonSelect :property="to" />
   </div>
 </template>
 

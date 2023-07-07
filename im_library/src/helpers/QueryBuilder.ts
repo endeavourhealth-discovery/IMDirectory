@@ -1,31 +1,31 @@
 import { IM, SHACL } from "../vocabulary";
 import { TreeNode } from "../interfaces";
-import { Match, Where } from "../interfaces/AutoGen";
+import { Match, Property } from "../interfaces/AutoGen";
 import { isFolder, isProperty, isQuery, isRecordModel, isValueSet } from "./ConceptTypeMethods";
-import { describeMatch, describeWhere } from "./QueryDescriptor";
+import { describeMatch, describeProperty } from "./QueryDescriptor";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 
 export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
   if (isFolder(treeNode.conceptTypes)) {
     const match = {
       key: treeNode.key,
-      where: [{ "@id": IM.IS_CONTAINED_IN, in: [{ "@id": IM.NAMESPACE + "HealthDataModel" }] }]
+      property: [{ "@id": IM.IS_CONTAINED_IN, in: [{ "@id": IM.NAMESPACE + "HealthDataModel" }] }]
     } as Match;
-    describeMatch([match], "match");
+    // describeMatch([match]);
     return match;
   } else if (isRecordModel(treeNode.conceptTypes)) {
     const match = {
       key: treeNode.key,
       "@type": treeNode.data
     } as Match;
-    describeMatch([match], "match");
+    // describeMatch([match]);
     return match;
   } else if (isValueSet(treeNode.conceptTypes) || isQuery(treeNode.conceptTypes)) {
     const match = {
       key: treeNode.key,
       "@set": treeNode.data
     } as Match;
-    describeMatch([match], "match");
+    // describeMatch([match]);
     return match;
   } else if (isProperty(treeNode.conceptTypes)) {
     return buildMatchFromProperty(treeNode);
@@ -34,46 +34,46 @@ export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
     key: treeNode.key,
     "@id": treeNode.data
   } as Match;
-  describeMatch([match], "match");
+  // describeMatch([match]);
   return match;
 }
 
-export function buildWhereFromProperty(treeNode: TreeNode) {
-  const where = { "@id": treeNode.data } as Where;
+export function buildPropertyFromTreeNode(treeNode: TreeNode) {
+  const property = { "@id": treeNode.data } as Property;
   // string - is ""
   // boolean - is true
   // long - is true
   // DateTime - is today's date
 
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
-    where.operator = "=";
-    where.value = "";
+    property.operator = "=";
+    property.value = "";
   }
-  describeWhere([where], "where");
-  (where as any).key = treeNode.key;
-  (where as any).path = buildPath(treeNode);
-  return where;
+  // describeProperty([property]);
+  (property as any).key = treeNode.key;
+  (property as any).path = buildPath(treeNode);
+  return property;
 }
 
 export function buildMatchFromProperty(treeNode: TreeNode) {
-  const where = { "@id": treeNode.data } as Where;
+  const property = { "@id": treeNode.data } as Property;
   // string - is ""
   // boolean - is true
   // long - is true
   // DateTime - is today's date
 
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
-    where.operator = "=";
-    where.value = "";
+    property.operator = "=";
+    property.value = "";
   }
-  describeWhere([where], "where");
+  // describeProperty([property]);
 
   const match = {
     key: treeNode.key,
     path: buildPath(treeNode),
-    where: [where]
+    property: [property]
   } as Match;
-  describeMatch([match], "match");
+  // describeMatch([match]);
   return match;
 }
 

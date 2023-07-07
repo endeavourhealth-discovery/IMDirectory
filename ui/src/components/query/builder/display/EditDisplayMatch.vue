@@ -19,40 +19,32 @@
       :selected-matches="selectedMatches"
     />
 
-    <EditDisplayWhere
-      v-if="isArrayHasLength(match.where)"
-      v-for="(where, index) of match.where"
+    <EditDisplayProperty
+      v-if="isArrayHasLength(match.property)"
+      v-for="(property, index) of match.property"
       :index="index"
       :parent-match="match"
-      :where="where"
+      :property="property"
       :query-type-iri="queryTypeIri"
     />
-
-    <div v-if="isArrayHasLength(match.path)" v-for="(path, index) of match.path">
-      <EditDisplayMatch
-        v-if="isObjectHasKeys(path, ['match'])"
-        :index="index"
-        :parent-path="path"
-        :match="path.match!"
-        :query-type-iri="queryTypeIri"
-        :selected-matches="selectedMatches"
-      />
-    </div>
   </div>
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
-  <AddPropertyDialog v-model:showDialog="showAddDialog" :match="match" :base-type="queryTypeIri" />
+  <AddPropertyDialog
+    v-model:showDialog="showAddDialog"
+    :base-type="queryTypeIri"
+    @on-add-property="(match: Match) => add((parentMatch?.match ?? parentMatchList)!, match, index)"
+  />
   <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Path } from "@im-library/interfaces/AutoGen";
-import EditDisplayWhere from "./EditDisplayWhere.vue";
+import { Match } from "@im-library/interfaces/AutoGen";
+import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
-import { MenuItem } from "primevue/menuitem";
 import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
@@ -66,7 +58,6 @@ interface Props {
   queryTypeIri: string;
   parentMatch?: Match;
   parentMatchList?: Match[];
-  parentPath?: Path;
   selectedMatches: SelectedMatch[];
   match: Match;
   index: number;
@@ -82,33 +73,20 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 });
 
 const rClickMenu = ref();
-const rClickOptions: Ref<MenuItem[]> = ref([]);
+const rClickOptions: Ref<any[]> = ref([]);
 
 function saveSelect(selectedCS: ConceptSummary) {
   props.match.name = selectedCS.name;
   if (isRecordModel(selectedCS.entityType)) props.match["@type"] = selectedCS.iri;
   if (isValueSet(selectedCS.entityType)) props.match["@set"] = selectedCS.iri;
   else props.match["@id"] = selectedCS.iri;
-  describeMatch([props.match], "match");
+  // describeMatch([props.match]);
   editMode.value = false;
 }
 
-function addBelow() {
-  if (props.parentMatch) {
-    add(props.parentMatch.match!);
-  } else if (isArrayHasLength(props.parentMatchList)) {
-    add(props.parentMatchList!);
-  }
-}
-
-function addNested() {
-  if (!isArrayHasLength(props.match)) props.match.match = [];
-  add(props.match.match!);
-}
-
 function toggleBoolMatch() {
-  if (props.match.boolMatch === "and") props.match.boolMatch = "or";
-  else if (props.match.boolMatch === "or") props.match.boolMatch = "and";
+  if (props.match.bool === "and") props.match.bool = "or";
+  else if (props.match.bool === "or") props.match.bool = "and";
 }
 
 function onRightClick(event: any) {
@@ -122,9 +100,9 @@ function getMultipleRCOptions() {
   const multipleRCOptions = [
     {
       label: "Group",
-      icon: PrimeIcons.EJECT,
+      icon: PrimeIcons.LINK,
       command: () => {
-        // group();
+        group(props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
     },
     {
@@ -147,14 +125,12 @@ function getSingleRCOptions() {
         {
           label: "Below",
           command: () => {
-            addBelow();
+            showAddDialog.value = true;
           }
         },
         {
           label: "Nested",
-          command: () => {
-            addNested();
-          }
+          command: () => {}
         }
       ]
     },
@@ -218,9 +194,9 @@ function getSingleRCOptions() {
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
     singleRCOptions.push({
       label: "Ungroup",
-      icon: PrimeIcons.LINK,
+      icon: PrimeIcons.EJECT,
       command: () => {
-        // ungroup();
+        ungroup(props.index, props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
     });
 
