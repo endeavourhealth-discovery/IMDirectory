@@ -49,7 +49,6 @@ import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
-import AddBaseType from "@/components/query/builder/edit/baseType/AddBaseType.vue";
 import EditDisplayMatch from "@/components/query/builder/display/EditDisplayMatch.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTypeDialog.vue";
