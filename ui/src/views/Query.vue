@@ -54,6 +54,7 @@ import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTypeDialog.vue";
 import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddPropertyDialog.vue";
 import { SelectedMatch } from "@im-library/interfaces";
+import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 
 const filterStore = useFilterStore();
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
@@ -72,6 +73,11 @@ watch(
 watch(
   () => _.cloneDeep(query.value),
   () => setBaseEntityMatch()
+);
+
+watch(
+  () => _.cloneDeep(query.value),
+  () => describeQuery(query.value)
 );
 
 onMounted(async () => {

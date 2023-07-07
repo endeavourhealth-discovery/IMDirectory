@@ -1,4 +1,5 @@
 <template>
+  {{ ttproperty }}
   <div class="property-container">
     <span v-tooltip.right="ttproperty.toolTip" class="property-label">
       {{ ttproperty?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? ttproperty?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
@@ -62,6 +63,7 @@ async function init() {
 
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
+    console.log(ttproperties)
     if (isArrayHasLength(ttproperties)) {
       tooltip.value = getTooltip(ttproperties[0]);
       ttproperty.value = ttproperties[0];

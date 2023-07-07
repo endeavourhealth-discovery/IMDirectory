@@ -51,13 +51,11 @@ function onSelectedUpdate(selected: TreeNode[]) {
 
 function addDirectProperty(treeNode: TreeNode) {
   editMatch.value.property?.push(buildPropertyFromTreeNode(treeNode as any));
-  // describeMatch([editMatch.value]);
 }
 
 function addNestedProperty(treeNode: TreeNode) {
   // TODO refactor to UIProperty
   editMatch.value.property?.push(buildPropertyFromTreeNode(treeNode as any));
-  // describeMatch([editMatch.value]);
 }
 
 async function save() {

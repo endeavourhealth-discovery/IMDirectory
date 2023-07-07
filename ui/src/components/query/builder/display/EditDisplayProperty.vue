@@ -1,9 +1,25 @@
 <template>
   <EditProperty v-if="editMode" :property="editProperty" :query-type-iri="queryTypeIri" :match="parentMatch" @on-cancel="editMode = false" @on-save="save" />
   <div class="property" v-else-if="property.description" v-html="property.description" @dblclick="editMode = true"></div>
-  <div v-if="isArrayHasLength(property.property)" v-for="(nestedProperty, index) of property.property">
-    <EditDisplayProperty :index="index" :parent-property="property" :property="nestedProperty" :query-type-iri="queryTypeIri" />
-  </div>
+
+  <EditDisplayProperty
+    v-if="isArrayHasLength(property.property)"
+    v-for="(nestedProperty, index) of property.property"
+    :index="index"
+    :parent-property="property"
+    :property="nestedProperty"
+    :query-type-iri="queryTypeIri"
+    :selected-matches="selectedMatches"
+  />
+
+  <EditDisplayMatch
+    v-if="isObjectHasKeys(property, ['match'])"
+    :index="index"
+    :parent-match="undefined"
+    :match="property.match!"
+    :query-type-iri="queryTypeIri"
+    :selected-matches="selectedMatches"
+  />
 </template>
 
 <script setup lang="ts">
@@ -13,6 +29,8 @@ import { Match, Property } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref } from "vue";
 import EditProperty from "../edit/EditProperty.vue";
 import _ from "lodash";
+import EditDisplayMatch from "./EditDisplayMatch.vue";
+import { SelectedMatch } from "@im-library/interfaces";
 
 interface Props {
   parentMatch?: Match;
@@ -20,6 +38,7 @@ interface Props {
   index: number;
   property: Property;
   queryTypeIri: string;
+  selectedMatches: SelectedMatch[];
 }
 
 const props = defineProps<Props>();
@@ -37,9 +56,16 @@ function save() {
   for (const key of Object.keys(editProperty.value)) {
     (props.property as any)[key] = (editProperty.value as any)[key];
   }
-  // describeProperty([props.property]);
   editMode.value = false;
 }
 </script>
 
-<style></style>
+<style scoped>
+.property {
+  display: flex;
+  flex-flow: column;
+  margin-left: 1rem;
+  margin-top: 0.1rem;
+  margin-bottom: 0.1rem;
+}
+</style>
