@@ -18,8 +18,8 @@ export function describeQuery(query: Query): Query {
 
 export function describeMatch(match: Match, index: number, bool: Bool) {
   let display = getDisplayFromMatch(match);
-  if (match.exclude) display = "exclude if " + display;
-  if (index && bool) display = bool + " " + display;
+  if (match.exclude) display = getDisplayFromLogic("exclude") + " " + display;
+  if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
   match.description = display;
 
   if (isArrayHasLength(match.match))
@@ -37,7 +37,7 @@ export function describeProperty(property: Property, index: number, bool: Bool) 
   if (property.match) getDisplayFromNestedProperties(property);
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromProperty(property);
-    if (index && bool) display = bool + " " + display;
+    if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
     property.description = display;
   }
 
@@ -129,7 +129,7 @@ export function getDisplayFromOrderBy(orderBy: OrderLimit) {
 export function getDisplayFromLogic(title: string) {
   switch (title) {
     case "exclude":
-      return "<span style='color: red;'>exclude</span> ";
+      return "<span style='color: red;'>exclude if</span> ";
     case "or":
       return "<span style='color: blue;'>or</span> ";
     case "and":

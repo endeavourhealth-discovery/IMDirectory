@@ -48,28 +48,28 @@ describe("QueryDescriptor.ts ___", () => {
       expect(testMatch.description).toEqual("Text message consultation");
     });
 
-    it("can describe a concept match with name", () => {
+    it("can describe a concept match with DescendantsOrSelfOf", () => {
       const testMatch: Match = _.cloneDeep(match.withDescendantsOrSelfOf);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.description).toEqual("Text message consultation");
     });
 
-    it("can describe a concept match with name", () => {
+    it("can describe a concept match with AncestorsOf", () => {
       const testMatch: Match = _.cloneDeep(match.withAncestorsOf);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.description).toEqual("ancestors of Text message consultation");
     });
 
-    it("can describe a concept match with name", () => {
+    it("can describe a concept match with DescendantsOf", () => {
       const testMatch: Match = _.cloneDeep(match.withDescendantsOf);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.description).toEqual("descendants of Text message consultation");
     });
 
-    it("can describe a concept match with name", () => {
+    it("can describe a concept match with Exclude", () => {
       const testMatch: Match = _.cloneDeep(match.withExclude);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.description).toEqual("exclude if in 'Q_Hypertensives'");
+      expect(testMatch.description).toEqual("<span style='color: red;'>exclude if</span>  in 'Q_Hypertensives'");
     });
 
     it("can describe a match with one direct property of range", () => {
