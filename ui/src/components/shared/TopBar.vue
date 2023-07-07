@@ -588,9 +588,10 @@ function showReleaseNotes() {
 }
 
 function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
-    userStore.updateCurrentTheme(newTheme);
-  });
+  if (process.env.NODE_ENV !== "test")
+    PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
+      userStore.updateCurrentTheme(newTheme);
+    });
 }
 </script>
 

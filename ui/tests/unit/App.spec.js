@@ -7,7 +7,7 @@ import DynamicDialog from "primevue/dynamicdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
 import { expect, vi } from "vitest";
-import PrimeVue from "primevue/config";
+import PrimeVue, { usePrimeVue } from "primevue/config";
 import { GithubService, UserService } from "@/services";
 import { fakerFactory } from "@im-library/mocks/fakerFactory";
 import { createTestingPinia } from "@pinia/testing";
@@ -16,7 +16,7 @@ import { useUserStore } from "@/stores/userStore";
 
 createTestingPinia({
   initialState: {
-    root: { showReleaseNotes: false }
+    shared: { showReleaseNotes: false }
   }
 });
 const mockState = useSharedStore();
@@ -42,15 +42,29 @@ vi.mock("primevue/usetoast", () => ({
   })
 }));
 
+// let changeThemeMock;
+
+// vi.mock("primevue/config/config", () => {
+//   const originalModule = vi.importActual("primevue/config");
+//   const originalUsePrimeVue = originalModule.usePrimeVue;
+//   return {
+//     __esModule: true,
+//     ...originalModule,
+//     default: { PrimeVue: originalModule },
+//     usePrimeVue: () => ({ originalUsePrimeVue, changeTheme: changeThemeMock })
+//   };
+// });
+
 describe("App.vue", () => {
   let component;
   let getLatestReleaseSpy;
   let testLatestRelease = fakerFactory.githubRelease.create();
-  UserService.getUserTheme = async () => "";
+  let getUserThemeSpy;
 
   beforeEach(async () => {
     vi.resetAllMocks();
     getLatestReleaseSpy = vi.spyOn(GithubService, "getLatestRelease").mockResolvedValue(testLatestRelease);
+    getUserThemeSpy = vi.spyOn(UserService, "getUserTheme").mockResolvedValue("saga-orange");
     component = render(App, {
       global: {
         components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu, DynamicDialog },

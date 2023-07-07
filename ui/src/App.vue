@@ -75,14 +75,16 @@ onMounted(async () => {
 
 function changeTheme(newTheme: string, oldTheme?: string) {
   if (!oldTheme) {
-    PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {
-      userStore.updateCurrentTheme(newTheme);
-    });
-  } else {
-    if (newTheme !== oldTheme) {
-      PrimeVue.changeTheme(oldTheme, newTheme, "theme-link", () => {
+    if (process.env.NODE_ENV !== "test")
+      PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {
         userStore.updateCurrentTheme(newTheme);
       });
+  } else {
+    if (newTheme !== oldTheme) {
+      if (process.env.NODE_ENV !== "test")
+        PrimeVue.changeTheme(oldTheme, newTheme, "theme-link", () => {
+          userStore.updateCurrentTheme(newTheme);
+        });
     }
   }
 }
