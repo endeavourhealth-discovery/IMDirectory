@@ -37,7 +37,7 @@ function save() {
   for (const key of Object.keys(editProperty.value)) {
     (props.property as any)[key] = (editProperty.value as any)[key];
   }
-  describeProperty([props.property]);
+  // describeProperty([props.property]);
   editMode.value = false;
 }
 </script>

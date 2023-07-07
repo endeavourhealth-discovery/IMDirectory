@@ -81,7 +81,7 @@ function saveSelect(selectedCS: ConceptSummary) {
   if (isRecordModel(selectedCS.entityType)) props.match["@type"] = selectedCS.iri;
   if (isValueSet(selectedCS.entityType)) props.match["@set"] = selectedCS.iri;
   else props.match["@id"] = selectedCS.iri;
-  describeMatch([props.match]);
+  // describeMatch([props.match]);
   editMode.value = false;
 }
 

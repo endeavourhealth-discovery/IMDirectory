@@ -6,29 +6,10 @@
       <span v-if="isArrayHasLength(match.match)">
         <RecursiveQueryDisplay v-if="match.match" :include="true" :matches="match.match" :parent-match="match" :full-query="fullQuery" />
       </span>
-      <span v-if="isObjectHasKeys(match, ['property']) && isArrayHasLength(match.property)">
-        <span v-if="match.property!.length == 1">
-          <span v-if="hasNodeRef(match.property![0])" v-html="match.property![0].description" @click="onNodeRefClick(match.property![0], $event)"></span>
-          <span
-            v-else-if="hasBigList(match.property![0])"
-            v-html="match.property![0].description"
-            @click="onPropertyInClick(match.property![0], $event)"
-          ></span>
-          <span v-else v-html="match.property![0].description"></span>
-          <span v-if="isArrayHasLength(match.property![0].property)">
-            <RecursivePropertyDisplay
-              :properties="match.property![0].property!"
-              :parent-match="parentMatch"
-              :parent-property="match.property![0]"
-              :full-query="fullQuery"
-            />
-          </span>
-        </span>
-
-        <RecursivePropertyDisplay v-else :properties="match.property!" :parent-match="match" :full-query="fullQuery" />
+      <span v-if="isArrayHasLength(match.property)">
+        <RecursivePropertyDisplay :properties="match.property!" :parent-match="match" :full-query="fullQuery" />
       </span>
       <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
-
       <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     </div>
   </div>
@@ -39,11 +20,11 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Node, Query, Property } from "@im-library/interfaces/AutoGen";
-import { PropType, Ref, ref } from "vue";
+import { Ref, ref } from "vue";
 import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
-import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
+import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 
@@ -60,10 +41,6 @@ const clickedNodeRef: Ref<Property | Match> = ref({} as Property);
 const list: Ref<Node[]> = ref([]);
 const op1: Ref<any> = ref();
 
-function hasNodeRef(property: Property) {
-  return isObjectHasKeys(property, ["nodeRef"]) || isObjectHasKeys(property.relativeTo, ["nodeRef"]);
-}
-
 function onNodeRefClick(propertyOrMatch: Property | Match, event: any) {
   clickedNodeRef.value = propertyOrMatch;
   op.value.toggle(event);
@@ -71,15 +48,6 @@ function onNodeRefClick(propertyOrMatch: Property | Match, event: any) {
 
 function getNodeRef(propertyOrMatch: Property | Match) {
   return (propertyOrMatch.nodeRef ?? (propertyOrMatch as Property)?.relativeTo?.nodeRef) as string;
-}
-
-function hasBigList(property: Property) {
-  return (isArrayHasLength(property.in) && property.in!.length > 1) || (isArrayHasLength(property.notIn) && property.notIn!.length > 1);
-}
-
-function onPropertyInClick(property: Property, event: any) {
-  list.value = (property.in ?? property.notIn) as Node[];
-  op1.value.toggle(event);
 }
 </script>
 

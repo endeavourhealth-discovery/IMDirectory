@@ -1,12 +1,14 @@
 <template>
   <div class="feature" v-for="(property, index) of properties">
     <div>
-      <span v-if="index" v-html="parentProperty && parentProperty.bool === 'or' ? getDisplayFromLogic('or') : ''"></span>
       <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
       <span v-else-if="hasBigList(property)" v-html="property.description" @click="onPropertyInClick(property, $event)"></span>
       <span v-else v-html="property.description"></span>
       <span v-if="isArrayHasLength(property.property)">
         <RecursivePropertyDisplay :properties="property.property!" :parent-match="parentMatch" :parent-property="property" :full-query="fullQuery" />
+      </span>
+      <span v-if="isObjectHasKeys(property, ['match'])">
+        <RecursiveQueryDisplay :include="true" :matches="[property.match!]" :parent-match="undefined" :full-query="fullQuery" />
       </span>
     </div>
   </div>
@@ -23,7 +25,6 @@ import { Ref } from "vue";
 import { ref } from "vue";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
-import { getDisplayFromLogic } from "@im-library/helpers/QueryDescriptor";
 import RecursiveQueryDisplay from "./RecursiveQueryDisplay.vue";
 
 interface Props {
@@ -68,7 +69,6 @@ function getNodeRef(property: Property) {
 .feature {
   display: flex;
   flex-flow: column;
-  margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
 }
