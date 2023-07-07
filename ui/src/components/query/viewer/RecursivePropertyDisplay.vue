@@ -1,20 +1,18 @@
 <template>
-  <div class="feature">
+  <div :class="property.description ? 'feature' : ''">
     <span v-if="hasNodeRef(property)" v-html="property.description" @click="onNodeRefClick(property, $event)"></span>
     <span v-else-if="hasBigList(property)" v-html="property.description" @click="onPropertyInClick(property, $event)"></span>
     <span v-else v-html="property.description"></span>
-    <span v-if="isArrayHasLength(property.property)">
-      <RecursivePropertyDisplay
-        v-for="nestedProperty of property.property"
-        :property="nestedProperty"
-        :parent-match="parentMatch"
-        :parent-property="property"
-        :full-query="fullQuery"
-      />
-    </span>
-    <span v-if="isObjectHasKeys(property, ['match'])">
-      <RecursiveQueryDisplay :match="property.match!" :parent-match="undefined" :full-query="fullQuery" />
-    </span>
+    <RecursivePropertyDisplay
+      v-if="isArrayHasLength(property.property)"
+      v-for="nestedProperty of property.property"
+      :property="nestedProperty"
+      :parent-match="parentMatch"
+      :parent-property="property"
+      :full-query="fullQuery"
+    />
+
+    <RecursiveQueryDisplay v-if="isObjectHasKeys(property, ['match'])" :match="property.match!" :parent-match="undefined" :full-query="fullQuery" />
   </div>
 
   <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedProperty)" /> </OverlayPanel>
@@ -74,6 +72,7 @@ function getNodeRef(property: Property) {
 .feature {
   display: flex;
   flex-flow: column;
+  margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
 }

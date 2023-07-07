@@ -40,6 +40,11 @@ export function describeProperty(property: Property, index: number, bool: Bool) 
     if (index && bool) display = bool + " " + display;
     property.description = display;
   }
+
+  if (isArrayHasLength(property.property))
+    for (const [index, nestedProperty] of property.property!.entries()) {
+      describeProperty(nestedProperty, index, property.bool!);
+    }
 }
 
 // getters
@@ -306,6 +311,10 @@ function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
 
 function isLastMatch(match: Match) {
   return isArrayHasLength(match.property) && match.property!.some(property => !isObjectHasKeys(property, ["match"]));
+}
+
+function hasNestedProperty(match: Match) {
+  return isArrayHasLength(match.property) && match.property!.some(property => isObjectHasKeys(property, ["match"]));
 }
 
 export default { describeQuery, getUnnamedObjects };

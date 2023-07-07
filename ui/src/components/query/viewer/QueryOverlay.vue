@@ -1,6 +1,6 @@
 <template>
-  <RecursiveQueryDisplay v-if="'match' === overlayObject.type" :matches="[overlayObject.data]" :full-query="fullQuery" :isVariable="true" />
-  <RecursivePropertyDisplay v-else-if="'property' === overlayObject.type" :properties="[overlayObject.data]" :full-query="fullQuery" />
+  <RecursiveQueryDisplay v-if="'match' === overlayObject.type" :match="overlayObject.data" :full-query="fullQuery" :isVariable="true" />
+  <RecursivePropertyDisplay v-else-if="'property' === overlayObject.type" :property="overlayObject.data" :full-query="fullQuery" />
 </template>
 
 <script setup lang="ts">

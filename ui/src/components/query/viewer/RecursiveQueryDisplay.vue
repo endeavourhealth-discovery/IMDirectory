@@ -1,18 +1,25 @@
 <template>
-  <div class="feature">
-    <div>
-      <span v-if="match.description" v-html="match.description"> </span>
-      <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
-      <span v-if="isArrayHasLength(match.match)">
-        <RecursiveQueryDisplay v-for="nestedMatch of match.match" :match="nestedMatch" :parent-match="match" :full-query="fullQuery" />
-      </span>
-      <span v-if="isArrayHasLength(match.property)">
-        <RecursivePropertyDisplay v-for="property of match.property" :property="property" :parent-match="match" :full-query="fullQuery" />
-      </span>
-      <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
-      <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
-    </div>
+  <div :class="match.description || match.nodeRef ? 'feature' : ''">
+    <span v-if="match.description" v-html="match.description"> </span>
+    <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(match.match)"
+      v-for="nestedMatch of match.match"
+      :match="nestedMatch"
+      :parent-match="match"
+      :full-query="fullQuery"
+    />
+    <RecursivePropertyDisplay
+      v-if="isArrayHasLength(match.property)"
+      v-for="property of match.property"
+      :property="property"
+      :parent-match="match"
+      :full-query="fullQuery"
+    />
+    <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
+    <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
+
   <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedNodeRef)" /> </OverlayPanel>
   <OverlayPanel ref="op1">
     <ListOverlay :list="list" />
