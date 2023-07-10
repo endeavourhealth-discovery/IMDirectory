@@ -40,8 +40,10 @@ export const useUserStore = defineStore("user", {
     },
     async initFavourites() {
       let favourites: string[] = [];
-      if (this.currentUser) favourites = await UserService.getUserFavourites();
-      else favourites = this.favourites ? this.favourites : [];
+      if (this.currentUser) {
+        const result = await UserService.getUserFavourites();
+        if (result) favourites = result;
+      } else favourites = this.favourites ? this.favourites : [];
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
@@ -50,6 +52,15 @@ export const useUserStore = defineStore("user", {
       }
       if (this.currentUser) await UserService.updateUserFavourites(favourites);
       this.favourites = favourites;
+    },
+    async getAllFromUserDatabase(): Promise<void> {
+      if (this.currentUser) {
+        const themeResult = await UserService.getUserTheme();
+        if (themeResult) this.currentTheme = themeResult;
+        await this.initFavourites();
+        const recentActivityResult = await UserService.getUserMRU();
+        if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
+      }
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
       let activity: RecentActivityItem[] = [];
@@ -97,14 +108,15 @@ export const useUserStore = defineStore("user", {
       if (this.currentUser) await UserService.updateUserTheme(theme);
       this.currentTheme = theme;
     },
-    updateCurrentUser(user: any) {
+    async updateCurrentUser(user: any) {
       this.currentUser = user;
+      await this.getAllFromUserDatabase();
     },
     async logoutCurrentUser() {
       let result = { status: 500, message: "Logout (userStore) failed" } as CustomAlert;
-      await AuthService.signOut().then(res => {
+      await AuthService.signOut().then(async res => {
         if (res.status === 200) {
-          useUserStore().updateCurrentUser(null);
+          await useUserStore().updateCurrentUser(null);
           result = res;
         } else {
           result = res;
@@ -114,14 +126,14 @@ export const useUserStore = defineStore("user", {
     },
     async authenticateCurrentUser() {
       const result = { authenticated: false };
-      await AuthService.getCurrentAuthenticatedUser().then(res => {
+      await AuthService.getCurrentAuthenticatedUser().then(async res => {
         if (res.status === 200 && res.user) {
           const loggedInUser = res.user;
           const foundAvatar = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
           if (!foundAvatar) {
             loggedInUser.avatar = Avatars[0];
           }
-          useUserStore().updateCurrentUser(loggedInUser);
+          await useUserStore().updateCurrentUser(loggedInUser);
           result.authenticated = true;
         } else {
           this.logoutCurrentUser().then(resLogout => {

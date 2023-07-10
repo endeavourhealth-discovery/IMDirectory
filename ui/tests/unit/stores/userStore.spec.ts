@@ -22,7 +22,7 @@ describe("state", () => {
 });
 
 describe("getters", () => {
-  it("can get isLoggedIn ___ true", () => {
+  it("can get isLoggedIn ___ true", async () => {
     const userStore = useUserStore();
     const testUser = {
       username: "testUser",
@@ -33,25 +33,31 @@ describe("getters", () => {
       avatar: "colour/003-man.png",
       roles: []
     };
+    userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);
+    await flushPromises();
     expect(userStore.isLoggedIn).toEqual(true);
   });
 
-  it("can get isLoggedIn ___ false", () => {
+  it("can get isLoggedIn ___ false", async () => {
     const userStore = useUserStore();
+    userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(undefined);
+    await flushPromises();
     expect(userStore.isLoggedIn).toEqual(false);
   });
 
-  it("can get isLoggedIn ___ false", () => {
+  it("can get isLoggedIn ___ false", async () => {
     const userStore = useUserStore();
+    userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser({});
+    await flushPromises();
     expect(userStore.isLoggedIn).toEqual(false);
   });
 });
 
 describe("mutations", () => {
-  it("can updateCurrentUser", () => {
+  it("can updateCurrentUser", async () => {
     const userStore = useUserStore();
 
     const testUser = {
@@ -63,8 +69,11 @@ describe("mutations", () => {
       avatar: "colour/003-man.png",
       roles: []
     };
+    userStore.getAllFromUserDatabase = vi.fn();
     userStore.updateCurrentUser(testUser);
+    await flushPromises();
     expect(userStore.currentUser).toEqual(testUser);
+    expect(userStore.getAllFromUserDatabase).toHaveBeenCalledOnce();
   });
 });
 
@@ -78,19 +87,20 @@ describe("actions", () => {
     const userStore = useUserStore();
 
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "logout successful" });
+    userStore.updateCurrentUser = vi.fn().mockResolvedValue(true);
     let result = {};
     await userStore.logoutCurrentUser().then(res => (result = res));
     await flushPromises();
     expect(AuthService.signOut).toBeCalledTimes(1);
     await flushPromises();
-    expect(userStore.currentUser).toBe(null);
-    expect(userStore.isLoggedIn).toBe(false);
+    expect(userStore.updateCurrentUser).toHaveBeenCalledWith(null);
     expect(result).toEqual({ status: 200, message: "logout successful" });
   });
 
   it("can logoutCurrentUser ___ 400", async () => {
     const userStore = useUserStore();
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 400, message: "logout failed 400" });
+    userStore.updateCurrentUser = vi.fn().mockResolvedValue(true);
     let result = {};
     await userStore.logoutCurrentUser().then(res => (result = res));
     await flushPromises();
@@ -113,12 +123,12 @@ describe("actions", () => {
     };
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 200, message: "user authenticated", error: undefined, user: testUser });
     let result = { authenticated: false };
+    userStore.updateCurrentUser = vi.fn().mockResolvedValue(true);
     await userStore.authenticateCurrentUser().then(res => (result = res));
     await flushPromises();
     expect(AuthService.getCurrentAuthenticatedUser).toBeCalledTimes(1);
     await flushPromises();
-    expect(userStore.isLoggedIn).toBe(true);
-    expect(userStore.currentUser).toEqual(testUser);
+    expect(userStore.updateCurrentUser).toHaveBeenCalledWith(testUser);
     expect(result.authenticated).toBe(true);
   });
 
@@ -138,13 +148,13 @@ describe("actions", () => {
 
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 200, message: "user authenticated", error: undefined, user: testUser });
     let result = { authenticated: false };
+    userStore.updateCurrentUser = vi.fn().mockResolvedValue(true);
     await userStore.authenticateCurrentUser().then(res => (result = res));
     await flushPromises();
     expect(AuthService.getCurrentAuthenticatedUser).toBeCalledTimes(1);
     await flushPromises();
-    expect(userStore.isLoggedIn).toBe(true);
     testUser.avatar = "colour/001-man.png";
-    expect(userStore.currentUser).toEqual(testUser);
+    expect(userStore.updateCurrentUser).toHaveBeenCalledWith(testUser);
     expect(result.authenticated).toBe(true);
   });
 
@@ -154,14 +164,14 @@ describe("actions", () => {
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 403, message: "user authenticated" });
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "logout successful" });
     let result = { authenticated: false };
+    userStore.updateCurrentUser = vi.fn().mockResolvedValue(true);
     await userStore.authenticateCurrentUser().then(res => (result = res));
     await flushPromises();
     expect(AuthService.getCurrentAuthenticatedUser).toBeCalledTimes(1);
     await flushPromises();
     expect(AuthService.signOut).toBeCalledTimes(1);
     await flushPromises();
-    expect(userStore.isLoggedIn).toBe(false);
-    expect(userStore.currentUser).toBe(null);
+    expect(userStore.updateCurrentUser).toHaveBeenCalledWith(null);
     expect(result.authenticated).toBe(false);
   });
 
@@ -170,14 +180,15 @@ describe("actions", () => {
     AuthService.getCurrentAuthenticatedUser = vi.fn().mockResolvedValue({ status: 403, message: "user authenticated" });
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 400, message: "logout failed" });
     let result = { authenticated: false };
+    userStore.updateCurrentUser = vi.fn().mockResolvedValue(true);
+    userStore.logoutCurrentUser = vi.fn().mockResolvedValue({ status: 200 });
     await userStore.authenticateCurrentUser().then(res => (result = res));
     await flushPromises();
     expect(AuthService.getCurrentAuthenticatedUser).toBeCalledTimes(1);
     await flushPromises();
-    expect(AuthService.signOut).toBeCalledTimes(1);
+    expect(userStore.logoutCurrentUser).toBeCalledTimes(1);
     await flushPromises();
     expect(userStore.isLoggedIn).toBe(false);
-    expect(userStore.currentUser).toStrictEqual({});
     expect(result.authenticated).toBe(false);
   });
 });
