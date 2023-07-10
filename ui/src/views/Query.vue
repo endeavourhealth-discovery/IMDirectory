@@ -98,7 +98,7 @@ async function init() {
 
 async function setQuery() {
   const queryIri = resolveIri(route.params.queryIri as string);
-  query.value = await QueryService.getQueryDisplay(queryIri);
+  if (queryIri) query.value = await QueryService.getQueryDisplay(queryIri);
 }
 
 async function setBaseEntityMatch() {

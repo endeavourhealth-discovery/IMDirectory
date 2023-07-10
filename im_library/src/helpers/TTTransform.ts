@@ -55,6 +55,7 @@ export function getNameFromRef(ref: any): string {
 }
 
 export function resolveIri(iri: string) {
+  if (!iri) return undefined;
   const prefixes: any = { im: IM.NAMESPACE, sn: SNOMED.NAMESPACE };
   if (iri.includes("#")) {
     return iri;

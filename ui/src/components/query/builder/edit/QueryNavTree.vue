@@ -215,7 +215,7 @@ async function onClassExpand(node: TreeNode) {
 async function addParentFoldersToRoot() {
   if (props.baseType) {
     const resolvedIri = resolveIri(props.baseType);
-    await addBaseEntityToRoot(resolvedIri);
+    if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
   }
 }
 

@@ -304,8 +304,9 @@ function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
   const iri = object["@id"] || object["@set"] || object["@type"];
   if (iri && !isObjectHasKeys(object, ["name"])) {
     const resolvedIri = resolveIri(iri);
-    if (isArrayHasLength(unnamedObjects.resolvedIri)) unnamedObjects[resolvedIri].push(object);
-    else unnamedObjects[resolvedIri] = [object];
+    if (resolvedIri)
+      if (isArrayHasLength(unnamedObjects.resolvedIri)) unnamedObjects[resolvedIri].push(object);
+      else unnamedObjects[resolvedIri] = [object];
   }
 }
 
