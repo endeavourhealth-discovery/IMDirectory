@@ -63,7 +63,7 @@ const baseNode: Ref<TreeNode> = ref({} as TreeNode);
 
 async function save() {
   if (isObjectHasKeys(baseNode.value)) {
-    props.query.type = baseNode.value.data;
+    props.query["@type"] = baseNode.value.data;
   }
   visible.value = false;
   props.query.match = [];

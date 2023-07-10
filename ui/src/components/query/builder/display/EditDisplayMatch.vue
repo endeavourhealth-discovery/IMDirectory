@@ -1,14 +1,10 @@
 <template>
-  <div
-    :class="isSelected ? 'selected feature' : 'feature'"
-    @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
-    @contextmenu="onRightClick($event)"
-  >
+  <div :class="getClass()" @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)" @contextmenu="onRightClick($event)">
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMode = true"></div>
-
+    <div v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -26,7 +22,10 @@
       :parent-match="match"
       :property="property"
       :query-type-iri="queryTypeIri"
+      :selected-matches="selectedMatches"
     />
+    <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
+    <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
@@ -52,7 +51,7 @@ import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
 import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
 import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
+import { describeMatch, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   queryTypeIri: string;
@@ -75,12 +74,18 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 const rClickMenu = ref();
 const rClickOptions: Ref<any[]> = ref([]);
 
+function getClass() {
+  let clazz = "";
+  if (isSelected.value) clazz += "selected";
+  if (props.match.description) clazz += " feature";
+  return clazz;
+}
+
 function saveSelect(selectedCS: ConceptSummary) {
   props.match.name = selectedCS.name;
   if (isRecordModel(selectedCS.entityType)) props.match["@type"] = selectedCS.iri;
   if (isValueSet(selectedCS.entityType)) props.match["@set"] = selectedCS.iri;
   else props.match["@id"] = selectedCS.iri;
-  // describeMatch([props.match]);
   editMode.value = false;
 }
 

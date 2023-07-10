@@ -4,8 +4,6 @@ import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
-import { parent } from "jsonpath";
-
 function setupQueryBuilderActions() {
   const showViewDialog: Ref<boolean> = ref(false);
   const showAddDialog: Ref<boolean> = ref(false);
@@ -76,19 +74,6 @@ function setupQueryBuilderActions() {
       }
     }
   }
-  // if (parentMatch) {
-  //   const firstSelected = selectedMatches[0];
-  //   const indexOfFirstSelected = parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-  //   const groupedMatch = { boolMatch: "and", match: [] } as Match;
-  //   for (const selectedMatch of selectedMatches) {
-  //     selectedMatch.memberOfList;
-  //     groupedMatch.match!.push(selectedMatch.selected);
-  //     parentMatch.match!.splice(indexOfFirstSelected, 1);
-  //   }
-  //   // remove();
-  //   // describeMatch([groupedMatch], "match");
-  //   parentMatch.match!.splice(indexOfFirstSelected, 0, groupedMatch);
-  // }
 
   function ungroup(index: number, selectedMatches: SelectedMatch[], parentMatch: Match, matches: Match[]) {
     for (const selectedMatch of selectedMatches) {
@@ -100,26 +85,6 @@ function setupQueryBuilderActions() {
       }
     }
   }
-
-  // function group(matchIndex: number) {
-  //   const firstSelected = selectedMatches.value[0];
-  //   const indexOfFirstSelected = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-  //   const groupedMatch = { boolMatch: "and", match: [] } as Match;
-  //   for (const selectedMatch of selectedMatches.value) {
-  //     const index = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch));
-  //     groupedMatch.match!.splice(index, 0, selectedMatch);
-  //     console.log(index);
-  //   }
-  //   for (const selectedMatch of selectedMatches.value) remove(query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch)));
-  //   describeMatch([groupedMatch], "match");
-  //   query.value.match!.splice(indexOfFirstSelected, 0, groupedMatch);
-  // }
-
-  // function ungroup(matchIndex: number) {
-  //   remove(matchIndex);
-  //   const tempArray = selectedMatches.value[0].match!.reverse();
-  //   for (const ungroupedMatch of tempArray) query.value.match!.splice(matchIndex, 0, ungroupedMatch);
-  // }
 
   function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, memberOfList?: Match[]) {
     const selectedMatch = { index: index, selected: match } as SelectedMatch;
