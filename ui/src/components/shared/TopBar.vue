@@ -85,12 +85,12 @@ import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
 
-import { usePrimeVue } from "primevue/config";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
+import setupChangeTheme from "@/composables/setupChangeTheme";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -102,13 +102,14 @@ const isLoggedIn = computed(() => userStore.isLoggedIn);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const currentTheme = computed(() => userStore.currentTheme);
 
+const { changeTheme } = setupChangeTheme();
+
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
 const accountItems: Ref<AccountItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 
-const PrimeVue: any = usePrimeVue();
 const toast = useToast();
 const adminMenu = ref();
 const themesMenu = ref();
@@ -585,13 +586,6 @@ function setAppMenuItems() {
 
 function showReleaseNotes() {
   sharedStore.updateShowReleaseNotes(true);
-}
-
-function changeTheme(newTheme: string) {
-  if (process.env.NODE_ENV !== "test")
-    PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
-      userStore.updateCurrentTheme(newTheme);
-    });
 }
 </script>
 

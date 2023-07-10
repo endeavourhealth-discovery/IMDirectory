@@ -35,16 +35,18 @@ import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
+import setupChangeTheme from "@/composables/setupChangeTheme";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
-const PrimeVue: any = usePrimeVue();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+
+const { changeTheme } = setupChangeTheme();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
@@ -54,8 +56,8 @@ const currentTheme = computed(() => userStore.currentTheme);
 
 watch(
   () => currentTheme.value,
-  (newValue, oldValue) => {
-    changeTheme(newValue, oldValue);
+  newValue => {
+    changeTheme(newValue);
   }
 );
 
@@ -72,22 +74,6 @@ onMounted(async () => {
   await setShowBanner();
   loading.value = false;
 });
-
-function changeTheme(newTheme: string, oldTheme?: string) {
-  if (!oldTheme) {
-    if (process.env.NODE_ENV !== "test")
-      PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {
-        userStore.updateCurrentTheme(newTheme);
-      });
-  } else {
-    if (newTheme !== oldTheme) {
-      if (process.env.NODE_ENV !== "test")
-        PrimeVue.changeTheme(oldTheme, newTheme, "theme-link", () => {
-          userStore.updateCurrentTheme(newTheme);
-        });
-    }
-  }
-}
 
 async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");

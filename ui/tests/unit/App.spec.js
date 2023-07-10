@@ -6,6 +6,7 @@ import ConfirmDialog from "primevue/confirmdialog";
 import DynamicDialog from "primevue/dynamicdialog";
 import Button from "primevue/button";
 import Menu from "primevue/menu";
+import Tooltip from "primevue/tooltip";
 import { expect, vi } from "vitest";
 import PrimeVue, { usePrimeVue } from "primevue/config";
 import { GithubService, UserService } from "@/services";
@@ -42,18 +43,15 @@ vi.mock("primevue/usetoast", () => ({
   })
 }));
 
-// let changeThemeMock;
+let changeThemeMock = vi.fn();
 
-// vi.mock("primevue/config/config", () => {
-//   const originalModule = vi.importActual("primevue/config");
-//   const originalUsePrimeVue = originalModule.usePrimeVue;
-//   return {
-//     __esModule: true,
-//     ...originalModule,
-//     default: { PrimeVue: originalModule },
-//     usePrimeVue: () => ({ originalUsePrimeVue, changeTheme: changeThemeMock })
-//   };
-// });
+vi.mock("@/composables/setupChangeTheme.ts", () => {
+  return {
+    default: () => ({
+      changeTheme: () => changeThemeMock
+    })
+  };
+});
 
 describe("App.vue", () => {
   let component;
@@ -69,7 +67,10 @@ describe("App.vue", () => {
       global: {
         components: { Toast, ProgressSpinner, ConfirmDialog, Button, Menu, DynamicDialog },
         stubs: { "router-link": true, "router-view": true, ReleaseNotes: true, CookiesConsent: true, SnomedConsent: true },
-        plugins: [PrimeVue]
+        plugins: [PrimeVue],
+        directives: {
+          tooltip: Tooltip
+        }
       }
     });
   });

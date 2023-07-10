@@ -31,6 +31,16 @@ vi.mock("primevue/usetoast", () => ({
   })
 }));
 
+let changeThemeMock = vi.fn();
+
+vi.mock("@/composables/setupChangeTheme.ts", () => {
+  return {
+    default: () => ({
+      changeTheme: () => changeThemeMock
+    })
+  };
+});
+
 describe("router", () => {
   afterEach(() => {
     vi.resetAllMocks();
