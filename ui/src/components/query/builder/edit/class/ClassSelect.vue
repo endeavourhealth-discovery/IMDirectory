@@ -1,6 +1,4 @@
 <template>
-  <DirectorySearchDialog v-model:showDialog="showSearchDialog" />
-
   <div class="property-input-container">
     <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="propertyType" />
     <InputText type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
@@ -11,16 +9,13 @@
     <EntailmentOptionsSelect :entailment-object="editValue" />
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
     <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
+    <DirectorySearchDialog v-model:show-dialog="visible" @update:selected="onSelect" />
   </div>
-  <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
-    <ValueTreeSelect v-if="showTree" :class-iri="classIri" @close="visible = false" />
-    <ValueListSelect v-else :class-iri="classIri" @close="visible = false" @on-select="onSelect($event)" />
-  </Dialog>
 </template>
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
-import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
 import { onMounted, Ref, ref } from "vue";
@@ -31,6 +26,8 @@ import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import _ from "lodash";
 import { Node, Property } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { ConceptSummary } from "@im-library/interfaces";
+import { N } from "vitest/dist/types-2b1c412e";
 
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
@@ -70,12 +67,14 @@ function initEditValues() {
   }
 }
 
-function onSelect(event: any) {
+function onSelect(cs: ConceptSummary) {
   visible.value = false;
-  editValues.value[selectedIndex.value] = {
-    name: event.name || event.label || getNameFromRef(event),
-    "@id": event["@id"]
-  } as Node;
+  const node = { name: cs.name } as Node;
+  if (isValueSet(cs.entityType)) node["@set"] = cs.iri;
+  if (isRecordModel(cs.entityType)) node["@type"] = cs.iri;
+  else node["@id"] = cs.iri;
+
+  editValues.value[selectedIndex.value] = node;
 }
 
 function openDialog(index: number) {

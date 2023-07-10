@@ -1,7 +1,7 @@
 <template>
   <div class="property-container">
-    <span v-tooltip.right="ttproperty.toolTip" class="property-label">
-      {{ ttproperty?.["http://www.w3.org/ns/shacl#path"]?.[0].name ?? ttproperty?.["http://www.w3.org/ns/shacl#path"]?.[0]["@id"] }}:
+    <span v-tooltip.right="tooltip" class="property-label">
+      {{ props.match?.["@type"] ? props.match?.["@type"] + "." + getNameFromRef(property) : getNameFromRef(property) }}:
     </span>
     <ClassSelect
       v-if="isObjectHasKeys(ttproperty, [SHACL.CLASS])"
@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { Match, Property } from "@im-library/interfaces/AutoGen";
-import { Ref, onMounted, ref } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref } from "vue";
 import ClassSelect from "./class/ClassSelect.vue";
 import DatatypeSelect from "./datatype/DatatypeSelect.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -36,6 +36,7 @@ import { QueryService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
 import _ from "lodash";
 import EntitySelect from "./EntitySelect.vue";
+
 const emit = defineEmits({
   removeMatch: () => true,
   onSave: () => true,
@@ -51,15 +52,17 @@ interface Props {
 const props = defineProps<Props>();
 const ttproperty: Ref<TTProperty> = ref({} as TTProperty);
 const tooltip: Ref<string> = ref("");
-const propertyDisplay: Ref<string> = ref("");
+const computedPropertyDisplay: ComputedRef<string> = computed(() => {
+  if (props.match?.["@type"]) return getNameFromRef(props.match["@type"]) + "." + getNameFromRef(props.property);
+  return getNameFromRef(props.property);
+});
 
 onMounted(async () => {
   await init();
 });
 
 async function init() {
-  const dataModelIri = props.match?.["@id"] ?? resolveIri(props.queryTypeIri);
-
+  const dataModelIri = resolveIri(props.match?.["@type"]!) ?? resolveIri(props.queryTypeIri);
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
     if (isArrayHasLength(ttproperties)) {
@@ -69,8 +72,6 @@ async function init() {
     }
   }
 }
-
-function getPropertyDisplay() {}
 
 function getTooltip(ttproperty: TTProperty) {
   let tooltip = "";
