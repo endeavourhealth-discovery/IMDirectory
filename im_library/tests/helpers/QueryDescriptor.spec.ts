@@ -94,7 +94,7 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a match with one nested property of in", () => {
       const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfIn);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.property[0].match.property[0].description).toEqual("observation of Prediabetes");
+      expect(testMatch.property[0].match.property[0].description).toEqual("concept of Prediabetes");
     });
   });
 });
