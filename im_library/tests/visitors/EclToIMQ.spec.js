@@ -80,4 +80,7 @@ describe("eclToIMQ", () => {
   it("converts groupedAnd", () => {
     expect(eclToIMQ(eclTestData.groupedAnd)).toEqual(queryTestData.groupedAnd);
   });
+  it("converts groupedConceptsWithSharedRefinement", () => {
+    expect(eclToIMQ(eclTestData.groupedConceptsWithSharedRefinement)).toEqual(queryTestData.groupedConceptsWithSharedRefinement);
+  });
 });

@@ -40,5 +40,7 @@ export default {
     "<< 763158003 | Medicinal product (product) | : << 127489000 | Has active ingredient (attribute) | = << 387207008 | Ibuprofen (substance) | AND ( << 411116001 | Has manufactured dose form (attribute) | = << 763820000 | Gastro-resistant oral suspension (dose form) | OR  << 411116001 | Has manufactured dose form (attribute) | = << 421701006 | Soluble tablet (qualifier value) | )",
   startGroupedConceptWithRefinement:
     "(<< 763158003 | Medicinal product (product) |) : << 127489000 | Has active ingredient (attribute) | = << 387207008 | Ibuprofen (substance) |",
-  groupedAnd: "(<<298705000 |Finding of region of thorax (finding)| and <<298705001 ) "
+  groupedAnd: "(<<298705000 |Finding of region of thorax (finding)| and <<298705001 ) ",
+  groupedConceptsWithSharedRefinement:
+    "(<<298705000 |Finding of region of thorax (finding)| and <<301366005 |Pain of truncal structure (finding)|) :{ 363698007 |Finding site (attribute)| =  <<51185008 |Thoracic structure (body structure)| }"
 };
