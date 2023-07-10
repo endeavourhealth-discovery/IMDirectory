@@ -55,9 +55,11 @@ export const useUserStore = defineStore("user", {
     },
     async getAllFromUserDatabase(): Promise<void> {
       if (this.currentUser) {
-        this.currentTheme = await UserService.getUserTheme();
+        const themeResult = await UserService.getUserTheme();
+        if (themeResult) this.currentTheme = themeResult;
         await this.initFavourites();
-        this.recentLocalActivity = await UserService.getUserMRU();
+        const recentActivityResult = await UserService.getUserMRU();
+        if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
       }
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
