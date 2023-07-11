@@ -60,7 +60,7 @@
       <div v-else class="header-content-container">
         <span class="text">Select to download</span>
         <div class="type-buttons-container">
-          <button v-for="option in checkAuthorization ? downloadMenu1 : downloadMenu" class="custom-button" @click="option.command">
+          <button v-for="option in checkAuthorization() ? downloadMenu1 : downloadMenu" class="custom-button" @click="option.command">
             <span>{{ option.label }}</span>
           </button>
         </div>
@@ -143,6 +143,11 @@ async function setHasDefinition() {
 
 function displayDialog() {
   showOptions.value = true;
+}
+
+function toggle(event: any) {
+  const x = menu.value as any;
+  x.toggle(event);
 }
 
 async function getMembers(): Promise<void> {
