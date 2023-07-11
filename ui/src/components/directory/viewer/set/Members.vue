@@ -29,16 +29,12 @@
             <Button
               type="button"
               label="Download..."
-              @click="toggle"
+              @click="displayDialog"
               aria-haspopup="true"
               aria-controls="overlay_menu"
               :loading="downloading"
               data-testid="downloadButton"
             />
-            <template id="overlay_menu">
-              <Menu ref="menu" v-if="checkAuthorization()" :model="downloadMenu1" :popup="true" appendTo="body" data-testid="menuWithPublish" />
-              <Menu ref="menu" v-else :model="downloadMenu" :popup="true" appendTo="body" data-testid="menuWithoutPublish" />
-            </template>
           </div>
         </div>
       </template>
@@ -56,6 +52,21 @@
       </Column>
     </DataTable>
   </div>
+  <Dialog :visible="showOptions" :modal="true" :closable="false" :close-on-escape="false">
+    <div class="type-selector">
+      <div v-if="loading" class="loading-container">
+        <ProgressSpinner />
+      </div>
+      <div v-else class="header-content-container">
+        <span class="text">Select to download</span>
+        <div class="type-buttons-container">
+          <button v-for="option in checkAuthorization ? downloadMenu1 : downloadMenu" class="custom-button" @click="option.command">
+            <span>{{ option.label }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -88,6 +99,7 @@ const loading = ref(false);
 const downloading = ref(false);
 const members: Ref<TTIriRef[]> = ref([]);
 const isPublishing = ref(false);
+const showOptions = ref(false);
 const downloadMenu = ref([
   { label: "Definition Only", command: () => download(false, false) },
   { label: "Core", command: () => download(true, false) },
@@ -129,9 +141,8 @@ async function setHasDefinition() {
   hasDefintion.value = isObjectHasKeys(entity, [IM.DEFINITION]);
 }
 
-function toggle(event: any) {
-  const x = menu.value as any;
-  x.toggle(event);
+function displayDialog() {
+  showOptions.value = true;
 }
 
 async function getMembers(): Promise<void> {
@@ -144,6 +155,7 @@ async function getMembers(): Promise<void> {
 }
 
 async function downloadIMV1(): Promise<void> {
+  showOptions.value = false;
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
@@ -158,6 +170,7 @@ async function downloadIMV1(): Promise<void> {
 }
 
 async function download(core: boolean, legacy: boolean, flat: boolean = false): Promise<void> {
+  showOptions.value = false;
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
@@ -208,6 +221,43 @@ async function getPage(event: any) {
 </script>
 
 <style scoped>
+.header-content-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.type-selector {
+  width: 100%;
+  height: 100%;
+}
+
+.loading-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.type-buttons-container {
+  width: 80%;
+  flex: 0 1 auto;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.text {
+  font-size: large;
+  padding: 0 0 1rem 0;
+}
+
 #members-table-container {
   height: 100%;
   width: 100%;
@@ -272,5 +322,82 @@ async function getPage(event: any) {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-end;
+}
+
+.custom-button {
+  display: flex;
+  font-family: "Lato", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  background: steelblue;
+  color: #fff;
+  line-height: 42px;
+  padding: 0 1rem;
+  border: none;
+}
+
+.custom-button span {
+  flex: 1 1 auto;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.custom-button:before,
+.custom-button:after {
+  position: absolute;
+  content: "";
+  height: 0%;
+  width: 2px;
+  background: steelblue;
+}
+.custom-button:before {
+  right: 0;
+  top: 0;
+  transition: all 500ms ease;
+}
+.custom-button:after {
+  left: 0;
+  bottom: 0;
+  transition: all 500ms ease;
+}
+.custom-button:hover {
+  color: steelblue;
+  background: transparent;
+}
+.custom-button:hover:before {
+  transition: all 500ms ease;
+  height: 100%;
+}
+.custom-button:hover:after {
+  transition: all 500ms ease;
+  height: 100%;
+}
+.custom-button span:before,
+.custom-button span:after {
+  position: absolute;
+  content: "";
+  background: steelblue;
+}
+.custom-button span:before {
+  left: 0;
+  top: 0;
+  width: 0%;
+  height: 2px;
+  transition: all 500ms ease;
+}
+.custom-button span:after {
+  right: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  transition: all 500ms ease;
+}
+.custom-button span:hover:before {
+  width: 100%;
+}
+.custom-button span:hover:after {
+  width: 100%;
 }
 </style>
