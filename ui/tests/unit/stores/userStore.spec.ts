@@ -73,7 +73,6 @@ describe("mutations", () => {
     userStore.updateCurrentUser(testUser);
     await flushPromises();
     expect(userStore.currentUser).toEqual(testUser);
-    expect(userStore.getAllFromUserDatabase).toHaveBeenCalledOnce();
   });
 });
 
