@@ -105,6 +105,10 @@ watch(searchResults, newValue => {
 
 onMounted(() => {
   visible.value = props.showDialog;
+  if (props.selected) {
+    navigateTo(props.selected.iri);
+    locateInTree(props.selected.iri);
+  }
 });
 
 function updateSelected(data: ConceptSummary) {

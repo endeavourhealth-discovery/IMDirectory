@@ -79,12 +79,6 @@ watch(loading, newValue => emit("update:searchLoading", newValue));
 
 const filtersOP = ref();
 
-onMounted(() => {
-  if (props.selected) {
-    searchText.value = props.selected.name;
-  }
-});
-
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
 }
