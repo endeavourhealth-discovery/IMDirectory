@@ -34,7 +34,7 @@
     v-model:showDialog="showAddDialog"
     :base-type="match['@type'] ?? queryTypeIri"
     :properties="match.property"
-    @on-add-property="(match: Match) => add((parentMatch?.match ?? parentMatchList)!, match, index)"
+    @on-add-property="(updatedMatch: Match) => hasValue && hasProperty ? updateProperties(match, updatedMatch) : add((parentMatch?.match ?? parentMatchList)!, match, index)"
   />
   <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
 </template>
@@ -65,11 +65,20 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { add, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } = setupQueryBuilderActions();
+const { add, updateProperties, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } =
+  setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
   const found = props.selectedMatches.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
   return !!found;
+});
+
+const hasValue: ComputedRef<boolean> = computed(() => {
+  return isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]);
+});
+
+const hasProperty: ComputedRef<boolean> = computed(() => {
+  return isObjectHasKeys(props.match, ["property"]);
 });
 
 const rClickMenu = ref();

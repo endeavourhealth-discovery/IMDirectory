@@ -105,37 +105,6 @@ async function selectByIri(iri: string, nodes: TreeNode[]) {
   }
 }
 
-async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], nodeKeys: string[]) {
-  const iriUnresolved = path["@id"] ?? path["@type"];
-  const iri = resolveIri(iriUnresolved);
-  let foundLeafProperty = nodes.find(node => node.data === propertyIri);
-  let found = nodes.find(node => node.data === iri);
-  let foundNested = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
-
-  if (foundLeafProperty) {
-    select(foundLeafProperty);
-  } else if (found) {
-    expandedKeys.value[found.key!] = true;
-    if (!isArrayHasLength(found)) await handleTreeNodeExpand(found);
-    if (isArrayHasLength(found.children)) {
-      if (path.path || path.node) await selectByPath(path.node ?? path.path, propertyIri, found.children!, nodeKeys);
-      else {
-        foundLeafProperty = found.children!.find(node => node.data === propertyIri);
-        if (foundLeafProperty) {
-          select(foundLeafProperty);
-          nodeKeys.push(foundLeafProperty.key!);
-        }
-      }
-    }
-  } else if (foundNested) {
-    expandedKeys.value[foundNested.key!] = true;
-    if (!isArrayHasLength(foundNested.children)) await handleTreeNodeExpand(found);
-    if (isArrayHasLength(foundNested.children) && (path.path || path.node)) {
-      await selectByPath(path, propertyIri, foundNested.children!, nodeKeys);
-    }
-  }
-}
-
 function onUnselect(node: any) {
   unselect(node);
 }

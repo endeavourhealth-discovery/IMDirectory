@@ -6,6 +6,7 @@
     v-if="isArrayHasLength(property.property)"
     v-for="(nestedProperty, index) of property.property"
     :index="index"
+    :parent-match="parentMatch"
     :parent-property="property"
     :property="nestedProperty"
     :query-type-iri="queryTypeIri"
@@ -15,7 +16,7 @@
   <EditDisplayMatch
     v-if="isObjectHasKeys(property, ['match'])"
     :index="index"
-    :parent-match="undefined"
+    :parent-match="parentMatch"
     :match="property.match!"
     :query-type-iri="queryTypeIri"
     :selected-matches="selectedMatches"
