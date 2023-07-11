@@ -20,6 +20,11 @@ export const useUserStore = defineStore("user", {
     isLoggedIn: state => isObjectHasKeys(state.currentUser)
   },
   actions: {
+    clearAllFromUserDatabase() {
+      this.currentTheme = "saga-blue";
+      this.favourites = [];
+      this.recentLocalActivity = [];
+    },
     clearOptionalCookies() {
       localStorage.removeItem("directoryMainSplitterVertical");
       localStorage.removeItem("directoryMainSplitterHorizontal");
@@ -110,13 +115,13 @@ export const useUserStore = defineStore("user", {
     },
     async updateCurrentUser(user: any) {
       this.currentUser = user;
-      await this.getAllFromUserDatabase();
     },
     async logoutCurrentUser() {
       let result = { status: 500, message: "Logout (userStore) failed" } as CustomAlert;
       await AuthService.signOut().then(async res => {
         if (res.status === 200) {
           await useUserStore().updateCurrentUser(null);
+          useUserStore().clearAllFromUserDatabase();
           result = res;
         } else {
           result = res;

@@ -243,6 +243,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
                 if (res.status === 200) {
                   swalert("success", "Success", "Account details updated successfully.").then(async () => {
                     await userStore.updateCurrentUser(res.user);
+                    await userStore.getAllFromUserDatabase();
                     router.push({ name: "UserDetails" });
                   });
                 } else {
@@ -256,6 +257,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
         } else {
           swalert("success", "Success", "Account details updated successfully.").then(async () => {
             await userStore.updateCurrentUser(res.user);
+            await userStore.getAllFromUserDatabase();
             router.push({ name: "UserDetails" });
           });
         }
@@ -265,6 +267,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
             ? swalert("success", "Success", "User details and password successfully updated.")
             : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
           await userStore.updateCurrentUser(res.user);
+          await userStore.getAllFromUserDatabase();
           router.push({ name: "UserDetails" });
         });
       }
