@@ -67,6 +67,7 @@ const loading = ref(true);
 onMounted(async () => {
   loading.value = true;
   await userStore.authenticateCurrentUser();
+  await userStore.getAllFromUserDatabase();
   let theme = "saga-blue";
   if (currentUser.value) await UserService.getUserTheme();
   if (currentTheme.value) theme = currentTheme.value;

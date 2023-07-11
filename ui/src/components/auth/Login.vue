@@ -72,6 +72,7 @@ function handleSubmit(): void {
           loggedInUser.avatar = Avatars[0];
         }
         await userStore.updateCurrentUser(loggedInUser);
+        await userStore.getAllFromUserDatabase();
         authStore.updateRegisteredUsername("");
         Swal.fire({
           icon: "success",
