@@ -110,7 +110,6 @@ export const useUserStore = defineStore("user", {
     },
     async updateCurrentUser(user: any) {
       this.currentUser = user;
-      await this.getAllFromUserDatabase();
     },
     async logoutCurrentUser() {
       let result = { status: 500, message: "Logout (userStore) failed" } as CustomAlert;
