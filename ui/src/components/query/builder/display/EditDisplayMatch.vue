@@ -87,7 +87,7 @@ const rClickOptions: Ref<any[]> = ref([]);
 function getClass() {
   let clazz = "";
   if (isSelected.value) clazz += "selected";
-  if (props.match.description) clazz += " feature";
+  if (props.match.description || props.match.nodeRef) clazz += " feature";
   return clazz;
 }
 
@@ -228,7 +228,7 @@ function editMatch() {
 
 <style scoped>
 .feature {
-  margin-left: 1rem;
+  margin-left: 1rem !important;
   cursor: pointer;
 }
 

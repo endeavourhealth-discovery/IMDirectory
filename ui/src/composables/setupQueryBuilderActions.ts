@@ -105,7 +105,7 @@ function setupQueryBuilderActions() {
     if (parentMatch) selectedMatch.parent = parentMatch;
     else if (memberOfList) selectedMatch.memberOfList = memberOfList;
 
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       if (!isSelected) {
         selectedMatches.push(selectedMatch);
       } else {
