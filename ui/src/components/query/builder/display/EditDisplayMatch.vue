@@ -3,7 +3,7 @@
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
     </div>
-    <div v-else-if="match.description" v-html="match.description" @dblclick="editMode = true"></div>
+    <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
@@ -32,7 +32,8 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="queryTypeIri"
+    :base-type="match['@type'] ?? queryTypeIri"
+    :properties="match.property"
     @on-add-property="(match: Match) => add((parentMatch?.match ?? parentMatchList)!, match, index)"
   />
   <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
@@ -192,7 +193,7 @@ function getSingleRCOptions() {
       label: "Edit",
       icon: PrimeIcons.PENCIL,
       command: () => {
-        if (isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"])) editMode.value = true;
+        editMatch();
       }
     });
 
@@ -206,6 +207,13 @@ function getSingleRCOptions() {
     });
 
   return singleRCOptions;
+}
+
+function editMatch() {
+  const hasValue = isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]);
+  const hasProperty = isObjectHasKeys(props.match, ["property"]);
+  if (hasValue && !hasProperty) editMode.value = true;
+  if (hasValue && hasProperty) showAddDialog.value = true;
 }
 </script>
 

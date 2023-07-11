@@ -10,16 +10,17 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match } from "@im-library/interfaces/AutoGen";
-import _ from "lodash";
+import { Match, Property } from "@im-library/interfaces/AutoGen";
+import _, { cloneDeep } from "lodash";
 import { TreeNode } from "primevue/tree";
 import { buildPropertyFromTreeNode } from "@im-library/helpers/QueryBuilder";
-import { describeMatch } from "@im-library/helpers/QueryDescriptor";
 import QueryNavTree from "../QueryNavTree.vue";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   showDialog: boolean;
   baseType: string;
+  properties?: Property[];
 }
 
 const props = defineProps<Props>();
@@ -39,6 +40,10 @@ watch(visible, newValue => {
   if (!newValue) {
     emit("update:showDialog", newValue);
   }
+});
+
+onMounted(() => {
+  if (isArrayHasLength(props.properties)) editMatch.value.property = cloneDeep(props.properties);
 });
 
 function isDirectProperty(treeNode: TreeNode) {

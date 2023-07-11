@@ -65,7 +65,13 @@ async function onCheckInput(check: boolean, node: TreeNode) {
   emit("onSelectedUpdate", selectedNodes.value);
 }
 
-async function populateCheckBoxes(match: Match) {}
+async function populateCheckBoxes(match: Match) {
+  if (isArrayHasLength(match.property)) {
+    for (const property of match.property!) {
+      selectByIri(property["@id"]!, root.value);
+    }
+  }
+}
 
 async function selectByKey(key: string) {
   const keys = key.split("-");
