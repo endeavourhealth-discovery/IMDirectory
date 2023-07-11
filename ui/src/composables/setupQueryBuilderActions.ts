@@ -3,12 +3,26 @@ import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { cloneDeep } from "lodash";
 
 function setupQueryBuilderActions() {
   const showViewDialog: Ref<boolean> = ref(false);
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
+
+  function updateProperties(match: Match, updatedMatch: Match) {
+    const copy = cloneDeep(match.property);
+    match.property = [];
+    if (isArrayHasLength(updatedMatch.property))
+      for (const updatedProperty of updatedMatch.property!) {
+        const found = copy?.find(prop => prop["@id"] === updatedProperty["@id"]);
+        if (found) match.property.push(found);
+        else match.property.push(updatedProperty);
+      }
+
+    showAddDialog.value = false;
+  }
 
   function add(matches: Match[], match: Match, index: number) {
     showAddDialog.value = true;
@@ -91,7 +105,7 @@ function setupQueryBuilderActions() {
     if (parentMatch) selectedMatch.parent = parentMatch;
     else if (memberOfList) selectedMatch.memberOfList = memberOfList;
 
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       if (!isSelected) {
         selectedMatches.push(selectedMatch);
       } else {
@@ -108,6 +122,7 @@ function setupQueryBuilderActions() {
 
   return {
     add,
+    updateProperties,
     view,
     keepAs,
     moveUp,

@@ -112,10 +112,12 @@ async function init(): Promise<void> {
 }
 
 async function getRecentActivityDetails() {
-  let localActivity: RecentActivityItem[];
+  let localActivity: RecentActivityItem[] = [];
+  if (isArrayHasLength(recentLocalActivity.value)) localActivity = recentLocalActivity.value;
   if (currentUser.value) {
-    localActivity = await UserService.getUserMRU();
-  } else localActivity = recentLocalActivity.value ? recentLocalActivity.value : [];
+    const results = await UserService.getUserMRU();
+    if (isArrayHasLength(results)) localActivity = results;
+  }
   const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 

@@ -63,7 +63,7 @@ onMounted(() => {
 
 function handleSubmit(): void {
   AuthService.signIn(username.value, password.value)
-    .then(res => {
+    .then(async res => {
       if (res.status === 200 && res.user) {
         const loggedInUser = res.user;
         // check if avatar exists and replace lagacy images with default avatar on signin
@@ -71,7 +71,8 @@ function handleSubmit(): void {
         if (!result) {
           loggedInUser.avatar = Avatars[0];
         }
-        userStore.updateCurrentUser(loggedInUser);
+        await userStore.updateCurrentUser(loggedInUser);
+        await userStore.getAllFromUserDatabase();
         authStore.updateRegisteredUsername("");
         Swal.fire({
           icon: "success",

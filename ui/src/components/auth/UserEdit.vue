@@ -241,8 +241,9 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
             if (result.value) {
               AuthService.verifyEmail(result.value).then(res => {
                 if (res.status === 200) {
-                  swalert("success", "Success", "Account details updated successfully.").then(() => {
-                    userStore.updateCurrentUser(res.user);
+                  swalert("success", "Success", "Account details updated successfully.").then(async () => {
+                    await userStore.updateCurrentUser(res.user);
+                    await userStore.getAllFromUserDatabase();
                     router.push({ name: "UserDetails" });
                   });
                 } else {
@@ -254,17 +255,19 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
             }
           });
         } else {
-          swalert("success", "Success", "Account details updated successfully.").then(() => {
-            userStore.updateCurrentUser(res.user);
+          swalert("success", "Success", "Account details updated successfully.").then(async () => {
+            await userStore.updateCurrentUser(res.user);
+            await userStore.getAllFromUserDatabase();
             router.push({ name: "UserDetails" });
           });
         }
       } else {
-        AuthService.changePassword(passwordOld.value, passwordNew1.value).then(res2 => {
+        AuthService.changePassword(passwordOld.value, passwordNew1.value).then(async res2 => {
           res2.status === 200
             ? swalert("success", "Success", "User details and password successfully updated.")
             : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
-          userStore.updateCurrentUser(res.user);
+          await userStore.updateCurrentUser(res.user);
+          await userStore.getAllFromUserDatabase();
           router.push({ name: "UserDetails" });
         });
       }

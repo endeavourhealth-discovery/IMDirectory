@@ -1,3 +1,5 @@
+import { IM } from "@/vocabulary";
+
 export default {
   orGroupMinusOrGroup: {
     match: [
@@ -875,6 +877,23 @@ export default {
             descendantsOrSelfOf: true
           },
           { "@id": "http://snomed.info/sct#298705001", descendantsOrSelfOf: true }
+        ]
+      }
+    ]
+  },
+  groupedConceptsWithSharedRefinement: {
+    match: [
+      {
+        match: [
+          { "@id": "http://snomed.info/sct#298705000", descendantsOrSelfOf: true },
+          { "@id": "http://snomed.info/sct#301366005", descendantsOrSelfOf: true }
+        ],
+        bool: "and",
+        property: [
+          {
+            "@id": IM.ROLE_GROUP,
+            property: [{ "@id": "http://snomed.info/sct#363698007", in: [{ "@id": "http://snomed.info/sct#51185008", descendantsOrSelfOf: true }] }]
+          }
         ]
       }
     ]
