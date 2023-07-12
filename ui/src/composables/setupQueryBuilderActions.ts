@@ -120,7 +120,7 @@ function setupQueryBuilderActions() {
     }
   }
 
-  async function dragDrop(event: any, parentMatch: Match, parentMatchList: Match[]) {
+  async function dragDrop(event: any, parentMatch?: Match, parentMatchList?: Match[]) {
     const data = event.dataTransfer.getData("matchData");
     if (!allowDrop.value) {
       event.preventDefault();
