@@ -1,5 +1,14 @@
 <template>
-  <div :class="getClass()" @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)" @contextmenu="onRightClick($event)">
+  <div
+    :draggable="true"
+    @dragstart="dragStart($event, match)"
+    @dragenter="dragEnter($event, match)"
+    @dragover.prevent
+    @drop="dragDrop($event, props.parentMatch, props.parentMatchList)"
+    :class="getClass()"
+    @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
+    @contextmenu="onRightClick($event)"
+  >
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
     </div>
@@ -65,8 +74,24 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { add, updateProperties, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } =
-  setupQueryBuilderActions();
+const {
+  add,
+  updateProperties,
+  view,
+  keepAs,
+  moveUp,
+  moveDown,
+  remove,
+  group,
+  ungroup,
+  dragStart,
+  dragEnter,
+  dragDrop,
+  select,
+  showAddDialog,
+  showViewDialog,
+  showKeepAsDialog
+} = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
   const found = props.selectedMatches.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
