@@ -13,6 +13,7 @@
       :match="nestedMatch"
       :query-type-iri="queryTypeIri"
       :selected-matches="selectedMatches"
+      :variable-map="variableMap"
     />
 
     <EditDisplayProperty
@@ -23,6 +24,7 @@
       :property="property"
       :query-type-iri="queryTypeIri"
       :selected-matches="selectedMatches"
+      :variable-map="variableMap"
     />
     <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
@@ -34,9 +36,14 @@
     v-model:showDialog="showAddDialog"
     :base-type="match['@type'] ?? queryTypeIri"
     :properties="match.property"
-    @on-add-property="(updatedMatch: Match) => hasValue && hasProperty ? updateProperties(match, updatedMatch) : add((parentMatch?.match ?? parentMatchList)!, match, index)"
+    :variable-map="variableMap"
+    @on-add-property="(updatedMatch: Match) => hasValue && hasProperty ? updateProperties(match, updatedMatch) : add((parentMatch?.match ?? parentMatchList)!, updatedMatch, index)"
   />
-  <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
+  <KeepAsDialog
+    v-model:showDialog="showKeepAsDialog"
+    :match="match"
+    @add-variable="(previousValue: string, newValue: string) => addVariable(previousValue, newValue)"
+  />
 </template>
 
 <script setup lang="ts">
@@ -61,6 +68,7 @@ interface Props {
   selectedMatches: SelectedMatch[];
   match: Match;
   index: number;
+  variableMap: Map<string, any>;
 }
 
 const props = defineProps<Props>();
@@ -223,6 +231,12 @@ function editMatch() {
   const hasProperty = isObjectHasKeys(props.match, ["property"]);
   if (hasValue && !hasProperty) editMode.value = true;
   if (hasValue && hasProperty) showAddDialog.value = true;
+}
+
+function addVariable(previousValue: string, newValue: string) {
+  props.match.variable = newValue;
+  if (props.variableMap.has(previousValue)) props.variableMap.delete(previousValue);
+  props.variableMap.set(newValue, props.match);
 }
 </script>
 

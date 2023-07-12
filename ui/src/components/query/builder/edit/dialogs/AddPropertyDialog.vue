@@ -1,6 +1,12 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="'Add properties'" :style="{ width: '60vw' }">
-    <QueryNavTree :base-type="baseType" :editMatch="editMatch" :selected-properties="selectedProperties" @on-selected-update="onSelectedUpdate" />
+    <QueryNavTree
+      :base-type="baseType"
+      :editMatch="editMatch"
+      :selected-properties="selectedProperties"
+      :variable-map="variableMap"
+      @on-selected-update="onSelectedUpdate"
+    />
     <template #footer>
       <Button label="Discard" severity="secondary" @click="visible = false" text />
       <Button label="Save" @click="save" text />
@@ -21,6 +27,7 @@ interface Props {
   showDialog: boolean;
   baseType: string;
   properties?: Property[];
+  variableMap: Map<string, any>;
 }
 
 const props = defineProps<Props>();

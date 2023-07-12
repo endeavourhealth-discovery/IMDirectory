@@ -11,6 +11,7 @@
     :property="nestedProperty"
     :query-type-iri="queryTypeIri"
     :selected-matches="selectedMatches"
+    :variable-map="variableMap"
   />
 
   <EditDisplayMatch
@@ -20,6 +21,7 @@
     :match="property.match!"
     :query-type-iri="queryTypeIri"
     :selected-matches="selectedMatches"
+    :variable-map="variableMap"
   />
 </template>
 
@@ -40,6 +42,7 @@ interface Props {
   property: Property;
   queryTypeIri: string;
   selectedMatches: SelectedMatch[];
+  variableMap: Map<string, any>;
 }
 
 const props = defineProps<Props>();

@@ -1,8 +1,6 @@
 <template>
   <div class="property-container">
-    <span v-tooltip.right="tooltip" class="property-label">
-      {{ props.match?.["@type"] ? props.match?.["@type"] + "." + getNameFromRef(property) : getNameFromRef(property) }}:
-    </span>
+    <span v-tooltip.right="tooltip" class="property-label"> {{ getNameFromRef(property) }}: </span>
     <ClassSelect
       v-if="isObjectHasKeys(ttproperty, [SHACL.CLASS])"
       :class-iri="ttproperty[SHACL.CLASS][0]['@id']"
