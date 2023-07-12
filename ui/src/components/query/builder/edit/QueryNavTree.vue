@@ -31,12 +31,13 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Property } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 
 interface Props {
   baseType: string;
   editMatch: Match;
+  variableMap: Map<string, any>;
 }
 const props = defineProps<Props>();
 
@@ -192,11 +193,53 @@ async function addParentFoldersToRoot() {
     const resolvedIri = resolveIri(props.baseType);
     if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
   }
+
+  if (props.variableMap && props.variableMap.size) addVariableNodes();
+}
+
+function addVariableNodes() {
+  for (const [key, object] of props.variableMap.entries()) {
+    const types: string[] = [];
+    getVariableTypesFromMatch(object, types);
+    for (const typeIri of types) {
+      const name = key + " (" + getNameFromRef({ "@id": typeIri }) + ")";
+      const treeNode = createTreeNode(name, typeIri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
+      root.value.push(treeNode);
+    }
+  }
+}
+
+function getVariableTypesFromMatch(match: Match, types: string[]) {
+  const type = resolveIri(match["@type"] || "");
+  if (type && !types.includes(type)) types.push(type);
+  if (isArrayHasLength(match.match))
+    for (const nestedMatch of match.match!) {
+      getVariableTypesFromMatch(nestedMatch, types);
+    }
+
+  if (isArrayHasLength(match.property))
+    for (const property of match.property!) {
+      getVariableTypesFromProperty(property, types);
+    }
+
+  if (match.nodeRef && props.variableMap.has(match.nodeRef)) {
+    const nodeRefMatch = props.variableMap.get(match.nodeRef);
+    getVariableTypesFromMatch(nodeRefMatch, types);
+  }
+}
+
+function getVariableTypesFromProperty(property: Property, types: string[]) {
+  if (isObjectHasKeys(property, ["match"])) getVariableTypesFromMatch(property.match!, types);
+
+  if (isArrayHasLength(property.property))
+    for (const nestedProperty of property.property!) {
+      getVariableTypesFromProperty(nestedProperty, types);
+    }
 }
 
 async function addBaseEntityToRoot(iri: string) {
   const name = getNameFromRef({ "@id": iri });
-  const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, false, undefined);
+  const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
   root.value.push(parent);

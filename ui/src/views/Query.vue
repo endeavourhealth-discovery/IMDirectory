@@ -22,6 +22,7 @@
         :query-type-iri="queryTypeIri"
         :parentMatchList="query.match"
         :selected-matches="selectedMatches"
+        :variable-map="variableMap"
       />
 
       <div v-else-if="!queryTypeIri">
@@ -31,7 +32,7 @@
         <Button label="Add feature" @click="showAddDialog = true" />
       </div>
 
-      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" @on-add-property="addProperty" />
+      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" :variable-map="variableMap" @on-add-property="addProperty" />
       <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     </div>
     <div class="button-bar">
@@ -47,8 +48,8 @@ import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { Match, Query } from "@im-library/interfaces/AutoGen";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { Match, Property, Query } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRoute } from "vue-router";
 import _ from "lodash";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
@@ -69,6 +70,7 @@ const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
 const loading = ref(true);
+const variableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
 
 watch(
   () => queryIri.value,
@@ -88,12 +90,13 @@ watch(
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
   if (queryIri.value) await init();
+  loading.value = false;
 });
 
 async function init() {
   await setQuery();
   setBaseEntityMatch();
-  loading.value = false;
+  initVariableMap();
 }
 
 async function setQuery() {
@@ -130,6 +133,37 @@ function addProperty(newMatch: Match) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match!.push(newMatch);
   showAddDialog.value = false;
+}
+
+function initVariableMap() {
+  for (const match of query.value.match) {
+    addVariableRefFromMatch(match);
+  }
+}
+
+function addVariableRefFromMatch(match: Match) {
+  if (match.variable) variableMap.value.set(match.variable, match);
+  // console.log(nodeRefMap.value.keys());
+  if (isArrayHasLength(match.match))
+    for (const nestedMatch of match.match!) {
+      addVariableRefFromMatch(nestedMatch);
+    }
+
+  if (isArrayHasLength(match.property))
+    for (const property of match.property!) {
+      addVariableRefFromProperty(property);
+    }
+}
+
+function addVariableRefFromProperty(property: Property) {
+  if (property.variable) variableMap.value.set(property.variable, property);
+
+  if (isObjectHasKeys(property, ["match"])) addVariableRefFromMatch(property.match!);
+
+  if (isArrayHasLength(property.property))
+    for (const nestedProperty of property.property!) {
+      addVariableRefFromProperty(nestedProperty);
+    }
 }
 </script>
 
