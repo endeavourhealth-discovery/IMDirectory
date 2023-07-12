@@ -123,33 +123,30 @@ function dragStart(event: any, data: any) {
   event.dataTransfer.dropEffect = "move";
 }
 
+function dragEnter(event: any, data: any) {
+  if (dragged.value !== data) {
+    draggedParent.value = data;
+    allowDrop.value = true;
+  } else {
+    allowDrop.value = false;
+  }
+}
+
 async function dragDrop(event: any, allow: boolean) {
   const data = event.dataTransfer.getData("matchData");
   if (!allow) {
     event.preventDefault();
   } else if (data && draggedParent.value && allow) {
-    console.log("YES");
     if (draggedParent.value.match === undefined) draggedParent.value.match = [];
     const parsedMatchData = JSON.parse(data);
     draggedParent.value.match.push(parsedMatchData);
-    const index = props.parentMatchList!.findIndex(dragMatch => JSON.stringify(dragMatch) === JSON.stringify(parsedMatchData));
-    if (!index) {
-      allowDrop.value = false;
-    } else {
-      props.parentMatchList?.splice(index, 1);
+    const list = props.parentMatch?.match ?? props.parentMatchList!;
+    const foundIndex = list.findIndex(match => JSON.stringify(match) === JSON.stringify(parsedMatchData));
+    if (foundIndex !== -1) {
+      list.splice(foundIndex, 1);
     }
     draggedParent.value = {};
   }
-}
-
-function dragEnter(event: any, data: any) {
-  if (dragged.value !== data) {
-    allowDrop.value = true;
-    draggedParent.value = data;
-  } else {
-    allowDrop.value = false;
-  }
-  console.log("ENTER: " + allowDrop.value);
 }
 
 function onRightClick(event: any) {

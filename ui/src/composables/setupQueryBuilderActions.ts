@@ -94,7 +94,8 @@ function setupQueryBuilderActions() {
       if (isArrayHasLength(selectedMatch.selected.match)) {
         if (index !== -1) matches.splice(index, 1);
         for (const nestedMatch of selectedMatch.selected.match!.reverse()) {
-          matches.splice(index, 0, nestedMatch);
+          const unnestedMatch = { boolMatch: "and", match: [nestedMatch] } as Match;
+          matches.splice(index, 0, unnestedMatch);
         }
       }
     }
