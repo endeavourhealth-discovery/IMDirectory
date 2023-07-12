@@ -34,6 +34,10 @@ const QueryService = {
     else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
   },
 
+  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
+    return await axios.post(Env.API + "api/query/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+  },
+
   async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
     return axios.post(Env.VITE_NODE_API + "node_api/validation/public/validate", data, { params: { iri: validationIri } });
   },

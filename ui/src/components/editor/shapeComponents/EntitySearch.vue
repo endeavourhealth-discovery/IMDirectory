@@ -29,7 +29,7 @@ import _ from "lodash";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
+import { isObjectHasKeys, isObject, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { mapToObject } from "@im-library/helpers/Transforms";
@@ -91,10 +91,13 @@ const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const showValidation = ref(false);
 const showDialog = ref(false);
-const queryRequest: Ref<QueryRequest> = ref({} as QueryRequest);
+const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
 
 async function init() {
   if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
+  if (isObjectHasKeys(props.shape, ["select"]) && isArrayHasLength(props.shape.select) && props.shape.select) {
+    queryRequest.value = { query: { "@id": props.shape.select[0]["@id"] } };
+  } else queryRequest.value = undefined;
   if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
     updateSelectedResult(props.value);
   } else {

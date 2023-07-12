@@ -79,12 +79,6 @@ watch(loading, newValue => emit("update:searchLoading", newValue));
 
 const filtersOP = ref();
 
-onMounted(() => {
-  if (props.selected) {
-    searchText.value = props.selected.name;
-  }
-});
-
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
 }
@@ -129,37 +123,14 @@ async function search(): Promise<void> {
     if (props.searchByQuery) {
       const queryRequest = _.cloneDeep(props.searchByQuery);
       queryRequest.textSearch = searchText.value;
-      const queryResult = await QueryService.queryIM(queryRequest, controller.value);
-      if (queryResult && queryResult.entities) result = await convertToConceptSummary(queryResult.entities);
+      const queryResult = await QueryService.queryIMSearch(queryRequest, controller.value);
+      if (queryResult && queryResult.entities) result = queryResult.entities;
     } else {
       result = await EntityService.advancedSearch(searchRequest, controller.value);
     }
     if (result) results.value = result;
     else results.value = [];
     loading.value = false;
-  }
-}
-
-async function convertToConceptSummary(results: any[]) {
-  if (results.every(result => isObjectHasKeys(result, ["@id", RDFS.LABEL, IM.CODE, RDF.TYPE, IM.SCHEME, IM.HAS_STATUS]))) {
-    return results.map(result => {
-      const conceptSummary = {} as ConceptSummary;
-      conceptSummary.iri = result["@id"];
-      conceptSummary.name = result[RDFS.LABEL];
-      conceptSummary.code = result[IM.CODE];
-      conceptSummary.entityType = result[RDF.TYPE];
-      conceptSummary.scheme = result[IM.SCHEME];
-      conceptSummary.status = result[IM.HAS_STATUS];
-      return conceptSummary;
-    });
-  } else {
-    const summaryResults = [];
-    for (const result of results) {
-      if (!isObjectHasKeys(result, ["@id"])) throw new Error("One or more items are missing required '@id' key");
-      const summary = await EntityService.getEntitySummary(result["@id"]);
-      if (summary) summaryResults.push(summary);
-    }
-    return summaryResults;
   }
 }
 </script>

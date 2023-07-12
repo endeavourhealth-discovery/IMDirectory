@@ -12,7 +12,7 @@
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
     </div>
-    <div v-else-if="match.description" v-html="match.description" @dblclick="editMode = true"></div>
+    <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
@@ -41,8 +41,9 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="queryTypeIri"
-    @on-add-property="(match: Match) => add((parentMatch?.match ?? parentMatchList)!, match, index)"
+    :base-type="match['@type'] ?? queryTypeIri"
+    :properties="match.property"
+    @on-add-property="(updatedMatch: Match) => hasValue && hasProperty ? updateProperties(match, updatedMatch) : add((parentMatch?.match ?? parentMatchList)!, match, index)"
   />
   <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
 </template>
@@ -61,7 +62,6 @@ import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
 import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { describeMatch, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
-import { EntityService } from "@/services";
 
 interface Props {
   queryTypeIri: string;
@@ -74,7 +74,8 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { add, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } = setupQueryBuilderActions();
+const { add, updateProperties, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } =
+  setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const allowDrop: Ref<boolean> = ref(true);
 const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
@@ -83,13 +84,22 @@ const isSelected: ComputedRef<boolean> = computed(() => {
   const found = props.selectedMatches.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
   return !!found;
 });
+
+const hasValue: ComputedRef<boolean> = computed(() => {
+  return isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]);
+});
+
+const hasProperty: ComputedRef<boolean> = computed(() => {
+  return isObjectHasKeys(props.match, ["property"]);
+});
+
 const rClickMenu = ref();
 const rClickOptions: Ref<any[]> = ref([]);
 
 function getClass() {
   let clazz = "";
   if (isSelected.value) clazz += "selected";
-  if (props.match.description) clazz += " feature";
+  if (props.match.description || props.match.nodeRef) clazz += " feature";
   return clazz;
 }
 
@@ -240,7 +250,7 @@ function getSingleRCOptions() {
       label: "Edit",
       icon: PrimeIcons.PENCIL,
       command: () => {
-        if (isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"])) editMode.value = true;
+        editMatch();
       }
     });
 
@@ -255,11 +265,18 @@ function getSingleRCOptions() {
 
   return singleRCOptions;
 }
+
+function editMatch() {
+  const hasValue = isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]);
+  const hasProperty = isObjectHasKeys(props.match, ["property"]);
+  if (hasValue && !hasProperty) editMode.value = true;
+  if (hasValue && hasProperty) showAddDialog.value = true;
+}
 </script>
 
 <style scoped>
 .feature {
-  margin-left: 1rem;
+  margin-left: 1rem !important;
   cursor: pointer;
 }
 
