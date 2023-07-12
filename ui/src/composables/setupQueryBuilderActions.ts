@@ -10,6 +10,9 @@ function setupQueryBuilderActions() {
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
+  const allowDrop: Ref<boolean> = ref(true);
+  const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
+  const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
 
   function updateProperties(match: Match, updatedMatch: Match) {
     const copy = cloneDeep(match.property);
@@ -101,6 +104,39 @@ function setupQueryBuilderActions() {
     }
   }
 
+  function dragStart(event: any, data: any) {
+    dragged.value = data;
+    event.dataTransfer.setData("matchData", JSON.stringify(data));
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.dropEffect = "move";
+  }
+
+  function dragEnter(event: any, data: any) {
+    if (dragged.value !== data) {
+      draggedParent.value = data;
+      allowDrop.value = true;
+    } else {
+      allowDrop.value = false;
+    }
+  }
+
+  async function dragDrop(event: any, parentMatch: Match, parentMatchList: Match[]) {
+    const data = event.dataTransfer.getData("matchData");
+    if (!allowDrop.value) {
+      event.preventDefault();
+    } else if (data && draggedParent.value && allowDrop.value) {
+      if (draggedParent.value.match === undefined) draggedParent.value.match = [];
+      const parsedMatchData = JSON.parse(data);
+      draggedParent.value.match.push(parsedMatchData);
+      const list = parentMatch?.match ?? parentMatchList!;
+      const foundIndex = list.findIndex(match => JSON.stringify(match) === JSON.stringify(parsedMatchData));
+      if (foundIndex !== -1) {
+        list.splice(foundIndex, 1);
+      }
+      draggedParent.value = {};
+    }
+  }
+
   function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, memberOfList?: Match[]) {
     const selectedMatch = { index: index, selected: match } as SelectedMatch;
     if (parentMatch) selectedMatch.parent = parentMatch;
@@ -131,6 +167,9 @@ function setupQueryBuilderActions() {
     remove,
     group,
     ungroup,
+    dragStart,
+    dragEnter,
+    dragDrop,
     select,
     showViewDialog,
     showAddDialog,

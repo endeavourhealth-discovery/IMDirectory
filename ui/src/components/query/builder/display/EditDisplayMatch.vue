@@ -4,7 +4,7 @@
     @dragstart="dragStart($event, match)"
     @dragenter="dragEnter($event, match)"
     @dragover.prevent
-    @drop="dragDrop($event, allowDrop)"
+    @drop="dragDrop($event, props.parentMatch, props.parentMatchList)"
     :class="getClass()"
     @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
     @contextmenu="onRightClick($event)"
@@ -74,12 +74,25 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const { add, updateProperties, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } =
-  setupQueryBuilderActions();
+const {
+  add,
+  updateProperties,
+  view,
+  keepAs,
+  moveUp,
+  moveDown,
+  remove,
+  group,
+  ungroup,
+  dragStart,
+  dragEnter,
+  dragDrop,
+  select,
+  showAddDialog,
+  showViewDialog,
+  showKeepAsDialog
+} = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
-const allowDrop: Ref<boolean> = ref(true);
-const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
-const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
 const isSelected: ComputedRef<boolean> = computed(() => {
   const found = props.selectedMatches.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
   return !!found;
@@ -114,39 +127,6 @@ function saveSelect(selectedCS: ConceptSummary) {
 function toggleBoolMatch() {
   if (props.match.bool === "and") props.match.bool = "or";
   else if (props.match.bool === "or") props.match.bool = "and";
-}
-
-function dragStart(event: any, data: any) {
-  dragged.value = data;
-  event.dataTransfer.setData("matchData", JSON.stringify(data));
-  event.dataTransfer.effectAllowed = "move";
-  event.dataTransfer.dropEffect = "move";
-}
-
-function dragEnter(event: any, data: any) {
-  if (dragged.value !== data) {
-    draggedParent.value = data;
-    allowDrop.value = true;
-  } else {
-    allowDrop.value = false;
-  }
-}
-
-async function dragDrop(event: any, allow: boolean) {
-  const data = event.dataTransfer.getData("matchData");
-  if (!allow) {
-    event.preventDefault();
-  } else if (data && draggedParent.value && allow) {
-    if (draggedParent.value.match === undefined) draggedParent.value.match = [];
-    const parsedMatchData = JSON.parse(data);
-    draggedParent.value.match.push(parsedMatchData);
-    const list = props.parentMatch?.match ?? props.parentMatchList!;
-    const foundIndex = list.findIndex(match => JSON.stringify(match) === JSON.stringify(parsedMatchData));
-    if (foundIndex !== -1) {
-      list.splice(foundIndex, 1);
-    }
-    draggedParent.value = {};
-  }
 }
 
 function onRightClick(event: any) {
