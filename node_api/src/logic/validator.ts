@@ -59,11 +59,14 @@ export default class Validator {
   private isValidIri(data: any): { isValid: boolean; message?: string } {
     let valid = false;
     let message: string | undefined = "Iri is invalid";
-    if (typeof data !== "string") message = "Iri must be of type string";
+    if (!isObjectHasKeys(data, [IM.ID])) message = "Entity is missing id field";
     else {
-      if (/\s/g.test(data)) message = "Iri cannot contain spaces";
+      if (typeof data[IM.ID] !== "string") message = "Iri must be of type string";
       else {
-        (valid = true), (message = undefined);
+        if (/\s/g.test(data[IM.ID])) message = "Iri cannot contain spaces";
+        else {
+          (valid = true), (message = undefined);
+        }
       }
     }
     return { isValid: valid, message: message };
