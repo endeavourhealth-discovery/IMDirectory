@@ -8,6 +8,7 @@ export default class Validator {
   public validate(iri: string, data: any): { isValid: boolean; message?: string } {
     if (iri === IM.validation.HAS_PARENT) return this.hasValidParents(data);
     if (iri === IM.validation.IS_DEFINITION) return this.isValidDefinition(data);
+    if (iri === IM.validation.IS_IRI) return this.isValidIri(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -51,6 +52,22 @@ export default class Validator {
     if (isObjectHasKeys(data, [IM.DEFINITION])) {
       valid = true;
       message = undefined;
+    }
+    return { isValid: valid, message: message };
+  }
+
+  private isValidIri(data: any): { isValid: boolean; message?: string } {
+    let valid = false;
+    let message: string | undefined = "Iri is invalid";
+    if (!isObjectHasKeys(data, [IM.ID])) message = "Entity is missing id field";
+    else {
+      if (typeof data[IM.ID] !== "string") message = "Iri must be of type string";
+      else {
+        if (/\s/g.test(data[IM.ID])) message = "Iri cannot contain spaces";
+        else {
+          (valid = true), (message = undefined);
+        }
+      }
     }
     return { isValid: valid, message: message };
   }
