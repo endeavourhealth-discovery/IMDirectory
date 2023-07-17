@@ -138,6 +138,7 @@ function setupQueryBuilderActions() {
   }
 
   function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, memberOfList?: Match[]) {
+    event.stopPropagation();
     const selectedMatch = { index: index, selected: match } as SelectedMatch;
     if (parentMatch) selectedMatch.parent = parentMatch;
     else if (memberOfList) selectedMatch.memberOfList = memberOfList;
