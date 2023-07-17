@@ -1,32 +1,65 @@
 import { describe, expect, it } from "vitest";
-import { buildMatchFromTreeNode } from "@/helpers/QueryBuilder";
-import { fullTestQueryDefinition, match, where, treeNode } from "./Query.testData";
+import { isNestedProperty, getParentPath, gatherParentPathRecursively } from "@/helpers/QueryBuilder";
+import { fullTestQueryDefinition, match, where } from "./Query.testData";
+import { treeNodeProperty } from "./QueryBuilder.testData";
 
 describe("QueryBuilder.ts ___", () => {
-  describe("buildMatchFromTreeNode", () => {
-    it("can get a match clause from folder treeNode", () => {
-      // const match = buildMatchFromTreeNode(treeNode.folder as any);
-      // expect(match).toEqual(treeNode.folderMatch);
+  describe("isNestedProperty", () => {
+    it("returns false if direct property", () => {
+      const result = isNestedProperty(treeNodeProperty.directFolderProperty as any);
+      expect(result).toEqual(false);
     });
-    // it("can get a match clause from dataModel treeNode", () => {
-    //   const match = buildMatchFromTreeNode(treeNode.dataModel as any);
-    //   expect(match).toEqual(treeNode.dataModelMatch);
-    // });
-    // it("can get a match clause from set treeNode", () => {
-    //   const match = buildMatchFromTreeNode(treeNode.entity as any);
-    //   expect(match).toEqual(treeNode.entityMatch);
-    // });
-    // it("can get a match clause from property treeNode", () => {
-    //   const match = buildMatchFromTreeNode(treeNode.classProperty as any);
-    //   expect(match).toEqual(treeNode.classPropertyMatch);
-    // });
-    // it("can get a match clause from property treeNode", () => {
-    //   const match = buildMatchFromTreeNode(treeNode.set as any);
-    //   expect(match).toEqual(treeNode.setMatch);
-    // });
-    // it("can get a match clause from property treeNode", () => {
-    //   const match = buildMatchFromTreeNode(treeNode.query as any);
-    //   expect(match).toEqual(treeNode.queryMatch);
-    // });
+
+    it("returns false if direct property of nodeRef", () => {
+      const result = isNestedProperty(treeNodeProperty.nodeRefProperty as any);
+      expect(result).toEqual(false);
+    });
+
+    it("returns true if nested property", () => {
+      const result = isNestedProperty(treeNodeProperty.nestedProperty as any);
+      expect(result).toEqual(true);
+    });
+  });
+
+  describe("gatherParentPathRecursively", () => {
+    it("returns paths of a direct property", () => {
+      const path = [];
+      gatherParentPathRecursively(treeNodeProperty.directFolderProperty as any, path);
+      expect(path.length).toEqual(1);
+      expect(path[0]).toEqual("Patient");
+    });
+
+    it("returns paths of a direct nodeRef property", () => {
+      const path = [];
+      gatherParentPathRecursively(treeNodeProperty.nodeRefProperty as any, path);
+      expect(path.length).toEqual(1);
+      expect(path[0]).toEqual("latestBP (Observation)");
+    });
+
+    it("returns paths of a nested property", () => {
+      const path = [];
+      gatherParentPathRecursively(treeNodeProperty.nestedProperty as any, path);
+      expect(path.length).toEqual(3);
+      expect(path[0]).toEqual("Address");
+      expect(path[1]).toEqual("homeAddress");
+      expect(path[2]).toEqual("Patient");
+    });
+  });
+
+  describe("getParentPath", () => {
+    it("returns path of a direct property", () => {
+      const path = getParentPath(treeNodeProperty.directFolderProperty as any);
+      expect(path).toEqual("Patient");
+    });
+
+    it("returns path of a direct nodeRef property", () => {
+      const path = getParentPath(treeNodeProperty.nodeRefProperty as any);
+      expect(path).toEqual("latestBP (Observation)");
+    });
+
+    it("returns path of a nested property", () => {
+      const path = getParentPath(treeNodeProperty.nestedProperty as any);
+      expect(path).toEqual("Address/homeAddress/Patient");
+    });
   });
 });
