@@ -93,7 +93,8 @@
     </div>
     <div class="flex-container content-container">
       <div class="card flex justify-content-center">
-        <Button label="Submit" @click="download"/>
+        <Button v-if="selectedFormat === 'IMv1'" label="Submit" @click="downloadIMV1"/>
+        <Button v-else label="Submit" @click="download"/>
       </div>
     </div>
   </Dialog>
@@ -130,24 +131,11 @@ const downloading = ref(false);
 const members: Ref<TTIriRef[]> = ref([]);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-// const downloadMenu = ref([
-//   { label: "Definition Only", command: () => download(false, false) },
-//   { label: "Core", command: () => download(true, false) },
-//   { label: "Core & Legacy", command: () => download(true, true) },
-//   { label: "Core & Legacy (Flat)", command: () => download(true, true, true) }
-// ]);
-// const downloadMenu1 = ref([
-//   { label: "Definition Only", command: () => download(false, false) },
-//   { label: "Core", command: () => download(true, false) },
-//   { label: "Core & Legacy", command: () => download(true, true) },
-//   { label: "Core & Legacy (Flat)", command: () => download(true, true, true) },
-//   { label: "IMv1", command: () => downloadIMV1() }
-// ]);
 
 const formats = ref([
-  {key: "csv", name: "CSV", disable: false},
-  {key: "tsv", name: "TSV", disable: false},
-  {key: "xls", name: "XLS", disable: false},
+  {key: "csv", name: "csv", disable: false},
+  {key: "tsv", name: "tsv", disable: false},
+  {key: "xls", name: "xlsx", disable: false},
   {key: "im1", name: "IMv1", disable: false}
 ]);
 
@@ -164,7 +152,6 @@ const selectedContents = ref();
 const checkedLegacy = ref(false);
 const checked = ref(false);
 const showLegacy = ref(false);
-const showSubset = ref(true);
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
@@ -270,14 +257,12 @@ async function download(): Promise<void> {
   const definition = selectedContents.value.includes("Definition");
   const core = selectedContents.value.includes("Core");
   const legacy = selectedContents.value.includes("Legacy");
-  const includeSubsets = checked.value;
-  const inlineLegacy = checkedLegacy.value;
   const im1id = selectedContents.value.includes("IM1Id");
   showOptions.value = false;
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const result = (await EntityService.getFullExportSet(props.entityIri, definition, core, legacy, includeSubsets, inlineLegacy, im1id)).data;
+    const result = (await EntityService.getFullExportSet(props.entityIri, definition, core, legacy, checked.value, checkedLegacy.value, im1id, selectedFormat.value)).data;
     const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, getFileName(label));
   } catch (error) {
@@ -291,7 +276,7 @@ function getFileName(label: string) {
   if (label.length > 100) {
     label = label.substring(0, 100);
   }
-  return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + ".xlsx";
+  return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + selectedFormat.value;
 }
 
 function publish() {
