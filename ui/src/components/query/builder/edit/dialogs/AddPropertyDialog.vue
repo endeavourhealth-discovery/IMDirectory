@@ -19,7 +19,7 @@ import { Ref, onMounted, ref, watch } from "vue";
 import { Match, Property } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash";
 import { TreeNode } from "primevue/tree";
-import { buildPropertyFromTreeNode } from "@im-library/helpers/QueryBuilder";
+import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "../QueryNavTree.vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
@@ -31,7 +31,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onClose: () => true, onAddProperty: (_payload: Match) => true, "update:showDialog": payload => typeof payload === "boolean" });
+const emit = defineEmits({
+  onClose: () => true,
+  onAddProperty: (_editMatch: Match, _additionalMatches?: Match[]) => true,
+  "update:showDialog": payload => typeof payload === "boolean"
+});
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
 const selectedProperties: Ref<TreeNode[]> = ref([]);
 const visible: Ref<boolean> = ref(false);
@@ -53,31 +57,19 @@ onMounted(() => {
   if (isArrayHasLength(props.properties)) editMatch.value.property = cloneDeep(props.properties);
 });
 
-function isDirectProperty(treeNode: TreeNode) {
-  return (treeNode.parent && treeNode.parent.key === "0") || (treeNode.parent.parent && treeNode.parent.parent.key === "0");
-}
-
 function onSelectedUpdate(selected: TreeNode[]) {
   selectedProperties.value = selected;
 }
 
-function addDirectProperty(treeNode: TreeNode) {
-  editMatch.value.property?.push(buildPropertyFromTreeNode(treeNode as any));
-}
-
-function addNestedProperty(treeNode: TreeNode) {
-  // TODO refactor to UIProperty
-  editMatch.value.property?.push(buildPropertyFromTreeNode(treeNode as any));
-}
-
 async function save() {
   editMatch.value.property = [];
-  for (const treeNodeProperty of selectedProperties.value) {
-    if (isDirectProperty(treeNodeProperty)) addDirectProperty(treeNodeProperty);
-    else addNestedProperty(treeNodeProperty);
+  const matches = buildMatchesFromProperties(selectedProperties.value as any);
+  console.log(matches.length);
+  if (matches.length > 1) emit("onAddProperty", editMatch.value, matches);
+  else if (matches.length === 1) {
+    editMatch.value.property = matches[0].property;
+    emit("onAddProperty", editMatch.value);
   }
-
-  emit("onAddProperty", editMatch.value);
 }
 </script>
 
