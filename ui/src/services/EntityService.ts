@@ -30,7 +30,7 @@ const EntityService = {
     });
   },
 
-  async getFullExportSet(iri: string, core: boolean, legacy: boolean, flat: boolean): Promise<any> {
+  async getFullExportSet(iri: string, definition:boolean, core: boolean, legacy: boolean, includeSubsets: boolean, ownRow: boolean, im1id: boolean, format: string): Promise<any> {
     const client = axios.create({
       baseURL: api,
       timeout: 0
@@ -39,9 +39,13 @@ const EntityService = {
     return client.get("api/entity/public/setExport", {
       params: {
         iri: iri,
+        definition: definition,
         core: core,
         legacy: legacy,
-        flat: flat
+        includeSubsets: includeSubsets,
+        ownRow: ownRow,
+        im1id: im1id,
+        format: format,
       },
       responseType: "blob"
     });
