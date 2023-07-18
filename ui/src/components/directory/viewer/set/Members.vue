@@ -170,19 +170,25 @@ watch(
     () => selectedContents.value,
     () => {
       if(contents.value.length !== 0 && selectedFormat.value !== "IMv1") {
-        contents.value[1].disable = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "XLS");
+        contents.value[1].disable = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
 
         if(selectedContents.value.includes("Core")) {
-          if(selectedFormat.value !== "XLS") {
+          if(selectedFormat.value !== "xlsx") {
             contents.value[0].disable = true;
           }
           contents.value[2].disable = false;
+          contents.value[3].disable = false;
         } else {
           contents.value[0].disable = false;
-          const index = selectedContents.value.indexOf("Legacy");
-          if(index !== -1) {
-            selectedContents.value.splice(index, 1);
-            contents.value[2].disable = true;
+          contents.value[2].disable = true;
+          contents.value[3].disable = true;
+          const indexLegacy = selectedContents.value.indexOf("Legacy");
+          if(indexLegacy !== -1) {
+            selectedContents.value.splice(indexLegacy, 1);
+          }
+          const indexIM1Id = selectedContents.value.indexOf("IM1Id");
+          if(indexIM1Id !== -1) {
+            selectedContents.value.splice(indexIM1Id, 1);
           }
         }
         showLegacy.value = !!selectedContents.value.includes("Legacy");
