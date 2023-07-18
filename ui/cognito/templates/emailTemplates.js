@@ -5,7 +5,7 @@ exports.handler = async (event, context, callback) => {
   const code = event.request.codeParameter;
   const name = event.request.userAttributes.name;
 
-  const confirmCodeTemplate = (name, code) => `
+  const confirmCodeTemplate = (name, code, email) => `
 <html>
 <head>
 
@@ -251,7 +251,7 @@ exports.handler = async (event, context, callback) => {
 </html>
   `;
 
-  const passwordResetCodeTemplate = (name, code) => `
+  const passwordResetCodeTemplate = (name, code, email) => `
   <html>
   <head>
 
