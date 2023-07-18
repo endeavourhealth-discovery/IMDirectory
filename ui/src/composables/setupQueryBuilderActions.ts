@@ -83,8 +83,8 @@ function setupQueryBuilderActions() {
 
     for (const selectedMatch of selectedMatches) {
       if (isArrayHasLength(parentMatch)) {
-        parentMatch?.splice(
-          parentMatch?.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+        parentMatch!.splice(
+          parentMatch!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
           1
         );
       } else {
