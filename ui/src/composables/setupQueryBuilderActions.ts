@@ -13,6 +13,40 @@ function setupQueryBuilderActions() {
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
+  const addMode: Ref<"editProperty" | "addMatch" | "addSubMatch"> = ref("addMatch");
+
+  function addOrEdit(match: Match, parentMatchList: Match[] | undefined, index: number, direct: Match[], nested: Match[]) {
+    switch (addMode.value) {
+      case "editProperty":
+        if (!isArrayHasLength(match.property)) match.property = [];
+        for (const newMatch of direct) {
+          match.property = newMatch.property;
+        }
+
+        if (!isArrayHasLength(match.match) && isArrayHasLength(nested)) match.match = [];
+        for (const newMatch of nested) {
+          match.match!.push(newMatch);
+        }
+        break;
+
+      case "addMatch":
+        if (isArrayHasLength(parentMatchList))
+          for (const newMatch of direct.concat(nested)) {
+            add(parentMatchList!, newMatch, index);
+          }
+        break;
+
+      case "addSubMatch":
+        if (!isArrayHasLength(match.match)) match.match = [];
+        for (const newMatch of direct.concat(nested)) {
+          match.match!.push(newMatch);
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
 
   function updateProperties(match: Match, updatedMatch: Match) {
     const copy = cloneDeep(match.property);
@@ -28,10 +62,8 @@ function setupQueryBuilderActions() {
   }
 
   function add(matches: Match[], match: Match, index: number) {
-    showAddDialog.value = true;
     if (index !== matches.length) matches.splice(index + 1, 0, match);
     else matches.push(match);
-    showAddDialog.value = false;
   }
 
   function view() {
@@ -159,6 +191,7 @@ function setupQueryBuilderActions() {
 
   return {
     add,
+    addOrEdit,
     updateProperties,
     view,
     keepAs,
@@ -174,7 +207,8 @@ function setupQueryBuilderActions() {
     showViewDialog,
     showAddDialog,
     showKeepAsDialog,
-    showAddBaseTypeDialog
+    showAddBaseTypeDialog,
+    addMode
   };
 }
 
