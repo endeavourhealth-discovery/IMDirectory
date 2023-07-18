@@ -3,7 +3,7 @@ import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
 
-const propertyDisplayMap = { concept: "of" } as any;
+const propertyDisplayMap = { concept: "of", ethnicity: "of", language: "of" } as any;
 
 // descriptors
 export function describeQuery(query: Query): Query {
@@ -71,7 +71,8 @@ export function getDisplayFromPropertyList(matchDisplay: string, propertyList: P
 export function getDisplayFromProperty(property: Property) {
   let display = "";
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
-  if (propertyDisplayMap[propertyName]) display += propertyName + " " + propertyDisplayMap[propertyName];
+  if (!property.match) display += propertyName;
+  if (propertyDisplayMap[propertyName]) display += " " + propertyDisplayMap[propertyName];
   if (property.in) display += getDisplayFromList(property, true);
   if (property.notIn) display += getDisplayFromList(property, false);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);

@@ -1,6 +1,12 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="'Add properties'" :style="{ width: '60vw' }">
-    <QueryNavTree :base-type="baseType" :editMatch="editMatch" :selected-properties="selectedProperties" @on-selected-update="onSelectedUpdate" />
+    <QueryNavTree
+      :base-type="baseType"
+      :editMatch="editMatch"
+      :selected-properties="selectedProperties"
+      :variable-map="variableMap"
+      @on-selected-update="onSelectedUpdate"
+    />
     <template #footer>
       <Button label="Discard" severity="secondary" @click="visible = false" text />
       <Button label="Save" @click="save" text />
@@ -13,7 +19,7 @@ import { Ref, onMounted, ref, watch } from "vue";
 import { Match, Property } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash";
 import { TreeNode } from "primevue/tree";
-import { buildPropertyFromTreeNode } from "@im-library/helpers/QueryBuilder";
+import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "../QueryNavTree.vue";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
@@ -21,10 +27,15 @@ interface Props {
   showDialog: boolean;
   baseType: string;
   properties?: Property[];
+  variableMap: Map<string, any>;
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onClose: () => true, onAddProperty: (_payload: Match) => true, "update:showDialog": payload => typeof payload === "boolean" });
+const emit = defineEmits({
+  onClose: () => true,
+  onAddOrEdit: (_direct: Match[], _nested: Match[]) => true,
+  "update:showDialog": payload => typeof payload === "boolean"
+});
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
 const selectedProperties: Ref<TreeNode[]> = ref([]);
 const visible: Ref<boolean> = ref(false);
@@ -46,31 +57,15 @@ onMounted(() => {
   if (isArrayHasLength(props.properties)) editMatch.value.property = cloneDeep(props.properties);
 });
 
-function isDirectProperty(treeNode: TreeNode) {
-  return (treeNode.parent && treeNode.parent.key === "0") || (treeNode.parent.parent && treeNode.parent.parent.key === "0");
-}
-
 function onSelectedUpdate(selected: TreeNode[]) {
   selectedProperties.value = selected;
 }
 
-function addDirectProperty(treeNode: TreeNode) {
-  editMatch.value.property?.push(buildPropertyFromTreeNode(treeNode as any));
-}
-
-function addNestedProperty(treeNode: TreeNode) {
-  // TODO refactor to UIProperty
-  editMatch.value.property?.push(buildPropertyFromTreeNode(treeNode as any));
-}
-
 async function save() {
   editMatch.value.property = [];
-  for (const treeNodeProperty of selectedProperties.value) {
-    if (isDirectProperty(treeNodeProperty)) addDirectProperty(treeNodeProperty);
-    else addNestedProperty(treeNodeProperty);
-  }
-
-  emit("onAddProperty", editMatch.value);
+  const { direct, nested } = buildMatchesFromProperties(selectedProperties.value as any);
+  emit("onAddOrEdit", direct, nested);
+  visible.value = false;
 }
 </script>
 

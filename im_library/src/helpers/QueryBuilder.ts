@@ -1,40 +1,64 @@
 import { IM, SHACL } from "../vocabulary";
 import { TreeNode } from "../interfaces";
 import { Match, Property } from "../interfaces/AutoGen";
-import { isFolder, isProperty, isQuery, isRecordModel, isValueSet } from "./ConceptTypeMethods";
-import { describeMatch, describeProperty } from "./QueryDescriptor";
+import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { getNameFromRef } from "./TTTransform";
+import { cloneDeep } from "lodash";
 
-export function buildMatchFromTreeNode(treeNode: TreeNode): Match {
-  if (isFolder(treeNode.conceptTypes)) {
-    const match = {
-      key: treeNode.key,
-      property: [{ "@id": IM.IS_CONTAINED_IN, in: [{ "@id": IM.NAMESPACE + "HealthDataModel" }] }]
-    } as Match;
-    return match;
-  } else if (isRecordModel(treeNode.conceptTypes)) {
-    const match = {
-      key: treeNode.key,
-      "@type": treeNode.data
-    } as Match;
-    return match;
-  } else if (isValueSet(treeNode.conceptTypes) || isQuery(treeNode.conceptTypes)) {
-    const match = {
-      key: treeNode.key,
-      "@set": treeNode.data
-    } as Match;
-    return match;
-  } else if (isProperty(treeNode.conceptTypes)) {
-    return buildMatchFromProperty(treeNode);
+export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { direct: Match[]; nested: Match[] } {
+  const directMatches: Match[] = [];
+  const nestedMatches: Match[] = [];
+
+  const nestedProperties = treeNodeProperties.filter(prop => isNestedProperty(prop));
+  const directProperties = treeNodeProperties.filter(prop => !isNestedProperty(prop));
+
+  if (isArrayHasLength(directProperties)) {
+    const match: Match = { property: [] };
+    for (const directProperty of directProperties) {
+      match.property!.push(buildPropertyFromTreeNode(directProperty));
+    }
+    directMatches.push(match);
   }
-  const match = {
-    key: treeNode.key,
-    "@id": treeNode.data
-  } as Match;
-  return match;
+
+  if (isArrayHasLength(nestedProperties)) {
+    const pathToMatchMap: Map<string, Match> = new Map<string, Match>();
+
+    for (const nestedProperty of nestedProperties) {
+      const path = getParentPath(nestedProperty);
+      if (!pathToMatchMap.has(path)) pathToMatchMap.set(path, { property: [] } as Match);
+      const leafMatch = pathToMatchMap.get(path);
+      leafMatch!.property!.push(buildPropertyFromTreeNode(nestedProperty));
+    }
+
+    for (const [path, match] of pathToMatchMap.entries()) {
+      nestedMatches.push(buildParentMatchStructure(path, match));
+    }
+  }
+
+  return { direct: directMatches, nested: nestedMatches };
 }
 
-export function buildPropertyFromTreeNode(treeNode: TreeNode) {
+export function buildParentMatchStructure(path: string, match: Match) {
+  const parents = path.split("/");
+  const leafMatchPath = parents.splice(0, 1);
+  parents.splice(parents.length - 1, 1);
+
+  match["@type"] = IM.NAMESPACE + leafMatchPath.join();
+  let currentMatchOrProperty: any = cloneDeep(match);
+  for (const [index, parentPath] of parents.reverse().entries()) {
+    if ((index + 1) % 2 === 0) {
+      const parentMatch = { "@type": IM.NAMESPACE + parentPath, property: [cloneDeep(currentMatchOrProperty)] };
+      currentMatchOrProperty = parentMatch;
+    } else {
+      const parentProperty = { "@id": IM.NAMESPACE + parentPath, match: cloneDeep(currentMatchOrProperty) };
+      currentMatchOrProperty = parentProperty;
+    }
+  }
+  return { property: [currentMatchOrProperty] };
+}
+
+function buildPropertyFromTreeNode(treeNode: TreeNode) {
   const property = { "@id": treeNode.data } as Property;
   // string - is ""
   // boolean - is true
@@ -44,66 +68,40 @@ export function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
     property.operator = "=";
     property.value = "";
+  } else if (isObjectHasKeys(treeNode.ttproperty, [SHACL.CLASS])) {
+    property.in = [{ "@id": "http://endhealth.info/im#Example", name: "Example concept" }];
   }
   (property as any).key = treeNode.key;
-  (property as any).path = buildPath(treeNode);
   return property;
 }
 
-export function buildMatchFromProperty(treeNode: TreeNode) {
-  const property = { "@id": treeNode.data } as Property;
-  // string - is ""
-  // boolean - is true
-  // long - is true
-  // DateTime - is today's date
-
-  if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
-    property.operator = "=";
-    property.value = "";
-  }
-
-  const match = {
-    key: treeNode.key,
-    path: buildPath(treeNode),
-    property: [property]
-  } as Match;
-  return match;
+export function isNestedProperty(treeNode: TreeNode) {
+  const hasParent = isObjectHasKeys(treeNode.parent);
+  if (!hasParent) return false;
+  const hasGrandParent = isObjectHasKeys(treeNode.parent.parent);
+  if (!hasGrandParent) return false;
+  const parentIsFolder = isFolder(treeNode.parent.conceptTypes);
+  const hasGreatGrandParent = isObjectHasKeys(treeNode.parent.parent.parent, ["conceptTypes"]);
+  if (hasGrandParent && parentIsFolder && !hasGreatGrandParent) return false;
+  return hasParent && hasGrandParent && !parentIsFolder && hasGreatGrandParent;
 }
 
-export function buildPath(treeNode: TreeNode) {
-  const pathList = [] as any[];
-  if (isObjectHasKeys(treeNode.parent)) findPathsRecursively(pathList, treeNode.parent);
-  let path = {} as any;
-  buildPathRecursively(path, pathList);
-  return path.path;
+export function getParentPath(treeNode: TreeNode): string {
+  const path: string[] = [];
+  gatherParentPathRecursively(treeNode, path);
+  return path.join("/") ?? "";
 }
 
-function buildPathRecursively(path: any, pathList: any[]) {
-  const pathItem = pathList.shift();
-  let populatedPath;
-  if (isObjectHasKeys(pathItem, ["@id"])) {
-    path.path = pathItem;
-    populatedPath = path.path;
-  } else if (isObjectHasKeys(pathItem, ["@type"])) {
-    path.node = pathItem;
-    populatedPath = path.match;
-  }
-  if (isArrayHasLength(pathList)) {
-    buildPathRecursively(populatedPath, pathList);
+export function gatherParentPathRecursively(treeNode: TreeNode, path: string[]) {
+  if (isObjectHasKeys(treeNode, ["parent"]) && isObjectHasKeys(treeNode.parent, ["data"])) {
+    if (isProperty(treeNode.parent.conceptTypes) || isRecordModel(treeNode.parent.conceptTypes)) {
+      if (isNodeRef(treeNode.parent)) path.push(treeNode.parent.label);
+      else path.push(getNameFromRef({ "@id": treeNode.parent.data }));
+    }
+    gatherParentPathRecursively(treeNode.parent, path);
   }
 }
 
-function findPathsRecursively(pathList: any[], treeNode: TreeNode) {
-  if (isRecordModel(treeNode.conceptTypes) && isObjectHasKeys(treeNode.parent) && isProperty(treeNode.parent.conceptTypes)) {
-    pathList.unshift({ "@type": treeNode.data });
-  } else if (isProperty(treeNode.conceptTypes)) {
-    pathList.unshift({ "@id": treeNode.data });
-  }
-
-  if (treeNode.parent && (isProperty(treeNode.parent.conceptTypes) || isRecordModel(treeNode.parent.conceptTypes)))
-    findPathsRecursively(pathList, treeNode.parent);
+export function isNodeRef(treeNode: TreeNode) {
+  return treeNode.label.includes("(" + getNameFromRef({ "@id": treeNode.data }) + ")");
 }
-
-export default {
-  buildMatchFromTreeNode
-};

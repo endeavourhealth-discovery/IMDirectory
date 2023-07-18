@@ -10,6 +10,43 @@ function setupQueryBuilderActions() {
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
+  const allowDrop: Ref<boolean> = ref(true);
+  const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
+  const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
+  const addMode: Ref<"editProperty" | "addMatch" | "addSubMatch"> = ref("addMatch");
+
+  function addOrEdit(match: Match, parentMatchList: Match[] | undefined, index: number, direct: Match[], nested: Match[]) {
+    switch (addMode.value) {
+      case "editProperty":
+        if (!isArrayHasLength(match.property)) match.property = [];
+        for (const newMatch of direct) {
+          match.property = newMatch.property;
+        }
+
+        if (!isArrayHasLength(match.match) && isArrayHasLength(nested)) match.match = [];
+        for (const newMatch of nested) {
+          match.match!.push(newMatch);
+        }
+        break;
+
+      case "addMatch":
+        if (isArrayHasLength(parentMatchList))
+          for (const newMatch of direct.concat(nested)) {
+            add(parentMatchList!, newMatch, index);
+          }
+        break;
+
+      case "addSubMatch":
+        if (!isArrayHasLength(match.match)) match.match = [];
+        for (const newMatch of direct.concat(nested)) {
+          match.match!.push(newMatch);
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
 
   function updateProperties(match: Match, updatedMatch: Match) {
     const copy = cloneDeep(match.property);
@@ -25,10 +62,8 @@ function setupQueryBuilderActions() {
   }
 
   function add(matches: Match[], match: Match, index: number) {
-    showAddDialog.value = true;
     if (index !== matches.length) matches.splice(index + 1, 0, match);
     else matches.push(match);
-    showAddDialog.value = false;
   }
 
   function view() {
@@ -94,9 +129,43 @@ function setupQueryBuilderActions() {
       if (isArrayHasLength(selectedMatch.selected.match)) {
         if (index !== -1) matches.splice(index, 1);
         for (const nestedMatch of selectedMatch.selected.match!.reverse()) {
-          matches.splice(index, 0, nestedMatch);
+          const unnestedMatch = { boolMatch: "and", match: [nestedMatch] } as Match;
+          matches.splice(index, 0, unnestedMatch);
         }
       }
+    }
+  }
+
+  function dragStart(event: any, data: any) {
+    dragged.value = data;
+    event.dataTransfer.setData("matchData", JSON.stringify(data));
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.dropEffect = "move";
+  }
+
+  function dragEnter(event: any, data: any) {
+    if (dragged.value !== data) {
+      draggedParent.value = data;
+      allowDrop.value = true;
+    } else {
+      allowDrop.value = false;
+    }
+  }
+
+  async function dragDrop(event: any, parentMatch?: Match, parentMatchList?: Match[]) {
+    const data = event.dataTransfer.getData("matchData");
+    if (!allowDrop.value) {
+      event.preventDefault();
+    } else if (data && draggedParent.value && allowDrop.value) {
+      if (draggedParent.value.match === undefined) draggedParent.value.match = [];
+      const parsedMatchData = JSON.parse(data);
+      draggedParent.value.match.push(parsedMatchData);
+      const list = parentMatch?.match ?? parentMatchList!;
+      const foundIndex = list.findIndex(match => JSON.stringify(match) === JSON.stringify(parsedMatchData));
+      if (foundIndex !== -1) {
+        list.splice(foundIndex, 1);
+      }
+      draggedParent.value = {};
     }
   }
 
@@ -122,6 +191,7 @@ function setupQueryBuilderActions() {
 
   return {
     add,
+    addOrEdit,
     updateProperties,
     view,
     keepAs,
@@ -130,11 +200,15 @@ function setupQueryBuilderActions() {
     remove,
     group,
     ungroup,
+    dragStart,
+    dragEnter,
+    dragDrop,
     select,
     showViewDialog,
     showAddDialog,
     showKeepAsDialog,
-    showAddBaseTypeDialog
+    showAddBaseTypeDialog,
+    addMode
   };
 }
 

@@ -248,9 +248,10 @@ const routes: Array<RouteRecordRaw> = [
     props: true
   },
   {
-    path: "/404",
+    path: "/404/:iri?",
     name: "EntityNotFound",
-    component: EntityNotFound
+    component: EntityNotFound,
+    props: true
   },
   {
     path: "/:pathMatch(.*)*",
@@ -306,10 +307,10 @@ router.beforeEach(async (to, from) => {
     if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
-        router.push({ name: "EntityNotFound" });
+        router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
     } catch (_error) {
-      router.push({ name: "EntityNotFound" });
+      router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
@@ -352,7 +353,7 @@ router.beforeEach(async (to, from) => {
     const urlSections = to.path.split("/");
     if (urlSections.length > 2) {
       const selectedIriParam = to.path.split("/")[2];
-      if (!selectedIriParam) router.push({ name: "EntityNotFound" });
+      if (!selectedIriParam) router.push({ name: "EntityNotFound", params: { iri: selectedIriParam } });
       else router.push({ name: "Editor", params: { selectedIri: urlToIri(selectedIriParam) } });
     } else router.push({ name: "Editor" });
   }
@@ -362,10 +363,10 @@ router.beforeEach(async (to, from) => {
     try {
       new URL(iri);
       if (!(await EntityService.iriExists(iri))) {
-        router.push({ name: "EntityNotFound" });
+        router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
     } catch (_error) {
-      router.push({ name: "EntityNotFound" });
+      router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
   }
 

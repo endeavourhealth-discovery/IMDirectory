@@ -1,5 +1,14 @@
 <template>
-  <div :class="getClass()" @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)" @contextmenu="onRightClick($event)">
+  <div
+    :draggable="true"
+    @dragstart="dragStart($event, match)"
+    @dragenter="dragEnter($event, match)"
+    @dragover.prevent
+    @drop="dragDrop($event, props.parentMatch, props.parentMatchList)"
+    :class="getClass()"
+    @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
+    @contextmenu="onRightClick($event)"
+  >
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
     </div>
@@ -13,6 +22,7 @@
       :match="nestedMatch"
       :query-type-iri="queryTypeIri"
       :selected-matches="selectedMatches"
+      :variable-map="variableMap"
     />
 
     <EditDisplayProperty
@@ -23,6 +33,7 @@
       :property="property"
       :query-type-iri="queryTypeIri"
       :selected-matches="selectedMatches"
+      :variable-map="variableMap"
     />
     <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
@@ -34,9 +45,14 @@
     v-model:showDialog="showAddDialog"
     :base-type="match['@type'] ?? queryTypeIri"
     :properties="match.property"
-    @on-add-property="(updatedMatch: Match) => hasValue && hasProperty ? updateProperties(match, updatedMatch) : add((parentMatch?.match ?? parentMatchList)!, match, index)"
+    :variable-map="variableMap"
+    @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
   />
-  <KeepAsDialog v-model:showDialog="showKeepAsDialog" :match="match" />
+  <KeepAsDialog
+    v-model:showDialog="showKeepAsDialog"
+    :match="match"
+    @add-variable="(previousValue: string, newValue: string) => addVariable(previousValue, newValue)"
+  />
 </template>
 
 <script setup lang="ts">
@@ -61,12 +77,29 @@ interface Props {
   selectedMatches: SelectedMatch[];
   match: Match;
   index: number;
+  variableMap: Map<string, any>;
 }
 
 const props = defineProps<Props>();
 
-const { add, updateProperties, view, keepAs, moveUp, moveDown, remove, group, ungroup, select, showAddDialog, showViewDialog, showKeepAsDialog } =
-  setupQueryBuilderActions();
+const {
+  addOrEdit,
+  view,
+  keepAs,
+  moveUp,
+  moveDown,
+  remove,
+  group,
+  ungroup,
+  dragStart,
+  dragEnter,
+  dragDrop,
+  select,
+  showAddDialog,
+  showViewDialog,
+  showKeepAsDialog,
+  addMode
+} = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
   const found = props.selectedMatches.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
@@ -140,12 +173,16 @@ function getSingleRCOptions() {
         {
           label: "Below",
           command: () => {
+            addMode.value = "addMatch";
             showAddDialog.value = true;
           }
         },
         {
           label: "Nested",
-          command: () => {}
+          command: () => {
+            addMode.value = "addSubMatch";
+            showAddDialog.value = true;
+          }
         }
       ]
     },
@@ -197,14 +234,19 @@ function getSingleRCOptions() {
     }
   ];
 
-  if (isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]))
-    singleRCOptions.splice(1, 0, {
+  if (hasValue.value || hasProperty.value) {
+    const editOption = {
       label: "Edit",
       icon: PrimeIcons.PENCIL,
       command: () => {
+        addMode.value = "editProperty";
         editMatch();
       }
-    });
+    };
+
+    if (hasValue.value && !hasProperty.value) singleRCOptions.splice(1, 0, editOption);
+    else singleRCOptions.splice(0, 1, editOption);
+  }
 
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
     singleRCOptions.push({
@@ -219,10 +261,17 @@ function getSingleRCOptions() {
 }
 
 function editMatch() {
-  const hasValue = isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]);
-  const hasProperty = isObjectHasKeys(props.match, ["property"]);
-  if (hasValue && !hasProperty) editMode.value = true;
-  if (hasValue && hasProperty) showAddDialog.value = true;
+  if (hasValue.value && !hasProperty.value) editMode.value = true;
+  else if (hasValue.value && hasProperty.value) {
+    showAddDialog.value = true;
+    addMode.value = "editProperty";
+  }
+}
+
+function addVariable(previousValue: string, newValue: string) {
+  props.match.variable = newValue;
+  if (props.variableMap.has(previousValue)) props.variableMap.delete(previousValue);
+  props.variableMap.set(newValue, props.match);
 }
 </script>
 
