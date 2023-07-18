@@ -68,6 +68,8 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
     property.operator = "=";
     property.value = "";
+  } else if (isObjectHasKeys(treeNode.ttproperty, [SHACL.CLASS])) {
+    property.in = [{ "@id": "http://endhealth.info/im#Example", name: "Example concept" }];
   }
   (property as any).key = treeNode.key;
   return property;
