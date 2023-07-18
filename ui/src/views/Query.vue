@@ -32,7 +32,7 @@
         <Button label="Add feature" @click="showAddDialog = true" />
       </div>
 
-      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" :variable-map="variableMap" @on-add-property="addProperty" />
+      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" :variable-map="variableMap" @on-add-or-edit="add" />
       <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     </div>
     <div class="button-bar">
@@ -129,10 +129,11 @@ async function setBaseEntityMatch() {
 //   });
 // }
 
-function addProperty(newMatch: Match) {
+function add(direct: Match[], nested: Match[]) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
-  query.value.match!.push(newMatch);
-  showAddDialog.value = false;
+  for (const match of direct.concat(nested)) {
+    query.value.match!.push(match);
+  }
 }
 
 function initVariableMap() {

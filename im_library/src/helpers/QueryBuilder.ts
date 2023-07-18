@@ -6,8 +6,9 @@ import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 import { cloneDeep } from "lodash";
 
-export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Match[] {
-  const matches: Match[] = [];
+export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { direct: Match[]; nested: Match[] } {
+  const directMatches: Match[] = [];
+  const nestedMatches: Match[] = [];
 
   const nestedProperties = treeNodeProperties.filter(prop => isNestedProperty(prop));
   const directProperties = treeNodeProperties.filter(prop => !isNestedProperty(prop));
@@ -17,7 +18,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Matc
     for (const directProperty of directProperties) {
       match.property!.push(buildPropertyFromTreeNode(directProperty));
     }
-    matches.push(match);
+    directMatches.push(match);
   }
 
   if (isArrayHasLength(nestedProperties)) {
@@ -31,11 +32,11 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Matc
     }
 
     for (const [path, match] of pathToMatchMap.entries()) {
-      matches.push(buildParentMatchStructure(path, match));
+      nestedMatches.push(buildParentMatchStructure(path, match));
     }
   }
 
-  return matches;
+  return { direct: directMatches, nested: nestedMatches };
 }
 
 export function buildParentMatchStructure(path: string, match: Match) {
@@ -67,6 +68,8 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
   if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
     property.operator = "=";
     property.value = "";
+  } else if (isObjectHasKeys(treeNode.ttproperty, [SHACL.CLASS])) {
+    property.in = [{ "@id": "http://endhealth.info/im#Example", name: "Example concept" }];
   }
   (property as any).key = treeNode.key;
   return property;

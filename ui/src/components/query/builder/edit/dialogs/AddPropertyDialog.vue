@@ -33,7 +33,7 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits({
   onClose: () => true,
-  onAddProperty: (_editMatch: Match, _additionalMatches?: Match[]) => true,
+  onAddOrEdit: (_direct: Match[], _nested: Match[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
@@ -63,13 +63,9 @@ function onSelectedUpdate(selected: TreeNode[]) {
 
 async function save() {
   editMatch.value.property = [];
-  const matches = buildMatchesFromProperties(selectedProperties.value as any);
-  console.log(matches.length);
-  if (matches.length > 1) emit("onAddProperty", editMatch.value, matches);
-  else if (matches.length === 1) {
-    editMatch.value.property = matches[0].property;
-    emit("onAddProperty", editMatch.value);
-  }
+  const { direct, nested } = buildMatchesFromProperties(selectedProperties.value as any);
+  emit("onAddOrEdit", direct, nested);
+  visible.value = false;
 }
 </script>
 
