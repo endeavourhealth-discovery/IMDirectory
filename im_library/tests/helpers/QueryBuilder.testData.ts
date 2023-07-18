@@ -146,3 +146,37 @@ export const treeNodeProperty = {
     selected: true
   }
 };
+
+export const nestedProperty = {
+  path: "Address/homeAddress/Patient",
+  leafMatch: {
+    property: [
+      {
+        "@id": "http://endhealth.info/im#addressLine",
+        operator: "=",
+        value: "",
+        key: "0-0-0-9-0-0",
+        description: "addressLine = "
+      }
+    ]
+  },
+  output: {
+    property: [
+      {
+        "@id": "http://endhealth.info/im#homeAddress",
+        match: {
+          "@type": "http://endhealth.info/im#Address",
+          property: [
+            {
+              "@id": "http://endhealth.info/im#addressLine",
+              operator: "=",
+              value: "",
+              key: "0-0-0-9-0-0",
+              description: "addressLine = "
+            }
+          ]
+        }
+      }
+    ]
+  }
+};

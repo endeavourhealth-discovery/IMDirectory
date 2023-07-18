@@ -4,6 +4,7 @@ import { Match, Property } from "../interfaces/AutoGen";
 import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
+import { cloneDeep } from "lodash";
 
 export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Match[] {
   const matches: Match[] = [];
@@ -22,33 +23,38 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): Matc
   if (isArrayHasLength(nestedProperties)) {
     const pathToMatchMap: Map<string, Match> = new Map<string, Match>();
 
-    for (const nestedProperty of directProperties) {
+    for (const nestedProperty of nestedProperties) {
       const path = getParentPath(nestedProperty);
       if (!pathToMatchMap.has(path)) pathToMatchMap.set(path, { property: [] } as Match);
-      pathToMatchMap.get(path).property!.push(buildPropertyFromTreeNode(nestedProperty));
+      const leafMatch = pathToMatchMap.get(path);
+      leafMatch!.property!.push(buildPropertyFromTreeNode(nestedProperty));
     }
 
     for (const [path, match] of pathToMatchMap.entries()) {
-      matches.push(match);
+      matches.push(buildParentMatchStructure(path, match));
     }
   }
-  console.log(matches.length);
+
   return matches;
 }
 
-function buildNestedPropertyFromTreeNode(treeNode: TreeNode) {
-  const property = { "@id": treeNode.data } as Property;
-  // string - is ""
-  // boolean - is true
-  // long - is true
-  // DateTime - is today's date
+export function buildParentMatchStructure(path: string, match: Match) {
+  const parents = path.split("/");
+  const leafMatchPath = parents.splice(0, 1);
+  parents.splice(parents.length - 1, 1);
 
-  if (isObjectHasKeys(treeNode.ttproperty, [SHACL.DATATYPE])) {
-    property.operator = "=";
-    property.value = "";
+  match["@type"] = IM.NAMESPACE + leafMatchPath.join();
+  let currentMatchOrProperty: any = cloneDeep(match);
+  for (const [index, parentPath] of parents.reverse().entries()) {
+    if ((index + 1) % 2 === 0) {
+      const parentMatch = { "@type": IM.NAMESPACE + parentPath, property: [cloneDeep(currentMatchOrProperty)] };
+      currentMatchOrProperty = parentMatch;
+    } else {
+      const parentProperty = { "@id": IM.NAMESPACE + parentPath, match: cloneDeep(currentMatchOrProperty) };
+      currentMatchOrProperty = parentProperty;
+    }
   }
-  (property as any).key = treeNode.key;
-  return property;
+  return { property: [currentMatchOrProperty] };
 }
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {

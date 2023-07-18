@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { isNestedProperty, getParentPath, gatherParentPathRecursively } from "@/helpers/QueryBuilder";
+import { isNestedProperty, getParentPath, gatherParentPathRecursively, buildParentMatchStructure } from "@/helpers/QueryBuilder";
 import { fullTestQueryDefinition, match, where } from "./Query.testData";
-import { treeNodeProperty } from "./QueryBuilder.testData";
+import { treeNodeProperty, nestedProperty } from "./QueryBuilder.testData";
+import { Match } from "@/interfaces/AutoGen";
 
 describe("QueryBuilder.ts ___", () => {
   describe("isNestedProperty", () => {
@@ -60,6 +61,13 @@ describe("QueryBuilder.ts ___", () => {
     it("returns path of a nested property", () => {
       const path = getParentPath(treeNodeProperty.nestedProperty as any);
       expect(path).toEqual("Address/homeAddress/Patient");
+    });
+  });
+
+  describe("buildParentMatchStructure", () => {
+    it("returns match with parent structure", () => {
+      const structuredMatch = buildParentMatchStructure(nestedProperty.path, nestedProperty.leafMatch as Match);
+      expect(structuredMatch).toStrictEqual(nestedProperty.output);
     });
   });
 });
