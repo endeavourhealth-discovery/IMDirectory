@@ -150,7 +150,7 @@ function getMultipleRCOptions() {
       label: "Group",
       icon: PrimeIcons.LINK,
       command: () => {
-        group(props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
+        group(props.selectedMatches, props.parentMatch?.match, props.parentMatch?.match ?? props.parentMatchList!);
       }
     },
     {

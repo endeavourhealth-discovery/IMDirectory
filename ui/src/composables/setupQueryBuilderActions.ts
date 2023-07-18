@@ -60,27 +60,31 @@ function setupQueryBuilderActions() {
     if (isArrayHasLength(matches)) matches.splice(matchIndex, 1);
   }
 
-  function group(selectedMatches: SelectedMatch[], parentMatch: Match, matches: Match[]) {
+  function group(selectedMatches: SelectedMatch[], parentMatch: Match[] | undefined, matches: Match[]) {
     let index = selectedMatches[0].index;
+    let initialParent = selectedMatches[0].parent;
     const groupedMatch = { boolMatch: "and", match: [] } as Match;
 
     for (const selectedMatch of selectedMatches) {
+      if (selectedMatch.parent !== initialParent) {
+        return;
+      }
       if (selectedMatch.index < index) index = selectedMatch.index;
       groupedMatch.match!.push(selectedMatch.selected);
     }
 
-    if (isObjectHasKeys(parentMatch, ["match"]) && isArrayHasLength(parentMatch.match)) {
-      groupedMatch.match!.sort((a, b) => parentMatch.match!.indexOf(a) - parentMatch.match!.indexOf(b));
-      parentMatch.match!.splice(index, 0, groupedMatch);
+    if (isArrayHasLength(parentMatch)) {
+      groupedMatch.match?.sort((a, b) => parentMatch!.indexOf(a) - parentMatch!.indexOf(b));
+      parentMatch!.splice(index, 0, groupedMatch);
     } else {
       groupedMatch.match!.sort((a, b) => matches.indexOf(a) - matches.indexOf(b));
       matches.splice(index, 0, groupedMatch);
     }
 
     for (const selectedMatch of selectedMatches) {
-      if (isObjectHasKeys(parentMatch, ["match"]) && isArrayHasLength(parentMatch.match)) {
-        parentMatch.match!.splice(
-          parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+      if (isArrayHasLength(parentMatch)) {
+        parentMatch?.splice(
+          parentMatch?.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
           1
         );
       } else {
