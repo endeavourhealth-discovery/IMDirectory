@@ -105,7 +105,7 @@ watch(searchResults, newValue => {
 
 onMounted(() => {
   visible.value = props.showDialog;
-  if (props.selected) {
+  if (props.selected && props.selected.iri) {
     navigateTo(props.selected.iri);
     locateInTree(props.selected.iri);
   }
