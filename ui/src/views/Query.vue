@@ -28,7 +28,7 @@
       <div v-else-if="!queryTypeIri">
         <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
       </div>
-      <div v-if="!isArrayHasLength(query.match) && query.type">
+      <div v-if="!isArrayHasLength(query.match) && query['@type']">
         <Button label="Add feature" @click="showAddDialog = true" />
       </div>
 
@@ -111,24 +111,6 @@ async function setBaseEntityMatch() {
   }
 }
 
-// function deleteBaseType() {
-//   Swal.fire({
-//     icon: "info",
-//     title: "Confirm delete",
-//     text: "Are you sure you want to delete the base type of your query? All other clauses will be deleted.",
-//     showCancelButton: true,
-//     confirmButtonText: "Yes",
-//     reverseButtons: true,
-//     confirmButtonColor: "#2196F3",
-//     cancelButtonColor: "#607D8B",
-//     showLoaderOnConfirm: true,
-//     allowOutsideClick: () => !Swal.isLoading(),
-//     backdrop: true
-//   }).then((result: any) => {
-//     if (result.isConfirmed) props.matches.length = 0;
-//   });
-// }
-
 function add(direct: Match[], nested: Match[]) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   for (const match of direct.concat(nested)) {
@@ -144,7 +126,6 @@ function initVariableMap() {
 
 function addVariableRefFromMatch(match: Match) {
   if (match.variable) variableMap.value.set(match.variable, match);
-  // console.log(nodeRefMap.value.keys());
   if (isArrayHasLength(match.match))
     for (const nestedMatch of match.match!) {
       addVariableRefFromMatch(nestedMatch);
