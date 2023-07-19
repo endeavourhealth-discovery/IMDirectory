@@ -1,6 +1,6 @@
 <template>
   <div class="property-container">
-    <span v-tooltip.right="tooltip" class="property-label"> {{ getNameFromRef(property) }}: </span>
+    <div v-tooltip.right="tooltip" class="property-label">{{ getNameFromRef(property) }}:</div>
     <ClassSelect
       v-if="isObjectHasKeys(ttproperty, [SHACL.CLASS])"
       :class-iri="ttproperty[SHACL.CLASS][0]['@id']"
@@ -82,4 +82,8 @@ function getTooltip(ttproperty: TTProperty) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.property-label {
+  margin-bottom: 0.5rem !important;
+}
+</style>
