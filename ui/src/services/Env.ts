@@ -7,7 +7,9 @@ const Env = {
   QUERY_URL: import.meta.env.VITE_QUERY_URL ? (import.meta.env.VITE_QUERY_URL as string) : "/query/#/",
   VIEWER_URL: import.meta.env.VITE_VIEWER_URL ? (import.meta.env.VITE_VIEWER_URL as string) : "/viewer/#/",
   VITE_NODE_API: import.meta.env.VITE_NODE_API ? (import.meta.env.VITE_NODE_API as string) : "/nodeapi/",
-  UPRN_API: import.meta.env.VITE_UPRN_API as string
+  UPRN_API: import.meta.env.VITE_UPRN_API ? (import.meta.env.VITE_UPRN_API as string) : "https://devuprn8.discoverydataservice.net",
+  UPRN_USER: import.meta.env.VITE_UPRN_USER ? (import.meta.env.VITE_UPRN_USER as string) : "blah",
+  UPRN_PASSWORD: import.meta.env.VITE_UPRN_PASSWORD ? (import.meta.env.VITE_UPRN_USER as string) : "blah"
 };
 
 Object.freeze(Env);

@@ -33,6 +33,8 @@ const Filer = () => import("@/views/Filer.vue");
 const Uprn = () => import("@/views/Uprn.vue");
 const SingleFileLookup = () => import("@/components/uprn/SingleAddressLookup.vue");
 const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.vue");
+const AddressFileDownload = () => import("@/components/uprn/AddressFileDownload.vue");
+const Welcome = () => import("@/components/uprn/Welcome.vue");
 const Query = () => import("@/views/Query.vue");
 import { EntityService, Env } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -232,7 +234,9 @@ const routes: Array<RouteRecordRaw> = [
     },
     children: [
       { path: "singleAddressLookup", name: "SingleAddressLookup", component: SingleFileLookup },
-      { path: "addressFileWorkflow", name: "AddressFileWorkflow", component: AddressFileWorkflow }
+      { path: "addressFileWorkflow", name: "AddressFileWorkflow", component: AddressFileWorkflow },
+      { path: "addressFileDownload", name: "AddressFileDownload", component: AddressFileDownload },
+      { path: "uprnWelcome", name: "Welcome", component: Welcome }
     ]
   },
   {

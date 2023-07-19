@@ -38,8 +38,6 @@ import { IM } from "@im-library/vocabulary";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import { useSharedStore } from "@/stores/sharedStore";
-import Breadcrumbs from "@/components/shared/Breadcrumbs.vue";
-import { MenuItem } from "primevue/menuitem";
 import _ from "lodash";
 
 interface Props {
@@ -122,7 +120,7 @@ async function getPath() {
   }
 }
 
-function onClick(event: any, item: MenuItem) {
+function onClick(event: any, item: any) {
   if (item.command) item.command({ originalEvent: event, item: item });
 }
 </script>

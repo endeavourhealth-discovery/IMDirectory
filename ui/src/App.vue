@@ -35,6 +35,7 @@ import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
+import {useUprnStore} from "@/stores/uprnStore";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -45,12 +46,15 @@ const router = useRouter();
 const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
+const uprnStore = useUprnStore();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentTheme = computed(() => userStore.currentTheme);
+const welcome = computed(() => uprnStore.welcome);
+const date_registered = computed(() => uprnStore.date_registered);
 
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
