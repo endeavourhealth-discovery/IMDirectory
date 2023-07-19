@@ -2,7 +2,6 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash";
 
 function setupQueryBuilderActions() {
@@ -13,7 +12,7 @@ function setupQueryBuilderActions() {
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
-  const addMode: Ref<"editProperty" | "addMatch" | "addSubMatch"> = ref("addMatch");
+  const addMode: Ref<"editProperty" | "addBefore" | "addAfter"> = ref("addAfter");
 
   function addOrEdit(match: Match, parentMatchList: Match[] | undefined, index: number, direct: Match[], nested: Match[]) {
     switch (addMode.value) {
@@ -29,18 +28,18 @@ function setupQueryBuilderActions() {
         }
         break;
 
-      case "addMatch":
+      case "addAfter":
         if (isArrayHasLength(parentMatchList))
           for (const newMatch of direct.concat(nested)) {
-            add(parentMatchList!, newMatch, index);
+            parentMatchList!.splice(index + 1, 0, newMatch);
           }
         break;
 
-      case "addSubMatch":
-        if (!isArrayHasLength(match.match)) match.match = [];
-        for (const newMatch of direct.concat(nested)) {
-          match.match!.push(newMatch);
-        }
+      case "addBefore":
+        if (isArrayHasLength(parentMatchList))
+          for (const newMatch of direct.concat(nested)) {
+            parentMatchList!.splice(index ? index - 1 : index, 0, newMatch);
+          }
         break;
 
       default:
@@ -59,11 +58,6 @@ function setupQueryBuilderActions() {
       }
 
     showAddDialog.value = false;
-  }
-
-  function add(matches: Match[], match: Match, index: number) {
-    if (index !== matches.length) matches.splice(index + 1, 0, match);
-    else matches.push(match);
   }
 
   function view() {
@@ -195,7 +189,6 @@ function setupQueryBuilderActions() {
   }
 
   return {
-    add,
     addOrEdit,
     updateProperties,
     view,

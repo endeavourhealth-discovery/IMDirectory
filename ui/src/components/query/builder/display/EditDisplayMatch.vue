@@ -171,16 +171,16 @@ function getSingleRCOptions() {
       icon: PrimeIcons.PLUS,
       items: [
         {
-          label: "Below",
+          label: "Before",
           command: () => {
-            addMode.value = "addMatch";
+            addMode.value = "addBefore";
             showAddDialog.value = true;
           }
         },
         {
-          label: "Nested",
+          label: "After",
           command: () => {
-            addMode.value = "addSubMatch";
+            addMode.value = "addAfter";
             showAddDialog.value = true;
           }
         }
