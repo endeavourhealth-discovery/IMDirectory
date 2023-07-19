@@ -1,7 +1,7 @@
 import { IM, SHACL } from "../vocabulary";
 import { TreeNode } from "../interfaces";
 import { Match, Property } from "../interfaces/AutoGen";
-import { isFolder, isProperty, isRecordModel } from "./ConceptTypeMethods";
+import { isFolder, isProperty, isQuery, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 import { cloneDeep } from "lodash";
@@ -10,8 +10,15 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
   const directMatches: Match[] = [];
   const nestedMatches: Match[] = [];
 
+  const queryMatches = treeNodeProperties.filter(prop => isQuery(prop.conceptTypes));
+  const directProperties = treeNodeProperties.filter(prop => !isNestedProperty(prop) && !isQuery(prop.conceptTypes));
   const nestedProperties = treeNodeProperties.filter(prop => isNestedProperty(prop));
-  const directProperties = treeNodeProperties.filter(prop => !isNestedProperty(prop));
+
+  if (isArrayHasLength(queryMatches)) {
+    for (const queryMatchNode of queryMatches) {
+      directMatches.push({ "@id": queryMatchNode.data, name: queryMatchNode.label });
+    }
+  }
 
   if (isArrayHasLength(directProperties)) {
     const match: Match = { property: [] };
