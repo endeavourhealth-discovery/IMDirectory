@@ -244,8 +244,8 @@ function getSingleRCOptions() {
       }
     };
 
-    if (hasValue.value && !hasProperty.value) singleRCOptions.splice(1, 0, editOption);
-    else singleRCOptions.splice(0, 1, editOption);
+    if (isObjectHasKeys(props.match, ["@type"]) && hasProperty.value) singleRCOptions.splice(0, 1, editOption);
+    else if (hasValue.value) singleRCOptions.splice(1, 0, editOption);
   }
 
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
