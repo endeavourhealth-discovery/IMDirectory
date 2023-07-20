@@ -44,7 +44,7 @@ const AuthService = {
     try {
       const user = await Auth.signIn(username, password);
       if (isObjectHasKeys(user, ["challengeName"])) {
-        return { status: 403, message: user.challengeName, error: undefined, user: { username: user.username } as User };
+        return { status: 403, message: user.challengeName, error: undefined, user: user };
       }
       const signedInUser = {
         id: user.attributes.sub,
@@ -56,7 +56,7 @@ const AuthService = {
         avatar: user.attributes["custom:avatar"],
         roles: user.signInUserSession?.accessToken?.payload["cognito:groups"] || []
       } as User;
-      return { status: 200, message: "Login successful", error: undefined, user: signedInUser } as CustomAlert;
+      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
       if (err.code === "UserNotConfirmedException") {
         return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
@@ -182,6 +182,30 @@ const AuthService = {
         roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] || []
       } as User;
       return { status: 200, message: "User authenticated successfully", error: undefined, user: authenticatedUser } as CustomAlert;
+    } catch (err: any) {
+      return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
+    }
+  },
+
+  async getMfaToken(user: any): Promise<string> {
+    return await Auth.setupTOTP(user);
+  },
+
+  async mfaSignIn(user: any, mfaToken: string) {
+    try {
+      await Auth.verifyTotpToken(user, mfaToken);
+      const authorizedUser = await Auth.currentAuthenticatedUser();
+      const signedInUser = {
+        id: authorizedUser.attributes.sub,
+        username: authorizedUser.username,
+        firstName: authorizedUser.attributes["custom:forename"],
+        lastName: authorizedUser.attributes["custom:surname"],
+        email: authorizedUser.attributes.email,
+        password: "",
+        avatar: authorizedUser.attributes["custom:avatar"],
+        roles: authorizedUser.signInUserSession?.accessToken?.payload["cognito:groups"] || []
+      } as User;
+      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
       return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
     }

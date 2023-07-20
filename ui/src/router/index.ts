@@ -15,6 +15,8 @@ const PasswordEdit = () => import("@/components/auth/PasswordEdit.vue");
 const Register = () => import("@/components/auth/Register.vue");
 const UserDetails = () => import("@/components/auth/UserDetails.vue");
 const UserEdit = () => import("@/components/auth/UserEdit.vue");
+const MFASetup = () => import("@/components/auth/MFASetup.vue");
+const MFALogin = () => import("@/components/auth/MFALogin.vue");
 const Creator = () => import("@/views/Creator.vue");
 const TypeSelector = () => import("@/components/creator/TypeSelector.vue");
 const Editor = () => import("@/views/Editor.vue");
@@ -156,6 +158,16 @@ const routes: Array<RouteRecordRaw> = [
         path: "password-recovery/submit:returnUrl?",
         name: "ForgotPasswordSubmit",
         component: ForgotPasswordSubmit
+      },
+      {
+        path: "mfa-setup",
+        name: "MFASetup",
+        component: MFASetup
+      },
+      {
+        path: "mfa-login",
+        name: "MFALogin",
+        component: MFALogin
       }
     ]
   },

@@ -43,6 +43,9 @@ import { faGear } from "@fortawesome/pro-solid-svg-icons/faGear";
 import { faCircleExclamation } from "@fortawesome/pro-solid-svg-icons/faCircleExclamation";
 import { faCookieBite } from "@fortawesome/pro-solid-svg-icons/faCookieBite";
 import { faXmark } from "@fortawesome/pro-solid-svg-icons/faXmark";
+import { faShieldHalved } from "@fortawesome/pro-solid-svg-icons/faShieldHalved";
+import { faCircleInfo } from "@fortawesome/pro-solid-svg-icons/faCircleInfo";
+import { faCircleQuestion } from "@fortawesome/pro-solid-svg-icons/faCircleQuestion";
 
 export default function addSolidIcons(library: Library) {
   library.add(
@@ -85,7 +88,10 @@ export default function addSolidIcons(library: Library) {
     faGear,
     faCircleExclamation,
     faCookieBite,
-    faXmark
+    faXmark,
+    faShieldHalved,
+    faCircleInfo,
+    faCircleQuestion
   );
 }
 // #v-endif

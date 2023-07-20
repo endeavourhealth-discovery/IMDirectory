@@ -101,18 +101,50 @@ function handleSubmit(): void {
           }
         });
       } else if (res.status === 403 && res.message === "NEW_PASSWORD_REQUIRED") {
-        Swal.fire({
-          icon: "warning",
-          title: "New password required",
-          text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
-          showCloseButton: false,
-          showCancelButton: false,
-          confirmButtonText: "Reset password"
-        }).then((result: SweetAlertResult) => {
-          if (result.isConfirmed) {
-            router.push({ name: "ForgotPassword" });
-          }
-        });
+        if (res.message === "NEW_PASSWORD_REQUIRED") {
+          Swal.fire({
+            icon: "warning",
+            title: "New password required",
+            text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+            showCloseButton: false,
+            showCancelButton: false,
+            confirmButtonText: "Reset password"
+          }).then((result: SweetAlertResult) => {
+            if (result.isConfirmed) {
+              router.push({ name: "ForgotPassword" });
+            }
+          });
+        } else if (res.message === "MFA_SETUP") {
+          const mfaToken = await AuthService.getMfaToken(res.userRaw);
+          const qrCode = "otpauth://totp/AWSCognito:" + res.user?.username + "?secret=" + mfaToken + "&issuer=Cognito";
+          Swal.fire({
+            icon: "info",
+            title: "Redirecting to 2-factor authentication setup...",
+            text: "A request for 2-factor authentication was made. We will redirect you to the 2-factor authentiacation setup page shortly.",
+            timer: 600,
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+            showCloseButton: true
+          }).then(() => {
+            router.push({ name: "MFASetup", params: { QRCode: qrCode, user: { ...res.userRaw } } });
+          });
+        } else if (res.message === "SOFTWARE_TOKEN_MFA") {
+          Swal.fire({
+            icon: "info",
+            title: "Redirecting to 2-factor authentication...",
+            text: "2-factor authentication is enabled for this account. Redirecting to 2-factor input page shortly.",
+            timer: 600,
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+            showCloseButton: true
+          }).then(result => {
+            router.push({ name: "MFALogin" });
+          });
+        }
       } else {
         Swal.fire({
           icon: "error",
