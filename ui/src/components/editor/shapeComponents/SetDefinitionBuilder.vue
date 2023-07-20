@@ -34,6 +34,7 @@
       </div>
     </div>
     <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
+    <span class="error-message" v-if="validationErrorMessage">{{ validationErrorMessage }}</span>
   </div>
   <Builder :showDialog="showDialog" :eclString="ecl" @eclSubmitted="updateECL" @closeDialog="() => (showDialog = false)" @eclConversionError="updateError" />
   <AddByCodeList :showAddByFile="showAddByFileDialog" :showAddByList="showAddByCodeListDialog" @closeDialog="closeAddByDialog" @addCodeList="processCodeList" />
@@ -77,10 +78,12 @@ const eclErrorMessage = ref("");
 const loading = ref(false);
 const showNames = ref(false);
 const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 
 const key = props.shape.path["@id"];
 const buttonOptions = [
@@ -108,7 +111,7 @@ watch(
   () => _.cloneDeep(eclAsQuery.value),
   async () => {
     updateEntity();
-    if (updateValidity) updateValidity(props.shape, editorEntity, key, invalid);
+    if (updateValidity && valueVariableMap) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
   }
 );
 

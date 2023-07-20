@@ -1,58 +1,25 @@
 <template>
-  <div class="feature" v-for="(match, index) of matches">
-    <div>
-      <span v-if="index" v-html="!parentMatch ? getDisplayFromLogic('and') : getDisplayFromLogic(parentMatch.boolMatch!)"></span>
-      <span v-if="match.exclude" class="include-title" style="color: red"> exclude if </span>
-      <span v-if="match.description" v-html="match.description"> </span>
-
-      <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
-      <span v-if="isArrayHasLength(match.match)">
-        <RecursiveQueryDisplay v-if="match.match" :include="true" :matches="match.match" :parent-match="match" :full-query="fullQuery" />
-      </span>
-      <span v-if="isArrayHasLength(match.path)">
-        <span v-if="isObjectHasKeys(match.path![0].match, ['where']) && isArrayHasLength(match.path![0].match!.where)">
-          <span v-if="match.path![0].match!.where!.length == 1">
-            <span
-              v-if="hasNodeRef(match.path![0].match!.where![0])"
-              v-html="match.path![0].match!.where![0].description"
-              @click="onNodeRefClick(match.path![0].match!.where![0], $event)"
-            ></span>
-            <span
-              v-else-if="hasBigList(match.path![0].match!.where![0])"
-              v-html="match.path![0].match!.where![0].description"
-              @click="onWhereInClick(match.path![0].match!.where![0], $event)"
-            ></span>
-            <span v-else v-html="match.path![0].match!.where![0].description"></span>
-            <span v-if="isArrayHasLength(match.path![0].match!.where![0].where)">
-              <RecursiveWhereDisplay
-                :wheres="match.path![0].match!.where![0].where!"
-                :parent-match="parentMatch"
-                :parent-where="match.path![0].match!.where![0]"
-                :full-query="fullQuery"
-              />
-            </span>
-          </span>
-
-          <RecursiveWhereDisplay v-else :wheres="match.path![0].match!.where!" :parent-match="match.path![0].match" :full-query="fullQuery" />
-        </span>
-      </span>
-      <span v-if="isObjectHasKeys(match, ['where']) && isArrayHasLength(match.where)">
-        <span v-if="match.where!.length == 1">
-          <span v-if="hasNodeRef(match.where![0])" v-html="match.where![0].description" @click="onNodeRefClick(match.where![0], $event)"></span>
-          <span v-else-if="hasBigList(match.where![0])" v-html="match.where![0].description" @click="onWhereInClick(match.where![0], $event)"></span>
-          <span v-else v-html="match.where![0].description"></span>
-          <span v-if="isArrayHasLength(match.where![0].where)">
-            <RecursiveWhereDisplay :wheres="match.where![0].where!" :parent-match="parentMatch" :parent-where="match.where![0]" :full-query="fullQuery" />
-          </span>
-        </span>
-
-        <RecursiveWhereDisplay v-else :wheres="match.where!" :parent-match="match" :full-query="fullQuery" />
-      </span>
-      <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
-
-      <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
-    </div>
+  <div :class="match.description || match.nodeRef ? 'feature' : ''">
+    <span v-if="match.description" v-html="match.description"> </span>
+    <span v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)" @click="onNodeRefClick(match, $event)"></span>
+    <RecursiveQueryDisplay
+      v-if="isArrayHasLength(match.match)"
+      v-for="nestedMatch of match.match"
+      :match="nestedMatch"
+      :parent-match="match"
+      :full-query="fullQuery"
+    />
+    <RecursivePropertyDisplay
+      v-if="isArrayHasLength(match.property)"
+      v-for="property of match.property"
+      :property="property"
+      :parent-match="match"
+      :full-query="fullQuery"
+    />
+    <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
+    <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
+
   <OverlayPanel ref="op"> <QueryOverlay :full-query="fullQuery" :variable-name="getNodeRef(clickedNodeRef)" /> </OverlayPanel>
   <OverlayPanel ref="op1">
     <ListOverlay :list="list" />
@@ -60,47 +27,34 @@
 </template>
 
 <script setup lang="ts">
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, Query, Where } from "@im-library/interfaces/AutoGen";
-import { PropType, Ref, ref } from "vue";
-import RecursiveWhereDisplay from "./RecursiveWhereDisplay.vue";
-import { getDisplayFromLogic, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { Match, Node, Query, Property } from "@im-library/interfaces/AutoGen";
+import { Ref, ref } from "vue";
+import RecursivePropertyDisplay from "./RecursivePropertyDisplay.vue";
+import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import QueryOverlay from "./QueryOverlay.vue";
 import ListOverlay from "./ListOverlay.vue";
 
 interface Props {
   fullQuery: Query;
   parentMatch?: Match;
-  matches: Match[];
+  match: Match;
 }
 
 const props = defineProps<Props>();
 
 const op: Ref<any> = ref();
-const clickedNodeRef: Ref<Where | Match> = ref({} as Where);
+const clickedNodeRef: Ref<Property | Match> = ref({} as Property);
 const list: Ref<Node[]> = ref([]);
 const op1: Ref<any> = ref();
 
-function hasNodeRef(where: Where) {
-  return isObjectHasKeys(where, ["nodeRef"]) || isObjectHasKeys(where.relativeTo, ["nodeRef"]);
-}
-
-function onNodeRefClick(whereOrMatch: Where | Match, event: any) {
-  clickedNodeRef.value = whereOrMatch;
+function onNodeRefClick(propertyOrMatch: Property | Match, event: any) {
+  clickedNodeRef.value = propertyOrMatch;
   op.value.toggle(event);
 }
 
-function getNodeRef(whereOrMatch: Where | Match) {
-  return (whereOrMatch.nodeRef ?? (whereOrMatch as Where)?.relativeTo?.nodeRef) as string;
-}
-
-function hasBigList(where: Where) {
-  return (isArrayHasLength(where.in) && where.in!.length > 1) || (isArrayHasLength(where.notIn) && where.notIn!.length > 1);
-}
-
-function onWhereInClick(where: Where, event: any) {
-  list.value = (where.in ?? where.notIn) as Node[];
-  op1.value.toggle(event);
+function getNodeRef(propertyOrMatch: Property | Match) {
+  return (propertyOrMatch.nodeRef ?? (propertyOrMatch as Property)?.relativeTo?.nodeRef) as string;
 }
 </script>
 

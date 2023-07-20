@@ -89,7 +89,8 @@ const ConceptSetShape: FormGenerator = {
               },
               function: {
                 "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
+              },
+              validation: { "@id": IM.validation.IS_IRI }
             },
             {
               comment: "name or main term of concept",
@@ -269,43 +270,6 @@ const ConceptSetShape: FormGenerator = {
                   minCount: 1,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
-                  }
-                }
-              ]
-            },
-            {
-              label: "Property group - contained in array builder",
-              name: "isContainedIn",
-              showTitle: true,
-              order: 1,
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.ARRAY_BUILDER
-              },
-              validation: {
-                "@id": IM.validation.HAS_PARENT
-              },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-              path: {
-                "@id": IM.IS_CONTAINED_IN
-              },
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  name: "Entity",
-                  order: 1,
-                  minCount: 1,
-                  builderChild: true,
-                  componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  },
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
-                  path: {
-                    "@id": IM.IS_CONTAINED_IN
                   }
                 }
               ]

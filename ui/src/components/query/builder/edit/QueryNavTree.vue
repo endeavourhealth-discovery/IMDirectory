@@ -20,7 +20,7 @@
 
 <script async setup lang="ts">
 import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -31,12 +31,14 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Property } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 
 interface Props {
   baseType: string;
   editMatch: Match;
+  variableMap: Map<string, any>;
+  addMode: "editProperty" | "addBefore" | "addAfter";
 }
 const props = defineProps<Props>();
 
@@ -51,7 +53,7 @@ const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, uns
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  await populateCheckBoxes(props.editMatch);
+  if (props.addMode === "editProperty") await populateCheckBoxes(props.editMatch);
   loading.value = false;
 });
 
@@ -66,36 +68,9 @@ async function onCheckInput(check: boolean, node: TreeNode) {
 }
 
 async function populateCheckBoxes(match: Match) {
-  if (isObjectHasKeys(match, ["where"]) && isArrayHasLength(match.where)) {
-    for (const whereValue of match.where!) {
-      if ((match as any).key) {
-        const key = (match as any).key;
-        await selectByKey(key);
-      } else if (!match.path) {
-        const key = whereValue["@id"]!;
-        await selectByIri(key, root.value[0].children!);
-      } else {
-        const nodeKeys = [] as string[];
-        const key = whereValue["@id"]!;
-        await selectByPath(match.path, key, root.value[0].children!, nodeKeys);
-        if (isArrayHasLength(nodeKeys)) (match as any).key = nodeKeys[0];
-      }
-    }
-  }
-}
-
-async function selectByKey(key: string) {
-  const keys = key.split("-");
-  const lastKey = keys.length;
-  let nodes = root.value;
-  for (const [index, keySplit] of keys.entries()) {
-    if (index !== lastKey - 1) {
-      const parentNode = nodes[+keySplit];
-      expandedKeys.value[parentNode.key!] = true;
-      if (!isArrayHasLength(parentNode.children)) await handleTreeNodeExpand(parentNode);
-      if (isArrayHasLength(parentNode.children)) nodes = parentNode.children!;
-    } else {
-      select(nodes[+keySplit]);
+  if (isArrayHasLength(match.property)) {
+    for (const property of match.property!) {
+      selectByIri(property["@id"]!, root.value);
     }
   }
 }
@@ -112,37 +87,6 @@ async function selectByIri(iri: string, nodes: TreeNode[]) {
         await handleTreeNodeExpand(found);
         if (isArrayHasLength(found.children)) selectByIri(iri, found.children!);
       }
-    }
-  }
-}
-
-async function selectByPath(path: any, propertyIri: string, nodes: TreeNode[], nodeKeys: string[]) {
-  const iriUnresolved = path["@id"] ?? path["@type"];
-  const iri = resolveIri(iriUnresolved);
-  let foundLeafProperty = nodes.find(node => node.data === propertyIri);
-  let found = nodes.find(node => node.data === iri);
-  let foundNested = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
-
-  if (foundLeafProperty) {
-    select(foundLeafProperty);
-  } else if (found) {
-    expandedKeys.value[found.key!] = true;
-    if (!isArrayHasLength(found)) await handleTreeNodeExpand(found);
-    if (isArrayHasLength(found.children)) {
-      if (path.path || path.node) await selectByPath(path.node ?? path.path, propertyIri, found.children!, nodeKeys);
-      else {
-        foundLeafProperty = found.children!.find(node => node.data === propertyIri);
-        if (foundLeafProperty) {
-          select(foundLeafProperty);
-          nodeKeys.push(foundLeafProperty.key!);
-        }
-      }
-    }
-  } else if (foundNested) {
-    expandedKeys.value[foundNested.key!] = true;
-    if (!isArrayHasLength(foundNested.children)) await handleTreeNodeExpand(found);
-    if (isArrayHasLength(foundNested.children) && (path.path || path.node)) {
-      await selectByPath(path, propertyIri, foundNested.children!, nodeKeys);
     }
   }
 }
@@ -187,7 +131,7 @@ async function onNodeExpand(node: TreeNode) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
       let groupNode = node.children?.find(child => child.data === groupRef["@id"]);
       if (!groupNode) {
-        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, false, node, groupRef.order);
+        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, false, node, undefined, groupRef.order);
         node.children?.push(groupNode);
       }
       const propertyNode = buildTreeNodeFromTTProperty(prop, groupNode);
@@ -230,15 +174,54 @@ async function onClassExpand(node: TreeNode) {
 }
 
 async function addParentFoldersToRoot() {
-  if (props.baseType) {
-    const resolvedIri = resolveIri(props.baseType);
-    await addBaseEntityToRoot(resolvedIri);
+  const resolvedIri = resolveIri(props.baseType);
+  if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
+  if (props.variableMap && props.variableMap.size) addVariableNodes();
+}
+
+function addVariableNodes() {
+  for (const [key, object] of props.variableMap.entries()) {
+    const types: string[] = [];
+    getVariableTypesFromMatch(object, types);
+    for (const typeIri of types) {
+      const name = key + " (" + getNameFromRef({ "@id": typeIri }) + ")";
+      const treeNode = createTreeNode(name, typeIri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] }, key);
+      root.value.push(treeNode);
+    }
   }
+}
+
+function getVariableTypesFromMatch(match: Match, types: string[]) {
+  const type = resolveIri(match["@type"] || "");
+  if (type && !types.includes(type)) types.push(type);
+  if (isArrayHasLength(match.match))
+    for (const nestedMatch of match.match!) {
+      getVariableTypesFromMatch(nestedMatch, types);
+    }
+
+  if (isArrayHasLength(match.property))
+    for (const property of match.property!) {
+      getVariableTypesFromProperty(property, types);
+    }
+
+  if (match.nodeRef && props.variableMap.has(match.nodeRef)) {
+    const nodeRefMatch = props.variableMap.get(match.nodeRef);
+    getVariableTypesFromMatch(nodeRefMatch, types);
+  }
+}
+
+function getVariableTypesFromProperty(property: Property, types: string[]) {
+  if (isObjectHasKeys(property, ["match"])) getVariableTypesFromMatch(property.match!, types);
+
+  if (isArrayHasLength(property.property))
+    for (const nestedProperty of property.property!) {
+      getVariableTypesFromProperty(nestedProperty, types);
+    }
 }
 
 async function addBaseEntityToRoot(iri: string) {
   const name = getNameFromRef({ "@id": iri });
-  const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, false, undefined);
+  const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
   root.value.push(parent);

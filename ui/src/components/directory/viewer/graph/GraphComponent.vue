@@ -254,13 +254,17 @@ function drawGraph() {
     .on("dblclick", (d: any) => dblclick(d))
     .on("click", (d: any) => click(d))
     .on("mouseover", (d: any) => {
+      const graphContainer = d3.select("#force-layout-graph").node() as Element;
       const name = d["target"]["__data__"]["data"]["name"];
       if (name !== undefined && typeof name === "string" && !name.startsWith("middle-node")) {
         div.transition().duration(200).style("opacity", 0.9);
         div
           .html(name + "<div/> Press ctr+click to navigate")
-          .style("left", d.layerX + "px")
-          .style("top", d.layerY + 10 + "px");
+          .style(
+            "left",
+            (d.target.getBoundingClientRect().left + d.target.getBoundingClientRect().right) / 2 - graphContainer.getBoundingClientRect().x + 10 + "px"
+          )
+          .style("top", (d.target.getBoundingClientRect().top + d.target.getBoundingClientRect().bottom) / 2 - graphContainer.getBoundingClientRect().y + "px");
       }
     })
     .on("mouseout", (_d: any) => {

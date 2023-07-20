@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-06-26 14:57:10.
+// Generated using typescript-generator version 3.2.1263 on 2023-07-06 10:18:48.
 
 /**
  * Structure containing search request parameters and filters
@@ -175,8 +175,8 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     unit?: string;
-    relativeTo?: Property;
     operator?: Operator;
+    relativeTo?: PropertyRef;
 }
 
 export interface Case {
@@ -191,7 +191,7 @@ export interface ContextMap {
 }
 
 export interface Delete {
-    where?: Where;
+    where?: Property;
     subject?: Element;
     inverse?: boolean;
     predicate?: Element;
@@ -206,8 +206,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause {
@@ -222,30 +222,26 @@ export interface IriLD {
     name?: string;
 }
 
-export interface Match extends Node, Whereable {
+export interface Match extends Node {
     exclude?: boolean;
     nodeRef?: string;
-    boolMatch?: Bool;
-    boolPath?: Bool;
     description?: string;
     graph?: Element;
-    path?: Path[];
     match?: Match[];
+    bool?: Bool;
+    in?: Node[];
+    property?: Property[];
     orderBy?: OrderLimit[];
 }
 
 export interface Node extends Element {
 }
 
-export interface OrderLimit extends Property {
+export interface OrderLimit extends PropertyRef {
     direction?: Order;
     limit?: number;
     description?: string;
     id?: string;
-}
-
-export interface Path extends Property {
-    match?: Match;
 }
 
 export interface PathDocument {
@@ -258,22 +254,30 @@ export interface PathQuery extends TTIriRef {
     depth?: number;
 }
 
-export interface Property extends Element {
+export interface Property extends PropertyRef, Assignable {
+    description?: string;
+    bool?: Bool;
+    match?: Match;
+    property?: Property[];
+    range?: Range;
+    in?: Node[];
+    notIn?: Node[];
+    anyRoleGroup?: boolean;
+    valueLabel?: string;
+    null?: boolean;
+}
+
+export interface PropertyRef extends Element {
     inverse?: boolean;
     nodeRef?: string;
     valueVariable?: string;
 }
 
-export interface Query extends TTIriRef {
-    match?: Match[];
-    groupBy?: Property[];
-    orderBy?: OrderLimit[];
-    type?: string;
-    set?: string;
+export interface Query extends Match {
     activeOnly?: boolean;
-    usePrefixes?: boolean;
-    query?: Query[];
     return?: Return[];
+    query?: Query[];
+    groupBy?: PropertyRef[];
 }
 
 export interface QueryEntity extends Entity {
@@ -327,21 +331,6 @@ export interface Update extends TTIriRef {
 export interface Value extends Assignable {
 }
 
-export interface Where extends Property, Assignable, Whereable {
-    description?: string;
-    range?: Range;
-    in?: Node[];
-    notIn?: Node[];
-    anyRoleGroup?: boolean;
-    valueLabel?: string;
-    null?: boolean;
-}
-
-export interface Whereable {
-    boolWhere?: Bool;
-    where?: Where[];
-}
-
 export interface EntityDocument {
     id?: number;
     iri?: string;
@@ -358,6 +347,7 @@ export interface EntityDocument {
     weighting?: number;
     match?: string;
     isA?: TTIriRef[];
+    memberOf?: TTIriRef[];
     isDescendentOf?: TTIriRef[];
 }
 
@@ -390,8 +380,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {

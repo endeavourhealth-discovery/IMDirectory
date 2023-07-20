@@ -2,20 +2,61 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-
-import { parent } from "jsonpath";
+import { cloneDeep } from "lodash";
 
 function setupQueryBuilderActions() {
   const showViewDialog: Ref<boolean> = ref(false);
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
+  const allowDrop: Ref<boolean> = ref(true);
+  const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
+  const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
+  const addMode: Ref<"editProperty" | "addBefore" | "addAfter"> = ref("addAfter");
 
-  function add(matches: Match[], match: Match, index: number) {
-    showAddDialog.value = true;
-    if (index !== matches.length) matches.splice(index + 1, 0, match);
-    else matches.push(match);
+  function addOrEdit(match: Match, parentMatchList: Match[] | undefined, index: number, direct: Match[], nested: Match[]) {
+    switch (addMode.value) {
+      case "editProperty":
+        if (!isArrayHasLength(match.property)) match.property = [];
+        for (const newMatch of direct) {
+          match.property = newMatch.property;
+        }
+
+        if (!isArrayHasLength(match.match) && isArrayHasLength(nested)) match.match = [];
+        for (const newMatch of nested) {
+          match.match!.push(newMatch);
+        }
+        break;
+
+      case "addAfter":
+        if (isArrayHasLength(parentMatchList))
+          for (const newMatch of direct.concat(nested)) {
+            parentMatchList!.splice(index + 1, 0, newMatch);
+          }
+        break;
+
+      case "addBefore":
+        if (isArrayHasLength(parentMatchList))
+          for (const newMatch of direct.concat(nested)) {
+            parentMatchList!.splice(index, 0, newMatch);
+          }
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  function updateProperties(match: Match, updatedMatch: Match) {
+    const copy = cloneDeep(match.property);
+    match.property = [];
+    if (isArrayHasLength(updatedMatch.property))
+      for (const updatedProperty of updatedMatch.property!) {
+        const found = copy?.find(prop => prop["@id"] === updatedProperty["@id"]);
+        if (found) match.property.push(found);
+        else match.property.push(updatedProperty);
+      }
+
     showAddDialog.value = false;
   }
 
@@ -45,27 +86,31 @@ function setupQueryBuilderActions() {
     if (isArrayHasLength(matches)) matches.splice(matchIndex, 1);
   }
 
-  function group(selectedMatches: SelectedMatch[], parentMatch: Match, matches: Match[]) {
+  function group(selectedMatches: SelectedMatch[], parentMatch: Match[] | undefined, matches: Match[]) {
     let index = selectedMatches[0].index;
+    let initialParent = selectedMatches[0].parent;
     const groupedMatch = { boolMatch: "and", match: [] } as Match;
 
     for (const selectedMatch of selectedMatches) {
+      if (selectedMatch.parent !== initialParent) {
+        return;
+      }
       if (selectedMatch.index < index) index = selectedMatch.index;
       groupedMatch.match!.push(selectedMatch.selected);
     }
 
-    if (isObjectHasKeys(parentMatch, ["match"]) && isArrayHasLength(parentMatch.match)) {
-      groupedMatch.match!.sort((a, b) => parentMatch.match!.indexOf(a) - parentMatch.match!.indexOf(b));
-      parentMatch.match!.splice(index, 0, groupedMatch);
+    if (isArrayHasLength(parentMatch)) {
+      groupedMatch.match?.sort((a, b) => parentMatch!.indexOf(a) - parentMatch!.indexOf(b));
+      parentMatch!.splice(index, 0, groupedMatch);
     } else {
       groupedMatch.match!.sort((a, b) => matches.indexOf(a) - matches.indexOf(b));
       matches.splice(index, 0, groupedMatch);
     }
 
     for (const selectedMatch of selectedMatches) {
-      if (isObjectHasKeys(parentMatch, ["match"]) && isArrayHasLength(parentMatch.match)) {
-        parentMatch.match!.splice(
-          parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+      if (isArrayHasLength(parentMatch)) {
+        parentMatch!.splice(
+          parentMatch!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
           1
         );
       } else {
@@ -76,57 +121,59 @@ function setupQueryBuilderActions() {
       }
     }
   }
-  // if (parentMatch) {
-  //   const firstSelected = selectedMatches[0];
-  //   const indexOfFirstSelected = parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-  //   const groupedMatch = { boolMatch: "and", match: [] } as Match;
-  //   for (const selectedMatch of selectedMatches) {
-  //     selectedMatch.memberOfList;
-  //     groupedMatch.match!.push(selectedMatch.selected);
-  //     parentMatch.match!.splice(indexOfFirstSelected, 1);
-  //   }
-  //   // remove();
-  //   // describeMatch([groupedMatch], "match");
-  //   parentMatch.match!.splice(indexOfFirstSelected, 0, groupedMatch);
-  // }
 
   function ungroup(index: number, selectedMatches: SelectedMatch[], parentMatch: Match, matches: Match[]) {
     for (const selectedMatch of selectedMatches) {
       if (isArrayHasLength(selectedMatch.selected.match)) {
         if (index !== -1) matches.splice(index, 1);
         for (const nestedMatch of selectedMatch.selected.match!.reverse()) {
-          matches.splice(index, 0, nestedMatch);
+          const unnestedMatch = { boolMatch: "and", match: [nestedMatch] } as Match;
+          matches.splice(index, 0, unnestedMatch);
         }
       }
     }
   }
 
-  // function group(matchIndex: number) {
-  //   const firstSelected = selectedMatches.value[0];
-  //   const indexOfFirstSelected = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(firstSelected));
-  //   const groupedMatch = { boolMatch: "and", match: [] } as Match;
-  //   for (const selectedMatch of selectedMatches.value) {
-  //     const index = query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch));
-  //     groupedMatch.match!.splice(index, 0, selectedMatch);
-  //     console.log(index);
-  //   }
-  //   for (const selectedMatch of selectedMatches.value) remove(query.value.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch)));
-  //   describeMatch([groupedMatch], "match");
-  //   query.value.match!.splice(indexOfFirstSelected, 0, groupedMatch);
-  // }
+  function dragStart(event: any, data: any) {
+    dragged.value = data;
+    event.dataTransfer.setData("matchData", JSON.stringify(data));
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.dropEffect = "move";
+  }
 
-  // function ungroup(matchIndex: number) {
-  //   remove(matchIndex);
-  //   const tempArray = selectedMatches.value[0].match!.reverse();
-  //   for (const ungroupedMatch of tempArray) query.value.match!.splice(matchIndex, 0, ungroupedMatch);
-  // }
+  function dragEnter(event: any, data: any) {
+    if (dragged.value !== data) {
+      draggedParent.value = data;
+      allowDrop.value = true;
+    } else {
+      allowDrop.value = false;
+    }
+  }
+
+  async function dragDrop(event: any, parentMatch?: Match, parentMatchList?: Match[]) {
+    const data = event.dataTransfer.getData("matchData");
+    if (!allowDrop.value) {
+      event.preventDefault();
+    } else if (data && draggedParent.value && allowDrop.value) {
+      if (draggedParent.value.match === undefined) draggedParent.value.match = [];
+      const parsedMatchData = JSON.parse(data);
+      draggedParent.value.match.push(parsedMatchData);
+      const list = parentMatch?.match ?? parentMatchList!;
+      const foundIndex = list.findIndex(match => JSON.stringify(match) === JSON.stringify(parsedMatchData));
+      if (foundIndex !== -1) {
+        list.splice(foundIndex, 1);
+      }
+      draggedParent.value = {};
+    }
+  }
 
   function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, memberOfList?: Match[]) {
+    event.stopPropagation();
     const selectedMatch = { index: index, selected: match } as SelectedMatch;
     if (parentMatch) selectedMatch.parent = parentMatch;
     else if (memberOfList) selectedMatch.memberOfList = memberOfList;
 
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
       if (!isSelected) {
         selectedMatches.push(selectedMatch);
       } else {
@@ -142,7 +189,8 @@ function setupQueryBuilderActions() {
   }
 
   return {
-    add,
+    addOrEdit,
+    updateProperties,
     view,
     keepAs,
     moveUp,
@@ -150,11 +198,15 @@ function setupQueryBuilderActions() {
     remove,
     group,
     ungroup,
+    dragStart,
+    dragEnter,
+    dragDrop,
     select,
     showViewDialog,
     showAddDialog,
     showKeepAsDialog,
-    showAddBaseTypeDialog
+    showAddBaseTypeDialog,
+    addMode
   };
 }
 

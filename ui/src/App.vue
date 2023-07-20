@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef, Ref } from "vue";
+import { onMounted, ref, computed, ComputedRef, Ref, watch } from "vue";
 import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
@@ -36,17 +36,19 @@ import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import {useUprnStore} from "@/stores/uprnStore";
+import setupChangeTheme from "@/composables/setupChangeTheme";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
 
-const PrimeVue: any = usePrimeVue();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 const uprnStore = useUprnStore();
+
+const { changeTheme } = setupChangeTheme();
 
 const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
 const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
@@ -56,25 +58,27 @@ const currentTheme = computed(() => userStore.currentTheme);
 const welcome = computed(() => uprnStore.welcome);
 const date_registered = computed(() => uprnStore.date_registered);
 
+watch(
+  () => currentTheme.value,
+  newValue => {
+    changeTheme(newValue);
+  }
+);
+
 const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
   await userStore.authenticateCurrentUser();
-  const theme = currentUser.value ? (await UserService.getUserTheme()) ?? "saga-blue" : "saga-blue";
+  await userStore.getAllFromUserDatabase();
+  let theme = "saga-blue";
+  if (currentUser.value) await UserService.getUserTheme();
+  if (currentTheme.value) theme = currentTheme.value;
   changeTheme(theme);
   await setShowBanner();
   loading.value = false;
 });
-
-function changeTheme(newTheme: string) {
-  if (currentTheme.value != newTheme) {
-    PrimeVue.changeTheme("saga-blue", newTheme, "theme-link", () => {
-      userStore.updateCurrentTheme(newTheme);
-    });
-  }
-}
 
 async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");

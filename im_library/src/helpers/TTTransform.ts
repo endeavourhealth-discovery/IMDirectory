@@ -45,6 +45,10 @@ function getNameFromIri(iri: string) {
   return iri;
 }
 
+export function getIriFromRef(ref: any): string {
+  return ref["@id"] ?? ref["@set"] ?? ref["@type"] ?? "";
+}
+
 export function getNameFromRef(ref: any): string {
   if (isObjectHasKeys(ref, ["name"])) return ref.name;
   else if (isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
@@ -55,6 +59,7 @@ export function getNameFromRef(ref: any): string {
 }
 
 export function resolveIri(iri: string) {
+  if (!iri) return undefined;
   const prefixes: any = { im: IM.NAMESPACE, sn: SNOMED.NAMESPACE };
   if (iri.includes("#")) {
     return iri;
@@ -69,5 +74,6 @@ export function resolveIri(iri: string) {
 export default {
   transformTT,
   getNameFromRef,
-  resolveIri
+  resolveIri,
+  getIriFromRef
 };

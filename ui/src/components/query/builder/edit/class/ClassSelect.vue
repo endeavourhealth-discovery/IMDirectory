@@ -1,26 +1,21 @@
 <template>
-  <DirectorySearchDialog v-model:showDialog="showSearchDialog" />
-
   <div class="property-input-container">
-    <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="whereType" />
-    <InputText type="text" placeholder="Value label" v-model:model-value="props.where.valueLabel" />
+    <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="propertyType" />
+    <InputText type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
     <Button label="Save custom set" text severity="info" />
   </div>
-  <div v-if="whereType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
+  <div v-if="propertyType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
     <EntailmentOptionsSelect :entailment-object="editValue" />
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
     <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
+    <DirectorySearchDialog v-model:show-dialog="visible" @update:selected="onSelect" />
   </div>
-  <Dialog v-model:visible="visible" modal header="Value" :style="{ width: '50vw' }">
-    <ValueTreeSelect v-if="showTree" :class-iri="classIri" @close="visible = false" />
-    <ValueListSelect v-else :class-iri="classIri" @close="visible = false" @on-select="onSelect($event)" />
-  </Dialog>
 </template>
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
-import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
+import { isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF } from "@im-library/vocabulary";
 import { onMounted, Ref, ref } from "vue";
@@ -29,18 +24,20 @@ import ValueTreeSelect from "./ValueTreeSelect.vue";
 import ValueListSelect from "./ValueListSelect.vue";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import _ from "lodash";
-import { Node, Where } from "@im-library/interfaces/AutoGen";
+import { Node, Property } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { ConceptSummary } from "@im-library/interfaces";
+import { N } from "vitest/dist/types-2b1c412e";
 
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
 interface Props {
-  where: Where;
+  property: Property;
   classIri: string;
 }
 
 const props = defineProps<Props>();
-const whereType: Ref<string> = ref("in");
+const propertyType: Ref<string> = ref("in");
 const visible: Ref<boolean> = ref(false);
 const showTree: Ref<boolean> = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
@@ -59,23 +56,25 @@ onMounted(async () => {
 });
 
 function initEditValues() {
-  if (isObjectHasKeys(props.where, ["notIn"])) whereType.value = "notIn";
-  else if (isObjectHasKeys(props.where, ["null"])) whereType.value = "isNull";
+  if (isObjectHasKeys(props.property, ["notIn"])) propertyType.value = "notIn";
+  else if (isObjectHasKeys(props.property, ["null"])) propertyType.value = "isNull";
 
-  if (whereType.value && whereType.value !== "isNull") {
-    if (!isArrayHasLength((props.where as any)[whereType.value])) (props.where as any)[whereType.value] = [{} as Node];
-    editValues.value = (props.where as any)[whereType.value];
+  if (propertyType.value && propertyType.value !== "isNull") {
+    if (!isArrayHasLength((props.property as any)[propertyType.value])) (props.property as any)[propertyType.value] = [{} as Node];
+    editValues.value = (props.property as any)[propertyType.value];
   } else {
     editValues.value.push({} as Node);
   }
 }
 
-function onSelect(event: any) {
+function onSelect(cs: ConceptSummary) {
   visible.value = false;
-  editValues.value[selectedIndex.value] = {
-    name: event.name || event.label || getNameFromRef(event),
-    "@id": event["@id"]
-  } as Node;
+  const node = { name: cs.name } as Node;
+  if (isValueSet(cs.entityType)) node["@set"] = cs.iri;
+  if (isRecordModel(cs.entityType)) node["@type"] = cs.iri;
+  else node["@id"] = cs.iri;
+
+  editValues.value[selectedIndex.value] = node;
 }
 
 function openDialog(index: number) {
@@ -102,8 +101,10 @@ function deleteItem(index: number) {
 
 .property-input-container {
   display: flex;
+  flex-wrap: wrap;
+  margin-left: 0.5rem;
+  margin-bottom: 0.5rem;
   width: 100%;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
 }
 </style>
