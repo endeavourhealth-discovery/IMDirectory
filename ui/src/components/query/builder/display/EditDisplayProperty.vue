@@ -1,6 +1,8 @@
 <template>
   <EditProperty v-if="editMode" :property="editProperty" :query-type-iri="queryTypeIri" :match="parentMatch" @on-cancel="editMode = false" @on-save="save" />
-  <div class="property" v-else-if="property.description" v-html="property.description" @dblclick="editMode = true"></div>
+  <div class="property" v-else-if="property.description">
+    <div v-tooltip="'Double click to edit'" v-html="property.description" @dblclick="editMode = true"></div>
+  </div>
 
   <EditDisplayProperty
     v-if="isArrayHasLength(property.property)"
@@ -69,5 +71,6 @@ function save() {
   margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
+  display: flex;
 }
 </style>
