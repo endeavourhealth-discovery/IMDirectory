@@ -23,27 +23,42 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
   if (isArrayHasLength(directProperties)) {
     const match: Match = { property: [] };
     for (const directProperty of directProperties) {
+      if (isObjectHasKeys(directProperty, ["parent"]) && directProperty.parent.hasVariable) match.nodeRef = directProperty.parent.hasVariable;
       match.property!.push(buildPropertyFromTreeNode(directProperty));
     }
     directMatches.push(match);
   }
 
   if (isArrayHasLength(nestedProperties)) {
-    const pathToMatchMap: Map<string, Match> = new Map<string, Match>();
+    const pathToMatchMap: Map<string, { matchItem: Match; hasVariable: string }> = new Map<string, { matchItem: Match; hasVariable: string }>();
 
     for (const nestedProperty of nestedProperties) {
       const path = getParentPath(nestedProperty);
-      if (!pathToMatchMap.has(path)) pathToMatchMap.set(path, { property: [] } as Match);
+      const hasVariable = getHasVariable(nestedProperty);
+      if (!pathToMatchMap.has(path)) pathToMatchMap.set(path, { matchItem: { property: [] } as Match, hasVariable: hasVariable });
       const leafMatch = pathToMatchMap.get(path);
-      leafMatch!.property!.push(buildPropertyFromTreeNode(nestedProperty));
+      leafMatch.matchItem.property!.push(buildPropertyFromTreeNode(nestedProperty));
     }
 
     for (const [path, match] of pathToMatchMap.entries()) {
-      nestedMatches.push(buildParentMatchStructure(path, match));
+      const parentMatchStructure = buildParentMatchStructure(path, match.matchItem);
+      if (match.hasVariable) parentMatchStructure.nodeRef = match.hasVariable;
+      nestedMatches.push(parentMatchStructure);
     }
   }
 
   return { direct: directMatches, nested: nestedMatches };
+}
+
+function getHasVariable(treeNode: TreeNode) {
+  const hasVariable: string[] = [];
+  getHasVariableRecursively(treeNode, hasVariable);
+  return hasVariable[0] ?? "";
+}
+
+function getHasVariableRecursively(treeNode: TreeNode, hasVariable: string[]) {
+  if (treeNode.hasVariable) hasVariable.push(treeNode.hasVariable);
+  if (isObjectHasKeys(treeNode, ["parent"])) getHasVariableRecursively(treeNode.parent, hasVariable);
 }
 
 export function buildParentMatchStructure(path: string, match: Match) {
@@ -62,7 +77,7 @@ export function buildParentMatchStructure(path: string, match: Match) {
       currentMatchOrProperty = parentProperty;
     }
   }
-  return { property: [currentMatchOrProperty] };
+  return { property: [currentMatchOrProperty] } as Match;
 }
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
