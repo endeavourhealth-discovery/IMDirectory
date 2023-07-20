@@ -182,6 +182,8 @@ watch(
           contents.value[0].disable = false;
           contents.value[2].disable = true;
           contents.value[3].disable = true;
+          checked.value = false;
+          checkedLegacy.value = false;
           const indexLegacy = selectedContents.value.indexOf("Legacy");
           if(indexLegacy !== -1) {
             selectedContents.value.splice(indexLegacy, 1);
@@ -200,6 +202,8 @@ watch(
     () => selectedFormat.value,
     () => {
       selectedContents.value = [];
+      checked.value = false;
+      checkedLegacy.value = false;
       if(selectedFormat.value) {
         if(selectedFormat.value === "IMv1") {
           contents.value.forEach((f:any) => f.disable = true);
