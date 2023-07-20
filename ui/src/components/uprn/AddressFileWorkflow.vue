@@ -1,10 +1,7 @@
 <template>
-  <div>
-    <!-- <h1>File workflow</h1> -->
-    <br>
-    <FileUpload mode="basic" :maxFileSize="1000000" customUpload @uploader="handleFileUpload" chooseLabel="Browse" />
-  </div>
-  <div>
+  <div id="address-file-workflow">
+    <FileUpload mode="advanced" :maxFileSize="1000000" customUpload @uploader="handleFileUpload" chooseLabel="Browse" accept=".txt" :multiple="true"/>
+  <div id="address-file-instructions">
     <p>The address file to be uploaded must contain two columns separated by a single tab character with a .txt extension<br>
       The first line must not contain any header information<br>
       The first column is a unique numeric row id<br>
@@ -18,6 +15,7 @@
       5[tab]3 Abbey Rd,St John's Wood,London,NW8 9AY
     </p>
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +25,8 @@ import { ToastOptions } from "@im-library/models";
 import Env from "@/services/Env";
 
 import FileUpload from "primevue/fileupload";
+import {isArrayHasLength} from "@im-library/helpers/DataTypeCheckers"
+
 const toast = useToast();
 
 const handleFileUpload = async (event) => {
@@ -35,45 +35,64 @@ const handleFileUpload = async (event) => {
   const username = Env.UPRN_USER;
   const password = Env.UPRN_PASSWORD;
 
-  const file = event.files[0];
-  console.log(file.name);
+  //const file = event.files[0];
 
-  const formData = new FormData();
-  formData.append('file', file);
+  if (isArrayHasLength(event.files)) {
+    for (const file of event.files) {
 
-  console.log(formData);
+      console.log(file.name);
 
-  try {
-    const response = await fetch(api + '/api2/fileupload2', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        Authorization: 'Basic ' + btoa(username + ':' + password)
+      const formData = new FormData();
+      formData.append('file', file);
+
+      console.log(formData);
+
+      try {
+        const response = await fetch(api + '/api2/fileupload2', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Authorization: 'Basic ' + btoa(username + ':' + password)
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(JSON.stringify(data));
+          if (data.upload["status"] == 'OK') {
+            console.log('File uploaded successfully');
+            toast.add({severity: 'success', summary: 'Success', detail: 'File uploaded successfully'});
+          };
+          if (data.upload["status"] == 'NOK') {
+            console.log('File uploaded successfully');
+            toast.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Web Server had problems reading the file you uploaded.  Please make sure its in the correct format!'
+            });
+          }
+        } else {
+          console.log('File upload failed');
+          toast.add({severity: 'error', summary: 'Error', detail: 'Upload failed'});
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        toast.add({severity: 'error', summary: 'Error', detail: 'Error uploading file: ' + error});
       }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log(JSON.stringify(data));
-      if (data.upload["status"] == 'OK') {
-        console.log('File uploaded successfully');
-        toast.add({severity: 'success', summary: 'Success', detail: 'File uploaded successfully'});
-      };
-      if (data.upload["status"] == 'NOK') {
-        console.log('File uploaded successfully');
-        toast.add({severity: 'error', summary: 'Error', detail: 'Web Server had problems reading the file you uploaded.  Please make sure its in the correct format!'});
-      }
-    } else {
-      console.log('File upload failed');
-      toast.add({severity: 'error', summary: 'Error', detail: 'Upload failed'});
     }
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    toast.add({severity: 'error', summary: 'Error', detail: 'Error uploading file: '+error});
   }
 };
 
 
 </script>
 
-<style scoped></style>
+<style scoped>
+#address-file-workflow {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+</style>

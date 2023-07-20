@@ -8,7 +8,7 @@
       </template>
     </TopBar>
     <div id="uprn-content">
-      <TabMenu :model="items" />
+      <TabMenu :model="items" id="uprn-menu"/>
       <router-view />
     </div>
   </div>
@@ -33,6 +33,11 @@ const reg = ref();
 
 const items = ref([
   {
+    label: "Welcome",
+    to: "/uprn/uprnWelcome",
+    disbled: true
+  },
+  {
     label: "Input Single Address",
     to: "/uprn/singleAddressLookup",
     disabled: true
@@ -46,11 +51,6 @@ const items = ref([
     label: "Downloads + Activity",
     to: "/uprn/addressFileDownload",
     disabled: true
-  },
-  {
-    label: "Welcome",
-    to: "/uprn/uprnWelcome",
-    disbled: true
   }
 ]);
 
@@ -154,6 +154,9 @@ const testBtn = () => {
   display: flex;
   flex-flow: column nowrap;
   background-color: var(--surface-a);
+}
+#uprn-menu {
+  flex: 0 0 auto;
 }
 .topbar-content {
   height: 100%;

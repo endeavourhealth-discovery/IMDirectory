@@ -1,43 +1,30 @@
 <template>
-  <div>
-    <!-- <h1>Download page</h1>  -->
-    <br> <!-- <br> -->
-    <button @click="refreshBtn">Refresh</button>
-    <br><br>
-    <button @click="DownloadBtn('/opt/files/test.txt')">Download Test</button>
-    <br><br>
+  <div id="address-file-download">
 
-    <table v-if="showResults">
-
-      <!--
-      <tr v-for="item in searchResults">
-        <td>{{item.DT}}</td>
-        <td>{{item.A}}</td>
-        <td>{{item.F}}</td>
-      </tr>
-      -->
-
-      <tbody>
-        <!-- searchResults -->
-        <!-- :rowsPerPageOptions="[5, 10]" -->
-        <DataTable :value="searchResults" @rowSelect="onRowSelect" selectionMode="single" scrollable scrollHeight="600px" showGridlines paginator :rows="20" tableStyle="min-width: 50rem">
-          <Column v-for="col of columns" :key="col.field" :field="col.field" :header="col.header"></Column>
-          <!-- <template #body="{ rowData }: { rowData: YourObjectType }">
-            <span>{{ rowData[col.field] }}</span>
-            <div>
-              {{ logToConsole(rowData[col.field.data]) }}
-            </div>
-            <div v-if="col.field === 'F'">
-              <button v-if="rowData[col.field] !== null" @click="downloadFile(rowData[col.field])">Download</button>
-            </div>
-            <div v-else>
-              {{ rowData[col.field] }}
-            </div>
-          </template> -->
+    <div id="search-results">
+        <DataTable :value="searchResults" @rowSelect="onRowSelect" :loading="loading" selectionMode="single" scrollable scrollHeight="flex" showGridlines>
+          <Column header="Date/Time" field="date-time">
+            <template #body="{data}">
+              <span>{{data.DT}}</span>
+            </template>
+          </Column>
+          <Column header="Action" field="action">
+            <template #body="{data}">
+              <span>{{data.A}}</span>
+            </template>
+          </Column>
+          <Column header="Filename" field="file">
+            <template #body="{data}">
+              <span>{{data.F}}</span>
+            </template>
+          </Column>
+          <Column Header="Download" field="download">
+            <template #body="{data}">
+              <Button v-if="data.F" label="download" @click="DownloadBtn(data.F)"></Button>
+            </template>
+          </Column>
         </DataTable>
-      </tbody>
-
-    </table>
+      </div>
   </div>
 </template>
 
@@ -45,7 +32,7 @@
 import { useToast } from "primevue/usetoast";
 import { useConfirm } from "primevue/useconfirm";
 import uprnService from "@/services/UprnService";
-import {ref, computed} from "vue";
+import {ref, computed, onMounted} from "vue";
 import {FilerService} from "@/services";
 import UprnService from "@/services/UprnService";
 import Env from "@/services/Env";
@@ -54,37 +41,28 @@ const username = Env.UPRN_USER;
 
 const showResults = ref(false);
 const searchResults = ref({});
+const loading = ref(true);
 
-const columns = [
-  { field: 'DT', header: 'Date/Time' },
-  { field: 'A', header: 'Action' },
-  { field: 'F', header: 'File' },
-  //{ field: 'download', header: 'Download' }
-]
+async function refreshBtn () {
 
-interface YourObjectType {
-  DT: string;
-  A: string;
-  F: string | null;
+  loading.value = true;
+
+  const result = await uprnService.activity(username)
+  if (result) {
+    console.log('Service Result:', JSON.stringify(result));
+
+    showResults.value = true;
+    searchResults.value = result;
+  }
+
+  loading.value = false;
 }
 
-const refreshBtn = () => {
+onMounted (
+    () => {refreshBtn();}
+)
 
-  uprnService.activity(username)
-      .then((result) => {
-
-        console.log('Service Result:', JSON.stringify(result));
-
-        showResults.value = true;
-        searchResults.value = result;
-
-      }).catch((error) => {
-    // Handle any errors that occurred during the service call
-    console.error('Service Error:', error);
-  });
-}
-
-const DownloadBtn = (testfile) => {
+function DownloadBtn(testfile) {
   console.log("download test");
 
   //let testfile = "/opt/files/test.txt";
@@ -130,29 +108,6 @@ const onRowSelect = (event) => {
       toast.add({ severity: "warn", summary: "Test", detail: "reject", life: 3000 });
     }
   });
-};
-
-const setup= () => {
-  //const XResults = ref([searchResults]);
-  console.log("hit");
-  const columns =  [{ field: 'DT', header: 'Date/Time' },
-    { field: 'A', header: 'Action' },
-    { field: 'F', header: 'File' }]
-
-  const filteredResults = computed(() => {
-    return searchResults.value.filter((row) => row.F === null);
-  });
-
-  function onRowSelect(rowData) {
-    // Handle row selection
-  }
-
-  return {
-    searchResults,
-    columns,
-    filteredResults,
-    onRowSelect
-  };
 }
 
 function down() {
@@ -166,18 +121,21 @@ function logToConsole(output: any) {
 </script>
 
 <style scoped>
-.data-table {
-  border-collapse: collapse;
+.buttons-container
+{
+  padding-top: 1rem;
+}
+#search-results {
+  flex: 1 1 auto;
+  overflow: auto;
   width: 100%;
 }
-
-.data-table th,
-.data-table td {
-  padding: 8px;
-  border: 1px solid #ddd;
-}
-
-.data-table th {
-  background-color: #f2f2f2;
+#address-file-download {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 1rem;
+  padding: 0.5rem;
 }
 </style>
