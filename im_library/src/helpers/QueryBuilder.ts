@@ -37,7 +37,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
       const hasVariable = getHasVariable(nestedProperty);
       if (!pathToMatchMap.has(path)) pathToMatchMap.set(path, { matchItem: { property: [] } as Match, hasVariable: hasVariable });
       const leafMatch = pathToMatchMap.get(path);
-      leafMatch.matchItem.property!.push(buildPropertyFromTreeNode(nestedProperty));
+      leafMatch!.matchItem.property!.push(buildPropertyFromTreeNode(nestedProperty));
     }
 
     for (const [path, match] of pathToMatchMap.entries()) {
