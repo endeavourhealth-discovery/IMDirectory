@@ -32,8 +32,8 @@ const toast = useToast();
 const handleFileUpload = async (event) => {
 
   const api = Env.UPRN_API;
-  const username = Env.UPRN_USER;
-  const password = Env.UPRN_PASSWORD;
+  const u = import.meta.env.VITE_UPRN_USER
+  const p = import.meta.env.VITE_UPRN_PASSWORD;
 
   //const file = event.files[0];
 
@@ -52,7 +52,7 @@ const handleFileUpload = async (event) => {
           method: 'POST',
           body: formData,
           headers: {
-            Authorization: 'Basic ' + btoa(username + ':' + password)
+            Authorization: 'Basic ' + btoa(u + ':' + p)
           }
         });
 

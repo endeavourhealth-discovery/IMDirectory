@@ -37,7 +37,7 @@ import {FilerService} from "@/services";
 import UprnService from "@/services/UprnService";
 import Env from "@/services/Env";
 
-const username = Env.UPRN_USER;
+const username = import.meta.env.VITE_UPRN_USER;
 
 const showResults = ref(false);
 const searchResults = ref({});

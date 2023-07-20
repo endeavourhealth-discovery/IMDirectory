@@ -58,7 +58,7 @@ const regData = async () => {
 
   let ret = "?"; let regdate = ""; let name = ""; let org = "";
 
-  await uprnService.getRegister(Env.UPRN_USER)
+  await uprnService.getRegister(import.meta.env.VITE_UPRN_USER)
       .then((result) => {
 
         if (result["regdate"] != undefined) {

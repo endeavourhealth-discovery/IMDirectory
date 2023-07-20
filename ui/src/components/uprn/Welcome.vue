@@ -99,8 +99,8 @@ function SaveInStore() {
 async function makeSynchronousRequest() {
   const api = Env.UPRN_API;
   //const api = Env.API;
-  const u = Env.UPRN_USER;
-  const p = Env.UPRN_PASSWORD;
+  const u = import.meta.env.VITE_UPRN_USER
+  const p = import.meta.env.VITE_UPRN_PASSWORD;
 
   const formData = new FormData();
   formData.append('name', usrname.value);
