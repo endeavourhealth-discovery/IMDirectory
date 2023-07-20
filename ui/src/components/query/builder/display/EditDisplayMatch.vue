@@ -13,7 +13,7 @@
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
-    <div v-if="match.nodeRef" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
+    <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -280,6 +280,10 @@ function addVariable(previousValue: string, newValue: string) {
 .feature {
   margin-left: 1rem !important;
   cursor: pointer;
+}
+
+.node-ref {
+  margin-left: 0.5rem !important;
 }
 
 .feature:hover {

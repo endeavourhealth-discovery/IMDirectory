@@ -12,5 +12,6 @@ export interface TreeNode {
   leaf: boolean;
   data: any;
   parent: TreeNode;
+  hasVariable: string;
   [key: string]: any;
 }
