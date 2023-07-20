@@ -29,11 +29,10 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { describeProperty, getDisplayFromLogic } from "@im-library/helpers/QueryDescriptor";
 import { Match, Property } from "@im-library/interfaces/AutoGen";
-import { Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 import EditProperty from "../edit/EditProperty.vue";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import EditDisplayMatch from "./EditDisplayMatch.vue";
 import { SelectedMatch } from "@im-library/interfaces";
 
@@ -54,6 +53,13 @@ const editProperty: Ref<Property> = ref({} as Property);
 onMounted(() => {
   editProperty.value = _.cloneDeep(props.property);
 });
+
+watch(
+  () => cloneDeep(props.property),
+  newValue => {
+    editProperty.value = _.cloneDeep(props.property);
+  }
+);
 
 function save() {
   for (const key of Object.keys(props.property)) {

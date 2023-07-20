@@ -44,8 +44,9 @@
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
     :base-type="match['@type'] ?? queryTypeIri"
-    :properties="match.property"
+    :match="match"
     :variable-map="variableMap"
+    :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
   />
   <KeepAsDialog
@@ -68,7 +69,7 @@ import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
 import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
 import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { describeMatch, getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
+import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 
 interface Props {
   queryTypeIri: string;

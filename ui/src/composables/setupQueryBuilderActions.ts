@@ -38,7 +38,7 @@ function setupQueryBuilderActions() {
       case "addBefore":
         if (isArrayHasLength(parentMatchList))
           for (const newMatch of direct.concat(nested)) {
-            parentMatchList!.splice(index ? index - 1 : index, 0, newMatch);
+            parentMatchList!.splice(index, 0, newMatch);
           }
         break;
 

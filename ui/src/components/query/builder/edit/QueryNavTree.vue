@@ -21,7 +21,7 @@
 <script async setup lang="ts">
 import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import { EntityService, QueryService } from "@/services";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import setupTree from "@/composables/setupTree";
@@ -31,13 +31,14 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
-import { Match, Property, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Property } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
 
 interface Props {
   baseType: string;
   editMatch: Match;
   variableMap: Map<string, any>;
+  addMode: "editProperty" | "addBefore" | "addAfter";
 }
 const props = defineProps<Props>();
 
@@ -52,7 +53,7 @@ const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, uns
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  await populateCheckBoxes(props.editMatch);
+  if (props.addMode === "editProperty") await populateCheckBoxes(props.editMatch);
   loading.value = false;
 });
 
@@ -70,22 +71,6 @@ async function populateCheckBoxes(match: Match) {
   if (isArrayHasLength(match.property)) {
     for (const property of match.property!) {
       selectByIri(property["@id"]!, root.value);
-    }
-  }
-}
-
-async function selectByKey(key: string) {
-  const keys = key.split("-");
-  const lastKey = keys.length;
-  let nodes = root.value;
-  for (const [index, keySplit] of keys.entries()) {
-    if (index !== lastKey - 1) {
-      const parentNode = nodes[+keySplit];
-      expandedKeys.value[parentNode.key!] = true;
-      if (!isArrayHasLength(parentNode.children)) await handleTreeNodeExpand(parentNode);
-      if (isArrayHasLength(parentNode.children)) nodes = parentNode.children!;
-    } else {
-      select(nodes[+keySplit]);
     }
   }
 }
@@ -192,7 +177,6 @@ async function addParentFoldersToRoot() {
   const resolvedIri = resolveIri(props.baseType);
   if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
   if (props.variableMap && props.variableMap.size) addVariableNodes();
-  if (resolvedIri) await addQueryFolder(resolvedIri);
 }
 
 function addVariableNodes() {
@@ -240,45 +224,6 @@ async function addBaseEntityToRoot(iri: string) {
   const parent = createTreeNode(name, iri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
   expandedKeys.value[parent.key!] = true;
   await onNodeExpand(parent);
-  root.value.push(parent);
-}
-
-async function addQueryFolder(iri: string) {
-  const queryRequest = {
-    query: {
-      match: [
-        {
-          "@type": "http://endhealth.info/im#CohortQuery",
-          property: [
-            {
-              "@id": "http://endhealth.info/im#returnType",
-              in: [
-                {
-                  "@id": "http://endhealth.info/im#Patient"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      return: [
-        {
-          property: [
-            {
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-            }
-          ]
-        }
-      ]
-    }
-  } as QueryRequest;
-  const result = await QueryService.queryIM(queryRequest);
-  const parent = createTreeNode("Queries", iri, [{ "@id": IM.FOLDER }], true, false, { key: "" + root.value.length, children: [] });
-  if (isObjectHasKeys(result, ["entities"]) && isArrayHasLength(result.entities))
-    for (const entity of result.entities) {
-      const child = createTreeNode(entity[RDFS.LABEL], entity["@id"], [{ "@id": IM.COHORT_QUERY }], true, true, parent);
-      parent.children!.push(child);
-    }
   root.value.push(parent);
 }
 </script>
