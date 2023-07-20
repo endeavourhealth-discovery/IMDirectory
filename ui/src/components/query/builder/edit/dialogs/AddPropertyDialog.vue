@@ -5,6 +5,7 @@
       :editMatch="editMatch"
       :selected-properties="selectedProperties"
       :variable-map="variableMap"
+      :add-mode="addMode"
       @on-selected-update="onSelectedUpdate"
     />
     <template #footer>
@@ -16,18 +17,19 @@
 
 <script setup lang="ts">
 import { Ref, onMounted, ref, watch } from "vue";
-import { Match, Property } from "@im-library/interfaces/AutoGen";
+import { Match } from "@im-library/interfaces/AutoGen";
 import _, { cloneDeep } from "lodash";
 import { TreeNode } from "primevue/tree";
 import { buildMatchesFromProperties } from "@im-library/helpers/QueryBuilder";
 import QueryNavTree from "../QueryNavTree.vue";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 interface Props {
   showDialog: boolean;
   baseType: string;
-  properties?: Property[];
+  match?: Match;
   variableMap: Map<string, any>;
+  addMode: "editProperty" | "addBefore" | "addAfter";
 }
 
 const props = defineProps<Props>();
@@ -53,8 +55,15 @@ watch(visible, newValue => {
   }
 });
 
+watch(
+  () => cloneDeep(props.match),
+  newValue => {
+    if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.property)) editMatch.value.property = cloneDeep(props.match!.property);
+  }
+);
+
 onMounted(() => {
-  if (isArrayHasLength(props.properties)) editMatch.value.property = cloneDeep(props.properties);
+  if (isObjectHasKeys(props.match, ["property"]) && isArrayHasLength(props.match!.property)) editMatch.value.property = cloneDeep(props.match!.property);
 });
 
 function onSelectedUpdate(selected: TreeNode[]) {

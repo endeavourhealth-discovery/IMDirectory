@@ -32,7 +32,13 @@
         <Button label="Add feature" @click="showAddDialog = true" />
       </div>
 
-      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" :variable-map="variableMap" @on-add-or-edit="add" />
+      <AddPropertyDialog
+        v-model:show-dialog="showAddDialog"
+        :base-type="queryTypeIri"
+        :variable-map="variableMap"
+        :add-mode="'addAfter'"
+        @on-add-or-edit="add"
+      />
       <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     </div>
     <div class="button-bar">
