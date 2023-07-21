@@ -35,7 +35,6 @@ import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import {useUprnStore} from "@/stores/uprnStore";
 import setupChangeTheme from "@/composables/setupChangeTheme";
 
 setupAxiosInterceptors(axios);
@@ -46,7 +45,6 @@ const router = useRouter();
 const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
-const uprnStore = useUprnStore();
 
 const { changeTheme } = setupChangeTheme();
 
@@ -55,8 +53,6 @@ const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const currentUser = computed(() => userStore.currentUser);
 const currentTheme = computed(() => userStore.currentTheme);
-const welcome = computed(() => uprnStore.welcome);
-const date_registered = computed(() => uprnStore.date_registered);
 
 watch(
   () => currentTheme.value,

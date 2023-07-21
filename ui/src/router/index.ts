@@ -34,8 +34,8 @@ const Uprn = () => import("@/views/Uprn.vue");
 const SingleFileLookup = () => import("@/components/uprn/SingleAddressLookup.vue");
 const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.vue");
 const AddressFileDownload = () => import("@/components/uprn/AddressFileDownload.vue");
-const Welcome = () => import("@/components/uprn/Welcome.vue");
 const Query = () => import("@/views/Query.vue");
+const UprnAgreement = () => import("@/views/UprnAgreement.vue");
 import { EntityService, Env } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
@@ -229,14 +229,15 @@ const routes: Array<RouteRecordRaw> = [
     path: "/uprn",
     name: "Uprn",
     component: Uprn,
+    redirect: { name: "SingleAddressLookup" },
     meta: {
-      requiresAuth: true
+      requiresAuth: true,
+      requiresUprnAgreement: true
     },
     children: [
       { path: "singleAddressLookup", name: "SingleAddressLookup", component: SingleFileLookup },
       { path: "addressFileWorkflow", name: "AddressFileWorkflow", component: AddressFileWorkflow },
-      { path: "addressFileDownload", name: "AddressFileDownload", component: AddressFileDownload },
-      { path: "uprnWelcome", name: "Welcome", component: Welcome }
+      { path: "addressFileDownload", name: "AddressFileDownload", component: AddressFileDownload }
     ]
   },
   {
@@ -260,6 +261,11 @@ const routes: Array<RouteRecordRaw> = [
     component: PrivacyPolicy
   },
   { path: "/cookies", name: "Cookies", component: Cookies },
+  {
+    path: "/uprn-agreement",
+    name: "UPRNAgreement",
+    component: UprnAgreement
+  },
   {
     path: "/401/:requiredRole?",
     name: "AccessDenied",
@@ -363,6 +369,10 @@ router.beforeEach(async (to, from) => {
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
     console.log("snomed license accepted:" + userStore.snomedLicenseAccepted);
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresUprnAgreement)) {
+    console.log("uprn agreement accepted: " + userStore.uprnAgreementAccepted);
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {

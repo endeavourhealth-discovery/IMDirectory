@@ -14,7 +14,8 @@ export const useUserStore = defineStore("user", {
     favourites: [] as string[],
     history: [] as HistoryItem[],
     recentLocalActivity: [] as RecentActivityItem[],
-    snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false
+    snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false,
+    uprnAgreementAccepted: localStorage.getItem("uprnAgreementAccepted") === "true" ? true : false
   }),
   getters: {
     isLoggedIn: state => isObjectHasKeys(state.currentUser)
@@ -155,6 +156,10 @@ export const useUserStore = defineStore("user", {
     updateSnomedLicenseAccepted(bool: boolean) {
       this.snomedLicenseAccepted = bool;
       localStorage.setItem("snomedLicenseAccepted", bool === true ? "true" : "");
+    },
+    updateUprnAgreementAccepted(bool: boolean) {
+      this.uprnAgreementAccepted = bool;
+      localStorage.setItem("uprnAgreementAccepted", bool === true ? "true" : "");
     }
   }
 });
