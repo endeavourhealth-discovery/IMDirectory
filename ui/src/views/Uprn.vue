@@ -9,7 +9,7 @@
       </template>
     </TopBar>
     <div id="uprn-content">
-      <TabMenu :model="items" v-model:activeIndex="active" id="uprn-menu" />
+      <TabMenu :model="items" id="uprn-menu" />
       <router-view />
     </div>
   </div>
@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import UprnConsent from "@/components/uprn/UprnConsent.vue";
 
 const items = ref([
@@ -34,7 +34,6 @@ const items = ref([
     to: "/uprn/addressFileDownload"
   }
 ]);
-const active = ref(0);
 </script>
 
 <style scoped>

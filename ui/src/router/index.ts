@@ -229,6 +229,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/uprn",
     name: "Uprn",
     component: Uprn,
+    redirect: { name: "SingleAddressLookup" },
     meta: {
       requiresAuth: true,
       requiresUprnAgreement: true
