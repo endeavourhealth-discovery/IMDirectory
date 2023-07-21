@@ -2,12 +2,14 @@
   <div
     :draggable="true"
     @dragstart="dragStart($event, match)"
-    @dragenter="dragEnter($event, match)"
-    @dragover.prevent
-    @drop="dragDrop($event, props.parentMatch, props.parentMatchList)"
+    @dragenter="dragEnter($event, match, htmlId)"
+    @dragleave="dragLeave(htmlId)"
+    @dragover="$event.preventDefault()"
+    @drop="dragDrop($event, props.parentMatch!, props.parentMatchList!, htmlId)"
     :class="getClass()"
     @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
     @contextmenu="onRightClick($event)"
+    :id="htmlId"
   >
     <div v-if="editMode">
       <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
@@ -60,7 +62,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
-import { ComputedRef, Ref, computed, ref } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
 import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
@@ -95,6 +97,7 @@ const {
   dragStart,
   dragEnter,
   dragDrop,
+  dragLeave,
   select,
   showAddDialog,
   showViewDialog,
@@ -115,8 +118,13 @@ const hasProperty: ComputedRef<boolean> = computed(() => {
   return isObjectHasKeys(props.match, ["property"]);
 });
 
+const htmlId = ref("");
 const rClickMenu = ref();
 const rClickOptions: Ref<any[]> = ref([]);
+
+onMounted(() => {
+  htmlId.value = String(Math.random());
+});
 
 function getClass() {
   let clazz = "";
@@ -278,8 +286,13 @@ function addVariable(previousValue: string, newValue: string) {
 
 <style scoped>
 .feature {
+  margin: 0.5rem;
   margin-left: 1rem !important;
   cursor: pointer;
+}
+
+.feature.over {
+  border: 3px dotted #666 !important;
 }
 
 .node-ref {
