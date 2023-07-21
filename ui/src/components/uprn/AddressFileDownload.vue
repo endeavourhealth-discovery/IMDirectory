@@ -3,22 +3,22 @@
     <div id="search-results">
       <DataTable :value="searchResults" :loading="loading" selectionMode="single" scrollable scrollHeight="flex" showGridlines>
         <Column header="Date/Time" field="date-time">
-          <template #body="{ data }">
+          <template #body="{ data }: any">
             <span>{{ data.DT }}</span>
           </template>
         </Column>
         <Column header="Action" field="action">
-          <template #body="{ data }">
+          <template #body="{ data }: any">
             <span>{{ data.A }}</span>
           </template>
         </Column>
         <Column header="Filename" field="file">
-          <template #body="{ data }">
+          <template #body="{ data }: any">
             <span>{{ data.F }}</span>
           </template>
         </Column>
         <Column header="Download" field="download">
-          <template #body="{ data }">
+          <template #body="{ data }: any">
             <Button v-if="data.F" label="download" @click="download(data.F)"></Button>
           </template>
         </Column>
