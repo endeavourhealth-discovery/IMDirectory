@@ -100,7 +100,7 @@ const showDialog = computed(() => {
 
 function submitDecline(): void {
   userStore.updateUprnAgreementAccepted(false);
-  router.back();
+  router.push({ path: "/" });
 }
 
 function submitAgree(): void {
