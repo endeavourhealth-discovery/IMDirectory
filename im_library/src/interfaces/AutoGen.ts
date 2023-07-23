@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-05-30 13:33:52.
+// Generated using typescript-generator version 3.2.1263 on 2023-07-11 11:55:23.
 
 /**
  * Structure containing search request parameters and filters
@@ -65,6 +65,7 @@ export interface Concept extends Entity {
     im1Id?: string[];
     matchedFrom?: Concept[];
     usage?: number;
+    codeId?: string;
 }
 
 export interface ConceptSet extends Entity {
@@ -174,9 +175,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
+    relativeTo?: PropertyRef;
     operator?: Operator;
-    relativeTo?: Property;
     unit?: string;
+    dataType?: TTIriRef;
 }
 
 export interface Case {
@@ -191,7 +193,7 @@ export interface ContextMap {
 }
 
 export interface Delete {
-    where?: Where;
+    where?: Property;
     subject?: Element;
     inverse?: boolean;
     predicate?: Element;
@@ -205,9 +207,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    descendantsOrSelfOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOf?: boolean;
+    ancestorsOf?: boolean;
+    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause {
@@ -222,29 +224,26 @@ export interface IriLD {
     name?: string;
 }
 
-export interface Match extends Node, Whereable {
+export interface Match extends Node {
     exclude?: boolean;
     nodeRef?: string;
-    boolMatch?: Bool;
     description?: string;
     graph?: Element;
     match?: Match[];
+    bool?: Bool;
+    in?: Node[];
+    property?: Property[];
     orderBy?: OrderLimit[];
 }
 
 export interface Node extends Element {
-    path?: Path;
 }
 
-export interface OrderLimit extends Property {
+export interface OrderLimit extends PropertyRef {
     direction?: Order;
     limit?: number;
     description?: string;
     id?: string;
-}
-
-export interface Path extends Property {
-    node?: Node;
 }
 
 export interface PathDocument {
@@ -257,20 +256,30 @@ export interface PathQuery extends TTIriRef {
     depth?: number;
 }
 
-export interface Property extends Element {
+export interface Property extends PropertyRef, Assignable {
+    description?: string;
+    bool?: Bool;
+    match?: Match;
+    property?: Property[];
+    range?: Range;
+    in?: Node[];
+    notIn?: Node[];
+    anyRoleGroup?: boolean;
+    valueLabel?: string;
+    null?: boolean;
+}
+
+export interface PropertyRef extends Element {
     inverse?: boolean;
     nodeRef?: string;
     valueVariable?: string;
 }
 
-export interface Query extends TTIriRef {
-    match?: Match[];
-    groupBy?: Property[];
-    orderBy?: OrderLimit[];
+export interface Query extends Match {
     activeOnly?: boolean;
-    usePrefixes?: boolean;
-    query?: Query[];
     return?: Return[];
+    query?: Query[];
+    groupBy?: PropertyRef[];
 }
 
 export interface QueryEntity extends Entity {
@@ -314,6 +323,7 @@ export interface ReturnProperty {
     valueVariable?: string;
     inverse?: boolean;
     unit?: string;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -322,21 +332,6 @@ export interface Update extends TTIriRef {
 }
 
 export interface Value extends Assignable {
-}
-
-export interface Where extends Property, Assignable, Whereable {
-    description?: string;
-    range?: Range;
-    in?: Node[];
-    notIn?: Node[];
-    anyRoleGroup?: boolean;
-    valueLabel?: string;
-    null?: boolean;
-}
-
-export interface Whereable {
-    bool?: Bool;
-    where?: Where[];
 }
 
 export interface EntityDocument {
@@ -355,6 +350,7 @@ export interface EntityDocument {
     weighting?: number;
     match?: string;
     isA?: TTIriRef[];
+    memberOf?: TTIriRef[];
     isDescendentOf?: TTIriRef[];
 }
 

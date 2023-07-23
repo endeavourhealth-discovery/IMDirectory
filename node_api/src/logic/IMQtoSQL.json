@@ -1,12 +1,12 @@
 {
   "typeTables": {
-    "Patient": {
+    "http://endhealth.info/im#Patient": {
       "table": "patient",
       "fields": {
         "http://endhealth.info/im#age": "age"
       }
     },
-    "Observation": {
+    "http://endhealth.info/im#Observation": {
       "table": "event",
       "condition": "type = 'Observation'",
       "fields": {
