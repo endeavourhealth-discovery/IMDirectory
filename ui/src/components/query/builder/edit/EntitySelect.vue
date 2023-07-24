@@ -2,7 +2,7 @@
   <div class="property-input-container">
     in
     <InputText type="text" @click="showDialog = true" placeholder="Value" v-model:model-value="selected.name" />
-    <DirectorySearchDialog :selected="selected" :show-dialog="showDialog" @update:selected="onSelect" />
+    <DirectorySearchDialog :selected="selected" v-model:show-dialog="showDialog" @update:selected="onSelect" />
     <EntailmentOptionsSelect :entailment-object="editNode" />
     <Button label="Cancel" severity="secondary" @click="emit('onCancel')" />
     <Button label="Save" @click="emit('onSave', selected)" />

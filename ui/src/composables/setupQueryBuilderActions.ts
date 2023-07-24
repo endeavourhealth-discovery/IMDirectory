@@ -9,6 +9,7 @@ function setupQueryBuilderActions() {
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
+  const showDirectoryDialog: Ref<boolean> = ref(false);
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
@@ -217,6 +218,7 @@ function setupQueryBuilderActions() {
     showViewDialog,
     showAddDialog,
     showKeepAsDialog,
+    showDirectoryDialog,
     showAddBaseTypeDialog,
     addMode
   };
