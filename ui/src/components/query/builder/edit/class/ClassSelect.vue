@@ -28,6 +28,7 @@ import { Node, Property } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { N } from "vitest/dist/types-2b1c412e";
+import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 
 const emit = defineEmits({ onSelect: (payload: any) => payload });
 
@@ -69,10 +70,7 @@ function initEditValues() {
 
 function onSelect(cs: ConceptSummary) {
   visible.value = false;
-  const node = { name: cs.name } as Node;
-  if (isValueSet(cs.entityType)) node["@set"] = cs.iri;
-  if (isRecordModel(cs.entityType)) node["@type"] = cs.iri;
-  else node["@id"] = cs.iri;
+  const node = buildMatchFromCS(cs);
 
   editValues.value[selectedIndex.value] = node;
 }

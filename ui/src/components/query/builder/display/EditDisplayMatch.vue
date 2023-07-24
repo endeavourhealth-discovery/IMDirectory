@@ -23,6 +23,7 @@
       :query-type-iri="queryTypeIri"
       :selected-matches="selectedMatches"
       :variable-map="variableMap"
+      :validation-query-request="validationQueryRequest"
     />
 
     <EditDisplayProperty
@@ -34,6 +35,7 @@
       :query-type-iri="queryTypeIri"
       :selected-matches="selectedMatches"
       :variable-map="variableMap"
+      :validation-query-request="validationQueryRequest"
     />
     <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
@@ -54,11 +56,12 @@
     :match="match"
     @add-variable="(previousValue: string, newValue: string) => addVariable(previousValue, newValue)"
   />
+  <DirectorySearchDialog v-model:show-dialog="showDirectoryDialog" @update:selected="onSelect" :searchByQuery="validationQueryRequest" />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match } from "@im-library/interfaces/AutoGen";
+import { Match, Node, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
@@ -70,6 +73,8 @@ import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
 import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   queryTypeIri: string;
@@ -79,6 +84,7 @@ interface Props {
   match: Match;
   index: number;
   variableMap: Map<string, any>;
+  validationQueryRequest: QueryRequest;
 }
 
 const props = defineProps<Props>();
@@ -99,6 +105,7 @@ const {
   showAddDialog,
   showViewDialog,
   showKeepAsDialog,
+  showDirectoryDialog,
   addMode
 } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
@@ -114,6 +121,7 @@ const hasValue: ComputedRef<boolean> = computed(() => {
 const hasProperty: ComputedRef<boolean> = computed(() => {
   return isObjectHasKeys(props.match, ["property"]);
 });
+const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 
 const rClickMenu = ref();
 const rClickOptions: Ref<any[]> = ref([]);
@@ -186,6 +194,13 @@ function getSingleRCOptions() {
           }
         }
       ]
+    },
+    {
+      label: "Add query",
+      icon: PrimeIcons.FILTER,
+      command: () => {
+        showDirectoryDialog.value = true;
+      }
     },
     {
       label: "Toggle bool",
@@ -273,6 +288,12 @@ function addVariable(previousValue: string, newValue: string) {
   props.match.variable = newValue;
   if (props.variableMap.has(previousValue)) props.variableMap.delete(previousValue);
   props.variableMap.set(newValue, props.match);
+}
+
+function onSelect(cs: ConceptSummary) {
+  const newMatch = buildMatchFromCS(cs);
+  addOrEdit(props.match, props.parentMatchList, props.index, [newMatch], []);
+  showDirectoryDialog.value = false;
 }
 </script>
 

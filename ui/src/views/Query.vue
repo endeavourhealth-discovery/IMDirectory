@@ -23,6 +23,7 @@
         :parentMatchList="query.match"
         :selected-matches="selectedMatches"
         :variable-map="variableMap"
+        :validation-query-request="validationQueryRequest"
       />
 
       <div v-else-if="!queryTypeIri">
@@ -54,7 +55,7 @@ import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { Match, Property, Query } from "@im-library/interfaces/AutoGen";
+import { Match, Property, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRoute } from "vue-router";
 import _ from "lodash";
@@ -77,6 +78,7 @@ const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as st
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
 const loading = ref(true);
 const variableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
+const validationQueryRequest: Ref<QueryRequest> = ref({} as QueryRequest);
 
 watch(
   () => queryIri.value,
@@ -93,6 +95,11 @@ watch(
   () => describeQuery(query.value)
 );
 
+watch(
+  () => _.cloneDeep(queryTypeIri.value),
+  () => setValidationQueryRequest()
+);
+
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
   if (queryIri.value) await init();
@@ -103,6 +110,7 @@ async function init() {
   await setQuery();
   setBaseEntityMatch();
   initVariableMap();
+  setValidationQueryRequest();
 }
 
 async function setQuery() {
@@ -152,6 +160,46 @@ function addVariableRefFromProperty(property: Property) {
     for (const nestedProperty of property.property!) {
       addVariableRefFromProperty(nestedProperty);
     }
+}
+
+function setValidationQueryRequest() {
+  validationQueryRequest.value = {
+    argument: [
+      {
+        parameter: "dataModelIri",
+        valueIri: {
+          "@id": queryTypeIri.value
+        }
+      }
+    ],
+    query: {
+      name: "Get queries by return type",
+      match: [
+        {
+          "@type": "http://endhealth.info/im#CohortQuery",
+          property: [
+            {
+              "@id": "http://endhealth.info/im#returnType",
+              in: [
+                {
+                  parameter: "dataModelIri"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      return: [
+        {
+          property: [
+            {
+              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+            }
+          ]
+        }
+      ]
+    }
+  };
 }
 </script>
 
