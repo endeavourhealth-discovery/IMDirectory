@@ -9,4 +9,5 @@ export interface UserState {
   history: HistoryItem[];
   recentLocalActivity: RecentActivityItem[];
   snomedLicenseAccepted: boolean;
+  uprnAgreementAccepted: boolean;
 }
