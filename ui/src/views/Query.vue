@@ -97,7 +97,10 @@ watch(
 
 watch(
   () => _.cloneDeep(queryTypeIri.value),
-  () => setValidationQueryRequest()
+  () => {
+    console.log(queryTypeIri.value);
+    setValidationQueryRequest();
+  }
 );
 
 onMounted(async () => {
