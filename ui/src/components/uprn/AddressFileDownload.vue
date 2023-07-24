@@ -34,7 +34,7 @@ import { ref, computed, onMounted, Ref } from "vue";
 import UprnService from "@/services/UprnService";
 import { useUserStore } from "@/stores/userStore";
 
-//const username = import.meta.env.VITE_UPRN_USER;
+const toast = useToast();
 const userStore = useUserStore();
 const currentuser = computed(() => userStore.currentUser).value;
 
@@ -42,23 +42,21 @@ const showResults = ref(false);
 const searchResults: Ref<any[]> = ref([]);
 const loading = ref(true);
 
+onMounted(async () => {
+  await getActivity();
+});
+
 async function getActivity() {
   loading.value = true;
 
   const result = await uprnService.activity(currentuser.id);
   if (result) {
-    console.log("Service Result:", JSON.stringify(result));
-
     showResults.value = true;
     searchResults.value = result;
   }
 
   loading.value = false;
 }
-
-onMounted(async () => {
-  await getActivity();
-});
 
 async function download(fileUrl: string) {
   const result = await UprnService.download(fileUrl);
@@ -72,8 +70,6 @@ async function download(fileUrl: string) {
     toast.add({ severity: "warn", summary: "Good news", detail: "Downloded OK", life: 3000 });
   }
 }
-
-const toast = useToast();
 </script>
 
 <style scoped>

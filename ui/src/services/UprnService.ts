@@ -3,8 +3,6 @@ import Env from "./Env";
 import axios from "axios";
 
 const api = Env.UPRN_API;
-const username = import.meta.env.VITE_UPRN_USER;
-const password = import.meta.env.VITE_UPRN_PASSWORD;
 
 const UprnService = {
   async search(address: string, ncommercial: string): Promise<UprnSearchResponse> {
