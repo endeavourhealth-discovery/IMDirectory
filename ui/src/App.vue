@@ -99,7 +99,8 @@ function setLocalVersion(repoName: string, versionNo: string) {
 
 async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
-    if (isLoggedIn.value && Env.API && request.url?.startsWith(Env.API)) {
+    //if (isLoggedIn.value && Env.API && request.url?.startsWith(Env.API)) {
+    if (isLoggedIn.value) {
       if (!request.headers) request.headers = {};
       request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
     }

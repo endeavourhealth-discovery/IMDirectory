@@ -32,8 +32,11 @@ import { useToast } from "primevue/usetoast";
 import uprnService from "@/services/UprnService";
 import { ref, computed, onMounted, Ref } from "vue";
 import UprnService from "@/services/UprnService";
+import { useUserStore } from "@/stores/userStore";
 
-const username = import.meta.env.VITE_UPRN_USER;
+//const username = import.meta.env.VITE_UPRN_USER;
+const userStore = useUserStore();
+const currentuser = computed(() => userStore.currentUser).value;
 
 const showResults = ref(false);
 const searchResults: Ref<any[]> = ref([]);
@@ -42,7 +45,7 @@ const loading = ref(true);
 async function getActivity() {
   loading.value = true;
 
-  const result = await uprnService.activity(username);
+  const result = await uprnService.activity(currentuser.id);
   if (result) {
     console.log("Service Result:", JSON.stringify(result));
 
