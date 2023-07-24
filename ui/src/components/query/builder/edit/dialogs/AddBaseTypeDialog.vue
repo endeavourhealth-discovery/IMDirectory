@@ -77,8 +77,7 @@ async function save() {
   if (isObjectHasKeys(selected.value)) {
     if (isQuery(selected.value.entityType)) {
       props.query["@type"] = await getReturnType(selected.value.iri);
-      const newMatch = buildMatchFromCS(selected.value);
-      props.query.match = [newMatch];
+      props.query.match = [buildMatchFromCS(selected.value)];
     } else {
       props.query["@type"] = selected.value.iri;
     }
