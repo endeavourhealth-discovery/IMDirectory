@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-07-11 11:55:23.
+// Generated using typescript-generator version 3.2.1263 on 2023-07-06 10:18:48.
 
 /**
  * Structure containing search request parameters and filters
@@ -65,7 +65,6 @@ export interface Concept extends Entity {
     im1Id?: string[];
     matchedFrom?: Concept[];
     usage?: number;
-    codeId?: string;
 }
 
 export interface ConceptSet extends Entity {
@@ -175,10 +174,9 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    relativeTo?: PropertyRef;
-    operator?: Operator;
     unit?: string;
-    dataType?: TTIriRef;
+    operator?: Operator;
+    relativeTo?: PropertyRef;
 }
 
 export interface Case {
@@ -208,8 +206,8 @@ export interface Element extends IriLD, Entailment {
 
 export interface Entailment {
     descendantsOf?: boolean;
-    ancestorsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause {
@@ -323,7 +321,6 @@ export interface ReturnProperty {
     valueVariable?: string;
     inverse?: boolean;
     unit?: string;
-    return?: Return;
 }
 
 export interface Update extends TTIriRef {

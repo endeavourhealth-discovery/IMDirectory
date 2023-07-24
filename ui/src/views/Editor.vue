@@ -66,6 +66,9 @@ import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayB
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
+import { setupValidity } from "@/composables/setupValidity";
+import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { useDialog } from "primevue/usedialog";
 
 export default defineComponent({
   components: {
@@ -89,7 +92,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch, nextTick } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
 import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
@@ -110,19 +113,46 @@ import { DirectService, EntityService, Env } from "@/services";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
 const confirm = useConfirm();
 const editorStore = useEditorStore();
 const filterStore = useFilterStore();
+const dynamicDialog = useDialog();
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
 });
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
+const {
+  editorEntity,
+  editorEntityOriginal,
+  fetchEntity,
+  processEntity,
+  editorIri,
+  editorSavedEntity,
+  entityName,
+  findPrimaryType,
+  updateEntity,
+  deleteEntityKey,
+  checkForChanges
+} = setupEditorEntity(EditorMode.EDIT, updateType);
 const { setEditorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const {
+  editorValidity,
+  updateValidity,
+  removeValidity,
+  isValidEntity,
+  constructValidationCheckStatus,
+  validationCheckStatus,
+  updateValidationCheckStatus,
+  addPropertyToValidationCheckStatus,
+  removeValidationCheckStatus,
+  validationChecksCompleted
+} = setupValidity(shape.value);
+const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
 
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
@@ -136,23 +166,27 @@ function onShowSidebar() {
 }
 
 const loading = ref(true);
-const currentStep = ref(0);
 const showSidebar = ref(false);
-const editorValidity: Ref<{ key: string; valid: boolean }[]> = ref([]);
-const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
 const showTestQueryResults: Ref<boolean> = ref(false);
-
-provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
+const forceValidation = ref(false);
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
+provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
+provide(injectionKeys.forceValidation, {
+  forceValidation,
+  validationCheckStatus,
+  updateValidationCheckStatus,
+  addPropertyToValidationCheckStatus,
+  removeValidationCheckStatus
+});
 
 onMounted(async () => {
   loading.value = true;
   await filterStore.fetchFilterSettings();
   await fetchEntity();
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
-    await getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
+    getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
   } else window.location.href = Env.DIRECTORY_URL;
   loading.value = false;
@@ -172,51 +206,12 @@ watch(
 const directService = new DirectService();
 const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
-function findPrimaryType(): TTIriRef | undefined {
-  if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]))) return undefined;
-  if (
-    isObjectHasKeys(editorEntityOriginal, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntityOriginal.value[RDF.TYPE]) &&
-    editorEntityOriginal.value[RDF.TYPE].length === 1 &&
-    isObjectHasKeys(editorEntity.value, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntity.value[RDF.TYPE])
-  ) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type === editorEntityOriginal.value[RDF.TYPE][0]);
-    if (found) return found;
-  }
-  if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
-  if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE)) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE);
-    if (found) return found;
-  }
-  return editorEntity.value[0];
-}
-
-function updateValueVariableMap(key: string, value: any) {
-  valueVariableMap.value.set(key, value);
-}
-
-function updateValidity(data: { key: string; valid: boolean }) {
-  const index = editorValidity.value.findIndex(item => item.key === data.key);
-  if (index) editorValidity.value[index] = data;
-  else editorValidity.value.push(data);
-}
-
-function removeValidity(data: { key: string; valid: boolean }) {
-  const index = editorValidity.value.findIndex(item => (item.key = data.key));
-  if (index) editorValidity.value.splice(index, 1);
-}
-
-function stepsClicked(event: any) {
-  currentStep.value = event.target.innerHTML - 1;
-}
-
-async function updateType(types: TTIriRef[]) {
+function updateType(types: TTIriRef[]) {
   loading.value = true;
-  await getShapesCombined(types, findPrimaryType());
+  getShapesCombined(types, findPrimaryType());
   if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
   editorEntity.value[RDF.TYPE] = types;
-  // removeEroneousKeys();
+  removeEroneousKeys();
   loading.value = false;
 }
 
@@ -241,97 +236,78 @@ function beforeWindowUnload(e: any) {
   }
 }
 
-function updateEntity(data: any) {
-  if (isArrayHasLength(data)) {
-    data.forEach((item: any) => {
-      if (isObjectHasKeys(item)) {
-        for (const [key, value] of Object.entries(item)) {
-          editorEntity.value[key] = value;
-        }
-      }
-    });
-  } else if (isObjectHasKeys(data)) {
-    if (isObjectHasKeys(data, [RDF.TYPE])) {
-      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) updateType(data[RDF.TYPE]);
-      else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) updateType(data[RDF.TYPE]);
-    } else {
-      for (const [key, value] of Object.entries(data)) {
-        editorEntity.value[key] = value;
-      }
-    }
-  }
-  editorStore.updateEditorSavedEntity(editorEntity.value);
-}
-
-function deleteEntityKey(data: string) {
-  if (data) delete editorEntity.value[data];
-}
-
-function checkForChanges() {
-  if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
-    editorStore.updateEditorHasChanges(false);
-    return false;
-  } else {
-    editorStore.updateEditorHasChanges(true);
-    return true;
-  }
-}
-
-async function submit(): Promise<void> {
-  if (await isValidEntity(editorEntity.value)) {
-    console.log("submit");
-    await Swal.fire({
-      icon: "info",
-      title: "Confirm save",
-      text: "Are you sure you want to save your changes?",
-      showCancelButton: true,
-      confirmButtonText: "Save",
-      reverseButtons: true,
-      confirmButtonColor: "#2196F3",
-      cancelButtonColor: "#607D8B",
-      showLoaderOnConfirm: true,
-      allowOutsideClick: () => !Swal.isLoading(),
-      preConfirm: async () => {
-        const res = await EntityService.updateEntity(editorEntity.value);
-        if (res) {
-          editorStore.updateEditorSavedEntity(undefined);
-          return res;
-        } else Swal.showValidationMessage("Error saving entity to server.");
-      }
-    }).then(async (result: any) => {
-      if (result.isConfirmed) {
+function submit(): void {
+  const verificationDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Validating", text: "Running validation checks..." }
+  });
+  constructValidationCheckStatus(shape.value);
+  forceValidation.value = true;
+  validationChecksCompleted()
+    .then(async res => {
+      forceValidation.value = false;
+      verificationDialog.close();
+      if (isValidEntity(editorEntity.value)) {
+        console.log("submit");
         Swal.fire({
-          title: "Success",
-          text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been updated.",
-          icon: "success",
+          icon: "info",
+          title: "Confirm save",
+          text: "Are you sure you want to save your changes?",
           showCancelButton: true,
+          confirmButtonText: "Save",
           reverseButtons: true,
-          confirmButtonText: "Open in Viewer",
           confirmButtonColor: "#2196F3",
-          cancelButtonColor: "#607D8B"
+          cancelButtonColor: "#607D8B",
+          showLoaderOnConfirm: true,
+          allowOutsideClick: () => !Swal.isLoading(),
+          backdrop: true,
+          preConfirm: async () => {
+            const res = await EntityService.updateEntity(editorEntity.value);
+            if (res) {
+              editorStore.updateEditorSavedEntity(undefined);
+              return res;
+            } else Swal.showValidationMessage("Error saving entity to server.");
+          }
         }).then(async (result: any) => {
           if (result.isConfirmed) {
-            directService.view(editorEntity.value["http://endhealth.info/im#id"]);
-          } else {
-            await fetchEntity();
+            Swal.fire({
+              title: "Success",
+              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been updated.",
+              icon: "success",
+              showCancelButton: true,
+              reverseButtons: true,
+              confirmButtonText: "Open in Viewer",
+              confirmButtonColor: "#2196F3",
+              cancelButtonColor: "#607D8B"
+            }).then(async (result: any) => {
+              if (result.isConfirmed) {
+                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
+              } else {
+                await fetchEntity();
+              }
+            });
           }
         });
+      } else {
+        console.log("invalid entity");
+        Swal.fire({
+          icon: "warning",
+          title: "Warning",
+          text: "Invalid values found. Please review your entries.",
+          confirmButtonText: "Close",
+          confirmButtonColor: "#689F38"
+        });
       }
+    })
+    .catch(err => {
+      Swal.fire({
+        icon: "error",
+        title: "Timeout",
+        text: "Validation timed out. Please contact an admin for support.",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
     });
-  } else {
-    console.log("invalid entity");
-    Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
-    });
-  }
-}
-
-async function isValidEntity(entity: any): Promise<boolean> {
-  return isObjectHasKeys(entity) && editorValidity.value.every(validity => validity.valid);
 }
 
 function testQuery() {
@@ -352,8 +328,6 @@ function refreshEditor() {
   }).then((result: any) => {
     if (result.isConfirmed) {
       editorEntity.value = { ...editorEntityOriginal.value };
-      currentStep.value = 0;
-      router.push(stepsItems.value[currentStep.value].to);
     }
   });
 }

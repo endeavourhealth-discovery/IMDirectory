@@ -51,7 +51,7 @@ describe("SecondaryTree.vue", () => {
         provide: { axios: axios },
         plugins: [PrimeVue]
       },
-      props: { conceptIri: "http://snomed.info/sct#298382003" }
+      props: { entityIri: "http://snomed.info/sct#298382003" }
     });
   });
 

@@ -18,7 +18,7 @@
     "baseUrl": ".",
     "outDir": "./dist/types",
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["src/*"],
       "@im-library/*": ["../im_library/src/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]

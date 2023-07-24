@@ -64,7 +64,7 @@ import { DirectService, EntityService } from "@/services";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
@@ -74,11 +74,11 @@ const loading = ref(false);
 const graph: Ref<OrganizationChartNode> = ref({} as OrganizationChartNode);
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => await getGraph(newValue)
 );
 
-onMounted(async () => await getGraph(props.conceptIri));
+onMounted(async () => await getGraph(props.entityIri));
 
 function getTypeFromIri(iri: string): string {
   if (!iri.includes("#")) {

@@ -50,7 +50,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
-const previousAppUrl = computed(() => authStore.previousAppUrl);
+const authReturnUrl = computed(() => authStore.authReturnUrl);
 
 let username = ref("");
 let password = ref("");
@@ -63,7 +63,7 @@ onMounted(() => {
 
 function handleSubmit(): void {
   AuthService.signIn(username.value, password.value)
-    .then(res => {
+    .then(async res => {
       if (res.status === 200 && res.user) {
         const loggedInUser = res.user;
         // check if avatar exists and replace lagacy images with default avatar on signin
@@ -71,20 +71,20 @@ function handleSubmit(): void {
         if (!result) {
           loggedInUser.avatar = Avatars[0];
         }
-        userStore.updateCurrentUser(loggedInUser);
-        authStore.updateRegisteredUsername(null);
+        await userStore.updateCurrentUser(loggedInUser);
+        await userStore.getAllFromUserDatabase();
+        authStore.updateRegisteredUsername("");
         Swal.fire({
           icon: "success",
           title: "Success",
           text: "Login successful"
         }).then(() => {
           userStore.clearOptionalCookies();
-          if (previousAppUrl.value) {
-            window.location.href = previousAppUrl.value;
+          if (authReturnUrl.value) {
+            window.location.href = authReturnUrl.value;
           } else {
             router.push({ name: "LandingPage" });
           }
-          window.location.reload();
         });
       } else if (res.status === 401) {
         Swal.fire({

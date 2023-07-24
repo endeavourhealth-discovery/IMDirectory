@@ -18,14 +18,16 @@
           <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
         </div>
 
-        <div v-else-if="node.data">{{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" /></div>
+        <div v-else-if="node.data">
+          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+        </div>
         <div v-else>{{ node.label }}</div>
       </template>
       <template #string="{ node }: any">{{ node.value }}</template>
-      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" /></template>
+      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" @navigateTo="(iri:string) => emit('navigateTo', iri)" /></template>
       <template #boolean="{ node }: any">{{ node.label }}</template>
       <template #link="{ node }: any">
-        <IMViewerLink :iri="node.key!" :label="node.label" />
+        <IMViewerLink :iri="node.key!" :label="node.label" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
       </template>
       <template #loadMore="{ node }: any">
         <b>{{ node.label }}...</b>
@@ -42,14 +44,14 @@ import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload });
+const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
 
 const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
 const OS: Ref<any> = ref();
@@ -59,8 +61,8 @@ const selectedKeys: Ref<any> = ref({});
 const predicatePageIndexMap: Ref<Map<string, { pageIndex: number; node: TreeNode }>> = ref(new Map<string, { pageIndex: number; node: TreeNode }>());
 
 watch(
-  () => props.conceptIri,
-  async newValue => getDefinition()
+  () => props.entityIri,
+  async () => getDefinition()
 );
 
 onMounted(async () => await getDefinition());
@@ -88,14 +90,14 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  definition.value = (await EntityService.getEntityDetailsDisplay(props.conceptIri)).filter((c: any) => c.key !== IM.IS_A);
+  definition.value = (await EntityService.getEntityDetailsDisplay(props.entityIri)).filter((c: any) => c.key !== IM.IS_A);
 }
 
 async function onSelect(node: TreeNode) {
   if (node.key === IM.NAMESPACE + "loadMore") {
     const pageIndexInfo = predicatePageIndexMap.value.get(node.data.predicate);
     if (pageIndexInfo) {
-      const entityDetails = await EntityService.loadMoreDetailsDisplay(props.conceptIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
+      const entityDetails = await EntityService.loadMoreDetailsDisplay(props.entityIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
       const predicateValueNode = entityDetails.find(loadMoreNode => loadMoreNode.key === node.data.predicate);
       if (isArrayHasLength(predicateValueNode?.children)) {
         pageIndexInfo.node.children = pageIndexInfo.node.children?.concat(predicateValueNode!.children!);

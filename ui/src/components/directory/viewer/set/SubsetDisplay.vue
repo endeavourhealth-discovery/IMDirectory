@@ -20,21 +20,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, ref } from "@vue/runtime-core";
+import { onMounted, Ref, ref } from "vue";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 
 const props = defineProps<Props>();
 const subsets: Ref<{ "@id": string; name: string }[]> = ref([]);
 
 onMounted(async () => {
-  const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_SUBSET]);
-  if (entity[IM.HAS_SUBSET]) subsets.value = entity[IM.HAS_SUBSET].filter((subset: any) => subset["@id"] !== props.conceptIri);
+  const entity = await EntityService.getPartialEntity(props.entityIri, [IM.HAS_SUBSET]);
+  if (entity[IM.HAS_SUBSET]) subsets.value = entity[IM.HAS_SUBSET].filter((subset: any) => subset["@id"] !== props.entityIri);
 });
 </script>
 

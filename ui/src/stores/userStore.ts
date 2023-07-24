@@ -20,6 +20,11 @@ export const useUserStore = defineStore("user", {
     isLoggedIn: state => isObjectHasKeys(state.currentUser)
   },
   actions: {
+    clearAllFromUserDatabase() {
+      this.currentTheme = "saga-blue";
+      this.favourites = [];
+      this.recentLocalActivity = [];
+    },
     clearOptionalCookies() {
       localStorage.removeItem("directoryMainSplitterVertical");
       localStorage.removeItem("directoryMainSplitterHorizontal");
@@ -40,21 +45,32 @@ export const useUserStore = defineStore("user", {
     },
     async initFavourites() {
       let favourites: string[] = [];
-      if (this.currentUser) favourites = await UserService.getUserFavourites(this.currentUser.id);
-      else favourites = this.favourites ? this.favourites : [];
+      if (this.currentUser) {
+        const result = await UserService.getUserFavourites();
+        if (result) favourites = result;
+      } else favourites = this.favourites ? this.favourites : [];
       for (let index = 0; index < favourites.length; index++) {
         const iriExists = await EntityService.iriExists(favourites[index]);
         if (!iriExists) {
           favourites.splice(index, 1);
         }
       }
-      if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, favourites);
+      if (this.currentUser) await UserService.updateUserFavourites(favourites);
       this.favourites = favourites;
+    },
+    async getAllFromUserDatabase(): Promise<void> {
+      if (this.currentUser) {
+        const themeResult = await UserService.getUserTheme();
+        if (themeResult) this.currentTheme = themeResult;
+        await this.initFavourites();
+        const recentActivityResult = await UserService.getUserMRU();
+        if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
+      }
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
       let activity: RecentActivityItem[] = [];
 
-      if (this.currentUser) activity = await UserService.getUserMRU(this.currentUser.id);
+      if (this.currentUser) activity = await UserService.getUserMRU();
       else activity = this.recentLocalActivity ? this.recentLocalActivity : [];
 
       activity.forEach(activityItem => {
@@ -78,33 +94,34 @@ export const useUserStore = defineStore("user", {
           activity.push(recentActivityItem);
         }
       }
-      if (this.currentUser) await UserService.updateUserMRU(this.currentUser.id, activity);
+      if (this.currentUser) await UserService.updateUserMRU(activity);
       this.recentLocalActivity = activity;
     },
     async updateFavourites(favourite: string) {
       if (favourite !== "http://endhealth.info/im#Favourites") {
-        const favourites: string[] = this.currentUser ? await UserService.getUserFavourites(this.currentUser.id) : this.favourites;
+        const favourites: string[] = this.currentUser ? await UserService.getUserFavourites() : this.favourites;
         if (!favourites.includes(favourite)) {
           favourites.push(favourite);
         } else {
           favourites.splice(favourites.indexOf(favourite), 1);
         }
-        if (this.currentUser) await UserService.updateUserFavourites(this.currentUser.id, favourites);
+        if (this.currentUser) await UserService.updateUserFavourites(favourites);
         this.favourites = favourites;
       }
     },
     async updateCurrentTheme(theme: string) {
-      if (this.currentUser) await UserService.updateUserTheme(this.currentUser.id, theme);
+      if (this.currentUser) await UserService.updateUserTheme(theme);
       this.currentTheme = theme;
     },
-    updateCurrentUser(user: any) {
+    async updateCurrentUser(user: any) {
       this.currentUser = user;
     },
     async logoutCurrentUser() {
       let result = { status: 500, message: "Logout (userStore) failed" } as CustomAlert;
-      await AuthService.signOut().then(res => {
+      await AuthService.signOut().then(async res => {
         if (res.status === 200) {
-          useUserStore().updateCurrentUser(null);
+          await useUserStore().updateCurrentUser(null);
+          useUserStore().clearAllFromUserDatabase();
           result = res;
         } else {
           result = res;
@@ -114,14 +131,14 @@ export const useUserStore = defineStore("user", {
     },
     async authenticateCurrentUser() {
       const result = { authenticated: false };
-      await AuthService.getCurrentAuthenticatedUser().then(res => {
+      await AuthService.getCurrentAuthenticatedUser().then(async res => {
         if (res.status === 200 && res.user) {
           const loggedInUser = res.user;
           const foundAvatar = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
           if (!foundAvatar) {
             loggedInUser.avatar = Avatars[0];
           }
-          useUserStore().updateCurrentUser(loggedInUser);
+          await useUserStore().updateCurrentUser(loggedInUser);
           result.authenticated = true;
         } else {
           this.logoutCurrentUser().then(resLogout => {

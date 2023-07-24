@@ -6,8 +6,8 @@
     </div>
     <div v-else class="dropdown-children-container">
       <Dropdown v-model="selectedOption" :options="dropdownOptions" optionLabel="name" placeholder="Select..." />
-      <div class="children-container" :class="invalid && 'invalid'">
-        <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+      <div class="children-container" :class="invalid && showValidation && 'invalid'">
+        <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
         <template v-for="item of build" :key="item.id">
           <component
             :is="item.type"
@@ -69,24 +69,37 @@ const emit = defineEmits({
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
 
 let key = props.shape.path["@id"];
 
-let loading = ref(true);
-let invalid = ref(false);
-let selectedOption: Ref<TTIriRef | undefined> = ref();
-let dropdownOptions: Ref<TTIriRef[]> = ref([]);
-let validationErrorMessage = "Failed validation";
-let build: Ref<ComponentDetails[]> = ref([]);
+const loading = ref(true);
+const invalid = ref(false);
+const selectedOption: Ref<TTIriRef | undefined> = ref();
+const dropdownOptions: Ref<TTIriRef[]> = ref([]);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const build: Ref<ComponentDetails[]> = ref([]);
+const showValidation = ref(false);
 onMounted(async () => {
   loading.value = true;
   key = props.shape.path["@id"];
-  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
   dropdownOptions.value = await getDropdownOptions();
   await createBuild();
   if (entityUpdate) updateEntity();
-  if (validityUpdate) await updateValidity();
+  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
   loading.value = false;
 });
 watch(
@@ -94,12 +107,11 @@ watch(
   async () => {
     loading.value = true;
     key = props.shape.path["@id"];
-    if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage!;
     dropdownOptions.value = await getDropdownOptions();
     setDropdownFromValue();
     await createBuild();
     if (entityUpdate) updateEntity();
-    if (validityUpdate) await updateValidity();
+    if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     loading.value = false;
   }
 );
@@ -108,7 +120,10 @@ watch(
   async () => {
     if (!loading.value && finishedChildLoading()) {
       if (entityUpdate) updateEntity();
-      if (validityUpdate) await updateValidity();
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
     }
   }
 );
@@ -240,19 +255,6 @@ function updateEntity() {
   result[key] = value;
   if (entityUpdate && isObjectHasKeys(value) && !props.shape.builderChild) entityUpdate(result);
   else if (entityUpdate && isObjectHasKeys(value)) emit("updateClicked", value);
-}
-
-async function updateValidity() {
-  if (isPropertyShape(props.shape) && isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation!["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return generateBuildAsJson().every((item: any) => isObjectHasKeys(item, ["@id", "name"]));
 }
 
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {

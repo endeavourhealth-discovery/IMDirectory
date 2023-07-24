@@ -2,10 +2,11 @@
   <div id="content-table-container" class="content-wrapper">
     <DataTable
       :value="children"
-      class="concept-data-table p-datatable-sm scrollbar"
+      class="concept-data-table p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
       dataKey="@id"
+      :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
       :lazy="true"
@@ -39,7 +40,7 @@
       <Column :exportable="false" style="justify-content: flex-end">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" @locate-in-tree="locateInTree" />
           </div>
         </template>
       </Column>
@@ -57,7 +58,7 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService, UserService } from "@/services";
 import rowClick from "@/composables/rowClick";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -127,7 +128,7 @@ async function init() {
 
 async function getFavourites() {
   let favouriteList: string[];
-  if (currentUser.value) favouriteList = await UserService.getUserFavourites(currentUser.value.id);
+  if (currentUser.value) favouriteList = await UserService.getUserFavourites();
   else favouriteList = favourites ? favourites.value : [];
   const result = await EntityService.getPartialEntities(favouriteList, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
@@ -190,11 +191,8 @@ async function onPage(event: any) {
 }
 
 function scrollToTop(): void {
-  const resultsContainer = document.getElementById("content-table-container") as HTMLElement;
-  const scrollBox = resultsContainer?.getElementsByClassName("scrollbar")[0] as HTMLElement;
-  if (scrollBox) {
-    scrollBox.scrollTop = 0;
-  }
+  const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
+  scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {
@@ -203,6 +201,10 @@ async function showOverlay(event: any, data: any): Promise<void> {
 
 function hideOverlay(event: any): void {
   OS.value.hideOverlay(event);
+}
+
+function locateInTree(iri: string) {
+  directoryStore.updateFindInTreeIri(iri);
 }
 </script>
 

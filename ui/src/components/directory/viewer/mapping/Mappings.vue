@@ -121,7 +121,7 @@ const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPriority, byScheme } = Sorters;
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 
 const props = defineProps<Props>();
@@ -141,7 +141,7 @@ const opMatchedTo = ref(null);
 const opMatchedFrom = ref(null);
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async () => await updateMappings()
 );
 
@@ -156,13 +156,13 @@ async function updateMappings() {
 }
 
 async function getMappings(): Promise<void> {
-  mappings.value = (await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_MAP]))[IM.HAS_MAP] ?? [];
-  contextMaps.value = (await EntityService.getContextMaps(props.conceptIri)) ?? [];
+  mappings.value = (await EntityService.getPartialEntity(props.entityIri, [IM.HAS_MAP]))[IM.HAS_MAP] ?? [];
+  contextMaps.value = (await EntityService.getContextMaps(props.entityIri)) ?? [];
   data.value = {};
 
   namespaces.value = await EntityService.getNamespaces();
-  matchedFrom.value = await EntityService.getMatchedFrom(props.conceptIri);
-  matchedTo.value = await EntityService.getMatchedTo(props.conceptIri);
+  matchedFrom.value = await EntityService.getMatchedFrom(props.entityIri);
+  matchedTo.value = await EntityService.getMatchedTo(props.entityIri);
 }
 
 function createChartTableNode(
@@ -381,6 +381,6 @@ table {
 }
 
 .context-table {
-  width: 100%
+  width: 100%;
 }
 </style>

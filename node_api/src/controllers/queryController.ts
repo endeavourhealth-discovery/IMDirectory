@@ -19,45 +19,51 @@ export default class QueryController {
   private initRoutes() {
     this.router.get("/public/queryDisplay", (req, res, next) =>
       this.getQueryDisplay(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
 
     this.router.get("/public/allowablePropertySuggestions", (req, res, next) =>
       this.getAllowablePropertySuggestions(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/allowablePropertySuggestionsBoolFocus", (req, res, next) =>
       this.getAllowablePropertySuggestionsBoolFocus(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/allowableRangeSuggestions", (req, res, next) =>
       this.getAllowableRangeSuggestions(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/allowableChildTypes", (req, res, next) =>
       this.getAllowableChildTypes(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/propertyRange", (req, res, next) =>
       this.getPropertyRange(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
     this.router.get("/public/isFunctionProperty", (req, res, next) =>
       this.isFunctionProperty(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
     );
 
     this.router.post("/public/labeledQuery", (req, res, next) =>
       this.getLabeledQuery(req)
-        .then(data => res.send(data).end())
+        .then(data => res.send(data))
         .catch(next)
+    );
+
+    this.router.get("/public/dataModelProperty", (req, res, next) =>
+        this.getDataModelProperty(req)
+            .then(data => res.send(data))
+            .catch(next)
     );
   }
 
@@ -98,5 +104,8 @@ export default class QueryController {
   async getLabeledQuery(req: Request) {
     const query: any = req.body;
     return await this.queryService.getLabeledQuery(query);
+  }
+  async getDataModelProperty(req: Request) {
+    return await this.queryService.getDataModelProperty(req.query.dataModelIri as string, req.query.propertyIri as string);
   }
 }

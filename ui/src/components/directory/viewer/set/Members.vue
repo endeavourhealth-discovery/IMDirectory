@@ -29,16 +29,12 @@
             <Button
               type="button"
               label="Download..."
-              @click="toggle"
+              @click="displayDialog"
               aria-haspopup="true"
               aria-controls="overlay_menu"
               :loading="downloading"
               data-testid="downloadButton"
             />
-            <template id="overlay_menu">
-              <Menu ref="menu" v-if="checkAuthorization()" :model="downloadMenu1" :popup="true" appendTo="body" data-testid="menuWithPublish" />
-              <Menu ref="menu" v-else :model="downloadMenu" :popup="true" appendTo="body" data-testid="menuWithoutPublish" />
-            </template>
           </div>
         </div>
       </template>
@@ -56,6 +52,53 @@
       </Column>
     </DataTable>
   </div>
+  <Dialog :visible="showOptions" :modal="true" :closable="false" :close-on-escape="false" header="Please select download options">
+    <div class="flex-container content-container" >
+      <div class="item-container">
+        <span class="text">Format</span>
+        <div class="card flex justify-content-center">
+          <div class="flex flex-column gap-3">
+            <div v-for="format of formats" :key="format.key" class="flex align-items-center">
+              <RadioButton v-model="selectedFormat" :inputId="format.key" name="pizza" :value="format.name" />
+              <label :for="format.key" class="ml-2">{{ format.name }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item-container">
+        <span class="text">Content</span>
+        <div class="card flex justify-content-left" >
+          <div class="flex flex-column gap-3">
+            <div v-for="content of contents" :key="content.key" class="flex align-items-center check-container">
+              <Checkbox v-model="selectedContents" :inputId="content.key" name="content" :value="content.name" :disabled="content.disable" />
+              <label :for="content.key">{{ content.name }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item-container">
+        <div class="toggle-container">
+          <span class="text">Show Subset</span>
+          <div class="card flex justify-content-left" style="margin:10px 0 0 0">
+            <ToggleButton v-model="checked" class="w-6rem h-2rem" />
+          </div>
+        </div>
+        <div class="toggle-container" :hidden="!showLegacy">
+          <span class="text" >Legacy</span>
+          <div class="card flex justify-content-left" style="margin:10px 0 0 0">
+            <ToggleButton v-model="checkedLegacy" onLabel="Own Row" offLabel="Inline Column" class="w-9rem h-2rem" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-container content-container">
+      <div class="card flex justify-content-center" style="gap: 1rem">
+        <Button v-if="selectedFormat === 'IMv1'" label="Download" @click="downloadIMV1" :disabled="!isOptionsSelected"/>
+        <Button v-else label="Download" @click="download" :disabled="!isOptionsSelected"/>
+        <Button label="Cancel" severity="danger" @click="closeDialog"/>
+      </div>
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -72,7 +115,7 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useUserStore } from "@/stores/userStore";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 
 const props = defineProps<Props>();
@@ -88,19 +131,29 @@ const loading = ref(false);
 const downloading = ref(false);
 const members: Ref<TTIriRef[]> = ref([]);
 const isPublishing = ref(false);
-const downloadMenu = ref([
-  { label: "Definition Only", command: () => download(false, false) },
-  { label: "Core", command: () => download(true, false) },
-  { label: "Core & Legacy", command: () => download(true, true) },
-  { label: "Core & Legacy (Flat)", command: () => download(true, true, true) }
+const showOptions = ref(false);
+const isOptionsSelected= ref(false);
+
+const formats = ref([
+  {key: "csv", name: "csv", disable: false},
+  {key: "tsv", name: "tsv", disable: false},
+  {key: "xls", name: "xlsx", disable: false},
+  {key: "im1", name: "IMv1", disable: false}
 ]);
-const downloadMenu1 = ref([
-  { label: "Definition Only", command: () => download(false, false) },
-  { label: "Core", command: () => download(true, false) },
-  { label: "Core & Legacy", command: () => download(true, true) },
-  { label: "Core & Legacy (Flat)", command: () => download(true, true, true) },
-  { label: "IMv1", command: () => downloadIMV1() }
+
+const selectedFormat = ref();
+
+const contents = ref([
+  {key: "definition", name: "Definition", disable: true},
+  {key: "core", name: "Core", disable: true},
+  {key: "legacy", name: "Legacy", disable: true},
+  {key: "im1Id", name: "IM1Id", disable: true}
 ]);
+
+const selectedContents = ref();
+const checkedLegacy = ref(false);
+const checked = ref(false);
+const showLegacy = ref(false);
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
@@ -109,11 +162,62 @@ const currentPage = ref(0);
 const pageSize = ref(25);
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async () => {
     await init();
   }
 );
+
+watch(
+    () => selectedContents.value,
+    () => {
+      if(contents.value.length !== 0 && selectedFormat.value !== "IMv1") {
+        contents.value[1].disable = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
+
+        if(selectedContents.value.includes("Core")) {
+          if(selectedFormat.value !== "xlsx") {
+            contents.value[0].disable = true;
+          }
+          contents.value[2].disable = false;
+          contents.value[3].disable = false;
+        } else {
+          contents.value[0].disable = false;
+          contents.value[2].disable = true;
+          contents.value[3].disable = true;
+          checked.value = false;
+          checkedLegacy.value = false;
+          const indexLegacy = selectedContents.value.indexOf("Legacy");
+          if(indexLegacy !== -1) {
+            selectedContents.value.splice(indexLegacy, 1);
+          }
+          const indexIM1Id = selectedContents.value.indexOf("IM1Id");
+          if(indexIM1Id !== -1) {
+            selectedContents.value.splice(indexIM1Id, 1);
+          }
+        }
+        showLegacy.value = !!selectedContents.value.includes("Legacy");
+      }
+      isOptionsSelected.value = selectedContents.value.length !== 0 && selectedFormat.value != null;
+    }
+)
+
+watch(
+    () => selectedFormat.value,
+    () => {
+      selectedContents.value = [];
+      checked.value = false;
+      checkedLegacy.value = false;
+      if(selectedFormat.value) {
+        if(selectedFormat.value === "IMv1") {
+          contents.value.forEach((f:any) => f.disable = true);
+        } else {
+          contents.value.forEach((f:any) => f.disable = false);
+        }
+      } else {
+        contents.value.forEach((f:any) => f.disable = true);
+      }
+    }
+)
 
 onMounted(async () => {
   await init();
@@ -125,8 +229,12 @@ async function init() {
 }
 
 async function setHasDefinition() {
-  const entity = await EntityService.getPartialEntity(props.conceptIri, [IM.DEFINITION]);
+  const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   hasDefintion.value = isObjectHasKeys(entity, [IM.DEFINITION]);
+}
+
+function displayDialog() {
+  showOptions.value = true;
 }
 
 function toggle(event: any) {
@@ -136,7 +244,7 @@ function toggle(event: any) {
 
 async function getMembers(): Promise<void> {
   loading.value = true;
-  const paged = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
+  const paged = await EntityService.getPartialAndTotalCount(props.entityIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
   members.value = paged.result;
   totalCount.value = paged.totalCount;
   templateString.value = "Displaying {first} to {last} of {totalRecords} concepts";
@@ -144,11 +252,12 @@ async function getMembers(): Promise<void> {
 }
 
 async function downloadIMV1(): Promise<void> {
+  showOptions.value = false;
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const result = await SetService.IMV1(props.conceptIri);
-    const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
+    const result = await SetService.IMV1(props.entityIri);
+    const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, label + ".txt");
   } catch (err) {
     toast.add(new ToastOptions(ToastSeverity.ERROR, "Download  failed from server", err));
@@ -157,12 +266,21 @@ async function downloadIMV1(): Promise<void> {
   }
 }
 
-async function download(core: boolean, legacy: boolean, flat: boolean = false): Promise<void> {
+function closeDialog() {
+  showOptions.value = false;
+}
+
+async function download(): Promise<void> {
+  const definition = selectedContents.value.includes("Definition");
+  const core = selectedContents.value.includes("Core");
+  const legacy = selectedContents.value.includes("Legacy");
+  const im1id = selectedContents.value.includes("IM1Id");
+  showOptions.value = false;
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const result = (await EntityService.getFullExportSet(props.conceptIri, core, legacy, flat)).data;
-    const label: string = (await EntityService.getPartialEntity(props.conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
+    const result = (await EntityService.getFullExportSet(props.entityIri, definition, core, legacy, checked.value, checkedLegacy.value, im1id, selectedFormat.value)).data;
+    const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, getFileName(label));
   } catch (error) {
     toast.add(new ToastOptions(ToastSeverity.ERROR, "Download failed from server", error));
@@ -175,19 +293,19 @@ function getFileName(label: string) {
   if (label.length > 100) {
     label = label.substring(0, 100);
   }
-  return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + ".xlsx";
+  return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + selectedFormat.value;
 }
 
 function publish() {
   isPublishing.value = true;
-  SetService.publish(props.conceptIri)
+  SetService.publish(props.entityIri)
     .then(() => {
       isPublishing.value = false;
-      toast.add(new ToastOptions(ToastSeverity.SUCCESS, `Value set published to IM1 : ${props.conceptIri}`));
+      toast.add(new ToastOptions(ToastSeverity.SUCCESS, `Value set published to IM1 : ${props.entityIri}`));
     })
     .catch(() => {
       isPublishing.value = false;
-      toast.add(new ToastOptions(ToastSeverity.ERROR, `Failed to publish value set to IM1 : ${props.conceptIri}`));
+      toast.add(new ToastOptions(ToastSeverity.ERROR, `Failed to publish value set to IM1 : ${props.entityIri}`));
     });
 }
 
@@ -201,13 +319,64 @@ async function getPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  let pagedNewMembers = await EntityService.getPartialAndTotalCount(props.conceptIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
+  let pagedNewMembers = await EntityService.getPartialAndTotalCount(props.entityIri, IM.HAS_MEMBER, currentPage.value + 1, pageSize.value);
   members.value = pagedNewMembers.result;
   loading.value = false;
 }
 </script>
 
 <style scoped>
+.item-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  /*align-items: center;*/
+}
+
+.toggle-container{
+  padding: 0 0 30px 0;
+  gap: 2rem;
+}
+
+.type-selector {
+  width: 100%;
+  height: 100%;
+}
+
+.loading-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.flex-container {
+  gap: 5rem;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+/*::v-deep(.p-dialog) {*/
+/*  padding: 50px 200px 50px 200px !important;*/
+/*}*/
+
+.check-container{
+  gap: 1rem;
+}
+
+.content-container{
+  padding: 20px;
+}
+
+
+.text {
+  font-size: medium;
+  padding: 0 0 1rem 0;
+}
+
 #members-table-container {
   height: 100%;
   width: 100%;
@@ -272,5 +441,82 @@ async function getPage(event: any) {
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-end;
+}
+
+.custom-button {
+  display: flex;
+  font-family: "Lato", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  background: steelblue;
+  color: #fff;
+  line-height: 42px;
+  padding: 0 1rem;
+  border: none;
+}
+
+.custom-button span {
+  flex: 1 1 auto;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.custom-button:before,
+.custom-button:after {
+  position: absolute;
+  content: "";
+  height: 0%;
+  width: 2px;
+  background: steelblue;
+}
+.custom-button:before {
+  right: 0;
+  top: 0;
+  transition: all 500ms ease;
+}
+.custom-button:after {
+  left: 0;
+  bottom: 0;
+  transition: all 500ms ease;
+}
+.custom-button:hover {
+  color: steelblue;
+  background: transparent;
+}
+.custom-button:hover:before {
+  transition: all 500ms ease;
+  height: 100%;
+}
+.custom-button:hover:after {
+  transition: all 500ms ease;
+  height: 100%;
+}
+.custom-button span:before,
+.custom-button span:after {
+  position: absolute;
+  content: "";
+  background: steelblue;
+}
+.custom-button span:before {
+  left: 0;
+  top: 0;
+  width: 0%;
+  height: 2px;
+  transition: all 500ms ease;
+}
+.custom-button span:after {
+  right: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  transition: all 500ms ease;
+}
+.custom-button span:hover:before {
+  width: 100%;
+}
+.custom-button span:hover:after {
+  width: 100%;
 }
 </style>
