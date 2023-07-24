@@ -20,7 +20,7 @@
       </div>
       <div class="vertical-divider">
         <div class="left-container">
-          <NavTree :selectedIri="treeIri" @row-selected="showDetails" />
+          <NavTree :selectedIri="treeIri" :root-entities="rootEntities" @row-selected="showDetails" />
         </div>
         <div class="right-container">
           <SearchResults
@@ -67,6 +67,7 @@ interface Props {
   showDialog: boolean;
   searchByQuery?: QueryRequest;
   selected?: ConceptSummary;
+  rootEntities?: string[];
 }
 const props = defineProps<Props>();
 watch(

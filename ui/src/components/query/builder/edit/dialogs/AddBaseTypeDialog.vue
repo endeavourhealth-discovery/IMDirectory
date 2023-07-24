@@ -1,10 +1,11 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
-    <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
-    <template #footer>
-      <Button label="Discard" severity="secondary" @click="visible = false" text />
-      <Button label="Save" @click="setBaseType" text />
-    </template>
+  <Dialog v-model:visible="visible" v-model:selected="selected" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
+    <DirectorySearchDialog
+      v-model:show-dialog="visible"
+      @update:selected="setBaseType"
+      :root-entities="rootEntities"
+      :searchByQuery="cohortOrDataModelQueryRequest"
+    />
   </Dialog>
 
   <Dialog v-model:visible="confirmVisible" modal header="Confirm" :style="{ width: '50vw' }">
@@ -19,10 +20,14 @@
 <script setup lang="ts">
 import { Ref, ref, watch } from "vue";
 
-import { Query } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { TreeNode } from "primevue/tree";
-import BaseEntityTree from "../BaseEntityTree.vue";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { ConceptSummary } from "@im-library/interfaces";
+import { EntityService } from "@/services";
+import { IM } from "@im-library/vocabulary";
+import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
+import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   query: Query;
@@ -31,8 +36,29 @@ interface Props {
 
 const props = defineProps<Props>();
 const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
+
 const visible: Ref<boolean> = ref(false);
 const confirmVisible: Ref<boolean> = ref(false);
+const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const rootEntities: Ref<string[]> = ref(["http://endhealth.info/im#DataModel", "http://endhealth.info/im#Q_Queries"]);
+const cohortOrDataModelQueryRequest: Ref<QueryRequest> = ref({
+  query: {
+    name: "Get queries and data models",
+    match: [
+      {
+        bool: "or",
+        match: [
+          {
+            "@type": "http://endhealth.info/im#CohortQuery"
+          },
+          {
+            "@type": "http://www.w3.org/ns/shacl#NodeShape"
+          }
+        ]
+      }
+    ]
+  }
+} as QueryRequest);
 
 watch(
   () => props.showDialog,
@@ -47,17 +73,16 @@ watch(visible, newValue => {
   }
 });
 
-const baseNode: Ref<TreeNode> = ref({} as TreeNode);
-
 async function save() {
-  if (isObjectHasKeys(baseNode.value)) {
-    props.query["@type"] = baseNode.value.data;
+  if (isObjectHasKeys(selected.value)) {
+    if (isQuery(selected.value.entityType)) {
+      props.query["@type"] = await getReturnType(selected.value.iri);
+      props.query.match = [buildMatchFromCS(selected.value)];
+    } else {
+      props.query["@type"] = selected.value.iri;
+    }
   }
   visible.value = false;
-}
-
-function addBaseEntity(selected: TreeNode) {
-  baseNode.value = selected;
 }
 
 function confirm() {
@@ -66,12 +91,20 @@ function confirm() {
   save();
 }
 
-function setBaseType() {
+function setBaseType(cs: ConceptSummary) {
+  selected.value = cs;
+
   if (isArrayHasLength(props.query.match)) {
     confirmVisible.value = true;
   } else {
     save();
   }
+}
+
+async function getReturnType(queryIri: string) {
+  const entity = await EntityService.getPartialEntity(queryIri, [IM.NAMESPACE + "returnType"]);
+  if (!isArrayHasLength(entity[IM.NAMESPACE + "returnType"])) return "";
+  return entity[IM.NAMESPACE + "returnType"][0]["@id"];
 }
 </script>
 
