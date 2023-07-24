@@ -119,10 +119,10 @@ const qrCode = ref(new QRCodeStyling(options.value));
 const qrCodeElement = ref();
 
 onMounted(() => {
-  // if (props.QRCode) {
-  // options.value.data = props.QRCode;
-  qrCode.value.append(qrCodeElement.value);
-  // } else throw new Error("Multifactor setup is missing required qr code");
+  if (props.QRCode) {
+    options.value.data = props.QRCode;
+    qrCode.value.append(qrCodeElement.value);
+  } else throw new Error("Multifactor setup is missing required qr code");
 });
 
 watch(

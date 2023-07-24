@@ -141,8 +141,8 @@ function handleSubmit(): void {
               Swal.showLoading();
             },
             showCloseButton: true
-          }).then(result => {
-            router.push({ name: "MFALogin" });
+          }).then(() => {
+            router.push({ name: "MFALogin", params: { user: { ...res.userRaw } } });
           });
         }
       } else {
