@@ -197,7 +197,7 @@ watch(
         }
         showLegacy.value = !!selectedContents.value.includes("Legacy");
       }
-      isOptionsSelected.value = selectedContents.value.length !== 0 && selectedFormat.value != null;
+      isOptionsSelected.value = selectedContents.value.length !== 0 && selectedFormat.value != null || selectedFormat.value === "IMv1";
     }
 )
 
