@@ -27,6 +27,7 @@ function setupQueryTree() {
     hasChildren: boolean,
     selectable: boolean,
     parent?: TreeNode,
+    hasVariable?: string,
     order?: number
   ): TreeNode {
     return {
@@ -41,7 +42,8 @@ function setupQueryTree() {
       children: [] as TreeNode[],
       parent: getParentNode(parent as any),
       order: order,
-      selectable: selectable
+      selectable: selectable,
+      hasVariable: hasVariable
     };
   }
 

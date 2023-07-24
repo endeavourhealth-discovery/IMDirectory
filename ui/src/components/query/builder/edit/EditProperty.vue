@@ -1,6 +1,6 @@
 <template>
   <div class="property-container">
-    <span v-tooltip.right="tooltip" class="property-label"> {{ getNameFromRef(property) }}: </span>
+    <div v-tooltip.right="tooltip" class="property-label">{{ getNameFromRef(property) }}:</div>
     <ClassSelect
       v-if="isObjectHasKeys(ttproperty, [SHACL.CLASS])"
       :class-iri="ttproperty[SHACL.CLASS][0]['@id']"
@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { Match, Property } from "@im-library/interfaces/AutoGen";
-import { ComputedRef, Ref, computed, onMounted, ref } from "vue";
+import { Ref, onMounted, ref } from "vue";
 import ClassSelect from "./class/ClassSelect.vue";
 import DatatypeSelect from "./datatype/DatatypeSelect.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -32,7 +32,6 @@ import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
-import _ from "lodash";
 import EntitySelect from "./EntitySelect.vue";
 
 const emit = defineEmits({
@@ -50,10 +49,6 @@ interface Props {
 const props = defineProps<Props>();
 const ttproperty: Ref<TTProperty> = ref({} as TTProperty);
 const tooltip: Ref<string> = ref("");
-const computedPropertyDisplay: ComputedRef<string> = computed(() => {
-  if (props.match?.["@type"]) return getNameFromRef(props.match["@type"]) + "." + getNameFromRef(props.property);
-  return getNameFromRef(props.property);
-});
 
 onMounted(async () => {
   await init();
@@ -82,4 +77,8 @@ function getTooltip(ttproperty: TTProperty) {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.property-label {
+  margin-bottom: 0.5rem !important;
+}
+</style>

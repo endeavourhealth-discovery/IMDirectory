@@ -23,16 +23,23 @@
         :parentMatchList="query.match"
         :selected-matches="selectedMatches"
         :variable-map="variableMap"
+        :validation-query-request="validationQueryRequest"
       />
 
       <div v-else-if="!queryTypeIri">
         <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
       </div>
-      <div v-if="!isArrayHasLength(query.match) && query.type">
+      <div v-if="!isArrayHasLength(query.match) && query['@type']">
         <Button label="Add feature" @click="showAddDialog = true" />
       </div>
 
-      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" :variable-map="variableMap" @on-add-or-edit="add" />
+      <AddPropertyDialog
+        v-model:show-dialog="showAddDialog"
+        :base-type="queryTypeIri"
+        :variable-map="variableMap"
+        :add-mode="'addAfter'"
+        @on-add-or-edit="add"
+      />
       <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     </div>
     <div class="button-bar">
@@ -48,7 +55,7 @@ import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
 import { useFilterStore } from "@/stores/filterStore";
-import { Match, Property, Query } from "@im-library/interfaces/AutoGen";
+import { Match, Property, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRoute } from "vue-router";
 import _ from "lodash";
@@ -71,6 +78,7 @@ const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as st
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
 const loading = ref(true);
 const variableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
+const validationQueryRequest: Ref<QueryRequest> = ref({} as QueryRequest);
 
 watch(
   () => queryIri.value,
@@ -87,6 +95,11 @@ watch(
   () => describeQuery(query.value)
 );
 
+watch(
+  () => _.cloneDeep(queryTypeIri.value),
+  () => setValidationQueryRequest()
+);
+
 onMounted(async () => {
   await filterStore.fetchFilterSettings();
   if (queryIri.value) await init();
@@ -97,6 +110,7 @@ async function init() {
   await setQuery();
   setBaseEntityMatch();
   initVariableMap();
+  setValidationQueryRequest();
 }
 
 async function setQuery() {
@@ -110,24 +124,6 @@ async function setBaseEntityMatch() {
     queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
   }
 }
-
-// function deleteBaseType() {
-//   Swal.fire({
-//     icon: "info",
-//     title: "Confirm delete",
-//     text: "Are you sure you want to delete the base type of your query? All other clauses will be deleted.",
-//     showCancelButton: true,
-//     confirmButtonText: "Yes",
-//     reverseButtons: true,
-//     confirmButtonColor: "#2196F3",
-//     cancelButtonColor: "#607D8B",
-//     showLoaderOnConfirm: true,
-//     allowOutsideClick: () => !Swal.isLoading(),
-//     backdrop: true
-//   }).then((result: any) => {
-//     if (result.isConfirmed) props.matches.length = 0;
-//   });
-// }
 
 function add(direct: Match[], nested: Match[]) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
@@ -144,7 +140,6 @@ function initVariableMap() {
 
 function addVariableRefFromMatch(match: Match) {
   if (match.variable) variableMap.value.set(match.variable, match);
-  // console.log(nodeRefMap.value.keys());
   if (isArrayHasLength(match.match))
     for (const nestedMatch of match.match!) {
       addVariableRefFromMatch(nestedMatch);
@@ -165,6 +160,46 @@ function addVariableRefFromProperty(property: Property) {
     for (const nestedProperty of property.property!) {
       addVariableRefFromProperty(nestedProperty);
     }
+}
+
+function setValidationQueryRequest() {
+  validationQueryRequest.value = {
+    argument: [
+      {
+        parameter: "dataModelIri",
+        valueIri: {
+          "@id": queryTypeIri.value
+        }
+      }
+    ],
+    query: {
+      name: "Get queries by return type",
+      match: [
+        {
+          "@type": "http://endhealth.info/im#CohortQuery",
+          property: [
+            {
+              "@id": "http://endhealth.info/im#returnType",
+              in: [
+                {
+                  parameter: "dataModelIri"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      return: [
+        {
+          property: [
+            {
+              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
+            }
+          ]
+        }
+      ]
+    }
+  };
 }
 </script>
 

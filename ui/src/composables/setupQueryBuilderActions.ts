@@ -2,7 +2,6 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { cloneDeep } from "lodash";
 
 function setupQueryBuilderActions() {
@@ -10,10 +9,11 @@ function setupQueryBuilderActions() {
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
+  const showDirectoryDialog: Ref<boolean> = ref(false);
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
-  const addMode: Ref<"editProperty" | "addMatch" | "addSubMatch"> = ref("addMatch");
+  const addMode: Ref<"editProperty" | "addBefore" | "addAfter"> = ref("addAfter");
 
   function addOrEdit(match: Match, parentMatchList: Match[] | undefined, index: number, direct: Match[], nested: Match[]) {
     switch (addMode.value) {
@@ -29,18 +29,18 @@ function setupQueryBuilderActions() {
         }
         break;
 
-      case "addMatch":
+      case "addAfter":
         if (isArrayHasLength(parentMatchList))
           for (const newMatch of direct.concat(nested)) {
-            add(parentMatchList!, newMatch, index);
+            parentMatchList!.splice(index + 1, 0, newMatch);
           }
         break;
 
-      case "addSubMatch":
-        if (!isArrayHasLength(match.match)) match.match = [];
-        for (const newMatch of direct.concat(nested)) {
-          match.match!.push(newMatch);
-        }
+      case "addBefore":
+        if (isArrayHasLength(parentMatchList))
+          for (const newMatch of direct.concat(nested)) {
+            parentMatchList!.splice(index, 0, newMatch);
+          }
         break;
 
       default:
@@ -59,11 +59,6 @@ function setupQueryBuilderActions() {
       }
 
     showAddDialog.value = false;
-  }
-
-  function add(matches: Match[], match: Match, index: number) {
-    if (index !== matches.length) matches.splice(index + 1, 0, match);
-    else matches.push(match);
   }
 
   function view() {
@@ -92,27 +87,31 @@ function setupQueryBuilderActions() {
     if (isArrayHasLength(matches)) matches.splice(matchIndex, 1);
   }
 
-  function group(selectedMatches: SelectedMatch[], parentMatch: Match, matches: Match[]) {
+  function group(selectedMatches: SelectedMatch[], parentMatch: Match[] | undefined, matches: Match[]) {
     let index = selectedMatches[0].index;
-    const groupedMatch = { boolMatch: "and", match: [] } as Match;
+    let initialParent = selectedMatches[0].parent;
+    const groupedMatch = { bool: "and", match: [] } as Match;
 
     for (const selectedMatch of selectedMatches) {
+      if (selectedMatch.parent !== initialParent) {
+        return;
+      }
       if (selectedMatch.index < index) index = selectedMatch.index;
       groupedMatch.match!.push(selectedMatch.selected);
     }
 
-    if (isObjectHasKeys(parentMatch, ["match"]) && isArrayHasLength(parentMatch.match)) {
-      groupedMatch.match!.sort((a, b) => parentMatch.match!.indexOf(a) - parentMatch.match!.indexOf(b));
-      parentMatch.match!.splice(index, 0, groupedMatch);
+    if (isArrayHasLength(parentMatch)) {
+      groupedMatch.match?.sort((a, b) => parentMatch!.indexOf(a) - parentMatch!.indexOf(b));
+      parentMatch!.splice(index, 0, groupedMatch);
     } else {
       groupedMatch.match!.sort((a, b) => matches.indexOf(a) - matches.indexOf(b));
       matches.splice(index, 0, groupedMatch);
     }
 
     for (const selectedMatch of selectedMatches) {
-      if (isObjectHasKeys(parentMatch, ["match"]) && isArrayHasLength(parentMatch.match)) {
-        parentMatch.match!.splice(
-          parentMatch.match!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+      if (isArrayHasLength(parentMatch)) {
+        parentMatch!.splice(
+          parentMatch!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
           1
         );
       } else {
@@ -129,7 +128,7 @@ function setupQueryBuilderActions() {
       if (isArrayHasLength(selectedMatch.selected.match)) {
         if (index !== -1) matches.splice(index, 1);
         for (const nestedMatch of selectedMatch.selected.match!.reverse()) {
-          const unnestedMatch = { boolMatch: "and", match: [nestedMatch] } as Match;
+          const unnestedMatch = { bool: "and", match: [nestedMatch] } as Match;
           matches.splice(index, 0, unnestedMatch);
         }
       }
@@ -143,7 +142,9 @@ function setupQueryBuilderActions() {
     event.dataTransfer.dropEffect = "move";
   }
 
-  function dragEnter(event: any, data: any) {
+  function dragEnter(event: any, data: any, htmlId: string) {
+    const element = document.getElementById(htmlId);
+    if (element) element.classList.add("over");
     if (dragged.value !== data) {
       draggedParent.value = data;
       allowDrop.value = true;
@@ -152,12 +153,21 @@ function setupQueryBuilderActions() {
     }
   }
 
-  async function dragDrop(event: any, parentMatch?: Match, parentMatchList?: Match[]) {
+  function dragLeave(htmlId: string) {
+    const element = document.getElementById(htmlId);
+    if (element) element.classList.remove("over");
+  }
+
+  async function dragDrop(event: any, parentMatch: Match, parentMatchList: Match[], htmlId: string) {
+    dragLeave(htmlId);
     const data = event.dataTransfer.getData("matchData");
     if (!allowDrop.value) {
       event.preventDefault();
     } else if (data && draggedParent.value && allowDrop.value) {
-      if (draggedParent.value.match === undefined) draggedParent.value.match = [];
+      if (draggedParent.value.match === undefined) {
+        draggedParent.value.bool = "and";
+        draggedParent.value.match = [];
+      }
       const parsedMatchData = JSON.parse(data);
       draggedParent.value.match.push(parsedMatchData);
       const list = parentMatch?.match ?? parentMatchList!;
@@ -170,6 +180,7 @@ function setupQueryBuilderActions() {
   }
 
   function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, memberOfList?: Match[]) {
+    event.stopPropagation();
     const selectedMatch = { index: index, selected: match } as SelectedMatch;
     if (parentMatch) selectedMatch.parent = parentMatch;
     else if (memberOfList) selectedMatch.memberOfList = memberOfList;
@@ -190,7 +201,6 @@ function setupQueryBuilderActions() {
   }
 
   return {
-    add,
     addOrEdit,
     updateProperties,
     view,
@@ -201,12 +211,14 @@ function setupQueryBuilderActions() {
     group,
     ungroup,
     dragStart,
+    dragLeave,
     dragEnter,
     dragDrop,
     select,
     showViewDialog,
     showAddDialog,
     showKeepAsDialog,
+    showDirectoryDialog,
     showAddBaseTypeDialog,
     addMode
   };

@@ -20,7 +20,7 @@
 
 <script async setup lang="ts">
 import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { EntityService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -38,6 +38,7 @@ interface Props {
   baseType: string;
   editMatch: Match;
   variableMap: Map<string, any>;
+  addMode: "editProperty" | "addBefore" | "addAfter";
 }
 const props = defineProps<Props>();
 
@@ -52,7 +53,7 @@ const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, uns
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  await populateCheckBoxes(props.editMatch);
+  if (props.addMode === "editProperty") await populateCheckBoxes(props.editMatch);
   loading.value = false;
 });
 
@@ -70,22 +71,6 @@ async function populateCheckBoxes(match: Match) {
   if (isArrayHasLength(match.property)) {
     for (const property of match.property!) {
       selectByIri(property["@id"]!, root.value);
-    }
-  }
-}
-
-async function selectByKey(key: string) {
-  const keys = key.split("-");
-  const lastKey = keys.length;
-  let nodes = root.value;
-  for (const [index, keySplit] of keys.entries()) {
-    if (index !== lastKey - 1) {
-      const parentNode = nodes[+keySplit];
-      expandedKeys.value[parentNode.key!] = true;
-      if (!isArrayHasLength(parentNode.children)) await handleTreeNodeExpand(parentNode);
-      if (isArrayHasLength(parentNode.children)) nodes = parentNode.children!;
-    } else {
-      select(nodes[+keySplit]);
     }
   }
 }
@@ -146,7 +131,7 @@ async function onNodeExpand(node: TreeNode) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
       let groupNode = node.children?.find(child => child.data === groupRef["@id"]);
       if (!groupNode) {
-        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, false, node, groupRef.order);
+        groupNode = createTreeNode(getNameFromRef(groupRef), groupRef["@id"], [{ "@id": IM.FOLDER }], true, false, node, undefined, groupRef.order);
         node.children?.push(groupNode);
       }
       const propertyNode = buildTreeNodeFromTTProperty(prop, groupNode);
@@ -189,11 +174,8 @@ async function onClassExpand(node: TreeNode) {
 }
 
 async function addParentFoldersToRoot() {
-  if (props.baseType) {
-    const resolvedIri = resolveIri(props.baseType);
-    if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
-  }
-
+  const resolvedIri = resolveIri(props.baseType);
+  if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
   if (props.variableMap && props.variableMap.size) addVariableNodes();
 }
 
@@ -203,7 +185,7 @@ function addVariableNodes() {
     getVariableTypesFromMatch(object, types);
     for (const typeIri of types) {
       const name = key + " (" + getNameFromRef({ "@id": typeIri }) + ")";
-      const treeNode = createTreeNode(name, typeIri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] });
+      const treeNode = createTreeNode(name, typeIri, [{ "@id": SHACL.NODESHAPE }], true, false, { key: "" + root.value.length, children: [] }, key);
       root.value.push(treeNode);
     }
   }

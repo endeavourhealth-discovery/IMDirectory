@@ -90,7 +90,8 @@ function buildDataModelTreeNode(property: TTProperty, parent: TreeNode) {
     leaf: false,
     children: [],
     selectable: false,
-    parent: getParentNode(parent)
+    parent: getParentNode(parent),
+    hasVariable: ""
   } as TreeNode;
 }
 
