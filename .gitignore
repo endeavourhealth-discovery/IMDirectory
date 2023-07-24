@@ -7,7 +7,7 @@
 node
 
 #ignore types
-**/types
+im_library/types
 
 # local env files
 **/.env.**
