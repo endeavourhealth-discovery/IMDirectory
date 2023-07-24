@@ -92,9 +92,10 @@
       </div>
     </div>
     <div class="flex-container content-container">
-      <div class="card flex justify-content-center">
-        <Button v-if="selectedFormat === 'IMv1'" label="Submit" @click="downloadIMV1"/>
-        <Button v-else label="Submit" @click="download"/>
+      <div class="card flex justify-content-center" style="gap: 1rem">
+        <Button v-if="selectedFormat === 'IMv1'" label="Download" @click="downloadIMV1" :disabled="!isOptionsSelected"/>
+        <Button v-else label="Download" @click="download" :disabled="!isOptionsSelected"/>
+        <Button label="Cancel" severity="danger" @click="closeDialog"/>
       </div>
     </div>
   </Dialog>
@@ -131,6 +132,7 @@ const downloading = ref(false);
 const members: Ref<TTIriRef[]> = ref([]);
 const isPublishing = ref(false);
 const showOptions = ref(false);
+const isOptionsSelected= ref(false);
 
 const formats = ref([
   {key: "csv", name: "csv", disable: false},
@@ -195,6 +197,7 @@ watch(
         }
         showLegacy.value = !!selectedContents.value.includes("Legacy");
       }
+      isOptionsSelected.value = selectedContents.value.length !== 0 && selectedFormat.value != null;
     }
 )
 
@@ -261,6 +264,10 @@ async function downloadIMV1(): Promise<void> {
   } finally {
     downloading.value = false;
   }
+}
+
+function closeDialog() {
+  showOptions.value = false;
 }
 
 async function download(): Promise<void> {
