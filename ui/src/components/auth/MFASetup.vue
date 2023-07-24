@@ -16,7 +16,7 @@
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
             <small v-if="isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
-          <Button label="Submit" @click="handleSubmitMFA" />
+          <Button :disabled="!isValidCode" label="Submit" @click="handleSubmitMFA" />
         </div>
       </template>
     </Card>
@@ -32,6 +32,10 @@ import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
 import Swal from "sweetalert2";
 import { AuthService } from "@/services";
+import { useUserStore } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from "vue-router";
+import { Avatars } from "@im-library/constants";
 
 interface Props {
   QRCode: string;
@@ -40,7 +44,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const router = useRouter();
 const helpDialog = useDialog();
+const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const styles = getComputedStyle(document.body);
 const primaryColor = styles.getPropertyValue("--primary-color");
@@ -48,6 +55,7 @@ const backgroundColor = styles.getPropertyValue("--surface-a");
 const textColor = styles.getPropertyValue("--text-color");
 
 const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
+const authReturnUrl = computed(() => authStore.authReturnUrl);
 
 const code = ref("");
 
@@ -146,10 +154,41 @@ function showHelpDialog() {
 
 async function handleSubmitMFA() {
   if (isValidCode.value) {
-    const user = await AuthService.mfaSignIn(props.user, code.value);
-    if (user) {
-      Swal.fire({});
-    }
+    AuthService.mfaSignIn(props.user, code.value)
+      .then(async res => {
+        if (res.status === 200 && res.user) {
+          const loggedInUser = res.user;
+          // check if avatar exists and replace lagacy images with default avatar on signin
+          const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
+          if (!result) {
+            loggedInUser.avatar = Avatars[0];
+          }
+          await userStore.updateCurrentUser(loggedInUser);
+          await userStore.getAllFromUserDatabase();
+          authStore.updateRegisteredUsername("");
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Login successful"
+          }).then(() => {
+            userStore.clearOptionalCookies();
+            if (authReturnUrl.value) {
+              window.location.href = authReturnUrl.value;
+            } else {
+              router.push({ name: "LandingPage" });
+            }
+          });
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Authentication error",
+          confirmButtonText: "Close"
+        });
+      });
   }
 }
 </script>
