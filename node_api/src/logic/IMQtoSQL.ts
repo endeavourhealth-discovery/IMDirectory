@@ -105,7 +105,7 @@ export class IMQtoSQL {
     )
 
     qry.wheres.push(
-      alias + ".id IS NOT NULL"
+      alias + ".id IS NOT NULL - 108"
     )
   }
 
@@ -137,7 +137,7 @@ export class IMQtoSQL {
     qry.withs.push(...grp.withs);
     qry.joins.push(...grp.joins);
     qry.wheres.push(
-      "(" + grp.wheres.join(" " + match.bool + " ") + ")"
+      "(" + grp.wheres.join(" " + match.bool + " ") + ") - 140"
     )
   }
 
@@ -185,7 +185,7 @@ export class IMQtoSQL {
     )
 
     qry.wheres.push(
-      alias + ".id IS NOT NULL"
+      alias + ".id IS NOT NULL - 188"
     )
   }
 
@@ -203,19 +203,19 @@ export class IMQtoSQL {
       }
     }
 
-    // const alias = this.getAlias(focus);
-    const alias = focus.alias;
+    const alias = this.getAlias(focus);
+
     qry.withs.push(
       alias + " AS (SELECT id FROM " + focus.map.table + " WHERE " + this.getField(focus, property["@id"] as string) + " IN ('" + inList.join("', '") + "'))"
     )
 
-/*    qry.joins.push(
+    qry.joins.push(
       alias + " ON " + alias + ".id = " + focus.alias + ".id"
-    )*/
+    )
 
     // TODO: reverse for exclusions
     qry.wheres.push(
-      alias + ".id IS NOT NULL"
+      alias + ".id IS NOT NULL - 218"
     )
   }
 
