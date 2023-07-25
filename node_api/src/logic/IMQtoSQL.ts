@@ -32,7 +32,7 @@ export class IMQtoSQL {
     let sql = "WITH ";
     sql += qry.withs.join(",\n")
 
-    sql += "\nSELECT t0.id"
+    sql += "\nSELECT " + focus.alias + ".id"
     sql += "\nFROM " + focus.map.table + " AS " + focus.alias;
 
     if (qry.joins && qry.joins.length > 0)
@@ -134,7 +134,6 @@ export class IMQtoSQL {
       console.log(match)
     }
 
-
     qry.withs.push(...grp.withs);
     qry.joins.push(...grp.joins);
     qry.wheres.push(
@@ -204,14 +203,15 @@ export class IMQtoSQL {
       }
     }
 
-    const alias = this.getAlias(focus);
+    // const alias = this.getAlias(focus);
+    const alias = focus.alias;
     qry.withs.push(
       alias + " AS (SELECT id FROM " + focus.map.table + " WHERE " + this.getField(focus, property["@id"] as string) + " IN ('" + inList.join("', '") + "'))"
     )
 
-    qry.joins.push(
+/*    qry.joins.push(
       alias + " ON " + alias + ".id = " + focus.alias + ".id"
-    )
+    )*/
 
     // TODO: reverse for exclusions
     qry.wheres.push(
@@ -256,6 +256,7 @@ export class IMQtoSQL {
 
       // TODO: Map based join between table types
       qry.joins.push(newFocus.map.table + " AS " + newFocus.alias + " ON " + newFocus.alias + ".patient = " + focus.alias + ".id")
+
       focus = newFocus;
 
       this.convertMatch(qry, focus, submatch);
@@ -266,7 +267,8 @@ export class IMQtoSQL {
   }
 
   private getAlias(table: any) {
-    const alias = "t" + (this.aliasIndex++);
+    const prefix = table.map.table.substring(0,3);
+    const alias = prefix + (this.aliasIndex++);
     this.tableMap[alias] = table;
     return alias;
   }
