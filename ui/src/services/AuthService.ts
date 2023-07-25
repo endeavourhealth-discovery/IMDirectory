@@ -4,6 +4,20 @@ import { Auth } from "aws-amplify";
 import axios from "axios";
 import Env from "./Env";
 
+function processAwsUser(cognitoUser: any) {
+  return {
+    id: cognitoUser.attributes.sub,
+    username: cognitoUser.username,
+    firstName: cognitoUser.attributes["custom:forename"],
+    lastName: cognitoUser.attributes["custom:surname"],
+    email: cognitoUser.attributes.email,
+    password: "",
+    avatar: cognitoUser.attributes["custom:avatar"],
+    roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] ?? [],
+    mfaStatus: cognitoUser.userMfaSettingList ?? []
+  } as User;
+}
+
 const AuthService = {
   async register(userToRegister: User): Promise<CustomAlert> {
     try {
@@ -46,16 +60,7 @@ const AuthService = {
       if (isObjectHasKeys(user, ["challengeName"])) {
         return { status: 403, message: user.challengeName, error: undefined, user: user };
       }
-      const signedInUser = {
-        id: user.attributes.sub,
-        username: user.username,
-        firstName: user.attributes["custom:forename"],
-        lastName: user.attributes["custom:surname"],
-        email: user.attributes.email,
-        password: "",
-        avatar: user.attributes["custom:avatar"],
-        roles: user.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-      } as User;
+      const signedInUser = processAwsUser(user);
       return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
       if (err.code === "UserNotConfirmedException") {
@@ -100,17 +105,8 @@ const AuthService = {
         };
         await Auth.updateUserAttributes(user, atts);
         const updateResults = await Auth.currentAuthenticatedUser();
-        const updatedUser = {
-          id: updateResults.attributes.sub,
-          username: updateResults.username,
-          firstName: updateResults.attributes["custom:forename"],
-          lastName: updateResults.attributes["custom:surname"],
-          email: updateResults.attributes.email,
-          password: "",
-          avatar: updateResults.attributes["custom:avatar"],
-          roles: updateResults.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-        } as User;
-        return { status: 200, message: "User updated successfully", error: undefined, user: updatedUser } as CustomAlert;
+        const updatedUser = processAwsUser(updateResults);
+        return { status: 200, message: "User updated successfully", error: undefined, user: updatedUser, userRaw: updateResults } as CustomAlert;
       } else {
         return { status: 403, message: "Authentication error with server" } as CustomAlert;
       }
@@ -171,17 +167,8 @@ const AuthService = {
   async getCurrentAuthenticatedUser(): Promise<CustomAlert> {
     try {
       const cognitoUser = await Auth.currentAuthenticatedUser();
-      const authenticatedUser = {
-        id: cognitoUser.attributes.sub,
-        username: cognitoUser.username,
-        firstName: cognitoUser.attributes["custom:forename"],
-        lastName: cognitoUser.attributes["custom:surname"],
-        email: cognitoUser.attributes.email,
-        password: "",
-        avatar: cognitoUser.attributes["custom:avatar"],
-        roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-      } as User;
-      return { status: 200, message: "User authenticated successfully", error: undefined, user: authenticatedUser } as CustomAlert;
+      const authenticatedUser = processAwsUser(cognitoUser);
+      return { status: 200, message: "User authenticated successfully", error: undefined, user: authenticatedUser, userRaw: cognitoUser } as CustomAlert;
     } catch (err: any) {
       return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
     }
@@ -195,16 +182,7 @@ const AuthService = {
     try {
       await Auth.verifyTotpToken(user, mfaToken);
       const authorizedUser = await Auth.currentAuthenticatedUser();
-      const signedInUser = {
-        id: authorizedUser.attributes.sub,
-        username: authorizedUser.username,
-        firstName: authorizedUser.attributes["custom:forename"],
-        lastName: authorizedUser.attributes["custom:surname"],
-        email: authorizedUser.attributes.email,
-        password: "",
-        avatar: authorizedUser.attributes["custom:avatar"],
-        roles: authorizedUser.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-      } as User;
+      const signedInUser = processAwsUser(authorizedUser);
       return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
       return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;

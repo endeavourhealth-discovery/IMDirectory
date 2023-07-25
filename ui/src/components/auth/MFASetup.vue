@@ -9,7 +9,8 @@
         <div class="mfa-setup-content">
           <p>Scan the qr code with your prefered authenticator app to setup 2-factor authentication for your account.</p>
           <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
-          <div v-if="options.data" id="qr-code" ref="qrCodeElement"></div>
+          <ProgressSpinner v-if="loading" />
+          <div id="qr-code" ref="qrCodeElement"></div>
           <div class="code-input">
             <label for="mfa-code">Code</label>
             <InputText id="mfa-code" v-model="code" />
@@ -25,7 +26,7 @@
 
 <script setup lang="ts">
 import QRCodeStyling, { DrawType, TypeNumber, Mode, ErrorCorrectionLevel, DotType, CornerSquareType, CornerDotType } from "qr-code-styling";
-import { onMounted, ref, watch, h, computed } from "vue";
+import { onMounted, ref, watch, h, computed, Ref } from "vue";
 import _ from "lodash";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
@@ -36,13 +37,6 @@ import { useUserStore } from "@/stores/userStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import { Avatars } from "@im-library/constants";
-
-interface Props {
-  QRCode: string;
-  user: any;
-}
-
-const props = defineProps<Props>();
 
 const router = useRouter();
 const helpDialog = useDialog();
@@ -58,79 +52,95 @@ const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
 const authReturnUrl = computed(() => authStore.authReturnUrl);
 
 const code = ref("");
+const userRaw: Ref<any | undefined> = ref();
 
-const options = ref({
-  width: 300,
-  height: 300,
-  type: "svg" as DrawType,
-  data: "http://qr-code-styling.com",
-  image: "/src/assets/logos/Logo-object-empty.png",
-  margin: 10,
-  qrOptions: {
-    typeNumber: 0 as TypeNumber,
-    mode: "Byte" as Mode,
-    errorCorrectionLevel: "Q" as ErrorCorrectionLevel
-  },
-  imageOptions: {
-    hideBackgroundDots: true,
-    imageSize: 0.4,
-    margin: 2,
-    crossOrigin: "anonymous"
-  },
-  dotsOptions: {
-    color: primaryColor,
-    // gradient: {
-    //   type: 'linear', // 'radial'
-    //   rotation: 0,
-    //   colorStops: [{ offset: 0, color: '#8688B2' }, { offset: 1, color: '#77779C' }]
-    // },
-    type: "rounded" as DotType
-  },
-  backgroundOptions: {
-    color: backgroundColor
-    // gradient: {
-    //   type: 'linear', // 'radial'
-    //   rotation: 0,
-    //   colorStops: [{ offset: 0, color: '#ededff' }, { offset: 1, color: '#e6e7ff' }]
-    // },
-  },
-  cornersSquareOptions: {
-    color: textColor,
-    type: "extra-rounded" as CornerSquareType
-    // gradient: {
-    //   type: 'linear', // 'radial'
-    //   rotation: 180,
-    //   colorStops: [{ offset: 0, color: '#25456e' }, { offset: 1, color: '#4267b2' }]
-    // },
-  },
-  cornersDotOptions: {
-    color: textColor,
-    type: "dot" as CornerDotType
-    // gradient: {
-    //   type: 'linear', // 'radial'
-    //   rotation: 180,
-    //   colorStops: [{ offset: 0, color: '#00266e' }, { offset: 1, color: '#4060b3' }]
-    // },
-  }
-});
+const options: Ref<any | undefined> = ref();
+const loading = ref(false);
 
 const qrCode = ref(new QRCodeStyling(options.value));
 
 const qrCodeElement = ref();
 
-onMounted(() => {
-  if (props.QRCode) {
-    options.value.data = props.QRCode;
-    qrCode.value.append(qrCodeElement.value);
-  } else throw new Error("Multifactor setup is missing required qr code");
+onMounted(async () => {
+  loading.value = true;
+  const result = await AuthService.getCurrentAuthenticatedUser();
+  if (result.status === 200) {
+    userRaw.value = result.userRaw;
+    const mfaToken = await AuthService.getMfaToken(result.userRaw);
+    if (mfaToken) {
+      const codeUrl = "otpauth://totp/AWSCognito:" + result.user?.username + "?secret=" + mfaToken + "&issuer=Cognito";
+      options.value = generateOptions(codeUrl);
+      options.value.data = codeUrl;
+      // options.value.data = "http://qr-code-styling.com";
+    }
+  } else throw new Error("Error authenticating user.");
+  loading.value = false;
 });
 
-watch(
-  () => _.cloneDeep(options.value.data),
-  newValue => {
-    if (newValue) qrCode.value.update(options.value);
+watch(options, newValue => {
+  if (newValue) {
+    qrCode.value = new QRCodeStyling(newValue);
+    qrCode.value.append(qrCodeElement.value);
+    // qrCode.value.update(options.value);
   }
-);
+});
+
+function generateOptions(dataUrl: string) {
+  return {
+    width: 300,
+    height: 300,
+    type: "svg" as DrawType,
+    data: dataUrl,
+    image: "/src/assets/logos/Logo-object-empty.png",
+    margin: 10,
+    qrOptions: {
+      typeNumber: 0 as TypeNumber,
+      mode: "Byte" as Mode,
+      errorCorrectionLevel: "Q" as ErrorCorrectionLevel
+    },
+    imageOptions: {
+      hideBackgroundDots: true,
+      imageSize: 0.4,
+      margin: 2,
+      crossOrigin: "anonymous"
+    },
+    dotsOptions: {
+      color: primaryColor,
+      // gradient: {
+      //   type: 'linear', // 'radial'
+      //   rotation: 0,
+      //   colorStops: [{ offset: 0, color: '#8688B2' }, { offset: 1, color: '#77779C' }]
+      // },
+      type: "rounded" as DotType
+    },
+    backgroundOptions: {
+      color: backgroundColor
+      // gradient: {
+      //   type: 'linear', // 'radial'
+      //   rotation: 0,
+      //   colorStops: [{ offset: 0, color: '#ededff' }, { offset: 1, color: '#e6e7ff' }]
+      // },
+    },
+    cornersSquareOptions: {
+      color: textColor,
+      type: "extra-rounded" as CornerSquareType
+      // gradient: {
+      //   type: 'linear', // 'radial'
+      //   rotation: 180,
+      //   colorStops: [{ offset: 0, color: '#25456e' }, { offset: 1, color: '#4267b2' }]
+      // },
+    },
+    cornersDotOptions: {
+      color: textColor,
+      type: "dot" as CornerDotType
+      // gradient: {
+      //   type: 'linear', // 'radial'
+      //   rotation: 180,
+      //   colorStops: [{ offset: 0, color: '#00266e' }, { offset: 1, color: '#4060b3' }]
+      // },
+    }
+  };
+}
 
 function showHelpDialog() {
   const dialogProps = {
@@ -154,7 +164,7 @@ function showHelpDialog() {
 
 async function handleSubmitMFA() {
   if (isValidCode.value) {
-    AuthService.mfaSignIn(props.user, code.value)
+    AuthService.mfaSignIn(userRaw.value, code.value)
       .then(async res => {
         if (res.status === 200 && res.user) {
           const loggedInUser = res.user;

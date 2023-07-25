@@ -16,7 +16,7 @@
             <InputText data-testid="login-password" id="fieldPassword" type="password" v-model="password" @keyup="checkKey" />
           </div>
           <div class="flex flex-row justify-content-center">
-            <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="handleSubmit" />
+            <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="handleSubmit" :loading="loading" />
           </div>
         </div>
       </template>
@@ -52,8 +52,9 @@ const userStore = useUserStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
 const authReturnUrl = computed(() => authStore.authReturnUrl);
 
-let username = ref("");
-let password = ref("");
+const username = ref("");
+const password = ref("");
+const loading = ref(false);
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
@@ -61,8 +62,9 @@ onMounted(() => {
   }
 });
 
-function handleSubmit(): void {
-  AuthService.signIn(username.value, password.value)
+async function handleSubmit(): Promise<void> {
+  loading.value = true;
+  await AuthService.signIn(username.value, password.value)
     .then(async res => {
       if (res.status === 200 && res.user) {
         const loggedInUser = res.user;
@@ -115,8 +117,6 @@ function handleSubmit(): void {
             }
           });
         } else if (res.message === "MFA_SETUP") {
-          const mfaToken = await AuthService.getMfaToken(res.userRaw);
-          const qrCode = "otpauth://totp/AWSCognito:" + res.user?.username + "?secret=" + mfaToken + "&issuer=Cognito";
           Swal.fire({
             icon: "info",
             title: "Redirecting to 2-factor authentication setup...",
@@ -128,7 +128,7 @@ function handleSubmit(): void {
             },
             showCloseButton: true
           }).then(() => {
-            router.push({ name: "MFASetup", params: { QRCode: qrCode, user: { ...res.userRaw } } });
+            router.push({ name: "MFASetup" });
           });
         } else if (res.message === "SOFTWARE_TOKEN_MFA") {
           Swal.fire({
@@ -163,6 +163,7 @@ function handleSubmit(): void {
         confirmButtonText: "Close"
       });
     });
+  loading.value = false;
 }
 
 function checkKey(event: any): void {

@@ -64,7 +64,8 @@ describe("userEdit.vue ___ user", () => {
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/003-man.png",
-      roles: []
+      roles: [],
+      mfaStatus: []
     };
 
     AuthService.changePassword = vi.fn().mockResolvedValue({ status: 200, message: "Password change successful" });

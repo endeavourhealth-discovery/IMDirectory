@@ -162,7 +162,8 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "mfa-setup",
         name: "MFASetup",
-        component: MFASetup
+        component: MFASetup,
+        meta: { requiresReAuth: true }
       },
       {
         path: "mfa-login",
@@ -282,8 +283,8 @@ const router = createRouter({
   routes
 });
 
-const directToLogin = () => {
-  Swal.fire({
+async function directToLogin() {
+  await Swal.fire({
     icon: "warning",
     title: "Please Login to continue",
     showCancelButton: true,
@@ -298,7 +299,7 @@ const directToLogin = () => {
       router.push({ name: "LandingPage" });
     }
   });
-};
+}
 
 router.beforeEach(async (to, from) => {
   const directoryStore = useDirectoryStore();
@@ -330,7 +331,15 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       authStore.updatePreviousAppUrl();
-      directToLogin();
+      await directToLogin();
+    }
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresReAuth)) {
+    if (from.name !== "Login" && from.name !== "MFALogin") {
+      console.log("requires re-authentication");
+      authStore.updatePreviousAppUrl();
+      await directToLogin();
     }
   }
 
@@ -338,7 +347,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      directToLogin();
+      await directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
     }
@@ -348,7 +357,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      directToLogin();
+      await directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
     }

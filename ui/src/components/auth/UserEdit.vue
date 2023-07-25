@@ -219,7 +219,8 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
     email: email1.value,
     password: "",
     avatar: selectedAvatar.value,
-    roles: []
+    roles: [],
+    mfaStatus: []
   } as User;
 
   AuthService.updateUser(updatedUser).then(res => {
