@@ -3,7 +3,7 @@
     in
     <InputText type="text" @click="showDialog = true" placeholder="Value" v-model:model-value="selected.name" />
     <DirectorySearchDialog :selected="selected" v-model:show-dialog="showDialog" @update:selected="onSelect" />
-    <EntailmentOptionsSelect :entailment-object="editNode" />
+    <EntailmentOptionsSelect v-if="!excludeEntailment" :entailment-object="editNode" />
     <Button label="Cancel" severity="secondary" @click="emit('onCancel')" />
     <Button label="Save" @click="emit('onSave', selected)" />
   </div>
@@ -22,6 +22,7 @@ const emit = defineEmits({ onCancel: () => true, onSave: (_payload: ConceptSumma
 interface Props {
   queryTypeIri: string;
   editNode: Node;
+  excludeEntailment?: boolean;
 }
 
 const props = defineProps<Props>();

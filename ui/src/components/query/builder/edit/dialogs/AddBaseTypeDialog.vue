@@ -21,7 +21,7 @@
 import { Ref, ref, watch } from "vue";
 
 import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { EntityService } from "@/services";
