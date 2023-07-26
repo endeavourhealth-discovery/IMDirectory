@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-07-06 10:18:48.
+// Generated using typescript-generator version 3.2.1263 on 2023-07-25 10:35:36.
 
 /**
  * Structure containing search request parameters and filters
@@ -31,6 +31,10 @@ export interface SearchRequest {
      * List of IRIs that must be supertypes of the matches
      */
     isA?: string[];
+    /**
+     * List of set IRIs that the match must be a member of
+     */
+    memberOf?: string[];
     /**
      * The search result page number to retrieve
      */
@@ -65,6 +69,7 @@ export interface Concept extends Entity {
     im1Id?: string[];
     matchedFrom?: Concept[];
     usage?: number;
+    codeId?: string;
 }
 
 export interface ConceptSet extends Entity {
@@ -174,16 +179,15 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
     operator?: Operator;
+    dataType?: TTIriRef;
     relativeTo?: PropertyRef;
+    unit?: string;
 }
 
 export interface Case {
-    range?: Range;
-    value?: string;
-    outputData?: string;
-    outputIri?: TTIriRef;
+    when?: When[];
+    else?: ReturnProperty;
 }
 
 export interface ContextMap {
@@ -202,17 +206,19 @@ export interface Delete {
 export interface Element extends IriLD, Entailment {
     parameter?: string;
     variable?: string;
+    ref?: string;
 }
 
 export interface Entailment {
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
     ancestorsOf?: boolean;
+    descendantsOf?: boolean;
 }
 
-export interface FunctionClause {
+export interface FunctionClause extends Value {
     function?: Function;
     argument?: Argument[];
+    range?: Range;
 }
 
 export interface IriLD {
@@ -232,6 +238,8 @@ export interface Match extends Node {
     in?: Node[];
     property?: Property[];
     orderBy?: OrderLimit[];
+    optional?: boolean;
+    aggregate?: FunctionClause;
 }
 
 export interface Node extends Element {
@@ -309,18 +317,22 @@ export interface Return {
     function?: FunctionClause;
     property?: ReturnProperty[];
     as?: string;
+    valueRef?: string[];
 }
 
 export interface ReturnProperty {
-    node?: Return;
     "@id"?: string;
-    name?: string;
     function?: FunctionClause;
     as?: string;
+    nodeRef?: string;
     propertyRef?: string;
-    valueVariable?: string;
+    value?: string;
+    ref?: string;
     inverse?: boolean;
     unit?: string;
+    dataType?: TTIriRef;
+    case?: Case;
+    return?: Return;
 }
 
 export interface Update extends TTIriRef {
@@ -329,6 +341,10 @@ export interface Update extends TTIriRef {
 }
 
 export interface Value extends Assignable {
+}
+
+export interface When extends Property {
+    then?: ReturnProperty;
 }
 
 export interface EntityDocument {
@@ -380,8 +396,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
