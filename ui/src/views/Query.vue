@@ -30,7 +30,7 @@
         <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
       </div>
       <div v-if="!isArrayHasLength(query.match) && query['@type']">
-        <Button label="Add feature" @click="showAddDialog = true" />
+        <Button label="Add property" @click="showAddDialog = true" />
       </div>
 
       <AddPropertyDialog
@@ -96,6 +96,11 @@ watch(
 );
 
 watch(
+  () => _.cloneDeep(query.value),
+  () => initVariableMap()
+);
+
+watch(
   () => _.cloneDeep(queryTypeIri.value),
   () => setValidationQueryRequest()
 );
@@ -133,6 +138,7 @@ function add(direct: Match[], nested: Match[]) {
 }
 
 function initVariableMap() {
+  variableMap.value.clear();
   for (const match of query.value.match) {
     addVariableRefFromMatch(match);
   }

@@ -12,7 +12,7 @@
     :id="htmlId"
   >
     <div v-if="editMode">
-      <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
+      <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" :exclude-entailment="true" @on-cancel="editMode = false" @on-save="saveSelect" />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
@@ -58,7 +58,12 @@
     :match="match"
     @add-variable="(previousValue: string, newValue: string) => addVariable(previousValue, newValue)"
   />
-  <DirectorySearchDialog v-model:show-dialog="showDirectoryDialog" @update:selected="onSelect" :searchByQuery="validationQueryRequest" />
+  <DirectorySearchDialog
+    v-model:show-dialog="showDirectoryDialog"
+    @update:selected="onSelect"
+    :searchByQuery="validationQueryRequest"
+    :root-entities="['http://endhealth.info/im#Sets', 'http://endhealth.info/im#Q_Queries']"
+  />
 </template>
 
 <script setup lang="ts">
@@ -184,7 +189,7 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add",
+      label: "Add property",
       icon: PrimeIcons.PLUS,
       items: [
         {
@@ -204,14 +209,14 @@ function getSingleRCOptions() {
       ]
     },
     {
-      label: "Add query",
-      icon: PrimeIcons.FILTER,
+      label: "Add cohort",
+      icon: PrimeIcons.WRENCH,
       command: () => {
         showDirectoryDialog.value = true;
       }
     },
     {
-      label: "Toggle bool",
+      label: "Toggle bool logic",
       icon: PrimeIcons.ARROW_V,
       command: () => {
         toggleBoolMatch();
