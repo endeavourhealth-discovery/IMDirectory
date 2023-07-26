@@ -17,6 +17,7 @@ const UserDetails = () => import("@/components/auth/UserDetails.vue");
 const UserEdit = () => import("@/components/auth/UserEdit.vue");
 const MFASetup = () => import("@/components/auth/MFASetup.vue");
 const MFALogin = () => import("@/components/auth/MFALogin.vue");
+const MFADelete = () => import("@/components/auth/MFADelete.vue");
 const Creator = () => import("@/views/Creator.vue");
 const TypeSelector = () => import("@/components/creator/TypeSelector.vue");
 const Editor = () => import("@/views/Editor.vue");
@@ -169,6 +170,12 @@ const routes: Array<RouteRecordRaw> = [
         path: "mfa-login",
         name: "MFALogin",
         component: MFALogin
+      },
+      {
+        path: "mfa-delete",
+        name: "MFADelete",
+        component: MFADelete,
+        meta: { requiresReAuth: true }
       }
     ]
   },

@@ -9,7 +9,7 @@
         <div class="mfa-setup-content">
           <p>Scan the qr code with your prefered authenticator app to setup 2-factor authentication for your account.</p>
           <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
-          <ProgressSpinner v-if="loading" />
+          <ProgressSpinner v-if="loadingQRCode" />
           <div id="qr-code" ref="qrCodeElement"></div>
           <div class="code-input">
             <label for="mfa-code">Code</label>
@@ -17,7 +17,7 @@
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
             <small v-if="isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
-          <Button :disabled="!isValidCode" label="Submit" @click="handleSubmitMFA" />
+          <Button :disabled="!isValidCode" label="Submit" @click="handleSubmitMFA" :loading="loading" />
         </div>
       </template>
     </Card>
@@ -56,13 +56,14 @@ const userRaw: Ref<any | undefined> = ref();
 
 const options: Ref<any | undefined> = ref();
 const loading = ref(false);
+const loadingQRCode = ref(false);
 
 const qrCode = ref(new QRCodeStyling(options.value));
 
 const qrCodeElement = ref();
 
 onMounted(async () => {
-  loading.value = true;
+  loadingQRCode.value = true;
   const result = await AuthService.getCurrentAuthenticatedUser();
   if (result.status === 200) {
     userRaw.value = result.userRaw;
@@ -71,10 +72,9 @@ onMounted(async () => {
       const codeUrl = "otpauth://totp/AWSCognito:" + result.user?.username + "?secret=" + mfaToken + "&issuer=Cognito";
       options.value = generateOptions(codeUrl);
       options.value.data = codeUrl;
-      // options.value.data = "http://qr-code-styling.com";
     }
   } else throw new Error("Error authenticating user.");
-  loading.value = false;
+  loadingQRCode.value = false;
 });
 
 watch(options, newValue => {
@@ -164,7 +164,9 @@ function showHelpDialog() {
 
 async function handleSubmitMFA() {
   if (isValidCode.value) {
-    AuthService.mfaSignIn(userRaw.value, code.value)
+    loading.value = true;
+    await AuthService.setMfaPreference(userRaw.value, "TOTP");
+    await AuthService.mfaSignIn(userRaw.value, code.value)
       .then(async res => {
         if (res.status === 200 && res.user) {
           const loggedInUser = res.user;
@@ -199,6 +201,7 @@ async function handleSubmitMFA() {
           confirmButtonText: "Close"
         });
       });
+    loading.value = false;
   }
 }
 </script>

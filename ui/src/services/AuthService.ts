@@ -178,14 +178,21 @@ const AuthService = {
     return await Auth.setupTOTP(user);
   },
 
-  async mfaSignIn(user: any, mfaToken: string) {
+  async mfaSignIn(user: any, mfaCode: string) {
     try {
-      await Auth.verifyTotpToken(user, mfaToken);
-      const authorizedUser = await Auth.currentAuthenticatedUser();
+      const authorizedUser = await Auth.confirmSignIn(user, mfaCode, "SOFTWARE_TOKEN_MFA");
       const signedInUser = processAwsUser(authorizedUser);
       return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
       return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
+    }
+  },
+
+  async setMfaPreference(user: any, preference: "TOTP" | "SMS" | "NOMFA" | "SMS_MFA" | "SOFTWARE_TOKEN_MFA") {
+    try {
+      await Auth.setPreferredMFA(user, preference);
+    } catch (error: any) {
+      throw new Error("Failed to set user mfa preference", error);
     }
   }
 

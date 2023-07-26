@@ -44,19 +44,15 @@ const twoFactorMethods = ref([
   }
 ]);
 
-async function handleMfaActivate(key: string) {
+function handleMfaActivate(key: string) {
   if (key === "SOFTWARE_TOKEN_MFA") {
-    const result = await AuthService.getCurrentAuthenticatedUser();
-    if (result.status === 200) {
-      const qrcode = await AuthService.getMfaToken(result.userRaw);
-      router.push({ name: "MFASetup", params: { QRCode: qrcode, user: result.userRaw } });
-    }
+    router.push({ name: "MFASetup" });
   }
 }
 
 function handleMfaDelete(key: string) {
   if (key === "SOFTWARE_TOKEN_MFA") {
-    router.push({ name: "" });
+    router.push({ name: "MFADelete" });
   }
 }
 
