@@ -29,42 +29,8 @@
             <Button data-testid="user-details-submit" class="user-edit" type="submit" label="Edit" @click="handleEditClicked" />
           </div>
         </div>
-        <div v-if="activeItem === 1" class="security-container">
-          <div class="security-content">
-            <h3>Two-factor authentication</h3>
-            <p>Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to sign in.</p>
-            <DataView :value="twoFactorMethods" data-key="label">
-              <template #header> Two-factor methods </template>
-              <template #list="{ data }: any">
-                <div class="col-12">
-                  <div class="two-factor-row">
-                    <div class="mfa-row-details">
-                      <span>{{ data.label }}</span>
-                      <Tag :value="data.status ? 'Active' : 'Inactive'" :severity="data.status ? 'success' : 'warning'" rounded />
-                    </div>
-                    <Button v-if="data.status" label="Deactivate" @click="handleMfaDelete(data.key)" />
-                    <Button v-else label="Activate" @click="handleMfaActivate(data.key)" />
-                  </div>
-                </div>
-              </template>
-            </DataView>
-          </div>
-        </div>
-        <div v-if="activeItem === 2" class="roles-container">
-          <div class="roles-content">
-            <p>Authorisation roles active for your account</p>
-            <DataTable
-              :value="
-                currentUser.roles.map((role:string) => {
-                  return { role: role };
-                })
-              "
-            >
-              <Column field="role" header="Role" />
-            </DataTable>
-            <Button label="Request role" @click="handleEditRole" />
-          </div>
-        </div>
+        <SecuritySettings v-if="activeItem === 1" />
+        <AuthRoles v-if="activeItem === 2" />
       </template>
     </Card>
   </div>
@@ -74,8 +40,8 @@
 import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { AuthService } from "@/services";
+import AuthRoles from "@/components/auth/userDetails/AuthRoles.vue";
+import SecuritySettings from "@/components/auth/userDetails/SecuritySettings.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -109,35 +75,6 @@ const menuItems = ref([
     }
   }
 ]);
-const twoFactorMethods = ref([
-  {
-    label: "Authenticator app",
-    details: "Use an authentication app or browser extension to get two-factor authentication codes when prompted.",
-    icon: "fa-solid fa-mobile",
-    status: getMfaStatus("SOFTWARE_TOKEN_MFA"),
-    key: "SOFTWARE_TOKEN_MFA"
-  }
-]);
-
-async function handleMfaActivate(key: string) {
-  if (key === "SOFTWARE_TOKEN_MFA") {
-    const result = await AuthService.getCurrentAuthenticatedUser();
-    if (result.status === 200) {
-      const qrcode = await AuthService.getMfaToken(result.userRaw);
-      router.push({ name: "MFASetup", params: { QRCode: qrcode, user: result.userRaw } });
-    }
-  }
-}
-
-function handleMfaDelete(key: string) {
-  if (key === "SOFTWARE_TOKEN_MFA") {
-    router.push({ name: "" });
-  }
-}
-
-function getMfaStatus(mfaKey: string): boolean {
-  return isObjectHasKeys(currentUser.value, ["mfaStatus"]) && isArrayHasLength(currentUser.value.mfaStatus) && currentUser.value.mfaStatus.includes(mfaKey);
-}
 
 function handleEditClicked(): void {
   router.push({ name: "UserEdit" });
@@ -146,10 +83,6 @@ function handleEditClicked(): void {
 function getUrl(item: string): string {
   const url = new URL(`../../assets/avatars/${item}`, import.meta.url);
   return url.href;
-}
-
-function handleEditRole() {
-  router.push({ name: "" });
 }
 </script>
 
@@ -162,18 +95,6 @@ function handleEditRole() {
   width: 32em;
 }
 
-.security-container {
-  width: 32rem;
-}
-
-.roles-container {
-  width: 32rem;
-}
-
-.roles-content {
-  padding: 1rem;
-}
-
 .user-details-card {
   padding: 0 2em;
 }
@@ -183,22 +104,5 @@ function handleEditRole() {
   width: 10rem;
   border: 1px solid lightgray;
   border-radius: 50%;
-}
-
-.two-factor-row {
-  display: flex;
-  flex-flow: row nowrap;
-  padding: 0.5rem;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.mfa-row-details {
-  display: flex;
-  flex-flow: row nowrap;
-  gap: 1rem;
-  align-items: center;
-  justify-content: flex-start;
 }
 </style>
