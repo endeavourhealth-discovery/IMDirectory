@@ -159,6 +159,10 @@ function toggleBoolMatch() {
   else if (props.match.bool === "or") props.match.bool = "and";
 }
 
+function toggleExclude() {
+  props.match.exclude = !props.match.exclude;
+}
+
 function onRightClick(event: any) {
   if (!isArrayHasLength(props.selectedMatches) || props.selectedMatches.length === 1)
     select(event, isSelected.value, props.selectedMatches, props.match, props.index, props.parentMatch, props.parentMatchList);
@@ -213,6 +217,13 @@ function getSingleRCOptions() {
       icon: PrimeIcons.WRENCH,
       command: () => {
         showDirectoryDialog.value = true;
+      }
+    },
+    {
+      label: props.match.exclude ? "Include" : "Exclude",
+      icon: props.match.exclude ? PrimeIcons.PLUS_CIRCLE : PrimeIcons.MINUS_CIRCLE,
+      command: () => {
+        toggleExclude();
       }
     },
     {
