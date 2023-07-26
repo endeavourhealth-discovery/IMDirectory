@@ -1,11 +1,5 @@
 <template>
   <div
-    :draggable="true"
-    @dragstart="dragStart($event, match)"
-    @dragenter="dragEnter($event, match, htmlId)"
-    @dragleave="dragLeave(htmlId)"
-    @dragover="$event.preventDefault()"
-    @drop="dragDrop($event, props.parentMatch!, props.parentMatchList!, htmlId)"
     :class="getClass()"
     @click="select($event, isSelected, selectedMatches, match, index, parentMatch, parentMatchList)"
     @contextmenu="onRightClick($event)"
@@ -16,17 +10,17 @@
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
-    <EditDisplayMatch
-      v-if="isArrayHasLength(match.match)"
-      v-for="(nestedMatch, index) of match.match"
-      :index="index"
-      :parent-match="match"
-      :match="nestedMatch"
-      :query-type-iri="queryTypeIri"
-      :selected-matches="selectedMatches"
-      :variable-map="variableMap"
-      :validation-query-request="validationQueryRequest"
-    />
+    <VueDraggableNext v-if="isArrayHasLength(match.match)" v-for="(nestedMatch, index) of match.match">
+      <EditDisplayMatch
+        :index="index"
+        :parent-match="match"
+        :match="nestedMatch"
+        :query-type-iri="queryTypeIri"
+        :selected-matches="selectedMatches"
+        :variable-map="variableMap"
+        :validation-query-request="validationQueryRequest"
+      />
+    </VueDraggableNext>
 
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
@@ -77,6 +71,7 @@ import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethod
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import { VueDraggableNext } from "vue-draggable-next";
 
 interface Props {
   queryTypeIri: string;

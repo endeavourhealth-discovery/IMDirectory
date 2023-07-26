@@ -14,17 +14,17 @@
       <div class="include-title include">include if</div>
       <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
-      <EditDisplayMatch
-        v-if="isArrayHasLength(query.match)"
-        v-for="(match, index) of query.match"
-        :match="match"
-        :index="index"
-        :query-type-iri="queryTypeIri"
-        :parentMatchList="query.match"
-        :selected-matches="selectedMatches"
-        :variable-map="variableMap"
-        :validation-query-request="validationQueryRequest"
-      />
+      <VueDraggableNext v-if="isArrayHasLength(query.match)" v-for="(match, index) of query.match" @change="log" @start="move">
+        <EditDisplayMatch
+          :match="match"
+          :index="index"
+          :query-type-iri="queryTypeIri"
+          :parentMatchList="query.match"
+          :selected-matches="selectedMatches"
+          :variable-map="variableMap"
+          :validation-query-request="validationQueryRequest"
+        />
+      </VueDraggableNext>
 
       <div v-else-if="!queryTypeIri">
         <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { VueDraggableNext } from "vue-draggable-next";
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
 import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
@@ -111,6 +112,14 @@ async function init() {
   setBaseEntityMatch();
   initVariableMap();
   setValidationQueryRequest();
+}
+
+function log(event: any) {
+  console.log(event);
+}
+
+function move(event: any) {
+  console.log(event);
 }
 
 async function setQuery() {
