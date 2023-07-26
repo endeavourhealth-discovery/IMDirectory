@@ -52,7 +52,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
 
 export function buildMatchFromCS(cs: ConceptSummary) {
   const node = { name: cs.name } as Node;
-  if (isValueSet(cs.entityType)) node["@set"] = cs.iri;
+  if (isValueSet(cs.entityType) || isQuery(cs.entityType)) node["@set"] = cs.iri;
   if (isRecordModel(cs.entityType)) node["@type"] = cs.iri;
   else node["@id"] = cs.iri;
 
