@@ -138,7 +138,15 @@
               disabled
               @click="handleEditSubmit"
             />
-            <Button data-testid="user-edit-update-button" v-else class="user-edit" type="submit" label="Update account" @click="handleEditSubmit" />
+            <Button
+              data-testid="user-edit-update-button"
+              v-else
+              class="user-edit"
+              type="submit"
+              label="Update account"
+              @click="handleEditSubmit"
+              :loading="loading"
+            />
           </div>
         </div>
         <SecuritySettings v-if="activeItem === 1" />
@@ -179,6 +187,7 @@ const passwordNew2 = ref("");
 const selectedAvatar = ref(Avatars[0]);
 const showPasswordEdit = ref(false);
 const focused: Ref<Map<string, boolean>> = ref(new Map());
+const loading = ref(false);
 const activeItem = ref(0);
 const menuItems = ref([
   {
@@ -243,6 +252,7 @@ function swalert(icon: SweetAlertIcon, title: string, text: string) {
 }
 
 function handleFieldsVerified(handlePasswordChange: boolean) {
+  loading.value = true;
   const oldEmail = currentUser.value.email;
   const updatedUser = {
     id: currentUser.value.id,
@@ -309,6 +319,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
       swalert("error", "Error", res.message);
     }
   });
+  loading.value = false;
 }
 
 function handleEditSubmit(): void {
