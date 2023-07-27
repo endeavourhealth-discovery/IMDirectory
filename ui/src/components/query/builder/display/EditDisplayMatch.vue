@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
@@ -242,6 +242,13 @@ function getSingleRCOptions() {
       }
     },
     {
+      label: "Add order by",
+      icon: PrimeIcons.SORT_ALT,
+      command: () => {
+        addOrderBy();
+      }
+    },
+    {
       label: "Move",
       icon: PrimeIcons.SORT,
       items: [
@@ -319,6 +326,11 @@ function onSelect(cs: ConceptSummary) {
   const newMatch = buildMatchFromCS(cs);
   addOrEdit(props.match, props.parentMatchList, props.index, [newMatch], []);
   showDirectoryDialog.value = false;
+}
+
+function addOrderBy() {
+  if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
+  props.match.orderBy?.push({ direction: "descending", limit: 1, "@id": "" } as OrderLimit);
 }
 </script>
 

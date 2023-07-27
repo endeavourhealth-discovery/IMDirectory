@@ -24,27 +24,9 @@
       </div>
 
       <div class="button-bar">
-        <Button
-          class="button-bar-button"
-          label="Cancel"
-          severity="secondary"
-          @click="
-            {
-              editOrderBy = cloneDeep(orderBy);
-              editMode = false;
-            }
-          "
-        />
-        <Button
-          class="button-bar-button"
-          label="Save"
-          @click="
-            {
-              match.orderBy![index] = cloneDeep(editOrderBy);
-              editMode = false;
-            }
-          "
-        />
+        <Button class="button-bar-button" label="Delete" severity="danger" @click="remove()" />
+        <Button class="button-bar-button" label="Cancel" severity="secondary" @click="cancel()" />
+        <Button class="button-bar-button" label="Save" @click="save()" />
       </div>
     </div>
   </div>
@@ -78,6 +60,20 @@ function setOrderByOptionsRecursively(properties: Property[]) {
     orderByOptions.value.push({ "@id": prop["@id"], name: getNameFromRef(prop) } as TTIriRef);
     if (isObjectHasKeys(prop, ["match"]) && isArrayHasLength(prop.match?.property)) setOrderByOptionsRecursively(prop.match!.property!);
   }
+}
+
+function cancel() {
+  editOrderBy.value = cloneDeep(props.orderBy);
+  editMode.value = false;
+}
+
+function save() {
+  props.match!.orderBy![props.index] = cloneDeep(editOrderBy.value);
+  editMode.value = false;
+}
+
+function remove() {
+  props.match.orderBy?.splice(props.index, 1);
 }
 </script>
 
