@@ -1,7 +1,7 @@
 <template>
   <div id="topbar">
     <div id="topbar-start">
-      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
+      <img class="im-logo" src="../../../public/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
     </div>
     <div id="topbar-content">
       <slot name="content" />
