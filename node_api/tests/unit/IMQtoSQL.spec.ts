@@ -19,8 +19,7 @@ test("IMQtoSQL", async () => {
     "@id": "http://endhealth.info/im#Q_TestQuery",
     "name": "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
     "match": [
-/*
-      {
+/*      {
         "@set": "http://endhealth.info/im#Q_RegisteredGMS",
         "name": "Registered for GMS services on reference date"
       },
@@ -76,8 +75,7 @@ test("IMQtoSQL", async () => {
           }
         ],
         "bool": "or"
-      },
-*/
+      },*/
       {
         "variable": "latestBP",
         "property": [
@@ -126,8 +124,7 @@ test("IMQtoSQL", async () => {
           }
         ]
       },
-/*
-      {
+/*      {
         "match": [
           {
             "nodeRef": "latestBP",

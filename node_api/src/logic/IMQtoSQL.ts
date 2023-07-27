@@ -1,5 +1,7 @@
-import { Match, Query, Property } from "@im-library/interfaces/AutoGen";
+import { Match, Query, Property, Assignable } from "@im-library/interfaces/AutoGen";
 import mapData from "./IMQtoSQL.json"
+import { join } from "lodash";
+import { SqlQuery } from "@/model/sql/SqlQuery";
 
 export class IMQtoSQL {
   private aliasIndex = 0;
@@ -12,16 +14,14 @@ export class IMQtoSQL {
       return;
     }
 
+    if (!definition.match) {
+      console.error("Query must have at least one match");
+      return;
+    }
+
     const focus = this.focusTable(definition["@type"]);
 
-    const qry = {
-      withs: [],
-      joins: [],
-      wheres: []
-    };
-
-    if (definition.match)
-      this.convertMatches(qry, focus, definition.match);
+    const qry = this.convertMatches(focus, definition.match);
 
     console.log("================================================================")
 
@@ -29,22 +29,11 @@ export class IMQtoSQL {
 
     console.log("================================================================")
 
-    let sql = "WITH ";
-    sql += qry.withs.join(",\n")
-
-    sql += "\nSELECT " + focus.alias + ".id"
-    sql += "\nFROM " + focus.map.table + " AS " + focus.alias;
-
-    if (qry.joins && qry.joins.length > 0)
-    sql += "\nLEFT JOIN " + qry.joins.join("\nLEFT JOIN ")
-
-    if (qry.wheres && qry.wheres.length > 0)
-      sql += "\nWHERE " + qry.wheres.join("\nAND ")
-
-    return sql;
+    return this.queryToSql(focus, qry);
   }
 
   private focusTable(tableType: string) : any {
+    console.log("=== SWITCHING FOCUS [" + tableType + "]===")
 
     if (!tableType.startsWith("http:"))
       tableType = "http://endhealth.info/im#" + tableType;
@@ -69,201 +58,164 @@ export class IMQtoSQL {
     return table;
   }
 
-  private convertMatches(qry: any, focus: any, matches: Match[]) {
+  private convertMatches(focus: any, matches: Match[]) {
+    const qry = new SqlQuery();
+
     for(const match of matches) {
-      this.convertMatch(qry, focus, match);
-    }
-  }
-
-  private convertMatch(qry: any, focus: any, match: Match) {
-    if (match.variable)
-      this.variable = match.variable;
-
-    if (match.nodeRef)
-      focus = this.tableMap[match.nodeRef];
-
-    if (match.bool)
-      this.convertBoolGroup(qry, focus, match);
-    else if (match["@set"])
-      this.convertSet(qry, focus, match);
-    else if (match.property)
-      this.convertProperties(qry, focus, match);
-    else {
-      console.log("Unrecognised MATCH pattern")
-      console.log(match);
-    }
-  }
-
-  private convertSet(qry: any, focus: any, match: Match) {
-    const alias = this.getAlias(focus);
-    qry.withs.push(
-      alias + " AS (SELECT id FROM set_member WHERE set = '" + match["@set"] + "')"
-    );
-
-    qry.joins.push(
-      alias + " ON " + alias + ".id = " + focus.alias + ".id"
-    )
-
-    qry.wheres.push(
-      alias + ".id IS NOT NULL - 108"
-    )
-  }
-
-  private convertBoolGroup(qry:any, focus: any, match: Match) {
-    if (!match.match && !match.property) {
-      console.log("Empty bool group")
-      return;
+      const subQry = this.convertMatch(focus, match);
+      qry.withs.push(...subQry.withs)
+      qry.joins.push(...subQry.joins)
+      qry.wheres.push(...subQry.wheres)
     }
 
-    const grp = {
-      withs: [],
-      joins: [],
-      wheres: []
-    };
+    return qry;
+  }
 
-    if (match.match) {
-      for (const subMatch of match.match) {
-        this.convertMatch(grp, focus, subMatch);
+  private convertMatch(focus: any, match: Match) {
+    const qry = new SqlQuery();
+
+    const matchFocus = (match["@type"]) ? this.focusTable(match["@type"]) : focus
+
+    qry.alias = (match.variable) ? match.variable : this.getAlias(matchFocus);
+
+    if (match["@set"]) {
+      this.convertMatchSet(matchFocus, qry, match);
+    } else if (match.bool) {
+      if (match.match && match.match.length > 0)
+        this.convertMatchBoolSubMatch(matchFocus, qry, match);
+      else if (match.property && match.property.length > 0)
+        this.convertMatchProperties(matchFocus, qry, match, match.bool);
+      else {
+        console.log("UNHANDLED BOOL MATCH PATTERN")
+        console.log(match)
       }
-    }
-
-    this.convertProperties(grp, focus, match);
-
-    if (grp.wheres.length == 0 && grp.withs.length == 0 && grp.joins.length == 0) {
-      console.log("Error converting bool group")
+    } else if (match.property && match.property.length > 0) {
+      this.convertMatchProperties(matchFocus, qry, match);
+    } else {
+      console.log("UNHANDLE MATCH PATTERN")
       console.log(match)
     }
 
-    qry.withs.push(...grp.withs);
-    qry.joins.push(...grp.joins);
-    qry.wheres.push(
-      "(" + grp.wheres.join(" " + match.bool + " ") + ") - 140"
-    )
-  }
-
-  private convertProperties(qry: any, focus: any, match: Match) {
-    if (!match.property || match.property.length === 0)
-      return;
-
-    for(const prop of match.property) {
-      this.convertProperty(qry, focus, prop)
+    if (match.orderBy) {
+      qry.withs.push(qry.alias + "_part AS (<PARTITION LOGIC>)")
     }
+
+    return qry;
   }
 
-  private convertProperty(qry: any, focus: any, property: Property) {
-    if (property["@id"] && property.range) this.convertPropertyRange(qry, focus, property);
-    else if (property["@id"] && property.in) this.convertPropertyIn(qry, focus, property);
-    else if (property.relativeTo) this.convertPropertyRelative(qry, focus, property);
-    else if (property['@id'] && property.value) this.convertPropertyValue(qry, focus, property);
-    else if (property['@id'] && property.match) this.convertPropertySubmatch(qry, focus, property);
-    else {
-      console.log("Unrecognised PROPERTY pattern")
-      console.log(property)
+  private convertMatchSet(focus: any, qry: SqlQuery, match: Match) {
+    qry.withs.push(qry.alias + " AS ( SELECT " + qry.alias + ".* FROM " + focus.map.table + " AS " + qry.alias + ") -- WHERE in query results " + match["@set"]);
+    qry.joins.push("JOIN " + qry.alias + " ON " + qry.alias + ".id = " + focus.alias + ".id")
+  }
+
+  private convertMatchBoolSubMatch(focus: any, qry: SqlQuery, match: Match) {
+    const joiner = ("OR" == match.bool.toUpperCase()) ? "\nLEFT JOIN " : "\nJOIN ";
+    const wherer = ("OR" == match.bool.toUpperCase()) ? "IS NOT NULL" : undefined;
+
+    let boolJoin = qry.alias + " AS ( SELECT " + qry.alias + ".* FROM " + focus.map.table + " AS " + qry.alias;
+    let boolWhere = [];
+
+    for (const subMatch of match.match) {
+      const subQuery = this.convertMatch(focus, subMatch);
+
+      qry.withs.push(...subQuery.withs);
+
+      boolJoin += joiner + subQuery.alias + ".id = " + qry.alias + ".id"
+      if (wherer)
+        boolWhere.push(subQuery.alias + ".id " + wherer);
     }
+
+    if (boolWhere.length > 0)
+      boolJoin += "\nWHERE " + boolWhere.join("\n" + match.bool + " ");
+
+    boolJoin += ")";
+
+    qry.withs.push(boolJoin)
+    qry.joins.push("JOIN " + qry.alias + " ON " + qry.alias + ".id = " + focus.alias + ".id");
   }
 
-  private convertPropertyRange(qry: any, focus: any, property: Property) {
-    if (!property.range || !property["@id"])
-      return;
+  private convertMatchProperties(focus: any, qry: SqlQuery, match: Match, bool = "AND") {
+    let w = qry.alias + " AS ( SELECT " + qry.alias + ".* FROM " + focus.map.table + " AS " + qry.alias;
 
-    const alias = this.getAlias(focus);
+    const conditions = [];
+    for(const property of match.property) {
+      conditions.push(this.convertMatchProperty(focus, qry, match, property))
+    }
 
-    const fieldName = this.getField(focus, property["@id"]);
+    if (conditions.length > 0)
+      w += " WHERE " + conditions.join(" " + bool + " ")
 
-    if ("age" == fieldName) {
-      qry.withs.push(
-        alias + " AS (SELECT id FROM " + focus.map.table + " WHERE date_of_birth BETWEEN (now() - INTERVAL '" + property.range.from.value + " " + property.range.from.unit + "') AND (now() - INTERVAL '" + property.range.to.value + " " + property.range.to.unit + "'))"
-      )
+    w += ")";
+
+    qry.withs.push(w);
+  }
+
+  private convertMatchProperty(focus: any, qry: SqlQuery, match: Match, property: Property) {
+    if (property.range) {
+      return this.convertMatchPropertyRange(property);
+    } else if (property.match) {
+      return this.convertMatchPropertySubMatch(focus, qry, property);
+    } else if (property.in) {
+      return this.convertMatchPropertyIn(qry, property);
+    } else if (property.relativeTo) {
+      return this.convertMatchPropertyRelative(qry, property);
     } else {
-      qry.withs.push(
-        alias + " AS (SELECT id FROM " + focus.map.table + " WHERE " + fieldName + " BETWEEN " + property.range.from.value + " AND " + property.range.to.value + ")"
-      )
+      console.log("UNHANDLED PROPERTY PATTERN");
+      console.log(property);
+      return "<UNHANDLED>"
     }
-
-    qry.joins.push(
-      alias + " ON " + alias + ".id = " + focus.alias + ".id"
-    )
-
-    qry.wheres.push(
-      alias + ".id IS NOT NULL - 188"
-    )
   }
 
-  private convertPropertyIn(qry: any, focus: any, property: Property) {
-    if (!property.in || property.in.length === 0)
-      return;
+  private convertMatchPropertyRange(property: Property) {
+    const ranges: string[] = [];
+    if (property.range.from)
+      ranges.push(property["@id"] + " " + this.convertMatchPropertyRangeNode(property.range.from))
 
-    let inList = [];
-    for(const i of property.in) {
-      if (i["@id"]) inList.push(i["@id"])
-      else if (i["@set"]) inList.push(i["@set"])
+    if (property.range.to)
+      ranges.push(property["@id"] + " " + this.convertMatchPropertyRangeNode(property.range.to))
+
+    return ranges.join("\nAND ")
+  }
+
+  private convertMatchPropertyRangeNode(range: Assignable) {
+    return range.operator + " " + range.value + (range.unit ? " " + range.unit : "");
+  }
+
+  private convertMatchPropertySubMatch(focus: any, qry: SqlQuery, property: Property) {
+    console.log("SUBSELECT")
+    console.log(JSON.stringify(property.match, null, 2))
+
+    if (!property.match.variable)
+      property.match.variable = qry.alias + "_sub1";
+
+    const m = this.convertMatch(focus, property.match);
+    console.log("SUBSELECT MATCH")
+    console.log(m);
+
+    qry.withs.push(...m.withs)
+    qry.joins.push("JOIN " + qry.alias + " ON " + qry.alias + ".id = " + focus.alias + ".id")
+
+    return "JOIN " +m.alias + " ON " + qry.alias + "." + property["@id"] + " = " + m.alias + ".id";
+  }
+
+  private convertMatchPropertyIn(qry: SqlQuery, property: Property) {
+    const inList = [];
+
+    for (const pIn of property.in) {
+      if (pIn["@id"])
+        inList.push(pIn['@id'])
       else {
-        console.log("Unrecognised IN pattern")
-        console.log(i)
+        console.log("UNHANDLED 'IN' ENTRY")
+        console.log(pIn)
       }
     }
 
-    const alias = this.getAlias(focus);
-
-    qry.withs.push(
-      alias + " AS (SELECT id FROM " + focus.map.table + " WHERE " + this.getField(focus, property["@id"] as string) + " IN ('" + inList.join("', '") + "'))"
-    )
-
-    qry.joins.push(
-      alias + " ON " + alias + ".id = " + focus.alias + ".id"
-    )
-
-    // TODO: reverse for exclusions
-    qry.wheres.push(
-      alias + ".id IS NOT NULL - 218"
-    )
+    return qry.alias + "." + property["@id"] + " IN ('" + inList.join("', '") + "')";
   }
 
-  private convertPropertyRelative(qry: any, focus: any, property: Property) {
-    if (!property.relativeTo)
-      return;
-
-    if (property.relativeTo.nodeRef) {
-      qry.wheres.push(
-        focus.alias + "." + this.getField(focus, property['@id'] as string) + " " + property.operator + " " + property.relativeTo.nodeRef + "." + property.relativeTo["@id"]
-      )
-    } else if (property.relativeTo.parameter) {
-      qry.wheres.push(
-        focus.alias + "." + this.getField(focus, property['@id'] as string) + " " + property.operator + " " + property.relativeTo.parameter
-      )
-    } else {
-      console.log("Unrecognised RELATIVE_TO condition")
-      console.log(property.relativeTo);
-    }
-  }
-
-  private convertPropertyValue(qry: any, focus: any, property: Property) {
-    if (!property['@id'] && !property.value)
-      return;
-
-    qry.wheres.push(
-      focus.alias + "." + this.getField(focus, property['@id'] as string) + " " + property.operator + " " + property.value
-    )
-  }
-
-  private convertPropertySubmatch(qry: any, focus: any, property: Property) {
-    const submatch = property.match;
-    if (submatch && submatch["@type"]) {
-      if (property.variable)
-        this.variable = property.variable;
-
-      const newFocus = this.focusTable(submatch["@type"]);
-
-      // TODO: Map based join between table types
-      qry.joins.push(newFocus.map.table + " AS " + newFocus.alias + " ON " + newFocus.alias + ".patient = " + focus.alias + ".id")
-
-      focus = newFocus;
-
-      this.convertMatch(qry, focus, submatch);
-    } else {
-      console.log("Urecognised property submatch")
-      console.log(property)
-    }
+  private convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
+    // Different comparison based on type
+    return qry.alias + "." + property["@id"] + " " + property.operator + " (" + property.relativeTo.parameter + " " + property.value + " " + property.unit +")";
   }
 
   private getAlias(table: any) {
@@ -279,5 +231,26 @@ export class IMQtoSQL {
 
     console.log("Unknown field [" + field + "] on table [" + table.map.table + "]");
     return "<UNKNOWN>";
+  }
+
+  private queryToSql(focus: any, qry: SqlQuery) {
+
+    let sql = "";
+
+    if (qry.withs) {
+      sql += "WITH ";
+      sql += qry.withs.join(",\n")
+    }
+
+    sql += "\nSELECT " + focus.alias + ".id"
+    sql += "\nFROM " + focus.map.table + " AS " + focus.alias;
+
+    if (qry.joins && qry.joins.length > 0)
+      sql += "\n" + qry.joins.join("\n")
+
+    if (qry.wheres && qry.wheres.length > 0)
+      sql += "\nWHERE " + qry.wheres.join("\nAND ")
+
+    return sql;
   }
 }
