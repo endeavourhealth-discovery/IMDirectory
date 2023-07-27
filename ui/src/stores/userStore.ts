@@ -11,6 +11,7 @@ export const useUserStore = defineStore("user", {
     cookiesOptionalAccepted: localStorage.getItem("cookiesOptionalAccepted") === "true" ? true : false,
     currentTheme: "" as string,
     currentUser: {} as User,
+    awsUser: {} as any,
     favourites: [] as string[],
     history: [] as HistoryItem[],
     recentLocalActivity: [] as RecentActivityItem[],
@@ -113,14 +114,18 @@ export const useUserStore = defineStore("user", {
       if (this.currentUser) await UserService.updateUserTheme(theme);
       this.currentTheme = theme;
     },
-    async updateCurrentUser(user: any) {
+    updateCurrentUser(user: any) {
       this.currentUser = user;
+    },
+    updateAwsUser(user: any) {
+      this.awsUser = user;
     },
     async logoutCurrentUser() {
       let result = { status: 500, message: "Logout (userStore) failed" } as CustomAlert;
       await AuthService.signOut().then(async res => {
         if (res.status === 200) {
-          await useUserStore().updateCurrentUser(null);
+          useUserStore().updateCurrentUser(null);
+          useUserStore().updateAwsUser(null);
           useUserStore().clearAllFromUserDatabase();
           result = res;
         } else {
@@ -138,7 +143,8 @@ export const useUserStore = defineStore("user", {
           if (!foundAvatar) {
             loggedInUser.avatar = Avatars[0];
           }
-          await useUserStore().updateCurrentUser(loggedInUser);
+          useUserStore().updateCurrentUser(loggedInUser);
+          useUserStore().updateAwsUser(res.userRaw);
           result.authenticated = true;
         } else {
           this.logoutCurrentUser().then(resLogout => {

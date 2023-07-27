@@ -13,9 +13,9 @@
             <label for="mfa-code">Code</label>
             <InputText id="mfa-code" v-model="code" />
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
-            <small v-if="isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
+            <small v-if="!isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
-          <Button :disabled="!isValidCode" label="Submit" @click="handleSubmitMFA" />
+          <Button :disabled="!isValidCode" :loading="loading" label="Submit" @click="handleSubmitMFA" />
         </div>
       </template>
     </Card>
@@ -35,12 +35,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 import { Avatars } from "@im-library/constants";
 
-interface Props {
-  user: any;
-}
-
-const props = defineProps<Props>();
-
 const router = useRouter();
 const helpDialog = useDialog();
 const userStore = useUserStore();
@@ -48,8 +42,14 @@ const authStore = useAuthStore();
 
 const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
 const authReturnUrl = computed(() => authStore.authReturnUrl);
+const awsUser = computed(() => userStore.awsUser);
 
 const code = ref("");
+const loading = ref(false);
+
+onMounted(() => {
+  if (!awsUser.value) router.push({ name: "Login" });
+});
 
 function showHelpDialog() {
   const dialogProps = {
@@ -73,7 +73,8 @@ function showHelpDialog() {
 
 async function handleSubmitMFA() {
   if (isValidCode.value) {
-    AuthService.mfaSignIn(props.user, code.value)
+    loading.value = true;
+    await AuthService.mfaSignIn(awsUser.value, code.value)
       .then(async res => {
         if (res.status === 200 && res.user) {
           const loggedInUser = res.user;
@@ -82,7 +83,8 @@ async function handleSubmitMFA() {
           if (!result) {
             loggedInUser.avatar = Avatars[0];
           }
-          await userStore.updateCurrentUser(loggedInUser);
+          userStore.updateCurrentUser(loggedInUser);
+          userStore.updateAwsUser(res.userRaw);
           await userStore.getAllFromUserDatabase();
           authStore.updateRegisteredUsername("");
           Swal.fire({
@@ -108,6 +110,7 @@ async function handleSubmitMFA() {
           confirmButtonText: "Close"
         });
       });
+    loading.value = false;
   }
 }
 </script>

@@ -317,7 +317,7 @@ router.beforeEach(async (to, from) => {
 
   const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
 
-  authStore.updateAuthReturnUrl(currentUrl);
+  if (currentUrl !== "/#/user/login" && currentUrl !== "/#/user/mfa-login") authStore.updateAuthReturnUrl(currentUrl);
 
   const iri = to.params.selectedIri;
   if (iri) {

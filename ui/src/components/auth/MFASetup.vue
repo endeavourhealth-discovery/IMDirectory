@@ -15,7 +15,7 @@
             <label for="mfa-code">Code</label>
             <InputText id="mfa-code" v-model="code" />
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
-            <small v-if="isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
+            <small v-if="!isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
           <Button :disabled="!isValidCode" label="Submit" @click="handleSubmitMFA" :loading="loading" />
         </div>
@@ -50,9 +50,9 @@ const textColor = styles.getPropertyValue("--text-color");
 
 const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
 const authReturnUrl = computed(() => authStore.authReturnUrl);
+const awsUser = computed(() => userStore.awsUser);
 
 const code = ref("");
-const userRaw: Ref<any | undefined> = ref();
 
 const options: Ref<any | undefined> = ref();
 const loading = ref(false);
@@ -64,16 +64,12 @@ const qrCodeElement = ref();
 
 onMounted(async () => {
   loadingQRCode.value = true;
-  const result = await AuthService.getCurrentAuthenticatedUser();
-  if (result.status === 200) {
-    userRaw.value = result.userRaw;
-    const mfaToken = await AuthService.getMfaToken(result.userRaw);
-    if (mfaToken) {
-      const codeUrl = "otpauth://totp/AWSCognito:" + result.user?.username + "?secret=" + mfaToken + "&issuer=Cognito";
-      options.value = generateOptions(codeUrl);
-      options.value.data = codeUrl;
-    }
-  } else throw new Error("Error authenticating user.");
+  const mfaToken = await AuthService.getMfaToken(awsUser.value);
+  if (mfaToken) {
+    const codeUrl = "otpauth://totp/AWSCognito:" + awsUser.value?.username + "?secret=" + mfaToken + "&issuer=Cognito";
+    options.value = generateOptions(codeUrl);
+    options.value.data = codeUrl;
+  }
   loadingQRCode.value = false;
 });
 
@@ -165,42 +161,17 @@ function showHelpDialog() {
 async function handleSubmitMFA() {
   if (isValidCode.value) {
     loading.value = true;
-    await AuthService.setMfaPreference(userRaw.value, "TOTP");
-    await AuthService.mfaSignIn(userRaw.value, code.value)
-      .then(async res => {
-        if (res.status === 200 && res.user) {
-          const loggedInUser = res.user;
-          // check if avatar exists and replace lagacy images with default avatar on signin
-          const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-          if (!result) {
-            loggedInUser.avatar = Avatars[0];
-          }
-          await userStore.updateCurrentUser(loggedInUser);
-          await userStore.getAllFromUserDatabase();
-          authStore.updateRegisteredUsername("");
-          Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Login successful"
-          }).then(() => {
-            userStore.clearOptionalCookies();
-            if (authReturnUrl.value) {
-              window.location.href = authReturnUrl.value;
-            } else {
-              router.push({ name: "LandingPage" });
-            }
-          });
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Authentication error",
-          confirmButtonText: "Close"
-        });
-      });
+    try {
+      await AuthService.verifyMFAToken(awsUser.value, code.value);
+      await AuthService.setMfaPreference(awsUser.value, "TOTP");
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "2-factor authentication successfully setup for this account."
+      }).then(() => router.push({ name: "UserDetails" }));
+    } catch (err: any) {
+      throw new Error("Error setting up mfa", err);
+    }
     loading.value = false;
   }
 }

@@ -2,20 +2,20 @@
   <div id="mfa-delete">
     <Card class="flex flex-column justify-content-sm-around align-items-center mfa-delete-card">
       <template #header>
-        <IMFontAwesomeIcon icon="fa-solid fa-shield-halved" class="icon-header" />
+        <IMFontAwesomeIcon :icon="fontAwesomePro ? 'fa-solid fa-shield-slash' : 'fa-solid fa-lock-open'" class="icon-header" />
       </template>
-      <template #title>2-factor authentication</template>
+      <template #title>Disable 2-factor authentication</template>
       <template #content>
         <div class="mfa-delete-content">
-          <p>Enter the code from your authenticator app to continue.</p>
-          <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
-          <div class="code-input">
-            <label for="mfa-code">Code</label>
-            <InputText id="mfa-code" v-model="code" />
-            <small id="mfa-code-help">Enter the code from your authenticator app</small>
-            <small v-if="isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
+          <p>Disabling 2-factor authentication will reduce your account security</p>
+          <div class="buttons-container">
+            <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           </div>
-          <Button :disabled="!isValidCode" label="Submit" @click="handleSubmitMFA" />
+          <p>Are you sure you want to continue disabling this security feature?</p>
+          <div class="buttons-container">
+            <Button label="Cancel" severity="secondary" @click="handleCancel" />
+            <Button severity="danger" :loading="loading" label="Disable" @click="handleDisableMfa" />
+          </div>
         </div>
       </template>
     </Card>
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, h, computed } from "vue";
+import { onMounted, ref, watch, h, computed, Ref } from "vue";
 import _ from "lodash";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
@@ -32,24 +32,23 @@ import Swal from "sweetalert2";
 import { AuthService } from "@/services";
 import { useUserStore } from "@/stores/userStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
 import { Avatars } from "@im-library/constants";
-
-interface Props {
-  user: any;
-}
-
-const props = defineProps<Props>();
 
 const router = useRouter();
 const helpDialog = useDialog();
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const sharedStore = useSharedStore();
 
 const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
 const authReturnUrl = computed(() => authStore.authReturnUrl);
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+const awsUser = computed(() => userStore.awsUser);
 
 const code = ref("");
+const loading = ref(false);
 
 function showHelpDialog() {
   const dialogProps = {
@@ -71,44 +70,21 @@ function showHelpDialog() {
   });
 }
 
-async function handleSubmitMFA() {
-  if (isValidCode.value) {
-    AuthService.mfaSignIn(props.user, code.value)
-      .then(async res => {
-        if (res.status === 200 && res.user) {
-          const loggedInUser = res.user;
-          // check if avatar exists and replace lagacy images with default avatar on signin
-          const result = Avatars.find((avatar: string) => avatar === loggedInUser.avatar);
-          if (!result) {
-            loggedInUser.avatar = Avatars[0];
-          }
-          await userStore.updateCurrentUser(loggedInUser);
-          await userStore.getAllFromUserDatabase();
-          authStore.updateRegisteredUsername("");
-          Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Login successful"
-          }).then(() => {
-            userStore.clearOptionalCookies();
-            if (authReturnUrl.value) {
-              window.location.href = authReturnUrl.value;
-            } else {
-              router.push({ name: "LandingPage" });
-            }
-          });
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Authentication error",
-          confirmButtonText: "Close"
-        });
-      });
-  }
+async function handleDisableMfa() {
+  loading.value = true;
+  await AuthService.setMfaPreference(awsUser.value, "NOMFA");
+  Swal.fire({
+    icon: "success",
+    title: "Success",
+    text: "2-factor authentication successfully disabled"
+  }).then(() => {
+    router.push({ name: "UserDetails" });
+  });
+  loading.value = false;
+}
+
+function handleCancel() {
+  router.push({ name: "UserDetails" });
 }
 </script>
 
@@ -132,7 +108,8 @@ async function handleSubmitMFA() {
 .mfa-delete-content {
   display: flex;
   flex-flow: column nowrap;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.5rem;
   max-width: 30rem;
 }
 
@@ -143,5 +120,13 @@ async function handleSubmitMFA() {
 
 .invalid-text {
   color: var(--red-500);
+}
+
+.buttons-container {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 </style>

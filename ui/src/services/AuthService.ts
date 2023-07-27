@@ -14,7 +14,7 @@ function processAwsUser(cognitoUser: any) {
     password: "",
     avatar: cognitoUser.attributes["custom:avatar"],
     roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] ?? [],
-    mfaStatus: cognitoUser.userMfaSettingList ?? []
+    mfaStatus: cognitoUser.preferredMFA ? [cognitoUser.preferredMFA] : []
   } as User;
 }
 
@@ -58,7 +58,7 @@ const AuthService = {
     try {
       const user = await Auth.signIn(username, password);
       if (isObjectHasKeys(user, ["challengeName"])) {
-        return { status: 403, message: user.challengeName, error: undefined, user: user };
+        return { status: 403, message: user.challengeName, error: undefined, user: user, userRaw: user };
       }
       const signedInUser = processAwsUser(user);
       return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
@@ -194,6 +194,10 @@ const AuthService = {
     } catch (error: any) {
       throw new Error("Failed to set user mfa preference", error);
     }
+  },
+
+  async verifyMFAToken(user: any, token: string) {
+    await Auth.verifyTotpToken(user, token);
   }
 
   // currently not a feature with AWS Auth

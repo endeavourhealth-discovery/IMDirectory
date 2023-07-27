@@ -12,7 +12,7 @@
                 <span>{{ data.label }}</span>
                 <Tag :value="data.status ? 'Active' : 'Inactive'" :severity="data.status ? 'success' : 'warning'" rounded />
               </div>
-              <Button v-if="data.status" label="Deactivate" @click="handleMfaDelete(data.key)" />
+              <Button v-if="data.status" severity="danger" label="Deactivate" @click="handleMfaDelete(data.key)" />
               <Button v-else label="Activate" @click="handleMfaActivate(data.key)" />
             </div>
           </div>

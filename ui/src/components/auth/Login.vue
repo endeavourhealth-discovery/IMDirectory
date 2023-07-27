@@ -73,7 +73,8 @@ async function handleSubmit(): Promise<void> {
         if (!result) {
           loggedInUser.avatar = Avatars[0];
         }
-        await userStore.updateCurrentUser(loggedInUser);
+        userStore.updateCurrentUser(loggedInUser);
+        userStore.updateAwsUser(res.userRaw);
         await userStore.getAllFromUserDatabase();
         authStore.updateRegisteredUsername("");
         Swal.fire({
@@ -102,7 +103,7 @@ async function handleSubmit(): Promise<void> {
             router.push({ name: "ConfirmCode" });
           }
         });
-      } else if (res.status === 403 && res.message === "NEW_PASSWORD_REQUIRED") {
+      } else if (res.status === 403) {
         if (res.message === "NEW_PASSWORD_REQUIRED") {
           Swal.fire({
             icon: "warning",
@@ -117,6 +118,7 @@ async function handleSubmit(): Promise<void> {
             }
           });
         } else if (res.message === "MFA_SETUP") {
+          userStore.updateAwsUser(res.userRaw);
           Swal.fire({
             icon: "info",
             title: "Redirecting to 2-factor authentication setup...",
@@ -131,19 +133,8 @@ async function handleSubmit(): Promise<void> {
             router.push({ name: "MFASetup" });
           });
         } else if (res.message === "SOFTWARE_TOKEN_MFA") {
-          Swal.fire({
-            icon: "info",
-            title: "Redirecting to 2-factor authentication...",
-            text: "2-factor authentication is enabled for this account. Redirecting to 2-factor input page shortly.",
-            timer: 600,
-            timerProgressBar: true,
-            didOpen: () => {
-              Swal.showLoading();
-            },
-            showCloseButton: true
-          }).then(() => {
-            router.push({ name: "MFALogin", params: { user: { ...res.userRaw } } });
-          });
+          userStore.updateAwsUser(res.userRaw);
+          router.push({ name: "MFALogin" });
         }
       } else {
         Swal.fire({
