@@ -1,12 +1,11 @@
 import { Match, Query, Property, Assignable } from "@im-library/interfaces/AutoGen";
 import mapData from "./IMQtoSQL.json"
-import { join } from "lodash";
 import { SqlQuery } from "@/model/sql/SqlQuery";
+import { Table } from "@/model/sql/Table";
 
 export class IMQtoSQL {
   private aliasIndex = 0;
   private tableMap: any = {};
-  private variable?: string = undefined;
 
   public convert(definition: Query) {
     if (!definition["@type"]) {
@@ -19,21 +18,31 @@ export class IMQtoSQL {
       return;
     }
 
-    const focus = this.focusTable(definition["@type"]);
+    const focus: Table = this.focusTable(definition["@type"]);
 
-    const qry = this.convertMatches(focus, definition.match);
+    const subQueries: SqlQuery[] = this.convertMatches(focus, definition.match);
+
+    const qry = new SqlQuery();
+    qry.alias = focus.alias;
+    qry.from = focus.map.table + " AS " + qry.alias
+
+    for(const subQry of subQueries) {
+      qry.withs.push(...subQry.withs);
+      subQry.withs = [];
+      const subSql = this.queryToSql(subQry);
+      qry.withs.push(subQry.alias + " AS (" + subSql + "\n)")
+      qry.joins.push("JOIN " + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id")
+    }
 
     console.log("================================================================")
-
     console.log(qry)
-
     console.log("================================================================")
 
-    return this.queryToSql(focus, qry);
+    return this.queryToSql(qry);
   }
 
-  private focusTable(tableType: string) : any {
-    console.log("=== SWITCHING FOCUS [" + tableType + "]===")
+  private focusTable(tableType: string) : Table {
+    console.log("=== SWITCHING FOCUS TO [" + tableType + "]===")
 
     if (!tableType.startsWith("http:"))
       tableType = "http://endhealth.info/im#" + tableType;
@@ -41,45 +50,35 @@ export class IMQtoSQL {
     const map = (mapData.typeTables as any)[tableType];
 
     if (!map) {
-      console.log("Unmapped table " + tableType);
-      return;
+      throw new Error("Unmapped table " + tableType);
     }
 
-    const table: any = { map: map };
-
-    if (this.variable) {
-      table.alias = this.variable;
-      this.tableMap[this.variable] = table;
-      this.variable = undefined;
-    } else {
-      table.alias = this.getAlias(table);
-    }
+    const table: Table = { map: map } as Table;
+    table.alias = this.getAlias(table);
 
     return table;
   }
 
-  private convertMatches(focus: any, matches: Match[]) {
-    const qry = new SqlQuery();
-
+  private convertMatches(focus: Table, matches: Match[]): SqlQuery[] {
+    const result: SqlQuery[] = [];
     for(const match of matches) {
       const subQry = this.convertMatch(focus, match);
-      qry.withs.push(...subQry.withs)
-      qry.joins.push(...subQry.joins)
-      qry.wheres.push(...subQry.wheres)
+      result.push(subQry);
     }
 
-    return qry;
+    return result;
   }
 
-  private convertMatch(focus: any, match: Match) {
-    const qry = new SqlQuery();
+  private convertMatch(focus: Table, match: Match): SqlQuery {
 
     const matchFocus = (match["@type"]) ? this.focusTable(match["@type"]) : focus
 
+    const qry:SqlQuery = new SqlQuery();
     qry.alias = (match.variable) ? match.variable : this.getAlias(matchFocus);
+    qry.from = focus.map.table + " AS " + qry.alias
 
     if (match["@set"]) {
-      this.convertMatchSet(matchFocus, qry, match);
+      this.convertMatchSet(qry, match);
     } else if (match.bool) {
       if (match.match && match.match.length > 0)
         this.convertMatchBoolSubMatch(matchFocus, qry, match);
@@ -96,23 +95,30 @@ export class IMQtoSQL {
       console.log(match)
     }
 
-    if (match.orderBy) {
+/*    if (match.orderBy) {
       qry.withs.push(qry.alias + "_part AS (<PARTITION LOGIC>)")
-    }
+    }*/
 
     return qry;
   }
 
-  private convertMatchSet(focus: any, qry: SqlQuery, match: Match) {
-    qry.withs.push(qry.alias + " AS ( SELECT " + qry.alias + ".* FROM " + focus.map.table + " AS " + qry.alias + ") -- WHERE in query results " + match["@set"]);
-    qry.joins.push("JOIN " + qry.alias + " ON " + qry.alias + ".id = " + focus.alias + ".id")
+  private convertMatchSet(qry: SqlQuery, match: Match) {
+    qry.selects.push(qry.alias + ".*");
+    qry.wheres.push("-- in query results " + match["@set"])
   }
 
-  private convertMatchBoolSubMatch(focus: any, qry: SqlQuery, match: Match) {
-    const joiner = ("OR" == match.bool.toUpperCase()) ? "\nLEFT JOIN " : "\nJOIN ";
+  private convertMatchBoolSubMatch(focus: Table, qry: SqlQuery, match: Match) {
+    if (!match.bool || !match.match) {
+      console.log("INVALID MatchBoolSubMatch")
+      return;
+    }
+
+    qry.whereBool = match.bool ? match.bool : "AND";
+
+    const joiner = ("OR" == match.bool.toUpperCase()) ? "LEFT JOIN " : "JOIN ";
     const wherer = ("OR" == match.bool.toUpperCase()) ? "IS NOT NULL" : undefined;
 
-    let boolJoin = qry.alias + " AS ( SELECT " + qry.alias + ".* FROM " + focus.map.table + " AS " + qry.alias;
+    let boolJoin = [];
     let boolWhere = [];
 
     for (const subMatch of match.match) {
@@ -120,26 +126,26 @@ export class IMQtoSQL {
 
       qry.withs.push(...subQuery.withs);
 
-      boolJoin += joiner + subQuery.alias + ".id = " + qry.alias + ".id"
+      boolJoin.push(joiner + subQuery.alias + ".id = " + qry.alias + ".id")
       if (wherer)
         boolWhere.push(subQuery.alias + ".id " + wherer);
     }
 
-    if (boolWhere.length > 0)
-      boolJoin += "\nWHERE " + boolWhere.join("\n" + match.bool + " ");
-
-    boolJoin += ")";
-
-    qry.withs.push(boolJoin)
-    qry.joins.push("JOIN " + qry.alias + " ON " + qry.alias + ".id = " + focus.alias + ".id");
+    qry.joins.push(...boolJoin);
+    qry.wheres.push(...boolWhere);
   }
 
-  private convertMatchProperties(focus: any, qry: SqlQuery, match: Match, bool = "AND") {
+  private convertMatchProperties(focus: Table, qry: SqlQuery, match: Match, bool = "AND") {
+    if (!match.property) {
+      console.log("INVALID MatchProperty")
+      return;
+    }
+
     let w = qry.alias + " AS ( SELECT " + qry.alias + ".* FROM " + focus.map.table + " AS " + qry.alias;
 
     const conditions = [];
     for(const property of match.property) {
-      conditions.push(this.convertMatchProperty(focus, qry, match, property))
+      conditions.push(this.convertMatchProperty(focus, qry, property))
     }
 
     if (conditions.length > 0)
@@ -150,7 +156,7 @@ export class IMQtoSQL {
     qry.withs.push(w);
   }
 
-  private convertMatchProperty(focus: any, qry: SqlQuery, match: Match, property: Property) {
+  private convertMatchProperty(focus: Table, qry: SqlQuery, property: Property) {
     if (property.range) {
       return this.convertMatchPropertyRange(property);
     } else if (property.match) {
@@ -167,6 +173,11 @@ export class IMQtoSQL {
   }
 
   private convertMatchPropertyRange(property: Property) {
+    if (!property.range) {
+      console.log("INVALID MatchPropertyRange")
+      return;
+    }
+
     const ranges: string[] = [];
     if (property.range.from)
       ranges.push(property["@id"] + " " + this.convertMatchPropertyRangeNode(property.range.from))
@@ -181,7 +192,12 @@ export class IMQtoSQL {
     return range.operator + " " + range.value + (range.unit ? " " + range.unit : "");
   }
 
-  private convertMatchPropertySubMatch(focus: any, qry: SqlQuery, property: Property) {
+  private convertMatchPropertySubMatch(focus: Table, qry: SqlQuery, property: Property) {
+    if (!property.match) {
+      console.log("INVALID MatchPropertySubMatch")
+      return;
+    }
+
     console.log("SUBSELECT")
     console.log(JSON.stringify(property.match, null, 2))
 
@@ -199,6 +215,11 @@ export class IMQtoSQL {
   }
 
   private convertMatchPropertyIn(qry: SqlQuery, property: Property) {
+    if (!property.in) {
+      console.log("INVALID MatchPropertyIn")
+      return;
+    }
+
     const inList = [];
 
     for (const pIn of property.in) {
@@ -214,6 +235,11 @@ export class IMQtoSQL {
   }
 
   private convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
+    if (!property.relativeTo) {
+      console.log("INVALID MatchPropertyRelative")
+      return;
+    }
+
     // Different comparison based on type
     return qry.alias + "." + property["@id"] + " " + property.operator + " (" + property.relativeTo.parameter + " " + property.value + " " + property.unit +")";
   }
@@ -225,31 +251,37 @@ export class IMQtoSQL {
     return alias;
   }
 
-  private getField(table: any, field: string) {
+/*  private getField(table: any, field: string) {
     if (table.map.fields[field])
       return table.map.fields[field]
 
     console.log("Unknown field [" + field + "] on table [" + table.map.table + "]");
     return "<UNKNOWN>";
-  }
+  }*/
 
-  private queryToSql(focus: any, qry: SqlQuery) {
+  private queryToSql(qry: SqlQuery) {
 
     let sql = "";
 
-    if (qry.withs) {
+    if (qry.withs && qry.withs.length > 0) {
       sql += "WITH ";
       sql += qry.withs.join(",\n")
     }
 
-    sql += "\nSELECT " + focus.alias + ".id"
-    sql += "\nFROM " + focus.map.table + " AS " + focus.alias;
+    sql += "\nSELECT ";
+
+    if (qry.selects && qry.selects.length > 0)
+      sql += qry.selects.join(", ")
+    else
+      sql += qry.alias + ".id"
+
+    sql += "\nFROM " + qry.from;
 
     if (qry.joins && qry.joins.length > 0)
       sql += "\n" + qry.joins.join("\n")
 
     if (qry.wheres && qry.wheres.length > 0)
-      sql += "\nWHERE " + qry.wheres.join("\nAND ")
+      sql += "\nWHERE " + qry.wheres.join("\n" + qry.whereBool + " ")
 
     return sql;
   }
