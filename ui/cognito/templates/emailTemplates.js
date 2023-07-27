@@ -122,7 +122,7 @@ exports.handler = async (event, context, callback) => {
           <tr>
             <td align="center" valign="top" style="padding: 36px 24px;">
               <a href="https://im.endeavourhealth.net/#/" target="_blank" style="display: inline-block;">
-                <img src="https://endeavourhealth.org/images/ship.png" alt="EndeavourHealthLogo" border="0" width="48" style="display: block; width: 48px; max-width: 48px; min-width: 48px;">
+                <img src="https://endeavourhealth.org/images/ship.png" alt="EndeavourHealthLogo" border="0" width="100" style="display: block; width: 100px; max-width: 100px; min-width: 100px;">
               </a>
             </td>
           </tr>
@@ -500,12 +500,12 @@ exports.handler = async (event, context, callback) => {
   if (event.triggerSource === "CustomMessage_SignUp") {
     event.response = {
       emailSubject: "Email confirmation code",
-      emailMessage: confirmCodeTemplate(name, code)
+      emailMessage: confirmCodeTemplate(name, code, email)
     };
   } else if (event.triggerSource === "CustomMessage_ForgotPassword") {
     event.response = {
       emailSubject: "Forgot password confirmation code",
-      emailMessage: passwordResetCodeTemplate(name, code)
+      emailMessage: passwordResetCodeTemplate(name, code, email)
     };
   }
   console.log(event.response);
