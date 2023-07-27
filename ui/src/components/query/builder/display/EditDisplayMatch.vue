@@ -39,7 +39,7 @@
       :variable-map="variableMap"
       :validation-query-request="validationQueryRequest"
     />
-    <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
+    <EditDisplayOrderBy v-if="isArrayHasLength(match.orderBy)" v-for="(orderBy, index) of match.orderBy" :match="match" :order-by="orderBy" :index="index" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 
@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
@@ -82,6 +82,7 @@ import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethod
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 
 interface Props {
   queryTypeIri: string;
@@ -241,6 +242,13 @@ function getSingleRCOptions() {
       }
     },
     {
+      label: "Add order by",
+      icon: PrimeIcons.SORT_ALT,
+      command: () => {
+        addOrderBy();
+      }
+    },
+    {
       label: "Move",
       icon: PrimeIcons.SORT,
       items: [
@@ -318,6 +326,11 @@ function onSelect(cs: ConceptSummary) {
   const newMatch = buildMatchFromCS(cs);
   addOrEdit(props.match, props.parentMatchList, props.index, [newMatch], []);
   showDirectoryDialog.value = false;
+}
+
+function addOrderBy() {
+  if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
+  props.match.orderBy?.push({ direction: "descending", limit: 1, "@id": "" } as OrderLimit);
 }
 </script>
 
