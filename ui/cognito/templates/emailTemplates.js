@@ -173,7 +173,8 @@ exports.handler = async (event, context, callback) => {
             <!-- start copy -->
             <tr>
               <td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-                <p style="margin: 0;">Use this code to verify your email address <a href="https://im.endeavourhealth.net/#/user/confirm-code">here</a>. If you didn't create an account with <a href="https://im.endeavourhealth.net/#/">https://im.endeavourhealth.net/#/</a>, you can safely delete this email.</p>
+                <p style="margin: 0;">Use this code to verify your email address <a href="https://im.endeavourhealth.net/#/user/confirm-code">here</a>. </p>
+                <p>If you didn't create an account with <a href="https://im.endeavourhealth.net/#/">https://im.endeavourhealth.net/#/</a>, you can safely delete this email.</p>
               </td>
             </tr>
             <!-- end copy -->
