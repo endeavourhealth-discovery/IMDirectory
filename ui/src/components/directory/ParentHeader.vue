@@ -8,7 +8,7 @@
         </h4>
       </div>
       <div class="entity-buttons-container">
-        <Button v-if="showSelectButton" :disabled="!isSelectableEntity()" label="Select" @click="emit('entitySelected', entity['@id'])" />
+        <Button v-if="showSelectButton" :disabled="!isSelectableEntity" label="Select" @click="emit('entitySelected', entity['@id'])" />
         <ActionButtons
           :buttons="hasQueryDefinition ? ['runQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
           :iri="entity['@id']"
@@ -49,10 +49,9 @@ import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
-import { computed, Ref, watch, ref, onMounted } from "vue";
+import { Ref, watch, ref, onMounted } from "vue";
 import { EntityService, QueryService } from "@/services";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useDirectoryStore } from "@/stores/directoryStore";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
 import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
@@ -70,15 +69,17 @@ const emit = defineEmits({
 });
 
 const hasQueryDefinition: Ref<boolean> = ref(false);
-
+const isSelectableEntity: Ref<boolean> = ref(false);
 onMounted(async () => {
   if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
+  isSelectableEntity.value = await getIsSelectableEntity();
 });
 
 watch(
   () => _.cloneDeep(props.entity),
   async () => {
     if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
+    isSelectableEntity.value = await getIsSelectableEntity();
   }
 );
 
@@ -98,14 +99,13 @@ function getColour(entity: any) {
   return "color: " + getColourFromType(entity[RDF.TYPE]);
 }
 
-async function isSelectableEntity(): Promise<boolean> {
-  if (props.validationQuery) {
-    const queryRequest = _.cloneDeep(props.validationQuery);
-    queryRequest.textSearch = props.entity[RDFS.LABEL];
-    const queryResults = await QueryService.queryIM(queryRequest);
-    if (queryResults.entities && queryResults.entities.findIndex(item => item.iri === props.entity[RDFS.LABEL])) return true;
-    else return false;
-  } else return true;
+async function getIsSelectableEntity(): Promise<boolean> {
+  if (!props.validationQuery) return true;
+  const queryRequest = _.cloneDeep(props.validationQuery);
+  queryRequest.textSearch = props.entity[RDFS.LABEL];
+  const queryResults = await QueryService.queryIM(queryRequest);
+  if (!isArrayHasLength(queryResults.entities)) return false;
+  return queryResults.entities.some(item => item[RDFS.LABEL] === props.entity[RDFS.LABEL]);
 }
 </script>
 
