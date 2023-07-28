@@ -1,7 +1,7 @@
 <template>
   <div id="topbar">
     <div id="topbar-start">
-      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
+      <img class="im-logo" src="../../../public/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
     </div>
     <div id="topbar-content">
       <slot name="content" />
@@ -573,7 +573,8 @@ async function downloadJava() {
 function setAppMenuItems() {
   appItems.value = [
     { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() }
+    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
+    { label: "UPRN", icon: "fa-regular fa-address-book", command: () => directService.uprn() }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }

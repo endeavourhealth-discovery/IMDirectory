@@ -1,6 +1,8 @@
 <template>
   <EditProperty v-if="editMode" :property="editProperty" :query-type-iri="queryTypeIri" :match="parentMatch" @on-cancel="editMode = false" @on-save="save" />
-  <div class="property" v-else-if="property.description" v-html="property.description" @dblclick="editMode = true"></div>
+  <div class="property" v-else-if="property.description">
+    <div v-tooltip="'Double click to edit'" v-html="property.description" @dblclick="editMode = true"></div>
+  </div>
 
   <EditDisplayProperty
     v-if="isArrayHasLength(property.property)"
@@ -12,6 +14,7 @@
     :query-type-iri="queryTypeIri"
     :selected-matches="selectedMatches"
     :variable-map="variableMap"
+    :validation-query-request="validationQueryRequest"
   />
 
   <EditDisplayMatch
@@ -22,16 +25,16 @@
     :query-type-iri="queryTypeIri"
     :selected-matches="selectedMatches"
     :variable-map="variableMap"
+    :validation-query-request="validationQueryRequest"
   />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { describeProperty, getDisplayFromLogic } from "@im-library/helpers/QueryDescriptor";
-import { Match, Property } from "@im-library/interfaces/AutoGen";
-import { Ref, onMounted, ref } from "vue";
+import { Match, Property, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Ref, onMounted, ref, watch } from "vue";
 import EditProperty from "../edit/EditProperty.vue";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import EditDisplayMatch from "./EditDisplayMatch.vue";
 import { SelectedMatch } from "@im-library/interfaces";
 
@@ -43,6 +46,7 @@ interface Props {
   queryTypeIri: string;
   selectedMatches: SelectedMatch[];
   variableMap: Map<string, any>;
+  validationQueryRequest: QueryRequest;
 }
 
 const props = defineProps<Props>();
@@ -52,6 +56,13 @@ const editProperty: Ref<Property> = ref({} as Property);
 onMounted(() => {
   editProperty.value = _.cloneDeep(props.property);
 });
+
+watch(
+  () => cloneDeep(props.property),
+  newValue => {
+    editProperty.value = _.cloneDeep(props.property);
+  }
+);
 
 function save() {
   for (const key of Object.keys(props.property)) {
@@ -69,5 +80,6 @@ function save() {
   margin-left: 1rem;
   margin-top: 0.1rem;
   margin-bottom: 0.1rem;
+  display: flex;
 }
 </style>

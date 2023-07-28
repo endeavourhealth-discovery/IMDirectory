@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwkToPem from "jwk-to-pem";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
@@ -10,48 +10,47 @@ class AuthMiddleware {
   private poolRegion: string = "eu-west-2";
   private userPoolId: string = "eu-west-2_Vt5ScFwss";
 
-  constructor() {
-    this.setUp();
+  public async verifyToken(req: Request, res: Response, next: NextFunction, role?: string) {
+    if (await this.checkToken(req, role))
+      next()
+    else
+      res.status(401).end();
   }
 
-  public verifyToken(req: Request, resp: Response, next: any, role?: string): any {
+  public async checkToken(req:Request, role?: string) {
     const token = req.headers?.authorization?.substring(7);
-    if (!token) return resp.status(401).end();
+
+    if (!token)
+      return false;
+
+    if (Object.keys(pems).length == 0)
+      await this.setUp();
 
     let decodedJwt: any = jwt.decode(token, { complete: true });
     logger.info("decodedJwt", decodedJwt);
     if (decodedJwt === null) {
-      resp.status(401).end();
-      return;
+      return false;
     }
 
     if (role) {
       if (!decodedJwt.payload["cognito:groups"]) {
-        resp.status(401).end();
-        return;
+        return false;
       }
 
       const groups: string[] = decodedJwt.payload["cognito:groups"];
 
       if (!groups.includes(role)) {
-        resp.status(401).end();
-        return;
+        return false;
       }
     }
 
     let kid = decodedJwt.header.kid;
     let pem = pems[kid];
     if (!pem) {
-      resp.status(401).end();
-      return;
+      return false;
     }
-    jwt.verify(token, pem, function (err: any, payload: any) {
-      if (err) {
-        resp.status(401).end();
-      } else {
-        next();
-      }
-    });
+    jwt.verify(token, pem);
+    return true;
   }
 
   public secure(role?: string) {

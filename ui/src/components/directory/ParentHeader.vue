@@ -134,6 +134,7 @@ async function isSelectableEntity(): Promise<boolean> {
 .title {
   padding: 0;
   margin: 0;
+  white-space: normal;
 }
 
 .type-icon {

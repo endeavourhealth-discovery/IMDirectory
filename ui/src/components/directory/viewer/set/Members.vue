@@ -52,18 +52,50 @@
       </Column>
     </DataTable>
   </div>
-  <Dialog :visible="showOptions" :modal="true" :closable="false" :close-on-escape="false">
-    <div class="type-selector">
-      <div v-if="loading" class="loading-container">
-        <ProgressSpinner />
-      </div>
-      <div v-else class="header-content-container">
-        <span class="text">Select to download</span>
-        <div class="type-buttons-container">
-          <button v-for="option in checkAuthorization() ? downloadMenu1 : downloadMenu" class="custom-button" @click="option.command">
-            <span>{{ option.label }}</span>
-          </button>
+  <Dialog :visible="showOptions" :modal="true" :closable="false" :close-on-escape="false" header="Please select download options">
+    <div class="flex-container content-container" >
+      <div class="item-container">
+        <span class="text">Format</span>
+        <div class="card flex justify-content-center">
+          <div class="flex flex-column gap-3">
+            <div v-for="format of formats" :key="format.key" class="flex align-items-center">
+              <RadioButton v-model="selectedFormat" :inputId="format.key" name="pizza" :value="format.name" />
+              <label :for="format.key" class="ml-2">{{ format.name }}</label>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="item-container">
+        <span class="text">Content</span>
+        <div class="card flex justify-content-left" >
+          <div class="flex flex-column gap-3">
+            <div v-for="content of contents" :key="content.key" class="flex align-items-center check-container">
+              <Checkbox v-model="selectedContents" :inputId="content.key" name="content" :value="content.name" :disabled="content.disable" />
+              <label :for="content.key">{{ content.name }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item-container">
+        <div class="toggle-container">
+          <span class="text">Show Subset</span>
+          <div class="card flex justify-content-left" style="margin:10px 0 0 0">
+            <ToggleButton v-model="checked" class="w-6rem h-2rem" />
+          </div>
+        </div>
+        <div class="toggle-container" :hidden="!showLegacy">
+          <span class="text" >Legacy</span>
+          <div class="card flex justify-content-left" style="margin:10px 0 0 0">
+            <ToggleButton v-model="checkedLegacy" onLabel="Own Row" offLabel="Inline Column" class="w-9rem h-2rem" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-container content-container">
+      <div class="card flex justify-content-center" style="gap: 1rem">
+        <Button v-if="selectedFormat === 'IMv1'" label="Download" @click="downloadIMV1" :disabled="!isOptionsSelected"/>
+        <Button v-else label="Download" @click="download" :disabled="!isOptionsSelected"/>
+        <Button label="Cancel" severity="danger" @click="closeDialog"/>
       </div>
     </div>
   </Dialog>
@@ -100,19 +132,28 @@ const downloading = ref(false);
 const members: Ref<TTIriRef[]> = ref([]);
 const isPublishing = ref(false);
 const showOptions = ref(false);
-const downloadMenu = ref([
-  { label: "Definition Only", command: () => download(false, false) },
-  { label: "Core", command: () => download(true, false) },
-  { label: "Core & Legacy", command: () => download(true, true) },
-  { label: "Core & Legacy (Flat)", command: () => download(true, true, true) }
+const isOptionsSelected= ref(false);
+
+const formats = ref([
+  {key: "csv", name: "csv", disable: false},
+  {key: "tsv", name: "tsv", disable: false},
+  {key: "xls", name: "xlsx", disable: false},
+  {key: "im1", name: "IMv1", disable: false}
 ]);
-const downloadMenu1 = ref([
-  { label: "Definition Only", command: () => download(false, false) },
-  { label: "Core", command: () => download(true, false) },
-  { label: "Core & Legacy", command: () => download(true, true) },
-  { label: "Core & Legacy (Flat)", command: () => download(true, true, true) },
-  { label: "IMv1", command: () => downloadIMV1() }
+
+const selectedFormat = ref();
+
+const contents = ref([
+  {key: "definition", name: "Definition", disable: true},
+  {key: "core", name: "Core", disable: true},
+  {key: "legacy", name: "Legacy", disable: true},
+  {key: "im1Id", name: "IM1Id", disable: true}
 ]);
+
+const selectedContents = ref();
+const checkedLegacy = ref(false);
+const checked = ref(false);
+const showLegacy = ref(false);
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
@@ -126,6 +167,57 @@ watch(
     await init();
   }
 );
+
+watch(
+    () => selectedContents.value,
+    () => {
+      if(contents.value.length !== 0 && selectedFormat.value !== "IMv1") {
+        contents.value[1].disable = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
+
+        if(selectedContents.value.includes("Core")) {
+          if(selectedFormat.value !== "xlsx") {
+            contents.value[0].disable = true;
+          }
+          contents.value[2].disable = false;
+          contents.value[3].disable = false;
+        } else {
+          contents.value[0].disable = false;
+          contents.value[2].disable = true;
+          contents.value[3].disable = true;
+          checked.value = false;
+          checkedLegacy.value = false;
+          const indexLegacy = selectedContents.value.indexOf("Legacy");
+          if(indexLegacy !== -1) {
+            selectedContents.value.splice(indexLegacy, 1);
+          }
+          const indexIM1Id = selectedContents.value.indexOf("IM1Id");
+          if(indexIM1Id !== -1) {
+            selectedContents.value.splice(indexIM1Id, 1);
+          }
+        }
+        showLegacy.value = !!selectedContents.value.includes("Legacy");
+      }
+      isOptionsSelected.value = selectedContents.value.length !== 0 && selectedFormat.value != null || selectedFormat.value === "IMv1";
+    }
+)
+
+watch(
+    () => selectedFormat.value,
+    () => {
+      selectedContents.value = [];
+      checked.value = false;
+      checkedLegacy.value = false;
+      if(selectedFormat.value) {
+        if(selectedFormat.value === "IMv1") {
+          contents.value.forEach((f:any) => f.disable = true);
+        } else {
+          contents.value.forEach((f:any) => f.disable = false);
+        }
+      } else {
+        contents.value.forEach((f:any) => f.disable = true);
+      }
+    }
+)
 
 onMounted(async () => {
   await init();
@@ -174,12 +266,20 @@ async function downloadIMV1(): Promise<void> {
   }
 }
 
-async function download(core: boolean, legacy: boolean, flat: boolean = false): Promise<void> {
+function closeDialog() {
+  showOptions.value = false;
+}
+
+async function download(): Promise<void> {
+  const definition = selectedContents.value.includes("Definition");
+  const core = selectedContents.value.includes("Core");
+  const legacy = selectedContents.value.includes("Legacy");
+  const im1id = selectedContents.value.includes("IM1Id");
   showOptions.value = false;
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const result = (await EntityService.getFullExportSet(props.entityIri, core, legacy, flat)).data;
+    const result = (await EntityService.getFullExportSet(props.entityIri, definition, core, legacy, checked.value, checkedLegacy.value, im1id, selectedFormat.value)).data;
     const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, getFileName(label));
   } catch (error) {
@@ -193,7 +293,7 @@ function getFileName(label: string) {
   if (label.length > 100) {
     label = label.substring(0, 100);
   }
-  return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + ".xlsx";
+  return label + " - " + new Date().toJSON().slice(0, 10).replace(/-/g, "/") + "." + selectedFormat.value;
 }
 
 function publish() {
@@ -226,13 +326,18 @@ async function getPage(event: any) {
 </script>
 
 <style scoped>
-.header-content-container {
+.item-container {
   width: 100%;
   height: 100%;
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-  align-items: center;
+  /*align-items: center;*/
+}
+
+.toggle-container{
+  padding: 0 0 30px 0;
+  gap: 2rem;
 }
 
 .type-selector {
@@ -248,18 +353,27 @@ async function getPage(event: any) {
   width: 100%;
   height: 100%;
 }
-.type-buttons-container {
-  width: 80%;
-  flex: 0 1 auto;
+.flex-container {
+  gap: 5rem;
   display: flex;
-  flex-flow: row wrap;
-  justify-content: center;
-  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/*::v-deep(.p-dialog) {*/
+/*  padding: 50px 200px 50px 200px !important;*/
+/*}*/
+
+.check-container{
   gap: 1rem;
 }
 
+.content-container{
+  padding: 20px;
+}
+
+
 .text {
-  font-size: large;
+  font-size: medium;
   padding: 0 0 1rem 0;
 }
 
