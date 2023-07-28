@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { AuthService } from "@/services";
+import { AuthService, Env } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
@@ -80,7 +80,10 @@ async function handleSubmit(): Promise<void> {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Login successful"
+          text: "Login successful",
+          footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. <a href="${
+            Env.DIRECTORY_URL + "user/my-account"
+          }">Enable 2-factor authentication</a></p>`
         }).then(() => {
           userStore.clearOptionalCookies();
           if (authReturnUrl.value) {
@@ -122,8 +125,8 @@ async function handleSubmit(): Promise<void> {
           Swal.fire({
             icon: "info",
             title: "Redirecting to 2-factor authentication setup...",
-            text: "A request for 2-factor authentication was made. We will redirect you to the 2-factor authentiacation setup page shortly.",
-            timer: 600,
+            text: "A request for 2-factor authentication was made. We will redirect you to the 2-factor authentication setup page shortly.",
+            timer: 2000,
             timerProgressBar: true,
             didOpen: () => {
               Swal.showLoading();

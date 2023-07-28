@@ -11,7 +11,7 @@
           <Button icon="fa-solid fa-circle-question" rounded severity="secondary" v-tooltip="'Need some help?'" @click="showHelpDialog" />
           <div class="code-input">
             <label for="mfa-code">Code</label>
-            <InputText id="mfa-code" v-model="code" />
+            <InputText id="mfa-code" v-model="code" v-on:keyup.enter="handleSubmitMFA" />
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
             <small v-if="!isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
@@ -142,6 +142,7 @@ async function handleSubmitMFA() {
 .code-input {
   display: flex;
   flex-flow: column nowrap;
+  gap: 0.5rem;
 }
 
 .invalid-text {
