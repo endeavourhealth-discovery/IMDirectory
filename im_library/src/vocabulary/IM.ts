@@ -85,7 +85,7 @@ export class IM {
   public static MODULE_SETS = IM.NAMESPACE + "Sets";
   public static MODULE_DATA_MODEL = IM.NAMESPACE + "DiscoveryCommonDataModel";
   public static MODULE_CATALOGUE = IM.NAMESPACE + "Catalogue";
-  public static MODULE_QUERIES = IM.NAMESPACE + "QT_QueryTemplates";
+  public static MODULE_QUERIES = IM.NAMESPACE + "Q_Queries";
   public static MODULE_IM = IM.NAMESPACE + "InformationModel";
   public static MODULE_TASKS = IM.NAMESPACE + "Tasks";
 
