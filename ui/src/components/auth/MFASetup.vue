@@ -83,7 +83,7 @@ function generateOptions(dataUrl: string) {
     height: 300,
     type: "svg" as DrawType,
     data: dataUrl,
-    image: "/src/assets/logos/Logo-object-empty.png",
+    image: "/public/logos/Logo-object-empty.png",
     margin: 10,
     qrOptions: {
       typeNumber: 0 as TypeNumber,
