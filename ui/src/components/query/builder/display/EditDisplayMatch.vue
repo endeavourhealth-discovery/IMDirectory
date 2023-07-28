@@ -16,7 +16,7 @@
         :edit-node="match"
         :query-type-iri="queryTypeIri"
         :exclude-entailment="true"
-        :root-entities="['http://endhealth.info/im#Sets', 'http://endhealth.info/im#Q_Queries']"
+        :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
         :validation-query-request="validationQueryRequest"
         @on-cancel="editMode = false"
         @on-save="saveSelect"
@@ -91,6 +91,7 @@ import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpe
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
+import { IM } from "@im-library/vocabulary";
 
 interface Props {
   queryTypeIri: string;
