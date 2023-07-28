@@ -2,7 +2,13 @@
   <div class="property-input-container">
     in
     <InputText type="text" @click="showDialog = true" placeholder="Value" v-model:model-value="selected.name" />
-    <DirectorySearchDialog :selected="selected" v-model:show-dialog="showDialog" @update:selected="onSelect" />
+    <DirectorySearchDialog
+      :selected="selected"
+      v-model:show-dialog="showDialog"
+      :search-by-query="validationQueryRequest"
+      :root-entities="rootEntities"
+      @update:selected="onSelect"
+    />
     <EntailmentOptionsSelect v-if="!excludeEntailment" :entailment-object="editNode" />
     <Button label="Cancel" severity="secondary" @click="emit('onCancel')" />
     <Button label="Save" @click="emit('onSave', selected)" />
@@ -13,7 +19,7 @@
 import { Ref, onMounted, ref, watch } from "vue";
 import EntailmentOptionsSelect from "./EntailmentOptionsSelect.vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { Node } from "@im-library/interfaces/AutoGen";
+import { Node, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 
@@ -23,6 +29,8 @@ interface Props {
   queryTypeIri: string;
   editNode: Node;
   excludeEntailment?: boolean;
+  rootEntities?: string[];
+  validationQueryRequest?: QueryRequest;
 }
 
 const props = defineProps<Props>();

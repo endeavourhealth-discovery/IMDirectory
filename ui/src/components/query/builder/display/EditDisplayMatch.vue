@@ -12,7 +12,15 @@
     :id="htmlId"
   >
     <div v-if="editMode">
-      <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" :exclude-entailment="true" @on-cancel="editMode = false" @on-save="saveSelect" />
+      <EntitySelect
+        :edit-node="match"
+        :query-type-iri="queryTypeIri"
+        :exclude-entailment="true"
+        :root-entities="['http://endhealth.info/im#Sets', 'http://endhealth.info/im#Q_Queries']"
+        :validation-query-request="validationQueryRequest"
+        @on-cancel="editMode = false"
+        @on-save="saveSelect"
+      />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>

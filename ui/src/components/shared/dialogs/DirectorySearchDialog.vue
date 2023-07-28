@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref, computed } from "vue";
+import { ref, onMounted, watch, Ref, computed, onUnmounted } from "vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
@@ -59,7 +59,7 @@ import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import { EntityService } from "@/services";
 import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
@@ -104,13 +104,22 @@ watch(searchResults, newValue => {
   activePage.value = 0;
 });
 
+watch(
+  () => cloneDeep(props.selected),
+  () => initSelection()
+);
+
 onMounted(() => {
   visible.value = props.showDialog;
+  initSelection();
+});
+
+function initSelection() {
   if (props.selected && props.selected.iri) {
     navigateTo(props.selected.iri);
     locateInTree(props.selected.iri);
   }
-});
+}
 
 function updateSelected(data: ConceptSummary) {
   emit("update:selected", data);
