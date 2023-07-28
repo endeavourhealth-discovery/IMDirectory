@@ -42,7 +42,8 @@ describe("PasswordEdit.vue with registeredUser", () => {
     email: "john.doe@ergosoft.co.uk",
     password: "",
     avatar: Avatars[0],
-    roles: []
+    roles: [],
+    mfaStatus: []
   } as User;
 
   beforeEach(() => {

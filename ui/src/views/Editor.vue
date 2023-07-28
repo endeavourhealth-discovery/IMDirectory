@@ -188,7 +188,7 @@ onMounted(async () => {
   if (isObjectHasKeys(editorEntityOriginal.value, [RDF.TYPE])) {
     getShapesCombined(editorEntityOriginal.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.EDIT, editorEntity.value);
-  } else window.location.href = Env.DIRECTORY_URL;
+  } else router.push({ path: "/" });
   loading.value = false;
 });
 

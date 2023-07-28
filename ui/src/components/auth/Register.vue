@@ -228,7 +228,8 @@ async function handleSubmit(): Promise<void> {
       email: email1.value.toLowerCase(),
       password: password1.value,
       avatar: selectedAvatar.value,
-      roles: []
+      roles: [],
+      mfaStatus: []
     } as User;
     AuthService.register(user)
       .then(res => {

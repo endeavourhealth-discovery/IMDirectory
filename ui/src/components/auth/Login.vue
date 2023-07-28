@@ -16,7 +16,7 @@
             <InputText data-testid="login-password" id="fieldPassword" type="password" v-model="password" @keyup="checkKey" />
           </div>
           <div class="flex flex-row justify-content-center">
-            <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="handleSubmit" />
+            <Button data-testid="login-submit" class="user-submit" type="submit" label="Login" @click="handleSubmit" :loading="loading" />
           </div>
         </div>
       </template>
@@ -50,10 +50,11 @@ const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
-const authReturnUrl = computed(() => authStore.authReturnUrl);
+const authReturnPath = computed(() => authStore.authReturnPath);
 
-let username = ref("");
-let password = ref("");
+const username = ref("");
+const password = ref("");
+const loading = ref(false);
 
 onMounted(() => {
   if (registeredUsername.value && registeredUsername.value !== "") {
@@ -61,8 +62,9 @@ onMounted(() => {
   }
 });
 
-function handleSubmit(): void {
-  AuthService.signIn(username.value, password.value)
+async function handleSubmit(): Promise<void> {
+  loading.value = true;
+  await AuthService.signIn(username.value, password.value)
     .then(async res => {
       if (res.status === 200 && res.user) {
         const loggedInUser = res.user;
@@ -71,17 +73,19 @@ function handleSubmit(): void {
         if (!result) {
           loggedInUser.avatar = Avatars[0];
         }
-        await userStore.updateCurrentUser(loggedInUser);
+        userStore.updateCurrentUser(loggedInUser);
+        userStore.updateAwsUser(res.userRaw);
         await userStore.getAllFromUserDatabase();
         authStore.updateRegisteredUsername("");
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Login successful"
+          text: "Login successful",
+          footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
         }).then(() => {
           userStore.clearOptionalCookies();
-          if (authReturnUrl.value) {
-            window.location.href = authReturnUrl.value;
+          if (authReturnPath.value) {
+            router.push({ path: authReturnPath.value });
           } else {
             router.push({ name: "LandingPage" });
           }
@@ -100,19 +104,39 @@ function handleSubmit(): void {
             router.push({ name: "ConfirmCode" });
           }
         });
-      } else if (res.status === 403 && res.message === "NEW_PASSWORD_REQUIRED") {
-        Swal.fire({
-          icon: "warning",
-          title: "New password required",
-          text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
-          showCloseButton: false,
-          showCancelButton: false,
-          confirmButtonText: "Reset password"
-        }).then((result: SweetAlertResult) => {
-          if (result.isConfirmed) {
-            router.push({ name: "ForgotPassword" });
-          }
-        });
+      } else if (res.status === 403) {
+        if (res.message === "NEW_PASSWORD_REQUIRED") {
+          Swal.fire({
+            icon: "warning",
+            title: "New password required",
+            text: "Account requires a password change. Your account may be using a temporary password, your password may have expired, or admins may have requested a password reset for security reasons.",
+            showCloseButton: false,
+            showCancelButton: false,
+            confirmButtonText: "Reset password"
+          }).then((result: SweetAlertResult) => {
+            if (result.isConfirmed) {
+              router.push({ name: "ForgotPassword" });
+            }
+          });
+        } else if (res.message === "MFA_SETUP") {
+          userStore.updateAwsUser(res.userRaw);
+          Swal.fire({
+            icon: "info",
+            title: "Redirecting to 2-factor authentication setup...",
+            text: "A request for 2-factor authentication was made. We will redirect you to the 2-factor authentication setup page shortly.",
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: () => {
+              Swal.showLoading();
+            },
+            showCloseButton: true
+          }).then(() => {
+            router.push({ name: "MFASetup" });
+          });
+        } else if (res.message === "SOFTWARE_TOKEN_MFA") {
+          userStore.updateAwsUser(res.userRaw);
+          router.push({ name: "MFALogin" });
+        }
       } else {
         Swal.fire({
           icon: "error",
@@ -131,6 +155,7 @@ function handleSubmit(): void {
         confirmButtonText: "Close"
       });
     });
+  loading.value = false;
 }
 
 function checkKey(event: any): void {

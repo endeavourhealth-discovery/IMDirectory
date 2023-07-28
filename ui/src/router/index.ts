@@ -15,6 +15,9 @@ const PasswordEdit = () => import("@/components/auth/PasswordEdit.vue");
 const Register = () => import("@/components/auth/Register.vue");
 const UserDetails = () => import("@/components/auth/UserDetails.vue");
 const UserEdit = () => import("@/components/auth/UserEdit.vue");
+const MFASetup = () => import("@/components/auth/MFASetup.vue");
+const MFALogin = () => import("@/components/auth/MFALogin.vue");
+const MFADelete = () => import("@/components/auth/MFADelete.vue");
 const Creator = () => import("@/views/Creator.vue");
 const TypeSelector = () => import("@/components/creator/TypeSelector.vue");
 const Editor = () => import("@/views/Editor.vue");
@@ -161,6 +164,23 @@ const routes: Array<RouteRecordRaw> = [
         path: "password-recovery/submit:returnUrl?",
         name: "ForgotPasswordSubmit",
         component: ForgotPasswordSubmit
+      },
+      {
+        path: "mfa-setup",
+        name: "MFASetup",
+        component: MFASetup,
+        meta: { requiresReAuth: true }
+      },
+      {
+        path: "mfa-login",
+        name: "MFALogin",
+        component: MFALogin
+      },
+      {
+        path: "mfa-delete",
+        name: "MFADelete",
+        component: MFADelete,
+        meta: { requiresReAuth: true }
       }
     ]
   },
@@ -295,8 +315,8 @@ const router = createRouter({
   routes
 });
 
-const directToLogin = () => {
-  Swal.fire({
+async function directToLogin() {
+  await Swal.fire({
     icon: "warning",
     title: "Please Login to continue",
     showCancelButton: true,
@@ -311,7 +331,7 @@ const directToLogin = () => {
       router.push({ name: "LandingPage" });
     }
   });
-};
+}
 
 router.beforeEach(async (to, from) => {
   const directoryStore = useDirectoryStore();
@@ -320,9 +340,9 @@ router.beforeEach(async (to, from) => {
   const editorStore = useEditorStore();
   const userStore = useUserStore();
 
-  const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
+  const currentPath = to.path;
 
-  authStore.updateAuthReturnUrl(currentUrl);
+  authStore.updateAuthReturnPath(currentPath);
 
   const iri = to.params.selectedIri;
   if (iri) {
@@ -342,8 +362,14 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      authStore.updatePreviousAppUrl();
-      directToLogin();
+      await directToLogin();
+    }
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresReAuth)) {
+    if (from.name !== "Login" && from.name !== "MFALogin") {
+      console.log("requires re-authentication");
+      await directToLogin();
     }
   }
 
@@ -351,7 +377,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      directToLogin();
+      await directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
     }
@@ -361,7 +387,7 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      directToLogin();
+      await directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
     }
