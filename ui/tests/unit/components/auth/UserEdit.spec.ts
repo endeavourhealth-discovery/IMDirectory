@@ -16,6 +16,7 @@ import { User } from "@im-library/interfaces";
 import { createTestingPinia } from "@pinia/testing";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
+import TieredMenu from "primevue/tieredmenu";
 
 createTestingPinia({
   initialState: {
@@ -77,7 +78,8 @@ describe("userEdit.vue ___ user", () => {
     component = render(UserEdit, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText, InlineMessage, SelectButton, OverlayPanel, AvatarWithSelector }
+        components: { Card, Button, InputText, InlineMessage, SelectButton, OverlayPanel, AvatarWithSelector, TieredMenu },
+        stubs: { "router-link": true }
       }
     });
   });
