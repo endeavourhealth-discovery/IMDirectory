@@ -2,6 +2,7 @@ import UserDetails from "@/components/auth/UserDetails.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
+import TieredMenu from "primevue/tieredmenu";
 import { Avatars } from "@im-library/constants";
 import PrimeVue from "primevue/config";
 import { vi, describe, beforeEach, it, expect } from "vitest";
@@ -45,7 +46,8 @@ describe("userDetails.vue", () => {
     component = render(UserDetails, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText }
+        components: { Card, Button, InputText, TieredMenu },
+        stubs: { "router-link": true }
       }
     });
   });
