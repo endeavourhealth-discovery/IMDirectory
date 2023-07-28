@@ -1,7 +1,7 @@
 <template>
   <div id="concept-main-container">
     <div v-if="entityIri === 'http://endhealth.info/im#Favourites'">
-      <Content />
+      <Content :entityIri="entityIri" />
     </div>
     <div v-else-if="loading" class="loading-container">
       <ProgressSpinner />
@@ -51,7 +51,7 @@
           </TabPanel>
           <TabPanel header="Contents">
             <div v-if="isObjectHasKeys(concept)" class="concept-panel-content" id="definition-container">
-              <Content />
+              <Content :entityIri="entityIri" />
             </div>
           </TabPanel>
           <TabPanel header="Used in">
