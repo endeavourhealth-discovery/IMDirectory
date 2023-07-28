@@ -315,9 +315,9 @@ router.beforeEach(async (to, from) => {
   const editorStore = useEditorStore();
   const userStore = useUserStore();
 
-  const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
+  const currentPath = to.path;
 
-  if (currentUrl !== "/#/user/login" && currentUrl !== "/#/user/mfa-login") authStore.updateAuthReturnUrl(currentUrl);
+  authStore.updateAuthReturnPath(currentPath);
 
   const iri = to.params.selectedIri;
   if (iri) {
@@ -337,7 +337,6 @@ router.beforeEach(async (to, from) => {
     const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      authStore.updatePreviousAppUrl();
       await directToLogin();
     }
   }
@@ -345,7 +344,6 @@ router.beforeEach(async (to, from) => {
   if (to.matched.some((record: any) => record.meta.requiresReAuth)) {
     if (from.name !== "Login" && from.name !== "MFALogin") {
       console.log("requires re-authentication");
-      authStore.updatePreviousAppUrl();
       await directToLogin();
     }
   }

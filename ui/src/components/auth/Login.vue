@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import { AuthService, Env } from "@/services";
+import { AuthService } from "@/services";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { Avatars } from "@im-library/constants";
 import Swal from "sweetalert2";
@@ -50,7 +50,7 @@ const router = useRouter();
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const registeredUsername = computed(() => authStore.registeredUsername);
-const authReturnUrl = computed(() => authStore.authReturnUrl);
+const authReturnPath = computed(() => authStore.authReturnPath);
 
 const username = ref("");
 const password = ref("");
@@ -81,13 +81,11 @@ async function handleSubmit(): Promise<void> {
           icon: "success",
           title: "Success",
           text: "Login successful",
-          footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. <a href="${
-            Env.DIRECTORY_URL + "user/my-account"
-          }">Enable 2-factor authentication</a></p>`
+          footer: `<p style="color: var(--red-500)">Increase your account security with 2-factor authentication. Visit your account details page security tab to enable this feature.</p>`
         }).then(() => {
           userStore.clearOptionalCookies();
-          if (authReturnUrl.value) {
-            window.location.href = authReturnUrl.value;
+          if (authReturnPath.value) {
+            router.push({ path: authReturnPath.value });
           } else {
             router.push({ name: "LandingPage" });
           }

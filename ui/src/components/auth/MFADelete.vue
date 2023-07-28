@@ -31,23 +31,17 @@ import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
 import Swal from "sweetalert2";
 import { AuthService } from "@/services";
 import { useUserStore } from "@/stores/userStore";
-import { useAuthStore } from "@/stores/authStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
-import { Avatars } from "@im-library/constants";
 
 const router = useRouter();
 const helpDialog = useDialog();
 const userStore = useUserStore();
-const authStore = useAuthStore();
 const sharedStore = useSharedStore();
 
-const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
-const authReturnUrl = computed(() => authStore.authReturnUrl);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const awsUser = computed(() => userStore.awsUser);
 
-const code = ref("");
 const loading = ref(false);
 
 function showHelpDialog() {

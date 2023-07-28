@@ -13,11 +13,11 @@
           <div id="qr-code" ref="qrCodeElement"></div>
           <div class="code-input">
             <label for="mfa-code">Code</label>
-            <InputText id="mfa-code" v-model="code" />
+            <InputText id="mfa-code" v-model="code" v-on:keyup.enter="handleSubmitMFA" />
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
             <small v-if="!isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
-          <Button :disabled="!isValidCode" label="Submit" @click="handleSubmitMFA" :loading="loading" />
+          <Button :disabled="!isValidCode" label="Submit" @click="handleSubmitMFA" :loading="loading" class="submit-button" />
         </div>
       </template>
     </Card>
@@ -34,14 +34,11 @@ import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
 import Swal from "sweetalert2";
 import { AuthService } from "@/services";
 import { useUserStore } from "@/stores/userStore";
-import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
-import { Avatars } from "@im-library/constants";
 
 const router = useRouter();
 const helpDialog = useDialog();
 const userStore = useUserStore();
-const authStore = useAuthStore();
 
 const styles = getComputedStyle(document.body);
 const primaryColor = styles.getPropertyValue("--primary-color");
@@ -49,7 +46,6 @@ const backgroundColor = styles.getPropertyValue("--surface-a");
 const textColor = styles.getPropertyValue("--text-color");
 
 const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
-const authReturnUrl = computed(() => authStore.authReturnUrl);
 const awsUser = computed(() => userStore.awsUser);
 
 const code = ref("");
@@ -204,9 +200,14 @@ async function handleSubmitMFA() {
 .code-input {
   display: flex;
   flex-flow: column nowrap;
+  gap: 0.5rem;
 }
 
 .invalid-text {
   color: var(--red-500);
+}
+
+.submit-button {
+  margin-top: 0.5rem;
 }
 </style>

@@ -15,7 +15,7 @@
             <small id="mfa-code-help">Enter the code from your authenticator app</small>
             <small v-if="!isValidCode" class="invalid-text">Code should be a 6 digit number e.g. 123456</small>
           </div>
-          <Button :disabled="!isValidCode" :loading="loading" label="Submit" @click="handleSubmitMFA" />
+          <Button :disabled="!isValidCode" :loading="loading" label="Submit" @click="handleSubmitMFA" class="submit-button" />
         </div>
       </template>
     </Card>
@@ -41,7 +41,7 @@ const userStore = useUserStore();
 const authStore = useAuthStore();
 
 const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
-const authReturnUrl = computed(() => authStore.authReturnUrl);
+const authReturnPath = computed(() => authStore.authReturnPath);
 const awsUser = computed(() => userStore.awsUser);
 
 const code = ref("");
@@ -93,8 +93,8 @@ async function handleSubmitMFA() {
             text: "Login successful"
           }).then(() => {
             userStore.clearOptionalCookies();
-            if (authReturnUrl.value) {
-              window.location.href = authReturnUrl.value;
+            if (authReturnPath.value) {
+              router.push({ path: authReturnPath.value });
             } else {
               router.push({ name: "LandingPage" });
             }
@@ -147,5 +147,9 @@ async function handleSubmitMFA() {
 
 .invalid-text {
   color: var(--red-500);
+}
+
+.submit-button {
+  margin-top: 0.5rem;
 }
 </style>

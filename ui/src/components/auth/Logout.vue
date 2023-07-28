@@ -49,7 +49,7 @@ const authStore = useAuthStore();
 const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
-const previousAppUrl = computed(() => authStore.previousAppUrl);
+const authReturnPath = computed(() => authStore.authReturnPath);
 
 function handleSubmit(): void {
   Swal.fire({
@@ -69,12 +69,11 @@ function handleSubmit(): void {
             text: res.message
           }).then(() => {
             userStore.clearOptionalCookies();
-            if (previousAppUrl.value) {
-              window.location.href = previousAppUrl.value;
+            if (authReturnPath.value) {
+              router.push({ path: authReturnPath.value });
             } else {
               router.push({ name: "LandingPage" });
             }
-            window.location.reload();
           });
         } else {
           Swal.fire({
