@@ -30,6 +30,11 @@
         :data="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
         :show="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] ? true : false"
       />
+      <ArrayObjectNamesToStringWithLabel
+        label="Return Type"
+        :data="entity['http://endhealth.info/im#returnType']"
+        :show="entity['http://endhealth.info/im#returnType'] ? true : false"
+      />
     </div>
 
     <TextHTMLWithLabel
