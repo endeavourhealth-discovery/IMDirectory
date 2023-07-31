@@ -19,21 +19,12 @@ test("IMQtoSQL", async () => {
     "@id": "http://endhealth.info/im#Q_TestQuery",
     "name": "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
     "match": [
-      {
-        "property": [
-          {
-            "@id": "http://endhealth.info/im#age",
-            "value": "50"
-          }
-        ]
-      }
-/*
-      {
+/*      {
 
         "@set": "http://endhealth.info/im#Q_RegisteredGMS",
         "name": "Registered for GMS services on reference date"
-      },
-      {
+      },*/
+/*      {
         "match": [
           {
             "property": [
@@ -48,7 +39,7 @@ test("IMQtoSQL", async () => {
                     "dataType": null
                   },
                   "to": {
-                    "operator": ">",
+                    "operator": "<",
                     "value": "70",
                     "unit": "YEARS",
                     "relativeTo": null,
@@ -85,7 +76,7 @@ test("IMQtoSQL", async () => {
           }
         ],
         "bool": "or"
-      },
+      }, */
       {
         "variable": "latestBP",
         "property": [
@@ -100,7 +91,8 @@ test("IMQtoSQL", async () => {
                   "name": "concept",
                   "in": [
                     {
-                      "@id": "http://snomed.info/sct#271649006",
+                      // "@id": "http://snomed.info/sct#271649006",
+                      "@id": "http://snomed.info/sct#72313002",
                       "name": "Systolic blood pressure",
                       "descendantsOrSelfOf": true
                     },
@@ -122,19 +114,26 @@ test("IMQtoSQL", async () => {
                   },
                   "valueLabel": "last 6 months"
                 }
+              ],
+              "orderBy": [
+                {
+                  "direction": "descending",
+                  "limit": 1,
+                  "@id": "http://endhealth.info/im#effectiveDate"
+                }
               ]
             }
           }
         ],
-        "orderBy": [
+/*        "orderBy": [
           {
             "direction": "descending",
             "limit": 1,
             "@id": "http://endhealth.info/im#effectiveDate"
           }
-        ]
+        ]*/
       },
-      {
+/*      {
         "match": [
           {
             "nodeRef": "latestBP",

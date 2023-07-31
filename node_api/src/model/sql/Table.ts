@@ -1,4 +1,6 @@
-export class Table {
-  public alias: string = "";
-  public map: any;
+export interface Table {
+  table: string;
+  condition: string;
+  fields: any;
+  relationships: any;
 }

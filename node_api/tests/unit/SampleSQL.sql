@@ -1,5 +1,33 @@
 SET SCHEMA 'lair';
 
+WITH latestBP_sub1 AS (
+    SELECT latestBP_sub1.*
+    FROM event AS latestBP_sub1
+    WHERE event_type = 'Observation'
+      AND (
+                latestBP_sub1.concept IN ('http://snomed.info/sct#72313002', 'http://endhealth.info/emis#1994021000006104')
+            AND latestBP_sub1.effective_date >= (now() + INTERVAL '-6 MONTHS'))
+),
+     latestBP_sub1_part AS (
+         SELECT *, ROW_NUMBER() OVER (PARTITION BY patient ORDER BY effective_date DESC) AS rn
+         FROM latestBP_sub1 AS latestBP_sub1_part),
+     latestBP_sub1_part_limit AS (
+         SELECT latestBP_sub1_part_limit.*
+         FROM latestBP_sub1_part AS latestBP_sub1_part_limit
+         WHERE rn = 1
+     ),
+     latestBP AS (
+         SELECT latestBP.*
+         FROM patient AS latestBP
+                  JOIN latestBP_sub1_part_limit ON latestBP_sub1_part_limit.patient = latestBP.id -- MPSM !=
+     )
+SELECT pat0.*
+FROM patient AS pat0
+         JOIN latestBP ON latestBP.id = pat0.id -- SQ
+
+; -- SQ
+
+
 -- MATCH TO WITH approach
 WITH
     gms AS (

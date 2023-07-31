@@ -3,19 +3,19 @@
     "http://endhealth.info/im#Patient": {
       "table": "patient",
       "fields": {
-        "http://endhealth.info/im#age": "age"
+        "http://endhealth.info/im#age": { "field": "date_of_birth", "type": "date" }
       }
     },
     "http://endhealth.info/im#Observation": {
       "table": "event",
-      "condition": "type = 'Observation'",
+      "condition": "event_type = 'Observation'",
       "fields": {
-        "http://endhealth.info/im#concept": "concept",
-        "http://endhealth.info/im#effectiveDate": "clinical_effective_date",
-        "http://endhealth.info/im#numericValue": "value"
+        "http://endhealth.info/im#concept": { "field": "concept", "type": "iri" },
+        "http://endhealth.info/im#effectiveDate": { "field": "effective_date", "type": "date" },
+        "http://endhealth.info/im#numericValue": { "field": "value", "type": "number" }
       },
       "relationships": {
-        "patient": {"fromField": "patient_id", "toField": "id"}
+        "http://endhealth.info/im#Patient": {"fromField": "patient", "toField": "id"}
       }
     }
   }
