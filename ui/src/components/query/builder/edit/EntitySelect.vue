@@ -1,13 +1,12 @@
 <template>
   <div class="property-input-container">
     in
-    <InputText type="text" @click="showDialog = true" placeholder="Value" v-model:model-value="selected.name" />
+    <InputText type="text" @click="openDialog" placeholder="Value" v-model:model-value="selected.name" />
     <DirectorySearchDialog
-      :selected="selected"
+      v-model:selected="selected"
       v-model:show-dialog="showDialog"
       :search-by-query="validationQueryRequest"
       :root-entities="rootEntities"
-      @update:selected="onSelect"
     />
     <EntailmentOptionsSelect v-if="!excludeEntailment" :entailment-object="editNode" />
     <Button label="Cancel" severity="secondary" @click="emit('onCancel')" />
@@ -22,6 +21,8 @@ import { ConceptSummary } from "@im-library/interfaces";
 import { Node, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { cloneDeep } from "lodash";
 
 const emit = defineEmits({ onCancel: () => true, onSave: (_payload: ConceptSummary) => true, "update:selected": payload => true });
 
@@ -38,7 +39,7 @@ const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const showDialog = ref(false);
 
 watch(
-  () => props.editNode,
+  () => cloneDeep(props.editNode),
   () => populateSelected()
 );
 
@@ -46,15 +47,17 @@ onMounted(() => {
   populateSelected();
 });
 
-function populateSelected() {
-  if (props.editNode) {
-    selected.value.iri = props.editNode["@id"] ?? props.editNode["@set"] ?? (props.editNode["@type"] as string);
-    selected.value.name = getNameFromRef(props.editNode);
-  }
+function openDialog() {
+  populateSelected();
+  showDialog.value = true;
 }
 
-function onSelect(cs: ConceptSummary) {
-  selected.value = cs;
+function populateSelected() {
+  if (isObjectHasKeys(props.editNode)) {
+    const iri = props.editNode["@id"] ?? props.editNode["@set"] ?? props.editNode["@type"];
+    const name = getNameFromRef(props.editNode);
+    if (iri && name) selected.value = { iri: iri, name: name } as ConceptSummary;
+  }
 }
 </script>
 
