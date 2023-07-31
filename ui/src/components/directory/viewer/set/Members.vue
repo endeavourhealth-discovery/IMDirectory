@@ -57,7 +57,7 @@
       <div class="p-field">
         <div class="p-inputgroup">
           <span class="p-float-label">
-            <MultiSelect id="scheme" v-model="selectedSchemes" :options="filterOptions.schemes" optionLabel="name" display="chip" />
+            <MultiSelect id="scheme" v-model="selectedSchemes" :options="schemesOptions" optionLabel="name" display="chip" />
             <label for="scheme">Select scheme</label>
           </span>
         </div>
@@ -121,7 +121,7 @@
 import {computed, ComputedRef, onMounted, ref, Ref, watch} from "vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, SetService } from "@/services";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
@@ -147,6 +147,7 @@ const hasDefintion: Ref<boolean> = ref(false);
 
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const schemesOptions = filterOptions.value.schemes.filter((c: any) => c["@id"] !== IM.NAMESPACE || c["@id"] !== SNOMED.NAMESPACE);
 
 const loading = ref(false);
 const downloading = ref(false);
