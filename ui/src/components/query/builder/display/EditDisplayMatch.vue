@@ -139,7 +139,6 @@ const hasValue: ComputedRef<boolean> = computed(() => {
 const hasProperty: ComputedRef<boolean> = computed(() => {
   return isObjectHasKeys(props.match, ["property"]);
 });
-const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 
 const htmlId = ref("");
 const rClickMenu = ref();
