@@ -29,6 +29,7 @@ const AccessDenied = () => import("@/views/AccessDenied.vue");
 const PageNotFound = () => import("@/views/PageNotFound.vue");
 const EntityNotFound = () => import("@/views/EntityNotFound.vue");
 const ServerOffline = () => import("@/views/ServerOffline.vue");
+const VueError = () => import("@/views/VueError.vue");
 const SnomedLicense = () => import("@/views/SnomedLicense.vue");
 const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
 const Cookies = () => import("@/views/Cookies.vue");
@@ -307,6 +308,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/500",
     name: "ServerOffline",
     component: ServerOffline
+  },
+  {
+    path: "/error",
+    name: "VueError",
+    component: VueError
   }
 ];
 
