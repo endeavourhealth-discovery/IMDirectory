@@ -122,8 +122,8 @@ describe("verifyIsName", () => {
     expect(verifyIsName(name)).toBe(true);
   });
 
-  it("should not allow apostrophies anywhere else", () => {
-    const name = "OK'eith";
+  it("should not allow apostrophies without appended character", () => {
+    const name = "OKeith'";
     expect(verifyIsName(name)).toBe(false);
   });
 
