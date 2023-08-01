@@ -148,7 +148,7 @@ const rClickOptions: Ref<any[]> = ref([]);
 
 watch(
   () => userStore.currentTheme,
-  async () => {
+  () => {
     getStyle();
   }
 );
@@ -362,7 +362,7 @@ function getStyle() {
 </script>
 
 <style scoped>
-body {
+EditDisplayMatch {
   --highlight-bg-computed: var(--highlight-bg);
 }
 .feature {
