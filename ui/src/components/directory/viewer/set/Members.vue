@@ -47,7 +47,7 @@
       <template #loading> Loading data. Please wait... </template>
       <Column field="member" header="Name">
         <template #body="{ data }: any">
-          <IMViewerLink :iri="data['@id']" :label="data.name" action="select" />
+          <IMViewerLink :iri="data['@id']" :label="data.name" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
         </template>
       </Column>
     </DataTable>
@@ -137,6 +137,8 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
 const { downloadFile } = setupDownloadFile(window, document);
 const toast = useToast();
 const userStore = useUserStore();
