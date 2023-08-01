@@ -90,6 +90,7 @@ export function buildParentMatchStructure(path: string, match: Match) {
 }
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
+  if (treeNode.property) return treeNode.property;
   const property = { "@id": treeNode.data } as Property;
   // string - is ""
   // boolean - is true
