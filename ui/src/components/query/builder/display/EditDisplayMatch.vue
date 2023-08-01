@@ -78,7 +78,7 @@
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
-import { ComputedRef, Ref, computed, onMounted, ref } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
 import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
@@ -92,6 +92,7 @@ import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDi
 import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { IM } from "@im-library/vocabulary";
+import { useUserStore } from "@/stores/userStore";
 
 interface Props {
   queryTypeIri: string;
@@ -105,6 +106,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const userStore = useUserStore();
 
 const {
   addOrEdit,
@@ -144,8 +146,16 @@ const htmlId = ref("");
 const rClickMenu = ref();
 const rClickOptions: Ref<any[]> = ref([]);
 
+watch(
+  () => userStore.currentTheme,
+  async () => {
+    getStyle();
+  }
+);
+
 onMounted(() => {
   htmlId.value = String(Math.random());
+  getStyle();
 });
 
 function getClass() {
@@ -340,9 +350,21 @@ function addOrderBy() {
   if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
   props.match.orderBy?.push({ direction: "descending", limit: 1, "@id": "" } as OrderLimit);
 }
+
+function getStyle() {
+  let highlightColor = window.getComputedStyle(document.documentElement).getPropertyValue("--highlight-bg");
+  let computedHighlightColor = window.getComputedStyle(document.documentElement).getPropertyValue("--highlight-bg-computed");
+  if (highlightColor.length < 8 && highlightColor.charAt(0) === "#") {
+    highlightColor = highlightColor + "33";
+  }
+  document.documentElement.style.setProperty("--highlight-bg-computed", highlightColor);
+}
 </script>
 
 <style scoped>
+body {
+  --highlight-bg-computed: var(--highlight-bg);
+}
 .feature {
   margin: 0.5rem;
   margin-left: 1rem !important;
@@ -358,7 +380,7 @@ function addOrderBy() {
 }
 
 .feature:hover {
-  background-color: var(--highlight-bg);
+  background-color: var(--highlight-bg-computed);
 }
 
 .selected {
