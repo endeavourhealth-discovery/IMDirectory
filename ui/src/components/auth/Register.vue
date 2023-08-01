@@ -164,7 +164,14 @@ import AvatarWithSelector from "./AvatarWithSelector.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { computed, Ref, ref, watch } from "vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
-import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyIsUsername, checkPasswordStrength } from "@im-library/helpers/UserMethods";
+import {
+  verifyEmailsMatch,
+  verifyIsEmail,
+  verifyIsFirstName,
+  verifyIsLastName,
+  verifyIsUsername,
+  checkPasswordStrength
+} from "@im-library/helpers/UserMethods";
 import { PasswordStrength } from "@im-library/enums";
 import { Avatars } from "@im-library/constants";
 import { useRouter } from "vue-router";
@@ -193,8 +200,8 @@ const privacyPolicyAccepted = ref(false);
 const usernameVerified = computed(() => verifyIsUsername(username.value));
 const email1Verified = computed(() => verifyIsEmail(email1.value));
 const emailsMatch = computed(() => verifyEmailsMatch(email1.value, email2.value));
-const firstNameVerified = computed(() => verifyIsName(firstName.value));
-const lastNameVerified = computed(() => verifyIsName(lastName.value));
+const firstNameVerified = computed(() => verifyIsFirstName(firstName.value));
+const lastNameVerified = computed(() => verifyIsLastName(lastName.value));
 const passwordStrength = computed(() => checkPasswordStrength(password1.value));
 const passwordsMatch = computed(() => verifyEmailsMatch(password1.value, password2.value));
 const allVerified = computed(
