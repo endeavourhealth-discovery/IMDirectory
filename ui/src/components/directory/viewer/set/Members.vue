@@ -232,7 +232,7 @@ watch(
         showSchemes.value = true;
       } else {
         showSchemes.value = false;
-        selectedSchemes.value = [] as TTIriRef;
+        selectedSchemes.value = [];
       }
     })
 
