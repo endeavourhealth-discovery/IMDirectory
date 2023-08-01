@@ -353,9 +353,9 @@ function addOrderBy() {
 
 function getStyle() {
   let highlightColor = window.getComputedStyle(document.documentElement).getPropertyValue("--highlight-bg");
-  let computedHighlightColor = window.getComputedStyle(document.documentElement).getPropertyValue("--highlight-bg-computed");
+  const opacity = "33";
   if (highlightColor.length < 8 && highlightColor.charAt(0) === "#") {
-    highlightColor = highlightColor + "33";
+    highlightColor = highlightColor + opacity;
   }
   document.documentElement.style.setProperty("--highlight-bg-computed", highlightColor);
 }
@@ -385,7 +385,7 @@ body {
 
 .selected {
   border: 1px dotted;
-  background-color: var(--highlight-bg);
+  background-color: var(--highlight-bg-computed);
   color: var(--text-color);
   border-color: var(--focus-ring);
   border-radius: var(--border-radius);
