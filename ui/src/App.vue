@@ -181,6 +181,7 @@ function setupExternalErrorHandler() {
         summary: "An error occurred",
         detail: e.reason
       });
+    router.push({ name: "VueError" });
   });
 }
 </script>
