@@ -228,7 +228,12 @@ watch(
 watch(
     () => filterSchemes.value,
     () => {
-      showSchemes.value = !!filterSchemes.value;
+      if(filterSchemes.value) {
+        showSchemes.value = true;
+      } else {
+        showSchemes.value = false;
+        selectedSchemes.value = [] as TTIriRef;
+      }
     })
 
 onMounted(async () => {
