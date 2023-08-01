@@ -19,8 +19,8 @@
 </template>
 
 <script async setup lang="ts">
-import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { EntityService, QueryService } from "@/services";
+import { onMounted, onUnmounted, ref } from "vue";
+import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -70,14 +70,15 @@ async function onCheckInput(check: boolean, node: TreeNode) {
 async function populateCheckBoxes(match: Match) {
   if (isArrayHasLength(match.property)) {
     for (const property of match.property!) {
-      selectByIri(property["@id"]!, root.value);
+      selectByIri(property, property["@id"]!, root.value);
     }
   }
 }
 
-async function selectByIri(iri: string, nodes: TreeNode[]) {
+async function selectByIri(property: Property, iri: string, nodes: TreeNode[]) {
   let found = nodes.find(node => node.data === iri);
   if (found) {
+    found.property = property;
     select(found);
   } else {
     found = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
@@ -85,13 +86,14 @@ async function selectByIri(iri: string, nodes: TreeNode[]) {
       expandedKeys.value[found.key!] = true;
       if (isArrayHasLength(found.children)) {
         await handleTreeNodeExpand(found);
-        if (isArrayHasLength(found.children)) selectByIri(iri, found.children!);
+        if (isArrayHasLength(found.children)) selectByIri(property, iri, found.children!);
       }
     }
   }
 }
 
 function onUnselect(node: any) {
+  if (node.property) delete node.property;
   unselect(node);
 }
 
