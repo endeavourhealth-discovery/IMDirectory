@@ -1,6 +1,7 @@
 <template>
-  <Dialog v-model:visible="visible" v-model:selected="selected" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
+  <Dialog v-model:visible="visible" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
     <DirectorySearchDialog
+      v-model:selected="selected"
       v-model:show-dialog="visible"
       @update:selected="setBaseType"
       :root-entities="rootEntities"
@@ -18,10 +19,10 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 
 import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { EntityService } from "@/services";
@@ -72,6 +73,10 @@ watch(visible, newValue => {
   if (!newValue) {
     emit("update:showDialog", newValue);
   }
+});
+
+onMounted(() => {
+  if (isObjectHasKeys(props.query, ["@type"])) selected.value = { iri: props.query["@type"] } as ConceptSummary;
 });
 
 async function save() {

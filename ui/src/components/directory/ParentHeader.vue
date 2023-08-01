@@ -110,7 +110,7 @@ async function getIsSelectableEntity(): Promise<boolean> {
   queryRequest.textSearch = props.entity[RDFS.LABEL];
   const queryResults = await QueryService.queryIM(queryRequest);
   if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
-  return queryResults.entities.some(item => item[RDFS.LABEL] === props.entity[RDFS.LABEL]);
+  return queryResults.entities.some(item => item["@id"] === props.entity["@id"]);
 }
 </script>
 
