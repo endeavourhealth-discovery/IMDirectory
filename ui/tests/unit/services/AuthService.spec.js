@@ -42,7 +42,7 @@ describe("AuthService", () => {
     });
 
     it("returns 200 with auth success, user, password empty, with id", async () => {
-      Auth.currentAuthenticatedUser = vi.fn().mockResolvedValueOnce({
+      const authUser = {
         username: "devtest",
         attributes: {
           "custom:avatar": "colour/002-man.png",
@@ -52,7 +52,8 @@ describe("AuthService", () => {
           email_verified: true,
           sub: "9gkej864-l39k-9u87-4lau-w7777b3m5g09"
         }
-      });
+      };
+      Auth.currentAuthenticatedUser = vi.fn().mockResolvedValueOnce(authUser);
       const result = AuthService.getCurrentAuthenticatedUser();
       let promiseResult;
       result.then(res => {
@@ -67,11 +68,12 @@ describe("AuthService", () => {
         email: "john.doe@ergosoft.co.uk",
         password: "",
         avatar: "colour/002-man.png",
-        roles: []
+        roles: [],
+        mfaStatus: []
       };
 
       expect(Auth.currentAuthenticatedUser).toHaveBeenCalledTimes(1);
-      expect(promiseResult).toStrictEqual({ status: 200, message: "User authenticated successfully", error: undefined, user: currentUser });
+      expect(promiseResult).toStrictEqual({ status: 200, message: "User authenticated successfully", error: undefined, user: currentUser, userRaw: authUser });
     });
 
     it("returns 400 with auth fail", async () => {

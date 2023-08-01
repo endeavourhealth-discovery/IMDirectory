@@ -4,26 +4,24 @@ import { AuthState } from "@/stores/types/authState";
 export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
     registeredUsername: "",
-    authReturnUrl: "",
-    previousAppUrl: ""
+    authReturnPath: ""
   }),
   actions: {
     updateRegisteredUsername(username: string) {
       this.registeredUsername = username;
     },
-    updateAuthReturnUrl(url: string) {
+    updateAuthReturnPath(path: string) {
       if (
         !(
-          url.startsWith("/#/user/login") ||
-          url.startsWith("/#/user/register") ||
-          url.startsWith("/#/user/password-recovery") ||
-          url.startsWith("/#/user/confirm-code")
+          path.startsWith("/user/login") ||
+          path.startsWith("/user/register") ||
+          path.startsWith("/user/password-recovery") ||
+          path.startsWith("/user/confirm-code") ||
+          path.startsWith("/user/logout") ||
+          path.startsWith("/user/mfa-login")
         )
       )
-        this.authReturnUrl = url;
-    },
-    updatePreviousAppUrl() {
-      this.previousAppUrl = window.location.href;
+        this.authReturnPath = path;
     }
   }
 });

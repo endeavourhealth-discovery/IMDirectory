@@ -5,6 +5,7 @@ export interface UserState {
   cookiesOptionalAccepted: boolean;
   currentTheme: string;
   currentUser: User;
+  awsUser: any;
   favourites: string[];
   history: HistoryItem[];
   recentLocalActivity: RecentActivityItem[];

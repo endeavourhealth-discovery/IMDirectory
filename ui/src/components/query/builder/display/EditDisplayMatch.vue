@@ -12,7 +12,15 @@
     :id="htmlId"
   >
     <div v-if="editMode">
-      <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" :exclude-entailment="true" @on-cancel="editMode = false" @on-save="saveSelect" />
+      <EntitySelect
+        :edit-node="match"
+        :query-type-iri="queryTypeIri"
+        :exclude-entailment="true"
+        :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+        :validation-query-request="validationQueryRequest"
+        @on-cancel="editMode = false"
+        @on-save="saveSelect"
+      />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
@@ -83,6 +91,7 @@ import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpe
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
+import { IM } from "@im-library/vocabulary";
 
 interface Props {
   queryTypeIri: string;
@@ -130,7 +139,6 @@ const hasValue: ComputedRef<boolean> = computed(() => {
 const hasProperty: ComputedRef<boolean> = computed(() => {
   return isObjectHasKeys(props.match, ["property"]);
 });
-const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 
 const htmlId = ref("");
 const rClickMenu = ref();

@@ -65,9 +65,13 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 
+interface Props {
+  entityIri: string;
+}
+const props = defineProps<Props>();
+
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
-const conceptIri = computed(() => directoryStore.conceptIri);
 const favourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
 
@@ -75,9 +79,10 @@ const directService = new DirectService();
 const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
-  () => conceptIri.value,
+  () => props.entityIri,
   () => init()
 );
+
 watch(
   () => _.cloneDeep(favourites.value),
   () => {
@@ -85,7 +90,7 @@ watch(
   }
 );
 
-const conceptIsFavourite = computed(() => conceptIri.value === IM.NAMESPACE + "Favourites");
+const conceptIsFavourite = computed(() => props.entityIri === IM.NAMESPACE + "Favourites");
 
 const loading = ref(false);
 const children: Ref<any[]> = ref([]);
@@ -122,7 +127,7 @@ onMounted(() => init());
 
 async function init() {
   loading.value = true;
-  !conceptIsFavourite.value ? await getChildren(conceptIri.value) : await getFavourites();
+  !conceptIsFavourite.value ? await getChildren(props.entityIri) : await getFavourites();
   loading.value = false;
 }
 
@@ -183,7 +188,7 @@ async function onPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  const result = await EntityService.getPagedChildren(conceptIri.value, currentPage.value + 1, pageSize.value);
+  const result = await EntityService.getPagedChildren(props.entityIri, currentPage.value + 1, pageSize.value);
   children.value = result.result;
   children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
   scrollToTop();

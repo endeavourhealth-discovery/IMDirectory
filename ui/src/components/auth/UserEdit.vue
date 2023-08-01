@@ -1,12 +1,14 @@
 <template>
-  <div v-if="isLoggedIn" class="flex flex-row align-items-center">
+  <div class="flex flex-row">
+    <div class="menu-container"><TieredMenu :model="menuItems" /></div>
     <Card class="flex flex-column justify-content-sm-around align-items-center user-edit-card">
       <template #header>
+        <h1>Edit my account</h1>
         <avatar-with-selector :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
       </template>
-      <template #title> Edit my account </template>
+      <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
-        <div class="p-fluid flex flex-column justify-content-start user-edit-form">
+        <div v-if="activeItem === 0" class="p-fluid flex flex-column justify-content-start user-edit-form">
           <div class="field">
             <label for="username">Username</label>
             <InputText data-testid="user-edit-username" id="username" type="text" v-model="username" disabled />
@@ -136,9 +138,19 @@
               disabled
               @click="handleEditSubmit"
             />
-            <Button data-testid="user-edit-update-button" v-else class="user-edit" type="submit" label="Update account" @click="handleEditSubmit" />
+            <Button
+              data-testid="user-edit-update-button"
+              v-else
+              class="user-edit"
+              type="submit"
+              label="Update account"
+              @click="handleEditSubmit"
+              :loading="loading"
+            />
           </div>
         </div>
+        <SecuritySettings v-if="activeItem === 1" />
+        <AuthRoles v-if="activeItem === 2" />
       </template>
     </Card>
   </div>
@@ -150,6 +162,8 @@ import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import AuthRoles from "@/components/auth/userDetails/AuthRoles.vue";
+import SecuritySettings from "@/components/auth/userDetails/SecuritySettings.vue";
 import { Avatars } from "@im-library/constants";
 import { PasswordStrength } from "@im-library/enums";
 import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
@@ -162,17 +176,45 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-let username = ref("");
-let firstName = ref("");
-let lastName = ref("");
-let email1 = ref("");
-let email2 = ref("");
-let passwordOld = ref("");
-let passwordNew1 = ref("");
-let passwordNew2 = ref("");
-let selectedAvatar = ref(Avatars[0]);
-let showPasswordEdit = ref(false);
-let focused: Ref<Map<string, boolean>> = ref(new Map());
+const username = ref("");
+const firstName = ref("");
+const lastName = ref("");
+const email1 = ref("");
+const email2 = ref("");
+const passwordOld = ref("");
+const passwordNew1 = ref("");
+const passwordNew2 = ref("");
+const selectedAvatar = ref(Avatars[0]);
+const showPasswordEdit = ref(false);
+const focused: Ref<Map<string, boolean>> = ref(new Map());
+const loading = ref(false);
+const activeItem = ref(0);
+const menuItems = ref([
+  {
+    label: "Personal details",
+    icon: "fa-solid fa-user",
+    class: "details-tab",
+    command: () => {
+      activeItem.value = 0;
+    }
+  },
+  {
+    label: "Security",
+    icon: "fa-solid fa-user-lock",
+    class: "security-tab",
+    command: () => {
+      activeItem.value = 1;
+    }
+  },
+  {
+    label: "Authorisation roles",
+    icon: "fa-solid fa-shield-halved",
+    class: "roles-tab",
+    command: () => {
+      activeItem.value = 2;
+    }
+  }
+]);
 
 const email1Verified = computed(() => verifyIsEmail(email1.value));
 const emailsMatch = computed(() => verifyEmailsMatch(email1.value, email2.value));
@@ -210,6 +252,7 @@ function swalert(icon: SweetAlertIcon, title: string, text: string) {
 }
 
 function handleFieldsVerified(handlePasswordChange: boolean) {
+  loading.value = true;
   const oldEmail = currentUser.value.email;
   const updatedUser = {
     id: currentUser.value.id,
@@ -219,7 +262,8 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
     email: email1.value,
     password: "",
     avatar: selectedAvatar.value,
-    roles: []
+    roles: [],
+    mfaStatus: []
   } as User;
 
   AuthService.updateUser(updatedUser).then(res => {
@@ -275,6 +319,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
       swalert("error", "Error", res.message);
     }
   });
+  loading.value = false;
 }
 
 function handleEditSubmit(): void {

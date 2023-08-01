@@ -7,4 +7,5 @@ export interface User {
   avatar: string;
   id: string;
   roles: string[];
+  mfaStatus: string[];
 }

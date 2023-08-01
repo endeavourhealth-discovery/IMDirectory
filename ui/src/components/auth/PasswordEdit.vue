@@ -72,7 +72,7 @@ const authStore = useAuthStore();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
-const previousAppUrl = computed(() => authStore.previousAppUrl);
+const authReturnPath = computed(() => authStore.authReturnPath);
 
 let passwordOld = ref("");
 let passwordNew1 = ref("");
@@ -102,8 +102,8 @@ function handleEditSubmit(): void {
           title: "Success",
           text: "Password successfully updated"
         }).then(() => {
-          if (previousAppUrl.value) {
-            window.location.href = previousAppUrl.value;
+          if (authReturnPath.value) {
+            router.push({ path: authReturnPath.value });
           } else {
             router.push({ name: "UserDetails" });
           }
