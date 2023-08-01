@@ -32,8 +32,9 @@
       />
       <ArrayObjectNamesToStringWithLabel
         label="Return Type"
+        v-if="entity['http://endhealth.info/im#returnType']"
         :data="entity['http://endhealth.info/im#returnType']"
-        :show="entity['http://endhealth.info/im#returnType'] ? true : false"
+        :show="!!entity['http://endhealth.info/im#returnType']"
       />
     </div>
 
