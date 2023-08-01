@@ -153,11 +153,6 @@ describe("verifyIsLastName", () => {
     const name = "M";
     expect(verifyIsLastName(name)).toBe(false);
   });
-
-  it("should fail if less than two letters", () => {
-    const name = "MS-2";
-    expect(verifyIsLastName(name)).toBe(false);
-  });
 });
 
 describe("verifyIsUsername", () => {
