@@ -366,8 +366,9 @@ EditDisplayMatch {
   --highlight-bg-computed: var(--highlight-bg);
 }
 .feature {
-  margin: 0.5rem;
+  margin: 0.25rem;
   margin-left: 1rem !important;
+  padding: 0.1rem;
   cursor: pointer;
 }
 
@@ -381,6 +382,8 @@ EditDisplayMatch {
 
 .feature:hover {
   background-color: var(--highlight-bg-computed);
+  border-color: var(--focus-ring);
+  border-radius: var(--border-radius);
 }
 
 .selected {

@@ -257,7 +257,10 @@ function setValidationQueryRequest() {
 }
 
 .type-title:hover {
+  color: var(--highlight-text-color);
   background-color: var(--highlight-bg);
+  border-color: var(--focus-ring);
+  border-radius: var(--border-radius);
 }
 
 .include-title {
