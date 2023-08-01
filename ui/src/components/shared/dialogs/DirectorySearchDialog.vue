@@ -4,7 +4,7 @@
     modal
     maximizable
     header="Search"
-    :style="{ minWidth: '90vw', maxWidth: '90vw', minHeight: '90vh', maxHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     class="search-dialog"
   >
     <div class="directory-search-dialog-content">
