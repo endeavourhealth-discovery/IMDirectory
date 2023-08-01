@@ -26,7 +26,7 @@
               :class="(!firstName || !firstNameVerified) && 'p-invalid'"
             />
             <InlineMessage v-if="!firstNameVerified && firstName && !focused.get('firstName')" severity="error">
-              First name contains unexpected characters. A-Z and hyphens only allowed e.g."Mary-Anne".
+              First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne".
             </InlineMessage>
             <InlineMessage v-if="!firstName" severity="error"> First name is required. </InlineMessage>
           </div>
@@ -42,7 +42,7 @@
               :class="(!lastName || !lastNameVerified) && 'p-invalid'"
             />
             <InlineMessage v-if="!lastNameVerified && lastName && !focused.get('lastName')" severity="error">
-              Last name contains unexpected characters. A-Z, apostropies and hyphens only allowed e.g."O'Keith-Smith".
+              Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O'Keith-Smith".
             </InlineMessage>
             <InlineMessage v-if="!lastName" severity="error"> Last name is required. </InlineMessage>
           </div>

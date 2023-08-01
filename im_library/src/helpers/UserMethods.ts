@@ -17,8 +17,7 @@ export function verifyIsFirstName(name: string): boolean {
 }
 
 export function verifyIsLastName(name: string): boolean {
-  const sanitizedName = name.replace("'", "").replace("-", "");
-  return name !== "" && /^\p{L}+(?:['-]?\p{L}+)*$/u.test(name) && sanitizedName.length >= 2;
+  return name !== "" && /^\p{L}+(?:['-]?\p{L}+)*$/u.test(name) && name.length >= 2;
 }
 
 export function verifyIsUsername(name: string): boolean {
