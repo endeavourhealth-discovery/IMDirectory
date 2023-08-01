@@ -52,6 +52,7 @@ import { TTProperty } from "./TTProperty";
 import { TreeNode } from "./TreeNode";
 import { ContextMap } from "./ContextMap";
 import { SelectedMatch } from "./SelectedMatch";
+import { MailOptions } from "./MailOptions";
 export {
   type AccountItem,
   type Address,
@@ -106,5 +107,6 @@ export {
   type TTProperty,
   type TreeNode,
   type ContextMap,
-  type SelectedMatch
+  type SelectedMatch,
+  type MailOptions
 };

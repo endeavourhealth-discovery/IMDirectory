@@ -9,6 +9,7 @@ import { QueryDisplayType } from "./QueryBuilder";
 import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
 import { ErrorType } from "./ErrorType";
+import * as BugReportEnums from "./bugReport/index";
 
 export {
   BuilderType,
@@ -21,5 +22,6 @@ export {
   QueryDisplayType,
   ToastSeverity,
   TagSeverity,
-  ErrorType
+  ErrorType,
+  BugReportEnums
 };
