@@ -117,8 +117,8 @@ describe("verifyIsName", () => {
     expect(verifyIsName(name)).toBe(false);
   });
 
-  it("should allow apostrophies as second character", () => {
-    const name = "O'Keith";
+  it("should allow apostrophies if surrounded by characters", () => {
+    const name = "Nyong'o";
     expect(verifyIsName(name)).toBe(true);
   });
 
@@ -134,6 +134,11 @@ describe("verifyIsName", () => {
 
   it("should not allow spaces", () => {
     const name = "Jean-Luc Picard";
+    expect(verifyIsName(name)).toBe(false);
+  });
+
+  it("should not allow empty name", () => {
+    const name = "";
     expect(verifyIsName(name)).toBe(false);
   });
 });
