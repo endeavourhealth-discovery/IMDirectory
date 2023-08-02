@@ -103,7 +103,7 @@
         </div>
       </div>
     </div>
-    <div class="flex-container content-container">
+    <div class="flex-container content-container" style="justify-content: flex-end">
       <div class="card flex justify-content-center" style="gap: 1rem">
         <Button v-if="selectedFormat === 'IMv1'" label="Download" @click="downloadIMV1" :disabled="!isOptionsSelected"/>
         <Button v-else label="Download" @click="download" :disabled="!isOptionsSelected"/>
