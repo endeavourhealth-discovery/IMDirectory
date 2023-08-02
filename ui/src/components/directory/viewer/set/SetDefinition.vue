@@ -55,16 +55,6 @@
     </Accordion>
   </div>
   <Dialog :visible="showOptions" :modal="true" :closable="false" :close-on-escape="false" header="Please select download options">
-    <div class="flex-container content-container" v-if="showSchemes">
-      <div class="p-field">
-        <div class="p-inputgroup">
-          <span class="p-float-label">
-            <MultiSelect id="scheme" v-model="selectedSchemes" :options="schemesOptions" optionLabel="name" display="chip" />
-            <label for="scheme">Select scheme</label>
-          </span>
-        </div>
-      </div>
-    </div>
     <div class="flex-container content-container" >
       <div class="item-container">
         <span class="text">Format</span>
@@ -95,21 +85,25 @@
             <ToggleButton v-model="checked" class="w-9rem h-2rem" />
           </div>
         </div>
-        <div class="toggle-container" :hidden="!showLegacy">
+        <div class="toggle-container" :hidden="!displayLegacyOptions">
           <span class="text" >Legacy</span>
           <div class="card flex justify-content-left" style="margin:10px 0 0 0">
             <ToggleButton v-model="checkedLegacy" onLabel="Own Row" offLabel="Inline Column" class="w-9rem h-2rem" />
           </div>
         </div>
-        <div class="toggle-container" :hidden="!showLegacy">
-          <span class="text" >Filter schemes</span>
-          <div class="card flex justify-content-left" style="margin:10px 0 0 0">
-            <ToggleButton v-model="filterSchemes" class="w-9rem h-2rem" />
-          </div>
+      </div>
+    </div>
+    <div class="flex-container content-container" v-if="displayLegacyOptions">
+      <div class="p-field">
+        <div class="p-inputgroup">
+          <span class="p-float-label">
+            <MultiSelect id="scheme" v-model="selectedSchemes" :options="schemesOptions" optionLabel="name" display="chip" />
+            <label for="scheme">Filter Legacy Scheme</label>
+          </span>
         </div>
       </div>
     </div>
-    <div class="flex-container content-container">
+    <div class="flex-container content-container" style="justify-content: flex-end">
       <div class="card flex justify-content-center" style="gap: 1rem">
         <Button v-if="selectedFormat === 'IMv1'" label="Download" @click="downloadIMV1" :disabled="!isOptionsSelected"/>
         <Button v-else label="Download" @click="download" :disabled="!isOptionsSelected"/>
@@ -185,10 +179,8 @@ const contents = ref([
 
 const selectedContents = ref();
 const checkedLegacy = ref(false);
-const filterSchemes = ref(false);
 const checked = ref(true);
-const showLegacy = ref(false);
-const showSchemes = ref(false);
+const displayLegacyOptions = ref(false);
 const coreSelected = ref(false);
 
 watch(
@@ -209,7 +201,6 @@ watch(
       selectedContents.value = [];
       checked.value = true;
       checkedLegacy.value = false;
-      filterSchemes.value = false;
       if(selectedFormat.value) {
         if(selectedFormat.value === "IMv1") {
           contents.value.forEach((f:any) => f.disable = true);
@@ -221,18 +212,6 @@ watch(
       }
     }
 )
-
-watch(
-    () => filterSchemes.value,
-    () => {
-      if(filterSchemes.value) {
-        showSchemes.value = true;
-      } else {
-        showSchemes.value = false;
-        selectedSchemes.value = [];
-      }
-    })
-
 
 onMounted(async () => {
   active.value = [0, 1, 2];
@@ -345,8 +324,6 @@ function isCoreSelected() {
     contents.value[3].disable = true;
     checked.value = true;
     checkedLegacy.value = false;
-    filterSchemes.value = false;
-    showSchemes.value = false;
     selectedSchemes.value = [];
     coreSelected.value = false;
     const indexLegacy = selectedContents.value.indexOf("Legacy");
@@ -362,16 +339,11 @@ function isCoreSelected() {
 
 function isLegacySelected() {
   if(selectedContents.value.includes("Legacy")) {
-    showLegacy.value = true;
-    if(filterSchemes.value) {
-      showSchemes.value = true;
-    }
+    displayLegacyOptions.value = true;
   } else {
-    showLegacy.value = false;
-    showSchemes.value = false;
+    displayLegacyOptions.value = false;
     selectedSchemes.value = [];
     checkedLegacy.value = false;
-    filterSchemes.value = false;
   }
 }
 
