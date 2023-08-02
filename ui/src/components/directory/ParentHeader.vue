@@ -18,7 +18,7 @@
       </div>
     </div>
     <TextWithLabel label="Iri" :data="entity['@id']" :show="entity['@id'] ? true : false" />
-    <TextWithLabel label="Code" :data="entity['http://endhealth.info/im#code']" :show="entity['http://endhealth.info/im#code'] ? true : false" />
+    <TextWithLabel label="Code" :data="entity[IM.CODE]" :show="entity[IM.CODE] ? true : false" />
     <div class="flex flex-row justify-content-start">
       <ArrayObjectNameTagWithLabel
         label="Status"
@@ -30,12 +30,7 @@
         :data="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']"
         :show="entity['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] ? true : false"
       />
-      <ArrayObjectNamesToStringWithLabel
-        label="Return Type"
-        v-if="entity[IM.NAMESPACE + 'returnType']"
-        :data="entity[IM.NAMESPACE + 'returnType']"
-        :show="!!entity[IM.NAMESPACE + 'returnType']"
-      />
+      <ArrayObjectNamesToStringWithLabel label="Return Type" v-if="entity[IM.RETURN_TYPE]" :data="entity[IM.RETURN_TYPE]" :show="!!entity[IM.RETURN_TYPE]" />
     </div>
 
     <TextHTMLWithLabel

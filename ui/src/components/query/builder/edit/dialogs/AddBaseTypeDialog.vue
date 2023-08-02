@@ -108,9 +108,9 @@ async function setBaseType(cs: ConceptSummary) {
 async function getReturnType(cs: ConceptSummary): Promise<string> {
   if (!isQuery(cs.entityType)) return cs.iri;
   else {
-    const entity = await EntityService.getPartialEntity(cs.iri, [IM.NAMESPACE + "returnType"]);
-    if (!isArrayHasLength(entity[IM.NAMESPACE + "returnType"])) return "";
-    return entity[IM.NAMESPACE + "returnType"][0]["@id"];
+    const entity = await EntityService.getPartialEntity(cs.iri, [IM.RETURN_TYPE]);
+    if (!isArrayHasLength(entity[IM.RETURN_TYPE])) return "";
+    return entity[IM.RETURN_TYPE][0]["@id"];
   }
 }
 </script>
