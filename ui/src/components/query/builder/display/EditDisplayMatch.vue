@@ -362,7 +362,7 @@ function getStyle() {
 </script>
 
 <style scoped>
-EditDisplayMatch {
+#htmlId {
   --highlight-bg-computed: var(--highlight-bg);
 }
 .feature {
