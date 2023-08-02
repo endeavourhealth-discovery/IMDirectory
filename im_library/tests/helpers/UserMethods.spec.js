@@ -1,4 +1,4 @@
-import { verifyIsEmail, verifyPasswordsMatch, verifyIsName, verifyIsUsername, checkPasswordStrength } from "@/helpers/UserMethods";
+import { verifyIsEmail, verifyPasswordsMatch, verifyIsFirstName, verifyIsUsername, checkPasswordStrength, verifyIsLastName } from "@/helpers/UserMethods";
 import { PasswordStrength } from "@/enums";
 
 describe("verifyIsEmail", () => {
@@ -71,70 +71,87 @@ describe("verifyPasswordsMatch", () => {
   });
 });
 
-describe("verifyIsName", () => {
+describe("verifyIsFirstName", () => {
   it("should fail if empty", () => {
     const name = "";
-    expect(verifyIsName(name)).toBe(false);
+    expect(verifyIsFirstName(name)).toBe(false);
   });
 
   it("should fail if name contains non alphabetic characters", () => {
     const name = "John&Doe";
-    expect(verifyIsName(name)).toBe(false);
+    expect(verifyIsFirstName(name)).toBe(false);
   });
 
   it("should fail with numbers", () => {
     const name = "John2";
-    expect(verifyIsName(name)).toBe(false);
+    expect(verifyIsFirstName(name)).toBe(false);
   });
 
   it("should pass with international characters", () => {
     const name = "陳大文";
-    expect(verifyIsName(name)).toBe(true);
+    expect(verifyIsFirstName(name)).toBe(true);
   });
 
   it("should pass with accent characters", () => {
     const name = "Renée";
-    expect(verifyIsName(name)).toBe(true);
+    expect(verifyIsFirstName(name)).toBe(true);
   });
 
   it("should pass with valid name", () => {
     const name = "John";
-    expect(verifyIsName(name)).toBe(true);
+    expect(verifyIsFirstName(name)).toBe(true);
+  });
+
+  it("should pass with one character", () => {
+    const name = "X";
+    expect(verifyIsFirstName(name)).toBe(true);
   });
 
   it("should allow hyphens in the middle of names", () => {
     const name = "Mary-Jane";
-    expect(verifyIsName(name)).toBe(true);
+    expect(verifyIsFirstName(name)).toBe(true);
   });
 
   it("should not allow hyphens as start characters", () => {
     const name = "-mary";
-    expect(verifyIsName(name)).toBe(false);
+    expect(verifyIsFirstName(name)).toBe(false);
   });
 
   it("should not allow hyphens as end characters", () => {
     const name = "mary-";
-    expect(verifyIsName(name)).toBe(false);
+    expect(verifyIsFirstName(name)).toBe(false);
   });
 
-  it("should allow apostrophies as second character", () => {
-    const name = "O'Keith";
-    expect(verifyIsName(name)).toBe(true);
+  it("should allow apostrophies if surrounded by characters", () => {
+    const name = "Nyong'o";
+    expect(verifyIsFirstName(name)).toBe(true);
   });
 
-  it("should not allow apostrophies anywhere else", () => {
-    const name = "OK'eith";
-    expect(verifyIsName(name)).toBe(false);
+  it("should not allow apostrophies without appended character", () => {
+    const name = "OKeith'";
+    expect(verifyIsFirstName(name)).toBe(false);
   });
 
   it("should allow apostrophie and hyphen names", () => {
     const name = "O'Brien-Smith";
-    expect(verifyIsName(name)).toBe(true);
+    expect(verifyIsFirstName(name)).toBe(true);
   });
 
   it("should not allow spaces", () => {
     const name = "Jean-Luc Picard";
-    expect(verifyIsName(name)).toBe(false);
+    expect(verifyIsFirstName(name)).toBe(false);
+  });
+
+  it("should not allow empty name", () => {
+    const name = "";
+    expect(verifyIsFirstName(name)).toBe(false);
+  });
+});
+
+describe("verifyIsLastName", () => {
+  it("should fail if less than two characters", () => {
+    const name = "M";
+    expect(verifyIsLastName(name)).toBe(false);
   });
 });
 

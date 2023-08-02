@@ -1,6 +1,6 @@
 <template>
   <div v-if="editMode">
-    <div class="edit-mode">
+    <div class="property-input-container">
       <div>
         Order by:
         <Dropdown
@@ -9,25 +9,24 @@
           optionLabel="name"
           optionValue="@id"
           placeholder="Select order by"
-          class="w-full md:w-14rem"
+          class="w-full md:w-14rem property"
         />
       </div>
 
       <div>
         Direction:
-        <Dropdown v-model="editOrderBy.direction" :options="['ascending', 'descending']" placeholder="Select direction" class="w-full md:w-14rem" />
+        <Dropdown v-model="editOrderBy.direction" :options="['ascending', 'descending']" placeholder="Select direction" class="w-full md:w-14rem property" />
       </div>
 
       <div>
         Limit:
-        <InputNumber v-model="editOrderBy.limit" placeholder="Add results limit" />
+        <InputNumber v-model="editOrderBy.limit" placeholder="Add results limit" class="property" />
       </div>
-
-      <div class="button-bar">
-        <Button class="button-bar-button" label="Delete" severity="danger" @click="remove()" />
-        <Button class="button-bar-button" label="Cancel" severity="secondary" @click="cancel()" />
-        <Button class="button-bar-button" label="Save" @click="save()" />
-      </div>
+    </div>
+    <div class="button-bar">
+      <Button class="button-bar-button" label="Delete" severity="danger" @click="remove()" />
+      <Button class="button-bar-button" label="Cancel" severity="secondary" @click="cancel()" />
+      <Button class="button-bar-button" label="Save" @click="save()" />
     </div>
   </div>
   <div v-else-if="orderBy.description" v-html="orderBy.description" @dblclick="editMode = true"></div>
@@ -79,6 +78,20 @@ function remove() {
 
 <style scoped>
 .edit-mode {
-  margin-left: 1rem !important;
+  margin-left: 1rem;
+}
+
+.property-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: 1rem;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.property {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  display: flex;
 }
 </style>

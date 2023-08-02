@@ -26,7 +26,7 @@
               :class="(!firstName || !firstNameVerified) && 'p-invalid'"
             />
             <InlineMessage v-if="!firstNameVerified && firstName && !focused.get('firstName')" severity="error">
-              First name contains unexpected characters. A-Z and hyphens only allowed e.g."Mary-Anne".
+              First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne".
             </InlineMessage>
             <InlineMessage v-if="!firstName" severity="error"> First name is required. </InlineMessage>
           </div>
@@ -42,7 +42,7 @@
               :class="(!lastName || !lastNameVerified) && 'p-invalid'"
             />
             <InlineMessage v-if="!lastNameVerified && lastName && !focused.get('lastName')" severity="error">
-              Last name contains unexpected characters. A-Z, apostropies and hyphens only allowed e.g."O'Keith-Smith".
+              Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O'Keith-Smith".
             </InlineMessage>
             <InlineMessage v-if="!lastName" severity="error"> Last name is required. </InlineMessage>
           </div>
@@ -166,7 +166,14 @@ import AuthRoles from "@/components/auth/userDetails/AuthRoles.vue";
 import SecuritySettings from "@/components/auth/userDetails/SecuritySettings.vue";
 import { Avatars } from "@im-library/constants";
 import { PasswordStrength } from "@im-library/enums";
-import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
+import {
+  verifyEmailsMatch,
+  verifyIsEmail,
+  verifyIsFirstName,
+  verifyIsLastName,
+  verifyPasswordsMatch,
+  checkPasswordStrength
+} from "@im-library/helpers/UserMethods";
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
 import { useUserStore } from "@/stores/userStore";
@@ -221,8 +228,8 @@ const emailsMatch = computed(() => verifyEmailsMatch(email1.value, email2.value)
 const passwordStrengthOld = computed(() => checkPasswordStrength(passwordOld.value));
 const passwordStrength = computed(() => checkPasswordStrength(passwordNew1.value));
 const passwordsMatch = computed(() => verifyPasswordsMatch(passwordNew1.value, passwordNew2.value));
-const firstNameVerified = computed(() => verifyIsName(firstName.value));
-const lastNameVerified = computed(() => verifyIsName(lastName.value));
+const firstNameVerified = computed(() => verifyIsFirstName(firstName.value));
+const lastNameVerified = computed(() => verifyIsLastName(lastName.value));
 
 onMounted(() => {
   if (currentUser.value && isLoggedIn.value) {
