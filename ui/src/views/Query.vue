@@ -291,13 +291,11 @@ function setValidationQueryRequest() {
 
 .include {
   color: green;
-  cursor: pointer;
   margin-bottom: 1rem;
 }
 
 .exclude {
   color: red;
-  cursor: pointer;
   margin-bottom: 1rem;
 }
 
