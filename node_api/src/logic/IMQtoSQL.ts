@@ -21,14 +21,15 @@ export class IMQtoSQL {
     for(const subQry of subQueries) {
       qry.withs.push(...subQry.withs);
       subQry.withs = [];
-      const subSql = subQry.toSql();
-      qry.withs.push(subQry.alias + " AS (" + subSql + "\n)")
-      qry.joins.push("JOIN " + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id -- SQ")
+      qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)")
+      qry.joins.push("JOIN " + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id")
     }
 
-/*    console.log("================================================================")
-    console.log(qry)*/
+/*
     console.log("================================================================")
+    console.log(qry)
+    console.log("================================================================")
+*/
 
     return qry.toSql();
   }
@@ -47,6 +48,8 @@ export class IMQtoSQL {
 
     if (match["@type"] && match["@type"] != qry.model) {
       qry = new SqlQuery(match["@type"], match.variable);
+    } else if (match.nodeRef && match.nodeRef != qry.model) {
+      qry = new SqlQuery(match.nodeRef, match.variable);
     } else
       qry = new SqlQuery(qry.model, match.variable);
 
@@ -68,7 +71,7 @@ export class IMQtoSQL {
 
     if (match.orderBy) {
       if (match.orderBy.length == 1) {
-        return this.wrapMatchPartition(qry, match, match.orderBy[0]);
+        this.wrapMatchPartition(qry, match, match.orderBy[0]);
       } else {
         throw new Error("MULTIPLE ORDER PARTITIONS NOT SUPPORTED\n" + JSON.stringify(match.orderBy, null, 2))
       }
@@ -77,24 +80,26 @@ export class IMQtoSQL {
     return qry;
   }
 
-  private wrapMatchPartition(qry: SqlQuery, match: Match, order: OrderLimit): SqlQuery {
-    const p = new SqlQuery(qry.alias, qry.alias + "_part");
+  private wrapMatchPartition(qry: SqlQuery, match: Match, order: OrderLimit) {
+    const inner = qry.clone(qry.alias + "_inner")
+
+    const innerSql = qry.alias + "_inner AS (" + inner.toSql(2) + ")";
+
+    const partition = new SqlQuery(qry.alias + "_inner", qry.alias + "_part");
     const partField = "patient";
 
-    p.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + qry.getField(order["@id"]).field + " " + order.direction + ") AS rn");
+    const dir = order.direction.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
 
-    const l = new SqlQuery(p.alias, p.alias + "_limit");
-    l.withs.push(qry.alias + " AS (" + qry.toSql() + ")")
-    l.withs.push(p.alias + " AS (" + p.toSql() + ")");
-    l.wheres.push("rn = 1")
+    partition.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + partition.getFieldName(order["@id"]) + " " + dir + ") AS rn");
 
-    console.log("ORDER BY PARTITION");
-    console.log(match.orderBy);
-
-    return l;
+    qry.initialize(qry.alias + "_part", qry.alias);
+    qry.withs.push(innerSql)
+    qry.withs.push(partition.alias + " AS (" + partition.toSql(2) + "\n)");
+    qry.wheres.push("rn = 1")
   }
 
   private convertMatchSet(qry: SqlQuery, match: Match) {
+    // JOIN qry_results ON qry = match[@set] AND id = qry.id
     qry.wheres.push("1 = 1 -- in query results " + match["@set"])
   }
 
@@ -113,9 +118,15 @@ export class IMQtoSQL {
       qry.withs.push(...subQuery.withs);
 
       subQuery.withs = [];
-      const subSql = subQuery.toSql();
-      qry.withs.push(subQuery.alias + " AS (" + subSql + "\n)")
-      qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id -- MBSM")
+      qry.withs.push(subQuery.alias + " AS (" + subQuery.toSql(2) + "\n)")
+
+      // TODO: Differing qry/subqry types (rel joins)
+      if (subQuery.model == qry.model)
+        qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id")
+      else {
+        const rel = subQuery.getRelationshipTo(qry.model)
+        qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField)
+      }
 
       if ("OR" == qry.whereBool)
         qry.wheres.push(subQuery.alias + ".id IS NOT NULL")
@@ -141,6 +152,8 @@ export class IMQtoSQL {
       this.convertMatchPropertyIn(qry, property);
     } else if (property.relativeTo) {
       this.convertMatchPropertyRelative(qry, property);
+    } else if (property.value) {
+      this.convertMatchPropertyValue(qry, property);
     } else {
       throw new Error("UNHANDLED PROPERTY PATTERN\n" + JSON.stringify(property, null, 2))
     }
@@ -151,21 +164,21 @@ export class IMQtoSQL {
       throw new Error("INVALID MatchPropertyRange\n" + JSON.stringify(property, null, 2))
     }
 
-    const f = qry.getField(property["@id"] as string);
+    // const f = qry.getField(property["@id"] as string);
 
-    if ("date" == f.type) {
+    if ("date" == qry.getFieldType(property["@id"] as string)) {
       if (property.range.from)
-        qry.wheres.push(this.convertMatchPropertyRangeNode(property.range.from) + " " + qry.alias + "." + f.field)
+        qry.wheres.push(this.convertMatchPropertyRangeNode(property.range.from) + " " + qry.getFieldName(property["@id"] as string))
 
       if (property.range.to)
-        qry.wheres.push(this.convertMatchPropertyRangeNode(property.range.to) + " " + qry.alias + "." + f.field)
+        qry.wheres.push(this.convertMatchPropertyRangeNode(property.range.to) + " " + qry.getFieldName(property["@id"] as string))
     } else {
       throw new Error("UNHANDLED PROPERTY FIELD TYPE\n" + JSON.stringify(property, null, 2))
     }
   }
 
   private convertMatchPropertyRangeNode(range: Assignable): string {
-    return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + range.operator + " ";
+    return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + range.operator;
   }
 
   private convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
@@ -180,14 +193,13 @@ export class IMQtoSQL {
 
     qry.withs.push(...subQuery.withs)
     subQuery.withs = [];
-    const subSql = subQuery.toSql();
-    qry.withs.push(subQuery.alias + " AS (" + subSql + "\n)")
+    qry.withs.push(subQuery.alias + " AS (" + subQuery.toSql(2) + "\n)")
 
     if (qry.model == subQuery.model)
-      qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id -- MPSM ==")
+      qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id")
     else {
       const rel = subQuery.getRelationshipTo(qry.model);
-      qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField + " -- MPSM !=")
+      qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField)
     }
   }
 
@@ -204,17 +216,19 @@ export class IMQtoSQL {
     for (const pIn of property.in) {
       if (pIn["@id"])
         inList.push(pIn['@id'])
+      else if(pIn['@set'])
+        inList.push("SET [" + pIn['@set'] +"]")
       else {
-        console.log("UNHANDLED 'IN' ENTRY")
-        console.log(pIn)
+        throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIn, null, 2))
       }
     }
 
     // OPTIMIZATION
+    // TODO: Correct SET handling
     if (inList.length == 1)
-      qry.wheres.push(qry.alias + "." + qry.getField(property["@id"]).field + " = '" + inList.join("', '") + "'");
+      qry.wheres.push(qry.getFieldName(property["@id"]) + " = '" + inList.join("', '") + "'");
     else
-      qry.wheres.push(qry.alias + "." + qry.getField(property["@id"]).field + " IN ('" + inList.join("', '") + "')");
+      qry.wheres.push(qry.getFieldName(property["@id"]) + " IN ('" + inList.join("', '") + "')");
   }
 
   private convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
@@ -223,12 +237,34 @@ export class IMQtoSQL {
     }
 
     // Different comparison based on type (date/number/string)
-    const f = qry.getField(property["@id"]);
-
-    if ("date" == f.type)
-      qry.wheres.push(qry.alias + "." + f.field + " " + property.operator + " (" + property.relativeTo.parameter + " + INTERVAL '" + property.value + " " + property.unit +"')");
-    else {
-      throw new Error("UNHANDLED RELATIVE TYPE\n" + JSON.stringify(property, null, 2))
+    // const f = qry.getField(property["@id"]);
+    if (property.relativeTo.parameter)
+      qry.wheres.push(qry.getFieldName(property["@id"]) + " " + property.operator + " " + this.convertMatchPropertyRelativeTo(qry, property, property.relativeTo.parameter));
+    else if (property.relativeTo.nodeRef) {
+      // Include implied join on noderef
+      qry.joins.push("JOIN " + property.relativeTo.nodeRef + " ON " + property.relativeTo.nodeRef + ".id = " + qry.alias + ".id")
+      qry.wheres.push(qry.getFieldName(property["@id"]) + " " + property.operator + " " + this.convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.relativeTo?.["@id"] as string, property.relativeTo.nodeRef)));
+    } else {
+      throw new Error("UNHANDLED RELATIVE COMPARISON\n" + JSON.stringify(property, null, 2));
     }
+  }
+
+  private convertMatchPropertyRelativeTo(qry: SqlQuery, property: Property, field:String) {
+    if ("date" == qry.getFieldType(property["@id"] as string))
+      if (property.value)
+        return "(" + field + " + INTERVAL '" + property.value + " " + property.unit + "')";
+      else
+        return field;
+    else {
+      throw new Error("UNHANDLED RELATIVE TYPE\n" + JSON.stringify(property, null, 2));
+    }
+  }
+
+  private convertMatchPropertyValue(qry: SqlQuery, property: Property) {
+    if (!property["@id"] || !property.value) {
+      throw new Error("INVALID MatchPropertyValue\n" + JSON.stringify(property, null, 2))
+    }
+
+    qry.wheres.push(qry.getFieldName(property["@id"]) + " " + property.operator + " " + property.value);
   }
 }

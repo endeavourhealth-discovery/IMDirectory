@@ -1,29 +1,127 @@
 SET SCHEMA 'lair';
 
-WITH latestBP_sub1 AS (
-    SELECT latestBP_sub1.*
-    FROM event AS latestBP_sub1
-    WHERE event_type = 'Observation'
-      AND (
-                latestBP_sub1.concept IN ('http://snomed.info/sct#72313002', 'http://endhealth.info/emis#1994021000006104')
-            AND latestBP_sub1.effective_date >= (now() + INTERVAL '-6 MONTHS'))
-),
-     latestBP_sub1_part AS (
-         SELECT *, ROW_NUMBER() OVER (PARTITION BY patient ORDER BY effective_date DESC) AS rn
-         FROM latestBP_sub1 AS latestBP_sub1_part),
-     latestBP_sub1_part_limit AS (
-         SELECT latestBP_sub1_part_limit.*
-         FROM latestBP_sub1_part AS latestBP_sub1_part_limit
-         WHERE rn = 1
-     ),
-     latestBP AS (
-         SELECT latestBP.*
-         FROM patient AS latestBP
-                  JOIN latestBP_sub1_part_limit ON latestBP_sub1_part_limit.patient = latestBP.id -- MPSM !=
-     )
+WITH
+    pat1 AS (
+        SELECT pat1.*
+        FROM patient AS pat1
+        WHERE 1 = 1 -- in query results http://endhealth.info/im#Q_RegisteredGMS
+    ),
+    pat3 AS (
+        SELECT pat3.*
+        FROM patient AS pat3
+        WHERE (now() - INTERVAL '65 YEARS') >= pat3.date_of_birth
+          AND (now() - INTERVAL '70 YEARS') < pat3.date_of_birth
+    ),
+    pat4 AS (
+        SELECT pat4.*
+        FROM patient AS pat4
+        WHERE 1 = 1 -- in query results http://example/queries#Q_Diabetics
+    ),
+    pat5_sub1 AS (
+        SELECT pat5_sub1.*
+        FROM event AS pat5_sub1
+        WHERE pat5_sub1.event_type = 'Observation'
+          AND (
+                pat5_sub1.concept = 'http://snomed.info/sct#714628002')
+
+    ),
+    pat5 AS (
+        SELECT pat5.*
+        FROM patient AS pat5
+                 JOIN pat5_sub1 ON pat5_sub1.patient = pat5.id
+    ),
+    pat2 AS (
+        SELECT pat2.*
+        FROM patient AS pat2
+                 LEFT JOIN pat3 ON pat3.id = pat2.id
+                 LEFT JOIN pat4 ON pat4.id = pat2.id
+                 LEFT JOIN pat5 ON pat5.id = pat2.id
+        WHERE pat3.id IS NOT NULL
+           OR pat4.id IS NOT NULL
+           OR pat5.id IS NOT NULL
+    ),
+    latestBP_inner AS (
+        SELECT latestBP_inner.*
+        FROM event AS latestBP_inner
+        WHERE latestBP_inner.event_type = 'Observation'
+          AND (
+                    latestBP_inner.concept IN ('http://snomed.info/sct#72313002', 'http://endhealth.info/emis#1994021000006104')
+                AND latestBP_inner.effective_date >= (now() + INTERVAL '-6 MONTHS'))
+    ),
+    latestBP_part AS (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY patient ORDER BY latestBP_part.effective_date DESC) AS rn
+        FROM latestBP_inner AS latestBP_part
+    ),
+    latestBP AS (
+        SELECT latestBP.*
+        FROM latestBP_part AS latestBP
+        WHERE rn = 1
+    ),
+    pat6 AS (
+        SELECT pat6.*
+        FROM patient AS pat6
+                 JOIN latestBP ON latestBP.patient = pat6.id
+    ),
+    lat7 AS (
+        SELECT lat7.*
+        FROM latestBP AS lat7
+        WHERE lat7.concept = 'http://snomed.info/sct#72313002'
+          AND ((lat7.json ->> 'custom_value_value')::DECIMAL) > 140
+    ),
+    lat8 AS (
+        SELECT lat8.*
+        FROM latestBP AS lat8
+        WHERE lat8.concept = 'http://endhealth.info/emis#1994021000006104'
+          AND ((lat8.json ->> 'custom_value_value')::DECIMAL) > 130
+    ),
+    highBPReading AS (
+        SELECT highBPReading.*
+        FROM latestBP AS highBPReading
+                 LEFT JOIN lat7 ON lat7.id = highBPReading.id
+                 LEFT JOIN lat8 ON lat8.id = highBPReading.id
+        WHERE lat7.id IS NOT NULL
+           OR lat8.id IS NOT NULL
+    ),
+    pat9_sub1 AS (
+        SELECT pat9_sub1.*
+        FROM event AS pat9_sub1
+                 JOIN highBPReading ON highBPReading.id = pat9_sub1.id
+        WHERE pat9_sub1.event_type = 'Observation'
+          AND (
+                    pat9_sub1.concept = 'SET [http://endhealth.info/im#InvitedForScreening]'
+                AND pat9_sub1.effective_date >= highBPReading.effective_date)
+
+    ),
+    pat9 AS (
+        SELECT pat9.*
+        FROM patient AS pat9
+                 JOIN pat9_sub1 ON pat9_sub1.patient = pat9.id
+    ),
+    pat10 AS (
+        SELECT pat10.*
+        FROM patient AS pat10
+        WHERE 1 = 1 -- in query results http://endhealth.info/im#Q_Hypertensives
+    )
 SELECT pat0.*
 FROM patient AS pat0
-         JOIN latestBP ON latestBP.id = pat0.id -- SQ
+         JOIN pat1 ON pat1.id = pat0.id
+         JOIN pat2 ON pat2.id = pat0.id
+         JOIN pat6 ON pat6.id = pat0.id
+         JOIN highBPReading ON highBPReading.id = pat0.id
+         JOIN pat9 ON pat9.id = pat0.id
+         JOIN pat10 ON pat10.id = pat0.id
+
+
+
+
+
+
+
+
+
+LIMIT 100
+
+
 
 ; -- SQ
 

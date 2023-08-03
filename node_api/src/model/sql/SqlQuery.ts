@@ -8,7 +8,7 @@ export class SqlQuery {
 
   withs: string[] = []
   selects: string[] = []
-  model: string;
+  model: string = "";
   map: Table = {} as Table
   alias: string = ""
   joins: string[] = []
@@ -16,20 +16,29 @@ export class SqlQuery {
   wheres: string[] = []
 
   constructor(model: string, variable?: string) {
+    this.initialize(model, variable);
+  }
+
+  public initialize(model: string, variable?: string) {
+    this.withs = []
+    this.selects = []
+    this.joins = []
+    this.whereBool = "AND"
+    this.wheres = []
+
     this.model = model;
     this.map = this.getMap(model);
     this.alias = variable ? variable : this.getAlias(this.map.table);
 
     (mapData.typeTables as any)[this.alias] = { table: this.alias, fields: this.map.fields, relationships: this.map.relationships };
-    console.log("MAPPED " + this.alias)
   }
 
-  public toSql() {
+  public toSql(indent: number = 0) {
 
     let sql = "";
 
     if (this.withs && this.withs.length > 0) {
-      sql += "WITH ";
+      sql += "WITH\n";
       sql += this.withs.join(",\n")
     }
 
@@ -49,7 +58,7 @@ export class SqlQuery {
       sql += "\nWHERE ";
 
       if (this.map.condition) {
-        sql += this.map.condition + "\n";
+        sql += this.map.condition.replaceAll("{alias}", this.alias) + "\n";
         if (this.wheres && this.wheres.length > 0) {
           sql += "AND (\n";
         }
@@ -62,14 +71,37 @@ export class SqlQuery {
       }
     }
 
-    return sql;
+
+    return sql.replaceAll("\n", "\n" + (" ".repeat(indent)));
   }
 
-  public getField(field: string): Field {
-    if (this.map.fields[field])
-      return this.map.fields[field]
 
-    throw new Error("Unknown field [" + field + "] on table [" + this.model + "]");
+  public getFieldName(field: string, table?: string): string {
+    const alias = table ? table : this.alias;
+    const fieldName = this.getField(field, table).field;
+
+    if (fieldName.includes("{alias}"))
+      return fieldName.replaceAll("{alias}", alias);
+    else
+      return alias + "." + fieldName;
+  }
+
+  public getFieldType(field: string, table?: string): string {
+    return this.getField(field, table).type;
+  }
+
+  private getField(field: string, table?: string): Field {
+    const map = (table) ? (mapData.typeTables as any)[table] : this.map;
+
+    if (!map)
+      throw new Error("Unknown table [" + table + "]");
+
+    if (map.fields[field])
+      return map.fields[field]
+
+    console.log("UNKNOWN FIELD")
+    console.log(JSON.stringify(map, null, 2))
+    throw new Error("Unknown field [" + field + "] on table [" + map.table + "]");
   }
 
   public getRelationshipTo(targetModel: string): Relationship {
@@ -79,19 +111,29 @@ export class SqlQuery {
     throw new Error("Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
   }
 
+  public clone(alias: string): SqlQuery {
+    const from = this.alias + "."
+    const to = alias + "."
+    const clone = new SqlQuery(this.model, alias);
+    clone.withs.push(...this.withs)
+    clone.selects.push(...this.selects.map(j => j.replaceAll(from, to)))
+    clone.joins.push(...this.joins.map(j => j.replaceAll(from, to)))
+    clone.wheres.push(...this.wheres.map(j => j.replaceAll(from, to)))
+    clone.whereBool = this.whereBool
+
+    return clone;
+  }
+
   private getMap(model: string) : any {
     let map = (mapData.typeTables as any)[model];
 
     if (!map) {
-      console.log("[" + model + "] not found, trying [http://endhealth.info/im#" + model + "]")
       map = (mapData.typeTables as any)["http://endhealth.info/im#" + model];
     }
 
     if (map) {
       return map;
     } else {
-      console.log("MAPPING DATA")
-      console.log(JSON.stringify(mapData, null, 2))
       throw new Error("Unmapped table " + model);
     }
   }

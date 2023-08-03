@@ -19,12 +19,12 @@ test("IMQtoSQL", async () => {
     "@id": "http://endhealth.info/im#Q_TestQuery",
     "name": "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
     "match": [
-/*      {
+      {
 
         "@set": "http://endhealth.info/im#Q_RegisteredGMS",
         "name": "Registered for GMS services on reference date"
-      },*/
-/*      {
+      },
+      {
         "match": [
           {
             "property": [
@@ -76,14 +76,14 @@ test("IMQtoSQL", async () => {
           }
         ],
         "bool": "or"
-      }, */
+      },
       {
-        "variable": "latestBP",
         "property": [
           {
             "@id": "http://endhealth.info/im#observation",
             "match": {
               "@type": "Observation",
+              "variable": "latestBP",
               "bool": "and",
               "property": [
                 {
@@ -125,25 +125,19 @@ test("IMQtoSQL", async () => {
             }
           }
         ],
-/*        "orderBy": [
-          {
-            "direction": "descending",
-            "limit": 1,
-            "@id": "http://endhealth.info/im#effectiveDate"
-          }
-        ]*/
       },
-/*      {
+      {
+        "nodeRef": "latestBP",
         "match": [
           {
-            "nodeRef": "latestBP",
             "bool": "and",
             "property": [
               {
                 "@id": "http://endhealth.info/im#concept",
                 "in": [
                   {
-                    "@id": "http://snomed.info/sct#271649006",
+                    // "@id": "http://snomed.info/sct#271649006",
+                    "@id": "http://snomed.info/sct#72313002",
                     "name": "Systolic blood pressure",
                     "descendantsOrSelfOf": true
                   }
@@ -218,7 +212,6 @@ test("IMQtoSQL", async () => {
         "@set": "http://endhealth.info/im#Q_Hypertensives",
         "name": "Hypertensives"
       }
-*/
     ],
     "@type": "http://endhealth.info/im#Patient"
   } as Query;
@@ -226,11 +219,13 @@ test("IMQtoSQL", async () => {
 
   console.log(JSON.stringify(def, null, 2))
 
+  console.log("=================================================================================================")
+
   const qry = new IMQtoSQL();
   const sql = qry.convert(def);
-  console.log(sql);
   expect(sql).not.toBeNull()
   expect(sql).not.toBeUndefined()
+  console.log(sql?.replaceAll("$referenceDate", "now()"));
 /*  expect(sql).toEqual("WITH pat1 AS ( SELECT pat1.* FROM patient AS pat1) -- WHERE in query results http://endhealth.info/im#Q_RegisteredGMS,\n" +
     "pat3 AS ( SELECT pat3.* FROM patient AS pat3 WHERE http://endhealth.info/im#age >= 65 YEARS\n" +
     "AND http://endhealth.info/im#age > 70 YEARS),\n" +
