@@ -53,6 +53,8 @@ import { TreeNode } from "./TreeNode";
 import { ContextMap } from "./ContextMap";
 import { SelectedMatch } from "./SelectedMatch";
 import { MailOptions } from "./MailOptions";
+import { Workflow } from "./Workflow";
+import { BugReport } from "./BugReport";
 export {
   type AccountItem,
   type Address,
@@ -108,5 +110,7 @@ export {
   type TreeNode,
   type ContextMap,
   type SelectedMatch,
-  type MailOptions
+  type MailOptions,
+  type Workflow,
+  type BugReport
 };

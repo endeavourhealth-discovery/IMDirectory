@@ -1,11 +1,15 @@
-import { BugReportEnums } from "@/enums";
+import { BugReportEnums } from "../enums";
+import { Workflow } from "./Workflow";
 
-export interface BugReport {
-  userId: string;
+export interface BugReport extends Workflow {
   product: "IM";
   version: string;
   module: BugReportEnums.Module;
-  system: BugReportEnums.System;
+  OS: BugReportEnums.System;
   severity: BugReportEnums.Severity;
   status: BugReportEnums.Status;
+  error: Error;
+  reproduceSteps: string[];
+  expectedResult: string;
+  actualResult: string;
 }
