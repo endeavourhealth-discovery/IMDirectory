@@ -1,3 +1,6 @@
+import { Match, Property } from "@/interfaces/AutoGen";
+import { IM } from "@/vocabulary";
+
 export const match = {
   withType: { "@type": "Patient" },
   withSet: { "@set": "CSET_EmailOnlineEncounter" },
@@ -6,59 +9,107 @@ export const match = {
     name: "Text message consultation",
     "@id": "http://endhealth.info/im#1681000252102"
   },
-  withNameAndEntailment: {
+  withDescendantsOrSelfOf: {
     name: "Text message consultation",
     descendantsOrSelfOf: true,
     "@id": "http://endhealth.info/im#1681000252102"
   },
-  withExclude: { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives" },
-  withVariable: {
-    path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-    bool: "and",
-    variable: "latestBP"
+  withDescendantsOf: {
+    name: "Text message consultation",
+    descendantsOf: true,
+    "@id": "http://endhealth.info/im#1681000252102"
   },
-  withOrderByWhereInAndWhereComparison: {
-    path: {
-      "@id": "http://endhealth.info/im#observation",
-      node: {
-        "@type": "Observation"
-      }
-    },
-    bool: "and",
-    where: [
+  withAncestorsOf: {
+    name: "Text message consultation",
+    ancestorsOf: true,
+    "@id": "http://endhealth.info/im#1681000252102"
+  },
+  withExclude: { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives" },
+  withVariable: {},
+  withOneDirectPropertyOfRange: {
+    property: [
       {
-        "@id": "http://endhealth.info/im#concept",
-        name: "concept",
+        "@id": "http://endhealth.info/im#age",
+        range: {
+          from: {
+            operator: ">=",
+            value: "65",
+            unit: "YEARS",
+            relativeTo: null
+          },
+          to: {
+            operator: ">",
+            value: "70",
+            unit: "YEARS",
+            relativeTo: null
+          }
+        }
+      }
+    ]
+  },
+  withOneDirectPropertyOfIn: {
+    property: [
+      {
+        "@id": "http://endhealth.info/im#statedGender",
         in: [
           {
-            "@id": "http://snomed.info/sct#271649006",
-            name: "Systolic blood pressure",
-            descendantsOrSelfOf: true
-          },
-          {
-            "@id": "http://endhealth.info/emis#1994021000006104",
-            name: "Home systolic blood pressure",
-            descendantsOrSelfOf: true
+            "@id": "http://endhealth.info/im#905041000252107",
+            name: "Female (stated gender)",
+            descendantsOf: true
           }
-        ],
-        valueLabel: "Office or home systolic blood pressure"
+        ]
+      }
+    ]
+  },
+  withMultipleDirectProperties: {
+    property: [
+      {
+        "@id": "http://endhealth.info/im#age",
+        range: {
+          from: {
+            operator: ">=",
+            value: "65",
+            unit: "YEARS",
+            relativeTo: null
+          },
+          to: {
+            operator: ">",
+            value: "70",
+            unit: "YEARS",
+            relativeTo: null
+          }
+        }
       },
       {
-        "@id": "http://endhealth.info/im#effectiveDate",
-        operator: ">=",
-        value: "-6",
-        unit: "MONTHS",
-        relativeTo: {
-          parameter: "$referenceDate"
-        },
-        valueLabel: "last 6 months"
+        "@id": "http://endhealth.info/im#statedGender",
+        in: [
+          {
+            "@id": "http://endhealth.info/im#905041000252107",
+            name: "Female (stated gender)"
+          }
+        ]
       }
-    ],
-    orderBy: [
+    ]
+  },
+  withOneNestedPropertyOfIn: {
+    property: [
       {
-        direction: "descending",
-        limit: 1,
-        "@id": "http://endhealth.info/im#effectiveDate"
+        "@id": "http://endhealth.info/im#observation",
+        match: {
+          "@type": "Observation",
+          property: [
+            {
+              "@id": "http://endhealth.info/im#concept",
+              in: [
+                {
+                  "@id": "http://snomed.info/sct#714628002",
+                  descendantsOf: true
+                }
+              ],
+              valueLabel: "Prediabetes"
+            }
+          ]
+        }
       }
     ]
   }

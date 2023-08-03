@@ -30,7 +30,8 @@ const EntityService = {
     });
   },
 
-  async getFullExportSet(iri: string, core: boolean, legacy: boolean, flat: boolean): Promise<any> {
+  async getFullExportSet(iri: string, definition:boolean, core: boolean, legacy: boolean, includeSubsets: boolean,
+                         ownRow: boolean, im1id: boolean, format: string, schemes: string[]): Promise<any> {
     const client = axios.create({
       baseURL: api,
       timeout: 0
@@ -39,9 +40,14 @@ const EntityService = {
     return client.get("api/entity/public/setExport", {
       params: {
         iri: iri,
+        definition: definition,
         core: core,
         legacy: legacy,
-        flat: flat
+        includeSubsets: includeSubsets,
+        ownRow: ownRow,
+        im1id: im1id,
+        format: format,
+        schemes: schemes.join(",")
       },
       responseType: "blob"
     });
@@ -192,11 +198,11 @@ const EntityService = {
   },
 
   async getFilterDefaultOptions(): Promise<FilterOptions> {
-    const schemeDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "SchemeFilterDefaultOptions");
-    const statusDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "StatusFilterDefaultOptions");
-    const typeDefaultOptions = await this.getEntityChildren(IM.NAMESPACE + "TypeFilterDefaultOptions");
-    const sortDefaultFieldOptions = await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterDefaultOptions");
-    const sortDefaultDirectionOptions = await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterDefaultOptions");
+    const schemeDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "SchemeFilterDefaultOptions")) ?? [];
+    const statusDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "StatusFilterDefaultOptions")) ?? [];
+    const typeDefaultOptions = (await this.getEntityChildren(IM.NAMESPACE + "TypeFilterDefaultOptions")) ?? [];
+    const sortDefaultFieldOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortFieldFilterDefaultOptions")) ?? [];
+    const sortDefaultDirectionOptions = (await this.getEntityChildren(IM.NAMESPACE + "SortDirectionFilterDefaultOptions")) ?? [];
 
     return {
       status: statusDefaultOptions.map(option => {
@@ -469,6 +475,22 @@ const EntityService = {
   async getContextMaps(conceptIri: string): Promise<any[]> {
     return axios.get(Env.VITE_NODE_API + "node_api/entity/public/conceptContextMaps", {
       params: { iri: conceptIri }
+    });
+  },
+
+  async getAllByType(conceptTypeIri: string): Promise<TTIriRef[]> {
+    return axios.get(Env.API + "api/query/public/allByType", {
+      params: { iri: conceptTypeIri }
+    });
+  },
+
+  async getAllQueries(): Promise<TTIriRef[]> {
+    return axios.get(Env.API + "api/query/public/allQueries");
+  },
+
+  async getQueriesByReturnType(returnTypeIri: string): Promise<TTIriRef[]> {
+    return axios.get(Env.API + "api/query/public/allQueries", {
+      params: { iri: returnTypeIri }
     });
   }
 };

@@ -47,7 +47,7 @@
     "n3": "1.16.2",
     "node-cron": "3.0.2",
     "node-fetch": "3.3.0",
-    "semver": "7.5.0",
+    "semver": "7.5.3",
     "swagger-ui-express": "4.6.0",
     "tslib": "2.5.0",
     "uuid": "9.0.0",

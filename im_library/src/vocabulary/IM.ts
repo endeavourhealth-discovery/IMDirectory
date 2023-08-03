@@ -85,7 +85,7 @@ export class IM {
   public static MODULE_SETS = IM.NAMESPACE + "Sets";
   public static MODULE_DATA_MODEL = IM.NAMESPACE + "DiscoveryCommonDataModel";
   public static MODULE_CATALOGUE = IM.NAMESPACE + "Catalogue";
-  public static MODULE_QUERIES = IM.NAMESPACE + "QT_QueryTemplates";
+  public static MODULE_QUERIES = IM.NAMESPACE + "Q_Queries";
   public static MODULE_IM = IM.NAMESPACE + "InformationModel";
   public static MODULE_TASKS = IM.NAMESPACE + "Tasks";
 
@@ -103,6 +103,8 @@ export class IM {
   public static DATAMODEL_ENTITY = IM.NAMESPACE + "DataModelEntity";
   public static DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
   public static QUERY = IM.NAMESPACE + "Query";
+  public static DATASET_QUERY = IM.NAMESPACE + "DatasetQuery";
+  public static COHORT_QUERY = IM.NAMESPACE + "CohortQuery";
 
   //Property types
   public static DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";
@@ -123,6 +125,7 @@ export class IM {
   public static PROPERTY = IM.NAMESPACE + "property";
   public static MATCH = IM.NAMESPACE + "match";
   public static ENTITY_TYPE = IM.NAMESPACE + "entityType";
+  public static RETURN_TYPE = IM.NAMESPACE + "returnType";
 
   // graph
   public static GROUP_NUMBER = IM.NAMESPACE + "groupNumber";

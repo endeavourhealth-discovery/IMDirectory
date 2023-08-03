@@ -1,9 +1,8 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { QueryObject, AllowableChildProperty, AliasEntity, ITextQuery } from "@im-library/interfaces";
+import { AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
 import { PathDocument, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
-import { TreeNode } from "primevue/tree";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -33,6 +32,10 @@ const QueryService = {
   async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
     if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal, raw: raw });
     else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
+  },
+
+  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
+    return await axios.post(Env.API + "api/query/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
   },
 
   async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
@@ -117,7 +120,11 @@ const QueryService = {
   },
 
   async getAllQByType(iri: string): Promise<any> {
-    return axios.get(Env.API + "api/query/public/allByType", {params: {iri:iri}});
+    return axios.get(Env.API + "api/query/public/allByType", { params: { iri: iri } });
+  },
+
+  async getDataModelProperty(dataModelIri: string, propertyIri: string) {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/dataModelProperty", { params: { dataModelIri: dataModelIri, propertyIri: propertyIri } });
   }
 };
 

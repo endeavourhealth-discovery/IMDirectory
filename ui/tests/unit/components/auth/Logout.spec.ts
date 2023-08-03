@@ -43,7 +43,8 @@ describe("Logout.vue", () => {
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: Avatars[0],
-      roles: []
+      roles: [],
+      mfaStatus: []
     } as User;
     AuthService.signOut = vi.fn().mockResolvedValue({ status: 200, message: "Logout successful" });
 

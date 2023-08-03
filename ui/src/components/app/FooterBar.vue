@@ -13,6 +13,7 @@
       <router-link to="/privacy" class="footer-link">Privacy policy</router-link>
       <router-link to="/cookies" class="footer-link">Cookie policy</router-link>
       <router-link to="/snomedLicense" class="footer-link">Snomed agreement</router-link>
+      <router-link to="/uprn-agreement" class="footer-link">Uprn agreement</router-link>
     </div>
     <div id="footer-end"></div>
   </div>

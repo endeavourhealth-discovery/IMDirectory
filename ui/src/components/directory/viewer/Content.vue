@@ -40,7 +40,7 @@
       <Column :exportable="false" style="justify-content: flex-end">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" @locate-in-tree="locateInTree" />
           </div>
         </template>
       </Column>
@@ -58,16 +58,20 @@ import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService, UserService } from "@/services";
 import rowClick from "@/composables/rowClick";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 
+interface Props {
+  entityIri: string;
+}
+const props = defineProps<Props>();
+
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
-const conceptIri = computed(() => directoryStore.conceptIri);
 const favourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
 
@@ -75,9 +79,10 @@ const directService = new DirectService();
 const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
-  () => conceptIri.value,
+  () => props.entityIri,
   () => init()
 );
+
 watch(
   () => _.cloneDeep(favourites.value),
   () => {
@@ -85,7 +90,7 @@ watch(
   }
 );
 
-const conceptIsFavourite = computed(() => conceptIri.value === IM.NAMESPACE + "Favourites");
+const conceptIsFavourite = computed(() => props.entityIri === IM.NAMESPACE + "Favourites");
 
 const loading = ref(false);
 const children: Ref<any[]> = ref([]);
@@ -122,13 +127,13 @@ onMounted(() => init());
 
 async function init() {
   loading.value = true;
-  !conceptIsFavourite.value ? await getChildren(conceptIri.value) : await getFavourites();
+  !conceptIsFavourite.value ? await getChildren(props.entityIri) : await getFavourites();
   loading.value = false;
 }
 
 async function getFavourites() {
   let favouriteList: string[];
-  if (currentUser.value) favouriteList = await UserService.getUserFavourites(currentUser.value.id);
+  if (currentUser.value) favouriteList = await UserService.getUserFavourites();
   else favouriteList = favourites ? favourites.value : [];
   const result = await EntityService.getPartialEntities(favouriteList, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
@@ -183,7 +188,7 @@ async function onPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  const result = await EntityService.getPagedChildren(conceptIri.value, currentPage.value + 1, pageSize.value);
+  const result = await EntityService.getPagedChildren(props.entityIri, currentPage.value + 1, pageSize.value);
   children.value = result.result;
   children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
   scrollToTop();
@@ -201,6 +206,10 @@ async function showOverlay(event: any, data: any): Promise<void> {
 
 function hideOverlay(event: any): void {
   OS.value.hideOverlay(event);
+}
+
+function locateInTree(iri: string) {
+  directoryStore.updateFindInTreeIri(iri);
 }
 </script>
 

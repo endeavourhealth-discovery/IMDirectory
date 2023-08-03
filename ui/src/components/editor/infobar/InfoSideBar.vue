@@ -37,7 +37,7 @@
             </TabPanel>
             <TabPanel header="Hierarchy position">
               <div class="concept-panel-content" id="secondary-tree-container" :style="contentHeight">
-                <SecondaryTree :conceptIri="selectedConceptIri" />
+                <SecondaryTree :entityIri="selectedConceptIri" />
               </div>
             </TabPanel>
           </TabView>

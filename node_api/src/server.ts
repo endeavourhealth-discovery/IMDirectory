@@ -18,7 +18,6 @@ import StatusController from "./controllers/statusController";
 import gracefulShutdown from "http-graceful-shutdown";
 import logger from "./middlewares/logger.middleware";
 import { morganMiddlewareConsole, morganMiddlewareFile } from "./middlewares/morgan.middleware";
-import UserController from "@/controllers/userController";
 
 dotenv.config();
 
@@ -38,8 +37,7 @@ const app = new App({
     new FhirController(),
     new EclController(),
     new ConfigController(),
-    new ProvController(),
-    new UserController()
+    new ProvController()
   ],
   middleWares: [
     bodyParser.json({ type: "application/json" }),

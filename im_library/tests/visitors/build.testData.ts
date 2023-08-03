@@ -1077,5 +1077,13 @@ export default {
       }
     ],
     type: "BoolGroup"
+  },
+  groupedAnd: {
+    conjunction: "AND",
+    items: [
+      { concept: { iri: "http://snomed.info/sct#298705000" }, descendants: "<<", type: "Concept" },
+      { concept: { iri: "http://snomed.info/sct#298705001" }, descendants: "<<", type: "Concept" }
+    ],
+    type: "BoolGroup"
   }
 };

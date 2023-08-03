@@ -1,7 +1,7 @@
 <template>
   <div id="topbar">
     <div id="topbar-start">
-      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
+      <img class="im-logo" src="../../../public/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
     </div>
     <div id="topbar-content">
       <slot name="content" />
@@ -85,12 +85,12 @@ import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
 
-import { usePrimeVue } from "primevue/config";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
+import setupChangeTheme from "@/composables/setupChangeTheme";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -100,7 +100,9 @@ const sharedStore = useSharedStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
-const currentTheme: Ref<string | undefined> = ref();
+const currentTheme = computed(() => userStore.currentTheme);
+
+const { changeTheme } = setupChangeTheme();
 
 const loading = ref(false);
 const loginItems: Ref<LoginItem[]> = ref([]);
@@ -108,7 +110,6 @@ const accountItems: Ref<AccountItem[]> = ref([]);
 const appItems: Ref<{ icon: string; command: Function; label: string }[]> = ref([]);
 const currentVersion: Ref<undefined | string> = ref();
 
-const PrimeVue: any = usePrimeVue();
 const toast = useToast();
 const adminMenu = ref();
 const themesMenu = ref();
@@ -117,8 +118,6 @@ const appsOP = ref();
 const directService = new DirectService();
 
 onMounted(async () => {
-  if (currentUser.value) currentTheme.value = await UserService.getUserTheme(currentUser.value.id);
-  if (!currentTheme.value) currentTheme.value = "saga-blue";
   setUserMenuItems();
   setAppMenuItems();
   await getCurrentVersion();
@@ -163,10 +162,7 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "login",
-      command: () => {
-        authStore.updatePreviousAppUrl();
-      }
+      url: Env.DIRECTORY_URL + "user/" + "login"
     },
     {
       label: "Register",
@@ -193,10 +189,7 @@ function setUserMenuItems(): void {
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      url: Env.DIRECTORY_URL + "user/" + "logout",
-      command: () => {
-        authStore.updatePreviousAppUrl();
-      }
+      url: Env.DIRECTORY_URL + "user/" + "logout"
     }
   ];
 }
@@ -580,20 +573,14 @@ async function downloadJava() {
 function setAppMenuItems() {
   appItems.value = [
     { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
-    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() }
+    { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
+    { label: "UPRN", icon: "fa-regular fa-address-book", command: () => directService.uprn() }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }
 
 function showReleaseNotes() {
   sharedStore.updateShowReleaseNotes(true);
-}
-
-function changeTheme(newTheme: string) {
-  PrimeVue.changeTheme(currentTheme.value, newTheme, "theme-link", () => {
-    userStore.updateCurrentTheme(newTheme);
-    currentTheme.value = newTheme;
-  });
 }
 </script>
 

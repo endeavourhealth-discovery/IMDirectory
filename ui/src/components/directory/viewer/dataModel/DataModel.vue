@@ -1,6 +1,6 @@
 <template>
   <div id="tree-container">
-    <TangledTree :conceptIri="conceptIri" :data="data" />
+    <TangledTree :entityIri="entityIri" :data="data" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
   </div>
 </template>
 
@@ -10,19 +10,19 @@ import { PropertyDisplay, TangledTreeData } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import TangledTree from "./TangledTree.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useDirectoryStore } from "@/stores/directoryStore";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 interface Props {
-  conceptIri: string;
+  entityIri: string;
 }
 const props = defineProps<Props>();
 
-const directoryStore = useDirectoryStore();
-const conceptIri = computed(() => directoryStore.conceptIri);
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => await getDataModel(newValue)
 );
 
@@ -30,7 +30,7 @@ const loading = ref(false);
 const data: Ref<TangledTreeData[][]> = ref([]);
 const twinNode = ref("twin-node-");
 
-onMounted(async () => await getDataModel(props.conceptIri));
+onMounted(async () => await getDataModel(props.entityIri));
 
 async function getDataModel(iri: string) {
   loading.value = true;
@@ -59,9 +59,7 @@ function getGroupsPropertiesTypes(iri: any, twinNode: any, propertyDisplay: Prop
       addProperty(properties, property, iri);
     }
   });
-  properties = Object.values(
-      properties.reduce((acc, obj) => ({ ...acc, [obj.id]: obj }), {})
-  );
+  properties = Object.values(properties.reduce((acc, obj) => ({ ...acc, [obj.id]: obj }), {}));
   return { properties, types, groups };
 }
 
@@ -86,10 +84,10 @@ function addProperty(properties: TangledTreeData[], property: PropertyDisplay, p
   property.property.forEach(p => {
     propId = `${propId}${propId !== "" ? "OR" : ""}${p["@id"]}`;
     propName = `${propName} ${propName !== "" ? "OR" : ""} ${p.name as string}`;
-  })
+  });
   property.type?.forEach(t => {
     range.push(t);
-  })
+  });
   properties.push({
     id: propId,
     parents: [parent],
@@ -100,7 +98,6 @@ function addProperty(properties: TangledTreeData[], property: PropertyDisplay, p
     range: range
   });
 }
-
 </script>
 
 <style scoped>
