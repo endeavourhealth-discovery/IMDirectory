@@ -7,7 +7,7 @@
           v-model="editOrderBy['@id']"
           :options="orderByOptions"
           optionLabel="name"
-          optionValue="@id"
+          optionValue="iri"
           placeholder="Select order by"
           class="w-full md:w-14rem property"
         />
@@ -15,7 +15,14 @@
 
       <div>
         Direction:
-        <Dropdown v-model="editOrderBy.direction" :options="['ascending', 'descending']" placeholder="Select direction" class="w-full md:w-14rem property" />
+        <Dropdown
+          v-model="editOrderBy.direction"
+          optionLabel="name"
+          optionValue="value"
+          :options="directionOptions"
+          placeholder="Select direction"
+          class="w-full md:w-14rem property"
+        />
       </div>
 
       <div>
@@ -33,31 +40,62 @@
 </template>
 
 <script setup lang="ts">
+import { EntityService } from "@/services";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
-import { Match, OrderLimit, Property, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
+import { ConceptSummary } from "@im-library/interfaces";
+import { Match, Order, OrderLimit, Property, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { IM, SHACL } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";
 import { Ref, onMounted, ref } from "vue";
 interface Props {
   match: Match;
   index: number;
   orderBy: OrderLimit;
+  queryTypeIri: string;
 }
 const props = defineProps<Props>();
 
 const editMode = ref(false);
 const editOrderBy: Ref<OrderLimit> = ref({} as OrderLimit);
-const orderByOptions: Ref<TTIriRef[]> = ref([]);
+const orderByOptions: Ref<ConceptSummary[]> = ref([]);
+const directionOptions: Ref<{ name: string; value: Order }[]> = ref([]);
 
-onMounted(() => {
-  if (isArrayHasLength(props.match.property)) setOrderByOptionsRecursively(props.match.property!);
+const orderablePropertyTypes = [IM.NAMESPACE + "DateTime", IM.NAMESPACE + "NumericValue"];
+
+onMounted(async () => {
+  await setOrderByOptions();
+  setDirectionOptions();
   editOrderBy.value = cloneDeep(props.orderBy);
 });
 
-function setOrderByOptionsRecursively(properties: Property[]) {
-  for (const prop of properties) {
-    orderByOptions.value.push({ "@id": prop["@id"], name: getNameFromRef(prop) } as TTIriRef);
-    if (isObjectHasKeys(prop, ["match"]) && isArrayHasLength(prop.match?.property)) setOrderByOptionsRecursively(prop.match!.property!);
+async function setOrderByOptions() {
+  const dataModelIri = resolveIri(props.match["@type"] ?? props.queryTypeIri);
+  const entity = await EntityService.getPartialEntity(dataModelIri!, [SHACL.PROPERTY]);
+  if (isObjectHasKeys(entity, [SHACL.PROPERTY]))
+    for (const prop of entity[SHACL.PROPERTY]) {
+      const propType = prop[SHACL.DATATYPE] ?? prop[SHACL.CLASS] ?? prop[SHACL.NODE];
+      if (orderablePropertyTypes.includes(propType[0]["@id"])) {
+        const propId = prop[SHACL.PATH][0]["@id"];
+        const propName = prop[SHACL.PATH][0].name;
+        orderByOptions.value.push({ name: propName, iri: propId, entityType: propType } as ConceptSummary);
+      }
+    }
+}
+
+function setDirectionOptions() {
+  const hasDateType = orderByOptions.value.some(prop => prop.entityType[0]["@id"] === IM.NAMESPACE + "DateTime");
+  const hasNumericType = orderByOptions.value.some(prop => prop.entityType[0]["@id"] === IM.NAMESPACE + "NumericValue");
+
+  if (hasDateType && hasNumericType) {
+    directionOptions.value.push({ name: "earliest/lowest", value: "ascending" });
+    directionOptions.value.push({ name: "latest/highest", value: "descending" });
+  } else if (hasDateType) {
+    directionOptions.value.push({ name: "earliest", value: "ascending" });
+    directionOptions.value.push({ name: "latest", value: "descending" });
+  } else if (hasNumericType) {
+    directionOptions.value.push({ name: "lowest", value: "ascending" });
+    directionOptions.value.push({ name: "highest", value: "descending" });
   }
 }
 

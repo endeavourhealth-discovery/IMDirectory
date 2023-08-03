@@ -47,7 +47,14 @@
       :variable-map="variableMap"
       :validation-query-request="validationQueryRequest"
     />
-    <EditDisplayOrderBy v-if="isArrayHasLength(match.orderBy)" v-for="(orderBy, index) of match.orderBy" :match="match" :order-by="orderBy" :index="index" />
+    <EditDisplayOrderBy
+      v-if="isArrayHasLength(match.orderBy)"
+      v-for="(orderBy, index) of match.orderBy"
+      :match="match"
+      :order-by="orderBy"
+      :index="index"
+      :query-type-iri="queryTypeIri"
+    />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 
