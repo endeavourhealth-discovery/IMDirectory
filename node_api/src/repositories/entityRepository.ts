@@ -1,4 +1,4 @@
-import { GraphdbService, iri } from "@/services/graphdb.service";
+import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { ContextMap } from "@im-library/interfaces";
 import { v4 } from "uuid";
@@ -13,44 +13,44 @@ export default class EntityRepository {
   public async getConceptContextMaps(conceptIri: string): Promise<ContextMap[]> {
     const rs = await this.graph.execute(
       "select ?nodeName ?sourceVal ?sourceRegex ?propertyName ?publisherName ?systemName ?schema ?table ?field\n" +
-      "where { \n" +
-      "    ?map ?imConcept ?concept .\n" +
-      "    ?node ?imHasMap ?map ;\n" +
-      "          ?imTargetProperty ?property ;\n" +
-      "          ?rdfsLabel ?nodeName .\n" +
-      "    ?property ?rdfsLabel ?propertyName .\n" +
-      "    ?context ?imContextNode ?node ;\n" +
-      "        ?imSourcePublisher ?publisher .\n" +
-      "    ?publisher rdfs:label ?publisherName .\n" +
-      "    OPTIONAL { ?context ?imSourceSystem ?system . ?system ?rdfsLabel ?systemName }\n" +
-      "    OPTIONAL { ?context ?imSourceSchema ?schema }\n" +
-      "    OPTIONAL { ?context ?imSourceTable ?table }\n" +
-      "    OPTIONAL { ?context ?imSourceField ?field }\n" +
-      "    ?map ?imSourceValue ?sourceVal .\n" +
-      "    OPTIONAL { ?map ?imSourceRegex ?sourceRegex }\n" +
-      "}\n" +
-      "ORDER BY ?nodeName ?sourceVal ?publisherName",
+        "where { \n" +
+        "    ?map ?imConcept ?concept .\n" +
+        "    ?node ?imHasMap ?map ;\n" +
+        "          ?imTargetProperty ?property ;\n" +
+        "          ?rdfsLabel ?nodeName .\n" +
+        "    ?property ?rdfsLabel ?propertyName .\n" +
+        "    ?context ?imContextNode ?node ;\n" +
+        "        ?imSourcePublisher ?publisher .\n" +
+        "    ?publisher rdfs:label ?publisherName .\n" +
+        "    OPTIONAL { ?context ?imSourceSystem ?system . ?system ?rdfsLabel ?systemName }\n" +
+        "    OPTIONAL { ?context ?imSourceSchema ?schema }\n" +
+        "    OPTIONAL { ?context ?imSourceTable ?table }\n" +
+        "    OPTIONAL { ?context ?imSourceField ?field }\n" +
+        "    ?map ?imSourceValue ?sourceVal .\n" +
+        "    OPTIONAL { ?map ?imSourceRegex ?sourceRegex }\n" +
+        "}\n" +
+        "ORDER BY ?nodeName ?sourceVal ?publisherName",
       {
-        concept: iri(conceptIri),
-        imConcept: iri(IM.CONCEPT),
-        imHasMap: iri(IM.HAS_MAP),
-        rdfsLabel: iri(RDFS.LABEL),
-        imContextNode: iri(IM.CONTEXT_NODE),
-        imTargetProperty: iri(IM.TARGET_PROPERTY),
-        imSourcePublisher: iri(IM.SOURCE_PUBLISHER),
-        imSourceSystem: iri(IM.SOURCE_SYSTEM),
-        imSourceSchema: iri(IM.SOURCE_SCHEMA),
-        imSourceTable: iri(IM.SOURCE_TABLE),
-        imSourceField: iri(IM.SOURCE_FIELD),
-        imSourceValue: iri(IM.SOURCE_VALUE),
-        imSourceRegex: iri(IM.SOURCE_REGEX)
+        concept: sanitise(conceptIri),
+        imConcept: sanitise(IM.CONCEPT),
+        imHasMap: sanitise(IM.HAS_MAP),
+        rdfsLabel: sanitise(RDFS.LABEL),
+        imContextNode: sanitise(IM.CONTEXT_NODE),
+        imTargetProperty: sanitise(IM.TARGET_PROPERTY),
+        imSourcePublisher: sanitise(IM.SOURCE_PUBLISHER),
+        imSourceSystem: sanitise(IM.SOURCE_SYSTEM),
+        imSourceSchema: sanitise(IM.SOURCE_SCHEMA),
+        imSourceTable: sanitise(IM.SOURCE_TABLE),
+        imSourceField: sanitise(IM.SOURCE_FIELD),
+        imSourceValue: sanitise(IM.SOURCE_VALUE),
+        imSourceRegex: sanitise(IM.SOURCE_REGEX)
       }
     );
 
     const result: ContextMap[] = [];
-    let map: ContextMap = { } as ContextMap;
+    let map: ContextMap = {} as ContextMap;
 
-    for(const r of rs) {
+    for (const r of rs) {
       if (r.nodeName?.value !== map?.node || r.sourceVal?.value !== map?.value || r.sourceRegex?.value !== map?.regex) {
         map = {
           id: v4(),

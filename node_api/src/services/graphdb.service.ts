@@ -23,6 +23,10 @@ export class GraphdbService {
     return new GraphdbService(Env.GRAPH_REPO_USER);
   }
 
+  public static workflowRepo() {
+    return new GraphdbService(Env.GRAPH_REPO_WORKFLOW);
+  }
+
   private constructor(repoName: string) {
     this.repoName = repoName;
   }
@@ -94,12 +98,15 @@ export class GraphdbService {
   }
 }
 
-export function iri(url: string) {
+function iri(url: string) {
   return "<" + url + ">";
 }
 
 export function sanitise(data: any) {
-  if (typeof data === "string") return "'" + data + "'";
+  if (typeof data === "string") {
+    if (data.startsWith("http") || data.startsWith("https")) return iri(data);
+    else return "'" + data + "'";
+  }
   if (typeof data === "object") return "'" + JSON.stringify(data).replaceAll('"', "`").replaceAll("'", '"') + "'";
   if (typeof data === "number") return "'" + data + "'";
 }
