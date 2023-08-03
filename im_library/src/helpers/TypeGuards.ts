@@ -1,4 +1,4 @@
-import { TTBundle } from "../interfaces";
+import { BugReport, TTBundle, Workflow } from "../interfaces";
 import { PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
@@ -24,6 +24,38 @@ export function isAliasIriRef(data: any): data is { iri: string; name?: string }
 
 export function isBoolGroup(data: any): data is { conjunction: string; items: any[]; type: string; ecl?: string } {
   if (data && (data as { conjunction: string; items: any[]; type: string; ecl?: string }).type === "BoolGroup") return true;
+  else return false;
+}
+
+export function isWorkflow(data: any): data is Workflow {
+  if (
+    data &&
+    (data as Workflow).id &&
+    (data as Workflow).createdBy &&
+    (data as Workflow).assignedTo &&
+    (data as Workflow).dateCreated &&
+    (data as Workflow).state &&
+    (data as Workflow).state
+  )
+    return true;
+  else return false;
+}
+
+export function isBugReport(data: any): data is BugReport {
+  if (
+    data &&
+    isWorkflow(data) &&
+    (data as BugReport).OS &&
+    (data as BugReport).actualResult &&
+    (data as BugReport).error &&
+    (data as BugReport).expectedResult &&
+    (data as BugReport).module &&
+    (data as BugReport).product &&
+    (data as BugReport).reproduceSteps &&
+    (data as BugReport).severity &&
+    (data as BugReport).version
+  )
+    return true;
   else return false;
 }
 
