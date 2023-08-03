@@ -77,7 +77,7 @@
             :class="!firstNameVerified && firstName && !focused.get('firstName') && 'p-invalid'"
           />
           <InlineMessage v-if="!firstNameVerified && firstName" severity="error">
-            First name contains unexpected characters. A-Z and hyphens only allowed e.g."Mary-Anne"
+            First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne".
           </InlineMessage>
         </div>
         <div class="field">
@@ -93,7 +93,7 @@
             :class="!lastNameVerified && lastName && !focused.get('lastName') && 'p-invalid'"
           />
           <InlineMessage v-if="!lastNameVerified && lastName" severity="error">
-            Last name contains unexpected characters. A-Z, apostropies and hyphens only allowed e.g."O'Keith-Smith"
+            Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O'Keith-Smith".
           </InlineMessage>
         </div>
         <div class="field">
@@ -164,7 +164,14 @@ import AvatarWithSelector from "./AvatarWithSelector.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { computed, Ref, ref, watch } from "vue";
 import Swal, { SweetAlertResult } from "sweetalert2";
-import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyIsUsername, checkPasswordStrength } from "@im-library/helpers/UserMethods";
+import {
+  verifyEmailsMatch,
+  verifyIsEmail,
+  verifyIsFirstName,
+  verifyIsLastName,
+  verifyIsUsername,
+  checkPasswordStrength
+} from "@im-library/helpers/UserMethods";
 import { PasswordStrength } from "@im-library/enums";
 import { Avatars } from "@im-library/constants";
 import { useRouter } from "vue-router";
@@ -193,8 +200,8 @@ const privacyPolicyAccepted = ref(false);
 const usernameVerified = computed(() => verifyIsUsername(username.value));
 const email1Verified = computed(() => verifyIsEmail(email1.value));
 const emailsMatch = computed(() => verifyEmailsMatch(email1.value, email2.value));
-const firstNameVerified = computed(() => verifyIsName(firstName.value));
-const lastNameVerified = computed(() => verifyIsName(lastName.value));
+const firstNameVerified = computed(() => verifyIsFirstName(firstName.value));
+const lastNameVerified = computed(() => verifyIsLastName(lastName.value));
 const passwordStrength = computed(() => checkPasswordStrength(password1.value));
 const passwordsMatch = computed(() => verifyEmailsMatch(password1.value, password2.value));
 const allVerified = computed(
@@ -228,7 +235,8 @@ async function handleSubmit(): Promise<void> {
       email: email1.value.toLowerCase(),
       password: password1.value,
       avatar: selectedAvatar.value,
-      roles: []
+      roles: [],
+      mfaStatus: []
     } as User;
     AuthService.register(user)
       .then(res => {

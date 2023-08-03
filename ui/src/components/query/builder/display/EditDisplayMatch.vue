@@ -12,7 +12,15 @@
     :id="htmlId"
   >
     <div v-if="editMode">
-      <EntitySelect :edit-node="match" :query-type-iri="queryTypeIri" @on-cancel="editMode = false" @on-save="saveSelect" />
+      <EntitySelect
+        :edit-node="match"
+        :query-type-iri="queryTypeIri"
+        :exclude-entailment="true"
+        :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+        :validation-query-request="validationQueryRequest"
+        @on-cancel="editMode = false"
+        @on-save="saveSelect"
+      />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
@@ -39,7 +47,7 @@
       :variable-map="variableMap"
       :validation-query-request="validationQueryRequest"
     />
-    <span v-if="isArrayHasLength(match.orderBy)" v-for="orderBy of match.orderBy"> <div v-html="orderBy.description"></div></span>
+    <EditDisplayOrderBy v-if="isArrayHasLength(match.orderBy)" v-for="(orderBy, index) of match.orderBy" :match="match" :order-by="orderBy" :index="index" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 
@@ -58,14 +66,19 @@
     :match="match"
     @add-variable="(previousValue: string, newValue: string) => addVariable(previousValue, newValue)"
   />
-  <DirectorySearchDialog v-model:show-dialog="showDirectoryDialog" @update:selected="onSelect" :searchByQuery="validationQueryRequest" />
+  <DirectorySearchDialog
+    v-model:show-dialog="showDirectoryDialog"
+    @update:selected="onSelect"
+    :searchByQuery="validationQueryRequest"
+    :root-entities="['http://endhealth.info/im#Sets', 'http://endhealth.info/im#Q_Queries']"
+  />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
-import { ComputedRef, Ref, computed, onMounted, ref } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
 import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
@@ -77,6 +90,9 @@ import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethod
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
+import { IM } from "@im-library/vocabulary";
+import { useUserStore } from "@/stores/userStore";
 
 interface Props {
   queryTypeIri: string;
@@ -90,6 +106,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const userStore = useUserStore();
 
 const {
   addOrEdit,
@@ -124,14 +141,21 @@ const hasValue: ComputedRef<boolean> = computed(() => {
 const hasProperty: ComputedRef<boolean> = computed(() => {
   return isObjectHasKeys(props.match, ["property"]);
 });
-const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 
 const htmlId = ref("");
 const rClickMenu = ref();
 const rClickOptions: Ref<any[]> = ref([]);
 
+watch(
+  () => userStore.currentTheme,
+  () => {
+    getStyle();
+  }
+);
+
 onMounted(() => {
   htmlId.value = String(Math.random());
+  getStyle();
 });
 
 function getClass() {
@@ -152,6 +176,10 @@ function saveSelect(selectedCS: ConceptSummary) {
 function toggleBoolMatch() {
   if (props.match.bool === "and") props.match.bool = "or";
   else if (props.match.bool === "or") props.match.bool = "and";
+}
+
+function toggleExclude() {
+  props.match.exclude = !props.match.exclude;
 }
 
 function onRightClick(event: any) {
@@ -184,7 +212,7 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add",
+      label: "Add property",
       icon: PrimeIcons.PLUS,
       items: [
         {
@@ -204,14 +232,21 @@ function getSingleRCOptions() {
       ]
     },
     {
-      label: "Add query",
-      icon: PrimeIcons.FILTER,
+      label: "Add cohort",
+      icon: PrimeIcons.WRENCH,
       command: () => {
         showDirectoryDialog.value = true;
       }
     },
     {
-      label: "Toggle bool",
+      label: props.match.exclude ? "Include" : "Exclude",
+      icon: props.match.exclude ? PrimeIcons.PLUS_CIRCLE : PrimeIcons.MINUS_CIRCLE,
+      command: () => {
+        toggleExclude();
+      }
+    },
+    {
+      label: "Toggle bool logic",
       icon: PrimeIcons.ARROW_V,
       command: () => {
         toggleBoolMatch();
@@ -222,6 +257,13 @@ function getSingleRCOptions() {
       icon: PrimeIcons.SAVE,
       command: () => {
         keepAs();
+      }
+    },
+    {
+      label: "Add order by",
+      icon: PrimeIcons.SORT_ALT,
+      command: () => {
+        addOrderBy();
       }
     },
     {
@@ -303,12 +345,30 @@ function onSelect(cs: ConceptSummary) {
   addOrEdit(props.match, props.parentMatchList, props.index, [newMatch], []);
   showDirectoryDialog.value = false;
 }
+
+function addOrderBy() {
+  if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
+  props.match.orderBy?.push({ direction: "descending", limit: 1, "@id": "" } as OrderLimit);
+}
+
+function getStyle() {
+  let highlightColor = window.getComputedStyle(document.documentElement).getPropertyValue("--highlight-bg");
+  const opacity = "33";
+  if (highlightColor.length < 8 && highlightColor.charAt(0) === "#") {
+    highlightColor = highlightColor + opacity;
+  }
+  document.documentElement.style.setProperty("--highlight-bg-computed", highlightColor);
+}
 </script>
 
 <style scoped>
+#htmlId {
+  --highlight-bg-computed: var(--highlight-bg);
+}
 .feature {
-  margin: 0.5rem;
+  margin: 0.25rem;
   margin-left: 1rem !important;
+  padding: 0.1rem;
   cursor: pointer;
 }
 
@@ -321,12 +381,14 @@ function onSelect(cs: ConceptSummary) {
 }
 
 .feature:hover {
-  background-color: var(--highlight-bg);
+  background-color: var(--highlight-bg-computed);
+  border-color: var(--focus-ring);
+  border-radius: var(--border-radius);
 }
 
 .selected {
   border: 1px dotted;
-  background-color: var(--highlight-bg);
+  background-color: var(--highlight-bg-computed);
   color: var(--text-color);
   border-color: var(--focus-ring);
   border-radius: var(--border-radius);

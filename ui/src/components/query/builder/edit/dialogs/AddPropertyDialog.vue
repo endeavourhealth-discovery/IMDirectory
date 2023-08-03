@@ -1,5 +1,11 @@
 <template>
-  <Dialog v-model:visible="visible" modal maximizable :header="'Add properties'" :style="{ width: '60vw' }">
+  <Dialog
+    v-model:visible="visible"
+    modal
+    maximizable
+    :header="addMode === 'editProperty' ? 'Edit property list' : 'Add new properties'"
+    :style="{ minWidth: '50vw' }"
+  >
     <QueryNavTree
       :base-type="baseType"
       :editMatch="editMatch"

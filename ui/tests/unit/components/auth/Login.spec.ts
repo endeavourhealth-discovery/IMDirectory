@@ -60,7 +60,8 @@ describe("login.vue with registeredUser", () => {
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/001-man.png",
-      roles: []
+      roles: [],
+      mfaStatus: []
     };
 
     AuthService.signIn = vi.fn().mockResolvedValue({ status: 200, message: "Login successful", user: testUser });

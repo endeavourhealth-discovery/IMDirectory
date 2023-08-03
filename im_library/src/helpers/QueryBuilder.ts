@@ -52,7 +52,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
 
 export function buildMatchFromCS(cs: ConceptSummary) {
   const node = { name: cs.name } as Node;
-  if (isValueSet(cs.entityType)) node["@set"] = cs.iri;
+  if (isValueSet(cs.entityType) || isQuery(cs.entityType)) node["@set"] = cs.iri;
   if (isRecordModel(cs.entityType)) node["@type"] = cs.iri;
   else node["@id"] = cs.iri;
 
@@ -90,6 +90,7 @@ export function buildParentMatchStructure(path: string, match: Match) {
 }
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
+  if (treeNode.property) return treeNode.property;
   const property = { "@id": treeNode.data } as Property;
   // string - is ""
   // boolean - is true

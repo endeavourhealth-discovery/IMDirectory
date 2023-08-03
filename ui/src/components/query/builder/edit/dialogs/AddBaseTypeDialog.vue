@@ -1,6 +1,7 @@
 <template>
-  <Dialog v-model:visible="visible" v-model:selected="selected" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
+  <Dialog v-model:visible="visible" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
     <DirectorySearchDialog
+      v-model:selected="selected"
       v-model:show-dialog="visible"
       @update:selected="setBaseType"
       :root-entities="rootEntities"
@@ -18,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 
 import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -40,6 +41,7 @@ const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => 
 const visible: Ref<boolean> = ref(false);
 const confirmVisible: Ref<boolean> = ref(false);
 const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const returnType: Ref<string> = ref("");
 const rootEntities: Ref<string[]> = ref(["http://endhealth.info/im#DataModel", "http://endhealth.info/im#Q_Queries"]);
 const cohortOrDataModelQueryRequest: Ref<QueryRequest> = ref({
   query: {
@@ -73,15 +75,17 @@ watch(visible, newValue => {
   }
 });
 
+onMounted(() => {
+  if (isObjectHasKeys(props.query, ["@type"])) selected.value = { iri: props.query["@type"] } as ConceptSummary;
+});
+
 async function save() {
-  if (isObjectHasKeys(selected.value)) {
-    if (isQuery(selected.value.entityType)) {
-      props.query["@type"] = await getReturnType(selected.value.iri);
-      props.query.match = [buildMatchFromCS(selected.value)];
-    } else {
-      props.query["@type"] = selected.value.iri;
-    }
+  props.query["@type"] = returnType.value;
+  if (isQuery(selected.value.entityType)) {
+    if (!isArrayHasLength(props.query.match)) props.query.match = [];
+    props.query.match!.splice(0, 0, buildMatchFromCS(selected.value));
   }
+
   visible.value = false;
 }
 
@@ -91,20 +95,23 @@ function confirm() {
   save();
 }
 
-function setBaseType(cs: ConceptSummary) {
+async function setBaseType(cs: ConceptSummary) {
   selected.value = cs;
-
-  if (isArrayHasLength(props.query.match)) {
+  returnType.value = await getReturnType(selected.value);
+  if (isArrayHasLength(props.query.match) && returnType.value !== props.query["@type"]) {
     confirmVisible.value = true;
   } else {
     save();
   }
 }
 
-async function getReturnType(queryIri: string) {
-  const entity = await EntityService.getPartialEntity(queryIri, [IM.NAMESPACE + "returnType"]);
-  if (!isArrayHasLength(entity[IM.NAMESPACE + "returnType"])) return "";
-  return entity[IM.NAMESPACE + "returnType"][0]["@id"];
+async function getReturnType(cs: ConceptSummary): Promise<string> {
+  if (!isQuery(cs.entityType)) return cs.iri;
+  else {
+    const entity = await EntityService.getPartialEntity(cs.iri, [IM.RETURN_TYPE]);
+    if (!isArrayHasLength(entity[IM.RETURN_TYPE])) return "";
+    return entity[IM.RETURN_TYPE][0]["@id"];
+  }
 }
 </script>
 
