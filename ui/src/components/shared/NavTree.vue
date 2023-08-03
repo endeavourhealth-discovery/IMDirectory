@@ -144,9 +144,9 @@ async function addParentFoldersToRoot() {
   const IMChildren = await EntityService.getEntityChildren(IM.NAMESPACE + "InformationModel");
   for (let IMchild of IMChildren) {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
-    if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null));
+    if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
   }
-  root.value.sort(byKey);
+  root.value.sort((r1,r2) => r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0);
   const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--yellow-500)";
