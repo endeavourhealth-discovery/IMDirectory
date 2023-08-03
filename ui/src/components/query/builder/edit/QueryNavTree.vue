@@ -194,7 +194,7 @@ async function onClassExpand(node: TreeNode) {
 async function addParentFoldersToRoot() {
   const resolvedIri = resolveIri(props.baseType);
   if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
-  if (props.variableMap && props.variableMap.size) addVariableNodes();
+  if (props.addMode !== "editProperty" && props.variableMap && props.variableMap.size) addVariableNodes();
 }
 
 function addVariableNodes() {
