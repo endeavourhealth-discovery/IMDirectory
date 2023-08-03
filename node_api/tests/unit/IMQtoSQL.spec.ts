@@ -6,44 +6,41 @@ import EntityService from "@/services/entity.service";
 import axios from "axios";
 import { IM } from "@im-library/vocabulary";
 test("IMQtoSQL", async () => {
-/*    server.close();
+  /*    server.close();
 
     const svc = new EntityService(axios);
     const entity = await svc.getPartialEntity('http://endhealth.info/im#Q_TestQuery', [IM.DEFINITION]);
     let json = entity.data[IM.DEFINITION];
     const def: Query = JSON.parse(json);*/
 
-
-
   const def: Query = {
     "@id": "http://endhealth.info/im#Q_TestQuery",
-    "name": "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
-    "match": [
+    name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
+    match: [
       {
-
         "@set": "http://endhealth.info/im#Q_RegisteredGMS",
-        "name": "Registered for GMS services on reference date"
+        name: "Registered for GMS services on reference date"
       },
       {
-        "match": [
+        match: [
           {
-            "property": [
+            property: [
               {
                 "@id": "http://endhealth.info/im#age",
-                "range": {
-                  "from": {
-                    "operator": ">=",
-                    "value": "65",
-                    "unit": "YEARS",
-                    "relativeTo": null,
-                    "dataType": null
+                range: {
+                  from: {
+                    operator: ">=",
+                    value: "65",
+                    unit: "YEARS",
+                    relativeTo: null,
+                    dataType: null
                   },
-                  "to": {
-                    "operator": "<",
-                    "value": "70",
-                    "unit": "YEARS",
-                    "relativeTo": null,
-                    "dataType": null
+                  to: {
+                    operator: "<",
+                    value: "70",
+                    unit: "YEARS",
+                    relativeTo: null,
+                    dataType: null
                   }
                 }
               }
@@ -53,21 +50,21 @@ test("IMQtoSQL", async () => {
             "@set": "http://example/queries#Q_Diabetics"
           },
           {
-            "property": [
+            property: [
               {
                 "@id": "http://endhealth.info/im#observation",
-                "match": {
+                match: {
                   "@type": "Observation",
-                  "property": [
+                  property: [
                     {
                       "@id": "http://endhealth.info/im#concept",
-                      "in": [
+                      in: [
                         {
                           "@id": "http://snomed.info/sct#714628002",
-                          "descendantsOf": true
+                          descendantsOf: true
                         }
                       ],
-                      "valueLabel": "Prediabetes"
+                      valueLabel: "Prediabetes"
                     }
                   ]
                 }
@@ -75,120 +72,120 @@ test("IMQtoSQL", async () => {
             ]
           }
         ],
-        "bool": "or"
+        bool: "or"
       },
       {
-        "property": [
+        property: [
           {
             "@id": "http://endhealth.info/im#observation",
-            "match": {
+            match: {
               "@type": "Observation",
-              "variable": "latestBP",
-              "bool": "and",
-              "property": [
+              variable: "latestBP",
+              bool: "and",
+              property: [
                 {
                   "@id": "http://endhealth.info/im#concept",
-                  "name": "concept",
-                  "in": [
+                  name: "concept",
+                  in: [
                     {
                       // "@id": "http://snomed.info/sct#271649006",
                       "@id": "http://snomed.info/sct#72313002",
-                      "name": "Systolic blood pressure",
-                      "descendantsOrSelfOf": true
+                      name: "Systolic blood pressure",
+                      descendantsOrSelfOf: true
                     },
                     {
                       "@id": "http://endhealth.info/emis#1994021000006104",
-                      "name": "Home systolic blood pressure",
-                      "descendantsOrSelfOf": true
+                      name: "Home systolic blood pressure",
+                      descendantsOrSelfOf: true
                     }
                   ],
-                  "valueLabel": "Office or home systolic blood pressure"
+                  valueLabel: "Office or home systolic blood pressure"
                 },
                 {
                   "@id": "http://endhealth.info/im#effectiveDate",
-                  "operator": ">=",
-                  "value": "-6",
-                  "unit": "MONTHS",
-                  "relativeTo": {
-                    "parameter": "$referenceDate"
+                  operator: ">=",
+                  value: "-6",
+                  unit: "MONTHS",
+                  relativeTo: {
+                    parameter: "$referenceDate"
                   },
-                  "valueLabel": "last 6 months"
+                  valueLabel: "last 6 months"
                 }
               ],
-              "orderBy": [
+              orderBy: [
                 {
-                  "direction": "descending",
-                  "limit": 1,
+                  direction: "descending",
+                  limit: 1,
                   "@id": "http://endhealth.info/im#effectiveDate"
                 }
               ]
             }
           }
-        ],
+        ]
       },
       {
-        "nodeRef": "latestBP",
-        "match": [
+        variable: "highBPReading",
+        nodeRef: "latestBP",
+        match: [
           {
-            "bool": "and",
-            "property": [
+            bool: "and",
+            property: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                "in": [
+                in: [
                   {
                     // "@id": "http://snomed.info/sct#271649006",
                     "@id": "http://snomed.info/sct#72313002",
-                    "name": "Systolic blood pressure",
-                    "descendantsOrSelfOf": true
+                    name: "Systolic blood pressure",
+                    descendantsOrSelfOf: true
                   }
                 ],
-                "valueLabel": "Office blood pressure"
+                valueLabel: "Office blood pressure"
               },
               {
                 "@id": "http://endhealth.info/im#numericValue",
-                "operator": ">",
-                "value": "140"
+                operator: ">",
+                value: "140"
               }
             ]
           },
           {
-            "nodeRef": "latestBP",
-            "bool": "and",
-            "property": [
+            nodeRef: "latestBP",
+            bool: "and",
+            property: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                "in": [
+                in: [
                   {
                     "@id": "http://endhealth.info/emis#1994021000006104",
-                    "name": "Home systolic blood pressure",
-                    "descendantsOrSelfOf": true
+                    name: "Home systolic blood pressure",
+                    descendantsOrSelfOf: true
                   }
                 ],
-                "valueLabel": "Home blood pressure"
+                valueLabel: "Home blood pressure"
               },
               {
                 "@id": "http://endhealth.info/im#numericValue",
-                "operator": ">",
-                "value": "130"
+                operator: ">",
+                value: "130"
               }
             ]
           }
         ],
-        "variable": "highBPReading",
-        "bool": "or"
+        bool: "or"
       },
       {
-        "exclude": true,
-        "property": [
+        exclude: true,
+        property: [
           {
             "@id": "http://endhealth.info/im#observation",
-            "match": {
+            match: {
               "@type": "Observation",
-              "bool": "and",
-              "property": [
+              bool: "and",
+              property: [
                 {
                   "@id": "http://endhealth.info/im#concept",
-                  "in": [
+                  in: [
                     {
                       "@set": "http://endhealth.info/im#InvitedForScreening"
                     }
@@ -196,10 +193,10 @@ test("IMQtoSQL", async () => {
                 },
                 {
                   "@id": "http://endhealth.info/im#effectiveDate",
-                  "operator": ">=",
-                  "relativeTo": {
+                  operator: ">=",
+                  relativeTo: {
                     "@id": "http://endhealth.info/im#effectiveDate",
-                    "nodeRef": "highBPReading"
+                    nodeRef: "highBPReading"
                   }
                 }
               ]
@@ -208,25 +205,24 @@ test("IMQtoSQL", async () => {
         ]
       },
       {
-        "exclude": true,
+        exclude: true,
         "@set": "http://endhealth.info/im#Q_Hypertensives",
-        "name": "Hypertensives"
+        name: "Hypertensives"
       }
     ],
     "@type": "http://endhealth.info/im#Patient"
   } as Query;
 
+  console.log(JSON.stringify(def, null, 2));
 
-  console.log(JSON.stringify(def, null, 2))
-
-  console.log("=================================================================================================")
+  console.log("=================================================================================================");
 
   const qry = new IMQtoSQL();
   const sql = qry.convert(def);
-  expect(sql).not.toBeNull()
-  expect(sql).not.toBeUndefined()
+  expect(sql).not.toBeNull();
+  expect(sql).not.toBeUndefined();
   console.log(sql?.replaceAll("$referenceDate", "now()"));
-/*  expect(sql).toEqual("WITH pat1 AS ( SELECT pat1.* FROM patient AS pat1) -- WHERE in query results http://endhealth.info/im#Q_RegisteredGMS,\n" +
+  /*  expect(sql).toEqual("WITH pat1 AS ( SELECT pat1.* FROM patient AS pat1) -- WHERE in query results http://endhealth.info/im#Q_RegisteredGMS,\n" +
     "pat3 AS ( SELECT pat3.* FROM patient AS pat3 WHERE http://endhealth.info/im#age >= 65 YEARS\n" +
     "AND http://endhealth.info/im#age > 70 YEARS),\n" +
     "pat4 AS ( SELECT pat4.* FROM patient AS pat4) -- WHERE in query results http://example/queries#Q_Diabetics,\n" +
