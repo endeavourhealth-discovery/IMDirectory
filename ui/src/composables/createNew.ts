@@ -18,10 +18,8 @@ function createNew() {
       }
     ];
     let allowableTypes = [] as AllowableChildProperty[];
-    for (const conceptType of node.conceptTypes) {
-      const types = await QueryService.getAllowableChildTypes(conceptType["@id"]);
-      if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
-    }
+    const types = await QueryService.getAllowableChildTypes(node.key as string);
+    if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
 
     if (!isArrayHasLength(allowableTypes)) {
       selectionWrapperCopy[0].items.push({
