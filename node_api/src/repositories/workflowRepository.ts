@@ -12,7 +12,7 @@ export default class WorkflowRepository {
 
   public async getBugReport(url: string): Promise<BugReport> {
     const qry =
-      "SELECT ?s ?wfType ?wfCreatedBy ?wfAssignedTo ?wfRelatedProduct ?wfRelatedModule ?wfVersion ?wfOS wfSeverity ?wfStatus ?wfError ?wfReproduceSteps ?wfExpectedResult ?wfDateCreated ?wfState " +
+      "SELECT ?s ?wfType ?wfCreatedBy ?wfAssignedTo ?wfRelatedProduct ?wfRelatedModule ?wfVersion ?wfOS ?wfBrowser wfSeverity ?wfStatus ?wfError ?description ?wfReproduceSteps ?wfExpectedResult ?wfDateCreated ?wfState " +
       "WHERE { " +
       "GRAPH ?c { " +
       "?s ?type ?wfType;" +
@@ -24,9 +24,11 @@ export default class WorkflowRepository {
       "OPTIONAL {?s ?relatedModule ?wfRelatedModule;}" +
       "OPTIONAL {?s ?version ?wfVersion;}" +
       "OPTIONAL {?s ?os ?wfOS;}" +
+      "OPTIONAL {?s ?browser ?wfBrowser" +
       "OPTIONAL {?s ?severity ?wfSeverity;}" +
       "OPTIONAL {?s ?status ?wfStatus;}" +
       "OPTIONAL {?s ?error ?wfError;}" +
+      "OPTIONAL {?s ?description ?wfDescription" +
       "OPTIONAL {?s ?reproduceSteps wfReproduceSteps;}" +
       "OPTIONAL {?s ?expectedResult ?wfExpectedResult;}" +
       "OPTIONAL {?actualResult ?wfActualResult;}" +
@@ -44,10 +46,12 @@ export default class WorkflowRepository {
       relatedProduct: sanitise(WORKFLOW.RELATED_PRODUCT),
       relatedModule: sanitise(WORKFLOW.RELATED_MODULE),
       version: sanitise(WORKFLOW.RELATED_VERSION),
-      operatingSystem: sanitise(WORKFLOW.OPERATING_SYSTEM),
+      os: sanitise(WORKFLOW.OPERATING_SYSTEM),
+      browser: sanitise(WORKFLOW.BROWSER),
       severity: sanitise(WORKFLOW.SEVERITY),
       status: sanitise(IM.HAS_STATUS),
       error: sanitise(WORKFLOW.ERROR),
+      description: sanitise(RDFS.COMMENT),
       reproduceSteps: sanitise(WORKFLOW.REPRODUCE_STEPS),
       expectedResult: sanitise(WORKFLOW.EXPECTED_RESULT),
       actualResult: sanitise(WORKFLOW.ACTUAL_RESULT),
@@ -67,10 +71,14 @@ export default class WorkflowRepository {
       if (isObjectHasKeys(r, ["wfRelatedProduct"])) bugReport.product = r.wfRelatedProduct.value;
       if (isObjectHasKeys(r, ["wfVersion"])) bugReport.version = r.wfVersion.value;
       if (isObjectHasKeys(r, ["wfOS"])) bugReport.OS = r.wfOS.value;
+      if (isObjectHasKeys(r, ["wfBrowser"])) bugReport.browser = r.wfBrowser.value;
       if (isObjectHasKeys(r, ["wfSeverity"])) bugReport.severity = r.wfSeverity.value;
       if (isObjectHasKeys(r, ["wfStatus"])) bugReport.status = r.wfStatus.value;
       if (isObjectHasKeys(r, ["wfError"])) bugReport.error = r.wfError.value;
+      if (isObjectHasKeys(r, ["wfDescription"])) bugReport.description = r.wfDescription.value;
       if (isObjectHasKeys(r, ["wfReproduceSteps"])) bugReport.reproduceSteps = desanitise(r.wfReproduceSteps.value);
+      if (isObjectHasKeys(r, ["wfExpectedResult"])) bugReport.expectedResult = r.wfExpectedResult.value;
+      if (isObjectHasKeys(r, ["wfActualResult"])) bugReport.actualResult = r.wfActualResult.value;
     }
     return bugReport;
   }
@@ -106,6 +114,8 @@ export default class WorkflowRepository {
         return WORKFLOW.RELATED_MODULE;
       case "OS":
         return WORKFLOW.OPERATING_SYSTEM;
+      case "browser":
+        return WORKFLOW.BROWSER;
       case "severity":
         return WORKFLOW.SEVERITY;
       case "status":

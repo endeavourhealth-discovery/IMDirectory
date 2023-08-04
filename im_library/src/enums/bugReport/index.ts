@@ -1,6 +1,7 @@
 import { Module } from "./Module";
 import { Severity } from "./Severity";
 import { Status } from "./Status";
-import { System } from "./System";
+import { OperatingSystem } from "./OperatingSystem";
+import { Browser } from "./Browser";
 
-export { Module, Severity, Status, System };
+export { Module, Severity, Status, OperatingSystem, Browser };

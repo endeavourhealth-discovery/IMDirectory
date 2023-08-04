@@ -13,6 +13,7 @@ export class WORKFLOW {
   public static RELATED_PRODUCT = this.NAMESPACE + "relatedProduct";
   public static RELATED_MODULE = this.NAMESPACE + "relatedModule";
   public static OPERATING_SYSTEM = this.NAMESPACE + "operatingSystem";
+  public static BROWSER = this.NAMESPACE + "browser";
   public static SEVERITY = this.NAMESPACE + "severity";
   public static ERROR = this.NAMESPACE + "errorDetails";
   public static REPRODUCE_STEPS = this.NAMESPACE + "reproduceSteps";
