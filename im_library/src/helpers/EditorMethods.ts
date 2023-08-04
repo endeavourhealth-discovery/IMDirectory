@@ -1,6 +1,7 @@
 import { ComponentType } from "../enums";
 import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 import { IM } from "../vocabulary";
+import { enumToArray } from "./Converters";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 import { isTTIriRef } from "./TypeGuards";
@@ -60,7 +61,7 @@ function extractComponentFromIri(type: TTIriRef) {
 export function processComponentType(type: TTIriRef | undefined): any {
   if (!type) throw new Error("Invalid component type: undefined");
   const typeName = extractComponentFromIri(type);
-  const componentList = Object.values(ComponentType).filter(item => isNaN(Number(item)));
+  const componentList = enumToArray(ComponentType);
   const found = componentList.find(c => c.toLowerCase() === typeName.toLowerCase());
   if (found) return found;
   else throw new Error("Invalid component type encountered while processing component types: " + type["@id"]);
