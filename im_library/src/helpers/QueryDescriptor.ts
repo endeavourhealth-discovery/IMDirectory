@@ -83,7 +83,8 @@ export function getDisplayFromProperty(property: Property) {
 
 export function describeOrderByList(orderByList: OrderLimit[]) {
   for (const orderBy of orderByList) {
-    orderBy.description = getDisplayFromOrderBy(orderBy);
+    const generatedDesc = getDisplayFromOrderBy(orderBy);
+    if (generatedDesc) orderBy.description = generatedDesc;
   }
 }
 
@@ -92,11 +93,26 @@ export function getDisplayFromOrderBy(orderBy: OrderLimit) {
   if (orderBy.variable) display += orderBy.variable + ".";
   const propertyName = getNameFromRef(orderBy);
   if (propertyDisplayMap[propertyName]) display += propertyName + " " + propertyDisplayMap[propertyName] + " ";
-  if (orderBy.limit === 1) {
-    if ("descending" === orderBy.direction) display = "get latest" + display;
-    if ("ascending" === orderBy.direction) display = "get earliest" + display;
-  } else if (orderBy.direction) display = orderBy.direction + " " + display;
-  return "<div class='variable-line'>" + display + "</div>";
+  else display += propertyName;
+  if (propertyName.toLocaleLowerCase().includes("date")) {
+    if ("descending" === orderBy.direction) {
+      if (orderBy.limit === 1) display = "get latest by " + display;
+      else display = "get latest " + orderBy.limit + " by " + display;
+    } else if ("ascending" === orderBy.direction) {
+      if (orderBy.limit === 1) display = "get earliest by " + display;
+      else display = "get earliest " + orderBy.limit + " by " + display;
+    }
+  } else if (propertyName) {
+    if ("descending" === orderBy.direction) {
+      if (orderBy.limit === 1) display = "get highest by " + display;
+      else display = "get highest " + orderBy.limit + " by " + display;
+    } else if ("ascending" === orderBy.direction) {
+      if (orderBy.limit === 1) display = "get lowest by " + display;
+      else display = "get lowest " + orderBy.limit + " by " + display;
+    }
+  }
+
+  return display ? "<div class='variable-line'>" + display + "</div>" : "";
 }
 
 export function getDisplayFromLogic(title: string) {
