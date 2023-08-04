@@ -54,6 +54,7 @@
       :order-by="orderBy"
       :index="index"
       :query-type-iri="queryTypeIri"
+      :on-add-order-by="onAddOrderBy"
     />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
@@ -83,7 +84,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
@@ -152,6 +153,7 @@ const hasProperty: ComputedRef<boolean> = computed(() => {
 const htmlId = ref("");
 const rClickMenu = ref();
 const rClickOptions: Ref<any[]> = ref([]);
+const onAddOrderBy: Ref<boolean> = ref(false);
 
 watch(
   () => userStore.currentTheme,
@@ -219,7 +221,7 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add property",
+      label: "Add property feature",
       icon: PrimeIcons.PLUS,
       items: [
         {
@@ -253,28 +255,28 @@ function getSingleRCOptions() {
       }
     },
     {
-      label: "Toggle bool logic",
+      label: "Change bool logic",
       icon: PrimeIcons.ARROW_V,
       command: () => {
         toggleBoolMatch();
       }
     },
     {
-      label: "Keep as",
+      label: "Keep as a variable",
       icon: PrimeIcons.SAVE,
       command: () => {
         keepAs();
       }
     },
     {
-      label: "Add order by",
+      label: "earliest/latest highest/lowest",
       icon: PrimeIcons.SORT_ALT,
       command: () => {
         addOrderBy();
       }
     },
     {
-      label: "Move",
+      label: "Move feature",
       icon: PrimeIcons.SORT,
       items: [
         {
@@ -292,14 +294,14 @@ function getSingleRCOptions() {
       ]
     },
     {
-      label: "View",
+      label: "View JSON",
       icon: PrimeIcons.EYE,
       command: () => {
         view();
       }
     },
     {
-      label: "Delete",
+      label: "Delete feature",
       icon: PrimeIcons.TRASH,
       command: () => {
         remove(props.index, props.parentMatch?.match ?? props.parentMatchList!);
@@ -355,7 +357,8 @@ function onSelect(cs: ConceptSummary) {
 
 function addOrderBy() {
   if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
-  props.match.orderBy?.push({ direction: "descending", limit: 1, "@id": "" } as OrderLimit);
+  props.match.orderBy?.push({} as OrderLimit);
+  onAddOrderBy.value = true;
 }
 
 function getStyle() {
