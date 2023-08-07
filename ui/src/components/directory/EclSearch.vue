@@ -60,7 +60,7 @@ import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { isObject } from "@im-library/helpers/DataTypeCheckers";
+import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
 import { useToast } from "primevue/usetoast";
@@ -133,8 +133,10 @@ async function search(): Promise<void> {
     const eclQuery = await EclService.getQueryFromECL(queryString.value);
     const eclSearchRequest = { eclQuery: eclQuery, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
     const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
-    searchResults.value = result;
-    totalCount.value = result.length;
+    if (isObjectHasKeys(result, ["entities"])) {
+      searchResults.value = result.entities;
+      totalCount.value = result.count;
+    }
     loading.value = false;
   }
 }

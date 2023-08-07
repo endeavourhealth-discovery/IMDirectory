@@ -6,11 +6,11 @@ import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Query } from "@im-library/interfaces/AutoGen";
 
 const EclService = {
-  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<ConceptSummary[]> {
+  async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<{ count: number; entities: ConceptSummary[]; page: number }> {
     const results = (await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclSearch", eclSearchRequest, {
       signal: controller.signal
-    })) as any[];
-    results.forEach((result: any) => entityToAliasEntity(result));
+    })) as { count: number; entities: any[]; page: number };
+    results.entities.forEach((result: any) => entityToAliasEntity(result));
     return results;
   },
 
