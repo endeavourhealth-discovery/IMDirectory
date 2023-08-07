@@ -17,7 +17,13 @@
               <small class="p-error">{{ productErrorMessage || "&nbsp;" }}</small>
             </div>
             <div class="field">
-              <label for="module">What module of the app were you in when the issue occurred?</label>
+              <label for="module"
+                >What module of the app were you in when the issue occurred?
+                <IMFontAwesomeIcon
+                  icon="fa-solid fa-circle-question"
+                  class="help-icon"
+                  v-tooltip.right="'Module is shown in the browser url after the \'#\' e.g. \'https://im.endeavourhealth.net/#/auth/\''"
+              /></label>
               <Dropdown v-model="selectedModule" :options="moduleOptions" :class="{ 'p-invalid': moduleErrorMessage }" />
               <small class="p-error">{{ moduleErrorMessage || "&nbsp;" }}</small>
             </div>
@@ -167,5 +173,9 @@ function onSubmit(values: any) {
 }
 .title {
   font-size: 2rem;
+}
+
+.help-icon {
+  cursor: pointer;
 }
 </style>

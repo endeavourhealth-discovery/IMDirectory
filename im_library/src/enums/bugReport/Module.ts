@@ -1,6 +1,6 @@
 export enum Module {
   DIRECTORY = "directory",
-  VIEWER = "viewer",
+  QUERY = "query",
   CREATOR = "creator",
   EDITOR = "editor",
   UPRN = "uprn",
