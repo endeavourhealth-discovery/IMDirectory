@@ -4,7 +4,7 @@
     modal
     maximizable
     header="Search"
-    :style="{ minWidth: '90vw', maxWidth: '90vw', minHeight: '90vh', maxHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
+    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     class="search-dialog"
   >
     <div class="directory-search-dialog-content">
@@ -20,7 +20,7 @@
       </div>
       <div class="vertical-divider">
         <div class="left-container">
-          <NavTree :selectedIri="treeIri" @row-selected="showDetails" />
+          <NavTree :selectedIri="treeIri" :root-entities="rootEntities" @row-selected="showDetails" />
         </div>
         <div class="right-container">
           <SearchResults
@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, Ref, computed } from "vue";
+import { ref, onMounted, watch, Ref, computed, onUnmounted } from "vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
@@ -59,7 +59,7 @@ import DirectoryDetails from "@/components/directory/DirectoryDetails.vue";
 import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import _ from "lodash";
+import _, { cloneDeep } from "lodash";
 import { EntityService } from "@/services";
 import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
@@ -67,6 +67,7 @@ interface Props {
   showDialog: boolean;
   searchByQuery?: QueryRequest;
   selected?: ConceptSummary;
+  rootEntities?: string[];
 }
 const props = defineProps<Props>();
 watch(
@@ -103,13 +104,22 @@ watch(searchResults, newValue => {
   activePage.value = 0;
 });
 
+watch(
+  () => cloneDeep(props.selected),
+  () => initSelection()
+);
+
 onMounted(() => {
   visible.value = props.showDialog;
+  initSelection();
+});
+
+function initSelection() {
   if (props.selected && props.selected.iri) {
     navigateTo(props.selected.iri);
     locateInTree(props.selected.iri);
   }
-});
+}
 
 function updateSelected(data: ConceptSummary) {
   emit("update:selected", data);

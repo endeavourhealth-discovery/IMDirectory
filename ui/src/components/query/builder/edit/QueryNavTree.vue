@@ -19,8 +19,8 @@
 </template>
 
 <script async setup lang="ts">
-import { onMounted, onUnmounted, ref, Ref, watch } from "vue";
-import { EntityService, QueryService } from "@/services";
+import { onMounted, onUnmounted, ref } from "vue";
+import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
@@ -70,14 +70,15 @@ async function onCheckInput(check: boolean, node: TreeNode) {
 async function populateCheckBoxes(match: Match) {
   if (isArrayHasLength(match.property)) {
     for (const property of match.property!) {
-      selectByIri(property["@id"]!, root.value);
+      selectByIri(property, property["@id"]!, root.value);
     }
   }
 }
 
-async function selectByIri(iri: string, nodes: TreeNode[]) {
+async function selectByIri(property: Property, iri: string, nodes: TreeNode[]) {
   let found = nodes.find(node => node.data === iri);
   if (found) {
+    found.property = property;
     select(found);
   } else {
     found = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
@@ -85,13 +86,14 @@ async function selectByIri(iri: string, nodes: TreeNode[]) {
       expandedKeys.value[found.key!] = true;
       if (isArrayHasLength(found.children)) {
         await handleTreeNodeExpand(found);
-        if (isArrayHasLength(found.children)) selectByIri(iri, found.children!);
+        if (isArrayHasLength(found.children)) selectByIri(property, iri, found.children!);
       }
     }
   }
 }
 
 function onUnselect(node: any) {
+  if (node.property) delete node.property;
   unselect(node);
 }
 
@@ -124,8 +126,16 @@ async function onPropertyExpand(node: TreeNode) {
 async function onNodeExpand(node: TreeNode) {
   const iri = node.data;
   const entity = await EntityService.getPartialEntity(iri, [SHACL.PROPERTY]);
-  const properties: TTProperty[] = entity[SHACL.PROPERTY];
+  let properties: TTProperty[] = entity[SHACL.PROPERTY];
 
+  // filter out inherited-duplicated properties
+  if (isArrayHasLength(node.inheritedProps)) {
+    properties = properties.filter(
+      prop => !(node.inheritedProps as TreeNode[]).some(inherited => inherited.data === prop["http://www.w3.org/ns/shacl#path"][0]["@id"])
+    );
+  }
+
+  // add properties
   for (const prop of properties) {
     if (isObjectHasKeys(prop, ["http://www.w3.org/ns/shacl#group"])) {
       const groupRef = prop["http://www.w3.org/ns/shacl#group"]![0];
@@ -140,6 +150,14 @@ async function onNodeExpand(node: TreeNode) {
       const propertyNode = buildTreeNodeFromTTProperty(prop, node);
       node.children!.push(propertyNode);
     }
+  }
+
+  // add subTypes
+  const subTypes = await EntityService.getEntityChildren(iri);
+  for (const subType of subTypes) {
+    const subTypeNode = createTreeNode(subType.name, subType["@id"], subType.type, true, false, node);
+    subTypeNode.inheritedProps = [...node.children!];
+    node.children!.push(subTypeNode);
   }
 }
 

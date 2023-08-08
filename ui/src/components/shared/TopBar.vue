@@ -1,7 +1,7 @@
 <template>
   <div id="topbar">
     <div id="topbar-start">
-      <img class="im-logo" src="../../assets/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
+      <img class="im-logo" src="../../../public/logos/Logo-object-empty.png" alt="IM logo" v-on:click="toLandingPage" />
     </div>
     <div id="topbar-content">
       <slot name="content" />
@@ -162,10 +162,7 @@ function setUserMenuItems(): void {
     {
       label: "Login",
       icon: "fa-solid fa-fw fa-user",
-      url: Env.DIRECTORY_URL + "user/" + "login",
-      command: () => {
-        authStore.updatePreviousAppUrl();
-      }
+      url: Env.DIRECTORY_URL + "user/" + "login"
     },
     {
       label: "Register",
@@ -192,10 +189,7 @@ function setUserMenuItems(): void {
     {
       label: "Logout",
       icon: "fa-solid fa-fw fa-arrow-right-from-bracket",
-      url: Env.DIRECTORY_URL + "user/" + "logout",
-      command: () => {
-        authStore.updatePreviousAppUrl();
-      }
+      url: Env.DIRECTORY_URL + "user/" + "logout"
     }
   ];
 }

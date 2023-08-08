@@ -1,12 +1,14 @@
 <template>
-  <div class="flex flex-row align-items-center">
+  <div class="flex flex-row">
+    <div class="menu-container"><TieredMenu :model="menuItems" /></div>
     <Card class="flex flex-column justify-content-sm-around align-items-center user-details-card">
       <template #header>
+        <h1>My account</h1>
         <img data-testid="user-details-avatar" id="selected-avatar" :src="getUrl(currentUser.avatar)" alt="avatar icon" />
       </template>
-      <template #title> My account details </template>
+      <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
-        <div v-if="isLoggedIn" class="p-fluid flex flex-column justify-content-start user-details-form">
+        <div v-if="activeItem === 0" class="p-fluid flex flex-column justify-content-start user-details-form">
           <div class="field">
             <label for="username">Username</label>
             <InputText data-testid="user-details-username" id="username" type="text" :value="currentUser.username" disabled />
@@ -27,21 +29,52 @@
             <Button data-testid="user-details-submit" class="user-edit" type="submit" label="Edit" @click="handleEditClicked" />
           </div>
         </div>
+        <SecuritySettings v-if="activeItem === 1" />
+        <AuthRoles v-if="activeItem === 2" />
       </template>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/userStore";
+import AuthRoles from "@/components/auth/userDetails/AuthRoles.vue";
+import SecuritySettings from "@/components/auth/userDetails/SecuritySettings.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
+const activeItem = ref(0);
+const menuItems = ref([
+  {
+    label: "Personal details",
+    icon: "fa-solid fa-user",
+    class: "details-tab",
+    command: () => {
+      activeItem.value = 0;
+    }
+  },
+  {
+    label: "Security",
+    icon: "fa-solid fa-user-lock",
+    class: "security-tab",
+    command: () => {
+      activeItem.value = 1;
+    }
+  },
+  {
+    label: "Authorisation roles",
+    icon: "fa-solid fa-shield-halved",
+    class: "roles-tab",
+    command: () => {
+      activeItem.value = 2;
+    }
+  }
+]);
 
 function handleEditClicked(): void {
   router.push({ name: "UserEdit" });

@@ -14,6 +14,7 @@
     :query-type-iri="queryTypeIri"
     :selected-matches="selectedMatches"
     :variable-map="variableMap"
+    :validation-query-request="validationQueryRequest"
   />
 
   <EditDisplayMatch
@@ -24,12 +25,13 @@
     :query-type-iri="queryTypeIri"
     :selected-matches="selectedMatches"
     :variable-map="variableMap"
+    :validation-query-request="validationQueryRequest"
   />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Property } from "@im-library/interfaces/AutoGen";
+import { Match, Property, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { Ref, onMounted, ref, watch } from "vue";
 import EditProperty from "../edit/EditProperty.vue";
 import _, { cloneDeep } from "lodash";
@@ -44,6 +46,7 @@ interface Props {
   queryTypeIri: string;
   selectedMatches: SelectedMatch[];
   variableMap: Map<string, any>;
+  validationQueryRequest: QueryRequest;
 }
 
 const props = defineProps<Props>();

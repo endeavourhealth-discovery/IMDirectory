@@ -88,6 +88,7 @@ import Image from "primevue/image";
 import InputNumber from "primevue/inputnumber";
 import Calendar from "primevue/calendar";
 import Inplace from "primevue/inplace";
+import TieredMenu from "primevue/tieredmenu";
 import TabMenu from "primevue/tabmenu";
 
 import { Amplify, Auth } from "aws-amplify";
@@ -179,6 +180,7 @@ const app = createApp(App)
   .component("Calendar", Calendar)
   .component("InputNumber", InputNumber)
   .component("Inplace", Inplace)
+  .component("TieredMenu", TieredMenu)
   .component("TabMenu", TabMenu);
 
 const sharedStore = useSharedStore();

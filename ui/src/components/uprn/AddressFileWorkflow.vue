@@ -20,7 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
 import { useToast } from "primevue/usetoast";
 
 import FileUpload from "primevue/fileupload";

@@ -9,6 +9,7 @@ function setupQueryBuilderActions() {
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
   const showAddBaseTypeDialog: Ref<boolean> = ref(false);
+  const showDirectoryDialog: Ref<boolean> = ref(false);
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
@@ -89,7 +90,7 @@ function setupQueryBuilderActions() {
   function group(selectedMatches: SelectedMatch[], parentMatch: Match[] | undefined, matches: Match[]) {
     let index = selectedMatches[0].index;
     let initialParent = selectedMatches[0].parent;
-    const groupedMatch = { boolMatch: "and", match: [] } as Match;
+    const groupedMatch = { bool: "and", match: [] } as Match;
 
     for (const selectedMatch of selectedMatches) {
       if (selectedMatch.parent !== initialParent) {
@@ -127,7 +128,7 @@ function setupQueryBuilderActions() {
       if (isArrayHasLength(selectedMatch.selected.match)) {
         if (index !== -1) matches.splice(index, 1);
         for (const nestedMatch of selectedMatch.selected.match!.reverse()) {
-          const unnestedMatch = { boolMatch: "and", match: [nestedMatch] } as Match;
+          const unnestedMatch = { bool: "and", match: [nestedMatch] } as Match;
           matches.splice(index, 0, unnestedMatch);
         }
       }
@@ -141,7 +142,9 @@ function setupQueryBuilderActions() {
     event.dataTransfer.dropEffect = "move";
   }
 
-  function dragEnter(event: any, data: any) {
+  function dragEnter(event: any, data: any, htmlId: string) {
+    const element = document.getElementById(htmlId);
+    if (element) element.classList.add("over");
     if (dragged.value !== data) {
       draggedParent.value = data;
       allowDrop.value = true;
@@ -150,12 +153,21 @@ function setupQueryBuilderActions() {
     }
   }
 
-  async function dragDrop(event: any, parentMatch?: Match, parentMatchList?: Match[]) {
+  function dragLeave(htmlId: string) {
+    const element = document.getElementById(htmlId);
+    if (element) element.classList.remove("over");
+  }
+
+  async function dragDrop(event: any, parentMatch: Match, parentMatchList: Match[], htmlId: string) {
+    dragLeave(htmlId);
     const data = event.dataTransfer.getData("matchData");
     if (!allowDrop.value) {
       event.preventDefault();
     } else if (data && draggedParent.value && allowDrop.value) {
-      if (draggedParent.value.match === undefined) draggedParent.value.match = [];
+      if (draggedParent.value.match === undefined) {
+        draggedParent.value.bool = "and";
+        draggedParent.value.match = [];
+      }
       const parsedMatchData = JSON.parse(data);
       draggedParent.value.match.push(parsedMatchData);
       const list = parentMatch?.match ?? parentMatchList!;
@@ -199,12 +211,14 @@ function setupQueryBuilderActions() {
     group,
     ungroup,
     dragStart,
+    dragLeave,
     dragEnter,
     dragDrop,
     select,
     showViewDialog,
     showAddDialog,
     showKeepAsDialog,
+    showDirectoryDialog,
     showAddBaseTypeDialog,
     addMode
   };

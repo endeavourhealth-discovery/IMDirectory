@@ -53,6 +53,16 @@
     </DataTable>
   </div>
   <Dialog :visible="showOptions" :modal="true" :closable="false" :close-on-escape="false" header="Please select download options">
+    <div class="flex-container content-container" v-if="showSchemes">
+      <div class="p-field">
+        <div class="p-inputgroup">
+          <span class="p-float-label">
+            <MultiSelect id="scheme" v-model="selectedSchemes" :options="schemesOptions" optionLabel="name" display="chip" />
+            <label for="scheme">Select scheme</label>
+          </span>
+        </div>
+      </div>
+    </div>
     <div class="flex-container content-container" >
       <div class="item-container">
         <span class="text">Format</span>
@@ -77,10 +87,10 @@
         </div>
       </div>
       <div class="item-container">
-        <div class="toggle-container">
+        <div class="toggle-container" :hidden="!coreSelected">
           <span class="text">Show Subset</span>
           <div class="card flex justify-content-left" style="margin:10px 0 0 0">
-            <ToggleButton v-model="checked" class="w-6rem h-2rem" />
+            <ToggleButton v-model="checked" class="w-9rem h-2rem" />
           </div>
         </div>
         <div class="toggle-container" :hidden="!showLegacy">
@@ -89,22 +99,29 @@
             <ToggleButton v-model="checkedLegacy" onLabel="Own Row" offLabel="Inline Column" class="w-9rem h-2rem" />
           </div>
         </div>
+        <div class="toggle-container" :hidden="!showLegacy">
+          <span class="text" >Filter schemes</span>
+          <div class="card flex justify-content-left" style="margin:10px 0 0 0">
+            <ToggleButton v-model="filterSchemes" class="w-9rem h-2rem" />
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex-container content-container">
-      <div class="card flex justify-content-center">
-        <Button v-if="selectedFormat === 'IMv1'" label="Submit" @click="downloadIMV1"/>
-        <Button v-else label="Submit" @click="download"/>
+      <div class="card flex justify-content-center" style="gap: 1rem">
+        <Button v-if="selectedFormat === 'IMv1'" label="Download" @click="downloadIMV1" :disabled="!isOptionsSelected"/>
+        <Button v-else label="Download" @click="download" :disabled="!isOptionsSelected"/>
+        <Button label="Cancel" severity="danger" @click="closeDialog"/>
       </div>
     </div>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, Ref, watch } from "vue";
+import {computed, ComputedRef, onMounted, ref, Ref, watch} from "vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { EntityService, SetService } from "@/services";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
@@ -112,6 +129,8 @@ import { ToastSeverity } from "@im-library/enums";
 import setupDownloadFile from "@/composables/downloadFile";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useUserStore } from "@/stores/userStore";
+import { useFilterStore } from "@/stores/filterStore";
+import { FilterOptions } from "@im-library/interfaces";
 
 interface Props {
   entityIri: string;
@@ -126,11 +145,17 @@ const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 const hasDefintion: Ref<boolean> = ref(false);
 
+const filterStore = useFilterStore();
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const schemesOptions = filterOptions.value.schemes.filter((c: any) => c["@id"] !== IM.NAMESPACE || c["@id"] !== SNOMED.NAMESPACE);
+
 const loading = ref(false);
 const downloading = ref(false);
 const members: Ref<TTIriRef[]> = ref([]);
 const isPublishing = ref(false);
 const showOptions = ref(false);
+const isOptionsSelected= ref(false);
+const selectedSchemes: Ref<TTIriRef[]> = ref([]);
 
 const formats = ref([
   {key: "csv", name: "csv", disable: false},
@@ -150,8 +175,11 @@ const contents = ref([
 
 const selectedContents = ref();
 const checkedLegacy = ref(false);
-const checked = ref(false);
+const filterSchemes = ref(false);
+const checked = ref(true);
 const showLegacy = ref(false);
+const showSchemes = ref(false);
+const coreSelected = ref(false);
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
@@ -171,28 +199,10 @@ watch(
     () => {
       if(contents.value.length !== 0 && selectedFormat.value !== "IMv1") {
         contents.value[1].disable = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
-
-        if(selectedContents.value.includes("Core")) {
-          if(selectedFormat.value !== "xlsx") {
-            contents.value[0].disable = true;
-          }
-          contents.value[2].disable = false;
-          contents.value[3].disable = false;
-        } else {
-          contents.value[0].disable = false;
-          contents.value[2].disable = true;
-          contents.value[3].disable = true;
-          const indexLegacy = selectedContents.value.indexOf("Legacy");
-          if(indexLegacy !== -1) {
-            selectedContents.value.splice(indexLegacy, 1);
-          }
-          const indexIM1Id = selectedContents.value.indexOf("IM1Id");
-          if(indexIM1Id !== -1) {
-            selectedContents.value.splice(indexIM1Id, 1);
-          }
-        }
-        showLegacy.value = !!selectedContents.value.includes("Legacy");
+        isCoreSelected();
+        isLegacySelected();
       }
+      isOptionsSelected.value = selectedContents.value.length !== 0 && selectedFormat.value != null || selectedFormat.value === "IMv1";
     }
 )
 
@@ -200,6 +210,9 @@ watch(
     () => selectedFormat.value,
     () => {
       selectedContents.value = [];
+      checked.value = true;
+      checkedLegacy.value = false;
+      filterSchemes.value = false;
       if(selectedFormat.value) {
         if(selectedFormat.value === "IMv1") {
           contents.value.forEach((f:any) => f.disable = true);
@@ -211,6 +224,17 @@ watch(
       }
     }
 )
+
+watch(
+    () => filterSchemes.value,
+    () => {
+      if(filterSchemes.value) {
+        showSchemes.value = true;
+      } else {
+        showSchemes.value = false;
+        selectedSchemes.value = [];
+      }
+    })
 
 onMounted(async () => {
   await init();
@@ -224,15 +248,6 @@ async function init() {
 async function setHasDefinition() {
   const entity = await EntityService.getPartialEntity(props.entityIri, [IM.DEFINITION]);
   hasDefintion.value = isObjectHasKeys(entity, [IM.DEFINITION]);
-}
-
-function displayDialog() {
-  showOptions.value = true;
-}
-
-function toggle(event: any) {
-  const x = menu.value as any;
-  x.toggle(event);
 }
 
 async function getMembers(): Promise<void> {
@@ -268,7 +283,11 @@ async function download(): Promise<void> {
   downloading.value = true;
   try {
     toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const result = (await EntityService.getFullExportSet(props.entityIri, definition, core, legacy, checked.value, checkedLegacy.value, im1id, selectedFormat.value)).data;
+    const schemes = [] as string[];
+    if(selectedSchemes.value.length !== 0) {
+      selectedSchemes.value.forEach(s => schemes.push(s["@id"]));
+    }
+    const result = (await EntityService.getFullExportSet(props.entityIri, definition, core, legacy, checked.value, checkedLegacy.value, im1id, selectedFormat.value,schemes)).data;
     const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
     downloadFile(result, getFileName(label));
   } catch (error) {
@@ -312,9 +331,71 @@ async function getPage(event: any) {
   members.value = pagedNewMembers.result;
   loading.value = false;
 }
+
+function displayDialog() {
+  showOptions.value = true;
+}
+
+function closeDialog() {
+  showOptions.value = false;
+}
+
+function toggle(event: any) {
+  const x = menu.value as any;
+  x.toggle(event);
+}
+
+function isCoreSelected() {
+  if(selectedContents.value.includes("Core")) {
+    if(selectedFormat.value !== "xlsx") {
+      contents.value[0].disable = true;
+    }
+    contents.value[2].disable = false;
+    contents.value[3].disable = false;
+    coreSelected.value = true;
+  } else {
+    contents.value[0].disable = false;
+    contents.value[2].disable = true;
+    contents.value[3].disable = true;
+    checked.value = true;
+    checkedLegacy.value = false;
+    filterSchemes.value = false;
+    showSchemes.value = false;
+    selectedSchemes.value = [];
+    coreSelected.value = false;
+    const indexLegacy = selectedContents.value.indexOf("Legacy");
+    if(indexLegacy !== -1) {
+      selectedContents.value.splice(indexLegacy, 1);
+    }
+    const indexIM1Id = selectedContents.value.indexOf("IM1Id");
+    if(indexIM1Id !== -1) {
+      selectedContents.value.splice(indexIM1Id, 1);
+    }
+  }
+}
+
+function isLegacySelected() {
+  if(selectedContents.value.includes("Legacy")) {
+    showLegacy.value = true;
+    if(filterSchemes.value) {
+      showSchemes.value = true;
+    }
+  } else {
+    showLegacy.value = false;
+    showSchemes.value = false;
+    selectedSchemes.value = [];
+    checkedLegacy.value = false;
+    filterSchemes.value = false;
+  }
+}
+
 </script>
 
 <style scoped>
+.p-field {
+  width: 400px;
+}
+
 .item-container {
   width: 100%;
   height: 100%;

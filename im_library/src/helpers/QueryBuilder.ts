@@ -1,7 +1,7 @@
 import { IM, SHACL } from "../vocabulary";
-import { TreeNode } from "../interfaces";
-import { Match, Property } from "../interfaces/AutoGen";
-import { isFolder, isProperty, isQuery, isRecordModel } from "./ConceptTypeMethods";
+import { ConceptSummary, TreeNode } from "../interfaces";
+import { Match, Node, Property } from "../interfaces/AutoGen";
+import { isFolder, isProperty, isQuery, isRecordModel, isValueSet } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 import { cloneDeep } from "lodash";
@@ -50,6 +50,15 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
   return { direct: directMatches, nested: nestedMatches };
 }
 
+export function buildMatchFromCS(cs: ConceptSummary) {
+  const node = { name: cs.name } as Node;
+  if (isValueSet(cs.entityType) || isQuery(cs.entityType)) node["@set"] = cs.iri;
+  if (isRecordModel(cs.entityType)) node["@type"] = cs.iri;
+  else node["@id"] = cs.iri;
+
+  return node;
+}
+
 function getHasVariable(treeNode: TreeNode) {
   const hasVariable: string[] = [];
   getHasVariableRecursively(treeNode, hasVariable);
@@ -81,6 +90,7 @@ export function buildParentMatchStructure(path: string, match: Match) {
 }
 
 function buildPropertyFromTreeNode(treeNode: TreeNode) {
+  if (treeNode.property) return treeNode.property;
   const property = { "@id": treeNode.data } as Property;
   // string - is ""
   // boolean - is true

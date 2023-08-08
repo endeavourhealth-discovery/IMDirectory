@@ -20,8 +20,6 @@ import { useAuthStore } from "@/stores/authStore";
 const authStore = useAuthStore();
 const router = useRouter();
 
-const previousAppUrl = computed(() => authStore.previousAppUrl);
-
 function clickedBack(): void {
   router.back();
 }

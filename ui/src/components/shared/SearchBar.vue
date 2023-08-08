@@ -85,7 +85,7 @@ function openFiltersOverlay(event: any) {
 
 async function search(): Promise<void> {
   searchPlaceholder.value = "Search";
-  if (searchText.value) {
+  if (searchText.value && searchText.value.length > 2) {
     loading.value = true;
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;

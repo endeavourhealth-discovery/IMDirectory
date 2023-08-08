@@ -1,10 +1,12 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="'Add base type'" :style="{ width: '60vw' }">
-    <BaseEntityTree class="query-nav-tree" @add-base-entity="addBaseEntity" />
-    <template #footer>
-      <Button label="Discard" severity="secondary" @click="visible = false" text />
-      <Button label="Save" @click="setBaseType" text />
-    </template>
+    <DirectorySearchDialog
+      v-model:selected="selected"
+      v-model:show-dialog="visible"
+      @update:selected="setBaseType"
+      :root-entities="rootEntities"
+      :searchByQuery="cohortOrDataModelQueryRequest"
+    />
   </Dialog>
 
   <Dialog v-model:visible="confirmVisible" modal header="Confirm" :style="{ width: '50vw' }">
@@ -17,12 +19,16 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
 
-import { Query } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { TreeNode } from "primevue/tree";
-import BaseEntityTree from "../BaseEntityTree.vue";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { ConceptSummary } from "@im-library/interfaces";
+import { EntityService } from "@/services";
+import { IM } from "@im-library/vocabulary";
+import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
+import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   query: Query;
@@ -31,8 +37,30 @@ interface Props {
 
 const props = defineProps<Props>();
 const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
+
 const visible: Ref<boolean> = ref(false);
 const confirmVisible: Ref<boolean> = ref(false);
+const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const returnType: Ref<string> = ref("");
+const rootEntities: Ref<string[]> = ref(["http://endhealth.info/im#DataModel", "http://endhealth.info/im#Q_Queries"]);
+const cohortOrDataModelQueryRequest: Ref<QueryRequest> = ref({
+  query: {
+    name: "Get queries and data models",
+    match: [
+      {
+        bool: "or",
+        match: [
+          {
+            "@type": "http://endhealth.info/im#CohortQuery"
+          },
+          {
+            "@type": "http://www.w3.org/ns/shacl#NodeShape"
+          }
+        ]
+      }
+    ]
+  }
+} as QueryRequest);
 
 watch(
   () => props.showDialog,
@@ -47,17 +75,18 @@ watch(visible, newValue => {
   }
 });
 
-const baseNode: Ref<TreeNode> = ref({} as TreeNode);
+onMounted(() => {
+  if (isObjectHasKeys(props.query, ["@type"])) selected.value = { iri: props.query["@type"] } as ConceptSummary;
+});
 
 async function save() {
-  if (isObjectHasKeys(baseNode.value)) {
-    props.query["@type"] = baseNode.value.data;
+  props.query["@type"] = returnType.value;
+  if (isQuery(selected.value.entityType)) {
+    if (!isArrayHasLength(props.query.match)) props.query.match = [];
+    props.query.match!.splice(0, 0, buildMatchFromCS(selected.value));
   }
-  visible.value = false;
-}
 
-function addBaseEntity(selected: TreeNode) {
-  baseNode.value = selected;
+  visible.value = false;
 }
 
 function confirm() {
@@ -66,11 +95,22 @@ function confirm() {
   save();
 }
 
-function setBaseType() {
-  if (isArrayHasLength(props.query.match)) {
+async function setBaseType(cs: ConceptSummary) {
+  selected.value = cs;
+  returnType.value = await getReturnType(selected.value);
+  if (isArrayHasLength(props.query.match) && returnType.value !== props.query["@type"]) {
     confirmVisible.value = true;
   } else {
     save();
+  }
+}
+
+async function getReturnType(cs: ConceptSummary): Promise<string> {
+  if (!isQuery(cs.entityType)) return cs.iri;
+  else {
+    const entity = await EntityService.getPartialEntity(cs.iri, [IM.NAMESPACE + "returnType"]);
+    if (!isArrayHasLength(entity[IM.NAMESPACE + "returnType"])) return "";
+    return entity[IM.NAMESPACE + "returnType"][0]["@id"];
   }
 }
 </script>
