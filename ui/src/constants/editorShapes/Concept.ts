@@ -202,7 +202,7 @@ const ConceptShape: FormGenerator = {
                   },
                   select: [
                     {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
+                      "@id": IM.query.SEARCH_FOLDERS
                     }
                   ],
                   path: {
