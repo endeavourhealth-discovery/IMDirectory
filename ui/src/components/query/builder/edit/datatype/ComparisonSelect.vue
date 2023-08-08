@@ -8,8 +8,8 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref } from "vue";
-import { Assignable, Property } from "@im-library/interfaces/AutoGen";
+import { ref } from "vue";
+import { Property } from "@im-library/interfaces/AutoGen";
 const operatorOptions = ["=", ">=", ">", "<="];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 
