@@ -8,59 +8,103 @@
       </template>
     </TopBar>
     <div id="bug-report-content">
+      <h2>Submit a bug report</h2>
       <Card class="bug-report-card">
         <template #content>
           <div class="bug-report-form">
             <div class="field">
               <label for="product">Select app where the issue occurred</label>
-              <Dropdown v-model="selectedProduct" :options="productOptions" :class="{ 'p-invalid': productErrorMessage }" disabled />
-              <small class="p-error">{{ productErrorMessage || "&nbsp;" }}</small>
+              <Dropdown
+                v-model="selectedProduct"
+                :options="productOptions"
+                :class="{ 'p-invalid': productErrorMessage }"
+                disabled
+                @blur="showErrorMessages.product = true"
+              />
+              <small v-if="showErrorMessages.product && productErrorMessage" class="p-error">{{ productErrorMessage }}</small>
             </div>
             <div class="field">
-              <label for="module"
-                >What module of the app were you in when the issue occurred?
-                <IMFontAwesomeIcon
-                  icon="fa-solid fa-circle-question"
-                  class="help-icon"
-                  v-tooltip.right="'Module is shown in the browser url after the \'#\' e.g. \'https://im.endeavourhealth.net/#/auth/\''"
-              /></label>
-              <Dropdown v-model="selectedModule" :options="moduleOptions" :class="{ 'p-invalid': moduleErrorMessage }" />
-              <small class="p-error">{{ moduleErrorMessage || "&nbsp;" }}</small>
+              <label for="module">What module of the app were you in when the issue occurred? </label>
+              <Dropdown
+                v-model="selectedModule"
+                :options="moduleOptions"
+                :class="{ 'p-invalid': moduleErrorMessage }"
+                @blur="showErrorMessages.module = true"
+              />
+              <small>Module can be identified in the browser url after the '#' e.g. http://im.endeavourhealth.net/#/<strong>auth</strong></small>
+              <small v-if="showErrorMessages.module && moduleErrorMessage" class="p-error">{{ moduleErrorMessage }}</small>
             </div>
             <div class="field">
               <label for="os">What operating system were you using?</label>
-              <Dropdown v-model="selectedOS" :options="osOptions" :class="{ 'p-invalid': osErrorMessage }" />
-              <small class="p-error">{{ osErrorMessage || "&nbsp;" }}</small>
-              <InputText v-if="selectedOS === 'Other'" v-model="osOther" />
+              <Dropdown
+                v-model="selectedOS"
+                :options="osOptions"
+                :class="osErrorMessage && selectedOS !== 'Other' && 'p-invalid'"
+                @blur="showErrorMessages.os = true"
+              />
+
+              <div v-if="selectedOS === 'Other'" class="other-container">
+                <label for="osOther">Input operating system name</label>
+                <InputText id="osOther" v-model="osOther" :class="osErrorMessage && 'p-invalid'" />
+              </div>
+              <small v-if="showErrorMessages.os && osErrorMessage" class="p-error" :class="selectedOS === 'Other' && 'error-indented'">{{
+                osErrorMessage
+              }}</small>
             </div>
 
             <div class="field">
               <label for="browser">What browser were you using?</label>
-              <Dropdown v-model="selectedBrowser" :options="browserOptions" :class="{ 'p-invalid': browserErrorMessage }" />
-              <small class="p-error">{{ browserErrorMessage || "&nbsp;" }}</small>
+              <Dropdown
+                v-model="selectedBrowser"
+                :options="browserOptions"
+                :class="browserErrorMessage && selectedBrowser !== 'Other' && 'p-invalid'"
+                @blur="showErrorMessages.browser = true"
+              />
+              <div v-if="selectedBrowser === 'Other'" class="other-container">
+                <label for="browserOther">Input browser name</label>
+                <InputText id="browserOther" v-model="browserOther" :class="browserErrorMessage && 'p-invalid'" />
+              </div>
+              <small v-if="showErrorMessages.browser && browserErrorMessage" class="p-error" :class="selectedBrowser === 'Other' && 'error-indented'">{{
+                browserErrorMessage
+              }}</small>
             </div>
             <div class="field">
               <label for="description">Description</label>
-              <Textarea v-model="description" :class="{ 'p-invalid': descriptionErrorMessage }" class="text-area" />
-              <small class="p-error">{{ descriptionErrorMessage || "&nbsp;" }}</small>
+              <Textarea
+                v-model="description"
+                :class="{ 'p-invalid': descriptionErrorMessage }"
+                class="text-area"
+                @blur="showErrorMessages.description = true"
+              />
+              <small v-if="showErrorMessages.description && descriptionErrorMessage" class="p-error">{{ descriptionErrorMessage }}</small>
             </div>
             <div class="field">
               <label for="stepsToReproduce">Steps to reproduce</label>
-              <Textarea v-model="stepsToReproduce" :class="{ 'p-invalid': stepsToReproduceErrorMessage }" class="text-area" />
+              <Textarea
+                v-model="stepsToReproduce"
+                :class="{ 'p-invalid': stepsToReproduceErrorMessage }"
+                class="text-area"
+                @blur="showErrorMessages.steps = true"
+              />
               <small>Please detail the necessary steps to encounter the error so it can be effectively reproduced.</small>
-              <small class="p-error">{{ stepsToReproduceErrorMessage || "&nbsp;" }}</small>
+              <small v-if="showErrorMessages.steps && stepsToReproduceErrorMessage" class="p-error">{{ stepsToReproduceErrorMessage }}</small>
             </div>
             <div class="field">
               <label for="expectedResult">Expected result</label>
-              <Textarea v-model="expectedResult" :class="{ 'p-invalid': expectedResultErrorMessage }" class="text-area" />
+              <Textarea
+                v-model="expectedResult"
+                :class="{ 'p-invalid': expectedResultErrorMessage }"
+                class="text-area"
+                @blur="showErrorMessages.expected = true"
+              />
               <small>What should have happened if you hadn't encountered a bug?</small>
-              <small class="p-error">{{ expectedResultErrorMessage || "&nbsp;" }}</small>
+              <small v-if="showErrorMessages.expected && expectedResultErrorMessage" class="p-error">{{ expectedResultErrorMessage }}</small>
             </div>
             <div class="field">
               <label for="actualResult">Actual result</label>
-              <Textarea v-model="actualResult" :class="{ 'p-invalid': actualResultErrorMessage }" class="text-area" />
+              <Textarea v-model="actualResult" :class="{ 'p-invalid': actualResultErrorMessage }" class="text-area" @blur="showErrorMessages.actual = true" />
               <small>What actually happened when you followed the reproduction steps to encounter the bug?</small>
-              <small class="p-error">{{ actualResultErrorMessage || "&nbsp;" }}</small>
+              <small v-if="showErrorMessages.actual && actualResultErrorMessage" class="p-error">{{ actualResultErrorMessage }}</small>
             </div>
             <div class="button-container">
               <Button @click="onSubmit" label="Submit" />
@@ -75,42 +119,79 @@
 <script setup lang="ts">
 import TopBar from "@/components/shared/TopBar.vue";
 import { useSharedStore } from "@/stores/sharedStore";
-import { Ref, computed, onMounted, ref } from "vue";
+import { Ref, computed, onMounted, ref, watch } from "vue";
 import { enumToArray } from "@im-library/helpers/Converters";
 import { Module, OperatingSystem, Browser } from "@im-library/enums/bugReport";
+import { BugReport } from "@im-library/interfaces";
+import { BugReportEnums } from "@im-library/enums";
 
 const sharedStore = useSharedStore();
 
 const error = computed(() => sharedStore.error);
 
-const selectedProduct = ref("IM");
+const selectedProduct: Ref<"IM"> = ref("IM");
 const productErrorMessage = ref("");
 const productOptions = ref(["IM"]);
+watch(selectedProduct, newValue => {
+  if (!newValue) productErrorMessage.value = "Required field";
+  else productErrorMessage.value = "";
+});
 
-const selectedModule = ref("");
+const selectedModule: Ref<BugReportEnums.Module | ""> = ref("");
 const moduleErrorMessage = ref("");
 const moduleOptions: Ref<string[]> = ref([]);
+watch(selectedModule, newValue => {
+  if (!newValue) moduleErrorMessage.value = "Required field";
+  else moduleErrorMessage.value = "";
+});
 
-const selectedOS = ref("");
+const selectedOS: Ref<BugReportEnums.OperatingSystem | "" | "Other"> = ref("");
 const osErrorMessage = ref("");
 const osOptions: Ref<string[]> = ref([]);
 const osOther = ref("");
+watch([selectedOS, osOther], ([newOS, newOther]) => {
+  if (!newOS || (newOS === "Other" && !newOther)) osErrorMessage.value = "Required field";
+  else osErrorMessage.value = "";
+});
 
-const selectedBrowser = ref("");
+const selectedBrowser: Ref<BugReportEnums.Browser | "" | "Other"> = ref("");
 const browserErrorMessage = ref("");
 const browserOptions: Ref<string[]> = ref([]);
+const browserOther = ref("");
+watch([selectedBrowser, browserOther], ([newBrowser, newOther]) => {
+  if (!newBrowser || (newBrowser === "Other" && !newOther)) browserErrorMessage.value = "Required field";
+  else browserErrorMessage.value = "";
+});
 
 const description = ref("");
 const descriptionErrorMessage = ref("");
+watch(description, newValue => {
+  if (!newValue) descriptionErrorMessage.value = "Required field";
+  else descriptionErrorMessage.value = "";
+});
 
 const stepsToReproduce = ref("");
 const stepsToReproduceErrorMessage = ref("");
+watch(stepsToReproduce, newValue => {
+  if (!newValue) stepsToReproduceErrorMessage.value = "Required field";
+  else stepsToReproduceErrorMessage.value = "";
+});
 
 const expectedResult = ref("");
 const expectedResultErrorMessage = ref("");
+watch(expectedResult, newValue => {
+  if (!newValue) expectedResultErrorMessage.value = "Required field";
+  else expectedResultErrorMessage.value = "";
+});
 
 const actualResult = ref("");
 const actualResultErrorMessage = ref("");
+watch(actualResult, newValue => {
+  if (!newValue) actualResultErrorMessage.value = "Required field";
+  else actualResultErrorMessage.value = "";
+});
+
+const showErrorMessages = ref({ product: false, module: false, os: false, browser: false, description: false, steps: false, expected: false, actual: false });
 
 onMounted(() => {
   setOptions();
@@ -130,8 +211,25 @@ function setOptions() {
   browserOptions.value.push("Other");
 }
 
-function onSubmit(values: any) {
-  console.log(values);
+function onSubmit() {
+  if (allVerified()) {
+    const bugReport = {} as BugReport;
+    bugReport.product = selectedProduct.value;
+    // TODO
+  }
+}
+
+function allVerified() {
+  return (
+    selectedProduct.value &&
+    selectedModule.value &&
+    ((selectedOS.value && selectedOS.value !== "Other") || (selectedOS.value === "Other" && osOther.value)) &&
+    ((selectedBrowser.value && selectedBrowser.value !== "Other") || (selectedBrowser.value === "Other" && browserOther.value)) &&
+    description.value &&
+    stepsToReproduce.value &&
+    expectedResult.value &&
+    actualResult.value
+  );
 }
 </script>
 
@@ -149,6 +247,7 @@ function onSubmit(values: any) {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
+  padding: 1rem;
 }
 
 .topbar-content {
@@ -175,7 +274,14 @@ function onSubmit(values: any) {
   font-size: 2rem;
 }
 
-.help-icon {
-  cursor: pointer;
+.other-container {
+  display: flex;
+  flex-flow: column nowrap;
+  margin-left: 2rem;
+  padding-top: 0.25rem;
+}
+
+.error-indented {
+  margin-left: 2rem;
 }
 </style>
