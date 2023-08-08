@@ -124,10 +124,13 @@ import { enumToArray } from "@im-library/helpers/Converters";
 import { Module, OperatingSystem, Browser } from "@im-library/enums/bugReport";
 import { BugReport } from "@im-library/interfaces";
 import { BugReportEnums } from "@im-library/enums";
+import { useUserStore } from "@/stores/userStore";
 
 const sharedStore = useSharedStore();
+const userStore = useUserStore();
 
 const error = computed(() => sharedStore.error);
+const user = computed(() => userStore.currentUser);
 
 const selectedProduct: Ref<"IM"> = ref("IM");
 const productErrorMessage = ref("");
@@ -215,6 +218,19 @@ function onSubmit() {
   if (allVerified()) {
     const bugReport = {} as BugReport;
     bugReport.product = selectedProduct.value;
+    if (selectedModule.value) bugReport.module = selectedModule.value;
+    if (selectedOS.value && selectedOS.value !== "Other") bugReport.OS = selectedOS.value;
+    else if (selectedOS.value === "Other") bugReport.OS = osOther.value;
+    if (selectedBrowser && selectedBrowser.value !== "Other") bugReport.browser = selectedBrowser.value;
+    else if (selectedBrowser.value === "Other") bugReport.browser = browserOther.value;
+    bugReport.status = BugReportEnums.Status.NEW;
+    bugReport.description = description.value;
+    bugReport.reproduceSteps = stepsToReproduce.value;
+    bugReport.expectedResult = expectedResult.value;
+    bugReport.actualResult = actualResult.value;
+    bugReport.createdBy = user.value.id;
+    if (error.value) bugReport.error = error.value;
+    bugReport.dateCreated = new Date();
     // TODO
   }
 }
