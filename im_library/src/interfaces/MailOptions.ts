@@ -1,9 +1,9 @@
 export interface MailOptions {
-  from: string;
+  from?: string;
   to: string;
-  cc: string;
-  bcc: string;
+  cc?: string;
+  bcc?: string;
   subject: string;
-  text: string;
-  html: string;
+  text?: string;
+  html?: string;
 }

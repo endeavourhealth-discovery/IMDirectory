@@ -40,24 +40,15 @@ export default class MailService {
   async sendMail(requestId: string | number | string[], options: MailOptions) {
     if (!this.transporter) throw new Error("No connection initialised. Setup a connection first.");
     else {
-      return await this.transporter
-        .sendMail({
-          from: options.from || import.meta.env.SMTP_SENDER,
-          to: options.to,
-          cc: options.cc,
-          bcc: options.bcc,
-          subject: options.subject,
-          text: options.text,
-          html: options.html
-        })
-        .then(info => {
-          logger.info(`${requestId} - Mail sent successfully.`);
-          logger.info(`${requestId} - [MailResponse]=${info.response} [MessageID]=${info.messageId}`);
-          if (process.env.NODE_ENV !== "production") {
-            logger.info(`${requestId} - Nodemailer ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
-          }
-          return info;
-        });
+      if (!options.from) options.from = import.meta.env.SMTP_SENDER;
+      return await this.transporter.sendMail(options).then(info => {
+        logger.info(`${requestId} - Mail sent successfully.`);
+        logger.info(`${requestId} - [MailResponse]=${info.response} [MessageID]=${info.messageId}`);
+        if (process.env.NODE_ENV !== "production") {
+          logger.info(`${requestId} - Nodemailer ethereal URL: ${nodemailer.getTestMessageUrl(info)}`);
+        }
+        return info;
+      });
     }
   }
 
