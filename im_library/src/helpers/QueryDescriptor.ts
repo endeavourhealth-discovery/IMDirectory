@@ -131,7 +131,8 @@ export function getDisplayFromLogic(title: string) {
 export function getDisplayFromRange(propertyName: string, property: Property) {
   const propertyDisplay = propertyName;
   let display = propertyDisplay + " between ";
-  display += property.range?.from.value + " and " + property.range?.to.value + " " + property.range?.to.unit;
+  display += property.range?.from.value + " and " + property.range?.to.value;
+  if (!propertyName.includes("date")) display += " " + property.range?.to.unit;
   return display;
 }
 
@@ -186,7 +187,7 @@ export function getDisplayFromVariable(nodeRef: string | undefined) {
 
 export function getDisplayFromValueAndUnitForDate(property: Property) {
   let display = "";
-  if (property.value) display += "last " + property.value.replaceAll("-", "") + " ";
+  if (property.value) display += property.value + " ";
   if (property.unit) display += property.unit;
   return display;
 }
