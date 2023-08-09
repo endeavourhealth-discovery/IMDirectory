@@ -28,15 +28,7 @@ export function isBoolGroup(data: any): data is { conjunction: string; items: an
 }
 
 export function isWorkflow(data: any): data is Workflow {
-  if (
-    data &&
-    (data as Workflow).id &&
-    (data as Workflow).createdBy &&
-    (data as Workflow).assignedTo &&
-    (data as Workflow).dateCreated &&
-    (data as Workflow).state &&
-    (data as Workflow).state
-  )
+  if (data && (data as Workflow).id && (data as Workflow).createdBy && (data as Workflow).dateCreated && (data as Workflow).state && (data as Workflow).type)
     return true;
   else return false;
 }
@@ -47,12 +39,10 @@ export function isBugReport(data: any): data is BugReport {
     isWorkflow(data) &&
     (data as BugReport).OS &&
     (data as BugReport).actualResult &&
-    (data as BugReport).error &&
     (data as BugReport).expectedResult &&
     (data as BugReport).module &&
     (data as BugReport).product &&
     (data as BugReport).reproduceSteps &&
-    (data as BugReport).severity &&
     (data as BugReport).version
   )
     return true;
