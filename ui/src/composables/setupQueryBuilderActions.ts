@@ -83,8 +83,12 @@ function setupQueryBuilderActions() {
     }
   }
 
-  function remove(matchIndex: number, matches: Match[]) {
-    if (isArrayHasLength(matches)) matches.splice(matchIndex, 1);
+  function remove(matchIndex: number, matches: Match[], parent: Match) {
+    if (isArrayHasLength(matches)) {
+      matches.splice(matchIndex, 1);
+    } else if (isArrayHasLength(parent.property) && parent.property?.length === 1) {
+      parent.property.splice(0, 1);
+    }
   }
 
   function group(selectedMatches: SelectedMatch[], parentMatch: Match[] | undefined, matches: Match[]) {

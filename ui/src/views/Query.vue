@@ -27,10 +27,10 @@
       />
 
       <div v-else-if="!queryTypeIri">
-        <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
+        <Button class="base-type-button" label="Add base type" @click="showAddBaseTypeDialog = true" />
       </div>
       <div v-if="!isArrayHasLength(query.match) && query['@type']">
-        <Button label="Add property" @click="showAddDialog = true" />
+        <Button class="base-type-button" label="Add property" @click="showAddDialog = true" />
       </div>
 
       <AddPropertyDialog
@@ -240,6 +240,10 @@ function setValidationQueryRequest() {
   display: flex;
   flex-flow: row;
   border: 2px solid #b89241;
+}
+
+.base-type-button {
+  margin-left: 0.5rem;
 }
 
 .button-bar {

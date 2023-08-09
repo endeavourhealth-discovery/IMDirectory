@@ -23,7 +23,8 @@
       />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
-    <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
+    <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)" @dblclick="editMatch()"></div>
+
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -63,7 +64,9 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="match['@type'] ?? queryTypeIri"
+    :base-type="
+      isObjectHasKeys(props.match, ['nodeRef']) ? props.variableMap.get(props.match.nodeRef)['@type'] : match['@type'] ? match['@type'] : queryTypeIri
+    "
     :match="match"
     :variable-map="variableMap"
     :add-mode="addMode"
@@ -143,7 +146,12 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 });
 
 const hasValue: ComputedRef<boolean> = computed(() => {
-  return isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]);
+  return (
+    isObjectHasKeys(props.match, ["@id"]) ||
+    isObjectHasKeys(props.match, ["@set"]) ||
+    isObjectHasKeys(props.match, ["@type"]) ||
+    isObjectHasKeys(props.match, ["nodeRef"])
+  );
 });
 
 const hasProperty: ComputedRef<boolean> = computed(() => {
@@ -211,7 +219,7 @@ function getMultipleRCOptions() {
       label: "Delete",
       icon: PrimeIcons.TRASH,
       command: () => {
-        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!);
+        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
       }
     }
   ];
@@ -304,7 +312,7 @@ function getSingleRCOptions() {
       label: "Delete feature",
       icon: PrimeIcons.TRASH,
       command: () => {
-        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!);
+        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
       }
     }
   ];
@@ -342,7 +350,6 @@ function editMatch() {
     addMode.value = "editProperty";
   }
 }
-
 function addVariable(previousValue: string, newValue: string) {
   props.match.variable = newValue;
   if (props.variableMap.has(previousValue)) props.variableMap.delete(previousValue);
