@@ -12,7 +12,7 @@ describe("EclService ___ axios success", () => {
 
   it("can get ECLSearch", async () => {
     const fakerResults = [fakerFactory.conceptSummary.create()];
-    axios.post.mockResolvedValue(fakerResults);
+    axios.post.mockResolvedValue({ entities: fakerResults, count: fakerResults.length, page: 1 });
     const controller = new AbortController();
     const result = await EclService.ECLSearch({ eclQuery: { from: { "@id": "testString" } }, includeLegacy: false, limit: 1000 }, controller);
     expect(axios.post).toBeCalledTimes(1);
@@ -23,7 +23,7 @@ describe("EclService ___ axios success", () => {
         signal: controller.signal
       }
     );
-    expect(result).toBe(fakerResults);
+    expect(result).toEqual({ entities: fakerResults, count: fakerResults.length, page: 1 });
   });
 
   it("can getEcl", async () => {
