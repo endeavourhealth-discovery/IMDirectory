@@ -4,19 +4,25 @@ import WorkflowService from "@/services/workflow.service";
 import AuthMiddleware from "@/middlewares/auth.middleware";
 import { isBugReport } from "@im-library/helpers/TypeGuards";
 import MailService from "@/services/mailer.service";
+import { BugReport } from "@im-library/interfaces";
+import GithubService from "@/services/github.service";
+import { WORKFLOW } from "@im-library/vocabulary";
+import { WorkflowEnums } from "@im-library/enums";
 
 export default class WorkflowController {
   public path = "/node_api/workflow";
   public router = router();
-  private workflowService;
-  private mailService;
-  private auth;
+  private workflowService: WorkflowService;
+  private mailService: MailService;
+  private githubService: GithubService;
+  private auth: AuthMiddleware;
 
   constructor() {
-    this.initRoutes();
-    this.workflowService = new WorkflowService();
     this.mailService = MailService.getInstance();
     this.auth = new AuthMiddleware();
+    this.workflowService = new WorkflowService();
+    this.githubService = new GithubService();
+    this.initRoutes();
   }
 
   private initRoutes() {
@@ -26,7 +32,7 @@ export default class WorkflowController {
         .catch(next);
     });
     this.router.post("/createBugReport", this.auth.secure(), async (req, res, next) => {
-      this.setBugReport(req)
+      this.createBugReport(req)
         .then(() => res.end())
         .catch(next);
     });
@@ -39,7 +45,12 @@ export default class WorkflowController {
   }
 
   async createBugReport(req: Request) {
-    await this.setBugReport(req);
+    const bugReport = req.body;
+    bugReport.id = await this.workflowService.generateId();
+    bugReport.version = (await this.githubService.getLatestRelease("IMDirectory")).version;
+    bugReport.type = WORKFLOW.BUG_REPORT;
+    bugReport.state = WorkflowEnums.State.TODO;
+    await this.setBugReport(bugReport);
     if (process.env.NODE_ENV === "production") await this.mailService.createConnection();
     else await this.mailService.createLocalConnection();
     await this.mailService.sendMail(req.headers["X-Request-Id"] as string, {
@@ -50,9 +61,9 @@ export default class WorkflowController {
     });
   }
 
-  async setBugReport(req: Request) {
-    if (isBugReport(req.body)) {
-      return this.workflowService.setBugReport(req.body);
+  async setBugReport(bugReport: BugReport) {
+    if (isBugReport(bugReport)) {
+      return this.workflowService.setBugReport(bugReport);
     } else throw new Error("Input data is not of type BugReport");
   }
 }

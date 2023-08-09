@@ -15,4 +15,8 @@ export default class WorkflowService {
   public async setBugReport(bugReport: BugReport) {
     await this.workflowRepo.setBugReport(bugReport);
   }
+
+  public async generateId() {
+    return this.workflowRepo.generateId();
+  }
 }

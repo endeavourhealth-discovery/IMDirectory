@@ -91,6 +91,16 @@ export default class WorkflowRepository {
     }
   }
 
+  public async generateId(): Promise<string> {
+    const qry = "SELECT DISTINCT ?s WHERE { GRAPH ?graph {?s ?p ?o .}} ORDER BY DESC (?s) LIMIT 1";
+    const rs = await this.graph.execute(qry, { graph: sanitise(WORKFLOW.NAMESPACE), p: sanitise(RDF.TYPE) });
+    if (isArrayHasLength(rs)) {
+      const iri = rs[0].s as string;
+      const code = parseInt(iri.split("#")[1]);
+      return iri.split("#")[0] + (code + 1).toString();
+    } else return WORKFLOW.NAMESPACE + "10000000";
+  }
+
   private async insert(subject: string, predicate: string, object: any) {
     const qry = "INSERT DATA { GRAPH ?s ?p ?o }}";
     await this.graph.execute(qry, { c: sanitise(subject), p: sanitise(predicate), o: sanitise(object) });
