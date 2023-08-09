@@ -102,6 +102,9 @@ async function init() {
   if (isObjectHasKeys(props.shape, ["select"]) && isArrayHasLength(props.shape.select) && props.shape.select) {
     queryRequest.value = { query: { "@id": props.shape.select[0]["@id"] } };
   } else queryRequest.value = undefined;
+  if(isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
+    queryRequest.value.argument = props.shape.argument;
+  }
   if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
     updateSelectedResult(props.value);
   } else {
