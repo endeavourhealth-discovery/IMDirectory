@@ -4,7 +4,7 @@ run-as: root
 phases:
   install:
     runtime-versions:
-      java: corretto11
+      java: corretto17
   pre_build:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
