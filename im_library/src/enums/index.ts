@@ -10,6 +10,7 @@ import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
 import { ErrorType } from "./ErrorType";
 import * as BugReportEnums from "./bugReport/index";
+import * as WorkflowEnums from "./workflow/index";
 
 export {
   BuilderType,
@@ -23,5 +24,6 @@ export {
   ToastSeverity,
   TagSeverity,
   ErrorType,
-  BugReportEnums
+  BugReportEnums,
+  WorkflowEnums
 };
