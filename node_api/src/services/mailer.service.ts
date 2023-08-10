@@ -9,7 +9,7 @@ export default class MailService {
   private constructor() {}
 
   static getInstance() {
-    if (!MailService.getInstance) {
+    if (!MailService.instance) {
       MailService.instance = new MailService();
     }
     return MailService.instance;

@@ -2,6 +2,7 @@
 // @ts-ignore
 import Graphdb from "graphdb";
 import Env from "@/services/env.service";
+import logger from "@/middlewares/logger.middleware";
 
 const { ServerClientConfig, ServerClient, RDFRepositoryClient } = Graphdb.server;
 const { RDFMimeType } = Graphdb.http;
@@ -54,7 +55,9 @@ export class GraphdbService {
         stmt.addBinding("$" + key, bindings[key]);
       }
     }
-    const rs = await client.query(stmt);
+    let rs: any;
+
+    rs = await client.query(stmt);
 
     const result: any[] = [];
     rs.on("data", (binding: any) => {

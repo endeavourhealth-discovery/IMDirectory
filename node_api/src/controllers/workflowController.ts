@@ -54,10 +54,10 @@ export default class WorkflowController {
     if (process.env.NODE_ENV === "production") await this.mailService.createConnection();
     else await this.mailService.createLocalConnection();
     await this.mailService.sendMail(req.headers["X-Request-Id"] as string, {
-      from: "test@voror.co.uk",
-      to: "test@voror.co.uk",
-      subject: `New bug report submitted : ${req.body.id}`,
-      text: "A new bug report has been submitted"
+      from: "api@voror.co.uk",
+      to: "support@voror.co.uk",
+      subject: `New bug report submitted : ${bugReport.id}`,
+      text: `A new bug report has been submitted with ID: ${bugReport.id}`
     });
   }
 
