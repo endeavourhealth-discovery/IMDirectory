@@ -107,7 +107,7 @@
               <small v-if="showErrorMessages.actual && actualResultErrorMessage" class="p-error">{{ actualResultErrorMessage }}</small>
             </div>
             <div class="button-container">
-              <Button @click="onSubmit" label="Submit" />
+              <Button @click="onSubmit" :loading="loading" label="Submit" />
             </div>
           </div>
         </template>
@@ -125,9 +125,13 @@ import { Module, OperatingSystem, Browser } from "@im-library/enums/bugReport";
 import { BugReport } from "@im-library/interfaces";
 import { BugReportEnums } from "@im-library/enums";
 import { useUserStore } from "@/stores/userStore";
+import WorkflowService from "@/services/WorkflowService";
+import Swal from "sweetalert2";
+import { useRouter } from "vue-router";
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
+const router = useRouter();
 
 const error = computed(() => sharedStore.error);
 const user = computed(() => userStore.currentUser);
@@ -195,6 +199,7 @@ watch(actualResult, newValue => {
 });
 
 const showErrorMessages = ref({ product: false, module: false, os: false, browser: false, description: false, steps: false, expected: false, actual: false });
+const loading = ref(false);
 
 onMounted(() => {
   setOptions();
@@ -214,8 +219,9 @@ function setOptions() {
   browserOptions.value.push("Other");
 }
 
-function onSubmit() {
+async function onSubmit() {
   if (allVerified()) {
+    loading.value = true;
     const bugReport = {} as BugReport;
     bugReport.product = selectedProduct.value;
     if (selectedModule.value) bugReport.module = selectedModule.value;
@@ -231,7 +237,17 @@ function onSubmit() {
     bugReport.createdBy = user.value.id;
     if (error.value) bugReport.error = error.value;
     bugReport.dateCreated = new Date();
-    // TODO
+    await WorkflowService.createBugReport(bugReport);
+    Swal.fire({
+      title: "Success",
+      text: "Bug report successfully submitted",
+      icon: "success",
+      confirmButtonText: "Close",
+      confirmButtonColor: "#2196F3"
+    }).then(async () => {
+      await router.push({ path: "/" });
+    });
+    loading.value = false;
   }
 }
 
