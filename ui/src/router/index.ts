@@ -51,6 +51,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useEditorStore } from "@/stores/editorStore";
 import { useCreatorStore } from "@/stores/creatorStore";
 import Swal, { SweetAlertResult } from "sweetalert2";
+import UprnService from "@/services/UprnService";
 
 const APP_TITLE = "IM Directory";
 
@@ -253,7 +254,8 @@ const routes: Array<RouteRecordRaw> = [
     redirect: { name: "SingleAddressLookup" },
     meta: {
       requiresAuth: true,
-      requiresUprnAgreement: true
+      requiresUprnAgreement: true,
+      requiresUprnAuth: true
     },
     children: [
       { path: "singleAddressLookup", name: "SingleAddressLookup", component: SingleFileLookup },
@@ -288,7 +290,7 @@ const routes: Array<RouteRecordRaw> = [
     component: UprnAgreement
   },
   {
-    path: "/401/:requiredRole?",
+    path: "/403/:requiredRole?",
     name: "AccessDenied",
     component: AccessDenied,
     props: true
@@ -366,8 +368,8 @@ router.beforeEach(async (to, from) => {
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
     const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
+    console.log("auth guard user authenticated: " + res?.authenticated);
+    if (!res?.authenticated) {
       await directToLogin();
     }
   }
@@ -381,8 +383,8 @@ router.beforeEach(async (to, from) => {
 
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
     const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
+    console.log("auth guard user authenticated: " + res?.authenticated);
+    if (!res?.authenticated) {
       await directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("create")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
@@ -391,8 +393,8 @@ router.beforeEach(async (to, from) => {
 
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
     const res = await userStore.authenticateCurrentUser();
-    console.log("auth guard user authenticated: " + res.authenticated);
-    if (!res.authenticated) {
+    console.log("auth guard user authenticated: " + res?.authenticated);
+    if (!res?.authenticated) {
       await directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("edit")) {
       router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
@@ -405,6 +407,14 @@ router.beforeEach(async (to, from) => {
 
   if (to.matched.some((record: any) => record.meta.requiresUprnAgreement)) {
     console.log("uprn agreement accepted: " + userStore.uprnAgreementAccepted);
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresUprnAuth)) {
+    const res = await UprnService.authCheck();
+    console.log("uprn auth guard user authenticated: " + res?.authenticated);
+    if (!res?.authenticated) {
+      await router.push({ name: "AccessDenied" });
+    }
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {

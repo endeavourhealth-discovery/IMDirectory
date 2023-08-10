@@ -131,6 +131,7 @@ async function setupAxiosInterceptors(axios: any) {
             summary: "Access denied"
           });
         }
+        router.push({ name: "AccessDenied" });
       } else if (error?.response?.status === 401) {
         toast.add({
           severity: "error",
@@ -152,6 +153,8 @@ async function setupAxiosInterceptors(axios: any) {
         router.push({ name: "ServerOffline" }).then();
       } else if (error.code === "ERR_CANCELED") {
         return;
+      } else if (error.code === "ERR_BAD_REQUEST") {
+        router.push({ name: "ServerOffline" }).then();
       } else {
         return Promise.reject(error);
       }

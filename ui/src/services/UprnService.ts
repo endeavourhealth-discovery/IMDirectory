@@ -44,6 +44,10 @@ const UprnService = {
         userid: user_id
       }
     });
+  },
+
+  async authCheck(): Promise<any> {
+    return axios.get(api + "/api2/authCheck");
   }
 };
 
