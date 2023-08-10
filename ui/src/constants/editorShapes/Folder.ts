@@ -221,7 +221,7 @@ const FolderShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": IM.query.SEARCH_ENTITIES
+                  "@id": IM.query.SEARCH_FOLDERS
                 }
               ],
               argument: [
