@@ -1,12 +1,11 @@
 <template>
-  <Dropdown :options="['is', 'between', 'comparison']" v-model:model-value="propertyType" />
-  <Calendar v-if="propertyType === 'is'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
-  <div v-else-if="propertyType === 'between'">
+  <Dropdown :options="['is', 'between']" v-model:model-value="propertyType" />
+  <div v-if="propertyType === 'between'">
     <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
     <span> and </span>
     <Calendar v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
   </div>
-  <div v-else-if="propertyType === 'comparison'">
+  <div v-else-if="propertyType === 'is'">
     <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
     <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
   </div>
@@ -21,7 +20,7 @@ interface Props {
   property: Property;
 }
 const props = defineProps<Props>();
-const propertyType: Ref<"is" | "between" | "comparison"> = ref("is");
+const propertyType: Ref<"is" | "between"> = ref("is");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
 const operatorOptions = ["=", ">=", ">", "<="];
@@ -33,7 +32,7 @@ onMounted(() => {
     propertyType.value = "between";
     if (props.property.range?.from.value) selectedValueA.value = getDateFromString(props.property.range!.from.value);
     if (props.property.range?.to.value) selectedValueB.value = getDateFromString(props.property.range!.to.value);
-  } else if (props.property.operator) propertyType.value = "comparison";
+  }
 });
 
 watch(
@@ -47,7 +46,7 @@ watch(
 );
 
 function updatePropertyValues() {
-  if (propertyType.value === "is" || propertyType.value === "comparison") {
+  if (propertyType.value === "is") {
     delete props.property.range;
     if (selectedValueA.value) props.property.value = getStringFromDate(selectedValueA.value);
   } else if (propertyType.value === "between") {
