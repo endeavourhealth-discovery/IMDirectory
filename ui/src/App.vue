@@ -23,26 +23,14 @@ import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
 import CookiesConsent from "./components/app/CookiesConsent.vue";
 import BannerBar from "./components/app/BannerBar.vue";
 import FooterBar from "./components/app/FooterBar.vue";
-import { useRoute, useRouter } from "vue-router";
-import { useToast } from "primevue/usetoast";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Env, GithubService, UserService } from "@/services";
-import { Auth } from "aws-amplify";
-import axios from "axios";
+import { GithubService, UserService } from "@/services";
 import semver from "semver";
-import { usePrimeVue } from "primevue/config";
 import { GithubRelease } from "./interfaces";
 import { useUserStore } from "./stores/userStore";
 import SnomedConsent from "./components/app/SnomedConsent.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import setupChangeTheme from "@/composables/setupChangeTheme";
 
-setupAxiosInterceptors(axios);
-setupExternalErrorHandler();
-
-const route = useRoute();
-const router = useRouter();
-const toast = useToast();
 const userStore = useUserStore();
 const sharedStore = useSharedStore();
 
@@ -95,97 +83,6 @@ function getLocalVersion(repoName: string): string | null {
 
 function setLocalVersion(repoName: string, versionNo: string) {
   localStorage.setItem(repoName + "Version", versionNo);
-}
-
-async function setupAxiosInterceptors(axios: any) {
-  axios.interceptors.request.use(async (request: any) => {
-    if (isLoggedIn.value) {
-      if (!request.headers) request.headers = {};
-      request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
-    }
-    return request;
-  });
-
-  axios.interceptors.response.use(
-    (response: any) => {
-      return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
-    },
-    (error: any) => {
-      if (error?.response?.config?.raw) return Promise.reject(error);
-      if (error?.response?.status === 403) {
-        if (error.response.data) {
-          toast.add({
-            severity: "error",
-            summary: "Access denied",
-            detail: error.response.data.debugMessage
-          });
-        } else if (error.config.url) {
-          toast.add({
-            severity: "error",
-            summary: "Access denied",
-            detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-          });
-        } else {
-          toast.add({
-            severity: "error",
-            summary: "Access denied"
-          });
-        }
-        router.push({ name: "AccessDenied" });
-      } else if (error?.response?.status === 401) {
-        toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail:
-            "Insufficient clearance to access " +
-            error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
-            ". Please contact an admin to change your account security clearance if you require access to this resource."
-        });
-        router.push({ name: "AccessDenied" }).then();
-      } else if (error?.response?.data?.code && error?.response?.status > 399 && error?.response?.status < 500) {
-        console.error(error.response.data);
-        toast.add({
-          severity: "error",
-          summary: error.response.data.code,
-          detail: error.response.data.debugMessage
-        });
-      } else if (error?.response?.status >= 500 && error.code === "ERR_BAD_RESPONSE") {
-        router.push({ name: "ServerOffline" }).then();
-      } else if (error.code === "ERR_CANCELED") {
-        return;
-      } else if (error.code === "ERR_BAD_REQUEST") {
-        router.push({ name: "ServerOffline" }).then();
-      } else {
-        return Promise.reject(error);
-      }
-    }
-  );
-}
-
-function setupExternalErrorHandler() {
-  window.addEventListener("unhandledrejection", e => {
-    e.preventDefault();
-    console.error(e);
-    if (e.reason?.response?.data?.title)
-      toast.add({
-        severity: "error",
-        summary: e.reason.response.data.title,
-        detail: e.reason.response.data.detail
-      });
-    else if (e.reason?.name)
-      toast.add({
-        severity: "error",
-        summary: e.reason.name,
-        detail: e.reason.message
-      });
-    else
-      toast.add({
-        severity: "error",
-        summary: "An error occurred",
-        detail: e.reason
-      });
-    router.push({ name: "VueError" });
-  });
 }
 </script>
 

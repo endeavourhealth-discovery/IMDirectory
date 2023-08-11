@@ -5,6 +5,8 @@ import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
 import axios from "axios";
+import { setupExternalErrorHandler } from "./errorHandling/externalErrorHandler";
+import { setupAxiosInterceptors } from "./errorHandling/axiosInterceptors";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -95,6 +97,7 @@ import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import { createPinia } from "pinia";
 import { useSharedStore } from "@/stores/sharedStore";
+import { useUserStore } from "./stores/userStore";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -197,6 +200,9 @@ sharedStore.updateFontAwesomePro(false);
 // #v-endif
 
 const vm = app.mount("#app");
+
+setupAxiosInterceptors(axios, vm);
+setupExternalErrorHandler(vm);
 
 // Vue application exceptions
 app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | null, info: string) => {
