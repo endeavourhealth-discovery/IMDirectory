@@ -24,7 +24,7 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
           argResult["valueDataList"] = foundValueVariable;
         else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
         else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
-        else if (typeof foundValueVariable === "string") argResult["valueData"] = foundValueVariable;
+        else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
         else argResult[key] = foundValueVariable;
       } else {
         argResult[key] = value;

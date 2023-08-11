@@ -32,9 +32,6 @@
       :parent-match="match"
       :match="nestedMatch"
       :query-type-iri="queryTypeIri"
-      :selected-matches="selectedMatches"
-      :variable-map="variableMap"
-      :validation-query-request="validationQueryRequest"
     />
 
     <EditDisplayProperty
@@ -44,9 +41,6 @@
       :parent-match="match"
       :property="property"
       :query-type-iri="queryTypeIri"
-      :selected-matches="selectedMatches"
-      :variable-map="variableMap"
-      :validation-query-request="validationQueryRequest"
     />
     <EditDisplayOrderBy
       v-if="isArrayHasLength(match.orderBy)"
@@ -68,7 +62,6 @@
       isObjectHasKeys(props.match, ['nodeRef']) ? props.variableMap.get(props.match.nodeRef)['@type'] : match['@type'] ? match['@type'] : queryTypeIri
     "
     :match="match"
-    :variable-map="variableMap"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
   />
@@ -104,20 +97,22 @@ import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { IM } from "@im-library/vocabulary";
 import { useUserStore } from "@/stores/userStore";
+import { useQueryStore } from "@/stores/queryStore";
 
 interface Props {
   queryTypeIri: string;
   parentMatch?: Match;
   parentMatchList?: Match[];
-  selectedMatches: SelectedMatch[];
   match: Match;
   index: number;
-  variableMap: Map<string, any>;
-  validationQueryRequest: QueryRequest;
 }
 
 const props = defineProps<Props>();
 const userStore = useUserStore();
+const queryStore = useQueryStore();
+const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
+const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
+const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 const {
   addOrEdit,
@@ -141,7 +136,7 @@ const {
 } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
-  const found = props.selectedMatches.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
+  const found = selectedMatches.value.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
   return !!found;
 });
 
@@ -200,9 +195,9 @@ function toggleExclude() {
 }
 
 function onRightClick(event: any) {
-  if (!isArrayHasLength(props.selectedMatches) || props.selectedMatches.length === 1)
-    select(event, isSelected.value, props.selectedMatches, props.match, props.index, props.parentMatch, props.parentMatchList);
-  rClickOptions.value = isArrayHasLength(props.selectedMatches) && props.selectedMatches.length === 1 ? getSingleRCOptions() : getMultipleRCOptions();
+  if (!isArrayHasLength(selectedMatches.value) || selectedMatches.value.length === 1)
+    select(event, isSelected.value, selectedMatches.value, props.match, props.index, props.parentMatch, props.parentMatchList);
+  rClickOptions.value = isArrayHasLength(selectedMatches.value) && selectedMatches.value.length === 1 ? getSingleRCOptions() : getMultipleRCOptions();
   rClickMenu.value.show(event);
 }
 
@@ -212,7 +207,7 @@ function getMultipleRCOptions() {
       label: "Group",
       icon: PrimeIcons.LINK,
       command: () => {
-        group(props.selectedMatches, props.parentMatch?.match, props.parentMatch?.match ?? props.parentMatchList!);
+        group(selectedMatches.value, props.parentMatch?.match, props.parentMatch?.match ?? props.parentMatchList!);
       }
     },
     {
@@ -336,7 +331,7 @@ function getSingleRCOptions() {
       label: "Ungroup",
       icon: PrimeIcons.EJECT,
       command: () => {
-        ungroup(props.index, props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
+        ungroup(props.index, selectedMatches.value, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
     });
 
@@ -352,8 +347,8 @@ function editMatch() {
 }
 function addVariable(previousValue: string, newValue: string) {
   props.match.variable = newValue;
-  if (props.variableMap.has(previousValue)) props.variableMap.delete(previousValue);
-  props.variableMap.set(newValue, props.match);
+  if (variableMap.value.has(previousValue)) variableMap.value.delete(previousValue);
+  variableMap.value.set(newValue, props.match);
 }
 
 function onSelect(cs: ConceptSummary) {

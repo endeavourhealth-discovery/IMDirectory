@@ -103,7 +103,7 @@ const emit = defineEmits({
 });
 
 function getClass() {
-  const activityRowButton = "p-button-rounded p-button-text p-button-plain activity-row-button";
+  const activityRowButton = "p-button-rounded p-button-text p-button-plain activity-row-button ";
   const conceptButton = "p-button-secondary p-button-outlined concept-button";
 
   switch (props.type) {
@@ -174,5 +174,10 @@ function locateInTree(iri: string) {
 .concept-button-fav:hover {
   background-color: var(--yellow-500) !important;
   color: var(--surface-a) !important;
+}
+
+.p-button.p-button-icon-only.p-button-rounded {
+  height: 1.5rem;
+  width: 1.5rem;
 }
 </style>

@@ -185,11 +185,11 @@ function setupQueryBuilderActions() {
     }
   }
 
-  function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, memberOfList?: Match[]) {
+  function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, parentList?: Match[]) {
     event.stopPropagation();
     const selectedMatch = { index: index, selected: match } as SelectedMatch;
     if (parentMatch) selectedMatch.parent = parentMatch;
-    else if (memberOfList) selectedMatch.memberOfList = memberOfList;
+    else if (parentList) selectedMatch.parentList = parentList;
 
     if (event.ctrlKey || event.metaKey) {
       if (!isSelected) {
