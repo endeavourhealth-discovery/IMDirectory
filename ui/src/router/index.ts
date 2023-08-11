@@ -413,7 +413,6 @@ router.beforeEach(async (to, from) => {
     const res = await UprnService.authCheck();
     console.log("uprn auth guard user authenticated: " + res?.authenticated);
     if (!res?.authenticated) {
-      console.log(res);
       await router.push({ name: "AccessDenied" });
     }
   }

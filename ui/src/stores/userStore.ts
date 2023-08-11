@@ -62,9 +62,7 @@ export const useUserStore = defineStore("user", {
     },
     async getAllFromUserDatabase(): Promise<void> {
       if (this.currentUser) {
-        console.log("here-1");
         const themeResult = await UserService.getUserTheme();
-        console.log("here-2");
 
         if (themeResult) this.currentTheme = themeResult;
         await this.initFavourites();

@@ -6,7 +6,6 @@ import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
 import axios from "axios";
 import { setupExternalErrorHandler } from "./errorHandling/externalErrorHandler";
-import { setupAxiosInterceptors } from "./errorHandling/axiosInterceptors";
 
 declare module "axios" {
   export interface AxiosRequestConfig {
@@ -110,8 +109,6 @@ if (import.meta.env.MODE === "mock") {
 
 const pinia = createPinia();
 
-console.log('interceptor');
-
 const app = createApp(App)
   .use(pinia)
   .use(router)
@@ -200,12 +197,60 @@ axios.interceptors.request.use(async (request: any) => {
   return request;
 });
 
-/*
-axios.interceptors.response.use(    (response: any) => {
-  console.log(response);
-  return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
-},)
- */
+axios.interceptors.response.use(
+  (response: any) => {
+    return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
+  },
+  (error: any) => {
+    if (error?.response?.config?.raw) return Promise.reject(error);
+    if (error?.response?.status === 403) {
+      if (error.response.data) {
+        vm.$toast.add({
+          severity: "error",
+          summary: "Access denied",
+          detail: error.response.data.debugMessage
+        });
+      } else if (error.config.url) {
+        vm.$toast.add({
+          severity: "error",
+          summary: "Access denied",
+          detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+        });
+      } else {
+        vm.$toast.add({
+          severity: "error",
+          summary: "Access denied"
+        });
+      }
+      router.push({ name: "AccessDenied" });
+    } else if (error?.response?.status === 401) {
+      vm.$toast.add({
+        severity: "error",
+        summary: "Access denied",
+        detail:
+          "Insufficient clearance to access " +
+          error.config.url.substring(error.config.url.lastIndexOf("/") + 1) +
+          ". Please contact an admin to change your account security clearance if you require access to this resource."
+      });
+      router.push({ name: "AccessDenied" }).then();
+    } else if (error?.response?.data?.code && error?.response?.status > 399 && error?.response?.status < 500) {
+      console.error(error.response.data);
+      vm.$toast.add({
+        severity: "error",
+        summary: error.response.data.code,
+        detail: error.response.data.debugMessage
+      });
+    } else if (error?.response?.status >= 500 && error.code === "ERR_BAD_RESPONSE") {
+      router.push({ name: "ServerOffline" }).then();
+    } else if (error.code === "ERR_CANCELED") {
+      return;
+    } else if (error.code === "ERR_BAD_REQUEST") {
+      router.push({ name: "ServerOffline" }).then();
+    } else {
+      return Promise.reject(error);
+    }
+  }
+);
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
@@ -220,7 +265,6 @@ sharedStore.updateFontAwesomePro(false);
 
 const vm = app.mount("#app");
 
-setupAxiosInterceptors(axios, vm);
 setupExternalErrorHandler(vm);
 
 // Vue application exceptions
