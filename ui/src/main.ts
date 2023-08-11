@@ -206,4 +206,7 @@ app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | nu
     summary: info,
     detail: err
   });
+
+  sharedStore.updateError(err);
+  router.push({ name: "VueError" });
 };
