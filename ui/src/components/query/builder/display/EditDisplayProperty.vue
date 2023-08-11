@@ -32,11 +32,12 @@
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, Property, QueryRequest } from "@im-library/interfaces/AutoGen";
-import { Ref, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import EditProperty from "../edit/EditProperty.vue";
 import _, { cloneDeep } from "lodash";
 import EditDisplayMatch from "./EditDisplayMatch.vue";
 import { SelectedMatch } from "@im-library/interfaces";
+import { useQueryStore } from "@/stores/queryStore";
 
 interface Props {
   parentMatch?: Match;
@@ -44,12 +45,14 @@ interface Props {
   index: number;
   property: Property;
   queryTypeIri: string;
-  selectedMatches: SelectedMatch[];
-  variableMap: Map<string, any>;
-  validationQueryRequest: QueryRequest;
 }
 
 const props = defineProps<Props>();
+const queryStore = useQueryStore();
+const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
+const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
+const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
+
 const editMode: Ref<boolean> = ref(false);
 const editProperty: Ref<Property> = ref({} as Property);
 
