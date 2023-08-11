@@ -5,19 +5,14 @@ import { Auth } from "aws-amplify";
 import { ComponentPublicInstance } from "vue";
 
 export function setupAxiosInterceptors(axios: any, vm: ComponentPublicInstance) {
+  console.log('interceptor');
   const userStore = useUserStore();
-  axios.interceptors.request.use(async (request: any) => {
-    if (userStore.isLoggedIn) {
-      if (!request.headers) request.headers = {};
-      request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
-    }
-    return request;
-  });
 
   axios.interceptors.response.use(
-    (response: any) => {
-      return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
-    },
+      (response: any) => {
+        console.log(response);
+        return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
+      },
     (error: any) => {
       if (error?.response?.config?.raw) return Promise.reject(error);
       if (error?.response?.status === 403) {

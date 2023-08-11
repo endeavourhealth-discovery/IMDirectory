@@ -47,6 +47,7 @@ const UprnService = {
   },
 
   async authCheck(): Promise<any> {
+    console.log('authCheck');
     return axios.get(api + "/api2/authCheck");
   }
 };

@@ -22,6 +22,7 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 library.add(fab);
 
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 dom.watch();
 
@@ -109,6 +110,8 @@ if (import.meta.env.MODE === "mock") {
 
 const pinia = createPinia();
 
+console.log('interceptor');
+
 const app = createApp(App)
   .use(pinia)
   .use(router)
@@ -187,6 +190,22 @@ const app = createApp(App)
   .component("TabMenu", TabMenu);
 
 const sharedStore = useSharedStore();
+const userStore = useUserStore();
+
+axios.interceptors.request.use(async (request: any) => {
+  if (userStore.isLoggedIn) {
+    if (!request.headers) request.headers = {};
+    request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
+  }
+  return request;
+});
+
+/*
+axios.interceptors.response.use(    (response: any) => {
+  console.log(response);
+  return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
+},)
+ */
 
 // #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
 import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
