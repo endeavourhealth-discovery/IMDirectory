@@ -8,6 +8,9 @@
       <span>An unexpected error has occurred.</span> <br />
       <span>Please check the console for details on this error.</span>
     </p>
+    <div class="error-submit-container">
+      <Button label="Send error report" @click="sendErrorReport" />
+    </div>
     <div class="button-container">
       <Button label="Back" @click="goBack" icon="fa-solid fa-arrow-left" />
       <Button label="Home" @click="goHome" icon="fa-solid fa-home" />
@@ -16,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import { useSharedStore } from "@/stores/sharedStore";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -27,6 +31,10 @@ function goBack() {
 function goHome() {
   router.push({ name: "Directory" });
 }
+
+function sendErrorReport() {
+  router.push({ name: "BugReport" });
+}
 </script>
 
 <style scoped>
@@ -37,6 +45,7 @@ function goHome() {
   flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
+  gap: 0.5rem;
 }
 .error-icon {
   color: var(--red-500);
@@ -45,7 +54,7 @@ function goHome() {
 .error-code {
   color: var(--text-color);
   font-size: 6rem;
-  margin: 1.5 rem 0 0.5rem 0;
+  margin: 1.5rem 0 0.5rem 0;
 }
 
 .error-header {
