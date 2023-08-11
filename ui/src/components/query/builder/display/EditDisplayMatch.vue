@@ -58,7 +58,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef)['@type'] : match['@type'] ? match['@type'] : queryTypeIri"
+    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef!)['@type'] : match['@type'] ? match['@type'] : queryTypeIri"
     :match="match"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
