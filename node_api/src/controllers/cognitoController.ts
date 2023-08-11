@@ -2,6 +2,9 @@ import CognitoService from "@/services/cognito.service";
 import { Request, Response, NextFunction } from "express";
 import router from "express-promise-router";
 import AuthMiddleware from "@/middlewares/auth.middleware";
+import { CustomError } from "@im-library/models";
+import { ErrorType } from "@im-library/enums";
+import { checkIsValidUprnEmail } from "@/logic/isValidUprnEmail";
 
 export default class CognitoController {
   public path = "/node_api/cognito";
@@ -28,6 +31,12 @@ export default class CognitoController {
         .then(data => res.send(data))
         .catch(next)
     );
+
+    this.router.get("/public/isValidUprnEmail", (req, res, next) =>
+      this.isValidUprnEmail(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
   }
 
   async isEmailRegistered(req: Request) {
@@ -42,8 +51,15 @@ export default class CognitoController {
   async isTokenValid(req: Request) {
     try {
       return await this.auth.checkToken(req);
-    } catch(e) {
+    } catch (e) {
       return false;
+    }
+  }
+
+  async isValidUprnEmail(req: Request) {
+    const email = await this.auth.getEmailFromToken(req);
+    if (email) {
+      return checkIsValidUprnEmail(email);
     }
   }
 }

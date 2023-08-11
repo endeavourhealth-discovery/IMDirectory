@@ -3,6 +3,8 @@ import jwkToPem from "jwk-to-pem";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import logger from "./logger.middleware";
+import { CustomError } from "@im-library/models";
+import { ErrorType } from "@im-library/enums";
 
 let pems: { [key: string]: any } = {};
 
@@ -11,20 +13,16 @@ class AuthMiddleware {
   private userPoolId: string = "eu-west-2_Vt5ScFwss";
 
   public async verifyToken(req: Request, res: Response, next: NextFunction, role?: string) {
-    if (await this.checkToken(req, role))
-      next()
-    else
-      res.status(401).end();
+    if (await this.checkToken(req, role)) next();
+    else res.status(401).end();
   }
 
-  public async checkToken(req:Request, role?: string) {
+  public async checkToken(req: Request, role?: string) {
     const token = req.headers?.authorization?.substring(7);
 
-    if (!token)
-      return false;
+    if (!token) return false;
 
-    if (Object.keys(pems).length == 0)
-      await this.setUp();
+    if (Object.keys(pems).length == 0) await this.setUp();
 
     let decodedJwt: any = jwt.decode(token, { complete: true });
     logger.info("decodedJwt", decodedJwt);
@@ -80,6 +78,72 @@ class AuthMiddleware {
       logger.error(error);
       logger.error("Error! Unable to download JWKs");
     }
+  }
+
+  public async getRolesFromToken(req: Request): Promise<string[]> {
+    const token = req.headers?.authorization?.substring(7);
+
+    if (!token) throw new CustomError("Missing token", ErrorType.InvalidTokenError);
+
+    if (Object.keys(pems).length == 0) await this.setUp();
+
+    let decodedJwt: any = jwt.decode(token, { complete: true });
+    logger.info("decodedJwt", decodedJwt);
+    if (decodedJwt === null) {
+      throw new CustomError("Invalid token", ErrorType.InvalidTokenError);
+    }
+
+    let kid = decodedJwt.header.kid;
+    let pem = pems[kid];
+    if (!pem) {
+      throw new CustomError("Invalid token", ErrorType.InvalidTokenError);
+    }
+    try {
+      jwt.verify(token, pem);
+    } catch (err) {
+      throw new CustomError("Invalid token", ErrorType.InvalidTokenError);
+    }
+
+    if (!decodedJwt.payload["cognito:groups"]) {
+      return [];
+    }
+
+    const roles: string[] = decodedJwt.payload["cognito:groups"];
+
+    return roles;
+  }
+
+  public async getEmailFromToken(req: Request): Promise<string> {
+    const token = req.headers?.authorization?.substring(7);
+
+    if (!token) throw new CustomError("Missing token", ErrorType.InvalidTokenError);
+
+    if (Object.keys(pems).length == 0) await this.setUp();
+
+    let decodedJwt: any = jwt.decode(token, { complete: true });
+    logger.info("decodedJwt", decodedJwt);
+    if (decodedJwt === null) {
+      throw new CustomError("Invalid token", ErrorType.InvalidTokenError);
+    }
+
+    let kid = decodedJwt.header.kid;
+    let pem = pems[kid];
+    if (!pem) {
+      throw new CustomError("Invalid token", ErrorType.InvalidTokenError);
+    }
+    try {
+      jwt.verify(token, pem);
+    } catch (err) {
+      throw new CustomError("Invalid token", ErrorType.InvalidTokenError);
+    }
+
+    if (!decodedJwt.payload["email"]) {
+      throw new CustomError("Invalid token", ErrorType.InvalidTokenError);
+    }
+
+    const email: string = decodedJwt.payload["email"];
+
+    return email;
   }
 }
 
