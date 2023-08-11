@@ -35,15 +35,9 @@ export const useQueryStore = defineStore("query", {
           }
         ]
       }
-    }
+    } as QueryRequest
   }),
   actions: {
-    addSelected(selectedMatch: SelectedMatch) {
-      this.selectedMatches.push(selectedMatch);
-    },
-    removeSelected(selectedMatch: SelectedMatch) {
-      this.selectedMatches;
-    },
     updateVariableMap(map: Map<string, any>) {
       this.variableMap = map;
     }
