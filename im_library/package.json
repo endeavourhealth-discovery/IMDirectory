@@ -6,7 +6,7 @@
     "dev": "pnpm tsc:dev",
     "tsc:dev": "tsc --noEmit --watch",
     "tsc:build": "tsc --build tsconfig.build.json",
-    "test:unit": "vitest EclToIMQ.spec.js --threads false",
+    "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint --fix",
     "format": "prettier --write",
