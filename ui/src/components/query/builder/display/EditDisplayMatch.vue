@@ -24,7 +24,6 @@
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)" @dblclick="editMatch()"></div>
-
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -33,7 +32,6 @@
       :match="nestedMatch"
       :query-type-iri="queryTypeIri"
     />
-
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
       v-for="(property, index) of match.property"
@@ -161,6 +159,16 @@ watch(
   () => {
     getStyle();
   }
+);
+
+watch(
+  () => props.match,
+  () => {
+    if (!isArrayHasLength(props.match.property) && !isArrayHasLength(props.match.match)) {
+      remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
+    }
+  },
+  { deep: true }
 );
 
 onMounted(() => {
