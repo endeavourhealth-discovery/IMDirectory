@@ -164,7 +164,7 @@ watch(
 watch(
   () => props.match,
   () => {
-    if (!isArrayHasLength(props.match.property) && !isArrayHasLength(props.match.match)) {
+    if (!isArrayHasLength(props.match.property) && !isArrayHasLength(props.match.match) && !hasValue.value) {
       remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
     }
   },
