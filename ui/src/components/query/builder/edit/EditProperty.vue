@@ -61,7 +61,6 @@ async function init() {
   let dataModelIri = resolveIri(props.match?.["@type"]!) ?? resolveIri(props.queryTypeIri);
   if (isObjectHasKeys(props.match, ["nodeRef"]) && props.match?.nodeRef) {
     dataModelIri = variableMap.value.get(props.match.nodeRef)["@type"];
-    console.log(dataModelIri);
   }
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
