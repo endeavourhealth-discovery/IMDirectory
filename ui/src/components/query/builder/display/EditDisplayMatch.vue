@@ -94,6 +94,7 @@ import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { IM } from "@im-library/vocabulary";
 import { useUserStore } from "@/stores/userStore";
 import { useQueryStore } from "@/stores/queryStore";
+import { cloneDeep } from "lodash";
 
 interface Props {
   queryTypeIri: string;
@@ -162,13 +163,12 @@ watch(
 );
 
 watch(
-  () => props.match,
+  () => cloneDeep(props.match),
   () => {
     if (!isArrayHasLength(props.match.property) && !isArrayHasLength(props.match.match) && !hasValue.value) {
       remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
     }
-  },
-  { deep: true }
+  }
 );
 
 onMounted(() => {

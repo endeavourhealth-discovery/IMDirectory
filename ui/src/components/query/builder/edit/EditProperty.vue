@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { Match, Property } from "@im-library/interfaces/AutoGen";
-import { Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, ref, ComputedRef, computed } from "vue";
 import ClassSelect from "./class/ClassSelect.vue";
 import DatatypeSelect from "./datatype/DatatypeSelect.vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -33,6 +33,7 @@ import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { QueryService } from "@/services";
 import { SHACL } from "@im-library/vocabulary";
 import EntitySelect from "./EntitySelect.vue";
+import { useQueryStore } from "@/stores/queryStore";
 
 const emit = defineEmits({
   removeMatch: () => true,
@@ -47,15 +48,21 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const queryStore = useQueryStore();
 const ttproperty: Ref<TTProperty> = ref({} as TTProperty);
 const tooltip: Ref<string> = ref("");
+const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 onMounted(async () => {
   await init();
 });
 
 async function init() {
-  const dataModelIri = resolveIri(props.match?.["@type"]!) ?? resolveIri(props.queryTypeIri);
+  let dataModelIri = resolveIri(props.match?.["@type"]!) ?? resolveIri(props.queryTypeIri);
+  if (isObjectHasKeys(props.match, ["nodeRef"]) && props.match?.nodeRef) {
+    dataModelIri = variableMap.value.get(props.match.nodeRef)["@type"];
+    console.log(dataModelIri);
+  }
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
     if (isArrayHasLength(ttproperties)) {
