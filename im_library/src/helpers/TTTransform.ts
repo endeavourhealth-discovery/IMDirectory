@@ -1,5 +1,6 @@
 import { IM, SNOMED } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { TTIriRef } from "../interfaces/AutoGen";
 
 export function transformTT(ttEntity: any, map?: any) {
   if (!isObjectHasKeys(ttEntity)) return {};
@@ -46,14 +47,22 @@ function getNameFromIri(iri: string) {
 }
 
 export function getIriFromRef(ref: any): string {
-  return ref["@id"] ?? ref["@set"] ?? ref["@type"] ?? "";
+  // TODO: inSet is now an array
+  return ref["@id"] ?? (ref["inSet"] && ref["inSet"].length > 0 ? ref["inSet"][0]["@id"] : null) ?? ref["typeOf"]["@id"] ?? "";
+}
+
+export function getNameListFromIriList(iris: TTIriRef[]): string {
+  const result: string[] = [];
+  for (const iri of iris) result.push(getNameFromIri(iri["@id"]));
+
+  return result.join(", ");
 }
 
 export function getNameFromRef(ref: any): string {
   if (isObjectHasKeys(ref, ["name"])) return ref.name;
   else if (isObjectHasKeys(ref, ["@id"])) return getNameFromIri(ref["@id"]);
-  else if (isObjectHasKeys(ref, ["@set"])) return getNameFromIri(ref["@set"]);
-  else if (isObjectHasKeys(ref, ["@type"])) return getNameFromIri(ref["@type"]);
+  else if (isObjectHasKeys(ref, ["inSet"])) return getNameListFromIriList(ref["inSet"]);
+  else if (isObjectHasKeys(ref, ["typeOf"])) return getNameFromIri(ref["typeOf"]["@id"]);
   else if (isObjectHasKeys(ref, ["parameter"])) return ref["parameter"];
   return "";
 }

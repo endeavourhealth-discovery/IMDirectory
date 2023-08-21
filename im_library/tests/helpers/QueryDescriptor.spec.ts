@@ -8,7 +8,9 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getUnnamedObjects", () => {
     it("can get all resolved object iris without a name in query with a reference to the object", () => {
       const unnamedObjects = getUnnamedObjects(fullTestQueryDefinition as Match);
-      expect(Object.keys(unnamedObjects).length).toEqual(10);
+      console.log("UNNAMED");
+      console.log(JSON.stringify(unnamedObjects, null, 2));
+      expect(Object.keys(unnamedObjects).length).toEqual(12);
     });
   });
 
