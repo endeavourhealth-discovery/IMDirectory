@@ -84,6 +84,12 @@ function getTooltip(ttproperty: TTProperty) {
 </script>
 
 <style scoped>
+.property-container {
+  margin-left: 1rem;
+}
+.property-input-container {
+  margin-left: 0 !important;
+}
 .property-label {
   margin-bottom: 0.5rem !important;
 }
