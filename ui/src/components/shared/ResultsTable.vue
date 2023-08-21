@@ -216,10 +216,9 @@ label {
 
 .buttons-container {
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: row nowrap;
   align-items: center;
   justify-content: center;
-  row-gap: 0.5rem;
 }
 
 .break-word {

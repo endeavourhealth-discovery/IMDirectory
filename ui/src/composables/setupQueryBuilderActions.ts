@@ -18,7 +18,9 @@ function setupQueryBuilderActions() {
   function addOrEdit(match: Match, parentMatchList: Match[] | undefined, index: number, direct: Match[], nested: Match[]) {
     switch (addMode.value) {
       case "editProperty":
-        if (!isArrayHasLength(match.property)) match.property = [];
+        if (!isArrayHasLength(match.property) || !isArrayHasLength(direct)) {
+          match.property = [];
+        }
         for (const newMatch of direct) {
           match.property = newMatch.property;
         }
@@ -83,8 +85,12 @@ function setupQueryBuilderActions() {
     }
   }
 
-  function remove(matchIndex: number, matches: Match[]) {
-    if (isArrayHasLength(matches)) matches.splice(matchIndex, 1);
+  function remove(matchIndex: number, matches: Match[], parent: Match) {
+    if (isArrayHasLength(matches)) {
+      matches.splice(matchIndex, 1);
+    } else if (isArrayHasLength(parent.property) && parent.property?.length === 1) {
+      parent.property.splice(0, 1);
+    }
   }
 
   function group(selectedMatches: SelectedMatch[], parentMatch: Match[] | undefined, matches: Match[]) {
@@ -179,11 +185,11 @@ function setupQueryBuilderActions() {
     }
   }
 
-  function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, memberOfList?: Match[]) {
+  function select(event: any, isSelected: boolean, selectedMatches: SelectedMatch[], match: Match, index: number, parentMatch?: Match, parentList?: Match[]) {
     event.stopPropagation();
     const selectedMatch = { index: index, selected: match } as SelectedMatch;
     if (parentMatch) selectedMatch.parent = parentMatch;
-    else if (memberOfList) selectedMatch.memberOfList = memberOfList;
+    else if (parentList) selectedMatch.parentList = parentList;
 
     if (event.ctrlKey || event.metaKey) {
       if (!isSelected) {

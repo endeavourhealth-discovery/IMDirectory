@@ -1,4 +1,4 @@
-import { GraphdbService, iri, sanitise } from "@/services/graphdb.service";
+import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import { CONFIG, IM, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { CustomError } from "@im-library/models";
@@ -13,10 +13,10 @@ export default class ConfigRepository {
   public async getConfig(url: string): Promise<any> {
     const qry = "SELECT ?name ?data WHERE {" + "  GRAPH ?c {" + "        ?s ?label   ?name ;" + "           ?config  ?data ." + "  }" + "}";
     const rs = await this.graph.execute(qry, {
-      c: iri(CONFIG.NAMESPACE),
-      s: iri(url),
-      label: iri(RDFS.LABEL),
-      config: iri(IM.HAS_CONFIG)
+      c: sanitise(CONFIG.NAMESPACE),
+      s: sanitise(url),
+      label: sanitise(RDFS.LABEL),
+      config: sanitise(IM.HAS_CONFIG)
     });
 
     if (isArrayHasLength(rs) && isObjectHasKeys(rs[0], ["data"])) {
@@ -27,24 +27,24 @@ export default class ConfigRepository {
   }
 
   public async setConfig(subjectUrl: string, name: string, description: string, data: any): Promise<void> {
-    await this.graph.delete(iri(subjectUrl), iri(IM.HAS_CONFIG));
+    await this.graph.delete(sanitise(subjectUrl), sanitise(IM.HAS_CONFIG));
 
     const qry =
       "INSERT DATA { " +
       "GRAPH " +
-      iri(CONFIG.NAMESPACE) +
+      sanitise(CONFIG.NAMESPACE) +
       " { " +
-      iri(subjectUrl) +
+      sanitise(subjectUrl) +
       " " +
-      iri(RDFS.LABEL) +
+      sanitise(RDFS.LABEL) +
       " " +
       sanitise(name) +
       ";" +
-      iri(RDFS.COMMENT) +
+      sanitise(RDFS.COMMENT) +
       " " +
       sanitise(description) +
       ";" +
-      iri(IM.HAS_CONFIG) +
+      sanitise(IM.HAS_CONFIG) +
       " " +
       sanitise(data) +
       " ." +

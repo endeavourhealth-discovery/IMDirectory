@@ -10,7 +10,6 @@
       :base-type="baseType"
       :editMatch="editMatch"
       :selected-properties="selectedProperties"
-      :variable-map="variableMap"
       :add-mode="addMode"
       @on-selected-update="onSelectedUpdate"
     />
@@ -34,7 +33,6 @@ interface Props {
   showDialog: boolean;
   baseType: string;
   match?: Match;
-  variableMap: Map<string, any>;
   addMode: "editProperty" | "addBefore" | "addAfter";
 }
 

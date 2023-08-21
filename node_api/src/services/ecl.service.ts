@@ -37,6 +37,6 @@ export default class EclService {
     } else if (isObjectHasKeys(eclSearchRequest, ["eclQuery"]) && eclSearchRequest.eclQuery) {
       delete eclSearchRequest.eclString;
     } else throw new Error("eclString or eclQuery required for eclSearch");
-    return (await this.axios.post(Env.API + "api/ecl/public/evaluateEclQuery", eclSearchRequest)).data;
+    return (await this.axios.post(Env.API + "api/ecl/public/eclSearch", eclSearchRequest)).data;
   }
 }

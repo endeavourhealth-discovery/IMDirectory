@@ -15,11 +15,11 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getDisplayFromOrderBy", () => {
     it("can get description from OrderBy latest", () => {
       const description = getDisplayFromOrderBy(orderBy.getLatest as OrderLimit);
-      expect(description).toEqual("<div class='variable-line'>get latest</div>");
+      expect(description).toEqual("<div class='variable-line'>get latest by effectiveDate</div>");
     });
     it("can get description from OrderBy earliest", () => {
       const description = getDisplayFromOrderBy(orderBy.getEarliest as OrderLimit);
-      expect(description).toEqual("<div class='variable-line'>get earliest</div>");
+      expect(description).toEqual("<div class='variable-line'>get earliest by effectiveDate</div>");
     });
   });
 

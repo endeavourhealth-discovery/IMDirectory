@@ -21,25 +21,16 @@
         :index="index"
         :query-type-iri="queryTypeIri"
         :parentMatchList="query.match"
-        :selected-matches="selectedMatches"
-        :variable-map="variableMap"
-        :validation-query-request="validationQueryRequest"
       />
 
       <div v-else-if="!queryTypeIri">
-        <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
+        <Button class="base-type-button" label="Add base type" @click="showAddBaseTypeDialog = true" />
       </div>
       <div v-if="!isArrayHasLength(query.match) && query['@type']">
-        <Button label="Add property" @click="showAddDialog = true" />
+        <Button class="base-type-button" label="Add property" @click="showAddDialog = true" />
       </div>
 
-      <AddPropertyDialog
-        v-model:show-dialog="showAddDialog"
-        :base-type="queryTypeIri"
-        :variable-map="variableMap"
-        :add-mode="'addAfter'"
-        @on-add-or-edit="add"
-      />
+      <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" :add-mode="'addAfter'" @on-add-or-edit="add" />
       <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     </div>
     <div class="button-bar">
@@ -65,20 +56,19 @@ import EditDisplayMatch from "@/components/query/builder/display/EditDisplayMatc
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTypeDialog.vue";
 import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddPropertyDialog.vue";
-import { SelectedMatch } from "@im-library/interfaces";
 import { describeQuery } from "@im-library/helpers/QueryDescriptor";
+import { useQueryStore } from "@/stores/queryStore";
 
+const queryStore = useQueryStore();
 const filterStore = useFilterStore();
+const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const queryTypeIri: Ref<string> = ref("");
-const selectedMatches: Ref<SelectedMatch[]> = ref([]);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
 const loading = ref(true);
-const variableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
-const validationQueryRequest: Ref<QueryRequest> = ref({} as QueryRequest);
 
 watch(
   () => queryIri.value,
@@ -138,74 +128,48 @@ function add(direct: Match[], nested: Match[]) {
 }
 
 function initVariableMap() {
-  variableMap.value.clear();
+  const initMap = new Map<string, any>();
+  initMap.clear();
   for (const match of query.value.match) {
-    addVariableRefFromMatch(match);
+    addVariableRefFromMatch(initMap, match);
   }
+
+  queryStore.updateVariableMap(initMap);
 }
 
-function addVariableRefFromMatch(match: Match) {
-  if (match.variable) variableMap.value.set(match.variable, match);
+function addVariableRefFromMatch(map: Map<string, any>, match: Match) {
+  if (match.variable) map.set(match.variable, match);
   if (isArrayHasLength(match.match))
     for (const nestedMatch of match.match!) {
-      addVariableRefFromMatch(nestedMatch);
+      addVariableRefFromMatch(map, nestedMatch);
     }
 
   if (isArrayHasLength(match.property))
     for (const property of match.property!) {
-      addVariableRefFromProperty(property);
+      addVariableRefFromProperty(map, property);
     }
 }
 
-function addVariableRefFromProperty(property: Property) {
-  if (property.variable) variableMap.value.set(property.variable, property);
+function addVariableRefFromProperty(map: Map<string, any>, property: Property) {
+  if (property.variable) map.set(property.variable, property);
 
-  if (isObjectHasKeys(property, ["match"])) addVariableRefFromMatch(property.match!);
+  if (isObjectHasKeys(property, ["match"])) addVariableRefFromMatch(map, property.match!);
 
   if (isArrayHasLength(property.property))
     for (const nestedProperty of property.property!) {
-      addVariableRefFromProperty(nestedProperty);
+      addVariableRefFromProperty(map, nestedProperty);
     }
 }
 
 function setValidationQueryRequest() {
-  validationQueryRequest.value = {
-    argument: [
-      {
-        parameter: "dataModelIri",
-        valueIri: {
-          "@id": queryTypeIri.value
-        }
+  validationQueryRequest.value.argument = [
+    {
+      parameter: "dataModelIri",
+      valueIri: {
+        "@id": queryTypeIri.value
       }
-    ],
-    query: {
-      name: "Get queries by return type",
-      match: [
-        {
-          "@type": "http://endhealth.info/im#CohortQuery",
-          property: [
-            {
-              "@id": "http://endhealth.info/im#returnType",
-              in: [
-                {
-                  parameter: "dataModelIri"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      return: [
-        {
-          property: [
-            {
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-            }
-          ]
-        }
-      ]
     }
-  };
+  ];
 }
 </script>
 
@@ -240,6 +204,10 @@ function setValidationQueryRequest() {
   display: flex;
   flex-flow: row;
   border: 2px solid #b89241;
+}
+
+.base-type-button {
+  margin-left: 0.5rem;
 }
 
 .button-bar {

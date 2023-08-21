@@ -19,7 +19,7 @@
 </template>
 
 <script async setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { ComputedRef, computed, onMounted, onUnmounted, ref } from "vue";
 import { EntityService } from "@/services";
 import { IM, RDF, SHACL } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
@@ -33,14 +33,17 @@ import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, Property } from "@im-library/interfaces/AutoGen";
 import _ from "lodash";
+import { useQueryStore } from "@/stores/queryStore";
 
 interface Props {
   baseType: string;
   editMatch: Match;
-  variableMap: Map<string, any>;
   addMode: "editProperty" | "addBefore" | "addAfter";
 }
 const props = defineProps<Props>();
+const queryStore = useQueryStore();
+
+const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 const emit = defineEmits({
   onSelectedUpdate: (_payload: TreeNode[]) => true
@@ -194,11 +197,11 @@ async function onClassExpand(node: TreeNode) {
 async function addParentFoldersToRoot() {
   const resolvedIri = resolveIri(props.baseType);
   if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
-  if (props.addMode !== "editProperty" && props.variableMap && props.variableMap.size) addVariableNodes();
+  if (props.addMode !== "editProperty" && variableMap.value && variableMap.value.size) addVariableNodes();
 }
 
 function addVariableNodes() {
-  for (const [key, object] of props.variableMap.entries()) {
+  for (const [key, object] of variableMap.value.entries()) {
     const types: string[] = [];
     getVariableTypesFromMatch(object, types);
     for (const typeIri of types) {
@@ -222,8 +225,8 @@ function getVariableTypesFromMatch(match: Match, types: string[]) {
       getVariableTypesFromProperty(property, types);
     }
 
-  if (match.nodeRef && props.variableMap.has(match.nodeRef)) {
-    const nodeRefMatch = props.variableMap.get(match.nodeRef);
+  if (match.nodeRef && variableMap.value.has(match.nodeRef)) {
+    const nodeRefMatch = variableMap.value.get(match.nodeRef);
     getVariableTypesFromMatch(nodeRefMatch, types);
   }
 }

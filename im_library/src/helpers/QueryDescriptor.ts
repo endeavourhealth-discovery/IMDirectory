@@ -83,7 +83,8 @@ export function getDisplayFromProperty(property: Property) {
 
 export function describeOrderByList(orderByList: OrderLimit[]) {
   for (const orderBy of orderByList) {
-    orderBy.description = getDisplayFromOrderBy(orderBy);
+    const generatedDesc = getDisplayFromOrderBy(orderBy);
+    if (generatedDesc) orderBy.description = generatedDesc;
   }
 }
 
@@ -92,11 +93,26 @@ export function getDisplayFromOrderBy(orderBy: OrderLimit) {
   if (orderBy.variable) display += orderBy.variable + ".";
   const propertyName = getNameFromRef(orderBy);
   if (propertyDisplayMap[propertyName]) display += propertyName + " " + propertyDisplayMap[propertyName] + " ";
-  if (orderBy.limit === 1) {
-    if ("descending" === orderBy.direction) display = "get latest" + display;
-    if ("ascending" === orderBy.direction) display = "get earliest" + display;
-  } else if (orderBy.direction) display = orderBy.direction + " " + display;
-  return "<div class='variable-line'>" + display + "</div>";
+  else display += propertyName;
+  if (propertyName.toLocaleLowerCase().includes("date")) {
+    if ("descending" === orderBy.direction) {
+      if (orderBy.limit === 1) display = "get latest by " + display;
+      else display = "get latest " + orderBy.limit + " by " + display;
+    } else if ("ascending" === orderBy.direction) {
+      if (orderBy.limit === 1) display = "get earliest by " + display;
+      else display = "get earliest " + orderBy.limit + " by " + display;
+    }
+  } else if (propertyName) {
+    if ("descending" === orderBy.direction) {
+      if (orderBy.limit === 1) display = "get highest by " + display;
+      else display = "get highest " + orderBy.limit + " by " + display;
+    } else if ("ascending" === orderBy.direction) {
+      if (orderBy.limit === 1) display = "get lowest by " + display;
+      else display = "get lowest " + orderBy.limit + " by " + display;
+    }
+  }
+
+  return display ? "<div class='variable-line'>" + display + "</div>" : "";
 }
 
 export function getDisplayFromLogic(title: string) {
@@ -115,7 +131,8 @@ export function getDisplayFromLogic(title: string) {
 export function getDisplayFromRange(propertyName: string, property: Property) {
   const propertyDisplay = propertyName;
   let display = propertyDisplay + " between ";
-  display += property.range?.from.value + " and " + property.range?.to.value + " " + property.range?.to.unit;
+  display += property.range?.from.value + " and " + property.range?.to.value;
+  if (!propertyName.toLowerCase().includes("date")) display += " " + property.range?.to.unit;
   return display;
 }
 
@@ -146,12 +163,12 @@ export function getDisplayFromOperator(propertyDisplay: string, property: Proper
 export function getDisplayFromDateComparison(property: Property) {
   let display = "";
   if (property.value) {
-    if (property.operator) display += getDisplayFromOperatorForDate(property.operator, true);
+    if (property.operator) display += getDisplayFromOperatorForDate(property.operator);
     display += getDisplayFromValueAndUnitForDate(property);
     if (property.relativeTo && "$referenceDate" !== property.relativeTo.parameter)
       display += " from " + (getDisplayFromNodeRef(property.relativeTo?.nodeRef) ?? getNameFromRef(property.relativeTo));
   } else {
-    if (property.operator) display += getDisplayFromOperatorForDate(property.operator, false);
+    if (property.operator) display += getDisplayFromOperatorForDate(property.operator);
     if (property.relativeTo) display += getDisplayFromNodeRef(property.relativeTo?.nodeRef) ?? getNameFromRef(property.relativeTo);
   }
 
@@ -170,21 +187,20 @@ export function getDisplayFromVariable(nodeRef: string | undefined) {
 
 export function getDisplayFromValueAndUnitForDate(property: Property) {
   let display = "";
-  if (property.value) display += "last " + property.value.replaceAll("-", "") + " ";
+  if (property.value) display += property.value + " ";
   if (property.unit) display += property.unit;
   return display;
 }
 
-export function getDisplayFromOperatorForDate(operator: Operator, withValue: boolean) {
+export function getDisplayFromOperatorForDate(operator: Operator) {
   switch (operator) {
     case "=":
-      return withValue ? "on " : "on the same date as ";
-    case ">=":
-      return withValue ? "within the " : "after ";
+      return "on ";
     case ">":
-      return withValue ? "in the " : "after ";
+    case ">=":
+      return "after ";
     case "<=":
-      return withValue ? "within the " : "before ";
+      return "before ";
 
     default:
       return "on ";

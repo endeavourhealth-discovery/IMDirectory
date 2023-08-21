@@ -6,7 +6,7 @@ import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
-import { GraphdbService, iri } from "@/services/graphdb.service";
+import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
 import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
@@ -222,10 +222,10 @@ export default class QueryService {
       "} ";
 
     const rs = await this.graph.execute(query, {
-      propIri: iri(propIri),
-      isA: iri(IM.IS_A),
-      objProp: iri(IM.DATAMODEL_OBJECTPROPERTY),
-      dataProp: iri(IM.DATAMODEL_DATAPROPERTY)
+      propIri: sanitise(propIri),
+      isA: sanitise(IM.IS_A),
+      objProp: sanitise(IM.DATAMODEL_OBJECTPROPERTY),
+      dataProp: sanitise(IM.DATAMODEL_DATAPROPERTY)
     });
 
     if (isArrayHasLength(rs)) {
@@ -238,9 +238,9 @@ export default class QueryService {
     const query = "SELECT ?functionProperty " + "WHERE {" + "bind(exists{?propIri ?isA  ?funcProp} as ?functionProperty)" + "} ";
 
     const rs = await this.graph.execute(query, {
-      propIri: iri(propIri),
-      isA: iri(IM.IS_A),
-      funcProp: iri(IM.DATAMODEL_FUNCTIONPROPERTY)
+      propIri: sanitise(propIri),
+      isA: sanitise(IM.IS_A),
+      funcProp: sanitise(IM.DATAMODEL_FUNCTIONPROPERTY)
     });
 
     if (isArrayHasLength(rs)) {
@@ -299,7 +299,7 @@ export default class QueryService {
   public async generateQueryDescriptions(query: Query): Promise<Query> {
     return describeQuery(query);
   }
-  public async getDataModelProperty(dataModelIri: string, propertyIri:string) {
+  public async getDataModelProperty(dataModelIri: string, propertyIri: string) {
     const queryRequest = {
       query: { "@id": IM.query.DM_PROPERTY },
       argument: [

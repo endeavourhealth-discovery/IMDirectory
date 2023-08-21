@@ -148,7 +148,7 @@ async function setupAxiosInterceptors(axios: any) {
           summary: error.response.data.code,
           detail: error.response.data.debugMessage
         });
-      } else if (error?.response?.status === 500 && error.code === "ERR_BAD_RESPONSE") {
+      } else if (error?.response?.status >= 500 && error.code === "ERR_BAD_RESPONSE") {
         router.push({ name: "ServerOffline" }).then();
       } else if (error.code === "ERR_CANCELED") {
         return;
@@ -181,6 +181,7 @@ function setupExternalErrorHandler() {
         summary: "An error occurred",
         detail: e.reason
       });
+    sharedStore.updateError(e);
     router.push({ name: "VueError" });
   });
 }

@@ -35,13 +35,11 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onValueUpdate: (payload: any) => payload });
 const propertyType: Ref<string> = ref("");
 const booleanOptions = [
   { name: "true", value: true },
   { name: "false", value: false }
 ];
-const selectedValue: Ref<any> = ref();
 
 watch(
   () => propertyType.value,

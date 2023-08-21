@@ -23,7 +23,8 @@
       />
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
-    <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)"></div>
+    <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)" @dblclick="editMatch()"></div>
+
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -31,9 +32,6 @@
       :parent-match="match"
       :match="nestedMatch"
       :query-type-iri="queryTypeIri"
-      :selected-matches="selectedMatches"
-      :variable-map="variableMap"
-      :validation-query-request="validationQueryRequest"
     />
 
     <EditDisplayProperty
@@ -43,11 +41,16 @@
       :parent-match="match"
       :property="property"
       :query-type-iri="queryTypeIri"
-      :selected-matches="selectedMatches"
-      :variable-map="variableMap"
-      :validation-query-request="validationQueryRequest"
     />
-    <EditDisplayOrderBy v-if="isArrayHasLength(match.orderBy)" v-for="(orderBy, index) of match.orderBy" :match="match" :order-by="orderBy" :index="index" />
+    <EditDisplayOrderBy
+      v-if="isArrayHasLength(match.orderBy)"
+      v-for="(orderBy, index) of match.orderBy"
+      :match="match"
+      :order-by="orderBy"
+      :index="index"
+      :query-type-iri="queryTypeIri"
+      :on-add-order-by="onAddOrderBy"
+    />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 
@@ -55,9 +58,8 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="match['@type'] ?? queryTypeIri"
+    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef!)['@type'] : match['@type'] ? match['@type'] : queryTypeIri"
     :match="match"
-    :variable-map="variableMap"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
   />
@@ -76,7 +78,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import EntitySelect from "../edit/EntitySelect.vue";
@@ -93,20 +95,22 @@ import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { IM } from "@im-library/vocabulary";
 import { useUserStore } from "@/stores/userStore";
+import { useQueryStore } from "@/stores/queryStore";
 
 interface Props {
   queryTypeIri: string;
   parentMatch?: Match;
   parentMatchList?: Match[];
-  selectedMatches: SelectedMatch[];
   match: Match;
   index: number;
-  variableMap: Map<string, any>;
-  validationQueryRequest: QueryRequest;
 }
 
 const props = defineProps<Props>();
 const userStore = useUserStore();
+const queryStore = useQueryStore();
+const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
+const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
+const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 const {
   addOrEdit,
@@ -130,12 +134,17 @@ const {
 } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
-  const found = props.selectedMatches.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
+  const found = selectedMatches.value.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
   return !!found;
 });
 
 const hasValue: ComputedRef<boolean> = computed(() => {
-  return isObjectHasKeys(props.match, ["@id"]) || isObjectHasKeys(props.match, ["@set"]) || isObjectHasKeys(props.match, ["@type"]);
+  return (
+    isObjectHasKeys(props.match, ["@id"]) ||
+    isObjectHasKeys(props.match, ["@set"]) ||
+    isObjectHasKeys(props.match, ["@type"]) ||
+    isObjectHasKeys(props.match, ["nodeRef"])
+  );
 });
 
 const hasProperty: ComputedRef<boolean> = computed(() => {
@@ -145,6 +154,7 @@ const hasProperty: ComputedRef<boolean> = computed(() => {
 const htmlId = ref("");
 const rClickMenu = ref();
 const rClickOptions: Ref<any[]> = ref([]);
+const onAddOrderBy: Ref<boolean> = ref(false);
 
 watch(
   () => userStore.currentTheme,
@@ -183,9 +193,9 @@ function toggleExclude() {
 }
 
 function onRightClick(event: any) {
-  if (!isArrayHasLength(props.selectedMatches) || props.selectedMatches.length === 1)
-    select(event, isSelected.value, props.selectedMatches, props.match, props.index, props.parentMatch, props.parentMatchList);
-  rClickOptions.value = isArrayHasLength(props.selectedMatches) && props.selectedMatches.length === 1 ? getSingleRCOptions() : getMultipleRCOptions();
+  if (!isArrayHasLength(selectedMatches.value) || selectedMatches.value.length === 1)
+    select(event, isSelected.value, selectedMatches.value, props.match, props.index, props.parentMatch, props.parentMatchList);
+  rClickOptions.value = isArrayHasLength(selectedMatches.value) && selectedMatches.value.length === 1 ? getSingleRCOptions() : getMultipleRCOptions();
   rClickMenu.value.show(event);
 }
 
@@ -195,14 +205,14 @@ function getMultipleRCOptions() {
       label: "Group",
       icon: PrimeIcons.LINK,
       command: () => {
-        group(props.selectedMatches, props.parentMatch?.match, props.parentMatch?.match ?? props.parentMatchList!);
+        group(selectedMatches.value, props.parentMatch?.match, props.parentMatch?.match ?? props.parentMatchList!);
       }
     },
     {
       label: "Delete",
       icon: PrimeIcons.TRASH,
       command: () => {
-        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!);
+        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
       }
     }
   ];
@@ -212,7 +222,7 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add property",
+      label: "Add property feature",
       icon: PrimeIcons.PLUS,
       items: [
         {
@@ -246,28 +256,28 @@ function getSingleRCOptions() {
       }
     },
     {
-      label: "Toggle bool logic",
+      label: "Change bool logic",
       icon: PrimeIcons.ARROW_V,
       command: () => {
         toggleBoolMatch();
       }
     },
     {
-      label: "Keep as",
+      label: "Keep as a variable",
       icon: PrimeIcons.SAVE,
       command: () => {
         keepAs();
       }
     },
     {
-      label: "Add order by",
+      label: "earliest/latest highest/lowest",
       icon: PrimeIcons.SORT_ALT,
       command: () => {
         addOrderBy();
       }
     },
     {
-      label: "Move",
+      label: "Move feature",
       icon: PrimeIcons.SORT,
       items: [
         {
@@ -285,17 +295,17 @@ function getSingleRCOptions() {
       ]
     },
     {
-      label: "View",
+      label: "View JSON",
       icon: PrimeIcons.EYE,
       command: () => {
         view();
       }
     },
     {
-      label: "Delete",
+      label: "Delete feature",
       icon: PrimeIcons.TRASH,
       command: () => {
-        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!);
+        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
       }
     }
   ];
@@ -319,7 +329,7 @@ function getSingleRCOptions() {
       label: "Ungroup",
       icon: PrimeIcons.EJECT,
       command: () => {
-        ungroup(props.index, props.selectedMatches, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
+        ungroup(props.index, selectedMatches.value, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
     });
 
@@ -333,11 +343,10 @@ function editMatch() {
     addMode.value = "editProperty";
   }
 }
-
 function addVariable(previousValue: string, newValue: string) {
   props.match.variable = newValue;
-  if (props.variableMap.has(previousValue)) props.variableMap.delete(previousValue);
-  props.variableMap.set(newValue, props.match);
+  if (variableMap.value.has(previousValue)) variableMap.value.delete(previousValue);
+  variableMap.value.set(newValue, props.match);
 }
 
 function onSelect(cs: ConceptSummary) {
@@ -348,7 +357,8 @@ function onSelect(cs: ConceptSummary) {
 
 function addOrderBy() {
   if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
-  props.match.orderBy?.push({ direction: "descending", limit: 1, "@id": "" } as OrderLimit);
+  props.match.orderBy?.push({} as OrderLimit);
+  onAddOrderBy.value = true;
 }
 
 function getStyle() {

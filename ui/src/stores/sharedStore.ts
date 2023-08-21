@@ -14,7 +14,8 @@ export const useSharedStore = defineStore("shared", {
     ],
     showReleaseNotes: false,
     showBanner: localStorage.getItem("showBanner") === "true" ? true : false,
-    activeProfile: { uuid: "", activeClausePath: "" }
+    activeProfile: { uuid: "", activeClausePath: "" },
+    error: undefined
   }),
   actions: {
     updateShowCookieConsent(bool: boolean) {
@@ -38,6 +39,9 @@ export const useSharedStore = defineStore("shared", {
     },
     updateTagSeverityMatches(items: any) {
       this.tagSeverityMatches = items;
+    },
+    updateError(error: any) {
+      this.error = error;
     }
   }
 });

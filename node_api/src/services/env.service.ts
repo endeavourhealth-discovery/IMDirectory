@@ -5,6 +5,7 @@ const Env = {
   GRAPH_REPO: process.env.GRAPH_REPO ?? "im",
   GRAPH_REPO_CONFIG: process.env.GRAPH_REPO_CONFIG ?? "config",
   GRAPH_REPO_USER: process.env.GRAPH_REPO_USER ?? "user",
+  GRAPH_REPO_WORKFLOW: process.env.GRAPH_REPO_WORKFLOW ?? "workflow",
   GRAPH_TIMEOUT: process.env.GRAPH_TIMEOUT ?? 30000,
   OPENSEARCH_URL: process.env.OPENSEARCH_URL ?? "https://search.endeavourhealth.net/concept/_search",
   OPENSEARCH_AUTH: process.env.OPENSEARCH_AUTH ?? "",
