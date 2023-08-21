@@ -55,7 +55,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  const dataModelIri = resolveIri(props.match?.["@type"]!) ?? resolveIri(props.queryTypeIri);
+  const dataModelIri = resolveIri(props.match?.typeOf!["@id"]!) ?? resolveIri(props.queryTypeIri);
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
     if (isArrayHasLength(ttproperties)) {

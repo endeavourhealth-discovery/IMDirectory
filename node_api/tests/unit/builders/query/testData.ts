@@ -34,7 +34,7 @@ export const CSET_NELChis2021 = {
     boolFrom: "or",
     from: [
       {
-        "@type": "http://endhealth.info/im#Concept",
+        typeOf: { "@id": "http://endhealth.info/im#Concept" },
         name: "Concept",
         where: [
           {
@@ -119,7 +119,7 @@ export const CSET_NELChis2021QueryDisplay = {
 
 export const CSET_NELChis2021SetQueryObject = [
   {
-    concept: { "@type": "http://endhealth.info/im#Concept", name: "Concept" },
+    concept: { typeOf: { "@id": "http://endhealth.info/im#Concept", name: "Concept" } },
     include: true,
     refinements: [
       {

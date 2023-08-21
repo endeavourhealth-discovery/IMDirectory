@@ -46,7 +46,7 @@ const clickedProperty: Ref<Property> = ref({} as Property);
 const list: Ref<Node[]> = ref([]);
 
 function hasBigList(property: Property) {
-  return (isArrayHasLength(property.in) && property.in!.length > 1) || (isArrayHasLength(property.notIn) && property.notIn!.length > 1);
+  return (isArrayHasLength(property.inSet) && property.inSet!.length > 1) || (isArrayHasLength(property.notInSet) && property.notInSet!.length > 1);
 }
 
 function onNodeRefClick(property: Property, event: any) {
@@ -55,7 +55,7 @@ function onNodeRefClick(property: Property, event: any) {
 }
 
 function onPropertyInClick(property: Property, event: any) {
-  list.value = (property.in ?? property.notIn) as Node[];
+  list.value = (property.inSet ?? property.notInSet) as Node[];
   op1.value.toggle(event);
 }
 

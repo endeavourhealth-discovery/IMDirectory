@@ -53,7 +53,7 @@ export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
   display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
   if (match.orderBy) describeOrderByList(match.orderBy);
-  if (match["@set"]) display = "in '" + display + "'";
+  if (match.inSet) display = "in '" + display + "'";
   if (isPathMatch) display += " with";
   return display;
 }
@@ -73,8 +73,8 @@ export function getDisplayFromProperty(property: Property) {
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
   if (propertyDisplayMap[propertyName]) display += " " + propertyDisplayMap[propertyName];
-  if (property.in) display += getDisplayFromList(property, true);
-  if (property.notIn) display += getDisplayFromList(property, false);
+  if (property.inSet) display += getDisplayFromList(property, true);
+  if (property.notInSet) display += getDisplayFromList(property, false);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);
   if (property.range) display = getDisplayFromRange(propertyName, property);
   if (property.null) display += " is null";
@@ -209,7 +209,7 @@ export function getDisplayFromOperatorForDate(operator: Operator) {
 
 export function getDisplayFromList(property: Property, include: boolean) {
   let display = include ? " " : " not ";
-  const nodes: Node[] = property.in ?? property.notIn ?? [];
+  const nodes: Node[] = property.inSet ?? property.notInSet ?? [];
   if (property.valueLabel) {
     if (nodes.length === 1) display += property.valueLabel;
     else display += getDisplayFromNodeRef(property.valueLabel);
@@ -254,7 +254,7 @@ function getDisplayFromPathRecursively(propertyOrMatch: any, pathList: string[],
       if (isArrayHasLength(lastMatch)) lastMatch.splice(0, 1, propertyOrMatch);
       else lastMatch.push(propertyOrMatch.match);
     } else {
-      pathList.push(propertyOrMatch.match["@type"]);
+      pathList.push(propertyOrMatch.match.typeOf);
       getDisplayFromPathRecursively(propertyOrMatch.match, pathList, lastMatch);
     }
   }
@@ -290,7 +290,8 @@ function recursivelyAddUnnamedObjects(unnamedObjects: { [x: string]: any[] }, ob
 }
 
 function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
-  const iri = object["@id"] || object["@set"] || object["@type"];
+  // TODO: Set is now an array
+  const iri = object["@id"] || (object["inSet"] && object["inSet"].length > 0 ? object["inSet"][0]["@id"] : null) || object["typeOf"]?.["@id"];
   if (iri && !isObjectHasKeys(object, ["name"])) {
     const resolvedIri = resolveIri(iri);
     if (resolvedIri)
