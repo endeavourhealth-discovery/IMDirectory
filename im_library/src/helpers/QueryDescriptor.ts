@@ -73,8 +73,8 @@ export function getDisplayFromProperty(property: Property) {
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
   if (propertyDisplayMap[propertyName]) display += " " + propertyDisplayMap[propertyName];
-  if (property.inSet) display += getDisplayFromList(property, true);
-  if (property.notInSet) display += getDisplayFromList(property, false);
+  if (property.is) display += getDisplayFromList(property, true);
+  if (property.isNot) display += getDisplayFromList(property, false);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);
   if (property.range) display = getDisplayFromRange(propertyName, property);
   if (property.null) display += " is null";
