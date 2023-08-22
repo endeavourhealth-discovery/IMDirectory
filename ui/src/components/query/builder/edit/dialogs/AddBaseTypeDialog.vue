@@ -51,10 +51,10 @@ const cohortOrDataModelQueryRequest: Ref<QueryRequest> = ref({
         bool: "or",
         match: [
           {
-            "@type": "http://endhealth.info/im#CohortQuery"
+            typeOf: { "@id": "http://endhealth.info/im#CohortQuery" }
           },
           {
-            "@type": "http://www.w3.org/ns/shacl#NodeShape"
+            typeOf: { "@id": "http://www.w3.org/ns/shacl#NodeShape" }
           }
         ]
       }
@@ -76,11 +76,11 @@ watch(visible, newValue => {
 });
 
 onMounted(() => {
-  if (isObjectHasKeys(props.query, ["@type"])) selected.value = { iri: props.query["@type"] } as ConceptSummary;
+  if (isObjectHasKeys(props.query, ["typeOf"])) selected.value = { iri: props.query.typeOf!["@id"] } as ConceptSummary;
 });
 
 async function save() {
-  props.query["@type"] = returnType.value;
+  props.query.typeOf = { "@id": returnType.value };
   if (isQuery(selected.value.entityType)) {
     if (!isArrayHasLength(props.query.match)) props.query.match = [];
     props.query.match!.splice(0, 0, buildMatchFromCS(selected.value));
@@ -98,7 +98,7 @@ function confirm() {
 async function setBaseType(cs: ConceptSummary) {
   selected.value = cs;
   returnType.value = await getReturnType(selected.value);
-  if (isArrayHasLength(props.query.match) && returnType.value !== props.query["@type"]) {
+  if (isArrayHasLength(props.query.match) && returnType.value !== props.query.typeOf!["@id"]) {
     confirmVisible.value = true;
   } else {
     save();

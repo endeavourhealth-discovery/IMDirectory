@@ -2,8 +2,8 @@ import { Match, Property } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
 
 export const match = {
-  withType: { "@type": "Patient" },
-  withSet: { "@set": "CSET_EmailOnlineEncounter" },
+  withType: { typeOf: { "@id": "Patient" } },
+  withSet: { inSet: [{ "@id": "CSET_EmailOnlineEncounter" }] },
   withIri: { "@id": "http://snomed.info/sct#325841000000109" },
   withName: {
     name: "Text message consultation",
@@ -24,7 +24,7 @@ export const match = {
     ancestorsOf: true,
     "@id": "http://endhealth.info/im#1681000252102"
   },
-  withExclude: { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives" },
+  withExclude: { exclude: true, inSet: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
   withVariable: {},
   withOneDirectPropertyOfRange: {
     property: [
@@ -51,7 +51,7 @@ export const match = {
     property: [
       {
         "@id": "http://endhealth.info/im#statedGender",
-        in: [
+        inSet: [
           {
             "@id": "http://endhealth.info/im#905041000252107",
             name: "Female (stated gender)",
@@ -96,11 +96,11 @@ export const match = {
       {
         "@id": "http://endhealth.info/im#observation",
         match: {
-          "@type": "Observation",
+          typeOf: { "@id": "Observation" },
           property: [
             {
               "@id": "http://endhealth.info/im#concept",
-              in: [
+              inSet: [
                 {
                   "@id": "http://snomed.info/sct#714628002",
                   descendantsOf: true
@@ -194,8 +194,8 @@ export const fullTestQueryDefinition = {
   "@id": "http://endhealth.info/im#Q_TestQuery",
   name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
   match: [
-    { "@type": "Patient" },
-    { "@set": "http://endhealth.info/im#Q_RegisteredGMS", name: "Registered for GMS services on reference date" },
+    { typeOf: { "@id": "Patient" } },
+    { inSet: [{ "@id": "http://endhealth.info/im#Q_RegisteredGMS", name: "Registered for GMS services on reference date" }] },
     {
       boolMatch: "or",
       match: [
@@ -210,9 +210,9 @@ export const fullTestQueryDefinition = {
             }
           ]
         },
-        { "@set": "http://example/queries#Q_Diabetics" },
+        { inSet: [{ "@id": "http://example/queries#Q_Diabetics" }] },
         {
-          path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+          path: { "@id": "http://endhealth.info/im#observation", node: { typeOf: { "@id": "Observation" } } },
           where: [
             { "@id": "http://endhealth.info/im#concept", in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], valueLabel: "Prediabetes" }
           ]
@@ -220,7 +220,7 @@ export const fullTestQueryDefinition = {
       ]
     },
     {
-      path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+      path: { "@id": "http://endhealth.info/im#observation", node: { typeOf: { "@id": "Observation" } } },
       bool: "and",
       where: [
         {
@@ -276,10 +276,10 @@ export const fullTestQueryDefinition = {
     },
     {
       exclude: true,
-      path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
+      path: { "@id": "http://endhealth.info/im#observation", node: { typeOf: { "@id": "Observation" } } },
       bool: "and",
       where: [
-        { "@id": "http://endhealth.info/im#concept", in: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }] },
+        { "@id": "http://endhealth.info/im#concept", in: [{ inSet: [ { "@id": "http://endhealth.info/im#InvitedForScreening" }] }] },
         {
           "@id": "http://endhealth.info/im#effectiveDate",
           operator: ">=",
@@ -287,6 +287,6 @@ export const fullTestQueryDefinition = {
         }
       ]
     },
-    { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives", name: "Hypertensives" }
+    { exclude: true, inSet: [ { "@id": "http://endhealth.info/im#Q_Hypertensives", name: "Hypertensives" } ] }
   ]
 };

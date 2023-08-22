@@ -26,7 +26,7 @@
       <div v-else-if="!queryTypeIri">
         <Button class="base-type-button" label="Add base type" @click="showAddBaseTypeDialog = true" />
       </div>
-      <div v-if="!isArrayHasLength(query.match) && query['@type']">
+      <div v-if="!isArrayHasLength(query.match) && query['typeOf']">
         <Button class="base-type-button" label="Add property" @click="showAddDialog = true" />
       </div>
 
@@ -114,9 +114,10 @@ async function setQuery() {
 }
 
 async function setBaseEntityMatch() {
-  if (query.value["@type"]) queryTypeIri.value = query.value["@type"];
+  if (query.value["typeOf"]) queryTypeIri.value = query.value["typeOf"]["@id"];
   else if (isArrayHasLength(query.value?.match)) {
-    queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["@type"] ?? query.value.match![0]["@set"]) as string;
+    // TODO: Set is an array
+    queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["typeOf"]?.["@id"] ?? query.value.match![0]["inSet"]?.[0]?.["@id"]) as string;
   }
 }
 

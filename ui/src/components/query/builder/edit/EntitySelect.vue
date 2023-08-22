@@ -54,7 +54,7 @@ function openDialog() {
 
 function populateSelected() {
   if (isObjectHasKeys(props.editNode)) {
-    const iri = props.editNode["@id"] ?? props.editNode["@set"] ?? props.editNode["@type"];
+    const iri = props.editNode["@id"];
     const name = getNameFromRef(props.editNode);
     if (iri && name) selected.value = { iri: iri, name: name } as ConceptSummary;
   }

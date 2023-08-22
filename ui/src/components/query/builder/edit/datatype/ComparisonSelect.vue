@@ -9,12 +9,12 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Property } from "@im-library/interfaces/AutoGen";
+import { Assignable } from "@im-library/interfaces/AutoGen";
 const operatorOptions = ["=", ">=", ">", "<="];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 
 interface Props {
-  property: Property;
+  property: Assignable;
 }
 
 const props = defineProps<Props>();

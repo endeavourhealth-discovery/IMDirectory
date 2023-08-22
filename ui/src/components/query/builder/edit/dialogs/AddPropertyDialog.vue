@@ -42,7 +42,7 @@ const emit = defineEmits({
   onAddOrEdit: (_direct: Match[], _nested: Match[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
-const editMatch: Ref<Match> = ref({ property: [] } as Match);
+const editMatch: Ref<Match> = ref(({'@id': '',  property: [] } as Match));
 const selectedProperties: Ref<TreeNode[]> = ref([]);
 const visible: Ref<boolean> = ref(false);
 
