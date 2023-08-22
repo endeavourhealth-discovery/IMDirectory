@@ -6,20 +6,24 @@ import EntityService from "@/services/entity.service";
 import axios from "axios";
 import { IM } from "@im-library/vocabulary";
 test("IMQtoSQL", async () => {
-  /*    server.close();
+  server.close();
 
-    const svc = new EntityService(axios);
-    const entity = await svc.getPartialEntity('http://endhealth.info/im#Q_TestQuery', [IM.DEFINITION]);
-    let json = entity.data[IM.DEFINITION];
-    const def: Query = JSON.parse(json);*/
+  /*  const svc = new EntityService(axios);
+  const entity = await svc.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
+  let json = entity.data[IM.DEFINITION];
+  const def: Query = JSON.parse(json);*/
 
   const def: Query = {
     "@id": "http://endhealth.info/im#Q_TestQuery",
     name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
     match: [
       {
-        "@set": "http://endhealth.info/im#Q_RegisteredGMS",
-        name: "Registered for GMS services on reference date"
+        inSet: [
+          {
+            "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+            name: "Registered for GMS services on reference date"
+          }
+        ]
       },
       {
         match: [
@@ -47,18 +51,21 @@ test("IMQtoSQL", async () => {
             ]
           },
           {
-            "@set": "http://example/queries#Q_Diabetics"
+            inSet: [
+              {
+                "@id": "http://example/queries#Q_Diabetics"
+              }
+            ]
           },
           {
             property: [
               {
                 "@id": "http://endhealth.info/im#observation",
                 match: {
-                  "@type": "Observation",
                   property: [
                     {
                       "@id": "http://endhealth.info/im#concept",
-                      in: [
+                      is: [
                         {
                           "@id": "http://snomed.info/sct#714628002",
                           descendantsOf: true
@@ -66,7 +73,10 @@ test("IMQtoSQL", async () => {
                       ],
                       valueLabel: "Prediabetes"
                     }
-                  ]
+                  ],
+                  typeOf: {
+                    "@id": "http://endhealth.info/im#Observation"
+                  }
                 }
               }
             ]
@@ -79,14 +89,12 @@ test("IMQtoSQL", async () => {
           {
             "@id": "http://endhealth.info/im#observation",
             match: {
-              "@type": "Observation",
-              variable: "latestBP",
               bool: "and",
               property: [
                 {
                   "@id": "http://endhealth.info/im#concept",
                   name: "concept",
-                  in: [
+                  is: [
                     {
                       // "@id": "http://snomed.info/sct#271649006",
                       "@id": "http://snomed.info/sct#72313002",
@@ -118,7 +126,11 @@ test("IMQtoSQL", async () => {
                   limit: 1,
                   "@id": "http://endhealth.info/im#effectiveDate"
                 }
-              ]
+              ],
+              typeOf: {
+                "@id": "http://endhealth.info/im#Observation"
+              },
+              variable: "latestBP"
             }
           }
         ]
@@ -132,7 +144,7 @@ test("IMQtoSQL", async () => {
             property: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                in: [
+                is: [
                   {
                     // "@id": "http://snomed.info/sct#271649006",
                     "@id": "http://snomed.info/sct#72313002",
@@ -150,12 +162,11 @@ test("IMQtoSQL", async () => {
             ]
           },
           {
-            nodeRef: "latestBP",
             bool: "and",
             property: [
               {
                 "@id": "http://endhealth.info/im#concept",
-                in: [
+                is: [
                   {
                     "@id": "http://endhealth.info/emis#1994021000006104",
                     name: "Home systolic blood pressure",
@@ -180,14 +191,13 @@ test("IMQtoSQL", async () => {
           {
             "@id": "http://endhealth.info/im#observation",
             match: {
-              "@type": "Observation",
               bool: "and",
               property: [
                 {
                   "@id": "http://endhealth.info/im#concept",
-                  in: [
+                  inSet: [
                     {
-                      "@set": "http://endhealth.info/im#InvitedForScreening"
+                      "@id": "http://endhealth.info/im#InvitedForScreening"
                     }
                   ]
                 },
@@ -199,18 +209,27 @@ test("IMQtoSQL", async () => {
                     nodeRef: "highBPReading"
                   }
                 }
-              ]
+              ],
+              typeOf: {
+                "@id": "http://endhealth.info/im#Observation"
+              }
             }
           }
         ]
       },
       {
         exclude: true,
-        "@set": "http://endhealth.info/im#Q_Hypertensives",
-        name: "Hypertensives"
+        inSet: [
+          {
+            "@id": "http://endhealth.info/im#Q_Hypertensives",
+            name: "Hypertensives"
+          }
+        ]
       }
     ],
-    "@type": "http://endhealth.info/im#Patient"
+    typeOf: {
+      "@id": "http://endhealth.info/im#Patient"
+    }
   } as Query;
 
   console.log(JSON.stringify(def, null, 2));

@@ -32,7 +32,6 @@ export class IM {
   public static WEIGHTING = IM.NAMESPACE + "weighting";
   public static VERSION = IM.NAMESPACE + "version";
   public static FUNCTION = IM.NAMESPACE + "function";
-  public static RETURN_TYPE = IM.NAMESPACE + "returnType";
 
   // task
   public static IN_TASK = IM.NAMESPACE + "inTask";

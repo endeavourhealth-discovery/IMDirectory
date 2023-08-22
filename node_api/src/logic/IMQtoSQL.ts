@@ -3,7 +3,7 @@ import { SqlQuery } from "@/model/sql/SqlQuery";
 
 export class IMQtoSQL {
   public convert(definition: Query) {
-    if (!definition["@type"]) {
+    if (!definition.typeOf) {
       throw new Error("Query must have a main (model) type");
     }
 
@@ -11,7 +11,7 @@ export class IMQtoSQL {
       throw new Error("Query must have at least one match");
     }
 
-    const qry = new SqlQuery(definition["@type"]);
+    const qry = new SqlQuery(definition.typeOf["@id"]!);
 
     const subQueries: SqlQuery[] = this.convertMatches(qry, definition.match);
 
@@ -52,15 +52,15 @@ export class IMQtoSQL {
   }
 
   private createMatchQuery(match: Match, qry: SqlQuery) {
-    if (match["@type"] && match["@type"] != qry.model) {
-      return new SqlQuery(match["@type"], match.variable);
+    if (match.typeOf?.["@id"] && match.typeOf["@id"] != qry.model) {
+      return new SqlQuery(match.typeOf["@id"], match.variable);
     } else if (match.nodeRef && match.nodeRef != qry.model) {
       return new SqlQuery(match.nodeRef, match.variable);
     } else return new SqlQuery(qry.model, match.variable);
   }
 
   private convertMatch(match: Match, qry: SqlQuery) {
-    if (match["@set"]) {
+    if (match.inSet) {
       this.convertMatchSet(qry, match);
     } else if (match.bool) {
       if (match.match && match.match.length > 0) this.convertMatchBoolSubMatch(qry, match);
@@ -96,8 +96,9 @@ export class IMQtoSQL {
   }
 
   private convertMatchSet(qry: SqlQuery, match: Match) {
+    if (!match.inSet) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
     // JOIN qry_results ON qry = match[@set] AND id = qry.id
-    qry.wheres.push("1 = 1 -- in query results " + match["@set"]);
+    qry.wheres.push("1 = 1 -- in query results " + match.inSet[0]["@id"]);
   }
 
   private convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
@@ -139,11 +140,13 @@ export class IMQtoSQL {
   }
 
   private convertMatchProperty(qry: SqlQuery, property: Property) {
-    if (property.range) {
+    if (property.is) {
+      this.convertMatchPropertyIs(qry, property);
+    } else if (property.range) {
       this.convertMatchPropertyRange(qry, property);
     } else if (property.match) {
       this.convertMatchPropertySubMatch(qry, property);
-    } else if (property.in) {
+    } else if (property.inSet) {
       this.convertMatchPropertyIn(qry, property);
     } else if (property.relativeTo) {
       this.convertMatchPropertyRelative(qry, property);
@@ -152,6 +155,25 @@ export class IMQtoSQL {
     } else {
       throw new Error("UNHANDLED PROPERTY PATTERN\n" + JSON.stringify(property, null, 2));
     }
+  }
+
+  private convertMatchPropertyIs(qry: SqlQuery, property: Property) {
+    if (!property.is) {
+      throw new Error("INVALID MatchPropertyIs\n" + JSON.stringify(property, null, 2));
+    }
+
+    const inList = [];
+
+    for (const pIs of property.is) {
+      if (pIs["@id"]) inList.push(pIs["@id"]);
+      else {
+        throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIs, null, 2));
+      }
+    }
+
+    // OPTIMIZATION where only 1 entry
+    if (inList.length == 1) qry.wheres.push(qry.getFieldName(property["@id"]!) + " = '" + inList.join("', '") + "'");
+    else qry.wheres.push(qry.getFieldName(property["@id"]!) + " IN ('" + inList.join("', '") + "')");
   }
 
   private convertMatchPropertyRange(qry: SqlQuery, property: Property) {
@@ -195,15 +217,14 @@ export class IMQtoSQL {
   private convertMatchPropertyIn(qry: SqlQuery, property: Property) {
     if (!property["@id"]) throw new Error("INVALID PROPERTY\n" + JSON.stringify(property, null, 2));
 
-    if (!property.in) {
+    if (!property.inSet) {
       throw new Error("INVALID MatchPropertyIn\n" + JSON.stringify(property, null, 2));
     }
 
     const inList = [];
 
-    for (const pIn of property.in) {
+    for (const pIn of property.inSet) {
       if (pIn["@id"]) inList.push(pIn["@id"]);
-      else if (pIn["@set"]) inList.push("SET [" + pIn["@set"] + "]");
       else {
         throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIn, null, 2));
       }
@@ -212,7 +233,7 @@ export class IMQtoSQL {
     // OPTIMIZATION
     // TODO: Correct SET handling
     if (inList.length == 1) qry.wheres.push(qry.getFieldName(property["@id"]) + " = '" + inList.join("', '") + "'");
-    else qry.wheres.push(qry.getFieldName(property["@id"]) + " IN ('" + inList.join("', '") + "')");
+    else qry.wheres.push(qry.getFieldName(property["@id"]) + " IN ('" + inList.join("', '") + "') -- SET LIST");
   }
 
   private convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
