@@ -100,7 +100,7 @@ export const match = {
           property: [
             {
               "@id": "http://endhealth.info/im#concept",
-              inSet: [
+              is: [
                 {
                   "@id": "http://snomed.info/sct#714628002",
                   descendantsOf: true
@@ -279,7 +279,7 @@ export const fullTestQueryDefinition = {
       path: { "@id": "http://endhealth.info/im#observation", node: { typeOf: { "@id": "Observation" } } },
       bool: "and",
       where: [
-        { "@id": "http://endhealth.info/im#concept", in: [{ inSet: [ { "@id": "http://endhealth.info/im#InvitedForScreening" }] }] },
+        { "@id": "http://endhealth.info/im#concept", in: [{ inSet: [{ "@id": "http://endhealth.info/im#InvitedForScreening" }] }] },
         {
           "@id": "http://endhealth.info/im#effectiveDate",
           operator: ">=",
@@ -287,6 +287,6 @@ export const fullTestQueryDefinition = {
         }
       ]
     },
-    { exclude: true, inSet: [ { "@id": "http://endhealth.info/im#Q_Hypertensives", name: "Hypertensives" } ] }
+    { exclude: true, inSet: [{ "@id": "http://endhealth.info/im#Q_Hypertensives", name: "Hypertensives" }] }
   ]
 };
