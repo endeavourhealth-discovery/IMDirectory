@@ -2,7 +2,7 @@ import { Match, Query, Property, Assignable, OrderLimit } from "@im-library/inte
 import { SqlQuery } from "@/model/sql/SqlQuery";
 
 export class IMQtoSQL {
-  public convert(definition: Query) {
+  public convert(definition: Query): string {
     if (!definition.typeOf) {
       throw new Error("Query must have a main (model) type");
     }
@@ -13,13 +13,26 @@ export class IMQtoSQL {
 
     const qry = new SqlQuery(definition.typeOf["@id"]!);
 
-    const subQueries: SqlQuery[] = this.convertMatches(qry, definition.match);
+    try {
+      const subQueries: SqlQuery[] = this.convertMatches(qry, definition.match);
 
-    for (const subQry of subQueries) {
-      qry.withs.push(...subQry.withs);
-      subQry.withs = [];
-      qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
-      qry.joins.push("JOIN " + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id");
+      for (const subQry of subQueries) {
+        qry.withs.push(...subQry.withs);
+        subQry.withs = [];
+        qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
+
+        if (qry.model == subQry.model) {
+          qry.joins.push("JOIN " + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id -- " + subQry.whereBool);
+        } else {
+          const rel = subQry.getRelationshipTo(qry.model);
+          qry.joins.push(
+            "JOIN " + subQry.alias + " ON " + subQry.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField + " -- " + subQry.whereBool
+          );
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error) return e.toString();
+      else return "Unknown Error";
     }
 
     return qry.toSql();
@@ -70,6 +83,8 @@ export class IMQtoSQL {
       }
     } else if (match.property && match.property.length > 0) {
       this.convertMatchProperties(qry, match);
+    } else if (match.variable) {
+      this.convertMatchVariable(qry, match);
     } else {
       throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
     }
@@ -276,4 +291,6 @@ export class IMQtoSQL {
 
     qry.wheres.push(qry.getFieldName(property["@id"]) + " " + property.operator + " " + property.value);
   }
+
+  private convertMatchVariable(qry: SqlQuery, match: Match) {}
 }

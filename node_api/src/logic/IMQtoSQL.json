@@ -3,7 +3,8 @@
     "http://endhealth.info/im#Patient": {
       "table": "patient",
       "fields": {
-        "http://endhealth.info/im#age": { "field": "date_of_birth", "type": "date" }
+        "http://endhealth.info/im#age": { "field": "date_of_birth", "type": "date" },
+        "http://endhealth.info/im#patientType": { "field": "type", "type": "iri" }
       }
     },
     "http://endhealth.info/im#Observation": {

@@ -90,7 +90,7 @@ export class SqlQuery {
 
     if (map.fields[field]) return map.fields[field];
 
-    console.log("UNKNOWN FIELD");
+    console.log("UNKNOWN FIELD [" + field + "]");
     console.log(JSON.stringify(map, null, 2));
     throw new Error("Unknown field [" + field + "] on table [" + map.table + "]");
   }

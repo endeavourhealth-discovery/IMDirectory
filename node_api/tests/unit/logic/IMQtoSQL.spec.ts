@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { IMQtoSQL } from "@/logic/IMQtoSQL";
 import { Query } from "@im-library/interfaces/AutoGen";
-import { server } from "../setupTests";
+import { server } from "../../setupTests";
 import EntityService from "@/services/entity.service";
 import axios from "axios";
 import { IM } from "@im-library/vocabulary";
