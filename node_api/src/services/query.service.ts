@@ -10,6 +10,7 @@ import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
 import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { IMQtoSQL } from "@/logic/IMQtoSQL";
 
 export default class QueryService {
   axios: any;
@@ -321,5 +322,14 @@ export default class QueryService {
     if (isObjectHasKeys(results, ["entities"]) && results.entities.length !== 0) {
       return results.entities;
     } else return [];
+  }
+
+  public async generateQuerySQL(queryIri: string) {
+    const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
+    if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
+      return {};
+    }
+    const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
+    return new IMQtoSQL().convert(query);
   }
 }

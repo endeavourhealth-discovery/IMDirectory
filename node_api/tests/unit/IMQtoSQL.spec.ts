@@ -8,11 +8,12 @@ import { IM } from "@im-library/vocabulary";
 test("IMQtoSQL", async () => {
   server.close();
 
-  /*  const svc = new EntityService(axios);
+  const svc = new EntityService(axios);
   const entity = await svc.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
   let json = entity.data[IM.DEFINITION];
-  const def: Query = JSON.parse(json);*/
+  const def: Query = JSON.parse(json);
 
+  /*
   const def: Query = {
     "@id": "http://endhealth.info/im#Q_TestQuery",
     name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
@@ -231,6 +232,7 @@ test("IMQtoSQL", async () => {
       "@id": "http://endhealth.info/im#Patient"
     }
   } as Query;
+*/
 
   console.log(JSON.stringify(def, null, 2));
 
