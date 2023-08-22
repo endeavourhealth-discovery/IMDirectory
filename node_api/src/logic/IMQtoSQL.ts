@@ -11,41 +11,30 @@ export class IMQtoSQL {
       throw new Error("Query must have at least one match");
     }
 
-    const qry = new SqlQuery(definition.typeOf["@id"]!);
-
     try {
-      const subQueries: SqlQuery[] = this.convertMatches(qry, definition.match);
+      const qry = new SqlQuery(definition.typeOf["@id"]!);
 
-      for (const subQry of subQueries) {
+      for (const match of definition.match) {
+        const subQry = this.convertMatchToQuery(qry, match);
         qry.withs.push(...subQry.withs);
         subQry.withs = [];
         qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
 
+        const joiner = match.exclude ? "LEFT JOIN " : "JOIN ";
+        if (match.exclude) qry.wheres.push(subQry.alias + ".id IS NULL");
+
         if (qry.model == subQry.model) {
-          qry.joins.push("JOIN " + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id -- " + subQry.whereBool);
+          qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id");
         } else {
           const rel = subQry.getRelationshipTo(qry.model);
-          qry.joins.push(
-            "JOIN " + subQry.alias + " ON " + subQry.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField + " -- " + subQry.whereBool
-          );
+          qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField);
         }
       }
+      return qry.toSql();
     } catch (e) {
       if (e instanceof Error) return e.toString();
       else return "Unknown Error";
     }
-
-    return qry.toSql();
-  }
-
-  private convertMatches(qry: SqlQuery, matches: Match[]): SqlQuery[] {
-    const result: SqlQuery[] = [];
-    for (const match of matches) {
-      const subQry = this.convertMatchToQuery(qry, match);
-      result.push(subQry);
-    }
-
-    return result;
   }
 
   private convertMatchToQuery(qry: SqlQuery, match: Match): SqlQuery {
