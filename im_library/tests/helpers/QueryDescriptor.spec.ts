@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { getDisplayFromMatch, getDisplayFromProperty, getDisplayFromOrderBy, getUnnamedObjects, describeMatch } from "@/helpers/QueryDescriptor";
+import {
+  getDisplayFromMatch,
+  getDisplayFromProperty,
+  getDisplayFromOrderBy,
+  getUnnamedObjects,
+  describeMatch,
+  describeProperty
+} from "@/helpers/QueryDescriptor";
 import { Match, Node, OrderLimit, Property } from "@/interfaces/AutoGen";
 import { fullTestQueryDefinition, match, where, orderBy } from "./Query.testData";
 import _ from "lodash";
@@ -8,8 +15,6 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getUnnamedObjects", () => {
     it("can get all resolved object iris without a name in query with a reference to the object", () => {
       const unnamedObjects = getUnnamedObjects(fullTestQueryDefinition as Match);
-      console.log("UNNAMED");
-      console.log(JSON.stringify(unnamedObjects, null, 2));
       expect(Object.keys(unnamedObjects).length).toEqual(12);
     });
   });
@@ -51,21 +56,21 @@ describe("QueryDescriptor.ts ___", () => {
     });
 
     it("can describe a concept match with DescendantsOrSelfOf", () => {
-      const testMatch: Match = _.cloneDeep(match.withDescendantsOrSelfOf);
-      describeMatch(testMatch, 0, "and");
-      expect(testMatch.description).toEqual("Text message consultation");
+      const testProperty: Property = _.cloneDeep(match.withDescendantsOrSelfOf);
+      describeProperty(testProperty, 0, "and");
+      expect(testProperty.description).toEqual("Text message consultation");
     });
 
     it("can describe a concept match with AncestorsOf", () => {
-      const testMatch: Match = _.cloneDeep(match.withAncestorsOf);
-      describeMatch(testMatch, 0, "and");
-      expect(testMatch.description).toEqual("ancestors of Text message consultation");
+      const testProperty: Property = _.cloneDeep(match.withAncestorsOf);
+      describeProperty(testProperty, 0, "and");
+      expect(testProperty.description).toEqual("ancestors of Text message consultation");
     });
 
     it("can describe a concept match with DescendantsOf", () => {
-      const testMatch: Match = _.cloneDeep(match.withDescendantsOf);
-      describeMatch(testMatch, 0, "and");
-      expect(testMatch.description).toEqual("descendants of Text message consultation");
+      const testProperty: Property = _.cloneDeep(match.withDescendantsOf);
+      describeProperty(testProperty, 0, "and");
+      expect(testProperty.description).toEqual("descendants of Text message consultation");
     });
 
     it("can describe a concept match with Exclude", () => {

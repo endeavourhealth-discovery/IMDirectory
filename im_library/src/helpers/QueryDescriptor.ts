@@ -1,4 +1,4 @@
-import { Bool, Operator, Property } from "../interfaces/AutoGen";
+import { Bool, Entailment, Operator, Property } from "../interfaces/AutoGen";
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
@@ -36,7 +36,8 @@ export function describeMatch(match: Match, index: number, bool: Bool, isPathMat
 export function describeProperty(property: Property, index: number, bool: Bool) {
   if (property.match) describeMatch(property.match, 0, "and", true);
   if (isObjectHasKeys(property, ["@id"])) {
-    let display = getDisplayFromProperty(property);
+    let display = getDisplayFromEntailment(property);
+    display += getDisplayFromProperty(property);
     if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
     property.description = display;
   }
@@ -50,7 +51,7 @@ export function describeProperty(property: Property, index: number, bool: Bool) 
 // getters
 export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
   let display = "";
-  display += getDisplayFromEntailment(match);
+  //display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
   if (match.orderBy) describeOrderByList(match.orderBy);
   if (match.inSet) display = "in '" + display + "'";
@@ -236,10 +237,10 @@ export function getDisplayFromList(property: Property, include: boolean) {
   return display;
 }
 
-export function getDisplayFromEntailment(node: Node) {
-  if (node.ancestorsOf) return "ancestors of ";
-  if (node.descendantsOf) return "descendants of ";
-  if (node.descendantsOrSelfOf) return "";
+export function getDisplayFromEntailment(entailment: Entailment) {
+  if (entailment.ancestorsOf) return "ancestors of ";
+  if (entailment.descendantsOf) return "descendants of ";
+  if (entailment.descendantsOrSelfOf) return "";
   return "";
 }
 
