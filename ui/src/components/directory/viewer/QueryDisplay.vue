@@ -4,9 +4,7 @@
     <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" v-for="match of query.match" :match="match" :parent-match="undefined" :full-query="query" />
   </div>
   <div>
-    <pre>
-      {{sql}}
-    </pre>
+    <pre>{{ sql }}</pre>
   </div>
 </template>
 

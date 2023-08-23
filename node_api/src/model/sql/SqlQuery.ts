@@ -30,28 +30,49 @@ export class SqlQuery {
 
     this.model = model;
     this.map = this.getMap(model);
-    this.alias = variable ? variable : this.getAlias(this.map.table);
+    this.alias = variable ?? this.getAlias(this.map.table);
 
     (mapData.typeTables as any)[this.alias] = { table: this.alias, fields: this.map.fields, relationships: this.map.relationships };
   }
 
   public toSql(indent: number = 0) {
     let sql = "";
+    sql += this.generateWiths();
+    sql += this.generateSelects();
+    sql += this.generateFroms();
+    sql += this.generateWheres();
+
+    return sql.replaceAll("\n", "\n" + " ".repeat(indent));
+  }
+
+  private generateWiths() {
+    let sql = "";
 
     if (this.withs && this.withs.length > 0) {
       sql += "WITH\n";
       sql += this.withs.join(",\n");
     }
+    return sql;
+  }
 
-    sql += "\nSELECT ";
+  private generateSelects() {
+    let sql = "\nSELECT ";
 
     if (this.selects && this.selects.length > 0) sql += this.selects.join(", ");
     else sql += this.alias + ".*";
 
-    sql += "\nFROM " + this.map.table + " AS " + this.alias;
+    return sql;
+  }
+
+  private generateFroms() {
+    let sql = "\nFROM " + this.map.table + " AS " + this.alias;
 
     if (this.joins && this.joins.length > 0) sql += "\n" + this.joins.join("\n");
+    return sql;
+  }
 
+  private generateWheres() {
+    let sql = "";
     if (this.map.condition || (this.wheres && this.wheres.length > 0)) {
       sql += "\nWHERE ";
 
@@ -67,12 +88,11 @@ export class SqlQuery {
         if (this.map.condition) sql += ")\n";
       }
     }
-
-    return sql.replaceAll("\n", "\n" + " ".repeat(indent));
+    return sql;
   }
 
   public getFieldName(field: string, table?: string): string {
-    const alias = table ? table : this.alias;
+    const alias = table ?? this.alias;
     const fieldName = this.getField(field, table).field;
 
     if (fieldName.includes("{alias}")) return fieldName.replaceAll("{alias}", alias);

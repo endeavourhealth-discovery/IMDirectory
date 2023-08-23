@@ -72,8 +72,6 @@ export class IMQtoSQL {
       }
     } else if (match.property && match.property.length > 0) {
       this.convertMatchProperties(qry, match);
-      /*    } else if (match.variable) {
-      this.convertMatchVariable(qry, match);*/
     } else {
       throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
     }
@@ -102,8 +100,8 @@ export class IMQtoSQL {
   private convertMatchSet(qry: SqlQuery, match: Match) {
     if (!match.inSet) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
     const rsltTbl = qry.alias + "_rslt";
-    qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".member = " + qry.alias + ".id");
-    qry.wheres.push(rsltTbl + ".query = " + match.inSet[0]["@id"]);
+    qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
+    qry.wheres.push(rsltTbl + ".iri = '" + match.inSet[0]["@id"] + "'");
   }
 
   private convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
@@ -123,7 +121,6 @@ export class IMQtoSQL {
       subQuery.withs = [];
       qry.withs.push(subQuery.alias + " AS (" + subQuery.toSql(2) + "\n)");
 
-      // TODO: Differing qry/subqry types (rel joins)
       if (subQuery.model == qry.model) qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id");
       else {
         const rel = subQuery.getRelationshipTo(qry.model);
@@ -169,6 +166,7 @@ export class IMQtoSQL {
 
     const inList = [];
 
+    // TODO: Split into 4 lists: - Direct/Ancestors/Descendants/SelfDescendants - with differing joins for each
     for (const pIs of property.is) {
       if (pIs["@id"]) inList.push(pIs["@id"]);
       else {
@@ -176,9 +174,12 @@ export class IMQtoSQL {
       }
     }
 
-    // OPTIMIZATION where only 1 entry
-    if (inList.length == 1) qry.wheres.push(qry.getFieldName(property["@id"]!) + " = '" + inList.join("', '") + "'");
-    else qry.wheres.push(qry.getFieldName(property["@id"]!) + " IN ('" + inList.join("', '") + "')");
+    let where = qry.getFieldName(property["@id"]!);
+
+    if (inList.length == 1) where += " = '" + inList.join("', '") + "' -- TCT?\n";
+    else where += " IN ('" + inList.join("', '") + "') -- TCT?\n";
+
+    qry.wheres.push(where);
   }
 
   private convertMatchPropertyRange(qry: SqlQuery, property: Property) {
@@ -240,8 +241,8 @@ export class IMQtoSQL {
 
     qry.joins.push("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".concept = " + qry.getFieldName(property["@id"]));
 
-    if (inList.length == 1) qry.wheres.push(mmbrTbl + ".set = '" + inList.join("', '") + "'");
-    else qry.wheres.push(mmbrTbl + ".set IN ('" + inList.join("', '") + "')");
+    if (inList.length == 1) qry.wheres.push(mmbrTbl + ".iri = '" + inList.join("', '") + "'");
+    else qry.wheres.push(mmbrTbl + ".iri IN ('" + inList.join("', '") + "')");
   }
 
   private convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
@@ -283,17 +284,15 @@ export class IMQtoSQL {
     }
 
     let where =
-      "date" == qry.getFieldType(property["@id"] as string)
+      "date" == qry.getFieldType(property["@id"])
         ? this.convertMatchPropertyRangeNode(property) + " " + qry.getFieldName(property["@id"])
         : qry.getFieldName(property["@id"]) + " " + property.operator + " " + property.value;
 
     // TODO: TCT
     if (property.ancestorsOf || property.descendantsOf || property.descendantsOrSelfOf) {
-      where += " -- TCT";
+      where += " -- TCT\n";
     }
 
     qry.wheres.push(where);
   }
-
-  private convertMatchVariable(qry: SqlQuery, match: Match) {}
 }
