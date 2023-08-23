@@ -15,7 +15,7 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getUnnamedObjects", () => {
     it("can get all resolved object iris without a name in query with a reference to the object", () => {
       const unnamedObjects = getUnnamedObjects(fullTestQueryDefinition as Match);
-      expect(Object.keys(unnamedObjects).length).toEqual(12);
+      expect(Object.keys(unnamedObjects).length).toEqual(4);
     });
   });
 
@@ -49,19 +49,19 @@ describe("QueryDescriptor.ts ___", () => {
       expect(testMatch.description).toEqual("325841000000109");
     });
 
-    it("can describe a concept match with name", () => {
+    it("can describe a concept property with name", () => {
       const testMatch: Match = _.cloneDeep(match.withName);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.description).toEqual("Text message consultation");
     });
 
-    it("can describe a concept match with DescendantsOrSelfOf", () => {
+    it("can describe a concept property with DescendantsOrSelfOf", () => {
       const testProperty: Property = _.cloneDeep(match.withDescendantsOrSelfOf);
       describeProperty(testProperty, 0, "and");
       expect(testProperty.description).toEqual("Text message consultation");
     });
 
-    it("can describe a concept match with AncestorsOf", () => {
+    it("can describe a concept property with AncestorsOf", () => {
       const testProperty: Property = _.cloneDeep(match.withAncestorsOf);
       describeProperty(testProperty, 0, "and");
       expect(testProperty.description).toEqual("ancestors of Text message consultation");
@@ -98,10 +98,24 @@ describe("QueryDescriptor.ts ___", () => {
     //   expect(testMatch.property[1].description).toEqual("statedGender is Female (stated gender)");
     // });
 
-    it("can describe a match with one nested property of in", () => {
-      const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfIn);
+    it("can describe a match with one nested property of is", () => {
+      const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfIs);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.property[0].match.property[0].description).toEqual("concept of <span class='node-ref'>Prediabetes</span> ");
+      expect(testMatch.property[0].match.property[0].description).toEqual("concept of Prediabetes");
+    });
+
+    it("can describe a match with one nested property of inSet", () => {
+      const testMatch: Match = _.cloneDeep(match.withOneNestedPropertyOfInSet);
+      describeMatch(testMatch, 0, "and");
+      expect(testMatch.property[0].match.property[0].description).toEqual("concept of Prediabetes");
+    });
+
+    it("can describe a match with one nested property of is", () => {
+      const testMatch: Match = _.cloneDeep(fullTestQueryDefinition);
+      describeMatch(testMatch, 0, "and");
+      expect(testMatch.property[0].match.property[0].description).toEqual(
+        "concept of a value of [Hypertensive disorder, systemic arterial (disorder) and <span class='node-ref'>more...</span> ]"
+      );
     });
   });
 });

@@ -74,8 +74,10 @@ export function getDisplayFromProperty(property: Property) {
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
   if (propertyDisplayMap[propertyName]) display += " " + propertyDisplayMap[propertyName];
-  if (property.is) display += getDisplayFromList(property, true);
-  if (property.isNot) display += getDisplayFromList(property, false);
+  if (property.is) display += getDisplayFromList(property, true, property.is);
+  if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
+  if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
+  if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);
   if (property.range) display = getDisplayFromRange(propertyName, property);
   if (property.null) display += " is null";
@@ -208,9 +210,8 @@ export function getDisplayFromOperatorForDate(operator: Operator) {
   }
 }
 
-export function getDisplayFromList(property: Property, include: boolean) {
+export function getDisplayFromList(property: Property, include: boolean, nodes: Node[]) {
   let display = include ? " " : " not ";
-  const nodes: Node[] = property.inSet ?? property.notInSet ?? [];
   if (property.valueLabel) {
     if (nodes.length === 1) display += property.valueLabel;
     else display += getDisplayFromNodeRef(property.valueLabel);
