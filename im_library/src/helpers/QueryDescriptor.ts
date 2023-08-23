@@ -1,4 +1,4 @@
-import { Bool, Operator, Property } from "../interfaces/AutoGen";
+import { Bool, Entailment, Operator, Property } from "../interfaces/AutoGen";
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
@@ -36,7 +36,8 @@ export function describeMatch(match: Match, index: number, bool: Bool, isPathMat
 export function describeProperty(property: Property, index: number, bool: Bool) {
   if (property.match) describeMatch(property.match, 0, "and", true);
   if (isObjectHasKeys(property, ["@id"])) {
-    let display = getDisplayFromProperty(property);
+    let display = getDisplayFromEntailment(property);
+    display += getDisplayFromProperty(property);
     if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
     property.description = display;
   }
@@ -50,7 +51,7 @@ export function describeProperty(property: Property, index: number, bool: Bool) 
 // getters
 export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
   let display = "";
-  display += getDisplayFromEntailment(match);
+  //display += getDisplayFromEntailment(match);
   display += getNameFromRef(match);
   if (match.orderBy) describeOrderByList(match.orderBy);
   if (match.inSet) display = "in '" + display + "'";
@@ -73,8 +74,10 @@ export function getDisplayFromProperty(property: Property) {
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
   if (propertyDisplayMap[propertyName]) display += " " + propertyDisplayMap[propertyName];
-  if (property.is) display += getDisplayFromList(property, true);
-  if (property.isNot) display += getDisplayFromList(property, false);
+  if (property.is) display += getDisplayFromList(property, true, property.is);
+  if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
+  if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
+  if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);
   if (property.range) display = getDisplayFromRange(propertyName, property);
   if (property.null) display += " is null";
@@ -207,9 +210,8 @@ export function getDisplayFromOperatorForDate(operator: Operator) {
   }
 }
 
-export function getDisplayFromList(property: Property, include: boolean) {
+export function getDisplayFromList(property: Property, include: boolean, nodes: Node[]) {
   let display = include ? " " : " not ";
-  const nodes: Node[] = property.inSet ?? property.notInSet ?? [];
   if (property.valueLabel) {
     if (nodes.length === 1) display += property.valueLabel;
     else display += getDisplayFromNodeRef(property.valueLabel);
@@ -236,10 +238,10 @@ export function getDisplayFromList(property: Property, include: boolean) {
   return display;
 }
 
-export function getDisplayFromEntailment(node: Node) {
-  if (node.ancestorsOf) return "ancestors of ";
-  if (node.descendantsOf) return "descendants of ";
-  if (node.descendantsOrSelfOf) return "";
+export function getDisplayFromEntailment(entailment: Entailment) {
+  if (entailment.ancestorsOf) return "ancestors of ";
+  if (entailment.descendantsOf) return "descendants of ";
+  if (entailment.descendantsOrSelfOf) return "";
   return "";
 }
 
