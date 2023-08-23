@@ -72,8 +72,8 @@ export class IMQtoSQL {
       }
     } else if (match.property && match.property.length > 0) {
       this.convertMatchProperties(qry, match);
-    } else if (match.variable) {
-      this.convertMatchVariable(qry, match);
+      /*    } else if (match.variable) {
+      this.convertMatchVariable(qry, match);*/
     } else {
       throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
     }
@@ -101,8 +101,9 @@ export class IMQtoSQL {
 
   private convertMatchSet(qry: SqlQuery, match: Match) {
     if (!match.inSet) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
-    // JOIN qry_results ON qry = match[@set] AND id = qry.id
-    qry.wheres.push("1 = 1 -- in query results " + match.inSet[0]["@id"]);
+    const rsltTbl = qry.alias + "_rslt";
+    qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".member = " + qry.alias + ".id");
+    qry.wheres.push(rsltTbl + ".query = " + match.inSet[0]["@id"]);
   }
 
   private convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
@@ -151,7 +152,7 @@ export class IMQtoSQL {
     } else if (property.match) {
       this.convertMatchPropertySubMatch(qry, property);
     } else if (property.inSet) {
-      this.convertMatchPropertyIn(qry, property);
+      this.convertMatchPropertyInSet(qry, property);
     } else if (property.relativeTo) {
       this.convertMatchPropertyRelative(qry, property);
     } else if (property.value) {
@@ -218,7 +219,7 @@ export class IMQtoSQL {
     }
   }
 
-  private convertMatchPropertyIn(qry: SqlQuery, property: Property) {
+  private convertMatchPropertyInSet(qry: SqlQuery, property: Property) {
     if (!property["@id"]) throw new Error("INVALID PROPERTY\n" + JSON.stringify(property, null, 2));
 
     if (!property.inSet) {
@@ -235,9 +236,12 @@ export class IMQtoSQL {
     }
 
     // OPTIMIZATION
-    // TODO: Correct SET handling
-    if (inList.length == 1) qry.wheres.push(qry.getFieldName(property["@id"]) + " = '" + inList.join("', '") + "'");
-    else qry.wheres.push(qry.getFieldName(property["@id"]) + " IN ('" + inList.join("', '") + "') -- SET LIST");
+    const mmbrTbl = qry.alias + "_mmbr";
+
+    qry.joins.push("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".concept = " + qry.getFieldName(property["@id"]));
+
+    if (inList.length == 1) qry.wheres.push(mmbrTbl + ".set = '" + inList.join("', '") + "'");
+    else qry.wheres.push(mmbrTbl + ".set IN ('" + inList.join("', '") + "')");
   }
 
   private convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
@@ -278,7 +282,17 @@ export class IMQtoSQL {
       throw new Error("INVALID MatchPropertyValue\n" + JSON.stringify(property, null, 2));
     }
 
-    qry.wheres.push(qry.getFieldName(property["@id"]) + " " + property.operator + " " + property.value);
+    let where =
+      "date" == qry.getFieldType(property["@id"] as string)
+        ? this.convertMatchPropertyRangeNode(property) + " " + qry.getFieldName(property["@id"])
+        : qry.getFieldName(property["@id"]) + " " + property.operator + " " + property.value;
+
+    // TODO: TCT
+    if (property.ancestorsOf || property.descendantsOf || property.descendantsOrSelfOf) {
+      where += " -- TCT";
+    }
+
+    qry.wheres.push(where);
   }
 
   private convertMatchVariable(qry: SqlQuery, match: Match) {}

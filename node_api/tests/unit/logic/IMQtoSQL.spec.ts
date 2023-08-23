@@ -8,12 +8,11 @@ import { IM } from "@im-library/vocabulary";
 test("IMQtoSQL", async () => {
   server.close();
 
-  const svc = new EntityService(axios);
+  /*  const svc = new EntityService(axios);
   const entity = await svc.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
   let json = entity.data[IM.DEFINITION];
-  const def: Query = JSON.parse(json);
+  const def: Query = JSON.parse(json);*/
 
-  /*
   const def: Query = {
     "@id": "http://endhealth.info/im#Q_TestQuery",
     name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
@@ -41,7 +40,7 @@ test("IMQtoSQL", async () => {
                     dataType: null
                   },
                   to: {
-                    operator: "<",
+                    operator: ">",
                     value: "70",
                     unit: "YEARS",
                     relativeTo: null,
@@ -97,8 +96,7 @@ test("IMQtoSQL", async () => {
                   name: "concept",
                   is: [
                     {
-                      // "@id": "http://snomed.info/sct#271649006",
-                      "@id": "http://snomed.info/sct#72313002",
+                      "@id": "http://snomed.info/sct#271649006",
                       name: "Systolic blood pressure",
                       descendantsOrSelfOf: true
                     },
@@ -137,7 +135,6 @@ test("IMQtoSQL", async () => {
         ]
       },
       {
-        variable: "highBPReading",
         nodeRef: "latestBP",
         match: [
           {
@@ -147,8 +144,7 @@ test("IMQtoSQL", async () => {
                 "@id": "http://endhealth.info/im#concept",
                 is: [
                   {
-                    // "@id": "http://snomed.info/sct#271649006",
-                    "@id": "http://snomed.info/sct#72313002",
+                    "@id": "http://snomed.info/sct#271649006",
                     name: "Systolic blood pressure",
                     descendantsOrSelfOf: true
                   }
@@ -184,7 +180,8 @@ test("IMQtoSQL", async () => {
             ]
           }
         ],
-        bool: "or"
+        bool: "or",
+        variable: "highBPReading"
       },
       {
         exclude: true,
@@ -232,6 +229,107 @@ test("IMQtoSQL", async () => {
       "@id": "http://endhealth.info/im#Patient"
     }
   } as Query;
+
+  /*
+  const def: Query = {
+    match: [
+      {
+        name: "Registered with GP for GMS services on the reference date",
+        inSet: [
+          {
+            "@id": "http://endhealth.info/im#Q_RegisteredGMS"
+          }
+        ]
+      },
+      {
+        bool: "and",
+        property: [
+          {
+            "@id": "http://endhealth.info/im#gpCurrentRegistration",
+            match: {
+              property: [
+                {
+                  "@id": "http://endhealth.info/im#gpPatientType",
+                  is: [
+                    {
+                      "@id": "http://endhealth.info/im#2751000252106",
+                      name: "Regular GMS patient",
+                      descendantsOrSelfOf: true
+                    }
+                  ],
+                  valueLabel: "GMSpatient"
+                }
+              ],
+              typeOf: {
+                "@id": "http://endhealth.info/im#GPRegistration"
+              }
+            }
+          },
+          {
+            "@id": "http://endhealth.info/im#age",
+            operator: ">=",
+            value: "18",
+            unit: "YEAR"
+          }
+        ]
+      },
+      {
+        property: [
+          {
+            "@id": "http://endhealth.info/im#observation",
+            match: {
+              typeOf: {
+                "@id": "http://endhealth.info/im#Observation"
+              },
+              property: [
+                {
+                  "@id": "http://endhealth.info/im#concept",
+                  inSet: [
+                    {
+                      "@id": "urn:uuid:837c474c-f6af-4a05-83ad-7c4ee7557e11",
+                      name: "SMIResolved"
+                    },
+                    {
+                      "@id": "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c",
+                      name: "SMI"
+                    }
+                  ],
+                  valueLabel: "SMIResolved, SMI"
+                }
+              ],
+              orderBy: [
+                {
+                  direction: "descending",
+                  limit: 1,
+                  "@id": "http://endhealth.info/im#effectiveDate"
+                }
+              ],
+              variable: "match_2"
+            }
+          }
+        ]
+      },
+      {
+        nodeRef: "match_2",
+        bool: "and",
+        property: [
+          {
+            "@id": "http://endhealth.info/im#concept",
+            inSet: [
+              {
+                "@id": "urn:uuid:8ab86afb-94e0-45fc-9875-3d16705cf41c",
+                name: "SMI"
+              }
+            ],
+            valueLabel: "SMI"
+          }
+        ]
+      }
+    ],
+    typeOf: {
+      "@id": "http://endhealth.info/im#Patient"
+    }
+  } as Query;
 */
 
   console.log(JSON.stringify(def, null, 2));
@@ -243,26 +341,4 @@ test("IMQtoSQL", async () => {
   expect(sql).not.toBeNull();
   expect(sql).not.toBeUndefined();
   console.log(sql?.replaceAll("$referenceDate", "now()"));
-  /*  expect(sql).toEqual("WITH pat1 AS ( SELECT pat1.* FROM patient AS pat1) -- WHERE in query results http://endhealth.info/im#Q_RegisteredGMS,\n" +
-    "pat3 AS ( SELECT pat3.* FROM patient AS pat3 WHERE http://endhealth.info/im#age >= 65 YEARS\n" +
-    "AND http://endhealth.info/im#age > 70 YEARS),\n" +
-    "pat4 AS ( SELECT pat4.* FROM patient AS pat4) -- WHERE in query results http://example/queries#Q_Diabetics,\n" +
-    "pat5_sub1 AS ( SELECT pat5_sub1.* FROM event AS pat5_sub1 WHERE pat5_sub1.http://endhealth.info/im#concept IN ('http://snomed.info/sct#714628002')),\n" +
-    "pat5 AS ( SELECT pat5.* FROM patient AS pat5 WHERE JOIN pat5_sub1 ON pat5.http://endhealth.info/im#observation = pat5_sub1.id),\n" +
-    "pat2 AS ( SELECT pat2.* FROM patient AS pat2\n" +
-    "LEFT JOIN pat3.id = pat2.id\n" +
-    "LEFT JOIN pat4.id = pat2.id\n" +
-    "LEFT JOIN pat5.id = pat2.id\n" +
-    "WHERE pat3.id IS NOT NULL\n" +
-    "or pat4.id IS NOT NULL\n" +
-    "or pat5.id IS NOT NULL),\n" +
-    "latestBP_sub1 AS ( SELECT latestBP_sub1.* FROM event AS latestBP_sub1 WHERE latestBP_sub1.http://endhealth.info/im#concept IN ('http://snomed.info/sct#27164" +
-    "9006', 'http://endhealth.info/emis#1994021000006104') and latestBP_sub1.http://endhealth.info/im#effectiveDate >= ($referenceDate -6 MONTHS)),\n" +
-    "latestBP AS ( SELECT latestBP.* FROM patient AS latestBP WHERE JOIN latestBP_sub1 ON latestBP.http://endhealth.info/im#observation = latestBP_sub1.id),\n" +
-    "latestBP_part AS (<PARTITION LOGIC>)\n" +
-    "SELECT pat0.id\n" +
-    "FROM patient AS pat0\n" +
-    "JOIN pat1 ON pat1.id = pat0.id\n" +
-    "JOIN pat2 ON pat2.id = pat0.id\n" +
-    "JOIN latestBP ON latestBP.id = pat0.id")*/
 });

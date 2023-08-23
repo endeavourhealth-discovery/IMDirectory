@@ -92,7 +92,13 @@ export class SqlQuery {
 
     console.log("UNKNOWN FIELD [" + field + "]");
     console.log(JSON.stringify(map, null, 2));
-    throw new Error("Unknown field [" + field + "] on table [" + map.table + "]");
+
+    // Default to string field in JSON blob
+    const fieldName = field.substring(field.indexOf("#") + 1);
+    return {
+      field: "(({alias}.json ->> '" + fieldName + "')::VARCHAR)",
+      type: "string"
+    } as Field;
   }
 
   public getRelationshipTo(targetModel: string): Relationship {
