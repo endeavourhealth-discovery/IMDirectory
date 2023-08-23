@@ -15,7 +15,7 @@ describe("QueryDescriptor.ts ___", () => {
   describe("getUnnamedObjects", () => {
     it("can get all resolved object iris without a name in query with a reference to the object", () => {
       const unnamedObjects = getUnnamedObjects(fullTestQueryDefinition as Match);
-      expect(Object.keys(unnamedObjects).length).toEqual(4);
+      expect(Object.keys(unnamedObjects).length).toEqual(12);
     });
   });
 
@@ -113,8 +113,8 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a match with one nested property of is", () => {
       const testMatch: Match = _.cloneDeep(fullTestQueryDefinition);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.property[0].match.property[0].description).toEqual(
-        "concept of a value of [Hypertensive disorder, systemic arterial (disorder) and <span class='node-ref'>more...</span> ]"
+      expect(testMatch.match[2].property[0].match.property[0].description).toEqual(
+        "concept of <span class='node-ref'>Office or home systolic blood pressure</span> "
       );
     });
   });
