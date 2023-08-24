@@ -11,7 +11,9 @@
       "condition": "{alias}.event_type = 'EpisodeOfCare'",
       "fields": {
         "http://endhealth.info/im#concept": { "field": "concept", "type": "iri" },
-        "http://endhealth.info/im#gpPatientType": { "field": "(({alias}.json ->> 'patientType')::VARCHAR)", "type": "string" },
+        "http://endhealth.info/im#gpPatientType": { "field": "(({alias}.json ->> 'patientType')::VARCHAR)", "type": "iri" },
+        "http://endhealth.info/im#gpRegisteredStatus": { "field": "(({alias}.json ->> 'status')::VARCHAR)", "type": "iri" },
+        "http://endhealth.info/im#gpGMSRegistrationDate": { "field": "effective_date", "type": "date" },
         "http://endhealth.info/im#effectiveDate": { "field": "effective_date", "type": "date" }
       },
       "relationships": {

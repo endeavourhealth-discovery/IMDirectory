@@ -37,8 +37,8 @@ export class IMQtoSQL {
     }
   }
 
-  private convertMatchToQuery(qry: SqlQuery, match: Match): SqlQuery {
-    qry = this.createMatchQuery(match, qry);
+  private convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
+    const qry = this.createMatchQuery(match, parent);
 
     this.convertMatch(match, qry);
 
@@ -205,7 +205,7 @@ export class IMQtoSQL {
       throw new Error("INVALID MatchPropertySubMatch\n" + JSON.stringify(property, null, 2));
     }
 
-    if (!property.match.variable) property.match.variable = qry.alias + "_sub1";
+    if (!property.match.variable) property.match.variable = qry.getAlias(qry.alias + "_sub");
 
     const subQuery = this.convertMatchToQuery(qry, property.match);
 

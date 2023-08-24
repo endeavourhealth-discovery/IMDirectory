@@ -13,6 +13,7 @@ test("IMQtoSQL", async () => {
   let json = entity.data[IM.DEFINITION];
   const def: Query = JSON.parse(json);*/
 
+  /*
   const def: Query = {
     "@id": "http://endhealth.info/im#Q_TestQuery",
     name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
@@ -229,6 +230,7 @@ test("IMQtoSQL", async () => {
       "@id": "http://endhealth.info/im#Patient"
     }
   } as Query;
+*/
 
   /*
   const def: Query = {
@@ -331,6 +333,72 @@ test("IMQtoSQL", async () => {
     }
   } as Query;
 */
+
+  const def: Query = {
+    match: [
+      {
+        name: "Registered with GP for GMS services on the reference date",
+        inSet: [{ "@id": "http://endhealth.info/im#Q_RegisteredGMS" }]
+      },
+      {
+        bool: "and",
+        property: [
+          {
+            "@id": "http://endhealth.info/im#gpCurrentRegistration",
+            match: {
+              property: [
+                {
+                  "@id": "http://endhealth.info/im#gpPatientType",
+                  is: [
+                    {
+                      "@id": "http://endhealth.info/im#2751000252106",
+                      name: "Regular GMS patient",
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                }
+              ],
+              typeOf: { "@id": "http://endhealth.info/im#GPRegistration" }
+            }
+          },
+          {
+            "@id": "http://endhealth.info/im#gpCurrentRegistration",
+            match: {
+              property: [
+                {
+                  "@id": "http://endhealth.info/im#gpRegisteredStatus",
+                  is: [
+                    {
+                      "@id": "http://snomed.info/sct#307927003",
+                      name: "Patient registered (finding)",
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                }
+              ],
+              typeOf: { "@id": "http://endhealth.info/im#GPRegistration" }
+            }
+          },
+          {
+            "@id": "http://endhealth.info/im#gpCurrentRegistration",
+            match: {
+              property: [
+                {
+                  "@id": "http://endhealth.info/im#gpGMSRegistrationDate",
+                  operator: "<=",
+                  value: "-1",
+                  unit: "YEAR",
+                  relativeTo: { parameter: "$referenceDate" }
+                }
+              ],
+              typeOf: { "@id": "http://endhealth.info/im#GPRegistration" }
+            }
+          }
+        ]
+      }
+    ],
+    typeOf: { "@id": "http://endhealth.info/im#Patient" }
+  } as Query;
 
   console.log(JSON.stringify(def, null, 2));
 

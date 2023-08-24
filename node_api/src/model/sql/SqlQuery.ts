@@ -21,6 +21,8 @@ export class SqlQuery {
   }
 
   public initialize(model: string, variable?: string) {
+    console.log("SQL Initialize");
+    console.log(variable);
     this.withs = [];
     this.selects = [];
     this.joins = [];
@@ -154,8 +156,7 @@ export class SqlQuery {
     }
   }
 
-  private getAlias(tableName: string) {
-    const prefix = tableName.substring(0, 3);
-    return prefix + SqlQuery.aliasIndex++;
+  public getAlias(tableName: string) {
+    return tableName + SqlQuery.aliasIndex++;
   }
 }
