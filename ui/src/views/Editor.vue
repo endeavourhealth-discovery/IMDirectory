@@ -41,7 +41,7 @@
         <div class="button-bar" id="editor-button-bar">
           <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="router.go(-1)" data-testid="cancel-button" />
           <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
-          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshEditor" data-testid="refresh-button" />
+          <!--          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshEditor" data-testid="refresh-button" />-->
           <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
         </div>
       </div>
