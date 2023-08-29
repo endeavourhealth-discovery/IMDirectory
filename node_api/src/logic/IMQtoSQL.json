@@ -26,7 +26,7 @@
       "fields": {
         "http://endhealth.info/im#concept": { "field": "concept", "type": "iri" },
         "http://endhealth.info/im#effectiveDate": { "field": "effective_date", "type": "date" },
-        "http://endhealth.info/im#numericValue": { "field": "(({alias}.json ->> 'custom_value_value')::DECIMAL)", "type": "number" }
+        "http://endhealth.info/im#numericValue": { "field": "value", "type": "number" }
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient", "toField": "id"}

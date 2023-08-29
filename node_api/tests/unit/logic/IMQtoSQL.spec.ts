@@ -41,7 +41,7 @@ test("IMQtoSQL", async () => {
                     dataType: null
                   },
                   to: {
-                    operator: ">",
+                    operator: "<",
                     value: "70",
                     unit: "YEARS",
                     relativeTo: null,
@@ -280,9 +280,6 @@ test("IMQtoSQL", async () => {
           {
             "@id": "http://endhealth.info/im#observation",
             match: {
-              typeOf: {
-                "@id": "http://endhealth.info/im#Observation"
-              },
               property: [
                 {
                   "@id": "http://endhealth.info/im#concept",
@@ -306,13 +303,16 @@ test("IMQtoSQL", async () => {
                   "@id": "http://endhealth.info/im#effectiveDate"
                 }
               ],
-              variable: "match_2"
+              typeOf: {
+                "@id": "http://endhealth.info/im#Observation"
+              },
+              variable: "match_3"
             }
           }
         ]
       },
       {
-        nodeRef: "match_2",
+        nodeRef: "match_3",
         bool: "and",
         property: [
           {
@@ -338,7 +338,11 @@ test("IMQtoSQL", async () => {
     match: [
       {
         name: "Registered with GP for GMS services on the reference date",
-        inSet: [{ "@id": "http://endhealth.info/im#Q_RegisteredGMS" }]
+        inSet: [
+          {
+            "@id": "http://endhealth.info/im#Q_RegisteredGMS"
+          }
+        ]
       },
       {
         bool: "and",
@@ -358,8 +362,16 @@ test("IMQtoSQL", async () => {
                   ]
                 }
               ],
-              typeOf: { "@id": "http://endhealth.info/im#GPRegistration" }
+              typeOf: {
+                "@id": "http://endhealth.info/im#GPRegistration"
+              }
             }
+          },
+          {
+            "@id": "http://endhealth.info/im#age",
+            operator: ">=",
+            value: "18",
+            unit: "YEAR"
           },
           {
             "@id": "http://endhealth.info/im#gpCurrentRegistration",
@@ -376,7 +388,9 @@ test("IMQtoSQL", async () => {
                   ]
                 }
               ],
-              typeOf: { "@id": "http://endhealth.info/im#GPRegistration" }
+              typeOf: {
+                "@id": "http://endhealth.info/im#GPRegistration"
+              }
             }
           },
           {
@@ -388,16 +402,180 @@ test("IMQtoSQL", async () => {
                   operator: "<=",
                   value: "-1",
                   unit: "YEAR",
-                  relativeTo: { parameter: "$referenceDate" }
+                  relativeTo: {
+                    parameter: "$referenceDate"
+                  }
                 }
               ],
-              typeOf: { "@id": "http://endhealth.info/im#GPRegistration" }
+              typeOf: {
+                "@id": "http://endhealth.info/im#GPRegistration"
+              }
             }
+          }
+        ]
+      },
+      {
+        property: [
+          {
+            "@id": "http://endhealth.info/im#observation",
+            match: {
+              property: [
+                {
+                  "@id": "http://endhealth.info/im#concept",
+                  is: [
+                    {
+                      "@id": "http://snomed.info/sct#38341003",
+                      name: "Hypertensive disorder, systemic arterial (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#59621000",
+                      name: "Essential hypertension (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#31992008",
+                      name: "Secondary hypertension (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#31992008",
+                      name: "Secondary hypertension (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#843821000000102",
+                      name: "Stage 1 hypertension (National Institute for Health and Clinical Excellence 2011) (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#843841000000109",
+                      name: "Severe hypertension (National Institute for Health and Clinical Excellence 2011) (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#845891000000103",
+                      name: "Hypertension resistant to drug therapy (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#846371000000103",
+                      name: "Stage 2 hypertension (National Institute for Health and Clinical Excellence 2011) (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#38341003",
+                      name: "Hypertensive disorder, systemic arterial (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#38341003",
+                      name: "Hypertensive disorder, systemic arterial (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#38341003",
+                      name: "Hypertensive disorder, systemic arterial (disorder)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#162659009",
+                      name: "Hypertension resolved (finding)",
+                      descendantsOrSelfOf: true
+                    },
+                    {
+                      "@id": "http://snomed.info/sct#162659009",
+                      name: "Hypertension resolved (finding)",
+                      descendantsOrSelfOf: true
+                    }
+                  ]
+                }
+              ],
+              orderBy: [
+                {
+                  direction: "descending",
+                  limit: 1,
+                  "@id": "http://endhealth.info/im#effectiveDate"
+                }
+              ],
+              typeOf: {
+                "@id": "http://endhealth.info/im#Observation"
+              },
+              variable: "match_9"
+            }
+          }
+        ]
+      },
+      {
+        nodeRef: "match_9",
+        bool: "and",
+        property: [
+          {
+            "@id": "http://endhealth.info/im#concept",
+            is: [
+              {
+                "@id": "http://snomed.info/sct#38341003",
+                name: "Hypertensive disorder, systemic arterial (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#59621000",
+                name: "Essential hypertension (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#31992008",
+                name: "Secondary hypertension (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#31992008",
+                name: "Secondary hypertension (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#843821000000102",
+                name: "Stage 1 hypertension (National Institute for Health and Clinical Excellence 2011) (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#843841000000109",
+                name: "Severe hypertension (National Institute for Health and Clinical Excellence 2011) (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#845891000000103",
+                name: "Hypertension resistant to drug therapy (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#846371000000103",
+                name: "Stage 2 hypertension (National Institute for Health and Clinical Excellence 2011) (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#38341003",
+                name: "Hypertensive disorder, systemic arterial (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#38341003",
+                name: "Hypertensive disorder, systemic arterial (disorder)",
+                descendantsOrSelfOf: true
+              },
+              {
+                "@id": "http://snomed.info/sct#38341003",
+                name: "Hypertensive disorder, systemic arterial (disorder)",
+                descendantsOrSelfOf: true
+              }
+            ]
           }
         ]
       }
     ],
-    typeOf: { "@id": "http://endhealth.info/im#Patient" }
+    typeOf: {
+      "@id": "http://endhealth.info/im#Patient"
+    }
   } as Query;
 
   console.log(JSON.stringify(def, null, 2));

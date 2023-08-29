@@ -164,22 +164,45 @@ export class IMQtoSQL {
       throw new Error("INVALID MatchPropertyIs\n" + JSON.stringify(property, null, 2));
     }
 
-    const inList = [];
+    const direct: string[] = [];
+    const ancestors: string[] = [];
+    const descendants: string[] = [];
+    const descendantsSelf: string[] = [];
 
-    // TODO: Split into 4 lists: - Direct/Ancestors/Descendants/SelfDescendants - with differing joins for each
     for (const pIs of property.is) {
-      if (pIs["@id"]) inList.push(pIs["@id"]);
-      else {
+      if (pIs["@id"]) {
+        if (pIs.ancestorsOf) ancestors.push(pIs["@id"]);
+        else if (pIs.descendantsOf) descendants.push(pIs["@id"]);
+        else if (pIs.descendantsOrSelfOf) descendantsSelf.push(pIs["@id"]);
+        else direct.push(pIs["@id"]);
+      } else {
         throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIs, null, 2));
       }
     }
 
-    let where = qry.getFieldName(property["@id"]!);
+    if (direct.length > 0) {
+      let where = qry.getFieldName(property["@id"]!);
 
-    if (inList.length == 1) where += " = '" + inList.join("', '") + "' -- TCT?\n";
-    else where += " IN ('" + inList.join("', '") + "') -- TCT?\n";
+      if (direct.length == 1) where += " = '" + direct[0] + "'\n";
+      else where += " IN ('" + direct.join("', '") + "')\n";
 
-    qry.wheres.push(where);
+      qry.wheres.push(where);
+    }
+
+    if (descendants.length > 0) {
+      qry.joins.push("JOIN tct ON tct.child = " + qry.getFieldName(property["@id"]!));
+      qry.wheres.push(descendants.length == 1 ? "tct.iri = '" + descendants[0] + "'" : "tct.iri IN ('" + descendants.join("', '") + "') AND tct.level > 0");
+    }
+
+    if (descendantsSelf.length > 0) {
+      qry.joins.push("JOIN tct ON tct.child = " + qry.getFieldName(property["@id"]!));
+      qry.wheres.push(descendantsSelf.length == 1 ? "tct.iri = '" + descendantsSelf[0] + "'" : "tct.iri IN ('" + descendantsSelf.join("', '") + "')");
+    }
+
+    if (ancestors.length > 0) {
+      qry.joins.push("JOIN tct ON tct.iri = " + qry.getFieldName(property["@id"]!));
+      qry.wheres.push(ancestors.length == 1 ? "tct.child = '" + ancestors[0] + "'" : "tct.chilf IN ('" + ancestors.join("', '") + "') AND tct.level > 0");
+    }
   }
 
   private convertMatchPropertyRange(qry: SqlQuery, property: Property) {
@@ -239,7 +262,7 @@ export class IMQtoSQL {
     // OPTIMIZATION
     const mmbrTbl = qry.alias + "_mmbr";
 
-    qry.joins.push("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".concept = " + qry.getFieldName(property["@id"]));
+    qry.joins.push("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".member = " + qry.getFieldName(property["@id"]));
 
     if (inList.length == 1) qry.wheres.push(mmbrTbl + ".iri = '" + inList.join("', '") + "'");
     else qry.wheres.push(mmbrTbl + ".iri IN ('" + inList.join("', '") + "')");
