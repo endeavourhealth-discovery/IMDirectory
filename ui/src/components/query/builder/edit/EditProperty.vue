@@ -58,11 +58,10 @@ onMounted(async () => {
 });
 
 async function init() {
-  let dataModelIri = resolveIri(props.match?.["@type"]!) ?? resolveIri(props.queryTypeIri);
+  let dataModelIri = resolveIri(props.match?.typeOf!["@id"]!) ?? resolveIri(props.queryTypeIri);
   if (isObjectHasKeys(props.match, ["nodeRef"]) && props.match?.nodeRef) {
     dataModelIri = variableMap.value.get(props.match.nodeRef)["@type"];
   }
-  const dataModelIri = resolveIri(props.match?.typeOf!["@id"]!) ?? resolveIri(props.queryTypeIri);
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
     if (isArrayHasLength(ttproperties)) {
