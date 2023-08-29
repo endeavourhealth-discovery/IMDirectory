@@ -58,7 +58,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : match.typeOf!['@id'] ? match.typeOf!['@id'] : queryTypeIri"
+    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : isObjectHasKeys(match.typeOf, ['@id']) ? match.typeOf!['@id'] : queryTypeIri"
     :match="match"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
@@ -176,8 +176,9 @@ function getClass() {
 }
 
 function saveSelect(selectedCS: ConceptSummary) {
+  console.log("here");
   props.match.name = selectedCS.name;
-  if (isRecordModel(selectedCS.entityType)) props.match.typeOf!["@id"] = selectedCS.iri;
+  if (isRecordModel(selectedCS.entityType)) props.match.typeOf = { "@id": selectedCS.iri };
   if (isValueSet(selectedCS.entityType)) props.match.typeOf!["@id"] = selectedCS.iri;
   else props.match["@id"] = selectedCS.iri;
   editMode.value = false;

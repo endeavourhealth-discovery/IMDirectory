@@ -106,7 +106,7 @@ function getOrderByOptions() {
 
 async function getOrderProperties() {
   const orderProperties: ConceptSummary[] = [];
-  const dataModelIri = resolveIri(props.match["typeOf"]!["@id"] ?? props.queryTypeIri);
+  const dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(props.queryTypeIri);
   const entity = await EntityService.getPartialEntity(dataModelIri!, [SHACL.PROPERTY]);
   if (isObjectHasKeys(entity, [SHACL.PROPERTY]))
     for (const prop of entity[SHACL.PROPERTY]) {
