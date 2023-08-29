@@ -37,7 +37,6 @@
           />
         </div>
         <div class="button-bar" id="creator-button-bar">
-          <!--          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshCreator" />-->
           <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
           <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
         </div>
