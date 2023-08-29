@@ -1,9 +1,25 @@
-import { Match, Property } from "@/interfaces/AutoGen";
+import { Match, OrderLimit, Property } from "@/interfaces/AutoGen";
 import { IM } from "@/vocabulary";
+import { Query } from "@/interfaces/AutoGen";
 
-export const match = {
-  withType: { "@type": "Patient" },
-  withSet: { "@set": "CSET_EmailOnlineEncounter" },
+export const match: {
+  withType: Match;
+  withSet: Match;
+  withIri: Match;
+  withName: Match;
+  withDescendantsOrSelfOf: Property;
+  withDescendantsOf: Property;
+  withAncestorsOf: Property;
+  withExclude: Match;
+  withVariable: Match;
+  withOneDirectPropertyOfRange: Match;
+  withOneDirectPropertyOfIs: Match;
+  withMultipleDirectProperties: Match;
+  withOneNestedPropertyOfIs: Match;
+  withOneNestedPropertyOfInSet: Match;
+} = {
+  withType: { typeOf: { "@id": "Patient" } },
+  withSet: { inSet: [{ "@id": "CSET_EmailOnlineEncounter" }] },
   withIri: { "@id": "http://snomed.info/sct#325841000000109" },
   withName: {
     name: "Text message consultation",
@@ -24,7 +40,7 @@ export const match = {
     ancestorsOf: true,
     "@id": "http://endhealth.info/im#1681000252102"
   },
-  withExclude: { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives" },
+  withExclude: { exclude: true, inSet: [{ "@id": "http://endhealth.info/im#Q_Hypertensives" }] },
   withVariable: {},
   withOneDirectPropertyOfRange: {
     property: [
@@ -47,11 +63,11 @@ export const match = {
       }
     ]
   },
-  withOneDirectPropertyOfIn: {
+  withOneDirectPropertyOfIs: {
     property: [
       {
         "@id": "http://endhealth.info/im#statedGender",
-        in: [
+        inSet: [
           {
             "@id": "http://endhealth.info/im#905041000252107",
             name: "Female (stated gender)",
@@ -82,7 +98,7 @@ export const match = {
       },
       {
         "@id": "http://endhealth.info/im#statedGender",
-        in: [
+        is: [
           {
             "@id": "http://endhealth.info/im#905041000252107",
             name: "Female (stated gender)"
@@ -91,16 +107,16 @@ export const match = {
       }
     ]
   },
-  withOneNestedPropertyOfIn: {
+  withOneNestedPropertyOfIs: {
     property: [
       {
         "@id": "http://endhealth.info/im#observation",
         match: {
-          "@type": "Observation",
+          typeOf: { "@id": "Observation" },
           property: [
             {
               "@id": "http://endhealth.info/im#concept",
-              in: [
+              is: [
                 {
                   "@id": "http://snomed.info/sct#714628002",
                   descendantsOf: true
@@ -112,10 +128,43 @@ export const match = {
         }
       }
     ]
+  },
+  withOneNestedPropertyOfInSet: {
+    property: [
+      {
+        "@id": "http://endhealth.info/im#observation",
+        match: {
+          typeOf: { "@id": "Observation" },
+          property: [
+            {
+              "@id": "http://endhealth.info/im#concept",
+              inSet: [
+                {
+                  "@id": "http://snomed.info/sct#714628002"
+                }
+              ],
+              valueLabel: "Prediabetes"
+            }
+          ]
+        }
+      }
+    ]
   }
 };
 
-export const where = {
+export const where: {
+  withNodeRefAndComparison: Property;
+  withRange: Property;
+  withIs: Property;
+  withIsAndValueLabel: Property;
+  withNotIsAndName: Property;
+  withValueLabelIs: Property;
+  withComparison: Property;
+  withNull: Property;
+  after: Property;
+  last6Months: Property;
+  last6MonthsWithValueLabel: Property;
+} = {
   withNodeRefAndComparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150", nodeRef: "latestBP" },
   withRange: {
     "@id": "http://endhealth.info/im#age",
@@ -134,11 +183,11 @@ export const where = {
       }
     }
   },
-  withIn: { "@id": "http://endhealth.info/im#concept", in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }] },
-  withInAndValueLabel: {
+  withIs: { "@id": "http://endhealth.info/im#concept", is: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }] },
+  withIsAndValueLabel: {
     "@id": "http://endhealth.info/im#concept",
     name: "concept",
-    in: [
+    is: [
       {
         "@id": "http://snomed.info/sct#271649006",
         name: "Systolic blood pressure"
@@ -150,16 +199,16 @@ export const where = {
     ],
     valueLabel: "Office or home systolic blood pressure"
   },
-  withNotInAndName: {
+  withNotIsAndName: {
     "@id": "http://endhealth.info/im#concept",
-    notIn: [{ "@id": "http://snomed.info/sct#714628002", name: "Prediabetes (finding)", descendantsOf: true }]
+    isNot: [{ "@id": "http://snomed.info/sct#714628002", name: "Prediabetes (finding)", descendantsOf: true }]
   },
-  withValueLabelIn: {
+  withValueLabelIs: {
     "@id": "http://endhealth.info/im#concept",
-    in: [{ "@id": "http://snomed.info/sct#271649006" }, { "@id": "http://endhealth.info/emis#1994021000006104" }],
+    is: [{ "@id": "http://snomed.info/sct#271649006" }, { "@id": "http://endhealth.info/emis#1994021000006104" }],
     valueLabel: "Office or home systolic blood pressure"
   },
-  withcomparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150" },
+  withComparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150" },
   withNull: {
     null: true
   },
@@ -185,108 +234,227 @@ export const where = {
   }
 };
 
-export const orderBy = {
+export const orderBy: {
+  getLatest: OrderLimit;
+  getEarliest: OrderLimit;
+} = {
   getLatest: { direction: "descending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" },
   getEarliest: { direction: "ascending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" }
 };
 
-export const fullTestQueryDefinition = {
+export const fullTestQueryDefinition: Query = {
   "@id": "http://endhealth.info/im#Q_TestQuery",
   name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
   match: [
-    { "@type": "Patient" },
-    { "@set": "http://endhealth.info/im#Q_RegisteredGMS", name: "Registered for GMS services on reference date" },
     {
-      boolMatch: "or",
+      inSet: [
+        {
+          "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+          name: "Registered for GMS services on reference date"
+        }
+      ]
+    },
+    {
       match: [
         {
-          where: [
+          property: [
             {
               "@id": "http://endhealth.info/im#age",
               range: {
-                from: { operator: ">=", value: "65", unit: "YEARS", relativeTo: null },
-                to: { operator: ">", value: "70", unit: "YEARS", relativeTo: null }
+                from: {
+                  operator: ">=",
+                  value: "65",
+                  unit: "YEARS",
+                  relativeTo: null,
+                  dataType: null
+                },
+                to: {
+                  operator: ">",
+                  value: "70",
+                  unit: "YEARS",
+                  relativeTo: null,
+                  dataType: null
+                }
               }
             }
           ]
         },
-        { "@set": "http://example/queries#Q_Diabetics" },
         {
-          path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-          where: [
-            { "@id": "http://endhealth.info/im#concept", in: [{ "@id": "http://snomed.info/sct#714628002", descendantsOf: true }], valueLabel: "Prediabetes" }
+          inSet: [
+            {
+              "@id": "http://example/queries#Q_Diabetics"
+            }
           ]
+        },
+        {
+          property: [
+            {
+              "@id": "http://endhealth.info/im#observation",
+              match: {
+                property: [
+                  {
+                    "@id": "http://endhealth.info/im#concept",
+                    is: [
+                      {
+                        "@id": "http://snomed.info/sct#714628002",
+                        descendantsOf: true
+                      }
+                    ],
+                    valueLabel: "Prediabetes"
+                  }
+                ],
+                typeOf: {
+                  "@id": "http://endhealth.info/im#Observation"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      bool: "or"
+    },
+    {
+      property: [
+        {
+          "@id": "http://endhealth.info/im#observation",
+          match: {
+            bool: "and",
+            property: [
+              {
+                "@id": "http://endhealth.info/im#concept",
+                name: "concept",
+                is: [
+                  {
+                    "@id": "http://snomed.info/sct#271649006",
+                    name: "Systolic blood pressure",
+                    descendantsOrSelfOf: true
+                  },
+                  {
+                    "@id": "http://endhealth.info/emis#1994021000006104",
+                    name: "Home systolic blood pressure",
+                    descendantsOrSelfOf: true
+                  }
+                ],
+                valueLabel: "Office or home systolic blood pressure"
+              },
+              {
+                "@id": "http://endhealth.info/im#effectiveDate",
+                operator: ">=",
+                value: "-6",
+                unit: "MONTHS",
+                relativeTo: {
+                  parameter: "$referenceDate"
+                },
+                valueLabel: "last 6 months"
+              }
+            ],
+            orderBy: [
+              {
+                direction: "descending",
+                limit: 1,
+                "@id": "http://endhealth.info/im#effectiveDate"
+              }
+            ],
+            typeOf: {
+              "@id": "http://endhealth.info/im#Observation"
+            },
+            variable: "latestBP"
+          }
         }
       ]
     },
     {
-      path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-      bool: "and",
-      where: [
-        {
-          "@id": "http://endhealth.info/im#concept",
-          name: "concept",
-          in: [
-            { "@id": "http://snomed.info/sct#271649006", name: "Systolic blood pressure", descendantsOrSelfOf: true },
-            { "@id": "http://endhealth.info/emis#1994021000006104", name: "Home systolic blood pressure", descendantsOrSelfOf: true }
-          ],
-          valueLabel: "Office or home systolic blood pressure"
-        },
-        {
-          "@id": "http://endhealth.info/im#effectiveDate",
-          operator: ">=",
-          value: "-6",
-          unit: "MONTHS",
-          relativeTo: { parameter: "$referenceDate" },
-          valueLabel: "last 6 months"
-        }
-      ],
-      variable: "latestBP",
-      orderBy: [{ direction: "descending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" }]
-    },
-    {
-      boolMatch: "or",
+      nodeRef: "latestBP",
       match: [
         {
           bool: "and",
-          where: [
-            { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "140", nodeRef: "latestBP" },
+          property: [
             {
               "@id": "http://endhealth.info/im#concept",
-              in: [{ "@id": "http://snomed.info/sct#271649006", name: "Systolic blood pressure", descendantsOrSelfOf: true }],
-              nodeRef: "latestBP",
+              is: [
+                {
+                  "@id": "http://snomed.info/sct#271649006",
+                  name: "Systolic blood pressure",
+                  descendantsOrSelfOf: true
+                }
+              ],
               valueLabel: "Office blood pressure"
+            },
+            {
+              "@id": "http://endhealth.info/im#numericValue",
+              operator: ">",
+              value: "140"
             }
           ]
         },
         {
           bool: "and",
-          where: [
-            { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "130", nodeRef: "latestBP" },
+          property: [
             {
               "@id": "http://endhealth.info/im#concept",
-              in: [{ "@id": "http://endhealth.info/emis#1994021000006104", name: "Home systolic blood pressure", descendantsOrSelfOf: true }],
-              nodeRef: "latestBP",
+              is: [
+                {
+                  "@id": "http://endhealth.info/emis#1994021000006104",
+                  name: "Home systolic blood pressure",
+                  descendantsOrSelfOf: true
+                }
+              ],
               valueLabel: "Home blood pressure"
+            },
+            {
+              "@id": "http://endhealth.info/im#numericValue",
+              operator: ">",
+              value: "130"
             }
           ]
         }
       ],
+      bool: "or",
       variable: "highBPReading"
     },
     {
       exclude: true,
-      path: { "@id": "http://endhealth.info/im#observation", node: { "@type": "Observation" } },
-      bool: "and",
-      where: [
-        { "@id": "http://endhealth.info/im#concept", in: [{ "@set": "http://endhealth.info/im#InvitedForScreening" }] },
+      property: [
         {
-          "@id": "http://endhealth.info/im#effectiveDate",
-          operator: ">=",
-          relativeTo: { "@id": "http://endhealth.info/im#effectiveDate", nodeRef: "highBPReading" }
+          "@id": "http://endhealth.info/im#observation",
+          match: {
+            bool: "and",
+            property: [
+              {
+                "@id": "http://endhealth.info/im#concept",
+                inSet: [
+                  {
+                    "@id": "http://endhealth.info/im#InvitedForScreening"
+                  }
+                ]
+              },
+              {
+                "@id": "http://endhealth.info/im#effectiveDate",
+                operator: ">=",
+                relativeTo: {
+                  "@id": "http://endhealth.info/im#effectiveDate",
+                  nodeRef: "highBPReading"
+                }
+              }
+            ],
+            typeOf: {
+              "@id": "http://endhealth.info/im#Observation"
+            }
+          }
         }
       ]
     },
-    { exclude: true, "@set": "http://endhealth.info/im#Q_Hypertensives", name: "Hypertensives" }
-  ]
+    {
+      exclude: true,
+      inSet: [
+        {
+          "@id": "http://endhealth.info/im#Q_Hypertensives",
+          name: "Hypertensives"
+        }
+      ]
+    }
+  ],
+  typeOf: {
+    "@id": "http://endhealth.info/im#Patient"
+  }
 };

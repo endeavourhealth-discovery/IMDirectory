@@ -12,11 +12,11 @@ export const useQueryStore = defineStore("query", {
         name: "Get queries by return type",
         match: [
           {
-            "@type": "http://endhealth.info/im#CohortQuery",
+            typeOf: { "@id": "http://endhealth.info/im#CohortQuery" },
             property: [
               {
                 "@id": "http://endhealth.info/im#returnType",
-                in: [
+                inSet: [
                   {
                     parameter: "dataModelIri"
                   }

@@ -56,7 +56,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef)['@type'] : match['@type'] ? match['@type'] : queryTypeIri"
+    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : match.typeOf!['@id'] ? match.typeOf!['@id'] : queryTypeIri"
     :match="match"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
@@ -140,8 +140,8 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 const hasValue: ComputedRef<boolean> = computed(() => {
   return (
     isObjectHasKeys(props.match, ["@id"]) ||
-    isObjectHasKeys(props.match, ["@set"]) ||
-    isObjectHasKeys(props.match, ["@type"]) ||
+    isObjectHasKeys(props.match, ["inSet"]) ||
+    isObjectHasKeys(props.match, ["typeOf"]) ||
     isObjectHasKeys(props.match, ["nodeRef"])
   );
 });
@@ -185,8 +185,8 @@ function getClass() {
 
 function saveSelect(selectedCS: ConceptSummary) {
   props.match.name = selectedCS.name;
-  if (isRecordModel(selectedCS.entityType)) props.match["@type"] = selectedCS.iri;
-  if (isValueSet(selectedCS.entityType)) props.match["@set"] = selectedCS.iri;
+  if (isRecordModel(selectedCS.entityType)) props.match.typeOf!["@id"] = selectedCS.iri;
+  if (isValueSet(selectedCS.entityType)) props.match.typeOf!["@id"] = selectedCS.iri;
   else props.match["@id"] = selectedCS.iri;
   editMode.value = false;
 }
@@ -328,7 +328,7 @@ function getSingleRCOptions() {
       }
     };
 
-    if (isObjectHasKeys(props.match, ["@type"]) && hasProperty.value) singleRCOptions.splice(0, 1, editOption);
+    if (isObjectHasKeys(props.match, ["typeOf"]) && hasProperty.value) singleRCOptions.splice(0, 1, editOption);
     else if (hasValue.value) singleRCOptions.splice(1, 0, editOption);
   }
 

@@ -21,7 +21,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
   }
 
   if (isArrayHasLength(directProperties)) {
-    const match: Match = { property: [] };
+    const match: Match = { property: [] } as Match;
     for (const directProperty of directProperties) {
       if (isObjectHasKeys(directProperty, ["parent"]) && directProperty.parent.hasVariable) match.nodeRef = directProperty.parent.hasVariable;
       match.property!.push(buildPropertyFromTreeNode(directProperty));
@@ -51,12 +51,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
 }
 
 export function buildMatchFromCS(cs: ConceptSummary) {
-  const node = { name: cs.name } as Node;
-  if (isValueSet(cs.entityType) || isQuery(cs.entityType)) node["@set"] = cs.iri;
-  if (isRecordModel(cs.entityType)) node["@type"] = cs.iri;
-  else node["@id"] = cs.iri;
-
-  return node;
+  return { "@id": cs.iri, name: cs.name } as Node;
 }
 
 function getHasVariable(treeNode: TreeNode) {
@@ -75,11 +70,11 @@ export function buildParentMatchStructure(path: string, match: Match) {
   const leafMatchPath = parents.splice(0, 1);
   parents.splice(parents.length - 1, 1);
 
-  match["@type"] = IM.NAMESPACE + leafMatchPath.join();
+  match.typeOf = { "@id": IM.NAMESPACE + leafMatchPath.join() };
   let currentMatchOrProperty: any = cloneDeep(match);
   for (const [index, parentPath] of parents.reverse().entries()) {
     if ((index + 1) % 2 === 0) {
-      const parentMatch = { "@type": IM.NAMESPACE + parentPath, property: [cloneDeep(currentMatchOrProperty)] };
+      const parentMatch = { typeOf: { "@id": IM.NAMESPACE + parentPath, property: [cloneDeep(currentMatchOrProperty)] } };
       currentMatchOrProperty = parentMatch;
     } else {
       const parentProperty = { "@id": IM.NAMESPACE + parentPath, match: cloneDeep(currentMatchOrProperty) };
@@ -101,7 +96,7 @@ function buildPropertyFromTreeNode(treeNode: TreeNode) {
     property.operator = "=";
     property.value = "";
   } else if (isObjectHasKeys(treeNode.ttproperty, [SHACL.CLASS])) {
-    property.in = [{ "@id": "http://endhealth.info/im#Example", name: "Example concept" }];
+    property.inSet = [{ "@id": "http://endhealth.info/im#Example", name: "Example concept" }];
   }
   (property as any).key = treeNode.key;
   return property;

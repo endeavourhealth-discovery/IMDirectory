@@ -165,7 +165,7 @@ export const nestedProperty = {
       {
         "@id": "http://endhealth.info/im#homeAddress",
         match: {
-          "@type": "http://endhealth.info/im#Address",
+          typeOf: { "@id": "http://endhealth.info/im#Address" },
           property: [
             {
               "@id": "http://endhealth.info/im#addressLine",

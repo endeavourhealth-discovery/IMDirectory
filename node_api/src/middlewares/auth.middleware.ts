@@ -11,46 +11,47 @@ class AuthMiddleware {
   private userPoolId: string = "eu-west-2_Vt5ScFwss";
 
   public async verifyToken(req: Request, res: Response, next: NextFunction, role?: string) {
-    if (await this.checkToken(req, role))
-      next()
-    else
-      res.status(401).end();
+    if (await this.checkToken(req, role)) next();
+    else res.status(401).end();
   }
 
-  public async checkToken(req:Request, role?: string) {
-    const token = req.headers?.authorization?.substring(7);
+  public async checkToken(req: Request, role?: string) {
+    try {
+      const token = req.headers?.authorization?.substring(7);
 
-    if (!token)
-      return false;
+      if (!token) return false;
 
-    if (Object.keys(pems).length == 0)
-      await this.setUp();
+      if (Object.keys(pems).length == 0) await this.setUp();
 
-    let decodedJwt: any = jwt.decode(token, { complete: true });
-    logger.info("decodedJwt", decodedJwt);
-    if (decodedJwt === null) {
-      return false;
-    }
-
-    if (role) {
-      if (!decodedJwt.payload["cognito:groups"]) {
+      let decodedJwt: any = jwt.decode(token, { complete: true });
+      logger.info("decodedJwt", decodedJwt);
+      if (decodedJwt === null) {
         return false;
       }
 
-      const groups: string[] = decodedJwt.payload["cognito:groups"];
+      if (role) {
+        if (!decodedJwt.payload["cognito:groups"]) {
+          return false;
+        }
 
-      if (!groups.includes(role)) {
+        const groups: string[] = decodedJwt.payload["cognito:groups"];
+
+        if (!groups.includes(role)) {
+          return false;
+        }
+      }
+
+      let kid = decodedJwt.header.kid;
+      let pem = pems[kid];
+      if (!pem) {
         return false;
       }
-    }
-
-    let kid = decodedJwt.header.kid;
-    let pem = pems[kid];
-    if (!pem) {
+      jwt.verify(token, pem);
+      return true;
+    } catch (error) {
+      logger.error(error);
       return false;
     }
-    jwt.verify(token, pem);
-    return true;
   }
 
   public secure(role?: string) {
