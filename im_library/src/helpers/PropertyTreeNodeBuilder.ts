@@ -1,6 +1,6 @@
 import { TreeNode } from "../interfaces/TreeNode";
 import { TTProperty } from "../interfaces";
-import { IM, SHACL } from "../vocabulary";
+import { RDF, SHACL } from "../vocabulary";
 import { getFAIconFromType } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
@@ -26,7 +26,7 @@ export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
 
 export function buildPropertyTreeNode(property: TTProperty, parent?: TreeNode) {
   // "http://www.w3.org/ns/shacl#datatype" "http://www.w3.org/ns/shacl#class" "http://www.w3.org/ns/shacl#node"
-  const imtype = { "@id": IM.NAMESPACE + "Property" } as TTIriRef;
+  const imtype = { "@id": RDF.PROPERTY } as TTIriRef;
   let type;
   if (isObjectHasKeys(property, [SHACL.DATATYPE])) type = "datatype";
   else if (isObjectHasKeys(property, [SHACL.CLASS])) type = "class";

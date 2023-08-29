@@ -63,7 +63,7 @@ export default {
       { "@id": "http://www.w3.org/ns/shacl#NodeShape", name: "Data model/Node shape " },
       { "@id": "http://endhealth.info/im#EntitySelector", name: "Entity selector" },
       { "@id": "http://endhealth.info/im#Folder", name: "Folder" },
-      { "@id": "http://endhealth.info/im#Property", name: "Property" },
+      { "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property", name: "Property" },
       { "@id": "http://endhealth.info/im#Query", name: "Query" },
       { "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" },
       { "@id": "http://endhealth.info/im#ValueSet", name: "Value set" }

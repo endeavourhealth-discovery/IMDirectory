@@ -122,7 +122,6 @@ export class IM {
   public static INACTIVE = IM.NAMESPACE + "Inactive";
 
   //query
-  public static PROPERTY = IM.NAMESPACE + "property";
   public static MATCH = IM.NAMESPACE + "match";
   public static ENTITY_TYPE = IM.NAMESPACE + "entityType";
   public static RETURN_TYPE = IM.NAMESPACE + "returnType";
