@@ -1,7 +1,7 @@
 import { IM, SHACL } from "../vocabulary";
 import { ConceptSummary, TreeNode } from "../interfaces";
 import { Match, Node, Property } from "../interfaces/AutoGen";
-import { isFolder, isProperty, isQuery, isRecordModel, isValueSet } from "./ConceptTypeMethods";
+import { isFolder, isProperty, isQuery, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 import { cloneDeep } from "lodash";
