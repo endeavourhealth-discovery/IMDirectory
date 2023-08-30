@@ -176,7 +176,6 @@ function getClass() {
 }
 
 function saveSelect(selectedCS: ConceptSummary) {
-  console.log("here");
   props.match.name = selectedCS.name;
   if (isRecordModel(selectedCS.entityType)) props.match.typeOf = { "@id": selectedCS.iri };
   if (isValueSet(selectedCS.entityType)) props.match.typeOf!["@id"] = selectedCS.iri;
