@@ -60,7 +60,7 @@ onMounted(async () => {
 async function init() {
   let dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(props.queryTypeIri);
   if (isObjectHasKeys(props.match, ["nodeRef"]) && props.match?.nodeRef) {
-    dataModelIri = variableMap.value.get(props.match.nodeRef)["@type"];
+    dataModelIri = variableMap.value.get(props.match.nodeRef).typeOf["@id"];
   }
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
