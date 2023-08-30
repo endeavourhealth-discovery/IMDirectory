@@ -24,7 +24,6 @@
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)" @dblclick="editMatch()"></div>
-
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -33,7 +32,6 @@
       :match="nestedMatch"
       :query-type-iri="queryTypeIri"
     />
-
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
       v-for="(property, index) of match.property"
@@ -96,6 +94,7 @@ import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { IM } from "@im-library/vocabulary";
 import { useUserStore } from "@/stores/userStore";
 import { useQueryStore } from "@/stores/queryStore";
+import { cloneDeep } from "lodash";
 
 interface Props {
   queryTypeIri: string;
@@ -160,6 +159,15 @@ watch(
   () => userStore.currentTheme,
   () => {
     getStyle();
+  }
+);
+
+watch(
+  () => cloneDeep(props.match),
+  () => {
+    if (!isArrayHasLength(props.match.property) && !isArrayHasLength(props.match.match) && !hasValue.value) {
+      remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
+    }
   }
 );
 
