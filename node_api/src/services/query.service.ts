@@ -4,7 +4,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
 import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
 import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
