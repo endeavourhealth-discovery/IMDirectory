@@ -213,7 +213,8 @@ function addVariableNodes() {
 }
 
 function getVariableTypesFromMatch(match: Match, types: string[]) {
-  const type = resolveIri(match.typeOf!['@id'] || "");
+  const type = isObjectHasKeys(match.typeOf, ["@id"]) ? resolveIri(match.typeOf!["@id"]!) : resolveIri("");
+
   if (type && !types.includes(type)) types.push(type);
   if (isArrayHasLength(match.match))
     for (const nestedMatch of match.match!) {
