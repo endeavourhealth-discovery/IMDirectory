@@ -111,6 +111,7 @@ export class IMQtoSQL {
 
     qry.whereBool = match.bool ? match.bool.toUpperCase() : "AND";
 
+    // TODO: Boolean "OR" should be a union (more performant)
     const joiner = "OR" == match.bool.toUpperCase() ? "LEFT JOIN " : "JOIN ";
 
     for (const subMatch of match.match) {

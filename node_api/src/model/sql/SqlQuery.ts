@@ -21,8 +21,6 @@ export class SqlQuery {
   }
 
   public initialize(model: string, variable?: string) {
-    console.log("SQL Initialize");
-    console.log(variable);
     this.withs = [];
     this.selects = [];
     this.joins = [];
