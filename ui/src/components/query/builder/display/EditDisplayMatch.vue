@@ -56,7 +56,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : isObjectHasKeys(match.typeOf, ['@id']) ? match.typeOf!['@id'] : queryTypeIri"
+    :base-type="isObjectHasKeys(props.match, ['nodeRef']) && isObjectHasKeys(props.match.nodeRef, ['typeOf']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : isObjectHasKeys(match.typeOf, ['@id']) ? match.typeOf!['@id'] : queryTypeIri"
     :match="match"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
@@ -220,7 +220,7 @@ function getMultipleRCOptions() {
       label: "Delete",
       icon: PrimeIcons.TRASH,
       command: () => {
-        remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
+        deleteSelected();
       }
     }
   ];
@@ -355,6 +355,14 @@ function addVariable(previousValue: string, newValue: string) {
   props.match.variable = newValue;
   if (variableMap.value.has(previousValue)) variableMap.value.delete(previousValue);
   variableMap.value.set(newValue, props.match);
+}
+
+function deleteSelected() {
+  const reverseSorted = selectedMatches.value.sort((a, b) => b.index - a.index);
+  for (const selectedMatch of reverseSorted) {
+    remove(selectedMatch.index, selectedMatch.parentList!, selectedMatch.parent!);
+  }
+  queryStore.clearSelectedMatches();
 }
 
 function onSelect(cs: ConceptSummary) {
