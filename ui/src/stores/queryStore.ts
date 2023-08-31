@@ -40,6 +40,9 @@ export const useQueryStore = defineStore("query", {
   actions: {
     updateVariableMap(map: Map<string, any>) {
       this.variableMap = map;
+    },
+    clearSelectedMatches() {
+      this.selectedMatches = [];
     }
   }
 });
