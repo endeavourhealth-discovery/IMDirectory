@@ -28,10 +28,17 @@
       </div>
       <div v-if="!isArrayHasLength(query.match) && query['typeOf']">
         <Button class="base-type-button" label="Add property" @click="showAddDialog = true" />
+        <Button class="base-type-button" label="Add Cohort" @click="showDirectoryDialog = true" />
       </div>
 
       <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" :add-mode="'addAfter'" @on-add-or-edit="add" />
       <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
+      <DirectorySearchDialog
+        v-model:show-dialog="showDirectoryDialog"
+        @update:selected="onSelect"
+        :searchByQuery="validationQueryRequest"
+        :root-entities="['http://endhealth.info/im#Sets', 'http://endhealth.info/im#Q_Queries']"
+      />
     </div>
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
@@ -58,6 +65,9 @@ import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTy
 import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddPropertyDialog.vue";
 import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 import { useQueryStore } from "@/stores/queryStore";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { ConceptSummary } from "@im-library/interfaces";
+import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
 
 const queryStore = useQueryStore();
 const filterStore = useFilterStore();
@@ -65,6 +75,7 @@ const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => querySt
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const visibleDialog: Ref<boolean> = ref(false);
 const queryTypeIri: Ref<string> = ref("");
+const showDirectoryDialog: Ref<boolean> = ref(false);
 const route = useRoute();
 const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
@@ -132,6 +143,12 @@ function initVariableMap() {
   }
 
   queryStore.updateVariableMap(initMap);
+}
+
+function onSelect(cs: ConceptSummary) {
+  const newMatch = buildMatchFromCS(cs);
+  query.value.match = [newMatch];
+  showDirectoryDialog.value = false;
 }
 
 function addVariableRefFromMatch(map: Map<string, any>, match: Match) {
