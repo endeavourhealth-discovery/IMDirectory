@@ -11,8 +11,8 @@
         <EntityAutoComplete :disabled="!isVisible" :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
       </div>
       <div class="toggle-buttons-container">
-        <ToggleButton v-model="required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
-        <ToggleButton v-model="unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+        <ToggleButton class="toggle-button" v-model="required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
+        <ToggleButton class="toggle-button" v-model="unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
       </div>
     </div>
     <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
@@ -246,16 +246,18 @@ async function isFunctionProperty(propIri: string) {
 
 <style scoped>
 .toggle-buttons-container {
-  display: flex;
-  gap: 0.5rem;
 }
+.toggle-button {
+  margin-right: 0.5rem;
+}
+
 .property-builder {
   flex: 1 1 auto;
 }
 .content-container {
   display: flex;
   flex-flow: row wrap;
-  align-items: center;
+  align-items: flex-end;
   padding: 1rem 1rem;
   gap: 0.5rem;
 }
