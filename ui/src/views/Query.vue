@@ -114,11 +114,7 @@ async function setQuery() {
 }
 
 async function setBaseEntityMatch() {
-  if (query.value["typeOf"]) queryTypeIri.value = query.value["typeOf"]["@id"];
-  else if (isArrayHasLength(query.value?.match)) {
-    // TODO: Set is an array
-    queryTypeIri.value = (query.value.match![0]["@id"] ?? query.value.match![0]["typeOf"]?.["@id"] ?? query.value.match![0]["inSet"]?.[0]?.["@id"]) as string;
-  }
+  if (isObjectHasKeys(query.value.typeOf, ["@id"])) queryTypeIri.value = query.value["typeOf"]["@id"];
 }
 
 function add(direct: Match[], nested: Match[]) {

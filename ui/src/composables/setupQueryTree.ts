@@ -49,13 +49,13 @@ function setupQueryTree() {
 
   async function showOverlay(event: any, node: any): Promise<void> {
     const placeholderData = [IM.NAMESPACE + "Favourites", IM.NAMESPACE + "Data models", IM.NAMESPACE + "Queries", "loadMore"];
-    if (!placeholderData.includes(node.data)) {
+    if (!placeholderData.includes(node.data) && OS.value) {
       await OS.value.showOverlay(event, node.data);
     }
   }
 
   function hideOverlay(event: any): void {
-    OS.value.hideOverlay(event);
+    if (OS.value) OS.value.hideOverlay(event);
   }
 
   function removeOverlay() {

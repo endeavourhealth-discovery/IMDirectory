@@ -24,7 +24,6 @@
     </div>
     <div v-else-if="match.description" v-html="match.description" @dblclick="editMatch()"></div>
     <div v-if="match.nodeRef" class="node-ref" v-html="getDisplayFromNodeRef(match.nodeRef)" @dblclick="editMatch()"></div>
-
     <EditDisplayMatch
       v-if="isArrayHasLength(match.match)"
       v-for="(nestedMatch, index) of match.match"
@@ -33,7 +32,6 @@
       :match="nestedMatch"
       :query-type-iri="queryTypeIri"
     />
-
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
       v-for="(property, index) of match.property"
@@ -58,7 +56,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : match.typeOf!['@id'] ? match.typeOf!['@id'] : queryTypeIri"
+    :base-type="isObjectHasKeys(props.match, ['nodeRef']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : isObjectHasKeys(match.typeOf, ['@id']) ? match.typeOf!['@id'] : queryTypeIri"
     :match="match"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
@@ -96,6 +94,7 @@ import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { IM } from "@im-library/vocabulary";
 import { useUserStore } from "@/stores/userStore";
 import { useQueryStore } from "@/stores/queryStore";
+import { cloneDeep } from "lodash";
 
 interface Props {
   queryTypeIri: string;
@@ -163,6 +162,15 @@ watch(
   }
 );
 
+watch(
+  () => cloneDeep(props.match),
+  () => {
+    if (!isArrayHasLength(props.match.property) && !isArrayHasLength(props.match.match) && !hasValue.value) {
+      remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
+    }
+  }
+);
+
 onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
@@ -177,7 +185,7 @@ function getClass() {
 
 function saveSelect(selectedCS: ConceptSummary) {
   props.match.name = selectedCS.name;
-  if (isRecordModel(selectedCS.entityType)) props.match.typeOf!["@id"] = selectedCS.iri;
+  if (isRecordModel(selectedCS.entityType)) props.match.typeOf = { "@id": selectedCS.iri };
   if (isValueSet(selectedCS.entityType)) props.match.typeOf!["@id"] = selectedCS.iri;
   else props.match["@id"] = selectedCS.iri;
   editMode.value = false;

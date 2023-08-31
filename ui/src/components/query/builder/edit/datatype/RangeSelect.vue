@@ -23,7 +23,6 @@ const props = defineProps<Props>();
 .property-input-container {
   display: flex;
   flex-wrap: wrap;
-  margin-left: 0.5rem;
   width: 100%;
   gap: 0.5rem;
 }
