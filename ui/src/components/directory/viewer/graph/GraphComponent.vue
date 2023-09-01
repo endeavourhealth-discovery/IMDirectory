@@ -19,15 +19,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, PropType, ref, Ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, Ref, watch } from "vue";
 import * as d3 from "d3";
 import svgPanZoom from "svg-pan-zoom";
-import { RouteRecordName, useRoute } from "vue-router";
+import { useRoute } from "vue-router";
 import _ from "lodash";
 import { TTGraphData } from "@im-library/interfaces";
 import { GraphExcludePredicates } from "@im-library/config";
 import { GraphTranslator, DataTypeCheckers } from "@im-library/helpers";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import ContextMenu from "primevue/contextmenu";
 import { useToast } from "primevue/usetoast";
@@ -45,11 +45,14 @@ const props = withDefaults(defineProps<Props>(), {
   data: {} as any
 });
 
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
+
 const route = useRoute();
 const toast = useToast();
 const directoryStore = useDirectoryStore();
 const graphData = ref();
-const directService = new DirectService();
 const splitterRightSize = computed(() => directoryStore.splitterRightSize);
 
 watch(
@@ -334,7 +337,7 @@ function navigate(iri: string) {
   if (iri === "seeMore") {
     directoryStore.updateSidebarControlActivePanel(2);
   } else if (iri) {
-    directService.select(iri);
+    emit("navigateTo", iri);
   }
 }
 

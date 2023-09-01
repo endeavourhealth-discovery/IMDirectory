@@ -57,7 +57,6 @@ import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService, UserService } from "@/services";
-import rowClick from "@/composables/rowClick";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
@@ -68,7 +67,12 @@ import { useUserStore } from "@/stores/userStore";
 interface Props {
   entityIri: string;
 }
+
 const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
@@ -76,7 +80,6 @@ const favourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
 
 const directService = new DirectService();
-const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => props.entityIri,
@@ -99,7 +102,7 @@ const rClickOptions: Ref<any[]> = ref([
   {
     label: "Open",
     icon: "pi pi-fw pi-folder-open",
-    command: () => directService.select((selected.value as any)["@id"])
+    command: () => emit("navigateTo", (selected.value as any)["@id"])
   },
   {
     label: "View in new tab",
@@ -181,7 +184,7 @@ function updateFavourites(iri: string) {
 }
 
 function onRowSelect(event: any) {
-  onRowClick(event.data["@id"]);
+  emit("navigateTo", event.data["@id"]);
 }
 
 async function onPage(event: any) {

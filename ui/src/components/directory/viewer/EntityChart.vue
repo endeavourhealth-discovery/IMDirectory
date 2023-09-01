@@ -19,8 +19,8 @@
         </thead>
         <tbody>
           <tr v-for="prop of node.leafNodes" :key="prop">
-            <td @click="directService.select(prop.iri)">{{ prop.name }}</td>
-            <td @click="directService.select(prop.valueTypeIri)">
+            <td @click="select(prop.iri)">{{ prop.name }}</td>
+            <td @click="select(prop.valueTypeIri)">
               {{ prop.valueTypeName || getTypeFromIri(prop.valueTypeIri) }}
             </td>
           </tr>
@@ -36,7 +36,7 @@
         </thead>
         <tbody>
           <tr v-for="isa of node.leafNodes" :key="isa">
-            <td @click="directService.select(isa.iri)">{{ isa.name }}</td>
+            <td @click="select(isa.iri)">{{ isa.name }}</td>
           </tr>
         </tbody>
       </table>
@@ -50,7 +50,7 @@
         </thead>
         <tbody>
           <tr v-for="subtype of node.leafNodes" :key="subtype">
-            <td @click="directService.select(subtype.iri)">{{ subtype.name }}</td>
+            <td @click="select(subtype.iri)">{{ subtype.name }}</td>
           </tr>
         </tbody>
       </table>
@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { onMounted, Ref, ref, watch } from "vue";
-import { DirectService, EntityService } from "@/services";
+import { EntityService } from "@/services";
 import { OrganizationChartNode } from "primevue/organizationchart";
 
 interface Props {
@@ -68,7 +68,9 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const directService = new DirectService();
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 const loading = ref(false);
 const graph: Ref<OrganizationChartNode> = ref({} as OrganizationChartNode);
@@ -79,6 +81,10 @@ watch(
 );
 
 onMounted(async () => await getGraph(props.entityIri));
+
+function select(iri: string) {
+  emit("navigateTo", iri);
+}
 
 function getTypeFromIri(iri: string): string {
   if (!iri.includes("#")) {
