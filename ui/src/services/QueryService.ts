@@ -2,7 +2,7 @@ import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { PathDocument, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
@@ -34,7 +34,7 @@ const QueryService = {
     else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
   },
 
-  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
+  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResultSummary[]> {
     return await axios.post(Env.API + "api/query/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
   },
 
