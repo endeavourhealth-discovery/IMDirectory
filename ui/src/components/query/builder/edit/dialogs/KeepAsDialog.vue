@@ -1,11 +1,6 @@
 <template>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="'Keep as variable'"
-    :style="{ minWidth: '20vw', minHeight: '20vh', backgroundColor: 'var(--surface-section)' }"
-  >
-    <InputText type="text" v-model="variable" />
+  <Dialog v-model:visible="visible" modal :header="'Keep as variable'" :style="{ backgroundColor: 'var(--surface-section)' }">
+    <InputText type="text" v-model="variable" class="keep-as-var-input" />
 
     <template #footer>
       <Button label="Discard" severity="secondary" @click="visible = false" text />
@@ -60,4 +55,10 @@ function save() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.keep-as-var-input {
+  display: flex;
+  flex-flow: column;
+  flex: auto;
+}
+</style>
