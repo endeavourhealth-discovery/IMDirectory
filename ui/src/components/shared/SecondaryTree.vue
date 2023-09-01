@@ -123,8 +123,7 @@ const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
 
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, onRowClick, loadMore } =
-  setupTree();
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, loadMore } = setupTree();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const currentParent: Ref<TreeParent | null> = ref(null);

@@ -11,7 +11,7 @@
     <div class="loading-container" v-if="loading">
       <ProgressSpinner />
     </div>
-    <GraphComponent v-else :data="data" />
+    <GraphComponent v-else :data="data" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
   </div>
 </template>
 
@@ -30,6 +30,10 @@ interface Props {
   entityIri: string;
 }
 const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
 
 watch(
   () => props.entityIri,
