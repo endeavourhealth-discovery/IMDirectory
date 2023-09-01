@@ -65,6 +65,7 @@ import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCar
 import ActionButtons from "../shared/ActionButtons.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
+import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 
 export default defineComponent({
   components: { ReportTable, PieChartDashCard, ActionButtons, IMFontAwesomeIcon }
@@ -162,16 +163,7 @@ function getActivityTooltipMessage(activity: RecentActivityItem) {
 
 function getActivityMessage(activity: RecentActivityItem) {
   const dateTime = new Date(activity.dateTime);
-  return activity.action + " " + getDayDisplay(dateTime);
-}
-
-function getDayDisplay(dateTime: Date) {
-  const now = new Date();
-  if (dateTime.getDay() === now.getDay()) return "today";
-  if (now.getDay() - dateTime.getDay() === 1) return "yesterday";
-  if (now.getDay() - dateTime.getDay() < 7) return "this week";
-  if (dateTime.getMonth() === now.getMonth()) return "this month";
-  if (dateTime.getFullYear() === now.getFullYear()) return "this year";
+  return activity.action + " " + getDisplayFromDate(new Date(), dateTime);
 }
 
 async function getCardsData(): Promise<void> {
