@@ -19,10 +19,10 @@ const ConceptShape: FormGenerator = {
       order: 1,
       name: "splitter",
       path: { "@id": IM.CONCEPT },
-      minCount: 1,
+      minCount: 0,
       maxCount: 1,
       componentType: { "@id": IM.component.HORIZONTAL_LAYOUT },
-      argument: [{ parameter: "subGroup widths", valueData: "50%,50%" }],
+      argument: [{ parameter: "subGroup widths", valueData: "40%,60%" }],
       property: [
         {
           comment: "Summary layout",
@@ -293,7 +293,7 @@ const ConceptShape: FormGenerator = {
           comment: "Role group | Mapped to splitter",
           path: { "@id": IM.CONCEPT },
           order: 1,
-          minCount: 1,
+          minCount: 0,
           maxCount: 1,
           componentType: { "@id": IM.component.VERTICAL_LAYOUT },
           property: [
@@ -327,7 +327,7 @@ const ConceptShape: FormGenerator = {
                   path: {
                     "@id": IM.MAPPED_TO
                   },
-                  minCount: 1,
+                  minCount: 0,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
                   }

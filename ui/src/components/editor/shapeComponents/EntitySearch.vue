@@ -93,16 +93,16 @@ const showValidation = ref(false);
 const showDialog = ref(false);
 const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
 
-watch( selectedResult, (newValue, oldValue) => {
-  if(newValue && !_.isEqual(newValue, oldValue)) updateSelectedResult(newValue)
-})
+watch(selectedResult, (newValue, oldValue) => {
+  if (newValue && !_.isEqual(newValue, oldValue)) updateSelectedResult(newValue);
+});
 
 async function init() {
   if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
   if (isObjectHasKeys(props.shape, ["select"]) && isArrayHasLength(props.shape.select) && props.shape.select) {
     queryRequest.value = { query: { "@id": props.shape.select[0]["@id"] } };
   } else queryRequest.value = undefined;
-  if(isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
+  if (isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
     queryRequest.value.argument = props.shape.argument;
   }
   if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
@@ -202,8 +202,8 @@ async function dropReceived(event: any) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 1.25rem;
-  padding: 0.625rem 0.625rem;
+  font-size: 1rem;
+  padding: 4px 4px;
   margin: 0;
   color: var(--text-color);
   background: var(--surface-a);
