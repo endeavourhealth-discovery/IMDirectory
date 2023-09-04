@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, PropType, watch, inject, h } from "vue";
-import { IM } from "@im-library/vocabulary";
+import { IM, SNOMED } from "@im-library/vocabulary";
 import EclTree from "../EclTree.vue";
 import Button from "primevue/button";
 import { ConceptSummary } from "@im-library/interfaces";
@@ -121,7 +121,7 @@ async function search(term: string) {
       searchRequest.sortField = "weighting";
       searchRequest.page = 1;
       searchRequest.size = 100;
-      searchRequest.schemeFilter = ["http://snomed.info/sct#", "http://endhealth.info/im#"];
+      searchRequest.schemeFilter = [SNOMED.NAMESPACE, IM.NAMESPACE];
       searchRequest.statusFilter = [IM.ACTIVE];
 
       if (controller.value) {
