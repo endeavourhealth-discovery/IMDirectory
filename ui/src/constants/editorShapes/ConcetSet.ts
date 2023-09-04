@@ -221,11 +221,6 @@ const ConceptSetShape: FormGenerator = {
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
                   },
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
                   path: {
                     "@id": RDFS.SUBCLASS_OF
                   }
