@@ -26,12 +26,12 @@
 <script setup lang="ts">
 import Filters from "@/components/shared/Filters.vue";
 
-import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
+import { computed, ComputedRef, ref, Ref, watch } from "vue";
 import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
+import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM } from "@im-library/vocabulary";
 import setupSpeechToText from "@/composables/setupSpeechToText";
 import { useFilterStore } from "@/stores/filterStore";
 import { useSharedStore } from "@/stores/sharedStore";
@@ -65,7 +65,7 @@ const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
 const searchPlaceholder = ref("Search");
 const loading = ref(false);
-const results: Ref<ConceptSummary[]> = ref([]);
+const results: Ref<SearchResultSummary[]> = ref([]);
 const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
@@ -121,10 +121,9 @@ async function search(): Promise<void> {
     controller.value = new AbortController();
     let result;
     if (props.searchByQuery) {
-      const queryRequest = _.cloneDeep(props.searchByQuery);
-      queryRequest.textSearch = searchText.value;
+      const queryRequest = await prepareQueryRequest(_.cloneDeep(props.searchByQuery));
       const queryResult = await QueryService.queryIMSearch(queryRequest, controller.value);
-      if (queryResult && queryResult.entities) result = queryResult.entities;
+      if (queryResult) result = queryResult;
     } else {
       result = await EntityService.advancedSearch(searchRequest, controller.value);
     }
@@ -132,6 +131,51 @@ async function search(): Promise<void> {
     else results.value = [];
     loading.value = false;
   }
+}
+
+async function prepareQueryRequest(queryRequest: QueryRequest) {
+  queryRequest.textSearch = searchText.value;
+
+  if (isObjectHasKeys(queryRequest.query, ["@id"]) && !isObjectHasKeys(queryRequest.query, ["match"])) {
+    const partialEntity = await EntityService.getPartialEntity(queryRequest.query["@id"]!, [IM.DEFINITION]);
+    if (partialEntity[IM.DEFINITION]) {
+      queryRequest.query = JSON.parse(partialEntity[IM.DEFINITION]);
+      if (!isArrayHasLength(queryRequest.query.match)) queryRequest.query.match = [];
+      queryRequest.query.match!.push(getMatchFromTypeFilters(), getMatchFromStatusFilters(), getMatchFromSchemeFilters());
+    }
+  }
+
+  return queryRequest;
+}
+
+function getMatchFromTypeFilters(): Match {
+  const typeMatch = { bool: "or", match: [] } as Match;
+  selectedFilters.value.types.forEach((type: TTIriRef) => {
+    typeMatch.match!.push({ typeOf: type } as Match);
+  });
+  return typeMatch;
+}
+
+function getMatchFromStatusFilters(): Match {
+  return {
+    property: [
+      {
+        "@id": IM.HAS_STATUS,
+        is: selectedFilters.value.status
+      }
+    ]
+  };
+}
+
+function getMatchFromSchemeFilters(): Match {
+  return {
+    property: [
+      {
+        "@id": IM.SCHEME,
+        is: selectedFilters.value.schemes
+      }
+    ]
+  };
 }
 </script>
 

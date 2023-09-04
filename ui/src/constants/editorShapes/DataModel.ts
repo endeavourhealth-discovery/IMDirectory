@@ -201,11 +201,6 @@ const DataModelShape: FormGenerator = {
                 {
                   comment: "selects an entity based on select query",
                   order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
                   builderChild: true,
                   name: "Entity",
                   path: {
