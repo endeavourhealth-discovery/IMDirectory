@@ -1,6 +1,7 @@
 <template>
   <div id="role-group-builder">
     <h2 class="title">Role Groups</h2>
+    <span v-if="validationErrorMessage">{{ validationErrorMessage }}</span>
     <div class="children-container">
       <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup">
         <div class="roleGroupRow">
@@ -12,12 +13,14 @@
             <AutoComplete
               class="roleProp"
               :dropdown="true"
+              dropdownMode="current"
               optionLabel="name"
-              placeholder="Select property (key)"
+              placeholder="Select property"
               v-model="row.key"
               :suggestions="propertySuggestions"
               @complete="searchProperties"
               @drop="propertyDrop($event, row)"
+              @itemSelect="update"
               @dragover.prevent
               @dragenter.prevent
             ></AutoComplete>
@@ -25,12 +28,14 @@
             <AutoComplete
               class="roleVal"
               :dropdown="true"
+              dropdownMode="current"
               optionLabel="name"
-              placeholder="Select quantifier (value)"
+              placeholder="Select quantifier"
               v-model="row.value"
               :suggestions="valueSuggestions"
               @complete="searchValues"
               @drop="valueDrop($event, row)"
+              @itemSelect="update"
               @dragover.prevent
               @dragenter.prevent
             ></AutoComplete>
@@ -39,7 +44,6 @@
         </div>
         <div class="buttonGroup">
           <Button icon="pi pi-plus" label="Add role" severity="success" class="p-button" @click="addRole(rg)" />
-          <Button icon="pi pi-trash" label="Delete group" severity="danger" class="p-button" @click="addRole(rg)" />
         </div>
       </div>
     </div>
@@ -67,8 +71,9 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { Match, Property, PropertyShape, Query, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import { isArray } from "lodash";
-import { Ref, onMounted, ref } from "vue";
+import { Ref, onMounted, ref, inject, watch } from "vue";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 
 interface Props {
   shape: PropertyShape;
@@ -78,10 +83,18 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+if (forceValidation) {
+  watch(forceValidation, () => {
+    validateEntity();
+  });
+}
+
 const roleGroups: Ref<any[][]> = ref([]);
-const loading = ref(false);
 const propertySuggestions: Ref<TTIriRef[]> = ref([]);
 const valueSuggestions: Ref<TTIriRef[]> = ref([]);
+const validationErrorMessage: Ref<string | undefined> = ref();
 
 onMounted(async () => {
   await processProps();
@@ -164,8 +177,6 @@ async function searchValues(event: AutoCompleteCompleteEvent) {
 }
 
 async function propertyDrop(event: any, object: any) {
-  console.log("DROP");
-  console.log(event);
   const data = event.dataTransfer.getData("conceptIri");
   if (data) {
     const conceptIri = JSON.parse(data);
@@ -176,8 +187,6 @@ async function propertyDrop(event: any, object: any) {
 }
 
 async function valueDrop(event: any, object: any) {
-  console.log("DROP");
-  console.log(event);
   const data = event.dataTransfer.getData("conceptIri");
   if (data) {
     const conceptIri = JSON.parse(data);
@@ -185,6 +194,53 @@ async function valueDrop(event: any, object: any) {
     const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
     object.value = iriRef;
   }
+}
+
+async function update() {
+  validateEntity();
+
+  if (!validationErrorMessage.value) updateEntity();
+}
+
+function validateEntity() {
+  validationErrorMessage.value = undefined;
+
+  for (let group of roleGroups.value) {
+    if (group.length == 0 || (group.length == 1 && group[0].key["@id"] == IM.GROUP_NUMBER)) {
+      validationErrorMessage.value = "Role groups can not be empty";
+      break;
+    }
+
+    for (const pair of group) {
+      if (pair.key["@id"] != IM.GROUP_NUMBER) {
+        if (!pair?.key?.["@id"] || pair.key["@id"] == "") {
+          validationErrorMessage.value = "Missing role property";
+          break;
+        }
+
+        if (!pair?.value?.["@id"] || pair.value["@id"] == "") {
+          validationErrorMessage.value = "Missing role quantifier";
+          break;
+        }
+      }
+    }
+  }
+}
+
+function updateEntity() {
+  const groups: any = {};
+  groups[IM.ROLE_GROUP] = [];
+
+  for (let i = 0; i < roleGroups.value.length; i++) {
+    const group: any = {};
+    group[IM.GROUP_NUMBER] = i;
+    groups[IM.ROLE_GROUP].push(group);
+    for (const pair of roleGroups.value[i]) {
+      group[pair.key["@id"]] = pair.value;
+    }
+  }
+
+  if (entityUpdate) entityUpdate(groups);
 }
 </script>
 
