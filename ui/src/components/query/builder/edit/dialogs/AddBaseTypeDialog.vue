@@ -28,7 +28,7 @@ import { ConceptSummary } from "@im-library/interfaces";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
-import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   query: Query;
@@ -83,7 +83,7 @@ async function save() {
   props.query.typeOf = { "@id": returnType.value };
   if (isQuery(selected.value.entityType)) {
     if (!isArrayHasLength(props.query.match)) props.query.match = [];
-    props.query.match!.splice(0, 0, buildMatchFromCS(selected.value));
+    props.query.match!.splice(0, 0, buildInSetMatchFromCS(selected.value));
   }
 
   visible.value = false;

@@ -89,7 +89,7 @@ import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
 import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
 import { IM } from "@im-library/vocabulary";
 import { useUserStore } from "@/stores/userStore";
@@ -366,7 +366,7 @@ function deleteSelected() {
 }
 
 function onSelect(cs: ConceptSummary) {
-  const newMatch = buildMatchFromCS(cs);
+  const newMatch = buildInSetMatchFromCS(cs) as Match;
   addOrEdit(props.match, props.parentMatchList, props.index, [newMatch], []);
   showDirectoryDialog.value = false;
 }

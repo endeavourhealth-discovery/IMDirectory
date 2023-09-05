@@ -50,7 +50,11 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
   return { direct: directMatches, nested: nestedMatches };
 }
 
-export function buildMatchFromCS(cs: ConceptSummary) {
+export function buildInSetMatchFromCS(cs: ConceptSummary) {
+  return { inSet: [buildNodeFromCS(cs)] } as Match;
+}
+
+export function buildNodeFromCS(cs: ConceptSummary) {
   return { "@id": cs.iri, name: cs.name } as Node;
 }
 

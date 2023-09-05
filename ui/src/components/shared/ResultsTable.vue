@@ -185,11 +185,11 @@ function onRowSelect(event: any) {
 }
 
 async function showOverlay(event: any, data: any): Promise<void> {
-  await OS.value.showOverlay(event, data.iri);
+  if (OS.value) await OS.value.showOverlay(event, data.iri);
 }
 
 function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
+  if (OS.value) OS.value.hideOverlay(event);
 }
 
 function exportCSV(): void {
