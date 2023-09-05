@@ -67,7 +67,7 @@ import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 import { useQueryStore } from "@/stores/queryStore";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 
 const queryStore = useQueryStore();
 const filterStore = useFilterStore();
@@ -146,7 +146,7 @@ function initVariableMap() {
 }
 
 function onSelect(cs: ConceptSummary) {
-  const newMatch = buildMatchFromCS(cs);
+  const newMatch = buildInSetMatchFromCS(cs) as Match;
   query.value.match = [newMatch];
   showDirectoryDialog.value = false;
 }
