@@ -85,11 +85,11 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_DISPLAY
+                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.SNOMED_CONCEPT_GENERATOR
+                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
               }
             },
             {
