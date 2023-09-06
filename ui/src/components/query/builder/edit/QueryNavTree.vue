@@ -9,7 +9,7 @@
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>
             <ProgressSpinner v-if="node.loading" />
-            <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+            <span @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
           </div>
         </template>
       </Tree>
@@ -51,7 +51,7 @@ const emit = defineEmits({
 
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
-const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, unselect, selectedNodes } = setupQueryTree();
+const { removeOverlay, OS, displayOverlay, hideOverlay, createTreeNode, select, unselect, selectedNodes } = setupQueryTree();
 
 onMounted(async () => {
   loading.value = true;

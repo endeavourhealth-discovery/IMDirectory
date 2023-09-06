@@ -26,7 +26,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="'color:' + data.colour" class="p-mx-1 type-icon" />
-            <span class="text-name" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+            <span class="text-name" @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -41,6 +41,7 @@ import { RDF, RDFS } from "@im-library/vocabulary";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   entityIri: string;
@@ -58,7 +59,8 @@ const recordsTotal = ref(0);
 const currentPage = ref(0);
 const pageSize = ref(25);
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
-const OS = ref();
+
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 onMounted(async () => {
   await init();
@@ -112,14 +114,6 @@ function scrollToTop(): void {
   if (scrollBox) {
     scrollBox.scrollTop = 0;
   }
-}
-
-async function showOverlay(event: any, data: any): Promise<void> {
-  await OS.value.showOverlay(event, data["@id"]);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 </script>
 

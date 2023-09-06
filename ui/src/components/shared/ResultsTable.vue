@@ -33,7 +33,7 @@
         <template #body="{ data }: any">
           <div class="datatable-flex-cell">
             <IMFontAwesomeIcon v-if="data.icon" :style="'color: ' + data.colour" :icon="data.icon" class="recent-icon" />
-            <span class="break-word" @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">
+            <span class="break-word" @mouseover="showOverlay($event, data.iri)" @mouseleave="hideOverlay($event)">
               {{ data.code ? data.name + " | " + data.code : data.name }}
             </span>
           </div>
@@ -69,6 +69,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { ConceptSummary } from "@im-library/interfaces";
 import _ from "lodash";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   searchResults?: ConceptSummary[];
@@ -118,7 +119,8 @@ const delay = ref(200);
 const clicks = ref(0);
 const timer: Ref<NodeJS.Timeout> = ref({} as NodeJS.Timeout);
 
-const OS: Ref<any> = ref();
+const { OS, showOverlay, hideOverlay } = setupOverlay();
+
 const contextMenu = ref();
 
 watch(
@@ -182,14 +184,6 @@ function onRowSelect(event: any) {
     if (found) emit("rowSelected", found);
     clicks.value = 0;
   }
-}
-
-async function showOverlay(event: any, data: any): Promise<void> {
-  if (OS.value) await OS.value.showOverlay(event, data.iri);
-}
-
-function hideOverlay(event: any): void {
-  if (OS.value) OS.value.hideOverlay(event);
 }
 
 function exportCSV(): void {
