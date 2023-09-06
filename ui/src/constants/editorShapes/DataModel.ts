@@ -29,7 +29,7 @@ const DataModelShape: FormGenerator = {
       argument: [
         {
           parameter: "subGroup widths",
-          valueData: "50%,50%"
+          valueData: "40%,60%"
         }
       ],
       property: [

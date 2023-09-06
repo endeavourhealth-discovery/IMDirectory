@@ -41,7 +41,7 @@ export default {
     },
     {
       checkCompleted: false,
-      key: "http://endhealth.info/im#mappedTo"
+      key: "http://endhealth.info/im#matchedTo"
     }
   ],
   testEntity: {

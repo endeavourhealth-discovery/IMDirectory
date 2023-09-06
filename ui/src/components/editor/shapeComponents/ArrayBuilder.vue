@@ -194,16 +194,19 @@ function processChild(child: any, position: number) {
 function setButtonsByTypeAndPath(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
   const path = props.shape.path["@id"];
   const types: TTIriRef[] = editorEntity?.value[RDF.TYPE];
-  if (path === RDFS.SUBCLASS_OF) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else if (path === IM.IS_CONTAINED_IN) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else if (path === IM.ROLE_GROUP) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else if (path === SHACL.PROPERTY) {
-    return addButtonOnlyIfLastWithUpDown(position, isNewItem);
-  } else {
-    return { minus: true, plus: true, up: true, down: true };
+  switch (path) {
+    case RDFS.SUBCLASS_OF:
+      return addButtonOnlyIfLast(position, isNewItem);
+    case IM.IS_CONTAINED_IN:
+      return addButtonOnlyIfLast(position, isNewItem);
+    case IM.ROLE_GROUP:
+      return addButtonOnlyIfLast(position, isNewItem);
+    case IM.MAPPED_TO:
+      return addButtonOnlyIfLast(position, isNewItem);
+    case SHACL.PROPERTY:
+      return addButtonOnlyIfLastWithUpDown(position, isNewItem);
+    default:
+      return { minus: true, plus: true, up: true, down: true };
   }
 }
 
