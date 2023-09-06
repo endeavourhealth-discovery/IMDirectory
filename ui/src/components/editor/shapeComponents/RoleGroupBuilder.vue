@@ -1,56 +1,57 @@
 <template>
   <div id="role-group-builder">
     <h2 class="title">Role Groups</h2>
-    <span v-if="validationErrorMessage">{{ validationErrorMessage }}</span>
-    <div class="children-container">
-      <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup">
-        <div class="roleGroupRow">
-          <label>Role Group {{ rgIndex }}</label>
-          <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRoleGroup(rgIndex)" size="small" />
-        </div>
-        <div v-for="(row, rIndex) in rg">
-          <div v-if="row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow">
-            <AutoComplete
-              class="roleProp"
-              :dropdown="true"
-              dropdownMode="current"
-              optionLabel="name"
-              placeholder="Select property"
-              v-model="row.key"
-              :suggestions="propertySuggestions"
-              @complete="searchProperties"
-              @drop="propertyDrop($event, row)"
-              @itemSelect="update"
-              @dragover.prevent
-              @dragenter.prevent
-            ></AutoComplete>
-            <span style="width: 1rem; text-align: center">:</span>
-            <AutoComplete
-              class="roleVal"
-              :dropdown="true"
-              dropdownMode="current"
-              optionLabel="name"
-              placeholder="Select quantifier"
-              v-model="row.value"
-              :suggestions="valueSuggestions"
-              @complete="searchValues"
-              @drop="valueDrop($event, row)"
-              @itemSelect="update"
-              @dragover.prevent
-              @dragenter.prevent
-            ></AutoComplete>
-            <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRole(rg, rIndex)" />
+    <div :class="validationErrorMessage ? 'error-message' : ''">
+      <span v-if="validationErrorMessage" class="error-message">{{ validationErrorMessage }}</span>
+      <div class="children-container">
+        <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup">
+          <div class="roleGroupRow">
+            <label>Role Group {{ rgIndex }}</label>
+            <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRoleGroup(rgIndex)" size="small" />
+          </div>
+          <div v-for="(row, rIndex) in rg">
+            <div v-if="row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow">
+              <AutoComplete
+                class="roleProp"
+                :dropdown="true"
+                dropdownMode="current"
+                optionLabel="name"
+                placeholder="Select property"
+                v-model="row.key"
+                :suggestions="propertySuggestions"
+                @complete="searchProperties"
+                @drop="propertyDrop($event, row)"
+                @itemSelect="update"
+                @dragover.prevent
+                @dragenter.prevent
+              ></AutoComplete>
+              <span style="width: 1rem; text-align: center">:</span>
+              <AutoComplete
+                class="roleVal"
+                :dropdown="true"
+                dropdownMode="current"
+                optionLabel="name"
+                placeholder="Select quantifier"
+                v-model="row.value"
+                :suggestions="valueSuggestions"
+                @complete="searchValues"
+                @drop="valueDrop($event, row)"
+                @itemSelect="update"
+                @dragover.prevent
+                @dragenter.prevent
+              ></AutoComplete>
+              <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRole(rg, rIndex)" />
+            </div>
+          </div>
+          <div class="buttonGroup">
+            <Button icon="pi pi-plus" label="Add role" severity="success" class="p-button" @click="addRole(rg)" />
           </div>
         </div>
-        <div class="buttonGroup">
-          <Button icon="pi pi-plus" label="Add role" severity="success" class="p-button" @click="addRole(rg)" />
-        </div>
+      </div>
+      <div class="buttonGroup">
+        <Button icon="pi pi-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" />
       </div>
     </div>
-    <div class="buttonGroup">
-      <Button icon="pi pi-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" />
-    </div>
-    {{ roleGroups }}
   </div>
 </template>
 
@@ -247,6 +248,14 @@ function updateEntity() {
 <style scoped>
 .vertical-layout-container {
   margin: 0;
+}
+
+span.error-message {
+  color: red;
+}
+
+div.error-message {
+  border: 1px solid red;
 }
 
 #role-group-builder h2 {

@@ -316,7 +316,7 @@ const ConceptShape: FormGenerator = {
               maxCount: 1,
               showTitle: true,
               path: {
-                "@id": IM.MAPPED_TO
+                "@id": IM.MATCHED_TO
               },
               property: [
                 {
@@ -325,7 +325,7 @@ const ConceptShape: FormGenerator = {
                   builderChild: true,
                   name: "Entity",
                   path: {
-                    "@id": IM.MAPPED_TO
+                    "@id": IM.MATCHED_TO
                   },
                   minCount: 0,
                   componentType: {
