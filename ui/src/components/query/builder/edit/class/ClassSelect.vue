@@ -24,7 +24,7 @@ import _ from "lodash";
 import { Node, Property } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import { buildNodeFromCS } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   property: Property;
@@ -62,7 +62,7 @@ function initEditValues() {
 
 function onSelect(cs: ConceptSummary) {
   visible.value = false;
-  const node = buildMatchFromCS(cs);
+  const node = buildNodeFromCS(cs);
 
   editValues.value[selectedIndex.value] = node;
 }

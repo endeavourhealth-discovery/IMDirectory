@@ -28,7 +28,7 @@
         <template #body="{ data }: any">
           <div>
             <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
-            <span @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
       </Column>
@@ -63,6 +63,7 @@ import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from 
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   entityIri: string;
@@ -78,7 +79,7 @@ const directoryStore = useDirectoryStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const currentUser = computed(() => userStore.currentUser);
-
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
 
 watch(
@@ -124,7 +125,6 @@ const pageSize = ref(25);
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
 
 const menu = ref();
-const OS: Ref<any> = ref();
 
 onMounted(() => init());
 
@@ -201,14 +201,6 @@ async function onPage(event: any) {
 function scrollToTop(): void {
   const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
   scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
-}
-
-async function showOverlay(event: any, data: any): Promise<void> {
-  await OS.value.showOverlay(event, data["@id"]);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 
 function locateInTree(iri: string) {
