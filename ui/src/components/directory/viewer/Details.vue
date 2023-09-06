@@ -33,7 +33,6 @@
         <b>{{ node.label }}...</b>
       </template>
     </Tree>
-    <OverlaySummary ref="OS" />
   </div>
 </template>
 
@@ -113,14 +112,6 @@ async function onSelect(node: TreeNode) {
 async function onExpand(node: TreeNode) {
   const hasLoadMore = node.children?.some(child => child.key === IM.NAMESPACE + "loadMore");
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
-}
-
-async function showOverlay(event: any, iri: any): Promise<void> {
-  await OS.value.showOverlay(event, iri);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 
 function openTab(predicate: string) {

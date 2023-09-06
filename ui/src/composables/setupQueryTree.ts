@@ -7,12 +7,14 @@ import rowClick from "./rowClick";
 import { getKey, getParentNode } from "@im-library/helpers";
 import { isObject } from "lodash";
 import { IM } from "@im-library/vocabulary";
+import setupOverlay from "./setupOverlay";
 
 function setupQueryTree() {
-  const OS: Ref<any> = ref();
   const overlayLocation: Ref<any> = ref({});
 
   const { onRowClick } = rowClick();
+
+  const { OS, showOverlay, hideOverlay } = setupOverlay();
 
   const selectedKeys: Ref<any> = ref({});
   const selectedNode: Ref<TreeNode> = ref({});
@@ -47,15 +49,11 @@ function setupQueryTree() {
     };
   }
 
-  async function showOverlay(event: any, node: any): Promise<void> {
-    const placeholderData = [IM.NAMESPACE + "Favourites", IM.NAMESPACE + "Data models", IM.NAMESPACE + "Queries", "loadMore"];
-    if (!placeholderData.includes(node.data) && OS.value) {
-      await OS.value.showOverlay(event, node.data);
+  function displayOverlay(event: any, node: any): void {
+    const placeholderData = [IM.NAMESPACE + "Favourites", "loadMore"];
+    if (!placeholderData.includes(node.data)) {
+      showOverlay(event, node.data);
     }
-  }
-
-  function hideOverlay(event: any): void {
-    if (OS.value) OS.value.hideOverlay(event);
   }
 
   function removeOverlay() {
@@ -82,7 +80,7 @@ function setupQueryTree() {
     createTreeNode,
     onRowClick,
     OS,
-    showOverlay,
+    displayOverlay,
     hideOverlay,
     overlayLocation,
     removeOverlay,
