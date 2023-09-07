@@ -6,6 +6,6 @@ export class editorVocabulary {
   public static VALUE_SET_SHAPE = this.NAMESPACE + "ValueSetShape";
   public static FOLDER_SHAPE = this.NAMESPACE + "FolderShape";
   public static DATA_MODEL_SHAPE = this.NAMESPACE + "DataModelShape";
-  public static QUERY_SHAPE = this.NAMESPACE + "QueryShape";
+  public static COHORT_QUERY_SHAPE = this.NAMESPACE + "CohortQueryShape";
   public static PROPERTY_SHAPE = this.NAMESPACE + "PropertyShape";
 }
