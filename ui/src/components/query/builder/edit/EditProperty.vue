@@ -59,9 +59,13 @@ onMounted(async () => {
 
 async function init() {
   let dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(props.queryTypeIri);
+  const matchRef = getMatchNodeRef();
   if (isObjectHasKeys(props.match, ["nodeRef"]) && props.match?.nodeRef) {
     dataModelIri = variableMap.value.get(props.match.nodeRef).typeOf["@id"];
+  } else if (matchRef) {
+    dataModelIri = variableMap.value.get(matchRef).typeOf["@id"];
   }
+
   if (dataModelIri && props.property["@id"]) {
     const ttproperties: any = await QueryService.getDataModelProperty(dataModelIri, props.property["@id"]);
     if (isArrayHasLength(ttproperties)) {
@@ -80,6 +84,30 @@ function getTooltip(ttproperty: TTProperty) {
   else if (isObjectHasKeys(ttproperty, [SHACL.NODE]))
     tooltip += "with range of data model " + getNameFromRef(ttproperty["http://www.w3.org/ns/shacl#node"]![0]);
   return tooltip;
+}
+
+function getMatchNodeRef() {
+  // TODO: check string for identifier
+  let foundMatch;
+  for (const [key, match] of variableMap.value.entries()) {
+    if (isChildOfMatch(match)) foundMatch = match;
+  }
+  if (isObjectHasKeys(foundMatch, ["nodeRef"])) return foundMatch.nodeRef;
+  return undefined;
+}
+
+function isChildOfMatch(parentMatch: Match): boolean {
+  if (!isArrayHasLength(parentMatch.match)) return false;
+  let found = parentMatch.match?.some(child => JSON.stringify(child) === JSON.stringify(props.match));
+  const hasGrandChildren = parentMatch.match?.some(child => isArrayHasLength(child.match));
+
+  if (!found && hasGrandChildren) {
+    for (const child of parentMatch.match!) {
+      found = isChildOfMatch(child);
+    }
+  }
+
+  return !!found;
 }
 </script>
 
