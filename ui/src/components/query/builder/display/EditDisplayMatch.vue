@@ -12,11 +12,10 @@
     :id="htmlId"
   >
     <div v-if="editMode">
-      <EntitySelect
+      <MatchEntitySelect
         :edit-node="match"
         :query-type-iri="queryTypeIri"
         :exclude-entailment="true"
-        :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
         :validation-query-request="validationQueryRequest"
         @on-cancel="editMode = false"
         @on-save="saveSelect"
@@ -70,23 +69,21 @@
     v-model:show-dialog="showDirectoryDialog"
     @update:selected="onSelect"
     :searchByQuery="validationQueryRequest"
-    :root-entities="['http://endhealth.info/im#Sets', 'http://endhealth.info/im#Q_Queries']"
+    :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
   />
 </template>
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
-import EntitySelect from "../edit/EntitySelect.vue";
 import { PrimeIcons } from "primevue/api";
 import JSONViewerDialog from "@/components/shared/dialogs/JSONViewerDialog.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
 import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
 import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
-import { isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
@@ -95,6 +92,7 @@ import { IM } from "@im-library/vocabulary";
 import { useUserStore } from "@/stores/userStore";
 import { useQueryStore } from "@/stores/queryStore";
 import { cloneDeep } from "lodash";
+import MatchEntitySelect from "../edit/MatchEntitySelect.vue";
 
 interface Props {
   queryTypeIri: string;
@@ -142,6 +140,7 @@ const hasValue: ComputedRef<boolean> = computed(() => {
     isObjectHasKeys(props.match, ["@id"]) ||
     isObjectHasKeys(props.match, ["inSet"]) ||
     isObjectHasKeys(props.match, ["typeOf"]) ||
+    isObjectHasKeys(props.match, ["instanceOf"]) ||
     isObjectHasKeys(props.match, ["nodeRef"])
   );
 });
@@ -183,11 +182,26 @@ function getClass() {
   return clazz;
 }
 
-function saveSelect(selectedCS: ConceptSummary) {
-  props.match.name = selectedCS.name;
-  if (isRecordModel(selectedCS.entityType)) props.match.typeOf = { "@id": selectedCS.iri };
-  if (isValueSet(selectedCS.entityType)) props.match.typeOf!["@id"] = selectedCS.iri;
-  else props.match["@id"] = selectedCS.iri;
+function saveSelect(property: "typeOf" | "instanceOf" | "inSet", selectedCSs: Node[], selectedCS: ConceptSummary) {
+  if (isObjectHasKeys(props.match, ["inSet"])) delete props.match.inSet;
+  if (isObjectHasKeys(props.match, ["instanceOf"])) delete props.match.instanceOf;
+  if (isObjectHasKeys(props.match, ["typeOf"])) delete props.match.typeOf;
+
+  switch (property) {
+    case "inSet":
+      props.match.inSet = [...selectedCSs];
+      break;
+    case "typeOf":
+      props.match.typeOf = { "@id": selectedCS.iri, name: selectedCS.name };
+      break;
+    case "instanceOf":
+      props.match.instanceOf = { "@id": selectedCS.iri, name: selectedCS.name };
+      break;
+
+    default:
+      break;
+  }
+
   editMode.value = false;
 }
 

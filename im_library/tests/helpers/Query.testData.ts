@@ -5,7 +5,7 @@ import { Query } from "@/interfaces/AutoGen";
 export const match: {
   withType: Match;
   withSet: Match;
-  withIri: Match;
+  withInstance: Match;
   withName: Match;
   withDescendantsOrSelfOf: Property;
   withDescendantsOf: Property;
@@ -20,7 +20,7 @@ export const match: {
 } = {
   withType: { typeOf: { "@id": "Patient" } },
   withSet: { inSet: [{ "@id": "CSET_EmailOnlineEncounter" }] },
-  withIri: { "@id": "http://snomed.info/sct#325841000000109" },
+  withInstance: { instanceOf: { "@id": "http://snomed.info/sct#325841000000109" } },
   withName: {
     name: "Text message consultation",
     "@id": "http://endhealth.info/im#1681000252102"

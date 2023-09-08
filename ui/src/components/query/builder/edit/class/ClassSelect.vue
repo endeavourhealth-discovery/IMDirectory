@@ -14,10 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { EntityService } from "@/services";
-import { isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF } from "@im-library/vocabulary";
 import { onMounted, Ref, ref } from "vue";
 import EntailmentOptionsSelect from "../EntailmentOptionsSelect.vue";
 import _ from "lodash";
@@ -34,18 +31,11 @@ interface Props {
 const props = defineProps<Props>();
 const propertyType: Ref<string> = ref("is");
 const visible: Ref<boolean> = ref(false);
-const showTree: Ref<boolean> = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
 
 onMounted(async () => {
   initEditValues();
-  const entity = await EntityService.getPartialEntity(props.classIri, [RDF.TYPE, IM.DEFINITION]);
-  if (isQuery(entity[RDF.TYPE]) || (isValueSet(entity[RDF.TYPE]) && isObjectHasKeys(entity, [IM.DEFINITION]))) {
-    showTree.value = false;
-  } else {
-    showTree.value = true;
-  }
 });
 
 function initEditValues() {

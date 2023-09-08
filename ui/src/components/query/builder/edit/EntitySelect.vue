@@ -1,6 +1,6 @@
 <template>
   <div class="property-input-container">
-    in
+    is
     <InputText type="text" @click="openDialog" placeholder="Value" v-model:model-value="selected.name" />
     <DirectorySearchDialog
       v-model:selected="selected"
