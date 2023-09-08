@@ -12,9 +12,6 @@
     :parent-property="property"
     :property="nestedProperty"
     :query-type-iri="queryTypeIri"
-    :selected-matches="selectedMatches"
-    :variable-map="variableMap"
-    :validation-query-request="validationQueryRequest"
   />
 
   <EditDisplayMatch
@@ -23,9 +20,6 @@
     :parent-match="parentMatch"
     :match="property.match!"
     :query-type-iri="queryTypeIri"
-    :selected-matches="selectedMatches"
-    :variable-map="variableMap"
-    :validation-query-request="validationQueryRequest"
   />
 </template>
 

@@ -26,7 +26,7 @@
       v-model:show-dialog="showDirectoryDialog"
       @update:selected="onSelect"
       :searchByQuery="validationQueryRequest"
-      :root-entities="['http://endhealth.info/im#Sets', 'http://endhealth.info/im#Q_Queries']"
+      :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
     />
   </div>
 </template>
@@ -37,7 +37,7 @@ import { ref, Ref, onMounted, computed, ComputedRef, watch } from "vue";
 import { Match, Property, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
-import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import EditDisplayMatch from "@/components/query/builder/display/EditDisplayMatch.vue";
 import setupQueryBuilderActions from "@/composables/setupQueryBuilderActions";
 import AddBaseTypeDialog from "@/components/query/builder/edit/dialogs/AddBaseTypeDialog.vue";
@@ -47,6 +47,7 @@ import { useQueryStore } from "@/stores/queryStore";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import { IM } from "@im-library/vocabulary";
 
 interface Props {
   queryDefinition: Query;
