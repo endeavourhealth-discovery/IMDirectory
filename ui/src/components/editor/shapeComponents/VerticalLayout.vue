@@ -21,6 +21,7 @@ import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableC
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
 import { defineComponent } from "vue";
+import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
 
 export default defineComponent({
   components: {
@@ -35,7 +36,8 @@ export default defineComponent({
     TextInput,
     ToggleableComponent,
     DropdownTextInputConcatenator,
-    RoleGroupBuilder
+    RoleGroupBuilder,
+    PropertyBuilder
   }
 });
 </script>

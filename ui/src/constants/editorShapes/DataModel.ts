@@ -309,31 +309,27 @@ const DataModelShape: FormGenerator = {
           ]
         },
         {
-          label: "Property group - Property array builder",
+          name: "Splitter",
+          comment: "Role group | Mapped to splitter",
+          path: { "@id": IM.CONCEPT },
           order: 1,
-          path: {
-            "@id": SHACL.PROPERTY
-          },
+          minCount: 0,
+          maxCount: 1,
+          componentType: { "@id": IM.component.VERTICAL_LAYOUT },
           property: [
             {
-              comment: "builds a property",
+              label: "Property group - Property array builder",
               order: 1,
-              builderChild: true,
               path: {
                 "@id": SHACL.PROPERTY
               },
               name: "Property",
+              minCount: 1,
               componentType: {
                 "@id": IM.component.PROPERTY_BUILDER
               }
             }
-          ],
-          name: "Property",
-          showTitle: true,
-          minCount: 0,
-          componentType: {
-            "@id": IM.component.ARRAY_BUILDER
-          }
+          ]
         }
       ]
     }

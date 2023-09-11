@@ -1,116 +1,88 @@
 <template>
   <div class="property-builder">
-    <div class="content-container" :class="invalid && 'invalid'">
-      <div class="path-container">
-        <TextDisplay v-if="isInherited" :value="propertyPath.name" :shape="propertyPathShape" :mode="mode" />
-        <EntityAutoComplete v-else :value="propertyPath" :shape="propertyPathShape" :mode="mode" @updateClicked="updatePath" />
-        <Tag v-if="isInherited" value="Inherited" class="inherited-tag" severity="warning" />
-      </div>
-      <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
-      <div class="range-container">
-        <EntityAutoComplete :disabled="!isVisible" :value="propertyRange" :shape="propertyRangeShape" :mode="mode" @updateClicked="updateRange" />
-      </div>
-      <div class="toggle-buttons-container">
-        <ToggleButton class="toggle-button" v-model="required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
-        <ToggleButton class="toggle-button" v-model="unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+    <h2 class="title">Properties</h2>
+    <div :class="validationErrorMessage ? 'error-message' : ''">
+      <span v-if="validationErrorMessage" class="error-message">{{ validationErrorMessage }}</span>
+      <div class="children-container">
+        <div v-for="(row, index) in dmProperties" class="roleGroup">
+          <AutoComplete
+            class="propertyPath"
+            :dropdown="true"
+            dropdownMode="current"
+            optionLabel="name"
+            placeholder="Select property"
+            v-model="row.path"
+            :suggestions="pathSuggestions"
+            @complete="searchPath"
+            @drop="pathDrop($event, row)"
+            @itemSelect="selectPath($event, row)"
+            @dragover.prevent
+            @dragenter.prevent
+          ></AutoComplete>
+          <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
+          <AutoComplete
+            class="propertyPath"
+            :dropdown="true"
+            dropdownMode="current"
+            optionLabel="name"
+            placeholder="Select range"
+            v-model="row.range"
+            :suggestions="rangeSuggestions"
+            @complete="searchRange"
+            @drop="rangeDrop($event, row)"
+            @itemSelect="selectRange($event, row)"
+            @dragover.prevent
+            @dragenter.prevent
+          ></AutoComplete>
+          <ToggleButton class="toggle-button" v-model="row.required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
+          <ToggleButton class="toggle-button" v-model="row.unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+          <Button icon="pi pi-chevron-up" class="p-button-rounded p-button-text" @click="moveUp(index)" />
+          <Button icon="pi pi-chevron-down" class="p-button-rounded p-button-text" @click="moveDown(index)" />
+          <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
+          {{ row }}
+        </div>
+        <div class="buttonGroup">
+          <Button icon="pi pi-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
+        </div>
       </div>
     </div>
-    <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { PropertyShape } from "@im-library/interfaces/AutoGen";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { computed, inject, onMounted, PropType, Ref, ref, watch } from "vue";
-import EntityAutoComplete from "./EntityAutoComplete.vue";
-import TextDisplay from "./TextDisplay.vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
-import { XmlSchemaDatatypes } from "@im-library/config";
-import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EntityService, QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import injectionKeys from "@/injectionKeys/injectionKeys";
-import router from "@/router";
+import { EditorMode, ToastSeverity } from "@im-library/enums";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
+import { IM, RDF, SNOMED } from "@im-library/vocabulary";
+import { QueryService } from "@/services";
+import { useToast } from "primevue/usetoast";
 
 interface Props {
   shape: PropertyShape;
   mode: EditorMode;
-  value?: Property;
+  value?: Property[];
   position?: number;
 }
 
+interface SimpleProp {
+  path: TTIriRef;
+  range: TTIriRef;
+  required: boolean;
+  unique: boolean;
+}
+
+const toast = useToast();
 const props = defineProps<Props>();
-
-const emit = defineEmits({
-  updateClicked: (_payload: Property) => true
-});
-
-const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
-const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
-
-const propertyPath: Ref<TTIriRef> = ref({} as TTIriRef);
-const propertyRange: Ref<TTIriRef | undefined> = ref(undefined);
-const inheritedFrom: Ref<TTIriRef | undefined> = ref(undefined);
-const required = ref(false);
-const unique = ref(false);
+const dmProperties: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
-const invalid = ref(false);
+const pathSuggestions: Ref<TTIriRef[]> = ref([]);
+const rangeSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
-const isInherited = ref(false);
-const isVisible = ref(true);
-
-watch(
-  [propertyPath, propertyRange, inheritedFrom, required, unique],
-  ([newPath, newRange, newInherited, newRequired, newUnique], [oldPath, oldRange, oldInherited, oldRequired, oldUnique]) => {
-    if (!loading.value) {
-      // if (!(newPath === oldPath && newRange === oldRange && newInherited === oldInherited && newRequired === oldRequired && newUnique === oldUnique))
-      updateAll();
-    }
-  }
-);
-
-let key = props.shape.path["@id"];
-
-const order = computed(() => props.position);
-
-const propertyPathShape: PropertyShape = {
-  comment: "selects an entity based on select query",
-  name: "Path",
-  showTitle: true,
-  componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
-  path: props.shape.path,
-  builderChild: true,
-  order: 1,
-  select: [{ "@id": "http://endhealth.info/im#Query_GetIsas" }],
-  argument: [{ valueIri: { "@id": IM.DATAMODEL_PROPERTY }, parameter: "this" }]
-} as PropertyShape;
-const propertyRangeShape: Ref<PropertyShape> = ref({
-  comment: "selects an entity based on select query",
-  name: "Range",
-  showTitle: true,
-  order: 1,
-  componentType: { "@id": IM.component.ENTITY_AUTO_COMPLETE },
-  path: props.shape.path,
-  select: [{ name: "Get range", "@id": "http://endhealth.info/im#Query_ObjectPropertyRangeSuggestions" }],
-  argument: [
-    { valueIri: { "@id": propertyPath.value["@id"] }, parameter: "this" },
-    { valueIri: { "@id": router.currentRoute.value.params.selectedIri as string }, parameter: "myDataModel" }
-  ],
-  builderChild: true
-} as PropertyShape);
-
-watch(propertyPath, newValue => {
-  if (newValue["@id"] && propertyRangeShape.value.argument?.[0] && propertyRangeShape.value.argument[0].valueIri) {
-    propertyRangeShape.value.argument[0].valueIri["@id"] = newValue["@id"];
-  }
-});
 
 watch(
   () => _.cloneDeep(props.value),
@@ -123,174 +95,165 @@ onMounted(async () => {
   loading.value = true;
   processProps();
   loading.value = false;
-  await updateAll();
 });
 
 function processProps() {
-  if (props.value) {
-    if (isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#path"]) && props.value["http://www.w3.org/ns/shacl#path"].length === 1)
-      propertyPath.value = props.value["http://www.w3.org/ns/shacl#path"][0];
-    if (
-      isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#node"]) &&
-      _.isArray(props.value["http://www.w3.org/ns/shacl#node"]) &&
-      props.value["http://www.w3.org/ns/shacl#node"].length === 1
-    )
-      propertyRange.value = props.value["http://www.w3.org/ns/shacl#node"][0];
-    if (
-      isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#datatype"]) &&
-      _.isArray(props.value["http://www.w3.org/ns/shacl#datatype"]) &&
-      props.value["http://www.w3.org/ns/shacl#datatype"].length === 1
-    )
-      propertyRange.value = props.value["http://www.w3.org/ns/shacl#datatype"][0];
-    if (
-      isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#class"]) &&
-      _.isArray(props.value["http://www.w3.org/ns/shacl#class"]) &&
-      props.value["http://www.w3.org/ns/shacl#class"].length === 1
-    )
-      propertyRange.value = props.value["http://www.w3.org/ns/shacl#class"][0];
-    if (
-      isObjectHasKeys(props.value, ["http://endhealth.info/im#inheritedFrom"]) &&
-      _.isArray(props.value["http://endhealth.info/im#inheritedFrom"]) &&
-      props.value["http://endhealth.info/im#inheritedFrom"].length === 1
-    ) {
-      inheritedFrom.value = props.value["http://endhealth.info/im#inheritedFrom"][0];
-      isInherited.value = true;
+  const newData: any[] = [];
+  if (props.value && isArrayHasLength(props.value)) {
+    for (const p of props.value) {
+      processProperty(newData, p);
     }
-    if (isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#minCount"]) && typeof props.value["http://www.w3.org/ns/shacl#minCount"] === "number")
-      required.value = props.value["http://www.w3.org/ns/shacl#minCount"] > 0;
-    else required.value = false;
-    if (isObjectHasKeys(props.value, ["http://www.w3.org/ns/shacl#maxCount"]) && typeof props.value["http://www.w3.org/ns/shacl#maxCount"] === "number")
-      unique.value = props.value["http://www.w3.org/ns/shacl#maxCount"] !== 0;
-    else unique.value = false;
-  } else {
-    propertyPath.value = {} as TTIriRef;
-    propertyRange.value = undefined;
-    inheritedFrom.value = undefined;
+  }
+
+  dmProperties.value = newData;
+}
+
+function processProperty(newData: any[], property: Property) {
+  if (!property["http://endhealth.info/im#inheritedFrom"]) {
+    newData.push({
+      path: property["http://www.w3.org/ns/shacl#path"]?.[0],
+      range:
+        property["http://www.w3.org/ns/shacl#datatype"]?.[0] ??
+        property["http://www.w3.org/ns/shacl#class"]?.[0] ??
+        property["http://www.w3.org/ns/shacl#node"]?.[0],
+      required: property["http://www.w3.org/ns/shacl#minCount"] != 0,
+      unique: property["http://www.w3.org/ns/shacl#maxCount"] != 0
+    });
   }
 }
 
-async function updatePath(data: any) {
-  if (data["@id"] && (await isFunctionProperty(data["@id"]))) {
-    isVisible.value = false;
-    updateRange({ "@id": IM.FUNCTION });
-  }
-  if (props.value && Object.keys(props.value["http://www.w3.org/ns/shacl#path"][0]).length === 0) {
-    props.value["http://www.w3.org/ns/shacl#path"][0] = { "@id": data["@id"] } as TTIriRef;
-  }
-}
+async function searchPath(event: AutoCompleteCompleteEvent) {
+  const ps: TTIriRef[] = [];
 
-function updateRange(data: any) {
-  propertyRange.value = data;
-}
-
-async function updateAll() {
-  const property = await createProperty();
-  if (!props.shape.builderChild) {
-    updateEntity(property);
-  } else {
-    emit("updateClicked", property);
-  }
-  updateValueVariableMap(property);
-  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-}
-
-async function createProperty() {
-  const property = {} as Property;
-  property["http://www.w3.org/ns/shacl#path"] = [propertyPath.value];
-  await setRange(property);
-  if (inheritedFrom.value) property["http://endhealth.info/im#inheritedFrom"] = [inheritedFrom.value];
-  if (required.value) property["http://www.w3.org/ns/shacl#minCount"] = 1;
-  else property["http://www.w3.org/ns/shacl#minCount"] = 0;
-  if (unique.value) property["http://www.w3.org/ns/shacl#maxCount"] = 1;
-  else property["http://www.w3.org/ns/shacl#maxCount"] = 0;
-  return property;
-}
-
-async function setRange(property: Property) {
-  if (propertyRange.value) {
-    if (XmlSchemaDatatypes.find(p => propertyRange.value && p === propertyRange.value["@id"])) {
-      property["http://www.w3.org/ns/shacl#datatype"] = [propertyRange.value];
-    } else {
-      const type = await EntityService.getPartialEntity(propertyRange.value["@id"], [RDF.TYPE]);
-      if (type[RDF.TYPE]) {
-        switch (type[RDF.TYPE]) {
-          case IM.CONCEPT:
-          case IM.CONCEPT_SET:
-            property["http://www.w3.org/ns/shacl#class"] = [propertyRange.value];
-            break;
-          default:
-            property["http://www.w3.org/ns/shacl#node"] = [propertyRange.value];
-        }
+  if (event.query) {
+    const request: QueryRequest = {
+      textSearch: event.query,
+      query: {
+        activeOnly: true,
+        match: [
+          {
+            instanceOf: {
+              "@id": RDF.PROPERTY
+            }
+          }
+        ]
       }
-    }
+    };
+    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
+    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
+  }
+  ps.push({ "@id": "", name: "<Create new path>" });
+  pathSuggestions.value = ps;
+}
+
+async function searchRange(event: AutoCompleteCompleteEvent) {
+  const ps: TTIriRef[] = [];
+
+  if (event.query) {
+    const request: QueryRequest = {
+      textSearch: event.query,
+      query: {
+        activeOnly: true,
+        match: [
+          {
+            property: [
+              {
+                "@id": IM.SCHEME,
+                is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
+              }
+            ]
+          }
+        ]
+      }
+    };
+    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
+    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
+  }
+
+  ps.push({ "@id": "", name: "<Create new path>" });
+  rangeSuggestions.value = ps;
+}
+
+function addProperty() {
+  dmProperties.value.push({} as SimpleProp);
+}
+
+function moveUp(index: number) {
+  if (index > 0) {
+    const newData = [];
+    newData.push(...dmProperties.value);
+
+    const tmp = newData[index];
+    newData[index] = newData[index - 1];
+    newData[index - 1] = tmp;
+
+    dmProperties.value = newData;
   }
 }
 
-function updateEntity(data: Property) {
-  const result = {} as any;
-  result[key] = data;
-  if (entityUpdate) entityUpdate(result);
+function moveDown(index: number) {
+  if (index < dmProperties.value.length - 1) {
+    const newData = [];
+    newData.push(...dmProperties.value);
+
+    const tmp = newData[index];
+    newData[index] = newData[index + 1];
+    newData[index + 1] = tmp;
+
+    dmProperties.value = newData;
+  }
 }
 
-function updateValueVariableMap(data: Property) {
-  if (!props.shape.valueVariable) return;
-  let mapKey = props.shape.valueVariable;
-  if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
-  if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
+function deleteProperty(index: number) {
+  if (index >= 0 && index < dmProperties.value.length) {
+    const newData = [];
+    newData.push(...dmProperties.value);
+
+    newData.splice(index, 1);
+
+    dmProperties.value = newData;
+  }
 }
 
-async function isFunctionProperty(propIri: string) {
-  return await QueryService.isFunctionProperty(propIri);
+async function pathDrop(event: any, object: any) {}
+
+async function rangeDrop(event: any, object: any) {}
+
+async function selectPath(event: any, row: any) {
+  console.log("UPDATE");
+  console.log(row);
+  if (event && event.value && event.value["@id"] === "") {
+    toast.add({
+      severity: ToastSeverity.WARN,
+      summary: "Create new property",
+      detail: "Create new property path",
+      life: 3000
+    });
+    row.path = { "@id": "im:NewPath", name: "My new path" };
+  }
+}
+
+async function selectRange(event: any, row: any) {
+  console.log("UPDATE");
+  console.log(row);
+  if (event && event.value && event.value["@id"] === "") {
+    toast.add({
+      severity: ToastSeverity.WARN,
+      summary: "Create new range",
+      detail: "Create new property range",
+      life: 3000
+    });
+    row.range = { "@id": "im:NewRange", name: "My new range" };
+  }
 }
 </script>
 
 <style scoped>
-.toggle-buttons-container {
-}
 .toggle-button {
   margin-right: 0.5rem;
 }
 
 .property-builder {
   flex: 1 1 auto;
-}
-.content-container {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: flex-end;
-  padding: 1rem 1rem;
-  gap: 0.5rem;
-}
-
-.path-container {
-  flex: 1 1 auto;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.inherited-tag {
-  height: fit-content;
-  flex: 0 1 auto;
-}
-
-.range-container {
-  flex: 1 1 auto;
-}
-
-.content-container:deep(.label-container) {
-  padding: 0;
-}
-
-.invalid {
-  border-color: var(--red-500);
-}
-
-.validate-error {
-  color: var(--red-500);
-  font-size: 0.8rem;
-  padding: 0 0 0.25rem 0;
 }
 </style>
