@@ -9,6 +9,7 @@ import EclService from "./ecl.service";
 import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import EntityService from "./entity.service";
 import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
+import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 export default class QueryService {
@@ -263,7 +264,8 @@ export default class QueryService {
     }
 
     const labeledQuery = await this.getLabeledQuery(query);
-    return await this.generateQueryDescriptions(labeledQuery);
+    const queryWithMatchIds = generateMatchIds(labeledQuery);
+    return await this.generateQueryDescriptions(queryWithMatchIds);
   }
 
   public async getLabeledQuery(query: Query) {
@@ -299,6 +301,7 @@ export default class QueryService {
   public async generateQueryDescriptions(query: Query): Promise<Query> {
     return describeQuery(query);
   }
+
   public async getDataModelProperty(dataModelIri: string, propertyIri: string) {
     const queryRequest = {
       query: { "@id": IM.query.DM_PROPERTY },

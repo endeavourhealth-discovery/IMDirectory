@@ -12,7 +12,6 @@ export function describeQuery(query: Query): Query {
     for (const [index, match] of describedQuery.match!.entries()) {
       describeMatch(match, index, "and");
     }
-  describedQuery.query;
   return describedQuery;
 }
 
