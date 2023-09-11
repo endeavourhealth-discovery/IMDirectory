@@ -6,6 +6,7 @@
     header="Search"
     :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
     class="search-dialog"
+    @keyup.enter="onEnter"
   >
     <div class="directory-search-dialog-content">
       <div class="search-bar">
@@ -215,6 +216,10 @@ async function getHasQueryDefinition() {
   const hasDefinition = isObjectHasKeys(entity, [RDF.TYPE, IM.DEFINITION]);
   const isQueryOrSet = isQuery(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]);
   return hasDefinition && isQueryOrSet;
+}
+
+function onEnter() {
+  if (isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
 }
 </script>
 
