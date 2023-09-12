@@ -275,6 +275,14 @@ async function update() {
   if (!validationErrorMessage.value) updateEntity();
 }
 
+function validateEntity() {
+  validationErrorMessage.value = undefined;
+
+  for (let group of roleGroups.value) {
+    if (!isGroupValid(group)) return;
+  }
+}
+
 function isGroupValid(group: any[]): boolean {
   if (group.length == 0 || (group.length == 1 && group[0].key["@id"] == IM.GROUP_NUMBER)) {
     validationErrorMessage.value = "Role groups can not be empty";
@@ -295,14 +303,6 @@ function isGroupValid(group: any[]): boolean {
   }
 
   return true;
-}
-
-function validateEntity() {
-  validationErrorMessage.value = undefined;
-
-  for (let group of roleGroups.value) {
-    if (!isGroupValid(group)) return;
-  }
 }
 
 function updateEntity() {
@@ -333,6 +333,7 @@ span.error-message {
 
 div.error-message {
   border: 1px solid red;
+  border-radius: 3px;
 }
 
 #role-group-builder h2 {
