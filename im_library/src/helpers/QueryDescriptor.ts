@@ -188,7 +188,8 @@ export function getDisplayFromOperator(propertyDisplay: string, property: Proper
 export function getDisplayFromDateComparison(property: Property) {
   let display = "";
   if (property.value) {
-    if (property.operator) display += getDisplayFromOperatorForDate(property.operator);
+    if (property.value.includes("-") && property.operator === ">=") display += "within the last ";
+    else if (property.operator) display += getDisplayFromOperatorForDate(property.operator);
     display += getDisplayFromValueAndUnitForDate(property);
     if (property.relativeTo && "$referenceDate" !== property.relativeTo.parameter)
       display += " from " + (getDisplayFromNodeRef(property.relativeTo?.nodeRef) ?? getNameFromRef(property.relativeTo));
@@ -212,7 +213,7 @@ export function getDisplayFromVariable(nodeRef: string | undefined) {
 
 export function getDisplayFromValueAndUnitForDate(property: Property) {
   let display = "";
-  if (property.value) display += property.value + " ";
+  if (property.value) display += property.value.replace("-", "") + " ";
   if (property.unit) display += property.unit;
   return display;
 }
