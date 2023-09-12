@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :options="['is', 'between']" v-model:model-value="propertyType" />
+  <Dropdown :options="['is', 'between', 'within']" v-model:model-value="propertyType" />
   <div v-if="propertyType === 'between'">
     <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
     <span> and </span>
@@ -8,6 +8,11 @@
   <div v-else-if="propertyType === 'is'">
     <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
     <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
+  </div>
+  <div v-else-if="propertyType === 'within'">
+    the last <InputNumber v-model:model-value="numberValue" />
+    <!-- TODO: model Date options and get from API -->
+    <Dropdown :options="['Minute', 'Hour', 'Day', 'MONTHS', 'Year']" v-model:model-value="property.unit" />
   </div>
 </template>
 
@@ -20,20 +25,34 @@ interface Props {
   property: Property;
 }
 const props = defineProps<Props>();
-const propertyType: Ref<"is" | "between"> = ref("is");
+const propertyType: Ref<"is" | "between" | "within"> = ref("is");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
 const operatorOptions = ["=", ">=", ">", "<="];
+const numberValue = ref(0);
 
 onMounted(() => {
-  if (props.property.value) selectedValueA.value = getDateFromString(props.property.value);
-  if (props.property.operator === "=") propertyType.value = "is";
-  else if (isObjectHasKeys(props.property, ["range"])) {
+  if (props.property.value) {
+    if (isNumber(props.property.value)) {
+      propertyType.value = "within";
+      numberValue.value = ~~props.property.value;
+    } else if (props.property.operator === "=") {
+      propertyType.value = "is";
+      selectedValueA.value = getDateFromString(props.property.value);
+    }
+  } else if (isObjectHasKeys(props.property, ["range"])) {
     propertyType.value = "between";
     if (props.property.range?.from.value) selectedValueA.value = getDateFromString(props.property.range!.from.value);
     if (props.property.range?.to.value) selectedValueB.value = getDateFromString(props.property.range!.to.value);
   }
 });
+
+watch(
+  () => numberValue.value,
+  () => {
+    props.property.value = numberValue.value.toString();
+  }
+);
 
 watch(
   () => cloneDeep(selectedValueA.value),
@@ -44,6 +63,10 @@ watch(
   () => cloneDeep(selectedValueB.value),
   () => updatePropertyValues()
 );
+
+function isNumber(stringNumber: string) {
+  return /^-?\d+$/.test(stringNumber);
+}
 
 function updatePropertyValues() {
   if (propertyType.value === "is") {
