@@ -1,10 +1,11 @@
 import { IM, SHACL } from "../vocabulary";
 import { ConceptSummary, TreeNode } from "../interfaces";
-import { Match, Node, Property } from "../interfaces/AutoGen";
+import { Match, Node, Property, Query } from "../interfaces/AutoGen";
 import { isFolder, isProperty, isQuery, isRecordModel } from "./ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef } from "./TTTransform";
 import { cloneDeep } from "lodash";
+import { v4 } from "uuid";
 
 export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { direct: Match[]; nested: Match[] } {
   const directMatches: Match[] = [];
@@ -135,4 +136,34 @@ export function gatherParentPathRecursively(treeNode: TreeNode, path: string[]) 
 
 export function isNodeRef(treeNode: TreeNode) {
   return treeNode.label.includes("(" + getNameFromRef({ "@id": treeNode.data }) + ")");
+}
+
+export function generateMatchIds(query: Query) {
+  const queryWithMatchIds = { ...query };
+  if (isArrayHasLength(queryWithMatchIds.match))
+    for (const match of queryWithMatchIds.match!) {
+      generateMatchIdsRecursively(match);
+    }
+
+  if (isArrayHasLength(queryWithMatchIds.query))
+    for (const subQuery of queryWithMatchIds.query!) {
+      if (isArrayHasLength(subQuery.match))
+        for (const match of subQuery.match!) {
+          generateMatchIdsRecursively(match);
+        }
+    }
+  return queryWithMatchIds;
+}
+
+export function generateMatchIdsRecursively(match: Match) {
+  if (!match["@id"]) match["@id"] = v4();
+  if (isArrayHasLength(match.match))
+    for (const nestedMatch of match.match!) {
+      generateMatchIdsRecursively(nestedMatch);
+    }
+
+  if (isArrayHasLength(match.property))
+    for (const property of match.property!) {
+      if (isObjectHasKeys(property, ["match"])) generateMatchIdsRecursively(property.match!);
+    }
 }
