@@ -50,10 +50,9 @@ export function describeProperty(property: Property, index: number, bool: Bool) 
 // getters
 export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
   let display = "";
-  display += getNameFromRef(match);
   if (match.orderBy) describeOrderByList(match.orderBy);
   if (match.inSet) display = getDisplayFromInSet(match.inSet);
-  if (match.typeOf) display = "is type of " + getNameFromRef(match.typeOf);
+  if (match.typeOf) display = getNameFromRef(match.typeOf);
   if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
   if (isPathMatch) display += " with";
   return display;

@@ -34,7 +34,7 @@ describe("QueryDescriptor.ts ___", () => {
     it("can describe a type of match", () => {
       const testMatch: Match = _.cloneDeep(match.withType);
       describeMatch(testMatch, 0, "and");
-      expect(testMatch.description).toEqual("is type of Patient");
+      expect(testMatch.description).toEqual("Patient");
     });
 
     it("can describe an instance match", () => {
@@ -47,12 +47,6 @@ describe("QueryDescriptor.ts ___", () => {
       const testMatch: Match = _.cloneDeep(match.withSet);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.description).toEqual("in 'CSET_EmailOnlineEncounter'");
-    });
-
-    it("can describe a concept property with name", () => {
-      const testMatch: Match = _.cloneDeep(match.withName);
-      describeMatch(testMatch, 0, "and");
-      expect(testMatch.description).toEqual("Text message consultation");
     });
 
     it("can describe a concept property with DescendantsOrSelfOf", () => {
