@@ -30,8 +30,17 @@ const EntityService = {
     });
   },
 
-  async getFullExportSet(iri: string, definition:boolean, core: boolean, legacy: boolean, includeSubsets: boolean,
-                         ownRow: boolean, im1id: boolean, format: string, schemes: string[]): Promise<any> {
+  async getFullExportSet(
+    iri: string,
+    definition: boolean,
+    core: boolean,
+    legacy: boolean,
+    includeSubsets: boolean,
+    ownRow: boolean,
+    im1id: boolean,
+    format: string,
+    schemes: string[]
+  ): Promise<any> {
     const client = axios.create({
       baseURL: api,
       timeout: 0
@@ -245,9 +254,9 @@ const EntityService = {
     return axios.get(api + "api/entity/public/graph", { params: { iri: iri } });
   },
 
-  async getEntityTermCodes(iri: string): Promise<TermCode[]> {
+  async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
     return axios.get(Env.API + "api/entity/public/termCode", {
-      params: { iri: iri }
+      params: { iri: iri, includeInactive: includeInactive }
     });
   },
 
