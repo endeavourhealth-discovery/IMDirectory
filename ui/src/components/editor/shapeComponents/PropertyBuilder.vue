@@ -39,14 +39,34 @@
           <Button icon="pi pi-chevron-up" class="p-button-rounded p-button-text" @click="moveUp(index)" />
           <Button icon="pi pi-chevron-down" class="p-button-rounded p-button-text" @click="moveDown(index)" />
           <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
+          {{ row }}
         </div>
         <div class="buttonGroup">
           <Button icon="pi pi-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
         </div>
       </div>
     </div>
-    <TextInputDialog title="Create path" prompt="Enter a path name" ok-label="Create" :show-dialog="dlgPath" :initialText="txtPath" @result="createPath" />
-    <TextInputDialog title="Create range" prompt="Enter a range name" ok-label="Create" :show-dialog="dlgRange" :initialText="txtRange" @result="createRange" />
+    <Dialog header="Create new" :visible="dlgShow" :modal="true" :closable="true">
+      <div class="p-dialog-content">
+        <p>{{ dlgPrompt }}</p>
+        <InputText
+          type="text"
+          v-model="dlgText"
+          autofocus
+          @keyup="dlgPlaceholder = dlgText.toLowerCase().replaceAll(' ', '_')"
+          @keyup.enter="dlgCallback"
+          @keyup.esc="dlgShow = false"
+        />
+        <div class="buttonGroup">
+          <p>http://endhealth.info/im#</p>
+          <InputText type="text" v-model="dlgIri" :placeholder="dlgPlaceholder" autofocus @keyup.enter="dlgCallback" @keyup.esc="dlgShow = false" />
+        </div>
+      </div>
+      <template #footer>
+        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="dlgShow = false" class="p-button-text" />
+        <Button label="Create new" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" :disabled="!dlgText" @click="dlgCallback" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -54,7 +74,7 @@
 import { Property } from "@im-library/interfaces";
 import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -62,8 +82,8 @@ import { AutoCompleteCompleteEvent, AutoCompleteItemSelectEvent } from "primevue
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { EntityService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
-import TextInputDialog from "@/components/shared/dialogs/TextInputDialog.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
+import { useSharedStore } from "@/stores/sharedStore";
 
 interface Props {
   shape: PropertyShape;
@@ -82,6 +102,8 @@ interface SimpleProp {
 
 const toast = useToast();
 const props = defineProps<Props>();
+const sharedStore = useSharedStore();
+const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -97,14 +119,12 @@ const pathSuggestions: Ref<TTIriRef[]> = ref([]);
 const rangeSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
 
-const dlgPath: Ref<boolean> = ref(false);
-const txtPath: Ref<string | undefined> = ref("");
-
-const dlgRange: Ref<boolean> = ref(false);
-const txtRange: Ref<string | undefined> = ref("");
-
-let pathRow: any;
-let rangeRow: any;
+const dlgShow: Ref<boolean> = ref(false);
+const dlgPrompt: Ref<string> = ref("");
+const dlgText: Ref<string> = ref("");
+const dlgPlaceholder: Ref<string> = ref("");
+const dlgIri: Ref<string> = ref("");
+let dlgCallback = async ($evt: any) => {};
 
 watch(
   () => _.cloneDeep(props.value),
@@ -140,6 +160,8 @@ function processProperty(newData: any[], property: any) {
     } else if (property[SHACL.NODE]) {
       rangeType = SHACL.NODE;
     } else {
+      validationErrorMessage.value = "Unhandled property range (" + property[SHACL.PATH] + ")";
+      return;
     }
 
     const newProp: SimpleProp = {
@@ -231,10 +253,7 @@ async function selectPath(event: AutoCompleteItemSelectEvent, row: any) {
       detail: "Create new property path",
       life: 3000
     });
-    row.path = { "@id": "", name: "" };
-    pathRow = row;
-    txtPath.value = "My new path";
-    dlgPath.value = true;
+    await promptIri(row.path, "Enter a name for the new path", RDF.PROPERTY);
   }
 }
 
@@ -283,15 +302,6 @@ async function isValidPath(iri: string): Promise<boolean> {
   return results?.entities && results.entities.length > 0;
 }
 
-async function createPath(name: string) {
-  dlgPath.value = false;
-
-  if (name) {
-    pathRow.path = { "@id": "im:NewPath", name: name };
-    await update();
-  }
-}
-
 // Range functions
 
 async function searchRange(event: AutoCompleteCompleteEvent) {
@@ -332,10 +342,7 @@ async function selectRange(event: any, row: any) {
       detail: "Create new property range",
       life: 3000
     });
-    row.range = { "@id": "", name: "" };
-    rangeRow = row;
-    txtRange.value = "My new range";
-    dlgRange.value = true;
+    await promptIri(row.range, "Enter a name for the new range", IM.CONCEPT);
   }
 }
 
@@ -384,13 +391,34 @@ async function isValidRange(iri: string): Promise<boolean> {
   return results?.entities && results.entities.length > 0;
 }
 
-async function createRange(name: string) {
-  dlgRange.value = false;
+// Iri create dialog
 
-  if (name) {
-    rangeRow.range = { "@id": "im:NewRange", name: name };
-    rangeRow.rangeType = { "@id": "im:NewRange", name: name };
-    await update();
+async function promptIri(field: TTIriRef, prompt: string, supertype: string) {
+  field["@id"] = "";
+  field.name = "";
+
+  dlgText.value = "";
+  dlgPlaceholder.value = "";
+  dlgIri.value = "";
+  dlgPrompt.value = prompt;
+  dlgCallback = ($evt: any) => storeIri($evt, field, supertype);
+  dlgShow.value = true;
+}
+
+async function storeIri($evt: any, iri: TTIriRef, supertype: string) {
+  const newIri = IM.NAMESPACE + (dlgIri.value == "" ? dlgPlaceholder.value : dlgIri.value);
+
+  if (newIri /* && !iriExists(newIri) */) {
+    dlgShow.value = false;
+    console.log("CREATE PATH");
+    console.log($evt);
+    console.log(iri);
+    console.log(supertype);
+
+    iri.name = dlgText.value;
+    iri["@id"] = newIri;
+  } else {
+    // validation error
   }
 }
 
@@ -460,5 +488,9 @@ div.error-message {
 
 .property-builder {
   flex: 1 1 auto;
+}
+
+.p-dialog-content {
+  flex-direction: column;
 }
 </style>
