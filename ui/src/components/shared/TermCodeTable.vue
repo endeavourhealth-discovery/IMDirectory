@@ -4,15 +4,17 @@
       <template #empty> No terms found. </template>
       <Column field="name" header="Name"> </Column>
       <Column field="code" header="Code"></Column>
+      <Column field="status.name" header="Status"></Column>
     </DataTable>
   </div>
 </template>
 
 <script setup lang="ts">
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { PropType } from "vue";
 
 interface Props {
-  terms: { name: string; code: string }[];
+  terms: { name: string; code: string; status: TTIriRef }[];
 }
 
 const props = defineProps<Props>();
