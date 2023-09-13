@@ -44,4 +44,4 @@ artifacts:
     - node_api/package.json
 cache:
   paths:
-    - ~/.local/share/pnpm/store
+    - /codebuild/output/.pnpm-store/**/*
