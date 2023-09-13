@@ -19,6 +19,7 @@ phases:
       - npm config set "@fortawesome:registry" https://npm.fontawesome.com/
       - npm config set "//npm.fontawesome.com/:_authToken" $VITE_FONT_AWESOME_PACKAGE_TOKEN
       - npm i -g pnpm
+      - pnpm store path
   build:
     commands:
       - chmod +x aws_scripts/build.sh
@@ -36,3 +37,6 @@ artifacts:
     - ui/dist/**/*
     - node_api/dist/**/*
     - node_api/package.json
+cache:
+  paths:
+    - ~/.local/share/pnpm/store
