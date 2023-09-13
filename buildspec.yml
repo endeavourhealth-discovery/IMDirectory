@@ -36,6 +36,3 @@ artifacts:
     - ui/dist/**/*
     - node_api/dist/**/*
     - node_api/package.json
-cache:
-  paths:
-    - /root/.npm/**/*
