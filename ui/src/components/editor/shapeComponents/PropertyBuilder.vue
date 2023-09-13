@@ -46,21 +46,27 @@
         </div>
       </div>
     </div>
-    <Dialog header="Create new" :visible="dlgShow" :modal="true" :closable="true">
-      <div class="p-dialog-content">
-        <p>{{ dlgPrompt }}</p>
-        <InputText
-          type="text"
-          v-model="dlgText"
-          autofocus
-          @keyup="dlgPlaceholder = dlgText.toLowerCase().replaceAll(' ', '_')"
-          @keyup.enter="dlgCallback"
-          @keyup.esc="dlgShow = false"
-        />
-        <div class="buttonGroup">
-          <p>http://endhealth.info/im#</p>
-          <InputText type="text" v-model="dlgIri" :placeholder="dlgPlaceholder" autofocus @keyup.enter="dlgCallback" @keyup.esc="dlgShow = false" />
+    <Dialog :header="dlgPrompt" :visible="dlgShow" :modal="true" :closable="true">
+      <div>
+        <div class="p-dialog-content">
+          <label>Name</label>
+          <InputText
+            type="text"
+            v-model="dlgText"
+            autofocus
+            @keyup="dlgPlaceholder = dlgText.toLowerCase().replaceAll(' ', '_')"
+            @keyup.enter="dlgCallback"
+            @keyup.esc="dlgShow = false"
+          />
         </div>
+        <div class="p-dialog-content">
+          <label>Iri</label>
+          <div>
+            <label>http://endhealth.info/im#</label>
+            <InputText type="text" v-model="dlgIri" :placeholder="dlgPlaceholder" autofocus @keyup.enter="dlgCallback" @keyup.esc="dlgShow = false" />
+          </div>
+        </div>
+        <span v-if="dlgError" class="error-message">{{ dlgError }}</span>
       </div>
       <template #footer>
         <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="dlgShow = false" class="p-button-text" />
@@ -124,6 +130,7 @@ const dlgPrompt: Ref<string> = ref("");
 const dlgText: Ref<string> = ref("");
 const dlgPlaceholder: Ref<string> = ref("");
 const dlgIri: Ref<string> = ref("");
+const dlgError: Ref<string> = ref("");
 let dlgCallback = async ($evt: any) => {};
 
 watch(
@@ -164,15 +171,13 @@ function processProperty(newData: any[], property: any) {
       return;
     }
 
-    const newProp: SimpleProp = {
+    newData.push({
       path: property[SHACL.PATH]?.[0],
       range: property[rangeType][0],
       rangeType: rangeType,
       required: property[SHACL.MINCOUNT] != 0,
       unique: property[SHACL.MAXCOUNT] != 0
-    } as SimpleProp;
-
-    newData.push(newProp);
+    });
   }
 }
 
@@ -247,12 +252,6 @@ async function selectPath(event: AutoCompleteItemSelectEvent, row: any) {
   if (event?.value?.["@id"]) {
     await update();
   } else {
-    toast.add({
-      severity: ToastSeverity.WARN,
-      summary: "Create new property",
-      detail: "Create new property path",
-      life: 3000
-    });
     await promptIri(row.path, "Enter a name for the new path", RDF.PROPERTY);
   }
 }
@@ -336,12 +335,6 @@ async function selectRange(event: any, row: any) {
   if (event?.value?.["@id"]) {
     await update();
   } else {
-    toast.add({
-      severity: ToastSeverity.WARN,
-      summary: "Create new range",
-      detail: "Create new property range",
-      life: 3000
-    });
     await promptIri(row.range, "Enter a name for the new range", IM.CONCEPT);
   }
 }
@@ -408,7 +401,7 @@ async function promptIri(field: TTIriRef, prompt: string, supertype: string) {
 async function storeIri($evt: any, iri: TTIriRef, supertype: string) {
   const newIri = IM.NAMESPACE + (dlgIri.value == "" ? dlgPlaceholder.value : dlgIri.value);
 
-  if (newIri /* && !iriExists(newIri) */) {
+  if (newIri && !(await iriExists(newIri))) {
     dlgShow.value = false;
     console.log("CREATE PATH");
     console.log($evt);
@@ -418,8 +411,27 @@ async function storeIri($evt: any, iri: TTIriRef, supertype: string) {
     iri.name = dlgText.value;
     iri["@id"] = newIri;
   } else {
-    // validation error
+    dlgError.value = "Iri already exists";
   }
+}
+
+async function iriExists(iri: string): Promise<boolean> {
+  const request: QueryRequest = {
+    argument: [{ parameter: "subject", valueIri: { "@id": iri } } as Argument],
+    query: {
+      match: [
+        {
+          instanceOf: {
+            parameter: "subject"
+          }
+        }
+      ]
+    }
+  };
+
+  const results: any = await QueryService.queryIM(request);
+
+  return results?.entities && results.entities.length > 0;
 }
 
 // Update/validation
@@ -492,5 +504,11 @@ div.error-message {
 
 .p-dialog-content {
   flex-direction: column;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.p-dialog-content > label {
+  font-weight: bold;
 }
 </style>
