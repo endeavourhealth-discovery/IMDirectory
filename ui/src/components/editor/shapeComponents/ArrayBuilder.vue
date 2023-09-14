@@ -185,8 +185,6 @@ function processChild(child: any, position: number) {
 }
 
 function setButtons(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
-  const path = props.shape.path["@id"];
-  const types: TTIriRef[] = editorEntity?.value[RDF.TYPE];
   if (props.shape.arrayButtons) {
     if (props.shape.arrayButtons.addOnlyIfLast) {
       return addButtonOnlyIfLast(position, isNewItem);
