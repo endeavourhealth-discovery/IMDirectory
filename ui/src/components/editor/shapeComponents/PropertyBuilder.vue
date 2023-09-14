@@ -46,39 +46,12 @@
         </div>
       </div>
     </div>
-    <Dialog :header="dlgPrompt" :visible="dlgShow" :modal="true" :closable="true">
-      <div>
-        <div class="p-dialog-content">
-          <label>Name</label>
-          <InputText
-            type="text"
-            v-model="dlgText"
-            autofocus
-            @keyup="dlgPlaceholder = dlgText.toLowerCase().replaceAll(' ', '_')"
-            @keyup.enter="dlgCallback"
-            @keyup.esc="dlgShow = false"
-          />
-        </div>
-        <div class="p-dialog-content">
-          <label>Iri</label>
-          <div>
-            <label>http://endhealth.info/im#</label>
-            <InputText type="text" v-model="dlgIri" :placeholder="dlgPlaceholder" autofocus @keyup.enter="dlgCallback" @keyup.esc="dlgShow = false" />
-          </div>
-        </div>
-        <span v-if="dlgError" class="error-message">{{ dlgError }}</span>
-      </div>
-      <template #footer>
-        <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="dlgShow = false" class="p-button-text" />
-        <Button label="Create new" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" :disabled="!dlgText" @click="dlgCallback" />
-      </template>
-    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Argument, Entity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { computed, inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
@@ -86,10 +59,11 @@ import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { AutoCompleteCompleteEvent, AutoCompleteItemSelectEvent } from "primevue/autocomplete";
 import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
-import { EntityService, QueryService } from "@/services";
+import { DirectService, EntityService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useSharedStore } from "@/stores/sharedStore";
+import filerService from "@/services/FilerService";
 
 interface Props {
   shape: PropertyShape;
@@ -108,8 +82,7 @@ interface SimpleProp {
 
 const toast = useToast();
 const props = defineProps<Props>();
-const sharedStore = useSharedStore();
-const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+const directService = new DirectService();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -124,14 +97,6 @@ const loading = ref(true);
 const pathSuggestions: Ref<TTIriRef[]> = ref([]);
 const rangeSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
-
-const dlgShow: Ref<boolean> = ref(false);
-const dlgPrompt: Ref<string> = ref("");
-const dlgText: Ref<string> = ref("");
-const dlgPlaceholder: Ref<string> = ref("");
-const dlgIri: Ref<string> = ref("");
-const dlgError: Ref<string> = ref("");
-let dlgCallback = async ($evt: any) => {};
 
 watch(
   () => _.cloneDeep(props.value),
@@ -252,7 +217,8 @@ async function selectPath(event: AutoCompleteItemSelectEvent, row: any) {
   if (event?.value?.["@id"]) {
     await update();
   } else {
-    await promptIri(row.path, "Enter a name for the new path", RDF.PROPERTY);
+    row.path = { "@id": "", name: "" };
+    directService.create(RDF.PROPERTY);
   }
 }
 
@@ -335,7 +301,8 @@ async function selectRange(event: any, row: any) {
   if (event?.value?.["@id"]) {
     await update();
   } else {
-    await promptIri(row.range, "Enter a name for the new range", IM.CONCEPT);
+    row.range = { "@id": "", name: "" };
+    directService.create();
   }
 }
 
@@ -374,56 +341,6 @@ async function isValidRange(iri: string): Promise<boolean> {
               is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
             }
           ]
-        }
-      ]
-    }
-  };
-
-  const results: any = await QueryService.queryIM(request);
-
-  return results?.entities && results.entities.length > 0;
-}
-
-// Iri create dialog
-
-async function promptIri(field: TTIriRef, prompt: string, supertype: string) {
-  field["@id"] = "";
-  field.name = "";
-
-  dlgText.value = "";
-  dlgPlaceholder.value = "";
-  dlgIri.value = "";
-  dlgPrompt.value = prompt;
-  dlgCallback = ($evt: any) => storeIri($evt, field, supertype);
-  dlgShow.value = true;
-}
-
-async function storeIri($evt: any, iri: TTIriRef, supertype: string) {
-  const newIri = IM.NAMESPACE + (dlgIri.value == "" ? dlgPlaceholder.value : dlgIri.value);
-
-  if (newIri && !(await iriExists(newIri))) {
-    dlgShow.value = false;
-    console.log("CREATE PATH");
-    console.log($evt);
-    console.log(iri);
-    console.log(supertype);
-
-    iri.name = dlgText.value;
-    iri["@id"] = newIri;
-  } else {
-    dlgError.value = "Iri already exists";
-  }
-}
-
-async function iriExists(iri: string): Promise<boolean> {
-  const request: QueryRequest = {
-    argument: [{ parameter: "subject", valueIri: { "@id": iri } } as Argument],
-    query: {
-      match: [
-        {
-          instanceOf: {
-            parameter: "subject"
-          }
         }
       ]
     }
