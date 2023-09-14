@@ -207,7 +207,8 @@ const PropertyShape: FormGenerator = {
           minCount: 0,
           componentType: {
             "@id": IM.component.ARRAY_BUILDER
-          }
+          },
+          arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
         },
         {
           label: "Property group - Contained in array builder",
@@ -248,7 +249,8 @@ const PropertyShape: FormGenerator = {
           minCount: 0,
           componentType: {
             "@id": IM.component.ARRAY_BUILDER
-          }
+          },
+          arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
         },
         {
           comment: "Toggle controlling sub components visibility",
