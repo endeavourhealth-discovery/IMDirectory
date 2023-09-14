@@ -39,7 +39,6 @@
           <Button icon="pi pi-chevron-up" class="p-button-rounded p-button-text" @click="moveUp(index)" />
           <Button icon="pi pi-chevron-down" class="p-button-rounded p-button-text" @click="moveDown(index)" />
           <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
-          {{ row }}
         </div>
         <div class="buttonGroup">
           <Button icon="pi pi-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
@@ -51,9 +50,9 @@
 
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
-import { Argument, Entity, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
-import { computed, inject, onMounted, Ref, ref, watch } from "vue";
+import { inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -62,8 +61,6 @@ import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { DirectService, EntityService, QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { useSharedStore } from "@/stores/sharedStore";
-import filerService from "@/services/FilerService";
 
 interface Props {
   shape: PropertyShape;
