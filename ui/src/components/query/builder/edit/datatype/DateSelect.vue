@@ -9,7 +9,19 @@
     <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
     <Dropdown type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" />
     <Calendar v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
-    <TreeSelect
+    <InputText type="text" v-else-if="valueType === 'variable'" v-model="variableSearchInput" @click="onVariableInputClick" />
+    <OverlayPanel ref="op">
+      <Tree
+        v-model="selectedValueA"
+        :value="variableOptions"
+        filterMode="strict"
+        placeholder="Select Item"
+        class="md:w-20rem w-full"
+        selection-mode="single"
+        @node-select="onOptionSelect"
+      />
+    </OverlayPanel>
+    <!-- <TreeSelect
       v-else-if="valueType === 'variable'"
       v-model="selectedValueA"
       :options="variableOptions"
@@ -18,7 +30,7 @@
       placeholder="Select Item"
       class="md:w-20rem w-full"
       selection-mode="single"
-    />
+    /> -->
   </div>
   <div v-else-if="propertyType === 'within'">
     the last <InputNumber v-model:model-value="numberValue" />
@@ -44,10 +56,11 @@ interface Props {
 }
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
+const op: Ref<any> = ref();
 
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
-
+const variableSearchInput: Ref<string> = ref("");
 const propertyType: Ref<"is" | "between" | "within"> = ref("is");
 const valueType: Ref<"date" | "variable"> = ref("date");
 const selectedValueA: Ref<any> = ref();
@@ -55,6 +68,8 @@ const selectedValueB: Ref<any> = ref();
 const operatorOptions = ["=", ">=", ">", "<="];
 const numberValue: Ref<number> = ref(0);
 const variableOptions: Ref<TreeNode[]> = ref([]);
+const filteredVariableOptions: Ref<TreeNode[]> = ref([]);
+const debounce = ref(0);
 
 onMounted(async () => {
   await initValues();
@@ -77,6 +92,24 @@ watch(
   () => updatePropertyValues()
 );
 
+watch(
+  () => variableSearchInput.value,
+  () => {
+    debounceForSearch(variableSearchInput.value);
+  }
+);
+
+function debounceForSearch(searchTerm: any): void {
+  clearTimeout(debounce.value);
+  debounce.value = window.setTimeout(() => {
+    searchOptions(searchTerm);
+  }, 600);
+}
+
+function searchOptions(searchTerm: any) {
+  console.log(searchTerm);
+}
+
 async function initValues() {
   variableOptions.value = await getVariableOptions();
   if (props.property.value) {
@@ -94,11 +127,12 @@ async function initValues() {
   } else if (props.property.relativeTo) {
     propertyType.value = "is";
     valueType.value = "variable";
-    const key = getKeyFromRelativeTo(props.property.relativeTo);
-    if (key) {
-      selectedValueA.value = {};
-      selectedValueA.value[key] = true;
-    }
+    // const key = getKeyFromRelativeTo(props.property.relativeTo);
+    // if (key) {
+    //   selectedValueA.value = {};
+    //   selectedValueA.value[key] = true;
+    // }
+    variableSearchInput.value = getVariableSearchInputDisplay(props.property.relativeTo);
   }
 }
 
@@ -216,6 +250,21 @@ function getDateFromString(date: string) {
   const month = parseInt(splits[1]);
   const day = parseInt(splits[0]);
   return new Date(year, month - 1, day);
+}
+
+function onVariableInputClick(event: any) {
+  op.value.toggle(event);
+}
+
+function onOptionSelect(event: any) {
+  op.value.toggle(event);
+  const propertyRef: PropertyRef = event.data;
+  variableSearchInput.value = getVariableSearchInputDisplay(propertyRef);
+}
+
+function getVariableSearchInputDisplay(propertyRef: PropertyRef) {
+  if (!propertyRef.nodeRef) return getNameFromRef(propertyRef);
+  return propertyRef.nodeRef + " -> " + getNameFromRef(propertyRef);
 }
 </script>
 
