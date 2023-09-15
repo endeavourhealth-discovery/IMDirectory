@@ -87,10 +87,11 @@ const EntityService = {
     });
   },
 
-  async getFullEntity(iri: string): Promise<any> {
+  async getFullEntity(iri: string, includeInactiveTermCodes: boolean = false): Promise<any> {
     return axios.get(api + "api/entity/fullEntity", {
       params: {
-        iri: iri
+        iri: iri,
+        includeInactiveTermCodes: includeInactiveTermCodes
       }
     });
   },

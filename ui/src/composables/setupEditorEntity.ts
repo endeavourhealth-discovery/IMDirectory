@@ -28,7 +28,7 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
         editorEntity.value = editorSavedEntity;
         return;
       }
-      const fullEntity = await EntityService.getFullEntity(editorIri);
+      const fullEntity = await EntityService.getFullEntity(editorIri, true);
       if (isObjectHasKeys(fullEntity)) {
         const processedEntity = processEntity(fullEntity);
         editorEntityOriginal.value = processedEntity;

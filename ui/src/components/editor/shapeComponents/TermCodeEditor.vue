@@ -96,7 +96,11 @@ function processProps() {
 }
 
 function isValidTermCode(): boolean {
-  return true;
+  let valid = true;
+  if (!name.value) valid = false;
+  if (!code.value) valid = false;
+  if (statusOptions.value.findIndex(so => so["@id"] === status.value?.["@id"]) === -1) valid = false;
+  return valid;
 }
 
 function updateEntity() {
