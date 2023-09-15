@@ -14,7 +14,6 @@
     <div v-if="editMode">
       <MatchEntitySelect
         :edit-node="match"
-        :query-type-iri="queryTypeIri"
         :exclude-entailment="true"
         :validation-query-request="validationQueryRequest"
         @on-cancel="editMode = false"
@@ -29,7 +28,6 @@
       :index="index"
       :parent-match="match"
       :match="nestedMatch"
-      :query-type-iri="queryTypeIri"
     />
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
@@ -37,7 +35,6 @@
       :index="index"
       :parent-match="match"
       :property="property"
-      :query-type-iri="queryTypeIri"
     />
     <EditDisplayOrderBy
       v-if="isArrayHasLength(match.orderBy)"
@@ -45,7 +42,6 @@
       :match="match"
       :order-by="orderBy"
       :index="index"
-      :query-type-iri="queryTypeIri"
       :on-add-order-by="onAddOrderBy"
     />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
@@ -95,7 +91,6 @@ import { cloneDeep } from "lodash";
 import MatchEntitySelect from "../edit/MatchEntitySelect.vue";
 
 interface Props {
-  queryTypeIri: string;
   parentMatch?: Match;
   parentMatchList?: Match[];
   match: Match;
@@ -105,6 +100,7 @@ interface Props {
 const props = defineProps<Props>();
 const userStore = useUserStore();
 const queryStore = useQueryStore();
+const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
