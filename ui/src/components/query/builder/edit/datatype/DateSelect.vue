@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { useQueryStore } from "@/stores/queryStore";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { Property, PropertyRef, Range } from "@im-library/interfaces/AutoGen";
 import { SHACL } from "@im-library/vocabulary";
@@ -45,6 +45,7 @@ interface Props {
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
 
+const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 const propertyType: Ref<"is" | "between" | "within"> = ref("is");
@@ -119,27 +120,33 @@ function getKeyFromRelativeTo(relativeTo: PropertyRef) {
 }
 
 async function getVariableOptions() {
-  // TODO: Add root/base type data model properties
   const options: TreeNode[] = [];
   for (const [key, value] of variableMap.value.entries()) {
     const dataModelIri = getVariableWithType(value);
-    const properties = await getValidProperties(dataModelIri);
-    const treeNode = {
-      key: key,
-      label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
-      children: getTreeNodesFromProperties(key, properties),
-      selectable: false
-    } as TreeNode;
-
-    options.push(treeNode);
+    const treeNode = await getTreeNodeOptionsFromProperties(key, dataModelIri);
+    if (treeNode) options.push(treeNode);
   }
+
+  const key = getNameFromRef({ "@id": queryTypeIri.value });
+  const option = await getTreeNodeOptionsFromProperties(key, queryTypeIri.value);
+  if (option) options.push(option);
+
   return options;
 }
 
-function getTreeNodesFromProperties(key: string, properties: any[]) {
-  const treeNodes: TreeNode[] = [];
-  for (const property of properties) {
-    treeNodes.push({
+async function getTreeNodeOptionsFromProperties(key: string, dataModelIri: string) {
+  const validOptions = await getValidProperties(dataModelIri);
+  if (!isArrayHasLength(validOptions)) return undefined;
+
+  const treeNode = {
+    key: key,
+    label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
+    children: [],
+    selectable: false
+  } as TreeNode;
+
+  for (const property of validOptions) {
+    treeNode.children!.push({
       key: key + "/" + property[SHACL.PATH][0]["@id"],
       label: property[SHACL.PATH][0].name,
       data: {
@@ -149,13 +156,13 @@ function getTreeNodesFromProperties(key: string, properties: any[]) {
       }
     });
   }
-  return treeNodes;
+
+  return treeNode;
 }
 
 async function getValidProperties(dataModelIri: string) {
   const propertiesEntity = await EntityService.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
   if (!isObjectHasKeys(propertiesEntity, [SHACL.PROPERTY])) return [];
-
   const allProperties: any[] = propertiesEntity[SHACL.PROPERTY];
   return allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === props.datatype);
 }
@@ -166,7 +173,6 @@ function getVariableWithType(value: any) {
     const objectWithTypeOf = variableMap.value.get(value.nodeRef);
     if (isObjectHasKeys(objectWithTypeOf, ["typeOf"])) return objectWithTypeOf.typeOf["@id"];
   }
-  // return props.datatype
 }
 
 function isNumber(stringNumber: string) {
