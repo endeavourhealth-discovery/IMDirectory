@@ -21,7 +21,6 @@ import { useQueryStore } from "@/stores/queryStore";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import { Property, PropertyRef } from "@im-library/interfaces/AutoGen";
-import { SHACL } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
@@ -74,13 +73,12 @@ async function getVariableOptions(searchTerm?: string) {
 
   for (const [key, value] of variableMap.value.entries()) {
     const dataModelIri = getVariableWithType(value);
-    const treeNode = await getTreeNodeOptionsFromProperties(key, dataModelIri, searchTerm);
-    if (treeNode) options.push(treeNode);
+    const treeNode = await EntityService.getPropertyOptions(dataModelIri, props.datatype, key);
+    if (isObjectHasKeys(treeNode)) options.push(treeNode);
   }
 
-  const key = getNameFromRef({ "@id": queryTypeIri.value });
-  const option = await getTreeNodeOptionsFromProperties(key, queryTypeIri.value, searchTerm);
-  if (option) options.push(option);
+  const option = await EntityService.getPropertyOptions(queryTypeIri.value, props.datatype, getNameFromRef({ "@id": queryTypeIri.value }));
+  if (isObjectHasKeys(option)) options.push(option);
 
   if (searchTerm && isArrayHasLength(options)) {
     if (searchTerm.includes(" -> ")) selectPrepopulatedValue(options, searchTerm);
@@ -112,40 +110,6 @@ function filterBySearchTerm(options: TreeNode[], searchTerm: string) {
       expandedKeys.value[parentOption.key!] = true;
     } else if (!parentOption.label?.includes(searchTerm)) options.splice(key);
   }
-}
-
-async function getTreeNodeOptionsFromProperties(key: string, dataModelIri: string, searchTerm?: string) {
-  let validOptions = await getValidProperties(dataModelIri);
-
-  if (!isArrayHasLength(validOptions)) return undefined;
-
-  const treeNode = {
-    key: key,
-    label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
-    children: [],
-    selectable: false
-  } as TreeNode;
-
-  for (const property of validOptions) {
-    treeNode.children!.push({
-      key: key + "/" + property[SHACL.PATH][0]["@id"],
-      label: property[SHACL.PATH][0].name,
-      data: {
-        "@id": property[SHACL.PATH][0]["@id"],
-        nodeRef: key,
-        name: property[SHACL.PATH][0].name
-      }
-    });
-  }
-
-  return treeNode;
-}
-
-async function getValidProperties(dataModelIri: string) {
-  const propertiesEntity = await EntityService.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
-  if (!isObjectHasKeys(propertiesEntity, [SHACL.PROPERTY])) return [];
-  const allProperties: any[] = propertiesEntity[SHACL.PROPERTY];
-  return allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === props.datatype);
 }
 
 function getVariableWithType(value: any) {

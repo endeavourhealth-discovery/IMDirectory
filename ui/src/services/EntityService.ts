@@ -501,6 +501,12 @@ const EntityService = {
     return axios.get(Env.API + "api/query/public/allQueries", {
       params: { iri: returnTypeIri }
     });
+  },
+
+  async getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
+    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyOptions", {
+      params: { dataModelIri: dataModelIri, dataTypeIri: dataTypeIri, key: key }
+    });
   }
 };
 
