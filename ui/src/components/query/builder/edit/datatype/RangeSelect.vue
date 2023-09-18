@@ -1,9 +1,9 @@
 <template>
   <div class="property-input-container">
     From:
-    <ComparisonSelect :property="from" />
+    <ComparisonSelect :property="from" :datatype="datatype" />
     To:
-    <ComparisonSelect :property="to" />
+    <ComparisonSelect :property="to" :datatype="datatype" />
   </div>
 </template>
 
@@ -14,6 +14,7 @@ import ComparisonSelect from "./ComparisonSelect.vue";
 interface Props {
   from: Assignable;
   to: Assignable;
+  datatype: string;
 }
 
 const props = defineProps<Props>();

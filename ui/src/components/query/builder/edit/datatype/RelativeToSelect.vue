@@ -1,17 +1,24 @@
 <template>
-  <InputText type="text" v-model="searchTerm" @click="onVariableInputClick" />
-  <OverlayPanel ref="op">
-    <Tree
-      :value="variableOptions"
-      :loading="loading"
-      :expanded-keys="expandedKeys"
-      :selection-keys="selectedKeys"
-      placeholder="Select property"
-      class="md:w-20rem w-full"
-      selection-mode="single"
-      @node-select="onOptionSelect"
-    />
-  </OverlayPanel>
+  <InputText type="text" v-model="propertyDisplay" @click="showDialog" />
+  <Dialog v-model:visible="showTreeSearch" modal header="Select property" :style="{ backgroundColor: 'var(--surface-section)' }">
+    <div class="relative-to-select-dialog">
+      <InputText type="text" v-model="searchTerm" />
+      <Tree
+        :value="variableOptions"
+        :loading="loading"
+        :expanded-keys="expandedKeys"
+        :selection-keys="selectedKeys"
+        placeholder="Select property"
+        class="md:w-20rem w-full"
+        selection-mode="single"
+        @node-select="onNodeSelect"
+      />
+    </div>
+    <template #footer>
+      <Button label="Discard" severity="secondary" @click="cancel" text />
+      <Button label="Save" @click="save" text />
+    </template>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -30,12 +37,12 @@ interface Props {
 }
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
-const op: Ref<any> = ref();
-const { expandedKeys, selectKey, selectedKeys } = setupTree();
+const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
-
+const showTreeSearch: Ref<boolean> = ref(false);
 const searchTerm: Ref<string> = ref("");
+const propertyDisplay: Ref<string> = ref("");
 const variableOptions: Ref<TreeNode[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const debounce = ref(0);
@@ -51,6 +58,31 @@ watch(
   }
 );
 
+function cancel() {
+  showTreeSearch.value = false;
+}
+
+function showDialog() {
+  expandedKeys.value = {};
+  showTreeSearch.value = true;
+  selectPrepopulatedValue(variableOptions.value, propertyDisplay.value);
+}
+
+function onNodeSelect(node: any) {
+  selectKey(node.key);
+  selectedNode.value = node;
+}
+
+function save() {
+  if (selectedNode.value) {
+    delete props.property.value;
+    const propertyRef: PropertyRef = selectedNode.value.data;
+    propertyDisplay.value = getVariableSearchInputDisplay(propertyRef);
+    props.property.relativeTo = propertyRef;
+    showTreeSearch.value = false;
+  }
+}
+
 function debounceForSearch(searchTerm: any): void {
   clearTimeout(debounce.value);
   debounce.value = window.setTimeout(() => {
@@ -63,8 +95,9 @@ async function searchOptions(searchTerm: any) {
 }
 
 async function initValues() {
+  selectPrepopulatedValue(variableOptions.value, propertyDisplay.value);
   variableOptions.value = await getVariableOptions();
-  if (props.property.relativeTo) searchTerm.value = getVariableSearchInputDisplay(props.property.relativeTo);
+  if (props.property.relativeTo) propertyDisplay.value = getVariableSearchInputDisplay(props.property.relativeTo);
 }
 
 async function getVariableOptions(searchTerm?: string) {
@@ -81,8 +114,7 @@ async function getVariableOptions(searchTerm?: string) {
   if (isObjectHasKeys(option)) options.push(option);
 
   if (searchTerm && isArrayHasLength(options)) {
-    if (searchTerm.includes(" -> ")) selectPrepopulatedValue(options, searchTerm);
-    else filterBySearchTerm(options, searchTerm);
+    filterBySearchTerm(options, searchTerm);
   }
 
   loading.value = false;
@@ -90,6 +122,7 @@ async function getVariableOptions(searchTerm?: string) {
 }
 
 function selectPrepopulatedValue(options: TreeNode[], searchTerm: string) {
+  selectedNode.value = {};
   const splits = searchTerm.split(" -> ");
   if (isArrayHasLength(splits)) {
     const parentOption = options.filter(parentOption => parentOption.label?.includes(splits[0]));
@@ -120,22 +153,15 @@ function getVariableWithType(value: any) {
   }
 }
 
-function onVariableInputClick(event: any) {
-  op.value.toggle(event);
-}
-
-function onOptionSelect(event: any) {
-  delete props.property.value;
-  op.value.toggle(event);
-  const propertyRef: PropertyRef = event.data;
-  searchTerm.value = getVariableSearchInputDisplay(propertyRef);
-  props.property.relativeTo = propertyRef;
-}
-
 function getVariableSearchInputDisplay(propertyRef: PropertyRef) {
-  if (!propertyRef.nodeRef) return getNameFromRef(propertyRef);
+  if (!isObjectHasKeys(propertyRef, ["nodeRef"])) return getNameFromRef(propertyRef);
   return propertyRef.nodeRef + " -> " + getNameFromRef(propertyRef);
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.relative-to-select-dialog {
+  display: flex;
+  flex-flow: column;
+}
+</style>

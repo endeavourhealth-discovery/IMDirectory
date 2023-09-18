@@ -3,18 +3,20 @@
     <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
     <InputText type="text" placeholder="value" v-model="property.value" />
     <Dropdown type="text" placeholder="unit" :options="unitOptions" v-model="property.unit" />
-    <InputText type="text" placeholder="relative to" v-model="relativeTo" />
+    <RelativeToSelect :property="property" :datatype="datatype" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { Assignable } from "@im-library/interfaces/AutoGen";
+import RelativeToSelect from "./RelativeToSelect.vue";
 const operatorOptions = ["=", ">=", ">", "<="];
 const unitOptions = ["YEAR", "MONTH", "DATE", "DAY"];
 
 interface Props {
   property: Assignable;
+  datatype: string;
 }
 
 const props = defineProps<Props>();
