@@ -48,7 +48,6 @@ const emit = defineEmits({
 });
 
 interface Props {
-  queryTypeIri: string;
   editNode: Node;
   excludeEntailment?: boolean;
   rootEntities?: string[];

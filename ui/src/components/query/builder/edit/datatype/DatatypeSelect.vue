@@ -16,7 +16,7 @@
     <RangeSelect v-else-if="propertyType === 'range'" :from="property.range!.from" :to="property.range!.to" />
   </div>
   <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'" class="property-input-container">
-    <DateSelect :property="property" />
+    <DateSelect :property="property" :datatype="datatype" />
   </div>
 </template>
 

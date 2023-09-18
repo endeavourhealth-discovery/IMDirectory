@@ -40,23 +40,25 @@
 
 <script setup lang="ts">
 import { EntityService } from "@/services";
+import { useQueryStore } from "@/stores/queryStore";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { resolveIri, getNameFromRef } from "@im-library/helpers/TTTransform";
 import { ConceptSummary, TTProperty } from "@im-library/interfaces";
 import { Match, Order, OrderLimit, Property, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";
-import { Ref, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
 interface Props {
   match: Match;
   index: number;
   orderBy: OrderLimit;
-  queryTypeIri: string;
   onAddOrderBy: boolean;
 }
 
 const props = defineProps<Props>();
+const queryStore = useQueryStore();
+const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 
 const editMode = ref(false);
 const orderByOptions: Ref<ConceptSummary[]> = ref([]);
@@ -106,7 +108,7 @@ function getOrderByOptions() {
 
 async function getOrderProperties() {
   const orderProperties: ConceptSummary[] = [];
-  const dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(props.queryTypeIri);
+  const dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(queryTypeIri.value);
   const entity = await EntityService.getPartialEntity(dataModelIri!, [SHACL.PROPERTY]);
   if (isObjectHasKeys(entity, [SHACL.PROPERTY]))
     for (const prop of entity[SHACL.PROPERTY]) {

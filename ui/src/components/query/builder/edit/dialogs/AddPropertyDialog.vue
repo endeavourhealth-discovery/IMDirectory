@@ -6,13 +6,7 @@
     :header="addMode === 'editProperty' ? 'Edit property list' : 'Add new properties'"
     :style="{ minWidth: '50vw' }"
   >
-    <QueryNavTree
-      :base-type="baseType"
-      :editMatch="editMatch"
-      :selected-properties="selectedProperties"
-      :add-mode="addMode"
-      @on-selected-update="onSelectedUpdate"
-    />
+    <QueryNavTree :editMatch="editMatch" :selected-properties="selectedProperties" :add-mode="addMode" @on-selected-update="onSelectedUpdate" />
     <template #footer>
       <Button label="Discard" severity="secondary" @click="visible = false" text />
       <Button label="Save" @click="save" text />
@@ -31,7 +25,6 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 
 interface Props {
   showDialog: boolean;
-  baseType: string;
   match?: Match;
   addMode: "editProperty" | "addBefore" | "addAfter";
 }
@@ -42,7 +35,7 @@ const emit = defineEmits({
   onAddOrEdit: (_direct: Match[], _nested: Match[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
-const editMatch: Ref<Match> = ref(({'@id': '',  property: [] } as Match));
+const editMatch: Ref<Match> = ref({ "@id": "", property: [] } as Match);
 const selectedProperties: Ref<TreeNode[]> = ref([]);
 const visible: Ref<boolean> = ref(false);
 

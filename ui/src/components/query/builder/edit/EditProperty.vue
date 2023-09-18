@@ -13,7 +13,7 @@
       :property="ttproperty.property"
       class="property-input-container"
     />
-    <EntitySelect v-else :edit-node="ttproperty.property" :query-type-iri="queryTypeIri" />
+    <EntitySelect v-else :edit-node="ttproperty.property" />
   </div>
 
   <div class="button-bar">
@@ -42,13 +42,13 @@ const emit = defineEmits({
 });
 
 interface Props {
-  queryTypeIri: string;
   property: Property;
   match?: Match;
 }
 
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
+const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const ttproperty: Ref<TTProperty> = ref({} as TTProperty);
 const tooltip: Ref<string> = ref("");
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
@@ -58,7 +58,7 @@ onMounted(async () => {
 });
 
 async function init() {
-  let dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(props.queryTypeIri);
+  let dataModelIri = isObjectHasKeys(props.match?.typeOf, ["@id"]) ? resolveIri(props.match?.typeOf!["@id"]!) : resolveIri(queryTypeIri.value);
   const matchRef = getMatchNodeRef();
   if (isObjectHasKeys(props.match, ["nodeRef"]) && props.match?.nodeRef) {
     dataModelIri = variableMap.value.get(props.match.nodeRef).typeOf["@id"];

@@ -1,5 +1,5 @@
 <template>
-  <EditProperty v-if="editMode" :property="editProperty" :query-type-iri="queryTypeIri" :match="parentMatch" @on-cancel="editMode = false" @on-save="save" />
+  <EditProperty v-if="editMode" :property="editProperty" :match="parentMatch" @on-cancel="editMode = false" @on-save="save" />
   <div class="property" v-else-if="property.description">
     <div v-tooltip="'Double click to edit'" v-html="property.description" @dblclick="editMode = true"></div>
   </div>
@@ -11,16 +11,9 @@
     :parent-match="parentMatch"
     :parent-property="property"
     :property="nestedProperty"
-    :query-type-iri="queryTypeIri"
   />
 
-  <EditDisplayMatch
-    v-if="isObjectHasKeys(property, ['match'])"
-    :index="index"
-    :parent-match="parentMatch"
-    :match="property.match!"
-    :query-type-iri="queryTypeIri"
-  />
+  <EditDisplayMatch v-if="isObjectHasKeys(property, ['match'])" :index="index" :parent-match="parentMatch" :match="property.match!" />
 </template>
 
 <script setup lang="ts">
@@ -38,7 +31,6 @@ interface Props {
   parentProperty?: Property;
   index: number;
   property: Property;
-  queryTypeIri: string;
 }
 
 const props = defineProps<Props>();
