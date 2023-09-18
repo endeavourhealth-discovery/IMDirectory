@@ -9,20 +9,7 @@
     <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
     <Dropdown type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" />
     <Calendar v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
-    <InputText type="text" v-else-if="valueType === 'variable'" v-model="variableSearchInput" @click="onVariableInputClick" />
-    <OverlayPanel ref="op">
-      <Tree
-        v-model="selectedValueA"
-        :value="variableOptions"
-        :loading="loadingOptions"
-        :expanded-keys="expandedKeys"
-        :selection-keys="selectedKeys"
-        placeholder="Select property"
-        class="md:w-20rem w-full"
-        selection-mode="single"
-        @node-select="onOptionSelect"
-      />
-    </OverlayPanel>
+    <RelativeToSelect v-else-if="valueType === 'variable'" :property="property" :datatype="datatype" />
   </div>
   <div v-else-if="propertyType === 'within'">
     the last <InputNumber v-model:model-value="numberValue" />
@@ -32,37 +19,23 @@
 </template>
 
 <script setup lang="ts">
-import setupTree from "@/composables/setupTree";
-import { EntityService } from "@/services";
-import { useQueryStore } from "@/stores/queryStore";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
-import { Property, PropertyRef, Range } from "@im-library/interfaces/AutoGen";
-import { SHACL } from "@im-library/vocabulary";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { Property, Range } from "@im-library/interfaces/AutoGen";
 import { cloneDeep } from "lodash";
-import { TreeNode } from "primevue/tree";
-import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { Ref, onMounted, ref, watch } from "vue";
+import RelativeToSelect from "./RelativeToSelect.vue";
 
 interface Props {
   property: Property;
   datatype: string;
 }
 const props = defineProps<Props>();
-const queryStore = useQueryStore();
-const op: Ref<any> = ref();
-const { expandedKeys, selectKey, selectedKeys } = setupTree();
-const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
-const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
-const variableSearchInput: Ref<string> = ref("");
 const propertyType: Ref<"is" | "between" | "within"> = ref("is");
 const valueType: Ref<"date" | "variable"> = ref("date");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
 const operatorOptions = ["=", ">=", ">", "<="];
 const numberValue: Ref<number> = ref(0);
-const variableOptions: Ref<TreeNode[]> = ref([]);
-const loadingOptions: Ref<boolean> = ref(false);
-const debounce = ref(0);
 
 onMounted(async () => {
   await initValues();
@@ -70,9 +43,7 @@ onMounted(async () => {
 
 watch(
   () => numberValue.value,
-  () => {
-    props.property.value = numberValue.value.toString();
-  }
+  () => updatePropertyValues()
 );
 
 watch(
@@ -85,26 +56,7 @@ watch(
   () => updatePropertyValues()
 );
 
-watch(
-  () => variableSearchInput.value,
-  () => {
-    debounceForSearch(variableSearchInput.value);
-  }
-);
-
-function debounceForSearch(searchTerm: any): void {
-  clearTimeout(debounce.value);
-  debounce.value = window.setTimeout(() => {
-    searchOptions(searchTerm);
-  }, 600);
-}
-
-async function searchOptions(searchTerm: any) {
-  variableOptions.value = await getVariableOptions(searchTerm);
-}
-
 async function initValues() {
-  variableOptions.value = await getVariableOptions();
   if (props.property.value) {
     if (isNumber(props.property.value)) {
       propertyType.value = "within";
@@ -120,92 +72,6 @@ async function initValues() {
   } else if (props.property.relativeTo) {
     propertyType.value = "is";
     valueType.value = "variable";
-    variableSearchInput.value = getVariableSearchInputDisplay(props.property.relativeTo);
-  }
-}
-
-async function getVariableOptions(searchTerm?: string) {
-  loadingOptions.value = true;
-  const options: TreeNode[] = [];
-  for (const [key, value] of variableMap.value.entries()) {
-    const dataModelIri = getVariableWithType(value);
-    const treeNode = await getTreeNodeOptionsFromProperties(key, dataModelIri, searchTerm);
-    if (treeNode) options.push(treeNode);
-  }
-
-  const key = getNameFromRef({ "@id": queryTypeIri.value });
-  const option = await getTreeNodeOptionsFromProperties(key, queryTypeIri.value, searchTerm);
-  if (option) options.push(option);
-
-  if (searchTerm) {
-    if (searchTerm.includes(" -> ")) selectPrepopulatedValue(options, searchTerm);
-    else filterBySearchTerm(options, searchTerm);
-  }
-
-  loadingOptions.value = false;
-  return options;
-}
-
-function selectPrepopulatedValue(options: TreeNode[], searchTerm: string) {
-  const splits = searchTerm.split(" -> ");
-  if (isArrayHasLength(splits)) {
-    const parentOption = options.filter(parentOption => parentOption.label?.includes(splits[0]));
-    const childOption = parentOption[0].children?.filter(childOption => childOption.label === splits[1]);
-    if (isArrayHasLength(parentOption)) expandedKeys.value[parentOption[0].key!] = true;
-    if (isArrayHasLength(childOption)) selectKey(childOption![0].key!);
-  }
-}
-
-function filterBySearchTerm(options: TreeNode[], searchTerm: string) {
-  expandedKeys.value = {};
-  for (const [key, parentOption] of options.entries()) {
-    const filteredChildren = parentOption.children?.filter(childOption => childOption.label?.includes(searchTerm));
-    if (isArrayHasLength(filteredChildren)) {
-      parentOption.children = filteredChildren;
-      expandedKeys.value[parentOption.key!] = true;
-    } else if (!parentOption.label?.includes(searchTerm)) options.splice(key);
-  }
-}
-
-async function getTreeNodeOptionsFromProperties(key: string, dataModelIri: string, searchTerm?: string) {
-  let validOptions = await getValidProperties(dataModelIri);
-
-  if (!isArrayHasLength(validOptions)) return undefined;
-
-  const treeNode = {
-    key: key,
-    label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
-    children: [],
-    selectable: false
-  } as TreeNode;
-
-  for (const property of validOptions) {
-    treeNode.children!.push({
-      key: key + "/" + property[SHACL.PATH][0]["@id"],
-      label: property[SHACL.PATH][0].name,
-      data: {
-        "@id": property[SHACL.PATH][0]["@id"],
-        nodeRef: key,
-        name: property[SHACL.PATH][0].name
-      }
-    });
-  }
-
-  return treeNode;
-}
-
-async function getValidProperties(dataModelIri: string) {
-  const propertiesEntity = await EntityService.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
-  if (!isObjectHasKeys(propertiesEntity, [SHACL.PROPERTY])) return [];
-  const allProperties: any[] = propertiesEntity[SHACL.PROPERTY];
-  return allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === props.datatype);
-}
-
-function getVariableWithType(value: any) {
-  if (isObjectHasKeys(value, ["typeOf"])) return value.typeOf["@id"];
-  else if (isObjectHasKeys(value, ["nodeRef"])) {
-    const objectWithTypeOf = variableMap.value.get(value.nodeRef);
-    if (isObjectHasKeys(objectWithTypeOf, ["typeOf"])) return objectWithTypeOf.typeOf["@id"];
   }
 }
 
@@ -231,6 +97,9 @@ function updatePropertyValues() {
       props.property.range = { from: { operator: "=", unit: "DATE", value: "" }, to: { operator: "=", unit: "DATE", value: "" } } as Range;
     if (selectedValueA.value) props.property.range!.from.value = getStringFromDate(selectedValueA.value);
     if (selectedValueB.value) props.property.range!.to.value = getStringFromDate(selectedValueB.value);
+  } else if (propertyType.value === "within") {
+    delete props.property.range;
+    props.property.value = numberValue.value.toString();
   }
 }
 
@@ -249,23 +118,6 @@ function getDateFromString(date: string) {
   const month = parseInt(splits[1]);
   const day = parseInt(splits[0]);
   return new Date(year, month - 1, day);
-}
-
-function onVariableInputClick(event: any) {
-  op.value.toggle(event);
-}
-
-function onOptionSelect(event: any) {
-  delete props.property.value;
-  op.value.toggle(event);
-  const propertyRef: PropertyRef = event.data;
-  variableSearchInput.value = getVariableSearchInputDisplay(propertyRef);
-  props.property.relativeTo = propertyRef;
-}
-
-function getVariableSearchInputDisplay(propertyRef: PropertyRef) {
-  if (!propertyRef.nodeRef) return getNameFromRef(propertyRef);
-  return propertyRef.nodeRef + " -> " + getNameFromRef(propertyRef);
 }
 </script>
 
