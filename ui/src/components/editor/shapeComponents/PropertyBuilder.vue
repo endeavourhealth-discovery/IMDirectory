@@ -4,7 +4,7 @@
     <div :class="validationErrorMessage ? 'error-message' : ''">
       <span v-if="validationErrorMessage" class="error-message">{{ validationErrorMessage }}</span>
       <div class="children-container">
-        <div v-for="(row, index) in dmProperties" class="roleGroup">
+        <div v-for="(row, index) in dmProperties" class="property">
           <AutoComplete
             class="propertyPath"
             :dropdown="true"
@@ -82,6 +82,9 @@ const props = defineProps<Props>();
 const directService = new DirectService();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+// const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+// const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+// const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 if (forceValidation) {
   watch(forceValidation, () => {
@@ -94,6 +97,7 @@ const loading = ref(true);
 const pathSuggestions: Ref<TTIriRef[]> = ref([]);
 const rangeSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
+const invalid = ref(false);
 
 watch(
   () => _.cloneDeep(props.value),
@@ -373,6 +377,10 @@ async function validateEntity() {
       }
     }
   }
+
+  invalid.value = !(validationErrorMessage.value == undefined);
+
+  // if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
 }
 
 function updateEntity() {
@@ -416,13 +424,11 @@ div.error-message {
   flex: 1 1 auto;
 }
 
-.p-dialog-content {
-  flex-direction: column;
-  padding-right: 0;
-  padding-left: 0;
+.property {
+  margin-bottom: 4px;
 }
 
-.p-dialog-content > label {
-  font-weight: bold;
+.property > * {
+  margin-right: 4px;
 }
 </style>
