@@ -73,7 +73,8 @@ const emit = defineEmits({
   deleteClicked: (_payload: any) => true,
   addClicked: (_payload: any) => true,
   moveUpClicked: (_payload: any) => true,
-  moveDownClicked: (_payload: any) => true
+  moveDownClicked: (_payload: any) => true,
+  verifyChild: (_payload: { valid: boolean; validateErrorMessage: string | undefined; position: number }) => true
 });
 
 function createEntity(data?: any): ComponentDetails {

@@ -53,11 +53,31 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
       showValidation.value = true;
     }
   });
+}
+
+if (valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        if (props.shape.builderChild) {
+          hasData();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        }
+        showValidation.value = true;
+      }
+    }
+  );
 }
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
@@ -119,7 +139,11 @@ async function updateAll(selected: TTIriRef[]) {
   updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
   updateValueVariableMap(combineSelectedAndFixed(selected, fixedOption.value));
   if (updateValidity) {
-    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    if (props.shape.builderChild) {
+      hasData();
+    } else {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    }
     showValidation.value = true;
   }
 }
@@ -158,6 +182,16 @@ function updateValueVariableMap(data: TTIriRef[]) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && selectedEntities.value.length === 0) return;
+  if (selectedEntities.value.length === 0) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required. ";
+  }
 }
 </script>
 

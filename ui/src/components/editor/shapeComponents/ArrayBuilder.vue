@@ -5,7 +5,6 @@
       <ProgressSpinner />
     </div>
     <div v-else class="children-container" :class="invalid && showValidation && 'invalid'">
-      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
       <template v-for="(item, index) in build" :key="item.id">
         <component
           :is="item.type"
@@ -24,6 +23,9 @@
           @moveDownClicked="moveItemDown"
         />
       </template>
+    </div>
+    <div class="validate-error-container">
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
 </template>
@@ -76,6 +78,18 @@ if (forceValidation) {
       showValidation.value = true;
     }
   });
+}
+
+if (valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
+    }
+  );
 }
 
 let key = props.shape.path["@id"];
@@ -365,5 +379,11 @@ function updateValueVariableMap(data: any[] | undefined) {
 
 .invalid {
   border: 1px solid var(--red-500);
+  border-radius: 5px;
+  padding: 0.25rem;
+}
+
+.validate-error-container {
+  width: 100%;
 }
 </style>

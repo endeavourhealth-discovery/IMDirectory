@@ -65,11 +65,31 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      }
       showValidation.value = true;
     }
   });
+}
+
+if (valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        if (props.shape.builderChild) {
+          hasData();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        }
+        showValidation.value = true;
+      }
+    }
+  );
 }
 
 watch(
@@ -132,7 +152,11 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
     emit("updateClicked", convertToTTIriRef(selectedResult.value));
   }
   if (updateValidity) {
-    await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+    if (props.shape.builderChild) {
+      hasData();
+    } else {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+    }
     showValidation.value = true;
   }
   updateValueVariableMap(convertToTTIriRef(selectedResult.value));
@@ -158,6 +182,16 @@ async function dropReceived(event: any) {
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
     await updateSelectedResult(iriRef);
+  }
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !isObjectHasKeys(selectedResult.value)) return;
+  if (!isObjectHasKeys(selectedResult.value)) {
+    invalid.value = true;
+    validationErrorMessage.value = "Entity is required";
   }
 }
 </script>

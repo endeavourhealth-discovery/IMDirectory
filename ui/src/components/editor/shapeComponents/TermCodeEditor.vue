@@ -1,21 +1,21 @@
 <template>
   <div class="term-code-editor">
     <label v-if="shape.showTitle">{{ shape.name }}</label>
-    <div class="term-code-editor-container">
+    <div class="term-code-editor-container" :class="invalid && showValidation && 'invalid'">
       <div class="name-container">
         <label for="term-name">Name</label>
-        <InputText class="p-inputtext-md input-text term-name" :class="invalid && showValidation && 'invalid'" v-model="name" type="text" />
+        <InputText class="p-inputtext-md input-text term-name" v-model="name" type="text" />
       </div>
       <div class="code-container">
         <label for="term-code">Code</label>
-        <InputText class="input-text term-code" :class="invalid && showValidation && 'invalid'" v-model="code" type="text" />
+        <InputText class="input-text term-code" v-model="code" type="text" />
       </div>
       <div class="status-container">
         <label for="term-status">Status</label>
         <Dropdown class="dropdown term-status" v-model="status" :options="statusOptions" optionLabel="name" />
       </div>
-      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
@@ -33,6 +33,7 @@ interface Props {
   shape: PropertyShape;
   mode: EditorMode;
   value?: any;
+  position: number;
 }
 
 const emit = defineEmits({
@@ -55,11 +56,31 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(props.shape.path["@id"]);
-      showValidation.value;
+      if (props.shape.builderChild) {
+        isValidTermCode();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(props.shape.path["@id"]);
+      }
+      showValidation.value = true;
     }
   });
+}
+
+if (valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        if (props.shape.builderChild) {
+          isValidTermCode();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+        }
+        showValidation.value = true;
+      }
+    }
+  );
 }
 
 const filterStore = useFilterStore();
@@ -72,12 +93,14 @@ const name = ref("");
 const code = ref("");
 const status: Ref<TTIriRef | undefined> = ref();
 watch([name, code, status], async ([newName, newCode, newStatus], [oldName, oldCode, oldStatus]) => {
-  if (isValidTermCode()) {
-    updateEntity();
-    if (updateValidity) {
+  updateEntity();
+  if (updateValidity) {
+    if (props.shape.builderChild) {
+      isValidTermCode();
+    } else {
       await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
-      showValidation.value = true;
     }
+    showValidation.value = true;
   }
 });
 
@@ -95,12 +118,23 @@ function processProps() {
   }
 }
 
-function isValidTermCode(): boolean {
-  let valid = true;
-  if (!name.value) valid = false;
-  if (!code.value) valid = false;
-  if (statusOptions.value.findIndex(so => so["@id"] === status.value?.["@id"]) === -1) valid = false;
-  return valid;
+function isValidTermCode() {
+  invalid.value = false;
+  validationErrorMessage.value = "";
+  if (props.shape.minCount === 0 && !name.value && !code.value && !status.value) return;
+  if (!name.value) {
+    invalid.value = true;
+    validationErrorMessage.value += "Missing name. ";
+  }
+  if (!code.value) {
+    invalid.value = true;
+    validationErrorMessage.value += "Missing code. ";
+  }
+  if (statusOptions.value.findIndex(so => so["@id"] === status.value?.["@id"]) === -1) {
+    invalid.value = true;
+    validationErrorMessage.value += "Missing status. ";
+  }
+  if (validationErrorMessage.value === "") validationErrorMessage.value = undefined;
 }
 
 function updateEntity() {
@@ -141,5 +175,17 @@ function updateEntity() {
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+.invalid {
+  border: solid 1px var(--red-500);
+  padding: 0.25rem;
+  border-radius: 5px;
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
 }
 </style>
