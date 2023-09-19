@@ -9,7 +9,7 @@
     <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="property.operator" />
     <Dropdown type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" />
     <Calendar v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
-    <RelativeToSelect v-else-if="valueType === 'variable'" :property="property" :datatype="datatype" />
+    <RelativeToSelect v-else-if="valueType === 'variable'" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
   </div>
   <div v-else-if="propertyType === 'within'">
     the last <InputNumber v-model:model-value="numberValue" />

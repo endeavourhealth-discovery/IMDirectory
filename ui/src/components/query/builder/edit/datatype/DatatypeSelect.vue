@@ -12,8 +12,14 @@
   />
   <div v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer'" class="property-input-container">
     <Dropdown :options="['is', 'range']" v-model:model-value="propertyType" />
-    <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" />
-    <RangeSelect v-else-if="propertyType === 'range'" :from="property.range!.from" :to="property.range!.to" :datatype="datatype" />
+    <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
+    <RangeSelect
+      v-else-if="propertyType === 'range'"
+      :property-iri="property['@id']!"
+      :from="property.range!.from"
+      :to="property.range!.to"
+      :datatype="datatype"
+    />
   </div>
   <div v-else-if="datatype === IM.NAMESPACE + 'DateTime'" class="property-input-container">
     <DateSelect :property="property" :datatype="datatype" />

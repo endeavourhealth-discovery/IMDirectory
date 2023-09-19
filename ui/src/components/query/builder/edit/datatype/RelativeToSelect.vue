@@ -33,6 +33,7 @@ import { TreeNode } from "primevue/tree";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 
 interface Props {
+  propertyIri: string;
   property: Property;
   datatype: string;
 }
@@ -121,7 +122,11 @@ async function getVariableOptions(searchTerm?: string) {
   }
 
   const option = await EntityService.getPropertyOptions(queryTypeIri.value, props.datatype, getNameFromRef({ "@id": queryTypeIri.value }));
-  if (isObjectHasKeys(option)) options.push(option);
+
+  if (isObjectHasKeys(option)) {
+    option.children = option.children?.filter(childOption => childOption.data["@id"] !== props.propertyIri);
+    if (isArrayHasLength(option.children)) options.push(option);
+  }
 
   if (searchTerm && isArrayHasLength(options)) {
     filterBySearchTerm(options, searchTerm);
