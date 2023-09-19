@@ -1,5 +1,5 @@
 <template>
-  <InputText type="text" v-model="propertyDisplay" @click="showDialog" />
+  <InputText type="text" v-model="propertyDisplay" @click="showDialog" placeholder="relative to" />
   <Dialog v-model:visible="showTreeSearch" modal header="Select property" :style="{ backgroundColor: 'var(--surface-section)' }">
     <div class="relative-to-select-dialog">
       <InputText type="text" v-model="searchTerm" />
@@ -15,6 +15,7 @@
       />
     </div>
     <template #footer>
+      <Button label="Clear" severity="warning" @click="clear" text />
       <Button label="Discard" severity="secondary" @click="cancel" text />
       <Button label="Save" @click="save" text />
     </template>
@@ -57,6 +58,15 @@ watch(
     debounceForSearch(searchTerm.value);
   }
 );
+
+function clear() {
+  delete props.property.relativeTo;
+  propertyDisplay.value = "";
+  searchTerm.value = "";
+  expandedKeys.value = {};
+  selectedKeys.value = {};
+  cancel();
+}
 
 function cancel() {
   showTreeSearch.value = false;
