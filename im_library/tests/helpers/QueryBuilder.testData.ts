@@ -180,3 +180,177 @@ export const nestedProperty = {
     ]
   }
 };
+
+export const observationNestedProperty = {
+  match: {
+    property: [
+      {
+        "@id": "http://endhealth.info/im#observation",
+        match: {
+          typeOf: {
+            "@id": "http://endhealth.info/im#Observation"
+          },
+          property: [
+            {
+              "@id": "http://endhealth.info/im#value",
+              operator: "=",
+              value: "",
+              key: "0-0-1"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  treeNode: {
+    label: "value",
+    key: "0-0-1",
+    conceptTypes: [
+      {
+        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      }
+    ],
+    data: "http://endhealth.info/im#value",
+    ttproperty: { "http://www.w3.org/ns/shacl#datatype": [] },
+    parent: {
+      label: "Observation",
+      conceptTypes: [
+        {
+          "@id": "http://www.w3.org/ns/shacl#NodeShape"
+        }
+      ],
+      data: "http://endhealth.info/im#Observation",
+      parent: {
+        label: "observation",
+        conceptTypes: [
+          {
+            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+          }
+        ],
+        data: "http://endhealth.info/im#observation",
+        parent: {
+          label: "Clinical notes",
+          conceptTypes: [
+            {
+              "@id": "http://endhealth.info/im#Folder"
+            }
+          ],
+          data: "http://endhealth.info/im#ClinicalGroup",
+          parent: {
+            label: "Patient",
+            conceptTypes: [
+              {
+                "@id": "http://www.w3.org/ns/shacl#NodeShape"
+              }
+            ],
+            data: "http://endhealth.info/im#Patient",
+            parent: {
+              key: "0"
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+export const odsCodeNestedProperty = {
+  match: {
+    property: [
+      {
+        "@id": "http://endhealth.info/im#observation",
+        match: {
+          typeOf: {
+            "@id": "http://endhealth.info/im#Observation"
+          },
+          property: [
+            {
+              "@id": "http://endhealth.info/im#recordOwner",
+              match: {
+                typeOf: {
+                  "@id": "http://endhealth.info/im#Organisation"
+                },
+                property: [
+                  {
+                    "@id": "http://endhealth.info/im#odsCode",
+                    operator: "=",
+                    value: "",
+                    key: "0-0-1"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  treeNode: {
+    key: "0-0-1",
+    label: "ODS code",
+    conceptTypes: [
+      {
+        "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+      }
+    ],
+    data: "http://endhealth.info/im#odsCode",
+    ttproperty: { "http://www.w3.org/ns/shacl#datatype": [] },
+    parent: {
+      label: "Organisation",
+      conceptTypes: [
+        {
+          "@id": "http://www.w3.org/ns/shacl#NodeShape"
+        }
+      ],
+      data: "http://endhealth.info/im#Organisation",
+      parent: {
+        label: "record owner",
+        conceptTypes: [
+          {
+            "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+          }
+        ],
+        data: "http://endhealth.info/im#recordOwner",
+        parent: {
+          label: "Observation",
+          conceptTypes: [
+            {
+              "@id": "http://www.w3.org/ns/shacl#NodeShape"
+            }
+          ],
+          data: "http://endhealth.info/im#Observation",
+          parent: {
+            label: "observation",
+            conceptTypes: [
+              {
+                "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"
+              }
+            ],
+            data: "http://endhealth.info/im#observation",
+            parent: {
+              label: "Clinical notes",
+              conceptTypes: [
+                {
+                  "@id": "http://endhealth.info/im#Folder"
+                }
+              ],
+              data: "http://endhealth.info/im#ClinicalGroup",
+              parent: {
+                label: "Patient",
+                conceptTypes: [
+                  {
+                    "@id": "http://www.w3.org/ns/shacl#NodeShape"
+                  }
+                ],
+                data: "http://endhealth.info/im#Patient",
+                parent: {
+                  key: "0"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
