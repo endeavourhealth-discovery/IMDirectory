@@ -9,6 +9,7 @@ export default class Validator {
     if (iri === IM.validation.HAS_PARENT) return this.hasValidParents(data);
     if (iri === IM.validation.IS_DEFINITION) return this.isValidDefinition(data);
     if (iri === IM.validation.IS_IRI) return this.isValidIri(data);
+    if (iri === IM.validation.IS_TERMCODE) return this.isValidTermcodes(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -82,5 +83,18 @@ export default class Validator {
       }
     }
     return { isValid: valid, message: message };
+  }
+
+  private isValidTermcodes(data: any): { isValid: boolean; message?: string } {
+    let valid = false;
+    let message: string | undefined = "1 or more term codes are invalid.";
+    if (isObjectHasKeys(data, [IM.HAS_TERM_CODE])) {
+      if (data[IM.HAS_TERM_CODE].every((tc: any) => this.isValidTermCode(tc))) valid = true;
+    }
+    return { isValid: valid, message: message };
+  }
+
+  private isValidTermCode(data: any): boolean {
+    return isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL];
   }
 }

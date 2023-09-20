@@ -158,6 +158,7 @@ const CohortQueryShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
