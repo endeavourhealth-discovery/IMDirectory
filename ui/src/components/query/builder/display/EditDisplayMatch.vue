@@ -51,7 +51,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="isObjectHasKeys(props.match, ['nodeRef']) && isObjectHasKeys(props.match.nodeRef, ['typeOf']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : isObjectHasKeys(match.typeOf, ['@id']) ? match.typeOf!['@id'] : queryTypeIri"
+    :match-type="getMatchType()"
     :match="match"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
@@ -170,6 +170,14 @@ onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
 });
+
+function getMatchType() {
+  if (isObjectHasKeys(props.match, ["nodeRef"])) {
+    return variableMap.value.get(props.match.nodeRef!).typeOf["@id"];
+  } else if (isObjectHasKeys(props.match.typeOf, ["@id"])) return props.match.typeOf!["@id"];
+
+  return queryTypeIri.value;
+}
 
 function getClass() {
   let clazz = "";

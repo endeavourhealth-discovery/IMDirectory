@@ -13,7 +13,7 @@
       <Button class="base-type-button" label="Add Cohort" @click="showDirectoryDialog = true" />
     </div>
 
-    <AddPropertyDialog v-model:show-dialog="showAddDialog" :add-mode="'addAfter'" @on-add-or-edit="add" />
+    <AddPropertyDialog v-model:show-dialog="showAddDialog" :add-mode="'addAfter'" @on-add-or-edit="add" :match-type="queryTypeIri" />
     <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     <DirectorySearchDialog
       v-model:show-dialog="showDirectoryDialog"
