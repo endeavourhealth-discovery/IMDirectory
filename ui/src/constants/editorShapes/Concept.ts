@@ -183,6 +183,7 @@ const ConceptShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
@@ -220,6 +221,7 @@ const ConceptShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
@@ -337,7 +339,31 @@ const ConceptShape: FormGenerator = {
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
-              }
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
+            },
+            {
+              name: "Term code",
+              comment: "Term code array builder",
+              order: 1,
+              path: {
+                "@id": IM.HAS_TERM_CODE
+              },
+              showTitle: true,
+              minCount: 0,
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              validation: { "@id": IM.validation.IS_TERMCODE },
+              property: [
+                {
+                  name: "Term code",
+                  path: { "@id": IM.HAS_TERM_CODE },
+                  builderChild: true,
+                  order: 1,
+                  componentType: { "@id": IM.component.TERM_CODE_EDITOR },
+                  validation: { "@id": IM.validation.IS_TERMCODE }
+                }
+              ]
             }
           ]
         }

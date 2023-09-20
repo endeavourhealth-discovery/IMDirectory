@@ -52,7 +52,7 @@ import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
 import { isPropertyShape, isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { QueryService, EntityService } from "@/services";
-import { RDFS } from "@im-library/vocabulary";
+import { RDF, RDFS } from "@im-library/vocabulary";
 
 interface Props {
   shape: PropertyShape;
@@ -169,12 +169,50 @@ function createDefaultBuild() {
           property.order - 1,
           undefined,
           property,
-          { minus: true, plus: true, up: true, down: true },
+          setButtons(property.order - 1, true),
           props.mode
         )
       );
     });
   }
+}
+
+function setButtons(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
+  if (props.shape.arrayButtons) {
+    if (props.shape.arrayButtons.addOnlyIfLast) {
+      return addButtonOnlyIfLast(position, isNewItem);
+    } else
+      return {
+        minus: props.shape.arrayButtons?.minus ?? true,
+        plus: props.shape.arrayButtons?.plus ?? true,
+        up: props.shape.arrayButtons?.up ?? true,
+        down: props.shape.arrayButtons?.down ?? true
+      };
+  } else return { minus: true, plus: true, up: true, down: true };
+}
+
+function addButtonOnlyIfLast(position: number, isNewItem: boolean) {
+  if (isNewItem && position !== build.value.length)
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: false,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
+  else if (!isNewItem && position !== build.value.length - 1)
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: false,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
+  else
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: props.shape.arrayButtons?.plus ?? true,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
 }
 
 async function processChild(child: any, position: number) {
@@ -185,12 +223,7 @@ async function processChild(child: any, position: number) {
         position,
         child,
         props.shape.property![0],
-        {
-          minus: true,
-          plus: true,
-          up: true,
-          down: true
-        },
+        setButtons(position, true),
         props.mode
       );
   } else {
@@ -265,7 +298,7 @@ function addItemWrapper(data: { selectedType: ComponentType; position: number; v
   if (data.selectedType !== ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_DROPDOWN_CHILD_WRAPPER;
   }
-  if (shape) addItem(data, build.value, { minus: true, plus: true, up: true, down: true }, shape, props.mode);
+  if (shape) addItem(data, build.value, setButtons(data.position, true), shape, props.mode);
 }
 
 function deleteItem(data: ComponentDetails): void {

@@ -38,10 +38,10 @@ import { useQueryStore } from "@/stores/queryStore";
 interface Props {
   editMatch: Match;
   addMode: "editProperty" | "addBefore" | "addAfter";
+  dmIri: string;
 }
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
-const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 const emit = defineEmits({
@@ -194,7 +194,7 @@ async function onClassExpand(node: TreeNode) {
 }
 
 async function addParentFoldersToRoot() {
-  const resolvedIri = resolveIri(queryTypeIri.value);
+  const resolvedIri = resolveIri(props.dmIri);
   if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
   if (props.addMode !== "editProperty" && variableMap.value && variableMap.value.size) addVariableNodes();
 }

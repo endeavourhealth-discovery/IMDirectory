@@ -6,7 +6,13 @@
     :header="addMode === 'editProperty' ? 'Edit property list' : 'Add new properties'"
     :style="{ minWidth: '50vw' }"
   >
-    <QueryNavTree :editMatch="editMatch" :selected-properties="selectedProperties" :add-mode="addMode" @on-selected-update="onSelectedUpdate" />
+    <QueryNavTree
+      :editMatch="editMatch"
+      :selected-properties="selectedProperties"
+      :add-mode="addMode"
+      @on-selected-update="onSelectedUpdate"
+      :dm-iri="matchType"
+    />
     <template #footer>
       <Button label="Discard" severity="secondary" @click="visible = false" text />
       <Button label="Save" @click="save" text />
@@ -27,6 +33,7 @@ interface Props {
   showDialog: boolean;
   match?: Match;
   addMode: "editProperty" | "addBefore" | "addAfter";
+  matchType: string;
 }
 
 const props = defineProps<Props>();

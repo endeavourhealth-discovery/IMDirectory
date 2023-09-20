@@ -51,7 +51,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="isObjectHasKeys(props.match, ['nodeRef']) && isObjectHasKeys(props.match.nodeRef, ['typeOf']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : isObjectHasKeys(match.typeOf, ['@id']) ? match.typeOf!['@id'] : queryTypeIri"
+    :match-type="getMatchType()"
     :match="match"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
@@ -132,17 +132,20 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 });
 
 const hasValue: ComputedRef<boolean> = computed(() => {
-  return (
-    isObjectHasKeys(props.match, ["@id"]) ||
-    isObjectHasKeys(props.match, ["inSet"]) ||
-    isObjectHasKeys(props.match, ["typeOf"]) ||
-    isObjectHasKeys(props.match, ["instanceOf"]) ||
-    isObjectHasKeys(props.match, ["nodeRef"])
-  );
+  return isObjectHasKeys(props.match, ["inSet"]) || isObjectHasKeys(props.match, ["typeOf"]) || isObjectHasKeys(props.match, ["instanceOf"]);
 });
 
 const hasProperty: ComputedRef<boolean> = computed(() => {
   return isObjectHasKeys(props.match, ["property"]);
+});
+
+const isDataModel: ComputedRef<boolean> = computed(() => {
+  if (isObjectHasKeys(props.match, ["typeOf"])) return true;
+  if (props.match.nodeRef && variableMap.value.has(props.match.nodeRef)) {
+    const node = variableMap.value.get(props.match.nodeRef);
+    return isObjectHasKeys(node, ["typeOf"]);
+  }
+  return false;
 });
 
 const htmlId = ref("");
@@ -170,6 +173,14 @@ onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
 });
+
+function getMatchType() {
+  if (isObjectHasKeys(props.match, ["nodeRef"])) {
+    return variableMap.value.get(props.match.nodeRef!).typeOf["@id"];
+  } else if (isObjectHasKeys(props.match.typeOf, ["@id"])) return props.match.typeOf!["@id"];
+
+  return queryTypeIri.value;
+}
 
 function getClass() {
   let clazz = "";
@@ -328,7 +339,7 @@ function getSingleRCOptions() {
     }
   ];
 
-  if (hasValue.value || hasProperty.value) {
+  if (hasValue.value || hasProperty.value || isDataModel.value) {
     const editOption = {
       label: "Edit",
       icon: PrimeIcons.PENCIL,
@@ -338,7 +349,7 @@ function getSingleRCOptions() {
       }
     };
 
-    if (isObjectHasKeys(props.match, ["typeOf"]) && hasProperty.value) singleRCOptions.splice(0, 1, editOption);
+    if (isDataModel.value || hasProperty.value) singleRCOptions.splice(0, 1, editOption);
     else if (hasValue.value) singleRCOptions.splice(1, 0, editOption);
   }
 
@@ -355,8 +366,8 @@ function getSingleRCOptions() {
 }
 
 function editMatch() {
-  if (hasValue.value && !hasProperty.value) editMode.value = true;
-  else if (hasValue.value && hasProperty.value) {
+  if (hasValue.value && !isDataModel.value) editMode.value = true;
+  else if (isDataModel.value) {
     showAddDialog.value = true;
     addMode.value = "editProperty";
   }

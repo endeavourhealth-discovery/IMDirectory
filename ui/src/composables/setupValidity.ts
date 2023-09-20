@@ -69,7 +69,7 @@ export function setupValidity(shape?: FormGenerator) {
     if (found) found.checkCompleted = true;
   }
 
-  async function updateValidity(
+  async function checkValidity(
     componentShape: PropertyShape,
     editorEntity: Ref<any>,
     valueVariableMap: Ref<Map<string, any>>,
@@ -93,9 +93,20 @@ export function setupValidity(shape?: FormGenerator) {
     }
     invalid.value = !valid;
     validationErrorMessage.value = message;
+  }
+
+  async function updateValidity(
+    componentShape: PropertyShape,
+    editorEntity: Ref<any>,
+    valueVariableMap: Ref<Map<string, any>>,
+    key: string,
+    invalid: Ref<boolean>,
+    validationErrorMessage: Ref<string | undefined>
+  ) {
+    await checkValidity(componentShape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     const index = editorValidity.value.findIndex(item => item.key === key);
-    if (index != -1) editorValidity.value[index] = { key: key, valid: valid, message: message };
-    else editorValidity.value.push({ key: key, valid: valid, message: message });
+    if (index != -1) editorValidity.value[index] = { key: key, valid: !invalid.value, message: validationErrorMessage.value };
+    else editorValidity.value.push({ key: key, valid: !invalid.value, message: validationErrorMessage.value });
   }
 
   function defaultValidation(
@@ -152,6 +163,7 @@ export function setupValidity(shape?: FormGenerator) {
     removeValidationCheckStatus,
     clearValidationCheckStatus,
     addPropertyToValidationCheckStatus,
-    validationChecksCompleted
+    validationChecksCompleted,
+    checkValidity
   };
 }
