@@ -30,8 +30,17 @@ const EntityService = {
     });
   },
 
-  async getFullExportSet(iri: string, definition:boolean, core: boolean, legacy: boolean, includeSubsets: boolean,
-                         ownRow: boolean, im1id: boolean, format: string, schemes: string[]): Promise<any> {
+  async getFullExportSet(
+    iri: string,
+    definition: boolean,
+    core: boolean,
+    legacy: boolean,
+    includeSubsets: boolean,
+    ownRow: boolean,
+    im1id: boolean,
+    format: string,
+    schemes: string[]
+  ): Promise<any> {
     const client = axios.create({
       baseURL: api,
       timeout: 0
@@ -245,9 +254,9 @@ const EntityService = {
     return axios.get(api + "api/entity/public/graph", { params: { iri: iri } });
   },
 
-  async getEntityTermCodes(iri: string): Promise<TermCode[]> {
+  async getEntityTermCodes(iri: string, includeInactive?: boolean): Promise<TermCode[]> {
     return axios.get(Env.API + "api/entity/public/termCode", {
-      params: { iri: iri }
+      params: { iri: iri, includeInactive: includeInactive }
     });
   },
 
@@ -491,6 +500,12 @@ const EntityService = {
   async getQueriesByReturnType(returnTypeIri: string): Promise<TTIriRef[]> {
     return axios.get(Env.API + "api/query/public/allQueries", {
       params: { iri: returnTypeIri }
+    });
+  },
+
+  async getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
+    return axios.get(Env.VITE_NODE_API + "node_api/entity/public/propertyOptions", {
+      params: { dataModelIri: dataModelIri, dataTypeIri: dataTypeIri, key: key }
     });
   }
 };

@@ -3,14 +3,7 @@
     <div class="include-title include">include if</div>
     <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
-    <EditDisplayMatch
-      v-if="isArrayHasLength(query.match)"
-      v-for="(match, index) of query.match"
-      :match="match"
-      :index="index"
-      :query-type-iri="queryTypeIri"
-      :parentMatchList="query.match"
-    />
+    <EditDisplayMatch v-if="isArrayHasLength(query.match)" v-for="(match, index) of query.match" :match="match" :index="index" :parentMatchList="query.match" />
 
     <div v-else-if="!queryTypeIri">
       <Button class="base-type-button" label="Add base type" @click="showAddBaseTypeDialog = true" />
@@ -20,7 +13,7 @@
       <Button class="base-type-button" label="Add Cohort" @click="showDirectoryDialog = true" />
     </div>
 
-    <AddPropertyDialog v-model:show-dialog="showAddDialog" :base-type="queryTypeIri" :add-mode="'addAfter'" @on-add-or-edit="add" />
+    <AddPropertyDialog v-model:show-dialog="showAddDialog" :add-mode="'addAfter'" @on-add-or-edit="add" :match-type="queryTypeIri" />
     <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     <DirectorySearchDialog
       v-model:show-dialog="showDirectoryDialog"
@@ -57,8 +50,8 @@ const props = defineProps<Props>();
 
 const queryStore = useQueryStore();
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
+const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
-const queryTypeIri: Ref<string> = ref("");
 const showDirectoryDialog: Ref<boolean> = ref(false);
 const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
 
@@ -80,7 +73,7 @@ watch(
 );
 
 watch(
-  () => _.cloneDeep(queryTypeIri.value),
+  () => queryTypeIri.value,
   () => setValidationQueryRequest()
 );
 
@@ -92,7 +85,7 @@ function init() {
 }
 
 async function setBaseEntityMatch() {
-  if (isObjectHasKeys(query.value.typeOf, ["@id"])) queryTypeIri.value = query.value["typeOf"]["@id"];
+  if (isObjectHasKeys(query.value.typeOf, ["@id"])) queryStore.updateReturnType(query.value["typeOf"]["@id"]);
 }
 
 function add(direct: Match[], nested: Match[]) {

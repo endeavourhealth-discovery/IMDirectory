@@ -14,7 +14,6 @@
     <div v-if="editMode">
       <MatchEntitySelect
         :edit-node="match"
-        :query-type-iri="queryTypeIri"
         :exclude-entailment="true"
         :validation-query-request="validationQueryRequest"
         @on-cancel="editMode = false"
@@ -29,7 +28,6 @@
       :index="index"
       :parent-match="match"
       :match="nestedMatch"
-      :query-type-iri="queryTypeIri"
     />
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
@@ -37,7 +35,6 @@
       :index="index"
       :parent-match="match"
       :property="property"
-      :query-type-iri="queryTypeIri"
     />
     <EditDisplayOrderBy
       v-if="isArrayHasLength(match.orderBy)"
@@ -45,7 +42,6 @@
       :match="match"
       :order-by="orderBy"
       :index="index"
-      :query-type-iri="queryTypeIri"
       :on-add-order-by="onAddOrderBy"
     />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
@@ -55,7 +51,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :base-type="isObjectHasKeys(props.match, ['nodeRef']) && isObjectHasKeys(props.match.nodeRef, ['typeOf']) ? variableMap.get(props.match.nodeRef!).typeOf['@id'] : isObjectHasKeys(match.typeOf, ['@id']) ? match.typeOf!['@id'] : queryTypeIri"
+    :match-type="getMatchType()"
     :match="match"
     :add-mode="addMode"
     @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
@@ -95,7 +91,6 @@ import { cloneDeep } from "lodash";
 import MatchEntitySelect from "../edit/MatchEntitySelect.vue";
 
 interface Props {
-  queryTypeIri: string;
   parentMatch?: Match;
   parentMatchList?: Match[];
   match: Match;
@@ -105,6 +100,7 @@ interface Props {
 const props = defineProps<Props>();
 const userStore = useUserStore();
 const queryStore = useQueryStore();
+const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
@@ -136,17 +132,20 @@ const isSelected: ComputedRef<boolean> = computed(() => {
 });
 
 const hasValue: ComputedRef<boolean> = computed(() => {
-  return (
-    isObjectHasKeys(props.match, ["@id"]) ||
-    isObjectHasKeys(props.match, ["inSet"]) ||
-    isObjectHasKeys(props.match, ["typeOf"]) ||
-    isObjectHasKeys(props.match, ["instanceOf"]) ||
-    isObjectHasKeys(props.match, ["nodeRef"])
-  );
+  return isObjectHasKeys(props.match, ["inSet"]) || isObjectHasKeys(props.match, ["typeOf"]) || isObjectHasKeys(props.match, ["instanceOf"]);
 });
 
 const hasProperty: ComputedRef<boolean> = computed(() => {
   return isObjectHasKeys(props.match, ["property"]);
+});
+
+const isDataModel: ComputedRef<boolean> = computed(() => {
+  if (isObjectHasKeys(props.match, ["typeOf"])) return true;
+  if (props.match.nodeRef && variableMap.value.has(props.match.nodeRef)) {
+    const node = variableMap.value.get(props.match.nodeRef);
+    return isObjectHasKeys(node, ["typeOf"]);
+  }
+  return false;
 });
 
 const htmlId = ref("");
@@ -174,6 +173,14 @@ onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
 });
+
+function getMatchType() {
+  if (isObjectHasKeys(props.match, ["nodeRef"])) {
+    return variableMap.value.get(props.match.nodeRef!).typeOf["@id"];
+  } else if (isObjectHasKeys(props.match.typeOf, ["@id"])) return props.match.typeOf!["@id"];
+
+  return queryTypeIri.value;
+}
 
 function getClass() {
   let clazz = "";
@@ -332,7 +339,7 @@ function getSingleRCOptions() {
     }
   ];
 
-  if (hasValue.value || hasProperty.value) {
+  if (hasValue.value || hasProperty.value || isDataModel.value) {
     const editOption = {
       label: "Edit",
       icon: PrimeIcons.PENCIL,
@@ -342,7 +349,7 @@ function getSingleRCOptions() {
       }
     };
 
-    if (isObjectHasKeys(props.match, ["typeOf"]) && hasProperty.value) singleRCOptions.splice(0, 1, editOption);
+    if (isDataModel.value || hasProperty.value) singleRCOptions.splice(0, 1, editOption);
     else if (hasValue.value) singleRCOptions.splice(1, 0, editOption);
   }
 
@@ -359,8 +366,8 @@ function getSingleRCOptions() {
 }
 
 function editMatch() {
-  if (hasValue.value && !hasProperty.value) editMode.value = true;
-  else if (hasValue.value && hasProperty.value) {
+  if (hasValue.value && !isDataModel.value) editMode.value = true;
+  else if (isDataModel.value) {
     showAddDialog.value = true;
     addMode.value = "editProperty";
   }
