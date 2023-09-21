@@ -1,17 +1,11 @@
 <template>
   <div class="property-container">
     <div v-tooltip.right="tooltip" class="property-label">{{ getNameFromRef(property) }}:</div>
-    <ClassSelect
-      v-if="isObjectHasKeys(ttproperty, [SHACL.CLASS])"
-      :class-iri="ttproperty[SHACL.CLASS][0]['@id']"
-      :property="ttproperty.property"
-      class="property-input-container"
-    />
+    <ClassSelect v-if="isObjectHasKeys(ttproperty, [SHACL.CLASS])" :class-iri="ttproperty[SHACL.CLASS][0]['@id']" :property="ttproperty.property" />
     <DatatypeSelect
       v-else-if="isObjectHasKeys(ttproperty, [SHACL.DATATYPE])"
       :datatype="ttproperty[SHACL.DATATYPE][0]['@id']"
       :property="ttproperty.property"
-      class="property-input-container"
     />
     <EntitySelect v-else :edit-node="ttproperty.property" />
   </div>
