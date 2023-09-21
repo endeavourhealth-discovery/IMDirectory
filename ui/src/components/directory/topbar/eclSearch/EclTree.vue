@@ -5,7 +5,7 @@
       <AutoComplete
         forceSelection
         style="flex: 1"
-        input-style="flex: 1"
+        :input-style="{ flex: 1 }"
         optionLabel="name"
         dataKey="iri"
         v-model="selectedSearchResult"
