@@ -11,18 +11,11 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
   const directMatches: Match[] = [];
   const nestedMatches: Match[] = [];
 
-  const queryMatches = treeNodeProperties.filter(prop => isQuery(prop.conceptTypes));
-  const directProperties = treeNodeProperties.filter(prop => !isNestedProperty(prop) && !isQuery(prop.conceptTypes));
+  const directProperties = treeNodeProperties.filter(prop => !isNestedProperty(prop));
   const nestedProperties = treeNodeProperties.filter(prop => isNestedProperty(prop));
 
-  if (isArrayHasLength(queryMatches)) {
-    for (const queryMatchNode of queryMatches) {
-      directMatches.push({ "@id": queryMatchNode.data, name: queryMatchNode.label });
-    }
-  }
-
   if (isArrayHasLength(directProperties)) {
-    const match: Match = { property: [] } as Match;
+    const match: Match = { "@id": v4(), property: [] } as Match;
     for (const directProperty of directProperties) {
       if (isObjectHasKeys(directProperty, ["parent"]) && directProperty.parent.hasVariable) match.nodeRef = directProperty.parent.hasVariable;
       match.property!.push(buildPropertyFromTreeNode(directProperty));
@@ -40,7 +33,7 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
 }
 
 export function buildInSetMatchFromCS(cs: ConceptSummary) {
-  return { inSet: [buildNodeFromCS(cs)] } as Match;
+  return { "@id": v4(), inSet: [buildNodeFromCS(cs)] } as Match;
 }
 
 export function buildNodeFromCS(cs: ConceptSummary) {
@@ -77,7 +70,7 @@ export function buildNestedPropertyMatch(treeNode: TreeNode) {
     }
   }
 
-  const match = { property: [currentMatchOrProperty] } as Match;
+  const match = { "@id": v4(), property: [currentMatchOrProperty] } as Match;
   const hasVariable = getHasVariable(treeNode);
   if (hasVariable) match.nodeRef = hasVariable;
   return match;

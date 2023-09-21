@@ -48,6 +48,7 @@
     "svg-pan-zoom": "3.6.1",
     "sweetalert2": "11.4.8",
     "tslib": "2.5.0",
+    "uuid": "9.0.0",
     "vue": "3.2.45",
     "vue-json-pretty": "2.2.3",
     "vue-router": "4.1.6",
@@ -55,6 +56,7 @@
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
+    "@types/uuid": "9.0.0",
     "@cypress/vite-dev-server": "5.0.2",
     "@cypress/vue": "5.0.3",
     "@faker-js/faker": "7.6.0",

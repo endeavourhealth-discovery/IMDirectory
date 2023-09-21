@@ -3,6 +3,7 @@ import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
 import { cloneDeep } from "lodash";
+import { v4 } from "uuid";
 
 function setupQueryBuilderActions() {
   const showViewDialog: Ref<boolean> = ref(false);
@@ -96,7 +97,7 @@ function setupQueryBuilderActions() {
   function group(selectedMatches: SelectedMatch[], parentMatch: Match[] | undefined, matches: Match[]) {
     let index = selectedMatches[0].index;
     let initialParent = selectedMatches[0].parent;
-    const groupedMatch = { bool: "and", match: [] } as Match;
+    const groupedMatch = { "@id": v4(), bool: "and", match: [] } as Match;
 
     for (const selectedMatch of selectedMatches) {
       if (selectedMatch.parent !== initialParent) {
@@ -117,12 +118,12 @@ function setupQueryBuilderActions() {
     for (const selectedMatch of selectedMatches) {
       if (isArrayHasLength(parentMatch)) {
         parentMatch!.splice(
-          parentMatch!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+          parentMatch!.findIndex(match => match["@id"] === selectedMatch.selected["@id"]),
           1
         );
       } else {
         matches.splice(
-          matches.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+          matches.findIndex(match => match["@id"] === selectedMatch.selected["@id"]),
           1
         );
       }
@@ -134,7 +135,7 @@ function setupQueryBuilderActions() {
       if (isArrayHasLength(selectedMatch.selected.match)) {
         if (index !== -1) matches.splice(index, 1);
         for (const nestedMatch of selectedMatch.selected.match!.reverse()) {
-          const unnestedMatch = { bool: "and", match: [nestedMatch] } as Match;
+          const unnestedMatch = { "@id": v4(), bool: "and", match: [nestedMatch] } as Match;
           matches.splice(index, 0, unnestedMatch);
         }
       }
@@ -195,7 +196,7 @@ function setupQueryBuilderActions() {
       if (!isSelected) {
         selectedMatches.push(selectedMatch);
       } else {
-        const foundIndex = selectedMatches.findIndex(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(match));
+        const foundIndex = selectedMatches.findIndex(selectedMatch => selectedMatch.selected["@id"] === match["@id"]);
         if (foundIndex !== -1) {
           selectedMatches.splice(foundIndex, 1);
         }

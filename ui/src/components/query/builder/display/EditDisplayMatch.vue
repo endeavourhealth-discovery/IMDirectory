@@ -127,7 +127,7 @@ const {
 } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
-  const found = selectedMatches.value.find(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(props.match));
+  const found = selectedMatches.value.find(selectedMatch => selectedMatch.selected["@id"] === props.match["@id"]);
   return !!found;
 });
 
