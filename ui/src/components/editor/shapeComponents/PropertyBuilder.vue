@@ -142,7 +142,8 @@ function processProps() {
 }
 
 function processProperty(newData: any[], property: any) {
-  let rangeType = "";
+  let rangeType;
+
   if (property[SHACL.DATATYPE]) {
     rangeType = SHACL.DATATYPE;
   } else if (property[SHACL.CLASS]) {
@@ -385,7 +386,7 @@ async function isValidRange(iri: string): Promise<boolean> {
 
 // Update/validation
 async function update() {
-  await updateEntity();
+  updateEntity();
   await validateEntity();
 }
 
@@ -403,7 +404,7 @@ async function validateEntity() {
   if (updateValidationCheckStatus) await updateValidationCheckStatus(key);
 }
 
-async function updateEntity() {
+function updateEntity() {
   if (entityUpdate) {
     const deltas: any[] = [];
 
@@ -422,7 +423,7 @@ async function updateEntity() {
     const update: any = {};
     update[key] = deltas;
 
-    await entityUpdate(update);
+    entityUpdate(update);
   }
 }
 </script>
