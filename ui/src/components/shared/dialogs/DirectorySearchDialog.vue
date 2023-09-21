@@ -212,6 +212,7 @@ async function getIsSelectableEntity(): Promise<boolean> {
 }
 
 async function getHasQueryDefinition() {
+  if (!detailsIri.value) return false;
   const entity = await EntityService.getPartialEntity(detailsIri.value, [RDF.TYPE, IM.DEFINITION]);
   const hasDefinition = isObjectHasKeys(entity, [RDF.TYPE, IM.DEFINITION]);
   const isQueryOrSet = isQuery(entity[RDF.TYPE]) || isValueSet(entity[RDF.TYPE]);
