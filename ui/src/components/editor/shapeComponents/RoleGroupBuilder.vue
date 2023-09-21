@@ -3,7 +3,10 @@
     <h2 class="title">Role Groups</h2>
     <div :class="validationErrorMessage ? 'error-message' : ''">
       <span v-if="validationErrorMessage" class="error-message">{{ validationErrorMessage }}</span>
-      <div class="children-container">
+      <div v-if="loading" class="loading-container">
+        <ProgressSpinner strokeWidth="8" />
+      </div>
+      <div v-else class="children-container">
         <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup">
           <div class="roleGroupRow">
             <label>Role Group {{ rgIndex }}</label>
@@ -49,7 +52,7 @@
         </div>
       </div>
       <div class="buttonGroup">
-        <Button icon="pi pi-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" />
+        <Button icon="pi pi-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" :disabled="loading" />
       </div>
     </div>
   </div>
@@ -98,6 +101,7 @@ const roleGroups: Ref<any[][]> = ref([]);
 const propertySuggestions: Ref<TTIriRef[]> = ref([]);
 const valueSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
+const loading = ref(true);
 
 onMounted(async () => {
   await processProps();
@@ -120,6 +124,7 @@ function deleteRole(rg: any, index: number) {
 }
 
 async function processProps() {
+  loading.value = true;
   const newData: any[] = [];
   if (props.value && isArrayHasLength(props.value)) {
     for (const role of props.value) {
@@ -127,6 +132,7 @@ async function processProps() {
     }
   }
   roleGroups.value = newData;
+  loading.value = false;
 }
 
 async function processRole(newData: any[], role: any) {

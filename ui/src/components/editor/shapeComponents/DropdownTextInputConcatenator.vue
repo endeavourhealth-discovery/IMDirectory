@@ -24,6 +24,7 @@ import { byName } from "@im-library/helpers/Sorters";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
+import _ from "lodash";
 
 interface Props {
   shape: PropertyShape;
@@ -45,11 +46,31 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
       showValidation.value = true;
     }
   });
+}
+
+if (valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        if (props.shape.builderChild) {
+          hasData();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        }
+        showValidation.value = true;
+      }
+    }
+  );
 }
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
@@ -66,7 +87,11 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
     updateEntity(concatenated);
     updateValueVariableMap(concatenated);
     if (updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      }
       showValidation.value = true;
     }
   }
@@ -140,6 +165,20 @@ function updateValueVariableMap(data: string) {
 
 function defaultValidation(data: string) {
   return true;
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !selectedDropdownOption.value && !userInput.value) return;
+  if (!selectedDropdownOption.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Missing dropdown value. ";
+  }
+  if (!userInput.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Missing data. ";
+  }
 }
 </script>
 

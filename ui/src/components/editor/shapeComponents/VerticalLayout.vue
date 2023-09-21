@@ -20,6 +20,7 @@ import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDef
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
+import TermCodeEditor from "./TermCodeEditor.vue";
 import { defineComponent } from "vue";
 import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
 
@@ -37,7 +38,8 @@ export default defineComponent({
     ToggleableComponent,
     DropdownTextInputConcatenator,
     RoleGroupBuilder,
-    PropertyBuilder
+    PropertyBuilder,
+    TermCodeEditor
   }
 });
 </script>

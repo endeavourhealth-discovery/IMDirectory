@@ -149,7 +149,8 @@ const {
   updateValidationCheckStatus,
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus,
-  validationChecksCompleted
+  validationChecksCompleted,
+  checkValidity
 } = setupValidity(shape.value);
 const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
 
@@ -171,7 +172,7 @@ const forceValidation = ref(false);
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
 provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
-provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity });
+provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
 provide(injectionKeys.forceValidation, {
   forceValidation,
   validationCheckStatus,

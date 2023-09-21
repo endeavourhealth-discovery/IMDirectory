@@ -217,7 +217,8 @@ const DataModelShape: FormGenerator = {
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
-              }
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
             {
               label: "Property group - Is contained in array builder",
@@ -262,7 +263,8 @@ const DataModelShape: FormGenerator = {
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
-              }
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
             {
               comment: "Toggle controlling sub components visibility",

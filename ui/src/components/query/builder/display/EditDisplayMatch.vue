@@ -349,7 +349,7 @@ function getSingleRCOptions() {
       }
     };
 
-    if (isDataModel.value || hasProperty.value) singleRCOptions.splice(0, 1, editOption);
+    if (isDataModel.value) singleRCOptions.splice(0, 1, editOption);
     else if (hasValue.value) singleRCOptions.splice(1, 0, editOption);
   }
 

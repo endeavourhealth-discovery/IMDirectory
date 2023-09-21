@@ -57,11 +57,31 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
       showValidation.value = true;
     }
   });
+}
+
+if (valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        if (props.shape.builderChild) {
+          hasData();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        }
+        showValidation.value = true;
+      }
+    }
+  );
 }
 
 let key = props.shape.path["@id"];
@@ -77,11 +97,16 @@ watch(userInput, async newValue => {
     updateEntity(newValue);
     updateValueVariableMap(newValue);
     if (updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      }
       showValidation.value = true;
     }
   }
 });
+
 onMounted(async () => {
   await init();
 });
@@ -157,6 +182,16 @@ function updateValueVariableMap(data: string) {
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !userInput.value) return;
+  if (!userInput.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required. ";
+  }
 }
 </script>
 
