@@ -15,7 +15,7 @@
           <div v-for="(row, rIndex) in rg">
             <div v-if="row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow">
               <AutoComplete
-                class="propertyPath"
+                class="roleProperty"
                 :dropdown="true"
                 dropdownMode="current"
                 optionLabel="name"
@@ -372,7 +372,7 @@ div.error-message {
   align-items: center;
 }
 
-.propertyPath {
+.roleProperty {
   display: flex;
   flex: 1;
 }
