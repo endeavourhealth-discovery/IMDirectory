@@ -1,8 +1,7 @@
 <template>
   <div class="property-builder">
     <h2 class="title">Properties</h2>
-    <div :class="validationErrorMessage ? 'error-message' : ''">
-      <span v-if="validationErrorMessage" class="error-message">{{ validationErrorMessage }}</span>
+    <div class="error-message-container" :class="validationErrorMessage ? 'error-message-container-highlight' : ''">
       <div class="children-container">
         <div v-for="(row, index) in dmProperties" class="property">
           <AutoComplete
@@ -14,10 +13,12 @@
             v-model="row.path"
             :suggestions="pathSuggestions"
             @complete="searchPath"
-            @drop="pathDrop($event, row)"
-            @itemSelect="selectPath($event, row)"
+            @drop="pathDrop(row, $event)"
+            @itemSelect="selectPath(row, $event)"
+            @clear="selectPath(row)"
             @dragover.prevent
             @dragenter.prevent
+            :disabled="row.inherited && row.inherited.length > 0"
           ></AutoComplete>
           <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
           <AutoComplete
@@ -29,21 +30,33 @@
             v-model="row.range"
             :suggestions="rangeSuggestions"
             @complete="searchRange"
-            @drop="rangeDrop($event, row)"
-            @itemSelect="selectRange($event, row)"
+            @drop="rangeDrop(row, $event)"
+            @itemSelect="selectRange(row, $event)"
+            @clear="selectRange(row)"
             @dragover.prevent
             @dragenter.prevent
+            :disabled="row.inherited && row.inherited.length > 0"
           ></AutoComplete>
-          <ToggleButton class="toggle-button" v-model="row.required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
-          <ToggleButton class="toggle-button" v-model="row.unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
-          <Button icon="pi pi-chevron-up" class="p-button-rounded p-button-text" @click="moveUp(index)" />
-          <Button icon="pi pi-chevron-down" class="p-button-rounded p-button-text" @click="moveDown(index)" />
-          <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
+          <span v-if="row.inherited && row.inherited.length > 0">(Inherited)</span>
+          <span v-else>
+            <ToggleButton class="toggle-button" v-model="row.required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
+            <ToggleButton class="toggle-button" v-model="row.unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+            <Button
+              icon="pi pi-chevron-up"
+              class="p-button-rounded p-button-text"
+              @click="moveUp(index)"
+              :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
+            />
+            <Button icon="pi pi-chevron-down" class="p-button-rounded p-button-text" @click="moveDown(index)" :disabled="index == dmProperties.length - 1" />
+            <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
+          </span>
+          <div v-if="row.error" class="error-message-text">{{ row.error }}</div>
         </div>
         <div class="buttonGroup">
           <Button icon="pi pi-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
         </div>
       </div>
+      <span v-if="validationErrorMessage" class="error-message-text">{{ validationErrorMessage }}</span>
     </div>
   </div>
 </template>
@@ -75,6 +88,8 @@ interface SimpleProp {
   rangeType: string;
   required: boolean;
   unique: boolean;
+  inherited: TTIriRef[] | undefined;
+  error: string | undefined;
 }
 
 const toast = useToast();
@@ -82,9 +97,10 @@ const props = defineProps<Props>();
 const directService = new DirectService();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
-// const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-// const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
-// const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 if (forceValidation) {
   watch(forceValidation, () => {
@@ -98,6 +114,8 @@ const pathSuggestions: Ref<TTIriRef[]> = ref([]);
 const rangeSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
+
+const key = props.shape.path["@id"];
 
 watch(
   () => _.cloneDeep(props.value),
@@ -124,31 +142,30 @@ function processProps() {
 }
 
 function processProperty(newData: any[], property: any) {
-  if (!property[IM.INHERITED_FROM]) {
-    let rangeType = "";
-    if (property[SHACL.DATATYPE]) {
-      rangeType = SHACL.DATATYPE;
-    } else if (property[SHACL.CLASS]) {
-      rangeType = SHACL.CLASS;
-    } else if (property[SHACL.NODE]) {
-      rangeType = SHACL.NODE;
-    } else {
-      validationErrorMessage.value = "Unhandled property range (" + property[SHACL.PATH] + ")";
-      return;
-    }
-
-    newData.push({
-      path: property[SHACL.PATH]?.[0],
-      range: property[rangeType][0],
-      rangeType: rangeType,
-      required: property[SHACL.MINCOUNT] != 0,
-      unique: property[SHACL.MAXCOUNT] != 0
-    });
+  let rangeType = "";
+  if (property[SHACL.DATATYPE]) {
+    rangeType = SHACL.DATATYPE;
+  } else if (property[SHACL.CLASS]) {
+    rangeType = SHACL.CLASS;
+  } else if (property[SHACL.NODE]) {
+    rangeType = SHACL.NODE;
+  } else {
+    rangeType = "UNKNOWN";
   }
+
+  newData.push({
+    path: property[SHACL.PATH]?.[0],
+    range: property[rangeType]?.[0],
+    rangeType: rangeType,
+    required: property[SHACL.MINCOUNT] != 0,
+    unique: property[SHACL.MAXCOUNT] != 0,
+    inherited: property[IM.INHERITED_FROM]
+  });
 }
 
 function addProperty() {
   dmProperties.value.push({} as SimpleProp);
+  update();
 }
 
 function deleteProperty(index: number) {
@@ -210,22 +227,23 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
     ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
   }
-  ps.push({ "@id": "", name: "<Create new path>" });
+  ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
 }
 
-async function selectPath(event: AutoCompleteItemSelectEvent, row: any) {
-  if (event?.value?.["@id"]) {
-    await update();
-  } else {
+async function selectPath(row: any, event?: AutoCompleteItemSelectEvent) {
+  if (!event) {
+    row.path = { "@id": "", name: "" };
+  } else if ("<CREATE>" == event?.value?.["@id"]) {
     row.path = { "@id": "", name: "" };
     directService.create(RDF.PROPERTY);
   }
+  await update();
 }
 
-async function pathDrop(event: any, object: any) {
-  const data = event.dataTransfer.getData("conceptIri");
-  if (data) {
+async function pathDrop(object: any, event: DragEvent) {
+  if (event.dataTransfer) {
+    const data = event.dataTransfer.getData("conceptIri");
     const conceptIri = JSON.parse(data);
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
 
@@ -294,27 +312,31 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
     ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
   }
 
-  ps.push({ "@id": "", name: "<Create new path>" });
+  ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   rangeSuggestions.value = ps;
 }
 
-async function selectRange(event: any, row: any) {
-  if (event?.value?.["@id"]) {
-    await update();
-  } else {
+async function selectRange(row: any, event?: AutoCompleteItemSelectEvent) {
+  if (!event) {
+    row.range = { "@id": "", name: "" };
+  } else if ("<CREATE>" == event?.value?.["@id"]) {
     row.range = { "@id": "", name: "" };
     directService.create();
+  } else {
+    row.rangeType = await getRangeType(event.value["@id"]);
   }
+  await update();
 }
 
-async function rangeDrop(event: any, object: any) {
-  const data = event.dataTransfer.getData("conceptIri");
-  if (data) {
+async function rangeDrop(object: any, event: DragEvent) {
+  if (event.dataTransfer) {
+    const data = event.dataTransfer.getData("conceptIri");
     const conceptIri = JSON.parse(data);
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
 
     if (await isValidRange(conceptIri)) {
       object.range = { "@id": conceptIri, name: conceptName } as TTIriRef;
+      object.rangeType = await getRangeType(conceptIri);
       await update();
     } else {
       toast.add({
@@ -325,6 +347,15 @@ async function rangeDrop(event: any, object: any) {
       });
     }
   }
+}
+
+async function getRangeType(iri: string) {
+  const partial = await EntityService.getPartialEntity(iri, [RDF.TYPE]);
+  const types: TTIriRef[] = partial?.[RDF.TYPE];
+
+  if (types.some(t => t["@id"] == IM.CONCEPT)) return SHACL.CLASS;
+  else if (types.some(t => t["@id"] == RDFS.DATATYPE)) return SHACL.DATATYPE;
+  else return SHACL.NODE;
 }
 
 async function isValidRange(iri: string): Promise<boolean> {
@@ -354,64 +385,59 @@ async function isValidRange(iri: string): Promise<boolean> {
 
 // Update/validation
 async function update() {
+  await updateEntity();
   await validateEntity();
-
-  if (!validationErrorMessage.value) updateEntity();
 }
 
 async function validateEntity() {
-  validationErrorMessage.value = undefined;
-
-  if (dmProperties.value.length == 0) {
-    validationErrorMessage.value = "Data models must have at least 1 property";
-  } else {
-    for (const prop of dmProperties.value) {
-      if (!prop?.path?.["@id"]) {
-        validationErrorMessage.value = "Invalid property path";
-        break;
-      }
-
-      if (!prop?.range?.["@id"]) {
-        validationErrorMessage.value = "Invalid property range";
-        break;
-      }
+  for (const row of dmProperties.value) {
+    row.error = undefined;
+    if (!row?.path?.["@id"]) {
+      row.error = "Property must have a path";
+    } else if (!row?.range?.["@id"]) {
+      row.error = "Property must have a range";
     }
   }
 
-  invalid.value = !(validationErrorMessage.value == undefined);
-
-  // if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+  if (updateValidationCheckStatus) await updateValidationCheckStatus(key);
 }
 
-function updateEntity() {
+async function updateEntity() {
   if (entityUpdate) {
     const deltas: any[] = [];
 
     dmProperties.value.forEach((value, index) => {
       const p: any = {};
       p[IM.ORDER] = index;
-      p[SHACL.PATH] = value.path;
-      p[value.rangeType] = value.range; // TODO: Add in type (datatype/class/node)
+      p[SHACL.PATH] = [value.path];
+      p[value.rangeType] = [value.range];
       p[SHACL.MINCOUNT] = value.required ? 1 : 0;
       p[SHACL.MAXCOUNT] = value.unique ? 1 : 0;
+      p[IM.INHERITED_FROM] = value.inherited;
 
       deltas.push(p);
     });
 
     const update: any = {};
-    update[RDF.PROPERTY] = deltas;
+    update[key] = deltas;
 
-    entityUpdate(update);
+    await entityUpdate(update);
   }
 }
 </script>
 
 <style scoped>
-span.error-message {
+.error-message-text {
   color: red;
 }
 
-div.error-message {
+.error-message-container {
+  padding: 0.3rem;
+}
+
+.error-message-container-highlight {
+  padding: 0.3rem;
   border: 1px solid red;
   border-radius: 3px;
 }

@@ -329,7 +329,11 @@ const DataModelShape: FormGenerator = {
               minCount: 1,
               componentType: {
                 "@id": IM.component.PROPERTY_BUILDER
-              }
+              },
+              validation: {
+                "@id": IM.validation.IS_PROPERTY
+              },
+              validationErrorMessage: "Invalid data model properties"
             }
           ]
         }

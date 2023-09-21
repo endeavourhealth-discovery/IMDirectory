@@ -1,6 +1,6 @@
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS, SHACL } from "@im-library/vocabulary";
 
 export default class Validator {
   constructor() {}
@@ -10,6 +10,7 @@ export default class Validator {
     if (iri === IM.validation.IS_DEFINITION) return this.isValidDefinition(data);
     if (iri === IM.validation.IS_IRI) return this.isValidIri(data);
     if (iri === IM.validation.IS_TERMCODE) return this.isValidTermcodes(data);
+    if (iri === IM.validation.IS_PROPERTY) return this.isValidProperties(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -82,6 +83,50 @@ export default class Validator {
         }
       }
     }
+    return { isValid: valid, message: message };
+  }
+
+  private isValidProperties(data: any) {
+    let valid = true;
+    let message: string | undefined = undefined;
+    const props: any[] = data[SHACL.PROPERTY];
+
+    if (!props || props.length == 0) {
+      valid = false;
+      message = "Data models must have at least 1 property";
+    } else {
+      for (const prop of props) {
+        if (!prop[SHACL.PATH]) {
+          valid = false;
+        } else {
+          const path = prop[SHACL.PATH].length ? prop[SHACL.PATH][0] : prop[SHACL.PATH];
+          if (!path?.["@id"]) {
+            valid = false;
+          }
+        }
+
+        if (prop[SHACL.NODE]) {
+          const range = prop[SHACL.NODE].length ? prop[SHACL.NODE][0] : prop[SHACL.NODE];
+          if (!range?.["@id"]) {
+            valid = false;
+          }
+        } else if (prop[SHACL.DATATYPE]) {
+          const range = prop[SHACL.DATATYPE].length ? prop[SHACL.DATATYPE][0] : prop[SHACL.DATATYPE];
+          if (!range?.["@id"]) {
+            valid = false;
+          }
+        } else if (prop[SHACL.CLASS]) {
+          const range = prop[SHACL.CLASS].length ? prop[SHACL.CLASS][0] : prop[SHACL.CLASS];
+          if (!range?.["@id"]) {
+            valid = false;
+          }
+        } else {
+          valid = false;
+        }
+      }
+      if (!valid) message = "One or more invalid properties";
+    }
+
     return { isValid: valid, message: message };
   }
 
