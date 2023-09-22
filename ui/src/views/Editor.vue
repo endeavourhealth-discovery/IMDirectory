@@ -335,7 +335,7 @@ function processEntityValue(property: PropertyShape) {
   if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!["@id"]])) {
     return editorEntity.value[property.path!["@id"]];
   }
-  return undefined;
+  return editorEntity.value;
 }
 </script>
 

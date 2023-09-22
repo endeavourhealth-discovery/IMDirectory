@@ -23,4 +23,5 @@ export class componentVocabulary {
   public static VERTICAL_LAYOUT = this.NAMESPACE + "VerticalLayout";
   public static DROPDOWN_TEXT_INPUT_CONCATENATOR = this.NAMESPACE + "dropdownTextInputConcatenator";
   public static ROLE_GROUP_BUILDER = this.NAMESPACE + "roleGroupBuilder";
+  public static CONCEPT_SUMMARY = this.NAMESPACE + "ConceptSummary";
 }

@@ -20,10 +20,12 @@ import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDef
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
+import ConceptSummary from "@/components/editor/shapeComponents/ConceptSummary.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   components: {
+    ConceptSummary,
     EntityComboBox,
     ArrayBuilder,
     ArrayBuilderWithDropdown,
