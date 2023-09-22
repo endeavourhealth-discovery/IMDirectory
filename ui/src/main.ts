@@ -87,6 +87,7 @@ import DynamicDialog from "primevue/dynamicdialog";
 import Image from "primevue/image";
 import InputNumber from "primevue/inputnumber";
 import Calendar from "primevue/calendar";
+import TreeSelect from "primevue/treeselect";
 import Inplace from "primevue/inplace";
 import TieredMenu from "primevue/tieredmenu";
 import TabMenu from "primevue/tabmenu";
@@ -181,6 +182,7 @@ const app = createApp(App)
   .component("InputNumber", InputNumber)
   .component("Inplace", Inplace)
   .component("TieredMenu", TieredMenu)
+  .component("TreeSelect", TreeSelect)
   .component("TabMenu", TabMenu);
 
 const sharedStore = useSharedStore();

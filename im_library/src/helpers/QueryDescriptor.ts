@@ -12,7 +12,6 @@ export function describeQuery(query: Query): Query {
     for (const [index, match] of describedQuery.match!.entries()) {
       describeMatch(match, index, "and");
     }
-  describedQuery.query;
   return describedQuery;
 }
 
@@ -51,9 +50,10 @@ export function describeProperty(property: Property, index: number, bool: Bool) 
 // getters
 export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
   let display = "";
-  display += getNameFromRef(match);
   if (match.orderBy) describeOrderByList(match.orderBy);
   if (match.inSet) display = getDisplayFromInSet(match.inSet);
+  if (match.typeOf) display = getNameFromRef(match.typeOf);
+  if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
   if (isPathMatch) display += " with";
   return display;
 }
@@ -188,7 +188,8 @@ export function getDisplayFromOperator(propertyDisplay: string, property: Proper
 export function getDisplayFromDateComparison(property: Property) {
   let display = "";
   if (property.value) {
-    if (property.operator) display += getDisplayFromOperatorForDate(property.operator);
+    if (property.value.includes("-") && property.operator === ">=") display += "within the last ";
+    else if (property.operator) display += getDisplayFromOperatorForDate(property.operator);
     display += getDisplayFromValueAndUnitForDate(property);
     if (property.relativeTo && "$referenceDate" !== property.relativeTo.parameter)
       display += " from " + (getDisplayFromNodeRef(property.relativeTo?.nodeRef) ?? getNameFromRef(property.relativeTo));
@@ -212,7 +213,7 @@ export function getDisplayFromVariable(nodeRef: string | undefined) {
 
 export function getDisplayFromValueAndUnitForDate(property: Property) {
   let display = "";
-  if (property.value) display += property.value + " ";
+  if (property.value) display += property.value.replace("-", "") + " ";
   if (property.unit) display += property.unit;
   return display;
 }

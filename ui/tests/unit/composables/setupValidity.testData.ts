@@ -42,7 +42,8 @@ export default {
     {
       checkCompleted: false,
       key: "http://endhealth.info/im#matchedTo"
-    }
+    },
+    { checkCompleted: false, key: "http://endhealth.info/im#hasTermCode" }
   ],
   testEntity: {
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" }],

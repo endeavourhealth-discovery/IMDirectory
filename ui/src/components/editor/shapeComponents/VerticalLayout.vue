@@ -21,6 +21,7 @@ import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableC
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
 import ConceptSummary from "@/components/editor/shapeComponents/ConceptSummary.vue";
+import TermCodeEditor from "./TermCodeEditor.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -37,7 +38,9 @@ export default defineComponent({
     TextInput,
     ToggleableComponent,
     DropdownTextInputConcatenator,
-    RoleGroupBuilder
+    RoleGroupBuilder,
+    ConceptSummary,
+    TermCodeEditor
   }
 });
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="property-input-container">
-    in
+    is
     <InputText type="text" @click="openDialog" placeholder="Value" v-model:model-value="selected.name" />
     <DirectorySearchDialog
       v-model:selected="selected"
@@ -27,7 +27,6 @@ import { cloneDeep } from "lodash";
 const emit = defineEmits({ onCancel: () => true, onSave: (_payload: ConceptSummary) => true, "update:selected": payload => true });
 
 interface Props {
-  queryTypeIri: string;
   editNode: Node;
   excludeEntailment?: boolean;
   rootEntities?: string[];

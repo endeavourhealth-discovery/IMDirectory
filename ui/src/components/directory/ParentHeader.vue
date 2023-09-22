@@ -8,7 +8,6 @@
         </h4>
       </div>
       <div class="entity-buttons-container">
-        <Button v-if="showSelectButton" :disabled="!isSelectableEntity" label="Select" @click="emit('entitySelected', entity['@id'])" />
         <ActionButtons
           :buttons="hasQueryDefinition ? ['runQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
           :iri="entity['@id']"
@@ -48,39 +47,32 @@ import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjec
 import ActionButtons from "@/components/shared/ActionButtons.vue";
 import TextWithLabel from "@/components/shared/generics/TextWithLabel.vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF } from "@im-library/vocabulary";
 import { getColourFromType, getFAIconFromType, isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { Ref, watch, ref, onMounted } from "vue";
-import { EntityService, QueryService } from "@/services";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { EntityService } from "@/services";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
-import { QueryRequest } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   entity: any;
-  showSelectButton?: boolean;
-  validationQuery?: QueryRequest;
 }
-const props = withDefaults(defineProps<Props>(), { showSelectButton: false });
-
+const props = defineProps<Props>();
 const emit = defineEmits({
   entitySelected: (_payload: string) => true,
   locateInTree: (_payload: string) => true,
   navigateTo: (_payload: string) => true
 });
-
 const hasQueryDefinition: Ref<boolean> = ref(false);
-const isSelectableEntity: Ref<boolean> = ref(false);
+
 onMounted(async () => {
   if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
-  isSelectableEntity.value = await getIsSelectableEntity();
 });
 
 watch(
   () => _.cloneDeep(props.entity),
   async () => {
     if (props.entity && isObjectHasKeys(props.entity, ["@id"])) hasQueryDefinition.value = await getHasQueryDefinition(props.entity["@id"]);
-    isSelectableEntity.value = await getIsSelectableEntity();
   }
 );
 
@@ -98,15 +90,6 @@ function getIcon(entity: any) {
 
 function getColour(entity: any) {
   return "color: " + getColourFromType(entity[RDF.TYPE]);
-}
-
-async function getIsSelectableEntity(): Promise<boolean> {
-  if (!props.validationQuery) return true;
-  const queryRequest = _.cloneDeep(props.validationQuery);
-  queryRequest.textSearch = props.entity[RDFS.LABEL];
-  const queryResults = await QueryService.queryIM(queryRequest);
-  if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
-  return queryResults.entities.some(item => item["@id"] === props.entity["@id"]);
 }
 </script>
 

@@ -2,12 +2,13 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap } from "@im-library/interfaces";
+import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 export default class EntityService {
   axios: any;
@@ -18,6 +19,35 @@ export default class EntityService {
     this.axios = axios;
     this.eclService = new EclService(axios);
     this.entityRepository = new EntityRepository();
+  }
+
+  public async getPropertyOptions(dataModelIri: string, dataTypeIri: string, key: string): Promise<TreeNode> {
+    const propertiesEntity = await this.getPartialEntity(dataModelIri, [SHACL.PROPERTY]);
+    if (!isObjectHasKeys(propertiesEntity.data, [SHACL.PROPERTY])) return {} as TreeNode;
+    const allProperties: any[] = propertiesEntity.data[SHACL.PROPERTY];
+    const validOptions = allProperties.filter(dmProperty => dmProperty[SHACL.DATATYPE] && dmProperty[SHACL.DATATYPE][0]["@id"] === dataTypeIri);
+    if (!isArrayHasLength(validOptions)) return {} as TreeNode;
+
+    const treeNode = {
+      key: key,
+      label: key + " (" + getNameFromRef({ "@id": dataModelIri }) + ")",
+      children: [] as TreeNode[],
+      selectable: false
+    } as TreeNode;
+
+    for (const property of validOptions) {
+      treeNode.children!.push({
+        key: key + "/" + property[SHACL.PATH][0]["@id"],
+        label: property[SHACL.PATH][0].name,
+        data: {
+          "@id": property[SHACL.PATH][0]["@id"],
+          nodeRef: key,
+          name: property[SHACL.PATH][0].name
+        }
+      } as TreeNode);
+    }
+
+    return treeNode;
   }
 
   public async getPartialEntity(iri: string, predicates: string[]): Promise<any> {

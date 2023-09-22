@@ -115,11 +115,31 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      }
       showValidation.value = true;
     }
   });
+}
+
+if (valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        if (props.shape.builderChild) {
+          hasData();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        }
+        showValidation.value = true;
+      }
+    }
+  );
 }
 
 watch(
@@ -260,7 +280,11 @@ async function itemSelected(value: ConceptSummary) {
     if (!props.shape.builderChild && key.value) {
       updateEntity(value);
       if (updateValidity) {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        if (props.shape.builderChild) {
+          hasData();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        }
         showValidation.value = true;
       }
     } else {
@@ -298,6 +322,16 @@ function showOptionsOverlay(event: any, data?: any) {
 function hideOptionsOverlay(event: any): void {
   optionsOP.value.hide(event);
   optionsOverlayLocation.value = {};
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !selectedResult.value) return;
+  if (!selectedResult.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Entity required.";
+  }
 }
 </script>
 

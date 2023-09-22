@@ -20,19 +20,22 @@
         />
       </TabPanel>
       <TabPanel header="JSON viewer">
-        <VueJsonPretty class="json" :path="'res'" :data="editorEntity" @click="handleClick" />
+        <VueJsonPretty class="json" :path="'res'" :data="editorEntityDisplay" @click="handleClick" />
       </TabPanel>
     </TabView>
   </div>
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, Ref } from "vue";
+import { onMounted, ref, Ref, watch } from "vue";
 import VueJsonPretty from "vue-json-pretty";
 import NavTree from "@/components/shared/NavTree.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import { ConceptSummary } from "@im-library/interfaces";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { IM } from "@im-library/vocabulary";
+import { cloneDeep } from "lodash";
 
 interface Props {
   editorEntity: any;
@@ -45,6 +48,23 @@ const searchLoading = ref(false);
 const activeIndex = ref(0);
 const selectedResult: Ref<ConceptSummary | undefined> = ref();
 const findInTreeIri = ref("");
+const editorEntityDisplay = ref();
+
+watch(
+  () => cloneDeep(props.editorEntity),
+  () => setEditorEntityDisplay()
+);
+
+onMounted(() => {
+  setEditorEntityDisplay();
+});
+
+function setEditorEntityDisplay() {
+  editorEntityDisplay.value = { ...props.editorEntity };
+  if (isObjectHasKeys(editorEntityDisplay.value, [IM.DEFINITION]) && typeof editorEntityDisplay.value[IM.DEFINITION] === "string") {
+    editorEntityDisplay.value[IM.DEFINITION] = JSON.parse(editorEntityDisplay.value[IM.DEFINITION]);
+  }
+}
 
 function openSearchPanel() {
   activeIndex.value = 1;

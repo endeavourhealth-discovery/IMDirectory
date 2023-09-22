@@ -31,5 +31,6 @@ export enum ComponentType {
   VERTICAL_LAYOUT = "VerticalLayout",
   DROPDOWN_TEXT_INPUT_CONCATENATOR = "DropdownTextInputConcatenator",
   ROLE_GROUP_BUILDER = "RoleGroupBuilder",
-  CONCEPT_SUMMARY = "ConceptSummary"
+  CONCEPT_SUMMARY = "ConceptSummary",
+  TERM_CODE_EDITOR = "TermCodeEditor"
 }
