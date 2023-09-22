@@ -3,55 +3,76 @@
     <h2 class="title">Properties</h2>
     <div class="error-message-container" :class="validationErrorMessage ? 'error-message-container-highlight' : ''">
       <div class="children-container">
-        <div v-for="(row, index) in dmProperties" class="property">
-          <AutoComplete
-            class="propertyPath"
-            :dropdown="true"
-            dropdownMode="current"
-            optionLabel="name"
-            placeholder="Select property"
-            v-model="row.path"
-            :suggestions="pathSuggestions"
-            @complete="searchPath"
-            @drop="pathDrop(row, $event)"
-            @itemSelect="selectPath(row, $event)"
-            @clear="selectPath(row)"
-            @dragover.prevent
-            @dragenter.prevent
-            :disabled="row.inherited && row.inherited.length > 0"
-          ></AutoComplete>
-          <IMFontAwesomeIcon class="icon" icon="fa-regular fa-arrow-right" />
-          <AutoComplete
-            class="propertyPath"
-            :dropdown="true"
-            dropdownMode="current"
-            optionLabel="name"
-            placeholder="Select range"
-            v-model="row.range"
-            :suggestions="rangeSuggestions"
-            @complete="searchRange"
-            @drop="rangeDrop(row, $event)"
-            @itemSelect="selectRange(row, $event)"
-            @clear="selectRange(row)"
-            @dragover.prevent
-            @dragenter.prevent
-            :disabled="row.inherited && row.inherited.length > 0"
-          ></AutoComplete>
-          <span v-if="row.inherited && row.inherited.length > 0">(Inherited)</span>
-          <span v-else>
-            <ToggleButton class="toggle-button" v-model="row.required" onLabel="Required" offLabel="Required" onIcon="pi pi-check" offIcon="pi pi-times" />
-            <ToggleButton class="toggle-button" v-model="row.unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
-            <Button
-              icon="pi pi-chevron-up"
-              class="p-button-rounded p-button-text"
-              @click="moveUp(index)"
-              :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
-            />
-            <Button icon="pi pi-chevron-down" class="p-button-rounded p-button-text" @click="moveDown(index)" :disabled="index == dmProperties.length - 1" />
-            <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
-          </span>
-          <div v-if="row.error" class="error-message-text">{{ row.error }}</div>
-        </div>
+        <table>
+          <template v-for="(row, index) in dmProperties" class="property">
+            <tr>
+              <td class="td-50">
+                <AutoComplete
+                  class="propertyPath"
+                  :dropdown="true"
+                  dropdownMode="current"
+                  optionLabel="name"
+                  placeholder="Select property"
+                  v-model="row.path"
+                  :suggestions="pathSuggestions"
+                  @complete="searchPath"
+                  @drop="pathDrop(row, $event)"
+                  @itemSelect="selectPath(row, $event)"
+                  @clear="selectPath(row)"
+                  @dragover.prevent
+                  @dragenter.prevent
+                  :disabled="row.inherited && row.inherited.length > 0"
+                ></AutoComplete>
+                <div v-if="row.error" class="error-message-text">{{ row.error }}</div>
+              </td>
+              <td class="td-50">
+                <AutoComplete
+                  class="propertyPath"
+                  :dropdown="true"
+                  dropdownMode="current"
+                  optionLabel="name"
+                  placeholder="Select range"
+                  v-model="row.range"
+                  :suggestions="rangeSuggestions"
+                  @complete="searchRange"
+                  @drop="rangeDrop(row, $event)"
+                  @itemSelect="selectRange(row, $event)"
+                  @clear="selectRange(row)"
+                  @dragover.prevent
+                  @dragenter.prevent
+                  :disabled="row.inherited && row.inherited.length > 0"
+                ></AutoComplete>
+              </td>
+              <td class="td-nw">
+                <tag v-if="row.inherited && row.inherited.length > 0" severity="warning">(Inherited)</tag>
+                <span v-else>
+                  <ToggleButton
+                    class="toggle-button"
+                    v-model="row.required"
+                    onLabel="Required"
+                    offLabel="Required"
+                    onIcon="pi pi-check"
+                    offIcon="pi pi-times"
+                  />
+                  <ToggleButton class="toggle-button" v-model="row.unique" onLabel="Unique" offLabel="Unique" onIcon="pi pi-check" offIcon="pi pi-times" />
+                  <Button
+                    icon="pi pi-chevron-up"
+                    class="p-button-rounded p-button-text"
+                    @click="moveUp(index)"
+                    :disabled="index == 0 || dmProperties[index - 1].inherited != undefined"
+                  />
+                  <Button
+                    icon="pi pi-chevron-down"
+                    class="p-button-rounded p-button-text"
+                    @click="moveDown(index)"
+                    :disabled="index == dmProperties.length - 1"
+                  />
+                  <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteProperty(index)" />
+                </span>
+              </td>
+            </tr>
+          </template>
+        </table>
         <div class="buttonGroup">
           <Button icon="pi pi-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
         </div>
@@ -131,6 +152,8 @@ onMounted(async () => {
 });
 
 function processProps() {
+  console.log("Process props");
+
   const newData: any[] = [];
   if (props.value && isArrayHasLength(props.value)) {
     for (const p of props.value) {
@@ -154,14 +177,25 @@ function processProperty(newData: any[], property: any) {
     rangeType = "UNKNOWN";
   }
 
-  newData.push({
+  const row: SimpleProp = {
     path: property[SHACL.PATH]?.[0],
     range: property[rangeType]?.[0],
     rangeType: rangeType,
     required: property[SHACL.MINCOUNT] != 0,
     unique: property[SHACL.MAXCOUNT] != 0,
-    inherited: property[IM.INHERITED_FROM]
-  });
+    inherited: property[IM.INHERITED_FROM],
+    error: undefined
+  };
+
+  if (!row?.path?.["@id"]) {
+    row.error = "Property must have a path";
+    console.log("Invalid path");
+  } else if (!row?.range?.["@id"]) {
+    row.error = "Property must have a range";
+    console.log("Invalid range");
+  }
+
+  newData.push(row);
 }
 
 function addProperty() {
@@ -226,7 +260,7 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
+    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
@@ -310,7 +344,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
+    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
 
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
@@ -386,20 +420,14 @@ async function isValidRange(iri: string): Promise<boolean> {
 
 // Update/validation
 async function update() {
+  console.log("Update");
+
   updateEntity();
   await validateEntity();
 }
 
 async function validateEntity() {
-  for (const row of dmProperties.value) {
-    row.error = undefined;
-    if (!row?.path?.["@id"]) {
-      row.error = "Property must have a path";
-    } else if (!row?.range?.["@id"]) {
-      row.error = "Property must have a range";
-    }
-  }
-
+  console.log("Validate entity");
   if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
   if (updateValidationCheckStatus) await updateValidationCheckStatus(key);
 }
@@ -423,6 +451,7 @@ function updateEntity() {
     const update: any = {};
     update[key] = deltas;
 
+    console.log("Update entity");
     entityUpdate(update);
   }
 }
@@ -457,5 +486,19 @@ function updateEntity() {
 
 .property > * {
   margin-right: 4px;
+}
+
+.propertyPath {
+  width: 100%;
+}
+
+.td-50 {
+  width: 50%;
+  vertical-align: top;
+}
+
+.td-nw {
+  white-space: nowrap;
+  vertical-align: top;
 }
 </style>
