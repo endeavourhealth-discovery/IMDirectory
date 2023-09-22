@@ -151,8 +151,6 @@ onMounted(async () => {
 });
 
 function processProps() {
-  console.log("Process props");
-
   const newData: any[] = [];
   if (props.value && isArrayHasLength(props.value)) {
     for (const p of props.value) {
@@ -188,10 +186,8 @@ function processProperty(newData: any[], property: any) {
 
   if (!row?.path?.["@id"]) {
     row.error = "Property must have a path";
-    console.log("Invalid path");
   } else if (!row?.range?.["@id"]) {
     row.error = "Property must have a range";
-    console.log("Invalid range");
   }
 
   newData.push(row);
@@ -420,14 +416,11 @@ async function isValidRange(iri: string): Promise<boolean> {
 
 // Update/validation
 async function update() {
-  console.log("Update");
-
   updateEntity();
   await validateEntity();
 }
 
 async function validateEntity() {
-  console.log("Validate entity");
   if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
   if (updateValidationCheckStatus) await updateValidationCheckStatus(key);
 }
@@ -451,7 +444,6 @@ function updateEntity() {
     const update: any = {};
     update[key] = deltas;
 
-    console.log("Update entity");
     entityUpdate(update);
   }
 }

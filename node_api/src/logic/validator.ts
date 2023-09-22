@@ -96,38 +96,34 @@ export default class Validator {
       message = "Data models must have at least 1 property";
     } else {
       for (const prop of props) {
-        if (!prop[SHACL.PATH]) {
-          valid = false;
-        } else {
-          const path = prop[SHACL.PATH].length ? prop[SHACL.PATH][0] : prop[SHACL.PATH];
-          if (!path?.["@id"]) {
-            valid = false;
-          }
-        }
+        if (!this.isValidIriOrIriList(prop[SHACL.PATH], 1, 1)) valid = false;
 
-        if (prop[SHACL.NODE]) {
-          const range = prop[SHACL.NODE].length ? prop[SHACL.NODE][0] : prop[SHACL.NODE];
-          if (!range?.["@id"]) {
-            valid = false;
-          }
-        } else if (prop[SHACL.DATATYPE]) {
-          const range = prop[SHACL.DATATYPE].length ? prop[SHACL.DATATYPE][0] : prop[SHACL.DATATYPE];
-          if (!range?.["@id"]) {
-            valid = false;
-          }
-        } else if (prop[SHACL.CLASS]) {
-          const range = prop[SHACL.CLASS].length ? prop[SHACL.CLASS][0] : prop[SHACL.CLASS];
-          if (!range?.["@id"]) {
-            valid = false;
-          }
-        } else {
+        if (
+          !this.isValidIriOrIriList(prop[SHACL.NODE], 1, 1) &&
+          !this.isValidIriOrIriList(prop[SHACL.DATATYPE], 1, 1) &&
+          !this.isValidIriOrIriList(prop[SHACL.CLASS], 1, 1)
+        )
           valid = false;
-        }
       }
+
       if (!valid) message = "One or more invalid properties";
     }
 
     return { isValid: valid, message: message };
+  }
+
+  private isValidIriOrIriList(value: any, minLength = 0, maxLength = 0) {
+    if (!value) {
+      return minLength == 0;
+    }
+
+    if (!value.length) value = [value];
+
+    if (value.length < minLength || value.length > maxLength) {
+      return false;
+    }
+
+    return value.every((pd: any) => pd?.["@id"]);
   }
 
   private isValidTermcodes(data: any): { isValid: boolean; message?: string } {
