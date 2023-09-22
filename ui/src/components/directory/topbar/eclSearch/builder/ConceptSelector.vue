@@ -3,7 +3,7 @@
     <AutoComplete
       :forceSelection="true"
       style="flex: 1"
-      input-style="flex:1"
+      :input-style="{ flex: 1 }"
       field="name"
       dataKey="iri"
       v-model="selected"
