@@ -26,7 +26,6 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   components: {
-    ConceptSummary,
     EntityComboBox,
     ArrayBuilder,
     ArrayBuilderWithDropdown,
