@@ -11,24 +11,13 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
   const directMatches: Match[] = [];
   const nestedMatches: Match[] = [];
 
-  const directProperties = treeNodeProperties.filter(prop => !isNestedProperty(prop));
-  const nestedProperties = treeNodeProperties.filter(prop => isNestedProperty(prop));
-
-  if (isArrayHasLength(directProperties)) {
-    const match: Match = { "@id": v4(), property: [] } as Match;
-    for (const directProperty of directProperties) {
-      if (isObjectHasKeys(directProperty, ["parent"]) && directProperty.parent.hasVariable) match.nodeRef = directProperty.parent.hasVariable;
-      match.property!.push(buildPropertyFromTreeNode(directProperty));
-    }
-    directMatches.push(match);
-  }
-
-  if (isArrayHasLength(nestedProperties)) {
-    for (const nestedProperty of nestedProperties) {
-      nestedMatches.push(buildNestedPropertyMatch(nestedProperty));
+  if (isArrayHasLength(treeNodeProperties)) {
+    for (const property of treeNodeProperties) {
+      const newMatch = buildNestedPropertyMatch(property);
+      if (isNestedProperty(property)) nestedMatches.push(newMatch);
+      else directMatches.push(newMatch);
     }
   }
-
   return { direct: directMatches, nested: nestedMatches };
 }
 
