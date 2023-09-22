@@ -85,7 +85,6 @@
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
 import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import { inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
@@ -389,6 +388,7 @@ async function getRangeType(iri: string) {
   const types: TTIriRef[] = partial?.[RDF.TYPE];
 
   if (types.some(t => t["@id"] == IM.CONCEPT)) return SHACL.CLASS;
+  else if (types.some(t => t["@id"] == IM.CONCEPT_SET)) return SHACL.CLASS;
   else if (types.some(t => t["@id"] == RDFS.DATATYPE)) return SHACL.DATATYPE;
   else return SHACL.NODE;
 }
