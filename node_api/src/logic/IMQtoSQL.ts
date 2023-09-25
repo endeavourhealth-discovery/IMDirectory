@@ -12,7 +12,7 @@ export class IMQtoSQL {
     }
 
     try {
-      const qry = new SqlQuery(definition.typeOf["@id"]!);
+      const qry = SqlQuery.create(definition.typeOf["@id"]!);
 
       for (const match of definition.match) {
         const subQry = this.convertMatchToQuery(qry, match);
@@ -55,10 +55,10 @@ export class IMQtoSQL {
 
   private createMatchQuery(match: Match, qry: SqlQuery) {
     if (match.typeOf?.["@id"] && match.typeOf["@id"] != qry.model) {
-      return new SqlQuery(match.typeOf["@id"], match.variable);
+      return qry.subQuery(match.typeOf["@id"], match.variable);
     } else if (match.nodeRef && match.nodeRef != qry.model) {
-      return new SqlQuery(match.nodeRef, match.variable);
-    } else return new SqlQuery(qry.model, match.variable);
+      return qry.subQuery(match.nodeRef, match.variable);
+    } else return qry.subQuery(qry.model, match.variable);
   }
 
   private convertMatch(match: Match, qry: SqlQuery) {
@@ -84,7 +84,7 @@ export class IMQtoSQL {
 
     const innerSql = qry.alias + "_inner AS (" + inner.toSql(2) + ")";
 
-    const partition = new SqlQuery(qry.alias + "_inner", qry.alias + "_part");
+    const partition = qry.subQuery(qry.alias + "_inner", qry.alias + "_part");
     const partField = "patient";
 
     const dir = order.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
@@ -185,24 +185,25 @@ export class IMQtoSQL {
       let where = qry.getFieldName(property["@id"]!);
 
       if (direct.length == 1) where += " = '" + direct[0] + "'\n";
-      else where += " IN ('" + direct.join("', '") + "')\n";
+      else where += " IN ('" + direct.join("',\n'") + "')\n";
 
       qry.wheres.push(where);
     }
 
+    const tct = "tct_" + qry.joins.length;
     if (descendants.length > 0) {
-      qry.joins.push("JOIN tct ON tct.child = " + qry.getFieldName(property["@id"]!));
-      qry.wheres.push(descendants.length == 1 ? "tct.iri = '" + descendants[0] + "'" : "tct.iri IN ('" + descendants.join("', '") + "') AND tct.level > 0");
-    }
-
-    if (descendantsSelf.length > 0) {
-      qry.joins.push("JOIN tct ON tct.child = " + qry.getFieldName(property["@id"]!));
-      qry.wheres.push(descendantsSelf.length == 1 ? "tct.iri = '" + descendantsSelf[0] + "'" : "tct.iri IN ('" + descendantsSelf.join("', '") + "')");
-    }
-
-    if (ancestors.length > 0) {
-      qry.joins.push("JOIN tct ON tct.iri = " + qry.getFieldName(property["@id"]!));
-      qry.wheres.push(ancestors.length == 1 ? "tct.child = '" + ancestors[0] + "'" : "tct.chilf IN ('" + ancestors.join("', '") + "') AND tct.level > 0");
+      qry.joins.push("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property["@id"]!));
+      qry.wheres.push(
+        descendants.length == 1 ? tct + ".iri = '" + descendants[0] + "'" : tct + ".iri IN ('" + descendants.join("',\n'") + "') AND " + tct + ".level > 0"
+      );
+    } else if (descendantsSelf.length > 0) {
+      qry.joins.push("JOIN tct AS " + tct + " ON " + tct + ".child = " + qry.getFieldName(property["@id"]!));
+      qry.wheres.push(descendantsSelf.length == 1 ? tct + ".iri = '" + descendantsSelf[0] + "'" : tct + ".iri IN ('" + descendantsSelf.join("',\n'") + "')");
+    } else if (ancestors.length > 0) {
+      qry.joins.push("JOIN tct AS " + tct + " ON " + tct + ".iri = " + qry.getFieldName(property["@id"]!));
+      qry.wheres.push(
+        ancestors.length == 1 ? tct + ".child = '" + ancestors[0] + "'" : tct + ".child IN ('" + ancestors.join("',\n'") + "') AND " + tct + ".level > 0"
+      );
     }
   }
 
@@ -265,8 +266,8 @@ export class IMQtoSQL {
 
     qry.joins.push("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".member = " + qry.getFieldName(property["@id"]));
 
-    if (inList.length == 1) qry.wheres.push(mmbrTbl + ".iri = '" + inList.join("', '") + "'");
-    else qry.wheres.push(mmbrTbl + ".iri IN ('" + inList.join("', '") + "')");
+    if (inList.length == 1) qry.wheres.push(mmbrTbl + ".iri = '" + inList.join("',\n'") + "'");
+    else qry.wheres.push(mmbrTbl + ".iri IN ('" + inList.join("',\n'") + "')");
   }
 
   private convertMatchPropertyRelative(qry: SqlQuery, property: Property) {

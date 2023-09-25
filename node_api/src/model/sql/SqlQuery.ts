@@ -6,6 +6,13 @@ import { Relationship } from "@/model/sql/Relationship";
 export class SqlQuery {
   private static aliasIndex = 0;
 
+  public static create(model: string, variable?: string): SqlQuery {
+    this.aliasIndex = 0;
+    let result: SqlQuery = new SqlQuery();
+    result.initialize(model, variable);
+    return result;
+  }
+
   withs: string[] = [];
   selects: string[] = [];
   model: string = "";
@@ -16,8 +23,10 @@ export class SqlQuery {
   wheres: string[] = [];
   dependencies: string[] = [];
 
-  constructor(model: string, variable?: string) {
-    this.initialize(model, variable);
+  public subQuery(model: string, variable?: string): SqlQuery {
+    let result: SqlQuery = new SqlQuery();
+    result.initialize(model, variable);
+    return result;
   }
 
   public initialize(model: string, variable?: string) {
@@ -130,7 +139,7 @@ export class SqlQuery {
   public clone(alias: string): SqlQuery {
     const from = this.alias + ".";
     const to = alias + ".";
-    const clone = new SqlQuery(this.model, alias);
+    const clone = this.subQuery(this.model, alias);
     clone.withs.push(...this.withs);
     clone.selects.push(...this.selects.map(j => j.replaceAll(from, to)));
     clone.joins.push(...this.joins.map(j => j.replaceAll(from, to)));

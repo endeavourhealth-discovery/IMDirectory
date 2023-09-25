@@ -31,6 +31,17 @@
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient", "toField": "id"}
       }
+    },
+    "http://endhealth.info/im#Prescription": {
+      "table": "event",
+      "condition": "{alias}.event_type = 'MedicationRequest'",
+      "fields": {
+        "http://endhealth.info/im#concept": { "field": "concept", "type": "iri" },
+        "http://endhealth.info/im#effectiveDate": { "field": "effective_date", "type": "date" }
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "patient", "toField": "id"}
+      }
     }
   }
 }
