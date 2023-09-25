@@ -182,25 +182,13 @@ export const nestedProperty = {
 };
 
 export const observationNestedProperty = {
-  match: {
-    property: [
-      {
-        "@id": "http://endhealth.info/im#observation",
-        match: {
-          typeOf: {
-            "@id": "http://endhealth.info/im#Observation"
-          },
-          property: [
-            {
-              "@id": "http://endhealth.info/im#value",
-              operator: "=",
-              value: "",
-              key: "0-0-1"
-            }
-          ]
-        }
-      }
-    ]
+  property: {
+    "@id": "http://endhealth.info/im#observation",
+    match: {
+      "@id": "123456789",
+      typeOf: { "@id": "http://endhealth.info/im#Observation" },
+      property: [{ "@id": "http://endhealth.info/im#value", operator: "=", value: "", key: "0-0-1" }]
+    }
   },
   treeNode: {
     label: "value",
@@ -255,35 +243,22 @@ export const observationNestedProperty = {
 };
 
 export const odsCodeNestedProperty = {
-  match: {
-    property: [
-      {
-        "@id": "http://endhealth.info/im#observation",
-        match: {
-          typeOf: {
-            "@id": "http://endhealth.info/im#Observation"
-          },
-          property: [
-            {
-              "@id": "http://endhealth.info/im#recordOwner",
-              match: {
-                typeOf: {
-                  "@id": "http://endhealth.info/im#Organisation"
-                },
-                property: [
-                  {
-                    "@id": "http://endhealth.info/im#odsCode",
-                    operator: "=",
-                    value: "",
-                    key: "0-0-1"
-                  }
-                ]
-              }
-            }
-          ]
+  property: {
+    "@id": "http://endhealth.info/im#observation",
+    match: {
+      "@id": "123456789",
+      typeOf: { "@id": "http://endhealth.info/im#Observation" },
+      property: [
+        {
+          "@id": "http://endhealth.info/im#recordOwner",
+          match: {
+            "@id": "123456789",
+            typeOf: { "@id": "http://endhealth.info/im#Organisation" },
+            property: [{ "@id": "http://endhealth.info/im#odsCode", operator: "=", value: "", key: "0-0-1" }]
+          }
         }
-      }
-    ]
+      ]
+    }
   },
   treeNode: {
     key: "0-0-1",

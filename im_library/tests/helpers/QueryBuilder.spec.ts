@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { isNestedProperty, getParentPath, gatherParentPathRecursively, buildProperty } from "@/helpers/QueryBuilder";
-import { fullTestQueryDefinition, match, where } from "./Query.testData";
-import { treeNodeProperty, nestedProperty, observationNestedProperty, odsCodeNestedProperty } from "./QueryBuilder.testData";
-import { Match } from "@/interfaces/AutoGen";
+import { describe, expect, it, vi } from "vitest";
+import { isNestedProperty, buildProperty } from "@/helpers/QueryBuilder";
+import { treeNodeProperty, observationNestedProperty, odsCodeNestedProperty } from "./QueryBuilder.testData";
+import { v4 } from "uuid";
+
+vi.mock("uuid", () => ({ v4: () => "123456789" }));
 
 describe("QueryBuilder.ts ___", () => {
   describe("isNestedProperty", () => {
@@ -11,9 +12,9 @@ describe("QueryBuilder.ts ___", () => {
       expect(result).toEqual(false);
     });
 
-    it("returns false if direct property of nodeRef", () => {
+    it("returns true if nested property of nodeRef", () => {
       const result = isNestedProperty(treeNodeProperty.nodeRefProperty as any);
-      expect(result).toEqual(false);
+      expect(result).toEqual(true);
     });
 
     it("returns true if nested property", () => {
@@ -22,57 +23,15 @@ describe("QueryBuilder.ts ___", () => {
     });
   });
 
-  describe("gatherParentPathRecursively", () => {
-    it("returns paths of a direct property", () => {
-      const path = [];
-      gatherParentPathRecursively(treeNodeProperty.directFolderProperty as any, path);
-      expect(path.length).toEqual(1);
-      expect(path[0]).toEqual("Patient");
-    });
-
-    it("returns paths of a direct nodeRef property", () => {
-      const path = [];
-      gatherParentPathRecursively(treeNodeProperty.nodeRefProperty as any, path);
-      expect(path.length).toEqual(1);
-      expect(path[0]).toEqual("latestBP (Observation)");
-    });
-
-    it("returns paths of a nested property", () => {
-      const path = [];
-      gatherParentPathRecursively(treeNodeProperty.nestedProperty as any, path);
-      expect(path.length).toEqual(3);
-      expect(path[0]).toEqual("Address");
-      expect(path[1]).toEqual("homeAddress");
-      expect(path[2]).toEqual("Patient");
-    });
-  });
-
-  describe("getParentPath", () => {
-    it("returns path of a direct property", () => {
-      const path = getParentPath(treeNodeProperty.directFolderProperty as any);
-      expect(path).toEqual("Patient");
-    });
-
-    it("returns path of a direct nodeRef property", () => {
-      const path = getParentPath(treeNodeProperty.nodeRefProperty as any);
-      expect(path).toEqual("latestBP (Observation)");
-    });
-
-    it("returns path of a nested property", () => {
-      const path = getParentPath(treeNodeProperty.nestedProperty as any);
-      expect(path).toEqual("Address/homeAddress/Patient");
-    });
-  });
-
   describe("buildNestedPropertyMatch", () => {
     it("returns match with parent structure", () => {
       const nestedPropertyMatch = buildProperty(observationNestedProperty.treeNode as any);
-      expect(nestedPropertyMatch).toStrictEqual(observationNestedProperty.match);
+      expect(nestedPropertyMatch).toEqual(observationNestedProperty.property);
     });
 
     it("returns multi-level match with parent structure", () => {
       const nestedPropertyMatch = buildProperty(odsCodeNestedProperty.treeNode as any);
-      expect(nestedPropertyMatch).toStrictEqual(odsCodeNestedProperty.match);
+      expect(nestedPropertyMatch).toEqual(odsCodeNestedProperty.property);
     });
   });
 });
