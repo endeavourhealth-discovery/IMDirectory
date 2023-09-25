@@ -20,9 +20,10 @@ function setupQueryBuilderActions() {
     switch (addMode.value) {
       case "editProperty":
         if (!isArrayHasLength(match.property) || !isArrayHasLength(direct)) match.property = [];
-        for (const newMatch of direct) {
-          match.property = newMatch.property;
-        }
+        if (isArrayHasLength(parentMatchList))
+          for (const newMatch of direct) {
+            parentMatchList?.push(newMatch);
+          }
 
         if (!isArrayHasLength(match.match) && isArrayHasLength(nested)) match.match = [];
         for (const newMatch of nested) {

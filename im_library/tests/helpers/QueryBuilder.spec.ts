@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isNestedProperty, getParentPath, gatherParentPathRecursively, buildNestedPropertyMatch } from "@/helpers/QueryBuilder";
+import { isNestedProperty, getParentPath, gatherParentPathRecursively, buildProperty } from "@/helpers/QueryBuilder";
 import { fullTestQueryDefinition, match, where } from "./Query.testData";
 import { treeNodeProperty, nestedProperty, observationNestedProperty, odsCodeNestedProperty } from "./QueryBuilder.testData";
 import { Match } from "@/interfaces/AutoGen";
@@ -66,12 +66,12 @@ describe("QueryBuilder.ts ___", () => {
 
   describe("buildNestedPropertyMatch", () => {
     it("returns match with parent structure", () => {
-      const nestedPropertyMatch = buildNestedPropertyMatch(observationNestedProperty.treeNode as any);
+      const nestedPropertyMatch = buildProperty(observationNestedProperty.treeNode as any);
       expect(nestedPropertyMatch).toStrictEqual(observationNestedProperty.match);
     });
 
     it("returns multi-level match with parent structure", () => {
-      const nestedPropertyMatch = buildNestedPropertyMatch(odsCodeNestedProperty.treeNode as any);
+      const nestedPropertyMatch = buildProperty(odsCodeNestedProperty.treeNode as any);
       expect(nestedPropertyMatch).toStrictEqual(odsCodeNestedProperty.match);
     });
   });

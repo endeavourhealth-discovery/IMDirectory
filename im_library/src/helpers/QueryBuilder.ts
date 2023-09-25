@@ -12,10 +12,25 @@ export function buildMatchesFromProperties(treeNodeProperties: TreeNode[]): { di
   const nestedMatches: Match[] = [];
 
   if (isArrayHasLength(treeNodeProperties)) {
-    for (const property of treeNodeProperties) {
-      const newMatch = buildNestedPropertyMatch(property);
-      if (isNestedProperty(property)) nestedMatches.push(newMatch);
-      else directMatches.push(newMatch);
+    const parentHierarchyMap = new Map<string, TreeNode[]>();
+
+    // build properties from tree nodes
+    for (const treeNodeProperty of treeNodeProperties) {
+      const parentHierarchy = JSON.stringify(treeNodeProperty.parent);
+      if (!parentHierarchyMap.has(parentHierarchy)) parentHierarchyMap.set(parentHierarchy, []);
+      parentHierarchyMap.get(parentHierarchy)!.push(treeNodeProperty);
+    }
+
+    // map properties to matches
+    for (const [parentHierarchy, treeNodeProperties] of parentHierarchyMap.entries()) {
+      const matchProperties = treeNodeProperties.map(treeNodeProperty => buildProperty(treeNodeProperties));
+      const match = { "@id": v4(), property: matchProperties } as Match;
+
+      const hasVariableTreeNode = treeNodeProperties.find(treeNodeProperty => getHasVariable(treeNodeProperty));
+      if (hasVariableTreeNode) match.nodeRef = getHasVariable(hasVariableTreeNode);
+
+      if (isNestedProperty(treeNodeProperties[0])) nestedMatches.push(match);
+      else directMatches.push(match);
     }
   }
   return { direct: directMatches, nested: nestedMatches };
@@ -40,8 +55,10 @@ function getHasVariableRecursively(treeNode: TreeNode, hasVariable: string[]) {
   if (isObjectHasKeys(treeNode, ["parent"])) getHasVariableRecursively(treeNode.parent, hasVariable);
 }
 
-export function buildNestedPropertyMatch(treeNode: TreeNode) {
+export function buildProperty(treeNodes: TreeNode[]) {
+  const treeNode = treeNodes[0];
   const flatList: TreeNode[] = [];
+  let lastMatch: Match | undefined = undefined;
   populateFlatListOfNodesRecursively(flatList, treeNode);
   let currentMatchOrProperty = {};
   for (const [index, treeNode] of flatList.entries()) {
@@ -51,6 +68,7 @@ export function buildNestedPropertyMatch(treeNode: TreeNode) {
       currentMatchOrProperty = parentProperty;
     } else if (isRecordModel(treeNode.conceptTypes)) {
       const parentMatch = { typeOf: { "@id": treeNode.data }, property: [cloneDeep(currentMatchOrProperty)] };
+      if (flatList.length >= 2 && index === flatList.length - 2) lastMatch = parentMatch;
       currentMatchOrProperty = parentMatch;
     } else if (isProperty(treeNode.conceptTypes)) {
       const parentProperty: any = { "@id": treeNode.data };
@@ -59,14 +77,16 @@ export function buildNestedPropertyMatch(treeNode: TreeNode) {
     }
   }
 
-  const match = { "@id": v4(), property: [currentMatchOrProperty] } as Match;
-  const hasVariable = getHasVariable(treeNode);
-  if (hasVariable) match.nodeRef = hasVariable;
-  return match;
+  if (lastMatch && treeNodes.length > 1)
+    for (const [index, treeNode] of treeNodes.entries()) {
+      if (index) lastMatch!.property!.push(buildPropertyFromTreeNode(treeNode));
+    }
+
+  return currentMatchOrProperty as Property;
 }
 
 function populateFlatListOfNodesRecursively(flatList: TreeNode[], treeNode: TreeNode) {
-  const isRoot = treeNode.parent.key === "0";
+  const isRoot = treeNode.parent ? treeNode.parent.key === "0" : true;
   if (!isFolder(treeNode.conceptTypes) && !isRoot) flatList.push(treeNode);
   if (treeNode.parent && !isRoot) populateFlatListOfNodesRecursively(flatList, treeNode.parent);
 }
