@@ -65,11 +65,31 @@ const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updat
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation && updateValidity) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
-      if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key.value);
+      }
       showValidation.value = true;
     }
   });
+}
+
+if (valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        if (props.shape.builderChild) {
+          hasData();
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        }
+        showValidation.value = true;
+      }
+    }
+  );
 }
 
 watch(
@@ -93,16 +113,16 @@ const showValidation = ref(false);
 const showDialog = ref(false);
 const queryRequest: Ref<QueryRequest | undefined> = ref(undefined);
 
-watch( selectedResult, (newValue, oldValue) => {
-  if(newValue && !_.isEqual(newValue, oldValue)) updateSelectedResult(newValue)
-})
+watch(selectedResult, (newValue, oldValue) => {
+  if (newValue && !_.isEqual(newValue, oldValue)) updateSelectedResult(newValue);
+});
 
 async function init() {
   if (isObjectHasKeys(props.shape, ["path"])) key.value = props.shape.path!["@id"];
   if (isObjectHasKeys(props.shape, ["select"]) && isArrayHasLength(props.shape.select) && props.shape.select) {
     queryRequest.value = { query: { "@id": props.shape.select[0]["@id"] } };
   } else queryRequest.value = undefined;
-  if(isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
+  if (isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
     queryRequest.value.argument = props.shape.argument;
   }
   if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
@@ -132,7 +152,11 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
     emit("updateClicked", convertToTTIriRef(selectedResult.value));
   }
   if (updateValidity) {
-    await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+    if (props.shape.builderChild) {
+      hasData();
+    } else {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
+    }
     showValidation.value = true;
   }
   updateValueVariableMap(convertToTTIriRef(selectedResult.value));
@@ -158,6 +182,16 @@ async function dropReceived(event: any) {
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
     await updateSelectedResult(iriRef);
+  }
+}
+
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !isObjectHasKeys(selectedResult.value)) return;
+  if (!isObjectHasKeys(selectedResult.value)) {
+    invalid.value = true;
+    validationErrorMessage.value = "Entity is required";
   }
 }
 </script>
@@ -202,8 +236,8 @@ async function dropReceived(event: any) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 1.25rem;
-  padding: 0.625rem 0.625rem;
+  font-size: 1rem;
+  padding: 4px 4px;
   margin: 0;
   color: var(--text-color);
   background: var(--surface-a);

@@ -21,7 +21,7 @@ export function setupEditorShape() {
 
   function getShapesCombined(types: TTIriRef[], primaryType?: TTIriRef) {
     let shapeCombined: FormGenerator = {} as FormGenerator;
-    types = types.filter((item) => item["@id"] !== RDFS.CLASS);
+    types = types.filter(item => item["@id"] !== RDFS.CLASS);
     if (primaryType) {
       types.sort(function (x, y) {
         return x["@id"] == primaryType["@id"] ? -1 : y["@id"] == primaryType["@id"] ? 1 : 0;

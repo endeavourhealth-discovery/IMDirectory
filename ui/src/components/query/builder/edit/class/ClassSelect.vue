@@ -1,6 +1,6 @@
 <template>
   <div class="property-input-container">
-    <Dropdown :options="['in', 'notIn', 'isNull']" v-model:model-value="propertyType" />
+    <Dropdown :options="['is', 'isNot', 'isNull']" v-model:model-value="propertyType" />
     <InputText type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
     <Button label="Save custom set" text severity="info" />
   </div>
@@ -14,23 +14,14 @@
 </template>
 
 <script setup lang="ts">
-import { EntityService } from "@/services";
-import { isQuery, isRecordModel, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { IM, RDF } from "@im-library/vocabulary";
 import { onMounted, Ref, ref } from "vue";
 import EntailmentOptionsSelect from "../EntailmentOptionsSelect.vue";
-import ValueTreeSelect from "./ValueTreeSelect.vue";
-import ValueListSelect from "./ValueListSelect.vue";
-import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import _ from "lodash";
 import { Node, Property } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { N } from "vitest/dist/types-2b1c412e";
-import { buildMatchFromCS } from "@im-library/helpers/QueryBuilder";
-
-const emit = defineEmits({ onSelect: (payload: any) => payload });
+import { buildNodeFromCS } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   property: Property;
@@ -38,26 +29,17 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const propertyType: Ref<string> = ref("in");
+const propertyType: Ref<string> = ref("is");
 const visible: Ref<boolean> = ref(false);
-const showTree: Ref<boolean> = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
-const setType: Ref<string> = ref("set");
-const showSearchDialog: Ref<boolean> = ref(false);
 
 onMounted(async () => {
   initEditValues();
-  const entity = await EntityService.getPartialEntity(props.classIri, [RDF.TYPE, IM.DEFINITION]);
-  if (isQuery(entity[RDF.TYPE]) || (isValueSet(entity[RDF.TYPE]) && isObjectHasKeys(entity, [IM.DEFINITION]))) {
-    showTree.value = false;
-  } else {
-    showTree.value = true;
-  }
 });
 
 function initEditValues() {
-  if (isObjectHasKeys(props.property, ["notIn"])) propertyType.value = "notIn";
+  if (isObjectHasKeys(props.property, ["isNot"])) propertyType.value = "isNot";
   else if (isObjectHasKeys(props.property, ["null"])) propertyType.value = "isNull";
 
   if (propertyType.value && propertyType.value !== "isNull") {
@@ -70,7 +52,7 @@ function initEditValues() {
 
 function onSelect(cs: ConceptSummary) {
   visible.value = false;
-  const node = buildMatchFromCS(cs);
+  const node = buildNodeFromCS(cs);
 
   editValues.value[selectedIndex.value] = node;
 }
@@ -100,7 +82,6 @@ function deleteItem(index: number) {
 .property-input-container {
   display: flex;
   flex-wrap: wrap;
-  margin-left: 0.5rem;
   margin-bottom: 0.5rem;
   width: 100%;
   gap: 0.5rem;

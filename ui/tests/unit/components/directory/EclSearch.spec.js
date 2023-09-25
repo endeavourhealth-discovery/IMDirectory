@@ -101,8 +101,12 @@ describe("EclSearch.vue", async () => {
 
   it("handles >1000 results", async () => {
     const largeSearchResults = [];
-    for (let i = 1; i <= 1100; i++) {
-      largeSearchResults.push(fakerFactory.conceptSummary.create());
+    for (let i = 1; i <= 1100; ) {
+      const newSummary = fakerFactory.conceptSummary.create();
+      if (largeSearchResults.findIndex(sr => sr.iri === newSummary.iri) === -1) {
+        largeSearchResults.push(fakerFactory.conceptSummary.create());
+        i++;
+      }
     }
     mockECLSearch.mockResolvedValue({ count: largeSearchResults.length, page: 1, entities: largeSearchResults });
     const textbox = component.getByTestId("query-string");

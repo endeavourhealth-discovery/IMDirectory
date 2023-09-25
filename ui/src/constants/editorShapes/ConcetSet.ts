@@ -29,7 +29,7 @@ const ConceptSetShape: FormGenerator = {
       argument: [
         {
           parameter: "subGroup widths",
-          valueData: "50%,50%"
+          valueData: "40%,60%"
         }
       ],
       property: [
@@ -166,6 +166,7 @@ const ConceptSetShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
@@ -203,6 +204,7 @@ const ConceptSetShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
@@ -221,11 +223,6 @@ const ConceptSetShape: FormGenerator = {
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
                   },
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
                   path: {
                     "@id": RDFS.SUBCLASS_OF
                   }

@@ -26,7 +26,7 @@
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
           <ProgressSpinner v-if="node.loading" />
-          <span class="row-name" @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+          <span class="row-name" @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
         </div>
       </template>
     </Tree>
@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, watch, ComputedRef, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, Ref, watch, onMounted, onBeforeUnmount } from "vue";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import OverlaySummary from "./OverlaySummary.vue";
 import { useToast } from "primevue/usetoast";
@@ -54,13 +54,12 @@ import { IM } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
 import { TreeNode } from "primevue/tree";
 import setupTree from "@/composables/setupTree";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { useEditorStore } from "@/stores/editorStore";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useConfirm } from "primevue/useconfirm";
 import createNew from "@/composables/createNew";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   allowDragAndDrop?: boolean;
@@ -113,7 +112,7 @@ const newFolder: Ref<null | TreeNode> = ref(null);
 const newFolderName = ref("");
 
 const menu = ref();
-const OS = ref();
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 
 watch(
   () => props.selectedIri,
@@ -146,7 +145,7 @@ async function addParentFoldersToRoot() {
     const hasNode = !!root.value.find(node => node.data === IMchild["@id"]);
     if (!hasNode) root.value.push(createTreeNode(IMchild.name, IMchild["@id"], IMchild.type, IMchild.hasGrandChildren, null, IMchild.orderNumber));
   }
-  root.value.sort((r1,r2) => r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0);
+  root.value.sort((r1, r2) => (r1.order > r2.order ? 1 : r1.order < r2.order ? -1 : 0));
   const favNode = createTreeNode("Favourites", IM.NAMESPACE + "Favourites", [], false, null, undefined);
   favNode.typeIcon = ["fa-solid", "fa-star"];
   favNode.color = "var(--yellow-500)";
@@ -265,9 +264,9 @@ async function createFolder() {
   newFolder.value = null;
 }
 
-async function showOverlay(event: any, node: any): Promise<void> {
+async function displayOverlay(event: any, node: any): Promise<void> {
   if (node.data !== "loadMore" && node.data !== "http://endhealth.info/im#Favourites") {
-    await OS.value.showOverlay(event, node.key);
+    showOverlay(event, node.key);
   }
 }
 
@@ -278,10 +277,6 @@ function onNodeSelect(node: any): void {
     selectedNode.value = node;
     emit("rowSelected", node);
   }
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 
 function dragStart(event: any, data: any) {

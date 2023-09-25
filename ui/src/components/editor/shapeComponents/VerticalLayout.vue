@@ -20,7 +20,9 @@ import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDef
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
+import TermCodeEditor from "./TermCodeEditor.vue";
 import { defineComponent } from "vue";
+import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
 
 export default defineComponent({
   components: {
@@ -35,7 +37,9 @@ export default defineComponent({
     TextInput,
     ToggleableComponent,
     DropdownTextInputConcatenator,
-    RoleGroupBuilder
+    RoleGroupBuilder,
+    PropertyBuilder,
+    TermCodeEditor
   }
 });
 </script>
@@ -76,18 +80,11 @@ function setHeights() {
     const splitArgs = props.shape.argument[0].valueData?.split(",");
     if (splitArgs && splitArgs?.length) {
       heights.value = splitArgs;
-    } else {
-      if (isObjectHasKeys(props.shape, ["property"]))
-        for (let i = 0; i < props.shape.property!.length; i++) {
-          heights.value.push(100 / props.shape.property!.length + "%");
-        }
+      return;
     }
-  } else {
-    if (isObjectHasKeys(props.shape, ["property"]))
-      for (let i = 0; i < props.shape.property!.length; i++) {
-        heights.value.push("fit-content");
-      }
   }
+
+  if (isObjectHasKeys(props.shape, ["property"])) props.shape.property?.forEach(() => heights.value.push("fit-content"));
 }
 
 function processEntityValue(property: PropertyShape) {
@@ -116,6 +113,5 @@ function processEntityValue(property: PropertyShape) {
 
 .vertical-layout-container:deep(label) {
   display: block;
-  margin-bottom: 0.5rem !important;
 }
 </style>

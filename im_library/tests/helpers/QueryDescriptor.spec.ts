@@ -7,7 +7,7 @@ import {
   describeMatch,
   describeProperty
 } from "@/helpers/QueryDescriptor";
-import { Match, Node, OrderLimit, Property } from "@/interfaces/AutoGen";
+import { Match, OrderLimit, Property } from "@/interfaces/AutoGen";
 import { fullTestQueryDefinition, match, where, orderBy } from "./Query.testData";
 import _ from "lodash";
 
@@ -31,28 +31,22 @@ describe("QueryDescriptor.ts ___", () => {
   });
 
   describe("describeMatch", () => {
-    it("can describe a type match", () => {
+    it("can describe a type of match", () => {
       const testMatch: Match = _.cloneDeep(match.withType);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.description).toEqual("Patient");
+    });
+
+    it("can describe an instance match", () => {
+      const testMatch: Match = _.cloneDeep(match.withInstance);
+      describeMatch(testMatch, 0, "and");
+      expect(testMatch.description).toEqual("is instance of 325841000000109");
     });
 
     it("can describe a set match", () => {
       const testMatch: Match = _.cloneDeep(match.withSet);
       describeMatch(testMatch, 0, "and");
       expect(testMatch.description).toEqual("in 'CSET_EmailOnlineEncounter'");
-    });
-
-    it("can describe a concept match", () => {
-      const testMatch: Match = _.cloneDeep(match.withIri);
-      describeMatch(testMatch, 0, "and");
-      expect(testMatch.description).toEqual("325841000000109");
-    });
-
-    it("can describe a concept property with name", () => {
-      const testMatch: Match = _.cloneDeep(match.withName);
-      describeMatch(testMatch, 0, "and");
-      expect(testMatch.description).toEqual("Text message consultation");
     });
 
     it("can describe a concept property with DescendantsOrSelfOf", () => {

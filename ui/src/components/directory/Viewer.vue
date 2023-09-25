@@ -51,12 +51,12 @@
           </TabPanel>
           <TabPanel header="Contents">
             <div v-if="isObjectHasKeys(concept)" class="concept-panel-content" id="definition-container">
-              <Content :entityIri="entityIri" />
+              <Content :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Used in">
             <div class="concept-panel-content" id="usedin-container">
-              <UsedIn :entityIri="entityIri" />
+              <UsedIn :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Hierarchy position">
@@ -66,12 +66,12 @@
           </TabPanel>
           <TabPanel header="Entity chart" v-if="showGraph">
             <div class="concept-panel-content" id="entity-chart-container">
-              <EntityChart :entityIri="entityIri" />
+              <EntityChart :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Graph">
             <div class="concept-panel-content" id="graph-container">
-              <Graph :entityIri="entityIri" />
+              <Graph :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="JSON">

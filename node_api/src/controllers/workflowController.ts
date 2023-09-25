@@ -8,6 +8,7 @@ import { BugReport } from "@im-library/interfaces";
 import GithubService from "@/services/github.service";
 import { WORKFLOW } from "@im-library/vocabulary";
 import { WorkflowEnums } from "@im-library/enums";
+import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
 export default class WorkflowController {
   public path = "/node_api/workflow";
@@ -47,7 +48,8 @@ export default class WorkflowController {
   async createBugReport(req: Request) {
     const bugReport = req.body;
     bugReport.id = await this.workflowService.generateId();
-    bugReport.version = (await this.githubService.getLatestRelease("IMDirectory")).version;
+    const latestRelease = await this.githubService.getLatestRelease("IMDirectory");
+    if (latestRelease && isObjectHasKeys(latestRelease, ["version"])) bugReport.version = latestRelease.version;
     bugReport.type = WORKFLOW.BUG_REPORT;
     bugReport.state = WorkflowEnums.State.TODO;
     await this.setBugReport(bugReport);

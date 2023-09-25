@@ -7,6 +7,7 @@ export const useQueryStore = defineStore("query", {
   state: (): QueryState => ({
     selectedMatches: [] as SelectedMatch[],
     variableMap: new Map<string, any>(),
+    returnType: "",
     validationQueryRequest: {
       query: {
         name: "Get queries by return type",
@@ -16,20 +17,11 @@ export const useQueryStore = defineStore("query", {
             property: [
               {
                 "@id": "http://endhealth.info/im#returnType",
-                inSet: [
+                is: [
                   {
                     parameter: "dataModelIri"
                   }
                 ]
-              }
-            ]
-          }
-        ],
-        return: [
-          {
-            property: [
-              {
-                "@id": "http://www.w3.org/2000/01/rdf-schema#label"
               }
             ]
           }
@@ -38,8 +30,14 @@ export const useQueryStore = defineStore("query", {
     } as QueryRequest
   }),
   actions: {
+    updateReturnType(returnType: string) {
+      this.returnType = returnType;
+    },
     updateVariableMap(map: Map<string, any>) {
       this.variableMap = map;
+    },
+    clearSelectedMatches() {
+      this.selectedMatches = [];
     }
   }
 });

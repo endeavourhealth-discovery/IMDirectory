@@ -9,7 +9,7 @@
               <IMFontAwesomeIcon v-if="node.typeIcon" :style="'color:' + node.color" :icon="node.typeIcon" fixed-width />
             </span>
             <ProgressSpinner v-if="node.loading" />
-            <span @mouseover="showOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
+            <span @mouseover="displayOverlay($event, node)" @mouseleave="hideOverlay($event)">{{ node.label }}</span>
           </div>
         </template>
       </Tree>
@@ -36,13 +36,12 @@ import _ from "lodash";
 import { useQueryStore } from "@/stores/queryStore";
 
 interface Props {
-  baseType: string;
   editMatch: Match;
   addMode: "editProperty" | "addBefore" | "addAfter";
+  dmIri: string;
 }
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
-
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 const emit = defineEmits({
@@ -51,7 +50,7 @@ const emit = defineEmits({
 
 const loading = ref(true);
 const { root, expandedKeys, pageSize, createLoadMoreNode, nodeHasChild } = setupTree();
-const { removeOverlay, OS, createTreeNode, hideOverlay, showOverlay, select, unselect, selectedNodes } = setupQueryTree();
+const { removeOverlay, OS, displayOverlay, hideOverlay, createTreeNode, select, unselect, selectedNodes } = setupQueryTree();
 
 onMounted(async () => {
   loading.value = true;
@@ -195,7 +194,7 @@ async function onClassExpand(node: TreeNode) {
 }
 
 async function addParentFoldersToRoot() {
-  const resolvedIri = resolveIri(props.baseType);
+  const resolvedIri = resolveIri(props.dmIri);
   if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
   if (props.addMode !== "editProperty" && variableMap.value && variableMap.value.size) addVariableNodes();
 }
@@ -213,7 +212,8 @@ function addVariableNodes() {
 }
 
 function getVariableTypesFromMatch(match: Match, types: string[]) {
-  const type = resolveIri(match.typeOf!['@id'] || "");
+  const type = isObjectHasKeys(match.typeOf, ["@id"]) ? resolveIri(match.typeOf!["@id"]!) : resolveIri("");
+
   if (type && !types.includes(type)) types.push(type);
   if (isArrayHasLength(match.match))
     for (const nestedMatch of match.match!) {

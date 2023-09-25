@@ -19,10 +19,10 @@ const ConceptShape: FormGenerator = {
       order: 1,
       name: "splitter",
       path: { "@id": IM.CONCEPT },
-      minCount: 1,
+      minCount: 0,
       maxCount: 1,
       componentType: { "@id": IM.component.HORIZONTAL_LAYOUT },
-      argument: [{ parameter: "subGroup widths", valueData: "50%,50%" }],
+      argument: [{ parameter: "subGroup widths", valueData: "40%,60%" }],
       property: [
         {
           comment: "Summary layout",
@@ -72,11 +72,11 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_DISPLAY
+                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.SNOMED_CONCEPT_GENERATOR
+                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
               }
             },
             {
@@ -183,6 +183,7 @@ const ConceptShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
@@ -220,6 +221,7 @@ const ConceptShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
@@ -238,11 +240,6 @@ const ConceptShape: FormGenerator = {
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
                   },
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
                   path: {
                     "@id": RDFS.SUBCLASS_OF
                   }
@@ -298,7 +295,7 @@ const ConceptShape: FormGenerator = {
           comment: "Role group | Mapped to splitter",
           path: { "@id": IM.CONCEPT },
           order: 1,
-          minCount: 1,
+          minCount: 0,
           maxCount: 1,
           componentType: { "@id": IM.component.VERTICAL_LAYOUT },
           property: [
@@ -321,23 +318,18 @@ const ConceptShape: FormGenerator = {
               maxCount: 1,
               showTitle: true,
               path: {
-                "@id": IM.MAPPED_TO
+                "@id": IM.MATCHED_TO
               },
               property: [
                 {
                   comment: "selects an entity based on select query",
                   order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
                   builderChild: true,
                   name: "Entity",
                   path: {
-                    "@id": IM.MAPPED_TO
+                    "@id": IM.MATCHED_TO
                   },
-                  minCount: 1,
+                  minCount: 0,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
                   }
@@ -347,7 +339,31 @@ const ConceptShape: FormGenerator = {
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
-              }
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
+            },
+            {
+              name: "Term code",
+              comment: "Term code array builder",
+              order: 1,
+              path: {
+                "@id": IM.HAS_TERM_CODE
+              },
+              showTitle: true,
+              minCount: 0,
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              validation: { "@id": IM.validation.IS_TERMCODE },
+              property: [
+                {
+                  name: "Term code",
+                  path: { "@id": IM.HAS_TERM_CODE },
+                  builderChild: true,
+                  order: 1,
+                  componentType: { "@id": IM.component.TERM_CODE_EDITOR },
+                  validation: { "@id": IM.validation.IS_TERMCODE }
+                }
+              ]
             }
           ]
         }

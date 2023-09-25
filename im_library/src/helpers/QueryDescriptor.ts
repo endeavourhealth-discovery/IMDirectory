@@ -12,7 +12,6 @@ export function describeQuery(query: Query): Query {
     for (const [index, match] of describedQuery.match!.entries()) {
       describeMatch(match, index, "and");
     }
-  describedQuery.query;
   return describedQuery;
 }
 
@@ -51,12 +50,35 @@ export function describeProperty(property: Property, index: number, bool: Bool) 
 // getters
 export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
   let display = "";
-  //display += getDisplayFromEntailment(match);
-  display += getNameFromRef(match);
   if (match.orderBy) describeOrderByList(match.orderBy);
-  if (match.inSet) display = "in '" + display + "'";
+  if (match.inSet) display = getDisplayFromInSet(match.inSet);
+  if (match.typeOf) display = getNameFromRef(match.typeOf);
+  if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
   if (isPathMatch) display += " with";
   return display;
+}
+
+export function getDisplayFromInSet(inSet: Node[]) {
+  let display = "in '";
+
+  if (inSet.length === 1) {
+    display += getDisplayFromEntailment(inSet[0]);
+    display += getNameFromRef(inSet[0]);
+  } else if (inSet.length <= 3) {
+    display += "any of [";
+    for (const [index, node] of inSet.entries()) {
+      display += getDisplayFromEntailment(node);
+      display += getNameFromRef(node);
+      if (index !== inSet.length - 1) display += ", ";
+    }
+    display += "]";
+  } else {
+    display += "any of [";
+    display += getDisplayFromEntailment(inSet[0]);
+    display += getNameFromRef(inSet[0]);
+    display += " and " + getDisplayFromNodeRef("more...") + "]";
+  }
+  return display + "'";
 }
 
 export function getDisplayFromPropertyList(matchDisplay: string, propertyList: Property[]) {
@@ -166,7 +188,8 @@ export function getDisplayFromOperator(propertyDisplay: string, property: Proper
 export function getDisplayFromDateComparison(property: Property) {
   let display = "";
   if (property.value) {
-    if (property.operator) display += getDisplayFromOperatorForDate(property.operator);
+    if (property.value.includes("-") && property.operator === ">=") display += "within the last ";
+    else if (property.operator) display += getDisplayFromOperatorForDate(property.operator);
     display += getDisplayFromValueAndUnitForDate(property);
     if (property.relativeTo && "$referenceDate" !== property.relativeTo.parameter)
       display += " from " + (getDisplayFromNodeRef(property.relativeTo?.nodeRef) ?? getNameFromRef(property.relativeTo));
@@ -190,7 +213,7 @@ export function getDisplayFromVariable(nodeRef: string | undefined) {
 
 export function getDisplayFromValueAndUnitForDate(property: Property) {
   let display = "";
-  if (property.value) display += property.value + " ";
+  if (property.value) display += property.value.replace("-", "") + " ";
   if (property.unit) display += property.unit;
   return display;
 }
@@ -292,8 +315,18 @@ function recursivelyAddUnnamedObjects(unnamedObjects: { [x: string]: any[] }, ob
 }
 
 function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
-  // TODO: Set is now an array
-  const iri = object["@id"] || (object["inSet"] && object["inSet"].length > 0 ? object["inSet"][0]["@id"] : null) || object["typeOf"]?.["@id"];
+  let iri;
+  if (isObjectHasKeys(object, ["@id"])) iri = object["@id"];
+  else if (isObjectHasKeys(object.typeOf, ["@id"])) iri = object["typeOf"]?.["@id"];
+  else if (isArrayHasLength(object.inSet)) {
+    if (object.inSet.length === 1) iri = object["inSet"][0]["@id"];
+    else if (object.inSet.length > 1) {
+      for (const inSetItem of object.inSet) {
+        addUnnamedObject(unnamedObjects, inSetItem);
+      }
+    }
+  }
+
   if (iri && !isObjectHasKeys(object, ["name"])) {
     const resolvedIri = resolveIri(iri);
     if (resolvedIri)

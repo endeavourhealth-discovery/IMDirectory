@@ -1,9 +1,7 @@
 import { ComponentType } from "../enums";
 import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
-import { IM } from "../vocabulary";
 import { enumToArray } from "./Converters";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { getNameFromRef } from "./TTTransform";
 import { isTTIriRef } from "./TypeGuards";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {

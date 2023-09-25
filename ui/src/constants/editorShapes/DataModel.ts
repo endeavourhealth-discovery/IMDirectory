@@ -29,7 +29,7 @@ const DataModelShape: FormGenerator = {
       argument: [
         {
           parameter: "subGroup widths",
-          valueData: "50%,50%"
+          valueData: "40%,60%"
         }
       ],
       property: [
@@ -85,11 +85,11 @@ const DataModelShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.TEXT_DISPLAY
+                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.SNOMED_CONCEPT_GENERATOR
+                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
               }
             },
             {
@@ -201,11 +201,6 @@ const DataModelShape: FormGenerator = {
                 {
                   comment: "selects an entity based on select query",
                   order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_MAIN_TYPES
-                    }
-                  ],
                   builderChild: true,
                   name: "Entity",
                   path: {
@@ -222,7 +217,8 @@ const DataModelShape: FormGenerator = {
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
-              }
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
             {
               label: "Property group - Is contained in array builder",
@@ -267,7 +263,8 @@ const DataModelShape: FormGenerator = {
               validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
-              }
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             },
             {
               comment: "Toggle controlling sub components visibility",
@@ -314,31 +311,31 @@ const DataModelShape: FormGenerator = {
           ]
         },
         {
-          label: "Property group - Property array builder",
+          name: "Splitter",
+          comment: "Role group | Mapped to splitter",
+          path: { "@id": IM.CONCEPT },
           order: 1,
-          path: {
-            "@id": SHACL.PROPERTY
-          },
+          minCount: 0,
+          maxCount: 1,
+          componentType: { "@id": IM.component.VERTICAL_LAYOUT },
           property: [
             {
-              comment: "builds a property",
+              label: "Property group - Property array builder",
               order: 1,
-              builderChild: true,
               path: {
                 "@id": SHACL.PROPERTY
               },
               name: "Property",
+              minCount: 1,
               componentType: {
                 "@id": IM.component.PROPERTY_BUILDER
-              }
+              },
+              validation: {
+                "@id": IM.validation.IS_PROPERTY
+              },
+              validationErrorMessage: "Invalid data model properties"
             }
-          ],
-          name: "Property",
-          showTitle: true,
-          minCount: 0,
-          componentType: {
-            "@id": IM.component.ARRAY_BUILDER
-          }
+          ]
         }
       ]
     }

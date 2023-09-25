@@ -3,7 +3,7 @@
     <AutoComplete
       :forceSelection="true"
       style="flex: 1"
-      input-style="flex:1"
+      :input-style="{ flex: 1 }"
       field="name"
       dataKey="iri"
       v-model="selected"
@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import { Ref, ref, onMounted, PropType, watch, inject, h } from "vue";
+import { IM, SNOMED } from "@im-library/vocabulary";
 import EclTree from "../EclTree.vue";
 import Button from "primevue/button";
 import { ConceptSummary } from "@im-library/interfaces";
@@ -120,7 +121,8 @@ async function search(term: string) {
       searchRequest.sortField = "weighting";
       searchRequest.page = 1;
       searchRequest.size = 100;
-      searchRequest.schemeFilter = ["http://snomed.info/sct#"];
+      searchRequest.schemeFilter = [SNOMED.NAMESPACE, IM.NAMESPACE];
+      searchRequest.statusFilter = [IM.ACTIVE];
 
       if (controller.value) {
         controller.value.abort();

@@ -62,11 +62,11 @@ const FolderShape: FormGenerator = {
           },
           minCount: 1,
           componentType: {
-            "@id": IM.component.TEXT_DISPLAY
+            "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
           },
           valueVariable: "conceptIri",
           function: {
-            "@id": IM.function.SNOMED_CONCEPT_GENERATOR
+            "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
           }
         },
         {
@@ -207,7 +207,8 @@ const FolderShape: FormGenerator = {
           minCount: 0,
           componentType: {
             "@id": IM.component.ARRAY_BUILDER
-          }
+          },
+          arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
         },
         {
           label: "Property group - Contained in array builder",
@@ -248,7 +249,8 @@ const FolderShape: FormGenerator = {
           minCount: 0,
           componentType: {
             "@id": IM.component.ARRAY_BUILDER
-          }
+          },
+          arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
         },
         {
           comment: "Toggle controlling sub components visibility",

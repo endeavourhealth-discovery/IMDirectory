@@ -1,13 +1,13 @@
 <template>
-  <a v-if="html" class="clickable" @click="click()" @mouseover="showOverlay($event)" @mouseleave="hideOverlay($event)" v-html="label"></a>
-  <a v-else class="clickable" @click="click()" @mouseover="showOverlay($event)" @mouseleave="hideOverlay($event)">{{ label || iri }}</a>
+  <a v-if="html" class="clickable" @click="click()" @mouseover="showOverlay($event, props.iri)" @mouseleave="hideOverlay($event)" v-html="label"></a>
+  <a v-else class="clickable" @click="click()" @mouseover="showOverlay($event, props.iri)" @mouseleave="hideOverlay($event)">{{ label || iri }}</a>
   <OverlaySummary ref="OS" />
 </template>
 
 <script setup lang="ts">
-import { Ref, ref } from "vue";
 import { DirectService } from "../../services";
 import OverlaySummary from "./OverlaySummary.vue";
+import setupOverlay from "@/composables/setupOverlay";
 
 interface Props {
   iri: string;
@@ -25,7 +25,7 @@ const emit = defineEmits({
   navigateTo: (_payload: string) => true
 });
 
-const OS: Ref<any> = ref();
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
 
 async function click() {
@@ -43,14 +43,6 @@ async function click() {
       directService.view(props.iri);
       break;
   }
-}
-
-async function showOverlay(event: any): Promise<void> {
-  await OS.value.showOverlay(event, props.iri);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
 }
 </script>
 
