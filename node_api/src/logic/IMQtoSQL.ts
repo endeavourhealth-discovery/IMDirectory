@@ -4,10 +4,12 @@ import { SqlQuery } from "@/model/sql/SqlQuery";
 export class IMQtoSQL {
   public convert(definition: Query): string {
     if (!definition.typeOf) {
+      console.log(definition);
       throw new Error("Query must have a main (model) type");
     }
 
     if (!definition.match) {
+      console.log(definition);
       throw new Error("Query must have at least one match");
     }
 
@@ -72,6 +74,10 @@ export class IMQtoSQL {
       }
     } else if (match.property && match.property.length > 0) {
       this.convertMatchProperties(qry, match);
+    } else if (match.match && match.match.length > 0) {
+      // Assume bool match "AND"
+      match.bool = "and";
+      this.convertMatchBoolSubMatch(qry, match);
     } else {
       throw new Error("UNHANDLED MATCH PATTERN\n" + JSON.stringify(match, null, 2));
     }
@@ -144,7 +150,9 @@ export class IMQtoSQL {
 
   private convertMatchProperty(qry: SqlQuery, property: Property) {
     if (property.is) {
-      this.convertMatchPropertyIs(qry, property);
+      this.convertMatchPropertyIs(qry, property, property.is);
+    } else if (property.isNot) {
+      this.convertMatchPropertyIs(qry, property, property.isNot, true);
     } else if (property.range) {
       this.convertMatchPropertyRange(qry, property);
     } else if (property.match) {
@@ -155,13 +163,17 @@ export class IMQtoSQL {
       this.convertMatchPropertyRelative(qry, property);
     } else if (property.value) {
       this.convertMatchPropertyValue(qry, property);
+    } else if (property.bool) {
+      this.convertMatchPropertyBool(qry, property);
+    } else if (property.null) {
+      this.convertMatchPropertyNull(qry, property);
     } else {
       throw new Error("UNHANDLED PROPERTY PATTERN\n" + JSON.stringify(property, null, 2));
     }
   }
 
-  private convertMatchPropertyIs(qry: SqlQuery, property: Property) {
-    if (!property.is) {
+  private convertMatchPropertyIs(qry: SqlQuery, property: Property, list: any[], inverse = false) {
+    if (!list) {
       throw new Error("INVALID MatchPropertyIs\n" + JSON.stringify(property, null, 2));
     }
 
@@ -170,22 +182,22 @@ export class IMQtoSQL {
     const descendants: string[] = [];
     const descendantsSelf: string[] = [];
 
-    for (const pIs of property.is) {
+    for (const pIs of list) {
       if (pIs["@id"]) {
         if (pIs.ancestorsOf) ancestors.push(pIs["@id"]);
         else if (pIs.descendantsOf) descendants.push(pIs["@id"]);
         else if (pIs.descendantsOrSelfOf) descendantsSelf.push(pIs["@id"]);
         else direct.push(pIs["@id"]);
       } else {
-        throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIs, null, 2));
+        throw new Error("UNHANDLED 'IN'/'NOT IN' ENTRY\n" + JSON.stringify(pIs, null, 2));
       }
     }
 
     if (direct.length > 0) {
       let where = qry.getFieldName(property["@id"]!);
 
-      if (direct.length == 1) where += " = '" + direct[0] + "'\n";
-      else where += " IN ('" + direct.join("',\n'") + "')\n";
+      if (direct.length == 1) where += (inverse ? " <> '" : " = '") + direct[0] + "'\n";
+      else where += (inverse ? " NOT IN ('" : " IN ('") + direct.join("',\n'") + "')\n";
 
       qry.wheres.push(where);
     }
@@ -212,17 +224,26 @@ export class IMQtoSQL {
       throw new Error("INVALID MatchPropertyRange\n" + JSON.stringify(property, null, 2));
     }
 
-    if ("date" == qry.getFieldType(property["@id"] as string)) {
-      if (property.range.from) qry.wheres.push(this.convertMatchPropertyRangeNode(property.range.from) + " " + qry.getFieldName(property["@id"] as string));
+    const fieldType = qry.getFieldType(property["@id"] as string);
 
-      if (property.range.to) qry.wheres.push(this.convertMatchPropertyRangeNode(property.range.to) + " " + qry.getFieldName(property["@id"] as string));
+    if ("date" == fieldType) {
+      if (property.range.from) qry.wheres.push(this.convertMatchPropertyDateRangeNode(qry.getFieldName(property["@id"] as string), property.range.from));
+      if (property.range.to) qry.wheres.push(this.convertMatchPropertyDateRangeNode(qry.getFieldName(property["@id"] as string), property.range.to));
+    } else if ("number" == fieldType) {
+      if (property.range.from) qry.wheres.push(this.convertMatchPropertyNumberRangeNode(qry.getFieldName(property["@id"] as string), property.range.from));
+      if (property.range.to) qry.wheres.push(this.convertMatchPropertyNumberRangeNode(qry.getFieldName(property["@id"] as string), property.range.to));
     } else {
-      throw new Error("UNHANDLED PROPERTY FIELD TYPE\n" + JSON.stringify(property, null, 2));
+      throw new Error("UNHANDLED PROPERTY FIELD TYPE (" + fieldType + ")\n" + JSON.stringify(property, null, 2));
     }
   }
 
-  private convertMatchPropertyRangeNode(range: Assignable): string {
-    return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + range.operator;
+  private convertMatchPropertyNumberRangeNode(fieldName: string, range: Assignable): string {
+    if (range.unit) return fieldName + " " + range.operator + " " + range.value + " -- CONVERT " + range.unit;
+    else return fieldName + " " + range.operator + " " + range.value;
+  }
+
+  private convertMatchPropertyDateRangeNode(fieldName: string, range: Assignable): string {
+    return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + range.operator + " " + fieldName;
   }
 
   private convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
@@ -295,11 +316,12 @@ export class IMQtoSQL {
   }
 
   private convertMatchPropertyRelativeTo(qry: SqlQuery, property: Property, field: string) {
-    if ("date" == qry.getFieldType(property["@id"] as string))
+    const fieldType = qry.getFieldType(property["@id"] as string);
+    if ("date" == fieldType)
       if (property.value) return "(" + field + " + INTERVAL '" + property.value + " " + property.unit + "')";
       else return field;
     else {
-      throw new Error("UNHANDLED RELATIVE TYPE\n" + JSON.stringify(property, null, 2));
+      throw new Error("UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + JSON.stringify(property, null, 2));
     }
   }
 
@@ -310,8 +332,10 @@ export class IMQtoSQL {
 
     let where =
       "date" == qry.getFieldType(property["@id"])
-        ? this.convertMatchPropertyRangeNode(property) + " " + qry.getFieldName(property["@id"])
+        ? this.convertMatchPropertyDateRangeNode(qry.getFieldName(property["@id"]), property)
         : qry.getFieldName(property["@id"]) + " " + property.operator + " " + property.value;
+
+    if (property.unit) where += " -- CONVERT " + property.unit + "\n";
 
     // TODO: TCT
     if (property.ancestorsOf || property.descendantsOf || property.descendantsOrSelfOf) {
@@ -319,5 +343,29 @@ export class IMQtoSQL {
     }
 
     qry.wheres.push(where);
+  }
+
+  private convertMatchPropertyBool(qry: SqlQuery, property: Property) {
+    if (!property.bool) {
+      throw new Error("INVALID MatchPropertyBool\n" + JSON.stringify(property, null, 2));
+    }
+
+    if (property.property) {
+      const subQuery = qry.subQuery(qry.model, qry.alias);
+      for (const p of property.property) {
+        this.convertMatchProperty(subQuery, p);
+      }
+      qry.wheres.push("(" + subQuery.wheres.join(" " + property.bool.toUpperCase() + " ") + ")");
+    } else {
+      throw new Error("Property BOOL should only contain property conditions");
+    }
+  }
+
+  private convertMatchPropertyNull(qry: SqlQuery, property: Property) {
+    if (!property["@id"]) {
+      throw new Error("INVALID MatchPropertyNull\n" + JSON.stringify(property, null, 2));
+    }
+
+    qry.wheres.push(qry.getFieldName(property["@id"]) + " IS NULL");
   }
 }
