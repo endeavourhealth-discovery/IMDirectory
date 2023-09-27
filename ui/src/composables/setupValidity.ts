@@ -79,6 +79,7 @@ export function setupValidity(shape?: FormGenerator) {
   ) {
     let valid = true;
     let message;
+    if (componentShape.minCount === 0 && !isObjectHasKeys(editorEntity.value,[key])) {invalid.value = false;message=undefined;return;}
     if (isPropertyShape(componentShape) && isObjectHasKeys(componentShape, ["validation"]) && editorEntity.value) {
       let customValidationResult = await QueryService.checkValidation(componentShape.validation!["@id"], editorEntity.value);
       if (customValidationResult.isValid === false) {
