@@ -15,7 +15,10 @@ function setupQueryBuilderActions() {
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
 
   function addMatches(parentMatch: Match, newMatches: Match[], index: number = -1, before?: boolean) {
-    if (!isArrayHasLength(parentMatch.match)) parentMatch.match = [];
+    if (!isArrayHasLength(parentMatch.match)) {
+      parentMatch.bool = "and";
+      parentMatch.match = [];
+    }
     if (index === -1) parentMatch.match = parentMatch.match?.concat(newMatches);
     else {
       const indexToAdd = before ? index : index + 1;
@@ -31,7 +34,6 @@ function setupQueryBuilderActions() {
     }
 
     if (isArrayHasLength(nested)) {
-      if (isArrayHasLength(parentMatch.match)) parentMatch.match = [];
       addMatches(parentMatch, nested);
     }
   }
