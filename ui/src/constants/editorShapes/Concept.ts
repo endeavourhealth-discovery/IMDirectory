@@ -365,6 +365,26 @@ const ConceptShape: FormGenerator = {
                   validation: { "@id": IM.validation.IS_TERMCODE }
                 }
               ]
+            },
+            {
+              name:"Child of",
+              comment:"Child of array builder",
+              order: 1,
+              path:{"@id":IM.IS_CHILD_OF},
+              showTitle:true,
+              minCount:0,
+              componentType:{"@id":IM.component.ARRAY_BUILDER},
+              arrayButtons:{plus:true,minus:true,up:false,down:false,addOnlyIfLast:true},
+              property:[
+                {
+                  name:"Child of",
+                  path:{"@id":IM.IS_CHILD_OF},
+                  builderChild:true,
+                  order:1,
+                  minCount:0,
+                  componentType:{"@id":IM.component.ENTITY_SEARCH}
+                }
+              ]
             }
           ]
         }
