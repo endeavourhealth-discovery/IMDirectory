@@ -1,17 +1,11 @@
 <template>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    maximizable
-    :header="addMode === 'editProperty' ? 'Edit property list' : 'Add new properties'"
-    :style="{ minWidth: '50vw' }"
-  >
+  <Dialog v-model:visible="visible" modal maximizable :header="header" :style="{ minWidth: '50vw' }">
     <QueryNavTree
       :editMatch="editMatch"
       :selected-properties="selectedProperties"
-      :add-mode="addMode"
-      @on-selected-update="onSelectedUpdate"
       :dm-iri="matchType"
+      :show-variable-options="showVariableOptions"
+      @on-selected-update="onSelectedUpdate"
     />
     <template #footer>
       <Button label="Discard" severity="secondary" @click="visible = false" text />
@@ -32,14 +26,15 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 interface Props {
   showDialog: boolean;
   match?: Match;
-  addMode: "editProperty" | "addBefore" | "addAfter";
+  header: string;
   matchType: string;
+  showVariableOptions: boolean;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits({
   onClose: () => true,
-  onAddOrEdit: (_direct: Match[], _nested: Match[]) => true,
+  onSave: (_direct: Match[], _nested: Match[]) => true,
   "update:showDialog": payload => typeof payload === "boolean"
 });
 const editMatch: Ref<Match> = ref({ property: [] } as Match);
@@ -77,7 +72,7 @@ function onSelectedUpdate(selected: TreeNode[]) {
 async function save() {
   editMatch.value.property = [];
   const { direct, nested } = buildMatchesFromProperties(selectedProperties.value as any);
-  emit("onAddOrEdit", direct, nested);
+  emit("onSave", direct, nested);
   visible.value = false;
 }
 </script>

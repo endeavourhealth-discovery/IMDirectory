@@ -51,21 +51,17 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
+    :header="'Update properties'"
+    :show-variable-options="false"
     :match-type="getMatchType()"
     :match="match"
-    :add-mode="addMode"
-    @on-add-or-edit="(direct: Match[], nested: Match[]) => addOrEdit(match, parentMatchList, index, direct, nested)"
+    @on-save="(direct: Match[], nested: Match[]) => updateProperties(match, direct, nested)"
   />
+
   <KeepAsDialog
     v-model:showDialog="showKeepAsDialog"
     :match="match"
     @add-variable="(previousValue: string, newValue: string) => addVariable(previousValue, newValue)"
-  />
-  <DirectorySearchDialog
-    v-model:show-dialog="showDirectoryDialog"
-    @update:selected="onSelect"
-    :searchByQuery="validationQueryRequest"
-    :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
   />
 </template>
 
@@ -81,10 +77,7 @@ import AddPropertyDialog from "../edit/dialogs/AddPropertyDialog.vue";
 import KeepAsDialog from "../edit/dialogs/KeepAsDialog.vue";
 import { ConceptSummary, SelectedMatch } from "@im-library/interfaces";
 import { getDisplayFromNodeRef, getDisplayFromVariable } from "@im-library/helpers/QueryDescriptor";
-import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import EditDisplayOrderBy from "./EditDisplayOrderBy.vue";
-import { IM } from "@im-library/vocabulary";
 import { useUserStore } from "@/stores/userStore";
 import { useQueryStore } from "@/stores/queryStore";
 import { cloneDeep } from "lodash";
@@ -106,7 +99,7 @@ const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
 
 const {
-  addOrEdit,
+  updateProperties,
   view,
   keepAs,
   moveUp,
@@ -121,9 +114,7 @@ const {
   select,
   showAddDialog,
   showViewDialog,
-  showKeepAsDialog,
-  showDirectoryDialog,
-  addMode
+  showKeepAsDialog
 } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
@@ -251,33 +242,6 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add property feature",
-      icon: PrimeIcons.PLUS,
-      items: [
-        {
-          label: "Before",
-          command: () => {
-            addMode.value = "addBefore";
-            showAddDialog.value = true;
-          }
-        },
-        {
-          label: "After",
-          command: () => {
-            addMode.value = "addAfter";
-            showAddDialog.value = true;
-          }
-        }
-      ]
-    },
-    {
-      label: "Add cohort",
-      icon: PrimeIcons.WRENCH,
-      command: () => {
-        showDirectoryDialog.value = true;
-      }
-    },
-    {
       label: props.match.exclude ? "Include" : "Exclude",
       icon: props.match.exclude ? PrimeIcons.PLUS_CIRCLE : PrimeIcons.MINUS_CIRCLE,
       command: () => {
@@ -340,17 +304,24 @@ function getSingleRCOptions() {
   ];
 
   if (hasValue.value || hasProperty.value || isDataModel.value) {
-    const editOption = {
-      label: "Edit",
+    const updatePropertiesOption = {
+      label: "Update properties",
       icon: PrimeIcons.PENCIL,
       command: () => {
-        addMode.value = "editProperty";
         editMatch();
       }
     };
 
-    if (isDataModel.value) singleRCOptions.splice(0, 1, editOption);
-    else if (hasValue.value) singleRCOptions.splice(1, 0, editOption);
+    const updateValueOption = {
+      label: "Update value",
+      icon: PrimeIcons.PENCIL,
+      command: () => {
+        editMatch();
+      }
+    };
+
+    if (isDataModel.value || hasProperty.value) singleRCOptions.splice(0, 0, updatePropertiesOption);
+    else if (hasValue.value) singleRCOptions.splice(0, 0, updateValueOption);
   }
 
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
@@ -369,7 +340,6 @@ function editMatch() {
   if (hasValue.value && !isDataModel.value) editMode.value = true;
   else if (isDataModel.value) {
     showAddDialog.value = true;
-    addMode.value = "editProperty";
   }
 }
 function addVariable(previousValue: string, newValue: string) {
@@ -384,12 +354,6 @@ function deleteSelected() {
     remove(selectedMatch.index, selectedMatch.parentList!, selectedMatch.parent!);
   }
   queryStore.clearSelectedMatches();
-}
-
-function onSelect(cs: ConceptSummary) {
-  const newMatch = buildInSetMatchFromCS(cs) as Match;
-  addOrEdit(props.match, props.parentMatchList, props.index, [newMatch], []);
-  showDirectoryDialog.value = false;
 }
 
 function addOrderBy() {
