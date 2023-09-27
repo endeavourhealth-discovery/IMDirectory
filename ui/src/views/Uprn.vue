@@ -9,7 +9,20 @@
       </template>
     </TopBar>
     <div id="uprn-content">
-      <TabMenu :model="items" id="uprn-menu" />
+      <TabMenu :model="items" id="uprn-menu">
+        <template #item="{label,item,props}">
+          <router-link v-if="item.route" v-slot="routerProps" :to="item.route" custom>
+            <a :href="routerProps.href" v-bind="props.action" @click="($event) => routerProps.navigate($event)" @keydown.enter.space="($event) => routerProps.navigate($event)">
+                <span v-bind="props.icon" />
+                <span v-bind="props.label">{{ label }}</span>
+            </a>
+          </router-link>
+          <a v-else :href="item.url" :target="item.target" v-bind="props.action">
+            <span v-bind="props.icon" />
+            <span v-bind="props.label">{{ label }}</span>
+        </a>
+        </template>
+      </TabMenu>
       <router-view />
     </div>
   </div>
@@ -23,15 +36,15 @@ import UprnConsent from "@/components/uprn/UprnConsent.vue";
 const items = ref([
   {
     label: "Input Single Address",
-    to: "/uprn/singleAddressLookup"
+    route: "/uprn/singleAddressLookup"
   },
   {
     label: "Upload Address File",
-    to: "/uprn/addressFileWorkflow"
+    route: "/uprn/addressFileWorkflow"
   },
   {
     label: "Downloads + Activity",
-    to: "/uprn/addressFileDownload"
+    route: "/uprn/addressFileDownload"
   }
 ]);
 </script>
