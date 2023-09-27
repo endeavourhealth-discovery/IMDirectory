@@ -22,6 +22,7 @@ import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
 import RoleGroupBuilder from "./RoleGroupBuilder.vue";
 import TermCodeEditor from "./TermCodeEditor.vue";
 import { defineComponent } from "vue";
+import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
 
 export default defineComponent({
   components: {
@@ -37,6 +38,7 @@ export default defineComponent({
     ToggleableComponent,
     DropdownTextInputConcatenator,
     RoleGroupBuilder,
+    PropertyBuilder,
     TermCodeEditor
   }
 });

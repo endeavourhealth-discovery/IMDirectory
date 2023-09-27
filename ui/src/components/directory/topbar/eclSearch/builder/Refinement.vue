@@ -2,7 +2,7 @@
   <div class="refinement-content-container">
     <AutoComplete
       style="flex: 1"
-      input-style="flex:1"
+      :input-style="{flex:1}"
       field="name"
       dataKey="iri"
       v-model="selectedProperty"
@@ -20,7 +20,7 @@
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <AutoComplete
       style="flex: 1"
-      input-style="flex:1"
+      :input-style="{flex:1}"
       field="name"
       dataKey="iri"
       v-model="selectedValue"
