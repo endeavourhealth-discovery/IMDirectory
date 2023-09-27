@@ -50,12 +50,27 @@
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
-    v-model:showDialog="showAddDialog"
+    v-model:showDialog="showUpdateDialog"
     :header="'Update properties'"
     :show-variable-options="false"
     :match-type="getMatchType()"
     :match="match"
     @on-save="(direct: Match[], nested: Match[]) => updateProperties(match, direct, nested)"
+  />
+
+  <AddPropertyDialog
+    v-model:showDialog="showAddDialog"
+    :header="'Add properties'"
+    :show-variable-options="true"
+    :match-type="getMatchType()"
+    @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, addBefore)"
+  />
+
+  <DirectorySearchDialog
+    v-model:show-dialog="showDirectoryDialog"
+    @update:selected="onSelect"
+    :searchByQuery="validationQueryRequest"
+    :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
   />
 
   <KeepAsDialog
@@ -82,6 +97,9 @@ import { useUserStore } from "@/stores/userStore";
 import { useQueryStore } from "@/stores/queryStore";
 import { cloneDeep } from "lodash";
 import MatchEntitySelect from "../edit/MatchEntitySelect.vue";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
+import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import { IM } from "@im-library/vocabulary";
 
 interface Props {
   parentMatch?: Match;
@@ -100,6 +118,8 @@ const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$st
 
 const {
   updateProperties,
+  addMatchesToList,
+  addMatches,
   view,
   keepAs,
   moveUp,
@@ -113,8 +133,11 @@ const {
   dragLeave,
   select,
   showAddDialog,
+  showUpdateDialog,
   showViewDialog,
-  showKeepAsDialog
+  showKeepAsDialog,
+  showDirectoryDialog,
+  addBefore
 } = setupQueryBuilderActions();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
@@ -171,6 +194,12 @@ function getMatchType() {
   } else if (isObjectHasKeys(props.match.typeOf, ["@id"])) return props.match.typeOf!["@id"];
 
   return queryTypeIri.value;
+}
+
+function onSelect(cs: ConceptSummary) {
+  const newMatch = buildInSetMatchFromCS(cs) as Match;
+  addMatchesToList(props.parentMatchList!, [newMatch], props.index, addBefore.value);
+  showDirectoryDialog.value = false;
 }
 
 function getClass() {
@@ -241,6 +270,50 @@ function getMultipleRCOptions() {
 
 function getSingleRCOptions() {
   const singleRCOptions = [
+    {
+      label: "Add property feature",
+      icon: PrimeIcons.PLUS,
+      command: () => {
+        showAddDialog.value = true;
+      },
+      items: [
+        {
+          label: "Before",
+          command: () => {
+            showAddDialog.value = true;
+            addBefore.value = true;
+          }
+        },
+        {
+          label: "After",
+          command: () => {
+            showAddDialog.value = true;
+          }
+        }
+      ]
+    },
+    {
+      label: "Add cohort feature",
+      icon: PrimeIcons.WRENCH,
+      command: () => {
+        showDirectoryDialog.value = true;
+      },
+      items: [
+        {
+          label: "Before",
+          command: () => {
+            showDirectoryDialog.value = true;
+            addBefore.value = true;
+          }
+        },
+        {
+          label: "After",
+          command: () => {
+            showDirectoryDialog.value = true;
+          }
+        }
+      ]
+    },
     {
       label: props.match.exclude ? "Include" : "Exclude",
       icon: props.match.exclude ? PrimeIcons.PLUS_CIRCLE : PrimeIcons.MINUS_CIRCLE,
@@ -339,9 +412,10 @@ function getSingleRCOptions() {
 function editMatch() {
   if (hasValue.value && !isDataModel.value) editMode.value = true;
   else if (isDataModel.value) {
-    showAddDialog.value = true;
+    showUpdateDialog.value = true;
   }
 }
+
 function addVariable(previousValue: string, newValue: string) {
   props.match.variable = newValue;
   if (variableMap.value.has(previousValue)) variableMap.value.delete(previousValue);

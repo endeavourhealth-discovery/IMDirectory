@@ -5,6 +5,7 @@ import { Ref, ref } from "vue";
 import { v4 } from "uuid";
 
 function setupQueryBuilderActions() {
+  const showUpdateDialog: Ref<boolean> = ref(false);
   const showViewDialog: Ref<boolean> = ref(false);
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
@@ -13,17 +14,24 @@ function setupQueryBuilderActions() {
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
+  const addBefore: Ref<boolean> = ref(false);
 
   function addMatches(parentMatch: Match, newMatches: Match[], index: number = -1, before?: boolean) {
     if (!isArrayHasLength(parentMatch.match)) {
       parentMatch.bool = "and";
       parentMatch.match = [];
     }
-    if (index === -1) parentMatch.match = parentMatch.match?.concat(newMatches);
+    addMatchesToList(parentMatch.match!, newMatches, index, before);
+  }
+
+  function addMatchesToList(matchList: Match[], newMatches: Match[], index: number = -1, before?: boolean) {
+    if (index === -1) matchList = matchList?.concat(newMatches);
     else {
       const indexToAdd = before ? index : index + 1;
-      parentMatch.match!.splice(indexToAdd, 0, ...newMatches);
+      matchList.splice(indexToAdd, 0, ...newMatches);
     }
+
+    addBefore.value = false;
   }
 
   function updateProperties(parentMatch: Match, direct: Match[], nested: Match[]) {
@@ -182,6 +190,7 @@ function setupQueryBuilderActions() {
   }
 
   return {
+    addMatchesToList,
     addMatches,
     updateProperties,
     view,
@@ -200,7 +209,9 @@ function setupQueryBuilderActions() {
     showAddDialog,
     showKeepAsDialog,
     showDirectoryDialog,
-    showAddBaseTypeDialog
+    showAddBaseTypeDialog,
+    showUpdateDialog,
+    addBefore
   };
 }
 
