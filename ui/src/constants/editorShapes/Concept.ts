@@ -360,6 +360,7 @@ const ConceptShape: FormGenerator = {
                   path: { "@id": IM.HAS_TERM_CODE },
                   builderChild: true,
                   order: 1,
+                  minCount:0,
                   componentType: { "@id": IM.component.TERM_CODE_EDITOR },
                   validation: { "@id": IM.validation.IS_TERMCODE }
                 }
