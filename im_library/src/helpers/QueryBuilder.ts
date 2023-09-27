@@ -88,7 +88,7 @@ function getHasVariable(treeNode: TreeNode) {
 
 function getHasVariableRecursively(treeNode: TreeNode, hasVariable: string[]) {
   if (treeNode.hasVariable) hasVariable.push(treeNode.hasVariable);
-  if (isObjectHasKeys(treeNode, ["parent"])) getHasVariableRecursively(treeNode.parent, hasVariable);
+  if (isObjectHasKeys(treeNode, ["parent"])) getHasVariableRecursively(treeNode.parent!, hasVariable);
 }
 
 export function buildProperty(treeNode: TreeNode) {
