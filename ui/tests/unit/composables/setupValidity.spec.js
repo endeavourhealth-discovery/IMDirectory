@@ -29,11 +29,11 @@ describe("setupValidity", () => {
     it("can remove a check", () => {
       const itemToRemove = testData.testShape.property[0].property[0].property[0];
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(11);
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
       expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path["@id"], checkCompleted: false });
       wrapper.vm.removeValidationCheckStatus(itemToRemove);
       expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: itemToRemove.path["@id"], checkCompleted: false });
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(10);
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(11);
     });
   });
 
@@ -44,7 +44,7 @@ describe("setupValidity", () => {
 
     it("can clear validationCheckStatus", () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(11);
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
       wrapper.vm.clearValidationCheckStatus();
       expect(wrapper.vm.validationCheckStatus).toEqual([]);
     });
