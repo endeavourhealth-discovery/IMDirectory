@@ -119,7 +119,6 @@ const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$st
 const {
   updateProperties,
   addMatchesToList,
-  addMatches,
   view,
   keepAs,
   moveUp,
@@ -411,7 +410,7 @@ function getSingleRCOptions() {
 
 function editMatch() {
   if (hasValue.value && !isDataModel.value) editMode.value = true;
-  else if (isDataModel.value) {
+  else if (isDataModel.value || hasProperty.value) {
     showUpdateDialog.value = true;
   }
 }

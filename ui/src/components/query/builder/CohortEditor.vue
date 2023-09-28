@@ -17,7 +17,7 @@
       :header="'Add properties'"
       :show-variable-options="true"
       :match-type="queryTypeIri"
-      @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(query.match, direct.concat(nested))"
+      @on-save="onPropertyAdd"
     />
     <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     <DirectorySearchDialog
@@ -117,8 +117,14 @@ function initVariableMap() {
 
 function onSelect(cs: ConceptSummary) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
-  query.value.match = [newMatch];
+  if (!isArrayHasLength(query.value.match)) query.value.match = [];
+  query.value.match.push(newMatch);
   showDirectoryDialog.value = false;
+}
+
+function onPropertyAdd(direct: Match[], nested: Match[]) {
+  if (!isArrayHasLength(query.value.match)) query.value.match = [];
+  query.value.match = query.value.match.concat(direct.concat(nested));
 }
 
 function addVariableRefFromMatch(map: Map<string, any>, match: Match) {
