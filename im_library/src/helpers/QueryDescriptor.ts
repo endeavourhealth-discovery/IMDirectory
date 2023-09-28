@@ -292,7 +292,7 @@ function recursivelyAddUnnamedObjects(unnamedObjects: { [x: string]: any[] }, ob
 }
 
 function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
-  let iri;
+  let iri = "";
   if (isObjectHasKeys(object, ["@id"])) iri = object["@id"];
   else if (isObjectHasKeys(object.typeOf, ["@id"])) iri = object["typeOf"]?.["@id"];
   else if (isArrayHasLength(object.inSet)) {
@@ -307,7 +307,7 @@ function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
   if (iri && !isObjectHasKeys(object, ["name"])) {
     const resolvedIri = resolveIri(iri);
     if (resolvedIri)
-      if (isArrayHasLength(unnamedObjects.resolvedIri)) unnamedObjects[resolvedIri].push(object);
+      if (isArrayHasLength(unnamedObjects[resolvedIri])) unnamedObjects[resolvedIri].push(object);
       else unnamedObjects[resolvedIri] = [object];
   }
 }

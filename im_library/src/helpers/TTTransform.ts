@@ -64,7 +64,7 @@ export function getNameFromRef(ref: any): string {
 export function resolveIri(iri: string) {
   if (!iri) return undefined;
   const prefixes: any = { im: IM.NAMESPACE, sn: SNOMED.NAMESPACE };
-  if (iri.includes("#")) {
+  if (iri.includes("#") || iri.includes("urn:uuid:")) {
     return iri;
   } else if (iri.includes(":")) {
     const splits = iri.split(":");
