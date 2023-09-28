@@ -28,7 +28,7 @@ import setupTree from "@/composables/setupTree";
 import setupQueryTree from "@/composables/setupQueryTree";
 import { TreeNode } from "primevue/tree";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
+import { isFolder, isProperty, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
 import { TTProperty } from "@im-library/interfaces";
 import { getNameFromRef, resolveIri } from "@im-library/helpers/TTTransform";
 import { Match, Property } from "@im-library/interfaces/AutoGen";
@@ -37,7 +37,7 @@ import { useQueryStore } from "@/stores/queryStore";
 
 interface Props {
   editMatch: Match;
-  addMode: "editProperty" | "addBefore" | "addAfter";
+  showVariableOptions: boolean;
   dmIri: string;
 }
 const props = defineProps<Props>();
@@ -55,7 +55,7 @@ const { removeOverlay, OS, displayOverlay, hideOverlay, createTreeNode, select, 
 onMounted(async () => {
   loading.value = true;
   await addParentFoldersToRoot();
-  if (props.addMode === "editProperty") await populateCheckBoxes(props.editMatch);
+  if (isArrayHasLength(props.editMatch.property)) await populateCheckBoxes(props.editMatch);
   loading.value = false;
 });
 
@@ -83,7 +83,17 @@ async function selectByIri(property: Property, iri: string, nodes: TreeNode[]) {
     found.property = property;
     select(found);
   } else {
-    found = nodes.find(node => node.children!.some(grandChild => grandChild.data === iri));
+    found = nodes.find(node =>
+      node.children!.some(grandChild => {
+        if (grandChild.data === iri) return true;
+        else
+          return (
+            isFolder(grandChild.conceptTypes) &&
+            isArrayHasLength(grandChild.children) &&
+            grandChild.children!.some(grandGrandChild => grandGrandChild.data === iri)
+          );
+      })
+    );
     if (found) {
       expandedKeys.value[found.key!] = true;
       if (isArrayHasLength(found.children)) {
@@ -196,7 +206,7 @@ async function onClassExpand(node: TreeNode) {
 async function addParentFoldersToRoot() {
   const resolvedIri = resolveIri(props.dmIri);
   if (resolvedIri) await addBaseEntityToRoot(resolvedIri);
-  if (props.addMode !== "editProperty" && variableMap.value && variableMap.value.size) addVariableNodes();
+  if (props.showVariableOptions && variableMap.value && variableMap.value.size) addVariableNodes();
 }
 
 function addVariableNodes() {

@@ -16,6 +16,7 @@
       <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
       <DirectorySearchDialog
         v-model:show-dialog="showDialog"
+        :selected="{ iri: editValue['@id'], name: editValue.name } as ConceptSummary"
         @update:selected="onSelect"
         :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
         :search-by-query="validationQueryRequest"

@@ -2,9 +2,10 @@ import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { SelectedMatch } from "@im-library/interfaces";
 import { Match } from "@im-library/interfaces/AutoGen";
 import { Ref, ref } from "vue";
-import { cloneDeep } from "lodash";
+import { v4 } from "uuid";
 
 function setupQueryBuilderActions() {
+  const showUpdateDialog: Ref<boolean> = ref(false);
   const showViewDialog: Ref<boolean> = ref(false);
   const showAddDialog: Ref<boolean> = ref(false);
   const showKeepAsDialog: Ref<boolean> = ref(false);
@@ -13,54 +14,36 @@ function setupQueryBuilderActions() {
   const allowDrop: Ref<boolean> = ref(true);
   const dragged: Ref<any> = ref({ match: [] as Match[] } as Match);
   const draggedParent: Ref<any> = ref({ match: [] as Match[] } as Match);
-  const addMode: Ref<"editProperty" | "addBefore" | "addAfter"> = ref("addAfter");
+  const addBefore: Ref<boolean> = ref(false);
 
-  function addOrEdit(match: Match, parentMatchList: Match[] | undefined, index: number, direct: Match[], nested: Match[]) {
-    switch (addMode.value) {
-      case "editProperty":
-        if (!isArrayHasLength(match.property) || !isArrayHasLength(direct)) {
-          match.property = [];
-        }
-        for (const newMatch of direct) {
-          match.property = newMatch.property;
-        }
-
-        if (!isArrayHasLength(match.match) && isArrayHasLength(nested)) match.match = [];
-        for (const newMatch of nested) {
-          match.match!.push(newMatch);
-        }
-        break;
-
-      case "addAfter":
-        if (isArrayHasLength(parentMatchList))
-          for (const newMatch of direct.concat(nested)) {
-            parentMatchList!.splice(index + 1, 0, newMatch);
-          }
-        break;
-
-      case "addBefore":
-        if (isArrayHasLength(parentMatchList))
-          for (const newMatch of direct.concat(nested)) {
-            parentMatchList!.splice(index, 0, newMatch);
-          }
-        break;
-
-      default:
-        break;
+  function addMatches(parentMatch: Match, newMatches: Match[], index: number = -1, before?: boolean) {
+    if (!isArrayHasLength(parentMatch.match)) {
+      parentMatch.bool = "and";
+      parentMatch.match = [];
     }
+    addMatchesToList(parentMatch.match!, newMatches, index, before);
   }
 
-  function updateProperties(match: Match, updatedMatch: Match) {
-    const copy = cloneDeep(match.property);
-    match.property = [];
-    if (isArrayHasLength(updatedMatch.property))
-      for (const updatedProperty of updatedMatch.property!) {
-        const found = copy?.find(prop => prop["@id"] === updatedProperty["@id"]);
-        if (found) match.property.push(found);
-        else match.property.push(updatedProperty);
-      }
+  function addMatchesToList(matchList: Match[], newMatches: Match[], index: number = -1, before?: boolean) {
+    if (index === -1) matchList = matchList?.concat(newMatches);
+    else {
+      const indexToAdd = before ? index : index + 1;
+      matchList.splice(indexToAdd, 0, ...newMatches);
+    }
 
-    showAddDialog.value = false;
+    addBefore.value = false;
+  }
+
+  function updateProperties(parentMatch: Match, direct: Match[], nested: Match[]) {
+    if (!isArrayHasLength(parentMatch.property) || !isArrayHasLength(direct)) parentMatch.property = [];
+
+    if (isArrayHasLength(direct)) {
+      parentMatch.property = direct[0].property;
+    }
+
+    if (isArrayHasLength(nested)) {
+      addMatches(parentMatch, nested);
+    }
   }
 
   function view() {
@@ -96,7 +79,7 @@ function setupQueryBuilderActions() {
   function group(selectedMatches: SelectedMatch[], parentMatch: Match[] | undefined, matches: Match[]) {
     let index = selectedMatches[0].index;
     let initialParent = selectedMatches[0].parent;
-    const groupedMatch = { bool: "and", match: [] } as Match;
+    const groupedMatch = { "@id": v4(), bool: "and", match: [] } as Match;
 
     for (const selectedMatch of selectedMatches) {
       if (selectedMatch.parent !== initialParent) {
@@ -117,12 +100,12 @@ function setupQueryBuilderActions() {
     for (const selectedMatch of selectedMatches) {
       if (isArrayHasLength(parentMatch)) {
         parentMatch!.splice(
-          parentMatch!.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+          parentMatch!.findIndex(match => match["@id"] === selectedMatch.selected["@id"]),
           1
         );
       } else {
         matches.splice(
-          matches.findIndex(match => JSON.stringify(match) === JSON.stringify(selectedMatch.selected)),
+          matches.findIndex(match => match["@id"] === selectedMatch.selected["@id"]),
           1
         );
       }
@@ -134,7 +117,7 @@ function setupQueryBuilderActions() {
       if (isArrayHasLength(selectedMatch.selected.match)) {
         if (index !== -1) matches.splice(index, 1);
         for (const nestedMatch of selectedMatch.selected.match!.reverse()) {
-          const unnestedMatch = { bool: "and", match: [nestedMatch] } as Match;
+          const unnestedMatch = { "@id": v4(), bool: "and", match: [nestedMatch] } as Match;
           matches.splice(index, 0, unnestedMatch);
         }
       }
@@ -195,7 +178,7 @@ function setupQueryBuilderActions() {
       if (!isSelected) {
         selectedMatches.push(selectedMatch);
       } else {
-        const foundIndex = selectedMatches.findIndex(selectedMatch => JSON.stringify(selectedMatch.selected) === JSON.stringify(match));
+        const foundIndex = selectedMatches.findIndex(selectedMatch => selectedMatch.selected["@id"] === match["@id"]);
         if (foundIndex !== -1) {
           selectedMatches.splice(foundIndex, 1);
         }
@@ -207,7 +190,8 @@ function setupQueryBuilderActions() {
   }
 
   return {
-    addOrEdit,
+    addMatchesToList,
+    addMatches,
     updateProperties,
     view,
     keepAs,
@@ -226,7 +210,8 @@ function setupQueryBuilderActions() {
     showKeepAsDialog,
     showDirectoryDialog,
     showAddBaseTypeDialog,
-    addMode
+    showUpdateDialog,
+    addBefore
   };
 }
 

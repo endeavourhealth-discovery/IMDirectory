@@ -8,12 +8,17 @@
     <div v-else-if="!queryTypeIri">
       <Button class="base-type-button" label="Add base type" @click="showAddBaseTypeDialog = true" />
     </div>
-    <div v-if="!isArrayHasLength(query.match) && query['typeOf']">
-      <Button class="base-type-button" label="Add property" @click="showAddDialog = true" />
-      <Button class="base-type-button" label="Add Cohort" @click="showDirectoryDialog = true" />
+    <div v-if="query['typeOf']">
+      <SplitButton label="Add property" :model="addOptions" icon="pi pi-pencil" @click="showAddDialog = true" class="base-type-button"></SplitButton>
     </div>
 
-    <AddPropertyDialog v-model:show-dialog="showAddDialog" :add-mode="'addAfter'" @on-add-or-edit="add" :match-type="queryTypeIri" />
+    <AddPropertyDialog
+      v-model:show-dialog="showAddDialog"
+      :header="'Add properties'"
+      :show-variable-options="true"
+      :match-type="queryTypeIri"
+      @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(query.match, direct.concat(nested))"
+    />
     <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
     <DirectorySearchDialog
       v-model:show-dialog="showDirectoryDialog"
@@ -53,7 +58,19 @@ const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => querySt
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const showDirectoryDialog: Ref<boolean> = ref(false);
-const { showAddDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
+const { showAddDialog, showAddBaseTypeDialog, addMatchesToList } = setupQueryBuilderActions();
+
+const addOptions = [
+  {
+    label: "Add Cohort",
+    icon: "pi pi-search",
+    command: () => (showDirectoryDialog.value = true)
+  },
+  {
+    label: "Template",
+    icon: "pi pi-plus"
+  }
+];
 
 onMounted(() => init());
 
@@ -86,13 +103,6 @@ function init() {
 
 async function setBaseEntityMatch() {
   if (isObjectHasKeys(query.value.typeOf, ["@id"])) queryStore.updateReturnType(query.value["typeOf"]["@id"]);
-}
-
-function add(direct: Match[], nested: Match[]) {
-  if (!isArrayHasLength(query.value.match)) query.value.match = [];
-  for (const match of direct.concat(nested)) {
-    query.value.match!.push(match);
-  }
 }
 
 function initVariableMap() {
