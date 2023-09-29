@@ -108,7 +108,7 @@ function iri(url: string) {
 export function sanitise(data: any) {
   if (typeof data === "string") {
     if (data.startsWith("http") || data.startsWith("https")) return iri(data);
-    else return "'" + data + "'";
+    else return JSON.stringify(data);
   }
   if (typeof data === "object") return "'" + JSON.stringify(data).replaceAll('"', "`").replaceAll("'", '"') + "'";
   if (typeof data === "number") return "'" + data + "'";

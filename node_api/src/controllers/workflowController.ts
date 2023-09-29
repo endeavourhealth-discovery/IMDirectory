@@ -37,6 +37,16 @@ export default class WorkflowController {
         .then(() => res.end())
         .catch(next);
     });
+    this.router.get("/createdByWorkflows", this.auth.secure(), async (req, res, next) => {
+      this.getCreatedByWorkflows(req)
+        .then(data => res.send(data))
+        .catch(next);
+    });
+    this.router.get("/assignedToWorkflows", this.auth.secure(), async (req, res, next) => {
+      this.getAssignedToWorkflows(req)
+        .then(data => res.send(data))
+        .catch(next);
+    });
   }
 
   async getBugReport(req: Request) {
@@ -52,6 +62,7 @@ export default class WorkflowController {
     if (latestRelease && isObjectHasKeys(latestRelease, ["version"])) bugReport.version = latestRelease.version;
     bugReport.type = WORKFLOW.BUG_REPORT;
     bugReport.state = WorkflowEnums.State.TODO;
+    if (!isObjectHasKeys(bugReport, ["assignedTo"])) bugReport.assignedTo = null;
     await this.setBugReport(bugReport);
     if (process.env.NODE_ENV === "production") await this.mailService.createConnection();
     else await this.mailService.createLocalConnection();
@@ -67,5 +78,15 @@ export default class WorkflowController {
     if (isBugReport(bugReport)) {
       return this.workflowService.setBugReport(bugReport);
     } else throw new Error("Input data is not of type BugReport");
+  }
+
+  async getCreatedByWorkflows(req: Request) {
+    const userId = this.auth.getUserId(req);
+    return await this.workflowService.getCreatedByWorkflows(userId);
+  }
+
+  async getAssignedToWorkflows(req: Request) {
+    const userId = this.auth.getUserId(req);
+    return await this.workflowService.getAssignedToWorkflows(userId);
   }
 }

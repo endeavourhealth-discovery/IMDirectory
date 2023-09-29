@@ -1,6 +1,6 @@
 import { GraphdbService, sanitise, desanitise } from "@/services/graphdb.service";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { BugReport } from "@im-library/interfaces";
+import { BugReport, Workflow } from "@im-library/interfaces";
 import { IM, RDF, RDFS, WORKFLOW } from "@im-library/vocabulary";
 
 export default class WorkflowRepository {
@@ -146,5 +146,79 @@ export default class WorkflowRepository {
       default:
         throw new Error(`Unexpected key ${key}`);
     }
+  }
+
+  public async getWorkflowsByCreatedBy(userId: string) {
+    const qry =
+      "SELECT ?s ?wfCreatedBy ?wfType ?wfAssignedTo ?wfState ?wfDateCreated " +
+      "WHERE { " +
+      "GRAPH ?c { " +
+      "?s ?createdBy ?wfCreatedBy; " +
+      "?dateCreated ?wfDateCreated; " +
+      "?assignedTo ?wfAssignedTo; " +
+      "?state ?wfState; " +
+      "?type ?wfType . " +
+      "} " +
+      "}";
+    const rs = await this.graph.execute(qry, {
+      c: sanitise(WORKFLOW.NAMESPACE),
+      type: sanitise(RDF.TYPE),
+      createdBy: sanitise(WORKFLOW.CREATED_BY),
+      assignedTo: sanitise(WORKFLOW.ASSIGNED_TO),
+      state: sanitise(WORKFLOW.STATE),
+      dateCreated: sanitise(WORKFLOW.DATE_CREATED),
+      wfCreatedBy: sanitise(userId)
+    });
+    const results: Workflow[] = [];
+    if (isArrayHasLength(rs)) {
+      for (const r of rs) {
+        const workflow = {} as Workflow;
+        workflow.id = r.s.value;
+        workflow.type = r.wfType.value;
+        workflow.createdBy = r.wfCreatedBy.value;
+        workflow.assignedTo = r.wfAssignedTo.value;
+        workflow.state = r.wfState.value;
+        workflow.dateCreated = r.wfDateCreated.value;
+        results.push(workflow);
+      }
+    }
+    return results;
+  }
+
+  public async getWorkflowsByAssignedTo(userId: string) {
+    const qry =
+      "SELECT ?s ?wfCreatedBy ?wfType ?wfAssignedTo ?wfState ?wfDateCreated " +
+      "WHERE { " +
+      "GRAPH ?c { " +
+      "?s ?assignedTo ?wfAssignedTo; " +
+      "?dateCreated ?wfDateCreated; " +
+      "?createdBy ?wfCreatedBy; " +
+      "?state ?wfState; " +
+      "?type ?wfType . " +
+      "} " +
+      "}";
+    const rs = await this.graph.execute(qry, {
+      c: sanitise(WORKFLOW.NAMESPACE),
+      type: sanitise(RDF.TYPE),
+      createdBy: sanitise(WORKFLOW.CREATED_BY),
+      assignedTo: sanitise(WORKFLOW.ASSIGNED_TO),
+      state: sanitise(WORKFLOW.STATE),
+      dateCreated: sanitise(WORKFLOW.DATE_CREATED),
+      wfAssignedTo: sanitise(userId)
+    });
+    const results: Workflow[] = [];
+    if (isArrayHasLength(rs)) {
+      for (const r of rs) {
+        const workflow = {} as Workflow;
+        workflow.id = r.s.value;
+        workflow.type = r.wfType.value;
+        workflow.createdBy = r.wfCreatedBy.value;
+        workflow.assignedTo = r.wfAssignedTo.value;
+        workflow.state = r.wfState.value;
+        workflow.dateCreated = r.wfDateCreated.value;
+        results.push(workflow);
+      }
+    }
+    return results;
   }
 }

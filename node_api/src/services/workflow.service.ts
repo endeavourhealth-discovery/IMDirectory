@@ -19,4 +19,12 @@ export default class WorkflowService {
   public async generateId() {
     return this.workflowRepo.generateId();
   }
+
+  public async getCreatedByWorkflows(id: string) {
+    return this.workflowRepo.getWorkflowsByCreatedBy(id);
+  }
+
+  public async getAssignedToWorkflows(id: string) {
+    return this.workflowRepo.getWorkflowsByAssignedTo(id);
+  }
 }
