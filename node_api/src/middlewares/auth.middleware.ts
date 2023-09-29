@@ -3,6 +3,7 @@ import jwkToPem from "jwk-to-pem";
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import logger from "./logger.middleware";
+import { CustomError } from "@im-library/models";
 
 let pems: { [key: string]: any } = {};
 
@@ -56,6 +57,15 @@ class AuthMiddleware {
 
   public secure(role?: string) {
     return (req: Request, res: Response, nxt: any) => this.verifyToken(req, res, nxt, role);
+  }
+
+  public getUserId(req: Request) {
+    const token = req.headers?.authorization?.substring(7);
+    if (!token) throw new Error("Invalid or missing auth token");
+    let decodedJwt: any = jwt.decode(token, { complete: true });
+    if (!decodedJwt) throw new Error("Invalid or missing auth token");
+    const userId = decodedJwt.payload.sub;
+    return userId;
   }
 
   private async setUp() {
