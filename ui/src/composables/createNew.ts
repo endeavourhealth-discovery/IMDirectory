@@ -5,11 +5,14 @@ import { DirectService, QueryService } from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { TreeNode } from "primevue/tree";
 import { Ref } from "vue";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
 
 function createNew() {
   const directService = new DirectService();
 
   async function getCreateOptions(newFolderName: Ref<string>, newFolder: Ref<TreeNode>, node: TreeNode): Promise<any[]> {
+    if (IM.FAVOURITES == node.key) return [];
+
     const selectionWrapperCopy = [
       {
         label: "New",
@@ -17,7 +20,18 @@ function createNew() {
         items: [] as any[]
       }
     ];
-    let allowableTypes = [] as AllowableChildProperty[];
+
+    let allowableTypes = [
+      {
+        "@id": IM.FOLDER,
+        "http://www.w3.org/2000/01/rdf-schema#label": "Folder",
+        "http://www.w3.org/ns/shacl#property": [
+          {
+            "http://www.w3.org/ns/shacl#path": { "@id": "http://endhealth.info/im#isContainedIn" }
+          }
+        ]
+      }
+    ] as AllowableChildProperty[];
     const types = await QueryService.getAllowableChildTypes(node.key as string);
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
 
