@@ -48,144 +48,19 @@ const DataModelShape: FormGenerator = {
           },
           property: [
             {
-              comment: "A property that auto generates the type as data model type",
+              label: "Summary",
               order: 1,
-              function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
-              },
-              name: "Type",
-              showTitle: true,
-              path: {
-                "@id": RDF.TYPE
-              },
-              argument: [
-                {
-                  parameter: "entityIri",
-                  valueIri: {
-                    "@id": SHACL.NODESHAPE
-                  }
-                }
-              ],
-              isIri: {
-                "@id": SHACL.NODESHAPE
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
-              }
-            },
-            {
-              comment: "A property that auto generates a concept iri from the snomed extension",
-              order: 2,
-              name: "Iri",
-              showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.ID
+                "@id": IM.CONCEPT
               },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
-              },
-              valueVariable: "conceptIri",
-              function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
-            },
-            {
-              comment: "Property that derives a concept code from the concept iri",
-              order: 3,
-              name: "Code",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.CODE
-              },
-              argument: [
-                {
-                  parameter: "entityIri",
-                  valueVariable: "conceptIri"
-                },
-                {
-                  parameter: "fieldName",
-                  valueData: "code"
-                }
-              ],
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.TEXT_DISPLAY
-              },
-              datatype: {
-                "@id": XSD.STRING
-              },
-              function: {
-                "@id": IM.function.LOCAL_NAME_RETRIEVER
-              }
-            },
-            {
-              comment: "name or main term of entity",
-              order: 4,
-              name: "Name",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": RDFS.LABEL
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.TEXT_INPUT
-              },
-              datatype: {
-                "@id": XSD.STRING
-              }
-            },
-            {
-              comment: "optional description",
-              order: 5,
-              datatype: {
-                "@id": XSD.STRING
-              },
-              name: "Description",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": RDFS.COMMENT
-              },
+              name: "Summary",
               minCount: 0,
               componentType: {
-                "@id": IM.component.HTML_INPUT
-              }
-            },
-            {
-              comment: "selects the status with a default of draft",
-              order: 6,
-              select: [
-                {
-                  "@id": IM.query.GET_DESCENDANTS
-                }
-              ],
-              name: "Status",
+                "@id": IM.component.CONCEPT_SUMMARY
+              },
               showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
+              validation: { "@id": IM.validation.IS_SUMMARY }
             },
             {
               label: "Property group - Sub type array builder",

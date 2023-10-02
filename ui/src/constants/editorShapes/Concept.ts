@@ -35,144 +35,19 @@ const ConceptShape: FormGenerator = {
           componentType: { "@id": IM.component.VERTICAL_LAYOUT },
           property: [
             {
-              comment: "A property that auto generates the type as  concept type",
+              label: "Summary",
               order: 1,
-              function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
-              },
-              name: "Type",
-              showTitle: true,
+              maxCount: 1,
               path: {
-                "@id": RDF.TYPE
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.CONCEPT
-                  },
-                  parameter: "entityIri"
-                }
-              ],
-              isIri: {
                 "@id": IM.CONCEPT
               },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
-              }
-            },
-            {
-              comment: "A property that auto generates a concept iri from the snomed extension",
-              order: 2,
-              name: "Iri",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.ID
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
-              },
-              valueVariable: "conceptIri",
-              function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
-            },
-            {
-              comment: "Property that derives a concept code from the concept iri",
-              order: 3,
-              name: "Code",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.CODE
-              },
-              argument: [
-                {
-                  parameter: "entityIri",
-                  valueVariable: "conceptIri"
-                },
-                {
-                  parameter: "fieldName",
-                  valueData: "code"
-                }
-              ],
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.TEXT_DISPLAY
-              },
-              datatype: {
-                "@id": XSD.STRING
-              },
-              function: {
-                "@id": IM.function.LOCAL_NAME_RETRIEVER
-              }
-            },
-            {
-              comment: "name or main term of concept",
-              order: 4,
-              name: "Concept name",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": RDFS.LABEL
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.TEXT_INPUT
-              },
-              datatype: {
-                "@id": XSD.STRING
-              }
-            },
-            {
-              comment: "optional description",
-              order: 5,
-              datatype: {
-                "@id": XSD.STRING
-              },
-              name: "Concept description",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": RDFS.COMMENT
-              },
+              name: "Summary",
               minCount: 0,
               componentType: {
-                "@id": IM.component.HTML_INPUT
-              }
-            },
-            {
-              comment: "selects the status with a default of draft",
-              order: 6,
-              select: [
-                {
-                  "@id": IM.query.GET_DESCENDANTS
-                }
-              ],
-              name: "Status",
+                "@id": IM.component.CONCEPT_SUMMARY
+              },
               showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
+              validation: { "@id": IM.validation.IS_SUMMARY }
             },
             {
               label: "Contained in array builder",
@@ -360,29 +235,29 @@ const ConceptShape: FormGenerator = {
                   path: { "@id": IM.HAS_TERM_CODE },
                   builderChild: true,
                   order: 1,
-                  minCount:0,
+                  minCount: 0,
                   componentType: { "@id": IM.component.TERM_CODE_EDITOR },
                   validation: { "@id": IM.validation.IS_TERMCODE }
                 }
               ]
             },
             {
-              name:"Child of",
-              comment:"Child of array builder",
+              name: "Child of",
+              comment: "Child of array builder",
               order: 1,
-              path:{"@id":IM.IS_CHILD_OF},
-              showTitle:true,
-              minCount:0,
-              componentType:{"@id":IM.component.ARRAY_BUILDER},
-              arrayButtons:{plus:true,minus:true,up:false,down:false,addOnlyIfLast:true},
-              property:[
+              path: { "@id": IM.IS_CHILD_OF },
+              showTitle: true,
+              minCount: 0,
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              property: [
                 {
-                  name:"Child of",
-                  path:{"@id":IM.IS_CHILD_OF},
-                  builderChild:true,
-                  order:1,
-                  minCount:0,
-                  componentType:{"@id":IM.component.ENTITY_SEARCH}
+                  name: "Child of",
+                  path: { "@id": IM.IS_CHILD_OF },
+                  builderChild: true,
+                  order: 1,
+                  minCount: 0,
+                  componentType: { "@id": IM.component.ENTITY_SEARCH }
                 }
               ]
             }

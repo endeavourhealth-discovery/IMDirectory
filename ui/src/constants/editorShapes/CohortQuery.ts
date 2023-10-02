@@ -39,115 +39,19 @@ const CohortQueryShape: FormGenerator = {
           },
           property: [
             {
-              comment: "A property that auto generates the type as  concept type",
+              label: "Summary",
               order: 1,
-              function: {
-                "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
-              },
-              name: "Type",
-              showTitle: true,
-              path: {
-                "@id": RDF.TYPE
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.COHORT_QUERY
-                  },
-                  parameter: "entityIri"
-                }
-              ],
-              isIri: {
-                "@id": IM.COHORT_QUERY
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_COMBOBOX
-              }
-            },
-            {
-              comment: "A property that auto generates a concept iri from the snomed extension",
-              order: 2,
-              name: "Iri",
-              showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.ID
+                "@id": IM.CONCEPT
               },
-              minCount: 1,
+              name: "Summary",
+              minCount: 0,
               componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                "@id": IM.component.CONCEPT_SUMMARY
               },
-              valueVariable: "conceptIri",
-              function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
-            },
-
-            {
-              comment: "name or main term of concept",
-              order: 3,
-              name: "Name",
               showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": RDFS.LABEL
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.TEXT_INPUT
-              },
-              datatype: {
-                "@id": XSD.STRING
-              }
-            },
-            {
-              comment: "optional description",
-              order: 4,
-              datatype: {
-                "@id": XSD.STRING
-              },
-              name: "Description",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": RDFS.COMMENT
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.HTML_INPUT
-              }
-            },
-            {
-              comment: "selects the status with a default of draft",
-              order: 5,
-              select: [
-                {
-                  "@id": IM.query.GET_DESCENDANTS
-                }
-              ],
-              name: "Status",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
+              validation: { "@id": IM.validation.IS_SUMMARY }
             },
             {
               label: "Property group - contained in array builder",
