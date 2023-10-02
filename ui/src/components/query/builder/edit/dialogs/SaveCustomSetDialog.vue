@@ -5,34 +5,30 @@
       <div class="flex flex-column" id="save-set-scheme-iri">
         <span id="save-set-scheme-header">Scheme</span>
         <div class="flex" id="save-set-graph-iri">
-          <div class="flex-1" id="save-set-graph">
-            <div class="flex flex-column">
-              <Dropdown
-                id="scheme"
-                v-bind="scheme"
-                type="text"
-                :class="{ 'p-invalid': errors.scheme }"
-                aria-describedby="text-error"
-                :options="schemeOptions"
-                option-label="name"
-                option-value="@id"
-                placeholder="Scheme"
-                class="flex-1"
-              />
-              <small class="p-error flex-1" id="text-error">{{ errors.scheme || "&nbsp;" }}</small>
-            </div>
+          <div class="flex flex-column flex-auto" id="save-set-graph">
+            <Dropdown
+              id="scheme"
+              v-bind="scheme"
+              type="text"
+              :class="{ 'p-invalid': errors.scheme }"
+              aria-describedby="text-error"
+              :options="schemeOptions"
+              option-label="name"
+              option-value="@id"
+              placeholder="Scheme"
+              class="flex-1"
+            />
+            <small class="p-error flex-1" id="text-error">{{ errors.scheme || "&nbsp;" }}</small>
           </div>
 
-          <div class="flex-1" id="save-set-iri">
-            <div class="flex flex-column">
-              <InputText id="iri" v-bind="iri" type="text" :class="{ 'p-invalid': errors.iri }" aria-describedby="text-error" />
-              <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
-            </div>
+          <div class="flex flex-column flex-auto" id="save-set-iri">
+            <InputText id="iri" v-bind="iri" type="text" :class="{ 'p-invalid': errors.iri }" aria-describedby="text-error" />
+            <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
           </div>
         </div>
       </div>
 
-      <div class="flex flex-column gap-2">
+      <div class="flex flex-column gap-2" id="save-set-full-iri">
         <span id="save-set-iri-header">Iri</span>
         <InputText :model-value="fullIri" type="text" disabled />
       </div>
@@ -225,4 +221,8 @@ function buildSetEntity() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+#save-set-full-iri {
+  padding-bottom: 1rem;
+}
+</style>
