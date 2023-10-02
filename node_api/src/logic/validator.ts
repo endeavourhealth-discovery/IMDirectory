@@ -1,6 +1,6 @@
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS, SHACL } from "@im-library/vocabulary";
 
 export default class Validator {
   constructor() {}
@@ -11,6 +11,7 @@ export default class Validator {
     if (iri === IM.validation.IS_IRI) return this.isValidIri(data);
     if (iri === IM.validation.IS_TERMCODE) return this.isValidTermcodes(data);
     if (iri === IM.validation.IS_SUMMARY) return this.isValidSummary(data);
+    if (iri === IM.validation.IS_PROPERTY) return this.isValidProperties(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -84,6 +85,46 @@ export default class Validator {
       }
     }
     return { isValid: valid, message: message };
+  }
+
+  private isValidProperties(data: any) {
+    let valid = true;
+    let message: string | undefined = undefined;
+    const props: any[] = data[SHACL.PROPERTY];
+
+    if (!props || props.length == 0) {
+      valid = false;
+      message = "Data models must have at least 1 property";
+    } else {
+      for (const prop of props) {
+        if (!this.isValidIriOrIriList(prop[SHACL.PATH], 1, 1)) valid = false;
+
+        if (
+          !this.isValidIriOrIriList(prop[SHACL.NODE], 1, 1) &&
+          !this.isValidIriOrIriList(prop[SHACL.DATATYPE], 1, 1) &&
+          !this.isValidIriOrIriList(prop[SHACL.CLASS], 1, 1)
+        )
+          valid = false;
+      }
+
+      if (!valid) message = "One or more invalid properties";
+    }
+
+    return { isValid: valid, message: message };
+  }
+
+  private isValidIriOrIriList(value: any, minLength = 0, maxLength = 0) {
+    if (!value) {
+      return minLength == 0;
+    }
+
+    if (!value.length) value = [value];
+
+    if (value.length < minLength || value.length > maxLength) {
+      return false;
+    }
+
+    return value.every((pd: any) => pd?.["@id"]);
   }
 
   private isValidTermcodes(data: any): { isValid: boolean; message?: string } {

@@ -85,8 +85,13 @@ if (valueVariableMap) {
     () => _.cloneDeep(valueVariableMap),
     async () => {
       if (updateValidity) {
+        if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+      invalid.value = false;
+      validationErrorMessage.value = undefined
+    } else {
         await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
         showValidation.value = true;
+    }
       }
     }
   );
@@ -102,8 +107,13 @@ const build: Ref<ComponentDetails[]> = ref([]);
 onMounted(async () => {
   init();
   if (updateValidity) {
+    if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+      invalid.value = false;
+      validationErrorMessage.value = undefined
+    } else {
     await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
     showValidation.value = false;
+    }
   }
 });
 
@@ -119,8 +129,13 @@ watch(
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
       if (updateValidity) {
+        if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+      invalid.value = false;
+      validationErrorMessage.value = undefined
+    } else {
         await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
         showValidation.value = true;
+    }
       }
       updateValueVariableMap(props.value);
     }

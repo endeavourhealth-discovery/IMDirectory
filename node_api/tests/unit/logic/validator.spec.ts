@@ -1,6 +1,6 @@
 import { expect, test, describe, it } from "vitest";
 import Validator from "../../../src/logic/validator";
-import { IM } from "@im-library/vocabulary";
+import { IM, SHACL } from "@im-library/vocabulary";
 
 describe("Validator", () => {
   describe("hasValidParents", () => {
@@ -32,6 +32,7 @@ describe("Validator", () => {
       expect(actual).toEqual({ isValid: false, message: "Entity is missing a parent. Add a parent to 'subclassOf' or 'isContainedIn'." });
     });
   });
+
   describe("isValidIri", () => {
     it("passes with correct iri", () => {
       const actual = new Validator().validate(IM.validation.IS_IRI, {
@@ -87,6 +88,97 @@ describe("Validator", () => {
         "http://endhealth.info/im#iri": "http://endhealth.info/im#903031000252104"
       });
       expect(actual).toEqual({ isValid: false, message: "Entity is missing 'http://endhealth.info/im#id' key" });
+    });
+  });
+
+  describe("isValidIriOrIriList", () => {
+    it("fails if no properties", () => {
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: false, message: "Data models must have at least 1 property" });
+    });
+
+    it("fails if property without path", () => {
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [{}];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: false, message: "One or more invalid properties" });
+    });
+
+    it("fails if property with path without range", () => {
+      let testProperty: any = {};
+      testProperty[SHACL.PATH] = { "@id": "Some IRI" };
+
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [testProperty];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: false, message: "One or more invalid properties" });
+    });
+
+    it("fails if property with array path without range", () => {
+      let testProperty: any = {};
+      testProperty[SHACL.PATH] = [{ "@id": "Some IRI" }];
+
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [testProperty];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: false, message: "One or more invalid properties" });
+    });
+
+    it("fails if property with array multi path with (node) range", () => {
+      let testProperty: any = {};
+      testProperty[SHACL.PATH] = [{ "@id": "Some IRI" }, { "@id": "Other IRI" }];
+      testProperty[SHACL.NODE] = [{ "@id": "Some IRI" }];
+
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [testProperty];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: false, message: "One or more invalid properties" });
+    });
+
+    it("fails if property with path with array multi (node) range", () => {
+      let testProperty: any = {};
+      testProperty[SHACL.PATH] = { "@id": "Some IRI" };
+      testProperty[SHACL.NODE] = [{ "@id": "Some IRI" }, { "@id": "Some IRI" }];
+
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [testProperty];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: false, message: "One or more invalid properties" });
+    });
+
+    it("succeeds if property with path with (node) range", () => {
+      let testProperty: any = {};
+      testProperty[SHACL.PATH] = [{ "@id": "Some IRI" }];
+      testProperty[SHACL.NODE] = [{ "@id": "Some IRI" }];
+
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [testProperty];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: true, message: undefined });
+    });
+
+    it("succeeds if property with path with (class) range", () => {
+      let testProperty: any = {};
+      testProperty[SHACL.PATH] = [{ "@id": "Some IRI" }];
+      testProperty[SHACL.CLASS] = [{ "@id": "Some IRI" }];
+
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [testProperty];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: true, message: undefined });
+    });
+
+    it("succeeds if property with path with (datatype) range", () => {
+      let testProperty: any = {};
+      testProperty[SHACL.PATH] = [{ "@id": "Some IRI" }];
+      testProperty[SHACL.DATATYPE] = [{ "@id": "Some IRI" }];
+
+      let testData: any = {};
+      testData[SHACL.PROPERTY] = [testProperty];
+      const actual = new Validator().validate(IM.validation.IS_PROPERTY, testData);
+      expect(actual).toEqual({ isValid: true, message: undefined });
     });
   });
 });

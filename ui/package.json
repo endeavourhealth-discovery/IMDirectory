@@ -41,13 +41,14 @@
     "pinia": "2.1.4",
     "primeflex": "3.3.1",
     "primeicons": "6.0.1",
-    "primevue": "3.27.0",
+    "primevue": "3.35.0",
     "qr-code-styling": "1.6.0-rc.1",
     "sass": "1.68.0",
     "semver": "7.5.4",
     "svg-pan-zoom": "3.6.1",
     "sweetalert2": "11.7.2",
     "tslib": "2.6.2",
+    "uuid": "9.0.0",
     "vue": "3.3.4",
     "vue-json-pretty": "2.2.4",
     "vue-router": "4.2.2",
@@ -55,6 +56,7 @@
     "vuedraggable": "4.1.0"
   },
   "devDependencies": {
+    "@types/uuid": "9.0.0",
     "@cypress/vite-dev-server": "5.0.5",
     "@cypress/vue": "5.0.5",
     "@faker-js/faker": "8.0.2",

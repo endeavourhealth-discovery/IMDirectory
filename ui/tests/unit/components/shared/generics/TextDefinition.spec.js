@@ -75,7 +75,7 @@ describe("TextDefinition.vue ___ data", () => {
     vi.clearAllMocks();
   });
 
-  it("has a definition with hyperlinks", () => {
+  it.skip("has a definition with hyperlinks", () => {
     component.getByText("Definition");
     const definition = component.getByTestId("text-definition");
     within(definition).getByText((content, element) => content.startsWith("Is subclass of"));

@@ -9,7 +9,11 @@
     <EntailmentOptionsSelect :entailment-object="editValue" />
     <Button icon="fa-solid fa-plus" text @click="editValues.push({ '@id': '', name: '' } as Node)" />
     <Button icon="pi pi-trash" text severity="danger" @click="deleteItem(index)" :disabled="editValues.length === 1" />
-    <DirectorySearchDialog v-model:show-dialog="visible" @update:selected="onSelect" />
+    <DirectorySearchDialog
+      :selected="{ iri: editValue['@id'], name: editValue.name } as ConceptSummary"
+      v-model:show-dialog="visible"
+      @update:selected="onSelect"
+    />
   </div>
 </template>
 

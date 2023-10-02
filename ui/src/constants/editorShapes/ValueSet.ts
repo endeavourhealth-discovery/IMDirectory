@@ -130,7 +130,7 @@ const ValueSetShape: FormGenerator = {
               order: 5,
               select: [
                 {
-                  "@id": IM.query.GET_ISAS
+                  "@id": IM.query.GET_DESCENDANTS
                 }
               ],
               name: "Status",

@@ -268,29 +268,6 @@ export function getDisplayFromEntailment(entailment: Entailment) {
   return "";
 }
 
-function getDisplayFromPathRecursively(propertyOrMatch: any, pathList: string[], lastMatch: Match[]) {
-  if (isObjectHasKeys(propertyOrMatch, ["property"]) && isArrayHasLength(propertyOrMatch.property)) {
-    for (const nestedProperty of propertyOrMatch.property) {
-      pathList.push(nestedProperty["@id"]);
-      getDisplayFromPathRecursively(nestedProperty, pathList, lastMatch);
-    }
-  } else if (isObjectHasKeys(propertyOrMatch, ["match"])) {
-    if (isLastMatch(propertyOrMatch.match)) {
-      if (isArrayHasLength(lastMatch)) lastMatch.splice(0, 1, propertyOrMatch);
-      else lastMatch.push(propertyOrMatch.match);
-    } else {
-      pathList.push(propertyOrMatch.match.typeOf);
-      getDisplayFromPathRecursively(propertyOrMatch.match, pathList, lastMatch);
-    }
-  }
-}
-
-// checkers
-function isPrimitiveType(object: any) {
-  const primitiveTypes = ["string", "number", "boolean"];
-  return primitiveTypes.includes(typeof object);
-}
-
 // get unnamed nested objects
 export function getUnnamedObjects(object: any) {
   const unnamedObjects = {} as { [x: string]: any[] };
@@ -315,7 +292,7 @@ function recursivelyAddUnnamedObjects(unnamedObjects: { [x: string]: any[] }, ob
 }
 
 function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
-  let iri;
+  let iri = "";
   if (isObjectHasKeys(object, ["@id"])) iri = object["@id"];
   else if (isObjectHasKeys(object.typeOf, ["@id"])) iri = object["typeOf"]?.["@id"];
   else if (isArrayHasLength(object.inSet)) {
@@ -330,17 +307,9 @@ function addUnnamedObject(unnamedObjects: { [x: string]: any[] }, object: any) {
   if (iri && !isObjectHasKeys(object, ["name"])) {
     const resolvedIri = resolveIri(iri);
     if (resolvedIri)
-      if (isArrayHasLength(unnamedObjects.resolvedIri)) unnamedObjects[resolvedIri].push(object);
+      if (isArrayHasLength(unnamedObjects[resolvedIri])) unnamedObjects[resolvedIri].push(object);
       else unnamedObjects[resolvedIri] = [object];
   }
-}
-
-function isLastMatch(match: Match) {
-  return isArrayHasLength(match.property) && match.property!.some(property => !isObjectHasKeys(property, ["match"]));
-}
-
-function hasNestedProperty(match: Match) {
-  return isArrayHasLength(match.property) && match.property!.some(property => isObjectHasKeys(property, ["match"]));
 }
 
 export default { describeQuery, getUnnamedObjects };
