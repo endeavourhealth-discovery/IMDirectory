@@ -51,10 +51,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  updateClicked: (_payload: TTIriRef) => true
+  updateClicked: (_payload: TTIriRef | undefined) => true
 });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
@@ -105,7 +106,6 @@ onMounted(async () => {
 
 const loading = ref(false);
 const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const label = ref("");
 const key = ref("");
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -125,24 +125,27 @@ async function init() {
   if (isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
     queryRequest.value.argument = props.shape.argument;
   }
-  if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
+  if (props.value && isObjectHasKeys(props.value)) {
     updateSelectedResult(props.value);
   } else {
     selectedResult.value = {} as ConceptSummary;
   }
-  label.value = props.shape.name as string;
 }
 
-function convertToTTIriRef(data: ConceptSummary): TTIriRef {
-  return { "@id": data.iri, name: data.name } as TTIriRef;
+function convertToTTIriRef(data: ConceptSummary): TTIriRef | undefined {
+  if (data.iri && data.name) return { "@id": data.iri, name: data.name } as TTIriRef;
+  else return undefined;
 }
 
 async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
   if (!isObjectHasKeys(data)) {
     selectedResult.value = {} as ConceptSummary;
+  } else if (isObjectHasKeys(data, ["@id"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef)["@id"]) {
+    const asSummary = await EntityService.getEntitySummary((data as TTIriRef)["@id"]);
+    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
   } else if (isTTIriRef(data)) {
     const asSummary = await EntityService.getEntitySummary(data["@id"]);
-    selectedResult.value = asSummary ?? ({} as ConceptSummary);
+    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
   } else {
     selectedResult.value = data;
   }
@@ -165,10 +168,11 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
 function updateEntity() {
   const result = {} as any;
   result[key.value] = convertToTTIriRef(selectedResult.value);
-  if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
+  if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
+  else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }
 
-function updateValueVariableMap(data: TTIriRef) {
+function updateValueVariableMap(data: TTIriRef | undefined) {
   if (!props.shape.valueVariable) return;
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
@@ -242,7 +246,11 @@ function hasData() {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   cursor: pointer;
