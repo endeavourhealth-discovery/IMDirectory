@@ -64,7 +64,7 @@ export default class Validator {
     let message: string | undefined = "Iri is invalid";
     if (!isObjectHasKeys(data, [IM.ID])) message = "Entity is missing 'http://endhealth.info/im#id' key";
     else {
-      if (typeof data[IM.ID] !== "string") message = "Iri must be of type string";
+      if (typeof data[IM.ID] !== "string" && data[IM.ID]) message = "Iri must be of type string";
       else {
         if (!/#/g.test(data[IM.ID])) message = "Iri must contain a '#'";
         else {
@@ -144,7 +144,8 @@ export default class Validator {
     let valid = false;
     let message: string | undefined = "One or more fields are invalid.";
     if (isObjectHasKeys(data, [IM.ID, IM.HAS_STATUS, RDFS.LABEL])) {
-      if (this.isValidIri(data[IM.ID]) && data[RDFS.LABEL] && data[IM.HAS_STATUS]) valid = true;
+      if (this.isValidIri(data) && data[RDFS.LABEL] && data[IM.HAS_STATUS]) valid = true;
+      else message = this.isValidIri(data).message;
     }
     return { isValid: valid, message: message };
   }

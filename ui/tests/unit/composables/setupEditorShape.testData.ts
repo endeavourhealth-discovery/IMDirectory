@@ -36,143 +36,19 @@ export default {
         },
         property: [
           {
-            comment: "A property that auto generates the type as  concept type",
-            name: "type",
+            label: "Summary",
             order: 1,
-            minCount: 1,
-            componentType: {
-              "@id": "http://endhealth.info/im#entityComboBox"
-            },
+            maxCount: 1,
             path: {
-              name: "type",
-              "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-            },
-            function: {
-              "@id": "http://endhealth.info/im#Function_GetAdditionalAllowableTypes"
-            },
-            argument: [
-              {
-                parameter: "entityIri",
-                valueIri: {
-                  name: "Terminology Concept",
-                  "@id": "http://endhealth.info/im#Concept"
-                }
-              }
-            ],
-            isIri: {
-              name: "Terminology Concept",
               "@id": "http://endhealth.info/im#Concept"
-            }
-          },
-          {
-            comment: "A property that auto generates a concept iri from the snomed extension",
-            name: "iri",
-            order: 2,
-            minCount: 1,
-            maxCount: 1,
+            },
+            name: "Summary",
+            minCount: 0,
             componentType: {
-              "@id": "http://endhealth.info/im#textDisplay"
+              "@id": "http://endhealth.info/im#Component_ConceptSummary"
             },
-            path: {
-              "@id": "http://endhealth.info/im#id"
-            },
-            function: {
-              name: "Snomed concept generator",
-              "@id": "http://endhealth.info/im#Function_SnomedConceptGenerator"
-            },
-            valueVariable: "conceptIri"
-          },
-          {
-            comment: "Property that derives a concept code from the concept iri",
-            name: "code",
-            order: 3,
-            minCount: 1,
-            maxCount: 1,
-            componentType: {
-              "@id": "http://endhealth.info/im#textDisplay"
-            },
-            path: {
-              name: "code",
-              "@id": "http://endhealth.info/im#code"
-            },
-            function: {
-              name: "Local name retriever",
-              "@id": "http://endhealth.info/im#Function_LocalNameRetriever"
-            },
-            argument: [
-              {
-                parameter: "entityIri",
-                valueVariable: "conceptIri"
-              },
-              {
-                parameter: "fieldName",
-                valueData: "code"
-              }
-            ]
-          },
-          {
-            comment: "name or main term of concept",
-            name: "Concept name",
-            order: 4,
-            minCount: 1,
-            maxCount: 1,
-            componentType: {
-              "@id": "http://endhealth.info/im#textInput"
-            },
-            path: {
-              name: "label",
-              "@id": "http://www.w3.org/2000/01/rdf-schema#label"
-            }
-          },
-          {
-            comment: "optional description",
-            name: "Concept description",
-            order: 5,
-            minCount: 1,
-            maxCount: 1,
-            componentType: {
-              "@id": "http://endhealth.info/im#htmlInput"
-            },
-            path: {
-              name: "comment",
-              "@id": "http://www.w3.org/2000/01/rdf-schema#comment"
-            },
-            datatype: {
-              name: "string",
-              "@id": "http://www.w3.org/2001/XMLSchema#string"
-            }
-          },
-          {
-            comment: "selects the status with a default of draft",
-            name: "status",
-            order: 6,
-            minCount: 1,
-            maxCount: 1,
-            componentType: {
-              "@id": "http://endhealth.info/im#entityComboBox"
-            },
-            path: {
-              name: "status",
-              "@id": "http://endhealth.info/im#status"
-            },
-            select: [
-              {
-                "@id": "http://endhealth.info/im#Query_GetIsas"
-              }
-            ],
-            argument: [
-              {
-                parameter: "this",
-                valueIri: {
-                  name: "Activity status",
-                  "@id": "http://endhealth.info/im#Status"
-                }
-              }
-            ],
-            isIri: {
-              name: "Draft",
-              "@id": "http://endhealth.info/im#Draft"
-            }
+            showTitle: true,
+            validation: { "@id": "http://endhealth.info/im#Validation_isSummary" }
           }
         ],
         componentType: {

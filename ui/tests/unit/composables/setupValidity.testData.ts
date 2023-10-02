@@ -5,27 +5,7 @@ export default {
   validationCheckStatus: [
     {
       checkCompleted: false,
-      key: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-    },
-    {
-      checkCompleted: false,
-      key: "http://endhealth.info/im#id"
-    },
-    {
-      checkCompleted: false,
-      key: "http://endhealth.info/im#code"
-    },
-    {
-      checkCompleted: false,
-      key: "http://www.w3.org/2000/01/rdf-schema#label"
-    },
-    {
-      checkCompleted: false,
-      key: "http://www.w3.org/2000/01/rdf-schema#comment"
-    },
-    {
-      checkCompleted: false,
-      key: "http://endhealth.info/im#status"
+      key: "http://endhealth.info/im#Concept"
     },
     {
       checkCompleted: false,
@@ -44,7 +24,7 @@ export default {
       key: "http://endhealth.info/im#matchedTo"
     },
     { checkCompleted: false, key: "http://endhealth.info/im#hasTermCode" },
-    { checkCompleted: false, key: "http://endhealth.info/im#isChildOf"}
+    { checkCompleted: false, key: "http://endhealth.info/im#isChildOf" }
   ],
   testEntity: {
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" }],

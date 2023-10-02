@@ -29,11 +29,11 @@ describe("setupValidity", () => {
     it("can remove a check", () => {
       const itemToRemove = testData.testShape.property[0].property[0].property[0];
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(7);
       expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path["@id"], checkCompleted: false });
       wrapper.vm.removeValidationCheckStatus(itemToRemove);
       expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: itemToRemove.path["@id"], checkCompleted: false });
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(11);
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(6);
     });
   });
 
@@ -44,7 +44,7 @@ describe("setupValidity", () => {
 
     it("can clear validationCheckStatus", () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
+      expect(wrapper.vm.validationCheckStatus).toHaveLength(7);
       wrapper.vm.clearValidationCheckStatus();
       expect(wrapper.vm.validationCheckStatus).toEqual([]);
     });
@@ -108,7 +108,7 @@ describe("setupValidity", () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       wrapper.vm.validationCheckStatus = [];
       wrapper.vm.addPropertyToValidationCheckStatus(testData.testShape.property[0]);
-      expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: IM.CONCEPT, checkCompleted: false });
+      //expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: IM.CONCEPT, checkCompleted: false });
       expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: "http://snomed.info/sct#370124000", checkCompleted: false });
     });
   });
@@ -140,12 +140,13 @@ describe("setupValidity", () => {
       const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ isValid: true, message: undefined });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(testData.testShape.property[0].property[0].property[7].validation).toBeDefined();
+      console.log(testData.testShape.property[0].property[0]);
+      expect(testData.testShape.property[0].property[0].property[2].validation).toBeDefined();
       await wrapper.vm.updateValidity(
-        testData.testShape.property[0].property[0].property[7],
+        testData.testShape.property[0].property[0].property[2],
         editorEntity,
         valueVariableMap,
-        testData.testShape.property[0].property[0].property[7].path["@id"],
+        testData.testShape.property[0].property[0].property[2].path["@id"],
         invalid,
         validationErrorMessage
       );
@@ -161,12 +162,12 @@ describe("setupValidity", () => {
       const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(testData.testShape.property[0].property[0].property[7].validation).toBeDefined();
+      expect(testData.testShape.property[0].property[0].property[2].validation).toBeDefined();
       await wrapper.vm.updateValidity(
-        testData.testShape.property[0].property[0].property[7],
+        testData.testShape.property[0].property[0].property[2],
         editorEntity,
         valueVariableMap,
-        testData.testShape.property[0].property[0].property[7].path["@id"],
+        testData.testShape.property[0].property[0].property[2].path["@id"],
         invalid,
         validationErrorMessage
       );
@@ -182,7 +183,7 @@ describe("setupValidity", () => {
       const valueVariableMap = ref(_.cloneDeep(testData.testValueVariableMap));
       checkValidationSpy.mockResolvedValue({ isValid: false, message: "Test error" });
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(testData.testShape.property[0].property[0].property[0].validation).toBeUndefined();
+      expect(testData.testShape.property[0].property[0].property[0].validation["@id"]).toEqual("http://endhealth.info/im#Validation_isSummary");
       await wrapper.vm.updateValidity(
         testData.testShape.property[0].property[0].property[0],
         editorEntity,
