@@ -163,7 +163,7 @@ function setValidationQueryRequest() {
 }
 </script>
 
-<style>
+<style scoped>
 .title {
   font-size: 2rem;
   white-space: nowrap;
