@@ -10,6 +10,7 @@ export default class Validator {
     if (iri === IM.validation.IS_DEFINITION) return this.isValidDefinition(data);
     if (iri === IM.validation.IS_IRI) return this.isValidIri(data);
     if (iri === IM.validation.IS_TERMCODE) return this.isValidTermcodes(data);
+    if (iri === IM.validation.IS_SUMMARY) return this.isValidSummary(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -96,5 +97,14 @@ export default class Validator {
 
   private isValidTermCode(data: any): boolean {
     return isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL];
+  }
+
+  private isValidSummary(data: any): { isValid: boolean; message?: string } {
+    let valid = false;
+    let message: string | undefined = "One or more fields are invalid.";
+    if (isObjectHasKeys(data, [IM.ID, IM.HAS_STATUS, RDFS.LABEL])) {
+      if (this.isValidIri(data[IM.ID]) && data[RDFS.LABEL] && data[IM.HAS_STATUS]) valid = true;
+    }
+    return { isValid: valid, message: message };
   }
 }
