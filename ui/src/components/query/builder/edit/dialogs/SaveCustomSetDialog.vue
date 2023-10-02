@@ -169,7 +169,7 @@ const onSubmit = handleSubmit(async () => {
     await FilerService.fileEntity(setEntity, IM.NAMESPACE, IM.ADD_QUADS);
     const createdEntity = await EntityService.getFullEntity(setEntity["@id"]);
     if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
-      toast.add({ severity: "success", summary: "Created", detail: 'Created "' + createdEntity[RDFS.LABEL], life: 3000 });
+      toast.add({ severity: "success", summary: "Created", detail: "Created " + createdEntity[RDFS.LABEL], life: 3000 });
   } catch (e: any) {
     toast.add({ severity: "error", summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
   }
