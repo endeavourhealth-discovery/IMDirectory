@@ -2,7 +2,7 @@
   <div class="property-input-container">
     <div class="property-input-container">
       <Dropdown :options="['inSet', 'typeOf', 'instanceOf']" v-model:model-value="propertyType" />
-      <Button v-if="propertyType === 'inSet'" label="Save custom set" text severity="info" />
+      <SaveCustomSetDialog v-if="propertyType === 'inSet'" :set-members="editValues" />
       <div v-else>
         <InputText type="text" @click="openDialog()" placeholder="Value" v-model:model-value="selected.name" />
         <DirectorySearchDialog v-model:selected="selected" v-model:show-dialog="showDialog" />
@@ -41,6 +41,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { cloneDeep } from "lodash";
 import { buildNodeFromCS } from "@im-library/helpers/QueryBuilder";
 import { IM } from "@im-library/vocabulary";
+import SaveCustomSetDialog from "./dialogs/SaveCustomSetDialog.vue";
 
 const emit = defineEmits({
   onCancel: () => true,

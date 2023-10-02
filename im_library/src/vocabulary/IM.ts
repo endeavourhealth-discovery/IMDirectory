@@ -32,6 +32,7 @@ export class IM {
   public static WEIGHTING = IM.NAMESPACE + "weighting";
   public static VERSION = IM.NAMESPACE + "version";
   public static FUNCTION = IM.NAMESPACE + "function";
+  public static GRAPH = IM.NAMESPACE + "Graph";
 
   // task
   public static IN_TASK = IM.NAMESPACE + "inTask";
@@ -161,6 +162,11 @@ export class IM {
 
   // Config
   public static HAS_CONFIG = IM.NAMESPACE + "hasConfig";
+
+  // Main folders
+  public static FOLDER_VALUESETS = IM.NAMESPACE + "ValueSets";
+  public static FOLDER_SETS = IM.NAMESPACE + "Sets";
+  public static FOLDER_QUERY_CONCEPT_SETS = IM.NAMESPACE + "QueryConceptSets";
 
   // SUB VOCABULARIES
   public static component = componentVocabulary;
