@@ -2,10 +2,10 @@
   <Button label="Save custom set" text severity="info" @click="showSaveCustomSetDialog = true" />
   <Dialog v-model:visible="showSaveCustomSetDialog" modal header="Save custom set" :style="{ maxWidth: '50vw', backgroundColor: 'var(--surface-section)' }">
     <form @submit="onSubmit" class="flex flex-column gap-2">
-      <div class="flex flex-column">
-        Scheme
-        <div class="flex">
-          <div class="flex-1">
+      <div class="flex flex-column" id="save-set-scheme-iri">
+        <span id="save-set-scheme-header">Scheme</span>
+        <div class="flex" id="save-set-graph-iri">
+          <div class="flex-1" id="save-set-graph">
             <div class="flex flex-column">
               <Dropdown
                 id="scheme"
@@ -23,7 +23,7 @@
             </div>
           </div>
 
-          <div class="flex-1">
+          <div class="flex-1" id="save-set-iri">
             <div class="flex flex-column">
               <InputText id="iri" v-bind="iri" type="text" :class="{ 'p-invalid': errors.iri }" aria-describedby="text-error" />
               <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
@@ -33,14 +33,12 @@
       </div>
 
       <div class="flex flex-column gap-2">
-        Iri
+        <span id="save-set-iri-header">Iri</span>
         <InputText :model-value="fullIri" type="text" disabled />
-        <div></div>
-        <div></div>
       </div>
 
-      <div class="flex flex-column gap-2">
-        Name
+      <div class="flex flex-column gap-2" id="save-set-name">
+        <span id="save-set-name-header">Name</span>
         <div class="p-inputgroup flex-1">
           <InputText id="name" v-bind="name" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
           <Button severity="warning" label="Generate iri" @click="onNameGenIri()" :disabled="!name.modelValue" />
@@ -48,8 +46,9 @@
         <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
-      <div class="flex flex-column gap-2">
-        Type
+      <div class="flex flex-column gap-2" id="save-set-type">
+        <span id="save-set-type-header">Type</span>
+
         <Dropdown
           id="type"
           v-bind="type"
@@ -63,7 +62,7 @@
         <small class="p-error" id="text-error">{{ errors.type || "&nbsp;" }}</small>
       </div>
 
-      Members
+      <span id="members-title">Members</span>
       <Listbox v-model="selectedMember" :options="setMembers" optionLabel="name" class="flex flex-column" />
     </form>
 
@@ -106,7 +105,7 @@ const { defineComponentBinds, handleSubmit, resetForm, errors, setFieldValue } =
   validationSchema: schema
 });
 
-const fullIri: ComputedRef<string> = computed(() => `${scheme.value.modelValue || ""}${iri.value.modelValue || ""}`);
+const fullIri: ComputedRef<string> = computed(() => `${scheme.value.modelValue ?? ""}${iri.value.modelValue ?? ""}`);
 
 const scheme = defineComponentBinds("scheme");
 const iri = defineComponentBinds("iri");
@@ -150,7 +149,7 @@ async function getTypeOptions(): Promise<TTIriRef[]> {
 }
 
 async function getSchemeOptions(): Promise<TTIriRef[]> {
-  const schemes = await EntityService.getEntityChildren(IM.NAMESPACE + "Graph");
+  const schemes = await EntityService.getEntityChildren(IM.GRAPH);
   return schemes.map(scheme => {
     return {
       "@id": scheme["@id"],
@@ -189,11 +188,11 @@ function onDiscard() {
 function getIsContainedIn() {
   switch (type.value.modelValue) {
     case IM.CONCEPT_SET:
-      return IM.NAMESPACE + "QueryConceptSets";
+      return IM.FOLDER_QUERY_CONCEPT_SETS;
     case IM.VALUE_SET:
-      return IM.NAMESPACE + "ValueSets";
+      return IM.FOLDER_VALUESETS;
     default:
-      return IM.NAMESPACE + "Sets";
+      return IM.FOLDER_SETS;
   }
 }
 

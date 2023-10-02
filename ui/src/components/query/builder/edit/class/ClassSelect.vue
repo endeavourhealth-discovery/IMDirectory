@@ -2,7 +2,7 @@
   <div class="property-input-container">
     <Dropdown :options="['is', 'isNot', 'isNull']" v-model:model-value="propertyType" />
     <InputText type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
-    <SaveCustomSetDialog v-if="propertyType === 'inSet'" :set-members="editValues" />
+    <SaveCustomSetDialog v-if="propertyType === 'is'" :set-members="editValues" />
   </div>
   <div v-if="propertyType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
