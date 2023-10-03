@@ -159,7 +159,7 @@ const EntityService = {
 
   async getFilterOptions(): Promise<FilterOptions> {
     let schemeOptions: TTIriRef[] = [];
-    const schemeResults = await this.getEntityChildren(IM.NAMESPACE + "Graph");
+    const schemeResults = await this.getEntityChildren(IM.GRAPH);
     if (isArrayHasLength(schemeResults)) {
       schemeOptions = schemeResults.map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;

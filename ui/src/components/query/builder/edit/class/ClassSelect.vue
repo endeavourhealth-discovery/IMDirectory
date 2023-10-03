@@ -2,7 +2,7 @@
   <div class="property-input-container">
     <Dropdown :options="['is', 'isNot', 'isNull']" v-model:model-value="propertyType" />
     <InputText type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
-    <Button label="Save custom set" text severity="info" />
+    <SaveCustomSetDialog v-if="propertyType === 'is'" :set-members="editValues" />
   </div>
   <div v-if="propertyType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
@@ -26,6 +26,7 @@ import { Node, Property } from "@im-library/interfaces/AutoGen";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
 import { buildNodeFromCS } from "@im-library/helpers/QueryBuilder";
+import SaveCustomSetDialog from "../dialogs/SaveCustomSetDialog.vue";
 
 interface Props {
   property: Property;
