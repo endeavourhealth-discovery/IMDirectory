@@ -4,47 +4,47 @@ export default {
   testShape: ConceptShape,
   validationCheckStatus: [
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://endhealth.info/im#id"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://endhealth.info/im#code"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://www.w3.org/2000/01/rdf-schema#label"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://www.w3.org/2000/01/rdf-schema#comment"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://endhealth.info/im#status"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://endhealth.info/im#isContainedIn"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://www.w3.org/2000/01/rdf-schema#subClassOf"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://endhealth.info/im#roleGroup"
     },
     {
-      checkCompleted: false,
+      deferred: expect.anything(),
       key: "http://endhealth.info/im#matchedTo"
     },
-    { checkCompleted: false, key: "http://endhealth.info/im#hasTermCode" },
-    { checkCompleted: false, key: "http://endhealth.info/im#isChildOf"}
+    { deferred: expect.anything(), key: "http://endhealth.info/im#hasTermCode" },
+    { deferred: expect.anything(), key: "http://endhealth.info/im#isChildOf" }
   ],
   testEntity: {
     "http://www.w3.org/1999/02/22-rdf-syntax-ns#type": [{ "@id": "http://endhealth.info/im#Concept", name: "Terminology concept" }],

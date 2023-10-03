@@ -1,5 +1,6 @@
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
+import { deferred } from "@im-library/helpers/Deferred";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { FormGenerator, PropertyShape } from "@im-library/interfaces/AutoGen";
@@ -9,7 +10,7 @@ import { Ref, provide, ref } from "vue";
 
 export function setupValidity(shape?: FormGenerator) {
   const editorValidity: Ref<{ key: string; valid: boolean; message?: string }[]> = ref([]);
-  const validationCheckStatus: Ref<{ key: string; checkCompleted: boolean }[]> = ref([]);
+  const validationCheckStatus: Ref<{ key: string; deferred: { promise: any; reject: any; resolve: any } }[]> = ref([]);
 
   constructValidationCheckStatus(shape);
   function constructValidationCheckStatus(shape?: FormGenerator) {
@@ -34,28 +35,35 @@ export function setupValidity(shape?: FormGenerator) {
     validationCheckStatus.value = [];
   }
 
-  async function validationChecksCompleted(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const startTime = Date.now();
-      let delta = Date.now() - startTime;
-      const interval = setInterval(() => {
-        delta = Date.now() - startTime;
-        if (Math.floor(delta / 1000) >= 10 /* 10s timeout */ || validationCheckStatus.value.every(item => item.checkCompleted === true))
-          clearInterval(interval);
-      }, 500);
-      if (Math.floor(delta / 1000) >= 10) {
-        reject(`Validation checks timed out: ${JSON.stringify(validationCheckStatus.value.filter(item => item.checkCompleted === false))}`);
-      }
-      resolve(true);
+  async function validationChecksCompleted(): Promise<boolean> {
+    const promises = validationCheckStatus.value.map(v => v.deferred.promise);
+    return Promise.allSettled(promises).then(result => {
+      return result.every(r => r.status === "fulfilled");
     });
+    // return new Promise((resolve, reject) => {
+    //   const startTime = Date.now();
+    //   let delta = Date.now() - startTime;
+    //   const interval = setInterval(() => {
+    //     delta = Date.now() - startTime;
+    //     if (Math.floor(delta / 1000) >= 10 /* 10s timeout */ || validationCheckStatus.value.every(item => item.checkCompleted === true))
+    //       clearInterval(interval);
+    //   }, 500);
+    //   if (Math.floor(delta / 1000) >= 10) {
+    //     reject(`Validation checks timed out: ${JSON.stringify(validationCheckStatus.value.filter(item => item.checkCompleted === false))}`);
+    //   }
+    //   resolve(true);
   }
 
   function addPropertyToValidationCheckStatus(property: PropertyShape) {
     if (
       ![IM.component.HORIZONTAL_LAYOUT, IM.component.VERTICAL_LAYOUT, IM.component.TOGGLEABLE].includes(property.componentType["@id"]) &&
       validationCheckStatus.value.findIndex(check => check.key === property.path["@id"]) === -1
-    )
-      validationCheckStatus.value.push({ key: property.path["@id"], checkCompleted: false });
+    ) {
+      validationCheckStatus.value.push({
+        key: property.path["@id"],
+        deferred: deferred()
+      });
+    }
     if (property.componentType["@id"] !== IM.component.TOGGLEABLE)
       if (property.property) {
         for (const subProperty of property.property) {
@@ -66,7 +74,7 @@ export function setupValidity(shape?: FormGenerator) {
 
   function updateValidationCheckStatus(key: string) {
     const found = validationCheckStatus.value.find(item => item.key === key);
-    if (found) found.checkCompleted = true;
+    if (found) found.deferred.resolve("resolved");
   }
 
   async function checkValidity(
