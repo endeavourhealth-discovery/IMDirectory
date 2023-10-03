@@ -34,7 +34,10 @@ watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], async ([
   else userInput.value = await processPropertyValue(newShapeValue);
 });
 
+const emit = defineEmits({ updateClicked: (_payload: string) => true });
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
@@ -94,7 +97,8 @@ const showValidation = ref(false);
 
 watch(userInput, async newValue => {
   if (newValue) {
-    updateEntity(newValue);
+    if (!props.shape.builderChild) updateEntity(newValue);
+    else emit("updateClicked", newValue);
     updateValueVariableMap(newValue);
     if (updateValidity) {
       if (props.shape.builderChild) {
@@ -174,7 +178,9 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
 function updateEntity(data: string) {
   const result = {} as any;
   result[key] = data;
-  if (entityUpdate) entityUpdate(result);
+  if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
+  else emit("updateClicked", data);
 }
 
 function updateValueVariableMap(data: string) {
