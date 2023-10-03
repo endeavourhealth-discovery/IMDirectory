@@ -107,7 +107,7 @@ import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
-import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL, SNOMED } from "@im-library/vocabulary";
 import { DirectService, EntityService, FilerService } from "@/services";
 import { useCreatorStore } from "@/stores/creatorStore";
 import { useEditorStore } from "@/stores/editorStore";
@@ -307,11 +307,21 @@ function fileChanges(entity: any) {
   FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser.id + "#", IM.UPDATE_ALL);
 }
 
+function assignGeneratedCode() {
+  if (null !== editorEntity.value[IM.SCHEME][0]) {
+    if (editorEntity.value[IM.SCHEME][0]["@id"] === SNOMED.NAMESPACE && !editorEntity.value[IM.CODE] && editorEntity.value["generatedCode"]) {
+      editorEntity.value[IM.CODE] = editorEntity.value["generatedCode"];
+    }
+  }
+  delete editorEntity.value["generatedCode"];
+}
+
 function submit(): void {
   const verificationDialog = dynamicDialog.open(LoadingDialog, {
     props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
     data: { title: "Validating", text: "Running validation checks..." }
   });
+  assignGeneratedCode();
   constructValidationCheckStatus(shape.value);
   forceValidation.value = true;
   validationChecksCompleted()

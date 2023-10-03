@@ -1,19 +1,11 @@
 <template>
-  <div class="concept-summary-container" :class="invalid && 'invalid'">
+  <div class="concept-summary-container" :class="invalid && showValidation && 'invalid'">
     <div class="entity-combobox-container">
       <label for="chip-group">Type</label>
       <div class="multiselect-loading-container">
         <div id="chip-group" class="chip-group">
           <Chip v-if="true" :label="conceptType?.name" class="fixed-chip" />
-          <MultiSelect
-            :disabled="loading"
-            class="multi-select"
-            :class="invalid && showValidation && 'invalid'"
-            v-model="additionalTypes"
-            :options="typeDropdownOptions"
-            optionLabel="name"
-            display="chip"
-          />
+          <MultiSelect :disabled="loading" class="multi-select" v-model="additionalTypes" :options="typeDropdownOptions" optionLabel="name" display="chip" />
         </div>
         <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
       </div>
@@ -25,7 +17,7 @@
           <Dropdown
             :disabled="loading"
             class="dropdown"
-            :class="schemeInvalid && 'invalid'"
+            :class="schemeInvalid && showValidation && 'invalid'"
             v-model="scheme"
             :options="iriDropdownOptions"
             optionLabel="name"
@@ -34,14 +26,14 @@
             :disabled="loading"
             class="p-inputtext-lg input-text"
             :placeholder="placeholderCode"
-            :class="codeInvalid && 'invalid'"
+            :class="codeInvalid && showValidation && 'invalid'"
             v-model="code"
             type="text"
           />
           <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
         </div>
         <span>{{ scheme ? scheme["@id"] : "" }}{{ code }}</span>
-        <small v-if="codeInvalid || schemeInvalid" class="validate-error">{{ iriValidationErrorMessage }}</small>
+        <small v-if="(codeInvalid || schemeInvalid) && showValidation" class="validate-error">{{ iriValidationErrorMessage }}</small>
       </div>
     </div>
     <div class="string-single-display-container">
@@ -59,35 +51,40 @@
         </div>
         <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
       </div>
-      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
     <div class="string-single-select-container">
       <label>Concept name</label>
       <InputText
         class="p-inputtext single-input-text"
-        :class="nameInvalid && 'invalid'"
+        :class="nameInvalid && showValidation && 'invalid'"
         v-model="name"
         type="text"
         @drop.prevent
         @dragover.prevent
-        v-tooltip.top="{ value: name ? name : shape.name, class: 'string-single-select-tooltip' }"
+        v-tooltip.top="{ value: name, class: 'string-single-select-tooltip' }"
       />
-      <small v-if="nameInvalid" class="validate-error">{{ nameValidationErrorMessage }}</small>
+      <small v-if="nameInvalid && showValidation" class="validate-error">{{ nameValidationErrorMessage }}</small>
     </div>
     <div class="html-input-container">
       <label>Concept description</label>
-      <Textarea class="p-inputtext-lg input-html" :class="invalid && showValidation && 'invalid'" v-model="description" rows="4" @drop.prevent />
+      <Textarea class="p-inputtext-lg input-html" v-model="description" rows="4" @drop.prevent />
     </div>
     <div class="entity-single-dropdown-container">
       <span class="dropdown-container">
         <label>Status</label>
-        <Dropdown class="entity-single-dropdown" :class="statusInvalid && 'invalid'" v-model="status" :options="statusDropdownOptions" optionLabel="name" />
+        <Dropdown
+          class="entity-single-dropdown"
+          :class="statusInvalid && showValidation && 'invalid'"
+          v-model="status"
+          :options="statusDropdownOptions"
+          optionLabel="name"
+        />
       </span>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
-      <small v-if="statusInvalid" class="validate-error">{{ statusValidationErrorMessage }}</small>
+      <small v-if="statusInvalid && showValidation" class="validate-error">{{ statusValidationErrorMessage }}</small>
     </div>
   </div>
-  <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+  <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
 </template>
 
 <script setup lang="ts">
@@ -97,7 +94,7 @@ import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interf
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { inject, onMounted, ref, Ref, watch } from "vue";
 import { byName } from "@im-library/helpers/Sorters";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { IM, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
 import _ from "lodash";
 
@@ -114,13 +111,6 @@ const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
-
-watch(
-  () => _.cloneDeep(editorEntity?.value),
-  (newValue, oldValue) => {
-    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) processProps();
-  }
-);
 
 const loading = ref(false);
 const selectedEntities: Ref<TTIriRef[]> = ref([]);
@@ -147,6 +137,7 @@ const iriDropdownOptions: Ref<TTIriRef[]> = ref([]);
 const statusDropdownOptions: Ref<TTIriRef[]> = ref([]);
 const generatedCode = ref("");
 const placeholderCode = ref("");
+const currentIri: Ref<TTIriRef | undefined> = ref();
 
 const showValidation = ref(false);
 const invalid = ref(false);
@@ -156,27 +147,49 @@ let key = props.shape.path["@id"];
 
 onMounted(async () => {
   loading.value = true;
+  currentIri.value = editorEntity?.value[IM.ID];
   await processProps();
   typeDropdownOptions.value = await getTypeDropdownOptions();
   iriDropdownOptions.value = await getIriDropdownOptions();
   statusDropdownOptions.value = await getStatusDropdownOptions();
+  showValidation.value = false;
   loading.value = false;
 });
 
 watch(
-  [conceptType, additionalTypes, code, scheme, name, description, status],
-  async ([newConceptType, newAdditionalTypes, newCode, newScheme, newName, newDescription, newStatus]) => {
-    await validateEntity();
-    updateEntity();
-    await processProps();
+  () => _.cloneDeep(editorEntity?.value),
+  async (newValue, oldValue) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(oldValue)) {
+      await validateEntity();
+      await processProps();
+      await validate();
+    }
   }
 );
+
+watch(
+  [conceptType, additionalTypes, code, scheme, name, description, status, generatedCode],
+  async ([newConceptType, newAdditionalTypes, newCode, newScheme, newName, newDescription, newStatus, generatedCode]) => {
+    updateEntity();
+  }
+);
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation) {
+      showValidation.value = true;
+    }
+  });
+}
 
 watch(scheme, async newValue => {
   if (scheme.value && scheme.value["@id"].toString() === SNOMED.NAMESPACE) {
     if (!generatedCode.value) {
-      const generatedIri = await QueryService.runFunction(IM.function.SNOMED_CONCEPT_GENERATOR);
-      generatedCode.value = generatedIri.iri["@id"].split("#")[1];
+      let iriExists = true;
+      while (iriExists) {
+        const generatedIri = await QueryService.runFunction(IM.function.SNOMED_CONCEPT_GENERATOR);
+        generatedCode.value = generatedIri.iri["@id"].split("#")[1];
+        iriExists = await EntityService.iriExists(SNOMED.NAMESPACE + generatedCode.value);
+      }
     }
     placeholderCode.value = generatedCode.value;
   } else {
@@ -184,7 +197,39 @@ watch(scheme, async newValue => {
   }
 });
 
+async function validate() {
+  if (!scheme.value && !code.value) {
+    codeInvalid.value = true;
+    schemeInvalid.value = true;
+    iriValidationErrorMessage.value = "Missing scheme and code.";
+  } else if (!scheme.value) {
+    schemeInvalid.value = true;
+    iriValidationErrorMessage.value = "Missing scheme.";
+  } else if (!code.value) {
+    codeInvalid.value = true;
+    if (placeholderCode.value && scheme.value["@id"] === SNOMED.NAMESPACE) {
+      codeInvalid.value = false;
+      iriValidationErrorMessage.value = "Note: if SNOMED scheme is selected and no code is provided, the autogenerated code shown shall be used.";
+    } else {
+      iriValidationErrorMessage.value = "Missing code.";
+    }
+  } else if (
+    scheme.value &&
+    (await EntityService.iriExists(scheme.value["@id"] + code.value)) &&
+    scheme.value["@id"] + code.value !== currentIri?.value?.toString()
+  ) {
+    codeInvalid.value = true;
+    iriValidationErrorMessage.value = "Iri already exists.";
+  }
+  if (!name.value) {
+    nameInvalid.value = true;
+    nameValidationErrorMessage.value = "Item required. ";
+  }
+  invalid.value = nameInvalid.value || schemeInvalid.value || codeInvalid.value || statusInvalid.value;
+}
+
 async function processProps() {
+  invalid.value = false;
   nameInvalid.value = false;
   nameValidationErrorMessage.value = undefined;
   schemeInvalid.value = false;
@@ -203,38 +248,19 @@ async function processProps() {
   if (editorEntity?.value[IM.CODE]) code.value = editorEntity?.value[IM.CODE];
   else if (editorEntity?.value[IM.ID]) code.value = editorEntity?.value[IM.ID].split("#")[1];
   if (code.value === "undefined") code.value = "";
-  if (!scheme.value && !code.value) {
-    codeInvalid.value = true;
-    schemeInvalid.value = true;
-    iriValidationErrorMessage.value = "Missing scheme and code.";
-  } else if (!scheme.value) {
-    schemeInvalid.value = true;
-    iriValidationErrorMessage.value = "Missing scheme.";
-  } else if (!code.value) {
-    codeInvalid.value = true;
-    if (placeholderCode.value) {
-      iriValidationErrorMessage.value = "Note: if SNOMED scheme is selected and no code is provided, the autogenerated code shown shall be used.";
-    } else {
-      iriValidationErrorMessage.value = "Missing code. ";
-    }
-  }
 
   name.value = editorEntity?.value[RDFS.LABEL] ?? null;
-  if (!name.value) {
-    nameInvalid.value = true;
-    nameValidationErrorMessage.value = "Item required. ";
-  }
   description.value = editorEntity?.value[RDFS.COMMENT];
   if (isArrayHasLength(editorEntity?.value[IM.HAS_STATUS])) status.value = editorEntity?.value[IM.HAS_STATUS][0];
   else {
     status.value = { "@id": "http://endhealth.info/im#Draft", name: "Draft" } as TTIriRef;
   }
-
-  invalid.value = (nameInvalid.value || schemeInvalid.value || codeInvalid.value || statusInvalid.value) && placeholderCode.value === "";
 }
 
 async function validateEntity() {
-  if (updateValidity) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+  if (forceValidation && updateValidity) {
+    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+  }
   if (updateValidationCheckStatus) await updateValidationCheckStatus(key);
 }
 
@@ -247,14 +273,14 @@ function updateEntity() {
     }
   }
   entity[IM.SCHEME] = [scheme.value];
-  if (!code.value && generatedCode.value && scheme.value?.["@id"] === SNOMED.NAMESPACE) entity[IM.CODE] = generatedCode.value;
-  else if (code.value === "undefined") code.value = "";
+  if (!code.value && generatedCode.value && scheme.value?.["@id"] === SNOMED.NAMESPACE) {
+    entity["generatedCode"] = generatedCode;
+  } else if (code.value === "undefined") code.value = "";
   entity[IM.CODE] = code.value;
   entity[IM.ID] = scheme.value?.["@id"] + code.value;
   entity[RDFS.LABEL] = name.value;
   entity[RDFS.COMMENT] = description.value;
   entity[IM.HAS_STATUS] = [status.value];
-
   if (entityUpdate) {
     entityUpdate([entity]);
   }
