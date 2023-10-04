@@ -144,8 +144,11 @@ export default class Validator {
     let valid = false;
     let message: string | undefined = "One or more fields are invalid.";
     if (isObjectHasKeys(data, [IM.ID, IM.HAS_STATUS, RDFS.LABEL])) {
-      if (this.isValidIri(data[IM.ID]) && data[RDFS.LABEL] && data[IM.HAS_STATUS] && data[IM.CODE]) valid = true;
-      else message = this.isValidIri(data[IM.ID]).message;
+      if (this.isValidIri(data).isValid && data[RDFS.LABEL] && data[IM.HAS_STATUS] && data[IM.CODE]) {
+        valid = true;
+      } else if (!this.isValidIri(data).isValid) {
+        message = this.isValidIri(data).message;
+      }
     }
     return { isValid: valid, message: message };
   }

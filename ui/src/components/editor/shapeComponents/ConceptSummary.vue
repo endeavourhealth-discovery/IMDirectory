@@ -43,7 +43,7 @@
           <InputText
             disabled
             class="p-inputtext-lg single-input-text"
-            :class="invalid && showValidation && 'invalid'"
+            :class="codeInvalid && showValidation && 'invalid'"
             :placeholder="placeholderCode"
             v-model="code"
             type="text"
@@ -105,6 +105,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -112,13 +113,15 @@ const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 
-const loading = ref(false);
-const selectedEntities: Ref<TTIriRef[]> = ref([]);
+const loading = ref(true);
 const conceptType: Ref<TTIriRef | undefined> = ref();
 const additionalTypes: Ref<TTIriRef[]> = ref([]);
 
 const scheme: Ref<TTIriRef | undefined> = ref();
 const code = ref("");
+const generatedCode = ref("");
+const placeholderCode = ref("");
+const currentIri: Ref<TTIriRef | undefined> = ref();
 const schemeInvalid = ref(false);
 const codeInvalid = ref(false);
 const iriValidationErrorMessage: Ref<string | undefined> = ref();
@@ -128,6 +131,7 @@ const nameInvalid = ref(false);
 const nameValidationErrorMessage: Ref<string | undefined> = ref();
 
 const description = ref("");
+
 const status: Ref<TTIriRef | undefined> = ref();
 const statusInvalid = ref(false);
 const statusValidationErrorMessage: Ref<string | undefined> = ref();
@@ -135,9 +139,6 @@ const statusValidationErrorMessage: Ref<string | undefined> = ref();
 const typeDropdownOptions: Ref<TTIriRef[]> = ref([]);
 const iriDropdownOptions: Ref<TTIriRef[]> = ref([]);
 const statusDropdownOptions: Ref<TTIriRef[]> = ref([]);
-const generatedCode = ref("");
-const placeholderCode = ref("");
-const currentIri: Ref<TTIriRef | undefined> = ref();
 
 const showValidation = ref(false);
 const invalid = ref(false);
@@ -173,6 +174,7 @@ watch(
     updateEntity();
   }
 );
+
 if (forceValidation) {
   watch(forceValidation, async () => {
     if (forceValidation) {
@@ -220,6 +222,9 @@ async function validate() {
   ) {
     codeInvalid.value = true;
     iriValidationErrorMessage.value = "Iri already exists.";
+  } else if (validationErrorMessage?.value?.includes("Iri")) {
+    codeInvalid.value = true;
+    iriValidationErrorMessage.value = validationErrorMessage.value;
   }
   if (!name.value) {
     nameInvalid.value = true;
