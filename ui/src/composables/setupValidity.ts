@@ -44,18 +44,6 @@ export function setupValidity(shape?: FormGenerator) {
       .catch(err => {
         throw err;
       });
-    // return new Promise((resolve, reject) => {
-    //   const startTime = Date.now();
-    //   let delta = Date.now() - startTime;
-    //   const interval = setInterval(() => {
-    //     delta = Date.now() - startTime;
-    //     if (Math.floor(delta / 1000) >= 10 /* 10s timeout */ || validationCheckStatus.value.every(item => item.checkCompleted === true))
-    //       clearInterval(interval);
-    //   }, 500);
-    //   if (Math.floor(delta / 1000) >= 10) {
-    //     reject(`Validation checks timed out: ${JSON.stringify(validationCheckStatus.value.filter(item => item.checkCompleted === false))}`);
-    //   }
-    //   resolve(true);
   }
 
   function addPropertyToValidationCheckStatus(property: PropertyShape) {
