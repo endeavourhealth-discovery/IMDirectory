@@ -48,6 +48,7 @@ watch(
 );
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -145,7 +146,8 @@ function updateEntity() {
     newTermCode[RDFS.LABEL] = name.value;
     const result = {} as any;
     result[props.shape.path["@id"]] = newTermCode;
-    if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
+    if (!code.value && !status.value && !name.value && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(props.shape.path["@id"]);
+    else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
     else emit("updateClicked", newTermCode);
   }
 }
