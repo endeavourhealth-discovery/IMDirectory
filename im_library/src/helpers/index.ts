@@ -23,6 +23,7 @@ import { timeNow } from "./Datetime/TimeNow";
 import { timeNow12Hr } from "./Datetime/TimeNow12Hr";
 import PropertyTreeNodeBuilder from "./PropertyTreeNodeBuilder";
 import { getKey, getParentNode } from "./TreeHelper";
+import { deferred } from "./Deferred";
 
 export {
   ChartRescale,
@@ -50,5 +51,6 @@ export {
   timeNow12Hr,
   getKey,
   getParentNode,
-  PropertyTreeNodeBuilder
+  PropertyTreeNodeBuilder,
+  deferred
 };

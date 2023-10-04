@@ -30,9 +30,9 @@ describe("setupValidity", () => {
       const itemToRemove = testData.testShape.property[0].property[0].property[0];
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       expect(wrapper.vm.validationCheckStatus).toHaveLength(12);
-      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path["@id"], checkCompleted: false });
+      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: itemToRemove.path["@id"], deferred: expect.anything() });
       wrapper.vm.removeValidationCheckStatus(itemToRemove);
-      expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: itemToRemove.path["@id"], checkCompleted: false });
+      expect(wrapper.vm.validationCheckStatus).not.toContainEqual({ key: itemToRemove.path["@id"], deferred: expect.anything() });
       expect(wrapper.vm.validationCheckStatus).toHaveLength(11);
     });
   });
@@ -90,7 +90,7 @@ describe("setupValidity", () => {
       wrapper.vm.addPropertyToValidationCheckStatus(testData.testShape.property[0].property[0].property[0]);
       expect(wrapper.vm.validationCheckStatus).toEqual([
         {
-          checkCompleted: false,
+          deferred: expect.anything(),
           key: testData.testShape.property[0].property[0].property[0].path["@id"]
         }
       ]);
@@ -100,7 +100,6 @@ describe("setupValidity", () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
       wrapper.vm.validationCheckStatus = [];
       wrapper.vm.addPropertyToValidationCheckStatus(testData.testShape.property[0]);
-      console.error(wrapper.vm.validationCheckStatus);
       expect(wrapper.vm.validationCheckStatus).toEqual(testData.validationCheckStatus);
     });
 
@@ -118,11 +117,16 @@ describe("setupValidity", () => {
       vi.resetAllMocks();
     });
 
-    it("can change status", () => {
+    it("can change status", async () => {
       const wrapper = mountComposable(setupValidity, [testData.testShape]);
-      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, checkCompleted: false });
+      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, deferred: expect.anything() });
       wrapper.vm.updateValidationCheckStatus(testData.validationCheckStatus[0].key);
-      expect(wrapper.vm.validationCheckStatus).toContainEqual({ key: testData.validationCheckStatus[0].key, checkCompleted: true });
+      await flushPromises();
+      const found = wrapper.vm.validationCheckStatus.find(s => s.key === testData.validationCheckStatus[0].key);
+      let result;
+      found.deferred.promise.then(res => (result = res));
+      await flushPromises();
+      expect(result).toEqual("resolved");
     });
   });
 

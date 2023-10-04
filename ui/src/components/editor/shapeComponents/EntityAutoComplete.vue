@@ -105,6 +105,7 @@ const emit = defineEmits({
 });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
@@ -291,7 +292,7 @@ async function itemSelected(value: ConceptSummary) {
       emit("updateClicked", summaryToTTIriRef(value) as TTIriRef);
     }
     updateValueVariableMap(value);
-  }
+  } else if (!props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
 }
 
 function updateValueVariableMap(data: ConceptSummary) {

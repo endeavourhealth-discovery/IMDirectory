@@ -216,6 +216,10 @@ const PropertyShape: FormGenerator = {
           path: {
             "@id": IM.IS_CONTAINED_IN
           },
+          validation: {
+            "@id": IM.validation.HAS_PARENT
+          },
+          validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
           property: [
             {
               comment: "selects an entity based on select query",

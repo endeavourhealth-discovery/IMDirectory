@@ -9,7 +9,7 @@ const editorEntity = Symbol("editorEntity") as InjectionKey<{ editorEntity: Ref<
 const valueVariableMap = Symbol("valueVariableMap") as InjectionKey<{ valueVariableMap: Ref<Map<string, any>>; updateValueVariableMap: Function }>;
 const forceValidation = Symbol("forceValidation") as InjectionKey<{
   forceValidation: Ref<boolean>;
-  validationCheckStatus: Ref<{ key: string; checkCompleted: boolean }[]>;
+  validationCheckStatus: Ref<{ key: string; deferred: any }[]>;
   updateValidationCheckStatus: Function;
   addPropertyToValidationCheckStatus: Function;
   removeValidationCheckStatus: Function;
