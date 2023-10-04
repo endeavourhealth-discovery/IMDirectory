@@ -37,9 +37,13 @@ export function setupValidity(shape?: FormGenerator) {
 
   async function validationChecksCompleted(): Promise<boolean> {
     const promises = validationCheckStatus.value.map(v => v.deferred.promise);
-    return Promise.allSettled(promises).then(result => {
-      return result.every(r => r.status === "fulfilled");
-    });
+    return Promise.allSettled(promises)
+      .then(result => {
+        return result.every(r => r.status === "fulfilled");
+      })
+      .catch(err => {
+        throw err;
+      });
     // return new Promise((resolve, reject) => {
     //   const startTime = Date.now();
     //   let delta = Date.now() - startTime;
@@ -61,7 +65,7 @@ export function setupValidity(shape?: FormGenerator) {
     ) {
       validationCheckStatus.value.push({
         key: property.path["@id"],
-        deferred: deferred()
+        deferred: deferred(60000)
       });
     }
     if (property.componentType["@id"] !== IM.component.TOGGLEABLE)
