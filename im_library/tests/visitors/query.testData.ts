@@ -66,7 +66,7 @@ export default {
         property: [
           {
             "@id": "http://snomed.info/sct#246075003",
-            in: [
+            is: [
               {
                 "@id": "http://snomed.info/sct#771577000",
                 descendantsOrSelfOf: true
@@ -101,7 +101,7 @@ export default {
                   property: [
                     {
                       "@id": "http://snomed.info/sct#363698007",
-                      in: [
+                      is: [
                         {
                           "@id": "http://snomed.info/sct#51185008",
                           descendantsOrSelfOf: true
@@ -138,7 +138,7 @@ export default {
         property: [
           {
             "@id": "http://snomed.info/sct#762705008",
-            in: [
+            is: [
               {
                 "@id": "http://snomed.info/sct#51185008",
                 descendantsOrSelfOf: true
@@ -174,7 +174,7 @@ export default {
                   property: [
                     {
                       "@id": "http://snomed.info/sct#363698007",
-                      in: [
+                      is: [
                         {
                           "@id": "http://snomed.info/sct#51185008"
                         }
@@ -212,7 +212,7 @@ export default {
                   property: [
                     {
                       "@id": "http://snomed.info/sct#762705008",
-                      in: [
+                      is: [
                         {
                           "@id": "http://snomed.info/sct#51185008",
                           descendantsOrSelfOf: true
@@ -254,7 +254,7 @@ export default {
               property: [
                 {
                   "@id": "http://snomed.info/sct#762705008",
-                  in: [
+                  is: [
                     {
                       "@id": "http://snomed.info/sct#51185008",
                       descendantsOrSelfOf: true
@@ -305,7 +305,7 @@ export default {
               property: [
                 {
                   "@id": "http://snomed.info/sct#260686004",
-                  in: [
+                  is: [
                     {
                       "@id": "http://snomed.info/sct#129265001",
                       descendantsOrSelfOf: true
@@ -315,7 +315,7 @@ export default {
                 },
                 {
                   "@id": "http://snomed.info/sct#363702006",
-                  in: [
+                  is: [
                     {
                       "@id": "http://snomed.info/sct#29857009",
                       descendantsOrSelfOf: true
@@ -358,7 +358,7 @@ export default {
                   property: [
                     {
                       "@id": "http://snomed.info/sct#762705008",
-                      in: [
+                      is: [
                         {
                           "@id": "http://snomed.info/sct#51185008",
                           descendantsOrSelfOf: true
@@ -414,7 +414,7 @@ export default {
                   property: [
                     {
                       "@id": "http://snomed.info/sct#762705008",
-                      in: [
+                      is: [
                         {
                           "@id": "http://snomed.info/sct#51185008",
                           descendantsOrSelfOf: true
@@ -438,7 +438,7 @@ export default {
                       property: [
                         {
                           "@id": "http://snomed.info/sct#363698007",
-                          in: [
+                          is: [
                             {
                               "@id": "http://snomed.info/sct#722725008"
                             }
@@ -469,7 +469,7 @@ export default {
             property: [
               {
                 "@id": "http://snomed.info/sct#127489000",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#372665008",
                     descendantsOrSelfOf: true
@@ -480,7 +480,7 @@ export default {
               },
               {
                 "@id": "http://snomed.info/sct#411116001",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#385268001"
                   }
@@ -560,7 +560,7 @@ export default {
                   property: [
                     {
                       "@id": "http://snomed.info/sct#260686004",
-                      in: [
+                      is: [
                         {
                           "@id": "http://snomed.info/sct#129265001",
                           descendantsOrSelfOf: true
@@ -577,7 +577,7 @@ export default {
                   property: [
                     {
                       "@id": "http://snomed.info/sct#363702006",
-                      in: [
+                      is: [
                         {
                           "@id": "http://snomed.info/sct#29857009",
                           descendantsOrSelfOf: true
@@ -607,7 +607,7 @@ export default {
             property: [
               {
                 "@id": "http://snomed.info/sct#260686004",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#129265001",
                     descendantsOrSelfOf: true
@@ -618,7 +618,7 @@ export default {
               },
               {
                 "@id": "http://snomed.info/sct#363702006",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#29857009",
                     descendantsOrSelfOf: true
@@ -657,7 +657,7 @@ export default {
             property: [
               {
                 "@id": "http://snomed.info/sct#127489000",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#372665008",
                     descendantsOrSelfOf: true
@@ -668,7 +668,7 @@ export default {
               },
               {
                 "@id": "http://snomed.info/sct#411116001",
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#385268001",
                     descendantsOrSelfOf: true
@@ -701,7 +701,7 @@ export default {
                     "@id": "http://snomed.info/sct#127489000",
                     anyRoleGroup: true,
                     descendantsOrSelfOf: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#372695000",
                         descendantsOrSelfOf: true
@@ -711,7 +711,7 @@ export default {
                   {
                     "@id": "http://snomed.info/sct#8940601000001102",
                     anyRoleGroup: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#8940901000001109"
                       }
@@ -720,7 +720,7 @@ export default {
                   {
                     "@id": "http://snomed.info/sct#8940001000001105",
                     anyRoleGroup: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#8940201000001104"
                       }
@@ -742,7 +742,7 @@ export default {
                   {
                     "@id": "http://snomed.info/sct#8940601000001102",
                     anyRoleGroup: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#8941001000001100"
                       }
@@ -772,7 +772,7 @@ export default {
 
                 "@id": "http://snomed.info/sct#127489000",
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#698090000",
                     descendantsOrSelfOf: true
@@ -783,7 +783,7 @@ export default {
                 anyRoleGroup: true,
                 "@id": "http://snomed.info/sct#127489000",
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#442031002",
                     descendantsOrSelfOf: true
@@ -811,7 +811,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#698090000",
                     descendantsOrSelfOf: true
@@ -822,7 +822,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#442031002",
                     descendantsOrSelfOf: true
@@ -833,7 +833,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#698871007",
                     descendantsOrSelfOf: true
@@ -844,7 +844,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#712778008",
                     descendantsOrSelfOf: true
@@ -855,7 +855,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#387260007",
                     descendantsOrSelfOf: true
@@ -866,7 +866,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#59488002",
                     descendantsOrSelfOf: true
@@ -877,7 +877,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#372756006",
                     descendantsOrSelfOf: true
@@ -905,7 +905,7 @@ export default {
                 "@id": "http://snomed.info/sct#127489000",
                 anyRoleGroup: true,
                 descendantsOrSelfOf: true,
-                in: [
+                is: [
                   {
                     "@id": "http://snomed.info/sct#387207008",
                     descendantsOrSelfOf: true
@@ -919,7 +919,7 @@ export default {
                     "@id": "http://snomed.info/sct#411116001",
                     anyRoleGroup: true,
                     descendantsOrSelfOf: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#763820000",
                         descendantsOrSelfOf: true
@@ -930,7 +930,7 @@ export default {
                     "@id": "http://snomed.info/sct#411116001",
                     anyRoleGroup: true,
                     descendantsOrSelfOf: true,
-                    in: [
+                    is: [
                       {
                         "@id": "http://snomed.info/sct#421701006",
                         descendantsOrSelfOf: true
@@ -957,7 +957,7 @@ export default {
             "@id": "http://snomed.info/sct#127489000",
             anyRoleGroup: true,
             descendantsOrSelfOf: true,
-            in: [
+            is: [
               {
                 "@id": "http://snomed.info/sct#387207008",
                 descendantsOrSelfOf: true
@@ -1010,7 +1010,7 @@ export default {
             match: {
               property: [{
                 "@id": "http://snomed.info/sct#363698007",
-                in: [{"@id": "http://snomed.info/sct#51185008", descendantsOrSelfOf: true}]
+                is: [{"@id": "http://snomed.info/sct#51185008", descendantsOrSelfOf: true}]
               }]
             }
           }
