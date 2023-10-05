@@ -249,9 +249,6 @@ async function createTree(concept: any, children: EntityReferenceNode[]): Promis
     selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
   }
   root.value.push(selectedConcept);
-  if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
-    expandedKeys.value[selectedConcept.key] = true;
-  }
   loading.value = false;
 }
 
