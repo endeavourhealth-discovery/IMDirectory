@@ -249,9 +249,6 @@ async function createTree(concept: any, children: EntityReferenceNode[]): Promis
     selectedConcept.children?.push(createLoadMoreNode(selectedConcept, 2, totalCount.value));
   }
   root.value.push(selectedConcept);
-  if (selectedConcept.key && !isObjectHasKeys(expandedKeys, [selectedConcept.key])) {
-    expandedKeys.value[selectedConcept.key] = true;
-  }
   loading.value = false;
 }
 
@@ -318,13 +315,13 @@ async function showPopup(event: any, iri?: string, node?: any): Promise<void> {
   if (iri === "loadMore") {
     overlayLocation.value = event;
     const x = altTreeOP.value as any;
-    x.show(event);
+    if (x) x.show(event);
     hoveredResult.value.iri = "load";
     hoveredResult.value.name = node.parentNode.label;
   } else if (iri) {
     overlayLocation.value = event;
     const x = altTreeOP.value as any;
-    x.show(event);
+    if (x) x.show(event);
     hoveredResult.value = await EntityService.getEntitySummary(iri);
   }
 }
