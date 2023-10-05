@@ -60,15 +60,19 @@ export default class Validator {
   }
 
   private isValidIri(data: any): { isValid: boolean; message?: string } {
+    let iriToCheck = IM.ID;
     let valid = false;
     let message: string | undefined = "Iri is invalid";
-    if (!isObjectHasKeys(data, [IM.ID])) message = "Entity is missing 'http://endhealth.info/im#id' key";
+    if (isObjectHasKeys(data, ["@id", "name"])) {
+      iriToCheck = "@id";
+    }
+    if (iriToCheck === IM.ID && !isObjectHasKeys(data, [IM.ID])) message = "Entity is missing 'http://endhealth.info/im#id' key";
     else {
-      if (typeof data[IM.ID] !== "string" && data[IM.ID]) message = "Iri must be of type string";
+      if (typeof data[iriToCheck] !== "string" && data[iriToCheck]) message = "Iri must be of type string";
       else {
-        if (!/#/g.test(data[IM.ID])) message = "Iri must contain a '#'";
+        if (!/#/g.test(data[iriToCheck])) message = "Iri must contain a '#'";
         else {
-          const splits = data[IM.ID].split("#");
+          const splits = data[iriToCheck].split("#");
           if (splits.length !== 2) message = "Iri contains invalid character '#' within identifier.";
           else if (!/^http:\/\/[a-zA-Z]+\.[a-zA-Z]+\/[a-zA-Z]+#$/.test(splits[0] + "#")) message = "Iri url is invalid.";
           else if (encodeURIComponent(splits[1]) !== splits[1]) {
@@ -140,11 +144,21 @@ export default class Validator {
     return isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL];
   }
 
+  private isValidStatus(data: any): boolean {
+    let isValid = false;
+    if (isArrayHasLength(data[IM.HAS_STATUS])) {
+      for (let iri in data[IM.HAS_STATUS]) {
+        isValid = this.isValidIri(data[IM.HAS_STATUS][iri]).isValid;
+      }
+    }
+    return isValid;
+  }
+
   private isValidSummary(data: any): { isValid: boolean; message?: string } {
     let valid = false;
     let message: string | undefined = "One or more fields are invalid.";
     if (isObjectHasKeys(data, [IM.ID, IM.HAS_STATUS, RDFS.LABEL])) {
-      if (this.isValidIri(data).isValid && data[RDFS.LABEL] && data[IM.HAS_STATUS] && data[IM.CODE]) {
+      if (this.isValidIri(data).isValid && this.isValidStatus(data) && data[RDFS.LABEL] && data[IM.CODE]) {
         valid = true;
       } else if (!this.isValidIri(data).isValid) {
         message = this.isValidIri(data).message;

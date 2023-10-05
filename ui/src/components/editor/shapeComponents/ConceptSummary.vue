@@ -9,6 +9,7 @@
         </div>
         <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
       </div>
+      <small v-if="typeInvalid && showValidation" class="validate-error">{{ typeValidationErrorMessage }}</small>
     </div>
     <div class="dropdown-text-input-concatenator-container">
       <div class="label-content-container">
@@ -68,6 +69,7 @@
     <div class="html-input-container">
       <label>Concept description</label>
       <Textarea class="p-inputtext-lg input-html" v-model="description" rows="4" @drop.prevent />
+      <small v-if="descriptionInvalid && showValidation" class="validate-error">{{ descriptionValidationErrorMessage }}</small>
     </div>
     <div class="entity-single-dropdown-container">
       <span class="dropdown-container">
@@ -95,7 +97,7 @@ import injectionKeys from "@/injectionKeys/injectionKeys";
 import { inject, onMounted, ref, Ref, watch } from "vue";
 import { byName } from "@im-library/helpers/Sorters";
 import { EntityService, QueryService } from "@/services";
-import { IM, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SNOMED, XSD } from "@im-library/vocabulary";
 import _ from "lodash";
 
 interface Props {
@@ -117,6 +119,9 @@ const loading = ref(true);
 const conceptType: Ref<TTIriRef | undefined> = ref();
 const additionalTypes: Ref<TTIriRef[]> = ref([]);
 
+const typeInvalid = ref(false);
+const typeValidationErrorMessage: Ref<string | undefined> = ref();
+
 const scheme: Ref<TTIriRef | undefined> = ref();
 const code = ref("");
 const generatedCode = ref("");
@@ -124,6 +129,7 @@ const placeholderCode = ref("");
 const currentIri: Ref<TTIriRef | undefined> = ref();
 const schemeInvalid = ref(false);
 const codeInvalid = ref(false);
+const iriInvalid = ref(false);
 const iriValidationErrorMessage: Ref<string | undefined> = ref();
 
 const name = ref("");
@@ -131,6 +137,8 @@ const nameInvalid = ref(false);
 const nameValidationErrorMessage: Ref<string | undefined> = ref();
 
 const description = ref("");
+const descriptionInvalid = ref(false);
+const descriptionValidationErrorMessage: Ref<string | undefined> = ref();
 
 const status: Ref<TTIriRef | undefined> = ref();
 const statusInvalid = ref(false);
@@ -143,6 +151,180 @@ const statusDropdownOptions: Ref<TTIriRef[]> = ref([]);
 const showValidation = ref(false);
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
+
+const shapes = ref([
+  {
+    comment: "A property that auto generates the type as  concept type",
+    order: 1,
+    function: {
+      "@id": IM.function.GET_ADDITIONAL_ALLOWABLE_TYPES
+    },
+    name: "Type",
+    showTitle: true,
+    path: {
+      "@id": RDF.TYPE
+    },
+    argument: [
+      {
+        valueIri: {
+          "@id": IM.CONCEPT
+        },
+        parameter: "entityIri"
+      }
+    ],
+    isIri: {
+      "@id": IM.CONCEPT
+    },
+    minCount: 1,
+    componentType: {
+      "@id": IM.component.ENTITY_COMBOBOX
+    }
+  },
+  {
+    comment: "A property that auto generates a concept iri from the snomed extension",
+    order: 2,
+    name: "Iri",
+    showTitle: true,
+    maxCount: 1,
+    path: {
+      "@id": IM.ID
+    },
+    minCount: 1,
+    componentType: {
+      "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+    },
+    valueVariable: "conceptIri",
+    function: {
+      "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
+    }
+  },
+  {
+    comment: "Property that derives a concept code from the concept iri",
+    order: 3,
+    name: "Code",
+    showTitle: true,
+    maxCount: 1,
+    path: {
+      "@id": IM.CODE
+    },
+    argument: [
+      {
+        parameter: "entityIri",
+        valueVariable: "conceptIri"
+      },
+      {
+        parameter: "fieldName",
+        valueData: "code"
+      }
+    ],
+    minCount: 1,
+    componentType: {
+      "@id": IM.component.TEXT_DISPLAY
+    },
+    datatype: {
+      "@id": XSD.STRING
+    },
+    function: {
+      "@id": IM.function.LOCAL_NAME_RETRIEVER
+    }
+  },
+  {
+    comment: "name or main term of concept",
+    order: 4,
+    name: "Concept name",
+    showTitle: true,
+    maxCount: 1,
+    path: {
+      "@id": RDFS.LABEL
+    },
+    minCount: 1,
+    componentType: {
+      "@id": IM.component.TEXT_INPUT
+    },
+    datatype: {
+      "@id": XSD.STRING
+    }
+  },
+  {
+    comment: "optional description",
+    order: 5,
+    datatype: {
+      "@id": XSD.STRING
+    },
+    name: "Concept description",
+    showTitle: true,
+    maxCount: 1,
+    path: {
+      "@id": RDFS.COMMENT
+    },
+    minCount: 0,
+    componentType: {
+      "@id": IM.component.HTML_INPUT
+    }
+  },
+  {
+    comment: "selects the status with a default of draft",
+    order: 6,
+    select: [
+      {
+        "@id": IM.query.GET_DESCENDANTS
+      }
+    ],
+    name: "Status",
+    showTitle: true,
+    maxCount: 1,
+    path: {
+      "@id": IM.HAS_STATUS
+    },
+    argument: [
+      {
+        valueIri: {
+          "@id": IM.STATUS
+        },
+        parameter: "this"
+      }
+    ],
+    isIri: {
+      "@id": IM.DRAFT
+    },
+    minCount: 1,
+    componentType: {
+      "@id": IM.component.ENTITY_DROPDOWN
+    },
+    forceIsValue: true
+  },
+  {
+    comment: "scheme",
+    order: 7,
+    select: [
+      {
+        "@id": IM.query.GET_DESCENDANTS
+      }
+    ],
+    name: "Status",
+    showTitle: true,
+    maxCount: 1,
+    path: {
+      "@id": IM.SCHEME
+    },
+    argument: [
+      {
+        valueIri: {
+          "@id": IM.GRAPH
+        },
+        parameter: "this"
+      }
+    ],
+    isIri: {
+      "@id": IM.NAMESPACE
+    },
+    minCount: 1,
+    componentType: {
+      "@id": IM.component.ENTITY_DROPDOWN
+    },
+    forceIsValue: true
+  }
+]);
 
 let key = props.shape.path["@id"];
 
@@ -230,7 +412,7 @@ async function validate() {
     nameInvalid.value = true;
     nameValidationErrorMessage.value = "Item required. ";
   }
-  invalid.value = nameInvalid.value || schemeInvalid.value || codeInvalid.value || statusInvalid.value;
+  invalid.value = typeInvalid.value || schemeInvalid.value || codeInvalid.value || nameInvalid.value || descriptionInvalid.value || statusInvalid.value;
 }
 
 async function processProps() {
@@ -264,7 +446,62 @@ async function processProps() {
 
 async function validateEntity() {
   if (forceValidation && updateValidity) {
-    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    await updateValidity(
+      shapes.value.find(s => s.path["@id"] === RDF.TYPE),
+      editorEntity,
+      valueVariableMap,
+      RDF.TYPE,
+      typeInvalid,
+      typeValidationErrorMessage
+    );
+    await updateValidity(
+      shapes.value.find(s => s.path["@id"] === IM.SCHEME),
+      editorEntity,
+      valueVariableMap,
+      IM.SCHEME,
+      schemeInvalid,
+      iriValidationErrorMessage
+    );
+    await updateValidity(
+      shapes.value.find(s => s.path["@id"] === IM.CODE),
+      editorEntity,
+      valueVariableMap,
+      IM.CODE,
+      codeInvalid,
+      iriValidationErrorMessage
+    );
+    await updateValidity(
+      shapes.value.find(s => s.path["@id"] === IM.ID),
+      editorEntity,
+      valueVariableMap,
+      IM.ID,
+      iriInvalid,
+      iriValidationErrorMessage
+    );
+    await updateValidity(
+      shapes.value.find(s => s.path["@id"] === RDFS.LABEL),
+      editorEntity,
+      valueVariableMap,
+      RDFS.LABEL,
+      nameInvalid,
+      nameValidationErrorMessage
+    );
+    await updateValidity(
+      shapes.value.find(s => s.path["@id"] === RDFS.COMMENT),
+      editorEntity,
+      valueVariableMap,
+      RDFS.COMMENT,
+      descriptionInvalid,
+      descriptionValidationErrorMessage
+    );
+    await updateValidity(
+      shapes.value.find(s => s.path["@id"] === IM.HAS_STATUS),
+      editorEntity,
+      valueVariableMap,
+      IM.HAS_STATUS,
+      statusInvalid,
+      statusValidationErrorMessage
+    );
   }
   if (updateValidationCheckStatus) await updateValidationCheckStatus(key);
 }

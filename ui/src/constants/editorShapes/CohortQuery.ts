@@ -42,11 +42,11 @@ const CohortQueryShape: FormGenerator = {
               label: "Summary",
               order: 1,
               maxCount: 1,
+              minCount: 1,
               path: {
                 "@id": IM.CONCEPT
               },
               name: "Summary",
-              minCount: 0,
               componentType: {
                 "@id": IM.component.CONCEPT_SUMMARY
               },
