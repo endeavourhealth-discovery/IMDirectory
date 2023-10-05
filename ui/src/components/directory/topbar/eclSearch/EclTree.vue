@@ -318,13 +318,13 @@ async function showPopup(event: any, iri?: string, node?: any): Promise<void> {
   if (iri === "loadMore") {
     overlayLocation.value = event;
     const x = altTreeOP.value as any;
-    x.show(event);
+    if (x) x.show(event);
     hoveredResult.value.iri = "load";
     hoveredResult.value.name = node.parentNode.label;
   } else if (iri) {
     overlayLocation.value = event;
     const x = altTreeOP.value as any;
-    x.show(event);
+    if (x) x.show(event);
     hoveredResult.value = await EntityService.getEntitySummary(iri);
   }
 }
