@@ -146,7 +146,7 @@ function submit(): void {
 }
 
 function closeBuilderDialog(): void {
-  build.value = emit("closeDialog");
+  emit("closeDialog");
 }
 
 function generateQueryString() {
