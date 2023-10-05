@@ -175,10 +175,41 @@ const ConceptShape: FormGenerator = {
               forceIsValue: true
             },
             {
+              comment: "optional im1id",
+              order: 7,
+              name: "IM1Id",
+              showTitle: true,
+              maxCount: 1,
+              path: {
+                "@id": IM.IM_1_ID
+              },
+              minCount: 0,
+              componentType: {
+                "@id": IM.component.TEXT_INPUT
+              }
+            },
+            {
+              comment: "optional im1scheme",
+              order: 6,
+              function: {
+                "@id": IM.function.IM1SCHEME_OPTIONS
+              },
+              name: "IM1Scheme",
+              showTitle: true,
+              maxCount: 1,
+              path: {
+                "@id": IM.IM_1_SCHEME
+              },
+              minCount: 0,
+              componentType: {
+                "@id": IM.component.TEXT_DROPDOWN
+              }
+            },
+            {
               label: "Contained in array builder",
               name: "isContainedIn",
               showTitle: true,
-              order: 1,
+              order: 8,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -216,7 +247,7 @@ const ConceptShape: FormGenerator = {
               label: "Subclass of array builder",
               name: "subclassOf",
               showTitle: true,
-              order: 1,
+              order: 9,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -248,7 +279,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "Toggle controlling sub components visibility",
-              order: 8,
+              order: 10,
               name: "Replaced by",
               label: "Deactivate | Activate",
               minCount: 1,
@@ -360,29 +391,29 @@ const ConceptShape: FormGenerator = {
                   path: { "@id": IM.HAS_TERM_CODE },
                   builderChild: true,
                   order: 1,
-                  minCount:0,
+                  minCount: 0,
                   componentType: { "@id": IM.component.TERM_CODE_EDITOR },
                   validation: { "@id": IM.validation.IS_TERMCODE }
                 }
               ]
             },
             {
-              name:"Child of",
-              comment:"Child of array builder",
+              name: "Child of",
+              comment: "Child of array builder",
               order: 1,
-              path:{"@id":IM.IS_CHILD_OF},
-              showTitle:true,
-              minCount:0,
-              componentType:{"@id":IM.component.ARRAY_BUILDER},
-              arrayButtons:{plus:true,minus:true,up:false,down:false,addOnlyIfLast:true},
-              property:[
+              path: { "@id": IM.IS_CHILD_OF },
+              showTitle: true,
+              minCount: 0,
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              property: [
                 {
-                  name:"Child of",
-                  path:{"@id":IM.IS_CHILD_OF},
-                  builderChild:true,
-                  order:1,
-                  minCount:0,
-                  componentType:{"@id":IM.component.ENTITY_SEARCH}
+                  name: "Child of",
+                  path: { "@id": IM.IS_CHILD_OF },
+                  builderChild: true,
+                  order: 1,
+                  minCount: 0,
+                  componentType: { "@id": IM.component.ENTITY_SEARCH }
                 }
               ]
             }

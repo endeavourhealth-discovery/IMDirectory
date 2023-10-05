@@ -5,4 +5,5 @@ export class functionVocabulary {
   public static SNOMED_CONCEPT_GENERATOR = this.NAMESPACE + "SnomedConceptGenerator";
   public static LOCAL_NAME_RETRIEVER = this.NAMESPACE + "LocalNameRetriever";
   public static GET_SET_EDITOR_IRI_SCHEMES = this.NAMESPACE + "GetSetEditorIriSchemes";
+  public static IM1SCHEME_OPTIONS = this.NAMESPACE + "IM1SchemeOptions";
 }

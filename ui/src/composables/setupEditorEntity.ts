@@ -44,8 +44,6 @@ export function setupEditorEntity(mode: EditorMode, updateType: Function) {
       result[IM.ID] = result["@id"];
       delete result["@id"];
     }
-    if (isObjectHasKeys(result, [IM.IM_1_ID])) delete result[IM.IM_1_ID];
-    if (isObjectHasKeys(result, [IM.IM_1_SCHEME])) delete result[IM.IM_1_SCHEME];
     return result;
   }
 

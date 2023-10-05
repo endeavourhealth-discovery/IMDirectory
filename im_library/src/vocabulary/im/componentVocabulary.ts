@@ -23,5 +23,6 @@ export class componentVocabulary {
   public static VERTICAL_LAYOUT = this.NAMESPACE + "VerticalLayout";
   public static DROPDOWN_TEXT_INPUT_CONCATENATOR = this.NAMESPACE + "dropdownTextInputConcatenator";
   public static ROLE_GROUP_BUILDER = this.NAMESPACE + "roleGroupBuilder";
-  public static TERM_CODE_EDITOR = this.NAMESPACE + "termCodeEditor"
+  public static TERM_CODE_EDITOR = this.NAMESPACE + "termCodeEditor";
+  public static TEXT_DROPDOWN = this.NAMESPACE + "textDropdown";
 }
