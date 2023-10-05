@@ -39,7 +39,7 @@
           />
         </div>
         <div class="button-bar" id="editor-button-bar">
-          <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="router.go(-1)" data-testid="cancel-button" />
+          <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
           <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
           <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
         </div>
@@ -337,6 +337,12 @@ function processEntityValue(property: PropertyShape) {
     return editorEntity.value[property.path!["@id"]];
   }
   return undefined;
+}
+
+function closeEditor() {
+  console.log(editorIri);
+  if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+  else router.go(-1);
 }
 </script>
 
