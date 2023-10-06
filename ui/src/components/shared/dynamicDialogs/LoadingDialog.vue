@@ -7,18 +7,28 @@
 </template>
 
 <script setup lang="ts">
-interface Props {
-  title?: string;
-  text?: string;
-}
-const props = defineProps<Props>();
+import { inject, onMounted, ref } from "vue";
+
+const dialogRef: any = inject("dialogRef");
+
+const title = ref("");
+const text = ref("");
+
+onMounted(() => {
+  if (dialogRef.value) {
+    const params = dialogRef.value.data;
+    if (params.title) title.value = params.title;
+    if (params.text) text.value = params.text;
+  }
+});
 </script>
 
 <style scoped>
 .dynamic-loading-container {
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: center;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: center;
 }
 </style>
