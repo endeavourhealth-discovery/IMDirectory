@@ -9,7 +9,7 @@
       </div>
       <div class="entity-buttons-container">
         <ActionButtons
-          :buttons="hasQueryDefinition ? ['runQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
+          :buttons="hasQueryDefinition ? ['quickQuery', 'findInTree', 'view', 'edit', 'favourite'] : ['findInTree', 'view', 'edit', 'favourite']"
           :iri="entity['@id']"
           :type="'entityButton'"
           @locate-in-tree="(iri:string) => emit('locateInTree', iri)"

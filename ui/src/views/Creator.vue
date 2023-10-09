@@ -8,12 +8,6 @@
       </template>
     </TopBar>
     <ConfirmDialog />
-    <TestQueryResults
-      v-if="showTestQueryResults"
-      :showDialog="showTestQueryResults"
-      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
-      @close-dialog="showTestQueryResults = false"
-    />
     <div id="creator-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">
@@ -37,7 +31,11 @@
           />
         </div>
         <div class="button-bar" id="creator-button-bar">
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
+          <QuickQuery v-if="isObjectHasKeys(editorEntity, [IM.DEFINITION])" :query="editorEntity[IM.DEFINITION]">
+            <template #button="{ runQuickQuery }">
+              <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
+            </template>
+          </QuickQuery>
           <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
         </div>
       </div>
@@ -67,6 +65,7 @@ import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
+import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
@@ -93,7 +92,6 @@ export default defineComponent({
 <script setup lang="ts">
 import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
-import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import _ from "lodash";
@@ -178,7 +176,6 @@ const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
 const targetShape: Ref<TTIriRef | undefined> = ref();
-const showTestQueryResults: Ref<boolean> = ref(false);
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
 
@@ -378,10 +375,6 @@ function submit(): void {
         confirmButtonColor: "#689F38"
       });
     });
-}
-
-function testQuery() {
-  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
 }
 
 function refreshCreator() {
