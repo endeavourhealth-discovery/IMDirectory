@@ -2,7 +2,7 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode } from "@im-library/interfaces";
+import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -57,6 +57,15 @@ export default class EntityService {
         predicates: predicates.join(",")
       }
     });
+  }
+
+  public async getEntityChildren(iri: string, filters?: FiltersAsIris, controller?: AbortController): Promise<EntityReferenceNode[]> {
+    return (
+      await this.axios.get(Env.API + "api/entity/public/children", {
+        params: { iri: iri, schemeIris: filters?.schemes.join(",") },
+        signal: controller?.signal
+      })
+    ).data;
   }
 
   public async getBundleByPredicateExclusions(iri: string, predicates: string[]): Promise<TTBundle> {

@@ -75,6 +75,8 @@ if (valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
+      const result = await processPropertyValue(props.shape);
+      if (result) userInput.value = result;
       if (updateValidity) {
         if (props.shape.builderChild) {
           hasData();

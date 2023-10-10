@@ -80,8 +80,44 @@ const ConceptShape: FormGenerator = {
               }
             },
             {
-              comment: "Property that derives a concept code from the concept iri",
+              name: "Scheme",
               order: 3,
+              maxCount: 1,
+              minCount: 1,
+              path: { "@id": IM.SCHEME },
+              arrayButtons: { up: false, down: false, plus: false, minus: false },
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              validation: { "@id": IM.validation.IS_SCHEME },
+              property: [
+                {
+                  comment: "Property that derives a concept scheme from the concept iri",
+                  order: 3,
+                  name: "Scheme",
+                  showTitle: true,
+                  builderChild: true,
+                  maxCount: 1,
+                  path: {
+                    "@id": IM.SCHEME
+                  },
+                  argument: [
+                    {
+                      parameter: "entityIri",
+                      valueVariable: "conceptIri"
+                    }
+                  ],
+                  minCount: 1,
+                  componentType: {
+                    "@id": IM.component.ENTITY_DISPLAY
+                  },
+                  function: {
+                    "@id": IM.function.SCHEME_FROM_IRI
+                  }
+                }
+              ]
+            },
+            {
+              comment: "Property that derives a concept code from the concept iri",
+              order: 4,
               name: "Code",
               showTitle: true,
               maxCount: 1,
@@ -111,7 +147,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "name or main term of concept",
-              order: 4,
+              order: 5,
               name: "Concept name",
               showTitle: true,
               maxCount: 1,
@@ -144,35 +180,46 @@ const ConceptShape: FormGenerator = {
               }
             },
             {
-              comment: "selects the status with a default of draft",
-              order: 6,
-              select: [
-                {
-                  "@id": IM.query.GET_DESCENDANTS
-                }
-              ],
               name: "Status",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
+              order: 6,
+              path: { "@id": IM.HAS_STATUS },
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
               minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
+              arrayButtons: { up: false, down: false, plus: false, minus: false },
+              property: [
+                {
+                  comment: "selects the status with a default of draft",
+                  order: 6,
+                  select: [
+                    {
+                      "@id": IM.query.GET_DESCENDANTS
+                    }
+                  ],
+                  name: "Status",
+                  showTitle: true,
+                  builderChild: true,
+                  maxCount: 1,
+                  path: {
+                    "@id": IM.HAS_STATUS
+                  },
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.STATUS
+                      },
+                      parameter: "this"
+                    }
+                  ],
+                  isIri: {
+                    "@id": IM.DRAFT
+                  },
+                  minCount: 1,
+                  componentType: {
+                    "@id": IM.component.ENTITY_DROPDOWN
+                  },
+                  forceIsValue: true
+                }
+              ]
             },
             {
               comment: "optional im1id",
@@ -190,7 +237,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "optional im1scheme",
-              order: 6,
+              order: 8,
               function: {
                 "@id": IM.function.IM1SCHEME_OPTIONS
               },
@@ -209,7 +256,7 @@ const ConceptShape: FormGenerator = {
               label: "Contained in array builder",
               name: "isContainedIn",
               showTitle: true,
-              order: 8,
+              order: 9,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -247,7 +294,7 @@ const ConceptShape: FormGenerator = {
               label: "Subclass of array builder",
               name: "subclassOf",
               showTitle: true,
-              order: 9,
+              order: 10,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -279,7 +326,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "Toggle controlling sub components visibility",
-              order: 10,
+              order: 11,
               name: "Replaced by",
               label: "Deactivate | Activate",
               minCount: 1,
