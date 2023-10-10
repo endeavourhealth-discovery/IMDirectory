@@ -25,4 +25,5 @@ export class componentVocabulary {
   public static ROLE_GROUP_BUILDER = this.NAMESPACE + "roleGroupBuilder";
   public static TERM_CODE_EDITOR = this.NAMESPACE + "termCodeEditor";
   public static TEXT_DROPDOWN = this.NAMESPACE + "textDropdown";
+  public static ENTITY_DISPLAY = this.NAMESPACE + "entityDisplay";
 }

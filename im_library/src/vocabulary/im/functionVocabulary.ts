@@ -6,4 +6,5 @@ export class functionVocabulary {
   public static LOCAL_NAME_RETRIEVER = this.NAMESPACE + "LocalNameRetriever";
   public static GET_SET_EDITOR_IRI_SCHEMES = this.NAMESPACE + "GetSetEditorIriSchemes";
   public static IM1SCHEME_OPTIONS = this.NAMESPACE + "IM1SchemeOptions";
+  public static SCHEME_FROM_IRI = this.NAMESPACE + "SchemeFromIri";
 }

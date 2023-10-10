@@ -1,15 +1,10 @@
 <template>
-  <div class="entity-single-dropdown-container">
-    <span class="dropdown-container">
+  <div class="entity-display-container">
+    <div class="display-container">
       <label v-if="shape.showTitle">{{ shape.name }}</label>
-      <Dropdown
-        class="entity-single-dropdown"
-        :class="invalid && showValidation && 'invalid'"
-        v-model="selectedEntity"
-        :options="dropdownOptions"
-        optionLabel="name"
-      />
-    </span>
+      <InputText class="entity-display" :class="invalid && showValidation && 'invalid'" v-model="selectedEntity.name" :disabled="true" />
+      <small>{{ selectedEntity?.["@id"] }}</small>
+    </div>
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
@@ -22,7 +17,7 @@ import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeC
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { QueryService } from "@/services";
+import { EntityService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
@@ -66,6 +61,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
+      selectedEntity.value = await setSelectedEntity();
       if (updateValidity) {
         if (props.shape.builderChild) {
           hasData();
@@ -78,7 +74,6 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const loading = ref(false);
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -86,7 +81,7 @@ const showValidation = ref(false);
 
 let key = props.shape.path["@id"];
 
-let selectedEntity: Ref<TTIriRef | undefined> = ref();
+let selectedEntity: Ref<TTIriRef> = ref({ "@id": "", name: "" });
 watch(selectedEntity, async newValue => {
   if (isTTIriRef(newValue)) {
     updateEntity(newValue);
@@ -104,27 +99,31 @@ watch(selectedEntity, async newValue => {
 
 onMounted(async () => {
   loading.value = true;
-  dropdownOptions.value = await getDropdownOptions();
-  selectedEntity.value = setSelectedEntity();
+  selectedEntity.value = await setSelectedEntity();
   loading.value = false;
 });
 
-function setSelectedEntity() {
-  if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue) {
-    const found = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
-    if (found) return found;
+async function setSelectedEntity() {
+  if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.forceIsValue && props.shape.isIri?.["@id"]) {
+    let name = "";
+    if (props.shape.isIri.name) name = props.shape.isIri.name;
+    else {
+      const result = await EntityService.getPartialEntity(props.shape.isIri?.["@id"], [RDFS.LABEL]);
+      name = result[RDFS.LABEL];
+    }
+    return { "@id": props.shape.isIri["@id"], name: name };
   }
   if (props.value && isTTIriRef(props.value)) return props.value;
-  else if (props.value && isArrayHasLength(props.value)) return props.value[0];
-  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!["@id"]) {
-    const found = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
-    if (found) return found;
-  } else return undefined;
-}
-
-async function getDropdownOptions() {
-  if (isObjectHasKeys(props.shape, ["select", "argument"])) {
-    const args = processArguments(props.shape);
+  else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri?.["@id"]) {
+    let name = "";
+    if (props.shape.isIri.name) name = props.shape.isIri.name;
+    else {
+      const result = await EntityService.getPartialEntity(props.shape.isIri?.["@id"], [RDFS.LABEL]);
+      name = result[RDFS.LABEL];
+    }
+    return { "@id": props.shape.isIri["@id"], name: name };
+  } else if (isObjectHasKeys(props.shape, ["select", "argument"])) {
+    const args = processArguments(props.shape, valueVariableMap?.value);
     const queryRequest = {} as QueryRequest;
     queryRequest.argument = args;
     const query = { "@id": props.shape.select![0]["@id"] } as Query;
@@ -133,17 +132,22 @@ async function getDropdownOptions() {
     if (result)
       return result.entities.map((item: any) => {
         return { "@id": item["@id"], name: item[RDFS.LABEL] };
-      });
-    else return [];
-  } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await QueryService.runFunction(props.shape.function!["@id"])).options.sort(byName);
-  } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
+      })[0];
+    else return { "@id": "", name: "" };
+  } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
+    const args = processArguments(props.shape, valueVariableMap?.value);
+    if (args.filter(a => isObjectHasKeys(a, ["valueVariable"])).every(a => a.valueVariable)) {
+      const result = await QueryService.runFunction(props.shape.function!["@id"], args);
+      if (isArrayHasLength(result)) return result[0];
+      else return result;
+    } else return { "@id": "", name: "" };
+  } else return { "@id": "", name: "" };
 }
 
 function updateEntity(data: TTIriRef) {
   const result = {} as any;
   result[key] = data;
-  if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  if (!isTTIriRef(data) && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
   else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
   else emit("updateClicked", data);
 }
@@ -158,8 +162,8 @@ function updateValueVariableMap(data: TTIriRef) {
 function hasData() {
   invalid.value = false;
   validationErrorMessage.value = undefined;
-  if (props.shape.minCount === 0 && !selectedEntity.value) return;
-  if (!selectedEntity.value) {
+  if (props.shape.minCount === 0 && !isTTIriRef(selectedEntity.value)) return;
+  if (!isTTIriRef(selectedEntity.value)) {
     invalid.value = true;
     validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required.";
   }
@@ -167,7 +171,7 @@ function hasData() {
 </script>
 
 <style scoped>
-.entity-single-dropdown-container {
+.entity-display-container {
   flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
@@ -176,15 +180,15 @@ function hasData() {
   height: fit-content;
 }
 
-.dropdown-container {
+.display-container {
   flex: 1 1 auto;
 }
 
-.dropdown-container:deep(label) {
+.display-container:deep(label) {
   display: block;
 }
 
-.entity-single-dropdown {
+.entity-display {
   width: 100%;
 }
 

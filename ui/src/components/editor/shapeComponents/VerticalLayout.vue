@@ -24,6 +24,7 @@ import TermCodeEditor from "./TermCodeEditor.vue";
 import { defineComponent } from "vue";
 import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
 import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
+import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
 
 export default defineComponent({
   components: {
@@ -41,7 +42,8 @@ export default defineComponent({
     RoleGroupBuilder,
     PropertyBuilder,
     TermCodeEditor,
-    TextDropdown
+    TextDropdown,
+    EntityDisplay
   }
 });
 </script>
