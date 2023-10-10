@@ -119,35 +119,46 @@ const CohortQueryShape: FormGenerator = {
               }
             },
             {
-              comment: "selects the status with a default of draft",
-              order: 5,
-              select: [
-                {
-                  "@id": IM.query.GET_DESCENDANTS
-                }
-              ],
               name: "Status",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
+              order: 6,
+              path: { "@id": IM.HAS_STATUS },
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
               minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
+              arrayButtons: { up: false, down: false, plus: false, minus: false },
+              property: [
+                {
+                  comment: "selects the status with a default of draft",
+                  order: 6,
+                  select: [
+                    {
+                      "@id": IM.query.GET_DESCENDANTS
+                    }
+                  ],
+                  name: "Status",
+                  showTitle: true,
+                  builderChild: true,
+                  maxCount: 1,
+                  path: {
+                    "@id": IM.HAS_STATUS
+                  },
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.STATUS
+                      },
+                      parameter: "this"
+                    }
+                  ],
+                  isIri: {
+                    "@id": IM.DRAFT
+                  },
+                  minCount: 1,
+                  componentType: {
+                    "@id": IM.component.ENTITY_DROPDOWN
+                  },
+                  forceIsValue: true
+                }
+              ]
             },
             {
               label: "Property group - contained in array builder",
