@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { IMQtoSQL } from "@/logic/IMQtoSQL";
+import IMQtoSQL from "@/logic/IMQtoSQL";
 import { Query } from "@im-library/interfaces/AutoGen";
 import { server } from "../../setupTests";
 import EntityService from "@/services/entity.service";
@@ -238,8 +238,7 @@ test("IMQtoSQL", async () => {
 
   console.log("=================================================================================================");
 
-  const qry = new IMQtoSQL();
-  const sql = qry.convert(def);
+  const sql = IMQtoSQL(def);
   expect(sql).not.toBeNull();
   expect(sql).not.toBeUndefined();
   console.log(sql?.replaceAll("$referenceDate", "now()"));
