@@ -17,7 +17,7 @@ import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
-import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
+import { Ref, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { cloneDeep } from "lodash";
 
@@ -54,15 +54,6 @@ const invalid = ref(false);
 const showValidation = ref(false);
 
 const key = props.shape.path["@id"];
-
-watch(
-  () => cloneDeep(props.value),
-  (newValue, oldValue) => {
-    loading.value = true;
-    if (newValue && newValue !== oldValue) queryDefinition.value = JSON.parse(props.value);
-    loading.value = false;
-  }
-);
 
 watch(
   () => cloneDeep(queryDefinition.value),
