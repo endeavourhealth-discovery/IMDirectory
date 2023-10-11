@@ -11,7 +11,7 @@ import EntityService from "./entity.service";
 import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
-import { IMQtoSQL } from "@/logic/IMQtoSQL";
+import IMQtoSQL from "@/logic/IMQtoSQL";
 
 export default class QueryService {
   axios: any;
@@ -333,6 +333,6 @@ export default class QueryService {
       return {};
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
-    return new IMQtoSQL().convert(query);
+    return IMQtoSQL(query);
   }
 }
