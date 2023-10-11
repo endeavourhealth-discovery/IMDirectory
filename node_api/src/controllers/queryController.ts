@@ -61,9 +61,15 @@ export default class QueryController {
     );
 
     this.router.get("/public/dataModelProperty", (req, res, next) =>
-        this.getDataModelProperty(req)
-            .then(data => res.send(data))
-            .catch(next)
+      this.getDataModelProperty(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
+    this.router.get("/public/generateQuerySQL", (req, res, next) =>
+      this.generateQuerySQL(req)
+        .then(data => res.send(data))
+        .catch(next)
     );
   }
 
@@ -105,7 +111,12 @@ export default class QueryController {
     const query: any = req.body;
     return await this.queryService.getLabeledQuery(query);
   }
+
   async getDataModelProperty(req: Request) {
     return await this.queryService.getDataModelProperty(req.query.dataModelIri as string, req.query.propertyIri as string);
+  }
+
+  async generateQuerySQL(req: Request) {
+    return await this.queryService.generateQuerySQL(req.query.queryIri as string);
   }
 }
