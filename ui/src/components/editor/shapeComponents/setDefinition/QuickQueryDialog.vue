@@ -1,49 +1,48 @@
 <template>
-  <Dialog
-    header="Run quick query"
-    v-model:visible="visible"
-    maximizable
-    :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
-    :style="{ width: '90vw', height: '90vh', minWidth: '90vw', minHeight: '90vh', backgroundColor: 'var(--surface-section)' }"
-  >
-    <form @submit="onSubmit" class="flex flex-column gap-2">
-      <div class="flex flex-column" id="query-param-wrapper">
-        <h2 id="param-header">Params</h2>
-
-        <div v-for="param in params" class="flex flex-column param">
-          <span id="save-set-scheme-header">{{ param.name }}</span>
-          <InputText v-if="XSD.STRING === param.type" v-tooltip="param.desc" type="text" v-model="param.value" class="param-value" />
-          <AutoComplete
-            v-else
-            :multiple="param.maxCount > 1"
-            v-tooltip="param.desc"
-            :suggestions="suggestions"
-            option-label="name"
-            v-model="param.value"
-            @complete="debounceForSearch"
-          />
-        </div>
-
-        <div v-if="queryLoading" class="flex flex-row justify-contents-center align-items-center">
-          <ProgressSpinner />
-        </div>
-        <div v-else-if="!queryLoading && isObjectHasKeys(queryResults, ['entities'])">
-          <DataTable :value="queryResults.entities">
-            <template #header>
-              <div class="flex flex-wrap align-items-center justify-content-between gap-2">
-                <span class="text-xl text-900 font-bold">Results: {{ queryResults.entities.length }}</span>
-                <Button icon="pi pi-refresh" rounded raised @click="onSubmit" />
-              </div>
-            </template>
-            <Column v-for="col of cols" :key="col.field" :field="col.field" :header="col.field"> </Column>
-          </DataTable>
-        </div>
-        <div v-else>No concepts found</div>
+  <Dialog header="Run quick query" v-model:visible="visible" maximizable>
+    <div class="flex flex-column" id="query-param-wrapper">
+      <div v-for="param in params" class="flex flex-column" id="param-input">
+        <span id="param-header">{{ param.name }}</span>
+        <InputText v-if="XSD.STRING === param.type" v-tooltip="param.desc" type="text" v-model="param.value" class="param-value" />
+        <AutoComplete
+          v-else
+          :multiple="param.maxCount > 1"
+          v-tooltip="param.desc"
+          :suggestions="suggestions"
+          option-label="name"
+          v-model="param.value"
+          @complete="debounceForSearch"
+        />
       </div>
-    </form>
+
+      <Button label="Run" @click="testQuery()" autofocus />
+
+      <div v-if="queryLoading" class="flex flex-row justify-contents-center align-items-center">
+        <ProgressSpinner />
+      </div>
+      <div v-else-if="!queryLoading && isObjectHasKeys(queryResults, ['entities'])">
+        <DataTable :value="queryResults.entities" class="flex flex-column" scrollHeight="flex" tableStyle="min-width: 50rem">
+          <template #header>
+            <div class="flex flex-wrap align-items-center justify-content-between gap-2">
+              <span class="text-xl text-900 font-bold">Results: {{ queryResults.entities.length }}</span>
+            </div>
+          </template>
+          <template #loading> Loading data. Please wait. </template>
+          <template #empty> No results found. </template>
+          <Column v-for="col of cols" :key="col.field" :field="col.field" :header="col.field"> </Column>
+        </DataTable>
+      </div>
+    </div>
     <template #footer>
       <Button label="Cancel" icon="fa-duotone fa-ban" severity="secondary" @click="visible = false" />
-      <Button label="Run" icon="pi pi-check" @click="onSubmit" autofocus />
+      <Button label="Clear" icon="fa-duotone fa-ban" severity="warning" @click="clearResults()" />
+      <Button
+        label="Download"
+        icon="fa-duotone fa-ban fa-download"
+        severity="help"
+        @click="onDownload"
+        :disabled="!isObjectHasKeys(queryResults, ['entities']) || !isArrayHasLength(queryResults.entities)"
+      />
     </template>
   </Dialog>
 </template>
@@ -57,8 +56,6 @@ import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import setupDownloadFile from "@/composables/downloadFile";
-import IMViewerLink from "@/components/shared/IMViewerLink.vue";
-import { byName } from "@im-library/helpers/Sorters";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { useToast } from "primevue/usetoast";
@@ -115,24 +112,20 @@ watch(
 
 onMounted(async () => await init());
 
-const onSubmit = async () => {
-  try {
-    await testQuery();
-  } catch (e: any) {
-    toast.add({ severity: "error", summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
-  }
-};
-
 async function init() {
   params.value = await getParams();
 }
 
-async function getQueryRequest(iri?: string) {
+function clearResults() {
+  queryResults.value = { entities: [], "@context": {} };
+}
+
+async function getQueryRequest() {
   const request = {} as QueryRequest;
 
-  if (iri) {
-    const entity = await EntityService.getPartialEntity(iri, [IM.DEFINITION]);
-    if (isObjectHasKeys(entity, [IM.DEFINITION])) request.query = entity[IM.DEFINITION];
+  if (props.queryIri) {
+    const entity = await EntityService.getPartialEntity(props.queryIri, [IM.DEFINITION]);
+    if (isObjectHasKeys(entity, [IM.DEFINITION])) request.query = JSON.parse(entity[IM.DEFINITION]);
   } else if (props.query) {
     request.query = JSON.parse(props.query);
   }
@@ -191,7 +184,6 @@ async function testQuery() {
     }
   } catch (error: any) {
     if (error?.response?.data) toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + error?.response?.data.debugMessage));
-    else throw error;
   }
 
   queryLoading.value = false;
@@ -213,12 +205,14 @@ function getCols(entity: any) {
   return cols;
 }
 
-// function exportCSV(): void {
-//   const heading = ["name", "iri"].join(",");
-//   const body = queryResults.value.map((row: any) => '"' + [row.name, row["@id"]].join('","') + '"').join("\n");
-//   const csv = [heading, body].join("\n");
-//   downloadFile(csv, "results.csv");
-// }
+function onDownload(): void {
+  if (isObjectHasKeys(queryResults.value, ["entities"]) && isArrayHasLength(queryResults.value.entities)) {
+    const heading = ["name", "iri"].join(",");
+    const body = queryResults.value.entities.map((row: any) => '"' + [row.name, row["@id"]].join('","') + '"').join("\n");
+    const csv = [heading, body].join("\n");
+    downloadFile(csv, "results.csv");
+  }
+}
 
 async function getParams(iri?: string) {
   const parameters = [
