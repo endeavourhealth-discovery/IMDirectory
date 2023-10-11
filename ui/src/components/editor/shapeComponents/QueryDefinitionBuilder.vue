@@ -19,7 +19,7 @@ import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import _ from "lodash";
+import { cloneDeep } from "lodash";
 
 interface Props {
   shape: PropertyShape;
@@ -56,7 +56,7 @@ const showValidation = ref(false);
 const key = props.shape.path["@id"];
 
 watch(
-  () => _.cloneDeep(props.value),
+  () => cloneDeep(props.value),
   (newValue, oldValue) => {
     loading.value = true;
     if (newValue && newValue !== oldValue) queryDefinition.value = JSON.parse(props.value);
@@ -65,7 +65,7 @@ watch(
 );
 
 watch(
-  () => _.cloneDeep(queryDefinition.value),
+  () => cloneDeep(queryDefinition.value),
   async () => {
     updateEntity();
     if (updateValidity && valueVariableMap) {
@@ -94,7 +94,7 @@ function updateEntity() {
   if (!isArrayHasLength(queryDefinition.value.match) && deleteEntityKey) deleteEntityKey(key);
   else {
     const imDefinition: any = {};
-    imDefinition[IM.DEFINITION] = JSON.stringify(_.cloneDeep(queryDefinition.value));
+    imDefinition[IM.DEFINITION] = JSON.stringify(cloneDeep(queryDefinition.value));
     if (entityUpdate) entityUpdate(imDefinition);
   }
 }
