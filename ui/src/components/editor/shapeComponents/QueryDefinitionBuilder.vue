@@ -46,6 +46,7 @@ import { cloneDeep } from "lodash";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
+import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   shape: PropertyShape;
@@ -96,14 +97,17 @@ watch(
 
 onMounted(async () => {
   loading.value = true;
-  init();
+  await init();
   loading.value = false;
 });
 
-function init() {
+async function init() {
   QueryService.getQueryDisplay;
-  if (props.value) queryDefinition.value = JSON.parse(props.value);
-  else queryDefinition.value = generateDefaultQuery();
+  if (props.value) {
+    const definition = JSON.parse(props.value);
+    const labeledQuery = await QueryService.getLabeledQuery(definition);
+    queryDefinition.value = generateMatchIds(labeledQuery);
+  } else queryDefinition.value = generateDefaultQuery();
 }
 async function generateSQL() {
   // sql.value = await QueryService.generateQuerySQL(props.entityIri);
