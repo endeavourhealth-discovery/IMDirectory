@@ -76,7 +76,7 @@ const ConceptShape: FormGenerator = {
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
+                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
               }
             },
             {

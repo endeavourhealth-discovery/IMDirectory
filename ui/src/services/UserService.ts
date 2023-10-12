@@ -12,6 +12,9 @@ const UserService = {
   async getUserFavourites(): Promise<any> {
     return await axios.get(Env.API + "api/user/favourites");
   },
+  async getUserOrganisations(): Promise<string[]> {
+    return await axios.get(Env.API + "api/user/organisations");
+  },
   async updateUserTheme(theme: string): Promise<string> {
     return await axios.post(Env.API + "api/user/theme", {
       themeValue: theme
@@ -22,6 +25,9 @@ const UserService = {
   },
   async updateUserFavourites(favourites: any[]): Promise<any> {
     return await axios.post(Env.API + "api/user/favourites", favourites);
+  },
+  async updateUserOrganisations(organisations: string[]): Promise<string[]> {
+    return await axios.post(Env.API + "api/user/organisations", organisations);
   }
 };
 

@@ -34,6 +34,7 @@
     @click="directService.edit(iri)"
     v-tooltip.top="'Edit'"
     data-testid="edit-button"
+    :disabled="!editAllowed"
   />
   <Button
     v-if="show('favourite') && isFavourite(iri)"
@@ -86,6 +87,7 @@ const { hasParams, getParams, runQueryFromIri, params, queryResults, showTestQue
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
+const organisations = computed(() => userStore.organisations);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
 interface Props {
@@ -101,6 +103,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits({
   locateInTree: (_payload: string) => true
 });
+
+const editAllowed = computed(() => organisations.value.findIndex(o => o === props.iri.slice(0, props.iri.indexOf("#") + 1)) !== -1);
 
 function getClass() {
   const activityRowButton = "p-button-rounded p-button-text p-button-plain activity-row-button ";

@@ -41,10 +41,10 @@ const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.
 const AddressFileDownload = () => import("@/components/uprn/AddressFileDownload.vue");
 const Query = () => import("@/views/Query.vue");
 const UprnAgreement = () => import("@/views/UprnAgreement.vue");
-import { EntityService, Env } from "@/services";
+import { EntityService, Env, UserService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
-import { nextTick } from "vue";
+import { nextTick, computed } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
@@ -204,7 +204,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       requiresAuth: true,
       requiresLicense: true,
-      requiresEditRole: true
+      requiresEditRole: true,
+      requiresOrganisation: true
     },
     children: []
   },
@@ -289,7 +290,7 @@ const routes: Array<RouteRecordRaw> = [
     component: UprnAgreement
   },
   {
-    path: "/401/:requiredRole?",
+    path: "/401/:requiredAccess?:accessType?",
     name: "AccessDenied",
     component: AccessDenied,
     props: true
@@ -394,7 +395,7 @@ router.beforeEach(async (to, from) => {
     if (!res.authenticated) {
       await directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("create")) {
-      router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
+      router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
     }
   }
 
@@ -404,7 +405,7 @@ router.beforeEach(async (to, from) => {
     if (!res.authenticated) {
       await directToLogin();
     } else if (!userStore.currentUser?.roles?.includes("edit")) {
-      router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
+      router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
     }
   }
 
@@ -414,6 +415,13 @@ router.beforeEach(async (to, from) => {
 
   if (to.matched.some((record: any) => record.meta.requiresUprnAgreement)) {
     console.log("uprn agreement accepted: " + userStore.uprnAgreementAccepted);
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresOrganisation)) {
+    const organisations = await UserService.getUserOrganisations();
+    if (organisations.findIndex(o => o === iri.slice(0, iri.indexOf("#") + 1)) === -1) {
+      router.push({ name: "AccessDenied", params: { requiredAccess: iri.slice(0, iri.indexOf("#") + 1), accessType: "organisation" } });
+    }
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {

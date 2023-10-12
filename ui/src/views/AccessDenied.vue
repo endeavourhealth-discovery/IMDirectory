@@ -5,7 +5,10 @@
     <h2 class="error-header">Access Denied / Forbidden</h2>
     <p class="error-text">
       <span>The page or resource you were trying to reach is forbidden.</span> <br />
-      <span v-if="requiredRole">Missing <Tag :value="requiredRole" severity="warning" :rounded="true" /> permissions required to access this resource.</span>
+      <span v-if="requiredAccess"
+        >Missing <span v-if="accessType">{{ accessType }}</span> <Tag :value="requiredAccess" severity="warning" :rounded="true" /> permissions required to
+        access this resource.</span
+      >
       <br />
       <span>Please contact an admin to request access to this resource.</span>
     </p>
@@ -19,7 +22,8 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 interface Props {
-  requiredRole?: string;
+  requiredAccess?: string;
+  accessType?: string;
 }
 
 const props = defineProps<Props>();
