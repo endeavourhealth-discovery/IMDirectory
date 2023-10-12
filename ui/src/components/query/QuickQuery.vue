@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { Ref, ref } from "vue";
-import QuickQueryDialog from "../editor/shapeComponents/setDefinition/QuickQueryDialog.vue";
+import QuickQueryDialog from "./QuickQueryDialog.vue";
 
 interface Props {
   queryIri?: string;

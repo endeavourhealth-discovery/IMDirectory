@@ -62,6 +62,15 @@ import { useToast } from "primevue/usetoast";
 import { IM, RDFS, SHACL, XSD } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";
 
+interface Param {
+  name: string;
+  desc: string;
+  type: string;
+  minCount: number;
+  maxCount: number;
+  value: any;
+}
+
 interface Props {
   queryIri?: string;
   query?: string;
@@ -79,12 +88,12 @@ const suggestions: Ref<ConceptSummary[]> = ref([]);
 const toast = useToast();
 const visible = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
-const params: Ref<{ name: string; desc: string; type: string; minCount: number; maxCount: number; value: any }[]> = ref([]);
+const params: Ref<Param[]> = ref([]);
 const queryResults: Ref<{ entities: any[]; "@context": any }> = ref({} as { entities: any[]; "@context": any });
 const cols: Ref<{ field: string }[]> = ref([]);
 
 const emit = defineEmits({
-  "update:showDialog": payload => typeof payload === "boolean"
+  "update:showDialog": (_payload: boolean) => true
 });
 
 watch(
@@ -144,7 +153,7 @@ function addArguments(queryRequest: QueryRequest) {
       } as Argument;
 
       if (isArrayHasLength(param.value)) {
-        argument.valueIriList = (param.value as []).map((summary: ConceptSummary) => {
+        argument.valueIriList = (param.value as ConceptSummary[]).map(summary => {
           return { "@id": summary.iri, name: summary.name } as TTIriRef;
         });
       } else {
@@ -191,10 +200,11 @@ async function testQuery() {
 
 async function addNamesToResults(entities: any[]) {
   const results = await EntityService.getNames(entities.map(entity => entity["@id"]));
-  for (const namedEntity of results) {
-    const found = entities.find(entity => entity["@id"] === namedEntity["@id"]);
-    if (found) found.name = namedEntity.name;
-  }
+  if (isArrayHasLength(results))
+    for (const namedEntity of results) {
+      const found = entities.find(entity => entity["@id"] === namedEntity["@id"]);
+      if (found) found.name = namedEntity.name;
+    }
 }
 
 function getCols(entity: any) {
@@ -207,9 +217,17 @@ function getCols(entity: any) {
 
 function onDownload(): void {
   if (isObjectHasKeys(queryResults.value, ["entities"]) && isArrayHasLength(queryResults.value.entities)) {
-    const heading = ["name", "iri"].join(",");
-    const body = queryResults.value.entities.map((row: any) => '"' + [row.name, row["@id"]].join('","') + '"').join("\n");
-    const csv = [heading, body].join("\n");
+    const fieldNames = getCols(queryResults.value.entities[0]).map(col => col.field);
+    const heading = fieldNames.join(",");
+    let body = "";
+    for (const entity of queryResults.value.entities) {
+      let row = "";
+      for (const fieldName of fieldNames) {
+        row += entity[fieldName] + ",";
+      }
+      body += row + "\n";
+    }
+    const csv = heading + "\n" + body;
     downloadFile(csv, "results.csv");
   }
 }
