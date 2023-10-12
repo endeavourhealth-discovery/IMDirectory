@@ -4,9 +4,31 @@
       <ProgressSpinner />
     </div>
     <div v-else class="content-container" :class="showValidation && invalid && 'invalid'">
-      <CohortEditor v-model:queryDefinition="queryDefinition" />
+      <div class="query-editor-container flex flex-column gap-3">
+        <div class="flex flex-row gap-2">
+          <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
+          <QuickQuery :query="queryDefinition">
+            <template #button="{ runQuickQuery }">
+              <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
+            </template>
+          </QuickQuery>
+        </div>
+        <div class="query-editor flex flex-column">
+          <div class="p-2">
+            <CohortEditor v-model:queryDefinition="queryDefinition" />
+          </div>
+        </div>
+      </div>
     </div>
     <span class="error-message" v-if="validationErrorMessage"> {{ validationErrorMessage }}</span>
+
+    <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
+      <pre>{{ sql }}</pre>
+      <template #footer>
+        <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
+        <Button label="Close" @click="showSql = false" data-testid="close-button" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -14,13 +36,16 @@
 import QuickQuery from "@/components/query/QuickQuery.vue";
 import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { EditorMode } from "@im-library/enums";
+import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { cloneDeep } from "lodash";
+import { QueryService } from "@/services";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
 
 interface Props {
   shape: PropertyShape;
@@ -46,13 +71,15 @@ if (forceValidation) {
     }
   });
 }
-
+const toast = useToast();
 const route = useRoute();
 const loading = ref(true);
 const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 const showValidation = ref(false);
+const showSql: Ref<boolean> = ref(false);
+const sql: Ref<string> = ref("");
 
 const key = props.shape.path["@id"];
 
@@ -74,8 +101,18 @@ onMounted(async () => {
 });
 
 function init() {
+  QueryService.getQueryDisplay;
   if (props.value) queryDefinition.value = JSON.parse(props.value);
   else queryDefinition.value = generateDefaultQuery();
+}
+async function generateSQL() {
+  // sql.value = await QueryService.generateQuerySQL(props.entityIri);
+  showSql.value = true;
+}
+
+async function copy() {
+  await navigator.clipboard.writeText(sql.value);
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "SQL copied to clipboard"));
 }
 
 function generateDefaultQuery() {
@@ -109,5 +146,19 @@ function updateEntity() {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.query-editor-container {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  height: 100%;
+}
+
+.query-editor {
+  height: 100%;
+  overflow-y: auto;
+  border: 1px solid var(--surface-border);
+  background-color: #ffffff;
 }
 </style>
