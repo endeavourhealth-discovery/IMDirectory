@@ -73,7 +73,7 @@ interface Param {
 
 interface Props {
   queryIri?: string;
-  query?: string;
+  query?: Query;
   showDialog: boolean;
 }
 
@@ -136,7 +136,7 @@ async function getQueryRequest() {
     const entity = await EntityService.getPartialEntity(props.queryIri, [IM.DEFINITION]);
     if (isObjectHasKeys(entity, [IM.DEFINITION])) request.query = JSON.parse(entity[IM.DEFINITION]);
   } else if (props.query) {
-    request.query = JSON.parse(props.query);
+    request.query = props.query;
   }
 
   return request;

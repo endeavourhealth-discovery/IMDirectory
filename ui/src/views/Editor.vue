@@ -34,11 +34,6 @@
         </div>
         <div class="button-bar" id="editor-button-bar">
           <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
-          <QuickQuery v-if="isObjectHasKeys(editorEntity, [IM.DEFINITION])" :query="editorEntity[IM.DEFINITION]">
-            <template #button="{ runQuickQuery }">
-              <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
-            </template>
-          </QuickQuery>
           <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
         </div>
       </div>
@@ -201,7 +196,6 @@ watch(
 );
 
 const directService = new DirectService();
-const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 function updateType(types: TTIriRef[]) {
   loading.value = true;

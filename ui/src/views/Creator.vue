@@ -31,11 +31,6 @@
           />
         </div>
         <div class="button-bar" id="creator-button-bar">
-          <QuickQuery v-if="isObjectHasKeys(editorEntity, [IM.DEFINITION])" :query="editorEntity[IM.DEFINITION]">
-            <template #button="{ runQuickQuery }">
-              <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
-            </template>
-          </QuickQuery>
           <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
         </div>
       </div>
@@ -131,7 +126,6 @@ const directService = new DirectService();
 const currentUser = computed(() => userStore.currentUser).value;
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
-const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;

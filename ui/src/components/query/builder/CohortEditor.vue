@@ -176,7 +176,7 @@ function setValidationQueryRequest() {
   background-color: #ffffff;
   display: flex;
   flex-flow: column;
-  border: 2px solid #b89241;
+  border: 1px solid var(--surface-border);
 }
 
 .base-type-button {

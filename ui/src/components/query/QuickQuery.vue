@@ -12,10 +12,11 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import QuickQueryDialog from "./QuickQueryDialog.vue";
+import { Query } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   queryIri?: string;
-  query?: string;
+  query?: Query;
 }
 
 const props = defineProps<Props>();

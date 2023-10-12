@@ -4,10 +4,16 @@
       <ProgressSpinner />
     </div>
     <CohortEditor v-else v-model:queryDefinition="queryDefinition" />
+    <QuickQuery :queryIri="queryIri" :query="queryDefinition">
+      <template #button="{ runQuickQuery }">
+        <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
+      </template>
+    </QuickQuery>
   </div>
 </template>
 
 <script setup lang="ts">
+import QuickQuery from "@/components/query/QuickQuery.vue";
 import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
