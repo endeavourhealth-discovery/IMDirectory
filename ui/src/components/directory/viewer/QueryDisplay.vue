@@ -1,8 +1,19 @@
 <template>
-  <div class="query-display-container">
-    <Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" />
-    <div class="include-title" style="color: green">include if</div>
-    <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" v-for="match of query.match" :match="match" :parent-match="undefined" :full-query="query" />
+  <div class="query-display-container flex flex-column gap-3">
+    <div class="flex flex-row gap-2">
+      <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
+      <QuickQuery :query-iri="entityIri">
+        <template #button="{ runQuickQuery }">
+          <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
+        </template>
+      </QuickQuery>
+    </div>
+    <div class="query-display">
+      <div class="rec-query-display">
+        <div class="include-title" style="color: green">include if</div>
+        <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" v-for="match of query.match" :match="match" :parent-match="undefined" :full-query="query" />
+      </div>
+    </div>
   </div>
   <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
     <pre>{{ sql }}</pre>
@@ -22,6 +33,7 @@ import { onMounted, watch, Ref, ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
+import QuickQuery from "@/components/query/QuickQuery.vue";
 
 interface Props {
   entityIri: string;
@@ -64,5 +76,15 @@ async function copy() {
   flex-flow: column nowrap;
   width: 100%;
   height: 100%;
+}
+
+.query-display {
+  height: 100vh;
+  overflow-y: auto;
+  border: 1px solid var(--surface-border);
+}
+
+.rec-query-display {
+  padding: 1rem;
 }
 </style>

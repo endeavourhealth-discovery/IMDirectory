@@ -1,17 +1,5 @@
 <template>
   <div class="flex">
-    <QuickQuery v-if="show('quickQuery')" :query-iri="iri">
-      <template #button="{ runQuickQuery }">
-        <Button
-          :icon="'fa-solid fa-bolt'"
-          :severity="getSeverity()"
-          :class="getClass()"
-          v-tooltip.top="'Run query'"
-          id="quick-query-button"
-          @click="runQuickQuery()"
-        />
-      </template>
-    </QuickQuery>
     <Button
       v-if="show('findInTree')"
       :icon="fontAwesomePro ? 'fa-duotone fa-list-tree' : 'fa-solid fa-sitemap'"
@@ -67,7 +55,6 @@ import { DirectService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
-import QuickQuery from "@/components/query/QuickQuery.vue";
 
 const directService = new DirectService();
 const sharedStore = useSharedStore();
