@@ -4,52 +4,54 @@
     v-model:visible="showDialog"
     :maximizable="true"
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
-    :style="{ width: '85vw' }"
+    :style="{ width: '60vw' }"
     :closable="false"
   >
-    <div v-if="showAddByFile" class="upload-container">
-      <FileUpload
-        name="demo[]"
-        url="https://www.primefaces.org/upload.php"
-        @upload="onAdvancedUpload"
-        :multiple="true"
-        accept=".csv, .tsv"
-        :maxFileSize="1000000"
-      >
-        <template #content>
-          <template v-for="file of uploadedFiles">
-            <span>{{ file.name }} - {{ file.size }} bytes</span>
-            <ul>
-              <li v-for="row of file.data">{{ row }}</li>
-            </ul>
+    <div class="add-dialog-container">
+      <div v-if="showAddByFile" class="upload-container">
+        <FileUpload
+          name="demo[]"
+          url="https://www.primefaces.org/upload.php"
+          @upload="onAdvancedUpload"
+          :multiple="true"
+          accept=".csv, .tsv"
+          :maxFileSize="1000000"
+        >
+          <template #content>
+            <template v-for="file of uploadedFiles">
+              <span>{{ file.name }} - {{ file.size }} bytes</span>
+              <ul>
+                <li v-for="row of file.data">{{ row }}</li>
+              </ul>
+            </template>
           </template>
-        </template>
-        <template #empty>
-          <p>Drag and drop files here to upload.</p>
-        </template>
-      </FileUpload>
-      <Dropdown v-if="isArrayHasLength(headers)" v-model="selectedColumn" :options="headers" option-label="label" placeholder="Select column" />
-      <Button :loading="processing" :disabled="!isValidUpload" label="Process" class="process-button" @click="processUpload" />
-    </div>
-    <div v-else-if="showAddByList" class="code-list-container">
-      <Textarea v-model="text" :autoResize="true" rows="5" cols="30" />
-      <small id="code-list-help" class="p-error" v-if="invalidMessage">{{ invalidMessage }}</small>
-      <Button :loading="processing" :disabled="!isValidText" label="Process" class="process-button" @click="processText" />
-    </div>
+          <template #empty>
+            <p>Drag and drop files here to upload.</p>
+          </template>
+        </FileUpload>
+        <Dropdown v-if="isArrayHasLength(headers)" v-model="selectedColumn" :options="headers" option-label="label" placeholder="Select column" />
+        <Button :loading="processing" :disabled="!isValidUpload" label="Process" class="process-button" @click="processUpload" />
+      </div>
+      <div v-else-if="showAddByList" class="code-list-container">
+        <Textarea v-model="text" :autoResize="true" rows="5" cols="30" />
+        <small id="code-list-help" class="p-error" v-if="invalidMessage">{{ invalidMessage }}</small>
+        <Button :loading="processing" :disabled="!isValidText" label="Process" class="process-button" @click="processText" />
+      </div>
 
-    <DataTable class="code-list-result-table" v-if="showResultTable" :value="entities" responsiveLayout="scroll">
-      <Column field="code" header="Code">
-        <template #body="{ data }: any"> {{ data["http://endhealth.info/im#code"] }}</template>
-      </Column>
-      <Column field="name" header="Name">
-        <template #body="{ data }: any">{{ data["http://www.w3.org/2000/01/rdf-schema#label"] }} </template>
-      </Column>
-      <Column field="statusCode" header="Code status">
-        <template #body="{ data }: any">
-          <Tag :value="data.statusCode" :severity="getSeverity(data.statusCode)" :icon="getIcon(data.statusCode)" />
-        </template>
-      </Column>
-    </DataTable>
+      <DataTable class="code-list-result-table" v-if="showResultTable" :value="entities" responsiveLayout="scroll">
+        <Column field="code" header="Code">
+          <template #body="{ data }: any"> {{ data["http://endhealth.info/im#code"] }}</template>
+        </Column>
+        <Column field="name" header="Name">
+          <template #body="{ data }: any">{{ data["http://www.w3.org/2000/01/rdf-schema#label"] }} </template>
+        </Column>
+        <Column field="statusCode" header="Code status">
+          <template #body="{ data }: any">
+            <Tag :value="data.statusCode" :severity="getSeverity(data.statusCode)" :icon="getIcon(data.statusCode)" />
+          </template>
+        </Column>
+      </DataTable>
+    </div>
     <template #footer>
       <Button label="Cancel" icon="pi pi-times" @click="closeDialog" class="p-button-text" />
       <Button label="Add valid codes" :disabled="!hasValidEntities" icon="pi pi-plus" @click="add" autofocus />
@@ -144,7 +146,8 @@ async function processText() {
   if (isValidText.value) {
     try {
       const codeList = await ParserService.getListFromText(text.value);
-      entities.value = await getValidatedEntities(codeList);
+      if (codeList) entities.value = await getValidatedEntities(codeList);
+      else invalidMessage.value = "Entered values are not valid.";
       if (isArrayHasLength(entities.value)) showResultTable.value = true;
     } catch (error) {
       if (error instanceof TextProcessingError) {
@@ -211,16 +214,29 @@ async function getValidatedEntities(codeList: string[]) {
 
 function validateEntities() {
   const hasOptions = isArrayHasLength(entities.value);
-  const hasValidOptions = entities.value.some(entity => entity.statusCode === CODE_STATUS.VALID);
+  let hasValidOptions = false;
+  if (hasOptions) hasValidOptions = entities.value.some(entity => entity.statusCode === CODE_STATUS.VALID);
   return hasOptions && hasValidOptions;
 }
 </script>
 
 <style scoped>
+.add-dialog-container {
+  display: flex;
+  flex-flow: column wrap;
+  width: 100%;
+}
+
+.p-dialog-content {
+  display: block;
+  margin: auto;
+}
+
 .upload-container,
 .code-list-container {
   display: flex;
   flex-flow: column nowrap;
+  width: 100%;
 }
 
 #code-list-help {
@@ -229,5 +245,6 @@ function validateEntities() {
 }
 .code-list-result-table {
   padding-top: 1rem;
+  width: 100%;
 }
 </style>

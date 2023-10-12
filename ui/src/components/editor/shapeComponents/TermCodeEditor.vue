@@ -68,7 +68,7 @@ if (forceValidation) {
   });
 }
 
-if (valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
@@ -112,7 +112,11 @@ onMounted(() => {
 function processProps() {
   if (props.value) {
     if (isObjectHasKeys(props.value, [IM.CODE])) code.value = props.value[IM.CODE];
-    if (isObjectHasKeys(props.value, [IM.HAS_STATUS]) && isArrayHasLength(props.value[IM.HAS_STATUS])) {
+    if (
+      isObjectHasKeys(props.value, [IM.HAS_STATUS]) &&
+      isArrayHasLength(props.value[IM.HAS_STATUS]) &&
+      isObjectHasKeys(props.value[IM.HAS_STATUS][0], ["@id"])
+    ) {
       if (statusOptions.value.findIndex(so => so["@id"] === props.value[IM.HAS_STATUS][0]["@id"]) != -1) status.value = props.value[IM.HAS_STATUS][0];
     }
     if (isObjectHasKeys(props.value, [RDFS.LABEL])) name.value = props.value[RDFS.LABEL];

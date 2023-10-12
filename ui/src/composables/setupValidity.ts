@@ -37,13 +37,14 @@ export function setupValidity(shape?: FormGenerator) {
 
   async function validationChecksCompleted(): Promise<boolean> {
     const promises = validationCheckStatus.value.map(v => v.deferred.promise);
-    return Promise.allSettled(promises)
+    const result = await Promise.allSettled(promises)
       .then(result => {
         return result.every(r => r.status === "fulfilled");
       })
       .catch(err => {
         throw err;
       });
+    return result;
   }
 
   function addPropertyToValidationCheckStatus(property: PropertyShape) {

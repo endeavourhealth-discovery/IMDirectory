@@ -1,16 +1,20 @@
+import EntityService from "@/services/entity.service";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
+import axios from "axios";
 
 export default class Validator {
   constructor() {}
+  entityService: EntityService = new EntityService(axios);
 
-  public validate(iri: string, data: any): { isValid: boolean; message?: string } {
+  public async validate(iri: string, data: any): Promise<{ isValid: boolean; message?: string }> {
     if (iri === IM.validation.HAS_PARENT) return this.hasValidParents(data);
     if (iri === IM.validation.IS_DEFINITION) return this.isValidDefinition(data);
     if (iri === IM.validation.IS_IRI) return this.isValidIri(data);
     if (iri === IM.validation.IS_TERMCODE) return this.isValidTermcodes(data);
     if (iri === IM.validation.IS_PROPERTY) return this.isValidProperties(data);
+    if (iri === IM.validation.IS_SCHEME) return await this.isValidScheme(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -130,12 +134,28 @@ export default class Validator {
     let valid = false;
     let message: string | undefined = "1 or more term codes are invalid.";
     if (isObjectHasKeys(data, [IM.HAS_TERM_CODE])) {
-      if (data[IM.HAS_TERM_CODE].every((tc: any) => this.isValidTermCode(tc))) valid = true;
+      if (data[IM.HAS_TERM_CODE].every((tc: any) => this.isValidTermCode(tc))) {
+        valid = true;
+        message = undefined;
+      }
     }
     return { isValid: valid, message: message };
   }
 
   private isValidTermCode(data: any): boolean {
     return isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL];
+  }
+
+  private async isValidScheme(data: any): Promise<{ isValid: boolean; message?: string }> {
+    let valid = false;
+    let message: string | undefined = "Scheme is invalid";
+    const schemes = await this.entityService.getEntityChildren(IM.GRAPH);
+    if (isObjectHasKeys(data, [IM.SCHEME]) && isArrayHasLength(data[IM.SCHEME]) && isTTIriRef(data[IM.SCHEME][0])) {
+      if (schemes.findIndex(s => s["@id"] === data[IM.SCHEME][0]["@id"]) !== -1) {
+        valid = true;
+        message = undefined;
+      }
+    }
+    return { isValid: valid, message: message };
   }
 }

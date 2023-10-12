@@ -77,7 +77,7 @@ if (forceValidation) {
   });
 }
 
-if (valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
@@ -85,7 +85,7 @@ if (valueVariableMap) {
         if (props.shape.builderChild) {
           hasData();
         } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
         }
         showValidation.value = true;
       }

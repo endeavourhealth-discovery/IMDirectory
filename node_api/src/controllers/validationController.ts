@@ -24,6 +24,6 @@ export default class ValidationController {
     const validationIri = req.query.iri as string;
     if (!validationIri) throw new Error("Missing validation iri");
     const data = req.body;
-    return this.validator.validate(validationIri, data);
+    return await this.validator.validate(validationIri, data);
   }
 }

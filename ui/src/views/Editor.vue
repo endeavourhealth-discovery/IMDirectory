@@ -236,61 +236,75 @@ function submit(): void {
   forceValidation.value = true;
   validationChecksCompleted()
     .then(async res => {
-      forceValidation.value = false;
-      verificationDialog.close();
-      if (isValidEntity(editorEntity.value)) {
-        console.log("submit");
-        Swal.fire({
-          icon: "info",
-          title: "Confirm save",
-          text: "Are you sure you want to save your changes?",
-          showCancelButton: true,
-          confirmButtonText: "Save",
-          reverseButtons: true,
-          confirmButtonColor: "#2196F3",
-          cancelButtonColor: "#607D8B",
-          showLoaderOnConfirm: true,
-          allowOutsideClick: () => !Swal.isLoading(),
-          backdrop: true,
-          preConfirm: async () => {
-            const res = await EntityService.updateEntity(editorEntity.value);
-            if (res) {
-              editorStore.updateEditorSavedEntity(undefined);
-              return res;
-            } else Swal.showValidationMessage("Error saving entity to server.");
-          }
-        }).then(async (result: any) => {
-          if (result.isConfirmed) {
-            Swal.fire({
-              title: "Success",
-              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been updated.",
-              icon: "success",
-              showCancelButton: true,
-              reverseButtons: true,
-              confirmButtonText: "Open in Viewer",
-              confirmButtonColor: "#2196F3",
-              cancelButtonColor: "#607D8B"
-            }).then(async (result: any) => {
-              if (result.isConfirmed) {
-                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
-              } else {
-                await fetchEntity();
-              }
-            });
-          }
-        });
+      if (res) {
+        forceValidation.value = false;
+        verificationDialog.close();
+        if (isValidEntity(editorEntity.value)) {
+          console.log("submit");
+          Swal.fire({
+            icon: "info",
+            title: "Confirm save",
+            text: "Are you sure you want to save your changes?",
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            reverseButtons: true,
+            confirmButtonColor: "#2196F3",
+            cancelButtonColor: "#607D8B",
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading(),
+            backdrop: true,
+            preConfirm: async () => {
+              const res = await EntityService.updateEntity(editorEntity.value);
+              if (res) {
+                editorStore.updateEditorSavedEntity(undefined);
+                return res;
+              } else Swal.showValidationMessage("Error saving entity to server.");
+            }
+          }).then(async (result: any) => {
+            if (result.isConfirmed) {
+              Swal.fire({
+                title: "Success",
+                text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been updated.",
+                icon: "success",
+                showCancelButton: true,
+                reverseButtons: true,
+                confirmButtonText: "Open in Viewer",
+                confirmButtonColor: "#2196F3",
+                cancelButtonColor: "#607D8B"
+              }).then(async (result: any) => {
+                if (result.isConfirmed) {
+                  directService.view(editorEntity.value["http://endhealth.info/im#id"]);
+                } else {
+                  await fetchEntity();
+                }
+              });
+            }
+          });
+        } else {
+          console.log("invalid entity");
+          Swal.fire({
+            icon: "warning",
+            title: "Warning",
+            text: "Invalid values found. Please review your entries.",
+            confirmButtonText: "Close",
+            confirmButtonColor: "#689F38"
+          });
+        }
       } else {
-        console.log("invalid entity");
+        forceValidation.value = false;
+        verificationDialog.close();
         Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "Invalid values found. Please review your entries.",
+          icon: "error",
+          title: "Timeout",
+          text: "Validation timed out. Please contact an admin for support.",
           confirmButtonText: "Close",
           confirmButtonColor: "#689F38"
         });
       }
     })
     .catch(err => {
+      forceValidation.value = false;
+      verificationDialog.close();
       Swal.fire({
         icon: "error",
         title: "Timeout",

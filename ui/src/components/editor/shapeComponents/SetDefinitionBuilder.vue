@@ -11,7 +11,7 @@
           v-model="ecl"
           id="ecl-string-container"
           :placeholder="loading ? 'loading...' : 'Enter ECL text here...'"
-          :class="eclError ? 'p-invalid' : ''"
+          :class="[eclError && 'p-invalid', showValidation && invalid && 'invalid']"
           data-testid="ecl-string"
           :disabled="loading"
           @dragenter.prevent
@@ -79,11 +79,36 @@ const loading = ref(false);
 const showNames = ref(false);
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async () => {
+      if (updateValidity) {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        showValidation.value = true;
+      }
+    }
+  );
+}
 
 const key = props.shape.path["@id"];
 const buttonOptions = [
@@ -111,7 +136,10 @@ watch(
   () => _.cloneDeep(eclAsQuery.value),
   async () => {
     updateEntity();
-    if (updateValidity && valueVariableMap) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    if (updateValidity && valueVariableMap) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      showValidation.value = true;
+    }
   }
 );
 
@@ -162,7 +190,8 @@ function updateEntity() {
   if (entityUpdate) {
     const result = {} as any;
     result[key] = JSON.stringify(eclAsQuery.value);
-    entityUpdate(result);
+    if (!eclAsQuery.value && deleteEntityKey) deleteEntityKey(key);
+    else entityUpdate(result);
   }
 }
 
