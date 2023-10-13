@@ -9,12 +9,6 @@
       </template>
     </TopBar>
     <ConfirmDialog></ConfirmDialog>
-    <TestQueryResults
-      v-if="showTestQueryResults"
-      :showDialog="showTestQueryResults"
-      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
-      @close-dialog="showTestQueryResults = false"
-    />
     <div id="editor-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">
@@ -40,7 +34,6 @@
         </div>
         <div class="button-bar" id="editor-button-bar">
           <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
           <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
         </div>
       </div>
@@ -68,6 +61,7 @@ import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
+import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
@@ -93,7 +87,6 @@ export default defineComponent({
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch, nextTick } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
-import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRouter, useRoute } from "vue-router";
@@ -167,7 +160,6 @@ function onShowSidebar() {
 
 const loading = ref(true);
 const showSidebar = ref(false);
-const showTestQueryResults: Ref<boolean> = ref(false);
 const forceValidation = ref(false);
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
@@ -205,7 +197,6 @@ watch(
 );
 
 const directService = new DirectService();
-const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 function updateType(types: TTIriRef[]) {
   loading.value = true;
@@ -323,10 +314,6 @@ function submit(): void {
         confirmButtonColor: "#689F38"
       });
     });
-}
-
-function testQuery() {
-  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
 }
 
 function refreshEditor() {
