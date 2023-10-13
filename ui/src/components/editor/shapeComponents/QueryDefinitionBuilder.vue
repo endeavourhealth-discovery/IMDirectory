@@ -108,7 +108,7 @@ async function init() {
   } else queryDefinition.value = generateDefaultQuery();
 }
 async function generateSQL() {
-  // sql.value = await QueryService.generateQuerySQL(props.entityIri);
+  sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
   showSql.value = true;
 }
 
