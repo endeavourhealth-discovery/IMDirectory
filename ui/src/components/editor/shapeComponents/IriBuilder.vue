@@ -3,8 +3,20 @@
     <div class="label-content-container">
       <label v-if="shape.showTitle">{{ shape.name }}</label>
       <div class="content-container">
-        <Dropdown :disabled="loading" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
-        <InputText :disabled="loading" class="p-inputtext-lg input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
+        <Dropdown
+          :disabled="loading || fullShape?.['@id'] === IM.editor.CONCEPT_SHAPE"
+          class="dropdown"
+          v-model="selectedDropdownOption"
+          :options="dropdownOptions"
+          optionLabel="name"
+        />
+        <InputText
+          :disabled="loading || fullShape?.['@id'] === IM.editor.CONCEPT_SHAPE"
+          class="p-inputtext-lg input-text"
+          :class="invalid && showValidation && 'invalid'"
+          v-model="userInput"
+          type="text"
+        />
         <ProgressSpinner v-if="loading" class="loading-icon" style="height: 2rem; width: 2rem" strokeWidth="8" />
       </div>
       <span>{{ selectedDropdownOption ? selectedDropdownOption["@id"] : "" }}{{ userInput }}</span>
@@ -21,7 +33,7 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
-import { RDFS } from "@im-library/vocabulary";
+import { IM, RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
 import _ from "lodash";
@@ -37,6 +49,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits({ updateClicked: (_payload: string) => true });
 
+const fullShape = inject(injectionKeys.fullShape);
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
@@ -106,6 +119,9 @@ onMounted(async () => {
   loading.value = true;
   dropdownOptions.value = await getDropdownOptions();
   setSelectedOption();
+  if (props.mode === EditorMode.CREATE && props.shape.path["@id"] === IM.CONCEPT) {
+    userInput.value = await generateCode();
+  }
   loading.value = false;
 });
 
@@ -133,6 +149,12 @@ function deconstructInputValue(inputValue: String) {
     selectedDropdownOption.value = found;
     userInput.value = inputValue.substring(found["@id"].length);
   }
+}
+
+async function generateCode(): Promise<string> {
+  if (selectedDropdownOption.value)
+    return QueryService.runFunction(IM.function.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
+  return "";
 }
 
 async function getDropdownOptions() {

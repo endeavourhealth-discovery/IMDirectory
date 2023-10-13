@@ -180,6 +180,7 @@ provide(injectionKeys.forceValidation, {
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus
 });
+provide(injectionKeys.fullShape, shape);
 
 onMounted(async () => {
   loading.value = true;
