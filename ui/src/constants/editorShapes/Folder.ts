@@ -318,7 +318,7 @@ const FolderShape: FormGenerator = {
               }
             }
           ],
-          name: "Content ype",
+          name: "Content type",
           showTitle: true,
           minCount: 0,
           componentType: {
