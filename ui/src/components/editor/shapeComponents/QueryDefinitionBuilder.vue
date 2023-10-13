@@ -5,18 +5,16 @@
     </div>
     <div v-else class="content-container" :class="showValidation && invalid && 'invalid'">
       <div class="query-editor-container flex flex-column gap-3">
-        <div class="flex flex-row gap-2">
+        <div class="query-editor flex flex-column p-2">
+          <CohortEditor v-model:queryDefinition="queryDefinition" />
+        </div>
+        <div class="flex flex-row gap-2 justify-content-end">
           <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
           <QuickQuery :query="queryDefinition">
             <template #button="{ runQuickQuery }">
-              <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
+              <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
             </template>
           </QuickQuery>
-        </div>
-        <div class="query-editor flex flex-column">
-          <div class="p-2">
-            <CohortEditor v-model:queryDefinition="queryDefinition" />
-          </div>
         </div>
       </div>
     </div>
@@ -160,7 +158,7 @@ function updateEntity() {
 }
 
 .query-editor {
-  height: 100%;
+  height: 60vh;
   overflow-y: auto;
   border: 1px solid var(--surface-border);
   background-color: #ffffff;
