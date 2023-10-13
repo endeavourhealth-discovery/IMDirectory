@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown-text-input-concatenator-container">
+  <div class="iri-builder-container">
     <div class="label-content-container">
       <label v-if="shape.showTitle">{{ shape.name }}</label>
       <div class="content-container">
@@ -188,7 +188,7 @@ function hasData() {
 </script>
 
 <style scoped>
-.dropdown-text-input-concatenator-container {
+.iri-builder-container {
   flex: 1 1 auto;
   display: flex;
   flex-flow: row nowrap;
