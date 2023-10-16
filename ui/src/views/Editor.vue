@@ -463,7 +463,6 @@ function closeEditor() {
   margin-left: 0.5rem;
   font-size: 1.5rem;
   overflow: hidden;
-  height: 1.75rem;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 0 1 auto;
