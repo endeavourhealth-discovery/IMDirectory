@@ -7,4 +7,5 @@ export class validationVocabulary {
   public static IS_TERMCODE = this.NAMESPACE + "isTermcode";
   public static IS_PROPERTY = this.NAMESPACE + "isProperty";
   public static IS_SCHEME = this.NAMESPACE + "isScheme";
+  public static IS_STATUS = this.NAMESPACE + "isStatus";
 }
