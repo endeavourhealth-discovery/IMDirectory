@@ -277,48 +277,6 @@ const DataModelShape: FormGenerator = {
                 "@id": IM.component.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
-            },
-            {
-              comment: "Toggle controlling sub components visibility",
-              order: 7,
-              name: "Replaced by",
-              label: "Deactivate | Activate",
-              minCount: 1,
-              maxCount: 1,
-              path: {
-                "@id": "http://snomed.info/sct#370124000"
-              },
-              componentType: {
-                "@id": IM.component.TOGGLEABLE
-              },
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_ENTITIES
-                    }
-                  ],
-                  argument: [
-                    {
-                      parameter: "this",
-                      valueIri: {
-                        "@id": SHACL.NODESHAPE
-                      }
-                    }
-                  ],
-                  name: "Replaced by",
-                  showTitle: true,
-                  path: {
-                    "@id": "http://snomed.info/sct#370124000"
-                  },
-                  minCount: 1,
-                  componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  }
-                }
-              ]
             }
           ]
         },

@@ -1,5 +1,6 @@
 import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
+import { Query } from "@im-library/interfaces/AutoGen";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
 import router from "express-promise-router";
@@ -71,6 +72,12 @@ export default class QueryController {
         .then(data => res.send(data))
         .catch(next)
     );
+
+    this.router.post("/public/generateQuerySQL", (req, res, next) =>
+      this.generateQuerySQLfromQuery(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
   }
 
   async getAllowableChildTypes(req: Request) {
@@ -118,5 +125,10 @@ export default class QueryController {
 
   async generateQuerySQL(req: Request) {
     return await this.queryService.generateQuerySQL(req.query.queryIri as string);
+  }
+
+  async generateQuerySQLfromQuery(req: Request) {
+    const query: any = req.body;
+    return await this.queryService.generateQuerySQLfromQuery(query as Query);
   }
 }

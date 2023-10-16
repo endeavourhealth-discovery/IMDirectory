@@ -4,22 +4,47 @@
       <ProgressSpinner />
     </div>
     <div v-else class="content-container" :class="showValidation && invalid && 'invalid'">
-      <CohortEditor v-model:queryDefinition="queryDefinition" />
+      <div class="query-editor-container flex flex-column gap-3">
+        <div class="query-editor flex flex-column p-2">
+          <CohortEditor v-model:queryDefinition="queryDefinition" />
+        </div>
+        <div class="flex flex-row gap-2 justify-content-end">
+          <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
+          <QuickQuery :query="queryDefinition">
+            <template #button="{ runQuickQuery }">
+              <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
+            </template>
+          </QuickQuery>
+        </div>
+      </div>
     </div>
     <span class="error-message" v-if="validationErrorMessage"> {{ validationErrorMessage }}</span>
+
+    <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
+      <pre>{{ sql }}</pre>
+      <template #footer>
+        <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
+        <Button label="Close" @click="showSql = false" data-testid="close-button" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import QuickQuery from "@/components/query/QuickQuery.vue";
 import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { EditorMode } from "@im-library/enums";
+import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { cloneDeep } from "lodash";
+import { QueryService } from "@/services";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 
 interface Props {
   shape: PropertyShape;
@@ -45,13 +70,15 @@ if (forceValidation) {
     }
   });
 }
-
+const toast = useToast();
 const route = useRoute();
 const loading = ref(true);
 const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
 const validationErrorMessage: Ref<string | undefined> = ref();
 const invalid = ref(false);
 const showValidation = ref(false);
+const showSql: Ref<boolean> = ref(false);
+const sql: Ref<string> = ref("");
 
 const key = props.shape.path["@id"];
 
@@ -68,13 +95,26 @@ watch(
 
 onMounted(async () => {
   loading.value = true;
-  init();
+  await init();
   loading.value = false;
 });
 
-function init() {
-  if (props.value) queryDefinition.value = JSON.parse(props.value);
-  else queryDefinition.value = generateDefaultQuery();
+async function init() {
+  QueryService.getQueryDisplay;
+  if (props.value) {
+    const definition = JSON.parse(props.value);
+    const labeledQuery = await QueryService.getLabeledQuery(definition);
+    queryDefinition.value = generateMatchIds(labeledQuery);
+  } else queryDefinition.value = generateDefaultQuery();
+}
+async function generateSQL() {
+  sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
+  showSql.value = true;
+}
+
+async function copy() {
+  await navigator.clipboard.writeText(sql.value);
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "SQL copied to clipboard"));
 }
 
 function generateDefaultQuery() {
@@ -108,5 +148,19 @@ function updateEntity() {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.query-editor-container {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  height: 100%;
+}
+
+.query-editor {
+  height: 60vh;
+  overflow-y: auto;
+  border: 1px solid var(--surface-border);
+  background-color: #ffffff;
 }
 </style>

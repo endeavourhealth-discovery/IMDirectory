@@ -335,4 +335,8 @@ export default class QueryService {
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
     return IMQtoSQL(query);
   }
+
+  public async generateQuerySQLfromQuery(query: Query) {
+    return IMQtoSQL(query);
+  }
 }

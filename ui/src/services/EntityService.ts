@@ -476,7 +476,7 @@ const EntityService = {
     return EntityService.advancedSearch(searchRequest, abortController);
   },
 
-  async hasPredicates(subjectIri: string, predicateIris: string[]) {
+  async hasPredicates(subjectIri: string, predicateIris: string[]): Promise<boolean> {
     return axios.get(api + "api/entity/public/hasPredicates", {
       params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
     });
