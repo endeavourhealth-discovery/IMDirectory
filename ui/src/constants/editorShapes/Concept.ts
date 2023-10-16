@@ -232,7 +232,7 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.TEXT_INPUT
+                "@id": IM.component.TEXT_DISPLAY
               }
             },
             {
@@ -249,7 +249,7 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.TEXT_DROPDOWN
+                "@id": IM.component.TEXT_DISPLAY
               }
             },
             {
