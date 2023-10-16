@@ -12,7 +12,7 @@
         @drop="dropReceived"
         :class="invalid && showValidation && 'invalid'"
       >
-        {{ selectedResult.name ?? "Search..." }}
+        <div class="selected-label">{{ selectedResult.name ?? "Search..." }}</div>
       </div>
       <DirectorySearchDialog v-model:show-dialog="showDialog" v-model:selected="selectedResult" :search-by-query="queryRequest" />
     </div>
@@ -254,6 +254,10 @@ function hasData() {
   appearance: none;
   border-radius: 3px;
   cursor: pointer;
+  height: 2.7rem;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
 }
 
 .validate-error {
@@ -264,5 +268,9 @@ function hasData() {
 
 .invalid {
   border: 1px solid var(--red-500);
+}
+
+.selected-label {
+  padding-left: 0.5rem;
 }
 </style>

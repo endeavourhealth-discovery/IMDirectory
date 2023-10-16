@@ -347,6 +347,20 @@ function closeEditor() {
 }
 </script>
 
+<style>
+.p-dropdown-label {
+  font-size: 1rem;
+}
+
+.p-dropdown {
+  height: 2.7rem;
+}
+
+.p-inputtext {
+  font-size: 1rem;
+}
+</style>
+
 <style scoped>
 #topbar-editor-container {
   flex: 1 1 auto;
