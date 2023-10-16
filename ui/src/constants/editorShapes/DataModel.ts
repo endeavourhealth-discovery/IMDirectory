@@ -161,6 +161,7 @@ const DataModelShape: FormGenerator = {
               order: 6,
               path: { "@id": IM.HAS_STATUS },
               componentType: { "@id": IM.component.ARRAY_BUILDER },
+              validation: { "@id": IM.validation.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
