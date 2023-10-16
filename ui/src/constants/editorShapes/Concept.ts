@@ -254,7 +254,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               label: "Contained in array builder",
-              name: "isContainedIn",
+              name: "Is contained in",
               showTitle: true,
               order: 9,
               minCount: 0,
@@ -292,7 +292,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               label: "Subclass of array builder",
-              name: "subclassOf",
+              name: "Subclass of",
               showTitle: true,
               order: 10,
               minCount: 0,
