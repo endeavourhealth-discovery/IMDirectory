@@ -26,6 +26,7 @@ export class IM {
   public static DEFINITION = IM.NAMESPACE + "definition";
   public static USAGE_STATS = IM.NAMESPACE + "usageStats";
   public static HAS_TERM_CODE = IM.NAMESPACE + "hasTermCode";
+  public static CONTENT_TYPE = IM.NAMESPACE + "contentType";
   public static ORDER = IM.NAMESPACE + "order";
   public static HAS_SUBSET = IM.NAMESPACE + "hasSubset";
   public static IS_SUBSET_OF = IM.NAMESPACE + "isSubsetOf";
@@ -66,6 +67,7 @@ export class IM {
   public static CONTEXT_NODE = IM.NAMESPACE + "contextNode";
   public static TARGET_PROPERTY = IM.NAMESPACE + "targetProperty";
 
+  public static ENTITY = IM.NAMESPACE + "Entity";
   public static QUERY_SET = IM.NAMESPACE + "QuerySet";
   public static QUERY_TEMPLATE = IM.NAMESPACE + "QueryTemplate";
   public static HAS_MEMBER = IM.NAMESPACE + "hasMember";
