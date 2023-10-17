@@ -35,7 +35,7 @@ function createNew() {
             let folderTypeArray = [] as AllowableChildProperty[];
             const folderType = allTypes[type];
             folderTypeArray.push(folderType);
-            if (allowableTypes.findIndex(b => b["@id"] === IM.FOLDER) === -1) allowableTypes = folderTypeArray.concat(allowableTypes);
+            if (allowableTypes.findIndex(i => i["@id"] === IM.FOLDER) === -1) allowableTypes = folderTypeArray.concat(allowableTypes);
           }
         }
       }
