@@ -4,14 +4,17 @@ import { Query } from "@im-library/interfaces/AutoGen";
 import axios from "axios";
 import express, { NextFunction, Request, Response } from "express";
 import router from "express-promise-router";
+import AuthMiddleware from "@/middlewares/auth.middleware";
 
 export default class QueryController {
   public path = "/node_api/query";
   public router = router();
   private queryService: QueryService;
   private entityService: EntityService;
+  private auth: AuthMiddleware;
 
   constructor() {
+    this.auth = new AuthMiddleware();
     this.initRoutes();
     this.queryService = new QueryService(axios);
     this.entityService = new EntityService(axios);
@@ -78,6 +81,12 @@ export default class QueryController {
         .then(data => res.send(data))
         .catch(next)
     );
+
+    this.router.get("/queue", this.auth.secure("IMAdmin"), (req, res, next) =>
+      this.queueQuery(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
   }
 
   async getAllowableChildTypes(req: Request) {
@@ -130,5 +139,10 @@ export default class QueryController {
   async generateQuerySQLfromQuery(req: Request) {
     const query: any = req.body;
     return await this.queryService.generateQuerySQLfromQuery(query as Query);
+  }
+
+  async queueQuery(req: Request) {
+    const user = await this.auth.getUser(req);
+    return await this.queryService.queueQuery(req.query.queryIri as string, user!);
   }
 }

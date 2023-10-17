@@ -12,18 +12,22 @@ import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescr
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 import IMQtoSQL from "@/logic/IMQtoSQL";
+import { DataTypeOIDs, Pool, Connection, Maybe } from "postgresql-client";
+import { v4 as uuid } from "uuid";
 
 export default class QueryService {
   axios: any;
   eclService: EclService;
   entityService: EntityService;
   private graph: GraphdbService;
+  private dbPool: Pool;
 
   constructor(axios: any) {
     this.axios = axios;
     this.eclService = new EclService(axios);
     this.graph = GraphdbService.imRepo();
     this.entityService = new EntityService(axios);
+    this.dbPool = new Pool();
   }
 
   public async queryIM(query: QueryRequest, controller?: AbortController) {
@@ -327,10 +331,10 @@ export default class QueryService {
     } else return [];
   }
 
-  public async generateQuerySQL(queryIri: string) {
+  public async generateQuerySQL(queryIri: string): Promise<string> {
     const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
     if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
-      return {};
+      return "";
     }
     const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
     return IMQtoSQL(query);
@@ -338,5 +342,113 @@ export default class QueryService {
 
   public async generateQuerySQLfromQuery(query: Query) {
     return IMQtoSQL(query);
+  }
+
+  async queueQuery(queryIri: string, user: string) {
+    const queryId = uuid();
+    const conn = await this.dbPool.acquire();
+    const pid = conn.processID;
+
+    await this.initialiseQueue(conn, queryId, queryIri, user, pid);
+
+    let sql = await this.generateQuerySQL(queryIri);
+    sql = sql?.replaceAll("$referenceDate", "NOW()");
+    sql = 'CREATE TABLE "qry_' + queryId + '" AS ' + sql;
+
+    conn
+      .query(sql)
+      .then(async () => {
+        await this.updateQueryQueue(conn, queryId, "Finished");
+      })
+      .catch(async error => {
+        console.log("QUERY ERROR!");
+        console.log(error);
+        await this.updateQueryQueue(conn, queryId, "Error: " + error);
+      })
+      .finally(async () => {
+        await conn.close();
+      }); // Run the actual query
+
+    return queryId;
+  }
+
+  async initialiseQueue(conn: Connection, queryId: string, queryIri: string, user: string, pid: Maybe<number>) {
+    const stmt = await conn.prepare(
+      "INSERT INTO query_queue(id, iri, user_id, queued, started, pid, status) VALUES ($1, $2, $3, NOW(), NOW(), $4, 'RUNNING')",
+      {
+        paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.varchar, DataTypeOIDs.uuid, DataTypeOIDs.int4]
+      }
+    );
+    try {
+      await stmt.execute({ params: [queryId, queryIri, user, pid] });
+    } finally {
+      await stmt.close();
+    }
+  }
+
+  async updateQueryQueue(conn: Connection, id: string, status: string) {
+    const stmt = await conn.prepare("UPDATE query_queue SET finished = NOW(), status = $1 WHERE id = $2", {
+      paramTypes: [DataTypeOIDs.text, DataTypeOIDs.uuid]
+    });
+    try {
+      await stmt.execute({ params: [status, id] });
+    } finally {
+      await stmt.close();
+    }
+  }
+
+  async listQueries(user: string) {
+    const conn = await this.dbPool.acquire();
+    try {
+      const stmt = await conn.prepare("SELECT * FROM query_queue q LEFT JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1", {
+        paramTypes: [DataTypeOIDs.uuid]
+      });
+      try {
+        const rs = await stmt.execute({ params: [user] });
+        const rows: any[] | undefined = rs.rows;
+        return rows;
+      } finally {
+        await stmt.close();
+      }
+    } finally {
+      await conn.close();
+    }
+  }
+
+  async killQuery(query_id: string, user: string) {
+    const conn = await this.dbPool.acquire();
+    try {
+      const pid = await this.getQueryQueuePid(conn, query_id, user);
+      if (pid) {
+        await this.killQueuedQuery(conn, pid);
+        await this.updateQueryQueue(conn, query_id, "KILLED");
+      }
+    } finally {
+      await conn.close();
+    }
+  }
+
+  async getQueryQueuePid(conn: Connection, query_id: string, user: string) {
+    const stmt = await conn.prepare("SELECT pid FROM query_queue q JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 AND id = $2", {
+      paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
+    });
+    try {
+      const rs = await stmt.execute({ params: [user, query_id] });
+      if (rs?.rows?.length == 0) return rs.rows[0];
+    } finally {
+      await stmt.close();
+    }
+    return null;
+  }
+
+  async killQueuedQuery(conn: Connection, pid: number) {
+    const stmt = await conn.prepare("SELECT pg_cancel_backend($1)", {
+      paramTypes: [DataTypeOIDs.int4]
+    });
+    try {
+      await stmt.execute({ params: [pid] });
+    } finally {
+      await stmt.close();
+    }
   }
 }

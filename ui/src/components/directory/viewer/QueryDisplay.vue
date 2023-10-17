@@ -18,6 +18,7 @@
   <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
     <pre>{{ sql }}</pre>
     <template #footer>
+      <Button label="Test" @click="test" data-testid="test-button" />
       <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
       <Button label="Close" @click="showSql = false" data-testid="close-button" />
     </template>
@@ -73,6 +74,10 @@ async function generateSQL() {
 async function copy() {
   await navigator.clipboard.writeText(sql.value);
   toast.add(new ToastOptions(ToastSeverity.SUCCESS, "SQL copied to clipboard"));
+}
+
+async function test() {
+  await QueryService.queueQuery(props.entityIri);
 }
 </script>
 

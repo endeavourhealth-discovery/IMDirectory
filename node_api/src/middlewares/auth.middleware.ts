@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwkToPem from "jwk-to-pem";
-import jwt from "jsonwebtoken";
+import jwt, { Jwt } from "jsonwebtoken";
 import fetch from "node-fetch";
 import logger from "./logger.middleware";
 
@@ -13,6 +13,25 @@ class AuthMiddleware {
   public async verifyToken(req: Request, res: Response, next: NextFunction, role?: string) {
     if (await this.checkToken(req, role)) next();
     else res.status(401).end();
+  }
+
+  public async getUser(req: Request): Promise<string | null> {
+    try {
+      const token = req.headers?.authorization?.substring(7);
+      if (!token) return null;
+
+      if (Object.keys(pems).length == 0) await this.setUp();
+
+      let decodedJwt: Jwt | null = jwt.decode(token, { complete: true });
+      if (decodedJwt === null) {
+        return null;
+      }
+
+      return decodedJwt.payload["sub"] as string;
+    } catch (error) {
+      logger.error(error);
+      return null;
+    }
   }
 
   public async checkToken(req: Request, role?: string) {
@@ -74,8 +93,7 @@ class AuthMiddleware {
         const exponent = key.e;
         const key_type = key.kty;
         const jwk = { kty: key_type, n: modulus, e: exponent };
-        const pem = jwkToPem(jwk);
-        pems[key_id] = pem;
+        pems[key_id] = jwkToPem(jwk);
       }
     } catch (error) {
       logger.error(error);

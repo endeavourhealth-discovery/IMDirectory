@@ -133,6 +133,14 @@ const QueryService = {
 
   async generateQuerySQLfromQuery(query: Query): Promise<string> {
     return axios.post(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", query);
+  },
+
+  async queueQuery(iri: string): Promise<any> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/queue", {
+      params: {
+        queryIri: iri
+      }
+    });
   }
 };
 
