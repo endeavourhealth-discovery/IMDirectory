@@ -21,6 +21,26 @@ function createNew() {
     const types = await QueryService.getAllowableChildTypes(node.key as string);
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
 
+    for (let currentType in node.conceptTypes) {
+      if (node.conceptTypes[currentType]["@id"] === IM.FOLDER) {
+        if (node.parentNode && node.parentNode.data) {
+          let parentAllowableTypes = await QueryService.getAllowableChildTypes(node.parentNode.data as string);
+          if (allowableTypes.length > parentAllowableTypes.length) {
+            allowableTypes = parentAllowableTypes;
+          }
+        }
+        const allTypes = await QueryService.getAllowableChildTypes(IM.NAMESPACE + "DataModel");
+        for (let type in allTypes) {
+          if (allTypes[type]["@id"] === IM.FOLDER) {
+            let folderTypeArray = [] as AllowableChildProperty[];
+            const folderType = allTypes[type];
+            folderTypeArray.push(folderType);
+            if (allowableTypes.findIndex(b => b["@id"] === IM.FOLDER) === -1) allowableTypes = folderTypeArray.concat(allowableTypes);
+          }
+        }
+      }
+    }
+
     if (!isArrayHasLength(allowableTypes)) {
       selectionWrapperCopy[0].items.push({
         label: "No options",
