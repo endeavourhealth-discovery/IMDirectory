@@ -16,7 +16,8 @@ export const useUserStore = defineStore("user", {
     history: [] as HistoryItem[],
     recentLocalActivity: [] as RecentActivityItem[],
     snomedLicenseAccepted: localStorage.getItem("snomedLicenseAccepted") === "true" ? true : false,
-    uprnAgreementAccepted: localStorage.getItem("uprnAgreementAccepted") === "true" ? true : false
+    uprnAgreementAccepted: localStorage.getItem("uprnAgreementAccepted") === "true" ? true : false,
+    organisations: [] as string[]
   }),
   getters: {
     isLoggedIn: state => isObjectHasKeys(state.currentUser)
@@ -67,6 +68,8 @@ export const useUserStore = defineStore("user", {
         await this.initFavourites();
         const recentActivityResult = await UserService.getUserMRU();
         if (recentActivityResult) this.recentLocalActivity = recentActivityResult;
+        const organisationResults = await UserService.getUserOrganisations();
+        if (organisationResults) this.organisations = organisationResults;
       }
     },
     async updateRecentLocalActivity(recentActivityItem: RecentActivityItem) {
@@ -166,6 +169,10 @@ export const useUserStore = defineStore("user", {
     updateUprnAgreementAccepted(bool: boolean) {
       this.uprnAgreementAccepted = bool;
       localStorage.setItem("uprnAgreementAccepted", bool === true ? "true" : "");
+    },
+    async updateOrganisations(organisations: string[]) {
+      if (this.currentUser) await UserService.updateUserOrganisations(organisations);
+      this.organisations = organisations;
     }
   }
 });
