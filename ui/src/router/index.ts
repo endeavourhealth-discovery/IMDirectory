@@ -418,8 +418,9 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.matched.some((record: any) => record.meta.requiresOrganisation)) {
-    const organisations = await UserService.getUserOrganisations();
-    if (organisations.findIndex(o => o === iri.slice(0, iri.indexOf("#") + 1)) === -1) {
+    let isEditAllowed = false;
+    if (userStore.isLoggedIn) isEditAllowed = await UserService.canUserEdit(iri as string);
+    if (!isEditAllowed) {
       router.push({ name: "AccessDenied", params: { requiredAccess: iri.slice(0, iri.indexOf("#") + 1), accessType: "organisation" } });
     }
   }

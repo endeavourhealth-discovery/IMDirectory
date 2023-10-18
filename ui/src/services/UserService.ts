@@ -1,4 +1,4 @@
-import { User } from "@im-library/interfaces";
+import { Auth } from "aws-amplify";
 import Env from "./Env";
 import axios from "axios";
 
@@ -28,6 +28,17 @@ const UserService = {
   },
   async updateUserOrganisations(organisations: string[]): Promise<string[]> {
     return await axios.post(Env.API + "api/user/organisations", organisations);
+  },
+
+  async canUserEdit(iri: string): Promise<boolean> {
+    return await axios.get(Env.API + "api/user/editAccess", {
+      params: {
+        iri: iri
+      },
+      headers: {
+        Authorization: "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken()
+      }
+    });
   }
 };
 

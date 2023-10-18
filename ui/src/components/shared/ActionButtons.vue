@@ -51,8 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { DirectService } from "@/services";
+import { computed, onMounted, ref, watch } from "vue";
+import { DirectService, UserService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
@@ -61,8 +61,8 @@ const directService = new DirectService();
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
-const organisations = computed(() => userStore.organisations);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+const editAllowed = ref(false);
 
 interface Props {
   buttons: string[];
@@ -78,7 +78,16 @@ const emit = defineEmits({
   locateInTree: (_payload: string) => true
 });
 
-const editAllowed = computed(() => organisations.value.findIndex(o => o === props.iri.slice(0, props.iri.indexOf("#") + 1)) !== -1);
+watch(
+  () => props.iri,
+  async () => {
+    editAllowed.value = await UserService.canUserEdit(props.iri);
+  }
+);
+
+onMounted(async () => {
+  editAllowed.value = await UserService.canUserEdit(props.iri);
+});
 
 function getClass() {
   const activityRowButton = "p-button-rounded p-button-text p-button-plain activity-row-button ";
