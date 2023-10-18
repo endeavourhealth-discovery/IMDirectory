@@ -176,7 +176,7 @@ export default {
               },
               {
                 label: "Contained in array builder",
-                name: "isContainedIn",
+                name: "Is contained in",
                 showTitle: true,
                 order: 1,
                 minCount: 0,
@@ -214,7 +214,7 @@ export default {
               },
               {
                 label: "Subclass of array builder",
-                name: "subclassOf",
+                name: "Subclass of",
                 showTitle: true,
                 order: 1,
                 minCount: 0,
