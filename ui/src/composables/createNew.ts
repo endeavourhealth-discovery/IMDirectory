@@ -21,23 +21,21 @@ function createNew() {
     const types = await QueryService.getAllowableChildTypes(node.key as string);
     if (isArrayHasLength(types)) allowableTypes = allowableTypes.concat(types);
 
+    const folder = [
+      {
+        "@id": IM.FOLDER,
+        "http://www.w3.org/2000/01/rdf-schema#label": "Folder",
+        "http://www.w3.org/ns/shacl#property": [
+          {
+            "http://www.w3.org/ns/shacl#path": { "@id": "http://endhealth.info/im#isContainedIn" }
+          }
+        ]
+      }
+    ] as AllowableChildProperty[];
+
     for (let currentType in node.conceptTypes) {
       if (node.conceptTypes[currentType]["@id"] === IM.FOLDER) {
-        if (node.parentNode && node.parentNode.data) {
-          let parentAllowableTypes = await QueryService.getAllowableChildTypes(node.parentNode.data as string);
-          if (allowableTypes.length > parentAllowableTypes.length) {
-            allowableTypes = parentAllowableTypes;
-          }
-        }
-        const allTypes = await QueryService.getAllowableChildTypes(IM.NAMESPACE + "DataModel");
-        for (let type in allTypes) {
-          if (allTypes[type]["@id"] === IM.FOLDER) {
-            let folderTypeArray = [] as AllowableChildProperty[];
-            const folderType = allTypes[type];
-            folderTypeArray.push(folderType);
-            if (allowableTypes.findIndex(i => i["@id"] === IM.FOLDER) === -1) allowableTypes = folderTypeArray.concat(allowableTypes);
-          }
-        }
+        if (allowableTypes.findIndex(i => i["@id"] === IM.FOLDER) === -1) allowableTypes = folder.concat(allowableTypes);
       }
     }
 
@@ -49,12 +47,13 @@ function createNew() {
       });
       return selectionWrapperCopy;
     }
+
     for (const allowableType of allowableTypes) {
       const item = {
         label: allowableType["http://www.w3.org/2000/01/rdf-schema#label"],
         data: {
           type: allowableType["@id"],
-          property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id" as any].toString()
+          property: allowableType["http://www.w3.org/ns/shacl#property"][0]["http://www.w3.org/ns/shacl#path"]["@id"].toString()
         },
         icon: getFAIconFromType([{ "@id": allowableType["@id"], name: allowableType["http://www.w3.org/2000/01/rdf-schema#label"] }]).join(" "),
         command: {} as Function
