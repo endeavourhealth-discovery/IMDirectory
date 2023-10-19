@@ -26,6 +26,7 @@
       @click="directService.edit(iri)"
       v-tooltip.top="'Edit'"
       data-testid="edit-button"
+      :disabled="!editAllowed"
     />
     <Button
       v-if="show('favourite') && isFavourite(iri)"
@@ -50,8 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { DirectService } from "@/services";
+import { computed, onMounted, ref, watch } from "vue";
+import { DirectService, UserService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useUserStore } from "@/stores/userStore";
@@ -61,6 +62,7 @@ const sharedStore = useSharedStore();
 const userStore = useUserStore();
 const favourites = computed(() => userStore.favourites);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
+const editAllowed = ref(false);
 
 interface Props {
   buttons: string[];
@@ -74,6 +76,17 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true
+});
+
+watch(
+  () => props.iri,
+  async () => {
+    editAllowed.value = await UserService.canUserEdit(props.iri);
+  }
+);
+
+onMounted(async () => {
+  editAllowed.value = await UserService.canUserEdit(props.iri);
 });
 
 function getClass() {

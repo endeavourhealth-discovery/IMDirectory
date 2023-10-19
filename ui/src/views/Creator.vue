@@ -399,6 +399,20 @@ function processEntityValue(property: PropertyShape) {
 }
 </script>
 
+<style>
+.p-dropdown-label {
+  font-size: 1rem;
+}
+
+.p-dropdown {
+  height: 2.7rem;
+}
+
+.p-inputtext {
+  font-size: 1rem;
+}
+</style>
+
 <style scoped>
 #topbar-creator-container {
   height: 100%;

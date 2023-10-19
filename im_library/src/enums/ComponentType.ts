@@ -33,5 +33,6 @@ export enum ComponentType {
   ROLE_GROUP_BUILDER = "RoleGroupBuilder",
   TERM_CODE_EDITOR = "TermCodeEditor",
   TEXT_DROPDOWN = "TextDropdown",
-  ENTITY_DISPLAY = "EntityDisplay"
+  ENTITY_DISPLAY = "EntityDisplay",
+  IRI_BUILDER = "IriBuilder"
 }

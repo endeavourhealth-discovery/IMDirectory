@@ -85,10 +85,10 @@ const ConceptSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                "@id": IM.component.IRI_BUILDER
               },
               function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
+                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
               },
               validation: { "@id": IM.validation.IS_IRI }
             },
@@ -170,7 +170,7 @@ const ConceptSetShape: FormGenerator = {
             },
             {
               label: "Contained in array builder",
-              name: "isContainedIn",
+              name: "Is contained in",
               showTitle: true,
               order: 1,
               minCount: 0,
@@ -208,7 +208,7 @@ const ConceptSetShape: FormGenerator = {
             },
             {
               label: "Subclass of array builder",
-              name: "subclassOf",
+              name: "Subclass of",
               showTitle: true,
               order: 1,
               minCount: 0,

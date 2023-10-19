@@ -81,12 +81,13 @@ const FolderShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                "@id": IM.component.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
+                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+              },
+              validation: { "@id": IM.validation.IS_IRI }
             },
             {
               comment: "Property that derives a concept code from the concept iri",

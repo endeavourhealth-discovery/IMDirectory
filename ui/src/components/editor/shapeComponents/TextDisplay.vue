@@ -145,9 +145,8 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
   if (isObjectHasKeys(property, ["function"])) {
     const result = await QueryService.runFunction(property.function!["@id"]);
     if (result && isObjectHasKeys(result, ["iri"])) return result.iri["@id"];
-    else throw new Error("Failed to run function " + property.function!["@id"]);
   }
-  throw new Error("Property must have isIri or function key");
+  return "";
 }
 
 // function processArguments(property: PropertyShape) {
@@ -223,6 +222,10 @@ function hasData() {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.input-text:hover {
+  cursor: not-allowed;
 }
 
 .invalid {

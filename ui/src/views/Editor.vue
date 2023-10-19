@@ -172,6 +172,7 @@ provide(injectionKeys.forceValidation, {
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus
 });
+provide(injectionKeys.fullShape, shape);
 
 onMounted(async () => {
   loading.value = true;
@@ -347,6 +348,20 @@ function closeEditor() {
 }
 </script>
 
+<style>
+.p-dropdown-label {
+  font-size: 1rem;
+}
+
+.p-dropdown {
+  height: 2.7rem;
+}
+
+.p-inputtext {
+  font-size: 1rem;
+}
+</style>
+
 <style scoped>
 #topbar-editor-container {
   flex: 1 1 auto;
@@ -463,7 +478,6 @@ function closeEditor() {
   margin-left: 0.5rem;
   font-size: 1.5rem;
   overflow: hidden;
-  height: 1.75rem;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 0 1 auto;

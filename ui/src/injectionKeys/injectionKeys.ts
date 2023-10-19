@@ -1,3 +1,4 @@
+import { FormGenerator } from "@im-library/interfaces/AutoGen";
 import type { InjectionKey, Ref } from "vue";
 const editorValidity = Symbol("editorValidity") as InjectionKey<{
   validity: Ref<{ key: string; valid: boolean }[]>;
@@ -14,10 +15,12 @@ const forceValidation = Symbol("forceValidation") as InjectionKey<{
   addPropertyToValidationCheckStatus: Function;
   removeValidationCheckStatus: Function;
 }>;
+const fullShape = Symbol("fullShape") as InjectionKey<Ref<FormGenerator | undefined>>;
 
 export default {
   editorValidity,
   editorEntity,
   valueVariableMap,
-  forceValidation
+  forceValidation,
+  fullShape
 };

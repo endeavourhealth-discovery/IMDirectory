@@ -72,12 +72,13 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                "@id": IM.component.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
+                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+              },
+              validation: { "@id": IM.validation.IS_IRI }
             },
             {
               name: "Scheme",
@@ -232,7 +233,7 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.TEXT_INPUT
+                "@id": IM.component.TEXT_DISPLAY
               }
             },
             {
@@ -249,12 +250,12 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 0,
               componentType: {
-                "@id": IM.component.TEXT_DROPDOWN
+                "@id": IM.component.TEXT_DISPLAY
               }
             },
             {
               label: "Contained in array builder",
-              name: "isContainedIn",
+              name: "Is contained in",
               showTitle: true,
               order: 9,
               minCount: 0,
@@ -292,7 +293,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               label: "Subclass of array builder",
-              name: "subclassOf",
+              name: "Subclass of",
               showTitle: true,
               order: 10,
               minCount: 0,

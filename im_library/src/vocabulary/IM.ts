@@ -132,10 +132,6 @@ export class IM {
   // graph
   public static GROUP_NUMBER = IM.NAMESPACE + "groupNumber";
 
-  //shapes
-  public static CONCEPT_SHAPE = IM.NAMESPACE + "ConceptShape";
-  public static PROPERTY_SHAPE = IM.NAMESPACE + "PropertyShape";
-
   //argument options
   public static VALUE_DATA = IM.NAMESPACE + "valueData";
   public static VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
