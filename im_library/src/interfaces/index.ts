@@ -55,6 +55,8 @@ import { SelectedMatch } from "./SelectedMatch";
 import { MailOptions } from "./MailOptions";
 import { Workflow } from "./Workflow";
 import { BugReport } from "./BugReport";
+import { QueryResponse } from "./QueryResponse";
+
 export {
   type AccountItem,
   type Address,
@@ -112,5 +114,6 @@ export {
   type SelectedMatch,
   type MailOptions,
   type Workflow,
-  type BugReport
+  type BugReport,
+  type QueryResponse
 };

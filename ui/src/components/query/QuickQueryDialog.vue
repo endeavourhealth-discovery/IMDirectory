@@ -53,7 +53,7 @@ import { QueryRequest, Argument, TTIriRef, Query } from "@im-library/interfaces/
 import AutoComplete from "primevue/autocomplete";
 import { EntityService, QueryService } from "@/services";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions, QueryResponse } from "@im-library/interfaces";
 import { useFilterStore } from "@/stores/filterStore";
 import setupDownloadFile from "@/composables/downloadFile";
 import { ToastOptions } from "@im-library/models";
@@ -89,7 +89,7 @@ const toast = useToast();
 const visible = ref(false);
 const { downloadFile } = setupDownloadFile(window, document);
 const params: Ref<Param[]> = ref([]);
-const queryResults: Ref<{ entities: any[]; "@context": any }> = ref({} as { entities: any[]; "@context": any });
+const queryResults: Ref<QueryResponse> = ref({} as QueryResponse);
 const cols: Ref<{ field: string }[]> = ref([]);
 
 const emit = defineEmits({
