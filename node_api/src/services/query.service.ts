@@ -344,7 +344,7 @@ export default class QueryService {
     return IMQtoSQL(query);
   }
 
-  async queueQuery(queryIri: string, user: string) {
+  public async queueQuery(queryIri: string, user: string) {
     const queryId = uuid();
     const conn = await this.dbPool.acquire();
     const pid = conn.processID;
@@ -360,7 +360,7 @@ export default class QueryService {
       .then(async () => {
         await this.updateQueryQueue(conn, queryId, "Finished");
       })
-      .catch(async error => {
+      .catch(async (error: any) => {
         console.log("QUERY ERROR!");
         console.log(error);
         await this.updateQueryQueue(conn, queryId, "Error: " + error);
@@ -372,7 +372,7 @@ export default class QueryService {
     return queryId;
   }
 
-  async initialiseQueue(conn: Connection, queryId: string, queryIri: string, user: string, pid: Maybe<number>) {
+  private async initialiseQueue(conn: Connection, queryId: string, queryIri: string, user: string, pid: Maybe<number>) {
     const stmt = await conn.prepare(
       "INSERT INTO query_queue(id, iri, user_id, queued, started, pid, status) VALUES ($1, $2, $3, NOW(), NOW(), $4, 'RUNNING')",
       {
@@ -386,7 +386,7 @@ export default class QueryService {
     }
   }
 
-  async updateQueryQueue(conn: Connection, id: string, status: string) {
+  private async updateQueryQueue(conn: Connection, id: string, status: string) {
     const stmt = await conn.prepare("UPDATE query_queue SET finished = NOW(), status = $1 WHERE id = $2", {
       paramTypes: [DataTypeOIDs.text, DataTypeOIDs.uuid]
     });
@@ -397,7 +397,7 @@ export default class QueryService {
     }
   }
 
-  async listQueries(user: string) {
+  public async listQueries(user: string) {
     const conn = await this.dbPool.acquire();
     try {
       const stmt = await conn.prepare("SELECT * FROM query_queue q LEFT JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1", {
@@ -415,7 +415,7 @@ export default class QueryService {
     }
   }
 
-  async killQuery(query_id: string, user: string) {
+  public async killQuery(query_id: string, user: string) {
     const conn = await this.dbPool.acquire();
     try {
       const pid = await this.getQueryQueuePid(conn, query_id, user);
@@ -428,7 +428,7 @@ export default class QueryService {
     }
   }
 
-  async getQueryQueuePid(conn: Connection, query_id: string, user: string) {
+  private async getQueryQueuePid(conn: Connection, query_id: string, user: string) {
     const stmt = await conn.prepare("SELECT pid FROM query_queue q JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 AND id = $2", {
       paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
     });
@@ -441,7 +441,7 @@ export default class QueryService {
     return null;
   }
 
-  async killQueuedQuery(conn: Connection, pid: number) {
+  private async killQueuedQuery(conn: Connection, pid: number) {
     const stmt = await conn.prepare("SELECT pg_cancel_backend($1)", {
       paramTypes: [DataTypeOIDs.int4]
     });
