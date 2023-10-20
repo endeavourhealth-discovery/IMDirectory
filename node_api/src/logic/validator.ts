@@ -1,12 +1,15 @@
 import EntityService from "@/services/entity.service";
+import QueryService from "@/services/query.service";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
+import { TTIriRef } from "../interfaces/AutoGen";
 import { IM, RDFS, SHACL } from "@im-library/vocabulary";
 import axios from "axios";
 
 export default class Validator {
   constructor() {}
   entityService: EntityService = new EntityService(axios);
+  queryService: QueryService = new QueryService(axios);
 
   public async validate(iri: string, data: any): Promise<{ isValid: boolean; message?: string }> {
     if (iri === IM.validation.HAS_PARENT) return this.hasValidParents(data);
@@ -15,6 +18,7 @@ export default class Validator {
     if (iri === IM.validation.IS_TERMCODE) return this.isValidTermcodes(data);
     if (iri === IM.validation.IS_PROPERTY) return this.isValidProperties(data);
     if (iri === IM.validation.IS_SCHEME) return await this.isValidScheme(data);
+    if (iri === IM.validation.IS_STATUS) return await this.isValidStatus(data);
     else throw new Error("Validation function: '" + iri + "' was not found in validator.");
   }
 
@@ -154,6 +158,37 @@ export default class Validator {
       if (schemes.findIndex(s => s["@id"] === data[IM.SCHEME][0]["@id"]) !== -1) {
         valid = true;
         message = undefined;
+      }
+    }
+    return { isValid: valid, message: message };
+  }
+
+  private async isValidStatus(data: any): Promise<{ isValid: boolean; message?: string }> {
+    let valid = false;
+    let message: string | undefined = "Status is invalid";
+    const queryReq = {
+      argument: [
+        {
+          valueIri: {
+            "@id": IM.STATUS
+          },
+          parameter: "this"
+        }
+      ],
+      query: {
+        "@id": IM.query.GET_DESCENDANTS
+      }
+    };
+    const statuses = await this.queryService.queryIM(queryReq);
+
+    if (isObjectHasKeys(data, [IM.HAS_STATUS]) && isArrayHasLength(data[IM.HAS_STATUS])) {
+      if (data[IM.HAS_STATUS][0]["@id"] && data[IM.HAS_STATUS][0].name) {
+        for (let s in statuses.entities) {
+          if (data[IM.HAS_STATUS][0]["@id"] === statuses.entities[s]["@id"] && data[IM.HAS_STATUS][0].name === statuses.entities[s][RDFS.LABEL]) {
+            valid = true;
+            message = undefined;
+          }
+        }
       }
     }
     return { isValid: valid, message: message };

@@ -35,7 +35,7 @@
       <InputText type="text" v-model="newFolderName" autofocus @keyup.enter="createFolder" />
       <template #footer>
         <Button label="Cancel" :icon="fontAwesomePro ? 'fa-regular fa-xmark' : 'pi pi-times'" @click="newFolder = null" class="p-button-text" />
-        <Button label="Create" :icon="fontAwesomePro ? 'fa-solid fa-check' : 'pi pi-check'" :disabled="!newFolderName" @click="createFolder" />
+        <Button label="Create" :icon="newFolderIcon" :disabled="creating || !newFolderName" @click="createFolder" />
       </template>
     </Dialog>
   </div>
@@ -110,6 +110,12 @@ const overlayLocation: Ref<any> = ref({});
 const items: Ref<any[]> = ref([]);
 const newFolder: Ref<null | TreeNode> = ref(null);
 const newFolderName = ref("");
+
+const creating = ref(false);
+const newFolderIcon = computed(() => {
+  if (creating.value) return "pi pi-spin pi-spinner";
+  else return fontAwesomePro.value ? "fa-solid fa-check" : "pi pi-check";
+});
 
 const menu = ref();
 const { OS, showOverlay, hideOverlay } = setupOverlay();
@@ -249,19 +255,20 @@ async function addConcept(target: TreeNode) {
 async function createFolder() {
   if (!newFolder.value || !newFolder.value.key || !newFolderName.value) return;
 
-  console.log("Create new folder " + newFolderName.value + " in " + newFolder.value.key);
+  creating.value = true;
+
   try {
     const iri = await FilerService.createFolder(newFolder.value.key, newFolderName.value);
-    console.log("Created folder");
-    console.log(iri);
     toast.add({ severity: "success", summary: "New folder", detail: 'New folder "' + newFolderName.value + '" created', life: 3000 });
     if (newFolder.value.children) {
       newFolder.value.children.push(createTreeNode(newFolderName.value, iri, [{ "@id": IM.FOLDER, name: "Folder" } as TTIriRef], false, newFolder.value));
     }
   } catch (e) {
     toast.add({ severity: "error", summary: "New folder", detail: '"' + newFolderName.value + '" already exists', life: 3000 });
+  } finally {
+    newFolder.value = null;
+    creating.value = false;
   }
-  newFolder.value = null;
 }
 
 async function displayOverlay(event: any, node: any): Promise<void> {
