@@ -141,6 +141,9 @@ const QueryService = {
         queryIri: iri
       }
     });
+  },
+  async listQueue(): Promise<any[]> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/listQueue");
   }
 };
 

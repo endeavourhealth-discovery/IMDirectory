@@ -400,13 +400,25 @@ export default class QueryService {
   public async listQueries(user: string) {
     const conn = await this.dbPool.acquire();
     try {
-      const stmt = await conn.prepare("SELECT * FROM query_queue q LEFT JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1", {
-        paramTypes: [DataTypeOIDs.uuid]
-      });
+      const stmt = await conn.prepare(
+        "SELECT id, iri, queued, started, finished, killed, status, p.pid FROM query_queue q LEFT JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 ORDER BY queued DESC",
+        {
+          paramTypes: [DataTypeOIDs.uuid]
+        }
+      );
       try {
         const rs = await stmt.execute({ params: [user] });
         const rows: any[] | undefined = rs.rows;
-        return rows;
+        return rows?.map(r => ({
+          id: r[0],
+          iri: r[1],
+          queued: r[2],
+          started: r[3],
+          finished: r[4],
+          killed: r[5],
+          status: r[6],
+          pid: r[7]
+        }));
       } finally {
         await stmt.close();
       }
