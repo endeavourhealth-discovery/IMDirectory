@@ -148,6 +148,12 @@ const QueryService = {
   },
   async listQueue(): Promise<QueryQueueItem[]> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/listQueue");
+  },
+  async kill(queueId: string): Promise<boolean> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/killQuery", { params: { queueId: queueId } });
+  },
+  async deleteFromQueue(queueId: string): Promise<boolean> {
+    return axios.delete(Env.VITE_NODE_API + "node_api/query/queue", { params: { queueId: queueId } });
   }
 };
 

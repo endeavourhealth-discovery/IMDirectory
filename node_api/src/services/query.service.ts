@@ -395,8 +395,11 @@ export default class QueryService {
     }
   }
 
-  private async updateQueryQueue(conn: Connection, id: string, status: string) {
-    const stmt = await conn.prepare("UPDATE query_queue SET finished = NOW(), status = $1 WHERE id = $2", {
+  private async updateQueryQueue(conn: Connection, id: string, status: string, killed: boolean = false) {
+    const sql = killed
+      ? "UPDATE query_queue SET killed = NOW(), status = $1 WHERE id = $2"
+      : "UPDATE query_queue SET finished = NOW(), status = $1 WHERE id = $2";
+    const stmt = await conn.prepare(sql, {
       paramTypes: [DataTypeOIDs.text, DataTypeOIDs.uuid]
     });
     try {
@@ -427,7 +430,7 @@ export default class QueryService {
               started: r[3] ? new Date(r[3]).toLocaleString() : undefined,
               finished: r[4] ? new Date(r[4]).toLocaleString() : undefined,
               killed: r[5] ? new Date(r[5]).toLocaleString() : undefined,
-              status: r[6],
+              status: r[6] == "Killed" && r[7] ? "Killing..." : r[6],
               pid: r[7]
             }) as QueryQueueItem
         );
@@ -443,9 +446,11 @@ export default class QueryService {
     const conn = await this.dbPool.acquire();
     try {
       const pid = await this.getQueryQueuePid(conn, query_id, user);
+      console.log("Kill PID");
+      console.log(pid);
       if (pid) {
         await this.killQueuedQuery(conn, pid);
-        await this.updateQueryQueue(conn, query_id, "KILLED");
+        await this.updateQueryQueue(conn, query_id, "Killed", true);
       }
     } finally {
       await conn.close();
@@ -453,12 +458,14 @@ export default class QueryService {
   }
 
   private async getQueryQueuePid(conn: Connection, query_id: string, user: string) {
-    const stmt = await conn.prepare("SELECT pid FROM query_queue q JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 AND id = $2", {
+    const stmt = await conn.prepare("SELECT q.pid FROM query_queue q JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 AND id = $2", {
       paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
     });
     try {
       const rs = await stmt.execute({ params: [user, query_id] });
-      if (rs?.rows?.length == 0) return rs.rows[0];
+      console.log("QueuePid");
+      console.log(rs);
+      if (rs?.rows?.length == 1) return rs.rows[0];
     } finally {
       await stmt.close();
     }
@@ -473,6 +480,26 @@ export default class QueryService {
       await stmt.execute({ params: [pid] });
     } finally {
       await stmt.close();
+    }
+  }
+
+  public async deleteFromQueue(query_id: string, user: string) {
+    const conn = await this.dbPool.acquire();
+    try {
+      const stmt = await conn.prepare(
+        "DELETE FROM query_queue USING query_queue AS q LEFT JOIN pg_stat_activity AS p ON p.pid = q.pid WHERE q.pid = query_queue.pid AND q.user_id = $1 AND q.id = $2 AND p.pid IS NULL",
+        {
+          paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
+        }
+      );
+      try {
+        const rs = await stmt.execute({ params: [user, query_id] });
+        return rs?.rowsAffected == 1;
+      } finally {
+        await stmt.close();
+      }
+    } finally {
+      conn.close();
     }
   }
 }

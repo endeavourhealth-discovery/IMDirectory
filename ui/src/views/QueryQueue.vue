@@ -26,14 +26,14 @@
           ></Column>
           <Column field="pid" header="Actions">
             <template #body="{ data }">
-              <Button v-if="data.status == 'Running'" size="small" severity="danger">Kill</Button>
+              <Button v-if="data.status == 'Running'" size="small" severity="danger" @click="kill(data.id)">Kill</Button>
               <Button v-if="data.status == 'Finished'" size="small">Results</Button>
               <Button v-if="data.status.startsWith('Error')" size="small">Retry</Button>
             </template>
           </Column>
           <Column field="pid" header="">
             <template #body="{ data }">
-              <Button v-if="data.status != 'Running'" icon="pi pi-trash" size="small" severity="danger"></Button>
+              <Button v-if="data.status != 'Running'" icon="pi pi-trash" size="small" severity="danger" @click="remove(data.id)"></Button>
             </template>
           </Column>
         </DataTable>
@@ -81,9 +81,19 @@ function getStatus(status: string) {
 
 function getSeverity(status: string) {
   if (status.startsWith("Error")) return "danger";
-  else if (status == "Killed") return "warning";
+  else if (status.startsWith("Kill")) return "warning";
   else if (status == "Running") return "warning";
   else return "success";
+}
+
+async function kill(queueId: string) {
+  await QueryService.kill(queueId);
+  await refresh();
+}
+
+async function remove(queueId: string) {
+  await QueryService.deleteFromQueue(queueId);
+  await refresh();
 }
 </script>
 

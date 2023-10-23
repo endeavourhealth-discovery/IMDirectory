@@ -105,6 +105,12 @@ export default class QueryController {
         .then(data => res.send(data))
         .catch(next)
     );
+
+    this.router.delete("/queue", this.auth.secure("IMAdmin"), (req, res, next) =>
+      this.deleteFromQueue(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
   }
 
   async getAllowableChildTypes(req: Request) {
@@ -177,6 +183,11 @@ export default class QueryController {
 
   async killQuery(req: Request) {
     const user = await this.auth.getUser(req);
-    return await this.queryService.killQuery(req.query.queryIri as string, user!);
+    return await this.queryService.killQuery(req.query.queueId as string, user!);
+  }
+
+  async deleteFromQueue(req: Request) {
+    const user = await this.auth.getUser(req);
+    return await this.queryService.deleteFromQueue(req.query.queueId as string, user!);
   }
 }
