@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
-import { QueryService } from "@/services";
+import { DirectService, Env, QueryService } from "@/services";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { Query } from "@im-library/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref, computed } from "vue";
@@ -42,6 +42,8 @@ interface Props {
 }
 
 const userStore = useUserStore();
+const directService = new DirectService();
+
 const props = defineProps<Props>();
 const query: Ref<Query> = ref({} as Query);
 const sql: Ref<string> = ref("");
@@ -77,7 +79,8 @@ async function copy() {
 }
 
 async function test() {
-  await QueryService.queueQuery(props.entityIri);
+  const queryId = await QueryService.queueQuery(props.entityIri);
+  window.open(Env.DIRECTORY_URL + "QueryQueue/" + queryId);
 }
 </script>
 

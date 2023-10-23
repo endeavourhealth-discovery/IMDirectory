@@ -2,7 +2,7 @@ import Env from "@/services/env.service";
 import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, EclSearchRequest, QueryResponse } from "@im-library/interfaces";
+import { AliasEntity, EclSearchRequest, QueryResponse, QueryQueueItem } from "@im-library/interfaces";
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
@@ -383,7 +383,7 @@ export default class QueryService {
 
   private async initialiseQueue(conn: Connection, queryId: string, queryIri: string, user: string, pid: Maybe<number>) {
     const stmt = await conn.prepare(
-      "INSERT INTO query_queue(id, iri, user_id, queued, started, pid, status) VALUES ($1, $2, $3, NOW(), NOW(), $4, 'RUNNING')",
+      "INSERT INTO query_queue(id, iri, user_id, queued, started, pid, status) VALUES ($1, $2, $3, NOW(), NOW(), $4, 'Running')",
       {
         paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.varchar, DataTypeOIDs.uuid, DataTypeOIDs.int4]
       }
@@ -418,16 +418,19 @@ export default class QueryService {
       try {
         const rs = await stmt.execute({ params: [user] });
         const rows: any[] | undefined = rs.rows;
-        return rows?.map(r => ({
-          id: r[0],
-          iri: r[1],
-          queued: r[2],
-          started: r[3],
-          finished: r[4],
-          killed: r[5],
-          status: r[6],
-          pid: r[7]
-        }));
+        return rows?.map(
+          r =>
+            ({
+              id: r[0],
+              iri: r[1],
+              queued: new Date(r[2]).toLocaleString(),
+              started: r[3] ? new Date(r[3]).toLocaleString() : undefined,
+              finished: r[4] ? new Date(r[4]).toLocaleString() : undefined,
+              killed: r[5] ? new Date(r[5]).toLocaleString() : undefined,
+              status: r[6],
+              pid: r[7]
+            }) as QueryQueueItem
+        );
       } finally {
         await stmt.close();
       }

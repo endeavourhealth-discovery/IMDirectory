@@ -1,6 +1,6 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { AllowableChildProperty, AliasEntity, QueryResponse } from "@im-library/interfaces";
+import { AllowableChildProperty, AliasEntity, QueryResponse, QueryQueueItem } from "@im-library/interfaces";
 import axios from "axios";
 import { PathDocument, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
@@ -146,7 +146,7 @@ const QueryService = {
       }
     });
   },
-  async listQueue(): Promise<any[]> {
+  async listQueue(): Promise<QueryQueueItem[]> {
     return axios.get(Env.VITE_NODE_API + "node_api/query/listQueue");
   }
 };
