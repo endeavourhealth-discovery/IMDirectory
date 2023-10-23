@@ -4,14 +4,14 @@
       <label v-if="shape.showTitle">{{ shape.name }}</label>
       <div class="content-container">
         <Dropdown
-          :disabled="loading || fullShape?.['@id'] === IM.editor.CONCEPT_SHAPE"
+          :disabled="loading || (fullShape?.['@id'] === IM.editor.CONCEPT_SHAPE && mode === 'edit')"
           class="dropdown"
           v-model="selectedDropdownOption"
           :options="dropdownOptions"
           optionLabel="name"
         />
         <InputText
-          :disabled="loading || fullShape?.['@id'] === IM.editor.CONCEPT_SHAPE"
+          :disabled="allowCodeEdit"
           class="p-inputtext-lg input-text"
           :class="invalid && showValidation && 'invalid'"
           v-model="userInput"
@@ -26,14 +26,14 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, Ref, watch, onMounted } from "vue";
+import { inject, ref, Ref, watch, onMounted, computed } from "vue";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
-import { IM, RDFS } from "@im-library/vocabulary";
+import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { QueryService } from "@/services";
 import _ from "lodash";
@@ -89,6 +89,19 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
+const allowCodeEdit = computed(() => {
+  if (
+    loading.value ||
+    (fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE && props.mode === "edit") ||
+    (fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE &&
+      props.mode === "create" &&
+      selectedDropdownOption.value &&
+      [IM.NAMESPACE, SNOMED.NAMESPACE].includes(selectedDropdownOption.value["@id"]))
+  )
+    return true;
+  else return false;
+});
+
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const loading = ref(false);
 const invalid = ref(false);
@@ -113,13 +126,19 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
   }
 });
 
+watch(selectedDropdownOption, async () => {
+  if (props.mode === EditorMode.CREATE) {
+    userInput.value = await generateCode();
+  }
+});
+
 let key = props.shape.path["@id"];
 
 onMounted(async () => {
   loading.value = true;
   dropdownOptions.value = await getDropdownOptions();
   setSelectedOption();
-  if (props.mode === EditorMode.CREATE && props.shape.path["@id"] === IM.CONCEPT) {
+  if (props.mode === EditorMode.CREATE) {
     userInput.value = await generateCode();
   }
   loading.value = false;
@@ -152,8 +171,12 @@ function deconstructInputValue(inputValue: String) {
 }
 
 async function generateCode(): Promise<string> {
-  if (selectedDropdownOption.value)
-    return QueryService.runFunction(IM.function.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
+  if (selectedDropdownOption.value) {
+    loading.value = true;
+    const result = await QueryService.runFunction(IM.function.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
+    loading.value = false;
+    return result.code;
+  }
   return "";
 }
 

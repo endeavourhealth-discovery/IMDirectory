@@ -184,6 +184,7 @@ provide(injectionKeys.forceValidation, {
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus
 });
+provide(injectionKeys.fullShape, shape);
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
