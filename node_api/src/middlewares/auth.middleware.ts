@@ -23,6 +23,7 @@ class AuthMiddleware {
       if (Object.keys(pems).length == 0) await this.setUp();
 
       let decodedJwt: Jwt | null = jwt.decode(token, { complete: true });
+      logger.debug("decodedJwt", decodedJwt);
       if (decodedJwt === null) {
         return null;
       }
@@ -43,7 +44,7 @@ class AuthMiddleware {
       if (Object.keys(pems).length == 0) await this.setUp();
 
       let decodedJwt: any = jwt.decode(token, { complete: true });
-      logger.info("decodedJwt", decodedJwt);
+      logger.debug("decodedJwt", decodedJwt);
       if (decodedJwt === null) {
         return false;
       }

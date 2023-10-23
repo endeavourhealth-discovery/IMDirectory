@@ -370,8 +370,6 @@ export default class QueryService {
         await this.updateQueryQueue(conn, queryId, "Finished");
       })
       .catch(async (error: any) => {
-        console.log("QUERY ERROR!");
-        console.log(error);
         await this.updateQueryQueue(conn, queryId, "Error: " + error);
       })
       .finally(async () => {
@@ -446,8 +444,6 @@ export default class QueryService {
     const conn = await this.dbPool.acquire();
     try {
       const pid = await this.getQueryQueuePid(conn, query_id, user);
-      console.log("Kill PID");
-      console.log(pid);
       if (pid) {
         await conn.execute("SELECT pg_terminate_backend(" + pid + ")");
         await this.updateQueryQueue(conn, query_id, "Killed", true);
@@ -463,8 +459,6 @@ export default class QueryService {
     });
     try {
       const rs = await stmt.execute({ params: [user, query_id] });
-      console.log("QueuePid");
-      console.log(rs);
       if (rs?.rows?.length == 1) return rs.rows[0];
     } finally {
       await stmt.close();
