@@ -99,7 +99,7 @@ const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
-  async () => getRecentActivityDetails()
+  async () => await getRecentActivityDetails()
 );
 
 onMounted(async () => init());
