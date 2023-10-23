@@ -449,7 +449,7 @@ export default class QueryService {
       console.log("Kill PID");
       console.log(pid);
       if (pid) {
-        await this.killQueuedQuery(conn, pid);
+        await conn.execute("SELECT pg_terminate_backend(" + pid + ")");
         await this.updateQueryQueue(conn, query_id, "Killed", true);
       }
     } finally {
@@ -470,17 +470,6 @@ export default class QueryService {
       await stmt.close();
     }
     return null;
-  }
-
-  private async killQueuedQuery(conn: Connection, pid: number) {
-    const stmt = await conn.prepare("SELECT pg_cancel_backend($1)", {
-      paramTypes: [DataTypeOIDs.int4]
-    });
-    try {
-      await stmt.execute({ params: [pid] });
-    } finally {
-      await stmt.close();
-    }
   }
 
   public async deleteFromQueue(query_id: string, user: string) {
