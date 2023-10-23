@@ -2,7 +2,14 @@
   <div class="search-container">
     <span class="p-input-icon-right search-group">
       <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
-      <InputText id="autocomplete-search" v-model="searchText" :placeholder="searchPlaceholder" @keyup.enter="search" data-testid="search-input" autofocus />
+      <InputText
+        id="autocomplete-search"
+        v-model="searchText"
+        :placeholder="searchPlaceholder"
+        @complete="debounceForSearch"
+        data-testid="search-input"
+        autofocus
+      />
     </span>
     <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
       <Button @click="search" class="search-button p-button-secondary" label="Search" />
@@ -73,7 +80,7 @@ const buttonActions = ref([
 
 const { listening, speech, recog, toggleListen } = setupSpeechToText(searchText, searchPlaceholder);
 
-watch(searchText, async () => await search());
+watch(searchText, async () => debounceForSearch());
 watch(results, newValue => emit("update:searchResults", newValue));
 watch(loading, newValue => emit("update:searchLoading", newValue));
 
@@ -81,6 +88,16 @@ const filtersOP = ref();
 
 function openFiltersOverlay(event: any) {
   filtersOP.value.toggle(event);
+}
+
+const debounce = ref(0);
+
+function debounceForSearch(): void {
+  console.log("here");
+  clearTimeout(debounce.value);
+  debounce.value = window.setTimeout(() => {
+    search();
+  }, 600);
 }
 
 async function search(): Promise<void> {
