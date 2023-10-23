@@ -298,15 +298,15 @@ const FolderShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": IM.query.GET_DESCENDANTS
+                  "@id": IM.query.SEARCH_CONTAINED_IN
                 }
               ],
               argument: [
                 {
                   valueIri: {
-                    "@id": IM.ENTITY
+                    "@id": IM.ENTITY_TYPES
                   },
-                  parameter: "this"
+                  parameter: "value"
                 }
               ],
               builderChild: true,
