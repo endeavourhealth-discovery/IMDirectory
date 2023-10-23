@@ -21,18 +21,16 @@
           <Column field="started" header="Started"></Column>
           <Column field="finished" header="Finished"></Column>
           <Column field="killed" header="Killed"></Column>
+          <Column field="time" header="Time"></Column>
           <Column field="status" header="Status">
             <template #body="{ data }"> <Tag v-tooltip="data.status" :value="getStatus(data.status)" :severity="getSeverity(data.status)" /> </template
           ></Column>
-          <Column field="pid" header="Actions">
+          <Column field="pid" header="Actions" class="space-children">
             <template #body="{ data }">
               <Button v-if="data.status == 'Running'" size="small" severity="danger" @click="kill(data.id)">Kill</Button>
               <Button v-if="data.status == 'Finished'" size="small">Results</Button>
-              <Button v-if="data.status.startsWith('Error')" size="small">Retry</Button>
-            </template>
-          </Column>
-          <Column field="pid" header="">
-            <template #body="{ data }">
+              <!--              <Button v-if="data.status.startsWith('Error')" size="small">Retry</Button>-->
+
               <Button v-if="data.status != 'Running'" icon="pi pi-trash" size="small" severity="danger" @click="remove(data.id)"></Button>
             </template>
           </Column>
@@ -49,11 +47,12 @@ import { ComputedRef, computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { QueryService } from "@/services";
 import { Ref } from "vue/dist/vue";
+import { QueryQueueItem } from "@im-library/interfaces";
 
 const route = useRoute();
 const queueId: ComputedRef<any[]> = computed(() => [{ id: route.params.queueId as string }]);
 const loading = ref(true);
-const queueData: Ref<any[]> = ref([]);
+const queueData: Ref<QueryQueueItem[]> = ref([]);
 
 onMounted(async () => {
   await refresh();
@@ -131,5 +130,9 @@ async function remove(queueId: string) {
 
 .container {
   padding: 1rem;
+}
+
+.space-children > * {
+  margin: 0 0.2rem;
 }
 </style>

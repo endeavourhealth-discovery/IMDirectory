@@ -419,25 +419,50 @@ export default class QueryService {
       try {
         const rs = await stmt.execute({ params: [user] });
         const rows: any[] | undefined = rs.rows;
-        return rows?.map(
-          r =>
-            ({
-              id: r[0],
-              iri: r[1],
-              queued: new Date(r[2]).toLocaleString(),
-              started: r[3] ? new Date(r[3]).toLocaleString() : undefined,
-              finished: r[4] ? new Date(r[4]).toLocaleString() : undefined,
-              killed: r[5] ? new Date(r[5]).toLocaleString() : undefined,
-              status: r[6] == "Killed" && r[7] ? "Killing..." : r[6],
-              pid: r[7]
-            }) as QueryQueueItem
-        );
+        return rows?.map(r => {
+          const q = new Date(r[2]);
+          const s = r[3] ? new Date(r[3]) : undefined;
+          const f = r[4] ? new Date(r[4]) : undefined;
+          const k = r[5] ? new Date(r[5]) : undefined;
+
+          const t = s ? (f ? this.dateTimeDiff(s, f) : k ? this.dateTimeDiff(s, k) : undefined) : undefined;
+
+          return {
+            id: r[0],
+            iri: r[1],
+            queued: q.toLocaleString(),
+            started: s?.toLocaleString(),
+            finished: f?.toLocaleString(),
+            killed: k?.toLocaleString(),
+            time: t?.toLocaleString(),
+            status: r[6] == "Killed" && r[7] ? "Killing..." : r[6],
+            pid: r[7]
+          } as QueryQueueItem;
+        });
       } finally {
         await stmt.close();
       }
     } finally {
       await conn.close();
     }
+  }
+
+  private dateTimeDiff(datePast: Date, dateFuture: Date): string {
+    let seconds = dateFuture.getSeconds() - datePast.getSeconds();
+    let minutes = Math.floor(seconds / 60);
+    let hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    hours = hours - days * 24;
+    minutes = minutes - days * 24 * 60 - hours * 60;
+    seconds = seconds - days * 24 * 60 * 60 - hours * 60 * 60 - minutes * 60;
+
+    let result = days == 0 ? "" : days + " days, ";
+    result += (hours < 10 ? "0" + hours : hours) + ":";
+    result += (minutes < 10 ? "0" + minutes : minutes) + ":";
+    result += seconds < 10 ? "0" + seconds : seconds;
+
+    return result;
   }
 
   public async killQuery(query_id: string, user: string) {
