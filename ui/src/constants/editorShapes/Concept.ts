@@ -81,42 +81,6 @@ const ConceptShape: FormGenerator = {
               validation: { "@id": IM.validation.IS_IRI }
             },
             {
-              name: "Scheme",
-              order: 3,
-              maxCount: 1,
-              minCount: 1,
-              path: { "@id": IM.SCHEME },
-              arrayButtons: { up: false, down: false, plus: false, minus: false },
-              componentType: { "@id": IM.component.ARRAY_BUILDER },
-              validation: { "@id": IM.validation.IS_SCHEME },
-              property: [
-                {
-                  comment: "Property that derives a concept scheme from the concept iri",
-                  order: 3,
-                  name: "Scheme",
-                  showTitle: true,
-                  builderChild: true,
-                  maxCount: 1,
-                  path: {
-                    "@id": IM.SCHEME
-                  },
-                  argument: [
-                    {
-                      parameter: "entityIri",
-                      valueVariable: "conceptIri"
-                    }
-                  ],
-                  minCount: 1,
-                  componentType: {
-                    "@id": IM.component.ENTITY_DISPLAY
-                  },
-                  function: {
-                    "@id": IM.function.SCHEME_FROM_IRI
-                  }
-                }
-              ]
-            },
-            {
               comment: "Property that derives a concept code from the concept iri",
               order: 4,
               name: "Code",
@@ -185,6 +149,7 @@ const ConceptShape: FormGenerator = {
               order: 6,
               path: { "@id": IM.HAS_STATUS },
               componentType: { "@id": IM.component.ARRAY_BUILDER },
+              validation: { "@id": IM.validation.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [

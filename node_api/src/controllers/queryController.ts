@@ -1,8 +1,8 @@
 import EntityService from "@/services/entity.service";
 import QueryService from "@/services/query.service";
-import { Query } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import axios from "axios";
-import express, { NextFunction, Request, Response } from "express";
+import { Request } from "express";
 import router from "express-promise-router";
 import AuthMiddleware from "@/middlewares/auth.middleware";
 
@@ -82,6 +82,12 @@ export default class QueryController {
         .catch(next)
     );
 
+    this.router.post("/public/selection/validate", (req, res, next) =>
+      this.validateSelectionWithQuery(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+
     this.router.get("/queue", this.auth.secure("IMAdmin"), (req, res, next) =>
       this.queueQuery(req)
         .then(data => res.send(data))
@@ -151,6 +157,12 @@ export default class QueryController {
   async generateQuerySQLfromQuery(req: Request) {
     const query: any = req.body;
     return await this.queryService.generateQuerySQLfromQuery(query as Query);
+  }
+
+  async validateSelectionWithQuery(req: Request) {
+    const queryRequest: QueryRequest = req.body.queryRequest;
+    const selectedIri: string = req.body.iri;
+    return await this.queryService.validateSelectionWithQuery(selectedIri, queryRequest);
   }
 
   async queueQuery(req: Request) {

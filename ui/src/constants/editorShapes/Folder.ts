@@ -158,6 +158,7 @@ const FolderShape: FormGenerator = {
               order: 6,
               path: { "@id": IM.HAS_STATUS },
               componentType: { "@id": IM.component.ARRAY_BUILDER },
+              validation: { "@id": IM.validation.IS_STATUS },
               minCount: 1,
               arrayButtons: { up: false, down: false, plus: false, minus: false },
               property: [
@@ -297,15 +298,15 @@ const FolderShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": IM.query.GET_DESCENDANTS
+                  "@id": IM.query.SEARCH_CONTAINED_IN
                 }
               ],
               argument: [
                 {
                   valueIri: {
-                    "@id": IM.ENTITY
+                    "@id": IM.ENTITY_TYPES
                   },
-                  parameter: "this"
+                  parameter: "value"
                 }
               ],
               builderChild: true,

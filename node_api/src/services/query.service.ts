@@ -2,7 +2,7 @@ import Env from "@/services/env.service";
 import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
+import { AliasEntity, EclSearchRequest, QueryResponse } from "@im-library/interfaces";
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
@@ -30,7 +30,7 @@ export default class QueryService {
     this.dbPool = new Pool();
   }
 
-  public async queryIM(query: QueryRequest, controller?: AbortController) {
+  public async queryIM(query: QueryRequest, controller?: AbortController): Promise<QueryResponse> {
     const response = await this.axios.post(Env.API + "api/query/public/queryIM", query);
     return response.data;
   }
@@ -342,6 +342,15 @@ export default class QueryService {
 
   public async generateQuerySQLfromQuery(query: Query) {
     return IMQtoSQL(query);
+  }
+
+  public async validateSelectionWithQuery(iri: string, queryRequest: QueryRequest) {
+    const queryResponse = await this.queryIM(queryRequest);
+    return (
+      isObjectHasKeys(queryResponse, ["entities"]) &&
+      isArrayHasLength(queryResponse.entities) &&
+      queryResponse.entities.some((entity: any) => entity["@id"] === iri)
+    );
   }
 
   public async queueQuery(queryIri: string, user: string) {

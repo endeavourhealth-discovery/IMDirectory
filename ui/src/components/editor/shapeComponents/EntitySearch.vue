@@ -21,24 +21,22 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, watch, onMounted, ref, Ref, inject } from "vue";
-import SearchMiniOverlay from "@/components/editor/shapeComponents/SearchMiniOverlay.vue";
+import { watch, onMounted, ref, Ref, inject } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys, isObject, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { EditorMode, ToastSeverity } from "@im-library/enums";
+import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { processArguments } from "@im-library/helpers/EditorMethods";
-import { mapToObject } from "@im-library/helpers/Transforms";
 import { QueryService, EntityService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { useEditorStore } from "@/stores/editorStore";
+import { useToast } from "primevue/usetoast";
 
+const toast = useToast();
 const editorStore = useEditorStore();
 
 interface Props {
@@ -185,7 +183,17 @@ async function dropReceived(event: any) {
     const conceptIri = JSON.parse(data);
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
-    await updateSelectedResult(iriRef);
+    if (!queryRequest.value) await updateSelectedResult(iriRef);
+    else if (await QueryService.validateSelectionWithQuery(conceptIri, queryRequest.value)) {
+      await updateSelectedResult(iriRef);
+    } else {
+      toast.add({
+        severity: ToastSeverity.WARN,
+        summary: "Failed to set value",
+        detail: "'" + conceptName + "' is not a valid value for this field",
+        life: 3000
+      });
+    }
   }
 }
 
