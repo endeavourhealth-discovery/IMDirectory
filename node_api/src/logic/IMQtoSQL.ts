@@ -3,12 +3,10 @@ import { SqlQuery } from "@/model/sql/SqlQuery";
 
 function IMQtoSQL(definition: Query): string {
   if (!definition.typeOf) {
-    console.log(definition);
     throw new Error("Query must have a main (model) type");
   }
 
   if (!definition.match) {
-    console.log(definition);
     throw new Error("Query must have at least one match");
   }
 

@@ -5,6 +5,7 @@ import axios from "axios";
 import { Request } from "express";
 import router from "express-promise-router";
 import AuthMiddleware from "@/middlewares/auth.middleware";
+import { RDFS } from "@im-library/vocabulary";
 
 export default class QueryController {
   public path = "/node_api/query";
@@ -173,7 +174,9 @@ export default class QueryController {
 
   async queueQuery(req: Request) {
     const user = await this.auth.getUser(req);
-    return await this.queryService.queueQuery(req.query.queryIri as string, user!);
+    const iri = req.query.queryIri as string;
+    const name = (await this.entityService.getPartialEntity(iri, [RDFS.LABEL])).data[RDFS.LABEL];
+    return await this.queryService.queueQuery(iri, name, user!);
   }
 
   async listQueries(req: Request) {

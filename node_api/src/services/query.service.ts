@@ -353,12 +353,12 @@ export default class QueryService {
     );
   }
 
-  public async queueQuery(queryIri: string, user: string) {
+  public async queueQuery(queryIri: string, name: string, user: string) {
     const queryId = uuid();
     const conn = await this.dbPool.acquire();
     const pid = conn.processID;
 
-    await this.initialiseQueue(conn, queryId, queryIri, user, pid);
+    await this.initialiseQueue(conn, queryId, queryIri, name, user, pid);
 
     let sql = await this.generateQuerySQL(queryIri);
     sql = sql?.replaceAll("$referenceDate", "NOW()");
@@ -366,7 +366,8 @@ export default class QueryService {
 
     conn
       .query(sql)
-      .then(async () => {
+      .then(async result => {
+        // await this.updateQueryQueue(conn, queryId, "Finished: " + result.rowsAffected + " rows");
         await this.updateQueryQueue(conn, queryId, "Finished");
       })
       .catch(async (error: any) => {
@@ -379,15 +380,15 @@ export default class QueryService {
     return queryId;
   }
 
-  private async initialiseQueue(conn: Connection, queryId: string, queryIri: string, user: string, pid: Maybe<number>) {
+  private async initialiseQueue(conn: Connection, queryId: string, queryIri: string, name: string, user: string, pid: Maybe<number>) {
     const stmt = await conn.prepare(
-      "INSERT INTO query_queue(id, iri, user_id, queued, started, pid, status) VALUES ($1, $2, $3, NOW(), NOW(), $4, 'Running')",
+      "INSERT INTO query_queue(id, iri, name, user_id, queued, started, pid, status) VALUES ($1, $2, $3, $4, NOW(), NOW(), $5, 'Running')",
       {
-        paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.varchar, DataTypeOIDs.uuid, DataTypeOIDs.int4]
+        paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.varchar, DataTypeOIDs.varchar, DataTypeOIDs.uuid, DataTypeOIDs.int4]
       }
     );
     try {
-      await stmt.execute({ params: [queryId, queryIri, user, pid] });
+      await stmt.execute({ params: [queryId, queryIri, name, user, pid] });
     } finally {
       await stmt.close();
     }
@@ -411,7 +412,7 @@ export default class QueryService {
     const conn = await this.dbPool.acquire();
     try {
       const stmt = await conn.prepare(
-        "SELECT id, iri, queued, started, finished, killed, status, p.pid FROM query_queue q LEFT JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 ORDER BY queued DESC",
+        "SELECT id, iri, name, queued, started, finished, killed, status, p.pid FROM query_queue q LEFT JOIN pg_stat_activity p ON p.pid = q.pid WHERE user_id = $1 ORDER BY queued DESC",
         {
           paramTypes: [DataTypeOIDs.uuid]
         }
@@ -420,23 +421,24 @@ export default class QueryService {
         const rs = await stmt.execute({ params: [user] });
         const rows: any[] | undefined = rs.rows;
         return rows?.map(r => {
-          const q = new Date(r[2]);
-          const s = r[3] ? new Date(r[3]) : undefined;
-          const f = r[4] ? new Date(r[4]) : undefined;
-          const k = r[5] ? new Date(r[5]) : undefined;
+          const q = new Date(r[3]);
+          const s = r[4] ? new Date(r[4]) : undefined;
+          const f = r[5] ? new Date(r[5]) : undefined;
+          const k = r[6] ? new Date(r[6]) : undefined;
 
           const t = s ? (f ? this.dateTimeDiff(s, f) : k ? this.dateTimeDiff(s, k) : undefined) : undefined;
 
           return {
             id: r[0],
             iri: r[1],
+            name: r[2],
             queued: q.toLocaleString(),
             started: s?.toLocaleString(),
             finished: f?.toLocaleString(),
             killed: k?.toLocaleString(),
             time: t?.toLocaleString(),
-            status: r[6] == "Killed" && r[7] ? "Killing..." : r[6],
-            pid: r[7]
+            status: r[7] == "Killed" && r[8] ? "Killing..." : r[7],
+            pid: r[8]
           } as QueryQueueItem;
         });
       } finally {
@@ -448,7 +450,8 @@ export default class QueryService {
   }
 
   private dateTimeDiff(datePast: Date, dateFuture: Date): string {
-    let seconds = Math.floor((dateFuture.getTime() - datePast.getTime()) / 1000);
+    let millis = dateFuture.getTime() - datePast.getTime();
+    let seconds = Math.floor(millis / 1000);
     let minutes = Math.floor(seconds / 60);
     let hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
@@ -456,11 +459,14 @@ export default class QueryService {
     hours = hours - days * 24;
     minutes = minutes - days * 24 * 60 - hours * 60;
     seconds = seconds - days * 24 * 60 * 60 - hours * 60 * 60 - minutes * 60;
+    millis = millis - days * 24 * 60 * 60 * 1000 - hours * 60 * 60 * 1000 - minutes * 60 * 1000 - seconds * 1000;
 
     let result = days == 0 ? "" : days + " days, ";
     result += (hours < 10 ? "0" + hours : hours) + ":";
     result += (minutes < 10 ? "0" + minutes : minutes) + ":";
-    result += seconds < 10 ? "0" + seconds : seconds;
+    result += (seconds < 10 ? "0" + seconds : seconds) + ".";
+    if (millis < 10) result += "00" + millis;
+    else result += millis < 100 ? "0" + millis : millis;
 
     return result;
   }

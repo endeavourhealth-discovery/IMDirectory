@@ -80,7 +80,7 @@ async function copy() {
 
 async function test() {
   const queryId = await QueryService.queueQuery(props.entityIri);
-  window.open(Env.DIRECTORY_URL + "QueryQueue/" + queryId);
+  window.open(Env.DIRECTORY_URL + "QueryQueue/" + queryId, "QueryQueue");
 }
 </script>
 

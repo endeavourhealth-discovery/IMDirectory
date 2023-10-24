@@ -16,7 +16,7 @@
 
         <DataTable :value="queueData" tableStyle="font-size: 0.8rem" dataKey="id" class="p-datatable-sm" v-model:selection="queueId" selectionMode="single">
           <!--      <Column field="id" header="Id"></Column>-->
-          <Column field="iri" header="Query"></Column>
+          <Column field="name" header="Query"></Column>
           <Column field="queued" header="Queued"></Column>
           <Column field="started" header="Started"></Column>
           <Column field="finished" header="Finished"></Column>
