@@ -61,7 +61,6 @@
     "@cypress/vite-dev-server": "5.0.5",
     "@cypress/vue": "5.0.5",
     "@faker-js/faker": "8.0.2",
-    "@mswjs/data": "0.13.0",
     "@originjs/vite-plugin-commonjs": "1.0.3",
     "@pinia/testing": "0.1.2",
     "@testing-library/vue": "7.0.0",

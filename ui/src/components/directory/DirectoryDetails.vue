@@ -6,21 +6,21 @@
     <div class="header-container">
       <ParentHierarchy
         :entityIri="entity['@id']"
-        @navigateTo="(iri:string) => $emit('navigateTo', iri)"
+        @navigateTo="(iri: string) => $emit('navigateTo', iri)"
         :history="history"
-        @update:history="(newHistory:string[]) => $emit('update:history', newHistory)"
+        @update:history="(newHistory: string[]) => $emit('update:history', newHistory)"
       />
       <ParentHeader
         v-if="selectedIri !== 'http://endhealth.info/im#Favourites'"
         :entity="entity"
-        @locateInTree="(iri:string) => $emit('locateInTree', iri)"
+        @locateInTree="(iri: string) => $emit('locateInTree', iri)"
         :showSelectButton="showSelectButton"
         :validationQuery="validationQuery"
-        @entitySelected="(iri:string) => emit('selectedUpdated', iri)"
+        @entitySelected="(iri: string) => emit('selectedUpdated', iri)"
       />
     </div>
     <div class="datatable-container">
-      <Viewer :entityIri="entity['@id']" @navigateTo="(iri:string) => $emit('navigateTo', iri)" />
+      <Viewer :entityIri="entity['@id']" @navigateTo="(iri: string) => $emit('navigateTo', iri)" />
     </div>
   </div>
 </template>

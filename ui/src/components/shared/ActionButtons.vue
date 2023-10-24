@@ -64,6 +64,9 @@ const favourites = computed(() => userStore.favourites);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const editAllowed = ref(false);
 
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
+
 interface Props {
   buttons: string[];
   iri: string;
@@ -86,7 +89,7 @@ watch(
 );
 
 onMounted(async () => {
-  editAllowed.value = await UserService.canUserEdit(props.iri);
+  if (isLoggedIn.value && currentUser.value) editAllowed.value = await UserService.canUserEdit(props.iri);
 });
 
 function getClass() {

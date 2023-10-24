@@ -45,6 +45,7 @@ describe("SearchBar.vue", () => {
   it("searches when user inputs", async () => {
     const input = component.getByTestId("search-input");
     await fireEvent.update(input, "Scoliosis");
+    await new Promise(resolve => setTimeout(resolve, 1000));
     expect(advancedSearchSpy).toHaveBeenCalledTimes(1);
   });
 
