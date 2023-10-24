@@ -23,7 +23,7 @@
           <Column field="killed" header="Killed"></Column>
           <Column field="time" header="Time"></Column>
           <Column field="status" header="Status">
-            <template #body="{ data }"> <Tag v-tooltip="data.status" :value="getStatus(data.status)" :severity="getSeverity(data.status)" /> </template
+            <template #body="{ data }"> <Tag v-tooltip="data.status" :value="getStatus(data)" :severity="getSeverity(data.status)" /> </template
           ></Column>
           <Column field="pid" header="Actions" class="space-children">
             <template #body="{ data }">
@@ -73,9 +73,10 @@ async function refresh() {
   loading.value = false;
 }
 
-function getStatus(status: string) {
-  if (status.startsWith("Error")) return "Error";
-  else return status;
+function getStatus(data: QueryQueueItem) {
+  if (data.status.startsWith("Error")) return "Error";
+  else if (data.status.startsWith("Finish") && data.pid) return "Finishing";
+  else return data.status;
 }
 
 function getSeverity(status: string) {

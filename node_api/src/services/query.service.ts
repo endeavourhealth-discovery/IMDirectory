@@ -375,7 +375,7 @@ export default class QueryService {
       })
       .finally(async () => {
         await conn.close();
-      }); // Run the actual query
+      });
 
     return queryId;
   }
@@ -500,12 +500,11 @@ export default class QueryService {
   public async deleteFromQueue(query_id: string, user: string) {
     const conn = await this.dbPool.acquire();
     try {
-      const stmt = await conn.prepare(
-        "DELETE FROM query_queue USING query_queue AS q LEFT JOIN pg_stat_activity AS p ON p.pid = q.pid WHERE q.pid = query_queue.pid AND q.user_id = $1 AND q.id = $2 AND p.pid IS NULL",
-        {
-          paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
-        }
-      );
+      await conn.execute('DROP TABLE IF EXISTS "qry_' + query_id + '"');
+
+      let stmt = await conn.prepare("DELETE FROM query_queue WHERE user_id = $1 AND id = $2", {
+        paramTypes: [DataTypeOIDs.uuid, DataTypeOIDs.uuid]
+      });
       try {
         const rs = await stmt.execute({ params: [user, query_id] });
         return rs?.rowsAffected == 1;
