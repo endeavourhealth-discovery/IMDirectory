@@ -26,7 +26,8 @@ function IMQtoSQL(definition: Query): string {
         qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id");
       } else {
         const rel = subQry.getRelationshipTo(qry.model);
-        qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField);
+        const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQry.alias) : subQry.alias + "." + rel.fromField;
+        qry.joins.push(joiner + subQry.alias + " ON " + relFrom + " = " + qry.alias + "." + rel.toField);
       }
     }
     return qry.toSql();
@@ -88,7 +89,7 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
   const innerSql = qry.alias + "_inner AS (" + inner.toSql(2) + ")";
 
   const partition = qry.subQuery(qry.alias + "_inner", qry.alias + "_part");
-  const partField = "patient";
+  const partField = "((json ->> 'patient')::UUID)";
 
   const dir = order.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
 
@@ -128,7 +129,9 @@ function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
     if (subQuery.model == qry.model) qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id");
     else {
       const rel = subQuery.getRelationshipTo(qry.model);
-      qry.joins.push(joiner + subQuery.alias + " ON " + subQuery.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField);
+      const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQuery.alias) : subQuery.alias + "." + rel.fromField;
+
+      qry.joins.push(joiner + subQuery.alias + " ON " + relFrom + " = " + qry.alias + "." + rel.toField);
     }
 
     if ("OR" == qry.whereBool) qry.wheres.push(subQuery.alias + ".id IS NOT NULL");
@@ -259,7 +262,8 @@ function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
   if (qry.model == subQuery.model) qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + ".id = " + qry.alias + ".id");
   else {
     const rel = subQuery.getRelationshipTo(qry.model);
-    qry.joins.push("JOIN " + subQuery.alias + " ON " + subQuery.alias + "." + rel.fromField + " = " + qry.alias + "." + rel.toField);
+    const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQuery.alias) : subQuery.alias + "." + rel.fromField;
+    qry.joins.push("JOIN " + subQuery.alias + " ON " + relFrom + " = " + qry.alias + "." + rel.toField);
   }
 }
 

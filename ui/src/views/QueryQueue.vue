@@ -17,15 +17,15 @@
         <DataTable :value="queueData" tableStyle="font-size: 0.8rem" dataKey="id" class="p-datatable-sm" v-model:selection="queueId" selectionMode="single">
           <!--      <Column field="id" header="Id"></Column>-->
           <Column field="name" header="Query"></Column>
-          <Column field="queued" header="Queued"></Column>
-          <Column field="started" header="Started"></Column>
-          <Column field="finished" header="Finished"></Column>
-          <Column field="killed" header="Killed"></Column>
-          <Column field="time" header="Time"></Column>
-          <Column field="status" header="Status">
-            <template #body="{ data }"> <Tag v-tooltip="data.status" :value="getStatus(data)" :severity="getSeverity(data.status)" /> </template
+          <Column field="queued" header="Queued" style="width: 8.5rem"></Column>
+          <Column field="started" header="Started" style="width: 8.5rem"></Column>
+          <Column field="finished" header="Finished" style="width: 8.5rem"></Column>
+          <Column field="killed" header="Killed" style="width: 8.5rem"></Column>
+          <Column field="time" header="Time" style="width: 5rem"></Column>
+          <Column field="status" header="Status" style="width: 5rem">
+            <template #body="{ data }"> <Tag v-tooltip="data.status" :value="getStatus(data)" :severity="getSeverity(data)" /> </template
           ></Column>
-          <Column field="pid" header="Actions" class="space-children">
+          <Column field="pid" header="Actions" class="space-children" style="width: 10rem">
             <template #body="{ data }">
               <Button v-if="data.status == 'Running'" size="small" severity="danger" @click="kill(data.id)">Kill</Button>
               <Button v-if="data.status == 'Finished'" size="small">Results</Button>
@@ -79,10 +79,11 @@ function getStatus(data: QueryQueueItem) {
   else return data.status;
 }
 
-function getSeverity(status: string) {
-  if (status.startsWith("Error")) return "danger";
-  else if (status.startsWith("Kill")) return "warning";
-  else if (status == "Running") return "warning";
+function getSeverity(data: QueryQueueItem) {
+  if (data.status.startsWith("Error")) return "danger";
+  else if (data.status.startsWith("Kill")) return "warning";
+  else if (data.status == "Running") return "warning";
+  else if (data.status.startsWith("Finish") && data.pid) return "warning";
   else return "success";
 }
 
