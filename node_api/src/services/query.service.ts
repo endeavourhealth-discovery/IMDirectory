@@ -448,7 +448,7 @@ export default class QueryService {
   }
 
   private dateTimeDiff(datePast: Date, dateFuture: Date): string {
-    let seconds = dateFuture.getSeconds() - datePast.getSeconds();
+    let seconds = Math.floor((dateFuture.getTime() - datePast.getTime()) / 1000);
     let minutes = Math.floor(seconds / 60);
     let hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
