@@ -126,6 +126,9 @@ function processProps() {
 function isValidTermCode() {
   invalid.value = false;
   validationErrorMessage.value = "";
+  if (props.shape.builderChild && props.position === 0 && !name.value && !code.value && !status.value) {
+    return;
+  }
   if (props.shape.minCount === 0 && !name.value && !code.value && !status.value) return;
   if (!name.value) {
     invalid.value = true;
