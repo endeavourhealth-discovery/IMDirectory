@@ -90,10 +90,18 @@ const toast = useToast();
 const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
+const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 if (forceValidation) {
-  watch(forceValidation, () => {
-    validateEntity();
+  watch(forceValidation, async () => {
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+    }
   });
 }
 
@@ -101,7 +109,11 @@ const roleGroups: Ref<any[][]> = ref([]);
 const propertySuggestions: Ref<TTIriRef[]> = ref([]);
 const valueSuggestions: Ref<TTIriRef[]> = ref([]);
 const validationErrorMessage: Ref<string | undefined> = ref();
+const invalid = ref(false);
+const showValidation = ref(false);
 const loading = ref(true);
+
+const key = props.shape.path["@id"];
 
 onMounted(async () => {
   await processProps();
@@ -163,7 +175,7 @@ async function searchProperties(event: AutoCompleteCompleteEvent) {
     }
   };
   const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-  propertySuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef));
+  propertySuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
 }
 
 async function searchValues(event: AutoCompleteCompleteEvent) {
@@ -184,7 +196,7 @@ async function searchValues(event: AutoCompleteCompleteEvent) {
     }
   };
   const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-  valueSuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef));
+  valueSuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
 }
 
 async function propertyDrop(event: any, object: any) {
@@ -324,7 +336,8 @@ function updateEntity() {
     }
   }
 
-  if (entityUpdate) entityUpdate(groups);
+  if (!isArrayHasLength(groups[IM.ROLE_GROUP]) && deleteEntityKey) deleteEntityKey(key);
+  else if (entityUpdate) entityUpdate(groups);
 }
 </script>
 

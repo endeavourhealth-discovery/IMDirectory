@@ -142,6 +142,9 @@ export default class Validator {
         valid = true;
         message = undefined;
       }
+    } else {
+      valid = true;
+      message = undefined;
     }
     return { isValid: valid, message: message };
   }
