@@ -21,15 +21,31 @@
           <Column field="started" header="Started" style="width: 8.5rem"></Column>
           <Column field="finished" header="Finished" style="width: 8.5rem"></Column>
           <Column field="stopped" header="Stopped" style="width: 8.5rem"></Column>
-          <Column field="time" header="Time" style="width: 5rem"></Column>
+          <Column field="time" header="Run time" style="width: 5rem"></Column>
           <Column field="status" header="Status" style="width: 5rem">
             <template #body="{ data }"> <Tag v-tooltip="data.status" :value="getStatus(data)" :severity="getSeverity(data)" /> </template
           ></Column>
           <Column field="pid" header="Actions" class="space-children" style="width: 10rem">
             <template #body="{ data }">
-              <Button v-if="data.status == 'Running'" size="small" severity="danger" @click="confirmStop(data.id)">Stop</Button>
-              <Button v-if="data.status == 'Finished'" size="small" @click="confirmDownload(data.id)">Download</Button>
+              <Button
+                v-if="data.status == 'Finished'"
+                icon="pi pi-download"
+                size="small"
+                @click="confirmDownload(data.id)"
+                outlined
+                v-tooltip.left="'Download query results'"
+              ></Button>
               <!--              <Button v-if="data.status.startsWith('Error')" size="small">Retry</Button>-->
+              <Button
+                v-if="data.status == 'Running'"
+                icon="pi pi-stop"
+                size="small"
+                severity="danger"
+                @click="confirmStop(data.id)"
+                style="float: right"
+                outlined
+                v-tooltip.left="'Stop query running'"
+              ></Button>
 
               <Button
                 v-if="data.status != 'Running'"
@@ -38,6 +54,8 @@
                 severity="danger"
                 @click="confirmRemove(data.id)"
                 style="float: right"
+                outlined
+                v-tooltip.left="'Delete queue item (and results)'"
               ></Button>
             </template>
           </Column>
@@ -89,7 +107,7 @@ function getStatus(data: QueryQueueItem) {
 
 function getSeverity(data: QueryQueueItem) {
   if (data.status.startsWith("Error")) return "danger";
-  else if (data.status.startsWith("Stop")) return "warning";
+  else if (data.status.startsWith("Stop")) return "danger";
   else if (data.status == "Running") return "warning";
   else if (data.status.startsWith("Finish") && data.pid) return "warning";
   else return "success";
