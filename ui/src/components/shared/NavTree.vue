@@ -20,7 +20,9 @@
           @dblclick="emit('rowDblClicked', node)"
           @contextmenu="onNodeContext($event, node)"
         >
-          <IMFontAwesomeIcon v-if="allowDragAndDrop" icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
+          <span v-if="allowDragAndDrop">
+            <IMFontAwesomeIcon icon="fa-solid fa-grip-vertical" class="drag-icon grabbable" />
+          </span>
           <ContextMenu ref="menu" :model="items" />
           <span v-if="!node.loading">
             <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
