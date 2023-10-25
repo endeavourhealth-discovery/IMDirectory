@@ -367,7 +367,7 @@ export default class QueryService {
     conn
       .query(sql)
       .then(async result => {
-        // await this.updateQueryQueue(conn, queryId, "Finished: " + result.rowsAffected + " rows");
+        // await this.updateQueryQueue(queryId, "Finished: " + result.rowsAffected + " rows");
         await this.updateQueryQueue(queryId, "Finished");
       })
       .catch(async (error: any) => {
@@ -489,7 +489,7 @@ export default class QueryService {
       const pid = await this.getQueryQueuePid(conn, query_id, user);
       if (pid) {
         await conn.execute("SELECT pg_terminate_backend(" + pid + ")");
-        await this.updateQueryQueue(conn, query_id, "Stopped", true);
+        await this.updateQueryQueue(query_id, "Stopped", true);
       }
     } finally {
       await conn.close();
