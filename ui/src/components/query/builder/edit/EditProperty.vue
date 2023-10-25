@@ -7,6 +7,7 @@
       :datatype="ttproperty[SHACL.DATATYPE][0]['@id']"
       :property="ttproperty.property"
     />
+    <ClassSelect v-if="isObjectHasKeys(ttproperty, [SHACL.NODE])" :class-iri="ttproperty[SHACL.NODE][0]['@id']" :property="ttproperty.property" />
     <EntitySelect v-else :edit-node="ttproperty.property" />
   </div>
 
@@ -114,5 +115,14 @@ function isChildOfMatch(parentMatch: Match): boolean {
 }
 .property-label {
   margin-bottom: 0.5rem !important;
+}
+
+.button-bar {
+  display: flex;
+  justify-content: end;
+}
+
+.button-bar-button {
+  margin: 0.5rem;
 }
 </style>

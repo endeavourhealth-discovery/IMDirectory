@@ -1,6 +1,6 @@
 <template>
   <div
-    :draggable="true"
+    :draggable="false"
     @dragstart="dragStart($event, match)"
     @dragenter="dragEnter($event, match, htmlId)"
     @dragleave="dragLeave(htmlId)"

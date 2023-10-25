@@ -93,7 +93,6 @@ function openFiltersOverlay(event: any) {
 const debounce = ref(0);
 
 function debounceForSearch(): void {
-  console.log("here");
   clearTimeout(debounce.value);
   debounce.value = window.setTimeout(() => {
     search();
