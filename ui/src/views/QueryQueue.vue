@@ -31,7 +31,14 @@
               <Button v-if="data.status == 'Finished'" size="small" @click="confirmDownload(data.id)">Download</Button>
               <!--              <Button v-if="data.status.startsWith('Error')" size="small">Retry</Button>-->
 
-              <Button v-if="data.status != 'Running'" icon="pi pi-trash" size="small" severity="danger" @click="confirmRemove(data.id)"></Button>
+              <Button
+                v-if="data.status != 'Running'"
+                icon="pi pi-trash"
+                size="small"
+                severity="danger"
+                @click="confirmRemove(data.id)"
+                style="float: right"
+              ></Button>
             </template>
           </Column>
         </DataTable>
@@ -76,7 +83,7 @@ async function refresh() {
 
 function getStatus(data: QueryQueueItem) {
   if (data.status.startsWith("Error")) return "Error";
-  else if (data.status.startsWith("Finish") && data.pid) return "Finishing";
+  else if (data.status.startsWith("Finish") && data.pid) return "Fetching";
   else return data.status;
 }
 
