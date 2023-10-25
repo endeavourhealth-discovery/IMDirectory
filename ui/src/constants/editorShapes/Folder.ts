@@ -287,46 +287,57 @@ const FolderShape: FormGenerator = {
           ]
         },
         {
-          label: "Property group - Content type array builder",
+          name: "Content type",
+          showTitle: true,
+          comment: "Vertical splitter",
+          path: { "@id": IM.FOLDER },
+          componentType: { "@id": IM.component.VERTICAL_LAYOUT },
+          minCount: 1,
+          maxCount: 1,
           order: 1,
-          path: {
-            "@id": IM.CONTENT_TYPE
-          },
           property: [
             {
-              comment: "selects an entity based on select query",
+              label: "Property group - Content type array builder",
               order: 1,
-              select: [
-                {
-                  "@id": IM.query.SEARCH_CONTAINED_IN
-                }
-              ],
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.ENTITY_TYPES
-                  },
-                  parameter: "value"
-                }
-              ],
-              builderChild: true,
-              name: "Entity",
               path: {
                 "@id": IM.CONTENT_TYPE
               },
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  order: 1,
+                  select: [
+                    {
+                      "@id": IM.query.SEARCH_CONTAINED_IN
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.ENTITY_TYPES
+                      },
+                      parameter: "value"
+                    }
+                  ],
+                  builderChild: true,
+                  name: "Entity",
+                  path: {
+                    "@id": IM.CONTENT_TYPE
+                  },
+                  minCount: 0,
+                  componentType: {
+                    "@id": IM.component.ENTITY_SEARCH
+                  }
+                }
+              ],
+              name: "Content type",
               minCount: 0,
               componentType: {
-                "@id": IM.component.ENTITY_SEARCH
-              }
+                "@id": IM.component.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
             }
-          ],
-          name: "Content type",
-          showTitle: true,
-          minCount: 0,
-          componentType: {
-            "@id": IM.component.ARRAY_BUILDER
-          },
-          arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
+          ]
         }
       ]
     }
