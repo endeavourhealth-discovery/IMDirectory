@@ -90,36 +90,6 @@ const FolderShape: FormGenerator = {
               validation: { "@id": IM.validation.IS_IRI }
             },
             {
-              comment: "Property that derives a concept code from the concept iri",
-              order: 3,
-              name: "Code",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.CODE
-              },
-              argument: [
-                {
-                  parameter: "entityIri",
-                  valueVariable: "conceptIri"
-                },
-                {
-                  parameter: "fieldName",
-                  valueData: "code"
-                }
-              ],
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.TEXT_DISPLAY
-              },
-              datatype: {
-                "@id": XSD.STRING
-              },
-              function: {
-                "@id": IM.function.LOCAL_NAME_RETRIEVER
-              }
-            },
-            {
               comment: "name or main term of entity",
               order: 4,
               name: "Name",
