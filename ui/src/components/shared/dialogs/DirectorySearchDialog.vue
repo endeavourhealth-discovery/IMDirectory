@@ -86,6 +86,7 @@ const props = defineProps<Props>();
 watch(
   () => props.showDialog,
   newValue => {
+    if (newValue === true) initSelection();
     visible.value = newValue;
   }
 );
