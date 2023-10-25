@@ -184,6 +184,7 @@ function updateEntity() {
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
+  height: 2.7rem;
 }
 
 .invalid {

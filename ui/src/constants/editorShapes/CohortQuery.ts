@@ -167,7 +167,7 @@ const CohortQueryShape: FormGenerator = {
               name: "Is contained in",
               showTitle: true,
               order: 6,
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
@@ -184,7 +184,7 @@ const CohortQueryShape: FormGenerator = {
                   comment: "selects an entity based on select query",
                   name: "Entity",
                   order: 1,
-                  minCount: 1,
+                  minCount: 0,
                   builderChild: true,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
