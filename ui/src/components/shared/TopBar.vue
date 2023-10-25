@@ -574,7 +574,8 @@ function setAppMenuItems() {
   appItems.value = [
     { label: "Directory", icon: "fa-solid fa-folder-open", command: () => directService.view() },
     { label: "Creator", icon: "fa-solid fa-circle-plus", command: () => directService.create() },
-    { label: "UPRN", icon: "fa-regular fa-address-book", command: () => directService.uprn() }
+    { label: "UPRN", icon: "fa-regular fa-address-book", command: () => directService.uprn() },
+    { label: "Queries", icon: "fa-solid fa-list-check", command: () => directService.queryQueue() }
     // TODO add when query builder is ready { label: "Query", icon: "fa-solid fa-clipboard-question", command: () => directService.query() }
   ];
 }

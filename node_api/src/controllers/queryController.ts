@@ -101,8 +101,8 @@ export default class QueryController {
         .catch(next)
     );
 
-    this.router.get("/killQuery", this.auth.secure("IMAdmin"), (req, res, next) =>
-      this.killQuery(req)
+    this.router.get("/stopQuery", this.auth.secure("IMAdmin"), (req, res, next) =>
+      this.stopQuery(req)
         .then(data => res.send(data))
         .catch(next)
     );
@@ -184,9 +184,9 @@ export default class QueryController {
     return await this.queryService.listQueries(user!);
   }
 
-  async killQuery(req: Request) {
+  async stopQuery(req: Request) {
     const user = await this.auth.getUser(req);
-    return await this.queryService.killQuery(req.query.queueId as string, user!);
+    return await this.queryService.stopQuery(req.query.queueId as string, user!);
   }
 
   async deleteFromQueue(req: Request) {

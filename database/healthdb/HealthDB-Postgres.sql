@@ -15,7 +15,7 @@ CREATE TABLE query_queue (
     started TIMESTAMP,
     pid INT,                    -- Internal (postgres) process ID (for killing)
     finished TIMESTAMP,
-    killed TIMESTAMP,
+    stopped TIMESTAMP,
     status TEXT
 );
 

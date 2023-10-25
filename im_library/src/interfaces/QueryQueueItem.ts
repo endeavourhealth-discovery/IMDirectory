@@ -4,7 +4,7 @@ export interface QueryQueueItem {
   queued: string;
   started: string;
   finished: string;
-  killed: string;
+  stopped: string;
   time: string;
   status: string;
   pid: number;
