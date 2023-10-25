@@ -41,10 +41,10 @@ const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.
 const AddressFileDownload = () => import("@/components/uprn/AddressFileDownload.vue");
 const Query = () => import("@/views/Query.vue");
 const UprnAgreement = () => import("@/views/UprnAgreement.vue");
-import { EntityService, Env } from "@/services";
+import { EntityService, Env, UserService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 
-import { nextTick } from "vue";
+import { nextTick, computed } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
@@ -204,7 +204,8 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       requiresAuth: true,
       requiresLicense: true,
-      requiresEditRole: true
+      requiresEditRole: true,
+      requiresOrganisation: true
     },
     children: []
   },
@@ -289,7 +290,7 @@ const routes: Array<RouteRecordRaw> = [
     component: UprnAgreement
   },
   {
-    path: "/401/:requiredRole?",
+    path: "/401/:requiredAccess?:accessType?",
     name: "AccessDenied",
     component: AccessDenied,
     props: true
@@ -367,10 +368,10 @@ router.beforeEach(async (to, from) => {
     if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
-        router.push({ name: "EntityNotFound", params: { iri: iri } });
+        await router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
     } catch (_error) {
-      router.push({ name: "EntityNotFound", params: { iri: iri } });
+      await router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
@@ -378,6 +379,7 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       await directToLogin();
+      return false;
     }
   }
 
@@ -385,6 +387,7 @@ router.beforeEach(async (to, from) => {
     if (from.name !== "Login" && from.name !== "MFALogin") {
       console.log("requires re-authentication");
       await directToLogin();
+      return false;
     }
   }
 
@@ -393,8 +396,9 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       await directToLogin();
+      return false;
     } else if (!userStore.currentUser?.roles?.includes("create")) {
-      router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
+      await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
     }
   }
 
@@ -403,8 +407,9 @@ router.beforeEach(async (to, from) => {
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
       await directToLogin();
+      return false;
     } else if (!userStore.currentUser?.roles?.includes("edit")) {
-      router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
+      await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
     }
   }
 
@@ -416,16 +421,24 @@ router.beforeEach(async (to, from) => {
     console.log("uprn agreement accepted: " + userStore.uprnAgreementAccepted);
   }
 
+  if (to.matched.some((record: any) => record.meta.requiresOrganisation)) {
+    let isEditAllowed = false;
+    if (userStore.isLoggedIn) isEditAllowed = await UserService.canUserEdit(iri as string);
+    if (!isEditAllowed) {
+      await router.push({ name: "AccessDenied", params: { requiredAccess: iri.slice(0, iri.indexOf("#") + 1), accessType: "organisation" } });
+    }
+  }
+
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {
-    router.push({ name: "Creator" });
+    await router.push({ name: "Creator" });
   }
   if (to.name === "PageNotFound" && to.path.startsWith("/editor/")) {
     const urlSections = to.path.split("/");
     if (urlSections.length > 2) {
       const selectedIriParam = to.path.split("/")[2];
-      if (!selectedIriParam) router.push({ name: "EntityNotFound", params: { iri: selectedIriParam } });
-      else router.push({ name: "Editor", params: { selectedIri: urlToIri(selectedIriParam) } });
-    } else router.push({ name: "Editor" });
+      if (!selectedIriParam) await router.push({ name: "EntityNotFound", params: { iri: selectedIriParam } });
+      else await router.push({ name: "Editor", params: { selectedIri: urlToIri(selectedIriParam) } });
+    } else await router.push({ name: "Editor" });
   }
 
   if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
@@ -433,10 +446,10 @@ router.beforeEach(async (to, from) => {
     try {
       new URL(iri);
       if (!(await EntityService.iriExists(iri))) {
-        router.push({ name: "EntityNotFound", params: { iri: iri } });
+        await router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
     } catch (_error) {
-      router.push({ name: "EntityNotFound", params: { iri: iri } });
+      await router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
   }
 

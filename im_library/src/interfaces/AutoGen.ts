@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-09-14 11:54:55.
+// Generated using typescript-generator version 3.2.1263 on 2023-10-09 16:15:28.
 
 /**
  * Structure containing search request parameters and filters
@@ -59,10 +59,10 @@ export interface SearchResponse {
 }
 
 export interface ArrayButtons {
-    plus?: boolean;
-    minus?: boolean;
     up?: boolean;
     down?: boolean;
+    plus?: boolean;
+    minus?: boolean;
     addOnlyIfLast?: boolean;
 }
 
@@ -188,9 +188,9 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
+    relativeTo?: PropertyRef;
     operator?: Operator;
     dataType?: TTIriRef;
-    relativeTo?: PropertyRef;
     unit?: string;
 }
 

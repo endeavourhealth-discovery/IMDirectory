@@ -1,6 +1,6 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
+import { AllowableChildProperty, AliasEntity, QueryResponse } from "@im-library/interfaces";
 import axios from "axios";
 import { PathDocument, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
@@ -29,7 +29,7 @@ const QueryService = {
     });
   },
 
-  async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<{ entities: any[]; "@context": any }> {
+  async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
     if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal, raw: raw });
     else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
   },
@@ -125,6 +125,18 @@ const QueryService = {
 
   async getDataModelProperty(dataModelIri: string, propertyIri: string) {
     return axios.get(Env.VITE_NODE_API + "node_api/query/public/dataModelProperty", { params: { dataModelIri: dataModelIri, propertyIri: propertyIri } });
+  },
+
+  async generateQuerySQL(queryIri: string): Promise<string> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", { params: { queryIri: queryIri } });
+  },
+
+  async generateQuerySQLfromQuery(query: Query): Promise<string> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", query);
+  },
+
+  async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<string> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/selection/validate", { iri: selectedIri, queryRequest: queryRequest });
   }
 };
 

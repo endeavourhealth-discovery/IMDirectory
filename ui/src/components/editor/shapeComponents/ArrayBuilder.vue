@@ -80,18 +80,18 @@ if (forceValidation) {
   });
 }
 
-if (valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
       if (updateValidity) {
         if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
-      invalid.value = false;
-      validationErrorMessage.value = undefined
-    } else {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-        showValidation.value = true;
-    }
+          invalid.value = false;
+          validationErrorMessage.value = undefined;
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          showValidation.value = true;
+        }
       }
     }
   );
@@ -109,10 +109,10 @@ onMounted(async () => {
   if (updateValidity) {
     if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
       invalid.value = false;
-      validationErrorMessage.value = undefined
+      validationErrorMessage.value = undefined;
     } else {
-    await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-    showValidation.value = false;
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      showValidation.value = true;
     }
   }
 });
@@ -130,12 +130,12 @@ watch(
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
       if (updateValidity) {
         if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
-      invalid.value = false;
-      validationErrorMessage.value = undefined
-    } else {
-        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-        showValidation.value = true;
-    }
+          invalid.value = false;
+          validationErrorMessage.value = undefined;
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          showValidation.value = true;
+        }
       }
       updateValueVariableMap(props.value);
     }
@@ -269,7 +269,8 @@ function updateEntity() {
   const value = generateBuildAsJson();
   const result = {} as any;
   result[key] = value;
-  if (entityUpdate && value.length) entityUpdate(result);
+  if (!value.length && deleteEntityKey) deleteEntityKey(key);
+  else if (entityUpdate) entityUpdate(result);
 }
 
 function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {

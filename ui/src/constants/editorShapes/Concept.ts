@@ -72,16 +72,17 @@ const ConceptShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                "@id": IM.component.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
+                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+              },
+              validation: { "@id": IM.validation.IS_IRI }
             },
             {
               comment: "Property that derives a concept code from the concept iri",
-              order: 3,
+              order: 4,
               name: "Code",
               showTitle: true,
               maxCount: 1,
@@ -111,7 +112,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "name or main term of concept",
-              order: 4,
+              order: 5,
               name: "Concept name",
               showTitle: true,
               maxCount: 1,
@@ -144,41 +145,84 @@ const ConceptShape: FormGenerator = {
               }
             },
             {
-              comment: "selects the status with a default of draft",
-              order: 6,
-              select: [
-                {
-                  "@id": IM.query.GET_DESCENDANTS
-                }
-              ],
               name: "Status",
+              order: 6,
+              path: { "@id": IM.HAS_STATUS },
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              validation: { "@id": IM.validation.IS_STATUS },
+              minCount: 1,
+              arrayButtons: { up: false, down: false, plus: false, minus: false },
+              property: [
+                {
+                  comment: "selects the status with a default of draft",
+                  order: 6,
+                  select: [
+                    {
+                      "@id": IM.query.GET_DESCENDANTS
+                    }
+                  ],
+                  name: "Status",
+                  showTitle: true,
+                  builderChild: true,
+                  maxCount: 1,
+                  path: {
+                    "@id": IM.HAS_STATUS
+                  },
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.STATUS
+                      },
+                      parameter: "this"
+                    }
+                  ],
+                  isIri: {
+                    "@id": IM.DRAFT
+                  },
+                  minCount: 1,
+                  componentType: {
+                    "@id": IM.component.ENTITY_DROPDOWN
+                  },
+                  forceIsValue: true
+                }
+              ]
+            },
+            {
+              comment: "optional im1id",
+              order: 7,
+              name: "IM1Id",
               showTitle: true,
               maxCount: 1,
               path: {
-                "@id": IM.HAS_STATUS
+                "@id": IM.IM_1_ID
               },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
-              minCount: 1,
+              minCount: 0,
               componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
+                "@id": IM.component.TEXT_DISPLAY
+              }
+            },
+            {
+              comment: "optional im1scheme",
+              order: 8,
+              function: {
+                "@id": IM.function.IM1SCHEME_OPTIONS
               },
-              forceIsValue: true
+              name: "IM1Scheme",
+              showTitle: true,
+              maxCount: 1,
+              path: {
+                "@id": IM.IM_1_SCHEME
+              },
+              minCount: 0,
+              componentType: {
+                "@id": IM.component.TEXT_DISPLAY
+              }
             },
             {
               label: "Contained in array builder",
-              name: "isContainedIn",
+              name: "Is contained in",
               showTitle: true,
-              order: 1,
+              order: 9,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -214,9 +258,9 @@ const ConceptShape: FormGenerator = {
             },
             {
               label: "Subclass of array builder",
-              name: "subclassOf",
+              name: "Subclass of",
               showTitle: true,
-              order: 1,
+              order: 10,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
@@ -248,7 +292,7 @@ const ConceptShape: FormGenerator = {
             },
             {
               comment: "Toggle controlling sub components visibility",
-              order: 8,
+              order: 11,
               name: "Replaced by",
               label: "Deactivate | Activate",
               minCount: 1,
@@ -360,29 +404,29 @@ const ConceptShape: FormGenerator = {
                   path: { "@id": IM.HAS_TERM_CODE },
                   builderChild: true,
                   order: 1,
-                  minCount:0,
+                  minCount: 0,
                   componentType: { "@id": IM.component.TERM_CODE_EDITOR },
                   validation: { "@id": IM.validation.IS_TERMCODE }
                 }
               ]
             },
             {
-              name:"Child of",
-              comment:"Child of array builder",
+              name: "Child of",
+              comment: "Child of array builder",
               order: 1,
-              path:{"@id":IM.IS_CHILD_OF},
-              showTitle:true,
-              minCount:0,
-              componentType:{"@id":IM.component.ARRAY_BUILDER},
-              arrayButtons:{plus:true,minus:true,up:false,down:false,addOnlyIfLast:true},
-              property:[
+              path: { "@id": IM.IS_CHILD_OF },
+              showTitle: true,
+              minCount: 0,
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              property: [
                 {
-                  name:"Child of",
-                  path:{"@id":IM.IS_CHILD_OF},
-                  builderChild:true,
-                  order:1,
-                  minCount:0,
-                  componentType:{"@id":IM.component.ENTITY_SEARCH}
+                  name: "Child of",
+                  path: { "@id": IM.IS_CHILD_OF },
+                  builderChild: true,
+                  order: 1,
+                  minCount: 0,
+                  componentType: { "@id": IM.component.ENTITY_SEARCH }
                 }
               ]
             }

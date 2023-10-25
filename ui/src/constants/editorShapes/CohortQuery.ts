@@ -76,12 +76,13 @@ const CohortQueryShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                "@id": IM.component.IRI_BUILDER
               },
               valueVariable: "conceptIri",
               function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
+                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+              },
+              validation: { "@id": IM.validation.IS_IRI }
             },
 
             {
@@ -119,42 +120,54 @@ const CohortQueryShape: FormGenerator = {
               }
             },
             {
-              comment: "selects the status with a default of draft",
-              order: 5,
-              select: [
-                {
-                  "@id": IM.query.GET_DESCENDANTS
-                }
-              ],
               name: "Status",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
+              order: 6,
+              path: { "@id": IM.HAS_STATUS },
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              validation: { "@id": IM.validation.IS_STATUS },
               minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
+              arrayButtons: { up: false, down: false, plus: false, minus: false },
+              property: [
+                {
+                  comment: "selects the status with a default of draft",
+                  order: 6,
+                  select: [
+                    {
+                      "@id": IM.query.GET_DESCENDANTS
+                    }
+                  ],
+                  name: "Status",
+                  showTitle: true,
+                  builderChild: true,
+                  maxCount: 1,
+                  path: {
+                    "@id": IM.HAS_STATUS
+                  },
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.STATUS
+                      },
+                      parameter: "this"
+                    }
+                  ],
+                  isIri: {
+                    "@id": IM.DRAFT
+                  },
+                  minCount: 1,
+                  componentType: {
+                    "@id": IM.component.ENTITY_DROPDOWN
+                  },
+                  forceIsValue: true
+                }
+              ]
             },
             {
               label: "Property group - contained in array builder",
-              name: "isContainedIn",
+              name: "Is contained in",
               showTitle: true,
               order: 6,
-              minCount: 1,
+              minCount: 0,
               componentType: {
                 "@id": IM.component.ARRAY_BUILDER
               },
@@ -171,7 +184,7 @@ const CohortQueryShape: FormGenerator = {
                   comment: "selects an entity based on select query",
                   name: "Entity",
                   order: 1,
-                  minCount: 1,
+                  minCount: 0,
                   builderChild: true,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH

@@ -1,8 +1,8 @@
 import { beforeAll, afterAll, afterEach, it, expect, beforeEach, describe } from "vitest";
 import { setupServer } from "msw/node";
 
-const restHandlers = [];
-const server = setupServer(...restHandlers);
+const restHandlers: any[] = [];
+export const server = setupServer(...restHandlers);
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: "error" });

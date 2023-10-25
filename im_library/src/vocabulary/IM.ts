@@ -26,12 +26,14 @@ export class IM {
   public static DEFINITION = IM.NAMESPACE + "definition";
   public static USAGE_STATS = IM.NAMESPACE + "usageStats";
   public static HAS_TERM_CODE = IM.NAMESPACE + "hasTermCode";
+  public static CONTENT_TYPE = IM.NAMESPACE + "contentType";
   public static ORDER = IM.NAMESPACE + "order";
   public static HAS_SUBSET = IM.NAMESPACE + "hasSubset";
   public static IS_SUBSET_OF = IM.NAMESPACE + "isSubsetOf";
   public static WEIGHTING = IM.NAMESPACE + "weighting";
   public static VERSION = IM.NAMESPACE + "version";
   public static FUNCTION = IM.NAMESPACE + "function";
+  public static GRAPH = IM.NAMESPACE + "Graph";
 
   // task
   public static IN_TASK = IM.NAMESPACE + "inTask";
@@ -65,6 +67,7 @@ export class IM {
   public static CONTEXT_NODE = IM.NAMESPACE + "contextNode";
   public static TARGET_PROPERTY = IM.NAMESPACE + "targetProperty";
 
+  public static ENTITY = IM.NAMESPACE + "Entity";
   public static QUERY_SET = IM.NAMESPACE + "QuerySet";
   public static QUERY_TEMPLATE = IM.NAMESPACE + "QueryTemplate";
   public static HAS_MEMBER = IM.NAMESPACE + "hasMember";
@@ -129,10 +132,6 @@ export class IM {
   // graph
   public static GROUP_NUMBER = IM.NAMESPACE + "groupNumber";
 
-  //shapes
-  public static CONCEPT_SHAPE = IM.NAMESPACE + "ConceptShape";
-  public static PROPERTY_SHAPE = IM.NAMESPACE + "PropertyShape";
-
   //argument options
   public static VALUE_DATA = IM.NAMESPACE + "valueData";
   public static VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
@@ -161,6 +160,11 @@ export class IM {
 
   // Config
   public static HAS_CONFIG = IM.NAMESPACE + "hasConfig";
+
+  // Main folders
+  public static FOLDER_VALUESETS = IM.NAMESPACE + "ValueSets";
+  public static FOLDER_SETS = IM.NAMESPACE + "Sets";
+  public static FOLDER_QUERY_CONCEPT_SETS = IM.NAMESPACE + "QueryConceptSets";
 
   // SUB VOCABULARIES
   public static component = componentVocabulary;

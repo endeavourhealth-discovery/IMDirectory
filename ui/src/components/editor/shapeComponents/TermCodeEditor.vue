@@ -48,6 +48,7 @@ watch(
 );
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
@@ -67,7 +68,7 @@ if (forceValidation) {
   });
 }
 
-if (valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
@@ -111,7 +112,11 @@ onMounted(() => {
 function processProps() {
   if (props.value) {
     if (isObjectHasKeys(props.value, [IM.CODE])) code.value = props.value[IM.CODE];
-    if (isObjectHasKeys(props.value, [IM.HAS_STATUS]) && isArrayHasLength(props.value[IM.HAS_STATUS])) {
+    if (
+      isObjectHasKeys(props.value, [IM.HAS_STATUS]) &&
+      isArrayHasLength(props.value[IM.HAS_STATUS]) &&
+      isObjectHasKeys(props.value[IM.HAS_STATUS][0], ["@id"])
+    ) {
       if (statusOptions.value.findIndex(so => so["@id"] === props.value[IM.HAS_STATUS][0]["@id"]) != -1) status.value = props.value[IM.HAS_STATUS][0];
     }
     if (isObjectHasKeys(props.value, [RDFS.LABEL])) name.value = props.value[RDFS.LABEL];
@@ -121,6 +126,9 @@ function processProps() {
 function isValidTermCode() {
   invalid.value = false;
   validationErrorMessage.value = "";
+  if (props.shape.builderChild && props.position === 0 && !name.value && !code.value && !status.value) {
+    return;
+  }
   if (props.shape.minCount === 0 && !name.value && !code.value && !status.value) return;
   if (!name.value) {
     invalid.value = true;
@@ -145,7 +153,8 @@ function updateEntity() {
     newTermCode[RDFS.LABEL] = name.value;
     const result = {} as any;
     result[props.shape.path["@id"]] = newTermCode;
-    if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
+    if (!code.value && !status.value && !name.value && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(props.shape.path["@id"]);
+    else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
     else emit("updateClicked", newTermCode);
   }
 }
@@ -175,6 +184,7 @@ function updateEntity() {
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
+  height: 2.7rem;
 }
 
 .invalid {

@@ -85,11 +85,12 @@ const ValueSetShape: FormGenerator = {
               },
               minCount: 1,
               componentType: {
-                "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+                "@id": IM.component.IRI_BUILDER
               },
               function: {
-                "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-              }
+                "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+              },
+              validation: { "@id": IM.validation.IS_IRI }
             },
             {
               comment: "name or main term of concept",
@@ -126,35 +127,47 @@ const ValueSetShape: FormGenerator = {
               }
             },
             {
-              comment: "selects the status with a default of draft",
-              order: 5,
-              select: [
-                {
-                  "@id": IM.query.GET_DESCENDANTS
-                }
-              ],
               name: "Status",
-              showTitle: true,
-              maxCount: 1,
-              path: {
-                "@id": IM.HAS_STATUS
-              },
-              argument: [
-                {
-                  valueIri: {
-                    "@id": IM.STATUS
-                  },
-                  parameter: "this"
-                }
-              ],
-              isIri: {
-                "@id": IM.DRAFT
-              },
+              order: 6,
+              path: { "@id": IM.HAS_STATUS },
+              componentType: { "@id": IM.component.ARRAY_BUILDER },
+              validation: { "@id": IM.validation.IS_STATUS },
               minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_DROPDOWN
-              },
-              forceIsValue: true
+              arrayButtons: { up: false, down: false, plus: false, minus: false },
+              property: [
+                {
+                  comment: "selects the status with a default of draft",
+                  order: 6,
+                  select: [
+                    {
+                      "@id": IM.query.GET_DESCENDANTS
+                    }
+                  ],
+                  name: "Status",
+                  showTitle: true,
+                  builderChild: true,
+                  maxCount: 1,
+                  path: {
+                    "@id": IM.HAS_STATUS
+                  },
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.STATUS
+                      },
+                      parameter: "this"
+                    }
+                  ],
+                  isIri: {
+                    "@id": IM.DRAFT
+                  },
+                  minCount: 1,
+                  componentType: {
+                    "@id": IM.component.ENTITY_DROPDOWN
+                  },
+                  forceIsValue: true
+                }
+              ]
             },
             {
               label: "Property group - Sub type array builder",
@@ -243,48 +256,6 @@ const ValueSetShape: FormGenerator = {
                 "@id": IM.component.ARRAY_BUILDER
               },
               arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
-            },
-            {
-              comment: "Toggle controlling sub components visibility",
-              order: 6,
-              name: "Replaced by",
-              label: "Deactivate | Activate",
-              minCount: 1,
-              maxCount: 1,
-              path: {
-                "@id": "http://snomed.info/sct#370124000"
-              },
-              componentType: {
-                "@id": IM.component.TOGGLEABLE
-              },
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_ENTITIES
-                    }
-                  ],
-                  argument: [
-                    {
-                      parameter: "this",
-                      valueIri: {
-                        "@id": IM.VALUE_SET
-                      }
-                    }
-                  ],
-                  name: "Replaced by",
-                  showTitle: true,
-                  path: {
-                    "@id": "http://snomed.info/sct#370124000"
-                  },
-                  minCount: 1,
-                  componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  }
-                }
-              ]
             }
           ]
         },

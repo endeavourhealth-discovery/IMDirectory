@@ -42,7 +42,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const emit = defineEmits({ updateClicked: (_payload: TTIriRef[]) => true });
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
@@ -64,7 +67,7 @@ if (forceValidation) {
   });
 }
 
-if (valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
@@ -136,7 +139,9 @@ function combineSelectedAndFixed(selected: TTIriRef[], fixed: TTIriRef) {
 }
 
 async function updateAll(selected: TTIriRef[]) {
-  updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
+  if (!selected && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  else if (!props.shape.builderChild) updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
+  else emit("updateClicked", selected);
   updateValueVariableMap(combineSelectedAndFixed(selected, fixedOption.value));
   if (updateValidity) {
     if (props.shape.builderChild) {

@@ -186,7 +186,7 @@ export default {
         minCount: 1,
         maxCount: 1,
         path: {
-          name: "subClassOf",
+          name: "Subclass of",
           "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
         },
         componentType: {
@@ -208,7 +208,7 @@ export default {
                   "@id": "http://endhealth.info/im#entitySearch"
                 },
                 path: {
-                  name: "subClassOf",
+                  name: "Subclass of",
                   "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
                 },
                 select: [
@@ -224,7 +224,7 @@ export default {
               "@id": "http://endhealth.info/im#arrayBuilder"
             },
             path: {
-              name: "subClassOf",
+              name: "Subclass of",
               "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
             },
             validation: {
@@ -241,7 +241,7 @@ export default {
         minCount: 1,
         maxCount: 1,
         path: {
-          name: "is Contained In",
+          name: "Is Contained In",
           "@id": "http://endhealth.info/im#isContainedIn"
         },
         componentType: {
@@ -263,7 +263,7 @@ export default {
                   "@id": "http://endhealth.info/im#entitySearch"
                 },
                 path: {
-                  name: "is Contained In",
+                  name: "Is Contained In",
                   "@id": "http://endhealth.info/im#isContainedIn"
                 },
                 select: [
@@ -279,7 +279,7 @@ export default {
               "@id": "http://endhealth.info/im#arrayBuilder"
             },
             path: {
-              name: "is Contained In",
+              name: "Is Contained In",
               "@id": "http://endhealth.info/im#isContainedIn"
             },
             validation: {
@@ -582,7 +582,7 @@ export default {
         minCount: 1,
         maxCount: 0,
         path: {
-          name: "subClassOf",
+          name: "Subclass of",
           "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
         },
         componentType: {
@@ -604,7 +604,7 @@ export default {
                   "@id": "http://endhealth.info/im#entitySearch"
                 },
                 path: {
-                  name: "subClassOf",
+                  name: "Subclass of",
                   "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
                 },
                 select: [
@@ -620,7 +620,7 @@ export default {
               "@id": "http://endhealth.info/im#arrayBuilder"
             },
             path: {
-              name: "subClassOf",
+              name: "Subclass of",
               "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf"
             },
             validation: {
@@ -646,7 +646,7 @@ export default {
         property: [
           {
             label: "Property group - contained in array builder",
-            name: "isContainedIn",
+            name: "Is contained in",
             order: 1,
             minCount: 1,
             property: [

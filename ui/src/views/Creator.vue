@@ -8,12 +8,6 @@
       </template>
     </TopBar>
     <ConfirmDialog />
-    <TestQueryResults
-      v-if="showTestQueryResults"
-      :showDialog="showTestQueryResults"
-      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
-      @close-dialog="showTestQueryResults = false"
-    />
     <div id="creator-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">
@@ -37,7 +31,6 @@
           />
         </div>
         <div class="button-bar" id="creator-button-bar">
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
           <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
         </div>
       </div>
@@ -67,6 +60,7 @@ import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
+import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
@@ -93,7 +87,6 @@ export default defineComponent({
 <script setup lang="ts">
 import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
-import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import _ from "lodash";
@@ -133,7 +126,6 @@ const directService = new DirectService();
 const currentUser = computed(() => userStore.currentUser).value;
 const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
-const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
@@ -178,7 +170,6 @@ const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
 const targetShape: Ref<TTIriRef | undefined> = ref();
-const showTestQueryResults: Ref<boolean> = ref(false);
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
 
@@ -193,6 +184,7 @@ provide(injectionKeys.forceValidation, {
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus
 });
+provide(injectionKeys.fullShape, shape);
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", beforeWindowUnload);
@@ -380,10 +372,6 @@ function submit(): void {
     });
 }
 
-function testQuery() {
-  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
-}
-
 function refreshCreator() {
   Swal.fire({
     icon: "warning",
@@ -411,6 +399,20 @@ function processEntityValue(property: PropertyShape) {
   return undefined;
 }
 </script>
+
+<style>
+.p-dropdown-label {
+  font-size: 1rem;
+}
+
+.p-dropdown {
+  height: 2.7rem;
+}
+
+.p-inputtext {
+  font-size: 1rem;
+}
+</style>
 
 <style scoped>
 #topbar-creator-container {

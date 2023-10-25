@@ -62,12 +62,13 @@ const PropertyShape: FormGenerator = {
           },
           minCount: 1,
           componentType: {
-            "@id": IM.component.DROPDOWN_TEXT_INPUT_CONCATENATOR
+            "@id": IM.component.IRI_BUILDER
           },
           valueVariable: "propertyIri",
           function: {
-            "@id": IM.function.GET_SET_EDITOR_IRI_SCHEMES
-          }
+            "@id": IM.function.GET_USER_EDITABLE_SCHEMES
+          },
+          validation: { "@id": IM.validation.IS_IRI }
         },
         {
           comment: "Property that derives an entity code from the entity iri",
@@ -134,35 +135,47 @@ const PropertyShape: FormGenerator = {
           }
         },
         {
-          comment: "selects the status with a default of draft",
-          order: 6,
-          select: [
-            {
-              "@id": IM.query.GET_DESCENDANTS
-            }
-          ],
           name: "Status",
-          showTitle: true,
-          maxCount: 1,
-          path: {
-            "@id": IM.HAS_STATUS
-          },
-          argument: [
-            {
-              valueIri: {
-                "@id": IM.STATUS
-              },
-              parameter: "this"
-            }
-          ],
-          isIri: {
-            "@id": IM.DRAFT
-          },
+          order: 6,
+          path: { "@id": IM.HAS_STATUS },
+          componentType: { "@id": IM.component.ARRAY_BUILDER },
+          validation: { "@id": IM.validation.IS_STATUS },
           minCount: 1,
-          componentType: {
-            "@id": IM.component.ENTITY_DROPDOWN
-          },
-          forceIsValue: true
+          arrayButtons: { up: false, down: false, plus: false, minus: false },
+          property: [
+            {
+              comment: "selects the status with a default of draft",
+              order: 6,
+              select: [
+                {
+                  "@id": IM.query.GET_DESCENDANTS
+                }
+              ],
+              name: "Status",
+              showTitle: true,
+              builderChild: true,
+              maxCount: 1,
+              path: {
+                "@id": IM.HAS_STATUS
+              },
+              argument: [
+                {
+                  valueIri: {
+                    "@id": IM.STATUS
+                  },
+                  parameter: "this"
+                }
+              ],
+              isIri: {
+                "@id": IM.DRAFT
+              },
+              minCount: 1,
+              componentType: {
+                "@id": IM.component.ENTITY_DROPDOWN
+              },
+              forceIsValue: true
+            }
+          ]
         },
         {
           label: "Property group - Sub type array builder",
@@ -216,6 +229,10 @@ const PropertyShape: FormGenerator = {
           path: {
             "@id": IM.IS_CONTAINED_IN
           },
+          validation: {
+            "@id": IM.validation.HAS_PARENT
+          },
+          validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
           property: [
             {
               comment: "selects an entity based on select query",
@@ -251,48 +268,6 @@ const PropertyShape: FormGenerator = {
             "@id": IM.component.ARRAY_BUILDER
           },
           arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
-        },
-        {
-          comment: "Toggle controlling sub components visibility",
-          order: 7,
-          name: "Replaced by",
-          showTitle: true,
-          label: "Deactivate | Activate",
-          minCount: 1,
-          maxCount: 1,
-          path: {
-            "@id": "http://snomed.info/sct#370124000"
-          },
-          componentType: {
-            "@id": IM.component.TOGGLEABLE
-          },
-          property: [
-            {
-              comment: "selects an entity based on select query",
-              order: 1,
-              select: [
-                {
-                  "@id": IM.query.SEARCH_ENTITIES
-                }
-              ],
-              argument: [
-                {
-                  parameter: "this",
-                  valueIri: {
-                    "@id": RDF.PROPERTY
-                  }
-                }
-              ],
-              name: "Replaced by",
-              path: {
-                "@id": "http://snomed.info/sct#370124000"
-              },
-              minCount: 1,
-              componentType: {
-                "@id": IM.component.ENTITY_SEARCH
-              }
-            }
-          ]
         }
       ]
     }

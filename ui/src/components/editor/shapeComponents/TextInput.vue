@@ -34,7 +34,10 @@ const props = withDefaults(defineProps<Props>(), {
   value: ""
 });
 
+const emit = defineEmits({ updateClicked: (_payload: string) => true });
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
@@ -56,7 +59,7 @@ if (forceValidation) {
   });
 }
 
-if (valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
@@ -89,7 +92,8 @@ watch(
   }
 );
 watch(userInput, async newValue => {
-  updateEntity(newValue);
+  if (!props.shape.builderChild) updateEntity(newValue);
+  else emit("updateClicked", newValue);
   updateValueVariableMap(newValue);
   if (updateValidity) {
     if (props.shape.builderChild) {
@@ -104,7 +108,9 @@ watch(userInput, async newValue => {
 function updateEntity(data: string) {
   const result = {} as any;
   result[key] = data;
-  if (entityUpdate) entityUpdate(result);
+  if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
+  else emit("updateClicked", data);
 }
 
 function updateValueVariableMap(data: string) {

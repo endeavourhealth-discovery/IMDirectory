@@ -23,6 +23,9 @@ import RoleGroupBuilder from "./RoleGroupBuilder.vue";
 import TermCodeEditor from "./TermCodeEditor.vue";
 import { defineComponent } from "vue";
 import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
+import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
+import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
+import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
 
 export default defineComponent({
   components: {
@@ -39,7 +42,10 @@ export default defineComponent({
     DropdownTextInputConcatenator,
     RoleGroupBuilder,
     PropertyBuilder,
-    TermCodeEditor
+    TermCodeEditor,
+    TextDropdown,
+    EntityDisplay,
+    IriBuilder
   }
 });
 </script>

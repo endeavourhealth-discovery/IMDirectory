@@ -159,7 +159,7 @@ const EntityService = {
 
   async getFilterOptions(): Promise<FilterOptions> {
     let schemeOptions: TTIriRef[] = [];
-    const schemeResults = await this.getEntityChildren(IM.NAMESPACE + "Graph");
+    const schemeResults = await this.getEntityChildren(IM.GRAPH);
     if (isArrayHasLength(schemeResults)) {
       schemeOptions = schemeResults.map(option => {
         return { "@id": option["@id"], name: option.name } as TTIriRef;
@@ -476,7 +476,7 @@ const EntityService = {
     return EntityService.advancedSearch(searchRequest, abortController);
   },
 
-  async hasPredicates(subjectIri: string, predicateIris: string[]) {
+  async hasPredicates(subjectIri: string, predicateIris: string[]): Promise<boolean> {
     return axios.get(api + "api/entity/public/hasPredicates", {
       params: { subjectIri: subjectIri, predicateIris: predicateIris.join(",") }
     });

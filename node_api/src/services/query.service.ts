@@ -2,7 +2,7 @@ import Env from "@/services/env.service";
 import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, EclSearchRequest } from "@im-library/interfaces";
+import { AliasEntity, EclSearchRequest, QueryResponse } from "@im-library/interfaces";
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
@@ -11,6 +11,7 @@ import EntityService from "./entity.service";
 import { describeQuery, getUnnamedObjects } from "@im-library/helpers/QueryDescriptor";
 import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import IMQtoSQL from "@/logic/IMQtoSQL";
 
 export default class QueryService {
   axios: any;
@@ -25,7 +26,7 @@ export default class QueryService {
     this.entityService = new EntityService(axios);
   }
 
-  public async queryIM(query: QueryRequest, controller?: AbortController) {
+  public async queryIM(query: QueryRequest, controller?: AbortController): Promise<QueryResponse> {
     const response = await this.axios.post(Env.API + "api/query/public/queryIM", query);
     return response.data;
   }
@@ -324,5 +325,27 @@ export default class QueryService {
     if (isObjectHasKeys(results, ["entities"]) && results.entities.length !== 0) {
       return results.entities;
     } else return [];
+  }
+
+  public async generateQuerySQL(queryIri: string) {
+    const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
+    if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
+      return {};
+    }
+    const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
+    return IMQtoSQL(query);
+  }
+
+  public async generateQuerySQLfromQuery(query: Query) {
+    return IMQtoSQL(query);
+  }
+
+  public async validateSelectionWithQuery(iri: string, queryRequest: QueryRequest) {
+    const queryResponse = await this.queryIM(queryRequest);
+    return (
+      isObjectHasKeys(queryResponse, ["entities"]) &&
+      isArrayHasLength(queryResponse.entities) &&
+      queryResponse.entities.some((entity: any) => entity["@id"] === iri)
+    );
   }
 }

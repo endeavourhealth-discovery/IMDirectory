@@ -12,7 +12,7 @@
         @drop="dropReceived"
         :class="invalid && showValidation && 'invalid'"
       >
-        {{ selectedResult.name ?? "Search..." }}
+        <div class="selected-label">{{ selectedResult.name ?? "Search..." }}</div>
       </div>
       <DirectorySearchDialog v-model:show-dialog="showDialog" v-model:selected="selectedResult" :search-by-query="queryRequest" />
     </div>
@@ -21,24 +21,22 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, watch, onMounted, ref, Ref, inject } from "vue";
-import SearchMiniOverlay from "@/components/editor/shapeComponents/SearchMiniOverlay.vue";
+import { watch, onMounted, ref, Ref, inject } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import _ from "lodash";
 import { ConceptSummary } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { EditorMode } from "@im-library/enums";
-import { isObjectHasKeys, isObject, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { EditorMode, ToastSeverity } from "@im-library/enums";
+import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { processArguments } from "@im-library/helpers/EditorMethods";
-import { mapToObject } from "@im-library/helpers/Transforms";
 import { QueryService, EntityService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { useEditorStore } from "@/stores/editorStore";
+import { useToast } from "primevue/usetoast";
 
+const toast = useToast();
 const editorStore = useEditorStore();
 
 interface Props {
@@ -51,10 +49,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits({
-  updateClicked: (_payload: TTIriRef) => true
+  updateClicked: (_payload: TTIriRef | undefined) => true
 });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
@@ -76,7 +75,7 @@ if (forceValidation) {
   });
 }
 
-if (valueVariableMap) {
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
     async () => {
@@ -84,7 +83,7 @@ if (valueVariableMap) {
         if (props.shape.builderChild) {
           hasData();
         } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key.value, invalid, validationErrorMessage);
         }
         showValidation.value = true;
       }
@@ -105,7 +104,6 @@ onMounted(async () => {
 
 const loading = ref(false);
 const selectedResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const label = ref("");
 const key = ref("");
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -125,24 +123,27 @@ async function init() {
   if (isObjectHasKeys(props.shape, ["argument"]) && isArrayHasLength(props.shape.argument) && props.shape.argument && queryRequest.value !== undefined) {
     queryRequest.value.argument = props.shape.argument;
   }
-  if (props.value && isObjectHasKeys(props.value, ["name", "@id"])) {
+  if (props.value && isObjectHasKeys(props.value)) {
     updateSelectedResult(props.value);
   } else {
     selectedResult.value = {} as ConceptSummary;
   }
-  label.value = props.shape.name as string;
 }
 
-function convertToTTIriRef(data: ConceptSummary): TTIriRef {
-  return { "@id": data.iri, name: data.name } as TTIriRef;
+function convertToTTIriRef(data: ConceptSummary): TTIriRef | undefined {
+  if (data.iri && data.name) return { "@id": data.iri, name: data.name } as TTIriRef;
+  else return undefined;
 }
 
 async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
   if (!isObjectHasKeys(data)) {
     selectedResult.value = {} as ConceptSummary;
+  } else if (isObjectHasKeys(data, ["@id"]) && !isObjectHasKeys(data, ["name"]) && (data as TTIriRef)["@id"]) {
+    const asSummary = await EntityService.getEntitySummary((data as TTIriRef)["@id"]);
+    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
   } else if (isTTIriRef(data)) {
     const asSummary = await EntityService.getEntitySummary(data["@id"]);
-    selectedResult.value = asSummary ?? ({} as ConceptSummary);
+    selectedResult.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
   } else {
     selectedResult.value = data;
   }
@@ -165,10 +166,11 @@ async function updateSelectedResult(data: ConceptSummary | TTIriRef) {
 function updateEntity() {
   const result = {} as any;
   result[key.value] = convertToTTIriRef(selectedResult.value);
-  if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
+  if (!result[key.value] && deleteEntityKey) deleteEntityKey(key.value);
+  else if (entityUpdate && !props.shape.builderChild) entityUpdate(result);
 }
 
-function updateValueVariableMap(data: TTIriRef) {
+function updateValueVariableMap(data: TTIriRef | undefined) {
   if (!props.shape.valueVariable) return;
   let mapKey = props.shape.valueVariable;
   if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
@@ -181,7 +183,17 @@ async function dropReceived(event: any) {
     const conceptIri = JSON.parse(data);
     const conceptName = (await EntityService.getPartialEntity(conceptIri, [RDFS.LABEL]))[RDFS.LABEL];
     const iriRef = { "@id": conceptIri, name: conceptName } as TTIriRef;
-    await updateSelectedResult(iriRef);
+    if (!queryRequest.value) await updateSelectedResult(iriRef);
+    else if (await QueryService.validateSelectionWithQuery(conceptIri, queryRequest.value)) {
+      await updateSelectedResult(iriRef);
+    } else {
+      toast.add({
+        severity: ToastSeverity.WARN,
+        summary: "Failed to set value",
+        detail: "'" + conceptName + "' is not a valid value for this field",
+        life: 3000
+      });
+    }
   }
 }
 
@@ -242,10 +254,18 @@ function hasData() {
   color: var(--text-color);
   background: var(--surface-a);
   border: 1px solid var(--surface-border);
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   appearance: none;
   border-radius: 3px;
   cursor: pointer;
+  height: 2.7rem;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
 }
 
 .validate-error {
@@ -256,5 +276,9 @@ function hasData() {
 
 .invalid {
   border: 1px solid var(--red-500);
+}
+
+.selected-label {
+  padding-left: 0.5rem;
 }
 </style>

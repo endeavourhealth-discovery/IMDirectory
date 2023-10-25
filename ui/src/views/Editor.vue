@@ -9,12 +9,6 @@
       </template>
     </TopBar>
     <ConfirmDialog></ConfirmDialog>
-    <TestQueryResults
-      v-if="showTestQueryResults"
-      :showDialog="showTestQueryResults"
-      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
-      @close-dialog="showTestQueryResults = false"
-    />
     <div id="editor-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">
@@ -39,8 +33,7 @@
           />
         </div>
         <div class="button-bar" id="editor-button-bar">
-          <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="router.go(-1)" data-testid="cancel-button" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
+          <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
           <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
         </div>
       </div>
@@ -68,6 +61,7 @@ import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
+import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
@@ -93,7 +87,6 @@ export default defineComponent({
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, onUnmounted, provide, ref, Ref, watch, nextTick } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
-import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useRouter, useRoute } from "vue-router";
@@ -167,7 +160,6 @@ function onShowSidebar() {
 
 const loading = ref(true);
 const showSidebar = ref(false);
-const showTestQueryResults: Ref<boolean> = ref(false);
 const forceValidation = ref(false);
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
@@ -180,6 +172,7 @@ provide(injectionKeys.forceValidation, {
   addPropertyToValidationCheckStatus,
   removeValidationCheckStatus
 });
+provide(injectionKeys.fullShape, shape);
 
 onMounted(async () => {
   loading.value = true;
@@ -204,7 +197,6 @@ watch(
 );
 
 const directService = new DirectService();
-const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
 
 function updateType(types: TTIriRef[]) {
   loading.value = true;
@@ -245,61 +237,75 @@ function submit(): void {
   forceValidation.value = true;
   validationChecksCompleted()
     .then(async res => {
-      forceValidation.value = false;
-      verificationDialog.close();
-      if (isValidEntity(editorEntity.value)) {
-        console.log("submit");
-        Swal.fire({
-          icon: "info",
-          title: "Confirm save",
-          text: "Are you sure you want to save your changes?",
-          showCancelButton: true,
-          confirmButtonText: "Save",
-          reverseButtons: true,
-          confirmButtonColor: "#2196F3",
-          cancelButtonColor: "#607D8B",
-          showLoaderOnConfirm: true,
-          allowOutsideClick: () => !Swal.isLoading(),
-          backdrop: true,
-          preConfirm: async () => {
-            const res = await EntityService.updateEntity(editorEntity.value);
-            if (res) {
-              editorStore.updateEditorSavedEntity(undefined);
-              return res;
-            } else Swal.showValidationMessage("Error saving entity to server.");
-          }
-        }).then(async (result: any) => {
-          if (result.isConfirmed) {
-            Swal.fire({
-              title: "Success",
-              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been updated.",
-              icon: "success",
-              showCancelButton: true,
-              reverseButtons: true,
-              confirmButtonText: "Open in Viewer",
-              confirmButtonColor: "#2196F3",
-              cancelButtonColor: "#607D8B"
-            }).then(async (result: any) => {
-              if (result.isConfirmed) {
-                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
-              } else {
-                await fetchEntity();
-              }
-            });
-          }
-        });
+      if (res) {
+        forceValidation.value = false;
+        verificationDialog.close();
+        if (isValidEntity(editorEntity.value)) {
+          console.log("submit");
+          Swal.fire({
+            icon: "info",
+            title: "Confirm save",
+            text: "Are you sure you want to save your changes?",
+            showCancelButton: true,
+            confirmButtonText: "Save",
+            reverseButtons: true,
+            confirmButtonColor: "#2196F3",
+            cancelButtonColor: "#607D8B",
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading(),
+            backdrop: true,
+            preConfirm: async () => {
+              const res = await EntityService.updateEntity(editorEntity.value);
+              if (res) {
+                editorStore.updateEditorSavedEntity(undefined);
+                return res;
+              } else Swal.showValidationMessage("Error saving entity to server.");
+            }
+          }).then(async (result: any) => {
+            if (result.isConfirmed) {
+              Swal.fire({
+                title: "Success",
+                text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been updated.",
+                icon: "success",
+                showCancelButton: true,
+                reverseButtons: true,
+                confirmButtonText: "Open in Viewer",
+                confirmButtonColor: "#2196F3",
+                cancelButtonColor: "#607D8B"
+              }).then(async (result: any) => {
+                if (result.isConfirmed) {
+                  directService.view(editorEntity.value["http://endhealth.info/im#id"]);
+                } else {
+                  await fetchEntity();
+                }
+              });
+            }
+          });
+        } else {
+          console.log("invalid entity");
+          Swal.fire({
+            icon: "warning",
+            title: "Warning",
+            text: "Invalid values found. Please review your entries.",
+            confirmButtonText: "Close",
+            confirmButtonColor: "#689F38"
+          });
+        }
       } else {
-        console.log("invalid entity");
+        forceValidation.value = false;
+        verificationDialog.close();
         Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "Invalid values found. Please review your entries.",
+          icon: "error",
+          title: "Timeout",
+          text: "Validation timed out. Please contact an admin for support.",
           confirmButtonText: "Close",
           confirmButtonColor: "#689F38"
         });
       }
     })
     .catch(err => {
+      forceValidation.value = false;
+      verificationDialog.close();
       Swal.fire({
         icon: "error",
         title: "Timeout",
@@ -308,10 +314,6 @@ function submit(): void {
         confirmButtonColor: "#689F38"
       });
     });
-}
-
-function testQuery() {
-  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
 }
 
 function refreshEditor() {
@@ -338,7 +340,27 @@ function processEntityValue(property: PropertyShape) {
   }
   return undefined;
 }
+
+function closeEditor() {
+  console.log(editorIri);
+  if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+  else router.go(-1);
+}
 </script>
+
+<style>
+.p-dropdown-label {
+  font-size: 1rem;
+}
+
+.p-dropdown {
+  height: 2.7rem;
+}
+
+.p-inputtext {
+  font-size: 1rem;
+}
+</style>
 
 <style scoped>
 #topbar-editor-container {
@@ -456,7 +478,6 @@ function processEntityValue(property: PropertyShape) {
   margin-left: 0.5rem;
   font-size: 1.5rem;
   overflow: hidden;
-  height: 1.75rem;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 0 1 auto;

@@ -8,13 +8,16 @@
       :class="checked ? 'p-button-success' : 'p-button-danger'"
       class="toggle-button"
     />
-    <component
-      v-if="checked && isObjectHasKeys(shape, ['property'])"
-      :is="processComponentType(shape.property![0].componentType)"
-      :value="processEntityValue(shape.property![0])"
-      :shape="shape.property![0]"
-      :mode="mode"
-    />
+    <h2 v-if="shape.showTitle && checked" class="title">{{ shape.name }}</h2>
+    <div class="content">
+      <component
+        v-if="checked && isObjectHasKeys(shape, ['property'])"
+        :is="processComponentType(shape.property![0].componentType)"
+        :value="processEntityValue(shape.property![0])"
+        :shape="shape.property![0]"
+        :mode="mode"
+      />
+    </div>
   </div>
 </template>
 
@@ -113,7 +116,7 @@ function processEntityValue(property: PropertyShape | undefined) {
 .toggle-button {
   align-self: center;
   order: 3;
-  margin: 0.25rem 0;
+  margin: 0.5rem 0;
 }
 
 .toggleable-entity-search:deep(.label-container) {
@@ -123,5 +126,16 @@ function processEntityValue(property: PropertyShape | undefined) {
 .label {
   font-size: 1rem;
   color: var(--text-color);
+}
+
+.title {
+  width: 100%;
+  text-align: center;
+}
+
+.content {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
 }
 </style>
