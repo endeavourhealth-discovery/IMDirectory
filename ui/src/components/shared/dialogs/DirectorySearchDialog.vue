@@ -13,7 +13,6 @@
         <SearchBar
           v-model:searchResults="searchResults"
           v-model:searchLoading="searchLoading"
-          :searchByQuery="searchByQuery"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
           :selected="selected"
@@ -162,8 +161,8 @@ function initSelection() {
 }
 
 function updateSelected(data: ConceptSummary) {
-  emit("update:selected", data);
-  visible.value = false;
+  navigateTo(data.iri);
+  locateInTree(data.iri);
 }
 
 async function updateSelectedFromIri(iri: string) {

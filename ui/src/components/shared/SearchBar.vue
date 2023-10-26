@@ -49,7 +49,6 @@ import _ from "lodash";
 interface Props {
   searchResults: ConceptSummary[];
   searchLoading: boolean;
-  searchByQuery?: QueryRequest;
   selected?: ConceptSummary;
 }
 
@@ -135,14 +134,7 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    let result;
-    if (props.searchByQuery) {
-      const queryRequest = await prepareQueryRequest(_.cloneDeep(props.searchByQuery));
-      const queryResult = await QueryService.queryIMSearch(queryRequest, controller.value);
-      if (queryResult) result = queryResult;
-    } else {
-      result = await EntityService.advancedSearch(searchRequest, controller.value);
-    }
+    const result = await EntityService.advancedSearch(searchRequest, controller.value);
     if (result) results.value = result;
     else results.value = [];
     loading.value = false;
