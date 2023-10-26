@@ -209,6 +209,7 @@ function deleteProperty(index: number) {
     newData.splice(index, 1);
 
     dmProperties.value = newData;
+    update();
   }
 }
 
