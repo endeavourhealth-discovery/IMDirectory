@@ -43,6 +43,7 @@ const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -63,14 +64,16 @@ if (forceValidation) {
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
-    async () => {
-      if (updateValidity) {
-        if (props.shape.builderChild) {
-          hasData();
-        } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
         }
-        showValidation.value = true;
       }
     }
   );
