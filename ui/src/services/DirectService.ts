@@ -87,4 +87,8 @@ export default class DirectService {
   public uprn() {
     window.open(Env.DIRECTORY_URL + "uprn");
   }
+
+  public workflow() {
+    window.open(Env.DIRECTORY_URL + "workflow");
+  }
 }
