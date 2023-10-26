@@ -214,13 +214,13 @@ function getAdminItems(): any[] {
       items: [
         {
           label: "Download Changes",
-          icon: fontAwesomePro ? "fa-duotone fa-file-arrow-down" : "fa-solid fa-file-arrow-up",
+          icon: fontAwesomePro.value ? "fa-duotone fa-file-arrow-down" : "fa-solid fa-file-arrow-up",
           disabled: !isLoggedInWithRole("IMAdmin"),
           command: () => downloadChanges()
         },
         {
           label: "Upload Document",
-          icon: fontAwesomePro ? "fa-duotone fa-file-arrow-up" : "fa-solid fa-file-arrow-down",
+          icon: fontAwesomePro.value ? "fa-duotone fa-file-arrow-up" : "fa-solid fa-file-arrow-down",
           disabled: !(isLoggedInWithRole("create") || isLoggedInWithRole("edit")),
           command: () => directService.file()
         }
