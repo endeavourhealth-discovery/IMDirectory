@@ -6,6 +6,8 @@
       </template>
     </TopBar>
 
+    <SideBar />
+
     <div :class="showInfo ? 'main-container' : ''">
       <div :class="showInfo ? 'main-view' : ''">
         <router-view v-slot="{ Component }: any">
@@ -14,17 +16,13 @@
           </keep-alive>
         </router-view>
       </div>
-
-      <div v-if="showInfo" class="details-view">
-        <InfoSideBar :selectedConceptIri="selectedConceptIri" @closeBar="hideDetails" />
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import InfoSideBar from "@/components/editor/infobar/InfoSideBar.vue";
+import SideBar from "@/components/workflow/SideBar.vue";
 import TopBar from "@/components/shared/TopBar.vue";
 
 let showInfo = ref(false);
