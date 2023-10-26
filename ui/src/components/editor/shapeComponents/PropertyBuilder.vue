@@ -15,7 +15,7 @@
                   placeholder="Select property"
                   v-model="row.path"
                   :suggestions="pathSuggestions"
-                  @complete="searchPath"
+                  @complete="debounce($event, searchPath, debouncePath)"
                   @drop="pathDrop(row, $event)"
                   @itemSelect="selectPath(row, $event)"
                   @clear="selectPath(row)"
@@ -34,7 +34,7 @@
                   placeholder="Select range"
                   v-model="row.range"
                   :suggestions="rangeSuggestions"
-                  @complete="searchRange"
+                  @complete="debounce($event, searchRange, debounceRange)"
                   @drop="rangeDrop(row, $event)"
                   @itemSelect="selectRange(row, $event)"
                   @clear="selectRange(row)"
@@ -115,6 +115,9 @@ interface SimpleProp {
 const toast = useToast();
 const props = defineProps<Props>();
 const directService = new DirectService();
+
+const debouncePath = ref(0);
+const debounceRange = ref(0);
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
@@ -240,7 +243,7 @@ function moveDown(index: number) {
 async function searchPath(event: AutoCompleteCompleteEvent) {
   const ps: TTIriRef[] = [];
 
-  if (event.query) {
+  if (event.query && event.query.length > 2) {
     const request: QueryRequest = {
       textSearch: event.query,
       query: {
@@ -255,10 +258,17 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
   }
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
+}
+
+function debounce(event: AutoCompleteCompleteEvent, searchFunction: Function, debounceTimer: number): void {
+  clearTimeout(debounceTimer);
+  debounceTimer = window.setTimeout(() => {
+    searchFunction(event);
+  }, 600);
 }
 
 async function selectPath(row: any, event?: AutoCompleteItemSelectEvent) {
@@ -321,7 +331,7 @@ async function isValidPath(iri: string): Promise<boolean> {
 async function searchRange(event: AutoCompleteCompleteEvent) {
   const ps: TTIriRef[] = [];
 
-  if (event.query) {
+  if (event.query && event.query.length > 2) {
     const request: QueryRequest = {
       textSearch: event.query,
       query: {
@@ -339,7 +349,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
   }
 
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
