@@ -1,8 +1,8 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group">
-      <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
+      <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText
         id="autocomplete-search"
         v-model="searchText"
