@@ -2,6 +2,7 @@
   <div class="search-container">
     <span class="p-input-icon-right search-group">
       <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
+      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
       <InputText
         id="autocomplete-search"
         v-model="searchText"
@@ -11,9 +12,7 @@
         autofocus
       />
     </span>
-    <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
-      <Button @click="search" class="search-button p-button-secondary" label="Search" />
-    </SplitButton>
+    <SplitButton class="search-button p-button-secondary" @click="search" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-tooltip.bottom="'Filters'"
       id="filter-button"
