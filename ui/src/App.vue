@@ -108,8 +108,7 @@ async function setupAxiosInterceptors(axios: any) {
 
   axios.interceptors.response.use(
     async (response: any) => {
-      if (response.config?.responseType === "blob") return isObjectHasKeys(response, ["data"]) ? JSON.parse(await response.data.text()) : undefined;
-      else return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
+      return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
     },
     async (error: any) => {
       if (error?.response?.config?.raw) {
