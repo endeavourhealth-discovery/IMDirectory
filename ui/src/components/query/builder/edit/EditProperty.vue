@@ -7,7 +7,7 @@
       :datatype="ttproperty[SHACL.DATATYPE][0]['@id']"
       :property="ttproperty.property"
     />
-    <ClassSelect v-if="isObjectHasKeys(ttproperty, [SHACL.NODE])" :class-iri="ttproperty[SHACL.NODE][0]['@id']" :property="ttproperty.property" />
+    <ClassSelect v-else-if="isObjectHasKeys(ttproperty, [SHACL.NODE])" :class-iri="ttproperty[SHACL.NODE][0]['@id']" :property="ttproperty.property" />
     <EntitySelect v-else :edit-node="ttproperty.property" />
   </div>
 

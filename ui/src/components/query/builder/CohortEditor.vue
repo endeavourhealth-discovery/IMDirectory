@@ -65,10 +65,6 @@ const addOptions = [
     label: "Add Cohort",
     icon: "pi pi-search",
     command: () => (showDirectoryDialog.value = true)
-  },
-  {
-    label: "Template",
-    icon: "pi pi-plus"
   }
 ];
 
