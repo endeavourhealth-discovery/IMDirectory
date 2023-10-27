@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :options="['is', 'between', 'within']" v-model:model-value="propertyType" />
+  <Dropdown :options="['is', 'between', 'within', 'isNull']" v-model:model-value="propertyType" />
   <div v-if="propertyType === 'between'">
     <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
     <span> and </span>
@@ -30,7 +30,7 @@ interface Props {
   datatype: string;
 }
 const props = defineProps<Props>();
-const propertyType: Ref<"is" | "between" | "within"> = ref("is");
+const propertyType: Ref<"is" | "between" | "within" | "isNull"> = ref("is");
 const valueType: Ref<"date" | "variable"> = ref("date");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
@@ -54,6 +54,13 @@ watch(
 watch(
   () => cloneDeep(selectedValueB.value),
   () => updatePropertyValues()
+);
+
+watch(
+  () => propertyType.value,
+  () => {
+    if (propertyType.value === "isNull") setIsNull();
+  }
 );
 
 async function initValues() {
@@ -100,7 +107,15 @@ function updatePropertyValues() {
   } else if (propertyType.value === "within") {
     delete props.property.range;
     props.property.value = numberValue.value.toString();
-  }
+  } else if (propertyType.value === "isNull") setIsNull();
+}
+
+function setIsNull() {
+  delete props.property.operator;
+  delete props.property.value;
+  delete props.property.unit;
+  delete props.property.relativeTo;
+  props.property.null = true;
 }
 
 function getStringFromDate(date: Date) {
