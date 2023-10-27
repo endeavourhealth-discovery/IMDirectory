@@ -39,14 +39,10 @@ const EntityService = {
     ownRow: boolean,
     im1id: boolean,
     format: string,
-    schemes: string[]
+    schemes: string[],
+    raw?: boolean
   ): Promise<any> {
-    const client = axios.create({
-      baseURL: api,
-      timeout: 0
-    });
-
-    return client.get("api/entity/public/setExport", {
+    return axios.get(api + "api/entity/public/setExport", {
       params: {
         iri: iri,
         definition: definition,
@@ -58,7 +54,8 @@ const EntityService = {
         format: format,
         schemes: schemes.join(",")
       },
-      responseType: "blob"
+      responseType: "blob",
+      raw: raw
     });
   },
 
