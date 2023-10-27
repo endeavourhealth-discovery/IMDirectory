@@ -1,8 +1,8 @@
 <template>
   <div class="property-input-container">
     <Dropdown :options="['is', 'isNot', 'isNull']" v-model:model-value="propertyType" />
-    <InputText type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
-    <SaveCustomSetDialog v-if="propertyType === 'is'" :set-members="editValues" />
+    <InputText v-if="propertyType !== 'isNull'" type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
+    <SaveCustomSetDialog v-if="propertyType !== 'isNull'" :set-members="editValues" />
   </div>
   <div v-if="propertyType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { onMounted, Ref, ref } from "vue";
+import { onMounted, Ref, ref, watch } from "vue";
 import EntailmentOptionsSelect from "../EntailmentOptionsSelect.vue";
 import _ from "lodash";
 import { Node, Property } from "@im-library/interfaces/AutoGen";
@@ -42,6 +42,27 @@ const selectedIndex: Ref<number> = ref(0);
 onMounted(async () => {
   initEditValues();
 });
+
+watch(
+  () => propertyType.value,
+  (newValue, oldValue) => handlePropertyTypeChange(newValue, oldValue)
+);
+
+function handlePropertyTypeChange(newValue: string, oldValue: string) {
+  if (newValue === "isNot") {
+    props.property.isNot = editValues.value;
+    delete props.property.is;
+    delete props.property.null;
+  } else if (newValue === "is") {
+    props.property.is = editValues.value;
+    delete props.property.isNot;
+    delete props.property.null;
+  } else if (newValue === "isNull") {
+    props.property.null = true;
+    delete props.property.is;
+    delete props.property.isNot;
+  }
+}
 
 function initEditValues() {
   if (isObjectHasKeys(props.property, ["isNot"])) propertyType.value = "isNot";

@@ -1,5 +1,6 @@
 <template>
-  <div class="query-display-container flex flex-column gap-3">
+  <div v-if="!isObjectHasKeys(query)">No definition found.</div>
+  <div v-else class="query-display-container flex flex-column gap-3">
     <div class="flex flex-row gap-2">
       <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
       <QuickQuery :query-iri="entityIri" v-if="canTestQuery">
@@ -27,7 +28,7 @@
 <script setup lang="ts">
 import RecursiveQueryDisplay from "@/components/query/viewer/RecursiveQueryDisplay.vue";
 import { QueryService } from "@/services";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Query } from "@im-library/interfaces/AutoGen";
 import { onMounted, watch, Ref, ref, computed } from "vue";
 import { useToast } from "primevue/usetoast";

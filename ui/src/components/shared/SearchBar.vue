@@ -1,7 +1,8 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group">
-      <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
+      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
+      <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText
         id="autocomplete-search"
         v-model="searchText"
@@ -11,9 +12,7 @@
         autofocus
       />
     </span>
-    <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
-      <Button @click="search" class="search-button p-button-secondary" label="Search" />
-    </SplitButton>
+    <SplitButton class="search-button p-button-secondary" @click="search" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-tooltip.bottom="'Filters'"
       id="filter-button"
@@ -49,7 +48,6 @@ import _ from "lodash";
 interface Props {
   searchResults: ConceptSummary[];
   searchLoading: boolean;
-  searchByQuery?: QueryRequest;
   selected?: ConceptSummary;
 }
 
@@ -135,14 +133,7 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    let result;
-    if (props.searchByQuery) {
-      const queryRequest = await prepareQueryRequest(_.cloneDeep(props.searchByQuery));
-      const queryResult = await QueryService.queryIMSearch(queryRequest, controller.value);
-      if (queryResult) result = queryResult;
-    } else {
-      result = await EntityService.advancedSearch(searchRequest, controller.value);
-    }
+    const result = await EntityService.advancedSearch(searchRequest, controller.value);
     if (result) results.value = result;
     else results.value = [];
     loading.value = false;
