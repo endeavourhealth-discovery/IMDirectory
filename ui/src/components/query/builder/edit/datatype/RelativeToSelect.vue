@@ -36,7 +36,9 @@ interface Props {
   propertyIri: string;
   property: Property;
   datatype: string;
+  propertyRef?: PropertyRef;
 }
+
 const props = defineProps<Props>();
 const queryStore = useQueryStore();
 const { expandedKeys, selectKey, selectedKeys, selectedNode } = setupTree();
@@ -48,6 +50,8 @@ const propertyDisplay: Ref<string> = ref("");
 const variableOptions: Ref<TreeNode[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 const debounce = ref(0);
+
+const emit = defineEmits({ "update:propertyRef": payload => true });
 
 onMounted(async () => {
   await initValues();
@@ -87,9 +91,9 @@ function onNodeSelect(node: any) {
 function save() {
   if (selectedNode.value) {
     delete props.property.value;
-    const propertyRef: PropertyRef = selectedNode.value.data;
-    propertyDisplay.value = getVariableSearchInputDisplay(propertyRef);
-    props.property.relativeTo = propertyRef;
+    propertyDisplay.value = getVariableSearchInputDisplay(selectedNode.value.data);
+    if (props.propertyRef) emit("update:propertyRef", selectedNode.value.data);
+    else props.property.relativeTo = selectedNode.value.data;
     showTreeSearch.value = false;
   }
 }
