@@ -2,7 +2,7 @@
   <div class="refinement-content-container">
     <AutoComplete
       style="flex: 1"
-      :input-style="{flex:1}"
+      :input-style="{ flex: 1 }"
       field="name"
       dataKey="iri"
       v-model="selectedProperty"
@@ -20,7 +20,7 @@
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <AutoComplete
       style="flex: 1"
-      :input-style="{flex:1}"
+      :input-style="{ flex: 1 }"
       field="name"
       dataKey="iri"
       v-model="selectedValue"
@@ -170,7 +170,7 @@ onBeforeUnmount(() => {
 });
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === "any") isValidProperty.value = true;
+  if (props.focus?.iri === "any" || props.focus.iri === "*") isValidProperty.value = true;
   else if (isAliasIriRef(props.focus) && hasProperty()) {
     isValidProperty.value = await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri);
   } else if (isBoolGroup(props.focus) && hasProperty() && props.focus.ecl) {

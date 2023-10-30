@@ -42,5 +42,6 @@ export default {
     "(<< 763158003 | Medicinal product (product) |) : << 127489000 | Has active ingredient (attribute) | = << 387207008 | Ibuprofen (substance) |",
   groupedAnd: "(<<298705000 |Finding of region of thorax (finding)| and <<298705001 ) ",
   groupedConceptsWithSharedRefinement:
-    "(<<298705000 |Finding of region of thorax (finding)| and <<301366005 |Pain of truncal structure (finding)|) :{ 363698007 |Finding site (attribute)| =  <<51185008 |Thoracic structure (body structure)| }"
+    "(<<298705000 |Finding of region of thorax (finding)| and <<301366005 |Pain of truncal structure (finding)|) :{ 363698007 |Finding site (attribute)| =  <<51185008 |Thoracic structure (body structure)| }",
+  chis: "<<312871001|Administration of vaccine product containing bacteria antigen(procedure)| OR (*: <<363589002|Associated procedure(attribute)| = <<117103007|Administration of human immune globulin product(procedure)|)"
 };
