@@ -86,19 +86,19 @@ watch(
 );
 
 async function initValues() {
+  if (props.property.operator) operator.value = props.property.operator;
+
   if (props.property.value) {
     if (isNumber(props.property.value)) {
       propertyType.value = "within";
       numberValue.value = Number(props.property.value.replace("-", ""));
       unit.value = props.property.unit;
     } else if (props.property.relativeTo) {
-      operator.value = props.property.operator;
       propertyRef.value = props.property.relativeTo;
     } else {
       propertyType.value = "is";
       selectedValueA.value = getDateFromString(props.property.value);
     }
-    if (props.property.operator) operator.value = props.property.operator;
   } else if (isObjectHasKeys(props.property, ["range"])) {
     propertyType.value = "between";
     if (props.property.range?.from.value) selectedValueA.value = getDateFromString(props.property.range!.from.value);
