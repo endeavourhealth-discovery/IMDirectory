@@ -214,7 +214,7 @@ function buildSetEntity() {
   setEntity[RDFS.LABEL] = name.value.modelValue;
   setEntity[RDF.TYPE] = [{ "@id": type.value.modelValue }];
   setEntity[IM.HAS_STATUS] = [{ "@id": IM.DRAFT }];
-  setEntity[IM.SCHEME] = name.value.modelValue;
+  setEntity[IM.SCHEME] = [{ "@id": scheme.value.modelValue }];
   setEntity[IM.IS_CONTAINED_IN] = [{ "@id": getIsContainedIn() }];
   setEntity[IM.DEFINITION] = getDefinition();
   return setEntity;

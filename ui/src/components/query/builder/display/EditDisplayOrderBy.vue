@@ -205,4 +205,13 @@ function remove() {
   margin-bottom: 0.5rem;
   display: flex;
 }
+
+.button-bar {
+  display: flex;
+  justify-content: end;
+}
+
+.button-bar-button {
+  margin: 0.2rem;
+}
 </style>
