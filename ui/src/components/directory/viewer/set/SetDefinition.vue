@@ -150,7 +150,7 @@ const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.isLoggedIn);
 
 const filterStore = useFilterStore();
-const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterOptions = computed(() => filterStore.filterOptions);
 const schemesOptions = filterOptions.value.schemes.filter((c: any) => c["@id"] !== IM.NAMESPACE || c["@id"] !== SNOMED.NAMESPACE);
 
 const loading = ref(false);
@@ -183,35 +183,29 @@ const checked = ref(true);
 const displayLegacyOptions = ref(false);
 const coreSelected = ref(false);
 
-watch(
-  () => selectedContents.value,
-  () => {
-    if (contents.value.length !== 0 && selectedFormat.value !== "IMv1") {
-      contents.value[1].disable = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
-      isCoreSelected();
-      isLegacySelected();
-    }
-    isOptionsSelected.value = (selectedContents.value.length !== 0 && selectedFormat.value != null) || selectedFormat.value === "IMv1";
+watch(selectedContents, () => {
+  if (contents.value.length !== 0 && selectedFormat.value !== "IMv1") {
+    contents.value[1].disable = !!(selectedContents.value.includes("Definition") && selectedFormat.value !== "xlsx");
+    isCoreSelected();
+    isLegacySelected();
   }
-);
+  isOptionsSelected.value = (selectedContents.value.length !== 0 && selectedFormat.value != null) || selectedFormat.value === "IMv1";
+});
 
-watch(
-  () => selectedFormat.value,
-  () => {
-    selectedContents.value = [];
-    checked.value = true;
-    checkedLegacy.value = false;
-    if (selectedFormat.value) {
-      if (selectedFormat.value === "IMv1") {
-        contents.value.forEach((f: any) => (f.disable = true));
-      } else {
-        contents.value.forEach((f: any) => (f.disable = false));
-      }
-    } else {
+watch(selectedFormat, () => {
+  selectedContents.value = [];
+  checked.value = true;
+  checkedLegacy.value = false;
+  if (selectedFormat.value) {
+    if (selectedFormat.value === "IMv1") {
       contents.value.forEach((f: any) => (f.disable = true));
+    } else {
+      contents.value.forEach((f: any) => (f.disable = false));
     }
+  } else {
+    contents.value.forEach((f: any) => (f.disable = true));
   }
-);
+});
 
 onMounted(async () => {
   active.value = [0, 1, 2];
@@ -244,37 +238,57 @@ async function download(): Promise<void> {
   const im1id = selectedContents.value.includes("IM1Id");
   showOptions.value = false;
   downloading.value = true;
-  try {
-    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const schemes = [] as string[];
-    if (selectedSchemes.value.length !== 0) {
-      selectedSchemes.value.forEach(s => schemes.push(s["@id"]));
-    }
-    const result = (
-      await EntityService.getFullExportSet(props.entityIri, definition, core, legacy, checked.value, checkedLegacy.value, im1id, selectedFormat.value, schemes)
-    ).data;
-    const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
-    downloadFile(result, getFileName(label));
-  } catch (error) {
-    toast.add(new ToastOptions(ToastSeverity.ERROR, "Download failed from server", error));
-  } finally {
-    downloading.value = false;
+
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
+  const schemes = [] as string[];
+  if (selectedSchemes.value.length !== 0) {
+    selectedSchemes.value.forEach(s => schemes.push(s["@id"]));
   }
+  let result;
+  try {
+    result = await EntityService.getFullExportSet(
+      props.entityIri,
+      definition,
+      core,
+      legacy,
+      checked.value,
+      checkedLegacy.value,
+      im1id,
+      selectedFormat.value,
+      schemes,
+      true
+    );
+  } catch (error: any) {
+    if (isObjectHasKeys(error?.response?.data, ["code"]) && error?.response?.data?.code === "DownloadException") {
+      toast.add(new ToastOptions(ToastSeverity.ERROR, "Download failed from server", error));
+      return;
+    } else throw error;
+  }
+  const labelResult = await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]);
+  let label = "";
+  if (isObjectHasKeys(labelResult, [RDFS.LABEL])) label = labelResult[RDFS.LABEL];
+  downloadFile(result, getFileName(label));
+  downloading.value = false;
 }
 
 async function downloadIMV1(): Promise<void> {
   showOptions.value = false;
   downloading.value = true;
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
+  let result;
   try {
-    toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Download will begin shortly"));
-    const result = await SetService.IMV1(props.entityIri);
-    const label: string = (await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]))[RDFS.LABEL];
-    downloadFile(result, label + ".txt");
-  } catch (err) {
-    toast.add(new ToastOptions(ToastSeverity.ERROR, "Download  failed from server", err));
-  } finally {
-    downloading.value = false;
+    result = await SetService.IMV1(props.entityIri, true);
+  } catch (err: any) {
+    if (isObjectHasKeys(err?.response?.data, ["code"]) && err?.response.data.code === "DownloadException") {
+      toast.add(new ToastOptions(ToastSeverity.ERROR, "Download  failed from server", err));
+      return;
+    } else throw err;
   }
+  let label = "";
+  const resultLabel = await EntityService.getPartialEntity(props.entityIri, [RDFS.LABEL]);
+  if (isObjectHasKeys(resultLabel, [RDFS.LABEL])) label = resultLabel[RDFS.LABEL];
+  downloadFile(result, label + ".txt");
+  downloading.value = false;
 }
 
 function getFileName(label: string) {
