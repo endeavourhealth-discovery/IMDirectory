@@ -5,7 +5,7 @@
     <span> and </span>
     <Calendar v-model:model-value="selectedValueB" dateFormat="dd/mm/yy" />
   </div>
-  <div v-else-if="propertyType === 'is'">
+  <div v-else-if="propertyType === 'is'" class="flex">
     <Dropdown type="text" placeholder="operator" :options="operatorOptions" v-model="operator" />
     <Dropdown type="text" placeholder="value type" :options="['date', 'variable']" v-model="valueType" />
     <Calendar v-if="valueType === 'date'" v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
