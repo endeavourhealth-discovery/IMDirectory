@@ -3,15 +3,9 @@
     <div class="label-content-container">
       <label v-if="shape.showTitle">{{ shape.name }}</label>
       <div class="content-container">
-        <Dropdown
-          :disabled="loading || (fullShape?.['@id'] === IM.editor.CONCEPT_SHAPE && mode === 'edit')"
-          class="dropdown"
-          v-model="selectedDropdownOption"
-          :options="dropdownOptions"
-          optionLabel="name"
-        />
+        <Dropdown :disabled="disableSchemeEdit" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
         <InputText
-          :disabled="allowCodeEdit"
+          :disabled="disableCodeEdit"
           class="p-inputtext-lg input-text"
           :class="invalid && showValidation && 'invalid'"
           v-model="userInput"
@@ -92,16 +86,21 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const allowCodeEdit = computed(() => {
+const disableCodeEdit = computed(() => {
   if (
     loading.value ||
-    (fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE && props.mode === "edit") ||
-    (fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE &&
-      props.mode === "create" &&
+    props.mode === "edit" ||
+    (props.mode === "create" &&
+      fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE &&
       selectedDropdownOption.value &&
       [IM.NAMESPACE, SNOMED.NAMESPACE].includes(selectedDropdownOption.value["@id"]))
   )
     return true;
+  else return false;
+});
+
+const disableSchemeEdit = computed(() => {
+  if (loading.value || props.mode === "edit") return true;
   else return false;
 });
 
