@@ -631,4 +631,8 @@ describe("eclToBuild", () => {
       ]
     });
   });
+
+  it("converts chis", () => {
+    expect(eclToBuild(eclTestData.chis)).toEqual(buildTestData.chis);
+  });
 });
