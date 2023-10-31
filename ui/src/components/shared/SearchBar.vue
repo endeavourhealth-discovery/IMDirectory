@@ -49,6 +49,7 @@ interface Props {
   searchResults: ConceptSummary[];
   searchLoading: boolean;
   selected?: ConceptSummary;
+  filterOptions?: FilterOptions;
 }
 
 const props = defineProps<Props>();
@@ -106,17 +107,33 @@ async function search(): Promise<void> {
     searchRequest.sortField = "weighting";
     searchRequest.page = 1;
     searchRequest.size = 100;
-    searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
+
+    searchRequest.schemeFilter = [];
+    const schemes =
+      isObjectHasKeys(props.filterOptions, ["schemes"]) && isArrayHasLength(props.filterOptions!.schemes)
+        ? props.filterOptions!.schemes
+        : selectedFilters.value.schemes;
+    for (const scheme of schemes) {
+      searchRequest.schemeFilter!.push(scheme["@id"]);
+    }
 
     searchRequest.statusFilter = [];
-    selectedFilters.value.status.forEach((status: TTIriRef) => {
+    const statusList =
+      isObjectHasKeys(props.filterOptions, ["status"]) && isArrayHasLength(props.filterOptions!.status)
+        ? props.filterOptions!.status
+        : selectedFilters.value.status;
+    for (const status of statusList) {
       searchRequest.statusFilter!.push(status["@id"]);
-    });
+    }
 
     searchRequest.typeFilter = [];
-    selectedFilters.value.types.forEach((type: TTIriRef) => {
+    const types =
+      isObjectHasKeys(props.filterOptions, ["types"]) && isArrayHasLength(props.filterOptions!.types)
+        ? props.filterOptions!.types
+        : selectedFilters.value.types;
+    for (const type of types) {
       searchRequest.typeFilter!.push(type["@id"]);
-    });
+    }
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
       const sortField = selectedFilters.value.sortFields[0];

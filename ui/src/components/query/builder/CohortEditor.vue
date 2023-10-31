@@ -25,6 +25,7 @@
       @update:selected="onSelect"
       :searchByQuery="validationQueryRequest"
       :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+      :filter-options="filterOptionsForCohort"
     />
   </div>
 </template>
@@ -43,7 +44,7 @@ import AddPropertyDialog from "@/components/query/builder/edit/dialogs/AddProper
 import { describeQuery } from "@im-library/helpers/QueryDescriptor";
 import { useQueryStore } from "@/stores/queryStore";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import { IM } from "@im-library/vocabulary";
 
@@ -59,6 +60,8 @@ const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.retur
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const showDirectoryDialog: Ref<boolean> = ref(false);
 const { showAddDialog, showAddBaseTypeDialog, addMatchesToList } = setupQueryBuilderActions();
+
+const filterOptionsForCohort: FilterOptions = { types: [{ "@id": IM.QUERY }] } as FilterOptions;
 
 const addOptions = [
   {
