@@ -25,13 +25,15 @@ function setupQueryBuilderActions() {
   }
 
   function addMatchesToList(matchList: Match[], newMatches: Match[], index: number = -1, before?: boolean) {
-    if (index === -1) matchList = matchList?.concat(newMatches);
-    else {
-      const indexToAdd = before ? index : index + 1;
-      matchList.splice(indexToAdd, 0, ...newMatches);
-    }
+    if (isArrayHasLength(matchList)) {
+      if (index === -1) matchList = matchList?.concat(newMatches);
+      else {
+        const indexToAdd = before ? index : index + 1;
+        matchList.splice(indexToAdd, 0, ...newMatches);
+      }
 
-    addBefore.value = false;
+      addBefore.value = false;
+    }
   }
 
   function updateProperties(parentMatch: Match, direct: Match[], nested: Match[]) {
