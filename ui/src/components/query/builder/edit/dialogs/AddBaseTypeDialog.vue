@@ -63,7 +63,7 @@ const cohortOrDataModelQueryRequest: Ref<QueryRequest> = ref({
   }
 } as QueryRequest);
 
-const filterOptionsForBaseType: FilterOptions = { types: [{ "@id": IM.QUERY }, { "@id": SHACL.NODESHAPE }] } as FilterOptions;
+const filterOptionsForBaseType: FilterOptions = { types: [{ "@id": IM.COHORT_QUERY }, { "@id": SHACL.NODESHAPE }] } as FilterOptions;
 
 watch(
   () => props.showDialog,
