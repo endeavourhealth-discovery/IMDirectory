@@ -1,44 +1,38 @@
 <template>
   <Button label="Save custom set" text severity="info" @click="showSaveCustomSetDialog = true" />
-  <Dialog v-model:visible="showSaveCustomSetDialog" modal header="Save custom set" :style="{ maxWidth: '50vw', backgroundColor: 'var(--surface-section)' }">
-    <form @submit="onSubmit" class="flex flex-column gap-2">
-      <div class="flex flex-column" id="save-set-scheme-iri">
-        <span id="save-set-scheme-header">Scheme</span>
-        <div class="flex" id="save-set-graph-iri">
-          <div class="flex flex-column flex-auto" id="save-set-graph">
-            <Dropdown
-              id="scheme"
-              v-bind="scheme"
-              type="text"
-              :class="{ 'p-invalid': errors.scheme }"
-              aria-describedby="text-error"
-              :options="schemeOptions"
-              option-label="name"
-              option-value="@id"
-              placeholder="Scheme"
-              class="flex-1"
-            />
-            <small class="p-error flex-1" id="text-error">{{ errors.scheme || "&nbsp;" }}</small>
-          </div>
-
-          <div class="flex flex-column flex-auto" id="save-set-iri">
-            <InputText id="iri" v-bind="iri" type="text" :class="{ 'p-invalid': errors.iri }" aria-describedby="text-error" />
-            <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
-          </div>
-        </div>
-      </div>
-
+  <Dialog
+    v-model:visible="showSaveCustomSetDialog"
+    modal
+    header="Save custom set"
+    :style="{ minWidth: '25vw', maxWidth: '50vw', backgroundColor: 'var(--surface-section)' }"
+  >
+    <form @submit="onSubmit" class="flex flex-column gap-2 save-set-form">
       <div class="flex flex-column gap-2" id="save-set-full-iri">
         <span id="save-set-iri-header">Iri</span>
         <InputText :model-value="fullIri" type="text" disabled />
+        <small class="p-error" id="text-error">{{ errors.iri || "&nbsp;" }}</small>
+      </div>
+
+      <div class="flex flex-column gap-2" id="save-set-scheme-iri">
+        <span id="save-set-scheme-header">Scheme</span>
+        <Dropdown
+          id="scheme"
+          v-bind="scheme"
+          type="text"
+          :class="{ 'p-invalid': errors.scheme }"
+          aria-describedby="text-error"
+          :options="schemeOptions"
+          option-label="name"
+          option-value="@id"
+          placeholder="Scheme"
+          class="flex-1"
+        />
+        <small class="p-error flex-1" id="text-error">{{ errors.scheme || "&nbsp;" }}</small>
       </div>
 
       <div class="flex flex-column gap-2" id="save-set-name">
         <span id="save-set-name-header">Name</span>
-        <div class="p-inputgroup flex-1">
-          <InputText id="name" v-bind="name" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
-          <Button severity="warning" label="Generate iri" @click="onNameGenIri()" :disabled="!name.modelValue" />
-        </div>
+        <InputText id="name" v-bind="name" type="text" :class="{ 'p-invalid': errors.name }" aria-describedby="text-error" />
         <small class="p-error" id="text-error">{{ errors.name || "&nbsp;" }}</small>
       </div>
 
@@ -64,7 +58,7 @@
 
     <template #footer>
       <Button label="Discard" severity="secondary" @click="onDiscard" text />
-      <Button type="submit" text label="Submit" @click="onSubmit" />
+      <Button type="submit" text label="Submit" @click="onSubmit" :loading="loading" />
     </template>
   </Dialog>
 </template>
@@ -72,9 +66,9 @@
 <script setup lang="ts">
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { useForm } from "vee-validate";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Node, TTIriRef, Match } from "@im-library/interfaces/AutoGen";
-import { EntityService, FilerService } from "@/services";
+import { EntityService, FilerService, QueryService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { useToast } from "primevue/usetoast";
 import * as yup from "yup";
@@ -112,10 +106,15 @@ const schemeOptions: Ref<TTIriRef[]> = ref([]);
 const typeOptions: Ref<TTIriRef[]> = ref([]);
 const selectedMember: Ref<Node> = ref({});
 const showSaveCustomSetDialog = ref(false);
-
+const loading = ref(false);
 watch(
   () => showSaveCustomSetDialog.value,
   async () => await init()
+);
+
+watch(
+  () => name.value,
+  () => onNameGenIri()
 );
 
 onMounted(async () => {
@@ -145,25 +144,25 @@ async function getTypeOptions(): Promise<TTIriRef[]> {
 }
 
 async function getSchemeOptions(): Promise<TTIriRef[]> {
-  const schemes = await EntityService.getEntityChildren(IM.GRAPH);
-  return schemes.map(scheme => {
-    return {
-      "@id": scheme["@id"],
-      name: scheme.name
-    };
-  });
+  return await QueryService.runFunction(IM.function.GET_USER_EDITABLE_SCHEMES);
 }
 
 function onNameGenIri() {
-  setFieldValue("iri", name.value.modelValue);
+  if (name.value && name.value.modelValue) {
+    const nameValue: string = name.value.modelValue;
+    setFieldValue("iri", nameValue.replaceAll(" ", ""));
+  }
 }
 
 function selectDefaults() {
-  setFieldValue("scheme", IM.NAMESPACE);
+  if (isArrayHasLength(schemeOptions.value)) setFieldValue("scheme", schemeOptions.value[0]["@id"]);
+  else setFieldValue("scheme", IM.NAMESPACE);
+
   setFieldValue("type", IM.CONCEPT_SET);
 }
 
 const onSubmit = handleSubmit(async () => {
+  loading.value = true;
   const setEntity = buildSetEntity();
   try {
     await FilerService.fileEntity(setEntity, IM.NAMESPACE, IM.ADD_QUADS);
@@ -171,8 +170,10 @@ const onSubmit = handleSubmit(async () => {
     if (isObjectHasKeys(createdEntity, [RDFS.LABEL, RDF.TYPE, IM.HAS_STATUS, IM.SCHEME, IM.IS_CONTAINED_IN, IM.DEFINITION]))
       toast.add({ severity: "success", summary: "Created", detail: "Created " + createdEntity[RDFS.LABEL], life: 3000 });
   } catch (e: any) {
+    loading.value = false;
     toast.add({ severity: "error", summary: e.response.data.title, detail: e.response.data.detail, life: 3000 });
   }
+  loading.value = false;
   showSaveCustomSetDialog.value = false;
 });
 
@@ -222,7 +223,7 @@ function buildSetEntity() {
 </script>
 
 <style scoped>
-#save-set-full-iri {
-  padding-bottom: 1rem;
+.save-set-form {
+  width: 100%;
 }
 </style>
