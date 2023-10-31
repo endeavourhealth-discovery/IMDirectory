@@ -7,9 +7,9 @@
       @click="!isAny ? (showDialog = true) : (showDialog = false)"
       v-tooltip="{ value: selected.name ?? '', class: 'entity-tooltip' }"
     >
-      <span :disabled="isAny" class="selected-label">{{ selected.name ?? "Search..." }}</span>
+      <span class="selected-label">{{ selected.name ?? "Search..." }}</span>
     </div>
-    <div class="flex align-items-center"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>
+    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>
     <DirectorySearchDialog
       v-if="!isAny && selected.iri !== 'any'"
       v-model:show-dialog="showDialog"
@@ -41,7 +41,7 @@ interface Props {
         descendants: string;
         conjunction: string;
         items: any[];
-        concept: { iri: string; name?: string } | undefined;
+        concept: { iri: string; name?: string; code?: string } | undefined;
         ecl?: string;
       }
     | any;
@@ -67,8 +67,6 @@ const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
 const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
-const controller: Ref<AbortController | undefined> = ref(undefined);
-const suggestions: Ref<any[]> = ref([]);
 const loading = ref(false);
 const showDialog = ref(false);
 const isAny = ref(false);
@@ -116,7 +114,7 @@ async function init() {
 
 async function updateSelectedResult(data: ConceptSummary | { iri: string; name?: string }) {
   if (!isObjectHasKeys(data)) selected.value = {} as ConceptSummary;
-  else if (isObjectHasKeys(data, ["match"])) selected.value = data as ConceptSummary;
+  else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as ConceptSummary;
   else if (data.iri === "any" || data.iri === "*") {
     selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
     isAny.value = true;
@@ -124,35 +122,6 @@ async function updateSelectedResult(data: ConceptSummary | { iri: string; name?:
     const asSummary = await EntityService.getEntitySummary(data.iri);
     selected.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
   }
-}
-
-async function search(term: string) {
-  if (term.length > 2) {
-    if (term.toLowerCase() === "any") {
-      suggestions.value = [{ iri: "any", name: "ANY", code: "any" }];
-    } else {
-      const searchRequest = {} as SearchRequest;
-      searchRequest.termFilter = term;
-      searchRequest.sortField = "weighting";
-      searchRequest.page = 1;
-      searchRequest.size = 100;
-      searchRequest.schemeFilter = [SNOMED.NAMESPACE, IM.NAMESPACE];
-      searchRequest.statusFilter = [IM.ACTIVE];
-
-      if (controller.value) {
-        controller.value.abort();
-      }
-      controller.value = new AbortController();
-      suggestions.value = await EntityService.advancedSearch(searchRequest, controller.value);
-      controller.value = undefined;
-    }
-  } else if (term === "*") {
-    suggestions.value = [{ iri: "any", name: "ANY", code: "any" }];
-  } else suggestions.value = [{ iri: null, name: "3 character minumum", code: "UNKNOWN" }];
-}
-
-function disableOption(data: any) {
-  return data.code === "UNKNOWN";
 }
 
 function generateEcl(): string {
@@ -219,6 +188,14 @@ function updateConcept(concept: any) {
   display: flex;
   flex-flow: column;
   justify-content: center;
+}
+
+.any-checkbox-container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem 0 0;
 }
 
 .clickable {
