@@ -3,11 +3,11 @@
   <div v-else class="query-display-container flex flex-column gap-3">
     <div class="flex flex-row gap-2">
       <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-      <QuickQuery :query-iri="entityIri" v-if="canTestQuery">
+      <!-- <QuickQuery :query-iri="entityIri" v-if="canTestQuery">
         <template #button="{ runQuickQuery }">
           <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
         </template>
-      </QuickQuery>
+      </QuickQuery> -->
     </div>
     <div class="query-display">
       <div class="rec-query-display">
