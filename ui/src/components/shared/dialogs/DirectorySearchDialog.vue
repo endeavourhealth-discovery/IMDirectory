@@ -69,8 +69,8 @@ import EclSearch from "@/components/directory/EclSearch.vue";
 import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _, { cloneDeep } from "lodash";
-import { EntityService, QueryService } from "@/services";
-import { QueryRequest } from "@im-library/interfaces/AutoGen";
+import { EntityService, FunctionService, QueryService } from "@/services";
+import { FunctionRequest, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
@@ -78,6 +78,7 @@ import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
 interface Props {
   showDialog: boolean;
   searchByQuery?: QueryRequest;
+  searchByFunction?: FunctionRequest;
   selected?: ConceptSummary;
   rootEntities?: string[];
 }
@@ -203,12 +204,24 @@ function showQuerySearch() {
 }
 
 async function getIsSelectableEntity(): Promise<boolean> {
-  if (!props.searchByQuery) return true;
-  const queryRequest = _.cloneDeep(props.searchByQuery);
-  queryRequest.textSearch = selectedName.value;
-  const queryResults = await QueryService.queryIM(queryRequest);
-  if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
-  return queryResults.entities.some(item => item["@id"] === detailsIri.value);
+  if (!props.searchByQuery && !props.searchByFunction) return true;
+  if (props.searchByQuery) {
+    const queryRequest = _.cloneDeep(props.searchByQuery);
+    queryRequest.textSearch = selectedName.value;
+    const queryResults = await QueryService.queryIM(queryRequest);
+    if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
+    return queryResults.entities.some(item => item["@id"] === detailsIri.value);
+  } else if (props.searchByFunction) {
+    const functionRequest = _.cloneDeep(props.searchByFunction);
+    const searchTermArg = functionRequest.arguments?.find(arg => arg.parameter === "searchTerm");
+    if (searchTermArg) searchTermArg.valueData = selectedName.value;
+    else functionRequest.arguments?.push({ parameter: "searchTerm", valueData: selectedName.value });
+    if (functionRequest.functionIri) {
+      const functionResults = await FunctionService.runSearchFunction(functionRequest);
+      if (!isArrayHasLength(functionResults)) return false;
+      return functionResults.some((items: ConceptSummary) => items.iri === detailsIri.value);
+    } else return false;
+  } else return false;
 }
 
 async function getHasQueryDefinition() {
