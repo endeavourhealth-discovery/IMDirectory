@@ -57,12 +57,15 @@ watch(
       props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
     } else if (propertyType.value === "startsWith" || propertyType.value === "contains") {
       props.property.operator = propertyType.value;
+    } else if (propertyType.value === "is") {
+      props.property.operator = "=";
     }
   }
 );
 
 onMounted(() => {
   if (isObjectHasKeys(props.property.range)) propertyType.value = "range";
+  else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
   else propertyType.value = "is";
 });
 </script>
