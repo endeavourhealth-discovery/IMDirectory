@@ -51,7 +51,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
 import { isPropertyShape, isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { QueryService, EntityService } from "@/services";
+import { FunctionService, EntityService } from "@/services";
 import { RDF, RDFS } from "@im-library/vocabulary";
 
 interface Props {
@@ -271,7 +271,7 @@ function generateBuildAsJson() {
 
 async function getDropdownOptions() {
   if (isObjectHasKeys(props.shape, ["function"])) {
-    return await QueryService.runFunction(props.shape.function!["@id"]);
+    return await FunctionService.runFunction(props.shape.function!["@id"]);
   } else throw new Error("propertygroup is missing 'function' parameter to fetch dropdown options");
 }
 

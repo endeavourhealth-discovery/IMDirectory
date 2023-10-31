@@ -29,7 +29,7 @@ import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { QueryService } from "@/services";
+import { FunctionService, QueryService } from "@/services";
 import _ from "lodash";
 
 interface Props {
@@ -175,7 +175,7 @@ function deconstructInputValue(inputValue: String) {
 async function generateCode(): Promise<string> {
   if (selectedDropdownOption.value) {
     loading.value = true;
-    const result = await QueryService.runFunction(IM.function.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
+    const result = await FunctionService.runFunction(IM.function.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
     loading.value = false;
     return result.code;
   }
@@ -196,7 +196,7 @@ async function getDropdownOptions() {
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await QueryService.runFunction(props.shape.function!["@id"])).sort(byName);
+    return (await FunctionService.runFunction(props.shape.function!["@id"])).sort(byName);
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
