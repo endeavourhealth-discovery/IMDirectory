@@ -61,7 +61,7 @@ const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const showDirectoryDialog: Ref<boolean> = ref(false);
 const { showAddDialog, showAddBaseTypeDialog, addMatchesToList } = setupQueryBuilderActions();
 
-const filterOptionsForCohort: FilterOptions = { types: [{ "@id": IM.QUERY }] } as FilterOptions;
+const filterOptionsForCohort: FilterOptions = { types: [{ "@id": IM.COHORT_QUERY }] } as FilterOptions;
 
 const addOptions = [
   {
