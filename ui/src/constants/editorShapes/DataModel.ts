@@ -267,7 +267,7 @@ const DataModelShape: FormGenerator = {
                   }
                 }
               ],
-              name: "Is contained in",
+              name: "Contained in",
               showTitle: true,
               minCount: 0,
               validation: {
