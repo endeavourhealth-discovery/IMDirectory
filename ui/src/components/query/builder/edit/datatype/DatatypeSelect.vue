@@ -53,11 +53,13 @@ const booleanOptions = [
 watch(
   () => propertyType.value,
   () => {
+    console.log("hre");
     if (propertyType.value === "range" && !isObjectHasKeys(props.property, ["range"])) {
       props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
     } else if (propertyType.value === "startsWith" || propertyType.value === "contains") {
       props.property.operator = propertyType.value;
     } else if (propertyType.value === "is") {
+      delete props.property.range;
       props.property.operator = "=";
     }
   }
