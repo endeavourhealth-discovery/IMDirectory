@@ -6,6 +6,7 @@
       @update:selected="setBaseType"
       :root-entities="rootEntities"
       :searchByQuery="cohortOrDataModelQueryRequest"
+      :filter-options="filterOptionsForBaseType"
     />
   </Dialog>
 
@@ -24,9 +25,9 @@ import { Ref, onMounted, ref, watch } from "vue";
 import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { EntityService } from "@/services";
-import { IM } from "@im-library/vocabulary";
+import { IM, SHACL } from "@im-library/vocabulary";
 import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 
@@ -61,6 +62,8 @@ const cohortOrDataModelQueryRequest: Ref<QueryRequest> = ref({
     ]
   }
 } as QueryRequest);
+
+const filterOptionsForBaseType: FilterOptions = { types: [{ "@id": IM.COHORT_QUERY }, { "@id": SHACL.NODESHAPE }] } as FilterOptions;
 
 watch(
   () => props.showDialog,

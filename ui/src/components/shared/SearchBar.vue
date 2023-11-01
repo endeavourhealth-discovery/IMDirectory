@@ -1,7 +1,8 @@
 <template>
   <div class="search-container">
     <span class="p-input-icon-right search-group">
-      <i v-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
+      <i v-if="searchLoading" class="pi pi-spin pi-spinner"></i>
+      <i v-else-if="speech" class="pi pi-microphone mic" :class="listening && 'listening'" @click="toggleListen"></i>
       <InputText
         id="autocomplete-search"
         v-model="searchText"
@@ -11,9 +12,7 @@
         autofocus
       />
     </span>
-    <SplitButton class="search-button p-button-secondary" label="Search" :model="buttonActions">
-      <Button @click="search" class="search-button p-button-secondary" label="Search" />
-    </SplitButton>
+    <SplitButton class="search-button p-button-secondary" @click="search" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-tooltip.bottom="'Filters'"
       id="filter-button"
@@ -49,8 +48,8 @@ import _ from "lodash";
 interface Props {
   searchResults: ConceptSummary[];
   searchLoading: boolean;
-  searchByQuery?: QueryRequest;
   selected?: ConceptSummary;
+  filterOptions?: FilterOptions;
 }
 
 const props = defineProps<Props>();
@@ -93,7 +92,6 @@ function openFiltersOverlay(event: any) {
 const debounce = ref(0);
 
 function debounceForSearch(): void {
-  console.log("here");
   clearTimeout(debounce.value);
   debounce.value = window.setTimeout(() => {
     search();
@@ -109,17 +107,33 @@ async function search(): Promise<void> {
     searchRequest.sortField = "weighting";
     searchRequest.page = 1;
     searchRequest.size = 100;
-    searchRequest.schemeFilter = selectedFilters.value.schemes.map(scheme => scheme["@id"]);
+
+    searchRequest.schemeFilter = [];
+    const schemes =
+      isObjectHasKeys(props.filterOptions, ["schemes"]) && isArrayHasLength(props.filterOptions!.schemes)
+        ? props.filterOptions!.schemes
+        : selectedFilters.value.schemes;
+    for (const scheme of schemes) {
+      searchRequest.schemeFilter!.push(scheme["@id"]);
+    }
 
     searchRequest.statusFilter = [];
-    selectedFilters.value.status.forEach((status: TTIriRef) => {
+    const statusList =
+      isObjectHasKeys(props.filterOptions, ["status"]) && isArrayHasLength(props.filterOptions!.status)
+        ? props.filterOptions!.status
+        : selectedFilters.value.status;
+    for (const status of statusList) {
       searchRequest.statusFilter!.push(status["@id"]);
-    });
+    }
 
     searchRequest.typeFilter = [];
-    selectedFilters.value.types.forEach((type: TTIriRef) => {
+    const types =
+      isObjectHasKeys(props.filterOptions, ["types"]) && isArrayHasLength(props.filterOptions!.types)
+        ? props.filterOptions!.types
+        : selectedFilters.value.types;
+    for (const type of types) {
       searchRequest.typeFilter!.push(type["@id"]);
-    });
+    }
 
     if (isArrayHasLength(selectedFilters.value.sortFields) && isObjectHasKeys(selectedFilters.value.sortFields[0])) {
       const sortField = selectedFilters.value.sortFields[0];
@@ -136,14 +150,7 @@ async function search(): Promise<void> {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    let result;
-    if (props.searchByQuery) {
-      const queryRequest = await prepareQueryRequest(_.cloneDeep(props.searchByQuery));
-      const queryResult = await QueryService.queryIMSearch(queryRequest, controller.value);
-      if (queryResult) result = queryResult;
-    } else {
-      result = await EntityService.advancedSearch(searchRequest, controller.value);
-    }
+    const result = await EntityService.advancedSearch(searchRequest, controller.value);
     if (result) results.value = result;
     else results.value = [];
     loading.value = false;

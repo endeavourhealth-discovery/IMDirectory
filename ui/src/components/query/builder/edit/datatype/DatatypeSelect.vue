@@ -10,7 +10,10 @@
     option-value="value"
     v-model:model-value="property.value"
   />
-  <div v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer'" class="property-input-container">
+  <div
+    v-else-if="datatype === XMLS.NAMESPACE + 'long' || datatype === XMLS.NAMESPACE + 'integer' || datatype === XMLS.NAMESPACE + 'number'"
+    class="property-input-container"
+  >
     <Dropdown :options="['is', 'range']" v-model:model-value="propertyType" />
     <ComparisonSelect v-if="propertyType === 'is'" :property="property" :datatype="datatype" :property-iri="property['@id']!" />
     <RangeSelect
@@ -52,12 +55,17 @@ watch(
   () => {
     if (propertyType.value === "range" && !isObjectHasKeys(props.property, ["range"])) {
       props.property.range = { from: {} as Assignable, to: {} as Assignable } as Range;
+    } else if (propertyType.value === "startsWith" || propertyType.value === "contains") {
+      props.property.operator = propertyType.value;
+    } else if (propertyType.value === "is") {
+      props.property.operator = "=";
     }
   }
 );
 
 onMounted(() => {
   if (isObjectHasKeys(props.property.range)) propertyType.value = "range";
+  else if (props.property.operator === "startsWith" || props.property.operator === "contains") propertyType.value = props.property.operator;
   else propertyType.value = "is";
 });
 </script>

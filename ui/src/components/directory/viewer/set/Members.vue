@@ -29,7 +29,7 @@
       <template #loading> Loading data. Please wait... </template>
       <Column field="member" header="Name">
         <template #body="{ data }: any">
-          <IMViewerLink :iri="data['@id']" :label="data.name" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+          <IMViewerLink :action="'select'" :iri="data['@id']" :label="data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
         </template>
       </Column>
     </DataTable>
@@ -37,10 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ComputedRef, onMounted, ref, Ref, watch} from "vue";
+import { onMounted, ref, Ref, watch } from "vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { EntityService, SetService } from "@/services";
-import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
+import { EntityService } from "@/services";
+import { IM } from "@im-library/vocabulary";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -58,7 +58,6 @@ const hasDefintion: Ref<boolean> = ref(false);
 
 const loading = ref(false);
 const members: Ref<TTIriRef[]> = ref([]);
-
 
 const menu = ref();
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
@@ -109,11 +108,9 @@ function toggle(event: any) {
   const x = menu.value as any;
   x.toggle(event);
 }
-
 </script>
 
 <style scoped>
-
 #members-table-container {
   height: 100%;
   width: 100%;

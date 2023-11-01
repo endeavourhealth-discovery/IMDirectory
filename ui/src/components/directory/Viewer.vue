@@ -11,7 +11,7 @@
         <TabView :lazy="true" v-model:active-index="activeTab" id="info-side-bar-tabs">
           <TabPanel header="Details">
             <div class="concept-panel-content" id="details-container">
-              <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+              <Details :entityIri="entityIri" @on-open-tab="onOpenTab" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel v-if="terms" header="Terms">
@@ -26,7 +26,7 @@
           </TabPanel>
           <TabPanel v-if="isValueSet(types)" header="Set">
             <div class="concept-panel-content" id="set-container">
-              <SetDefinition :entityIri="entityIri" />
+              <SetDefinition :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="ECL" v-if="isValueSet(types) && isObjectHasKeys(concept, ['http://endhealth.info/im#definition'])">
@@ -36,12 +36,12 @@
           </TabPanel>
           <TabPanel v-if="isRecordModel(types)" header="Data Model">
             <div class="concept-panel-content" id="data-model-container">
-              <DataModel :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+              <DataModel :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Properties" v-if="isRecordModel(types)">
             <div class="concept-panel-content" id="properties-container">
-              <Properties :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+              <Properties :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel v-if="isQuery(types)" header="Query">
@@ -51,27 +51,27 @@
           </TabPanel>
           <TabPanel header="Contents">
             <div v-if="isObjectHasKeys(concept)" class="concept-panel-content" id="definition-container">
-              <Content :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+              <Content :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Used in">
             <div class="concept-panel-content" id="usedin-container">
-              <UsedIn :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+              <UsedIn :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Hierarchy position">
             <div class="concept-panel-content" id="secondary-tree-container">
-              <SecondaryTree :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+              <SecondaryTree :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Entity chart" v-if="showGraph">
             <div class="concept-panel-content" id="entity-chart-container">
-              <EntityChart :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+              <EntityChart :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="Graph">
             <div class="concept-panel-content" id="graph-container">
-              <Graph :entityIri="entityIri" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
+              <Graph :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
           <TabPanel header="JSON">

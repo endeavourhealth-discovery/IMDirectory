@@ -10,15 +10,16 @@
         </div>
         <div class="flex flex-row gap-2 justify-content-end">
           <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
-          <QuickQuery :query="queryDefinition">
+          <!-- <QuickQuery :query="queryDefinition">
             <template #button="{ runQuickQuery }">
               <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
             </template>
-          </QuickQuery>
+          </QuickQuery> -->
         </div>
       </div>
     </div>
-    <span class="error-message" v-if="validationErrorMessage"> {{ validationErrorMessage }}</span>
+    <div class="validate-error-container"></div>
+    <span class="validate-error" v-if="validationErrorMessage && showValidation"> {{ validationErrorMessage }}</span>
 
     <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
       <pre>{{ sql }}</pre>
@@ -84,10 +85,10 @@ const key = props.shape.path["@id"];
 
 watch(
   () => cloneDeep(queryDefinition.value),
-  async () => {
+  async newValue => {
     updateEntity();
     if (updateValidity && valueVariableMap) {
-      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (isArrayHasLength(newValue.match)) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
       showValidation.value = true;
     }
   }
@@ -140,10 +141,6 @@ function updateEntity() {
   flex-flow: column;
 }
 
-.invalid {
-  border-color: var(--red-500);
-}
-
 .validate-error {
   color: var(--red-500);
   font-size: 0.8rem;
@@ -162,5 +159,21 @@ function updateEntity() {
   overflow-y: auto;
   border: 1px solid var(--surface-border);
   background-color: #ffffff;
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
+  border-radius: 5px;
+  padding: 0.25rem;
+}
+
+.validate-error-container {
+  width: 100%;
 }
 </style>

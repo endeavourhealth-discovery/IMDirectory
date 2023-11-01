@@ -10,10 +10,10 @@ export default {
             bool: "or",
             match: [
               {
-                instanceOf:{
-                "@id": "http://snomed.info/sct#386725007",
-                descendantsOrSelfOf: true
-              }
+                instanceOf: {
+                  "@id": "http://snomed.info/sct#386725007",
+                  descendantsOrSelfOf: true
+                }
               },
               {
                 instanceOf: {
@@ -92,8 +92,9 @@ export default {
           },
           {
             instanceOf: {
-            "@id": "http://snomed.info/sct#301366005",
-            descendantsOrSelfOf: true},
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOrSelfOf: true
+            },
             property: [
               {
                 "@id": "http://endhealth.info/im#roleGroup",
@@ -202,8 +203,8 @@ export default {
           },
           {
             instanceOf: {
-            "@id": "http://snomed.info/sct#301366005",
-            descendantsOrSelfOf: true
+              "@id": "http://snomed.info/sct#301366005",
+              descendantsOrSelfOf: true
             },
             property: [
               {
@@ -454,8 +455,7 @@ export default {
         ]
       }
     ]
-  }
-      ,
+  },
   oralNsaids: {
     match: [
       {
@@ -981,7 +981,8 @@ export default {
           },
           {
             instanceOf: {
-              "@id": "http://snomed.info/sct#298705001", descendantsOrSelfOf: true
+              "@id": "http://snomed.info/sct#298705001",
+              descendantsOrSelfOf: true
             }
           }
         ]
@@ -991,30 +992,64 @@ export default {
   groupedConceptsWithSharedRefinement: {
     match: [
       {
-        bool : "and",
+        bool: "and",
         match: [
           {
             instanceOf: {
               "@id": "http://snomed.info/sct#298705000",
-            descendantsOrSelfOf: true}
+              descendantsOrSelfOf: true
+            }
           },
           {
             instanceOf: {
               "@id": "http://snomed.info/sct#301366005",
-            descendantsOrSelfOf: true}
+              descendantsOrSelfOf: true
+            }
           }
         ],
         property: [
           {
             "@id": IM.ROLE_GROUP,
             match: {
-              property: [{
-                "@id": "http://snomed.info/sct#363698007",
-                is: [{"@id": "http://snomed.info/sct#51185008", descendantsOrSelfOf: true}]
-              }]
+              property: [
+                {
+                  "@id": "http://snomed.info/sct#363698007",
+                  is: [{ "@id": "http://snomed.info/sct#51185008", descendantsOrSelfOf: true }]
+                }
+              ]
             }
           }
         ]
+      }
+    ]
+  },
+  chis: {
+    match: [
+      {
+        match: [
+          {
+            instanceOf: {
+              "@id": "http://snomed.info/sct#312871001",
+              descendantsOrSelfOf: true
+            }
+          },
+          {
+            property: [
+              {
+                "@id": "http://snomed.info/sct#363589002",
+                anyRoleGroup: true,
+                descendantsOrSelfOf: true,
+                is: [
+                  {
+                    "@id": "http://snomed.info/sct#117103007",
+                    descendantsOrSelfOf: true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        bool: "or"
       }
     ]
   }

@@ -24,7 +24,9 @@ import { useDirectoryStore } from "@/stores/directoryStore";
 import { DirectService } from "@/services";
 import { Ref, computed, ref } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const directoryStore = useDirectoryStore();
 const directService = new DirectService();
 
@@ -44,8 +46,12 @@ function routeToSelected(selected: any) {
   else if (typeof selected === "string") directService.select(selected, "Folder");
 }
 
-function navigateTo(iri: string) {
-  directService.select(iri, "Folder");
+function navigateTo(iri: any) {
+  if (iri.item && iri.item.icon.includes("fa-house")) {
+    router.push("/");
+  } else {
+    directService.select(iri, "Folder");
+  }
 }
 
 function locateInTree(iri: string) {

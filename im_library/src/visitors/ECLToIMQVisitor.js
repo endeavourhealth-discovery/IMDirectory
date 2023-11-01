@@ -128,7 +128,7 @@ export default class ECLBuilderVisitor extends ECLVisitor {
           if (isObjectHasKeys(result, ["subExpressionConstraint"]))
             query.disjunctionExpressionConstraint.match.push({ instanceOf: result.subExpressionConstraint });
           if (isObjectHasKeys(result, ["bracketCompoundExpressionConstraint"]))
-            query.disjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint.match);
+            query.disjunctionExpressionConstraint.match.push(result.bracketCompoundExpressionConstraint);
         }
       }
     }

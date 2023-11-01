@@ -13,10 +13,10 @@
         <SearchBar
           v-model:searchResults="searchResults"
           v-model:searchLoading="searchLoading"
-          :searchByQuery="searchByQuery"
           @to-ecl-search="showEclSearch"
           @to-query-search="showQuerySearch"
           :selected="selected"
+          :filter-options="filterOptions"
         />
       </div>
       <div class="vertical-divider">
@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, Ref, computed } from "vue";
-import { ConceptSummary } from "@im-library/interfaces";
+import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
@@ -81,11 +81,13 @@ interface Props {
   searchByQuery?: QueryRequest;
   selected?: ConceptSummary;
   rootEntities?: string[];
+  filterOptions?: FilterOptions;
 }
 const props = defineProps<Props>();
 watch(
   () => props.showDialog,
   newValue => {
+    if (newValue === true) initSelection();
     visible.value = newValue;
   }
 );
@@ -161,8 +163,8 @@ function initSelection() {
 }
 
 function updateSelected(data: ConceptSummary) {
-  emit("update:selected", data);
-  visible.value = false;
+  navigateTo(data.iri);
+  locateInTree(data.iri);
 }
 
 async function updateSelectedFromIri(iri: string) {

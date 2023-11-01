@@ -145,7 +145,7 @@ const {
   validationChecksCompleted,
   checkValidity
 } = setupValidity(shape.value);
-const { valueVariableMap, updateValueVariableMap } = setupValueVariableMap();
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
 
 const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
@@ -163,7 +163,7 @@ const showSidebar = ref(false);
 const forceValidation = ref(false);
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
-provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
+provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap, valueVariableHasChanged });
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
 provide(injectionKeys.forceValidation, {
   forceValidation,

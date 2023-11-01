@@ -51,6 +51,7 @@ const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
@@ -71,14 +72,16 @@ if (forceValidation) {
 if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
     () => _.cloneDeep(valueVariableMap),
-    async () => {
-      if (updateValidity) {
-        if (props.shape.builderChild) {
-          isValidTermCode();
-        } else {
-          await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, oldValue, newValue)) {
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            isValidTermCode();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, props.shape.path["@id"], invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
         }
-        showValidation.value = true;
       }
     }
   );
@@ -126,6 +129,9 @@ function processProps() {
 function isValidTermCode() {
   invalid.value = false;
   validationErrorMessage.value = "";
+  if (props.shape.builderChild && props.position === 0 && !name.value && !code.value && !status.value) {
+    return;
+  }
   if (props.shape.minCount === 0 && !name.value && !code.value && !status.value) return;
   if (!name.value) {
     invalid.value = true;
@@ -181,6 +187,7 @@ function updateEntity() {
   width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
+  height: 2.7rem;
 }
 
 .invalid {

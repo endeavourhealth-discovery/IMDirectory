@@ -1085,5 +1085,48 @@ export default {
       { concept: { iri: "http://snomed.info/sct#298705001" }, descendants: "<<", type: "Concept" }
     ],
     type: "BoolGroup"
+  },
+  chis: {
+    type: "BoolGroup",
+    items: [
+      {
+        type: "Concept",
+        descendants: "<<",
+        concept: {
+          iri: "http://snomed.info/sct#312871001"
+        }
+      },
+      {
+        type: "BoolGroup",
+        items: [
+          {
+            type: "Concept",
+            concept: {
+              iri: "*"
+            },
+            items: [
+              {
+                type: "Refinement",
+                property: {
+                  descendants: "<<",
+                  concept: {
+                    iri: "http://snomed.info/sct#363589002"
+                  }
+                },
+                value: {
+                  descendants: "<<",
+                  concept: {
+                    iri: "http://snomed.info/sct#117103007"
+                  }
+                },
+                operator: "="
+              }
+            ]
+          }
+        ],
+        conjunction: "AND"
+      }
+    ],
+    conjunction: "OR"
   }
 };

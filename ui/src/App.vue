@@ -107,11 +107,16 @@ async function setupAxiosInterceptors(axios: any) {
   });
 
   axios.interceptors.response.use(
-    (response: any) => {
+    async (response: any) => {
       return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
     },
-    (error: any) => {
-      if (error?.response?.config?.raw) return Promise.reject(error);
+    async (error: any) => {
+      if (error?.response?.config?.raw) {
+        if (error?.config?.responseType === "blob" && error?.response?.data) {
+          error.response.data = JSON.parse(await error.response.data.text());
+          return Promise.reject(error);
+        } else return Promise.reject(error);
+      }
       if (error?.response?.status === 403) {
         if (error.response.data) {
           toast.add({
