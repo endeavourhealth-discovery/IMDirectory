@@ -167,52 +167,6 @@ const FolderShape: FormGenerator = {
               ]
             },
             {
-              label: "Property group - Sub type array builder",
-              order: 1,
-              path: {
-                "@id": RDFS.SUBCLASS_OF
-              },
-              validation: {
-                "@id": IM.validation.HAS_PARENT
-              },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  order: 1,
-                  select: [
-                    {
-                      "@id": IM.query.SEARCH_ENTITIES
-                    }
-                  ],
-                  argument: [
-                    {
-                      parameter: "this",
-                      valueIri: {
-                        "@id": IM.CONCEPT
-                      }
-                    }
-                  ],
-                  builderChild: true,
-                  name: "Entity",
-                  path: {
-                    "@id": RDFS.SUBCLASS_OF
-                  },
-                  minCount: 0,
-                  componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  }
-                }
-              ],
-              name: "Subclass of",
-              showTitle: true,
-              minCount: 0,
-              componentType: {
-                "@id": IM.component.ARRAY_BUILDER
-              },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true }
-            },
-            {
               label: "Property group - Contained in array builder",
               order: 1,
               path: {
