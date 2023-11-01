@@ -17,7 +17,7 @@ const FunctionService = {
   },
 
   async runSearchFunction(request: FunctionRequest, controller?: AbortController, raw?: boolean): Promise<ConceptSummary[]> {
-    return await axios.post(Env.API + "api/function/public/callSearchFunction", request, { signal: controller?.signal, raw: raw });
+    return await axios.post(Env.VITE_NODE_API + "node_api/function/public/callSearchFunction", request, { signal: controller?.signal, raw: raw });
   }
 };
 

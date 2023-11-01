@@ -2,65 +2,40 @@
   <div class="refinement-content-container">
     <div
       class="search-text"
-      :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable']"
+      :class="[!isValidProperty && 'p-invalid', !loadingProperty && hasFocus && 'clickable', loadingProperty && 'inactive']"
       @click="hasFocus ? (showPropertyDialog = true) : (showPropertyDialog = false)"
       v-tooltip="{ value: selectedProperty.name ?? '', class: 'entity-tooltip' }"
     >
       <span class="selected-label">{{ selectedProperty.name ?? "Search..." }}</span>
     </div>
-    <DirectorySearchDialog
-      v-if="showPropertyDialog"
-      v-model:show-dialog="showPropertyDialog"
-      v-model:selected="selectedProperty"
-      :search-by-function="propertyFunctionRequest"
-    />
-    <DirectorySearchDialog
-      v-if="showValueDialog"
-      v-model:show-dialog="showValueDialog"
-      v-model:selected="selectedValue"
-      :search-by-function="valueFunctionRequest"
-    />
-    <!-- <AutoComplete
-      style="flex: 1"
-      :input-style="{ flex: 1 }"
-      field="name"
-      dataKey="iri"
-      v-model="selectedProperty"
-      :suggestions="propertyResults"
-      @complete="searchProperty($event.query)"
-      placeholder="search..."
-      :disabled="loadingProperty || !hasFocus()"
-      :optionDisabled="disableOption"
-      :class="!isValidProperty ? 'p-invalid' : ''"
-      :forceSelection="true"
-    /> -->
     <ProgressSpinner v-if="loadingProperty" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.property.descendants" :options="descendantOptions" option-label="label" option-value="value" />
     <Dropdown style="width: 5rem" v-model="value.operator" :options="operatorOptions" />
     <div
       class="search-text"
-      :class="[!isValidPropertyValue && 'p-invalid', !loadingProperty && selectedProperty && 'clickable']"
+      :class="[!isValidPropertyValue && 'p-invalid', !loadingValue && selectedProperty && 'clickable', loadingValue && 'inactive']"
       @click="hasProperty ? (showValueDialog = true) : (showValueDialog = false)"
       v-tooltip="{ value: selectedValue.name ?? '', class: 'entity-tooltip' }"
     >
       <span class="selected-label">{{ selectedValue.name ?? "Search..." }}</span>
     </div>
-    <!-- <AutoComplete
-      style="flex: 1"
-      :input-style="{ flex: 1 }"
-      field="name"
-      dataKey="iri"
-      v-model="selectedValue"
-      :suggestions="valueResults"
-      @complete="searchValue($event.query)"
-      placeholder="search..."
-      :disabled="!selectedProperty || typeof selectedProperty == 'string' || loadingValue"
-      :class="!isValidPropertyValue ? 'p-invalid' : ''"
-      :forceSelection="true"
-    /> -->
     <ProgressSpinner v-if="loadingValue" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.value.descendants" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
+  <DirectorySearchDialog
+    v-if="showPropertyDialog"
+    v-model:show-dialog="showPropertyDialog"
+    v-model:selected="selectedProperty"
+    :search-by-function="propertyFunctionRequest"
+    :root-entities="propertyTreeRoots"
+  />
+  <DirectorySearchDialog
+    v-if="showValueDialog"
+    v-model:show-dialog="showValueDialog"
+    v-model:selected="selectedValue"
+    :search-by-function="valueFunctionRequest"
+    :root-entities="valueTreeRoots"
+  />
 </template>
 
 <script setup lang="ts">
@@ -72,7 +47,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
 import { useToast } from "primevue/usetoast";
 import { ToastSeverity } from "@im-library/enums";
-import _ from "lodash";
+import _, { property } from "lodash";
 import { isAliasIriRef, isBoolGroup } from "@im-library/helpers/TypeGuards";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
@@ -83,7 +58,7 @@ interface Props {
     type: string;
     operator: string;
     property: { concept: { iri: string; name?: string } | ConceptSummary; descendants: string };
-    value: { concept: { iri: string; name?: string | ConceptSummary }; descendants: string };
+    value: { concept: { iri: string; name?: string } | ConceptSummary; descendants: string };
     ecl?: string;
   };
   parent?: any;
@@ -148,21 +123,27 @@ const isValidProperty = ref(false);
 const isValidPropertyValue = ref(false);
 const showPropertyDialog = ref(false);
 const showValueDialog = ref(false);
+const propertyFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM.function.ALLOWABLE_PROPERTIES, arguments: [] });
+const valueFunctionRequest: Ref<FunctionRequest> = ref({ functionIri: IM.function.ALLOWABLE_RANGES, arguments: [] });
+const propertyTreeRoots: Ref<string[]> = ref([]);
+const valueTreeRoots: Ref<string[]> = ref([]);
 
 watch(selectedProperty, async newValue => {
-  if (newValue) updateProperty(newValue);
+  if (newValue) await updateProperty(newValue);
 });
 
-watch(selectedValue, newValue => {
-  if (newValue) updateValue(newValue);
+watch(selectedValue, async newValue => {
+  if (newValue) await updateValue(newValue);
 });
 
 watch([() => _.cloneDeep(props.focus), () => _.cloneDeep(props.value.property.concept)], async () => {
   await updateIsValidProperty();
+  updateFunctionArguments();
 });
 
 watch([selectedProperty, () => _.cloneDeep(props.value.value.concept)], async () => {
   await updateIsValidPropertyValue();
+  updateFunctionArguments();
 });
 
 const descendantOptions = [
@@ -182,18 +163,48 @@ const descendantOptions = [
 
 const operatorOptions = ["=", "!="];
 
-const propertyFunctionRequest = { functionIri: IM.function.ALLOWABLE_PROPERTIES } as FunctionRequest;
-const valueFunctionRequest = { functionIri: IM.function.ALLOWABLE_RANGES } as FunctionRequest;
-
 onMounted(async () => {
   loadingProperty.value = true;
   loadingValue.value = true;
   await updateIsValidProperty();
   await updateIsValidPropertyValue();
   await processProps();
+  updateFunctionArguments();
+  await getPropertyTreeRoots();
+  await getValueTreeRoots();
   loadingProperty.value = false;
   loadingValue.value = false;
 });
+
+function updateFunctionArguments() {
+  const focusArg = propertyFunctionRequest.value.arguments?.find(arg => arg.parameter === "focus");
+  const propertyArg = valueFunctionRequest.value.arguments?.find(arg => arg.parameter === "property");
+  if (props.focus && !focusArg) propertyFunctionRequest.value.arguments?.push({ parameter: "focus", valueObject: props.focus });
+  else if (props.focus && focusArg && focusArg.valueObject !== props.focus) focusArg.valueObject = props.focus;
+  if (props.value.property.concept && !propertyArg)
+    valueFunctionRequest.value.arguments?.push({ parameter: "property", valueObject: props.value.property.concept });
+  else if (props.value.property.concept && propertyArg && propertyArg?.valueObject !== props.value.property.concept)
+    propertyArg.valueObject = props.value.property.concept;
+}
+
+async function getPropertyTreeRoots() {
+  if (props.focus) {
+    if (isAliasIriRef(props.focus)) {
+      const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
+      if (results) propertyTreeRoots.value = results.result.map(item => item["@id"]);
+    } else if (isBoolGroup(props.focus)) {
+      const results = await EntityService.getSuperiorPropertiesBoolFocusPaged(props.focus);
+      if (results) propertyTreeRoots.value = results.result.map(item => item["@id"]);
+    }
+  }
+}
+
+async function getValueTreeRoots() {
+  if (props.value?.property?.concept?.iri) {
+    const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
+    if (results) valueTreeRoots.value = results.result.map(item => item["@id"]);
+  }
+}
 
 async function updateIsValidProperty(): Promise<void> {
   if (props.focus?.iri === "any" || props.focus.iri === "*") isValidProperty.value = true;
@@ -267,42 +278,6 @@ async function processProps() {
   }
 }
 
-// async function searchProperty(term: string) {
-//   if (!hasFocus()) return;
-//   if (term && term.length > 2) {
-//     if (term.toLowerCase() === "any") {
-//       propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
-//     } else {
-//       if (propertyController.value) propertyController.value.abort();
-
-//       propertyController.value = new AbortController();
-
-//       let matches: any[] = [];
-//       if (isAliasIriRef(props.focus)) matches = await QueryService.getAllowablePropertySuggestions(props.focus?.iri, term, propertyController.value);
-//       else if (isBoolGroup(props.focus)) matches = await QueryService.getAllowablePropertySuggestionsBoolFocus(props.focus, term, propertyController.value);
-//       propertyResults.value = matches;
-//     }
-//   } else if (term === "*") {
-//     propertyResults.value = [{ iri: "any", name: "ANY", code: "any" }];
-//   } else propertyResults.value = [{ iri: null, name: "3 character minimum", code: "UNKNOWN" }];
-// }
-
-// async function searchValue(term: string) {
-//   if (!selectedProperty.value.iri) return;
-//   if (term && term.length > 2) {
-//     if (term.toLowerCase() === "any") {
-//       valueResults.value = [{ iri: "any", name: "ANY", code: "any" }];
-//     } else {
-//       if (valueController.value) valueController.value.abort();
-
-//       valueController.value = new AbortController();
-//       valueResults.value = await QueryService.getAllowableRangeSuggestions(selectedProperty.value.iri, term, valueController.value);
-//     }
-//   } else if (term === "*") {
-//     valueResults.value = [{ iri: "any", name: "ANY", code: "any" }];
-//   } else valueResults.value = [{ iri: null, name: "3 character minimum", code: "UNKNOWN" }];
-// }
-
 function generateEcl(): string {
   let ecl = "";
   if (hasProperty.value) ecl += builderConceptToEcl(props.value.property, includeTerms.value);
@@ -313,14 +288,16 @@ function generateEcl(): string {
   return ecl;
 }
 
-function updateProperty(property: ConceptSummary) {
+async function updateProperty(property: ConceptSummary) {
   props.value.property.concept = property;
   props.value.ecl = generateEcl();
+  await getPropertyTreeRoots();
 }
 
-function updateValue(value: ConceptSummary) {
+async function updateValue(value: ConceptSummary) {
   props.value.value.concept = value;
   props.value.ecl = generateEcl();
+  await getValueTreeRoots();
 }
 </script>
 
