@@ -259,7 +259,7 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
+    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
@@ -341,6 +341,10 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
           {
             property: [
               {
+                "@id": RDF.TYPE,
+                is: [{ "@id": IM.CONCEPT_SET }, { "@id": IM.VALUE_SET }, { "@id": IM.CONCEPT }, { "@id": SHACL.NODESHAPE }, { "@id": RDFS.DATATYPE }]
+              },
+              {
                 "@id": IM.SCHEME,
                 is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
               }
@@ -350,7 +354,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
+    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
   }
 
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
