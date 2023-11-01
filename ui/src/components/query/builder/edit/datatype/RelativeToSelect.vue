@@ -121,15 +121,18 @@ async function getVariableOptions(searchTerm?: string) {
 
   for (const [key, value] of variableMap.value.entries()) {
     const dataModelIri = getVariableWithType(value);
-    const treeNode = await EntityService.getPropertyOptions(dataModelIri, props.datatype, key);
-    if (isObjectHasKeys(treeNode)) options.push(treeNode);
+    if (dataModelIri) {
+      const treeNode = await EntityService.getPropertyOptions(dataModelIri, props.datatype, key);
+      if (isObjectHasKeys(treeNode)) options.push(treeNode);
+    }
   }
 
-  const option = await EntityService.getPropertyOptions(queryTypeIri.value, props.datatype, getNameFromRef({ "@id": queryTypeIri.value }));
-
-  if (isObjectHasKeys(option)) {
-    option.children = option.children?.filter(childOption => childOption.data["@id"] !== props.propertyIri);
-    if (isArrayHasLength(option.children)) options.push(option);
+  if (queryTypeIri.value) {
+    const option = await EntityService.getPropertyOptions(queryTypeIri.value, props.datatype, getNameFromRef({ "@id": queryTypeIri.value }));
+    if (isObjectHasKeys(option)) {
+      option.children = option.children?.filter(childOption => childOption.data["@id"] !== props.propertyIri);
+      if (isArrayHasLength(option.children)) options.push(option);
+    }
   }
 
   if (searchTerm && isArrayHasLength(options)) {
