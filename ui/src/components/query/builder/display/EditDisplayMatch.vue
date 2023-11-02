@@ -51,7 +51,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showUpdateDialog"
-    :header="'Update properties'"
+    :header="'Refine feature'"
     :show-variable-options="false"
     :match-type="getMatchType()"
     :match="match"
@@ -60,7 +60,7 @@
 
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :header="'Add properties'"
+    :header="'Add feature'"
     :show-variable-options="true"
     :match-type="getMatchType()"
     @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, addBefore)"
@@ -270,7 +270,7 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add property feature",
+      label: "Add feature",
       icon: PrimeIcons.PLUS,
       command: () => {
         showAddDialog.value = true;
@@ -292,7 +292,7 @@ function getSingleRCOptions() {
       ]
     },
     {
-      label: "Add cohort feature",
+      label: "Add population",
       icon: PrimeIcons.WRENCH,
       command: () => {
         showDirectoryDialog.value = true;
@@ -377,7 +377,7 @@ function getSingleRCOptions() {
 
   if (hasValue.value || hasProperty.value || isDataModel.value) {
     const updatePropertiesOption = {
-      label: "Update properties",
+      label: "Refine feature",
       icon: PrimeIcons.PENCIL,
       command: () => {
         editMatch();
@@ -385,7 +385,7 @@ function getSingleRCOptions() {
     };
 
     const updateValueOption = {
-      label: "Update value",
+      label: "Refine population",
       icon: PrimeIcons.PENCIL,
       command: () => {
         editMatch();

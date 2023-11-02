@@ -6,15 +6,15 @@
     <EditDisplayMatch v-if="isArrayHasLength(query.match)" v-for="(match, index) of query.match" :match="match" :index="index" :parentMatchList="query.match" />
 
     <div v-else-if="!queryTypeIri">
-      <Button label="Add base type" @click="showAddBaseTypeDialog = true" />
+      <Button label="Set base type" @click="showAddBaseTypeDialog = true" />
     </div>
     <div v-if="query['typeOf']">
-      <SplitButton label="Add property" :model="addOptions" icon="pi pi-pencil" @click="showAddDialog = true"></SplitButton>
+      <SplitButton label="Add feature" :model="addOptions" icon="pi pi-pencil" @click="showAddDialog = true"></SplitButton>
     </div>
 
     <AddPropertyDialog
       v-model:show-dialog="showAddDialog"
-      :header="'Add properties'"
+      :header="'Add feature'"
       :show-variable-options="true"
       :match-type="queryTypeIri"
       @on-save="onPropertyAdd"
