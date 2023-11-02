@@ -27,7 +27,7 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { mapToObject } from "@im-library/helpers/Transforms";
-import { QueryService } from "@/services";
+import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
@@ -173,9 +173,9 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape);
-    return QueryService.runFunction(props.shape.function!["@id"], args);
+    return FunctionService.runFunction(props.shape.function!["@id"], args);
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return QueryService.runFunction(props.shape.function!["@id"]);
+    return FunctionService.runFunction(props.shape.function!["@id"]);
   } else throw new Error("propertyshape is missing 'search' or 'function' parameter to fetch dropdown options");
 }
 
