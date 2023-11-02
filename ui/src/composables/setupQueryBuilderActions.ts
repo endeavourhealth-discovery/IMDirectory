@@ -19,13 +19,15 @@ function setupQueryBuilderActions() {
   function addMatches(parentMatch: Match, newMatches: Match[], index: number = -1, before?: boolean) {
     if (!isArrayHasLength(parentMatch.match)) {
       parentMatch.bool = "and";
-      parentMatch.match = [];
-    }
-    addMatchesToList(parentMatch.match!, newMatches, index, before);
+      parentMatch.match = newMatches;
+    } else
+      for (const newMatch of newMatches) {
+        parentMatch.match!.push(newMatch);
+      }
   }
 
   function addMatchesToList(matchList: Match[], newMatches: Match[], index: number = -1, before?: boolean) {
-    if (isArrayHasLength(matchList)) {
+    if (matchList) {
       if (index === -1) matchList = matchList?.concat(newMatches);
       else {
         const indexToAdd = before ? index : index + 1;
