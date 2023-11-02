@@ -33,13 +33,14 @@
         </span>
       </div>
     </div>
-    <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
     <div class="results-container">
       <ResultsTable
         :searchResults="searchResults"
         :loading="loading"
-        @locate-in-tree="(iri:string) => $emit('locateInTree', iri)"
-        @row-selected="(selected:ConceptSummary) => emit('selectedUpdated', selected)"
+        :rows="rowsStart"
+        :total-records="totalCount"
+        @locate-in-tree="(iri: string) => $emit('locateInTree', iri)"
+        @row-selected="(selected: ConceptSummary) => emit('selectedUpdated', selected)"
       />
     </div>
   </div>
@@ -94,6 +95,8 @@ const controller: Ref<AbortController> = ref({} as AbortController);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
 
+const rowsStart = 20;
+
 watch(queryString, () => {
   eclError.value = false;
   editorStore.updateEclEditorSavedString(queryString.value);
@@ -131,7 +134,12 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const eclQuery = await EclService.getQueryFromECL(queryString.value);
-    const eclSearchRequest = { eclQuery: eclQuery, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
+    const eclSearchRequest = {
+      eclQuery: eclQuery,
+      includeLegacy: false,
+      limit: 0,
+      statusFilter: selectedStatus.value
+    } as EclSearchRequest;
     const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
     if (isObjectHasKeys(result, ["entities"])) {
       searchResults.value = result.entities;
