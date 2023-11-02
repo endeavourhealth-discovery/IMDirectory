@@ -32,7 +32,8 @@ export default class FunctionController {
     const functionRequest = req.body;
     if (functionRequest && isObjectHasKeys(functionRequest, ["functionIri"])) {
       if (functionRequest.functionIri === IM.function.ALLOWABLE_PROPERTIES) return this.functionService.getAllowablePropertySuggestions(functionRequest);
-      if (functionRequest.functionIri === IM.function.ALLOWABLE_RANGES) return this.functionService.getAllowableRangeSuggestions(functionRequest);
+      else if (functionRequest.functionIri === IM.function.ALLOWABLE_RANGES) return this.functionService.getAllowableRangeSuggestions(functionRequest);
+      else throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
     } else throw new CustomError("functionIri is required.", ErrorType.InvalidInputError);
   }
 }
