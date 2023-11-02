@@ -15,6 +15,7 @@
       v-model:show-dialog="showDialog"
       v-model:selected="selected"
       :search-by-query="queryRequest"
+      :root-entities="['http://endhealth.info/im#HealthModelOntology']"
     />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
