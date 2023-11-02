@@ -199,7 +199,20 @@ const ConceptSetShape: FormGenerator = {
                   },
                   path: {
                     "@id": RDFS.SUBCLASS_OF
-                  }
+                  },
+                  select: [
+                    {
+                      "@id": IM.query.SEARCH_SUBCLASS
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.CONCEPT_SET
+                      },
+                      parameter: "value"
+                    }
+                  ]
                 }
               ]
             },
