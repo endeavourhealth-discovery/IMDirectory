@@ -417,8 +417,8 @@ const EntityService = {
 
   async getSuperiorPropertiesPaged(
     conceptIri: string,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
@@ -430,8 +430,8 @@ const EntityService = {
 
   async getSuperiorPropertiesBoolFocusPaged(
     focus: any,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {
@@ -444,8 +444,8 @@ const EntityService = {
 
   async getSuperiorPropertyValuesPaged(
     propertyIri: string,
-    pageIndex: number,
-    pageSize: number,
+    pageIndex?: number,
+    pageSize?: number,
     filters?: FiltersAsIris,
     controller?: AbortController
   ): Promise<{ result: any[]; totalCount: number }> {

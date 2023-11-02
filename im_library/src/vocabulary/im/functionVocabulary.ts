@@ -8,4 +8,6 @@ export class functionVocabulary {
   public static SCHEME_FROM_IRI = this.NAMESPACE + "SchemeFromIri";
   public static GET_USER_EDITABLE_SCHEMES = this.NAMESPACE + "GetUserEditableSchemes";
   public static GENERATE_IRI_CODE = this.NAMESPACE + "GenerateIriCode";
+  public static ALLOWABLE_PROPERTIES = this.NAMESPACE + "AllowableProperties";
+  public static ALLOWABLE_RANGES = this.NAMESPACE + "AllowableRanges";
 }

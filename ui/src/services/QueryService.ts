@@ -42,17 +42,6 @@ const QueryService = {
     return axios.post(Env.VITE_NODE_API + "node_api/validation/public/validate", data, { params: { iri: validationIri } });
   },
 
-  async runFunction(iri: string, args?: any[]): Promise<any> {
-    if (args && args.length > 0) {
-      const result: any = await axios.post(Env.API + "api/function/public/callFunction", {
-        functionIri: iri,
-        arguments: args
-      });
-      if (isArrayHasLength(args) && args.find(arg => arg.parameter === "fieldName")) return result[args.find(arg => arg.parameter === "fieldName").valueData];
-      else return result;
-    } else return await axios.post(Env.API + "api/function/public/callFunction", { functionIri: iri });
-  },
-
   async entityQuery(query: QueryRequest, controller?: AbortController) {
     if (controller) return await axios.post(Env.API + "api/query/public/entityQuery", query, { signal: controller.signal });
     else return await axios.post(Env.API + "api/query/public/entityQuery", query);

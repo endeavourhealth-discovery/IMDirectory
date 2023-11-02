@@ -170,8 +170,42 @@ const ConceptSetShape: FormGenerator = {
               ]
             },
             {
+              label: "Subclass of array builder",
+              name: "Subclass of",
+              showTitle: true,
+              order: 1,
+              minCount: 0,
+              componentType: {
+                "@id": IM.component.ARRAY_BUILDER
+              },
+              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
+              validation: {
+                "@id": IM.validation.HAS_PARENT
+              },
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              path: {
+                "@id": RDFS.SUBCLASS_OF
+              },
+              valueVariable: "subClassOf",
+              property: [
+                {
+                  comment: "selects an entity based on select query",
+                  name: "Entity",
+                  order: 1,
+                  minCount: 0,
+                  builderChild: true,
+                  componentType: {
+                    "@id": IM.component.ENTITY_SEARCH
+                  },
+                  path: {
+                    "@id": RDFS.SUBCLASS_OF
+                  }
+                }
+              ]
+            },
+            {
               label: "Contained in array builder",
-              name: "Is contained in",
+              name: "Contained in",
               showTitle: true,
               order: 1,
               minCount: 0,
@@ -203,40 +237,6 @@ const ConceptSetShape: FormGenerator = {
                   ],
                   path: {
                     "@id": IM.IS_CONTAINED_IN
-                  }
-                }
-              ]
-            },
-            {
-              label: "Subclass of array builder",
-              name: "Subclass of",
-              showTitle: true,
-              order: 1,
-              minCount: 0,
-              componentType: {
-                "@id": IM.component.ARRAY_BUILDER
-              },
-              arrayButtons: { plus: true, minus: true, up: false, down: false, addOnlyIfLast: true },
-              validation: {
-                "@id": IM.validation.HAS_PARENT
-              },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
-              path: {
-                "@id": RDFS.SUBCLASS_OF
-              },
-              valueVariable: "subClassOf",
-              property: [
-                {
-                  comment: "selects an entity based on select query",
-                  name: "Entity",
-                  order: 1,
-                  minCount: 0,
-                  builderChild: true,
-                  componentType: {
-                    "@id": IM.component.ENTITY_SEARCH
-                  },
-                  path: {
-                    "@id": RDFS.SUBCLASS_OF
                   }
                 }
               ]

@@ -17,7 +17,7 @@ import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeC
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { EntityService, QueryService } from "@/services";
+import { EntityService, FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
@@ -140,7 +140,7 @@ async function setSelectedEntity() {
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape, valueVariableMap?.value);
     if (args.filter(a => isObjectHasKeys(a, ["valueVariable"])).every(a => a.valueVariable)) {
-      const result = await QueryService.runFunction(props.shape.function!["@id"], args);
+      const result = await FunctionService.runFunction(props.shape.function!["@id"], args);
       if (isArrayHasLength(result)) return result[0];
       else return result;
     } else return { "@id": "", name: "" };

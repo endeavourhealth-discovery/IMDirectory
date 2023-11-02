@@ -58,6 +58,7 @@ watch(
     } else if (propertyType.value === "startsWith" || propertyType.value === "contains") {
       props.property.operator = propertyType.value;
     } else if (propertyType.value === "is") {
+      delete props.property.range;
       props.property.operator = "=";
     }
   }

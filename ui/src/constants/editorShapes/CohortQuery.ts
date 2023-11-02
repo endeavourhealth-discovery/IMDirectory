@@ -164,7 +164,7 @@ const CohortQueryShape: FormGenerator = {
             },
             {
               label: "Property group - contained in array builder",
-              name: "Is contained in",
+              name: "Contained in",
               showTitle: true,
               order: 6,
               minCount: 0,
