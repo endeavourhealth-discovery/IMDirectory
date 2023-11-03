@@ -23,7 +23,14 @@
     <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
     <div class="button-container">
       <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" />
-      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length || eclError" data-testid="search-button" />
+      <Button
+        label="Search"
+        :loading="loading"
+        @click="search"
+        class="p-button-primary"
+        :disabled="!queryString.length || eclError"
+        data-testid="search-button"
+      />
     </div>
     <div class="filters-container">
       <div class="status-filter p-inputgroup">
@@ -38,11 +45,12 @@
         :searchResults="searchResults"
         :loading="loading"
         :rows="rowsStart"
-        :lazy-loading="true"
+        :lazy-loading="requresLazy"
         :total-records="totalCount"
         @locate-in-tree="(iri: string) => $emit('locateInTree', iri)"
         @row-selected="(selected: ConceptSummary) => emit('selectedUpdated', selected)"
         @lazy-load-requested="loadMore"
+        @download-requested="downloadAll"
       />
     </div>
   </div>
@@ -73,6 +81,9 @@ import { byName } from "@im-library/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
+import setupDownloadFile from "@/composables/downloadFile";
+import LoadingDialog from "../shared/dynamicDialogs/LoadingDialog.vue";
+import { useDialog } from "primevue/usedialog";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
@@ -82,9 +93,13 @@ const emit = defineEmits({
 const toast = useToast();
 const filterStore = useFilterStore();
 const editorStore = useEditorStore();
+const dynamicDialog = useDialog();
+
+const { downloadFile } = setupDownloadFile(window, document);
 
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
+const requresLazy = computed(() => totalCount.value > 1000);
 
 const rowsStart = 20;
 
@@ -96,6 +111,7 @@ const eclError = ref(false);
 const eclErrorMessage = ref("");
 const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
+const controllerTotal: Ref<AbortController> = ref({} as AbortController);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
 const currentPage = ref(0);
@@ -136,16 +152,23 @@ async function search(): Promise<void> {
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
+    if (!isObject(controllerTotal.value)) {
+      controllerTotal.value.abort();
+    }
     controller.value = new AbortController();
     const eclQuery = await EclService.getQueryFromECL(queryString.value);
     eclQuery.orderBy = [{ valueVariable: "term" }];
     const eclSearchRequest = {
       eclQuery: eclQuery,
       includeLegacy: false,
-      size: currentRows.value,
-      statusFilter: selectedStatus.value,
-      page: currentPage.value
+      statusFilter: selectedStatus.value
     } as EclSearchRequest;
+    const count = await EclService.eclSearchTotalCount(eclSearchRequest, controllerTotal.value);
+    if (count) totalCount.value = count;
+    if (requresLazy.value) {
+      eclSearchRequest.page = currentPage.value;
+      eclSearchRequest.size = currentRows.value;
+    }
     const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
     if (isObjectHasKeys(result, ["entities"])) {
       searchResults.value = result.entities;
@@ -164,6 +187,31 @@ async function loadMore(event: any) {
     currentPage.value = event.page;
     await search();
   }
+}
+
+async function downloadAll() {
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
+  });
+  const eclQuery = await EclService.getQueryFromECL(queryString.value);
+  eclQuery.orderBy = [{ valueVariable: "term" }];
+  const eclSearchRequest = {
+    eclQuery: eclQuery,
+    includeLegacy: false,
+    statusFilter: selectedStatus.value,
+    limit: 0
+  } as EclSearchRequest;
+  const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
+  if (isObjectHasKeys(result, ["entities"])) {
+    const entities = result.entities;
+    const total = result.count;
+    const heading = ["name", "iri", "code"].join(",");
+    const body = entities.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+    const csv = [heading, body].join("\n");
+    downloadFile(csv, "results.csv");
+  }
+  downloadDialog.close();
 }
 
 function setFilterDefaults() {
