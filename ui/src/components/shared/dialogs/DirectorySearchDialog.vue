@@ -235,7 +235,7 @@ async function getHasQueryDefinition() {
 }
 
 function onEnter() {
-  if (isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+  if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
 }
 </script>
 
