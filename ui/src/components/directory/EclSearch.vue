@@ -38,9 +38,11 @@
         :searchResults="searchResults"
         :loading="loading"
         :rows="rowsStart"
+        :lazy-loading="true"
         :total-records="totalCount"
         @locate-in-tree="(iri: string) => $emit('locateInTree', iri)"
         @row-selected="(selected: ConceptSummary) => emit('selectedUpdated', selected)"
+        @lazy-load-requested="loadMore"
       />
     </div>
   </div>
@@ -84,6 +86,8 @@ const editorStore = useEditorStore();
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
 
+const rowsStart = 20;
+
 const queryString = ref("");
 const showDialog = ref(false);
 const searchResults: Ref<ConceptSummary[]> = ref([]);
@@ -94,8 +98,8 @@ const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
-
-const rowsStart = 20;
+const currentPage = ref(0);
+const currentRows = ref(rowsStart);
 
 watch(queryString, () => {
   eclError.value = false;
@@ -134,11 +138,13 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const eclQuery = await EclService.getQueryFromECL(queryString.value);
+    eclQuery.orderBy = [{ valueVariable: "term" }];
     const eclSearchRequest = {
       eclQuery: eclQuery,
       includeLegacy: false,
-      limit: 0,
-      statusFilter: selectedStatus.value
+      size: currentRows.value,
+      statusFilter: selectedStatus.value,
+      page: currentPage.value
     } as EclSearchRequest;
     const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
     if (isObjectHasKeys(result, ["entities"])) {
@@ -146,6 +152,17 @@ async function search(): Promise<void> {
       totalCount.value = result.count;
     }
     loading.value = false;
+  }
+}
+
+async function loadMore(event: any) {
+  if (event.rows !== rowsStart) {
+    currentRows.value = event.rows;
+    await search();
+  }
+  if (event.page !== currentPage.value) {
+    currentPage.value = event.page;
+    await search();
   }
 }
 
