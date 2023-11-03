@@ -87,7 +87,7 @@ const emit = defineEmits({
 
 const toast = useToast();
 
-const build: Ref<any> = ref({ type: "BoolGroup", operator: "AND" });
+const build: Ref<any> = ref({ type: "BoolGroup", operator: "OR" });
 const includeTerms = ref(true);
 const queryString = ref("");
 const eclConversionError: Ref<{ error: boolean; message: string }> = ref({ error: false, message: "" });
@@ -124,7 +124,7 @@ watch(
 watch(includeTerms, () => generateQueryString());
 
 function createDefaultBuild() {
-  build.value = { type: "BoolGroup", conjunction: "AND" };
+  build.value = { type: "BoolGroup", conjunction: "OR" };
 }
 
 async function createBuildFromEclString(ecl: string) {
