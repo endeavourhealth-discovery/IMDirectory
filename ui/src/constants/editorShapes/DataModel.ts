@@ -222,7 +222,20 @@ const DataModelShape: FormGenerator = {
                   minCount: 0,
                   componentType: {
                     "@id": IM.component.ENTITY_SEARCH
-                  }
+                  },
+                  select: [
+                    {
+                      "@id": IM.query.SEARCH_SUBCLASS
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": SHACL.NODESHAPE
+                      },
+                      parameter: "value"
+                    }
+                  ]
                 }
               ],
               name: "Subclass of",

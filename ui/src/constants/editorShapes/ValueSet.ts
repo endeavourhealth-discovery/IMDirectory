@@ -185,15 +185,15 @@ const ValueSetShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_ENTITIES
+                      "@id": IM.query.SEARCH_SUBCLASS
                     }
                   ],
                   argument: [
                     {
-                      parameter: "this",
                       valueIri: {
-                        "@id": IM.CONCEPT
-                      }
+                        "@id": IM.VALUE_SET
+                      },
+                      parameter: "value"
                     }
                   ],
                   builderChild: true,
