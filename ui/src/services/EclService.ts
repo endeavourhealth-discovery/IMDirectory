@@ -10,7 +10,7 @@ const EclService = {
     const results = (await axios.post(Env.VITE_NODE_API + "node_api/ecl/public/eclSearch", eclSearchRequest, {
       signal: controller.signal
     })) as { count: number; entities: any[]; page: number };
-    results.entities.forEach((result: any) => entityToAliasEntity(result));
+    if (isObjectHasKeys(results, ["entities"])) results.entities.forEach((result: any) => entityToAliasEntity(result));
     return results;
   },
 
