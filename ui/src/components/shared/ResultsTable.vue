@@ -78,6 +78,8 @@ import { useSharedStore } from "@/stores/sharedStore";
 import { ConceptSummary } from "@im-library/interfaces";
 import _ from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useDialog } from "primevue/usedialog";
 
 interface Props {
   searchResults?: ConceptSummary[];
@@ -102,6 +104,7 @@ const emit = defineEmits({
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
+const dynamicDialog = useDialog();
 const favourites = computed(() => userStore.favourites);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
@@ -219,10 +222,15 @@ function exportCSV(): void {
     emit("downloadRequested");
     return;
   }
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
+  });
   const heading = ["name", "iri", "code"].join(",");
   const body = props.searchResults?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
   const csv = [heading, body].join("\n");
   downloadFile(csv, "results.csv");
+  downloadDialog.close();
 }
 </script>
 
