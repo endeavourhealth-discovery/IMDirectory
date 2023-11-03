@@ -2,7 +2,7 @@
   <div class="property-input-container">
     <div class="property-input-container">
       <Dropdown :options="['inSet', 'typeOf', 'instanceOf']" v-model:model-value="propertyType" />
-      <SaveCustomSetDialog v-if="propertyType === 'inSet'" :set-members="editValues" />
+      <SaveCustomSetDialog v-if="propertyType === 'inSet'" :set-members="editValues" @on-save="onCustomSetSave" />
       <div v-else>
         <InputText type="text" @click="openDialog()" placeholder="Value" v-model:model-value="selected.name" />
         <DirectorySearchDialog v-model:selected="selected" v-model:show-dialog="showDialog" />
@@ -98,6 +98,11 @@ function initEditValues() {
   for (const item of editMatch.inSet!) {
     editValues.value.push(item);
   }
+}
+
+function onCustomSetSave(customSetRef: Node) {
+  editValues.value.length = 0;
+  editValues.value.push(customSetRef);
 }
 
 function populateSelected() {
