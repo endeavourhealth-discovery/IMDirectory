@@ -5,11 +5,13 @@
 
     <EditDisplayMatch v-if="isArrayHasLength(query.match)" v-for="(match, index) of query.match" :match="match" :index="index" :parentMatchList="query.match" />
 
-    <div v-else-if="!queryTypeIri">
-      <Button label="Set base type" @click="showAddBaseTypeDialog = true" />
+    <div v-else-if="!queryTypeIri" class="flex gap-1">
+      <Button label="Set base type" icon="fa-solid fa-diagram-project" @click="showAddBaseTypeDialog = true" severity="help" />
+      <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showAddBaseTypeByCohortDialog = true" severity="success" />
     </div>
-    <div v-if="query['typeOf']">
-      <SplitButton label="Add feature" :model="addOptions" icon="pi pi-pencil" @click="showAddDialog = true"></SplitButton>
+    <div v-if="query['typeOf']" class="flex gap-1">
+      <Button label="Add feature" icon="fa-solid fa-circle-plus" @click="showAddDialog = true" severity="warning" />
+      <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showDirectoryDialog = true" severity="success" />
     </div>
 
     <AddPropertyDialog
@@ -19,7 +21,21 @@
       :match-type="queryTypeIri"
       @on-save="onPropertyAdd"
     />
-    <AddBaseTypeDialog v-model:show-dialog="showAddBaseTypeDialog" :query="query" />
+    <AddBaseTypeDialog
+      v-model:show-dialog="showAddBaseTypeDialog"
+      :query="query"
+      :filter-options="filterOptionsForBaseType"
+      :validation-query-request="queryRequestForBaseType"
+      :root-entities="['http://endhealth.info/im#DataModel']"
+    />
+    <AddBaseTypeDialog
+      v-model:show-dialog="showAddBaseTypeByCohortDialog"
+      :query="query"
+      :filter-options="filterOptionsForCohort"
+      :validation-query-request="queryRequestForCohort"
+      :root-entities="['http://endhealth.info/im#Q_Queries']"
+    />
+
     <DirectorySearchDialog
       v-model:show-dialog="showDirectoryDialog"
       @update:selected="onSelect"
@@ -46,7 +62,7 @@ import { useQueryStore } from "@/stores/queryStore";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
-import { IM } from "@im-library/vocabulary";
+import { IM, SHACL } from "@im-library/vocabulary";
 
 interface Props {
   queryDefinition: Query;
@@ -60,16 +76,30 @@ const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.retur
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const showDirectoryDialog: Ref<boolean> = ref(false);
 const { showAddDialog, showAddBaseTypeDialog, addMatchesToList } = setupQueryBuilderActions();
-
+const showAddBaseTypeByCohortDialog = ref(false);
 const filterOptionsForCohort: FilterOptions = { types: [{ "@id": IM.COHORT_QUERY }] } as FilterOptions;
-
-const addOptions = [
-  {
-    label: "Add Cohort",
-    icon: "pi pi-search",
-    command: () => (showDirectoryDialog.value = true)
+const filterOptionsForBaseType: FilterOptions = { types: [{ "@id": SHACL.NODESHAPE }] } as FilterOptions;
+const queryRequestForBaseType: Ref<QueryRequest> = ref({
+  query: {
+    name: "Get queries and data models",
+    match: [
+      {
+        typeOf: { "@id": "http://www.w3.org/ns/shacl#NodeShape" }
+      }
+    ]
   }
-];
+});
+
+const queryRequestForCohort: Ref<QueryRequest> = ref({
+  query: {
+    name: "Get queries and data models",
+    match: [
+      {
+        typeOf: { "@id": "http://endhealth.info/im#CohortQuery" }
+      }
+    ]
+  }
+} as QueryRequest);
 
 onMounted(() => init());
 

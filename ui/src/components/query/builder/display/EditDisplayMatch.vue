@@ -271,7 +271,7 @@ function getSingleRCOptions() {
   const singleRCOptions = [
     {
       label: "Add feature",
-      icon: PrimeIcons.PLUS,
+      icon: "fa-solid fa-circle-plus",
       command: () => {
         showAddDialog.value = true;
       },
@@ -293,7 +293,7 @@ function getSingleRCOptions() {
     },
     {
       label: "Add population",
-      icon: PrimeIcons.WRENCH,
+      icon: "fa-solid fa-magnifying-glass",
       command: () => {
         showDirectoryDialog.value = true;
       },
@@ -378,7 +378,7 @@ function getSingleRCOptions() {
   if (hasValue.value || hasProperty.value || isDataModel.value) {
     const updatePropertiesOption = {
       label: "Refine feature",
-      icon: PrimeIcons.PENCIL,
+      icon: "fa-solid fa-pen-to-square",
       command: () => {
         editMatch();
       }
@@ -386,7 +386,7 @@ function getSingleRCOptions() {
 
     const updateValueOption = {
       label: "Refine population",
-      icon: PrimeIcons.PENCIL,
+      icon: "fa-solid fa-pen-to-square",
       command: () => {
         editMatch();
       }
