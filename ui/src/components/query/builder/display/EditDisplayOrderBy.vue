@@ -168,14 +168,13 @@ function addOrder() {
 }
 
 function cancel() {
-  //   if (isEmpty(props.orderBy)) remove();
   editMode.value = false;
 }
 
 function save() {
   props.match.orderBy = editingOrderBy.value;
-  // props.match!.orderBy![props.index] = getNewOrderBy();
-  // if (isEmpty(props.match!.orderBy![props.index])) remove();
+  if ((!props.match.orderBy.property || props.match.orderBy.property.length == 0) && !props.match.orderBy.limit) remove();
+
   editMode.value = false;
 }
 
@@ -185,10 +184,6 @@ function remove() {
 </script>
 
 <style scoped>
-.edit-mode {
-  margin-left: 1rem;
-}
-
 .property-input-container {
   display: flex;
   flex-direction: column;
