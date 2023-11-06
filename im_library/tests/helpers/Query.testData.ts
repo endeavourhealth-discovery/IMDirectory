@@ -238,8 +238,8 @@ export const orderBy: {
   getLatest: OrderLimit;
   getEarliest: OrderLimit;
 } = {
-  getLatest: { direction: "descending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" },
-  getEarliest: { direction: "ascending", limit: 1, "@id": "http://endhealth.info/im#effectiveDate" }
+  getLatest: { property: [{ direction: "descending", "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 },
+  getEarliest: { property: [{ direction: "ascending", "@id": "http://endhealth.info/im#effectiveDate" }], limit: 1 }
 };
 
 export const fullTestQueryDefinition: Query = {
@@ -348,13 +348,15 @@ export const fullTestQueryDefinition: Query = {
                 valueLabel: "last 6 months"
               }
             ],
-            orderBy: [
-              {
-                direction: "descending",
-                limit: 1,
-                "@id": "http://endhealth.info/im#effectiveDate"
-              }
-            ],
+            orderBy: {
+              property: [
+                {
+                  direction: "descending",
+                  "@id": "http://endhealth.info/im#effectiveDate"
+                }
+              ],
+              limit: 1
+            },
             typeOf: {
               "@id": "http://endhealth.info/im#Observation"
             },

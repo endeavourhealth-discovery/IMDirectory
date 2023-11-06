@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-10-09 16:15:28.
+// Generated using typescript-generator version 3.2.1263 on 2023-11-06 11:17:00.
 
 /**
  * Structure containing search request parameters and filters
@@ -188,10 +188,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    relativeTo?: PropertyRef;
-    operator?: Operator;
     dataType?: TTIriRef;
     unit?: string;
+    relativeTo?: PropertyRef;
+    operator?: Operator;
 }
 
 export interface Case {
@@ -219,9 +219,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    ancestorsOf?: boolean;
     descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
-    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -244,7 +244,7 @@ export interface Match extends IriLD {
     bool?: Bool;
     inSet?: Node[];
     property?: Property[];
-    orderBy?: OrderLimit[];
+    orderBy?: OrderLimit;
     optional?: boolean;
     aggregate?: FunctionClause;
     instanceOf?: Node;
@@ -255,12 +255,15 @@ export interface Match extends IriLD {
 export interface Node extends Element {
 }
 
-export interface OrderLimit extends PropertyRef {
+export interface OrderDirection extends PropertyRef {
     direction?: Order;
+}
+
+export interface OrderLimit {
+    property?: OrderDirection[];
     limit?: number;
     description?: string;
     partitionBy?: PropertyRef;
-    id?: string;
 }
 
 export interface PathDocument {

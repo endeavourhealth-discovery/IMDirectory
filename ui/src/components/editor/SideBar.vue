@@ -94,10 +94,7 @@ function locateInTree(event: any, iri: string) {
   if (activeIndex.value !== 0) openTreePanel();
 }
 
-function handleClick(data: any) {
-  console.log("click");
-  console.log(data);
-}
+function handleClick(data: any) {}
 </script>
 
 <style scoped>

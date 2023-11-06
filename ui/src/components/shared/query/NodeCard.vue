@@ -53,7 +53,6 @@ export default defineComponent({
     },
     onClick() {
       this.expanded = !this.expanded;
-      console.log(this.definition);
     }
   }
 });

@@ -131,11 +131,7 @@ export default defineComponent({
       }
     },
     showOperator(path: string, index: number, childIndex: number): boolean {
-      // console.log("path", path);
-      // console.log("childIndex", index);
-      // console.log("operator", this.operator == "or" );
       if ((index == 0 || childIndex == 0) && this.operator == "or") {
-        // this.operator = "either";
         return true;
       }
       if (index > 0 || childIndex > 0) return true;
