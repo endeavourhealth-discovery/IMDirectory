@@ -26,7 +26,7 @@
       <Button
         label="Search"
         :loading="loading"
-        @click="search"
+        @click="search()"
         class="p-button-primary"
         :disabled="!queryString.length || eclError"
         data-testid="search-button"
@@ -35,7 +35,7 @@
     <div class="filters-container">
       <div class="status-filter p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="search" :options="statusOptions" display="chip" />
+          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="search()" :options="statusOptions" display="chip" />
           <label for="status">Select status:</label>
         </span>
       </div>
@@ -45,7 +45,7 @@
         :searchResults="searchResults"
         :loading="loading"
         :rows="rowsStart"
-        :lazy-loading="requresLazy"
+        :lazy-loading="requiresLazy"
         :total-records="totalCount"
         @locate-in-tree="(iri: string) => $emit('locateInTree', iri)"
         @row-selected="(selected: ConceptSummary) => emit('selectedUpdated', selected)"
@@ -70,7 +70,7 @@ import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { OrderLimit, Query, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
@@ -99,7 +99,7 @@ const { downloadFile } = setupDownloadFile(window, document);
 
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
-const requresLazy = computed(() => totalCount.value > 1000);
+const requiresLazy = computed(() => totalCount.value > 1000);
 
 const rowsStart = 20;
 
@@ -116,6 +116,7 @@ const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
 const currentPage = ref(0);
 const currentRows = ref(rowsStart);
+const eclQuery: Ref<Query | undefined> = ref();
 
 watch(queryString, () => {
   eclError.value = false;
@@ -146,7 +147,7 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
   eclErrorMessage.value = errorUpdate.message;
 }
 
-async function search(): Promise<void> {
+async function search(loadMore?: boolean): Promise<void> {
   if (queryString.value) {
     loading.value = true;
     if (!isObject(controller.value)) {
@@ -156,16 +157,21 @@ async function search(): Promise<void> {
       controllerTotal.value.abort();
     }
     controller.value = new AbortController();
-    const eclQuery = await EclService.getQueryFromECL(queryString.value);
-    eclQuery.orderBy = [{ valueVariable: "term" }];
+    if (!loadMore) {
+      eclQuery.value = await EclService.getQueryFromECL(queryString.value);
+      eclQuery.value.orderBy = {} as OrderLimit;
+      eclQuery.value.orderBy.property = [{ valueVariable: "term" }];
+    }
     const eclSearchRequest = {
-      eclQuery: eclQuery,
+      eclQuery: eclQuery.value,
       includeLegacy: false,
       statusFilter: selectedStatus.value
     } as EclSearchRequest;
-    const count = await EclService.eclSearchTotalCount(eclSearchRequest, controllerTotal.value);
-    if (count) totalCount.value = count;
-    if (requresLazy.value) {
+    if (!loadMore) {
+      const count = await EclService.eclSearchTotalCount(eclSearchRequest, controllerTotal.value);
+      if (count) totalCount.value = count;
+    }
+    if (requiresLazy.value) {
       eclSearchRequest.page = currentPage.value;
       eclSearchRequest.size = currentRows.value;
     }
@@ -181,11 +187,11 @@ async function search(): Promise<void> {
 async function loadMore(event: any) {
   if (event.rows !== rowsStart) {
     currentRows.value = event.rows;
-    await search();
+    await search(true);
   }
   if (event.page !== currentPage.value) {
     currentPage.value = event.page;
-    await search();
+    await search(true);
   }
 }
 
@@ -195,7 +201,8 @@ async function downloadAll() {
     data: { title: "Downloading", text: "Preparing your download..." }
   });
   const eclQuery = await EclService.getQueryFromECL(queryString.value);
-  eclQuery.orderBy = [{ valueVariable: "term" }];
+  eclQuery.orderBy = {} as OrderLimit;
+  eclQuery.orderBy.property = [{ valueVariable: "term" }];
   const eclSearchRequest = {
     eclQuery: eclQuery,
     includeLegacy: false,
