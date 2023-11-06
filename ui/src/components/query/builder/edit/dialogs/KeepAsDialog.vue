@@ -1,5 +1,5 @@
 <template>
-  <Dialog v-model:visible="visible" modal :header="'Keep as variable'" :style="{ backgroundColor: 'var(--surface-section)' }">
+  <Dialog v-model:visible="visible" modal :header="'Label as variable'" :style="{ backgroundColor: 'var(--surface-section)' }">
     <InputText type="text" v-model="variable" class="keep-as-var-input" autofocus />
 
     <template #footer>

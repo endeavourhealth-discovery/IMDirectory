@@ -44,11 +44,7 @@ function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
   convertMatch(match, qry);
 
   if (match.orderBy) {
-    if (match.orderBy.length == 1) {
-      wrapMatchPartition(qry, match.orderBy[0]);
-    } else {
-      throw new Error("MULTIPLE ORDER PARTITIONS NOT SUPPORTED\n" + JSON.stringify(match.orderBy, null, 2));
-    }
+    wrapMatchPartition(qry, match.orderBy);
   }
 
   return qry;
@@ -83,7 +79,7 @@ function convertMatch(match: Match, qry: SqlQuery) {
 }
 
 function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
-  if (!order["@id"]) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
+  if (!order.property || order.property.length == 0) throw new Error("ORDER MUST HAVE A FIELD SPECIFIED\n" + JSON.stringify(order, null, 2));
 
   const inner = qry.clone(qry.alias + "_inner");
 
@@ -92,9 +88,14 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
   const partition = qry.subQuery(qry.alias + "_inner", qry.alias + "_part");
   const partField = "patient";
 
-  const dir = order.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
+  let o = [];
 
-  partition.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + partition.getFieldName(order["@id"]) + " " + dir + ") AS rn");
+  for (const p of order.property) {
+    const dir = p.direction?.toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
+    o.push(partition.getFieldName(p["@id"] as string) + " " + dir);
+  }
+
+  partition.selects.push("*", "ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + o.join(", ") + ") AS rn");
 
   qry.initialize(qry.alias + "_part", qry.alias);
   qry.withs.push(innerSql);

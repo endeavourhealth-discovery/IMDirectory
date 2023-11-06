@@ -36,14 +36,7 @@
       :parent-match="match"
       :property="property"
     />
-    <EditDisplayOrderBy
-      v-if="isArrayHasLength(match.orderBy)"
-      v-for="(orderBy, index) of match.orderBy"
-      :match="match"
-      :order-by="orderBy"
-      :index="index"
-      :on-add-order-by="onAddOrderBy"
-    />
+    <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 
@@ -82,7 +75,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { PrimeIcons } from "primevue/api";
@@ -328,7 +321,7 @@ function getSingleRCOptions() {
       }
     },
     {
-      label: "Keep as a variable",
+      label: "Label as a variable",
       icon: PrimeIcons.SAVE,
       command: () => {
         keepAs();
@@ -430,8 +423,8 @@ function deleteSelected() {
 }
 
 function addOrderBy() {
-  if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
-  props.match.orderBy?.push({} as OrderLimit);
+  if (!props.match.orderBy) props.match.orderBy = { property: [{}] };
+  if (!isArrayHasLength(props.match?.orderBy?.property)) props.match!.orderBy!.property = [{}];
   onAddOrderBy.value = true;
 }
 
