@@ -56,6 +56,16 @@ vi.mock("vue-router", () => ({
   useRoute: () => mockRoute
 }));
 
+const mockOpen = vi.fn();
+const mockClose = vi.fn();
+
+vi.mock("primevue/useDialog", () => ({
+  useDialog: () => ({
+    open: mockOpen,
+    close: mockClose
+  })
+}));
+
 describe("SearchResultsTable.vue", () => {
   let component;
   let directToSpy;

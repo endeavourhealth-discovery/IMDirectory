@@ -23,23 +23,34 @@
     <span class="error-message" v-if="eclError">{{ eclErrorMessage }}</span>
     <div class="button-container">
       <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" />
-      <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length || eclError" data-testid="search-button" />
+      <Button
+        label="Search"
+        :loading="loading"
+        @click="search()"
+        class="p-button-primary"
+        :disabled="!queryString.length || eclError"
+        data-testid="search-button"
+      />
     </div>
     <div class="filters-container">
       <div class="status-filter p-inputgroup">
         <span class="p-float-label">
-          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="search" :options="statusOptions" display="chip" />
+          <MultiSelect id="status" v-model="selectedStatus" optionLabel="name" @change="search()" :options="statusOptions" display="chip" />
           <label for="status">Select status:</label>
         </span>
       </div>
     </div>
-    <p v-if="searchResults.length > 1000" class="result-summary" data-testid="search-count">{{ totalCount }} results found. Display limited to first 1000.</p>
     <div class="results-container">
       <ResultsTable
         :searchResults="searchResults"
         :loading="loading"
-        @locate-in-tree="(iri:string) => $emit('locateInTree', iri)"
-        @row-selected="(selected:ConceptSummary) => emit('selectedUpdated', selected)"
+        :rows="rowsStart"
+        :lazy-loading="requiresLazy"
+        :total-records="totalCount"
+        @locate-in-tree="(iri: string) => $emit('locateInTree', iri)"
+        @row-selected="(selected: ConceptSummary) => emit('selectedUpdated', selected)"
+        @lazy-load-requested="loadMore"
+        @download-requested="downloadAll"
       />
     </div>
   </div>
@@ -59,7 +70,7 @@ import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { OrderLimit, Query, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
@@ -70,6 +81,9 @@ import { byName } from "@im-library/helpers/Sorters";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useEditorStore } from "@/stores/editorStore";
 import { useFilterStore } from "@/stores/filterStore";
+import setupDownloadFile from "@/composables/downloadFile";
+import LoadingDialog from "../shared/dynamicDialogs/LoadingDialog.vue";
+import { useDialog } from "primevue/usedialog";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
@@ -79,9 +93,15 @@ const emit = defineEmits({
 const toast = useToast();
 const filterStore = useFilterStore();
 const editorStore = useEditorStore();
+const dynamicDialog = useDialog();
+
+const { downloadFile } = setupDownloadFile(window, document);
 
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
+const requiresLazy = computed(() => totalCount.value > 1000);
+
+const rowsStart = 20;
 
 const queryString = ref("");
 const showDialog = ref(false);
@@ -91,8 +111,12 @@ const eclError = ref(false);
 const eclErrorMessage = ref("");
 const loading = ref(false);
 const controller: Ref<AbortController> = ref({} as AbortController);
+const controllerTotal: Ref<AbortController> = ref({} as AbortController);
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
+const currentPage = ref(0);
+const currentRows = ref(rowsStart);
+const eclQuery: Ref<Query | undefined> = ref();
 
 watch(queryString, () => {
   eclError.value = false;
@@ -123,15 +147,34 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
   eclErrorMessage.value = errorUpdate.message;
 }
 
-async function search(): Promise<void> {
+async function search(loadMore?: boolean): Promise<void> {
   if (queryString.value) {
     loading.value = true;
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
+    if (!isObject(controllerTotal.value)) {
+      controllerTotal.value.abort();
+    }
     controller.value = new AbortController();
-    const eclQuery = await EclService.getQueryFromECL(queryString.value);
-    const eclSearchRequest = { eclQuery: eclQuery, includeLegacy: false, limit: 1000, statusFilter: selectedStatus.value } as EclSearchRequest;
+    if (!loadMore) {
+      eclQuery.value = await EclService.getQueryFromECL(queryString.value);
+      eclQuery.value.orderBy = {} as OrderLimit;
+      eclQuery.value.orderBy.property = [{ valueVariable: "term" }];
+    }
+    const eclSearchRequest = {
+      eclQuery: eclQuery.value,
+      includeLegacy: false,
+      statusFilter: selectedStatus.value
+    } as EclSearchRequest;
+    if (!loadMore) {
+      const count = await EclService.eclSearchTotalCount(eclSearchRequest, controllerTotal.value);
+      if (count) totalCount.value = count;
+    }
+    if (requiresLazy.value) {
+      eclSearchRequest.page = currentPage.value;
+      eclSearchRequest.size = currentRows.value;
+    }
     const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
     if (isObjectHasKeys(result, ["entities"])) {
       searchResults.value = result.entities;
@@ -139,6 +182,43 @@ async function search(): Promise<void> {
     }
     loading.value = false;
   }
+}
+
+async function loadMore(event: any) {
+  if (event.rows !== rowsStart) {
+    currentRows.value = event.rows;
+    await search(true);
+  }
+  if (event.page !== currentPage.value) {
+    currentPage.value = event.page;
+    await search(true);
+  }
+}
+
+async function downloadAll() {
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
+  });
+  const eclQuery = await EclService.getQueryFromECL(queryString.value);
+  eclQuery.orderBy = {} as OrderLimit;
+  eclQuery.orderBy.property = [{ valueVariable: "term" }];
+  const eclSearchRequest = {
+    eclQuery: eclQuery,
+    includeLegacy: false,
+    statusFilter: selectedStatus.value,
+    limit: 0
+  } as EclSearchRequest;
+  const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
+  if (isObjectHasKeys(result, ["entities"])) {
+    const entities = result.entities;
+    const total = result.count;
+    const heading = ["name", "iri", "code"].join(",");
+    const body = entities.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
+    const csv = [heading, body].join("\n");
+    downloadFile(csv, "results.csv");
+  }
+  downloadDialog.close();
 }
 
 function setFilterDefaults() {

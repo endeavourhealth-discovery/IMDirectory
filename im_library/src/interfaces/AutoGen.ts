@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-11-06 11:17:00.
+// Generated using typescript-generator version 3.2.1263 on 2023-11-06 12:50:12.
 
 /**
  * Structure containing search request parameters and filters
@@ -189,6 +189,8 @@ export interface Argument {
 export interface Assignable {
     value?: string;
     dataType?: TTIriRef;
+    relativeTo?: PropertyRef;
+    operator?: Operator;
     unit?: string;
     relativeTo?: PropertyRef;
     operator?: Operator;
@@ -219,9 +221,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
-    ancestorsOf?: boolean;
-    descendantsOf?: boolean;
     descendantsOrSelfOf?: boolean;
+    descendantsOf?: boolean;
+    ancestorsOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
