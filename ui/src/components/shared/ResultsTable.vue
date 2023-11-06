@@ -2,7 +2,7 @@
   <div id="search-results-main-container">
     <DataTable
       :paginator="true"
-      :rows="20"
+      :rows="rows"
       :value="processedSearchResults"
       class="p-datatable-sm"
       v-model:selection="selected"
@@ -16,12 +16,16 @@
       ref="searchTable"
       dataKey="iri"
       :autoLayout="true"
-      @page="scrollToTop"
+      @page="onPage($event)"
+      :lazy="lazyLoading"
+      :total-records="totalRecords ?? searchResults.length"
+      :rows-per-page-options="[rows, rows * 2, rows * 4, rows * 8]"
     >
       <template #empty> None </template>
       <Column field="name" headerStyle="flex: 0 1 calc(100% - 19rem);" bodyStyle="flex: 0 1 calc(100% - 19rem);">
         <template #header>
-          Results
+          <span>Results</span>
+          <span v-if="totalRecords"> {{ "(" + totalRecords + ")" }}</span>
           <Button
             :disabled="!searchResults?.length"
             class="p-button-rounded p-button-text p-button-lg p-button-icon-only"
@@ -47,7 +51,11 @@
       <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; flex: 0 1 14rem;" headerStyle="flex: 0 1 14rem;">
         <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data.iri" @locate-in-tree="(iri:string) => emit('locateInTree', iri)" />
+            <ActionButtons
+              :buttons="['findInTree', 'view', 'edit', 'favourite']"
+              :iri="data.iri"
+              @locate-in-tree="(iri: string) => emit('locateInTree', iri)"
+            />
           </div>
         </template>
       </Column>
@@ -70,22 +78,33 @@ import { useSharedStore } from "@/stores/sharedStore";
 import { ConceptSummary } from "@im-library/interfaces";
 import _ from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
+import { useDialog } from "primevue/usedialog";
 
 interface Props {
   searchResults?: ConceptSummary[];
   totalRecords?: number;
   loading: boolean;
+  rows?: number;
+  lazyLoading: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   searchResults: () => [] as ConceptSummary[],
-  totalRecords: 0
+  lazyLoading: false,
+  rows: 20
 });
 
-const emit = defineEmits({ rowSelected: (_payload: ConceptSummary) => true, locateInTree: (_payload: string) => true });
+const emit = defineEmits({
+  rowSelected: (_payload: ConceptSummary) => true,
+  locateInTree: (_payload: string) => true,
+  downloadRequested: () => true,
+  lazyLoadRequested: (_payload: any) => true
+});
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
+const dynamicDialog = useDialog();
 const favourites = computed(() => userStore.favourites);
 const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 
@@ -93,7 +112,14 @@ const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
-const selected: Ref<any> = ref({});
+interface ResultSummary extends ConceptSummary {
+  icon: string[];
+  color: string;
+  typeNames: string;
+  favourite: boolean;
+}
+
+const selected: Ref<ResultSummary> = ref({} as ResultSummary);
 const processedSearchResults: Ref<any[]> = ref([]);
 const rClickOptions: Ref<any[]> = ref([
   {
@@ -144,7 +170,7 @@ function init() {
   processedSearchResults.value = processSearchResults(props.searchResults);
 }
 
-function processSearchResults(searchResults: ConceptSummary[]): any[] {
+function processSearchResults(searchResults: ConceptSummary[]): ResultSummary[] {
   return searchResults.map(result => {
     const copy: any = _.cloneDeep(result);
     copy.icon = getFAIconFromType(result.entityType);
@@ -159,7 +185,12 @@ function updateRClickOptions() {
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value.iri) ? "Unfavourite" : "Favourite";
 }
 
-async function scrollToTop() {
+function onPage(event: any) {
+  if (props.lazyLoading) emit("lazyLoadRequested", event);
+  scrollToTop();
+}
+
+function scrollToTop() {
   const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
   scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
@@ -187,10 +218,19 @@ function onRowSelect(event: any) {
 }
 
 function exportCSV(): void {
+  if (props.totalRecords && props.searchResults.length < props.totalRecords) {
+    emit("downloadRequested");
+    return;
+  }
+  const downloadDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Downloading", text: "Preparing your download..." }
+  });
   const heading = ["name", "iri", "code"].join(",");
   const body = props.searchResults?.map((row: any) => '"' + [row.name, row.iri, row.code].join('","') + '"').join("\n");
   const csv = [heading, body].join("\n");
   downloadFile(csv, "results.csv");
+  downloadDialog.close();
 }
 </script>
 
