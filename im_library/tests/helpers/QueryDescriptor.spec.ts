@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest";
-import {
-  getDisplayFromMatch,
-  getDisplayFromProperty,
-  getDisplayFromOrderBy,
-  getUnnamedObjects,
-  describeMatch,
-  describeProperty
-} from "@/helpers/QueryDescriptor";
+import { getUnnamedObjects, describeMatch, describeProperty, describeOrderByList } from "@/helpers/QueryDescriptor";
 import { Match, OrderLimit, Property } from "@/interfaces/AutoGen";
-import { fullTestQueryDefinition, match, where, orderBy } from "./Query.testData";
+import { fullTestQueryDefinition, match, orderBy } from "./Query.testData";
 import _ from "lodash";
 
 describe("QueryDescriptor.ts ___", () => {
@@ -21,12 +14,12 @@ describe("QueryDescriptor.ts ___", () => {
 
   describe("getDisplayFromOrderBy", () => {
     it("can get description from OrderBy latest", () => {
-      const description = getDisplayFromOrderBy(orderBy.getLatest as OrderLimit);
-      expect(description).toEqual("<div class='variable-line'>get latest by effectiveDate</div>");
+      describeOrderByList(orderBy.getLatest as OrderLimit);
+      expect(orderBy.getLatest.description).toEqual("<div class='variable-line'>order by latest effectiveDate, keep first</div>");
     });
     it("can get description from OrderBy earliest", () => {
-      const description = getDisplayFromOrderBy(orderBy.getEarliest as OrderLimit);
-      expect(description).toEqual("<div class='variable-line'>get earliest by effectiveDate</div>");
+      describeOrderByList(orderBy.getEarliest as OrderLimit);
+      expect(orderBy.getEarliest.description).toEqual("<div class='variable-line'>order by earliest effectiveDate, keep first</div>");
     });
   });
 

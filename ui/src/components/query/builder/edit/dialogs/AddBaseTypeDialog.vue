@@ -5,8 +5,8 @@
       v-model:show-dialog="visible"
       @update:selected="setBaseType"
       :root-entities="rootEntities"
-      :searchByQuery="cohortOrDataModelQueryRequest"
-      :filter-options="filterOptionsForBaseType"
+      :searchByQuery="validationQueryRequest"
+      :filter-options="filterOptions"
     />
   </Dialog>
 
@@ -34,6 +34,9 @@ import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 interface Props {
   query: Query;
   showDialog: boolean;
+  validationQueryRequest: QueryRequest;
+  filterOptions: FilterOptions;
+  rootEntities: string[];
 }
 
 const props = defineProps<Props>();
@@ -43,27 +46,6 @@ const visible: Ref<boolean> = ref(false);
 const confirmVisible: Ref<boolean> = ref(false);
 const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const returnType: Ref<string> = ref("");
-const rootEntities: Ref<string[]> = ref(["http://endhealth.info/im#DataModel", "http://endhealth.info/im#Q_Queries"]);
-const cohortOrDataModelQueryRequest: Ref<QueryRequest> = ref({
-  query: {
-    name: "Get queries and data models",
-    match: [
-      {
-        bool: "or",
-        match: [
-          {
-            typeOf: { "@id": "http://endhealth.info/im#CohortQuery" }
-          },
-          {
-            typeOf: { "@id": "http://www.w3.org/ns/shacl#NodeShape" }
-          }
-        ]
-      }
-    ]
-  }
-} as QueryRequest);
-
-const filterOptionsForBaseType: FilterOptions = { types: [{ "@id": IM.COHORT_QUERY }, { "@id": SHACL.NODESHAPE }] } as FilterOptions;
 
 watch(
   () => props.showDialog,

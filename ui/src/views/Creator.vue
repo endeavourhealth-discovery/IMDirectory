@@ -311,7 +311,6 @@ function submit(): void {
       forceValidation.value = false;
       verificationDialog.close();
       if (isValidEntity(editorEntity.value)) {
-        console.log("submit");
         await Swal.fire({
           icon: "info",
           title: "Confirm create",
@@ -351,7 +350,6 @@ function submit(): void {
           }
         });
       } else {
-        console.log("invalid entity");
         Swal.fire({
           icon: "warning",
           title: "Warning",

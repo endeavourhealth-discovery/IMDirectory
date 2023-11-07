@@ -47,8 +47,7 @@ async function onAdvancedUpload(event: any) {
 }
 
 async function saveTTDocument(ttDocument: any) {
-  const response = await FilerService.fileDocument(ttDocument);
-  console.log(response);
+  await FilerService.fileDocument(ttDocument);
 }
 
 async function getTTDocument(file: any) {

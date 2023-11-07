@@ -15,4 +15,5 @@ export class queryVocabulary {
   public static SEARCH_FOLDERS = this.NAMESPACE + "SearchFolders";
   public static SEARCH_MAIN_TYPES = this.NAMESPACE + "SearchmainTypes";
   public static DM_PROPERTY = this.NAMESPACE + "DataModelPropertyByShape";
+  public static SEARCH_SUBCLASS = this.NAMESPACE + "SearchAllowableSubclass";
 }

@@ -241,7 +241,6 @@ function submit(): void {
         forceValidation.value = false;
         verificationDialog.close();
         if (isValidEntity(editorEntity.value)) {
-          console.log("submit");
           Swal.fire({
             icon: "info",
             title: "Confirm save",
@@ -282,7 +281,6 @@ function submit(): void {
             }
           });
         } else {
-          console.log("invalid entity");
           Swal.fire({
             icon: "warning",
             title: "Warning",
@@ -342,7 +340,6 @@ function processEntityValue(property: PropertyShape) {
 }
 
 function closeEditor() {
-  console.log(editorIri);
   if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
   else router.go(-1);
 }

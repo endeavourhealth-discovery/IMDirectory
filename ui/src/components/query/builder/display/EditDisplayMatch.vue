@@ -36,14 +36,7 @@
       :parent-match="match"
       :property="property"
     />
-    <EditDisplayOrderBy
-      v-if="isArrayHasLength(match.orderBy)"
-      v-for="(orderBy, index) of match.orderBy"
-      :match="match"
-      :order-by="orderBy"
-      :index="index"
-      :on-add-order-by="onAddOrderBy"
-    />
+    <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 
@@ -51,7 +44,7 @@
   <JSONViewerDialog v-model:showDialog="showViewDialog" :data="match" />
   <AddPropertyDialog
     v-model:showDialog="showUpdateDialog"
-    :header="'Update properties'"
+    :header="'Refine feature'"
     :show-variable-options="false"
     :match-type="getMatchType()"
     :match="match"
@@ -60,7 +53,7 @@
 
   <AddPropertyDialog
     v-model:showDialog="showAddDialog"
-    :header="'Add properties'"
+    :header="'Add feature'"
     :show-variable-options="true"
     :match-type="getMatchType()"
     @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, addBefore)"
@@ -82,7 +75,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { PrimeIcons } from "primevue/api";
@@ -270,8 +263,8 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add property feature",
-      icon: PrimeIcons.PLUS,
+      label: "Add feature",
+      icon: "fa-solid fa-circle-plus",
       command: () => {
         showAddDialog.value = true;
       },
@@ -292,8 +285,8 @@ function getSingleRCOptions() {
       ]
     },
     {
-      label: "Add cohort feature",
-      icon: PrimeIcons.WRENCH,
+      label: "Add population",
+      icon: "fa-solid fa-magnifying-glass",
       command: () => {
         showDirectoryDialog.value = true;
       },
@@ -328,7 +321,7 @@ function getSingleRCOptions() {
       }
     },
     {
-      label: "Keep as a variable",
+      label: "Label as a variable",
       icon: PrimeIcons.SAVE,
       command: () => {
         keepAs();
@@ -377,16 +370,16 @@ function getSingleRCOptions() {
 
   if (hasValue.value || hasProperty.value || isDataModel.value) {
     const updatePropertiesOption = {
-      label: "Update properties",
-      icon: PrimeIcons.PENCIL,
+      label: "Refine feature",
+      icon: "fa-solid fa-pen-to-square",
       command: () => {
         editMatch();
       }
     };
 
     const updateValueOption = {
-      label: "Update value",
-      icon: PrimeIcons.PENCIL,
+      label: "Refine population",
+      icon: "fa-solid fa-pen-to-square",
       command: () => {
         editMatch();
       }
@@ -430,8 +423,8 @@ function deleteSelected() {
 }
 
 function addOrderBy() {
-  if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
-  props.match.orderBy?.push({} as OrderLimit);
+  if (!props.match.orderBy) props.match.orderBy = { property: [{}] };
+  if (!isArrayHasLength(props.match?.orderBy?.property)) props.match!.orderBy!.property = [{}];
   onAddOrderBy.value = true;
 }
 

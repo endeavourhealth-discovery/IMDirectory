@@ -119,9 +119,11 @@ async function updateSelectedResult(data: ConceptSummary | { iri: string; name?:
   else if (data.iri === "any" || data.iri === "*") {
     selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
     isAny.value = true;
-  } else {
+  } else if (data.iri) {
     const asSummary = await EntityService.getEntitySummary(data.iri);
     selected.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
+  } else {
+    selected.value = {} as ConceptSummary;
   }
 }
 
