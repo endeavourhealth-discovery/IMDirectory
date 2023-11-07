@@ -27,7 +27,8 @@ function IMQtoSQL(definition: Query): string {
       } else {
         const rel = subQry.getRelationshipTo(qry.model);
         const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQry.alias) : subQry.alias + "." + rel.fromField;
-        qry.joins.push(joiner + subQry.alias + " ON " + relFrom + " = " + qry.alias + "." + rel.toField);
+        const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
+        qry.joins.push(joiner + subQry.alias + " ON " + relFrom + " = " + relTo);
       }
     }
     return qry.toSql();
@@ -131,8 +132,9 @@ function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
     else {
       const rel = subQuery.getRelationshipTo(qry.model);
       const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQuery.alias) : subQuery.alias + "." + rel.fromField;
+      const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
 
-      qry.joins.push(joiner + subQuery.alias + " ON " + relFrom + " = " + qry.alias + "." + rel.toField);
+      qry.joins.push(joiner + subQuery.alias + " ON " + relFrom + " = " + relTo);
     }
 
     if ("OR" == qry.whereBool) qry.wheres.push(subQuery.alias + ".id IS NOT NULL");
@@ -239,12 +241,12 @@ function convertMatchPropertyRange(qry: SqlQuery, property: Property) {
 }
 
 function convertMatchPropertyNumberRangeNode(fieldName: string, range: Assignable): string {
-  if (range.unit) return fieldName + " " + range.operator + " " + range.value + " -- CONVERT " + range.unit;
-  else return fieldName + " " + range.operator + " " + range.value;
+  if (range.unit) return fieldName + " " + getOperator(range.operator, range.value) + " -- CONVERT " + range.unit;
+  else return fieldName + " " + getOperator(range.operator, range.value);
 }
 
 function convertMatchPropertyDateRangeNode(fieldName: string, range: Assignable): string {
-  return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + range.operator + " " + fieldName;
+  return "(now() - INTERVAL '" + range.value + (range.unit ? " " + range.unit : "") + "') " + getOperator(range.operator, fieldName);
 }
 
 function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
@@ -264,7 +266,9 @@ function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
   else {
     const rel = subQuery.getRelationshipTo(qry.model);
     const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQuery.alias) : subQuery.alias + "." + rel.fromField;
-    qry.joins.push("JOIN " + subQuery.alias + " ON " + relFrom + " = " + qry.alias + "." + rel.toField);
+    const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
+
+    qry.joins.push("JOIN " + subQuery.alias + " ON " + relFrom + " = " + relTo);
   }
 }
 
@@ -300,7 +304,7 @@ function convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
 
   if (property.relativeTo.parameter)
     qry.wheres.push(
-      qry.getFieldName(property["@id"]) + " " + property.operator + " " + convertMatchPropertyRelativeTo(qry, property, property.relativeTo.parameter)
+      qry.getFieldName(property["@id"]) + " " + getOperator(property.operator, convertMatchPropertyRelativeTo(qry, property, property.relativeTo.parameter))
     );
   else if (property.relativeTo.nodeRef) {
     // Include implied join on noderef
@@ -308,9 +312,10 @@ function convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
     qry.wheres.push(
       qry.getFieldName(property["@id"]) +
         " " +
-        property.operator +
-        " " +
-        convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.relativeTo?.["@id"] as string, property.relativeTo.nodeRef))
+        getOperator(
+          property.operator,
+          convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.relativeTo?.["@id"] as string, property.relativeTo.nodeRef))
+        )
     );
   } else {
     throw new Error("UNHANDLED RELATIVE COMPARISON\n" + JSON.stringify(property, null, 2));
@@ -335,7 +340,7 @@ function convertMatchPropertyValue(qry: SqlQuery, property: Property) {
   let where =
     "date" == qry.getFieldType(property["@id"])
       ? convertMatchPropertyDateRangeNode(qry.getFieldName(property["@id"]), property)
-      : qry.getFieldName(property["@id"]) + " " + property.operator + " " + property.value;
+      : qry.getFieldName(property["@id"]) + " " + getOperator(property.operator, property.value);
 
   if (property.unit) where += " -- CONVERT " + property.unit + "\n";
 
@@ -369,6 +374,16 @@ function convertMatchPropertyNull(qry: SqlQuery, property: Property) {
   }
 
   qry.wheres.push(qry.getFieldName(property["@id"]) + " IS NULL");
+}
+
+function getOperator(operator: string | undefined, value: string | undefined) {
+  if (!operator) throw new Error("OPERATOR UNDEFINED");
+  if (!operator) throw new Error("OPERATOR VALUE UNDEFINED");
+
+  if (["<", "<=", "=", ">=", ">"].includes(operator)) return operator + " " + value;
+  if ("startsWith" === operator) return "LIKE '" + value + "%'";
+
+  throw new Error("UNHANDLED operator [" + operator + "]");
 }
 
 export default IMQtoSQL;

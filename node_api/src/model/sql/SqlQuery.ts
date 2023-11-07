@@ -119,11 +119,11 @@ export class SqlQuery {
 
     if (map.fields[field]) return map.fields[field];
 
-    console.log("UNKNOWN FIELD [" + field + "]");
-    console.log(JSON.stringify(map, null, 2));
+    const fieldName = field.substring(field.indexOf("#") + 1);
+    console.log("UNKNOWN FIELD [" + field + "], defaulting to [" + "(({alias}.json ->> '" + fieldName + "')::VARCHAR)]");
+    // console.log(JSON.stringify(map, null, 2));
 
     // Default to string field in JSON blob
-    const fieldName = field.substring(field.indexOf("#") + 1);
     return {
       field: "(({alias}.json ->> '" + fieldName + "')::VARCHAR)",
       type: "string"
@@ -131,7 +131,7 @@ export class SqlQuery {
   }
 
   public getRelationshipTo(targetModel: string): Relationship {
-    if (this.map.relationships[targetModel]) return this.map.relationships[targetModel];
+    if (this.map.relationships && this.map.relationships[targetModel]) return this.map.relationships[targetModel];
 
     throw new Error("Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
   }

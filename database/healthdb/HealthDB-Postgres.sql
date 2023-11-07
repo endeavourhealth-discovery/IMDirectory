@@ -57,6 +57,13 @@ CREATE TABLE patient (
 
 COPY patient(id, json) FROM 'Z:\\pojo\\out\\patient_Patient.csv' (FORMAT CSV, DELIMITER '	', QUOTE '`', ENCODING 'LATIN1', ESCAPE '\');
 
+CREATE TABLE address (
+                         id UUID PRIMARY KEY,
+                         json JSON NOT NULL
+);
+
+COPY address(id, json) FROM ''Z:\\pojo\\out\\patient_Address.csv'' (FORMAT CSV, DELIMITER ''	'', QUOTE ''`'', ENCODING ''LATIN1'', ESCAPE ''\'');
+
 DROP TABLE IF EXISTS event;
 
 CREATE TABLE event (

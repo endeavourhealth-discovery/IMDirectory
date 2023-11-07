@@ -7,6 +7,14 @@
         "http://endhealth.info/im#dateOfBirth": { "field": "({alias}.jdt(json ->> 'dateOfBirth'))", "type": "date" }
       }
     },
+    "http://endhealth.info/im#Address": {
+      "table": "address",
+      "fields": {
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "id", "toField": "(({alias}.json ->> 'homeAddress')::UUID)"}
+      }
+    },
     "http://endhealth.info/im#GPRegistration": {
       "table": "event",
       "condition": "(({alias}.json ->> '_type')::VARCHAR) = 'EpisodeOfCare'",
