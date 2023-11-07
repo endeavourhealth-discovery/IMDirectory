@@ -53,7 +53,7 @@ vi.mock("vue-router", () => ({
 const mockOpen = vi.fn();
 const mockClose = vi.fn();
 
-vi.mock("primevue/useDialog", () => ({
+vi.mock("primevue/usedialog", () => ({
   useDialog: () => ({
     open: mockOpen,
     close: mockClose

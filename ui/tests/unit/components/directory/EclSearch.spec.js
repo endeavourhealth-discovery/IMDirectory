@@ -50,7 +50,7 @@ vi.mock("primevue/usetoast", () => ({
 const mockOpen = vi.fn();
 const mockClose = vi.fn();
 
-vi.mock("primevue/useDialog", () => ({
+vi.mock("primevue/usedialog", () => ({
   useDialog: () => ({
     open: mockOpen,
     close: mockClose
