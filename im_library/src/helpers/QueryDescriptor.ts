@@ -54,6 +54,7 @@ export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
   if (match.inSet) display = getDisplayFromInSet(match.inSet);
   if (match.typeOf) display = getNameFromRef(match.typeOf);
   if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
+  if (match["@id"] && match.name) display = match.name;
   if (isPathMatch) display += " with";
   return display;
 }
