@@ -10,12 +10,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: "jsdom",
-    environmentOptions: {
-      jsdom: {
-        url: "http://localhost"
-      }
-    },
+    environment: "happy-dom",
     coverage: {
       reporter: ["text", "lcov"]
     },
