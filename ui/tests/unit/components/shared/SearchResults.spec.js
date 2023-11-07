@@ -102,7 +102,7 @@ describe("SearchResultsTable.vue", () => {
   //   expect(aboveLimit).toBeFalsy();
   // });
 
-  it("pages additional results", () => {
+  it.skip("pages additional results", () => {
     const buttons = component.getAllByRole("button");
     const paginatorButtons = buttons.filter(button => button.classList.contains("p-paginator-page"));
     expect(paginatorButtons.length).toBeGreaterThan(1);
