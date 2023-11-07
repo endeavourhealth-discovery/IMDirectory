@@ -18,12 +18,6 @@ import { useFilterStore } from "@/stores/filterStore.ts";
 import { useUserStore } from "@/stores/userStore.ts";
 import { useDirectoryStore } from "@/stores/directoryStore.ts";
 
-Object.assign(navigator, {
-  clipboard: {
-    writeText: () => {}
-  }
-});
-
 createTestingPinia({
   initialState: {
     directory: {
