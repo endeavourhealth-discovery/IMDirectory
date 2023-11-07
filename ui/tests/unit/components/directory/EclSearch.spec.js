@@ -130,7 +130,7 @@ describe("EclSearch.vue", async () => {
     component.getByText("1100 results found. Display limited to first 1000.");
   });
 
-  it.skip("toasts on copy", async () => {
+  it("toasts on copy", async () => {
     const textbox = component.getByTestId("query-string");
     await fireEvent.update(textbox, "<< 10363601000001109 |UK product|");
     component.getByDisplayValue("<< 10363601000001109 |UK product|");
