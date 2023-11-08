@@ -400,7 +400,7 @@ export default class QueryService {
   }
 
   public async queueQuery(queryIri: string, name: string, user: string) {
-    const queryId = uuid();
+    const queryId = uuid().replaceAll("-", "");
     const conn = await this.dbPool.acquire();
     const pid = conn.processID;
 
@@ -408,7 +408,7 @@ export default class QueryService {
 
     let sql = await this.generateQuerySQL(queryIri);
     sql = sql?.replaceAll("$referenceDate", "NOW()");
-    sql = 'CREATE TABLE "qry_' + queryId + '" AS ' + sql;
+    sql = "CREATE TABLE qry_" + queryId + " AS " + sql;
 
     conn
       .query(sql)
