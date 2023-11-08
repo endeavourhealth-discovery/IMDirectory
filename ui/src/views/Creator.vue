@@ -56,6 +56,7 @@ import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.v
 import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
+import { QueryService } from "@/services";
 import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
@@ -210,8 +211,34 @@ onMounted(async () => {
     shape.value = getShape(typeIri as string);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
-      const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
-      editorEntity.value[propertyIri as string] = [{ "@id": containingEntity["@id"], name: containingEntity[RDFS.LABEL] }];
+      if (propertyIri === IM.DEFINITION) {
+        const newValue = await QueryService.getQueryDisplay(valueIri as string);
+        editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
+        editorEntity.value[IM.DEFINITION] = JSON.stringify({
+          match: [
+            {
+              inSet: [
+                {
+                  "@id": newValue["@id"],
+                  name: newValue.name
+                }
+              ],
+              description: newValue.description
+            }
+          ],
+          typeOf: {
+            "@id": newValue.typeOf!["@id"]
+          }
+        });
+      } else {
+        const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
+        editorEntity.value[propertyIri as string] = [
+          {
+            "@id": containingEntity["@id"],
+            name: containingEntity[RDFS.LABEL]
+          }
+        ];
+      }
     }
   } else {
     showTypeSelector.value = true;
