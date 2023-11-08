@@ -77,7 +77,7 @@ function setupTree() {
 
   async function loadMore(node: any) {
     node.loading = true;
-    if (node.nextPage * pageSize.value < node.totalCount) {
+    if (node.nextPage * pageSize.value <= node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
       children.result.forEach((child: any) => {
