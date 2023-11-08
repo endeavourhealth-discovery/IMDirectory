@@ -157,13 +157,13 @@ export default class QueryController {
     return await this.queryService.getDataModelProperty(req.query.dataModelIri as string, req.query.propertyIri as string);
   }
 
-  async generateQuerySQL(req: Request) {
+  async generateQuerySQL(req: Request): Promise<string> {
     return await this.queryService.generateQuerySQL(req.query.queryIri as string);
   }
 
-  async generateQuerySQLfromQuery(req: Request) {
+  async generateQuerySQLfromQuery(req: Request): Promise<string> {
     const query: any = req.body;
-    return await this.queryService.generateQuerySQLfromQuery(query as Query);
+    return await this.queryService.generateQuerySQLFromQuery(query as Query);
   }
 
   async validateSelectionWithQuery(req: Request) {

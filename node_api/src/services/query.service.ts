@@ -2,7 +2,7 @@ import Env from "@/services/env.service";
 import { eclToIMQ } from "@im-library/helpers";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
-import { AliasEntity, EclSearchRequest, QueryResponse, QueryQueueItem } from "@im-library/interfaces";
+import { AliasEntity, EclSearchRequest, QueryResponse, QueryQueueItem, IMQSQL } from "@im-library/interfaces";
 import { Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import EclService from "./ecl.service";
@@ -331,17 +331,63 @@ export default class QueryService {
     } else return [];
   }
 
-  public async generateQuerySQL(queryIri: string): Promise<string> {
-    const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
-    if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION])) {
-      return "";
-    }
-    const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
-    return IMQtoSQL(query);
+  public async generateQuerySQL(queryIri: string, alias?: string): Promise<string> {
+    const query = await this.getQueryDefinition(queryIri);
+    return this.generateQuerySQLFromQuery(query, alias);
   }
 
-  public async generateQuerySQLfromQuery(query: Query) {
-    return IMQtoSQL(query);
+  public async generateQuerySQLFromQuery(query: Query, alias?: string): Promise<string> {
+    const imqsql = await this.generateIMQSQLFromQuery(query, alias);
+
+    let sql = alias ? "CREATE TABLE qry_" + alias + " AS\nWITH " : "WITH ";
+
+    if (imqsql.queries) {
+      for (const dep of [...imqsql.queries.values()].reverse()) {
+        sql += dep.alias + " AS (\nWITH " + dep.sql + "\n),\n";
+      }
+    }
+
+    sql += imqsql.sql;
+
+    return sql;
+  }
+
+  private async getQueryDefinition(queryIri: string): Promise<Query> {
+    const entityResponse = await this.entityService.getPartialEntity(queryIri, [IM.DEFINITION]);
+
+    if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION]))
+      throw new Error("Query does not have a definition [" + queryIri + "]");
+
+    const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
+
+    if (!query) throw new Error("Query contains a blank definition [" + queryIri + "]");
+
+    return query;
+  }
+
+  private async generateIMQSQLFromQuery(query: Query, alias?: string): Promise<IMQSQL> {
+    const result = IMQtoSQL(query, alias);
+
+    if (result.queries) {
+      let notGenerated = [...result.queries.values()].find(q => !q.sql);
+      while (notGenerated) {
+        const definition = await this.getQueryDefinition(notGenerated.iri);
+        const depResult = await this.generateIMQSQLFromQuery(definition, notGenerated.alias);
+        notGenerated.sql = depResult.sql;
+
+        for (const subdep of depResult.queries.values()) {
+          const x = result.queries.get(subdep.iri);
+          if (x) {
+            result.queries.delete(x.iri);
+            result.queries.set(x.iri, x);
+          }
+        }
+
+        notGenerated = [...result.queries.values()].find(q => !q.sql);
+      }
+    }
+
+    return result;
   }
 
   public async validateSelectionWithQuery(iri: string, queryRequest: QueryRequest) {

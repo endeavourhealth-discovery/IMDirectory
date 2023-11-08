@@ -1,13 +1,18 @@
 import { expect, test } from "vitest";
-import IMQtoSQL from "@/logic/IMQtoSQL";
 import { server } from "../../setupTests";
+import { Query } from "@im-library/interfaces/AutoGen";
+import QueryService from "@/services/query.service";
 // import { Query } from "@im-library/interfaces/AutoGen";
 // import EntityService from "@/services/entity.service";
-// import axios from "axios";
+import axios from "axios";
+import { IMQSQL } from "@im-library/interfaces";
 // import { IM } from "@im-library/vocabulary";
+import { v4 as uuid } from "uuid";
 
 test.skip("IMQtoSQL", async () => {
   server.close();
+
+  const queryService = new QueryService(axios);
 
   // const svc = new EntityService(axios);
   // const entity = await svc.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
@@ -18,7 +23,7 @@ test.skip("IMQtoSQL", async () => {
   // let json = entity.data[IM.DEFINITION];
   // const def: Query = JSON.parse(json);
 
-  const def: any = {
+  /*const def: Query = {
     "@id": "http://endhealth.info/im#Q_TestQuery",
     name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
     match: [
@@ -41,15 +46,15 @@ test.skip("IMQtoSQL", async () => {
                     operator: ">=",
                     value: "65",
                     unit: "YEARS",
-                    relativeTo: null,
-                    dataType: null
+                    relativeTo: undefined,
+                    dataType: undefined
                   },
                   to: {
                     operator: "<",
                     value: "70",
                     unit: "YEARS",
-                    relativeTo: null,
-                    dataType: null
+                    relativeTo: undefined,
+                    dataType: undefined
                   }
                 }
               }
@@ -124,13 +129,15 @@ test.skip("IMQtoSQL", async () => {
                   valueLabel: "last 6 months"
                 }
               ],
-              orderBy: [
-                {
-                  direction: "descending",
-                  limit: 1,
-                  "@id": "http://endhealth.info/im#effectiveDate"
-                }
-              ],
+              orderBy: {
+                property: [
+                  {
+                    direction: "descending",
+                    "@id": "http://endhealth.info/im#effectiveDate"
+                  }
+                ],
+                limit: 1
+              },
               typeOf: {
                 "@id": "http://endhealth.info/im#Observation"
               },
@@ -234,13 +241,56 @@ test.skip("IMQtoSQL", async () => {
       "@id": "http://endhealth.info/im#Patient"
     }
   };
+*/
+  const def: Query = {
+    match: [
+      {
+        "@id": "e9280c8c-e046-4f01-b87c-e73ea505a0e2",
+        inSet: [
+          {
+            "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+            name: "Patients registered for GMS services on the reference date"
+          }
+        ],
+        description: "in 'Patients registered for GMS services on the reference date'"
+      },
+      {
+        "@id": "e3154ee7-a14b-44ef-aa2f-9a5d2325ca60",
+        property: [
+          {
+            "@id": "http://endhealth.info/im#homeAddress",
+            match: {
+              "@id": "fed1e7bd-1142-4f67-b354-285344ec85ae",
+              typeOf: {
+                "@id": "http://endhealth.info/im#Address"
+              },
+              property: [
+                {
+                  "@id": "http://endhealth.info/im#postCode",
+                  operator: "startsWith",
+                  value: "HU8",
+                  description: "postCode startsWith HU8"
+                }
+              ],
+              description: "Address with"
+            },
+            description: ""
+          }
+        ],
+        description: "<span style='color: orange;'>and</span> "
+      }
+    ],
+    typeOf: {
+      "@id": "http://endhealth.info/im#Patient"
+    }
+  };
 
   console.log(JSON.stringify(def, null, 2));
 
   console.log("=================================================================================================");
 
-  const sql = IMQtoSQL(def);
-  expect(sql).not.toBeNull();
-  expect(sql).not.toBeUndefined();
-  console.log(sql?.replaceAll("$referenceDate", "now()"));
+  const actual: string = await queryService.generateQuerySQLFromQuery(def, uuid().replaceAll("-", ""));
+  expect(actual).not.toBeNull();
+  expect(actual).not.toBeUndefined();
+  console.log(actual?.replaceAll("$referenceDate", "now()"));
 });

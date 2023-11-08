@@ -6,13 +6,14 @@ import { Relationship } from "@/model/sql/Relationship";
 export class SqlQuery {
   private static aliasIndex = 0;
 
-  public static create(model: string, variable?: string): SqlQuery {
+  public static create(model: string, baseId = "", variable?: string): SqlQuery {
     this.aliasIndex = 0;
-    let result: SqlQuery = new SqlQuery();
+    let result: SqlQuery = new SqlQuery(baseId);
     result.initialize(model, variable);
     return result;
   }
 
+  baseId: string;
   withs: string[] = [];
   selects: string[] = [];
   model: string = "";
@@ -21,11 +22,19 @@ export class SqlQuery {
   joins: string[] = [];
   whereBool: string = "AND";
   wheres: string[] = [];
-  dependencies: string[] = [];
+  dependentSets: string[] = [];
+  dependentQueries: { iri: string; alias: string; sql: string }[] = [];
+
+  constructor(baseId: string) {
+    this.baseId = baseId;
+  }
 
   public subQuery(model: string, variable?: string): SqlQuery {
-    let result: SqlQuery = new SqlQuery();
+    let result: SqlQuery = new SqlQuery(this.baseId);
     result.initialize(model, variable);
+
+    result.dependentSets = this.dependentSets;
+    result.dependentQueries = this.dependentQueries;
     return result;
   }
 
@@ -35,7 +44,6 @@ export class SqlQuery {
     this.joins = [];
     this.whereBool = "AND";
     this.wheres = [];
-    this.dependencies = [];
 
     this.model = model;
     this.map = this.getMap(model);
@@ -58,7 +66,7 @@ export class SqlQuery {
     let sql = "";
 
     if (this.withs && this.withs.length > 0) {
-      sql += "WITH\n";
+      // sql += "WITH\n";
       sql += this.withs.join(",\n");
     }
     return sql;
@@ -166,4 +174,24 @@ export class SqlQuery {
   public getAlias(tableName: string) {
     return tableName + SqlQuery.aliasIndex++;
   }
+
+  public addDependentSet(iri: string) {
+    if (!this.dependentSets.includes(iri)) this.dependentSets.push(iri);
+  }
+
+  /*
+  public dependentQuery(iri: string) {
+    const idx = this.dependentQueries.findIndex(i => i.iri == iri);
+
+    if (idx > -1) {
+      const alias = this.dependentQueries[idx].alias;
+      this.dependentQueries.push(this.dependentQueries.splice(idx, 1)[0]);
+      return alias;
+    } else {
+      const alias = "Q_" + this.baseId + "_" + SqlQuery.aliasIndex++;
+      this.dependentQueries.push({ iri: iri, alias: alias, sql: "" });
+      return alias;
+    }
+  }
+*/
 }

@@ -57,6 +57,7 @@ import { Workflow } from "./Workflow";
 import { BugReport } from "./BugReport";
 import { QueryResponse } from "./QueryResponse";
 import { QueryQueueItem } from "./QueryQueueItem";
+import { IMQSQL } from "./IMQSQL";
 
 export {
   type AccountItem,
@@ -117,5 +118,6 @@ export {
   type Workflow,
   type BugReport,
   type QueryResponse,
-  type QueryQueueItem
+  type QueryQueueItem,
+  type IMQSQL
 };

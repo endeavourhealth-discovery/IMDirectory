@@ -1,7 +1,8 @@
 import { Match, Query, Property, Assignable, OrderLimit } from "@im-library/interfaces/AutoGen";
 import { SqlQuery } from "@/model/sql/SqlQuery";
+import { IMQSQL } from "@im-library/interfaces";
 
-function IMQtoSQL(definition: Query): string {
+function IMQtoSQL(definition: Query, baseId = ""): IMQSQL {
   if (!definition.typeOf) {
     throw new Error("Query must have a main (model) type");
   }
@@ -11,7 +12,7 @@ function IMQtoSQL(definition: Query): string {
   }
 
   try {
-    const qry = SqlQuery.create(definition.typeOf["@id"]!);
+    const qry = SqlQuery.create(definition.typeOf["@id"]!, baseId);
 
     for (const match of definition.match) {
       const subQry = convertMatchToQuery(qry, match);
@@ -31,10 +32,14 @@ function IMQtoSQL(definition: Query): string {
         qry.joins.push(joiner + subQry.alias + " ON " + relFrom + " = " + relTo);
       }
     }
-    return qry.toSql();
+
+    const result: IMQSQL = { sql: qry.toSql(), sets: qry.dependentSets, queries: new Map<string, { iri: string; alias: string; sql: string }>() };
+    qry.dependentQueries.forEach(d => result.queries.set(d.iri, d));
+
+    return result;
   } catch (e) {
-    if (e instanceof Error) return e.toString();
-    else return "Unknown Error";
+    if (e instanceof Error) return { error: e.toString() } as IMQSQL;
+    else return { error: "Unknown Error" } as IMQSQL;
   }
 }
 
@@ -105,9 +110,8 @@ function wrapMatchPartition(qry: SqlQuery, order: OrderLimit) {
 
 function convertMatchSet(qry: SqlQuery, match: Match) {
   if (!match.inSet) throw new Error("MatchSet must have at least one element\n" + JSON.stringify(match, null, 2));
-  const rsltTbl = qry.alias + "_rslt";
-  qry.joins.push("JOIN query_result " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
-  qry.wheres.push(rsltTbl + ".iri = '" + match.inSet[0]["@id"] + "'");
+  const rsltTbl = includeDependentQuery(qry, match.inSet[0]["@id"] as string);
+  qry.joins.push("JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + qry.alias + ".id");
 }
 
 function convertMatchBoolSubMatch(qry: SqlQuery, match: Match) {
@@ -270,6 +274,9 @@ function convertMatchPropertySubMatch(qry: SqlQuery, property: Property) {
 
     qry.joins.push("JOIN " + subQuery.alias + " ON " + relFrom + " = " + relTo);
   }
+
+  // subQuery.dependentSets.forEach(ds => qry.addDependentSet(ds));
+  // subQuery.dependentQueries.forEach(dq => qry.dependentQuery(dq.iri, dq.alias));
 }
 
 function convertMatchPropertyInSet(qry: SqlQuery, property: Property) {
@@ -279,22 +286,23 @@ function convertMatchPropertyInSet(qry: SqlQuery, property: Property) {
     throw new Error("INVALID MatchPropertyIn\n" + JSON.stringify(property, null, 2));
   }
 
-  const inList = [];
+  const inList: string[] = [];
 
   for (const pIn of property.inSet) {
-    if (pIn["@id"]) inList.push(pIn["@id"]);
-    else {
+    if (pIn["@id"]) {
+      inList.push(pIn["@id"]);
+      qry.addDependentSet(pIn["@id"]);
+    } else {
       throw new Error("UNHANDLED 'IN' ENTRY\n" + JSON.stringify(pIn, null, 2));
     }
   }
 
-  // OPTIMIZATION
-  const mmbrTbl = qry.alias + "_mmbr";
+  const mmbrAlias = qry.alias + "_mmbr";
 
-  qry.joins.push("JOIN set_member " + mmbrTbl + " ON " + mmbrTbl + ".member = " + qry.getFieldName(property["@id"]));
+  qry.joins.push("JOIN set_member " + mmbrAlias + " ON " + mmbrAlias + ".member = " + qry.getFieldName(property["@id"]));
 
-  if (inList.length == 1) qry.wheres.push(mmbrTbl + ".iri = '" + inList.join("',\n'") + "'");
-  else qry.wheres.push(mmbrTbl + ".iri IN ('" + inList.join("',\n'") + "')");
+  if (inList.length == 1) qry.wheres.push(mmbrAlias + ".iri = '" + inList.join("',\n'") + "'");
+  else qry.wheres.push(mmbrAlias + ".iri IN ('" + inList.join("',\n'") + "')");
 }
 
 function convertMatchPropertyRelative(qry: SqlQuery, property: Property) {
@@ -384,6 +392,23 @@ function getOperator(operator: string | undefined, value: string | undefined) {
   if ("startsWith" === operator) return "LIKE '" + value + "%'";
 
   throw new Error("UNHANDLED operator [" + operator + "]");
+}
+
+function includeDependentQuery(qry: SqlQuery, iri: string) {
+  const idx = qry.dependentQueries.findIndex(i => i.iri == iri);
+
+  if (idx > -1) {
+    const alias = qry.dependentQueries[idx].alias;
+    qry.dependentQueries.push(qry.dependentQueries.splice(idx, 1)[0]);
+    return alias;
+  } else {
+    const alias = qry.getAlias("Q_" + qry.baseId + "_");
+    qry.dependentQueries.push({ iri: iri, alias: alias, sql: "" });
+
+    console.log("Recursive deps: " + iri);
+
+    return alias;
+  }
 }
 
 export default IMQtoSQL;
