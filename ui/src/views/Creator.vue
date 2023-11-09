@@ -231,7 +231,8 @@ onMounted(async () => {
           }
         });
       } else {
-        const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
+        const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDFS.LABEL]);
+        console.log(containingEntity);
         editorEntity.value[propertyIri as string] = [
           {
             "@id": containingEntity["@id"],
