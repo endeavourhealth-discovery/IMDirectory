@@ -35,6 +35,14 @@
                 outlined
                 v-tooltip.left="'Download query results'"
               ></Button>
+              <Button
+                v-if="data.status == 'Finished'"
+                icon="pi pi-eye"
+                size="small"
+                @click="viewData(data.id)"
+                outlined
+                v-tooltip.left="'View query results'"
+              ></Button>
               <!--              <Button v-if="data.status.startsWith('Error')" size="small">Retry</Button>-->
               <Button
                 v-if="data.status == 'Running'"
@@ -63,6 +71,28 @@
       </div>
     </div>
   </div>
+  <Dialog header="Query Results" :visible="resultData != undefined" :modal="true" :style="{ width: '80vw' }" @update:visible="resultData = undefined">
+    <DataTable
+      :value="resultData"
+      scrollable
+      paginator
+      :rows="50"
+      :rowsPerPageOptions="[5, 10, 20, 50]"
+      paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+      currentPageReportTemplate="{first} to {last} of {totalRecords}"
+    >
+      <template #paginatorstart>
+        <Button type="button" icon="pi pi-refresh" text />
+      </template>
+      <template #paginatorend>
+        <Button type="button" icon="pi pi-download" text />
+      </template>
+      <Column field="id" header="Id" /> <Column field="json" header="Data"
+    /></DataTable>
+    <template #footer>
+      <Button label="Close" @click="resultData = undefined" data-testid="close-button" />
+    </template>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -79,6 +109,7 @@ const route = useRoute();
 const queueId: ComputedRef<any[]> = computed(() => [{ id: route.params.queueId as string }]);
 const loading = ref(true);
 const queueData: Ref<QueryQueueItem[]> = ref([]);
+const resultData: Ref<any[] | undefined> = ref();
 
 onMounted(async () => {
   await refresh();
@@ -167,6 +198,11 @@ function confirmDownload(queueId: string) {
 
 function download(queueId: string) {
   console.log("DOWNLOAD " + queueId);
+}
+
+async function viewData(queueId: string) {
+  console.log("VIEW " + queueId);
+  resultData.value = await QueryService.getResultData(queueId);
 }
 </script>
 

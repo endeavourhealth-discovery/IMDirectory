@@ -573,4 +573,18 @@ export default class QueryService {
       conn.close();
     }
   }
+
+  public async getResultData(query_id: string, user: string, page: number, size: number) {
+    const conn = await this.dbPool.acquire();
+    try {
+      const rs = await conn.query("SELECT * FROM qry_" + query_id.replaceAll("-", "") + " LIMIT " + size + " OFFSET " + (page - 1) * size);
+      if (!rs.rows) return [];
+
+      const result = rs.rows.map((r: any[]) => ({ id: r[0], json: r[1] }));
+
+      return result;
+    } finally {
+      await conn.close();
+    }
+  }
 }
