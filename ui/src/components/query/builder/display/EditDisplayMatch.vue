@@ -93,6 +93,9 @@ import MatchEntitySelect from "../edit/MatchEntitySelect.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import { IM } from "@im-library/vocabulary";
+import { ToastSeverity } from "@im-library/enums";
+import { ToastOptions } from "@im-library/models";
+import { useToast } from "primevue/usetoast";
 
 interface Props {
   parentMatch?: Match;
@@ -131,6 +134,7 @@ const {
   showDirectoryDialog,
   addBefore
 } = setupQueryBuilderActions();
+const toast = useToast();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
   const found = selectedMatches.value.find(selectedMatch => selectedMatch.selected["@id"] === props.match["@id"]);
@@ -360,6 +364,13 @@ function getSingleRCOptions() {
       }
     },
     {
+      label: "Copy feature",
+      icon: "fa-solid fa-copy",
+      command: () => {
+        copyMatchToClipboard();
+      }
+    },
+    {
       label: "Delete feature",
       icon: PrimeIcons.TRASH,
       command: () => {
@@ -435,6 +446,12 @@ function getStyle() {
     highlightColor = highlightColor + opacity;
   }
   document.documentElement.style.setProperty("--highlight-bg-computed", highlightColor);
+}
+
+function copyMatchToClipboard() {
+  const copyObject = { queryTypeIri: queryTypeIri.value, match: props.match };
+  navigator.clipboard.writeText(JSON.stringify(copyObject));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Copied value is not a valid match object."));
 }
 </script>
 

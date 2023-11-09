@@ -24,7 +24,7 @@ import { inject, ref, Ref, watch, onMounted, computed } from "vue";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
@@ -156,6 +156,12 @@ function setSelectedOption() {
     return;
   } else if (isObjectHasKeys(props.shape, ["isIri"]) && props.shape.isIri!["@id"]) {
     deconstructInputValue(props.shape.isIri!["@id"]);
+    return;
+  } else if (EditorMode.CREATE && isArrayHasLength(dropdownOptions.value)) {
+    const foundIndex = dropdownOptions.value.findIndex(option => option["@id"] === IM.NAMESPACE);
+    if (foundIndex !== -1) selectedDropdownOption.value = dropdownOptions.value[foundIndex];
+    else selectedDropdownOption.value = dropdownOptions.value[0];
+    userInput.value = "";
     return;
   } else {
     selectedDropdownOption.value = null;
