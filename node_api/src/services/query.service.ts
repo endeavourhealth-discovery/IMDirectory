@@ -570,7 +570,7 @@ export default class QueryService {
         await stmt.close();
       }
     } finally {
-      conn.close();
+      await conn.close();
     }
   }
 
