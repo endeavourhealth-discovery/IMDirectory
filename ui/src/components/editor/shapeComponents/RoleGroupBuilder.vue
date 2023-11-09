@@ -161,42 +161,46 @@ async function processRole(newData: any[], role: any) {
 }
 
 async function searchProperties(event: AutoCompleteCompleteEvent) {
-  const request: QueryRequest = {
-    textSearch: event.query,
-    query: {
-      activeOnly: true,
-      match: [
-        {
-          instanceOf: {
-            "@id": SNOMED.ATTRIBUTE
+  if (event.query.length > 2) {
+    const request: QueryRequest = {
+      textSearch: event.query,
+      query: {
+        activeOnly: true,
+        match: [
+          {
+            instanceOf: {
+              "@id": SNOMED.ATTRIBUTE
+            }
           }
-        }
-      ]
-    }
-  };
-  const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-  propertySuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
+        ]
+      }
+    };
+    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
+    propertySuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
+  }
 }
 
 async function searchValues(event: AutoCompleteCompleteEvent) {
-  const request: QueryRequest = {
-    textSearch: event.query,
-    query: {
-      activeOnly: true,
-      match: [
-        {
-          property: [
-            {
-              "@id": IM.SCHEME,
-              is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
-            }
-          ]
-        }
-      ]
-    }
-  };
-  const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-  valueSuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
+  if (event.query.length > 2) {
+    const request: QueryRequest = {
+      textSearch: event.query,
+      query: {
+        activeOnly: true,
+        match: [
+          {
+            property: [
+              {
+                "@id": IM.SCHEME,
+                is: [{ "@id": SNOMED.NAMESPACE }, { "@id": IM.NAMESPACE }]
+              }
+            ]
+          }
+        ]
+      }
+    };
+    const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
+    valueSuggestions.value = results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef);
+  }
 }
 
 async function propertyDrop(event: any, object: any) {
