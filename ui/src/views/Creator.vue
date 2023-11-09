@@ -30,8 +30,13 @@
             @click="onShowSidebar"
           />
         </div>
-        <div class="button-bar" id="creator-button-bar">
-          <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
+        <div id="creator-footer-bar">
+          <div class="required-container">
+            <span class="required-info">(*) item is required.</span>
+          </div>
+          <div class="button-bar" id="creator-button-bar">
+            <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
+          </div>
         </div>
       </div>
     </div>
@@ -53,7 +58,6 @@ import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
@@ -78,7 +82,6 @@ export default defineComponent({
     ToggleableComponent,
     QueryDefinitionBuilder,
     ComponentGroup,
-    ArrayBuilderWithDropdown,
     DropdownTextInputConcatenator
   }
 });
@@ -514,11 +517,29 @@ function processEntityValue(property: PropertyShape) {
   padding-top: 1rem;
 }
 
+#creator-footer-bar {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+.required-container {
+  flex: 0 1 auto;
+  padding: 1rem;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.required-info {
+  color: var(--red-500);
+}
+
 .button-bar {
   flex: 0 1 auto;
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
-  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;

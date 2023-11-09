@@ -1,6 +1,9 @@
 <template>
   <div class="term-code-editor">
-    <label v-if="shape.showTitle">{{ shape.name }}</label>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <div class="term-code-editor-container" :class="invalid && showValidation && 'invalid'">
       <div class="name-container">
         <label for="term-name">Name</label>
@@ -20,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, inject, onMounted, ref, watch } from "vue";
+import { ComputedRef, Ref, computed, inject, onMounted, ref, watch } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import injectionKeys from "@/injectionKeys/injectionKeys";
@@ -89,6 +92,11 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
 
 const filterStore = useFilterStore();
 const statusOptions = computed(() => filterStore.filterOptions.status);
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const invalid = ref(false);
 const validationErrorMessage: Ref<string | undefined> = ref();
@@ -200,5 +208,15 @@ function updateEntity() {
   color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

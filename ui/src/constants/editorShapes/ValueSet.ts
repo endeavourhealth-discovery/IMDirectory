@@ -41,7 +41,6 @@ const ValueSetShape: FormGenerator = {
             "@id": RDF.TYPE
           },
           order: 1,
-          minCount: 1,
           maxCount: 1,
           componentType: {
             "@id": IM.component.VERTICAL_LAYOUT
@@ -262,6 +261,7 @@ const ValueSetShape: FormGenerator = {
         {
           label: "Property group - set definition builder",
           name: "Definition",
+          showTitle: true,
           order: 2,
           minCount: 1,
           componentType: {

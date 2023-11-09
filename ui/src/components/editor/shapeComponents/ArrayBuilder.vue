@@ -1,6 +1,9 @@
 <template>
   <div class="array-builder-container">
-    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+      <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
+    </div>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
@@ -40,7 +43,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, PropType, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
@@ -99,6 +102,11 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
     }
   );
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 let key = props.shape.path["@id"];
 
@@ -404,5 +412,16 @@ function updateValueVariableMap(data: any[] | undefined) {
 
 .validate-error-container {
   width: 100%;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

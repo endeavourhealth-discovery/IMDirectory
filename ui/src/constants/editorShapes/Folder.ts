@@ -21,7 +21,6 @@ const FolderShape: FormGenerator = {
       path: {
         "@id": RDF.PROPERTY
       },
-      minCount: 1,
       maxCount: 1,
       componentType: {
         "@id": IM.component.HORIZONTAL_LAYOUT
@@ -39,7 +38,6 @@ const FolderShape: FormGenerator = {
           path: { "@id": IM.FOLDER },
           showTitle: true,
           componentType: { "@id": IM.component.VERTICAL_LAYOUT },
-          minCount: 1,
           maxCount: 1,
           order: 1,
           property: [

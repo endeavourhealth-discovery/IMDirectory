@@ -1,7 +1,10 @@
 <template>
   <div class="iri-builder-container">
     <div class="label-content-container">
-      <label v-if="shape.showTitle">{{ shape.name }}</label>
+      <div class="title-bar">
+        <span v-if="shape.showTitle">{{ shape.name }}</span>
+        <span v-if="showRequired" class="required">*</span>
+      </div>
       <div class="content-container">
         <Dropdown :disabled="disableSchemeEdit" class="dropdown" v-model="selectedDropdownOption" :options="dropdownOptions" optionLabel="name" />
         <InputText
@@ -20,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, Ref, watch, onMounted, computed } from "vue";
+import { inject, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
 import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
@@ -86,7 +89,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   );
 }
 
-const disableCodeEdit = computed(() => {
+const disableCodeEdit: ComputedRef<boolean> = computed(() => {
   if (
     loading.value ||
     props.mode === "edit" ||
@@ -99,8 +102,13 @@ const disableCodeEdit = computed(() => {
   else return false;
 });
 
-const disableSchemeEdit = computed(() => {
+const disableSchemeEdit: ComputedRef<boolean> = computed(() => {
   if (loading.value || props.mode === "edit") return true;
+  else return false;
+});
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
   else return false;
 });
 
@@ -286,5 +294,15 @@ function hasData() {
 
 .invalid {
   border: 1px solid var(--red-500);
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

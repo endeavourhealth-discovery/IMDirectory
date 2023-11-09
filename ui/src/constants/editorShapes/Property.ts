@@ -20,7 +20,6 @@ const PropertyShape: FormGenerator = {
       comment: "Vertical splitter",
       path: { "@id": RDF.PROPERTY },
       order: 1,
-      minCount: 1,
       maxCount: 1,
       componentType: { "@id": IM.component.VERTICAL_LAYOUT },
       property: [

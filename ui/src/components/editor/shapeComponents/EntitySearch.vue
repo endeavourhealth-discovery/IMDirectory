@@ -1,6 +1,9 @@
 <template>
   <div class="entity-search-item-container">
-    <label v-if="shape.showTitle">{{ shape.name }}</label>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <div class="label-container">
       <div
         type="text"
@@ -21,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, onMounted, ref, Ref, inject } from "vue";
+import { watch, onMounted, ref, Ref, inject, ComputedRef, computed } from "vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import _ from "lodash";
 import { ConceptSummary } from "@im-library/interfaces";
@@ -103,6 +106,11 @@ watch(
 
 onMounted(async () => {
   await init();
+});
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
 });
 
 const loading = ref(false);
@@ -283,5 +291,15 @@ function hasData() {
 
 .selected-label {
   padding-left: 0.5rem;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>
