@@ -193,7 +193,7 @@ async function pasteMatch() {
     try {
       const copyObject: { queryTypeIri: string; match: Match } = JSON.parse(copiedString);
       if (isObjectHasKeys(copyObject, ["queryTypeIri"]) && isObjectHasKeys(copyObject, ["match"])) {
-        if (copyObject.queryTypeIri !== queryTypeIri.value) throw new RangeError("Copied match does not have the same return type with the current query.");
+        if (copyObject.queryTypeIri !== queryTypeIri.value) throw new RangeError("Copied match does not have the same return type as the current query.");
         if (!isArrayHasLength(query.value.match)) query.value.match = [];
         copyObject.match["@id"] = v4();
         query.value.match.push(copyObject.match);
