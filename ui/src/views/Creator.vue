@@ -30,8 +30,13 @@
             @click="onShowSidebar"
           />
         </div>
-        <div class="button-bar" id="creator-button-bar">
-          <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
+        <div id="creator-footer-bar">
+          <div class="required-container">
+            <span class="required-info">(*) item is required.</span>
+          </div>
+          <div class="button-bar" id="creator-button-bar">
+            <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
+          </div>
         </div>
       </div>
     </div>
@@ -53,9 +58,9 @@ import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
+import { QueryService } from "@/services";
 import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
@@ -78,7 +83,6 @@ export default defineComponent({
     ToggleableComponent,
     QueryDefinitionBuilder,
     ComponentGroup,
-    ArrayBuilderWithDropdown,
     DropdownTextInputConcatenator
   }
 });
@@ -210,8 +214,34 @@ onMounted(async () => {
     shape.value = getShape(typeIri as string);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
     if (propertyIri && valueIri) {
-      const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
-      editorEntity.value[propertyIri as string] = [{ "@id": containingEntity["@id"], name: containingEntity[RDFS.LABEL] }];
+      if (propertyIri === IM.DEFINITION) {
+        const newValue = await QueryService.getQueryDisplay(valueIri as string);
+        editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
+        editorEntity.value[IM.DEFINITION] = JSON.stringify({
+          match: [
+            {
+              inSet: [
+                {
+                  "@id": newValue["@id"],
+                  name: newValue.name
+                }
+              ],
+              description: newValue.description
+            }
+          ],
+          typeOf: {
+            "@id": newValue.typeOf!["@id"]
+          }
+        });
+      } else {
+        const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDFS.LABEL]);
+        editorEntity.value[propertyIri as string] = [
+          {
+            "@id": containingEntity["@id"],
+            name: containingEntity[RDFS.LABEL]
+          }
+        ];
+      }
     }
   } else {
     showTypeSelector.value = true;
@@ -514,11 +544,29 @@ function processEntityValue(property: PropertyShape) {
   padding-top: 1rem;
 }
 
+#creator-footer-bar {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+.required-container {
+  flex: 0 1 auto;
+  padding: 1rem;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.required-info {
+  color: var(--red-500);
+}
+
 .button-bar {
   flex: 0 1 auto;
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
-  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;

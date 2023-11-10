@@ -2,11 +2,10 @@
   <div class="set-definition-container">
     <div class="ecl-container">
       <div class="text-copy-container">
-        <!-- <div class="field-checkbox">
-          <Checkbox inputId="showNames" v-model="showNames" :binary="true" />
-          <label for="showNames">Show names</label>
-        </div> -->
-        <h1>{{ shape.name }}</h1>
+        <div class="title-bar">
+          <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
+          <h2 v-if="showRequired" class="required">*</h2>
+        </div>
         <Textarea
           v-model="ecl"
           id="ecl-string-container"
@@ -41,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, Ref, PropType, inject } from "vue";
+import { onMounted, ref, watch, Ref, PropType, inject, ComputedRef, computed } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import AddByCodeList from "./setDefinition/AddByCodeList.vue";
 import { EditorMode } from "@im-library/enums";
@@ -112,6 +111,11 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
     }
   );
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const key = props.shape.path["@id"];
 const buttonOptions = [
@@ -276,5 +280,17 @@ Textarea {
   flex-flow: row;
   gap: 1rem;
   margin: 1rem 0 1rem 0;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

@@ -1,6 +1,9 @@
 <template>
   <div class="entity-combobox-container">
-    <label v-if="shape.showTitle" for="chip-group">{{ shape.name }}</label>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <div class="multiselect-loading-container">
       <div id="chip-group" class="chip-group">
         <Chip v-if="fixedOption" :label="fixedOption.name" class="fixed-chip" />
@@ -21,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, Ref, watch, onMounted, inject, PropType, ComputedRef, computed } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
@@ -85,6 +88,11 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
     }
   );
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const fixedOption: Ref<TTIriRef> = ref({} as TTIriRef);
@@ -248,5 +256,15 @@ function hasData() {
 
 .invalid {
   border: 1px solid var(--red-500);
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

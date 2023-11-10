@@ -27,14 +27,14 @@
     v-model:show-dialog="showPropertyDialog"
     v-model:selected="selectedProperty"
     :search-by-function="propertyFunctionRequest"
-    :root-entities="propertyTreeRoots"
+    :root-entities="propertyTreeRoots.length ? propertyTreeRoots : undefined"
   />
   <DirectorySearchDialog
     v-if="showValueDialog"
     v-model:show-dialog="showValueDialog"
     v-model:selected="selectedValue"
     :search-by-function="valueFunctionRequest"
-    :root-entities="valueTreeRoots"
+    :root-entities="valueTreeRoots.length ? valueTreeRoots : undefined"
   />
 </template>
 
@@ -190,6 +190,10 @@ function updateFunctionArguments() {
 async function getPropertyTreeRoots() {
   if (props.focus) {
     if (isAliasIriRef(props.focus)) {
+      if (props.focus.iri === "any") {
+        propertyTreeRoots.value = ["http://snomed.info/sct#410662002"];
+        return;
+      }
       const results = await EntityService.getSuperiorPropertiesPaged(props.focus.iri);
       if (results) propertyTreeRoots.value = results.result.map(item => item["@id"]);
     } else if (isBoolGroup(props.focus)) {
@@ -201,6 +205,10 @@ async function getPropertyTreeRoots() {
 
 async function getValueTreeRoots() {
   if (props.value?.property?.concept?.iri) {
+    if (props.value.property.concept.iri === "any") {
+      valueTreeRoots.value = [];
+      return;
+    }
     const results = await EntityService.getSuperiorPropertyValuesPaged(props.value.property.concept.iri);
     if (results) valueTreeRoots.value = results.result.map(item => item["@id"]);
   }

@@ -21,7 +21,6 @@ const ConceptSetShape: FormGenerator = {
       path: {
         "@id": IM.DEFINITION
       },
-      minCount: 1,
       maxCount: 1,
       componentType: {
         "@id": IM.component.HORIZONTAL_LAYOUT
@@ -41,7 +40,6 @@ const ConceptSetShape: FormGenerator = {
             "@id": RDF.TYPE
           },
           order: 1,
-          minCount: 1,
           maxCount: 1,
           componentType: {
             "@id": IM.component.VERTICAL_LAYOUT
@@ -259,6 +257,7 @@ const ConceptSetShape: FormGenerator = {
         {
           label: "Property group - set definition builder",
           name: "Definition",
+          showTitle: true,
           order: 2,
           minCount: 1,
           componentType: {

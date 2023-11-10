@@ -9,9 +9,10 @@
       <Button label="Set base type" icon="fa-solid fa-diagram-project" @click="showAddBaseTypeDialog = true" severity="help" />
       <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showAddBaseTypeByCohortDialog = true" severity="success" />
     </div>
-    <div v-if="query['typeOf']" class="flex gap-1">
+    <div v-if="query.typeOf" class="flex gap-1">
       <Button label="Add feature" icon="fa-solid fa-circle-plus" @click="showAddDialog = true" severity="warning" />
       <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showDirectoryDialog = true" severity="success" />
+      <Button label="Paste feature" icon="fa-solid fa-paste" @click="pasteMatch" severity="info" />
     </div>
 
     <AddPropertyDialog
@@ -63,14 +64,18 @@ import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDi
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import { IM, SHACL } from "@im-library/vocabulary";
+import { useToast } from "primevue/usetoast";
+import { ToastOptions } from "@im-library/models";
+import { ToastSeverity } from "@im-library/enums";
+import { v4 } from "uuid";
 
 interface Props {
   queryDefinition: Query;
 }
 
 const props = defineProps<Props>();
-
 const queryStore = useQueryStore();
+const toast = useToast();
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
@@ -177,6 +182,27 @@ function addVariableRefFromProperty(map: Map<string, any>, property: Property) {
   if (isArrayHasLength(property.property))
     for (const nestedProperty of property.property!) {
       addVariableRefFromProperty(map, nestedProperty);
+    }
+}
+
+async function pasteMatch() {
+  const copiedString = await navigator.clipboard.readText();
+  if (!copiedString)
+    toast.add(new ToastOptions(ToastSeverity.ERROR, "No copied value found. To copy a feature right-click on a feature and select 'Copy feature'."));
+  else
+    try {
+      const copyObject: { queryTypeIri: string; match: Match } = JSON.parse(copiedString);
+      if (isObjectHasKeys(copyObject, ["queryTypeIri"]) && isObjectHasKeys(copyObject, ["match"])) {
+        if (copyObject.queryTypeIri !== queryTypeIri.value) throw new RangeError("Copied match does not have the same return type as the current query.");
+        if (!isArrayHasLength(query.value.match)) query.value.match = [];
+        copyObject.match["@id"] = v4();
+        query.value.match.push(copyObject.match);
+        toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value was pasted."));
+      }
+    } catch (error: any) {
+      if (error.name === "SyntaxError") toast.add(new ToastOptions(ToastSeverity.ERROR, "Copied value is not a valid match object."));
+      else if (error.name === "RangeError") toast.add(new ToastOptions(ToastSeverity.ERROR, error.message));
+      else throw error;
     }
 }
 

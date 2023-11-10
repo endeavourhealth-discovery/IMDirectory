@@ -15,7 +15,6 @@
         :entity="entity"
         @locateInTree="(iri: string) => $emit('locateInTree', iri)"
         :showSelectButton="showSelectButton"
-        :validationQuery="validationQuery"
         @entitySelected="(iri: string) => emit('selectedUpdated', iri)"
       />
     </div>
@@ -38,7 +37,6 @@ import { QueryRequest } from "@im-library/interfaces/AutoGen";
 interface Props {
   selectedIri: string;
   showSelectButton?: boolean;
-  validationQuery?: QueryRequest;
   history: string[];
 }
 const props = withDefaults(defineProps<Props>(), { showSelectButton: false });

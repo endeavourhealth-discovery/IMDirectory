@@ -37,7 +37,6 @@
             :selected-iri="detailsIri"
             @locateInTree="locateInTree"
             @navigateTo="navigateTo"
-            :validationQuery="searchByQuery"
             :showSelectButton="true"
             v-model:history="history"
             @selected-updated="updateSelectedFromIri"
@@ -215,13 +214,9 @@ async function getIsSelectableEntity(): Promise<boolean> {
     return queryResults.entities.some(item => item["@id"] === detailsIri.value);
   } else if (props.searchByFunction) {
     const functionRequest = _.cloneDeep(props.searchByFunction);
-    const searchTermArg = functionRequest.arguments?.find(arg => arg.parameter === "searchTerm");
-    if (searchTermArg) searchTermArg.valueData = selectedName.value;
-    else functionRequest.arguments?.push({ parameter: "searchTerm", valueData: selectedName.value });
+    functionRequest.arguments?.push({ parameter: "searchIri", valueData: detailsIri.value });
     if (functionRequest.functionIri) {
-      const functionResults = await FunctionService.runSearchFunction(functionRequest);
-      if (!isArrayHasLength(functionResults)) return false;
-      return functionResults.some((items: ConceptSummary) => items.iri === detailsIri.value);
+      return await FunctionService.runAskFunction(functionRequest);
     } else return false;
   } else return false;
 }

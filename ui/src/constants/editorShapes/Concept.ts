@@ -19,7 +19,6 @@ const ConceptShape: FormGenerator = {
       order: 1,
       name: "splitter",
       path: { "@id": IM.CONCEPT },
-      minCount: 0,
       maxCount: 1,
       componentType: { "@id": IM.component.HORIZONTAL_LAYOUT },
       argument: [{ parameter: "subGroup widths", valueData: "40%,60%" }],
@@ -31,7 +30,6 @@ const ConceptShape: FormGenerator = {
           showTitle: true,
           order: 1,
           maxCount: 1,
-          minCount: 1,
           componentType: { "@id": IM.component.VERTICAL_LAYOUT },
           property: [
             {
@@ -364,6 +362,7 @@ const ConceptShape: FormGenerator = {
                 "@id": IM.ROLE_GROUP
               },
               name: "Role group",
+              showTitle: true,
               minCount: 0,
               componentType: {
                 "@id": IM.component.ROLE_GROUP_BUILDER

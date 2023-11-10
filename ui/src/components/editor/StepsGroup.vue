@@ -9,7 +9,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
@@ -25,7 +24,6 @@ export default defineComponent({
   components: {
     EntityComboBox,
     ArrayBuilder,
-    ArrayBuilderWithDropdown,
     SetDefinitionBuilder,
     QueryDefinitionBuilder,
     EntityDropdown,

@@ -63,7 +63,6 @@ describe("EditorMethods", () => {
       expect(processComponentType({ "@id": IM.component.STEPS_GROUP })).toBe(ComponentType.STEPS_GROUP);
       expect(processComponentType({ "@id": IM.component.SET_DEFINITION_BUILDER })).toBe(ComponentType.SET_DEFINITION_BUILDER);
       expect(processComponentType({ "@id": IM.component.QUERY_DEFINITION_BUILDER })).toBe(ComponentType.QUERY_DEFINITION_BUILDER);
-      expect(processComponentType({ "@id": IM.component.ARRAY_BUILDER_WITH_DROPDOWN })).toBe(ComponentType.ARRAY_BUILDER_WITH_DROPDOWN);
       expect(processComponentType({ "@id": IM.component.PROPERTY_BUILDER })).toBe(ComponentType.PROPERTY_BUILDER);
       expect(processComponentType({ "@id": IM.component.TOGGLEABLE })).toBe(ComponentType.TOGGLEABLE_COMPONENT);
       expect(processComponentType({ "@id": IM.component.HORIZONTAL_LAYOUT })).toBe(ComponentType.HORIZONTAL_LAYOUT);
