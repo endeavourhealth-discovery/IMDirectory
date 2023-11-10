@@ -26,6 +26,11 @@ export default class FunctionController {
         .then(data => res.send(data))
         .catch(next);
     });
+    this.router.post("/public/callAskFunction", (req, res, next) => {
+      this.runAskFunction(req)
+        .then(data => res.send(data))
+        .catch(next);
+    });
   }
 
   async runSearchFunction(req: Request) {
@@ -33,6 +38,15 @@ export default class FunctionController {
     if (functionRequest && isObjectHasKeys(functionRequest, ["functionIri"])) {
       if (functionRequest.functionIri === IM.function.ALLOWABLE_PROPERTIES) return this.functionService.getAllowablePropertySuggestions(functionRequest);
       else if (functionRequest.functionIri === IM.function.ALLOWABLE_RANGES) return this.functionService.getAllowableRangeSuggestions(functionRequest);
+      else throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
+    } else throw new CustomError("functionIri is required.", ErrorType.InvalidInputError);
+  }
+
+  async runAskFunction(req: Request) {
+    const functionRequest = req.body;
+    if (functionRequest && isObjectHasKeys(functionRequest, ["functionIri"])) {
+      if (functionRequest.functionIri === IM.function.ALLOWABLE_PROPERTIES) return this.functionService.isAllowablePropertySuggestion(functionRequest);
+      else if (functionRequest.functionIri === IM.function.ALLOWABLE_RANGES) return this.functionService.isAllowableRangeSuggestion(functionRequest);
       else throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
     } else throw new CustomError("functionIri is required.", ErrorType.InvalidInputError);
   }
