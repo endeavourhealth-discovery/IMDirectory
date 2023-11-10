@@ -1,6 +1,9 @@
 <template>
   <div class="autocomplete-container">
-    <label v-if="shape.showTitle" for="name">{{ shape.name }}</label>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <div class="label-container">
       <div v-if="loading" class="loading-container">
         <ProgressSpinner style="width: 1.5rem; height: 1.5rem" strokeWidth="6" />
@@ -174,6 +177,11 @@ const showValidation = ref(false);
 const invalidAssociatedProperty: ComputedRef<boolean> = computed(
   () => validationErrorMessage.value === `Missing required related item: ${props.shape.argument![0].valueVariable}`
 );
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 onBeforeUnmount(() => {
   if (isObjectHasKeys(optionsOverlayLocation.value)) {
@@ -404,5 +412,15 @@ function hasData() {
 .result-overlay {
   all: unset;
   z-index: 999;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

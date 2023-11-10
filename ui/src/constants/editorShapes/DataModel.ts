@@ -21,7 +21,6 @@ const DataModelShape: FormGenerator = {
       path: {
         "@id": RDF.PROPERTY
       },
-      minCount: 1,
       maxCount: 1,
       componentType: {
         "@id": IM.component.HORIZONTAL_LAYOUT
@@ -41,7 +40,6 @@ const DataModelShape: FormGenerator = {
             "@id": RDF.PROPERTY
           },
           order: 1,
-          minCount: 1,
           maxCount: 1,
           componentType: {
             "@id": IM.component.VERTICAL_LAYOUT
@@ -295,11 +293,12 @@ const DataModelShape: FormGenerator = {
           ]
         },
         {
-          name: "Splitter",
+          name: "Properties",
+          showTitle: true,
           comment: "Role group | Mapped to splitter",
           path: { "@id": IM.CONCEPT },
           order: 1,
-          minCount: 0,
+          minCount: 1,
           maxCount: 1,
           componentType: { "@id": IM.component.VERTICAL_LAYOUT },
           property: [

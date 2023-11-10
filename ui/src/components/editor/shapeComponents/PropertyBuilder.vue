@@ -1,6 +1,9 @@
 <template>
   <div class="property-builder">
-    <h2 class="title">Properties</h2>
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
+      <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
+    </div>
     <div class="error-message-container" :class="validationErrorMessage ? 'error-message-container-highlight' : ''">
       <div class="children-container">
         <table>
@@ -85,7 +88,7 @@
 <script setup lang="ts">
 import { Property } from "@im-library/interfaces";
 import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
-import { inject, onMounted, Ref, ref, watch } from "vue";
+import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
 import _ from "lodash";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
@@ -130,6 +133,11 @@ if (forceValidation) {
     validateEntity();
   });
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const dmProperties: Ref<SimpleProp[]> = ref([]);
 const loading = ref(true);
@@ -507,5 +515,17 @@ function updateEntity() {
 .td-nw {
   white-space: nowrap;
   vertical-align: top;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

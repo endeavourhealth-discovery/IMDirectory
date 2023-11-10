@@ -37,7 +37,6 @@
 import EntitySearch from "./EntitySearch.vue";
 import EntityAutoComplete from "./EntityAutoComplete.vue";
 import ComponentGroup from "./ComponentGroup.vue";
-import ArrayBuilderWithDropdown from "./ArrayBuilderWithDropdown.vue";
 import PropertyBuilder from "./PropertyBuilder.vue";
 import TermCodeEditor from "./TermCodeEditor.vue";
 import EntityDropdown from "./EntityDropdown.vue";
@@ -45,7 +44,7 @@ import EntityDisplay from "./EntityDisplay.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  components: { EntitySearch, EntityAutoComplete, ComponentGroup, ArrayBuilderWithDropdown, PropertyBuilder, TermCodeEditor, EntityDropdown, EntityDisplay }
+  components: { EntitySearch, EntityAutoComplete, ComponentGroup, PropertyBuilder, TermCodeEditor, EntityDropdown, EntityDisplay }
 });
 </script>
 

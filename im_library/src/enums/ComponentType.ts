@@ -21,8 +21,6 @@ export enum ComponentType {
   ENTITY_AUTO_COMPLETE = "EntityAutoComplete",
   MEMBERS_BUILDER = "MembersBuilder",
   COMPONENT_GROUP = "ComponentGroup",
-  ARRAY_BUILDER_WITH_DROPDOWN = "ArrayBuilderWithDropdown",
-  BUILDER_DROPDOWN_CHILD_WRAPPER = "BuilderDropdownChildWrapper",
   PROPERTY_BUILDER = "PropertyBuilder",
   SET_DEFINITION_BUILDER = "SetDefinitionBuilder",
   QUERY_DEFINITION_BUILDER = "QueryDefinitionBuilder",

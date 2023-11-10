@@ -32,9 +32,14 @@
             data-testid="show-sidebar-button"
           />
         </div>
-        <div class="button-bar" id="editor-button-bar">
-          <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
-          <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
+        <div id="editor-footer-bar">
+          <div class="required-container">
+            <span class="required-info">(*) item is required.</span>
+          </div>
+          <div class="button-bar" id="editor-button-bar">
+            <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
+            <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
+          </div>
         </div>
       </div>
     </div>
@@ -54,14 +59,12 @@ import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
 import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
 import { defineComponent } from "vue";
 import { setupValidity } from "@/composables/setupValidity";
 import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
 import { useDialog } from "primevue/usedialog";
-import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
   components: {
@@ -78,7 +81,6 @@ export default defineComponent({
     ToggleableComponent,
     QueryDefinitionBuilder,
     ComponentGroup,
-    ArrayBuilderWithDropdown,
     DropdownTextInputConcatenator
   }
 });
@@ -409,10 +411,6 @@ function closeEditor() {
   align-items: center;
 }
 
-.p-steps {
-  width: 90%;
-}
-
 .sidebar-toggle {
   position: absolute;
   top: 5px;
@@ -428,21 +426,6 @@ function closeEditor() {
   align-items: center;
 }
 
-.steps-content {
-  flex: 1 1 auto;
-  width: 100%;
-  overflow: auto;
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.p-steps {
-  width: 100%;
-  padding-top: 1rem;
-}
-
 .placeholder {
   height: 100%;
 }
@@ -456,10 +439,16 @@ function closeEditor() {
   flex: 0 1 auto;
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
-  width: 100%;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
+}
+
+#editor-footer-bar {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
 }
 
 .topbar-content {
@@ -469,6 +458,19 @@ function closeEditor() {
   flex-flow: row nowrap;
   justify-content: flex-start;
   align-items: center;
+  align-items: center;
+}
+
+.required-container {
+  flex: 0 1 auto;
+  padding: 1rem;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.required-info {
+  color: var(--red-500);
 }
 
 .entity-name {

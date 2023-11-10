@@ -1,6 +1,9 @@
 <template>
   <div id="role-group-builder">
-    <h2 class="title">Role Groups</h2>
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
+      <h2 v-if="showRequired" class="required">*</h2>
+    </div>
     <div :class="validationErrorMessage ? 'error-message' : ''">
       <span v-if="validationErrorMessage" class="error-message">{{ validationErrorMessage }}</span>
       <div v-if="loading" class="loading-container">
@@ -75,7 +78,7 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { Argument, PropertyShape, QueryRequest, SearchResultSummary, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
 import { isArray } from "lodash";
-import { Ref, onMounted, ref, inject, watch } from "vue";
+import { Ref, onMounted, ref, inject, watch, ComputedRef, computed } from "vue";
 import { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { useToast } from "primevue/usetoast";
@@ -104,6 +107,11 @@ if (forceValidation) {
     }
   });
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const roleGroups: Ref<any[][]> = ref([]);
 const propertySuggestions: Ref<TTIriRef[]> = ref([]);
@@ -401,5 +409,15 @@ div.error-message {
 
 .p-button {
   margin-right: 1rem;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>
