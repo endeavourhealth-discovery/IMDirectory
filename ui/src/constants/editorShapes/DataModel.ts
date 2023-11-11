@@ -256,15 +256,15 @@ const DataModelShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_FOLDERS
+                      "@id": IM.query.SEARCH_ALLOWABLE_CONTAINED_IN
                     }
                   ],
                   argument: [
                     {
-                      parameter: "this",
                       valueIri: {
-                        "@id": IM.FOLDER
-                      }
+                        "@id": SHACL.NODESHAPE
+                      },
+                      parameter: "value"
                     }
                   ],
                   builderChild: true,
