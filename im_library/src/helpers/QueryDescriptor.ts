@@ -105,7 +105,7 @@ export function getDisplayFromProperty(property: Property) {
   if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);
   if (property.range) display = getDisplayFromRange(propertyName, property);
-  if (property.null) display += " is null";
+  if (property.isNull) display += " is null";
   return display;
 }
 

@@ -106,7 +106,7 @@ async function initValues() {
   } else if (props.property.relativeTo) {
     propertyType.value = "is";
     valueType.value = "variable";
-  } else if (props.property.null) {
+  } else if (props.property.isNull) {
     propertyType.value = "isNull";
   } else {
     propertyType.value = "is";
@@ -140,7 +140,7 @@ function updatePropertyValues() {
       parameter: "$referenceDate"
     };
   } else if (propertyType.value === "isNull") {
-    props.property.null = true;
+    props.property.isNull = true;
   }
 }
 
@@ -149,7 +149,7 @@ function clearAllProperties() {
   delete props.property.value;
   delete props.property.unit;
   delete props.property.relativeTo;
-  delete props.property.null;
+  delete props.property.isNull;
   delete props.property.range;
 }
 
