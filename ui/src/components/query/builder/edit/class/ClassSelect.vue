@@ -74,7 +74,7 @@ function handlePropertyTypeChange() {
     props.property.inSet = editValues.value;
     delete props.property.is;
     delete props.property.isNot;
-    delete props.property.null;
+    delete props.property.isNull;
   }
 }
 
