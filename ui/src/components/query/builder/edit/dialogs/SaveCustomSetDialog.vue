@@ -78,6 +78,8 @@ interface Props {
 }
 const props = defineProps<Props>();
 
+const emit = defineEmits({ onSave: (payload: Node) => payload });
+
 const schema = yup.object({
   scheme: yup.string().required().label("Scheme").default(IM.NAMESPACE),
   iri: yup
@@ -175,6 +177,7 @@ const onSubmit = handleSubmit(async () => {
   }
   loading.value = false;
   showSaveCustomSetDialog.value = false;
+  emit("onSave", { "@id": setEntity["@id"], name: setEntity[RDFS.LABEL] });
 });
 
 function onDiscard() {
