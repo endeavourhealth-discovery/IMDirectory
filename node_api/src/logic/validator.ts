@@ -41,6 +41,10 @@ export default class Validator {
       valid = true;
       message = undefined;
     }
+    if (isObjectHasKeys(data, [IM.IS_SUBSET_OF]) && isArrayHasLength(data[IM.IS_SUBSET_OF]) && data[IM.IS_SUBSET_OF].every((item: any) => isTTIriRef(item))) {
+      valid = true;
+      message = undefined;
+    }
     if (
       isObjectHasKeys(data, [RDFS.SUB_PROPERTY_OF]) &&
       isArrayHasLength(data[RDFS.SUB_PROPERTY_OF]) &&
