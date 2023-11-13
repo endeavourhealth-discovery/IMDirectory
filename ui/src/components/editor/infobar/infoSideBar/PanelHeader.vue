@@ -34,10 +34,7 @@ watch(
   }
 );
 
-function navigate() {
-  console.log("a");
-  // DirectService.directTo(Env.VIEWER_URL, this.selectedConceptIri, this, "concept");
-}
+function navigate() {}
 </script>
 
 <style scoped>

@@ -31,6 +31,11 @@ export default class QueryService {
     return response.data;
   }
 
+  public async askQueryIM(query: QueryRequest): Promise<boolean> {
+    const response = await this.axios.post(Env.API + "api/query/public/askQueryIM", query);
+    return response.data;
+  }
+
   public async getAllowableRangeSuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
     const allowableRangesQuery = {
       query: {
@@ -74,6 +79,43 @@ export default class QueryService {
     return suggestions;
   }
 
+  public async isAllowableRangeSuggestion(propertyIri: string, rangeIri: string): Promise<boolean> {
+    const allowableRangesQuery = {
+      query: {
+        "@id": IM.query.ALLOWABLE_RANGES
+      },
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": propertyIri
+          }
+        }
+      ]
+    } as QueryRequest;
+
+    const subtypesQuery = {
+      query: {
+        "@id": IM.query.GET_ISAS
+      },
+      argument: [
+        {
+          parameter: "this",
+          valueIriList: [] as TTIriRef[]
+        }
+      ],
+      askIri: rangeIri
+    } as QueryRequest;
+
+    const allowableRanges = await this.queryIM(allowableRangesQuery);
+    if (allowableRanges.entities && isArrayHasLength(allowableRanges.entities)) {
+      subtypesQuery.argument![0].valueIriList = allowableRanges.entities.map((entity: any) => {
+        return { "@id": entity["@id"] };
+      });
+    } else return false;
+    return this.askQueryIM(subtypesQuery);
+  }
+
   public async getAllowablePropertySuggestions(iri: string, searchTerm?: string): Promise<AliasEntity[]> {
     const queryRequest = {
       query: {
@@ -98,6 +140,25 @@ export default class QueryService {
     if (isObjectHasKeys(result, ["entities"])) suggestions = result.entities;
     this.convertTTEntitiesToAlias(suggestions);
     return suggestions;
+  }
+
+  public async isAllowablePropertySuggestion(conceptIri: string, propertyIri: string): Promise<boolean> {
+    const queryRequest = {
+      query: {
+        "@id": IM.query.ALLOWABLE_PROPERTIES
+      },
+      argument: [
+        {
+          parameter: "this",
+          valueIri: {
+            "@id": conceptIri
+          }
+        }
+      ],
+      askIri: propertyIri
+    } as QueryRequest;
+
+    return await this.askQueryIM(queryRequest);
   }
 
   public async searchProperties(searchTerm: string): Promise<AliasEntity[]> {
@@ -148,6 +209,38 @@ export default class QueryService {
       }
     }
     return suggestions;
+  }
+
+  public async isAllowablePropertySuggestionBoolFocus(focus: any, propertyIri: string) {
+    let query;
+    let found = false;
+    if (focus.ecl) query = eclToIMQ(focus.ecl);
+    if (query) {
+      const eclSearchRequest = { eclQuery: query, includeLegacy: false, limit: 1000, statusFilter: [{ "@id": IM.ACTIVE }] } as EclSearchRequest;
+      const results = await this.eclService.eclSearch(eclSearchRequest);
+      if (isArrayHasLength(results)) {
+        for (const result of results) {
+          const queryRequest = {
+            query: {
+              "@id": IM.query.ALLOWABLE_PROPERTIES
+            },
+            argument: [
+              {
+                parameter: "this",
+                valueIri: {
+                  "@id": result["@id"]
+                }
+              }
+            ],
+            askIri: propertyIri
+          } as QueryRequest;
+
+          const queryResult = await this.askQueryIM(queryRequest);
+          if (queryResult) found = queryResult;
+        }
+      }
+    }
+    return found;
   }
 
   convertTTEntitiesToAlias(ttEntities: any[]) {

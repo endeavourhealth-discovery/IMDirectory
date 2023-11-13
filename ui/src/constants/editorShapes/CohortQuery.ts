@@ -19,7 +19,6 @@ const CohortQueryShape: FormGenerator = {
       order: 1,
       name: "splitter",
       path: { "@id": IM.CONCEPT },
-      minCount: 1,
       maxCount: 1,
       componentType: { "@id": IM.component.HORIZONTAL_LAYOUT },
       argument: [{ parameter: "subGroup widths", valueData: "40%,60%" }],
@@ -29,7 +28,6 @@ const CohortQueryShape: FormGenerator = {
           name: "Summary",
           showTitle: true,
           order: 1,
-          minCount: 1,
           maxCount: 1,
           path: {
             "@id": RDF.TYPE

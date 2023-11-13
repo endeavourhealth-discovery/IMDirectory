@@ -1,37 +1,38 @@
 <template>
   <div v-if="isAliasIriRef(value.concept)" class="concept-container">
-    <AutoComplete
-      :forceSelection="true"
-      style="flex: 1"
-      :input-style="{ flex: 1 }"
-      field="name"
-      dataKey="iri"
-      v-model="selected"
-      :suggestions="suggestions"
-      @complete="search($event.query)"
-      placeholder="Search..."
-      :optionDisabled="disableOption"
-      :disabled="loading"
+    <div
+      class="search-text"
+      type="text"
+      :class="[isAny && 'inactive', !isAny && 'clickable']"
+      @click="!isAny ? (showDialog = true) : (showDialog = false)"
+      v-tooltip="{ value: selected.name ?? '', class: 'entity-tooltip' }"
+    >
+      <span class="selected-label">{{ selected.name ?? "Search..." }}</span>
+    </div>
+    <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>
+    <DirectorySearchDialog
+      v-if="!isAny && selected.iri !== 'any'"
+      v-model:show-dialog="showDialog"
+      v-model:selected="selected"
+      :search-by-query="queryRequest"
+      :root-entities="['http://endhealth.info/im#HealthModelOntology']"
     />
-    <Button :disabled="!value.concept?.iri" icon="fa-solid fa-sitemap" @click="openTree('concept')" class="tree-button" />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     <Dropdown style="width: 12rem" v-model="value.descendants" placeholder="only" :options="descendantOptions" option-label="label" option-value="value" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, PropType, watch, inject, h } from "vue";
+import { Ref, ref, onMounted, watch, inject } from "vue";
 import { IM, SNOMED } from "@im-library/vocabulary";
-import EclTree from "../EclTree.vue";
-import Button from "primevue/button";
+import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/interfaces/AutoGen";
+import { QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EntityService } from "@/services";
 import _ from "lodash";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { builderConceptToEcl } from "@im-library/helpers/EclBuilderConceptToEcl";
-import { useDialog } from "primevue/usedialog";
 import { isAliasIriRef } from "@im-library/helpers/TypeGuards";
 
 interface Props {
@@ -41,7 +42,7 @@ interface Props {
         descendants: string;
         conjunction: string;
         items: any[];
-        concept: { iri: string; name?: string } | undefined;
+        concept: { iri: string; name?: string; code?: string } | undefined;
         ecl?: string;
       }
     | any;
@@ -63,16 +64,15 @@ watch(
   }
 );
 
-let treeDialog = useDialog();
-
 const includeTerms = inject("includeTerms") as Ref<boolean>;
 watch(includeTerms, () => (props.value.ecl = generateEcl()));
 
-const selected: Ref<ConceptSummary | null | string> = ref(null);
-const controller: Ref<AbortController | undefined> = ref(undefined);
-const suggestions: Ref<any[]> = ref([]);
+const selected: Ref<ConceptSummary> = ref({} as ConceptSummary);
 const loading = ref(false);
+const showDialog = ref(false);
+const isAny = ref(false);
 
+const queryRequest = { query: { "@id": IM.query.SEARCH_ENTITIES }, argument: [{ parameter: "this", valueIri: { "@id": IM.CONCEPT } }] } as QueryRequest;
 const descendantOptions = [
   {
     label: "only",
@@ -93,55 +93,38 @@ onMounted(async () => {
 });
 
 watch(selected, (newValue, oldValue) => {
-  if (typeof newValue === "string" || newValue === null) return;
-  else if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri && newValue.code != "UNKNOWN") {
+  if (newValue && !_.isEqual(newValue, oldValue) && newValue.iri) {
     updateConcept(newValue);
   }
+});
+
+watch(isAny, newValue => {
+  if (newValue) selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
+  else selected.value = {} as ConceptSummary;
 });
 
 async function init() {
   if (props.value && props.value.concept) {
     if (isAliasIriRef(props.value.concept)) {
       loading.value = true;
-      await search(props.value.concept.iri);
-      if (isArrayHasLength(suggestions.value)) {
-        if (props.value.concept.iri === "*") selected.value = suggestions.value.find(result => result.iri === "any");
-        else {
-          selected.value = suggestions.value.find(result => result.iri === (props.value.concept as { iri: string; name?: string }).iri);
-        }
-      }
+      await updateSelectedResult(props.value.concept);
       loading.value = false;
     }
   }
 }
 
-async function search(term: string) {
-  if (term.length > 2) {
-    if (term.toLowerCase() === "any") {
-      suggestions.value = [{ iri: "any", name: "ANY", code: "any" }];
-    } else {
-      const searchRequest = {} as SearchRequest;
-      searchRequest.termFilter = term;
-      searchRequest.sortField = "weighting";
-      searchRequest.page = 1;
-      searchRequest.size = 100;
-      searchRequest.schemeFilter = [SNOMED.NAMESPACE, IM.NAMESPACE];
-      searchRequest.statusFilter = [IM.ACTIVE];
-
-      if (controller.value) {
-        controller.value.abort();
-      }
-      controller.value = new AbortController();
-      suggestions.value = await EntityService.advancedSearch(searchRequest, controller.value);
-      controller.value = undefined;
-    }
-  } else if (term === "*") {
-    suggestions.value = [{ iri: "any", name: "ANY", code: "any" }];
-  } else suggestions.value = [{ iri: null, name: "3 character minumum", code: "UNKNOWN" }];
-}
-
-function disableOption(data: any) {
-  return data.code === "UNKNOWN";
+async function updateSelectedResult(data: ConceptSummary | { iri: string; name?: string }) {
+  if (!isObjectHasKeys(data)) selected.value = {} as ConceptSummary;
+  else if (isObjectHasKeys(data, ["entityType"])) selected.value = data as ConceptSummary;
+  else if (data.iri === "any" || data.iri === "*") {
+    selected.value = { iri: "any", name: "ANY", code: "any" } as ConceptSummary;
+    isAny.value = true;
+  } else if (data.iri) {
+    const asSummary = await EntityService.getEntitySummary(data.iri);
+    selected.value = isObjectHasKeys(asSummary) ? asSummary : ({} as ConceptSummary);
+  } else {
+    selected.value = {} as ConceptSummary;
+  }
 }
 
 function generateEcl(): string {
@@ -161,32 +144,6 @@ function generateEcl(): string {
 function updateConcept(concept: any) {
   props.value.concept = concept;
   props.value.ecl = generateEcl();
-}
-
-function openTree(type: string) {
-  const dialogProps = {
-    style: { width: "80vw", height: "80vh" },
-    closable: false,
-    maximizable: true,
-    modal: true,
-    contentStyle: { flex: "1 1 auto", display: "flex" },
-    dismissableMask: true,
-    autoZIndex: false
-  };
-  const dialogRef = treeDialog.open(EclTree, {
-    props: dialogProps,
-    templates: {
-      footer: () => {
-        return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
-      }
-    },
-    data: { type: "concept", currentValue: props.value.concept },
-    onClose(options) {
-      if (options?.data?.type === "concept") {
-        selected.value = options.data.entity;
-      }
-    }
-  });
 }
 </script>
 
@@ -209,5 +166,50 @@ function openTree(type: string) {
   height: 2.357rem !important;
   width: 2.357rem !important;
   padding: 0.5rem !important;
+}
+
+.search-text {
+  flex: 1 1 auto;
+  min-width: 25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+  padding: 4px 4px;
+  margin: 0;
+  color: var(--text-color);
+  background: var(--surface-a);
+  border: 1px solid var(--surface-border);
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+  appearance: none;
+  border-radius: 3px;
+  height: 2.7rem;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}
+
+.any-checkbox-container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.5rem 0 0;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.inactive {
+  color: var(--text-color-secondary);
+}
+
+.selected-label {
+  padding-left: 0.5rem;
 }
 </style>

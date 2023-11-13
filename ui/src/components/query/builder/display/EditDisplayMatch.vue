@@ -36,14 +36,7 @@
       :parent-match="match"
       :property="property"
     />
-    <EditDisplayOrderBy
-      v-if="isArrayHasLength(match.orderBy)"
-      v-for="(orderBy, index) of match.orderBy"
-      :match="match"
-      :order-by="orderBy"
-      :index="index"
-      :on-add-order-by="onAddOrderBy"
-    />
+    <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
   </div>
 
@@ -82,7 +75,7 @@
 
 <script setup lang="ts">
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Match, Node, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { Match, Node, OrderDirection, OrderLimit, QueryRequest } from "@im-library/interfaces/AutoGen";
 import EditDisplayProperty from "./EditDisplayProperty.vue";
 import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
 import { PrimeIcons } from "primevue/api";
@@ -100,6 +93,9 @@ import MatchEntitySelect from "../edit/MatchEntitySelect.vue";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
 import { IM } from "@im-library/vocabulary";
+import { ToastSeverity } from "@im-library/enums";
+import { ToastOptions } from "@im-library/models";
+import { useToast } from "primevue/usetoast";
 
 interface Props {
   parentMatch?: Match;
@@ -138,6 +134,7 @@ const {
   showDirectoryDialog,
   addBefore
 } = setupQueryBuilderActions();
+const toast = useToast();
 const editMode: Ref<boolean> = ref(false);
 const isSelected: ComputedRef<boolean> = computed(() => {
   const found = selectedMatches.value.find(selectedMatch => selectedMatch.selected["@id"] === props.match["@id"]);
@@ -328,7 +325,7 @@ function getSingleRCOptions() {
       }
     },
     {
-      label: "Keep as a variable",
+      label: "Label as a variable",
       icon: PrimeIcons.SAVE,
       command: () => {
         keepAs();
@@ -364,6 +361,13 @@ function getSingleRCOptions() {
       icon: PrimeIcons.EYE,
       command: () => {
         view();
+      }
+    },
+    {
+      label: "Copy feature",
+      icon: "fa-solid fa-copy",
+      command: () => {
+        copyMatchToClipboard();
       }
     },
     {
@@ -430,8 +434,8 @@ function deleteSelected() {
 }
 
 function addOrderBy() {
-  if (!isArrayHasLength(props.match.orderBy)) props.match.orderBy = [];
-  props.match.orderBy?.push({} as OrderLimit);
+  if (!props.match.orderBy) props.match.orderBy = { property: [{}] };
+  if (!isArrayHasLength(props.match?.orderBy?.property)) props.match!.orderBy!.property = [{}];
   onAddOrderBy.value = true;
 }
 
@@ -442,6 +446,12 @@ function getStyle() {
     highlightColor = highlightColor + opacity;
   }
   document.documentElement.style.setProperty("--highlight-bg-computed", highlightColor);
+}
+
+function copyMatchToClipboard() {
+  const copyObject = { queryTypeIri: queryTypeIri.value, match: props.match };
+  navigator.clipboard.writeText(JSON.stringify(copyObject));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Copied value is not a valid match object."));
 }
 </script>
 

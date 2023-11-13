@@ -2,12 +2,39 @@ import { GraphdbService, sanitise } from "@/services/graphdb.service";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { ContextMap } from "@im-library/interfaces";
 import { v4 } from "uuid";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 export default class EntityRepository {
   private graph: GraphdbService;
 
   constructor() {
     this.graph = GraphdbService.imRepo();
+  }
+
+  public async getInverseIsas(iri: string, searchTerm?: string) {
+    let rs;
+    if (!searchTerm) {
+      rs = await this.graph.execute("select ?s ?name \n where { \n ?s ?isa ?o ; \n ?label ?name . \n } \n order by ?name", {
+        o: sanitise(iri),
+        isa: sanitise(IM.IS_A),
+        label: sanitise(RDFS.LABEL)
+      });
+    } else {
+      rs = await this.graph.execute("select ?s ?name \n where { \n ?s ?isa ?o ; \n ?label ?name . \n } \n order by ?name", {
+        o: sanitise(iri),
+        isa: sanitise(IM.IS_A),
+        label: sanitise(RDFS.LABEL),
+        name: sanitise(searchTerm)
+      });
+    }
+
+    const result: any[] = [];
+
+    for (const r of rs) {
+      result.push({ "@id": r.s.value, name: r.name.value } as TTIriRef);
+    }
+    return result;
   }
 
   public async getConceptContextMaps(conceptIri: string): Promise<ContextMap[]> {

@@ -58,15 +58,15 @@ function handlePropertyTypeChange() {
   if (propertyType.value === "isNot") {
     props.property.isNot = editValues.value;
     delete props.property.is;
-    delete props.property.null;
+    delete props.property.isNull;
     delete props.property.inSet;
   } else if (propertyType.value === "is") {
     props.property.is = editValues.value;
     delete props.property.isNot;
-    delete props.property.null;
+    delete props.property.isNull;
     delete props.property.inSet;
   } else if (propertyType.value === "isNull") {
-    props.property.null = true;
+    props.property.isNull = true;
     delete props.property.is;
     delete props.property.isNot;
     delete props.property.inSet;
@@ -81,7 +81,7 @@ function handlePropertyTypeChange() {
 function initEditValues() {
   if (isObjectHasKeys(props.property, ["is"])) propertyType.value = "is";
   else if (isObjectHasKeys(props.property, ["isNot"])) propertyType.value = "isNot";
-  else if (isObjectHasKeys(props.property, ["null"])) propertyType.value = "isNull";
+  else if (isObjectHasKeys(props.property, ["isNull"])) propertyType.value = "isNull";
   else if (isObjectHasKeys(props.property, ["inSet"])) propertyType.value = "inSet";
 
   if (propertyType.value && propertyType.value !== "isNull") {

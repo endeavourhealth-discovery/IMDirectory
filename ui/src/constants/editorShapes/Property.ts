@@ -20,7 +20,6 @@ const PropertyShape: FormGenerator = {
       comment: "Vertical splitter",
       path: { "@id": RDF.PROPERTY },
       order: 1,
-      minCount: 1,
       maxCount: 1,
       componentType: { "@id": IM.component.VERTICAL_LAYOUT },
       property: [
@@ -193,15 +192,15 @@ const PropertyShape: FormGenerator = {
               order: 1,
               select: [
                 {
-                  "@id": IM.query.SEARCH_ENTITIES
+                  "@id": IM.query.SEARCH_SUBCLASS
                 }
               ],
               argument: [
                 {
-                  parameter: "this",
                   valueIri: {
-                    "@id": IM.CONCEPT
-                  }
+                    "@id": RDF.PROPERTY
+                  },
+                  parameter: "value"
                 }
               ],
               builderChild: true,

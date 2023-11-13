@@ -22,10 +22,6 @@ import { useUserStore } from "@/stores/userStore";
 const userStore = useUserStore();
 
 const currentUser = computed(() => userStore.currentUser);
-
-function handleEditRole() {
-  console.log("click");
-}
 </script>
 
 <style scoped>

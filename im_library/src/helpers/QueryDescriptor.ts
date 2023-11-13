@@ -1,4 +1,4 @@
-import { Bool, Entailment, Operator, Property } from "../interfaces/AutoGen";
+import { Bool, Entailment, Operator, OrderDirection, Property } from "../interfaces/AutoGen";
 import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
@@ -51,10 +51,13 @@ export function describeProperty(property: Property, index: number, bool: Bool) 
 export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
   let display = "";
   if (match.orderBy) describeOrderByList(match.orderBy);
-  if (match.inSet) display = getDisplayFromInSet(match.inSet);
-  if (match.typeOf) display = getNameFromRef(match.typeOf);
-  if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
+  else if (match.inSet) display = getDisplayFromInSet(match.inSet);
+  else if (match.typeOf) display = getNameFromRef(match.typeOf);
+  else if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
+  else if (!match.property && match["@id"] && match.name) display = match.name;
+
   if (isPathMatch) display += " with";
+
   return display;
 }
 
@@ -102,42 +105,45 @@ export function getDisplayFromProperty(property: Property) {
   if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);
   if (property.range) display = getDisplayFromRange(propertyName, property);
-  if (property.null) display += " is null";
+  if (property.isNull) display += " is null";
   return display;
 }
 
-export function describeOrderByList(orderByList: OrderLimit[]) {
-  for (const orderBy of orderByList) {
-    const generatedDesc = getDisplayFromOrderBy(orderBy);
-    if (generatedDesc) orderBy.description = generatedDesc;
+export function describeOrderByList(orderLimit: OrderLimit) {
+  if (orderLimit?.property && orderLimit.property.length > 0) {
+    let desc = [];
+    for (const ob of orderLimit.property) {
+      desc.push(getDisplayFromOrderBy(ob));
+    }
+
+    if (desc.length > 0) {
+      orderLimit.description =
+        "<div class='variable-line'>order by " + desc.join(" then by ") + ", keep " + (orderLimit.limit === 1 ? "first" : orderLimit.limit) + "</div>";
+    }
   }
 }
 
-export function getDisplayFromOrderBy(orderBy: OrderLimit) {
+function getDisplayFromOrderBy(orderDirection: OrderDirection) {
   let display = "";
-  if (orderBy.variable) display += orderBy.variable + ".";
-  const propertyName = getNameFromRef(orderBy);
+  if (orderDirection.variable) display += orderDirection.variable + ".";
+  const propertyName = getNameFromRef(orderDirection);
   if (propertyDisplayMap[propertyName]) display += propertyName + " " + propertyDisplayMap[propertyName] + " ";
   else display += propertyName;
   if (propertyName.toLocaleLowerCase().includes("date")) {
-    if ("descending" === orderBy.direction) {
-      if (orderBy.limit === 1) display = "get latest by " + display;
-      else display = "get latest " + orderBy.limit + " by " + display;
-    } else if ("ascending" === orderBy.direction) {
-      if (orderBy.limit === 1) display = "get earliest by " + display;
-      else display = "get earliest " + orderBy.limit + " by " + display;
+    if ("descending" === orderDirection.direction) {
+      display = "latest " + display;
+    } else if ("ascending" === orderDirection.direction) {
+      display = "earliest " + display;
     }
   } else if (propertyName) {
-    if ("descending" === orderBy.direction) {
-      if (orderBy.limit === 1) display = "get highest by " + display;
-      else display = "get highest " + orderBy.limit + " by " + display;
-    } else if ("ascending" === orderBy.direction) {
-      if (orderBy.limit === 1) display = "get lowest by " + display;
-      else display = "get lowest " + orderBy.limit + " by " + display;
+    if ("descending" === orderDirection.direction) {
+      display = "highest " + display;
+    } else if ("ascending" === orderDirection.direction) {
+      display = "lowest " + display;
     }
   }
 
-  return display ? "<div class='variable-line'>" + display + "</div>" : "";
+  return display;
 }
 
 export function getDisplayFromLogic(title: string) {
@@ -208,7 +214,7 @@ export function getDisplayFromNodeRef(nodeRef: string | undefined) {
 
 export function getDisplayFromVariable(nodeRef: string | undefined) {
   if (!nodeRef) return undefined;
-  return "<span class='variable-line'> keep as <span class='variable'>" + nodeRef + "</span></span> ";
+  return "<span class='variable-line'> label as <span class='variable'>" + nodeRef + "</span></span> ";
 }
 
 export function getDisplayFromValueAndUnitForDate(property: Property) {

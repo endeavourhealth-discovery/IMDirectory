@@ -1,6 +1,9 @@
 <template>
   <div class="vertical-layout-container">
-    <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
+      <h2 v-if="showRequired" class="required">*</h2>
+    </div>
     <div v-for="(component, index) in components" class="component-container" :style="'height:' + heights[index]">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
@@ -9,7 +12,6 @@
 
 <script lang="ts">
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
@@ -31,7 +33,6 @@ export default defineComponent({
   components: {
     EntityComboBox,
     ArrayBuilder,
-    ArrayBuilderWithDropdown,
     SetDefinitionBuilder,
     QueryDefinitionBuilder,
     EntityDropdown,
@@ -52,7 +53,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { EditorMode } from "@im-library/enums";
-import { PropType, inject, ref, Ref, onMounted } from "vue";
+import { PropType, inject, ref, Ref, onMounted, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -68,6 +69,11 @@ interface Props {
 const props = defineProps<Props>();
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const components: Ref<any[]> = ref([]);
 const heights: Ref<String[]> = ref([]);
@@ -119,5 +125,17 @@ function processEntityValue(property: PropertyShape) {
 
 .vertical-layout-container:deep(label) {
   display: block;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

@@ -1,7 +1,10 @@
 <template>
   <div class="entity-single-dropdown-container">
     <span class="dropdown-container">
-      <label v-if="shape.showTitle">{{ shape.name }}</label>
+      <div class="title-bar">
+        <span v-if="shape.showTitle">{{ shape.name }}</span>
+        <span v-if="showRequired" class="required">*</span>
+      </div>
       <Dropdown
         class="entity-single-dropdown"
         :class="invalid && showValidation && 'invalid'"
@@ -16,13 +19,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, Ref, watch, onMounted, inject, PropType, ComputedRef, computed } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
-import { QueryService } from "@/services";
+import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
@@ -80,6 +83,11 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
     }
   );
 }
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const loading = ref(false);
@@ -139,7 +147,7 @@ async function getDropdownOptions() {
       });
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return (await QueryService.runFunction(props.shape.function!["@id"])).options.sort(byName);
+    return (await FunctionService.runFunction(props.shape.function!["@id"])).options.sort(byName);
   } else throw new Error("propertyshape is missing 'select' or 'function' parameter to fetch dropdown options");
 }
 
@@ -208,5 +216,16 @@ function hasData() {
 
 .invalid {
   border: 1px solid var(--red-500);
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

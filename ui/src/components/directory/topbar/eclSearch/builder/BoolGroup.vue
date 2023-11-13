@@ -179,7 +179,6 @@ function addGroup() {
 }
 
 function deleteItem(index: number) {
-  console.log("Deleting item " + index);
   props.value.items.splice(index, 1);
 }
 

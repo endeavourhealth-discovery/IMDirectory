@@ -41,7 +41,6 @@ const ValueSetShape: FormGenerator = {
             "@id": RDF.TYPE
           },
           order: 1,
-          minCount: 1,
           maxCount: 1,
           componentType: {
             "@id": IM.component.VERTICAL_LAYOUT
@@ -185,15 +184,15 @@ const ValueSetShape: FormGenerator = {
                   order: 1,
                   select: [
                     {
-                      "@id": IM.query.SEARCH_ENTITIES
+                      "@id": IM.query.SEARCH_SUBCLASS
                     }
                   ],
                   argument: [
                     {
-                      parameter: "this",
                       valueIri: {
-                        "@id": IM.CONCEPT
-                      }
+                        "@id": IM.VALUE_SET
+                      },
+                      parameter: "value"
                     }
                   ],
                   builderChild: true,
@@ -262,6 +261,7 @@ const ValueSetShape: FormGenerator = {
         {
           label: "Property group - set definition builder",
           name: "Definition",
+          showTitle: true,
           order: 2,
           minCount: 1,
           componentType: {

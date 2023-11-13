@@ -18,12 +18,6 @@ import { useFilterStore } from "@/stores/filterStore.ts";
 import { useUserStore } from "@/stores/userStore.ts";
 import { useDirectoryStore } from "@/stores/directoryStore.ts";
 
-Object.assign(navigator, {
-  clipboard: {
-    writeText: () => {}
-  }
-});
-
 createTestingPinia({
   initialState: {
     directory: {
@@ -54,6 +48,16 @@ vi.mock("vue-router", () => ({
     go: mockGo
   }),
   useRoute: () => mockRoute
+}));
+
+const mockOpen = vi.fn();
+const mockClose = vi.fn();
+
+vi.mock("primevue/usedialog", () => ({
+  useDialog: () => ({
+    open: mockOpen,
+    close: mockClose
+  })
 }));
 
 describe("SearchResultsTable.vue", () => {
