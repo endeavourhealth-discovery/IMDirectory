@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { ref, Ref, PropType, onMounted, watch, onBeforeUnmount, h, inject, computed } from "vue";
-import { EntityService, QueryService } from "@/services";
+import { EntityService, FunctionService } from "@/services";
 import { useDialog } from "primevue/usedialog";
 import { IM, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -137,13 +137,13 @@ watch(selectedValue, async newValue => {
 });
 
 watch([() => _.cloneDeep(props.focus), () => _.cloneDeep(props.value.property.concept)], async () => {
-  await updateIsValidProperty();
   updateFunctionArguments();
+  await updateIsValidProperty();
 });
 
 watch([selectedProperty, () => _.cloneDeep(props.value.value.concept)], async () => {
-  await updateIsValidPropertyValue();
   updateFunctionArguments();
+  await updateIsValidPropertyValue();
 });
 
 const descendantOptions = [
@@ -216,17 +216,29 @@ async function getValueTreeRoots() {
 
 async function updateIsValidProperty(): Promise<void> {
   if (props.focus?.iri === "any" || props.focus.iri === "*") isValidProperty.value = true;
-  else if (isAliasIriRef(props.focus) && hasProperty.value) {
-    isValidProperty.value = await EntityService.isValidProperty(props.focus?.iri, props.value.property.concept.iri);
-  } else if (isBoolGroup(props.focus) && hasProperty.value && props.focus.ecl) {
-    isValidProperty.value = await EntityService.isValidPropertyBoolFocus(props.focus, props.value.property.concept.iri);
+  else if (props.focus && hasProperty.value) {
+    const request = {
+      functionIri: IM.function.ALLOWABLE_PROPERTIES,
+      arguments: [
+        { parameter: "focus", valueObject: props.focus },
+        { parameter: "searchIri", valueData: props.value.property.concept.iri }
+      ]
+    } as FunctionRequest;
+    isValidProperty.value = await FunctionService.runAskFunction(request);
   } else isValidProperty.value = false;
 }
 
 async function updateIsValidPropertyValue(): Promise<void> {
-  if (hasValue.value && hasProperty.value)
-    isValidPropertyValue.value = await EntityService.isValidPropertyValue(props.value.property.concept.iri, props.value.value.concept.iri);
-  else isValidPropertyValue.value = false;
+  if (hasValue.value && hasProperty.value) {
+    const request = {
+      functionIri: IM.function.ALLOWABLE_RANGES,
+      arguments: [
+        { parameter: "property", valueObject: props.value.property.concept },
+        { parameter: "searchIri", valueData: props.value.value.concept.iri }
+      ]
+    } as FunctionRequest;
+    isValidPropertyValue.value = await FunctionService.runAskFunction(request);
+  } else isValidPropertyValue.value = false;
 }
 
 async function processProps() {
