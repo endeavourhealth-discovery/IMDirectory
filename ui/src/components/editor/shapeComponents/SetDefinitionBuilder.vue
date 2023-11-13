@@ -17,6 +17,7 @@
           @dragover.prevent
           @drop="dropReceived($event)"
         />
+        <div class="show-names-container"><label for="">Show names</label><Checkbox v-model="showNames" :binary="true" /></div>
       </div>
       <div class="button-container">
         <Button label="Import" @click="toggleMenuOptions" aria-haspopup="true" aria-controls="import_menu" />
@@ -127,7 +128,7 @@ watch(
   () => props.value,
   async (newValue, oldValue) => {
     loading.value = true;
-    if (newValue && newValue !== oldValue) ecl.value = await EclService.getECLFromQuery(JSON.parse(newValue));
+    if (newValue && newValue !== oldValue) ecl.value = await EclService.getECLFromQuery(JSON.parse(newValue), showNames.value);
     loading.value = false;
   }
 );
@@ -136,6 +137,14 @@ watch(ecl, async newValue => {
   // eclNoNames.value = ecl.value.replace(/\|.*?\|/g, "").replace(/\s\s+/g, " ");
   if (await EclService.isValidECL(newValue)) {
     eclAsQuery.value = await EclService.getQueryFromECL(newValue);
+  }
+});
+
+watch(showNames, async newValue => {
+  if (props.value) {
+    loading.value = true;
+    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), newValue);
+    loading.value = false;
   }
 });
 
@@ -153,7 +162,7 @@ watch(
 onMounted(async () => {
   if (props.value) {
     loading.value = true;
-    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value));
+    ecl.value = await EclService.getECLFromQuery(JSON.parse(props.value), showNames.value);
     loading.value = false;
   }
 });
