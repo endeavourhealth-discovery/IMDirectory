@@ -270,6 +270,7 @@ async function createFolder() {
   } finally {
     newFolder.value = null;
     creating.value = false;
+    await onNodeExpand(selectedNode.value);
   }
 }
 
