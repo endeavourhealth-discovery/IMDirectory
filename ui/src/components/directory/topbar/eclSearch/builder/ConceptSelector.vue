@@ -11,10 +11,10 @@
     </div>
     <div class="any-checkbox-container"><label>Any</label><Checkbox v-model="isAny" :binary="true" /></div>
     <DirectorySearchDialog
-      v-if="!isAny && selected.iri !== 'any'"
+      v-if="showDialog && !isAny && selected.iri !== 'any'"
       v-model:show-dialog="showDialog"
       v-model:selected="selected"
-      :search-by-query="queryRequest"
+      :search-by-function="functionRequest"
       :root-entities="['http://endhealth.info/im#HealthModelOntology']"
     />
     <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
@@ -27,7 +27,7 @@ import { Ref, ref, onMounted, watch, inject } from "vue";
 import { IM, SNOMED } from "@im-library/vocabulary";
 import DirectorySearchDialog from "@/components/shared/dialogs/DirectorySearchDialog.vue";
 import { ConceptSummary } from "@im-library/interfaces";
-import { QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EntityService } from "@/services";
 import _ from "lodash";
@@ -72,7 +72,10 @@ const loading = ref(false);
 const showDialog = ref(false);
 const isAny = ref(false);
 
-const queryRequest = { query: { "@id": IM.query.SEARCH_ENTITIES }, argument: [{ parameter: "this", valueIri: { "@id": IM.CONCEPT } }] } as QueryRequest;
+const functionRequest: FunctionRequest = {
+  functionIri: IM.function.IS_TYPE,
+  arguments: [{ parameter: "type", valueIri: { "@id": IM.CONCEPT } }]
+};
 const descendantOptions = [
   {
     label: "only",

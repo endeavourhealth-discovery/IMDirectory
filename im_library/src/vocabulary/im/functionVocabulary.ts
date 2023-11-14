@@ -10,4 +10,5 @@ export class functionVocabulary {
   public static GENERATE_IRI_CODE = this.NAMESPACE + "GenerateIriCode";
   public static ALLOWABLE_PROPERTIES = this.NAMESPACE + "AllowableProperties";
   public static ALLOWABLE_RANGES = this.NAMESPACE + "AllowableRanges";
+  public static IS_TYPE = this.NAMESPACE + "IsType";
 }

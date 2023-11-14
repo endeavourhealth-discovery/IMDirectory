@@ -36,18 +36,30 @@ export default class FunctionController {
   async runSearchFunction(req: Request) {
     const functionRequest = req.body;
     if (functionRequest && isObjectHasKeys(functionRequest, ["functionIri"])) {
-      if (functionRequest.functionIri === IM.function.ALLOWABLE_PROPERTIES) return this.functionService.getAllowablePropertySuggestions(functionRequest);
-      else if (functionRequest.functionIri === IM.function.ALLOWABLE_RANGES) return this.functionService.getAllowableRangeSuggestions(functionRequest);
-      else throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
+      switch (functionRequest.functionIri) {
+        case IM.function.ALLOWABLE_PROPERTIES:
+          return this.functionService.getAllowablePropertySuggestions(functionRequest);
+        case IM.function.ALLOWABLE_RANGES:
+          return this.functionService.getAllowableRangeSuggestions(functionRequest);
+        default:
+          throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
+      }
     } else throw new CustomError("functionIri is required.", ErrorType.InvalidInputError);
   }
 
   async runAskFunction(req: Request) {
     const functionRequest = req.body;
     if (functionRequest && isObjectHasKeys(functionRequest, ["functionIri"])) {
-      if (functionRequest.functionIri === IM.function.ALLOWABLE_PROPERTIES) return this.functionService.isAllowablePropertySuggestion(functionRequest);
-      else if (functionRequest.functionIri === IM.function.ALLOWABLE_RANGES) return this.functionService.isAllowableRangeSuggestion(functionRequest);
-      else throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
+      switch (functionRequest.functionIri) {
+        case IM.function.ALLOWABLE_PROPERTIES:
+          return this.functionService.isAllowablePropertySuggestion(functionRequest);
+        case IM.function.ALLOWABLE_RANGES:
+          return this.functionService.isAllowableRangeSuggestion(functionRequest);
+        case IM.function.IS_TYPE:
+          return this.functionService.isType(functionRequest);
+        default:
+          throw new CustomError("Invalid funtion iri: " + functionRequest.functionIri, ErrorType.InvalidInputError);
+      }
     } else throw new CustomError("functionIri is required.", ErrorType.InvalidInputError);
   }
 }

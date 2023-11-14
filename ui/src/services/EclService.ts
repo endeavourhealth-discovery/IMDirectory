@@ -34,8 +34,8 @@ const EclService = {
     return axios.post(Env.VITE_NODE_API + "node_api/ecl/public/validateEcl", ecl, { headers: { "Content-Type": "text/plain" } });
   },
 
-  async getECLFromQuery(query: Query): Promise<any> {
-    const result: any = await axios.post(Env.API + "api/ecl/public/eclFromQuery", query);
+  async getECLFromQuery(query: Query, includeNames?: boolean): Promise<any> {
+    const result: any = await axios.post(Env.API + "api/ecl/public/eclFromQuery", query, { params: { includeNames: includeNames } });
     if (isObjectHasKeys(result, ["err"])) throw new Error(result.err);
     else return result;
   },
