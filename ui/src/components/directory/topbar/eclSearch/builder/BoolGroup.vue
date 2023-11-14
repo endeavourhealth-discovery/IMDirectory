@@ -162,7 +162,7 @@ function addConcept() {
 }
 
 function addRefinement() {
-  if ((!props.value.items || props.value.items?.length === 0) && !props.focus) {
+  if (!props.focus) {
     const anyConcept = {
       type: "Concept",
       descendants: "<<",

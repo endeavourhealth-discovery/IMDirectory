@@ -215,7 +215,7 @@ async function getValueTreeRoots() {
 }
 
 async function updateIsValidProperty(): Promise<void> {
-  if (props.focus?.iri === "any" || props.focus.iri === "*") isValidProperty.value = true;
+  if (props.focus?.iri === "any" || props.focus?.iri === "*") isValidProperty.value = true;
   else if (props.focus && hasProperty.value) {
     const request = {
       functionIri: IM.function.ALLOWABLE_PROPERTIES,
