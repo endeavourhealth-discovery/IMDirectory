@@ -76,10 +76,11 @@
       :value="resultData"
       scrollable
       paginator
-      :rows="50"
+      :rows="10"
       :rowsPerPageOptions="[5, 10, 20, 50]"
       paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
       currentPageReportTemplate="{first} to {last} of {totalRecords}"
+      @page="pageTable"
     >
       <template #paginatorstart>
         <Button type="button" icon="pi pi-refresh" text />
@@ -104,10 +105,11 @@ import { QueryService } from "@/services";
 import { Ref } from "vue/dist/vue";
 import { QueryQueueItem } from "@im-library/interfaces";
 import Swal from "sweetalert2";
+import { DataTablePageEvent } from "primevue/datatable";
 
 const route = useRoute();
-const queueId: ComputedRef<any[]> = computed(() => [{ id: route.params.queueId as string }]);
-const loading = ref(true);
+const queueId: Ref<any> = ref(); // : ComputedRef<any[]> = computed(() => [{ id: route.params.queueId as string }]);
+const loading: Ref<boolean> = ref(true);
 const queueData: Ref<QueryQueueItem[]> = ref([]);
 const resultData: Ref<any[] | undefined> = ref();
 
@@ -116,8 +118,9 @@ onMounted(async () => {
 });
 
 watch(
-  () => queueId.value,
-  async () => {
+  () => route.params.queueId,
+  async newValue => {
+    queueId.value = { id: newValue };
     await refresh();
   }
 );
@@ -144,7 +147,7 @@ function getSeverity(data: QueryQueueItem) {
   else return "success";
 }
 
-function confirmStop(queueId: string) {
+function confirmStop(id: string) {
   console.log("Confirm");
   Swal.fire({
     title: "Stop the query?",
@@ -154,16 +157,16 @@ function confirmStop(queueId: string) {
     showCancelButton: true,
     cancelButtonText: "Cancel"
   }).then(result => {
-    if (result.isConfirmed) stop(queueId);
+    if (result.isConfirmed) stop(id);
   });
 }
 
-async function stop(queueId: string) {
-  await QueryService.stop(queueId);
+async function stop(id: string) {
+  await QueryService.stop(id);
   await refresh();
 }
 
-function confirmRemove(queueId: string) {
+function confirmRemove(id: string) {
   console.log("Confirm");
   Swal.fire({
     title: "Delete queue item?",
@@ -173,16 +176,16 @@ function confirmRemove(queueId: string) {
     showCancelButton: true,
     cancelButtonText: "Cancel"
   }).then(result => {
-    if (result.isConfirmed) remove(queueId);
+    if (result.isConfirmed) remove(id);
   });
 }
 
-async function remove(queueId: string) {
-  await QueryService.deleteFromQueue(queueId);
+async function remove(id: string) {
+  await QueryService.deleteFromQueue(id);
   await refresh();
 }
 
-function confirmDownload(queueId: string) {
+function confirmDownload(id: string) {
   console.log("Confirm");
   Swal.fire({
     title: "Download query results?",
@@ -192,17 +195,25 @@ function confirmDownload(queueId: string) {
     showCancelButton: true,
     cancelButtonText: "Cancel"
   }).then(result => {
-    if (result.isConfirmed) download(queueId);
+    if (result.isConfirmed) download(id);
   });
 }
 
-function download(queueId: string) {
-  console.log("DOWNLOAD " + queueId);
+function download(id: string) {
+  console.log("DOWNLOAD " + id);
 }
 
-async function viewData(queueId: string) {
-  console.log("VIEW " + queueId);
-  resultData.value = await QueryService.getResultData(queueId);
+async function viewData(id: string) {
+  console.log("VIEW " + id);
+  console.log(queueId.value);
+  queueId.value = { id: id };
+  resultData.value = await QueryService.getResultData(queueId.value.id);
+}
+
+async function pageTable(data: DataTablePageEvent) {
+  console.log("PAGE");
+  console.log(data);
+  resultData.value = await QueryService.getResultData(queueId.value.id, data.page + 1, data.rows);
 }
 </script>
 
