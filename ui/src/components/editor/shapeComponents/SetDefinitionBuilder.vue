@@ -22,7 +22,7 @@
       <div class="button-container">
         <Button label="Import" @click="toggleMenuOptions" aria-haspopup="true" aria-controls="import_menu" />
         <Menu id="import_menu" ref="importMenu" :model="buttonOptions" :popup="true" />
-        <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" />
+        <Button :disabled="eclError" label="ECL builder" @click="showBuilder" severity="help" data-testid="builder-button" :loading="loading" />
         <Button
           icon="fa-solid fa-copy"
           label="Copy to clipboard"
@@ -54,6 +54,7 @@ import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary } from "@im-library/interfaces";
+import { debounce } from "@im-library/helpers/UtilityMethods";
 
 interface Props {
   shape: PropertyShape;
@@ -133,11 +134,14 @@ watch(
   }
 );
 
+const debounceTimer = ref(0);
 watch(ecl, async newValue => {
-  // eclNoNames.value = ecl.value.replace(/\|.*?\|/g, "").replace(/\s\s+/g, " ");
-  if (await EclService.isValidECL(newValue)) {
-    eclAsQuery.value = await EclService.getQueryFromECL(newValue);
-  }
+  clearTimeout(debounceTimer.value);
+  debounceTimer.value = window.setTimeout(async () => {
+    if (await EclService.isValidECL(newValue)) {
+      eclAsQuery.value = await EclService.getQueryFromECL(newValue);
+    }
+  }, 600);
 });
 
 watch(showNames, async newValue => {
