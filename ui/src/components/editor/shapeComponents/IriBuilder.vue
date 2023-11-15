@@ -30,10 +30,11 @@ import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
-import { IM, RDFS, SNOMED } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SNOMED } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { FunctionService, QueryService } from "@/services";
 import _ from "lodash";
+import { isConcept } from "@im-library/helpers/ConceptTypeMethods";
 
 interface Props {
   shape: PropertyShape;
@@ -187,7 +188,7 @@ function deconstructInputValue(inputValue: String) {
 }
 
 async function generateCode(): Promise<string> {
-  if (selectedDropdownOption.value) {
+  if (selectedDropdownOption.value && isConcept(editorEntity?.value[RDF.TYPE])) {
     loading.value = true;
     const result = await FunctionService.runFunction(IM.function.GENERATE_IRI_CODE, [{ parameter: "scheme", valueIri: selectedDropdownOption.value?.["@id"] }]);
     loading.value = false;
