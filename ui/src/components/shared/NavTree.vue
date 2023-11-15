@@ -177,21 +177,24 @@ async function onNodeContext(event: any, node: any) {
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 
-  if (isObjectHasKeys(selectedNode.value) && node.key !== selectedNode.value.key && node.typeIcon.includes("fa-folder")) {
-    items.value.push({
-      label: "Move selection here",
-      icon: "fa-solid fa-fw fa-file-import",
-      command: () => {
-        confirmMove(node);
-      }
-    });
-    items.value.push({
-      label: "Add selection here",
-      icon: "fa-solid fa-fw fa-copy",
-      command: () => {
-        confirmAdd(node);
-      }
-    });
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.key && node.key !== selectedNode.value.key && node.typeIcon.includes("fa-folder")) {
+    const isOwnDescendant = await EntityService.getPathBetweenNodes(node.key, selectedNode.value.key);
+    if (isOwnDescendant.findIndex(pathItem => pathItem["@id"] === selectedNode.value.key) === -1) {
+      items.value.push({
+        label: "Move selection here",
+        icon: "fa-solid fa-fw fa-file-import",
+        command: () => {
+          confirmMove(node);
+        }
+      });
+      items.value.push({
+        label: "Add selection here",
+        icon: "fa-solid fa-fw fa-copy",
+        command: () => {
+          confirmAdd(node);
+        }
+      });
+    }
   }
   if (items.value.length > 0) menu.value.show(event);
 }
