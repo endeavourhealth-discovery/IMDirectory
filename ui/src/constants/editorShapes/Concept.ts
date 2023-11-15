@@ -292,7 +292,15 @@ const ConceptShape: FormGenerator = {
                   },
                   select: [
                     {
-                      "@id": IM.query.SEARCH_FOLDERS
+                      "@id": IM.query.SEARCH_ALLOWABLE_CONTAINED_IN
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.CONCEPT
+                      },
+                      parameter: "value"
                     }
                   ],
                   path: {
