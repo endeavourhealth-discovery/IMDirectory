@@ -154,7 +154,13 @@ export default class Validator {
   }
 
   private isValidTermCode(data: any): boolean {
-    return isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL];
+    let valid = false;
+    if (isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL]) {
+      if (data[IM.HAS_STATUS] && data[IM.HAS_STATUS].length === 1) {
+        if (null !== data[IM.HAS_STATUS][0]) valid = true;
+      }
+    }
+    return valid;
   }
 
   private async isValidScheme(data: any): Promise<{ isValid: boolean; message?: string }> {

@@ -104,7 +104,19 @@ const showValidation = ref(false);
 const name = ref("");
 const code = ref("");
 const status: Ref<TTIriRef | undefined> = ref();
+const codeComplete = ref(false);
+watch(props, newValue => {
+  if (props.value === undefined) {
+    name.value = "";
+    status.value = undefined;
+    code.value = "";
+  }
+});
+
 watch([name, code, status], async ([newName, newCode, newStatus], [oldName, oldCode, oldStatus]) => {
+  if (name.value && code.value && status.value) {
+    codeComplete.value = true;
+  }
   updateEntity();
   if (updateValidity) {
     if (props.shape.builderChild) {
@@ -141,27 +153,35 @@ function isValidTermCode() {
     return;
   }
   if (props.shape.minCount === 0 && !name.value && !code.value && !status.value) return;
-  if (!name.value) {
-    invalid.value = true;
-    validationErrorMessage.value += "Missing name. ";
+  if (codeComplete.value) {
+    if (!name.value) {
+      invalid.value = true;
+      validationErrorMessage.value += "Missing name. ";
+    }
+    if (!code.value) {
+      invalid.value = true;
+      validationErrorMessage.value += "Missing code. ";
+    }
+    if (statusOptions.value.findIndex(so => so["@id"] === status.value?.["@id"]) === -1) {
+      invalid.value = true;
+      validationErrorMessage.value += "Missing status. ";
+    }
+    if (validationErrorMessage.value === "") validationErrorMessage.value = undefined;
   }
-  if (!code.value) {
-    invalid.value = true;
-    validationErrorMessage.value += "Missing code. ";
-  }
-  if (statusOptions.value.findIndex(so => so["@id"] === status.value?.["@id"]) === -1) {
-    invalid.value = true;
-    validationErrorMessage.value += "Missing status. ";
-  }
-  if (validationErrorMessage.value === "") validationErrorMessage.value = undefined;
 }
 
 function updateEntity() {
   if (entityUpdate) {
     const newTermCode = {} as any;
-    newTermCode[IM.CODE] = code.value;
-    newTermCode[IM.HAS_STATUS] = [status.value];
-    newTermCode[RDFS.LABEL] = name.value;
+    if (!name.value.length && !code.value.length && !status.value && deleteEntityKey) {
+      deleteEntityKey(IM.HAS_TERM_CODE);
+      codeComplete.value = false;
+    } else {
+      newTermCode[IM.CODE] = code.value;
+      newTermCode[IM.HAS_STATUS] = [status.value];
+      newTermCode[RDFS.LABEL] = name.value;
+    }
+
     const result = {} as any;
     result[props.shape.path["@id"]] = newTermCode;
     if (!code.value && !status.value && !name.value && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(props.shape.path["@id"]);
