@@ -60,6 +60,8 @@ const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 if (forceValidation) {
   watch(forceValidation, async () => {
+    codeComplete.value = true;
+    validationDone.value = true;
     if (updateValidity) {
       if (props.shape.builderChild) {
         isValidTermCode();
@@ -105,6 +107,8 @@ const name = ref("");
 const code = ref("");
 const status: Ref<TTIriRef | undefined> = ref();
 const codeComplete = ref(false);
+const validationDone = ref(false);
+
 watch(props, newValue => {
   if (props.value === undefined) {
     name.value = "";
@@ -114,7 +118,8 @@ watch(props, newValue => {
 });
 
 watch([name, code, status], async ([newName, newCode, newStatus], [oldName, oldCode, oldStatus]) => {
-  if (name.value && code.value && status.value) {
+  console.log(name.value.length && code.value.length && status.value);
+  if ((name.value.length > 0 && code.value.length > 0 && status.value) || validationDone.value) {
     codeComplete.value = true;
   }
   updateEntity();
