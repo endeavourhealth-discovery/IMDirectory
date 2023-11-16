@@ -4,7 +4,7 @@
       <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
       <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
     </div>
-    <div class="error-message-container" :class="validationErrorMessage ? 'error-message-container-highlight' : ''">
+    <div class="error-message-container" :class="invalid && showValidation ? 'error-message-container-highlight' : ''">
       <div class="children-container">
         <table>
           <template v-for="(row, index) in dmProperties" class="property">
@@ -26,7 +26,7 @@
                   @dragenter.prevent
                   :disabled="row.inherited && row.inherited.length > 0"
                 ></AutoComplete>
-                <div v-if="row.error" class="error-message-text">{{ row.error }}</div>
+                <div v-if="invalid && showValidation && row.error" class="error-message-text">{{ row.error }}</div>
               </td>
               <td class="td-50">
                 <AutoComplete
@@ -80,7 +80,7 @@
           <Button icon="pi pi-plus" label="Add property" severity="success" class="p-button" @click="addProperty" />
         </div>
       </div>
-      <span v-if="validationErrorMessage" class="error-message-text">{{ validationErrorMessage }}</span>
+      <span v-if="invalid && showValidation" class="error-message-text">{{ validationErrorMessage }}</span>
     </div>
   </div>
 </template>
@@ -122,15 +122,22 @@ const directService = new DirectService();
 const debouncePath = ref(0);
 const debounceRange = ref(0);
 
+const showValidation = ref(false);
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
 const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
 if (forceValidation) {
-  watch(forceValidation, () => {
-    validateEntity();
+  watch(forceValidation, async () => {
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
   });
 }
 
@@ -267,7 +274,7 @@ async function searchPath(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
   }
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
   pathSuggestions.value = ps;
@@ -362,7 +369,7 @@ async function searchRange(event: AutoCompleteCompleteEvent) {
       }
     };
     const results: SearchResultSummary[] = await QueryService.queryIMSearch(request);
-    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name }) as TTIriRef));
+    if (isArrayHasLength(results)) ps.push(...results.map(r => ({ "@id": r.iri, name: r.name } as TTIriRef)));
   }
 
   ps.push({ "@id": "<CREATE>", name: "<Create new path>" });
