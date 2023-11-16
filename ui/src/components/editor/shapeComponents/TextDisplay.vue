@@ -67,6 +67,7 @@ if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
       if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
         const result = await processPropertyValue(props.shape);
         if (result) userInput.value = result;
+        else userInput.value = "";
         if (updateValidity) {
           if (props.shape.builderChild) {
             hasData();
@@ -101,6 +102,8 @@ watch(userInput, async newValue => {
       }
       showValidation.value = true;
     }
+  } else {
+    if (deleteEntityKey) deleteEntityKey(key);
   }
 });
 
@@ -144,8 +147,7 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
       const result = await FunctionService.runFunction(property.function!["@id"], args);
       if (result) return result;
     }
-  }
-  if (isObjectHasKeys(property, ["function"])) {
+  } else if (isObjectHasKeys(property, ["function"])) {
     const result = await FunctionService.runFunction(property.function!["@id"]);
     if (result && isObjectHasKeys(result, ["iri"])) return result.iri["@id"];
   }

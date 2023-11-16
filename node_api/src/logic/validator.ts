@@ -80,8 +80,10 @@ export default class Validator {
         if (!/#/g.test(data[IM.ID])) message = "Iri must contain a '#'";
         else {
           const splits = data[IM.ID].split("#");
+          console.log(splits);
           if (splits.length !== 2) message = "Iri contains invalid character '#' within identifier.";
           else if (!/^http:\/\/[a-zA-Z]+\.[a-zA-Z]+\/[a-zA-Z]+#$/.test(splits[0] + "#")) message = "Iri url is invalid.";
+          else if (!splits[1]) message = "Iri must have a code.";
           else if (encodeURIComponent(splits[1]) !== splits[1]) {
             const invalidCharactersEncoded = encodeURIComponent(splits[1]).match(/%[0-9a-zA-Z]{2}/g);
             if (invalidCharactersEncoded) {
