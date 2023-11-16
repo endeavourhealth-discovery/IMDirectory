@@ -118,7 +118,6 @@ watch(props, newValue => {
 });
 
 watch([name, code, status], async ([newName, newCode, newStatus], [oldName, oldCode, oldStatus]) => {
-  console.log(name.value.length && code.value.length && status.value);
   if ((name.value.length > 0 && code.value.length > 0 && status.value) || validationDone.value) {
     codeComplete.value = true;
   }
