@@ -145,8 +145,11 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
       showValidation.value = true;
     }
   } else if (!newUserInput && newUserInput !== oldUserInput && isTTIriRef(newSelectedDropdownOption)) {
-    updateEntity(newSelectedDropdownOption["@id"]);
-    updateValueVariableMap(newSelectedDropdownOption["@id"]);
+    let concatenated = "";
+    concatenated += newSelectedDropdownOption["@id"];
+    if (includePrefix.value) concatenated += prefix.value;
+    updateEntity(concatenated);
+    updateValueVariableMap(concatenated);
     if (updateValidity) {
       if (props.shape.builderChild) {
         hasData();
@@ -156,8 +159,11 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
       showValidation.value = true;
     }
   } else if (!isTTIriRef(newSelectedDropdownOption) && _.isEqual(newSelectedDropdownOption, oldSelectedDropdownOption) && newUserInput) {
-    updateEntity(newUserInput);
-    updateValueVariableMap(newUserInput);
+    let concatenated = "";
+    if (includePrefix.value) concatenated += prefix.value;
+    concatenated += newUserInput;
+    updateEntity(concatenated);
+    updateValueVariableMap(concatenated);
     if (updateValidity) {
       if (props.shape.builderChild) {
         hasData();
