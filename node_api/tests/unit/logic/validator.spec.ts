@@ -89,6 +89,13 @@ describe("Validator", () => {
       });
       expect(actual).toEqual({ isValid: false, message: "Entity is missing 'http://endhealth.info/im#id' key" });
     });
+
+    it("fails if iri is missing code", async () => {
+      const actual = await new Validator().validate(IM.validation.IS_IRI, {
+        "http://endhealth.info/im#id": "http://endhealth.info/im#"
+      });
+      expect(actual).toEqual({ isValid: false, message: "Iri must have a code." });
+    });
   });
 
   describe("isValidIriOrIriList", () => {

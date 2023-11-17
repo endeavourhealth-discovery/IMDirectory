@@ -144,12 +144,38 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
       }
       showValidation.value = true;
     }
+  } else if (!newUserInput && newUserInput !== oldUserInput && isTTIriRef(newSelectedDropdownOption)) {
+    updateEntity(newSelectedDropdownOption["@id"]);
+    updateValueVariableMap(newSelectedDropdownOption["@id"]);
+    if (updateValidity) {
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      }
+      showValidation.value = true;
+    }
+  } else if (!isTTIriRef(newSelectedDropdownOption) && _.isEqual(newSelectedDropdownOption, oldSelectedDropdownOption) && newUserInput) {
+    updateEntity(newUserInput);
+    updateValueVariableMap(newUserInput);
+    if (updateValidity) {
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      }
+      showValidation.value = true;
+    }
+  } else {
+    if (deleteEntityKey) deleteEntityKey(key);
   }
 });
 
 watch(selectedDropdownOption, async () => {
-  if (props.mode === EditorMode.CREATE) {
+  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
+  } else {
+    userInput.value = "";
   }
 });
 
@@ -163,7 +189,7 @@ onMounted(async () => {
     if (prefixArg && prefixArg.valueData) prefix.value = prefixArg.valueData;
   }
   setSelectedOption();
-  if (props.mode === EditorMode.CREATE) {
+  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
   }
   loading.value = false;
