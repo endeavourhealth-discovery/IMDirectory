@@ -28,6 +28,7 @@
       :index="index"
       :parent-match="match"
       :match="nestedMatch"
+      :parent-data-model-iri="currentDataModelIri"
     />
 
     <EditDisplayProperty
@@ -36,12 +37,13 @@
       :index="index"
       :parent-match="match"
       :property="property"
+      :data-model-iri="currentDataModelIri"
     />
     <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
     <div v-if="isObjectHasKeys(match, ['then'])">
       {{ match.then!.exclude ? "then" : "then include if" }}
-      <EditDisplayMatch :index="index" :parent-match="match" :match="match.then!" :isThenMatch="true" />
+      <EditDisplayMatch :index="index" :parent-match="match" :match="match.then!" :isThenMatch="true" :parent-data-model-iri="currentDataModelIri" />
     </div>
   </div>
 
@@ -51,7 +53,7 @@
     v-model:showDialog="showUpdateDialog"
     :header="'Refine feature'"
     :show-variable-options="false"
-    :match-type="getMatchType(match)"
+    :match-type="currentDataModelIri"
     :match="match"
     @on-save="(direct: Match[], nested: Match[]) => updateProperties(match, direct, nested)"
   />
@@ -60,7 +62,7 @@
     v-model:showDialog="showAddFeatureBeforeDialog"
     :header="'Add feature'"
     :show-variable-options="true"
-    :match-type="getMatchType(isThenMatch ? parentMatch! : match)"
+    :match-type="currentDataModelIri"
     @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, true)"
   />
 
@@ -68,7 +70,7 @@
     v-model:showDialog="showAddTestFeatureDialog"
     :header="'Test feature'"
     :show-variable-options="true"
-    :match-type="getMatchType(match)"
+    :match-type="currentDataModelIri"
     @on-save="(direct: Match[], nested: Match[]) => addThenMatch(match, direct.concat(nested))"
   />
 
@@ -76,7 +78,7 @@
     v-model:showDialog="showAddFeatureAfterDialog"
     :header="'Add feature'"
     :show-variable-options="true"
-    :match-type="getMatchType(isThenMatch ? parentMatch! : match)"
+    :match-type="currentDataModelIri"
     @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, false)"
   />
 
@@ -131,6 +133,7 @@ interface Props {
   match: Match;
   index: number;
   isThenMatch?: boolean;
+  parentDataModelIri: string;
 }
 
 const props = defineProps<Props>();
@@ -140,6 +143,7 @@ const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.retur
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
+const currentDataModelIri: Ref<string> = ref("");
 
 const {
   addThenMatch,
@@ -214,14 +218,22 @@ watch(
 onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
+  setCurrentDataModelIri();
 });
 
-function getMatchType(match: Match) {
-  if (isObjectHasKeys(match, ["nodeRef"])) {
-    return variableMap.value.get(match.nodeRef!).typeOf["@id"];
-  } else if (isObjectHasKeys(match.typeOf, ["@id"])) return match.typeOf!["@id"];
+function setCurrentDataModelIri() {
+  currentDataModelIri.value = getMatchType();
+}
 
-  return queryTypeIri.value;
+function getMatchType() {
+  if (props.isThenMatch && isObjectHasKeys(props.parentMatch, ["typeOf"])) {
+    return props.parentMatch!.typeOf!["@id"];
+  }
+  if (isObjectHasKeys(props.match, ["nodeRef"])) {
+    return variableMap.value.get(props.match.nodeRef!).typeOf["@id"];
+  } else if (isObjectHasKeys(props.match.typeOf, ["@id"])) return props.match.typeOf!["@id"];
+
+  return props.parentDataModelIri ?? queryStore.returnType;
 }
 
 function onSelect(cs: ConceptSummary, before?: boolean) {

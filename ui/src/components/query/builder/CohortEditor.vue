@@ -3,7 +3,14 @@
     <div class="include">include if</div>
     <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
-    <EditDisplayMatch v-if="isArrayHasLength(query.match)" v-for="(match, index) of query.match" :match="match" :index="index" :parentMatchList="query.match" />
+    <EditDisplayMatch
+      v-if="isArrayHasLength(query.match)"
+      v-for="(match, index) of query.match"
+      :match="match"
+      :index="index"
+      :parentMatchList="query.match"
+      :parent-data-model-iri="queryTypeIri"
+    />
 
     <div v-else-if="!queryTypeIri" class="flex gap-1">
       <Button label="Set base type" icon="fa-solid fa-diagram-project" @click="showAddBaseTypeDialog = true" severity="help" />
