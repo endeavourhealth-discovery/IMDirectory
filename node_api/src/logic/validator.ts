@@ -89,6 +89,8 @@ export default class Validator {
               const invalidCharactersDecoded = invalidCharactersEncoded.map(char => decodeURIComponent(char));
               message = "Iri identifier contains invalid characters: " + JSON.stringify(invalidCharactersDecoded);
             }
+          } else if (["CSET_"].includes(splits[1])) {
+            message = "Iri missing code after prefix: " + splits[1];
           } else {
             valid = true;
             message = undefined;

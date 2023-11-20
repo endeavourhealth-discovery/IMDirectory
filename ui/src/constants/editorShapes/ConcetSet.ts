@@ -85,6 +85,7 @@ const ConceptSetShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.IRI_BUILDER
               },
+              argument: [{ parameter: "prefix", valueData: "CSET_" }],
               function: {
                 "@id": IM.function.GET_USER_EDITABLE_SCHEMES
               },
