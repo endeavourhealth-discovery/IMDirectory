@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-11-09 18:01:47.
+// Generated using typescript-generator version 3.2.1263 on 2023-11-15 11:50:45.
 
 /**
  * Structure containing search request parameters and filters
@@ -78,6 +78,7 @@ export interface Concept extends Entity {
     matchedFrom?: Concept[];
     usage?: number;
     codeId?: string;
+    alternativeCode?: string;
 }
 
 export interface ConceptSet extends Entity {
@@ -188,10 +189,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    relativeTo?: PropertyRef;
+    unit?: string;
     dataType?: TTIriRef;
     operator?: Operator;
-    unit?: string;
+    relativeTo?: PropertyRef;
 }
 
 export interface Case {
@@ -219,9 +220,9 @@ export interface Element extends IriLD, Entailment {
 }
 
 export interface Entailment {
+    descendantsOrSelfOf?: boolean;
     descendantsOf?: boolean;
     ancestorsOf?: boolean;
-    descendantsOrSelfOf?: boolean;
 }
 
 export interface FunctionClause extends Value {
@@ -250,6 +251,7 @@ export interface Match extends IriLD {
     instanceOf?: Node;
     typeOf?: Node;
     variable?: string;
+    then?: Match;
 }
 
 export interface Node extends Element {
@@ -321,6 +323,7 @@ export interface QueryRequest extends ContextMap {
     update?: Update;
     name?: string;
     page?: Page;
+    askIri?: string;
 }
 
 export interface Range {
@@ -413,8 +416,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    nameSpaces?: TTPrefix[];
     prefixes?: TTPrefix[];
+    nameSpaces?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
