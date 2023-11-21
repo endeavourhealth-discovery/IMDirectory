@@ -74,6 +74,7 @@ export class IM {
   public static SET = IM.NAMESPACE + "Set";
   public static RECORD_TYPE = IM.NAMESPACE + "RecordType";
   public static FOLDER = IM.NAMESPACE + "Folder";
+  public static FEATURE = IM.NAMESPACE + "MatchClause";
   public static DATA_PROPERTY = IM.NAMESPACE + "DataProperty";
   public static ORGANISATION = IM.NAMESPACE + "Organisation";
   public static ADDRESS = IM.NAMESPACE + "address";

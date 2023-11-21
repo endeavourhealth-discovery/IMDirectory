@@ -76,7 +76,7 @@
 <script setup lang="ts">
 import { ref, Ref } from "vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { DirectService, Env, EntityService } from "@/services";
 import { FilterMatchMode } from "primevue/api";
 import { useRouter } from "vue-router";

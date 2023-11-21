@@ -11,7 +11,7 @@
 import { PropType, ref, Ref, watch } from "vue";
 import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 interface Props {

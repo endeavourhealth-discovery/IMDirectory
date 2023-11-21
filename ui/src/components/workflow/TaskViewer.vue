@@ -33,12 +33,12 @@ import { computed, onUnmounted, ref, Ref, watch } from "vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
 import ExpansionTable from "./ExpansionTable.vue";
 import ParentHeader from "./ParentHeader.vue";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
+import { DataTypeCheckers } from "@im-library/helpers";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { IM, RDF } from "@im-library/vocabulary";
 import { EntityService } from "@/services";
 import { useRoute, useRouter } from "vue-router";
 
-const { getColourFromType, getFAIconFromType } = ConceptTypeMethods;
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 
 interface Props {

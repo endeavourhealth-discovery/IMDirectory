@@ -1,5 +1,5 @@
 import { DirectService, EntityService } from "@/services";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";

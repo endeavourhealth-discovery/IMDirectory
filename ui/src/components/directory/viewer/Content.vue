@@ -59,11 +59,12 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { EntityService, DirectService, UserService } from "@/services";
 import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-import { getColourFromType, getFAIconFromType, getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useUserStore } from "@/stores/userStore";
 import setupOverlay from "@/composables/setupOverlay";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
 interface Props {
   entityIri: string;
