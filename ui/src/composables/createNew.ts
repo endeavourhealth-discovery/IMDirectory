@@ -1,4 +1,4 @@
-import { getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { AllowableChildProperty } from "@im-library/interfaces";
 import { DirectService, QueryService } from "@/services";

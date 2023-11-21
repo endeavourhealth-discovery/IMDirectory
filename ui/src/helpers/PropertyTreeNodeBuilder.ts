@@ -1,11 +1,11 @@
-import { TreeNode } from "../interfaces/TreeNode";
-import { TTProperty } from "../interfaces";
-import { RDF, SHACL } from "../vocabulary";
-import { getFAIconFromType } from "./ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
-import { getNameFromRef } from "./TTTransform";
-import { TTIriRef } from "../interfaces/AutoGen";
-import { getParentNode } from "./TreeHelper";
+import { TreeNode } from "@im-library/interfaces/TreeNode";
+import { TTProperty } from "@im-library/interfaces";
+import { RDF, SHACL } from "@im-library/vocabulary";
+import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { getNameFromRef } from "@im-library/helpers/TTTransform";
+import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { getParentNode } from "@im-library/helpers/TreeHelper";
 
 export function getTreeNodes(entity: any, parent: TreeNode): TreeNode[] {
   const dataModelProperties = entity[SHACL.PROPERTY];
