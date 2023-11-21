@@ -17,7 +17,7 @@ export function getFAIconFromType(conceptTypes: TTIriRef[]): string[] {
   else if (isValueSet(conceptTypes)) return faPro ? ["fa-duotone", "fa-list-check"] : ["fa-solid", "fa-list-check"];
   else if (isFolder(conceptTypes)) return faPro ? ["fa-duotone", "fa-folder"] : ["fa-solid", "fa-folder"];
   else if (isQuery(conceptTypes)) return faPro ? ["fa-duotone", "fa-magnifying-glass"] : ["fa-solid", "fa-magnifying-glass"];
-  else if (isFeature(conceptTypes)) return faPro ? ["fa-duotone", "fa-filter"] : ["fa-solid", "fa-filter-list"];
+  else if (isFeature(conceptTypes)) return faPro ? ["fa-duotone", "fa-filter-list"] : ["fa-solid", "fa-filter"];
   else return faPro ? ["fa-duotone", "fa-lightbulb"] : ["fa-solid", "fa-lightbulb"];
 }
 

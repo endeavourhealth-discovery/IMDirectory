@@ -1,7 +1,14 @@
 import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import palette from "google-palette";
+import { createTestingPinia } from "@pinia/testing";
+import { useSharedStore } from "@/stores/sharedStore";
+
+createTestingPinia();
+const mockState = useSharedStore();
 
 describe("ConceptTypeMethods", () => {
+  mockState.fontAwesomePro = false;
+
   const testSetType = [{ "@id": "http://endhealth.info/im#ValueSet", name: "Value set" }];
   const testDataModelType = [
     { "@id": "http://www.w3.org/2000/01/rdf-schema#Class", name: "Class" },
