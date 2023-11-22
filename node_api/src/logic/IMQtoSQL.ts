@@ -172,7 +172,7 @@ function convertMatchProperty(qry: SqlQuery, property: Property) {
     convertMatchPropertyValue(qry, property);
   } else if (property.bool) {
     convertMatchPropertyBool(qry, property);
-  } else if (property.null) {
+  } else if (property.isNull) {
     convertMatchPropertyNull(qry, property);
   } else {
     throw new Error("UNHANDLED PROPERTY PATTERN\n" + JSON.stringify(property, null, 2));

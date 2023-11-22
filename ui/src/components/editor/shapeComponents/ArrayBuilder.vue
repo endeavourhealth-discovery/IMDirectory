@@ -123,7 +123,6 @@ onMounted(async () => {
       validationErrorMessage.value = undefined;
     } else {
       await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-      showValidation.value = true;
     }
   }
 });
@@ -145,7 +144,6 @@ watch(
           validationErrorMessage.value = undefined;
         } else {
           await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
-          showValidation.value = true;
         }
       }
       updateValueVariableMap(props.value);

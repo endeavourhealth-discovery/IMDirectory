@@ -177,27 +177,30 @@ async function onNodeContext(event: any, node: any) {
 
   items.value = await getCreateOptions(newFolderName, newFolder, node);
 
-  if (selectedNode.value && node.typeIcon.includes("fa-folder")) {
-    items.value.push({
-      label: "Move selection here",
-      icon: "fa-solid fa-fw fa-file-import",
-      command: () => {
-        confirmMove(node);
-      }
-    });
-    items.value.push({
-      label: "Add selection here",
-      icon: "fa-solid fa-fw fa-copy",
-      command: () => {
-        confirmAdd(node);
-      }
-    });
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.key && node.key !== selectedNode.value.key && node.typeIcon.includes("fa-folder")) {
+    const isOwnDescendant = await EntityService.getPathBetweenNodes(node.key, selectedNode.value.key);
+    if (isOwnDescendant.findIndex(pathItem => pathItem["@id"] === selectedNode.value.key) === -1) {
+      items.value.push({
+        label: "Move selection here",
+        icon: "fa-solid fa-fw fa-file-import",
+        command: () => {
+          confirmMove(node);
+        }
+      });
+      items.value.push({
+        label: "Add selection here",
+        icon: "fa-solid fa-fw fa-copy",
+        command: () => {
+          confirmAdd(node);
+        }
+      });
+    }
   }
   if (items.value.length > 0) menu.value.show(event);
 }
 
 function confirmMove(node: TreeNode) {
-  if (selectedNode.value) {
+  if (isObjectHasKeys(selectedNode.value)) {
     confirm.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
@@ -213,7 +216,7 @@ function confirmMove(node: TreeNode) {
 }
 
 async function moveConcept(target: TreeNode) {
-  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
     try {
       await FilerService.moveFolder(selectedNode.value.key, selectedNode.value.parentNode.key, target.key);
       toast.add({ severity: "success", summary: "Move", detail: 'Moved "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -227,7 +230,7 @@ async function moveConcept(target: TreeNode) {
 }
 
 function confirmAdd(node: TreeNode) {
-  if (selectedNode.value) {
+  if (isObjectHasKeys(selectedNode.value)) {
     confirm.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
@@ -243,7 +246,7 @@ function confirmAdd(node: TreeNode) {
 }
 
 async function addConcept(target: TreeNode) {
-  if (selectedNode.value && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
+  if (isObjectHasKeys(selectedNode.value) && selectedNode.value.parentNode && selectedNode.value.key && target && target.key && target.children) {
     try {
       await FilerService.addToFolder(selectedNode.value.key, target.key);
       toast.add({ severity: "success", summary: "Add", detail: 'Added "' + selectedNode.value.label + '" into "' + target.label + '"', life: 3000 });
@@ -270,6 +273,7 @@ async function createFolder() {
   } finally {
     newFolder.value = null;
     creating.value = false;
+    await onNodeExpand(selectedNode.value);
   }
 }
 

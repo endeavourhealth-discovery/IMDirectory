@@ -213,8 +213,12 @@ async function getIsSelectableEntity(): Promise<boolean> {
     if (!isObjectHasKeys(queryResults, ["entities"]) || !isArrayHasLength(queryResults.entities)) return false;
     return queryResults.entities.some(item => item["@id"] === detailsIri.value);
   } else if (props.searchByFunction) {
-    const functionRequest = _.cloneDeep(props.searchByFunction);
-    functionRequest.arguments?.push({ parameter: "searchIri", valueData: detailsIri.value });
+    const functionRequest: FunctionRequest = _.cloneDeep(props.searchByFunction);
+    if (functionRequest.arguments && isArrayHasLength(functionRequest.arguments)) {
+      const found = functionRequest.arguments.find(arg => arg.parameter === "searchIri");
+      if (found) found.valueData = detailsIri.value;
+      else functionRequest.arguments.push({ parameter: "searchIri", valueData: detailsIri.value });
+    } else functionRequest.arguments = [{ parameter: "searchIri", valueData: detailsIri.value }];
     if (functionRequest.functionIri) {
       return await FunctionService.runAskFunction(functionRequest);
     } else return false;

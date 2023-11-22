@@ -13,6 +13,7 @@ export class queryVocabulary {
   public static SEARCH_PROPERTIES = this.NAMESPACE + "SearchProperties";
   public static SEARCH_ENTITIES = this.NAMESPACE + "SearchEntities";
   public static SEARCH_FOLDERS = this.NAMESPACE + "SearchFolders";
+  public static SEARCH_ALLOWABLE_CONTAINED_IN = this.NAMESPACE + "SearchAllowableContainedIn";
   public static SEARCH_MAIN_TYPES = this.NAMESPACE + "SearchmainTypes";
   public static DM_PROPERTY = this.NAMESPACE + "DataModelPropertyByShape";
   public static SEARCH_SUBCLASS = this.NAMESPACE + "SearchAllowableSubclass";

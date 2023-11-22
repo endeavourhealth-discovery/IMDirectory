@@ -5,7 +5,6 @@ import { faHouseChimney } from "@fortawesome/pro-duotone-svg-icons/faHouseChimne
 import { faSliders } from "@fortawesome/pro-duotone-svg-icons/faSliders";
 import { faListTree } from "@fortawesome/pro-duotone-svg-icons/faListTree";
 import { faUpRightFromSquare } from "@fortawesome/pro-duotone-svg-icons/faUpRightFromSquare";
-import { faPenToSquare } from "@fortawesome/pro-duotone-svg-icons/faPenToSquare";
 import { faArrowDownUpAcrossLine } from "@fortawesome/pro-duotone-svg-icons/faArrowDownUpAcrossLine";
 import { faUser } from "@fortawesome/pro-duotone-svg-icons/faUser";
 import { faFiles } from "@fortawesome/pro-duotone-svg-icons/faFiles";
@@ -13,6 +12,14 @@ import { faFileArrowDown } from "@fortawesome/pro-duotone-svg-icons/faFileArrowD
 import { faFileArrowUp } from "@fortawesome/pro-duotone-svg-icons/faFileArrowUp";
 import { faCode } from "@fortawesome/pro-duotone-svg-icons/faCode";
 import { faCookieBite } from "@fortawesome/pro-duotone-svg-icons/faCookieBite";
+import { faDiagramProject } from "@fortawesome/pro-duotone-svg-icons/faDiagramProject";
+import { faClipboardCheck } from "@fortawesome/pro-duotone-svg-icons/faClipboardCheck";
+import { faPenToSquare } from "@fortawesome/pro-duotone-svg-icons/faPenToSquare";
+import { faListCheck } from "@fortawesome/pro-duotone-svg-icons/faListCheck";
+import { faFolder } from "@fortawesome/pro-duotone-svg-icons/faFolder";
+import { faMagnifyingGlass } from "@fortawesome/pro-duotone-svg-icons/faMagnifyingGlass";
+import { faFilterList } from "@fortawesome/pro-duotone-svg-icons/faFilterList";
+import { faLightbulb } from "@fortawesome/pro-duotone-svg-icons/faLightbulb";
 
 export default function addDuotoneIcons(library: Library) {
   library.add(
@@ -27,7 +34,14 @@ export default function addDuotoneIcons(library: Library) {
     faFileArrowDown,
     faFileArrowUp,
     faCode,
-    faCookieBite
+    faCookieBite,
+    faDiagramProject,
+    faClipboardCheck,
+    faListCheck,
+    faFolder,
+    faMagnifyingGlass,
+    faFilterList,
+    faLightbulb
   );
 }
 // #v-endif

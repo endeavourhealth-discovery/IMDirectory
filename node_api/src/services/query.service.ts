@@ -112,11 +112,11 @@ export default class QueryService {
     } as QueryRequest;
 
     const allowableRanges = await this.queryIM(allowableRangesQuery);
-    if (allowableRanges.entities) {
+    if (allowableRanges.entities && isArrayHasLength(allowableRanges.entities)) {
       subtypesQuery.argument![0].valueIriList = allowableRanges.entities.map((entity: any) => {
         return { "@id": entity["@id"] };
       });
-    }
+    } else return false;
     return this.askQueryIM(subtypesQuery);
   }
 

@@ -8,6 +8,7 @@ import { IM } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptSummary, EntityReferenceNode } from "@im-library/interfaces";
 import { entityToAliasEntity } from "@im-library/helpers/Transforms";
+import Env from "./env.service";
 
 export default class FunctionService {
   axios: any;
@@ -71,5 +72,14 @@ export default class FunctionService {
     if (property && property.valueObject && property.valueObject.iri && term && term.valueData) {
       return await this.queryService.isAllowableRangeSuggestion(property.valueObject.iri, term.valueData);
     } else throw new CustomError("Missing required arguments 'focus'/'searchIri'", ErrorType.InvalidInputError);
+  }
+
+  public async isType(request: FunctionRequest): Promise<boolean> {
+    const type = request.arguments?.find(arg => arg.parameter === "type");
+    const iri = request.arguments?.find(arg => arg.parameter === "searchIri");
+    if (type && type.valueIri && iri && iri.valueData) {
+      const result = await this.axios.post(Env.API + "api/function/public/callAskFunction", request);
+      return result.data;
+    } else throw new CustomError("Missing required arguments 'type'/'searchIri'", ErrorType.InvalidInputError);
   }
 }

@@ -173,7 +173,7 @@ const CohortQueryShape: FormGenerator = {
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'isContainedIn'.",
               path: {
                 "@id": IM.IS_CONTAINED_IN
               },
@@ -189,7 +189,15 @@ const CohortQueryShape: FormGenerator = {
                   },
                   select: [
                     {
-                      "@id": IM.query.SEARCH_FOLDERS
+                      "@id": IM.query.SEARCH_ALLOWABLE_CONTAINED_IN
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.COHORT_QUERY
+                      },
+                      parameter: "value"
                     }
                   ],
                   path: {

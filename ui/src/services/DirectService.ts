@@ -50,9 +50,14 @@ export default class DirectService {
     this.directTo(Env.DIRECTORY_URL, "", "Filed", "filer");
   }
 
-  public view(iri?: string) {
-    if (iri) this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "directory/folder");
-    else this.directTo(Env.DIRECTORY_URL);
+  public view(iri?: string, openInNewTab = true) {
+    if (openInNewTab) {
+      if (iri) this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "directory/folder");
+      else this.directTo(Env.DIRECTORY_URL);
+    } else {
+      this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: "Viewed" } as RecentActivityItem);
+      this.router.push({ name: "Folder", params: { selectedIri: iri } });
+    }
   }
 
   public select(iri: string, routeName?: string) {
@@ -67,8 +72,12 @@ export default class DirectService {
     }
   }
 
-  public edit(iri?: string) {
-    this.directTo(Env.DIRECTORY_URL, iri || "", "Edited", "editor");
+  public edit(iri?: string, openInNewTab = true) {
+    if (openInNewTab) this.directTo(Env.DIRECTORY_URL, iri || "", "Edited", "editor");
+    else {
+      this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: "Edited" } as RecentActivityItem);
+      this.router.push({ name: "Editor", params: { selectedIri: iri ?? "" } });
+    }
   }
 
   public query() {

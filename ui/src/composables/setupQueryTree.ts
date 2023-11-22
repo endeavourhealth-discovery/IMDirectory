@@ -1,4 +1,4 @@
-import { getColourFromType, getFAIconFromType, isProperty } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { TreeNode } from "primevue/tree";

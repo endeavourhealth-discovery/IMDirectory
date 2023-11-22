@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { EntityService } from "@/services";
 import { getKey } from "@im-library/helpers";
-import { getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { TreeNode } from "@im-library/interfaces/TreeNode";

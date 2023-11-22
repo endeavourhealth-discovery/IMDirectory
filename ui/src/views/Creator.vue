@@ -35,6 +35,7 @@
             <span class="required-info">(*) item is required.</span>
           </div>
           <div class="button-bar" id="creator-button-bar">
+            <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
             <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
           </div>
         </div>
@@ -372,9 +373,9 @@ function submit(): void {
               cancelButtonColor: "#607D8B"
             }).then((result: any) => {
               if (result.isConfirmed) {
-                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
+                directService.view(editorEntity.value["http://endhealth.info/im#id"], false);
               } else {
-                directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
+                directService.edit(editorEntity.value["http://endhealth.info/im#id"], false);
               }
             });
           }
@@ -398,6 +399,11 @@ function submit(): void {
         confirmButtonColor: "#689F38"
       });
     });
+}
+
+function closeCreator() {
+  if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+  else router.go(-1);
 }
 
 function refreshCreator() {

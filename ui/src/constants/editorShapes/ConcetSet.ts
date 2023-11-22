@@ -85,6 +85,7 @@ const ConceptSetShape: FormGenerator = {
               componentType: {
                 "@id": IM.component.IRI_BUILDER
               },
+              argument: [{ parameter: "prefix", valueData: "CSET_" }],
               function: {
                 "@id": IM.function.GET_USER_EDITABLE_SCHEMES
               },
@@ -168,8 +169,8 @@ const ConceptSetShape: FormGenerator = {
               ]
             },
             {
-              label: "Subclass of array builder",
-              name: "Subclass of",
+              label: "Subset of array builder",
+              name: "Subset of",
               showTitle: true,
               order: 1,
               minCount: 0,
@@ -180,11 +181,11 @@ const ConceptSetShape: FormGenerator = {
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubsetOf' or 'isContainedIn'.",
               path: {
-                "@id": RDFS.SUBCLASS_OF
+                "@id": IM.IS_SUBSET_OF
               },
-              valueVariable: "subClassOf",
+              valueVariable: "subsetOf",
               property: [
                 {
                   comment: "selects an entity based on select query",
@@ -196,7 +197,7 @@ const ConceptSetShape: FormGenerator = {
                     "@id": IM.component.ENTITY_SEARCH
                   },
                   path: {
-                    "@id": RDFS.SUBCLASS_OF
+                    "@id": IM.IS_SUBSET_OF
                   },
                   select: [
                     {
@@ -227,7 +228,7 @@ const ConceptSetShape: FormGenerator = {
               validation: {
                 "@id": IM.validation.HAS_PARENT
               },
-              validationErrorMessage: "Entity is missing a parent. Add a parent to 'SubclassOf' or 'isContainedIn'.",
+              validationErrorMessage: "Entity is missing a parent. Add a parent to 'subsetOf' or 'isContainedIn'.",
               path: {
                 "@id": IM.IS_CONTAINED_IN
               },
@@ -243,7 +244,15 @@ const ConceptSetShape: FormGenerator = {
                   },
                   select: [
                     {
-                      "@id": IM.query.SEARCH_FOLDERS
+                      "@id": IM.query.SEARCH_ALLOWABLE_CONTAINED_IN
+                    }
+                  ],
+                  argument: [
+                    {
+                      valueIri: {
+                        "@id": IM.CONCEPT_SET
+                      },
+                      parameter: "value"
                     }
                   ],
                   path: {

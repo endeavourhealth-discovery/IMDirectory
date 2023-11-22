@@ -3,7 +3,9 @@ import { Match, OrderLimit, Node, Query } from "../interfaces/AutoGen";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { getNameFromRef, resolveIri } from "./TTTransform";
 
-const propertyDisplayMap = { concept: "of", ethnicity: "of", language: "of" } as any;
+const propertyDisplayMap: { path: any; then: any } = { path: { concept: "of", ethnicity: "of", language: "of" }, then: { concept: "is" } };
+
+export type MatchType = "path" | "then";
 
 // descriptors
 export function describeQuery(query: Query): Query {
@@ -15,48 +17,53 @@ export function describeQuery(query: Query): Query {
   return describedQuery;
 }
 
-export function describeMatch(match: Match, index: number, bool: Bool, isPathMatch?: boolean) {
-  let display = getDisplayFromMatch(match, isPathMatch);
+export function describeMatch(match: Match, index: number, bool: Bool, matchType?: MatchType) {
+  let display = getDisplayFromMatch(match, matchType);
   if (match.exclude) display = getDisplayFromLogic("exclude") + " " + display;
   if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
-  match.description = display;
 
   if (isArrayHasLength(match.match))
     for (const [index, nestedMatch] of match.match!.entries()) {
-      describeMatch(nestedMatch, index, match.bool!);
+      describeMatch(nestedMatch, index, match.bool!, matchType);
     }
 
   if (isArrayHasLength(match.property))
     for (const [index, property] of match.property!.entries()) {
-      describeProperty(property, index, property.bool!);
+      describeProperty(property, index, property.bool!, matchType);
     }
+
+  if (match.then) {
+    describeMatch(match.then, 0, "and", "then");
+  }
+
+  match.description = display;
 }
 
-export function describeProperty(property: Property, index: number, bool: Bool) {
-  if (property.match) describeMatch(property.match, 0, "and", true);
+export function describeProperty(property: Property, index: number, bool: Bool, matchType?: MatchType) {
+  if (property.match) describeMatch(property.match, 0, "and", "path");
   if (isObjectHasKeys(property, ["@id"])) {
     let display = getDisplayFromEntailment(property);
-    display += getDisplayFromProperty(property);
+    display += getDisplayFromProperty(property, matchType);
     if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
     property.description = display;
   }
 
   if (isArrayHasLength(property.property))
     for (const [index, nestedProperty] of property.property!.entries()) {
-      describeProperty(nestedProperty, index, property.bool!);
+      describeProperty(nestedProperty, index, property.bool!, matchType);
     }
 }
 
 // getters
-export function getDisplayFromMatch(match: Match, isPathMatch?: boolean) {
+export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
-  if (match.orderBy) describeOrderByList(match.orderBy);
+  if (match.orderBy) describeOrderByList(match.orderBy, matchType);
   else if (match.inSet) display = getDisplayFromInSet(match.inSet);
   else if (match.typeOf) display = getNameFromRef(match.typeOf);
   else if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
   else if (!match.property && match["@id"] && match.name) display = match.name;
 
-  if (isPathMatch) display += " with";
+  if ("path" == matchType) display += " with";
 
   return display;
 }
@@ -84,36 +91,38 @@ export function getDisplayFromInSet(inSet: Node[]) {
   return display + "'";
 }
 
-export function getDisplayFromPropertyList(matchDisplay: string, propertyList: Property[]) {
+export function getDisplayFromPropertyList(matchDisplay: string, propertyList: Property[], matchType: MatchType) {
   const propertyDisplays = [];
   for (const propertyItem of propertyList) {
     if (matchDisplay && matchDisplay.slice(-1) !== ".") matchDisplay += ".";
-    propertyDisplays.push(matchDisplay + getDisplayFromProperty(propertyItem));
+    propertyDisplays.push(matchDisplay + getDisplayFromProperty(propertyItem, matchType));
   }
 
   return propertyDisplays;
 }
 
-export function getDisplayFromProperty(property: Property) {
+export function getDisplayFromProperty(property: Property, matchType?: MatchType) {
   let display = "";
   const propertyName = getDisplayFromNodeRef(property.nodeRef) ?? getNameFromRef(property);
   if (!property.match) display += propertyName;
-  if (propertyDisplayMap[propertyName]) display += " " + propertyDisplayMap[propertyName];
+
+  if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
+
   if (property.is) display += getDisplayFromList(property, true, property.is);
   if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
   if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
   if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
   if (property.operator) display = getDisplayFromOperator(propertyName, property);
   if (property.range) display = getDisplayFromRange(propertyName, property);
-  if (property.null) display += " is null";
+  if (property.isNull) display += " is null";
   return display;
 }
 
-export function describeOrderByList(orderLimit: OrderLimit) {
+export function describeOrderByList(orderLimit: OrderLimit, matchType?: MatchType) {
   if (orderLimit?.property && orderLimit.property.length > 0) {
     let desc = [];
     for (const ob of orderLimit.property) {
-      desc.push(getDisplayFromOrderBy(ob));
+      desc.push(getDisplayFromOrderBy(ob, matchType));
     }
 
     if (desc.length > 0) {
@@ -123,11 +132,11 @@ export function describeOrderByList(orderLimit: OrderLimit) {
   }
 }
 
-function getDisplayFromOrderBy(orderDirection: OrderDirection) {
+function getDisplayFromOrderBy(orderDirection: OrderDirection, matchType?: MatchType) {
   let display = "";
   if (orderDirection.variable) display += orderDirection.variable + ".";
   const propertyName = getNameFromRef(orderDirection);
-  if (propertyDisplayMap[propertyName]) display += propertyName + " " + propertyDisplayMap[propertyName] + " ";
+  if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += propertyName + " " + propertyDisplayMap[matchType][propertyName] + " ";
   else display += propertyName;
   if (propertyName.toLocaleLowerCase().includes("date")) {
     if ("descending" === orderDirection.direction) {

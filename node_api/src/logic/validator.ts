@@ -41,6 +41,10 @@ export default class Validator {
       valid = true;
       message = undefined;
     }
+    if (isObjectHasKeys(data, [IM.IS_SUBSET_OF]) && isArrayHasLength(data[IM.IS_SUBSET_OF]) && data[IM.IS_SUBSET_OF].every((item: any) => isTTIriRef(item))) {
+      valid = true;
+      message = undefined;
+    }
     if (
       isObjectHasKeys(data, [RDFS.SUB_PROPERTY_OF]) &&
       isArrayHasLength(data[RDFS.SUB_PROPERTY_OF]) &&
@@ -78,12 +82,15 @@ export default class Validator {
           const splits = data[IM.ID].split("#");
           if (splits.length !== 2) message = "Iri contains invalid character '#' within identifier.";
           else if (!/^http:\/\/[a-zA-Z]+\.[a-zA-Z]+\/[a-zA-Z]+#$/.test(splits[0] + "#")) message = "Iri url is invalid.";
+          else if (!splits[1]) message = "Iri must have a code.";
           else if (encodeURIComponent(splits[1]) !== splits[1]) {
             const invalidCharactersEncoded = encodeURIComponent(splits[1]).match(/%[0-9a-zA-Z]{2}/g);
             if (invalidCharactersEncoded) {
               const invalidCharactersDecoded = invalidCharactersEncoded.map(char => decodeURIComponent(char));
               message = "Iri identifier contains invalid characters: " + JSON.stringify(invalidCharactersDecoded);
             }
+          } else if (["CSET_"].includes(splits[1])) {
+            message = "Iri missing code after prefix: " + splits[1];
           } else {
             valid = true;
             message = undefined;
@@ -150,7 +157,13 @@ export default class Validator {
   }
 
   private isValidTermCode(data: any): boolean {
-    return isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL];
+    let valid = false;
+    if (isObjectHasKeys(data, [IM.CODE, IM.HAS_STATUS, RDFS.LABEL]) && data[IM.CODE] && data[IM.HAS_STATUS] && data[RDFS.LABEL]) {
+      if (data[IM.HAS_STATUS] && data[IM.HAS_STATUS].length === 1) {
+        if (null !== data[IM.HAS_STATUS][0]) valid = true;
+      }
+    }
+    return valid;
   }
 
   private async isValidScheme(data: any): Promise<{ isValid: boolean; message?: string }> {

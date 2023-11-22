@@ -1,8 +1,8 @@
 <template>
   <div class="property-input-container">
-    <Dropdown :options="['is', 'isNot', 'isNull']" v-model:model-value="propertyType" />
+    <Dropdown :options="['is', 'isNot', 'isNull', 'inSet']" v-model:model-value="propertyType" />
     <InputText v-if="propertyType !== 'isNull'" type="text" placeholder="Value label" v-model:model-value="props.property.valueLabel" />
-    <SaveCustomSetDialog v-if="propertyType !== 'isNull'" :set-members="editValues" />
+    <SaveCustomSetDialog v-if="propertyType !== 'isNull'" :set-members="editValues" @on-save="onCustomSetSave" />
   </div>
   <div v-if="propertyType !== 'isNull'" v-for="(editValue, index) in editValues" class="property-input-container class-select">
     <InputText type="text" @click="openDialog(index)" placeholder="Value" v-model:model-value="editValue.name" />
@@ -34,7 +34,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const propertyType: Ref<string> = ref("is");
+const propertyType: Ref<string | undefined> = ref();
 const visible: Ref<boolean> = ref(false);
 const editValues: Ref<Node[]> = ref([] as Node[]);
 const selectedIndex: Ref<number> = ref(0);
@@ -45,28 +45,44 @@ onMounted(async () => {
 
 watch(
   () => propertyType.value,
-  (newValue, oldValue) => handlePropertyTypeChange(newValue, oldValue)
+  () => handlePropertyTypeChange()
 );
 
-function handlePropertyTypeChange(newValue: string, oldValue: string) {
-  if (newValue === "isNot") {
+function onCustomSetSave(customSetRef: Node) {
+  editValues.value.length = 0;
+  editValues.value.push(customSetRef);
+  propertyType.value = "inSet";
+}
+
+function handlePropertyTypeChange() {
+  if (propertyType.value === "isNot") {
     props.property.isNot = editValues.value;
     delete props.property.is;
-    delete props.property.null;
-  } else if (newValue === "is") {
+    delete props.property.isNull;
+    delete props.property.inSet;
+  } else if (propertyType.value === "is") {
     props.property.is = editValues.value;
     delete props.property.isNot;
-    delete props.property.null;
-  } else if (newValue === "isNull") {
-    props.property.null = true;
+    delete props.property.isNull;
+    delete props.property.inSet;
+  } else if (propertyType.value === "isNull") {
+    props.property.isNull = true;
     delete props.property.is;
     delete props.property.isNot;
+    delete props.property.inSet;
+  } else if (propertyType.value === "inSet") {
+    props.property.inSet = editValues.value;
+    delete props.property.is;
+    delete props.property.isNot;
+    delete props.property.isNull;
   }
 }
 
 function initEditValues() {
-  if (isObjectHasKeys(props.property, ["isNot"])) propertyType.value = "isNot";
-  else if (isObjectHasKeys(props.property, ["null"])) propertyType.value = "isNull";
+  if (isObjectHasKeys(props.property, ["is"])) propertyType.value = "is";
+  else if (isObjectHasKeys(props.property, ["isNot"])) propertyType.value = "isNot";
+  else if (isObjectHasKeys(props.property, ["isNull"])) propertyType.value = "isNull";
+  else if (isObjectHasKeys(props.property, ["inSet"])) propertyType.value = "inSet";
 
   if (propertyType.value && propertyType.value !== "isNull") {
     if (!isArrayHasLength((props.property as any)[propertyType.value])) (props.property as any)[propertyType.value] = [{} as Node];

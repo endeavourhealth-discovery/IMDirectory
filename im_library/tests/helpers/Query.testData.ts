@@ -210,7 +210,7 @@ export const where: {
   },
   withComparison: { "@id": "http://endhealth.info/im#numericValue", operator: ">", value: "150" },
   withNull: {
-    null: true
+    isNull: true
   },
   after: {
     "@id": "http://endhealth.info/im#effectiveDate",

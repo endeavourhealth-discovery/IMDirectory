@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { DirectService, EntityService, Env } from "@/services";
 import { IM, RDF } from "@im-library/vocabulary";
 import { useRouter } from "vue-router";
