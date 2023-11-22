@@ -151,8 +151,8 @@ import { EntityService, Env, DirectService } from "@/services";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import OverlaySummary from "../shared/OverlaySummary.vue";
@@ -248,7 +248,7 @@ function addToMappings(row: any) {
   }
 }
 
-function showOverlay(event: any, data: ConceptSummary): void {
+function showOverlay(event: any, data: SearchResultSummary): void {
   hoveredItem.value = data;
   const x = summary_overlay.value as any;
   x.show(event, event.target);

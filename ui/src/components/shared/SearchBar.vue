@@ -33,7 +33,7 @@
 import Filters from "@/components/shared/Filters.vue";
 
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
-import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
@@ -46,9 +46,9 @@ import QueryService from "@/services/QueryService";
 import _ from "lodash";
 
 interface Props {
-  searchResults: ConceptSummary[];
+  searchResults: SearchResultSummary[];
   searchLoading: boolean;
-  selected?: ConceptSummary;
+  selected?: SearchResultSummary;
   filterOptions?: FilterOptions;
 }
 
@@ -151,7 +151,7 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const result = await EntityService.advancedSearch(searchRequest, controller.value);
-    if (result) results.value = result;
+    if (result.entities) results.value = result.entities;
     else results.value = [];
     loading.value = false;
   }

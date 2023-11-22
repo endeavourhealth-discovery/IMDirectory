@@ -39,12 +39,11 @@
 
 <script setup lang="ts">
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
-import { ConceptSummary } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { EntityService } from "@/services";
 import { ref, Ref } from "vue";
 
-const hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
+const hoveredResult: Ref<SearchResultSummary> = ref({} as SearchResultSummary);
 const overlayLocation: Ref<any> = ref({});
 const OP = ref();
 

@@ -2,12 +2,12 @@ import Env from "@/services/env.service";
 import EclService from "./ecl.service";
 import axios from "axios";
 import { buildDetails } from "@/builders/entity/detailsBuilder";
-import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris, ConceptSummary } from "@im-library/interfaces";
+import { EclSearchRequest, PropertyDisplay, TTBundle, ContextMap, TreeNode, EntityReferenceNode, FiltersAsIris } from "@im-library/interfaces";
 import { eclToIMQ } from "@im-library/helpers/Ecl/EclToIMQ";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import EntityRepository from "@/repositories/entityRepository";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { getNameFromRef } from "@im-library/helpers/TTTransform";
 
 export default class EntityService {
@@ -237,7 +237,7 @@ export default class EntityService {
     return (await this.axios.get(Env.API + "api/entity/public/asEntityReferenceNode", { params: { iri: iri } })).data;
   }
 
-  async getEntitySummary(iri: string): Promise<ConceptSummary> {
+  async getEntitySummary(iri: string): Promise<SearchResultSummary> {
     return (await this.axios.get(Env.API + "api/entity/public/summary", { params: { iri: iri } })).data;
   }
 }

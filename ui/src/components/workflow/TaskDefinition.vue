@@ -155,8 +155,8 @@ import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { DirectService, EntityService, Env } from "@/services";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { SearchRequest } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
+import { SearchRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
 import { useFilterStore } from "@/stores/filterStore";
 
@@ -229,7 +229,7 @@ function hideOverlay(): void {
   summaryOverlay.value.hide();
 }
 
-function showOverlay(event: any, data: ConceptSummary): void {
+function showOverlay(event: any, data: SearchResultSummary): void {
   hoveredItem.value = data;
   summaryOverlay.value.show(event, event.target);
 }
@@ -365,8 +365,8 @@ function setFilters(searchRequest: SearchRequest) {
 
 async function fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {
   const result = await EntityService.advancedSearch(searchRequest, controller);
-  if (result && isArrayHasLength(result)) {
-    searchResults.value = result.map(item => {
+  if (result.entities && isArrayHasLength(result.entities)) {
+    searchResults.value = result.entities.map(item => {
       return { iri: item.iri, name: item.name, type: item.entityType, scheme: item.scheme, status: item.status, usage: item.weighting };
     });
   } else {

@@ -48,7 +48,7 @@
         :lazy-loading="requiresLazy"
         :total-records="totalCount"
         @locate-in-tree="(iri: string) => $emit('locateInTree', iri)"
-        @row-selected="(selected: ConceptSummary) => emit('selectedUpdated', selected)"
+        @row-selected="(selected: SearchResultSummary) => emit('selectedUpdated', selected)"
         @lazy-load-requested="loadMore"
         @download-requested="downloadAll"
       />
@@ -69,8 +69,8 @@
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
-import { OrderLimit, Query, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { EclSearchRequest } from "@im-library/interfaces";
+import { OrderLimit, Query, TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
@@ -87,7 +87,7 @@ import { useDialog } from "primevue/usedialog";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
-  selectedUpdated: (_payload: ConceptSummary) => true
+  selectedUpdated: (_payload: SearchResultSummary) => true
 });
 
 const toast = useToast();
@@ -105,7 +105,7 @@ const rowsStart = 20;
 
 const queryString = ref("");
 const showDialog = ref(false);
-const searchResults: Ref<ConceptSummary[]> = ref([]);
+const searchResults: Ref<SearchResultSummary[]> = ref([]);
 const totalCount = ref(0);
 const eclError = ref(false);
 const eclErrorMessage = ref("");

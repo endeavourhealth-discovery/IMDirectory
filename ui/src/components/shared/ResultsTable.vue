@@ -76,14 +76,14 @@ import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisua
 import setupDownloadFile from "@/composables/downloadFile";
 import { useUserStore } from "@/stores/userStore";
 import { useSharedStore } from "@/stores/sharedStore";
-import { ConceptSummary } from "@im-library/interfaces";
 import _ from "lodash";
 import setupOverlay from "@/composables/setupOverlay";
 import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
+import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
-  searchResults?: ConceptSummary[];
+  searchResults?: SearchResultSummary[];
   totalRecords?: number;
   loading: boolean;
   rows?: number;
@@ -91,13 +91,13 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  searchResults: () => [] as ConceptSummary[],
+  searchResults: () => [] as SearchResultSummary[],
   lazyLoading: false,
   rows: 20
 });
 
 const emit = defineEmits({
-  rowSelected: (_payload: ConceptSummary) => true,
+  rowSelected: (_payload: SearchResultSummary) => true,
   locateInTree: (_payload: string) => true,
   downloadRequested: () => true,
   lazyLoadRequested: (_payload: any) => true
@@ -113,7 +113,7 @@ const { downloadFile } = setupDownloadFile(window, document);
 
 const directService = new DirectService();
 
-interface ResultSummary extends ConceptSummary {
+interface ResultSummary extends SearchResultSummary {
   icon: string[];
   color: string;
   typeNames: string;
@@ -171,7 +171,7 @@ function init() {
   processedSearchResults.value = processSearchResults(props.searchResults);
 }
 
-function processSearchResults(searchResults: ConceptSummary[]): ResultSummary[] {
+function processSearchResults(searchResults: SearchResultSummary[]): ResultSummary[] {
   return searchResults.map(result => {
     const copy: any = _.cloneDeep(result);
     copy.icon = getFAIconFromType(result.entityType);

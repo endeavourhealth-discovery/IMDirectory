@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch, Ref, computed } from "vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
 import NavTree from "@/components/shared/NavTree.vue";
@@ -70,7 +70,7 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _, { cloneDeep } from "lodash";
 import { EntityService, FunctionService, QueryService } from "@/services";
-import { FunctionRequest, QueryRequest } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
@@ -79,7 +79,7 @@ interface Props {
   showDialog: boolean;
   searchByQuery?: QueryRequest;
   searchByFunction?: FunctionRequest;
-  selected?: ConceptSummary;
+  selected?: SearchResultSummary;
   rootEntities?: string[];
   filterOptions?: FilterOptions;
 }
@@ -111,7 +111,7 @@ watch(visible, newValue => {
     resetDialog();
   }
 });
-const searchResults: Ref<ConceptSummary[]> = ref([]);
+const searchResults: Ref<SearchResultSummary[]> = ref([]);
 const searchLoading = ref(false);
 const treeIri = ref("");
 const detailsIri = ref("");
@@ -162,7 +162,7 @@ function initSelection() {
   }
 }
 
-function updateSelected(data: ConceptSummary) {
+function updateSelected(data: SearchResultSummary) {
   navigateTo(data.iri);
   locateInTree(data.iri);
 }

@@ -32,10 +32,10 @@ import VueJsonPretty from "vue-json-pretty";
 import NavTree from "@/components/shared/NavTree.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import SearchResults from "@/components/shared/SearchResults.vue";
-import { ConceptSummary } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";
+import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   editorEntity: any;
@@ -46,7 +46,7 @@ const props = defineProps<Props>();
 const searchResults: Ref<any[]> = ref([]);
 const searchLoading = ref(false);
 const activeIndex = ref(0);
-const selectedResult: Ref<ConceptSummary | undefined> = ref();
+const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const findInTreeIri = ref("");
 const editorEntityDisplay = ref();
 
@@ -83,7 +83,7 @@ function updateSearchResults(data: any[]) {
   openSearchPanel();
 }
 
-function handleSearchResultSelected(data: ConceptSummary) {
+function handleSearchResultSelected(data: SearchResultSummary) {
   selectedResult.value = data;
   findInTreeIri.value = data.iri;
   openTreePanel();

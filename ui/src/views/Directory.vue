@@ -33,7 +33,7 @@ import { useToast } from "primevue/usetoast";
 import { useFilterStore } from "@/stores/filterStore";
 import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
-import { ConceptSummary } from "@im-library/interfaces";
+import { SearchResponse } from "@im-library/interfaces/AutoGen";
 
 const router = useRouter();
 const toast = useToast();
@@ -55,7 +55,7 @@ onMounted(async () => {
   loading.value = false;
 });
 
-function updateSearchResults(data: ConceptSummary[]) {
+function updateSearchResults(data: SearchResponse) {
   directoryStore.updateSearchResults(data);
   router.push({ name: "Search" });
 }

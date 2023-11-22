@@ -24,22 +24,23 @@
       :searchResults="localSearchResults"
       :loading="isLoading"
       @rowSelected="updateSelected"
-      @locateInTree="(iri:string) => $emit('locateInTree', iri)"
+      @locateInTree="(iri: string) => $emit('locateInTree', iri)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref, watch } from "vue";
-import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
+import { FilterOptions } from "@im-library/interfaces";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
+import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   showFilters?: boolean;
-  searchResults: ConceptSummary[];
+  searchResults: SearchResultSummary[];
   searchLoading?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
@@ -47,7 +48,7 @@ const props = withDefaults(defineProps<Props>(), {
   searchLoading: false
 });
 
-const emit = defineEmits({ selectedUpdated: (_payload: ConceptSummary) => true, locateInTree: (_payload: string) => true });
+const emit = defineEmits({ selectedUpdated: (_payload: SearchResultSummary) => true, locateInTree: (_payload: string) => true });
 
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
@@ -100,7 +101,7 @@ function setFiltersFromSearchResults() {
   const schemes = [] as string[];
   const types = [] as string[];
   const status = [] as string[];
-  (localSearchResults.value as ConceptSummary[]).forEach(searchResult => {
+  (localSearchResults.value as SearchResultSummary[]).forEach(searchResult => {
     if (isObjectHasKeys(searchResult.scheme, ["name"])) schemes.push(searchResult.scheme.name!);
     searchResult.entityType.forEach((type: any) => {
       if (filterDefaults.value.types.map(type => type["@id"]).includes(type["@id"])) types.push(type.name);
@@ -117,7 +118,7 @@ function setFiltersFromSearchResults() {
 }
 
 function filterResults() {
-  const filteredSearchResults = [] as ConceptSummary[];
+  const filteredSearchResults = [] as SearchResultSummary[];
   localSearchResults.value.forEach(searchResult => {
     let isSelectedType = false;
     searchResult.entityType.forEach((type: any) => {
@@ -133,7 +134,7 @@ function filterResults() {
   localSearchResults.value = [...filteredSearchResults];
 }
 
-function updateSelected(selected: ConceptSummary) {
+function updateSelected(selected: SearchResultSummary) {
   emit("selectedUpdated", selected);
 }
 </script>

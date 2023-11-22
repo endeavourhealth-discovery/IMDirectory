@@ -5,7 +5,6 @@ import { ChartOptions } from "./ChartOptions";
 import { ChartTableNode } from "./ChartTableNode";
 import { ComponentDetails } from "./ComponentDetails";
 import { ConceptAggregate } from "./ConceptAggregate";
-import { ConceptSummary } from "./ConceptSummary";
 import { DashboardLayout } from "./DashboardLayout";
 import { Dataset } from "./Dataset";
 import { DefinitionConfig } from "./DefinitionConfig";
@@ -26,7 +25,6 @@ import { Property } from "./Property";
 import { QueryComponentDetails } from "./QueryComponentDetails";
 import { QueryNextComponentSummary } from "./QueryNextComponentSummary";
 import { RecentActivityItem } from "./RecentActivityItem";
-import { SearchResponse } from "./SearchResponse";
 import { SimpleMap } from "./SimpleMap";
 import { SimpleMapIri } from "./SimpleMapIri";
 import { TermCode } from "./TermCode";
@@ -65,7 +63,6 @@ export {
   type ChartTableNode,
   type ComponentDetails,
   type ConceptAggregate,
-  type ConceptSummary,
   type DashboardLayout,
   type Dataset,
   type DefinitionConfig,
@@ -86,7 +83,6 @@ export {
   type QueryComponentDetails,
   type QueryNextComponentSummary,
   type RecentActivityItem,
-  type SearchResponse,
   type SimpleMap,
   type SimpleMapIri,
   type TermCode,

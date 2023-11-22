@@ -4,8 +4,8 @@ import { beforeEach, describe, vi } from "vitest";
 import testData from "./directoryStore.testData";
 import { createTestingPinia } from "@pinia/testing";
 import { useSharedStore } from "@/stores/sharedStore";
-import { SearchRequest } from "@im-library/interfaces/AutoGen";
-import { FilterOptions, ConceptSummary } from "@im-library/interfaces";
+import { SearchRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FilterOptions } from "@im-library/interfaces";
 import { useDirectoryStore } from "@/stores/directoryStore";
 
 describe("state", () => {
@@ -45,21 +45,24 @@ describe("mutations", () => {
     const directoryStore = useDirectoryStore();
 
     const testResult = {
-      name: "testConcept",
-      iri: "testIri",
-      scheme: {
-        name: "testScheme",
-        iri: "testSchemeIri"
-      },
-      code: "testCode",
-      conceptType: {
-        elements: [{ iri: "testType", name: "testType" }]
-      },
-      isDescendantOf: [],
-      match: "testMatch",
-      weighting: 0,
-      status: { iri: "testStatus", name: "testStatus" }
-    };
+      count: 1,
+      page: 1,
+      entities: [
+        {
+          name: "testConcept",
+          iri: "testIri",
+          scheme: {
+            name: "testScheme",
+            "@id": "testSchemeIri"
+          },
+          code: "testCode",
+          entityType: [{ "@id": "testType", name: "testType" }],
+          match: "testMatch",
+          weighting: 0,
+          status: { "@id": "testStatus", name: "testStatus" }
+        }
+      ]
+    } as SearchResponse;
     directoryStore.updateSearchResults(testResult);
     expect(directoryStore.searchResults).toEqual(testResult);
   });
@@ -80,7 +83,7 @@ describe("actions", () => {
     createTestingPinia({ stubActions: false });
     iriExistsSpy.mockResolvedValue(true);
     getFilterOptionsSpy.mockResolvedValue(testData.FILTER_OPTIONS as any as FilterOptions);
-    advancedSearchSpy.mockResolvedValue(testData.SEARCH_RESULTS as any as ConceptSummary[]);
+    advancedSearchSpy.mockResolvedValue(testData.SEARCH_RESULTS as any as SearchResponse);
   });
 
   it("can fetchSearchResults ___ pass", async () => {
@@ -96,14 +99,14 @@ describe("actions", () => {
 
   it("can fetchSearchResults ___ failed", async () => {
     const directoryStore = useDirectoryStore();
-    advancedSearchSpy.mockResolvedValue({ status: 400, message: "test fail" } as any as ConceptSummary[]);
+    advancedSearchSpy.mockRejectedValue({ status: 400, message: "test fail" });
     const testInput = { searchRequest: {} as SearchRequest, controller: new AbortController() };
     await directoryStore.fetchSearchResults(testInput);
     await flushPromises();
     expect(advancedSearchSpy).toBeCalledTimes(1);
     expect(advancedSearchSpy).toBeCalledWith(testInput.searchRequest, testInput.controller);
     await flushPromises();
-    expect(directoryStore.searchResults).toStrictEqual([]);
+    expect(directoryStore.searchResults).toStrictEqual({} as SearchResponse);
   });
 });
 
