@@ -11,36 +11,36 @@ function IMQtoSQL(definition: Query, baseId = ""): IMQSQL {
     throw new Error("Query must have at least one match");
   }
 
-  try {
-    const qry = SqlQuery.create(definition.typeOf["@id"]!, baseId);
+  // try {
+  const qry = SqlQuery.create(definition.typeOf["@id"]!, baseId);
 
-    for (const match of definition.match) {
-      const subQry = convertMatchToQuery(qry, match);
-      qry.withs.push(...subQry.withs);
-      subQry.withs = [];
-      qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
+  for (const match of definition.match) {
+    const subQry = convertMatchToQuery(qry, match);
+    qry.withs.push(...subQry.withs);
+    subQry.withs = [];
+    qry.withs.push(subQry.alias + " AS (" + subQry.toSql(2) + "\n)");
 
-      const joiner = match.exclude ? "LEFT JOIN " : "JOIN ";
-      if (match.exclude) qry.wheres.push(subQry.alias + ".id IS NULL");
+    const joiner = match.exclude ? "LEFT JOIN " : "JOIN ";
+    if (match.exclude) qry.wheres.push(subQry.alias + ".id IS NULL");
 
-      if (qry.model == subQry.model) {
-        qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id");
-      } else {
-        const rel = subQry.getRelationshipTo(qry.model);
-        const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQry.alias) : subQry.alias + "." + rel.fromField;
-        const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
-        qry.joins.push(joiner + subQry.alias + " ON " + relFrom + " = " + relTo);
-      }
+    if (qry.model == subQry.model) {
+      qry.joins.push(joiner + subQry.alias + " ON " + subQry.alias + ".id = " + qry.alias + ".id");
+    } else {
+      const rel = subQry.getRelationshipTo(qry.model);
+      const relFrom = rel.fromField.includes("{alias}") ? rel.fromField.replaceAll("{alias}", subQry.alias) : subQry.alias + "." + rel.fromField;
+      const relTo = rel.toField.includes("{alias}") ? rel.toField.replaceAll("{alias}", qry.alias) : qry.alias + "." + rel.toField;
+      qry.joins.push(joiner + subQry.alias + " ON " + relFrom + " = " + relTo);
     }
-
-    const result: IMQSQL = { sql: qry.toSql(), sets: qry.dependentSets, queries: new Map<string, { iri: string; alias: string; sql: string }>() };
-    qry.dependentQueries.forEach(d => result.queries.set(d.iri, d));
-
-    return result;
-  } catch (e) {
-    if (e instanceof Error) return { error: e.toString() } as IMQSQL;
-    else return { error: "Unknown Error" } as IMQSQL;
   }
+
+  const result: IMQSQL = { sql: qry.toSql(), sets: qry.dependentSets, queries: new Map<string, { iri: string; alias: string; sql: string }>() };
+  qry.dependentQueries.forEach(d => result.queries.set(d.iri, d));
+
+  return result;
+  // } catch (e) {
+  //   if (e instanceof Error) return { error: e.toString() } as IMQSQL;
+  //   else return { error: "Unknown Error" } as IMQSQL;
+  // }
 }
 
 function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
@@ -50,6 +50,11 @@ function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
 
   if (match.orderBy) {
     wrapMatchPartition(qry, match.orderBy);
+  }
+
+  if (match.then) {
+    const thenQuery = convertMatchToQuery(qry, match.then);
+    qry.withs.push(thenQuery.alias + " AS ( WITH " + thenQuery.toSql(2) + " )\n");
   }
 
   return qry;
@@ -404,8 +409,6 @@ function includeDependentQuery(qry: SqlQuery, iri: string) {
   } else {
     const alias = qry.getAlias("Q_" + qry.baseId + "_");
     qry.dependentQueries.push({ iri: iri, alias: alias, sql: "" });
-
-    console.log("Recursive deps: " + iri);
 
     return alias;
   }

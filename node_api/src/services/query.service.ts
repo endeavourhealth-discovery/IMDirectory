@@ -451,7 +451,7 @@ export default class QueryService {
     if (!isObjectHasKeys(entityResponse, ["data"]) || !isObjectHasKeys(entityResponse.data, [IM.DEFINITION]))
       throw new Error("Query does not have a definition [" + queryIri + "]");
 
-    const query = JSON.parse(entityResponse.data[IM.DEFINITION]);
+    const query: Query = JSON.parse(entityResponse.data[IM.DEFINITION]);
 
     if (!query) throw new Error("Query contains a blank definition [" + queryIri + "]");
 
