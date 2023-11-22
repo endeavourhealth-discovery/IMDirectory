@@ -68,7 +68,6 @@
 <script setup lang="ts">
 import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
-import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary, EclSearchRequest } from "@im-library/interfaces";
 import { OrderLimit, Query, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -84,6 +83,7 @@ import { useFilterStore } from "@/stores/filterStore";
 import setupDownloadFile from "@/composables/downloadFile";
 import LoadingDialog from "../shared/dynamicDialogs/LoadingDialog.vue";
 import { useDialog } from "primevue/usedialog";
+import { createAbortSignal, abortIfExists } from "@/composables/createAbortSignal";
 
 const emit = defineEmits({
   locateInTree: (_payload: string) => true,
@@ -110,8 +110,8 @@ const totalCount = ref(0);
 const eclError = ref(false);
 const eclErrorMessage = ref("");
 const loading = ref(false);
-const controller: Ref<AbortController> = ref({} as AbortController);
-const controllerTotal: Ref<AbortController> = ref({} as AbortController);
+const controller: Ref<AbortController | undefined> = ref();
+const controllerTotal: Ref<AbortController | undefined> = ref();
 const selectedStatus: Ref<TTIriRef[]> = ref([]);
 const builderKey = ref(0);
 const currentPage = ref(0);
@@ -150,13 +150,10 @@ function updateError(errorUpdate: { error: boolean; message: string }): void {
 async function search(loadMore?: boolean): Promise<void> {
   if (queryString.value) {
     loading.value = true;
-    if (!isObject(controller.value)) {
-      controller.value.abort();
-    }
-    if (!isObject(controllerTotal.value)) {
-      controllerTotal.value.abort();
-    }
-    controller.value = new AbortController();
+    abortIfExists(controller);
+    abortIfExists(controllerTotal);
+    controller.value = createAbortSignal();
+    controllerTotal.value = createAbortSignal();
     if (!loadMore) {
       eclQuery.value = await EclService.getQueryFromECL(queryString.value);
       eclQuery.value.orderBy = {} as OrderLimit;
@@ -209,6 +206,8 @@ async function downloadAll() {
     statusFilter: selectedStatus.value,
     limit: 0
   } as EclSearchRequest;
+  abortIfExists(controller);
+  controller.value = createAbortSignal();
   const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
   if (isObjectHasKeys(result, ["entities"])) {
     const entities = result.entities;

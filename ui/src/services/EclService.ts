@@ -4,6 +4,7 @@ import axios from "axios";
 import Env from "./Env";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Query } from "@im-library/interfaces/AutoGen";
+import { api } from ".";
 
 const EclService = {
   async ECLSearch(eclSearchRequest: any, controller: AbortController): Promise<{ count: number; entities: ConceptSummary[]; page: number }> {
@@ -14,8 +15,8 @@ const EclService = {
     return results;
   },
 
-  async eclSearchTotalCount(eclSearchRequest: any, controller: AbortController): Promise<number> {
-    return axios.post(Env.API + "api/ecl/public/eclSearchTotalCount", eclSearchRequest, { signal: controller.signal });
+  async eclSearchTotalCount(eclSearchRequest: any, controller?: AbortController): Promise<number> {
+    return api.imapi.post("ecl/public/eclSearchTotalCount", eclSearchRequest, undefined, controller);
   },
 
   async getEcl(query: any): Promise<string> {

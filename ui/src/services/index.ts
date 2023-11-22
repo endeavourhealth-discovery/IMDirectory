@@ -14,6 +14,9 @@ import ParserService from "./ParserService";
 import EclService from "./EclService";
 import UserService from "./UserService";
 import FunctionService from "./FunctionService";
+import { Api } from "./api";
+
+const api = new Api({});
 
 export {
   AuthService,
@@ -31,5 +34,6 @@ export {
   ProvService,
   EclService,
   UserService,
-  FunctionService
+  FunctionService,
+  api
 };
