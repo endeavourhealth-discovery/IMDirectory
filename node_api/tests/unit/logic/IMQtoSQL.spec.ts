@@ -24,7 +24,7 @@ test("IMQtoSQL", async () => {
       // {
       //   inSet: [
       //     {
-      //       "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+      //       "@id": "http://endhealth.info/im#Q_RegisteredGMS",   // This query does not exist!
       //       name: "Registered for GMS services on reference date"
       //     }
       //   ]
@@ -39,16 +39,12 @@ test("IMQtoSQL", async () => {
                   from: {
                     operator: ">=",
                     value: "65",
-                    unit: "YEARS",
-                    relativeTo: null,
-                    dataType: null
+                    unit: "YEARS"
                   },
                   to: {
                     operator: "<",
                     value: "70",
-                    unit: "YEARS",
-                    relativeTo: null,
-                    dataType: null
+                    unit: "YEARS"
                   }
                 }
               }
@@ -57,7 +53,7 @@ test("IMQtoSQL", async () => {
           // {
           //   inSet: [
           //     {
-          //       "@id": "http://endhealth.info/im#M_ActiveDiabetes"
+          //       "@id": "http://endhealth.info/im#M_ActiveDiabetes"   // This query does not exist!
           //     }
           //   ]
           // },
@@ -223,7 +219,7 @@ test("IMQtoSQL", async () => {
         //   exclude: true,
         //   inSet: [
         //     {
-        //       "@id": "http://endhealth.info/im#Q_Hypertensives",
+        //       "@id": "http://endhealth.info/im#Q_Hypertensives",   // This query does not exist!
         //       name: "Hypertensives"
         //     }
         //   ]
