@@ -218,12 +218,8 @@ watch(
 onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
-  setCurrentDataModelIri();
-});
-
-function setCurrentDataModelIri() {
   currentDataModelIri.value = getMatchType();
-}
+});
 
 function getMatchType() {
   if (props.isThenMatch && isObjectHasKeys(props.parentMatch, ["typeOf"])) {
