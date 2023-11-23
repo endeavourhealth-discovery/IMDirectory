@@ -3,20 +3,27 @@
     <div class="include">include if</div>
     <div v-if="queryTypeIri" class="type-title" @click="showAddBaseTypeDialog = true">{{ getNameFromRef({ "@id": queryTypeIri }) }}</div>
 
-    <EditDisplayMatch v-if="isArrayHasLength(query.match)" v-for="(match, index) of query.match" :match="match" :index="index" :parentMatchList="query.match" />
+    <EditDisplayMatch
+      v-if="isArrayHasLength(query.match)"
+      v-for="(match, index) of query.match"
+      :match="match"
+      :index="index"
+      :parentMatchList="query.match"
+      :parent-data-model-iri="queryTypeIri"
+    />
 
     <div v-else-if="!queryTypeIri" class="flex gap-1">
       <Button label="Set base type" icon="fa-solid fa-diagram-project" @click="showAddBaseTypeDialog = true" severity="help" />
       <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showAddBaseTypeByCohortDialog = true" severity="success" />
     </div>
     <div v-if="query.typeOf" class="flex gap-1">
-      <Button label="Add feature" icon="fa-solid fa-circle-plus" @click="showAddDialog = true" severity="warning" />
+      <Button label="Add feature" icon="fa-solid fa-circle-plus" @click="showAddFeatureAfterDialog = true" severity="warning" />
       <Button label="Add population" icon="fa-solid fa-magnifying-glass" @click="showDirectoryDialog = true" severity="success" />
       <Button label="Paste feature" icon="fa-solid fa-paste" @click="pasteMatch" severity="info" />
     </div>
 
     <AddPropertyDialog
-      v-model:show-dialog="showAddDialog"
+      v-model:show-dialog="showAddFeatureAfterDialog"
       :header="'Add feature'"
       :show-variable-options="true"
       :match-type="queryTypeIri"
@@ -80,7 +87,7 @@ const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => querySt
 const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.returnType);
 const query: Ref<any> = ref({ match: [] as Match[] } as Query);
 const showDirectoryDialog: Ref<boolean> = ref(false);
-const { showAddDialog, showAddBaseTypeDialog, addMatchesToList } = setupQueryBuilderActions();
+const { showAddFeatureAfterDialog, showAddBaseTypeDialog } = setupQueryBuilderActions();
 const showAddBaseTypeByCohortDialog = ref(false);
 const filterOptionsForCohort: FilterOptions = { types: [{ "@id": IM.COHORT_QUERY }] } as FilterOptions;
 const filterOptionsForBaseType: FilterOptions = { types: [{ "@id": SHACL.NODESHAPE }] } as FilterOptions;

@@ -28,16 +28,23 @@
       :index="index"
       :parent-match="match"
       :match="nestedMatch"
+      :parent-data-model-iri="currentDataModelIri"
     />
+
     <EditDisplayProperty
       v-if="isArrayHasLength(match.property)"
       v-for="(property, index) of match.property"
       :index="index"
       :parent-match="match"
       :property="property"
+      :data-model-iri="currentDataModelIri"
     />
     <EditDisplayOrderBy v-if="match.orderBy" :match="match" :order-by="match.orderBy" :on-add-order-by="onAddOrderBy" />
     <span v-if="match.variable" v-html="getDisplayFromVariable(match.variable)"></span>
+    <div v-if="isObjectHasKeys(match, ['then'])">
+      {{ match.then!.exclude ? "then" : "then include if" }}
+      <EditDisplayMatch :index="index" :parent-match="match" :match="match.then!" :isThenMatch="true" :parent-data-model-iri="currentDataModelIri" />
+    </div>
   </div>
 
   <ContextMenu ref="rClickMenu" :model="rClickOptions" />
@@ -46,21 +53,44 @@
     v-model:showDialog="showUpdateDialog"
     :header="'Refine feature'"
     :show-variable-options="false"
-    :match-type="getMatchType()"
+    :match-type="currentDataModelIri"
     :match="match"
     @on-save="(direct: Match[], nested: Match[]) => updateProperties(match, direct, nested)"
   />
 
   <AddPropertyDialog
-    v-model:showDialog="showAddDialog"
+    v-model:showDialog="showAddFeatureBeforeDialog"
     :header="'Add feature'"
     :show-variable-options="true"
-    :match-type="getMatchType()"
-    @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, addBefore)"
+    :match-type="currentDataModelIri"
+    @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, true)"
+  />
+
+  <AddPropertyDialog
+    v-model:showDialog="showAddTestFeatureDialog"
+    :header="'Test feature'"
+    :show-variable-options="true"
+    :match-type="currentDataModelIri"
+    @on-save="(direct: Match[], nested: Match[]) => addThenMatch(match, direct.concat(nested))"
+  />
+
+  <AddPropertyDialog
+    v-model:showDialog="showAddFeatureAfterDialog"
+    :header="'Add feature'"
+    :show-variable-options="true"
+    :match-type="currentDataModelIri"
+    @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, false)"
   />
 
   <DirectorySearchDialog
-    v-model:show-dialog="showDirectoryDialog"
+    v-model:show-dialog="showAddPopulationBeforeDirectoryDialog"
+    @update:selected="onSelect"
+    :searchByQuery="validationQueryRequest"
+    :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+  />
+
+  <DirectorySearchDialog
+    v-model:show-dialog="showAddPopulationAfterDirectoryDialog"
     @update:selected="onSelect"
     :searchByQuery="validationQueryRequest"
     :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
@@ -102,6 +132,8 @@ interface Props {
   parentMatchList?: Match[];
   match: Match;
   index: number;
+  isThenMatch?: boolean;
+  parentDataModelIri: string;
 }
 
 const props = defineProps<Props>();
@@ -111,8 +143,10 @@ const queryTypeIri: ComputedRef<string> = computed(() => queryStore.$state.retur
 const validationQueryRequest: ComputedRef<QueryRequest> = computed(() => queryStore.$state.validationQueryRequest);
 const selectedMatches: ComputedRef<SelectedMatch[]> = computed(() => queryStore.$state.selectedMatches);
 const variableMap: ComputedRef<Map<string, any>> = computed(() => queryStore.$state.variableMap);
+const currentDataModelIri: Ref<string> = ref("");
 
 const {
+  addThenMatch,
   updateProperties,
   addMatchesToList,
   view,
@@ -127,12 +161,14 @@ const {
   dragDrop,
   dragLeave,
   select,
-  showAddDialog,
   showUpdateDialog,
   showViewDialog,
   showKeepAsDialog,
-  showDirectoryDialog,
-  addBefore
+  showAddFeatureBeforeDialog,
+  showAddFeatureAfterDialog,
+  showAddTestFeatureDialog,
+  showAddPopulationAfterDirectoryDialog,
+  showAddPopulationBeforeDirectoryDialog
 } = setupQueryBuilderActions();
 const toast = useToast();
 const editMode: Ref<boolean> = ref(false);
@@ -182,20 +218,24 @@ watch(
 onMounted(() => {
   htmlId.value = String(Math.random());
   getStyle();
+  currentDataModelIri.value = getMatchType();
 });
 
 function getMatchType() {
+  if (props.isThenMatch && isObjectHasKeys(props.parentMatch, ["typeOf"])) {
+    return props.parentMatch!.typeOf!["@id"];
+  }
   if (isObjectHasKeys(props.match, ["nodeRef"])) {
     return variableMap.value.get(props.match.nodeRef!).typeOf["@id"];
   } else if (isObjectHasKeys(props.match.typeOf, ["@id"])) return props.match.typeOf!["@id"];
 
-  return queryTypeIri.value;
+  return props.parentDataModelIri ?? queryStore.returnType;
 }
 
-function onSelect(cs: ConceptSummary) {
+function onSelect(cs: ConceptSummary, before?: boolean) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
-  addMatchesToList(props.parentMatchList!, [newMatch], props.index, addBefore.value);
-  showDirectoryDialog.value = false;
+  addMatchesToList(props.parentMatchList!, [newMatch], props.index, before);
+  showAddPopulationAfterDirectoryDialog.value = false;
 }
 
 function getClass() {
@@ -270,20 +310,19 @@ function getSingleRCOptions() {
       label: "Add feature",
       icon: "fa-solid fa-circle-plus",
       command: () => {
-        showAddDialog.value = true;
+        showAddFeatureAfterDialog.value = true;
       },
       items: [
         {
           label: "Before",
           command: () => {
-            showAddDialog.value = true;
-            addBefore.value = true;
+            showAddFeatureBeforeDialog.value = true;
           }
         },
         {
           label: "After",
           command: () => {
-            showAddDialog.value = true;
+            showAddFeatureAfterDialog.value = true;
           }
         }
       ]
@@ -292,20 +331,19 @@ function getSingleRCOptions() {
       label: "Add population",
       icon: "fa-solid fa-magnifying-glass",
       command: () => {
-        showDirectoryDialog.value = true;
+        showAddPopulationAfterDirectoryDialog.value = true;
       },
       items: [
         {
           label: "Before",
           command: () => {
-            showDirectoryDialog.value = true;
-            addBefore.value = true;
+            showAddPopulationBeforeDirectoryDialog.value = true;
           }
         },
         {
           label: "After",
           command: () => {
-            showDirectoryDialog.value = true;
+            showAddPopulationAfterDirectoryDialog.value = true;
           }
         }
       ]
@@ -336,6 +374,13 @@ function getSingleRCOptions() {
       icon: PrimeIcons.SORT_ALT,
       command: () => {
         addOrderBy();
+      }
+    },
+    {
+      label: "Test feature",
+      icon: "fa-solid fa-flask",
+      command: () => {
+        showAddTestFeatureDialog.value = true;
       }
     },
     {
