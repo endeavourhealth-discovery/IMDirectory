@@ -57,12 +57,12 @@ export function describeProperty(property: Property, index: number, bool: Bool, 
 // getters
 export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
-  if (match.orderBy) describeOrderByList(match.orderBy, matchType);
-  else if (match.inSet) display = getDisplayFromInSet(match.inSet);
+  if (match.inSet) display = getDisplayFromInSet(match.inSet);
   else if (match.typeOf) display = getNameFromRef(match.typeOf);
   else if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
   else if (!match.property && match["@id"] && match.name) display = match.name;
 
+  if (match.orderBy) describeOrderByList(match.orderBy, matchType);
   if ("path" == matchType) display += " with";
 
   return display;
