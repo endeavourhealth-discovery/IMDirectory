@@ -180,8 +180,6 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
 watch(selectedDropdownOption, async () => {
   if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
-  } else {
-    userInput.value = "";
   }
 });
 
@@ -194,10 +192,12 @@ onMounted(async () => {
     const prefixArg = props.shape.argument?.find(arg => arg.parameter === "prefix");
     if (prefixArg && prefixArg.valueData) prefix.value = prefixArg.valueData;
   }
+
   setSelectedOption();
   if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
   }
+
   loading.value = false;
 });
 
