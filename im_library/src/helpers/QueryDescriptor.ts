@@ -10,10 +10,16 @@ export type MatchType = "path" | "then";
 // descriptors
 export function describeQuery(query: Query): Query {
   const describedQuery = { ...query };
+
   if (isArrayHasLength(describedQuery.match))
     for (const [index, match] of describedQuery.match!.entries()) {
       describeMatch(match, index, "and");
     }
+  else if (isArrayHasLength(describedQuery.property)) {
+    for (const [index, prop] of describedQuery.property!.entries()) {
+      describeProperty(prop, index, "and");
+    }
+  }
   return describedQuery;
 }
 

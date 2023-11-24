@@ -44,7 +44,7 @@
               <Properties :entityIri="entityIri" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
             </div>
           </TabPanel>
-          <TabPanel v-if="isQuery(types)" header="Query">
+          <TabPanel v-if="isQuery(types) || isFeature(types)" header="Query">
             <div class="concept-panel-content" id="query-container">
               <QueryDisplay :entityIri="entityIri" />
             </div>
@@ -109,7 +109,7 @@ import TermCodeTable from "@/components/shared/TermCodeTable.vue";
 import { DefinitionConfig } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel } from "@im-library/helpers/ConceptTypeMethods";
+import { isOfTypes, isValueSet, isConcept, isQuery, isFolder, isRecordModel, isFeature } from "@im-library/helpers/ConceptTypeMethods";
 import { EntityService } from "@/services";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 import Details from "./viewer/Details.vue";
@@ -159,7 +159,7 @@ function setDefaultTab() {
     activeTab.value = tabMap.get("Contents") || 0;
   } else if (isRecordModel(types.value)) {
     activeTab.value = tabMap.get("Data Model") || 0;
-  } else if (isQuery(types.value)) {
+  } else if (isQuery(types.value) || isFeature(types.value)) {
     activeTab.value = tabMap.get("Query") || 0;
   } else if (isValueSet(types.value)) {
     activeTab.value = tabMap.get("Set") || 0;
@@ -211,7 +211,7 @@ function onOpenTab(predicate: string) {
       activeTab.value = tabMap.get("Properties") || 0;
       break;
     case IM.DEFINITION:
-      if (isQuery(types.value)) {
+      if (isQuery(types.value) || isFeature(types.value)) {
         activeTab.value = tabMap.get("Query") || 0;
       } else if (isValueSet(types.value)) {
         activeTab.value = tabMap.get("Set") || 0;
