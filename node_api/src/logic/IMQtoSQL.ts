@@ -1,6 +1,7 @@
 import { Match, Query, Property, Assignable, OrderLimit } from "@im-library/interfaces/AutoGen";
 import { SqlQuery } from "@/model/sql/SqlQuery";
 import { IMQSQL } from "@im-library/interfaces";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 
 function IMQtoSQL(definition: Query, baseId = ""): IMQSQL {
   if (!definition.typeOf) {
@@ -54,7 +55,8 @@ function convertMatchToQuery(parent: SqlQuery, match: Match): SqlQuery {
 
   if (match.then) {
     const thenQuery = convertMatchToQuery(qry, match.then);
-    qry.withs.push(thenQuery.alias + " AS ( WITH " + thenQuery.toSql(2) + " )\n");
+    if (isArrayHasLength(thenQuery.withs)) qry.withs.push(thenQuery.alias + " AS ( WITH " + thenQuery.toSql(2) + " )\n");
+    else qry.withs.push(thenQuery.alias + " AS ( " + thenQuery.toSql(2) + " )\n");
   }
 
   return qry;

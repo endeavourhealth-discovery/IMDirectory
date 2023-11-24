@@ -11,7 +11,7 @@ test("IMQtoSQL", async () => {
   server.close();
 
   const queryService = new QueryService(axios);
-  //
+
   // const svc = new EntityService(axios);
   // const entity = await svc.getPartialEntity("http://endhealth.info/im#Q_TestQuery", [IM.DEFINITION]);
   // let json = entity.data[IM.DEFINITION];
@@ -19,16 +19,16 @@ test("IMQtoSQL", async () => {
 
   const def: Query = {
     "@id": "http://endhealth.info/im#Q_TestQuery",
-    name: "Test for patients either aged between 18 and 65 or with diabetes with the most recent systolic in the last 6 months >150not followed by a screening invite, excluding hypertensives",
+    name: "Test for patients either aged between 65 and 70 or with diabetes with the most recent systolic in the last 12 months either home >130 or office >140,not followed by a screening invite, excluding hypertensives",
     match: [
-      // {
-      //   inSet: [
-      //     {
-      //       "@id": "http://endhealth.info/im#Q_RegisteredGMS",   // This query does not exist!
-      //       name: "Registered for GMS services on reference date"
-      //     }
-      //   ]
-      // },
+      {
+        inSet: [
+          {
+            "@id": "http://endhealth.info/im#Q_RegisteredGMS",
+            name: "Registered for GMS services on reference date"
+          }
+        ]
+      },
       {
         match: [
           {
@@ -50,13 +50,13 @@ test("IMQtoSQL", async () => {
               }
             ]
           },
-          // {
-          //   inSet: [
-          //     {
-          //       "@id": "http://endhealth.info/im#M_ActiveDiabetes"   // This query does not exist!
-          //     }
-          //   ]
-          // },
+          {
+            inSet: [
+              {
+                "@id": "http://endhealth.info/im#Q_Diabetics"
+              }
+            ]
+          },
           {
             property: [
               {
@@ -111,12 +111,12 @@ test("IMQtoSQL", async () => {
                 {
                   "@id": "http://endhealth.info/im#effectiveDate",
                   operator: ">=",
-                  value: "-8", // NOTE: Synthetic test data getting old!!!!
+                  value: "-12",
                   unit: "MONTHS",
                   relativeTo: {
                     parameter: "$referenceDate"
                   },
-                  valueLabel: "last 6 months"
+                  valueLabel: "last 12 months"
                 }
               ],
               orderBy: {
@@ -214,15 +214,15 @@ test("IMQtoSQL", async () => {
             }
           }
         ]
-        // },
-        // {
-        //   exclude: true,
-        //   inSet: [
-        //     {
-        //       "@id": "http://endhealth.info/im#Q_Hypertensives",   // This query does not exist!
-        //       name: "Hypertensives"
-        //     }
-        //   ]
+      },
+      {
+        exclude: true,
+        inSet: [
+          {
+            "@id": "http://endhealth.info/im#Q_Hypertensives",
+            name: "Hypertensives"
+          }
+        ]
       }
     ],
     typeOf: {
