@@ -13,6 +13,13 @@
       <div class="rec-query-display">
         <div class="include-title" style="color: green">include if</div>
         <RecursiveQueryDisplay v-if="isArrayHasLength(query.match)" v-for="match of query.match" :match="match" :parent-match="undefined" :full-query="query" />
+        <RecursivePropertyDisplay
+          v-if="isArrayHasLength(query.property)"
+          v-for="property of query.property"
+          :property="property"
+          :parent-match="undefined"
+          :full-query="query"
+        />
       </div>
     </div>
   </div>
@@ -34,8 +41,8 @@ import { onMounted, watch, Ref, ref, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
-import QuickQuery from "@/components/query/QuickQuery.vue";
 import { useUserStore } from "@/stores/userStore";
+import RecursivePropertyDisplay from "@/components/query/viewer/RecursivePropertyDisplay.vue";
 
 interface Props {
   entityIri: string;
