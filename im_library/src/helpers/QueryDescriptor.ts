@@ -63,9 +63,16 @@ export function describeProperty(property: Property, index: number, bool: Bool, 
 export function getDisplayFromMatch(match: Match, matchType?: MatchType) {
   let display = "";
   if (match.inSet) display = getDisplayFromInSet(match.inSet);
-  else if (match.typeOf) display = getNameFromRef(match.typeOf);
-  else if (match.instanceOf) display = "is instance of " + getNameFromRef(match.instanceOf);
-  else if (!match.property && match["@id"] && match.name) display = match.name;
+  else if (match.typeOf) {
+    display = getNameFromRef(match.typeOf);
+    display += getDisplaySuffixFromEntailment(match.typeOf);
+  } else if (match.instanceOf) {
+    display = "is instance of " + getNameFromRef(match.instanceOf);
+    display += getDisplaySuffixFromEntailment(match.instanceOf);
+  } else if (!match.property && match["@id"] && match.name) {
+    display = match.name;
+    display += getDisplaySuffixFromEntailment(match as any);
+  }
 
   if (match.orderBy) describeOrderByList(match.orderBy, matchType);
   if ("path" == matchType) display += " with";
@@ -112,7 +119,7 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
   if (!property.match) display += propertyName;
 
   if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
-  display += getPropertyDisplayFromEntailment(property);
+  display += getDisplaySuffixFromEntailment(property);
 
   if (property.is) display += getDisplayFromList(property, true, property.is);
   if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
@@ -282,7 +289,7 @@ export function getDisplayFromList(property: Property, include: boolean, nodes: 
   return display;
 }
 
-export function getPropertyDisplayFromEntailment(entailment: Entailment) {
+export function getDisplaySuffixFromEntailment(entailment: Entailment) {
   if (entailment.ancestorsOf) return " (ancestors only)";
   if (entailment.descendantsOf) return " (descendants only)";
   if (entailment.descendantsOrSelfOf) return " (including descendants)";

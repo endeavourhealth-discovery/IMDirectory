@@ -180,8 +180,6 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
 watch(selectedDropdownOption, async () => {
   if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
-  } else {
-    userInput.value = "";
   }
 });
 
