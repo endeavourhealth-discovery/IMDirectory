@@ -48,8 +48,7 @@ export function describeMatch(match: Match, index: number, bool: Bool, matchType
 export function describeProperty(property: Property, index: number, bool: Bool, matchType?: MatchType) {
   if (property.match) describeMatch(property.match, 0, "and", "path");
   if (isObjectHasKeys(property, ["@id"])) {
-    let display = getDisplayFromEntailment(property);
-    display += getDisplayFromProperty(property, matchType);
+    let display = getDisplayFromProperty(property, matchType);
     if (index && bool) display = getDisplayFromLogic(bool) + " " + display;
     property.description = display;
   }
@@ -113,6 +112,7 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
   if (!property.match) display += propertyName;
 
   if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
+  display += getPropertyDisplayFromEntailment(property);
 
   if (property.is) display += getDisplayFromList(property, true, property.is);
   if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
@@ -282,10 +282,17 @@ export function getDisplayFromList(property: Property, include: boolean, nodes: 
   return display;
 }
 
+export function getPropertyDisplayFromEntailment(entailment: Entailment) {
+  if (entailment.ancestorsOf) return " (ancestors only)";
+  if (entailment.descendantsOf) return " (descendants only)";
+  if (entailment.descendantsOrSelfOf) return " (including descendants)";
+  return "";
+}
+
 export function getDisplayFromEntailment(entailment: Entailment) {
   if (entailment.ancestorsOf) return "ancestors of ";
   if (entailment.descendantsOf) return "descendants of ";
-  if (entailment.descendantsOrSelfOf) return "";
+  if (entailment.descendantsOrSelfOf) return "descendants of or ";
   return "";
 }
 
