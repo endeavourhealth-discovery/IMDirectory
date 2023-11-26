@@ -288,14 +288,14 @@ function getMultipleRCOptions() {
   const multipleRCOptions = [
     {
       label: "Group",
-      icon: PrimeIcons.LINK,
+      icon: "fa-solid fa-object-group",
       command: () => {
         group(selectedMatches.value, props.parentMatch?.match, props.parentMatch?.match ?? props.parentMatchList!);
       }
     },
     {
       label: "Delete",
-      icon: PrimeIcons.TRASH,
+      icon: "fa-solid fa-trash",
       command: () => {
         deleteSelected();
       }
@@ -350,28 +350,28 @@ function getSingleRCOptions() {
     },
     {
       label: props.match.exclude ? "Include" : "Exclude",
-      icon: props.match.exclude ? PrimeIcons.PLUS_CIRCLE : PrimeIcons.MINUS_CIRCLE,
+      icon: props.match.exclude ? "fa-solid fa-square-plus" : "fa-solid fa-square-minus",
       command: () => {
         toggleExclude();
       }
     },
     {
       label: "Change bool logic",
-      icon: PrimeIcons.ARROW_V,
+      icon: "fa-solid fa-arrows-up-down",
       command: () => {
         toggleBoolMatch();
       }
     },
     {
       label: "Label as a variable",
-      icon: PrimeIcons.SAVE,
+      icon: "fa-solid fa-floppy-disk",
       command: () => {
         keepAs();
       }
     },
     {
       label: "earliest/latest highest/lowest",
-      icon: PrimeIcons.SORT_ALT,
+      icon: "fa-solid fa-arrow-up-wide-short",
       command: () => {
         addOrderBy();
       }
@@ -385,7 +385,7 @@ function getSingleRCOptions() {
     },
     {
       label: "Move feature",
-      icon: PrimeIcons.SORT,
+      icon: "fa-solid fa-sort",
       items: [
         {
           label: "Up",
@@ -403,7 +403,7 @@ function getSingleRCOptions() {
     },
     {
       label: "View JSON",
-      icon: PrimeIcons.EYE,
+      icon: "fa-solid fa-eye",
       command: () => {
         view();
       }
@@ -417,7 +417,7 @@ function getSingleRCOptions() {
     },
     {
       label: "Delete feature",
-      icon: PrimeIcons.TRASH,
+      icon: "fa-solid fa-trash",
       command: () => {
         remove(props.index, props.parentMatch?.match ?? props.parentMatchList!, props.parentMatch!);
       }
@@ -448,7 +448,7 @@ function getSingleRCOptions() {
   if (isObjectHasKeys(props.match, ["match"]) && isArrayHasLength(props.match.match))
     singleRCOptions.push({
       label: "Ungroup",
-      icon: PrimeIcons.EJECT,
+      icon: "fa-solid fa-object-ungroup",
       command: () => {
         ungroup(props.index, selectedMatches.value, props.parentMatch!, props.parentMatch?.match ?? props.parentMatchList!);
       }
