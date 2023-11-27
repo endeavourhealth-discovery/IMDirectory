@@ -37,8 +37,8 @@
             <span class="required-info">(*) item is required.</span>
           </div>
           <div class="button-bar" id="editor-button-bar">
-            <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
-            <Button icon="pi pi-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
+            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeEditor" data-testid="cancel-button" />
+            <Button icon="fa-solid fa-check" label="Save" class="save-button" @click="submit" data-testid="submit-button" />
           </div>
         </div>
       </div>

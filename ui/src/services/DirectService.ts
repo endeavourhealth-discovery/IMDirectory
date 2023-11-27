@@ -36,7 +36,7 @@ export default class DirectService {
     component.$confirm.require({
       message: this._message,
       header: "Confirmation",
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         this.directTo(app, iri, action, appRoute);
       },

@@ -130,7 +130,7 @@ const rClickOptions: Ref<any[]> = ref([
   },
   {
     label: "View in new tab",
-    icon: "pi pi-fw pi-external-link",
+    icon: "fa-solid fa-arrow-up-right-from-square",
     command: () => directService.view((selected.value as any).iri)
   },
   {
@@ -138,7 +138,7 @@ const rClickOptions: Ref<any[]> = ref([
   },
   {
     label: "Favourite",
-    icon: "pi pi-fw pi-star",
+    icon: "fa-solid fa-star",
     command: () => updateFavourites()
   }
 ]);

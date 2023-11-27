@@ -12,7 +12,7 @@
           <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
           <!-- <QuickQuery :query="queryDefinition">
             <template #button="{ runQuickQuery }">
-              <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" />
+              <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" />
             </template>
           </QuickQuery> -->
         </div>

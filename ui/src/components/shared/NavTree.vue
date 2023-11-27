@@ -115,8 +115,8 @@ const newFolderName = ref("");
 
 const creating = ref(false);
 const newFolderIcon = computed(() => {
-  if (creating.value) return "pi pi-spin pi-spinner";
-  else return fontAwesomePro.value ? "fa-solid fa-check" : "pi pi-check";
+  if (creating.value) return "fa-solid fa-spinner";
+  else return "fa-solid fa-check";
 });
 
 const menu = ref();
@@ -204,7 +204,7 @@ function confirmMove(node: TreeNode) {
     confirm.require({
       header: "Confirm move",
       message: 'Are you sure you want to move "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         moveConcept(node);
       },
@@ -234,7 +234,7 @@ function confirmAdd(node: TreeNode) {
     confirm.require({
       header: "Confirm add",
       message: 'Are you sure you want to add "' + selectedNode.value.label + '" to "' + node.label + '" ?',
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         addConcept(node);
       },

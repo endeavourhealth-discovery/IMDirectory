@@ -24,7 +24,7 @@
             :severity="hover ? 'danger' : 'secondary'"
             :outlined="!hover"
             :class="!hover && 'hover-button'"
-            icon="pi pi-trash"
+            icon="fa-solid fa-trash"
           />
         </div>
       </div>
