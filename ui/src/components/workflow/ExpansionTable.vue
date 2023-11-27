@@ -49,15 +49,15 @@
     </Column>
     <Column v-if="showActions" :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
       <template #body="{ data }: any">
-        <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data.iri)" v-tooltip.top="'View'" />
+        <Button icon="fa-solid fa-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data.iri)" v-tooltip.top="'View'" />
         <Button
-          icon="pi pi-fw pi-info-circle"
+          icon="fa-solid fa-circle-info"
           class="p-button-rounded p-button-text p-button-plain row-button"
           @click="showInfo(data.iri)"
           v-tooltip.top="'Info'"
         />
         <Button
-          icon="pi pi-fw pi-play"
+          icon="fa-solid fa-play"
           class="p-button-rounded p-button-text p-button-plain row-button"
           @click="starMapping(data.iri)"
           v-tooltip.left="'Start task'"
@@ -67,7 +67,7 @@
 
     <Column v-if="removableRows" headerStyle="width: 3rem">
       <template #body="{ data }: any">
-        <Button icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
+        <Button icon="fa-solid fa-xmark" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
       </template>
     </Column>
   </DataTable>

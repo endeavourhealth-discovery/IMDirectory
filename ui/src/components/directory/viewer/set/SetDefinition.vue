@@ -33,7 +33,7 @@
           <div class="definition-header">
             <span>Definition</span>
             <Button
-              icon="pi pi-copy"
+              icon="fa-solid fa-copy"
               severity="secondary"
               class="p-button-outlined concept-button"
               v-tooltip.top="'Copy definition'"

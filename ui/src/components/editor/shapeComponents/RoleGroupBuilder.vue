@@ -13,7 +13,7 @@
         <div v-for="(rg, rgIndex) in roleGroups" class="roleGroup">
           <div class="roleGroupRow">
             <label>Role Group {{ rgIndex }}</label>
-            <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRoleGroup(rgIndex)" size="small" />
+            <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRoleGroup(rgIndex)" size="small" />
           </div>
           <div v-for="(row, rIndex) in rg">
             <div v-if="row.key['@id'] != IM.GROUP_NUMBER" class="roleGroupRow">
@@ -46,16 +46,16 @@
                 @dragover.prevent
                 @dragenter.prevent
               ></AutoComplete>
-              <Button icon="pi pi-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRole(rg, rIndex)" />
+              <Button icon="fa-solid fa-trash" severity="danger" class="p-button-rounded p-button-text" @click="deleteRole(rg, rIndex)" />
             </div>
           </div>
           <div class="buttonGroup">
-            <Button icon="pi pi-plus" label="Add role" severity="success" class="p-button" @click="addRole(rg)" />
+            <Button icon="fa-solid fa-plus" label="Add role" severity="success" class="p-button" @click="addRole(rg)" />
           </div>
         </div>
       </div>
       <div class="buttonGroup">
-        <Button icon="pi pi-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" :disabled="loading" />
+        <Button icon="fa-solid fa-plus" label="Add Group" severity="success" class="p-button" @click="addRoleGroup" :disabled="loading" />
       </div>
     </div>
   </div>

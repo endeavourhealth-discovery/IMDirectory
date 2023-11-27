@@ -35,8 +35,8 @@
             <span class="required-info">(*) item is required.</span>
           </div>
           <div class="button-bar" id="creator-button-bar">
-            <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
-            <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
+            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
+            <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
           </div>
         </div>
       </div>

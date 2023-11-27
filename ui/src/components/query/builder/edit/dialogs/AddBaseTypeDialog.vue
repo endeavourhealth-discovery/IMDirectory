@@ -13,8 +13,8 @@
   <Dialog v-model:visible="confirmVisible" modal header="Confirm" :style="{ width: '50vw' }">
     Are you sure you want to change the base type? All current query content will be discarded.
     <template #footer>
-      <Button label="Cancel" icon="pi pi-times" @click="confirmVisible = false" text />
-      <Button label="Yes" icon="pi pi-check" @click="confirm" />
+      <Button label="Cancel" icon="fa-solid fa-xmark" @click="confirmVisible = false" text />
+      <Button label="Yes" icon="fa-solid fa-check" @click="confirm" />
     </template>
   </Dialog>
 </template>
