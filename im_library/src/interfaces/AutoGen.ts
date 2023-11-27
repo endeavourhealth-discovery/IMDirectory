@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2023-11-15 11:50:45.
+// Generated using typescript-generator version 3.2.1263 on 2023-11-24 09:37:03.
 
 /**
  * Structure containing search request parameters and filters
@@ -189,10 +189,10 @@ export interface Argument {
 
 export interface Assignable {
     value?: string;
-    unit?: string;
-    dataType?: TTIriRef;
-    operator?: Operator;
     relativeTo?: PropertyRef;
+    operator?: Operator;
+    dataType?: TTIriRef;
+    unit?: string;
 }
 
 export interface Case {
@@ -384,23 +384,24 @@ export interface EntityDocument {
     match?: string;
     isA?: TTIriRef[];
     memberOf?: TTIriRef[];
+    subsumptionCount?: number;
     isDescendentOf?: TTIriRef[];
 }
 
 export interface SearchResultSummary {
     name?: string;
-    iri?: string;
     code?: string;
     description?: string;
-    status?: TTIriRef;
-    scheme?: TTIriRef;
-    entityType?: TTIriRef[];
+    status: TTIriRef;
+    scheme: TTIriRef;
+    entityType: TTIriRef[];
     weighting?: number;
     match?: string;
     preferredName?: string;
     key?: string[];
     isA?: TTIriRef[];
     termCode?: SearchTermCode[];
+    iri: string;
 }
 
 export interface SearchTermCode {
@@ -416,8 +417,8 @@ export interface TTIriRef extends TTValue, Serializable {
 }
 
 export interface TTContext extends Serializable {
-    prefixes?: TTPrefix[];
     nameSpaces?: TTPrefix[];
+    prefixes?: TTPrefix[];
 }
 
 export interface Throwable extends Serializable {
