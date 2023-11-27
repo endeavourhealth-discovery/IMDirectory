@@ -23,8 +23,11 @@
     <ResultsTable
       :searchResults="localSearchResults"
       :loading="isLoading"
+      :lazyLoading="lazyLoading"
+      :rows="rows"
       @rowSelected="updateSelected"
       @locateInTree="(iri: string) => $emit('locateInTree', iri)"
+      @lazyLoadRequested="(data: any) => $emit('lazyLoadRequested', data)"
     />
   </div>
 </template>
@@ -36,19 +39,27 @@ import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeC
 import ResultsTable from "@/components/shared/ResultsTable.vue";
 import { useFilterStore } from "@/stores/filterStore";
 import _ from "lodash";
-import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   showFilters?: boolean;
-  searchResults: SearchResultSummary[];
+  searchResults: SearchResponse | undefined;
   searchLoading?: boolean;
+  rows?: number;
+  lazyLoading?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
   showFilters: true,
-  searchLoading: false
+  searchLoading: false,
+  lazyLoading: false,
+  rows: 20
 });
 
-const emit = defineEmits({ selectedUpdated: (_payload: SearchResultSummary) => true, locateInTree: (_payload: string) => true });
+const emit = defineEmits({
+  selectedUpdated: (_payload: SearchResultSummary) => true,
+  locateInTree: (_payload: string) => true,
+  lazyLoadRequested: (_payload: any) => true
+});
 
 const filterStore = useFilterStore();
 const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
@@ -60,7 +71,7 @@ const selectedTypes: Ref<string[]> = ref([]);
 const schemeOptions: Ref<string[]> = ref([]);
 const statusOptions: Ref<string[]> = ref([]);
 const typeOptions: Ref<string[]> = ref([]);
-const localSearchResults: Ref<any[]> = ref([]);
+const localSearchResults: Ref<SearchResponse | undefined> = ref();
 const loading = ref(true);
 
 watch(
@@ -118,20 +129,22 @@ function setFiltersFromSearchResults() {
 }
 
 function filterResults() {
-  const filteredSearchResults = [] as SearchResultSummary[];
-  localSearchResults.value.forEach(searchResult => {
-    let isSelectedType = false;
-    searchResult.entityType.forEach((type: any) => {
-      if (selectedTypes.value.indexOf(type.name) != -1) {
-        isSelectedType = true;
+  if (localSearchResults.value && localSearchResults.value.entities && isArrayHasLength(localSearchResults.value?.entities)) {
+    const filteredSearchResults = [] as SearchResultSummary[];
+    localSearchResults.value?.entities.forEach(searchResult => {
+      let isSelectedType = false;
+      searchResult.entityType.forEach((type: any) => {
+        if (selectedTypes.value.indexOf(type.name) != -1) {
+          isSelectedType = true;
+        }
+      });
+
+      if (selectedSchemes.value.indexOf(searchResult.scheme.name!) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name!) != -1) {
+        filteredSearchResults.push(searchResult);
       }
     });
-
-    if (selectedSchemes.value.indexOf(searchResult.scheme.name!) != -1 && isSelectedType && selectedStatus.value.indexOf(searchResult.status.name!) != -1) {
-      filteredSearchResults.push(searchResult);
-    }
-  });
-  localSearchResults.value = [...filteredSearchResults];
+    localSearchResults.value.entities = [...filteredSearchResults];
+  }
 }
 
 function updateSelected(selected: SearchResultSummary) {

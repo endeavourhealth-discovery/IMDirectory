@@ -12,7 +12,7 @@
         autofocus
       />
     </span>
-    <SplitButton class="search-button p-button-secondary" @click="search" label="Search" :model="buttonActions" :loading="searchLoading" />
+    <SplitButton class="search-button p-button-secondary" @click="search(false)" label="Search" :model="buttonActions" :loading="searchLoading" />
     <Button
       v-tooltip.bottom="'Filters'"
       id="filter-button"
@@ -34,7 +34,7 @@ import Filters from "@/components/shared/Filters.vue";
 
 import { computed, ComputedRef, ref, Ref, watch } from "vue";
 import { FilterOptions } from "@im-library/interfaces";
-import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match } from "@im-library/interfaces/AutoGen";
+import { SearchRequest, TTIriRef, QueryRequest, SearchResultSummary, Match, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { SortDirection } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
@@ -46,16 +46,24 @@ import QueryService from "@/services/QueryService";
 import _ from "lodash";
 
 interface Props {
-  searchResults: SearchResultSummary[];
+  searchResults: SearchResponse | undefined;
   searchLoading: boolean;
   selected?: SearchResultSummary;
   filterOptions?: FilterOptions;
+  loadMore: { page: number; rows: number } | undefined;
 }
 
 const props = defineProps<Props>();
 
+watch(
+  () => _.cloneDeep(props.loadMore),
+  async newValue => {
+    if (isObjectHasKeys(newValue)) await search(true);
+  }
+);
+
 const emit = defineEmits({
-  "update:searchResults": payload => _.isArray(payload),
+  "update:searchResults": payload => true,
   "update:searchLoading": payload => typeof payload === "boolean",
   toEclSearch: () => true,
   toQuerySearch: () => true
@@ -71,7 +79,7 @@ const controller: Ref<AbortController> = ref({} as AbortController);
 const searchText = ref("");
 const searchPlaceholder = ref("Search");
 const loading = ref(false);
-const results: Ref<SearchResultSummary[]> = ref([]);
+const results: Ref<SearchResponse | undefined> = ref();
 const buttonActions = ref([
   { label: "ECL", command: () => emit("toEclSearch") },
   { label: "IMQuery", command: () => emit("toQuerySearch") }
@@ -98,15 +106,20 @@ function debounceForSearch(): void {
   }, 600);
 }
 
-async function search(): Promise<void> {
+async function search(loadMore: boolean = false): Promise<void> {
   searchPlaceholder.value = "Search";
   if (searchText.value && searchText.value.length > 2) {
     loading.value = true;
     const searchRequest = {} as SearchRequest;
     searchRequest.termFilter = searchText.value;
     searchRequest.sortField = "weighting";
-    searchRequest.page = 1;
-    searchRequest.size = 100;
+    if (loadMore && props.loadMore) {
+      searchRequest.page = props.loadMore.page + 1;
+      searchRequest.size = props.loadMore.rows;
+    } else {
+      searchRequest.page = 1;
+      searchRequest.size = 100;
+    }
 
     searchRequest.schemeFilter = [];
     const schemes =
@@ -151,8 +164,8 @@ async function search(): Promise<void> {
     }
     controller.value = new AbortController();
     const result = await EntityService.advancedSearch(searchRequest, controller.value);
-    if (result.entities) results.value = result.entities;
-    else results.value = [];
+    if (result?.entities) results.value = result;
+    else results.value = undefined;
     loading.value = false;
   }
 }

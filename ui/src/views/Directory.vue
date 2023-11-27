@@ -10,6 +10,7 @@
             @update:search-loading="updateSearchLoading"
             @to-ecl-search="toEclSearch"
             @to-query-search="toQuerySearch"
+            v-model:loadMore="loadMore"
           />
         </div>
       </template>
@@ -18,13 +19,13 @@
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
-      <DirectorySplitter v-else />
+      <DirectorySplitter v-else @lazyLoadRequested="lazyLoadRequested" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, Ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
 import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
@@ -47,6 +48,7 @@ const searchResults = computed(() => directoryStore.searchResults);
 const searchLoading = computed(() => directoryStore.searchLoading);
 
 const loading = ref(true);
+const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
 
 onMounted(async () => {
   loading.value = true;
@@ -70,6 +72,10 @@ function toEclSearch() {
 
 function toQuerySearch() {
   router.push({ name: "IMQuerySearch" });
+}
+
+function lazyLoadRequested(event: any) {
+  loadMore.value = event;
 }
 </script>
 

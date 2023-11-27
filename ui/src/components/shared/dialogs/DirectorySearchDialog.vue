@@ -17,6 +17,7 @@
           @to-query-search="showQuerySearch"
           :selected="selected"
           :filter-options="filterOptions"
+          v-model:loadMore="loadMore"
         />
       </div>
       <div class="vertical-divider">
@@ -31,6 +32,9 @@
             :selected="selected"
             @selectedUpdated="updateSelected"
             @locate-in-tree="locateInTree"
+            @lazy-load-requested="lazyLoadRequested"
+            :lazy-loading="true"
+            :rows="100"
           />
           <DirectoryDetails
             v-if="activePage === 1"
@@ -70,7 +74,7 @@ import IMQuerySearch from "@/components/directory/IMQuerySearch.vue";
 import { useSharedStore } from "@/stores/sharedStore";
 import _, { cloneDeep } from "lodash";
 import { EntityService, FunctionService, QueryService } from "@/services";
-import { FunctionRequest, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { FunctionRequest, QueryRequest, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { isQuery, isValueSet } from "@im-library/helpers/ConceptTypeMethods";
@@ -103,6 +107,7 @@ const fontAwesomePro = computed(() => sharedStore.fontAwesomePro);
 const hasQueryDefinition: Ref<boolean> = ref(false);
 const validationLoading: Ref<boolean> = ref(false);
 const isSelectableEntity: Ref<boolean> = ref(false);
+const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
 
 const visible = ref(false);
 watch(visible, newValue => {
@@ -111,7 +116,7 @@ watch(visible, newValue => {
     resetDialog();
   }
 });
-const searchResults: Ref<SearchResultSummary[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const treeIri = ref("");
 const detailsIri = ref("");
@@ -188,7 +193,7 @@ function navigateTo(iri: string) {
 }
 
 function resetDialog() {
-  searchResults.value = [];
+  searchResults.value = undefined;
   searchLoading.value = false;
   treeIri.value = "";
   detailsIri.value = "";
@@ -235,6 +240,10 @@ async function getHasQueryDefinition() {
 
 function onEnter() {
   if (selectedName.value && isSelectableEntity.value) updateSelectedFromIri(detailsIri.value);
+}
+
+function lazyLoadRequested(event: any) {
+  loadMore.value = event;
 }
 </script>
 

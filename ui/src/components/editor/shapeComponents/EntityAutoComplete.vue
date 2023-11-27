@@ -280,8 +280,8 @@ function searchOptions(event: any) {
   if (!event.query.trim().length) {
     getAutocompleteOptions();
   } else {
-    autocompleteOptions.value = autocompleteOptions.value.filter(option =>
-      option.name.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
+    autocompleteOptions.value = autocompleteOptions.value.filter(
+      option => option.name?.toString().toLocaleLowerCase().startsWith(event.query.toLocaleLowerCase())
     );
   }
 }

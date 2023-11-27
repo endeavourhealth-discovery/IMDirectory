@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
-import { Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest, SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
@@ -51,7 +51,7 @@ const emit = defineEmits({
 
 const toast = useToast();
 const queryString = ref("");
-const searchResults: Ref<SearchResultSummary[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const controller: Ref<AbortController> = ref({} as AbortController);
 const loading = ref(false);
 
@@ -69,7 +69,7 @@ async function search(): Promise<void> {
       addDefaultQuerySelect(queryRequest.query);
       const result = await QueryService.queryIM(queryRequest);
       const queryResults = convertResultsToConceptSummaryList(result.entities);
-      searchResults.value = queryResults;
+      searchResults.value = { entities: queryResults, page: 1, count: queryResults.length };
     } catch (error) {
       if (!(error instanceof SyntaxError) && !(error instanceof TypeError))
         toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));

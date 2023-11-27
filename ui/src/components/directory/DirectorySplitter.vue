@@ -12,6 +12,9 @@
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
           v-model:history="history"
+          @lazyLoadRequested="(event: any) => $emit('lazyLoadRequested', event)"
+          :lazyLoading="true"
+          :rows="100"
         />
       </div>
     </SplitterPanel>
@@ -25,6 +28,8 @@ import { DirectService } from "@/services";
 import { Ref, computed, ref } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
+
+const emit = defineEmits({ lazyLoadRequested: (_payload: any) => true });
 
 const router = useRouter();
 const directoryStore = useDirectoryStore();

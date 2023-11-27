@@ -5,6 +5,7 @@
       @update:search-loading="updateSearchLoading"
       :search-loading="searchLoading"
       @update:search-results="updateSearchResults"
+      v-model:loadMore="loadMore"
     />
     <TabView :lazy="true" v-model:activeIndex="activeIndex">
       <TabPanel header="NavTree">
@@ -17,6 +18,9 @@
           @selected-updated="handleSearchResultSelected"
           @open-tree-panel="openTreePanel"
           :locateInTreeFunction="locateInTree"
+          @lazy-load-requested="lazyLoadRequested"
+          :lazy-loading="true"
+          :rows="100"
         />
       </TabPanel>
       <TabPanel header="JSON viewer">
@@ -35,7 +39,7 @@ import SearchResults from "@/components/shared/SearchResults.vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { cloneDeep } from "lodash";
-import { SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { SearchResponse, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 interface Props {
   editorEntity: any;
@@ -43,12 +47,13 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const searchResults: Ref<any[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const searchLoading = ref(false);
 const activeIndex = ref(0);
 const selectedResult: Ref<SearchResultSummary | undefined> = ref();
 const findInTreeIri = ref("");
 const editorEntityDisplay = ref();
+const loadMore: Ref<{ page: number; rows: number } | undefined> = ref();
 
 watch(
   () => cloneDeep(props.editorEntity),
@@ -78,7 +83,7 @@ function updateSearchLoading(data: boolean) {
   searchLoading.value = data;
 }
 
-function updateSearchResults(data: any[]) {
+function updateSearchResults(data: SearchResponse) {
   searchResults.value = data;
   openSearchPanel();
 }
@@ -95,6 +100,10 @@ function locateInTree(event: any, iri: string) {
 }
 
 function handleClick(data: any) {}
+
+function lazyLoadRequested(event: any) {
+  loadMore.value = event;
+}
 </script>
 
 <style scoped>

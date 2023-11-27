@@ -70,7 +70,7 @@ import { Ref, ref, watch, computed, onMounted } from "vue";
 import Builder from "@/components/directory/topbar/eclSearch/Builder.vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { EclSearchRequest } from "@im-library/interfaces";
-import { OrderLimit, Query, TTIriRef, SearchResultSummary } from "@im-library/interfaces/AutoGen";
+import { OrderLimit, Query, TTIriRef, SearchResultSummary, SearchResponse } from "@im-library/interfaces/AutoGen";
 import { isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { IM } from "@im-library/vocabulary";
 import { EclService } from "@/services";
@@ -99,13 +99,13 @@ const { downloadFile } = setupDownloadFile(window, document);
 
 const statusOptions = computed(() => filterStore.filterOptions.status);
 const savedEcl = computed(() => editorStore.eclEditorSavedString);
-const requiresLazy = computed(() => totalCount.value > 1000);
+const requiresLazy = computed(() => totalCount.value > currentRows.value);
 
 const rowsStart = 20;
 
 const queryString = ref("");
 const showDialog = ref(false);
-const searchResults: Ref<SearchResultSummary[]> = ref([]);
+const searchResults: Ref<SearchResponse | undefined> = ref();
 const totalCount = ref(0);
 const eclError = ref(false);
 const eclErrorMessage = ref("");
@@ -167,17 +167,11 @@ async function search(loadMore?: boolean): Promise<void> {
       includeLegacy: false,
       statusFilter: selectedStatus.value
     } as EclSearchRequest;
-    if (!loadMore) {
-      const count = await EclService.eclSearchTotalCount(eclSearchRequest, controllerTotal.value);
-      if (count) totalCount.value = count;
-    }
-    if (requiresLazy.value) {
-      eclSearchRequest.page = currentPage.value;
-      eclSearchRequest.size = currentRows.value;
-    }
+    eclSearchRequest.page = currentPage.value;
+    eclSearchRequest.size = currentRows.value;
     const result = await EclService.ECLSearch(eclSearchRequest, controller.value);
     if (isObjectHasKeys(result, ["entities"])) {
-      searchResults.value = result.entities;
+      searchResults.value = result;
       totalCount.value = result.count;
     }
     loading.value = false;
