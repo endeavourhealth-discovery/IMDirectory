@@ -7,25 +7,19 @@
 plugins {
     id 'base'
     id 'com.github.node-gradle.node'
-//    id "org.sonarqube" version "3.5.0.2730"
 }
 
-//def sonarLogin= System.getenv('SONAR_LOGIN')
-//
-//sonar {
-//    properties {
-//        property 'sonar.organization', 'endeavourhealth-discovery'
-//        property 'sonar.login', sonarLogin
-//        property 'sonar.host.url', 'https://sonarcloud.io'
-//        property 'sonar.projectKey', 'endeavourhealth-discovery_IM::node_api'
-//        property 'sonar.sources', 'src'
-//        property 'sonar.exclusions', '**/index.ts,**/*.d.ts'
-//        property 'sonar.coverage.exclusions', '**/src/controllers/**, **/src/middlewares/**, **/src/model/**, **/src/repositories/**, **/src/services/**'
-//        property 'sonar.tests', 'tests'
-//        property 'sonar.test.inclusions', '**/*.spec.ts,**/*.spec.js'
-//        property 'sonar.javascript.lcov.reportPaths', 'coverage/lcov.info'
-//    }
-//}
+sonar {
+    properties {
+        property 'sonar.projectKey', 'endeavourhealth-discovery_IM::node_api'
+        property 'sonar.sources', 'src'
+        property 'sonar.exclusions', '**/index.ts,**/*.d.ts'
+        property 'sonar.coverage.exclusions', '**/src/controllers/**, **/src/middlewares/**, **/src/model/**, **/src/repositories/**, **/src/services/**'
+        property 'sonar.tests', 'tests'
+        property 'sonar.test.inclusions', '**/*.spec.ts,**/*.spec.js'
+        property 'sonar.javascript.lcov.reportPaths', 'coverage/lcov.info'
+    }
+}
 
 task pnpmBuild(type: PnpmTask) {
     dependsOn pnpmInstall
@@ -46,6 +40,6 @@ clean.doLast {
     file('dist').deleteDir()
 }
 
-//if (env == 'prod') {
-//    check.finalizedBy 'sonar'
-//}
+if (env == 'prod') {
+    check.finalizedBy 'sonar'
+}
