@@ -1,5 +1,5 @@
 <template>
-  <div class="vertical-layout-container">
+  <div class="vertical-layout-container" :style="manualWidth">
     <div class="title-bar">
       <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
       <h2 v-if="showRequired" class="required">*</h2>
@@ -28,6 +28,7 @@ import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder
 import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
 import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
 import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
+import { shapeTypes } from "qr-code-styling";
 
 export default defineComponent({
   components: {
@@ -74,6 +75,11 @@ const showRequired: ComputedRef<boolean> = computed(() => {
   if (props.shape.minCount && props.shape.minCount > 0) return true;
   else return false;
 });
+const manualWidth = computed(() =>
+  props.shape.argument?.find(arg => arg.parameter === "width")?.valueData?.length
+    ? "width: " + props.shape.argument?.find(arg => arg.parameter === "width")?.valueData + "%;"
+    : ""
+);
 
 const components: Ref<any[]> = ref([]);
 const heights: Ref<String[]> = ref([]);
