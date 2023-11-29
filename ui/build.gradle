@@ -26,6 +26,8 @@ sonar {
     }
 }
 
+tasks.findByName("pnpmInstall").doNotTrackState("Otherwise fails on optional FA Pro dependency")
+
 task pnpmBuild(type: PnpmTask) {
     dependsOn pnpmInstall
     args = ['run', 'build']
