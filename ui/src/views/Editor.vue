@@ -342,8 +342,22 @@ function processEntityValue(property: PropertyShape) {
 }
 
 function closeEditor() {
-  if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
-  else router.go(-1);
+  Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+    showCancelButton: true,
+    confirmButtonText: "Close",
+    reverseButtons: true,
+    confirmButtonColor: "#D32F2F",
+    cancelButtonColor: "#607D8B",
+    customClass: { confirmButton: "swal-reset-button" }
+  }).then((result: any) => {
+    if (result.isConfirmed) {
+      if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
+      else router.go(-1);
+    }
+  });
 }
 </script>
 
