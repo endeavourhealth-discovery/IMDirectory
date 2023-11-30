@@ -118,7 +118,7 @@ const searchTerm = ref("");
 const filters: Ref<DataTableFilterMeta> = ref({ scheme: { value: null, matchMode: FilterMatchMode.IN } as DataTableFilterMetaData });
 
 function view(iri: string) {
-  directService.directTo(Env.VIEWER_URL, iri, "concept");
+  directService.view(iri, "concept");
 }
 
 function showInfo(iri: string) {

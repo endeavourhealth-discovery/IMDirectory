@@ -77,7 +77,9 @@ const routes: Array<RouteRecordRaw> = [
         name: "Folder",
         component: DirectoryDetails,
         meta: {
-          requiresLicense: true
+          requiresLicense: true,
+          transition: "fade",
+          mode: "out-in"
         },
         props: true
       },

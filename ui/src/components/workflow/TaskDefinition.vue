@@ -325,7 +325,7 @@ async function init() {
 }
 
 function view(iri: string) {
-  if (iri) directService.directTo(Env.VIEWER_URL, iri, "concept");
+  if (iri) directService.view(iri, "concept");
 }
 
 function goToTaskViewer() {

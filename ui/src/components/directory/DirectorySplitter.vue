@@ -6,13 +6,20 @@
     <SplitterPanel :size="70" :minSize="10" style="overflow: auto" data-testid="splitter-right">
       <div class="splitter-right">
         <router-view
+          v-slot="{ Component, route }"
           @selectedUpdated="routeToSelected"
           :searchResults="searchResults"
           :searchLoading="searchLoading"
           @navigateTo="navigateTo"
           @locateInTree="locateInTree"
           v-model:history="history"
-        />
+        >
+          {{ route.meta.transition }}
+          {{ route.meta.mode }}
+          <transition :name="route.meta.transition || 'fade'" :mode="route.meta.mode || 'in-out'">
+            <component :key="route.fullPath" :is="Component" />
+          </transition>
+        </router-view>
       </div>
     </SplitterPanel>
   </Splitter>
@@ -71,5 +78,15 @@ function locateInTree(iri: string) {
   display: flex;
   flex-flow: row nowrap;
   overflow: auto;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

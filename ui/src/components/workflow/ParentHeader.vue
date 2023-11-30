@@ -93,7 +93,7 @@ function showInfo(iri: string) {
 }
 
 function view(iri: string) {
-  directService.directTo(Env.VIEWER_URL, iri, "concept");
+  directService.view(iri, "concept");
 }
 
 function edit(iri: string) {

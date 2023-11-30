@@ -20,24 +20,25 @@ export default class DirectService {
     this._message = "You will be directed to a different application. Are you sure you want to proceed?";
   }
 
-  public directTo(iri?: string, action?: string, appRoute?: string, newWindow?: boolean) {
+  private directTo(options: { iri?: string; action?: string; appRoute?: string; newTab?: boolean }) {
     let route = Env.DIRECTORY_URL;
-    if (iri) {
-      if (!newWindow) {
+    if (options.iri) {
+      if (!options.newTab) {
         const currentRoute = this.route.name as RouteRecordName | undefined;
-        this.router.push({
-          name: appRoute ?? currentRoute,
-          params: { selectedIri: iri }
-        });
-        this.directoryStore.updateConceptIri(iri);
+        this.router
+          .push({
+            name: options.appRoute ?? currentRoute,
+            params: { selectedIri: options.iri }
+          })
+          .then(r => this.directoryStore.updateConceptIri(options.iri!));
       }
-      if (appRoute) route += appRoute + "/" + encodeURIComponent(iri);
-      else route += encodeURIComponent(iri);
-      if (action) this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: action } as RecentActivityItem);
-    } else if (appRoute) {
-      route += appRoute;
+      if (options.appRoute) route += options.appRoute + "/" + encodeURIComponent(options.iri);
+      else route += encodeURIComponent(options.iri);
+      if (options.action) this.userStore.updateRecentLocalActivity({ iri: options.iri, dateTime: new Date(), action: options.action } as RecentActivityItem);
+    } else if (options.appRoute) {
+      route += options.appRoute;
     }
-    if (newWindow) window.open(route);
+    if (options.newTab) window.open(route);
   }
 
   public directWithConfirmation(app: string, iri: string, action: string, component: CreateComponentPublicInstance<any>, appRoute?: string) {
@@ -46,7 +47,7 @@ export default class DirectService {
       header: "Confirmation",
       icon: "pi pi-exclamation-triangle",
       accept: () => {
-        this.directTo(iri, action, appRoute);
+        this.directTo({ iri: iri, action: action, appRoute: appRoute });
       },
       reject: () => {
         component.$confirm.close();
@@ -55,37 +56,38 @@ export default class DirectService {
   }
 
   public file() {
-    this.directTo("", "Filed", "filer");
+    this.directTo({ action: "Filed", appRoute: "filer" });
   }
 
-  public view(iri?: string, openInNewTab = true) {
-    if (iri) this.directTo(iri || "", "Viewed", "directory/folder", openInNewTab);
-    else this.directTo();
+  public view(iri?: string, appRoute?: string) {
+    if (iri && appRoute) this.directTo({ iri: iri, action: "Viewed", appRoute: appRoute });
+    else if (iri) this.directTo({ iri: iri, action: "Viewed", appRoute: "directory/folder" });
+    else this.directTo({});
   }
 
   public select(iri: string, routeName?: string) {
-    if (iri) this.directTo(iri || "", "Viewed", routeName, false);
-    else this.directTo();
+    if (iri) this.directTo({ iri: iri, action: "Viewed", appRoute: routeName, newTab: false });
   }
 
-  public edit(iri?: string, openInNewTab = true) {
-    this.directTo(iri || "", "Edited", "editor", openInNewTab);
+  public edit(iri?: string, openInNewTab?: boolean) {
+    if (iri) this.directTo({ iri: iri, action: "Edited", appRoute: "editor", newTab: openInNewTab });
+    else this.directTo({});
   }
 
   public query() {
-    this.directTo("", "Queried", "query");
+    this.directTo({ action: "Queried", appRoute: "query" });
   }
 
   public create(typeIri?: string, propertyIri?: string, valueIri?: string) {
     if (!typeIri && !propertyIri && !valueIri) {
-      this.directTo("", undefined, "creator");
+      this.directTo({ appRoute: "creator" });
     } else {
       const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, propertyIri: propertyIri, valueIri: valueIri } });
-      this.directTo("", undefined, routeData.href.replace("#/", ""));
+      this.directTo({ appRoute: routeData.href.replace("#/", "") });
     }
   }
 
   public uprn() {
-    this.directTo("", undefined, "uprn");
+    this.directTo({ appRoute: "uprn" });
   }
 }

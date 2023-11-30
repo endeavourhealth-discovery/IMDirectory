@@ -373,9 +373,9 @@ function submit(): void {
               cancelButtonColor: "#607D8B"
             }).then((result: any) => {
               if (result.isConfirmed) {
-                directService.view(editorEntity.value["http://endhealth.info/im#id"], false);
+                directService.view(editorEntity.value["http://endhealth.info/im#id"]);
               } else {
-                directService.edit(editorEntity.value["http://endhealth.info/im#id"], false);
+                directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
               }
             });
           }

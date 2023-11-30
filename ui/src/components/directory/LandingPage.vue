@@ -216,6 +216,7 @@ function locateInTree(iri: string) {
 .activity-container {
   flex: 1 1 auto;
   display: flex;
+  width: 100%;
   flex-flow: column nowrap;
   overflow: auto;
   padding: 1rem;
