@@ -1,5 +1,16 @@
 <template>
-  <Dropdown :options="['is', 'between', 'within', 'isNull']" v-model:model-value="propertyType" />
+  <Dropdown
+    :options="[
+      { id: 'is', name: 'is' },
+      { id: 'between', name: 'between' },
+      { id: 'within', name: 'within' },
+      { id: 'isNull', name: 'is not recorded' },
+      { id: 'notNull', name: 'is recorded' }
+    ]"
+    optionValue="id"
+    optionLabel="name"
+    v-model:model-value="propertyType"
+  />
   <div v-if="propertyType === 'between'">
     <Calendar v-model:model-value="selectedValueA" dateFormat="dd/mm/yy" />
     <span> and </span>
@@ -20,7 +31,18 @@
   <div v-else-if="propertyType === 'within'">
     the last <InputNumber v-model:model-value="numberValue" />
     <!-- TODO: model Date options and get from API -->
-    <Dropdown :options="['Minute', 'Hour', 'Day', 'MONTHS', 'Year']" v-model:model-value="unit" />
+    <Dropdown
+      :options="[
+        { id: 'Minute', name: 'minute(s)' },
+        { id: 'Hour', name: 'hour(s)' },
+        { id: 'Day', name: 'day(s)' },
+        { id: 'MONTHS', name: 'month(s)' },
+        { id: 'Year', name: 'year(s)' }
+      ]"
+      optionValue="id"
+      optionLabel="name"
+      v-model:model-value="unit"
+    />
   </div>
 </template>
 
@@ -30,13 +52,14 @@ import { Operator, Property, PropertyRef, Range } from "@im-library/interfaces/A
 import { cloneDeep, property } from "lodash";
 import { Ref, onMounted, ref, watch } from "vue";
 import RelativeToSelect from "./RelativeToSelect.vue";
+import Dropdown from "primevue/dropdown";
 
 interface Props {
   property: Property;
   datatype: string;
 }
 const props = defineProps<Props>();
-const propertyType: Ref<"is" | "between" | "within" | "isNull" | undefined> = ref();
+const propertyType: Ref<"is" | "between" | "within" | "isNull" | "notNull" | undefined> = ref();
 const valueType: Ref<"date" | "variable"> = ref("date");
 const selectedValueA: Ref<any> = ref();
 const selectedValueB: Ref<any> = ref();
@@ -108,6 +131,8 @@ async function initValues() {
     valueType.value = "variable";
   } else if (props.property.isNull) {
     propertyType.value = "isNull";
+  } else if (props.property.isNull === false) {
+    propertyType.value = "notNull";
   } else {
     propertyType.value = "is";
   }
@@ -119,6 +144,8 @@ function isNumber(stringNumber: string) {
 
 function updatePropertyValues() {
   clearAllProperties();
+  console.log("Updating date properties");
+  console.log(propertyType.value);
   if (propertyType.value === "is") {
     if (selectedValueA.value && valueType.value === "date") {
       props.property.value = getStringFromDate(selectedValueA.value);
@@ -141,6 +168,8 @@ function updatePropertyValues() {
     };
   } else if (propertyType.value === "isNull") {
     props.property.isNull = true;
+  } else if (propertyType.value === "notNull") {
+    props.property.isNull = false;
   }
 }
 

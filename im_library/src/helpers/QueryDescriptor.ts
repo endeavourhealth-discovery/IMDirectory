@@ -121,13 +121,16 @@ export function getDisplayFromProperty(property: Property, matchType?: MatchType
   if (matchType && propertyDisplayMap?.[matchType]?.[propertyName]) display += " " + propertyDisplayMap[matchType][propertyName];
   display += getDisplaySuffixFromEntailment(property);
 
-  if (property.is) display += getDisplayFromList(property, true, property.is);
-  if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
-  if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
-  if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
-  if (property.operator) display = getDisplayFromOperator(propertyName, property);
-  if (property.range) display = getDisplayFromRange(propertyName, property);
-  if (property.isNull) display += " is null";
+  if (property.isNull) display += " is not recorded";
+  else if (property.isNull === false) display += " is recorded";
+  else {
+    if (property.is) display += getDisplayFromList(property, true, property.is);
+    if (property.isNot) display += getDisplayFromList(property, false, property.isNot);
+    if (property.inSet) display += getDisplayFromList(property, true, property.inSet);
+    if (property.notInSet) display += getDisplayFromList(property, false, property.notInSet);
+    if (property.operator) display = getDisplayFromOperator(propertyName, property);
+    if (property.range) display = getDisplayFromRange(propertyName, property);
+  }
   return display;
 }
 
@@ -185,7 +188,7 @@ export function getDisplayFromRange(propertyName: string, property: Property) {
   const propertyDisplay = propertyName;
   let display = propertyDisplay + " between ";
   display += property.range?.from.value + " and " + property.range?.to.value;
-  if (!propertyName.toLowerCase().includes("date")) display += " " + property.range?.to.unit;
+  if (!propertyName.toLowerCase().includes("date") && property.range?.to.unit) display += " " + property.range?.to.unit;
   return display;
 }
 
