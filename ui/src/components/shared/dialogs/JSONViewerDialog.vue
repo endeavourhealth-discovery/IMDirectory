@@ -32,8 +32,13 @@ const editMode = ref(false);
 const editData = ref();
 
 onMounted(() => {
-  editData.value = { ...props.data };
+  init();
 });
+
+watch(
+  () => editMode.value,
+  () => init()
+);
 
 watch(
   () => props.showDialog,
@@ -48,6 +53,10 @@ watch(visible, newValue => {
     emit("update:showDialog", newValue);
   }
 });
+
+function init() {
+  editData.value = { ...props.data };
+}
 
 function onSave() {
   emit("save", editData.value);

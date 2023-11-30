@@ -14,6 +14,8 @@
 </template>
 
 <script setup lang="ts">
+import { Match } from "@im-library/interfaces/AutoGen";
+import { isEqual } from "lodash";
 import { onMounted, ref, watch } from "vue";
 
 const emit = defineEmits({
@@ -21,7 +23,7 @@ const emit = defineEmits({
 });
 
 interface Props {
-  data: string;
+  data: Match;
 }
 const props = defineProps<Props>();
 const definition = ref("");
@@ -32,8 +34,8 @@ watch(
   () => {
     try {
       errorMessage.value = "";
-      const match = JSON.parse(definition.value);
-      emit("update:data", match);
+      const updatedMatch = JSON.parse(definition.value);
+      if (!isEqual(props.data, updatedMatch)) emit("update:data", updatedMatch);
     } catch (error: any) {
       errorMessage.value = error?.message ?? "Error with parsing the definition.";
     }
