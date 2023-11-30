@@ -14,9 +14,7 @@
           @locateInTree="locateInTree"
           v-model:history="history"
         >
-          {{ route.meta.transition }}
-          {{ route.meta.mode }}
-          <transition :name="route.meta.transition || 'fade'" :mode="route.meta.mode || 'in-out'">
+          <transition :name="showTransitions ? route?.meta?.transition : 'fade'" :mode="showTransitions ? route?.meta?.mode : 'in-out'">
             <component :key="route.fullPath" :is="Component" />
           </transition>
         </router-view>
@@ -29,7 +27,7 @@
 import NavTree from "@/components/shared/NavTree.vue";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { DirectService } from "@/services";
-import { Ref, computed, ref } from "vue";
+import { Ref, computed, ref, onMounted } from "vue";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useRouter } from "vue-router";
 
@@ -42,6 +40,12 @@ const searchLoading = computed(() => directoryStore.searchLoading);
 const findInTreeIri = computed(() => directoryStore.findInTreeIri);
 
 const history: Ref<string[]> = ref([]);
+const showTransitions = ref(false);
+
+onMounted(async () => {
+  await router.isReady();
+  showTransitions.value = true;
+});
 
 function updateSplitter(event: any) {
   directoryStore.updateSplitterRightSize(event.sizes[1]);
