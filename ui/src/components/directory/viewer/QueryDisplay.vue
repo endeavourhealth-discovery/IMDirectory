@@ -5,7 +5,7 @@
       <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
       <!-- <QuickQuery :query-iri="entityIri" v-if="canTestQuery">
         <template #button="{ runQuickQuery }">
-          <Button icon="pi pi-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
+          <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" class="quick-query-button" />
         </template>
       </QuickQuery> -->
     </div>
@@ -45,7 +45,8 @@ import { useUserStore } from "@/stores/userStore";
 import RecursivePropertyDisplay from "@/components/query/viewer/RecursivePropertyDisplay.vue";
 
 interface Props {
-  entityIri: string;
+  entityIri?: string;
+  definition?: string;
 }
 
 const userStore = useUserStore();
@@ -56,6 +57,13 @@ const showSql: Ref<boolean> = ref(false);
 const toast = useToast();
 const canTestQuery = computed(
   () => userStore.isLoggedIn && (userStore.currentUser?.roles?.includes("create") || userStore.currentUser?.roles?.includes("edit"))
+);
+
+watch(
+  () => props.definition,
+  async newValue => {
+    init();
+  }
 );
 
 watch(
@@ -70,11 +78,12 @@ onMounted(async () => {
 });
 
 async function init() {
-  query.value = await QueryService.getQueryDisplay(props.entityIri);
+  if (props.entityIri) query.value = await QueryService.getQueryDisplay(props.entityIri);
+  else if (props.definition) query.value = await QueryService.getQueryDisplayFromQuery(JSON.parse(props.definition));
 }
 
 async function generateSQL() {
-  sql.value = await QueryService.generateQuerySQL(props.entityIri);
+  if (props.entityIri) sql.value = await QueryService.generateQuerySQL(props.entityIri);
   showSql.value = true;
 }
 

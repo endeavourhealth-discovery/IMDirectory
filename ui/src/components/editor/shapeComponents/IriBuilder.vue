@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, inject, onMounted, Ref, ref, watch } from "vue";
-import { PropertyShape, Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { inject, ref, Ref, watch, onMounted, computed, ComputedRef } from "vue";
+import { TTIriRef, PropertyShape, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isTTIriRef } from "@im-library/helpers/TypeGuards";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
@@ -178,12 +178,8 @@ watch([selectedDropdownOption, userInput], async ([newSelectedDropdownOption, ne
 });
 
 watch(selectedDropdownOption, async () => {
-  if (props.mode === EditorMode.CREATE) {
-    if (fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
-      userInput.value = await generateCode();
-    } else {
-      userInput.value = "";
-    }
+  if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
+    userInput.value = await generateCode();
   }
 });
 
@@ -196,10 +192,12 @@ onMounted(async () => {
     const prefixArg = props.shape.argument?.find(arg => arg.parameter === "prefix");
     if (prefixArg && prefixArg.valueData) prefix.value = prefixArg.valueData;
   }
+
   setSelectedOption();
   if (props.mode === EditorMode.CREATE && fullShape?.value?.["@id"] === IM.editor.CONCEPT_SHAPE) {
     userInput.value = await generateCode();
   }
+
   loading.value = false;
 });
 

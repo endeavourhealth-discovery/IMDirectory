@@ -35,8 +35,8 @@
             <span class="required-info">(*) item is required.</span>
           </div>
           <div class="button-bar" id="creator-button-bar">
-            <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
-            <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
+            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
+            <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
           </div>
         </div>
       </div>
@@ -402,8 +402,21 @@ function submit(): void {
 }
 
 function closeCreator() {
-  if (window.history.state.back === null) router.push({ name: "Folder", params: { selectedIri: editorIri } });
-  else router.go(-1);
+  Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+    showCancelButton: true,
+    confirmButtonText: "Close",
+    reverseButtons: true,
+    confirmButtonColor: "#D32F2F",
+    cancelButtonColor: "#607D8B",
+    customClass: { confirmButton: "swal-reset-button" }
+  }).then((result: any) => {
+    if (result.isConfirmed) {
+      router.push({ name: "LandingPage" });
+    }
+  });
 }
 
 function refreshCreator() {

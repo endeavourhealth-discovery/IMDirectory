@@ -9,22 +9,22 @@
       </div>
       <div class="concept-buttons-container">
         <Button
-          icon="pi pi-fw pi-eye"
+          icon="fa-solid fa-eye"
           severity="secondary"
           class="p-button-outlined concept-button"
           @click="view(concept['@id'])"
           v-tooltip.left="'Open in Viewer'"
         />
         <Button
-          icon="pi pi-fw pi-info-circle"
+          icon="fa-solid fa-circle-info"
           severity="secondary"
           class="p-button-outlined concept-button"
           @click="showInfo(concept['@id'])"
           v-tooltip.left="'Show summary panel'"
         />
-        <Button icon="pi pi-fw pi-pencil" severity="secondary" class="p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
+        <Button icon="fa-solid fa-pencil" severity="secondary" class="p-button-outlined concept-button" @click="edit(concept['@id'])" v-tooltip.left="'Edit'" />
         <!-- <Button
-          icon="pi pi-fw pi-play"
+          icon="fa-solid fa-play"
           class="p-button-secondary p-button-outlined concept-button"
           @click="starTask(concept['@id'])"
           v-tooltip.left="'Start task'"

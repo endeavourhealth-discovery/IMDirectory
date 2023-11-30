@@ -148,7 +148,7 @@ function showHelpDialog() {
     props: dialogProps,
     templates: {
       footer: () => {
-        return [h(Button, { label: "Close", icon: "pi pi-times", onClick: () => dialogRef.close() })];
+        return [h(Button, { label: "Close", icon: "fa-solid fa-xmark", onClick: () => dialogRef.close() })];
       }
     }
   });
