@@ -59,14 +59,6 @@
   />
 
   <AddPropertyDialog
-    v-model:showDialog="showAddFeatureBeforeDialog"
-    :header="'Add feature'"
-    :show-variable-options="true"
-    :match-type="currentDataModelIri"
-    @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, true)"
-  />
-
-  <AddPropertyDialog
     v-model:showDialog="showAddTestFeatureDialog"
     :header="'Test feature'"
     :show-variable-options="true"
@@ -75,18 +67,17 @@
   />
 
   <AddPropertyDialog
-    v-model:showDialog="showAddFeatureAfterDialog"
-    :header="'Add feature'"
+    v-model:showDialog="showBuildFeatureAfterDialog"
+    :header="'Build new feature'"
     :show-variable-options="true"
     :match-type="currentDataModelIri"
     @on-save="(direct: Match[], nested: Match[]) => addMatchesToList(parentMatchList!, direct.concat(nested), index, false)"
   />
 
-  <DirectorySearchDialog
-    v-model:show-dialog="showAddPopulationBeforeDirectoryDialog"
-    @update:selected="onSelect"
-    :searchByQuery="validationQueryRequest"
-    :root-entities="[IM.MODULE_SETS, IM.MODULE_QUERIES]"
+  <AddFeatureDialog
+    v-model:show-dialog="showAddFeatureAfterDialog"
+    :validation-query-request="validationQueryRequest"
+    @on-feature-select="(matchToAdd: Match) => addMatchesToList(parentMatchList!, [matchToAdd], index, false)"
   />
 
   <DirectorySearchDialog
@@ -126,6 +117,7 @@ import { IM } from "@im-library/vocabulary";
 import { ToastSeverity } from "@im-library/enums";
 import { ToastOptions } from "@im-library/models";
 import { useToast } from "primevue/usetoast";
+import AddFeatureDialog from "../edit/dialogs/AddFeatureDialog.vue";
 
 interface Props {
   parentMatch?: Match;
@@ -164,11 +156,10 @@ const {
   showUpdateDialog,
   showViewDialog,
   showKeepAsDialog,
-  showAddFeatureBeforeDialog,
+  showBuildFeatureAfterDialog,
   showAddFeatureAfterDialog,
   showAddTestFeatureDialog,
-  showAddPopulationAfterDirectoryDialog,
-  showAddPopulationBeforeDirectoryDialog
+  showAddPopulationAfterDirectoryDialog
 } = setupQueryBuilderActions();
 const toast = useToast();
 const editMode: Ref<boolean> = ref(false);
@@ -307,46 +298,25 @@ function getMultipleRCOptions() {
 function getSingleRCOptions() {
   const singleRCOptions = [
     {
-      label: "Add feature",
+      label: "Build new feature",
+      icon: "fa-solid fa-hammer",
+      command: () => {
+        showBuildFeatureAfterDialog.value = true;
+      }
+    },
+    {
+      label: "Add existing feature",
       icon: "fa-solid fa-circle-plus",
       command: () => {
         showAddFeatureAfterDialog.value = true;
-      },
-      items: [
-        {
-          label: "Before",
-          command: () => {
-            showAddFeatureBeforeDialog.value = true;
-          }
-        },
-        {
-          label: "After",
-          command: () => {
-            showAddFeatureAfterDialog.value = true;
-          }
-        }
-      ]
+      }
     },
     {
       label: "Add population",
       icon: "fa-solid fa-magnifying-glass",
       command: () => {
         showAddPopulationAfterDirectoryDialog.value = true;
-      },
-      items: [
-        {
-          label: "Before",
-          command: () => {
-            showAddPopulationBeforeDirectoryDialog.value = true;
-          }
-        },
-        {
-          label: "After",
-          command: () => {
-            showAddPopulationAfterDirectoryDialog.value = true;
-          }
-        }
-      ]
+      }
     },
     {
       label: props.match.exclude ? "Include" : "Exclude",
@@ -496,7 +466,7 @@ function getStyle() {
 function copyMatchToClipboard() {
   const copyObject = { queryTypeIri: queryTypeIri.value, match: props.match };
   navigator.clipboard.writeText(JSON.stringify(copyObject));
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Copied value is not a valid match object."));
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Feature was copied."));
 }
 </script>
 

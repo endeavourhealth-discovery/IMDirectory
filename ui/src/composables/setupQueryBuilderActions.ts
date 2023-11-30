@@ -7,6 +7,7 @@ import { v4 } from "uuid";
 function setupQueryBuilderActions() {
   const showUpdateDialog: Ref<boolean> = ref(false);
   const showViewDialog: Ref<boolean> = ref(false);
+  const showBuildFeatureAfterDialog: Ref<boolean> = ref(false);
   const showAddFeatureAfterDialog: Ref<boolean> = ref(false);
   const showAddFeatureBeforeDialog: Ref<boolean> = ref(false);
   const showAddTestFeatureDialog: Ref<boolean> = ref(false);
@@ -226,6 +227,7 @@ function setupQueryBuilderActions() {
     showKeepAsDialog,
     showAddBaseTypeDialog,
     showUpdateDialog,
+    showBuildFeatureAfterDialog,
     showAddFeatureAfterDialog,
     showAddFeatureBeforeDialog,
     showAddTestFeatureDialog,

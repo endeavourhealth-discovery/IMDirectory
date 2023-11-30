@@ -40,7 +40,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
+const emit = defineEmits({ "update:showDialog": payload => typeof payload === "boolean" });
 
 const visible: Ref<boolean> = ref(false);
 const confirmVisible: Ref<boolean> = ref(false);
