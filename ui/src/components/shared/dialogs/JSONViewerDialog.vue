@@ -1,12 +1,12 @@
 <template>
   <Dialog v-model:visible="visible" modal maximizable :header="'JSON Viewer'" :style="{ width: '75vw' }">
-    <VueJsonPretty v-if="!editMode" class="json" :path="'res'" :data="data" @node-click="editMode = true" />
+    <VueJsonPretty v-if="!editMode" class="json" :path="'res'" :data="data" />
     <JSONEditor v-else-if="editMode" v-model:data="editData" />
     <template #footer>
       <Button v-if="!editMode" label="Edit" @click="editMode = true" text severity="help" />
       <Button v-if="!editMode" label="OK" @click="visible = false" text />
       <Button v-if="editMode" label="Cancel" @click="editMode = false" text severity="secondary" />
-      <Button v-if="editMode" label="Save" @click="editMode = false" text />
+      <Button v-if="editMode" label="Save" @click="onSave" text />
     </template>
   </Dialog>
 </template>
@@ -32,7 +32,7 @@ const editMode = ref(false);
 const editData = ref();
 
 onMounted(() => {
-  editData.value = props.data;
+  editData.value = { ...props.data };
 });
 
 watch(
@@ -48,6 +48,11 @@ watch(visible, newValue => {
     emit("update:showDialog", newValue);
   }
 });
+
+function onSave() {
+  emit("save", editData.value);
+  editMode.value = false;
+}
 </script>
 
 <style scoped></style>

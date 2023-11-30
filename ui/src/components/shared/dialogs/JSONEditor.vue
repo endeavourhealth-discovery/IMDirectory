@@ -32,7 +32,8 @@ watch(
   () => {
     try {
       errorMessage.value = "";
-      JSON.parse(definition.value);
+      const match = JSON.parse(definition.value);
+      emit("update:data", match);
     } catch (error: any) {
       errorMessage.value = error?.message ?? "Error with parsing the definition.";
     }

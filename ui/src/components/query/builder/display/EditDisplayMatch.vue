@@ -238,12 +238,12 @@ function onSelect(cs: ConceptSummary, before?: boolean) {
   showAddPopulationAfterDirectoryDialog.value = false;
 }
 
-function onSaveJson(match: Match) {
+function onSaveJson(updatedMatch: Match) {
   for (const property of Object.keys(props.match)) {
-    delete (match as any)[property];
+    delete (props.match as any)[property];
   }
-  for (const property of Object.keys(match)) {
-    (props.match as any)[property] = (match as any)[property];
+  for (const property of Object.keys(updatedMatch)) {
+    (props.match as any)[property] = (updatedMatch as any)[property];
   }
 }
 
