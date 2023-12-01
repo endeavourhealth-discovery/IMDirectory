@@ -472,7 +472,6 @@ function processEntityValue(property: PropertyShape) {
   height: calc(100% - 3.5rem);
   width: 100%;
   overflow: auto;
-  overflow: auto;
 }
 
 .content-buttons-container {

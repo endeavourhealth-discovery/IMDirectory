@@ -254,7 +254,7 @@ function drawGraph() {
       return hasNodeChildrenByName(graphData.value, d.data.name) ? colour.value.activeNode.fill : colour.value.centerNode.fill;
     })
     .style("font-size", () => `${nodeFontSize.value}px`)
-    .on("dblclick", (d: any) => dblclick(d))
+    .on("dblclick", async (d: any) => await dblclick(d))
     .on("click", (d: any) => click(d))
     .on("mouseover", (d: any) => {
       const graphContainer = d3.select("#force-layout-graph").node() as Element;
@@ -326,7 +326,7 @@ function getFODimensions(_d: any) {
   return { x: -radius.value / 1.1, y: -radius.value / 1.3, height: (2 * radius.value) / 1.3, width: (2 * radius.value) / 1.1 };
 }
 
-async function click(d: any) {
+function click(d: any) {
   if (d.metaKey || d.ctrlKey) {
     const node = d["target"]["__data__"]["data"] as TTGraphData;
     navigate(node.iri);

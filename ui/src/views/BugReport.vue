@@ -128,6 +128,7 @@ import { useUserStore } from "@/stores/userStore";
 import WorkflowService from "@/services/WorkflowService";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
+import { stringAscending } from "@im-library/helpers/Sorters";
 
 const sharedStore = useSharedStore();
 const userStore = useUserStore();
@@ -208,14 +209,14 @@ onMounted(() => {
 function setOptions() {
   moduleOptions.value = enumToArray(Module)
     .map(item => item[0].toUpperCase() + item.slice(1))
-    .sort();
+    .sort(stringAscending);
   osOptions.value = enumToArray(OperatingSystem)
     .map(item => item[0].toUpperCase() + item.slice(1))
-    .sort();
+    .sort(stringAscending);
   osOptions.value.push("Other");
   browserOptions.value = enumToArray(Browser)
     .map(item => item[0].toUpperCase() + item.slice(1))
-    .sort();
+    .sort(stringAscending);
   browserOptions.value.push("Other");
 }
 
