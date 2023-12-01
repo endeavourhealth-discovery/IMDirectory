@@ -76,17 +76,17 @@
       </Button>
       <Menu ref="userMenu" :model="getItems()" :popup="true" />
       <Button
-          v-tooltip="'Context help'"
-          :icon="fontAwesomePro ? 'fa-duotone fa-question' : 'fa-solid fa-question'"
-          class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
-          @click="help"
+        v-tooltip="'Context help'"
+        :icon="fontAwesomePro ? 'fa-duotone fa-question' : 'fa-solid fa-question'"
+        class="p-button-rounded p-button-text p-button-plain p-button-lg p-button-icon-only topbar-end-button"
+        @click="help"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, ref, Ref, onMounted } from 'vue';
+import { computed, ref, Ref, onMounted } from "vue";
 import { AccountItem, LoginItem } from "@im-library/interfaces";
 import { useToast } from "primevue/usetoast";
 import { DirectService, Env, FilerService, DataModelService, GithubService, UserService } from "@/services";
@@ -95,7 +95,7 @@ import { useUserStore } from "@/stores/userStore";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
 import { useAuthStore } from "@/stores/authStore";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import setupChangeTheme from "@/composables/setupChangeTheme";
 
 const router = useRouter();
@@ -129,7 +129,7 @@ onMounted(async () => {
   setAppMenuItems();
   await getCurrentVersion();
   document.body.onkeydown = (e: KeyboardEvent) => {
-    if(e.keyCode == 112) {
+    if (e.keyCode == 112) {
       help();
       e.preventDefault();
     }
@@ -597,12 +597,11 @@ function showReleaseNotes() {
 }
 
 function help() {
-  let url = 'https://wiki.endeavourhealth.org/index.php?title=IMHelp';
+  let url = "https://wiki.endeavourhealth.org/index.php?title=IMHelp";
 
-  if (route?.meta?.helpContext)
-    url += "/" + route?.meta?.helpContext;
+  if (route?.meta?.helpContext) url += "/" + route?.meta?.helpContext;
 
-  window.open(url, 'blank');
+  window.open(url, "blank");
 }
 </script>
 
