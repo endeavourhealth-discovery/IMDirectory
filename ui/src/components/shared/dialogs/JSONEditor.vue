@@ -29,18 +29,15 @@ const props = defineProps<Props>();
 const definition = ref("");
 const errorMessage = ref("");
 
-watch(
-  () => definition.value,
-  () => {
-    try {
-      errorMessage.value = "";
-      const updatedMatch = JSON.parse(definition.value);
-      if (!isEqual(props.data, updatedMatch)) emit("update:data", updatedMatch);
-    } catch (error: any) {
-      errorMessage.value = error?.message ?? "Error with parsing the definition.";
-    }
+watch(definition, () => {
+  try {
+    errorMessage.value = "";
+    const updatedMatch = JSON.parse(definition.value);
+    if (!isEqual(props.data, updatedMatch)) emit("update:data", updatedMatch);
+  } catch (error: any) {
+    errorMessage.value = error?.message ?? "Error, invalid json.";
   }
-);
+});
 
 onMounted(() => {
   definition.value = JSON.stringify(props.data, undefined, 4);
