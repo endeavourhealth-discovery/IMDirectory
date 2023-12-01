@@ -37,7 +37,7 @@
                   <li v-for="note in release.releaseNotes">{{ note }}</li>
                 </ul>
               </div>
-              <a :href="release.url">{{ release.url }}</a>
+              <a :href="sanitizeUrl(release.url)">{{ release.url }}</a>
             </div>
             <Button
               v-if="!showLegacy[key]"
@@ -70,6 +70,7 @@ import { GithubRelease } from "@im-library/interfaces";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useDirectoryStore } from "@/stores/directoryStore";
 import { useSharedStore } from "@/stores/sharedStore";
+import { sanitizeUrl } from "@braintree/sanitize-url";
 
 const directoryStore = useDirectoryStore();
 const sharedStore = useSharedStore();
