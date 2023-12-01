@@ -71,7 +71,8 @@ const routes: Array<RouteRecordRaw> = [
         meta: {
           requiresLicense: true,
           transition: "fade",
-          mode: "out-in"
+          mode: "out-in",
+          transitionDelay: "1s"
         }
       },
       {

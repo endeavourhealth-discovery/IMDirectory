@@ -18,6 +18,7 @@ declare module "vue-router" {
     requiresLicense?: boolean;
     transition?: string;
     mode?: "in-out" | "out-in" | "default" | undefined;
+    transitionDelay?: string;
   }
 }
 
