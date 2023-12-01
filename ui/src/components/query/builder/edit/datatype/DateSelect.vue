@@ -144,8 +144,6 @@ function isNumber(stringNumber: string) {
 
 function updatePropertyValues() {
   clearAllProperties();
-  console.log("Updating date properties");
-  console.log(propertyType.value);
   if (propertyType.value === "is") {
     if (selectedValueA.value && valueType.value === "date") {
       props.property.value = getStringFromDate(selectedValueA.value);
