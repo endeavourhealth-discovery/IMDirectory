@@ -375,7 +375,7 @@ function submit(): void {
               if (result.isConfirmed) {
                 directService.view(editorEntity.value["http://endhealth.info/im#id"]);
               } else {
-                directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
+                directService.edit(editorEntity.value["http://endhealth.info/im#id"], true);
               }
             });
           }

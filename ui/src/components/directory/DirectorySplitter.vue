@@ -14,8 +14,6 @@
           @locateInTree="locateInTree"
           v-model:history="history"
         >
-          {{ route?.meta?.transition }}
-          {{ route.meta.transitionDelay }}
           <transition :name="showTransitions ? route?.meta?.transition : 'fade'" :mode="showTransitions ? route?.meta?.mode : 'in-out'">
             <component :key="route.fullPath" :style="{ transitionDelay: route?.meta?.transitionDelay || '0s' }" :is="Component" />
           </transition>

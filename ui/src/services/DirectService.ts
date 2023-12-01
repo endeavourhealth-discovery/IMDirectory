@@ -60,8 +60,8 @@ export default class DirectService {
   }
 
   public view(iri?: string, appRoute?: string) {
-    if (iri && appRoute) this.directTo({ iri: iri, action: "Viewed", appRoute: appRoute });
-    else if (iri) this.directTo({ iri: iri, action: "Viewed", appRoute: "directory/folder" });
+    if (iri && appRoute) this.directTo({ iri: iri, action: "Viewed", appRoute: appRoute, newTab: true });
+    else if (iri) this.directTo({ iri: iri, action: "Viewed", appRoute: "directory/folder", newTab: true });
     else this.directTo({});
   }
 
@@ -83,7 +83,7 @@ export default class DirectService {
       this.directTo({ appRoute: "creator" });
     } else {
       const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, propertyIri: propertyIri, valueIri: valueIri } });
-      this.directTo({ appRoute: routeData.href.replace("#/", "") });
+      this.directTo({ appRoute: routeData.href.replace("#/", ""), newTab: true });
     }
   }
 

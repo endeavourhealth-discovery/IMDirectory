@@ -70,8 +70,6 @@ const routes: Array<RouteRecordRaw> = [
         component: LandingPage,
         meta: {
           requiresLicense: true,
-          transition: "fade",
-          mode: "out-in",
           transitionDelay: "1s"
         }
       },
@@ -80,9 +78,7 @@ const routes: Array<RouteRecordRaw> = [
         name: "Folder",
         component: DirectoryDetails,
         meta: {
-          requiresLicense: true,
-          transition: "fade",
-          mode: "out-in"
+          requiresLicense: true
         },
         props: true
       },
