@@ -11,7 +11,7 @@
     <div class="loading-container" v-if="loading">
       <ProgressSpinner />
     </div>
-    <GraphComponent v-else :data="data" />
+    <GraphComponent v-else :data="data" @navigateTo="(iri:string) => emit('navigateTo', iri)" />
   </div>
 </template>
 
@@ -26,12 +26,17 @@ import { IM } from "@im-library/vocabulary";
 const { translateFromEntityBundle } = GraphTranslator;
 const { isObjectHasKeys } = DataTypeCheckers;
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
+interface Props {
+  entityIri: string;
+}
+const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
 });
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => await getEntityBundle(newValue)
 );
 
@@ -46,7 +51,7 @@ const predicates: Ref<any[]> = ref([]);
 
 const graphExcludePredicates = GraphExcludePredicates;
 
-onMounted(async () => await getEntityBundle(props.conceptIri));
+onMounted(async () => await getEntityBundle(props.entityIri));
 
 async function updatePredicates() {
   selectedIris.value = [];

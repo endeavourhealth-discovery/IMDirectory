@@ -1,7 +1,7 @@
 <template>
   <div class="avatar-container">
     <img data-testid="avatar-image" id="selected-avatar" :src="getUrl(newAvatar)" alt="avatar icon" />
-    <Button data-testid="avatar-op-button" icon="pi pi-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
+    <Button data-testid="avatar-op-button" icon="fa-solid fa-angle-down" class="p-button-rounded p-button-primary avatar-button" @click="toggleAvatarSelect" />
     <OverlayPanel ref="avatar" class="avatar-popup">
       <div>
         Icons made by
@@ -10,8 +10,8 @@
         <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
       </div>
       <SelectButton data-testid="avatar-button-options" v-model="newAvatar" :options="avatarOptions">
-        <template #option="slotProps">
-          <img class="avatar-select avatar-icon" :src="getUrl(slotProps.option)" alt="avatar icon" />
+        <template #option="{ option }: any">
+          <img class="avatar-select avatar-icon" :src="getUrl(option)" alt="avatar icon" />
         </template>
       </SelectButton>
     </OverlayPanel>
@@ -22,9 +22,11 @@
 import { Avatars } from "@im-library/constants";
 import { Ref, ref, watch } from "vue";
 
-const props = defineProps({
-  selectedAvatar: { type: String, required: true }
-});
+interface Props {
+  selectedAvatar: string;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   avatarSelected: (payload: string) => Avatars.includes(payload)
@@ -72,7 +74,7 @@ function getUrl(item: string): string {
 
 #selected-avatar {
   width: 10rem;
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   border-radius: 50%;
 }
 
@@ -90,6 +92,6 @@ function getUrl(item: string): string {
 
 .avatar-popup div div .p-button {
   margin: 2px;
-  border-right: 1px solid #ced4da !important;
+  border-right: 1px solid var(--surface-border) !important;
 }
 </style>

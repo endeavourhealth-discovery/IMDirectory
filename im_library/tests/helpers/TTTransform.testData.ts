@@ -104,7 +104,7 @@ export const EventTTEntity = {
       "http://www.w3.org/2000/01/rdf-schema#comment":
         "An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties",
       "http://www.w3.org/ns/shacl#order": 6,
-      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#isContainedIn", name: "is contained in" }],
+      "http://www.w3.org/ns/shacl#path": [{ "@id": "http://endhealth.info/im#isContainedIn", name: "Is contained in" }],
       "http://endhealth.info/im#inheritedFrom": [{ "@id": "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
       "http://www.w3.org/ns/shacl#class": [{ "@id": "http://endhealth.info/im#Folder", name: "Folder" }]
     },
@@ -207,7 +207,7 @@ export const EventTTEntityTransformed = {
       comment:
         "An entity that this entity inherits from, both semantically and structurally, this is also used for sub properties as properties are classes of properties",
       order: 6,
-      path: [{ iri: "http://endhealth.info/im#isContainedIn", name: "is contained in" }],
+      path: [{ iri: "http://endhealth.info/im#isContainedIn", name: "Is contained in" }],
       inheritedFrom: [{ iri: "http://endhealth.info/im#RecordEntry", name: "Record entry" }],
       class: [{ iri: "http://endhealth.info/im#Folder", name: "Folder" }]
     },

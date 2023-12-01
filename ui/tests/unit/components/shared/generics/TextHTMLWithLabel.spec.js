@@ -1,4 +1,4 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import TextHTMLWithLabel from "@/components/shared/generics/TextHTMLWithLabel.vue";
 
 describe("TextHTMLWithLabel.vue", () => {

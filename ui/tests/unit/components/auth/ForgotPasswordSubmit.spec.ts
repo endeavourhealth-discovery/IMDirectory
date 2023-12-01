@@ -1,26 +1,23 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
 import InlineMessage from "primevue/inlinemessage";
-import { flushPromises, mount } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import ForgotPasswordSubmit from "@/components/auth/ForgotPasswordSubmit.vue";
 import InputText from "primevue/inputtext";
 import { AuthService } from "@/services";
-import { PasswordStrength } from "@im-library/enums";
 import { SpyInstance, vi } from "vitest";
 import PrimeVue from "primevue/config";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useAuthStore } from "@/stores/authStore";
 
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" };
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  stubActions: false,
+  initialState: {
+    auth: { registeredUsername: "" }
+  }
+});
+const mockState = useAuthStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -46,7 +43,7 @@ describe("ForgotPasswordSubmit.vue no registeredUser", () => {
     });
   });
 
-  it("starts empty if no store registeredUsername", async () => {
+  it("starts empty if no sharedStore registeredUsername", async () => {
     component.getByTestId("forgot-password-submit-username");
     component.getByTestId("forgot-password-submit-code");
     component.getByTestId("forgot-password-submit-password1");
@@ -71,7 +68,7 @@ describe("ForgotPasswordSubmit.vue with registeredUser", () => {
     });
   });
 
-  it("starts with username if store has registeredUsername", async () => {
+  it("starts with username if sharedStore has registeredUsername", async () => {
     component.getByDisplayValue("testUser");
   });
 

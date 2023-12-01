@@ -3,27 +3,39 @@
     <Toast />
     <ConfirmDialog />
     <DynamicDialog class="dynamic-dialog" />
-    <ReleaseNotes v-if="!loading && showReleaseNotes" repositoryName="IMDirectory" />
+    <ReleaseNotes v-if="!loading && showReleaseNotes" />
+    <CookiesConsent />
+    <SnomedConsent />
     <div id="main-container">
+      <BannerBar v-if="!loading && showBanner" :latestRelease="latestRelease" />
       <div v-if="loading" class="flex flex-row justify-content-center align-items-center loading-container">
         <ProgressSpinner />
       </div>
       <router-view v-else />
+      <FooterBar />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed, ComputedRef, watch } from "vue";
-import ReleaseNotes from "@/components/shared/ReleaseNotes.vue";
-import { useStore } from "vuex";
+import { onMounted, ref, computed, ComputedRef, Ref, watch } from "vue";
+import ReleaseNotes from "@/components/app/ReleaseNotes.vue";
+import CookiesConsent from "./components/app/CookiesConsent.vue";
+import BannerBar from "./components/app/BannerBar.vue";
+import FooterBar from "./components/app/FooterBar.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { Env } from "@/services";
+import { Env, GithubService, UserService } from "@/services";
 import { Auth } from "aws-amplify";
 import axios from "axios";
 import semver from "semver";
+import { usePrimeVue } from "primevue/config";
+import { GithubRelease } from "./interfaces";
+import { useUserStore } from "./stores/userStore";
+import SnomedConsent from "./components/app/SnomedConsent.vue";
+import { useSharedStore } from "@/stores/sharedStore";
+import setupChangeTheme from "@/composables/setupChangeTheme";
 
 setupAxiosInterceptors(axios);
 setupExternalErrorHandler();
@@ -31,29 +43,50 @@ setupExternalErrorHandler();
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const store = useStore();
+const userStore = useUserStore();
+const sharedStore = useSharedStore();
 
-const showReleaseNotes: ComputedRef<boolean> = computed(() => store.state.showReleaseNotes);
+const { changeTheme } = setupChangeTheme();
 
-const appVersion = __APP_VERSION__;
+const showReleaseNotes: ComputedRef<boolean> = computed(() => sharedStore.showReleaseNotes);
+const showBanner: ComputedRef<boolean> = computed(() => sharedStore.showBanner);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
+const currentTheme = computed(() => userStore.currentTheme);
 
+watch(
+  () => currentTheme.value,
+  newValue => {
+    changeTheme(newValue);
+  }
+);
+
+const latestRelease: Ref<GithubRelease | undefined> = ref();
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
-  await store.dispatch("authenticateCurrentUser");
-  setShowReleaseNotes();
+  await userStore.authenticateCurrentUser();
+  await userStore.getAllFromUserDatabase();
+  let theme = "saga-blue";
+  if (currentUser.value) await UserService.getUserTheme();
+  if (currentTheme.value) theme = currentTheme.value;
+  changeTheme(theme);
+  await setShowBanner();
   loading.value = false;
 });
 
-function setShowReleaseNotes() {
+async function setShowBanner() {
   const lastVersion = getLocalVersion("IMDirectory");
-  if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, appVersion)) {
-    store.commit("updateShowReleaseNotes", true);
-  } else if (semver.valid(lastVersion) && semver.gt(lastVersion, appVersion)) {
-    setLocalVersion("IMDirectory", appVersion);
-    store.commit("updateShowReleaseNotes", true);
-  } else store.commit("updateShowReleaseNotes", false);
+  latestRelease.value = await GithubService.getLatestRelease("IMDirectory");
+  let currentVersion = "v0.0.0";
+  if (latestRelease.value && latestRelease.value.version) currentVersion = latestRelease.value.version;
+  if (!lastVersion || !semver.valid(lastVersion) || semver.lt(lastVersion, currentVersion)) {
+    sharedStore.updateShowBanner(true);
+  } else if (semver.valid(lastVersion) && semver.gt(lastVersion, currentVersion)) {
+    localStorage.removeItem("IMDirectoryVersion");
+    sharedStore.updateShowBanner(true);
+  } else sharedStore.updateShowBanner(false);
 }
 
 function getLocalVersion(repoName: string): string | null {
@@ -66,7 +99,7 @@ function setLocalVersion(repoName: string, versionNo: string) {
 
 async function setupAxiosInterceptors(axios: any) {
   axios.interceptors.request.use(async (request: any) => {
-    if (store.state.isLoggedIn && Env.API && request.url?.startsWith(Env.API)) {
+    if (isLoggedIn.value) {
       if (!request.headers) request.headers = {};
       request.headers.Authorization = "Bearer " + (await Auth.currentSession()).getIdToken().getJwtToken();
     }
@@ -74,17 +107,35 @@ async function setupAxiosInterceptors(axios: any) {
   });
 
   axios.interceptors.response.use(
-    (response: any) => {
+    async (response: any) => {
       return isObjectHasKeys(response, ["data"]) ? response.data : undefined;
     },
-    (error: any) => {
+    async (error: any) => {
+      if (error?.response?.config?.raw) {
+        if (error?.config?.responseType === "blob" && error?.response?.data) {
+          error.response.data = JSON.parse(await error.response.data.text());
+          return Promise.reject(error);
+        } else return Promise.reject(error);
+      }
       if (error?.response?.status === 403) {
-        toast.add({
-          severity: "error",
-          summary: "Access denied",
-          detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
-        });
-        window.location.href = Env.AUTH_URL + "login?returnUrl=" + route.fullPath;
+        if (error.response.data) {
+          toast.add({
+            severity: "error",
+            summary: "Access denied",
+            detail: error.response.data.debugMessage
+          });
+        } else if (error.config.url) {
+          toast.add({
+            severity: "error",
+            summary: "Access denied",
+            detail: "Login required for " + error.config.url.substring(error.config.url.lastIndexOf("/") + 1) + "."
+          });
+        } else {
+          toast.add({
+            severity: "error",
+            summary: "Access denied"
+          });
+        }
       } else if (error?.response?.status === 401) {
         toast.add({
           severity: "error",
@@ -95,10 +146,18 @@ async function setupAxiosInterceptors(axios: any) {
             ". Please contact an admin to change your account security clearance if you require access to this resource."
         });
         router.push({ name: "AccessDenied" }).then();
-      } else if (error?.response?.status === 500 && error.code === "ERR_BAD_RESPONSE") {
+      } else if (error?.response?.data?.code && error?.response?.status > 399 && error?.response?.status < 500) {
+        console.error(error.response.data);
+        toast.add({
+          severity: "error",
+          summary: error.response.data.code,
+          detail: error.response.data.debugMessage
+        });
+      } else if (error?.response?.status >= 500 && error.code === "ERR_BAD_RESPONSE") {
         router.push({ name: "ServerOffline" }).then();
+      } else if (error.code === "ERR_CANCELED") {
+        return;
       } else {
-        console.log(error);
         return Promise.reject(error);
       }
     }
@@ -127,27 +186,55 @@ function setupExternalErrorHandler() {
         summary: "An error occurred",
         detail: e.reason
       });
+    sharedStore.updateError(e);
+    router.push({ name: "VueError" });
   });
 }
 </script>
 
+<style lang="scss">
+@import "primeicons/primeicons.css";
+@import "@/assets/layout/flags/flags.css";
+@import "@/assets/layout/sass/_main.scss";
+@import "sweetalert2/dist/sweetalert2.min.css";
+</style>
+
 <style scoped>
+.layout-wrapper {
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  height: 100vh;
+  width: 100vw;
+}
+
 #main-container {
   width: 100vw;
   height: 100vh;
   max-height: 100vh;
   display: flex;
   flex-flow: column nowrap;
-  justify-content: flex-start;
+  justify-content: space-between;
   overflow: auto;
+  background-color: var(--surface-ground);
 }
 .loading-container {
   width: 100%;
-  height: 100%;
+  flex: 1 1 auto;
 }
 </style>
 
 <style>
+:root {
+  --hyperlink-blue: #2196f3;
+}
+.p-dialog-mask {
+  z-index: 1;
+}
+.swal2-popup {
+  background-color: var(--surface-a);
+}
 .p-toast-message-text {
   width: calc(100% - 4rem);
 }
@@ -161,20 +248,12 @@ function setupExternalErrorHandler() {
   word-wrap: break-word;
 }
 
-.p-menu-overlay {
-  z-index: 2000;
-}
-
-.p-overlaypanel {
-  z-index: 2000;
-}
-
 .p-dialog-header-icons {
   flex: 1 0 auto;
   justify-content: flex-end;
 }
 
-.p-datatable-thead {
-  z-index: 0 !important;
+.p-progress-spinner {
+  overflow: hidden;
 }
 </style>

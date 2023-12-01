@@ -15,25 +15,27 @@
             dataKey="dateTime"
             :scrollable="true"
             scrollHeight="flex"
-            class="p-datatable-sm"
+            class="p-datatable-sm activity-datatable"
           >
             <template #empty> No recent activity </template>
             <Column field="name" header="Name">
-              <template #body="{ data }">
-                <div class="datatable-flex-cell">
-                  <i :class="data.icon" class="recent-icon" :style="data.color" aria-hidden="true" />
-                  {{ data.name }}
+              <template #body="{ data }: any">
+                <div class="activity-name-icon-container">
+                  <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" class="recent-icon" :style="data.color" />
+                  <span class="activity-name">{{ data.name }}</span>
                 </div>
               </template>
             </Column>
             <Column field="latestActivity" header="Latest activity">
-              <template #body="{ data }">
-                <div v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</div>
+              <template #body="{ data }: any">
+                <span class="activity-message" v-tooltip="getActivityTooltipMessage(data)">{{ getActivityMessage(data) }}</span>
               </template>
             </Column>
-            <Column :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
-              <template #body="{ data }">
-                <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" />
+            <Column :exportable="false">
+              <template #body="{ data }: any">
+                <div class="action-buttons-container">
+                  <ActionButtons :buttons="['findInTree', 'view', 'edit']" :iri="data.iri" @locate-in-tree="locateInTree" />
+                </div>
               </template>
             </Column>
           </DataTable>
@@ -60,28 +62,33 @@
 import { defineComponent } from "vue";
 import ReportTable from "@/components/directory/landingPage/ReportTable.vue";
 import PieChartDashCard from "@/components/directory/landingPage/PieChartDashCard.vue";
-import ActionButtons from "@/components/shared/ActionButtons.vue";
+import ActionButtons from "../shared/ActionButtons.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { getDisplayFromDate } from "@im-library/helpers/UtilityMethods";
 
 export default defineComponent({
-  components: { ReportTable, PieChartDashCard }
+  components: { ReportTable, PieChartDashCard, ActionButtons, IMFontAwesomeIcon }
 });
 </script>
 
 <script setup lang="ts">
 import { computed, Ref, ref, watch, onMounted } from "vue";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { useStore } from "vuex";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import _, { isArray } from "lodash";
 import { RecentActivityItem, IriCount, DashboardLayout } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { DataTypeCheckers, Sorters } from "@im-library/helpers";
-import { EntityService, Env, ConfigService } from "@/services";
+import { EntityService, ConfigService, UserService } from "@/services";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import rowClick from "@/composables/rowClick";
-const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
-const { byOrder } = Sorters;
-const store = useStore();
-const recentLocalActivity = computed(() => store.state.recentLocalActivity);
+import { useUserStore } from "@/stores/userStore";
+
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { byOrder } from "@im-library/helpers/Sorters";
+const userStore = useUserStore();
+const directoryStore = useDirectoryStore();
+const recentLocalActivity = computed(() => userStore.recentLocalActivity);
+const currentUser = computed(() => userStore.currentUser);
 
 const activities: Ref<RecentActivityItem[]> = ref([]);
 const selected: Ref<any> = ref({});
@@ -92,7 +99,7 @@ const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
   () => _.cloneDeep(recentLocalActivity.value),
-  async () => getRecentActivityDetails()
+  async () => await getRecentActivityDetails()
 );
 
 onMounted(async () => init());
@@ -106,12 +113,18 @@ async function init(): Promise<void> {
 }
 
 async function getRecentActivityDetails() {
-  const iris = recentLocalActivity.value.map((rla: RecentActivityItem) => rla.iri);
+  let localActivity: RecentActivityItem[] = [];
+  if (isArrayHasLength(recentLocalActivity.value)) localActivity = recentLocalActivity.value;
+  if (currentUser.value) {
+    const results = await UserService.getUserMRU();
+    if (isArrayHasLength(results)) localActivity = results;
+  }
+  const iris = localActivity.map((rla: RecentActivityItem) => rla.iri);
   const results = await EntityService.getPartialEntities(iris, [RDFS.LABEL, RDF.TYPE]);
 
   const temp: RecentActivityItem[] = [];
 
-  for (const rla of recentLocalActivity.value) {
+  for (const rla of localActivity) {
     const clone = { ...rla };
 
     let result = null;
@@ -128,7 +141,6 @@ async function getRecentActivityDetails() {
   }
 
   temp.reverse();
-
   activities.value = temp;
 }
 
@@ -151,16 +163,7 @@ function getActivityTooltipMessage(activity: RecentActivityItem) {
 
 function getActivityMessage(activity: RecentActivityItem) {
   const dateTime = new Date(activity.dateTime);
-  return activity.action + " " + getDayDisplay(dateTime);
-}
-
-function getDayDisplay(dateTime: Date) {
-  const now = new Date();
-  if (dateTime.getDay() === now.getDay()) return "today";
-  if (now.getDay() - dateTime.getDay() === 1) return "yesterday";
-  if (now.getDay() - dateTime.getDay() < 7) return "this week";
-  if (dateTime.getMonth() === now.getMonth()) return "this month";
-  if (dateTime.getFullYear() === now.getFullYear()) return "this year";
+  return activity.action + " " + getDisplayFromDate(new Date(), dateTime);
 }
 
 async function getCardsData(): Promise<void> {
@@ -178,6 +181,10 @@ async function getCardsData(): Promise<void> {
     cards.push(cardData);
   }
   cardsData.value = cards;
+}
+
+function locateInTree(iri: string) {
+  directoryStore.updateFindInTreeIri(iri);
 }
 </script>
 
@@ -202,8 +209,12 @@ async function getCardsData(): Promise<void> {
   overflow: auto;
 }
 
+.activity-datatable {
+  width: 100%;
+}
+
 .activity-container {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   overflow: auto;
@@ -229,7 +240,7 @@ async function getCardsData(): Promise<void> {
   display: flex;
   flex-flow: row wrap;
   width: 100%;
-  flex: 1 1 auto;
+  flex: 0 0 50%;
   overflow: auto;
   padding: 1rem;
   gap: 1rem;
@@ -242,15 +253,22 @@ async function getCardsData(): Promise<void> {
   padding: 5px;
 }
 
-.datatable-flex-cell {
-  display: -webkit-box;
-  display: -ms-flexbox;
+.action-buttons-container {
   display: flex;
-  -webkit-box-flex: 1;
-  -ms-flex: 1 1 0;
-  flex: 1 1 0;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
+  flex-flow: row nowrap;
+  justify-content: center;
   align-items: center;
+}
+
+.activity-name-icon-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: auto;
+}
+
+.activity-name {
+  flex: 0 1 auto;
 }
 </style>

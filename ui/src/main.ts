@@ -1,10 +1,17 @@
-import { createApp, Plugin, ComponentPublicInstance } from "vue";
+import { createApp, ComponentPublicInstance } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import store from "./store";
 import PrimeVue from "primevue/config";
 import VueClipboard from "vue3-clipboard";
 import { worker } from "./mocks/browser";
+import axios from "axios";
+
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    raw?: boolean;
+    silent?: boolean;
+  }
+}
 
 // Font Awesome
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
@@ -12,29 +19,9 @@ import { fab } from "@fortawesome/free-brands-svg-icons";
 
 library.add(fab);
 
-
-// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
-import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
-addFontAwesomeProIcons(library);
-store.commit("updateFontAwesomePro", true);
-// #v-endif
-// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
-import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
-import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
-store.commit("updateFontAwesomePro", false);
-// #v-endif
-
 import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 
 dom.watch();
-
-import "primevue/resources/themes/saga-blue/theme.css"; //theme
-
-import "primevue/resources/primevue.min.css"; //core css
-import "primeicons/primeicons.css"; //icons
-import "primeflex/primeflex.css";
-import "./assets/layout/layout.scss";
-import "./assets/layout/flags/flags.css";
 
 // PrimeVue Components
 import Card from "primevue/card";
@@ -97,10 +84,18 @@ import ToggleButton from "primevue/togglebutton";
 import Skeleton from "primevue/skeleton";
 import DialogService from "primevue/dialogservice";
 import DynamicDialog from "primevue/dynamicdialog";
+import Image from "primevue/image";
+import InputNumber from "primevue/inputnumber";
+import Calendar from "primevue/calendar";
+import TreeSelect from "primevue/treeselect";
+import Inplace from "primevue/inplace";
+import TieredMenu from "primevue/tieredmenu";
+import TabMenu from "primevue/tabmenu";
 
 import { Amplify, Auth } from "aws-amplify";
 import awsconfig from "./aws-exports";
-import "sweetalert2/dist/sweetalert2.min.css";
+import { createPinia } from "pinia";
+import { useSharedStore } from "@/stores/sharedStore";
 
 Amplify.configure(awsconfig);
 Auth.configure(awsconfig);
@@ -110,10 +105,12 @@ if (import.meta.env.MODE === "mock") {
   worker.start();
 }
 
+const pinia = createPinia();
+
 const app = createApp(App)
-  .use(store)
+  .use(pinia)
   .use(router)
-  .use(PrimeVue, { ripple: true })
+  .use(PrimeVue, { ripple: true, local: { dateFormat: "dd/mm/yyyy" } })
   .use(ConfirmationService)
   .use(ToastService)
   .use(DialogService)
@@ -179,7 +176,28 @@ const app = createApp(App)
   .component("Chip", Chip)
   .component("ToggleButton", ToggleButton)
   .component("Skeleton", Skeleton)
-  .component("DynamicDialog", DynamicDialog);
+  .component("DynamicDialog", DynamicDialog)
+  .component("Image", Image)
+  .component("Calendar", Calendar)
+  .component("InputNumber", InputNumber)
+  .component("Inplace", Inplace)
+  .component("TieredMenu", TieredMenu)
+  .component("TreeSelect", TreeSelect)
+  .component("TabMenu", TabMenu);
+
+const sharedStore = useSharedStore();
+
+// #v-ifdef VITE_FONT_AWESOME_PACKAGE_TOKEN
+import addFontAwesomeProIcons from "./fontAwesomeProIcons/addFontAwesomeProIcons";
+addFontAwesomeProIcons(library);
+sharedStore.updateFontAwesomePro(true);
+// #v-endif
+// #v-ifndef VITE_FONT_AWESOME_PACKAGE_TOKEN
+await import("@fortawesome/free-regular-svg-icons/index.js").then(module => library.add(module.far));
+await import("@fortawesome/free-solid-svg-icons/index.js").then(module => library.add(module.fas));
+sharedStore.updateFontAwesomePro(false);
+// #v-endif
+
 const vm = app.mount("#app");
 
 // Vue application exceptions
@@ -190,4 +208,7 @@ app.config.errorHandler = (err: unknown, _instance: ComponentPublicInstance | nu
     summary: info,
     detail: err
   });
+
+  sharedStore.updateError(err);
+  router.push({ name: "VueError" });
 };

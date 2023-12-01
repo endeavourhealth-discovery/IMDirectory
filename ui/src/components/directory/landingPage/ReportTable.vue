@@ -23,12 +23,13 @@ import { DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDFS } from "@im-library/vocabulary";
 const { isObjectHasKeys } = DataTypeCheckers;
 
-const props = defineProps({
-  name: { type: String, required: false },
-  description: { type: String, required: false },
-  inputData: { type: Array as PropType<any[]>, required: true },
-  id: { type: String, required: true }
-});
+interface Props {
+  name?: string;
+  description?: string;
+  inputData: any[];
+  id: string;
+}
+const props = defineProps<Props>();
 
 const tableData: Ref<{ count: number; label: string }[]> = ref([]);
 const loading = ref(false);
@@ -81,7 +82,7 @@ function getReportTableData(): void {
 .description {
   font-weight: 400;
   margin-bottom: 0.5rem;
-  color: #6c757d;
+  color: var(--text-color);
 }
 
 .content {

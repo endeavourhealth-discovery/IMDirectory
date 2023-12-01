@@ -6,7 +6,7 @@
         :key="altParent.iri"
         :label="altParent.name"
         :disabled="loading || altParent.name === ''"
-        icon="pi pi-chevron-up"
+        icon="fa-solid fa-chevron-up"
         @click="expandParents(altParent.listPosition)"
         @mouseenter="showPopup($event, altParent.iri)"
         @mouseleave="hidePopup($event)"
@@ -18,7 +18,7 @@
       <Button
         :label="currentParent?.name"
         :disabled="loading || !currentParent"
-        icon="pi pi-chevron-up"
+        icon="fa-solid fa-chevron-up"
         @click="expandParents(parentPosition)"
         @mouseenter="showPopup($event, currentParent?.iri)"
         @mouseleave="hidePopup($event)"
@@ -37,32 +37,26 @@
       class="tree-root"
       :loading="loading"
     >
-      <template #default="slotProps">
-        <div v-if="slotProps.node.data === 'loadMore'" class="tree-row">
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span class="tree-node-label">{{ slotProps.node.label }}</span>
+      <template #default="{ node }: any">
+        <div v-if="node.data === 'loadMore'" class="tree-row">
+          <ProgressSpinner v-if="node.loading" />
+          <span class="tree-node-label">{{ node.label }}</span>
         </div>
         <div
           v-else
           class="tree-row"
-          @click="navigate($event, slotProps.node.data)"
-          @dblclick="onNodeDblClick($event, slotProps.node)"
+          @click="navigate($event, node.data)"
+          @dblclick="onNodeDblClick($event, node)"
           v-tooltip.top="'CTRL+click to navigate'"
           data-testid="row"
         >
-          <span v-if="!slotProps.node.loading">
-            <div :style="'color:' + slotProps.node.color">
-              <i :class="slotProps.node.typeIcon" class="fa-fw" aria-hidden="true" />
-            </div>
+          <span v-if="!node.loading">
+            <IMFontAwesomeIcon v-if="node.typeIcon" :icon="node.typeIcon" fixed-width :style="'color:' + node.color" />
           </span>
-          <ProgressSpinner v-if="slotProps.node.loading" />
-          <span
-            class="tree-node-label"
-            data-testid="row-label"
-            @mouseover="showPopup($event, slotProps.node.data, slotProps.node)"
-            @mouseleave="hidePopup($event)"
-            >{{ slotProps.node.label }}</span
-          >
+          <ProgressSpinner v-if="node.loading" />
+          <span class="tree-node-label" data-testid="row-label" @mouseover="showPopup($event, node.data, node)" @mouseleave="hidePopup($event)">{{
+            node.label
+          }}</span>
         </div>
       </template>
     </Tree>
@@ -108,7 +102,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, Ref, watch, nextTick, inject, onBeforeUnmount } from "vue";
+import { onMounted, ref, Ref, watch, nextTick, onBeforeUnmount } from "vue";
+import IMFontAwesomeIcon from "./IMFontAwesomeIcon.vue";
 import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { ConceptAggregate, ConceptSummary, EntityReferenceNode, TreeParent } from "@im-library/interfaces";
@@ -118,14 +113,17 @@ import { DirectService, EntityService } from "@/services";
 import setupTree from "@/composables/setupTree";
 import { TreeNode } from "primevue/tree";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
+interface Props {
+  entityIri: string;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
 });
 
-const directService = new DirectService();
-
-const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, onRowClick, loadMore } =
-  setupTree();
+const { root, expandedKeys, selectedKeys, createLoadMoreNode, createTreeNode, onNodeCollapse, onNodeDblClick, onNodeExpand, loadMore } = setupTree();
 
 const conceptAggregate: Ref<ConceptAggregate> = ref({} as ConceptAggregate);
 const currentParent: Ref<TreeParent | null> = ref(null);
@@ -140,7 +138,7 @@ const pageSize = ref(20);
 const altTreeOP = ref();
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async newValue => {
     selectedKeys.value = {};
     alternateParents.value = [];
@@ -155,7 +153,7 @@ watch(loading, newValue => {
 });
 
 onMounted(async () => {
-  await getConceptAggregate(props.conceptIri);
+  await getConceptAggregate(props.entityIri);
   await createTree(conceptAggregate.value.concept, conceptAggregate.value.parents, conceptAggregate.value.children, 0);
 });
 
@@ -332,7 +330,7 @@ function getConceptTypes(types: TTIriRef[]): string {
 }
 
 function navigate(event: any, iri: string): void {
-  if (event.metaKey || event.ctrlKey) directService.select(iri);
+  if (event.metaKey || event.ctrlKey) emit("navigateTo", iri);
 }
 </script>
 
@@ -349,7 +347,7 @@ function navigate(event: any, iri: string): void {
 
 #secondary-tree-bar-container {
   flex: 1 1 auto;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid var(--surface-border);
 }
 
 .p-progress-spinner {

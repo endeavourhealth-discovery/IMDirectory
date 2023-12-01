@@ -14,13 +14,15 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": false,
     "resolveJsonModule": true,
+    "rootDirs": [".", "../im_library"],
     "baseUrl": ".",
+    "outDir": "./dist/types",
     "paths": {
       "@/*": ["src/*"],
       "@im-library/*": ["../im_library/src/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
-  "include": ["./src/**/*.ts", "./src/**/*.js"],
-  "exclude": ["node_modules"]
+  "include": ["./src/**/*.ts", "./src/**/*.js", "./tests/**/*.spec.js", "./tests/**/*.spec.ts"],
+  "exclude": ["node_modules", "./dist/types/**/*"]
 }

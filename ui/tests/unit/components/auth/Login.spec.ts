@@ -1,25 +1,22 @@
-import { mount, flushPromises } from "@vue/test-utils";
+import { flushPromises } from "@vue/test-utils";
 import Login from "@/components/auth/Login.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
 import { AuthService } from "@/services";
-import { User } from "@im-library/models";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
+import { User } from "@im-library/interfaces";
+import { createTestingPinia } from "@pinia/testing";
+import { useAuthStore } from "@/stores/authStore";
 
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" };
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    auth: { registeredUsername: "testUser" }
+  }
+});
+const mockState = useAuthStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -44,7 +41,7 @@ describe("login.vue no registeredUser", () => {
     });
   });
 
-  it("starts empty if no store registeredUsername", async () => {
+  it("starts empty if no sharedStore registeredUsername", async () => {
     component.getByTestId("login-username");
   });
 });
@@ -63,7 +60,8 @@ describe("login.vue with registeredUser", () => {
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: "colour/001-man.png",
-      roles: []
+      roles: [],
+      mfaStatus: []
     };
 
     AuthService.signIn = vi.fn().mockResolvedValue({ status: 200, message: "Login successful", user: testUser });
@@ -77,7 +75,7 @@ describe("login.vue with registeredUser", () => {
     });
   });
 
-  it("starts with registeredUsername if in store", async () => {
+  it("starts with registeredUsername if in sharedStore", async () => {
     component.getByTestId("login-username");
     component.getByDisplayValue("testUser");
   });

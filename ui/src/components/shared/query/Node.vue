@@ -34,7 +34,7 @@
     <template v-if="entity && children(entity).length" v-for="(child, childIndex) in children(entity)" :key="child?.path">
       <div class="connector operator horizontal">
         <!-- Connector -->
-        <div class="connector-h ">
+        <div class="connector-h">
           <div class="circle"></div>
           <template v-if="showLineV(index, indexCount, childIndex, children(entity).length)">
             <div class="line-v"></div>
@@ -48,8 +48,8 @@
         <div v-if="children(child.value).length" class="operator-items">
           <!-- Connector -->
           <div v-for="(grandChild, grandChildIndex) in children(child.value)" class="operator-item">
-            <div v-if="showConnector(grandChildIndex, children(child.value).length)" class="connector ">
-              <div class="connector-h ">
+            <div v-if="showConnector(grandChildIndex, children(child.value).length)" class="connector">
+              <div class="connector-h">
                 <div class="circle"></div>
                 <template v-if="showLineV(childIndex, children(entity).length, grandChildIndex, children(child.value).length)">
                   <div class="line-v"></div>
@@ -131,11 +131,7 @@ export default defineComponent({
       }
     },
     showOperator(path: string, index: number, childIndex: number): boolean {
-      // console.log("path", path);
-      // console.log("childIndex", index);
-      // console.log("operator", this.operator == "or" );
       if ((index == 0 || childIndex == 0) && this.operator == "or") {
-        // this.operator = "either";
         return true;
       }
       if (index > 0 || childIndex > 0) return true;
@@ -253,7 +249,7 @@ export default defineComponent({
   min-width: 15px;
   width: 15px;
   margin: 9px 1px 0 0;
-  border-top: 2px solid #cbd5e1;
+  border-top: 2px solid var(--surface-border);
 }
 
 .linked-line {
@@ -262,7 +258,7 @@ export default defineComponent({
   margin-top: -8px;
   margin-bottom: 2px;
   min-height: 15px;
-  border-left: 2px solid #cbd5e1;
+  border-left: 2px solid var(--surface-border);
 }
 
 .line-v {
@@ -270,7 +266,7 @@ export default defineComponent({
   min-width: 10px;
   margin-left: 5px;
   min-height: calc(100% - 25px);
-  border-left: 2px solid #cbd5e1;
+  border-left: 2px solid var(--surface-border);
 }
 
 .operatorlabel {
@@ -280,8 +276,7 @@ export default defineComponent({
 
 .circle {
   margin: 3px 3px 5px 0px;
-  /* background-color: #94a3b8; */
-  border: 2px solid #475569;
+  border: 2px solid var(--surface-b);
   min-width: 13px;
   min-height: 13px;
   width: 13px;
@@ -316,7 +311,7 @@ export default defineComponent({
 .node .static {
   font-size: 14px !important;
   font-weight: 400 !important;
-  color: #000 !important;
+  color: var(--font-color) !important;
 }
 
 .node .vertical {
@@ -340,13 +335,12 @@ export default defineComponent({
 .node.highlighted .operator-label,
 .node.highlighted .keyword {
   font-weight: 600;
-  /* color: #7e22ce; */
-  color: #7e22ce;
+  color: var(--purple-500);
 }
 
 .node.highlighted .iriref {
   font-weight: 700;
-  color: #2563eb;
+  color: var(--blue-500);
 }
 
 .node .iriref:hover {

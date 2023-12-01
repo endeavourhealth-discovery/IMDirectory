@@ -13,17 +13,17 @@
 <script setup lang="ts">
 import { ProvService } from "@/services";
 import { IM } from "@im-library/vocabulary";
-import axios from "axios";
 import { onMounted, ref, Ref } from "vue";
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  entityIri: string;
+}
+const props = defineProps<Props>();
 
 const provenances: Ref<any[]> = ref([]);
 const loading: Ref<boolean> = ref(false);
 
-onMounted(async () => await getProvHistory(props.conceptIri));
+onMounted(async () => await getProvHistory(props.entityIri));
 
 async function getProvHistory(iri: string) {
   loading.value = true;

@@ -22,18 +22,11 @@ export default class ToastOptions {
   }
 
   logToConsole(): void {
-    switch (this.severity) {
-      case ToastSeverity.ERROR:
-        this.log.error(this.detail);
-    }
+    if (this.severity === ToastSeverity.ERROR) this.log.error(this.detail);
   }
 
   setSummary(): string {
-    switch (this.severity) {
-      case ToastSeverity.ERROR:
-        return "Warning";
-      default:
-        return toTitleCase(this.severity);
-    }
+    if (this.severity === ToastSeverity.ERROR) return "warning";
+    else return toTitleCase(this.severity);
   }
 }

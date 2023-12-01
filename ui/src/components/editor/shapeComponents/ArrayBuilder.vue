@@ -1,10 +1,13 @@
 <template>
   <div class="array-builder-container">
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+      <h2 v-if="showRequired && shape.showTitle" class="required">*</h2>
+    </div>
     <div v-if="loading" class="loading-container">
       <ProgressSpinner />
     </div>
-    <div v-else class="children-container" :class="invalid && 'invalid'">
-      <small v-if="invalid" class="validate-error">{{ validationErrorMessage }}</small>
+    <div v-else class="children-container" :class="invalid && showValidation && 'invalid'">
       <template v-for="(item, index) in build" :key="item.id">
         <component
           :is="item.type"
@@ -24,11 +27,15 @@
         />
       </template>
     </div>
+    <div class="validate-error-container">
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import BuilderChildWrapper from "./BuilderChildWrapper.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { BuilderChildWrapper }
@@ -36,37 +43,88 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType, defineComponent } from "vue";
+import { ref, Ref, watch, computed, onMounted, inject, PropType, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { ComponentDetails } from "@im-library/interfaces";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { ComponentType, EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { generateNewComponent, updatePositions, addItem, updateItem } from "@im-library/helpers/EditorBuilderJsonMethods";
-import { isPropertyGroup, isPropertyShape } from "@im-library/helpers/TypeGuards";
+import { isPropertyShape } from "@im-library/helpers/TypeGuards";
 import { QueryService } from "@/services";
-import { IM, RDF, RDFS } from "@im-library/vocabulary";
+import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Array as PropType<TTIriRef[]>, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: any[];
+}
+
+const props = defineProps<Props>();
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
 const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+            invalid.value = false;
+            validationErrorMessage.value = undefined;
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+            showValidation.value = true;
+          }
+        }
+      }
+    }
+  );
+}
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 let key = props.shape.path["@id"];
 
-let loading = ref(true);
-let validationErrorMessage = "Failed validation";
-let build: Ref<ComponentDetails[]> = ref([]);
-onMounted(() => {
+const loading = ref(true);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(false);
+const build: Ref<ComponentDetails[]> = ref([]);
+onMounted(async () => {
   init();
+  if (updateValidity) {
+    if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+      invalid.value = false;
+      validationErrorMessage.value = undefined;
+    } else {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    }
+  }
 });
 
 watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], ([newPropsValue, newPropsShape], [oldPropsValue, oldPropsShape]) => {
@@ -80,7 +138,15 @@ watch(
   async newValue => {
     if (!loading.value && finishedChildLoading.value) {
       if (entityUpdate && isArrayHasLength(newValue)) updateEntity();
-      if (validityUpdate) await updateValidity();
+      if (updateValidity) {
+        if (props.shape.minCount === 0 && build.value.length === 1 && !isObjectHasKeys(build.value[0].json)) {
+          invalid.value = false;
+          validationErrorMessage.value = undefined;
+        } else {
+          await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        }
+      }
+      updateValueVariableMap(props.value);
     }
   }
 );
@@ -111,7 +177,6 @@ const finishedChildLoading = computed(
 
 function init() {
   key = props.shape.path["@id"];
-  if (isObjectHasKeys(props.shape, ["validationErrorMessage"])) validationErrorMessage = props.shape.validationErrorMessage;
   createBuild();
 }
 
@@ -126,6 +191,7 @@ function createBuild() {
   let position = 0;
   props.value.forEach(item => {
     build.value.push(processChild(item, position));
+    updateButtons();
     position++;
   });
   if (!isArrayHasLength(build.value)) {
@@ -136,34 +202,13 @@ function createBuild() {
 
 function createDefaultBuild() {
   build.value = [];
-  if (isPropertyGroup(props.shape))
-    if (isObjectHasKeys(props.shape, ["property"])) {
-      props.shape.property.forEach(property => {
-        build.value.push(
-          generateNewComponent(
-            ComponentType.BUILDER_CHILD_WRAPPER,
-            property.order - 1,
-            undefined,
-            property,
-            setButtonsByTypeAndPath(property.order - 1, true),
-            props.mode
-          )
-        );
-      });
-    } else if (isObjectHasKeys(props.shape, ["subGroup"])) {
-      props.shape.subGroup.forEach(subGroup => {
-        build.value.push(
-          generateNewComponent(
-            ComponentType.BUILDER_CHILD_WRAPPER,
-            subGroup.order - 1,
-            undefined,
-            subGroup,
-            setButtonsByTypeAndPath(subGroup.order - 1, true),
-            props.mode
-          )
-        );
-      });
-    }
+  if (isObjectHasKeys(props.shape, ["property"])) {
+    props.shape.property!.forEach(property => {
+      build.value.push(
+        generateNewComponent(ComponentType.BUILDER_CHILD_WRAPPER, property.order - 1, undefined, property, setButtons(property.order - 1, true), props.mode)
+      );
+    });
+  }
 }
 
 function processChild(child: any, position: number) {
@@ -171,34 +216,52 @@ function processChild(child: any, position: number) {
     ComponentType.BUILDER_CHILD_WRAPPER,
     position,
     child,
-    isObjectHasKeys(props.shape, ["property"]) ? props.shape.property[0] : props.shape.subGroup[0],
-    setButtonsByTypeAndPath(position, true),
+    props.shape.property?.[0] ?? ({} as PropertyShape),
+    setButtons(position, true),
     props.mode
   );
 }
 
-function setButtonsByTypeAndPath(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
-  const path = props.shape.path["@id"];
-  const types: TTIriRef[] = editorEntity?.value[RDF.TYPE];
-  if (path === RDFS.SUBCLASS_OF) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else if (path === IM.IS_CONTAINED_IN) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else if (path === IM.ROLE_GROUP) {
-    return addButtonOnlyIfLast(position, isNewItem);
-  } else {
-    return { minus: true, plus: true, up: true, down: true };
-  }
+function setButtons(position: number, isNewItem: boolean): { minus: boolean; plus: boolean; up: boolean; down: boolean } {
+  if (props.shape.arrayButtons) {
+    if (props.shape.arrayButtons.addOnlyIfLast) {
+      return addButtonOnlyIfLast(position, isNewItem);
+    } else
+      return {
+        minus: props.shape.arrayButtons?.minus ?? true,
+        plus: props.shape.arrayButtons?.plus ?? true,
+        up: props.shape.arrayButtons?.up ?? true,
+        down: props.shape.arrayButtons?.down ?? true
+      };
+  } else return { minus: true, plus: true, up: true, down: true };
 }
 
 function addButtonOnlyIfLast(position: number, isNewItem: boolean) {
-  if (isNewItem && position !== build.value.length) return { minus: true, plus: false, up: false, down: false };
-  else if (!isNewItem && position !== build.value.length - 1) return { minus: true, plus: false, up: false, down: false };
-  else return { minus: true, plus: true, up: false, down: false };
+  if (isNewItem && position !== build.value.length)
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: false,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
+  else if (!isNewItem && position !== build.value.length - 1)
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: false,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
+  else
+    return {
+      minus: props.shape.arrayButtons?.minus ?? true,
+      plus: props.shape.arrayButtons?.plus ?? true,
+      up: props.shape.arrayButtons?.up ?? true,
+      down: props.shape.arrayButtons?.down ?? true
+    };
 }
 
 function updateButtons() {
-  build.value.forEach(child => (child.showButtons = setButtonsByTypeAndPath(child.position, false)));
+  build.value.forEach(child => (child.showButtons = setButtons(child.position, false)));
 }
 
 function generateBuildAsJson() {
@@ -208,43 +271,26 @@ function generateBuildAsJson() {
       jsonBuild.push(item.json);
     }
   });
-  // return build.value.map(item => item.json);
   return jsonBuild;
 }
-
-let invalid = ref(false);
 
 function updateEntity() {
   const value = generateBuildAsJson();
   const result = {} as any;
   result[key] = value;
-  if (entityUpdate && value.length) entityUpdate(result);
+  if (!value.length && deleteEntityKey) deleteEntityKey(key);
+  else if (entityUpdate) entityUpdate(result);
 }
 
-async function updateValidity() {
-  if (isPropertyShape(props.shape) && isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
-  }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return generateBuildAsJson().every(item => isObjectHasKeys(item, ["@id", "name"]));
-}
-
-function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape | PropertyGroup }): void {
+function addItemWrapper(data: { selectedType: ComponentType; position: number; value: any; shape: PropertyShape }): void {
   let shape;
-  if (isPropertyGroup(props.shape) && isObjectHasKeys(props.shape, ["property"])) {
-    shape = props.shape.property.find(p => processComponentType(p.componentType) === data.selectedType);
-  } else if (isPropertyGroup(props.shape) && isObjectHasKeys(props.shape, ["subGroup"])) {
-    shape = props.shape.subGroup.find(s => processComponentType(s.componentType) === data.selectedType);
+  if (isObjectHasKeys(props.shape, ["property"])) {
+    shape = props.shape.property!.find(p => processComponentType(p.componentType) === data.selectedType);
   }
   if (data.selectedType !== ComponentType.BUILDER_CHILD_WRAPPER) {
     data.selectedType = ComponentType.BUILDER_CHILD_WRAPPER;
   }
-  if (shape) addItem(data, build.value, setButtonsByTypeAndPath(data.position, true), shape, props.mode);
+  if (shape) addItem(data, build.value, setButtons(data.position, true), shape, props.mode);
   updateButtons();
 }
 
@@ -265,12 +311,8 @@ function updateItemWrapper(data: ComponentDetails) {
 }
 
 function getNextComponentOptions() {
-  if (isPropertyGroup(props.shape) && isObjectHasKeys(props.shape, ["subGroup"]))
-    return props.shape.subGroup.map(subGroup => {
-      return { type: processComponentType(subGroup.componentType), name: subGroup.name };
-    });
-  else if (isPropertyGroup(props.shape) && isObjectHasKeys(props.shape, ["property"]))
-    return props.shape.property.map(property => {
+  if (isObjectHasKeys(props.shape, ["property"]))
+    return props.shape.property!.map(property => {
       return { type: processComponentType(property.componentType), name: property.name };
     });
   else return;
@@ -279,9 +321,19 @@ function getNextComponentOptions() {
 function moveItemUp(item: ComponentDetails) {
   if (item.position === 0) return;
   const found = build.value.find(o => o.position === item.position);
-  if (found) {
+  if (found && found.showButtons) {
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      found.showButtons.plus = false;
+    }
     build.value.splice(item.position, 1);
     build.value.splice(item.position - 1, 0, found);
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if (lastItem.showButtons) {
+        lastItem.showButtons.plus = true;
+      }
+    }
   }
   updatePositions(build.value);
 }
@@ -290,10 +342,31 @@ function moveItemDown(item: ComponentDetails) {
   if (item.position === build.value.length - 1) return;
   const found = build.value.find(o => o.position === item.position);
   if (found) {
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if (lastItem.showButtons) {
+        lastItem.showButtons.plus = false;
+      }
+    }
     build.value.splice(item.position, 1);
     build.value.splice(item.position + 1, 0, found);
+    if (props.shape.path["@id"] === SHACL.PROPERTY) {
+      const i = build.value.length - 1;
+      const lastItem = build.value[i];
+      if (lastItem.showButtons) {
+        lastItem.showButtons.plus = true;
+      }
+    }
     updatePositions(build.value);
   }
+}
+
+function updateValueVariableMap(data: any[] | undefined) {
+  if (!props.shape.valueVariable) return;
+  let mapKey = props.shape.valueVariable;
+  if (props.shape.builderChild) mapKey = mapKey + props.shape.order;
+  if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 </script>
 
@@ -302,6 +375,8 @@ function moveItemDown(item: ComponentDetails) {
   width: 100%;
   display: flex;
   flex-flow: column nowrap;
+  align-items: center;
+  overflow: auto;
 }
 .loading-container {
   flex: 1 1 auto;
@@ -312,19 +387,39 @@ function moveItemDown(item: ComponentDetails) {
   flex-flow: column;
 }
 .children-container {
-  padding: 1rem;
+  width: 100%;
   border-radius: 3px;
   flex: 1 1 auto;
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
-  gap: 1rem;
   overflow: auto;
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
+  border-radius: 5px;
+  padding: 0.25rem;
+}
+
+.validate-error-container {
+  width: 100%;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

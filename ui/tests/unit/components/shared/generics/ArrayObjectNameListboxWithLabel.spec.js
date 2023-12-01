@@ -4,6 +4,7 @@ import Listbox from "primevue/listbox";
 import Button from "primevue/button";
 import StyleClass from "primevue/styleclass";
 import { expect, it } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -17,17 +18,11 @@ vi.mock("vue-router", () => ({
   useRoute: () => mockRoute
 }));
 
-const mockDispatch = vi.fn();
-const mockState = { arrayObjectNameListboxWithLabelStartExpanded: ["Is a"] };
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    directory: { arrayObjectNameListboxWithLabelStartExpanded: ["Is a"] }
+  }
+});
 
 describe("ArrayObjectNameListboxWithLabel.vue ___ ontology", () => {
   let component;

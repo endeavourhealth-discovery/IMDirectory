@@ -7,8 +7,8 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue";
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
@@ -24,7 +24,6 @@ export default defineComponent({
   components: {
     EntityComboBox,
     ArrayBuilder,
-    ArrayBuilderWithDropdown,
     SetDefinitionBuilder,
     QueryDefinitionBuilder,
     EntityDropdown,
@@ -39,18 +38,20 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
-import { ref, Ref, watch, inject, onMounted, PropType, defineComponent } from "vue";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
+import { ref, Ref, watch, inject, onMounted, PropType } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+}
+
+const props = defineProps<Props>();
+
 watch(
   () => props.shape,
   newValue => {
@@ -60,22 +61,21 @@ watch(
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 
-let properties: Ref<PropertyShape[] | PropertyGroup[]> = ref([]);
+let properties: Ref<PropertyShape[]> = ref([]);
 
 onMounted(() => {
   setProperties(props.shape);
 });
 
-function processEntityValue(property: PropertyShape | PropertyGroup) {
+function processEntityValue(property: PropertyShape) {
   if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
   }
   return undefined;
 }
 
-function setProperties(shape: PropertyGroup) {
-  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property;
-  else if (isObjectHasKeys(shape, ["subGroup"])) properties.value = shape.subGroup;
+function setProperties(shape: PropertyShape) {
+  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property!;
   else properties.value = [];
 }
 </script>

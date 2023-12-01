@@ -50,6 +50,23 @@
           }
         }
       }
+    },
+    "/ValueSet/ECL": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
     }
   }
 }

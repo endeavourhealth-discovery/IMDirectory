@@ -2,10 +2,11 @@
   <div id="content-table-container" class="content-wrapper">
     <DataTable
       :value="children"
-      class="concept-data-table p-datatable-sm scrollbar"
+      class="concept-data-table p-datatable-sm"
       v-model:selection="selected"
       selectionMode="single"
       dataKey="@id"
+      :scrollable="true"
       scrollHeight="flex"
       :loading="loading"
       :lazy="true"
@@ -24,24 +25,22 @@
       <template #empty> No records found. </template>
 
       <Column field="name" header="Name">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div>
-            <span :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon">
-              <i :class="data.icon" aria-hidden="true" />
-            </span>
-            <span @mouseover="showOverlay($event, data)" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
+            <IMFontAwesomeIcon v-if="data.icon" :icon="data.icon" :style="getColourStyleFromType(data.type)" class="p-mx-1 type-icon" />
+            <span @mouseover="showOverlay($event, data['@id'])" @mouseleave="hideOverlay($event)">{{ data.name }}</span>
           </div>
         </template>
       </Column>
       <Column field="type" header="Type">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <span>{{ getTypesDisplay(data.type) }}</span>
         </template>
       </Column>
       <Column :exportable="false" style="justify-content: flex-end">
-        <template #body="{ data }">
+        <template #body="{ data }: any">
           <div class="buttons-container">
-            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" />
+            <ActionButtons :buttons="['findInTree', 'view', 'edit', 'favourite']" :iri="data['@id']" @locate-in-tree="locateInTree" />
           </div>
         </template>
       </Column>
@@ -53,29 +52,42 @@
 
 <script setup lang="ts">
 import { computed, onMounted, Ref, ref, watch } from "vue";
-import { useStore } from "vuex";
+import IMFontAwesomeIcon from "@/components/shared/IMFontAwesomeIcon.vue";
 import _ from "lodash";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
-import { ConceptTypeMethods, DataTypeCheckers } from "@im-library/helpers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import { EntityService, Env, DirectService } from "@/services";
-import rowClick from "@/composables/rowClick";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
+import { EntityService, DirectService, UserService } from "@/services";
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 import ActionButtons from "@/components/shared/ActionButtons.vue";
-const { getColourFromType, getFAIconFromType, isFolder, getNamesAsStringFromTypes } = ConceptTypeMethods;
-const { isArrayHasLength } = DataTypeCheckers;
+import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useUserStore } from "@/stores/userStore";
+import setupOverlay from "@/composables/setupOverlay";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 
-const store = useStore();
-const conceptIri = computed(() => store.state.conceptIri);
-const favourites = computed(() => store.state.favourites);
+interface Props {
+  entityIri: string;
+}
 
+const props = defineProps<Props>();
+
+const emit = defineEmits({
+  navigateTo: (_payload: string) => true
+});
+
+const directoryStore = useDirectoryStore();
+const userStore = useUserStore();
+const favourites = computed(() => userStore.favourites);
+const currentUser = computed(() => userStore.currentUser);
+const { OS, showOverlay, hideOverlay } = setupOverlay();
 const directService = new DirectService();
-const { onRowClick }: { onRowClick: Function } = rowClick();
 
 watch(
-  () => conceptIri.value,
+  () => props.entityIri,
   () => init()
 );
+
 watch(
   () => _.cloneDeep(favourites.value),
   () => {
@@ -83,7 +95,7 @@ watch(
   }
 );
 
-const conceptIsFavourite = computed(() => conceptIri.value === IM.NAMESPACE + "Favourites");
+const conceptIsFavourite = computed(() => props.entityIri === IM.NAMESPACE + "Favourites");
 
 const loading = ref(false);
 const children: Ref<any[]> = ref([]);
@@ -91,12 +103,12 @@ const selected: Ref<any> = ref({});
 const rClickOptions: Ref<any[]> = ref([
   {
     label: "Open",
-    icon: "pi pi-fw pi-folder-open",
-    command: () => directService.select((selected.value as any)["@id"])
+    icon: "fa-solid fa-folder-open",
+    command: () => emit("navigateTo", (selected.value as any)["@id"])
   },
   {
     label: "View in new tab",
-    icon: "pi pi-fw pi-external-link",
+    icon: "fa-solid fa-arrow-up-right-from-square",
     command: () => directService.view((selected.value as any)["@id"])
   },
   {
@@ -104,7 +116,7 @@ const rClickOptions: Ref<any[]> = ref([
   },
   {
     label: "Favourite",
-    icon: "pi pi-fw pi-star",
+    icon: "fa-solid fa-star",
     command: () => updateFavourites((selected.value as any)["@id"])
   }
 ]);
@@ -114,18 +126,20 @@ const pageSize = ref(25);
 const templateString = ref("Displaying {first} to {last} of [Loading...] concepts");
 
 const menu = ref();
-const OS: Ref<any> = ref();
 
 onMounted(() => init());
 
 async function init() {
   loading.value = true;
-  !conceptIsFavourite.value ? await getChildren(conceptIri.value) : await getFavourites();
+  !conceptIsFavourite.value ? await getChildren(props.entityIri) : await getFavourites();
   loading.value = false;
 }
 
 async function getFavourites() {
-  const result = await EntityService.getPartialEntities(favourites.value, [RDFS.LABEL, RDF.TYPE]);
+  let favouriteList: string[];
+  if (currentUser.value) favouriteList = await UserService.getUserFavourites();
+  else favouriteList = favourites ? favourites.value : [];
+  const result = await EntityService.getPartialEntities(favouriteList, [RDFS.LABEL, RDF.TYPE]);
   children.value = result.map((child: any) => {
     return { "@id": child["@id"], name: child[RDFS.LABEL], type: child[RDF.TYPE] };
   });
@@ -156,7 +170,7 @@ function isFavourite(iri: string) {
 
 function updateRClickOptions() {
   rClickOptions.value[0].label = selected.value.hasChildren ? "Open" : "Select";
-  rClickOptions.value[0].icon = selected.value.hasChildren ? "pi pi-fw pi-folder-open" : "fa-solid fa-sitemap";
+  rClickOptions.value[0].icon = selected.value.hasChildren ? "fa-solid fa-folder-open" : "fa-solid fa-sitemap";
   rClickOptions.value[rClickOptions.value.length - 1].label = isFavourite(selected.value["@id"]) ? "Unfavourite" : "Favourite";
 }
 
@@ -167,18 +181,18 @@ function onRowContextMenu(data: any) {
 }
 
 function updateFavourites(iri: string) {
-  store.commit("updateFavourites", iri);
+  userStore.updateFavourites(iri);
 }
 
 function onRowSelect(event: any) {
-  onRowClick(event.data["@id"]);
+  emit("navigateTo", event.data["@id"]);
 }
 
 async function onPage(event: any) {
   loading.value = true;
   pageSize.value = event.rows;
   currentPage.value = event.page;
-  const result = await EntityService.getPagedChildren(conceptIri.value, currentPage.value + 1, pageSize.value);
+  const result = await EntityService.getPagedChildren(props.entityIri, currentPage.value + 1, pageSize.value);
   children.value = result.result;
   children.value.forEach((child: any) => (child.icon = getFAIconFromType(child.type)));
   scrollToTop();
@@ -186,19 +200,12 @@ async function onPage(event: any) {
 }
 
 function scrollToTop(): void {
-  const resultsContainer = document.getElementById("content-table-container") as HTMLElement;
-  const scrollBox = resultsContainer?.getElementsByClassName("scrollbar")[0] as HTMLElement;
-  if (scrollBox) {
-    scrollBox.scrollTop = 0;
-  }
+  const scrollArea = document.getElementsByClassName("p-datatable-scrollable-table")[0] as HTMLElement;
+  scrollArea?.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
-async function showOverlay(event: any, data: any): Promise<void> {
-  await OS.value.showOverlay(event, data["@id"]);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
+function locateInTree(iri: string) {
+  directoryStore.updateFindInTreeIri(iri);
 }
 </script>
 
@@ -216,13 +223,13 @@ function hideOverlay(event: any): void {
 }
 
 .row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--surface-border) !important;
+  color: var(--surface-a) !important;
 }
 
 .row-button-fav:hover {
-  background-color: #e39a36 !important;
-  color: #ffffff !important;
+  background-color: var(--yellow-500) !important;
+  color: var(--surface-a) !important;
 }
 
 .content-wrapper {

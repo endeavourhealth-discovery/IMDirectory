@@ -22,21 +22,25 @@
 import { computed, onMounted, PropType, ref, Ref } from "vue";
 import { RDFS, OWL } from "@im-library/vocabulary";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import _ from "lodash";
 
-const props = defineProps({
-  title: { type: String, required: false },
-  subTitle: { type: String, required: false },
-  tableHeader: { type: String, required: false },
-  inputData: { type: Array as PropType<any[]>, default: [] },
-  id: { type: String, default: "report-table" }
+interface Props {
+  title?: string;
+  subTitle?: string;
+  tableHeader?: string;
+  inputData?: any[];
+  id?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  inputData: [] as any,
+  id: "report-table"
 });
 
 const tableData: Ref<{ count: number; label: string }[]> = ref([]);
 const loading = ref(false);
 
 const isCorrectInputData = computed(() =>
-  props.inputData.every(item => isObjectHasKeys(item, [RDFS.LABEL, OWL.HAS_VALUE]) || isObjectHasKeys(item, ["count", "label"]))
+  props.inputData?.every(item => isObjectHasKeys(item, [RDFS.LABEL, OWL.HAS_VALUE]) || isObjectHasKeys(item, ["count", "label"]))
 );
 
 onMounted(() => {
@@ -46,7 +50,7 @@ onMounted(() => {
 function getReportTableData(): void {
   if (!isCorrectInputData) return;
   loading.value = true;
-  for (const entry of props.inputData) {
+  for (const entry of props.inputData!) {
     if (isObjectHasKeys(entry, [RDFS.LABEL, OWL.HAS_VALUE])) {
       tableData.value.push({
         label: entry[RDFS.LABEL],

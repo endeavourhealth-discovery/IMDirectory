@@ -1,30 +1,26 @@
 import express, { NextFunction, Request, Response } from "express";
 import ProvService from "@/services/prov.service";
-
-
+import router from "express-promise-router";
 
 export default class ProvController {
-    public path ="/node_api/prov";
-    public router = express.Router();
-    private service: ProvService;
+  public path = "/node_api/prov";
+  public router = router();
+  private service: ProvService;
 
-    constructor() {
-        this.initRoutes();
-        this.service = new ProvService();
-    }
+  constructor() {
+    this.initRoutes();
+    this.service = new ProvService();
+  }
 
-    private initRoutes() {
-        this.router.get("/public/history",
-            async (req, res, next) => this.getProvHistory(req,res,next));
-    }
+  private initRoutes() {
+    this.router.get("/public/history", async (req, res, next) =>
+      this.getProvHistory(req)
+        .then(data => res.send(data))
+        .catch(next)
+    );
+  }
 
-    async getProvHistory(req: Request, res: Response, next: NextFunction) {
-        try {
-            const data = await this.service.getProvHistory(req.query.url as string);
-            res.send(data).end();
-        } catch (e) {
-            next(e);
-        }
-    }
-
+  async getProvHistory(req: Request) {
+    return await this.service.getProvHistory(req.query.url as string);
+  }
 }

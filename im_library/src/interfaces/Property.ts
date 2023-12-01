@@ -2,7 +2,7 @@ import { TTIriRef } from "../interfaces/AutoGen";
 
 export interface Property {
   "http://www.w3.org/ns/shacl#path": TTIriRef[];
-  "http://www.w3.org/ns/shacl#order": Number;
+  "http://www.w3.org/ns/shacl#order": number;
   "http://www.w3.org/ns/shacl#node"?: any[];
   "http://www.w3.org/ns/shacl#datatype"?: TTIriRef[];
   "http://www.w3.org/ns/shacl#class"?: TTIriRef[];

@@ -29,7 +29,7 @@
       <div class="flex justify-content-center align-items-center">
         <h5 class="m-0">{{ title }}</h5>
         <span v-if="inputSearch" class="p-input-icon-left">
-          <i class="pi pi-search" />
+          <IMFontAwesomeIcon icon="fa-solid fa-magnifying-glass" />
           <InputText v-model="searchTerm" type="text" placeholder="Search" @input="search" />
         </span>
       </div>
@@ -37,29 +37,27 @@
     <Column v-if="drag" :rowReorder="true" headerStyle="width: 3rem" />
     <Column v-if="selectable" selectionMode="multiple" headerStyle="width: 3em" />
     <Column field="name" header="Name">
-      <template #body="{ data }">
-        <span :style="'color: ' + getColourFromType(data.type)" class="p-mx-1 type-icon">
-          <i :class="getFAIconFromType(data.type)" aria-hidden="true" />
-        </span>
+      <template #body="{ data }: any">
+        <IMFontAwesomeIcon v-if="data.type" :icon="getFAIconFromType(data.type)" :style="'color: ' + getColourFromType(data.type)" class="p-mx-1 type-icon" />
         <span>{{ data.name }}</span>
       </template>
     </Column>
     <Column field="iri" header="Iri">
-      <template #body="{ data }">
+      <template #body="{ data }: any">
         {{ data.iri }}
       </template>
     </Column>
     <Column v-if="showActions" :exportable="false" bodyStyle="text-align: center; overflow: visible; justify-content: flex-end; gap: 0.25rem;">
-      <template #body="{ data }">
-        <Button icon="pi pi-fw pi-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data.iri)" v-tooltip.top="'View'" />
+      <template #body="{ data }: any">
+        <Button icon="fa-solid fa-eye" class="p-button-rounded p-button-text p-button-plain row-button" @click="view(data.iri)" v-tooltip.top="'View'" />
         <Button
-          icon="pi pi-fw pi-info-circle"
+          icon="fa-solid fa-circle-info"
           class="p-button-rounded p-button-text p-button-plain row-button"
           @click="showInfo(data.iri)"
           v-tooltip.top="'Info'"
         />
         <Button
-          icon="pi pi-fw pi-play"
+          icon="fa-solid fa-play"
           class="p-button-rounded p-button-text p-button-plain row-button"
           @click="starMapping(data.iri)"
           v-tooltip.left="'Start task'"
@@ -68,37 +66,36 @@
     </Column>
 
     <Column v-if="removableRows" headerStyle="width: 3rem">
-      <template #body="{ data }">
-        <Button icon="pi pi-times" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
+      <template #body="{ data }: any">
+        <Button icon="fa-solid fa-xmark" severity="danger" class="p-button-rounded p-button-text" @click="remove(data)" />
       </template>
     </Column>
   </DataTable>
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, ref, Ref } from "vue";
-import VueJsonPretty from "vue-json-pretty";
-import { isValueSet, getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
-import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { getContainerElementOptimalHeight } from "@im-library/helpers/ContainerDimensionGetters";
+import { ref, Ref } from "vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { DirectService, Env, EntityService } from "@/services";
-import { FilterMatchMode, FilterMatchModeOptions } from "primevue/api";
-import { mapState, useStore } from "vuex";
+import { FilterMatchMode } from "primevue/api";
 import { useRouter } from "vue-router";
-import DataTable, {DataTableFilterMeta, DataTableFilterMetaData, DataTableOperatorFilterMetaData} from 'primevue/datatable';
+import DataTable, { DataTableFilterMeta, DataTableFilterMetaData } from "primevue/datatable";
 
-const props = defineProps({
-  contents: { type: Array, required: true },
-  title: { type: String, required: false },
-  loading: { type: Boolean, required: false },
-  selectable: { type: Boolean, required: false },
-  inputSearch: { type: Boolean, required: false },
-  paginable: { type: Boolean, required: false },
-  rows: { type: Number, required: false },
-  drag: { type: Boolean, required: false },
-  removableRows: { type: Boolean, required: false },
-  showActions: { type: Boolean, required: false }
-});
+interface Props {
+  contents: [];
+  title?: string;
+  loading?: boolean;
+  selectable?: boolean;
+  inputSearch?: boolean;
+  paginable?: boolean;
+  rows?: number;
+  drag?: boolean;
+  removableRows?: boolean;
+  showActions?: boolean;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   search: (_payload: string) => true,
@@ -111,7 +108,6 @@ const emit = defineEmits({
   showDetails: (_payload: string) => true
 });
 
-const store = useStore();
 const router = useRouter();
 
 const directService = new DirectService();

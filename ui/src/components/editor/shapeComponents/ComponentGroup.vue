@@ -1,7 +1,11 @@
 <template>
   <div class="component-group-container">
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle">{{ shape.name }}</h2>
+      <h2 v-if="showRequired" class="required">*</h2>
+    </div>
     <div class="label-container">
-      <div v-for="(property, index) in properties" class="components-container">
+      <div v-for="(property, index) in properties" class="component-container">
         <component :is="processComponentType(property.componentType)" :shape="property" :value="processEntityValue(property)" :mode="mode" />
       </div>
     </div>
@@ -15,7 +19,7 @@ import EntityDropdown from "./EntityDropdown.vue";
 import EntitySearch from "./EntitySearch.vue";
 import TextInput from "./TextInput.vue";
 import TextDisplay from "./TextDisplay.vue";
-import injectionKeys from "@/injectionKeys/injectionKeys";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { EntityAutoComplete, EntityComboBox, EntityDropdown, EntitySearch, TextDisplay, TextInput }
@@ -23,20 +27,22 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { PropType, ref, Ref, watch, onMounted, defineComponent, inject } from "vue";
-import _ from "lodash";
+import { PropType, ref, Ref, watch, onMounted, inject, computed, ComputedRef } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isPropertyShape } from "@im-library/helpers/TypeGuards";
-import { PropertyGroup, PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
+import injectionKeys from "@/injectionKeys/injectionKeys";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Array as PropType<TTIriRef[]>, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: any;
+}
+
+const props = defineProps<Props>();
 
 watch(
   () => props.shape,
@@ -47,15 +53,20 @@ watch(
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
 
-let properties: Ref<PropertyShape[] | PropertyGroup[]> = ref([]);
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
+
+let properties: Ref<PropertyShape[]> = ref([]);
 
 onMounted(() => {
   setProperties(props.shape);
 });
 
-function processEntityValue(property: PropertyShape | PropertyGroup) {
-  if (props.value && isPropertyShape(property)) {
-    return props.value[property.order - 1];
+function processEntityValue(property: PropertyShape) {
+  if (props.value && isObjectHasKeys(props.value) && isPropertyShape(property) && isObjectHasKeys(props.value, [property.path["@id"]])) {
+    return props.value[property.path["@id"]];
   }
   if (isPropertyShape(property) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
@@ -63,33 +74,35 @@ function processEntityValue(property: PropertyShape | PropertyGroup) {
   return undefined;
 }
 
-function setProperties(shape: PropertyGroup) {
-  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property;
-  else if (isObjectHasKeys(shape, ["subGroup"])) properties.value = shape.subGroup;
+function setProperties(shape: PropertyShape) {
+  if (isObjectHasKeys(shape, ["property"])) properties.value = shape.property!;
   else properties.value = [];
 }
 </script>
 
 <style scoped>
 .component-group-container {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   overflow: auto;
+  display: flex;
+  flex-flow: row wrap;
 }
 
-.components-container {
+.component-container {
+  flex: 1 1 auto;
   display: flex;
-  flex-flow: column;
+  flex-flow: row;
   align-items: baseline;
 }
 
 .label-container {
-  flex: 0 1 auto;
+  width: 100%;
+  flex: 1 1 auto;
   padding: 1rem;
+  border: 1px solid var(--surface-border);
   border-radius: 3px;
-  position: relative;
-  min-width: 15rem;
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: row wrap;
   justify-content: flex-start;
   align-items: flex-start;
   overflow: auto;
@@ -101,6 +114,17 @@ function setProperties(shape: PropertyGroup) {
   left: 0;
   top: 0;
   font-size: 0.75rem;
-  color: #6c757d;
+  color: var(--text-color);
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

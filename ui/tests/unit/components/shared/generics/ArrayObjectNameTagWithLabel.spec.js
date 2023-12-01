@@ -1,27 +1,22 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import ArrayObjectNameTagWithLabel from "@/components/shared/generics/ArrayObjectNameTagWithLabel.vue";
 import Tag from "primevue/tag";
-import LoggerService from "@/services";
 import { IM } from "@im-library/vocabulary";
 import { expect } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = {
-  tagSeverityMatches: [
-    { "@id": IM.ACTIVE, severity: "success" },
-    { "@id": IM.DRAFT, severity: "warning" },
-    { "@id": IM.INACTIVE, severity: "danger" }
-  ]
-};
-const mockCommit = vi.fn();
+createTestingPinia({
+  initialState: {
+    root: {
+      tagSeverityMatches: [
+        { "@id": IM.ACTIVE, severity: "success" },
+        { "@id": IM.DRAFT, severity: "warning" },
+        { "@id": IM.INACTIVE, severity: "danger" }
+      ]
+    }
+  }
+});
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
 
 describe("ArrayObjectNameTagWithLabel.vue ___ single", () => {
   let component;

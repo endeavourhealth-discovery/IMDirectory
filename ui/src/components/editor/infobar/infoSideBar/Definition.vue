@@ -20,7 +20,8 @@
 </template>
 
 <script lang="ts">
-import TermsTable from "@/components/editor/infobar/infoSideBar/TermsTable.vue";
+import TermsTable from "@/components/directory/viewer/TermsTable.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: { TermsTable }
@@ -28,16 +29,18 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref } from "vue";
+import { onMounted, PropType, ref, Ref } from "vue";
 import { DefinitionConfig } from "@im-library/interfaces";
 import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityService } from "@/services";
 
-const props = defineProps({
-  concept: { type: Object, required: true },
-  configs: { type: Array as PropType<Array<DefinitionConfig>>, required: true },
-  totalCount: { type: Number as any }
-});
+interface Props {
+  concept: any;
+  configs: DefinitionConfig[];
+  totalCount?: number;
+}
+
+const props = defineProps<Props>();
 
 let nextPage = ref(2);
 let pageSize = ref(10);
@@ -45,7 +48,7 @@ let loadButton = ref(false);
 let children: Ref<any> = ref({});
 
 onMounted(() => {
-  if (props.totalCount >= pageSize.value) {
+  if (props.totalCount && props.totalCount >= pageSize.value) {
     loadButton.value = true;
   }
 });
@@ -102,12 +105,12 @@ function hasData(data: any): boolean {
 
 async function loadMore(predicate: string) {
   if (loadButton.value) {
-    if (nextPage.value * pageSize.value < props.totalCount) {
+    if (props.totalCount && (nextPage.value * pageSize.value < props.totalCount)) {
       children.value = await EntityService.getPagedChildren(props.concept["@id"], nextPage.value, pageSize.value);
       props.concept[predicate] = props.concept[predicate].concat(children.value.result);
       nextPage.value = nextPage.value + 1;
       loadButton.value = true;
-    } else if (nextPage.value * pageSize.value > props.totalCount) {
+    } else if (props.totalCount && (nextPage.value * pageSize.value > props.totalCount)) {
       children.value = await EntityService.getPagedChildren(props.concept["@id"], nextPage.value, props.totalCount - (nextPage.value - 1) * pageSize.value + 1);
       props.concept[predicate] = props.concept[predicate].concat(children.value.result);
       loadButton.value = false;

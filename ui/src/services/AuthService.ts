@@ -4,6 +4,20 @@ import { Auth } from "aws-amplify";
 import axios from "axios";
 import Env from "./Env";
 
+function processAwsUser(cognitoUser: any) {
+  return {
+    id: cognitoUser.attributes.sub,
+    username: cognitoUser.username,
+    firstName: cognitoUser.attributes["custom:forename"],
+    lastName: cognitoUser.attributes["custom:surname"],
+    email: cognitoUser.attributes.email,
+    password: "",
+    avatar: cognitoUser.attributes["custom:avatar"],
+    roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] ?? [],
+    mfaStatus: cognitoUser.preferredMFA ? [cognitoUser.preferredMFA] : []
+  } as User;
+}
+
 const AuthService = {
   async register(userToRegister: User): Promise<CustomAlert> {
     try {
@@ -27,8 +41,8 @@ const AuthService = {
     }
   },
 
-  async isEmailRegistered(email: string) {
-    return await axios.get(Env.VITE_NODE_API + "node_api/cognito/public/isEmailRegistered", { params: { email: email } });
+  async isEmailRegistered(email: string): Promise<boolean> {
+    return axios.get(Env.VITE_NODE_API + "node_api/cognito/public/isEmailRegistered", { params: { email: email } });
   },
 
   async confirmRegister(username: string, code: string): Promise<CustomAlert> {
@@ -44,19 +58,10 @@ const AuthService = {
     try {
       const user = await Auth.signIn(username, password);
       if (isObjectHasKeys(user, ["challengeName"])) {
-        return { status: 403, message: user.challengeName, error: undefined, user: { username: user.username } as User };
+        return { status: 403, message: user.challengeName, error: undefined, user: user, userRaw: user };
       }
-      const signedInUser = {
-        id: user.attributes.sub,
-        username: user.username,
-        firstName: user.attributes["custom:forename"],
-        lastName: user.attributes["custom:surname"],
-        email: user.attributes.email,
-        password: "",
-        avatar: user.attributes["custom:avatar"],
-        roles: user.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-      } as User;
-      return { status: 200, message: "Login successful", error: undefined, user: signedInUser } as CustomAlert;
+      const signedInUser = processAwsUser(user);
+      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
     } catch (err: any) {
       if (err.code === "UserNotConfirmedException") {
         return { status: 401, message: err.message, error: err } as CustomAlert; //message: "User is not confirmed."
@@ -100,17 +105,8 @@ const AuthService = {
         };
         await Auth.updateUserAttributes(user, atts);
         const updateResults = await Auth.currentAuthenticatedUser();
-        const updatedUser = {
-          id: updateResults.attributes.sub,
-          username: updateResults.username,
-          firstName: updateResults.attributes["custom:forename"],
-          lastName: updateResults.attributes["custom:surname"],
-          email: updateResults.attributes.email,
-          password: "",
-          avatar: updateResults.attributes["custom:avatar"],
-          roles: updateResults.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-        } as User;
-        return { status: 200, message: "User updated successfully", error: undefined, user: updatedUser } as CustomAlert;
+        const updatedUser = processAwsUser(updateResults);
+        return { status: 200, message: "User updated successfully", error: undefined, user: updatedUser, userRaw: updateResults } as CustomAlert;
       } else {
         return { status: 403, message: "Authentication error with server" } as CustomAlert;
       }
@@ -171,20 +167,37 @@ const AuthService = {
   async getCurrentAuthenticatedUser(): Promise<CustomAlert> {
     try {
       const cognitoUser = await Auth.currentAuthenticatedUser();
-      const authenticatedUser = {
-        id: cognitoUser.attributes.sub,
-        username: cognitoUser.username,
-        firstName: cognitoUser.attributes["custom:forename"],
-        lastName: cognitoUser.attributes["custom:surname"],
-        email: cognitoUser.attributes.email,
-        password: "",
-        avatar: cognitoUser.attributes["custom:avatar"],
-        roles: cognitoUser.signInUserSession?.accessToken?.payload["cognito:groups"] || []
-      } as User;
-      return { status: 200, message: "User authenticated successfully", error: undefined, user: authenticatedUser } as CustomAlert;
+      const authenticatedUser = processAwsUser(cognitoUser);
+      return { status: 200, message: "User authenticated successfully", error: undefined, user: authenticatedUser, userRaw: cognitoUser } as CustomAlert;
     } catch (err: any) {
       return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
     }
+  },
+
+  async getMfaToken(user: any): Promise<string> {
+    return await Auth.setupTOTP(user);
+  },
+
+  async mfaSignIn(user: any, mfaCode: string) {
+    try {
+      const authorizedUser = await Auth.confirmSignIn(user, mfaCode, "SOFTWARE_TOKEN_MFA");
+      const signedInUser = processAwsUser(authorizedUser);
+      return { status: 200, message: "Login successful", error: undefined, user: signedInUser, userRaw: user } as CustomAlert;
+    } catch (err: any) {
+      return { status: 403, message: "Error authenticating current user", error: err } as CustomAlert;
+    }
+  },
+
+  async setMfaPreference(user: any, preference: "TOTP" | "SMS" | "NOMFA" | "SMS_MFA" | "SOFTWARE_TOKEN_MFA") {
+    try {
+      await Auth.setPreferredMFA(user, preference);
+    } catch (error: any) {
+      throw new Error("Failed to set user mfa preference", error);
+    }
+  },
+
+  async verifyMFAToken(user: any, token: string) {
+    await Auth.verifyTotpToken(user, token);
   }
 
   // currently not a feature with AWS Auth

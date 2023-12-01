@@ -1,8 +1,8 @@
 <template>
   <div class="details-container">
     <div style="margin-bottom: 1em">
-      <Button class="details-tree-button" icon="pi pi-plus" label="Expand All" @click="expandAll" />
-      <Button class="details-tree-button p-button-secondary" icon="pi pi-minus" label="Collapse All" @click="collapseAll" />
+      <Button class="details-tree-button" icon="fa-solid fa-plus" label="Expand All" @click="expandAll" />
+      <Button class="details-tree-button p-button-secondary" icon="fa-solid fa-minus" label="Collapse All" @click="collapseAll" />
     </div>
     <Tree
       v-model:selectionKeys="selectedKeys"
@@ -13,50 +13,26 @@
       @node-select="onSelect"
       @node-expand="onExpand"
     >
-      <template #default="{ node }">
+      <template #default="{ node }: any">
         <div v-if="tabPredicates.includes(node.key!)">
           <a class="clickable" @click="openTab(node.key!)">{{ node.label }}</a>
         </div>
 
-        <div v-else-if="node.value">{{ node.label + " - " + node.value }}</div>
+        <div v-else-if="node.data">
+          {{ node.label + " - " }}<IMViewerLink :iri="node.data['@id']!" :label="node.data.name" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
+        </div>
         <div v-else>{{ node.label }}</div>
       </template>
-      <template #propertyIs="{ node }">
-        <IMViewerLink
-          :iri="node.value.property['@id']"
-          :label="node.value.property.includeSubtypes ? node.value.property.name + '*' : node.value.property.name"
-        />
-        =
-        <IMViewerLink :iri="node.value.is['@id']" :label="node.value.is.includeSubtypes ? node.value.is.name + '*' : node.value.is.name" />
+      <template #string="{ node }: any">{{ node.value }}</template>
+      <template #iri="{ node }: any"> {{ node.label }} <IMViewerLink :iri="node.value" @navigateTo="(iri: string) => emit('navigateTo', iri)" /></template>
+      <template #boolean="{ node }: any">{{ node.label }}</template>
+      <template #link="{ node }: any">
+        <IMViewerLink :iri="node.key!" :label="node.label" @navigateTo="(iri: string) => emit('navigateTo', iri)" />
       </template>
-      <template #string="{ node }">{{ node.value }}</template>
-      <template #iri="{ node }"> {{ node.label }} <IMViewerLink :iri="node.value" /></template>
-      <template #boolean="{ node }">{{ node.label }}</template>
-      <template #from="{ node }">
-        <IMViewerLink v-if="node.value.includeSubtypes" :iri="node.value['@id']" :label="node.label + '*'" />
-        <IMViewerLink v-else :iri="node.value['@id']" :label="node.label" />
-      </template>
-
-      <template #simpleOr="{ node }">
-        <div v-for="(from, index) in node.value" :key="index">
-          <IMViewerLink v-if="from.includeSubtypes" :iri="from['@id']" :label="from.label + '*'" />
-          <IMViewerLink v-else :iri="node.value['@id']" :label="from.label" />
-        </div>
-      </template>
-      <template #property="{ node }">
-        <span @mouseover="showOverlay($event, node.iri)" @mouseleave="hideOverlay($event)"><IMViewerLink :iri="node.iri" :label="node.label" />: </span>
-        <span @mouseover="showOverlay($event, node.data['@id'])" @mouseleave="hideOverlay($event)"
-          ><IMViewerLink :iri="node.data['@id']" :label="node.data.name"
-        /></span>
-      </template>
-      <template #link="{ node }">
-        <IMViewerLink :iri="node.key!" :label="node.label" />
-      </template>
-      <template #loadMore="{ node }">
+      <template #loadMore="{ node }: any">
         <b>{{ node.label }}...</b>
       </template>
     </Tree>
-    <OverlaySummary ref="OS" />
   </div>
 </template>
 
@@ -67,12 +43,14 @@ import { onMounted, Ref, ref, watch } from "vue";
 import IMViewerLink from "@/components/shared/IMViewerLink.vue";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import OverlaySummary from "@/components/directory/viewer/OverlaySummary.vue";
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+import OverlaySummary from "@/components/shared/OverlaySummary.vue";
 
-const emit = defineEmits({ onOpenTab: (payload: string) => payload });
+interface Props {
+  entityIri: string;
+}
+const props = defineProps<Props>();
+
+const emit = defineEmits({ onOpenTab: (payload: string) => payload, navigateTo: (_payload: string) => true });
 
 const tabPredicates = [SHACL.PROPERTY, IM.DEFINITION];
 const OS: Ref<any> = ref();
@@ -82,8 +60,8 @@ const selectedKeys: Ref<any> = ref({});
 const predicatePageIndexMap: Ref<Map<string, { pageIndex: number; node: TreeNode }>> = ref(new Map<string, { pageIndex: number; node: TreeNode }>());
 
 watch(
-  () => props.conceptIri,
-  async newValue => getDefinition()
+  () => props.entityIri,
+  async () => getDefinition()
 );
 
 onMounted(async () => await getDefinition());
@@ -111,14 +89,14 @@ const expandNode = (node: TreeNode) => {
 };
 
 async function getDefinition() {
-  definition.value = (await EntityService.getEntityDetailsDisplay(props.conceptIri)).filter((c: any) => c.key !== IM.IS_A);
+  definition.value = (await EntityService.getEntityDetailsDisplay(props.entityIri)).filter((c: any) => c.key !== IM.IS_A);
 }
 
 async function onSelect(node: TreeNode) {
   if (node.key === IM.NAMESPACE + "loadMore") {
     const pageIndexInfo = predicatePageIndexMap.value.get(node.data.predicate);
     if (pageIndexInfo) {
-      const entityDetails = await EntityService.loadMoreDetailsDisplay(props.conceptIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
+      const entityDetails = await EntityService.loadMoreDetailsDisplay(props.entityIri, node.data.predicate, ++pageIndexInfo.pageIndex, 10);
       const predicateValueNode = entityDetails.find(loadMoreNode => loadMoreNode.key === node.data.predicate);
       if (isArrayHasLength(predicateValueNode?.children)) {
         pageIndexInfo.node.children = pageIndexInfo.node.children?.concat(predicateValueNode!.children!);
@@ -136,14 +114,6 @@ async function onExpand(node: TreeNode) {
   if (hasLoadMore) predicatePageIndexMap.value.set(node.key!, { pageIndex: 1, node: node });
 }
 
-async function showOverlay(event: any, iri: any): Promise<void> {
-  await OS.value.showOverlay(event, iri);
-}
-
-function hideOverlay(event: any): void {
-  OS.value.hideOverlay(event);
-}
-
 function openTab(predicate: string) {
   emit("onOpenTab", predicate);
 }
@@ -155,6 +125,7 @@ function openTab(predicate: string) {
   flex-flow: column nowrap;
   width: 100%;
   height: 100%;
+  background-color: var(--surface-a);
 }
 .tree-container {
   height: 100vh;

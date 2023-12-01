@@ -1,4 +1,4 @@
-import { render, fireEvent, within } from "@testing-library/vue";
+import { render } from "@testing-library/vue";
 import LandingPage from "@/components/directory/LandingPage.vue";
 import ProgressSpinner from "primevue/progressspinner";
 import PrimeVue from "primevue/config";
@@ -9,23 +9,12 @@ import Column from "primevue/column";
 import Button from "primevue/button";
 import Tooltip from "primevue/tooltip";
 import testData from "./LandingPage.testData";
-import { EntityService, ConfigService, DirectService } from "@/services";
+import { EntityService, ConfigService, DirectService, UserService } from "@/services";
 import { flushPromises } from "@vue/test-utils";
-import { afterAll, it, vi } from "vitest";
+import { it, vi } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = {
-  recentLocalActivity: [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }]
-};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -53,6 +42,7 @@ describe("LandingPage.vue", async () => {
     getDashboardLayoutSpy = vi.spyOn(ConfigService, "getDashboardLayout").mockResolvedValue(testData.DASHBOARD_LAYOUT);
     directToSpy = vi.spyOn(DirectService.prototype, "directTo");
     vi.useFakeTimers().setSystemTime(new Date("2022-09-23T12:18:59.78"));
+    UserService.getUserMRU = async () => [{ iri: "http://snomed.info/sct#6081001", dateTime: "2022-09-22T15:57:56.778Z", action: "Viewed" }];
 
     component = render(LandingPage, {
       global: {

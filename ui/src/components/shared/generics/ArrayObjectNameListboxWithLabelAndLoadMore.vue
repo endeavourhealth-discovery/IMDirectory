@@ -30,9 +30,9 @@
       :id="'listbox-' + id"
       class="array-listbox hidden"
     >
-      <template #option="slotProps">
+      <template #option="{ option }: any">
         <div class="data-name" data-testid="row-text">
-          {{ slotProps.option?.name || slotProps.option?.["@id"] }}
+          {{ option?.name || option?.["@id"] }}
         </div>
       </template>
       <template #footer>
@@ -50,28 +50,34 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent, onMounted, PropType, ref, Ref, watch } from "vue";
-import { RouteRecordName, useRoute, useRouter } from "vue-router";
-import { mapState, useStore } from "vuex";
+import { computed, onMounted, PropType, ref, Ref, watch } from "vue";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import _ from "lodash";
 import { DirectService } from "@/services";
 import { getLogger } from "@im-library/logger/LogConfig";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const log = getLogger("components.shared.generics.ArrayObjectNameListboxWithLabelAndLoadMore");
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Object as PropType<{ children: any[]; totalCount: any; loadMore: Function }>, required: true },
-  size: { type: String, default: "100%", required: false },
-  id: { type: String, default: "array-object-name-listbox-with-label-and-load-more" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: { children: any[]; totalCount: any; loadMore: Function };
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "array-object-name-listbox-with-label-and-load-more"
 });
 
-const store = useStore();
+const directoryStore = useDirectoryStore();
+const sharedStore = useSharedStore();
 const directService = new DirectService();
-const arrayObjectNameListboxWithLabelStartExpanded = computed(() => store.state.arrayObjectNameListboxWithLabelStartExpanded);
-const conceptIri = computed(() => store.state.conceptIri);
+const arrayObjectNameListboxWithLabelStartExpanded = computed(() => directoryStore.arrayObjectNameListboxWithLabelStartExpanded);
+const conceptIri = computed(() => directoryStore.conceptIri);
 
 const selected: Ref = ref({});
 const buttonExpanded = ref(false);

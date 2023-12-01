@@ -4,23 +4,21 @@
       data-testid="button-bar-back-button"
       class="back-button"
       label="Back"
-      icon="pi pi-arrow-circle-left"
+      icon="fa-solid fa-circle-arrow-left"
       iconPos="left"
       v-on:click.prevent="clickedBack"
     />
-    <Button data-testid="button-bar-home-button" class="home-button" icon="pi pi-home" v-on:click.prevent="homeClicked" />
+    <Button data-testid="button-bar-home-button" class="home-button" icon="fa-solid fa-house" v-on:click.prevent="homeClicked" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useStore } from "vuex";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
 
-const store = useStore();
+const authStore = useAuthStore();
 const router = useRouter();
-
-const previousAppUrl = computed(() => store.state.previousAppUrl);
 
 function clickedBack(): void {
   router.back();

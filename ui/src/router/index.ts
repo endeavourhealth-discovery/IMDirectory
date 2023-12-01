@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 const Directory = () => import("@/views/Directory.vue");
 const DirectoryDetails = () => import("@/components/directory/DirectoryDetails.vue");
-const SearchResultsTable = () => import("@/components/directory/SearchResultsTable.vue");
+const SearchResults = () => import("@/components/shared/SearchResults.vue");
 const LandingPage = () => import("@/components/directory/LandingPage.vue");
 const EclSearch = () => import("@/components/directory/EclSearch.vue");
 const IMQuerySearch = () => import("@/components/directory/IMQuerySearch.vue");
@@ -15,6 +15,9 @@ const PasswordEdit = () => import("@/components/auth/PasswordEdit.vue");
 const Register = () => import("@/components/auth/Register.vue");
 const UserDetails = () => import("@/components/auth/UserDetails.vue");
 const UserEdit = () => import("@/components/auth/UserEdit.vue");
+const MFASetup = () => import("@/components/auth/MFASetup.vue");
+const MFALogin = () => import("@/components/auth/MFALogin.vue");
+const MFADelete = () => import("@/components/auth/MFADelete.vue");
 const Creator = () => import("@/views/Creator.vue");
 const TypeSelector = () => import("@/components/creator/TypeSelector.vue");
 const Editor = () => import("@/views/Editor.vue");
@@ -22,18 +25,33 @@ const Mapper = () => import("@/views/Mapper.vue");
 const Workflow = () => import("@/views/Workflow.vue");
 const TaskDefinition = () => import("@/components/workflow/TaskDefinition.vue");
 const TaskViewer = () => import("@/components/workflow/TaskViewer.vue");
-const AccessDenied = () => import("@/components/shared/errorPages/AccessDenied.vue");
-const PageNotFound = () => import("@/components/shared/errorPages/PageNotFound.vue");
-const EntityNotFound = () => import("@/components/shared/errorPages/EntityNotFound.vue");
-const ServerOffline = () => import("@/components/shared/errorPages/ServerOffline.vue");
-const SnomedLicense = () => import("@/components/shared/SnomedLicense.vue");
+const AccessDenied = () => import("@/views/AccessDenied.vue");
+const PageNotFound = () => import("@/views/PageNotFound.vue");
+const EntityNotFound = () => import("@/views/EntityNotFound.vue");
+const ServerOffline = () => import("@/views/ServerOffline.vue");
+const VueError = () => import("@/views/VueError.vue");
+const BugReport = () => import("@/views/BugReport.vue");
+const SnomedLicense = () => import("@/views/SnomedLicense.vue");
+const PrivacyPolicy = () => import("@/views/PrivacyPolicy.vue");
+const Cookies = () => import("@/views/Cookies.vue");
 const Filer = () => import("@/views/Filer.vue");
+const Uprn = () => import("@/views/Uprn.vue");
+const SingleFileLookup = () => import("@/components/uprn/SingleAddressLookup.vue");
+const AddressFileWorkflow = () => import("@/components/uprn/AddressFileWorkflow.vue");
+const AddressFileDownload = () => import("@/components/uprn/AddressFileDownload.vue");
 const Query = () => import("@/views/Query.vue");
-import { EntityService, Env } from "@/services";
+const UprnAgreement = () => import("@/views/UprnAgreement.vue");
+import { EntityService, Env, UserService } from "@/services";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import store from "@/store/index";
-import { nextTick } from "vue";
+
+import { nextTick, computed } from "vue";
 import { urlToIri } from "@im-library/helpers/Converters";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { useUserStore } from "@/stores/userStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useCreatorStore } from "@/stores/creatorStore";
+import Swal, { SweetAlertResult } from "sweetalert2";
 
 const APP_TITLE = "IM Directory";
 
@@ -42,7 +60,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/directory",
     name: "Directory",
     component: Directory,
-    meta: { requiredLicense: true },
+    meta: { requiresLicense: true },
     redirect: { name: "LandingPage" },
     children: [
       {
@@ -61,12 +79,13 @@ const routes: Array<RouteRecordRaw> = [
         component: DirectoryDetails,
         meta: {
           requiresLicense: true
-        }
+        },
+        props: true
       },
       {
         path: "search",
         name: "Search",
-        component: SearchResultsTable,
+        component: SearchResults,
         meta: {
           requiresLicense: true,
           helpContext: "search"
@@ -150,6 +169,23 @@ const routes: Array<RouteRecordRaw> = [
         path: "password-recovery/submit:returnUrl?",
         name: "ForgotPasswordSubmit",
         component: ForgotPasswordSubmit
+      },
+      {
+        path: "mfa-setup",
+        name: "MFASetup",
+        component: MFASetup,
+        meta: { requiresReAuth: true }
+      },
+      {
+        path: "mfa-login",
+        name: "MFALogin",
+        component: MFALogin
+      },
+      {
+        path: "mfa-delete",
+        name: "MFADelete",
+        component: MFADelete,
+        meta: { requiresReAuth: true }
       }
     ]
   },
@@ -166,11 +202,13 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/editor/:selectedIri?",
     name: "Editor",
+    props: true,
     component: Editor,
     meta: {
       requiresAuth: true,
       requiresLicense: true,
-      requiresEditRole: true
+      requiresEditRole: true,
+      requiresOrganisation: true
     },
     children: []
   },
@@ -213,30 +251,58 @@ const routes: Array<RouteRecordRaw> = [
       requiresLicense: true
     }
   },
-  // {
-  //   path: "/query",
-  //   name: "Query",
-  //   component: Query,
-  //   meta: {
-  //     requiresAuth: true,
-  //     requiresLicense: true
-  //   }
-  // },
+  {
+    path: "/uprn",
+    name: "Uprn",
+    component: Uprn,
+    redirect: { name: "SingleAddressLookup" },
+    meta: {
+      requiresAuth: true,
+      requiresUprnAgreement: true
+    },
+    children: [
+      { path: "singleAddressLookup", name: "SingleAddressLookup", component: SingleFileLookup },
+      { path: "addressFileWorkflow", name: "AddressFileWorkflow", component: AddressFileWorkflow },
+      { path: "addressFileDownload", name: "AddressFileDownload", component: AddressFileDownload }
+    ]
+  },
+  {
+    path: "/query/:queryIri?",
+    name: "Query",
+    component: Query,
+    meta: {
+      requiresAuth: true,
+      requiresLicense: true,
+      requiresCreateRole: true
+    }
+  },
   {
     path: "/snomedLicense",
     name: "License",
     component: SnomedLicense
   },
   {
-    path: "/401/:requiredRole?",
+    path: "/privacy",
+    name: "Privacy",
+    component: PrivacyPolicy
+  },
+  { path: "/cookies", name: "Cookies", component: Cookies },
+  {
+    path: "/uprn-agreement",
+    name: "UPRNAgreement",
+    component: UprnAgreement
+  },
+  {
+    path: "/401/:requiredAccess?:accessType?",
     name: "AccessDenied",
     component: AccessDenied,
     props: true
   },
   {
-    path: "/404",
+    path: "/404/:iri?",
     name: "EntityNotFound",
-    component: EntityNotFound
+    component: EntityNotFound,
+    props: true
   },
   {
     path: "/:pathMatch(.*)*",
@@ -247,6 +313,19 @@ const routes: Array<RouteRecordRaw> = [
     path: "/500",
     name: "ServerOffline",
     component: ServerOffline
+  },
+  {
+    path: "/error",
+    name: "VueError",
+    component: VueError
+  },
+  {
+    path: "/bugReport",
+    name: "BugReport",
+    component: BugReport,
+    meta: {
+      requiresAuth: true
+    }
   }
 ];
 
@@ -255,76 +334,114 @@ const router = createRouter({
   routes
 });
 
+async function directToLogin() {
+  await Swal.fire({
+    icon: "warning",
+    title: "Please Login to continue",
+    showCancelButton: true,
+    confirmButtonText: "Login",
+    reverseButtons: true
+  }).then((result: SweetAlertResult) => {
+    if (result.isConfirmed) {
+      console.log("redirecting to login");
+      router.push({ name: "Login" });
+    } else {
+      console.log("redirecting to landing page");
+      router.push({ name: "LandingPage" });
+    }
+  });
+}
+
 router.beforeEach(async (to, from) => {
-  const currentUrl = Env.DIRECTORY_URL + to.path.slice(1);
-  if (to.path !== "/snomedLicense") {
-    store.commit("updateSnomedReturnUrl", currentUrl);
-    store.commit("updateAuthReturnUrl", currentUrl);
-  }
+  const directoryStore = useDirectoryStore();
+  const authStore = useAuthStore();
+  const creatorStore = useCreatorStore();
+  const editorStore = useEditorStore();
+  const userStore = useUserStore();
+
+  const currentPath = to.path;
+
+  authStore.updateAuthReturnPath(currentPath);
+
   const iri = to.params.selectedIri;
   if (iri) {
-    store.commit("updateConceptIri", iri as string);
+    directoryStore.updateConceptIri(iri as string);
   }
   if (to.name?.toString() == "Editor" && iri && typeof iri === "string") {
-    if (iri) store.commit("updateEditorIri", iri);
+    if (iri) editorStore.updateEditorIri(iri);
     try {
       if (!(await EntityService.iriExists(urlToIri(iri)))) {
-        router.push({ name: "EntityNotFound" });
+        await router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
     } catch (_error) {
-      router.push({ name: "EntityNotFound" });
+      await router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
   }
   if (to.matched.some((record: any) => record.meta.requiresAuth)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
+      await directToLogin();
+      return false;
+    }
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresReAuth)) {
+    if (from.name !== "Login" && from.name !== "MFALogin") {
+      console.log("requires re-authentication");
+      await directToLogin();
+      return false;
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresCreateRole)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
-    } else if (!store.state.currentUser.roles.includes("create")) {
-      router.push({ name: "AccessDenied", params: { requiredRole: "create" } });
+      await directToLogin();
+      return false;
+    } else if (!userStore.currentUser?.roles?.includes("create")) {
+      await router.push({ name: "AccessDenied", params: { requiredAccess: "create", accessType: "role" } });
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresEditRole)) {
-    const res = await store.dispatch("authenticateCurrentUser");
+    const res = await userStore.authenticateCurrentUser();
     console.log("auth guard user authenticated: " + res.authenticated);
     if (!res.authenticated) {
-      console.log("redirecting to login");
-      router.push({ name: "Login" });
-    } else if (!store.state.currentUser.roles.includes("edit")) {
-      router.push({ name: "AccessDenied", params: { requiredRole: "edit" } });
+      await directToLogin();
+      return false;
+    } else if (!userStore.currentUser?.roles?.includes("edit")) {
+      await router.push({ name: "AccessDenied", params: { requiredAccess: "edit", accessType: "role" } });
     }
   }
 
   if (to.matched.some((record: any) => record.meta.requiresLicense)) {
-    console.log("snomed license accepted:" + store.state.snomedLicenseAccepted);
-    if (store.state.snomedLicenseAccepted !== "true") {
-      return {
-        path: "/snomedLicense"
-      };
+    console.log("snomed license accepted:" + userStore.snomedLicenseAccepted);
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresUprnAgreement)) {
+    console.log("uprn agreement accepted: " + userStore.uprnAgreementAccepted);
+  }
+
+  if (to.matched.some((record: any) => record.meta.requiresOrganisation)) {
+    let isEditAllowed = false;
+    if (userStore.isLoggedIn) isEditAllowed = await UserService.canUserEdit(iri as string);
+    if (!isEditAllowed) {
+      await router.push({ name: "AccessDenied", params: { requiredAccess: iri.slice(0, iri.indexOf("#") + 1), accessType: "organisation" } });
     }
   }
 
   if (to.name === "PageNotFound" && to.path.startsWith("/creator/")) {
-    router.push({ name: "Creator" });
+    await router.push({ name: "Creator" });
   }
   if (to.name === "PageNotFound" && to.path.startsWith("/editor/")) {
     const urlSections = to.path.split("/");
     if (urlSections.length > 2) {
       const selectedIriParam = to.path.split("/")[2];
-      if (!selectedIriParam) router.push({ name: "EntityNotFound" });
-      else router.push({ name: "Editor", params: { selectedIri: urlToIri(selectedIriParam) } });
-    } else router.push({ name: "Editor" });
+      if (!selectedIriParam) await router.push({ name: "EntityNotFound", params: { iri: selectedIriParam } });
+      else await router.push({ name: "Editor", params: { selectedIri: urlToIri(selectedIriParam) } });
+    } else await router.push({ name: "Editor" });
   }
 
   if (to.name === "Folder" && isObjectHasKeys(to.params, ["selectedIri"]) && to.params.selectedIri !== "http://endhealth.info/im#Favourites") {
@@ -332,15 +449,15 @@ router.beforeEach(async (to, from) => {
     try {
       new URL(iri);
       if (!(await EntityService.iriExists(iri))) {
-        router.push({ name: "EntityNotFound" });
+        await router.push({ name: "EntityNotFound", params: { iri: iri } });
       }
     } catch (_error) {
-      router.push({ name: "EntityNotFound" });
+      await router.push({ name: "EntityNotFound", params: { iri: iri } });
     }
   }
 
   if (from.path.startsWith("/creator/") && !to.path.startsWith("/creator/")) {
-    if (store.state.creatorHasChanges) {
+    if (creatorStore.creatorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }
@@ -348,7 +465,7 @@ router.beforeEach(async (to, from) => {
   }
 
   if (from.path.startsWith("/editor/") && !to.path.startsWith("/editor/")) {
-    if (store.state.editorHasChanges) {
+    if (editorStore.editorHasChanges) {
       if (!window.confirm("Are you sure you want to leave this page. Unsaved changes will be lost.")) {
         return false;
       }

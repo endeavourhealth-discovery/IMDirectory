@@ -1,77 +1,115 @@
 <template>
   <div class="string-single-display-container">
+    <label v-if="shape.showTitle">{{ shape.name }}</label>
     <div class="input-loading-container">
-      <span class="p-float-label" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
-        <InputText disabled class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" />
-        <label>{{ shape.name }}</label>
-      </span>
+      <div class="tooltip-container" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-display-tooltip' }">
+        <InputText disabled class="p-inputtext input-text" :class="invalid && showValidation && 'invalid'" v-model="userInput" type="text" />
+      </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
     </div>
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, computed, onMounted, inject, PropType } from "vue";
+import { ref, watch, onMounted, inject, PropType, Ref, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, Argument } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
-import { QueryService } from "@/services";
+import { FunctionService, QueryService } from "@/services";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: String, required: false },
-  position: { type: Number, required: false }
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: string;
+  position?: number;
+}
+
+const props = defineProps<Props>();
+watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], async ([newPropsValue, newShapeValue]) => {
+  if (newPropsValue && newShapeValue) userInput.value = newPropsValue;
+  else userInput.value = await processPropertyValue(newShapeValue);
 });
 
+const emit = defineEmits({ updateClicked: (_payload: string) => true });
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
-if (valueVariableMap) {
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
+      showValidation.value = true;
+    }
+  });
+}
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
   watch(
-    () => _.cloneDeep(valueVariableMap.value),
-    async () => {
-      if (props.shape.argument && props.shape.argument.some(a => a.valueVariable)) await init();
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        const result = await processPropertyValue(props.shape);
+        if (result) userInput.value = result;
+        else userInput.value = "";
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
+        }
+      }
     }
   );
 }
 
 let key = props.shape.path["@id"];
-let loading = ref(false);
 
-let invalid = ref(false);
+const loading = ref(false);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const userInput = ref("");
+const showValidation = ref(false);
 
-let userInput = ref("");
-watch([() => _.cloneDeep(props.value), () => _.cloneDeep(props.shape)], async ([newPropsValue, newShapeValue]) => {
-  if (newPropsValue && newShapeValue) userInput.value = newPropsValue;
-  else userInput.value = await processPropertyValue(newShapeValue);
-});
 watch(userInput, async newValue => {
   if (newValue) {
-    updateEntity(newValue);
+    if (!props.shape.builderChild) updateEntity(newValue);
+    else emit("updateClicked", newValue);
     updateValueVariableMap(newValue);
-    await updateValidity();
+    if (updateValidity) {
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      }
+      showValidation.value = true;
+    }
+  } else {
+    if (deleteEntityKey) deleteEntityKey(key);
   }
 });
+
 onMounted(async () => {
   await init();
 });
-
-watch(
-  () => _.cloneDeep(valueVariableMap?.value),
-  async (newValue, oldValue) => {
-    if (!userInput.value && newValue && oldValue && !compareMaps(newValue, oldValue)) {
-      loading.value = true;
-      if (newValue?.size) userInput.value = await processPropertyValue(props.shape);
-      loading.value = false;
-    }
-  }
-);
 
 async function init() {
   if (props.value) userInput.value = props.value;
@@ -95,27 +133,25 @@ function compareMaps(map1: Map<string, any>, map2: Map<string, any>) {
 
 async function processPropertyValue(property: PropertyShape): Promise<string> {
   if (isObjectHasKeys(property, ["isIri"])) {
-    return property.isIri["@id"];
+    return property.isIri!["@id"];
   }
   if (isObjectHasKeys(property, ["function", "argument"])) {
     const args = processArguments(property, valueVariableMap?.value);
-    if (props.shape.argument.find((a: Argument) => a.valueVariable)) {
+    if (props.shape.argument!.find((a: Argument) => a.valueVariable)) {
       const valueVariable = args.find(arg => isObjectHasKeys(arg, ["valueVariable"]));
       if (valueVariable && valueVariable.valueVariable && args.every((arg: Argument) => isObjectHasKeys(arg, ["parameter"]))) {
-        const result = await QueryService.runFunction(property.function["@id"], args);
+        const result = await FunctionService.runFunction(property.function!["@id"], args);
         if (result) return result;
       } else return "";
     } else {
-      const result = await QueryService.runFunction(property.function["@id"], args);
+      const result = await FunctionService.runFunction(property.function!["@id"], args);
       if (result) return result;
     }
-  }
-  if (isObjectHasKeys(property, ["function"])) {
-    const result = await QueryService.runFunction(property.function["@id"]);
+  } else if (isObjectHasKeys(property, ["function"])) {
+    const result = await FunctionService.runFunction(property.function!["@id"]);
     if (result && isObjectHasKeys(result, ["iri"])) return result.iri["@id"];
-    else throw new Error("Failed to run function " + property.function["@id"]);
   }
-  throw new Error("Property must have isIri or function key");
+  return "";
 }
 
 // function processArguments(property: PropertyShape) {
@@ -136,7 +172,9 @@ async function processPropertyValue(property: PropertyShape): Promise<string> {
 function updateEntity(data: string) {
   const result = {} as any;
   result[key] = data;
-  if (entityUpdate) entityUpdate(result);
+  if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
+  else emit("updateClicked", data);
 }
 
 function updateValueVariableMap(data: string) {
@@ -146,27 +184,28 @@ function updateValueVariableMap(data: string) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-async function updateValidity() {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidation();
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !userInput.value) return;
+  if (!userInput.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required. ";
   }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidation() {
-  return true;
 }
 </script>
 
 <style scoped>
+.string-single-display-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
 .input-loading-container {
   display: flex;
   flex-flow: row nowrap;
-  width: 25rem;
+  min-width: 25rem;
   align-items: center;
-  padding: 2rem 0 0 0;
 }
 .p-float-label {
   flex: 1 1 auto;
@@ -178,6 +217,11 @@ function defaultValidation() {
   width: 2rem;
   height: 2rem;
 }
+
+.tooltip-container {
+  width: 100%;
+}
+
 .input-text {
   width: 100%;
   text-overflow: ellipsis;
@@ -185,12 +229,16 @@ function defaultValidation() {
   white-space: nowrap;
 }
 
+.input-text:hover {
+  cursor: not-allowed;
+}
+
 .invalid {
-  border-color: #e24c4c;
+  border-color: var(--red-500);
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
 }

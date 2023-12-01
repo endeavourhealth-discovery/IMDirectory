@@ -1,5 +1,5 @@
 import { DirectService, EntityService } from "@/services";
-import { getColourFromType, getFAIconFromType } from "@im-library/helpers/ConceptTypeMethods";
+import { getColourFromType, getFAIconFromType } from "@/helpers/ConceptTypeVisuals";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { EntityReferenceNode } from "@im-library/interfaces";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
@@ -77,7 +77,7 @@ function setupTree() {
 
   async function loadMore(node: any) {
     node.loading = true;
-    if (node.nextPage * pageSize.value < node.totalCount) {
+    if (node.nextPage * pageSize.value <= node.totalCount) {
       const children = await EntityService.getPagedChildren(node.parentNode.data, node.nextPage, pageSize.value);
       node.parentNode.children.pop();
       children.result.forEach((child: any) => {
@@ -106,7 +106,11 @@ function setupTree() {
       children.result.forEach((child: any) => {
         if (!nodeHasChild(node, child)) node.children.push(createTreeNode(child.name, child["@id"], child.type, child.hasChildren, node));
       });
-      if (children.totalCount >= pageSize.value) {
+      if (
+        children.totalCount >= pageSize.value &&
+        node.children.length !== children.totalCount &&
+        node.children[node.children.length - 1].data !== "loadMore"
+      ) {
         node.children.push(createLoadMoreNode(node, 2, children.totalCount));
       }
       node.loading = false;

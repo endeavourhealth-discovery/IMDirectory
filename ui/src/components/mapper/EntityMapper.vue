@@ -3,7 +3,7 @@
     <h5>Map: {{ taskName }}</h5>
     <div class="grid">
       <div class="col-4">
-        <SecondaryTree v-if="taskIri" :conceptIri="taskIri" />
+        <SecondaryTree v-if="taskIri" :entityIri="taskIri" />
       </div>
       <div class="col-8">
         <OverlayPanel ref="summary_overlay" id="summary_overlay_panel" style="width: 50vw" :breakpoints="{ '960px': '75vw' }">
@@ -39,7 +39,7 @@
                     placeholder="Select status"
                   />
                   <InputText class="col-3" v-model="searchTerm" placeholder="Keyword Search" />
-                  <Button class="col-2 save-button" :loading="loading" icon="pi pi-search" label="Search" @click="search()" />
+                  <Button class="col-2 save-button" :loading="loading" icon="fa-solid fa-magnifying-glass" label="Search" @click="search()" />
                 </div>
               </Panel>
             </div>
@@ -57,7 +57,7 @@
               <template #empty> No results found. </template>
               <template #loading> Loading results. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="hover-name" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -65,16 +65,16 @@
               </Column>
               <Column field="usage" header="Usage"> </Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
-                      icon="pi pi-fw pi-eye"
+                      icon="fa-solid fa-eye"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="view(data.iri)"
                       v-tooltip.top="'View'"
                     />
                     <Button
-                      icon="pi pi-fw pi-info-circle"
+                      icon="fa-solid fa-circle-info"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="showInfo(data.iri)"
                       v-tooltip.top="'Info'"
@@ -86,8 +86,8 @@
           </div>
           <div class="col-12">
             <div class="grid">
-              <div class="col-offset-4 center-button"><Button class="pick-button" icon="pi pi-arrow-down" @click="addSelected" /></div>
-              <div class="col-offset-3 center-button"><Button class="pick-button" icon="pi pi-arrow-up" @click="removeSelected" /></div>
+              <div class="col-offset-4 center-button"><Button class="pick-button" icon="fa-solid fa-arrow-down" @click="addSelected" /></div>
+              <div class="col-offset-3 center-button"><Button class="pick-button" icon="fa-solid fa-arrow-up" @click="removeSelected" /></div>
             </div>
           </div>
           <div class="col-12 mappings-table">
@@ -104,7 +104,7 @@
               <template #empty> No results found. </template>
               <template #loading> Loading results. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="hover-name" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -112,16 +112,16 @@
               </Column>
               <Column field="usage" header="Usage"> </Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
-                      icon="pi pi-fw pi-eye"
+                      icon="fa-solid fa-eye"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="view(data.iri)"
                       v-tooltip.top="'View'"
                     />
                     <Button
-                      icon="pi pi-fw pi-info-circle"
+                      icon="fa-solid fa-circle-info"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="showInfo(data.iri)"
                       v-tooltip.top="'Info'"
@@ -136,16 +136,14 @@
     </div>
   </div>
   <div class="button-bar">
-    <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="$router.go(-1)" />
-    <Button :loading="saveLoading" icon="pi pi-check" label="Save mappings" class="save-button" @click="saveMappings" />
+    <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="$router.go(-1)" />
+    <Button :loading="saveLoading" icon="fa-solid fa-check" label="Save mappings" class="save-button" @click="saveMappings" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ComputedRef, onMounted, ref, Ref } from "vue";
-import { useStore } from "vuex";
 import { ToastSeverity } from "@im-library/enums";
-import { getNamesAsStringFromTypes } from "@im-library/helpers/ConceptTypeMethods";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { ToastOptions } from "@im-library/models";
 import { IM, RDFS } from "@im-library/vocabulary";
@@ -154,25 +152,27 @@ import "vue-json-pretty/lib/styles.css";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import axios from "axios";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
-
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
+import OverlaySummary from "../shared/OverlaySummary.vue";
+import SecondaryTree from "../shared/SecondaryTree.vue";
+import { useFilterStore } from "@/stores/filterStore";
 
 const emit = defineEmits({
   showDetails: (_payload: string) => true
 });
 
 const route = useRoute();
-const store = useStore();
+const filterStore = useFilterStore();
 const toast = useToast();
 
 const directService = new DirectService();
 
-const filterOptions: ComputedRef<FilterOptions> = computed(() => store.state.filterOptions);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
+const filterDefaults: Ref<FilterOptions> = computed(() => filterStore.filterDefaults);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 
-let actions: Ref<any[]> = ref([]);
 let taskIri = ref("");
 let taskName = ref("");
 let searching = ref(false);
@@ -185,10 +185,8 @@ let selectedMappings: Ref<any[]> = ref([]);
 let mappings: Ref<any[]> = ref([]);
 let loading = ref(false);
 let saveLoading = ref(false);
-let hoveredResult: Ref<ConceptSummary> = ref({} as ConceptSummary);
 let controller: Ref<AbortController> = ref({} as AbortController);
 let hoveredItem = ref({} as any);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
 
 const summary_overlay = ref();
 
@@ -307,17 +305,11 @@ async function search(): Promise<void> {
   searching.value = true;
   if (searchTerm.value.length > 0) {
     searchResults.value = [];
-    const searchRequest = {} as SearchRequest;
-    searchRequest.termFilter = searchTerm.value;
-    searchRequest.sortField = "weighting";
-    searchRequest.page = 1;
-    searchRequest.size = 100;
-    setFilters(searchRequest);
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
     controller.value = new AbortController();
-    await fetchSearchResults(searchRequest, controller.value);
+    await fetchSearchResults(controller.value);
   } else {
     await getMappingSuggestions(taskIri.value, taskName.value);
   }
@@ -330,8 +322,8 @@ function setFilters(searchRequest: SearchRequest) {
   searchRequest.typeFilter = selectedFilters.value.types.map(type => type["@id"]);
 }
 
-async function fetchSearchResults(searchRequest: SearchRequest, controller: AbortController) {
-  const result = await EntityService.advancedSearch(searchRequest, controller);
+async function fetchSearchResults(controller: AbortController) {
+  const result = await EntityService.simpleSearch(searchTerm.value, filterDefaults.value, controller);
   if (result && isArrayHasLength(result)) {
     searchResults.value = result.map(item => {
       return { iri: item.iri, name: item.name, type: item.entityType, scheme: item.scheme, status: item.status, usage: item.weighting };
@@ -340,10 +332,6 @@ async function fetchSearchResults(searchRequest: SearchRequest, controller: Abor
     searchResults.value = [];
   }
   suggestions.value = searchResults.value;
-}
-
-function getConceptTypes(types: TTIriRef[]): string {
-  return getNamesAsStringFromTypes(types);
 }
 </script>
 
@@ -361,7 +349,7 @@ function getConceptTypes(types: TTIriRef[]): string {
   padding: 2rem 2rem 0 2rem;
   overflow: auto;
   position: relative;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   height: calc(100vh - 8rem);
 }
 .button-bar {
@@ -369,11 +357,11 @@ function getConceptTypes(types: TTIriRef[]): string {
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
   width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--surface-border);
+  border-left: 1px solid var(--surface-border);
+  border-right: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
   flex-flow: row;
   justify-content: flex-end;

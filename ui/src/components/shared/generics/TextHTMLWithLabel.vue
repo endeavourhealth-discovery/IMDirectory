@@ -6,14 +6,19 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: String, required: false },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "text-html-with-label" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data?: string;
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "text-html-with-label"
 });
 
 const convertedText = ref("");

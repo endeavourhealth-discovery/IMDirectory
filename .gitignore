@@ -6,6 +6,9 @@
 **/coverage
 node
 
+#ignore types
+im_library/types
+
 # local env files
 **/.env.**
 

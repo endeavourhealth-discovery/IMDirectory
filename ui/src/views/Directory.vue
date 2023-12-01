@@ -3,7 +3,14 @@
     <TopBar>
       <template #content>
         <div id="topbar-content-container">
-          <Search />
+          <SearchBar
+            :search-results="searchResults"
+            @update:search-results="updateSearchResults"
+            :search-loading="searchLoading"
+            @update:search-loading="updateSearchLoading"
+            @to-ecl-search="toEclSearch"
+            @to-query-search="toQuerySearch"
+          />
         </div>
       </template>
     </TopBar>
@@ -19,35 +26,60 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import TopBar from "@/components/shared/TopBar.vue";
-import Search from "@/components/directory/topbar/Search.vue";
+import SearchBar from "@/components/shared/SearchBar.vue";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
-import { useRoute, useRouter } from "vue-router";
-import { Env, FilerService, DataModelService } from "@/services";
+import { useRouter } from "vue-router";
 import { useToast } from "primevue/usetoast";
-import { useStore } from "vuex";
+import { useFilterStore } from "@/stores/filterStore";
+import { useUserStore } from "@/stores/userStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
+import { ConceptSummary } from "@im-library/interfaces";
 
 const router = useRouter();
 const toast = useToast();
-const store = useStore();
+const filterStore = useFilterStore();
+const userStore = useUserStore();
+const directoryStore = useDirectoryStore();
 
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
+const searchResults = computed(() => directoryStore.searchResults);
+const searchLoading = computed(() => directoryStore.searchLoading);
 
 const loading = ref(true);
 
 onMounted(async () => {
   loading.value = true;
-  await store.dispatch("fetchFilterSettings");
-  await store.dispatch("initFavourites");
+  await filterStore.fetchFilterSettings();
+  await userStore.initFavourites();
   loading.value = false;
 });
 
+function updateSearchResults(data: ConceptSummary[]) {
+  directoryStore.updateSearchResults(data);
+  router.push({ name: "Search" });
+}
+
+function updateSearchLoading(data: boolean) {
+  directoryStore.updateSearchLoading(data);
+}
+
+function toEclSearch() {
+  router.push({ name: "EclSearch" });
+}
+
+function toQuerySearch() {
+  router.push({ name: "IMQuerySearch" });
+}
 </script>
 
 <style scoped>
 #directory-main-container {
-  height: 100%;
+  flex: 1 1 auto;
   width: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  overflow: auto;
 }
 
 #topbar-content-container {
@@ -68,7 +100,8 @@ body {
 }
 
 #app-content-container {
-  height: calc(100% - 3.5rem);
+  flex: 1 1 auto;
+  overflow: auto;
 }
 
 #topbar-container {

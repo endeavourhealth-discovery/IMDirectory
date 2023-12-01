@@ -1,202 +1,135 @@
 import Env from "./Env";
 import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
-import { QueryObject, AllowableChildProperty, AliasEntity } from "@im-library/interfaces";
+import { AllowableChildProperty, AliasEntity, QueryResponse } from "@im-library/interfaces";
 import axios from "axios";
-import { PathDocument, Query, QueryRequest } from "@im-library/interfaces/AutoGen";
-import { TreeNode } from "primevue/tree";
+import { PathDocument, Query, QueryRequest, SearchResultSummary } from "@im-library/interfaces/AutoGen";
 
 const QueryService = {
   async querySummary(iri: string): Promise<any> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/querySummary", {
-        params: {
-          iri: iri
-        }
-      });
-    } catch (error) {
-      return {} as any;
-    }
-  },
-
-  async definition(iri: string): Promise<any> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/definition", {
-        params: {
-          iri: iri
-        }
-      });
-    } catch (error) {
-      return {} as any;
-    }
-  },
-
-  async getRichDefinition(iri: string): Promise<any> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/richDefinition", {
-        params: {
-          iri: iri
-        }
-      });
-    } catch (error) {
-      return {} as any;
-    }
-  },
-
-  async generateSQL(conceptIri: string) {
-    return axios.get(Env.VITE_NODE_API + "node_api/query/public/getSQL", {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/querySummary", {
       params: {
-        iri: conceptIri
-      },
-      responseType: "text"
+        iri: iri
+      }
     });
   },
 
-  async queryIM(query: QueryRequest, controller?: AbortController): Promise<{ entities: any[]; "@context": any }> {
-    try {
-      if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal });
-      else return await axios.post(Env.API + "api/query/public/queryIM", query);
-    } catch (error) {
-      return undefined as any;
-    }
+  async definition(iri: string): Promise<any> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/definition", {
+      params: {
+        iri: iri
+      }
+    });
   },
 
-  async checkValidation(validationIri: string, data: any): Promise<boolean> {
-    try {
-      return await axios.post(Env.VITE_NODE_API + "node_api/validation/public/validate", data, { params: { iri: validationIri } });
-    } catch (error) {
-      return false;
-    }
+  async getRichDefinition(iri: string): Promise<any> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/richDefinition", {
+      params: {
+        iri: iri
+      }
+    });
   },
 
-  async runFunction(iri: string, args?: any[]): Promise<any> {
-    try {
-      if (args && args.length > 0) {
-        const result: any = await axios.post(Env.API + "api/function/public/callFunction", {
-          functionIri: iri,
-          arguments: args
-        });
-        if (isArrayHasLength(args) && args.find(arg => arg.parameter === "fieldName")) return result[args.find(arg => arg.parameter === "fieldName").valueData];
-        else return result;
-      } else return await axios.post(Env.API + "api/function/public/callFunction", { functionIri: iri });
-    } catch (error) {
-      console.error(error);
-      return undefined;
-    }
+  async queryIM(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<QueryResponse> {
+    if (controller) return await axios.post(Env.API + "api/query/public/queryIM", query, { signal: controller.signal, raw: raw });
+    else return await axios.post(Env.API + "api/query/public/queryIM", query, { raw: raw });
+  },
+
+  async queryIMSearch(query: QueryRequest, controller?: AbortController, raw: boolean = false): Promise<SearchResultSummary[]> {
+    return await axios.post(Env.API + "api/query/public/queryIMSearch", query, { signal: controller?.signal, raw: raw });
+  },
+
+  async checkValidation(validationIri: string, data: any): Promise<{ isValid: boolean; message: string | undefined }> {
+    return axios.post(Env.VITE_NODE_API + "node_api/validation/public/validate", data, { params: { iri: validationIri } });
   },
 
   async entityQuery(query: QueryRequest, controller?: AbortController) {
-    try {
-      if (controller) return await axios.post(Env.API + "api/query/public/entityQuery", query, { signal: controller.signal });
-      else return await axios.post(Env.API + "api/query/public/entityQuery", query);
-    } catch (error) {
-      return undefined;
-    }
-  },
-
-  async getSetQueryDisplay(query: any): Promise<TreeNode> {
-    try {
-      return await axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", query);
-    } catch (error) {
-      return {} as TreeNode;
-    }
-  },
-
-  async getQueryObject(query: any): Promise<QueryObject> {
-    try {
-      return await axios.post(Env.VITE_NODE_API + "node_api/query/public/queryObject", query);
-    } catch (error) {
-      return {} as QueryObject;
-    }
-  },
-
-  async getQueryDefinitionDisplay(conceptIri: string): Promise<TreeNode> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDefinitionDisplay", {
-        params: { iri: conceptIri }
-      });
-    } catch (error) {
-      return {} as TreeNode;
-    }
-  },
-
-  async getQueryObjectByIri(conceptIri: string): Promise<QueryObject> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/queryObjectDisplay", {
-        params: { iri: conceptIri }
-      });
-    } catch (error) {
-      return {} as QueryObject;
-    }
+    if (controller) return await axios.post(Env.API + "api/query/public/entityQuery", query, { signal: controller.signal });
+    else return await axios.post(Env.API + "api/query/public/entityQuery", query);
   },
 
   async getAllowablePropertySuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
-    try {
-      if (controller)
-        return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
-          params: { iri: conceptIri, searchTerm: searchTerm },
-          signal: controller.signal
-        });
-      else
-        return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
-          params: { iri: conceptIri, searchTerm: searchTerm }
-        });
-    } catch (error) {
-      return [] as AliasEntity[];
-    }
+    return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestions", {
+      params: { iri: conceptIri, searchTerm: searchTerm },
+      signal: controller?.signal
+    });
   },
 
   async getAllowablePropertySuggestionsBoolFocus(focus: any, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
-    try {
-      return await axios.post(
-        Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestionsBoolFocus",
-        { focus: focus, searchTerm: searchTerm },
-        { signal: controller?.signal }
-      );
-    } catch (error) {
-      return [] as AliasEntity[];
-    }
+    return axios.post(
+      Env.VITE_NODE_API + "node_api/query/public/allowablePropertySuggestionsBoolFocus",
+      { focus: focus, searchTerm: searchTerm },
+      { signal: controller?.signal }
+    );
   },
 
   async getAllowableRangeSuggestions(conceptIri: string, searchTerm?: string, controller?: AbortController): Promise<AliasEntity[]> {
-    try {
-      if (controller)
-        return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableRangeSuggestions", {
-          params: { iri: conceptIri, searchTerm: searchTerm },
-          signal: controller.signal
-        });
-      else
-        return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableRangeSuggestions", {
-          params: { iri: conceptIri, searchTerm: searchTerm }
-        });
-    } catch (error) {
-      return [] as AliasEntity[];
-    }
+    if (controller)
+      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableRangeSuggestions", {
+        params: { iri: conceptIri, searchTerm: searchTerm },
+        signal: controller.signal
+      });
+    else
+      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableRangeSuggestions", {
+        params: { iri: conceptIri, searchTerm: searchTerm }
+      });
   },
 
   async getAllowableChildTypes(conceptIri: string): Promise<AllowableChildProperty[]> {
-    try {
-      return await axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableChildTypes", {
-        params: { iri: conceptIri }
-      });
-    } catch (error) {
-      return [] as AllowableChildProperty[];
-    }
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/allowableChildTypes", {
+      params: { iri: conceptIri }
+    });
+  },
+
+  async getPropertyRange(propIri: string): Promise<any[]> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/propertyRange", {
+      params: { propIri: propIri }
+    });
+  },
+
+  async isFunctionProperty(propIri: string): Promise<any> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/isFunctionProperty", {
+      params: { propIri: propIri }
+    });
   },
 
   async getPathSuggestions(queryRequest: QueryRequest): Promise<PathDocument> {
-    try {
-      return await axios.post(Env.API + "api/query/public/pathQuery", queryRequest);
-    } catch (error) {
-      return {} as PathDocument;
-    }
+    return axios.post(Env.API + "api/query/public/pathQuery", queryRequest);
   },
 
   async getLabeledQuery(query: Query): Promise<Query> {
-    try {
-      return await axios.post(Env.API + "api/query/public/labelQuery", query);
-    } catch (error) {
-      return {} as Query;
-    }
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/labeledQuery", query);
+  },
+
+  async getQueryDisplay(iri: string): Promise<Query> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/queryDisplay", { params: { queryIri: iri } });
+  },
+
+  async getQueryDisplayFromQuery(query: Query): Promise<Query> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/queryDisplayFromQuery", query);
+  },
+
+  async getAllQueries(): Promise<any> {
+    return axios.get(Env.API + "api/query/public/allQueries");
+  },
+
+  async getAllQByType(iri: string): Promise<any> {
+    return axios.get(Env.API + "api/query/public/allByType", { params: { iri: iri } });
+  },
+
+  async getDataModelProperty(dataModelIri: string, propertyIri: string) {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/dataModelProperty", { params: { dataModelIri: dataModelIri, propertyIri: propertyIri } });
+  },
+
+  async generateQuerySQL(queryIri: string): Promise<string> {
+    return axios.get(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", { params: { queryIri: queryIri } });
+  },
+
+  async generateQuerySQLfromQuery(query: Query): Promise<string> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/generateQuerySQL", query);
+  },
+
+  async validateSelectionWithQuery(selectedIri: string, queryRequest: QueryRequest): Promise<string> {
+    return axios.post(Env.VITE_NODE_API + "node_api/query/public/selection/validate", { iri: selectedIri, queryRequest: queryRequest });
   }
 };
 

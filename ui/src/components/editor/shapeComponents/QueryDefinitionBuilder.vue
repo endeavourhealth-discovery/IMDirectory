@@ -1,224 +1,179 @@
 <template>
-  <div class="query-builder-main-container">
-    <QueryTree :queryNodes="queryNodes" :selectedNodeKey="selectedNodeKey" @selected="onSelect" />
-    <div class="property-container">
-      <div class="property-component" v-if="currentQueryObject.children?.length" v-for="(property, index) in currentQueryObject.children" :key="property.key">
-        <PropertyInput
-          :property="property"
-          :parentType="currentQueryObject.type"
-          :options="options"
-          @changeCurrentObject="updateCurrentObject"
-          @removeProperty="deleteProperty"
-        />
-      </div>
-      <div class="property-component">
-        <Button icon="pi pi-plus" label="Add" severity="success" class="one-rem-margin" @click="addProperty" />
+  <div id="cohort-query-definition-editor">
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
+    </div>
+    <div v-else class="content-container" :class="showValidation && invalid && 'invalid'">
+      <div class="query-editor-container flex flex-column gap-3">
+        <div class="query-editor flex flex-column p-2">
+          <CohortEditor v-model:queryDefinition="queryDefinition" />
+        </div>
+        <div class="flex flex-row gap-2 justify-content-end">
+          <div><Button label="Generate SQL" @click="generateSQL" data-testid="sql-button" /></div>
+          <!-- <QuickQuery :query="queryDefinition">
+            <template #button="{ runQuickQuery }">
+              <Button icon="fa-solid fa-bolt" label="Test query" severity="help" @click="runQuickQuery" />
+            </template>
+          </QuickQuery> -->
+        </div>
       </div>
     </div>
+    <div class="validate-error-container"></div>
+    <span class="validate-error" v-if="validationErrorMessage && showValidation"> {{ validationErrorMessage }}</span>
+
+    <Dialog header="SQL (Postgres)" :visible="showSql" :modal="true" :style="{ width: '80vw' }" @update:visible="showSql = false">
+      <pre>{{ sql }}</pre>
+      <template #footer>
+        <Button label="Copy to Clipboard" @click="copy" data-testid="copy-button" />
+        <Button label="Close" @click="showSql = false" data-testid="close-button" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch, Ref } from "vue";
-import QueryTree from "./queryDefinition/QueryTree.vue";
-import "vue-json-pretty/lib/styles.css";
-import { QueryObject } from "@im-library/interfaces";
-import { SearchRequest, Query, QueryRequest, TTIriRef } from "@im-library/interfaces/AutoGen";
-import PropertyInput from "./queryDefinition/PropertyInput.vue";
-import _ from "lodash";
-import { isArrayHasLength, isObject, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { EntityService, QueryService } from "@/services";
-import { IM, RDFS } from "@im-library/vocabulary";
+import QuickQuery from "@/components/query/QuickQuery.vue";
+import CohortEditor from "@/components/query/builder/CohortEditor.vue";
+import injectionKeys from "@/injectionKeys/injectionKeys";
+import { EditorMode, ToastSeverity } from "@im-library/enums";
+import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
+import { IM } from "@im-library/vocabulary";
+import { Ref, inject, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { cloneDeep } from "lodash";
+import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
-import { ToastMessageOptions } from "primevue/toast";
 import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
+import { generateMatchIds } from "@im-library/helpers/QueryBuilder";
 
-const toast = useToast();
-
-const abortController = ref(new AbortController());
-const showDialog = ref(false);
-const testQueryResults: Ref<TTIriRef[]> = ref([]);
-const options = ref({
-  status: [] as TTIriRef[],
-  scheme: [] as TTIriRef[],
-  type: [] as TTIriRef[],
-  boolean: [
-    { name: "True", value: true },
-    { name: "False", value: false }
-  ]
-});
-const selectedNodeKey = ref<number>(0);
-
-onMounted(async () => {
-  options.value.status = await searchByIsA([IM.STATUS]);
-  options.value.scheme = await searchByIsA(["http://endhealth.info/im#Graph"]);
-  options.value.type = await searchByIsA([RDFS.CLASS]);
-});
-
-async function searchByIsA(isA: string[]): Promise<TTIriRef[]> {
-  const searchRequest = {} as SearchRequest;
-  searchRequest.isA = isA;
-  if (!isObject(abortController.value)) {
-    abortController.value.abort();
-  }
-
-  abortController.value = new AbortController();
-  const results = await EntityService.advancedSearch(searchRequest, abortController.value);
-  return results.map(summary => {
-    return { "@id": summary.iri, name: summary.name };
-  }) as TTIriRef[];
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: any;
 }
 
-const initNode = {
-  key: 0,
-  label: "query",
-  type: {
-    firstType: "org.endeavourhealth.imapi.model.iml.Query"
-  },
-  value: "",
-  children: []
-} as QueryObject;
-const fullQuery = ref<QueryObject>(initNode);
-const currentQueryObject = ref<QueryObject>(initNode);
-const queryNodes = ref<any>({});
-const imquery: Ref<Query> = ref({} as Query);
+const props = defineProps<Props>();
 
-queryNodes.value = [fullQuery.value];
+const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (updateValidity) {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      showValidation.value = true;
+    }
+  });
+}
+const toast = useToast();
+const route = useRoute();
+const loading = ref(true);
+const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const invalid = ref(false);
+const showValidation = ref(false);
+const showSql: Ref<boolean> = ref(false);
+const sql: Ref<string> = ref("");
+
+const key = props.shape.path["@id"];
 
 watch(
-  () => _.cloneDeep(fullQuery.value),
-  async (newVal, oldVal) => {
-    imquery.value = buildIMQuery(newVal);
+  () => cloneDeep(queryDefinition.value),
+  async newValue => {
+    updateEntity();
+    if (updateValidity && valueVariableMap) {
+      if (isArrayHasLength(newValue.match)) await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+      showValidation.value = true;
+    }
   }
 );
 
-function onSelect(nodeContents: any) {
-  currentQueryObject.value = nodeContents;
+onMounted(async () => {
+  loading.value = true;
+  await init();
+  loading.value = false;
+});
+
+async function init() {
+  QueryService.getQueryDisplay;
+  if (props.value) {
+    const definition = JSON.parse(props.value);
+    const labeledQuery = await QueryService.getLabeledQuery(definition);
+    queryDefinition.value = generateMatchIds(labeledQuery);
+  } else queryDefinition.value = generateDefaultQuery();
+}
+async function generateSQL() {
+  sql.value = await QueryService.generateQuerySQLfromQuery(queryDefinition.value);
+  showSql.value = true;
 }
 
-function cancelChanges() {
-  currentQueryObject.value = {} as QueryObject;
+async function copy() {
+  await navigator.clipboard.writeText(sql.value);
+  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "SQL copied to clipboard"));
 }
 
-function saveChanges() {
-  console.log("save");
+function generateDefaultQuery() {
+  return { match: [] as Match[] } as Query;
 }
 
-function addProperty() {
-  if (!isArrayHasLength(currentQueryObject.value.children)) {
-    currentQueryObject.value.children = [];
-  }
-  currentQueryObject.value.children!.push({ key: Math.floor(Math.random() * 9999999999999999), selectable: false } as QueryObject);
-}
-
-function updateCurrentObject(newQueryObject: QueryObject) {
-  currentQueryObject.value = newQueryObject;
-  selectedNodeKey.value = newQueryObject.key;
-}
-
-function deleteProperty(propertyKey: number) {
-  currentQueryObject.value.children = currentQueryObject.value.children?.filter(property => property.key !== propertyKey);
-}
-
-async function handleClick() {
-  await navigator.clipboard.writeText(JSON.stringify(imquery.value));
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value copied to clipboard"));
-}
-
-async function testQuery() {
-  const result = await QueryService.queryIM(imquery.value as unknown as QueryRequest);
-  if (isArrayHasLength(result.entities)) {
-    testQueryResults.value = await EntityService.getNames(result.entities.map(entity => entity["@id"]));
-  }
-  showDialog.value = true;
-}
-
-function buildIMQuery(queryObject: QueryObject) {
-  const imquery = {} as Query;
-  buildRecursively(queryObject, imquery);
-  return imquery;
-}
-
-function buildRecursively(queryObject: QueryObject, imquery: any) {
-  if (isObjectHasKeys(queryObject) && isObject(imquery)) {
-    if (isArrayHasLength(queryObject.children)) {
-      imquery[queryObject.label] = queryObject.type.secondType === "java.util.List" ? [] : {};
-      for (const child of queryObject.children!) {
-        buildRecursively(child, imquery[queryObject.label]);
-      }
-    } else if (isObjectHasKeys(queryObject, ["value"])) {
-      imquery[queryObject.label] = queryObject.value;
-    }
-  } else if (isObjectHasKeys(queryObject) && Array.isArray(imquery)) {
-    if (isArrayHasLength(queryObject.children)) {
-      const value = {} as any;
-      value[queryObject.label] = queryObject.type.secondType === "java.util.List" ? [] : {};
-      imquery.push(value);
-      for (const child of queryObject.children!) {
-        buildRecursively(child, imquery);
-      }
-    } else if (isObjectHasKeys(queryObject, ["value"])) {
-      imquery.push(queryObject.value);
-    }
+function updateEntity() {
+  if (!isArrayHasLength(queryDefinition.value.match) && deleteEntityKey) deleteEntityKey(key);
+  else {
+    const imDefinition: any = {};
+    imDefinition[IM.DEFINITION] = JSON.stringify(cloneDeep(queryDefinition.value));
+    if (entityUpdate) entityUpdate(imDefinition);
   }
 }
 </script>
 
-<style scoped>
-.query-builder-main-container {
-  display: flex;
-  flex-flow: row nowrap;
+<style>
+#cohort-query-definition-editor {
   height: 100%;
+  width: 100%;
+  overflow: auto;
+  display: flex;
+  flex-flow: column;
 }
 
-.tab-content-container {
-  padding: 1rem;
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
+.query-editor-container {
   display: flex;
   flex-flow: column nowrap;
-  justify-content: space-between;
-  height: calc(100vh - 8.7rem);
-}
-
-.property-component {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: baseline !important;
-  justify-content: center;
-  padding: 0.5rem;
-}
-
-.footer-buttons {
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: end;
-}
-
-.tab-view-container {
-  flex: 1 0;
+  width: 100%;
   height: 100%;
 }
 
-.one-rem-margin {
-  margin-right: 0.1rem;
-}
-
-.p-tree {
-  height: 100%;
-}
-
-.p-card {
-  padding-left: 1rem;
-  padding-right: 1rem;
-  box-shadow: none;
-}
-
-.tab-panel {
-  height: 100%;
-}
-
-.json {
+.query-editor {
+  height: 60vh;
   overflow-y: auto;
-  height: calc(100vh - 8.7rem);
+  border: 1px solid var(--surface-border);
+  background-color: #ffffff;
+}
+
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
+.invalid {
+  border: 1px solid var(--red-500);
+  border-radius: 5px;
+  padding: 0.25rem;
+}
+
+.validate-error-container {
+  width: 100%;
 }
 </style>

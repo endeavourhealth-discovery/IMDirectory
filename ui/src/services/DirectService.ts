@@ -1,10 +1,13 @@
 import { CreateComponentPublicInstance } from "vue";
 import { RouteLocationNormalizedLoaded, Router, RouteRecordName, useRoute, useRouter } from "vue-router";
-import { Store, useStore } from "vuex";
+import { RecentActivityItem } from "@im-library/interfaces";
 import Env from "./Env";
+import { useUserStore } from "@/stores/userStore";
+import { useDirectoryStore } from "@/stores/directoryStore";
 
 export default class DirectService {
-  private store: Store<any>;
+  private directoryStore;
+  private userStore;
   private _message: string;
   private router: Router;
   private route: RouteLocationNormalizedLoaded;
@@ -12,7 +15,8 @@ export default class DirectService {
   constructor() {
     this.route = useRoute();
     this.router = useRouter();
-    this.store = useStore();
+    this.directoryStore = useDirectoryStore();
+    this.userStore = useUserStore();
     this._message = "You will be directed to a different application. Are you sure you want to proceed?";
   }
 
@@ -20,7 +24,7 @@ export default class DirectService {
     if (iri) {
       if (appRoute) window.open(app + appRoute + "/" + encodeURIComponent(iri));
       else window.open(app + encodeURIComponent(iri));
-      this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), action: action });
+      this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: action } as RecentActivityItem);
     } else if (appRoute) {
       window.open(app + appRoute);
     } else {
@@ -32,7 +36,7 @@ export default class DirectService {
     component.$confirm.require({
       message: this._message,
       header: "Confirmation",
-      icon: "pi pi-exclamation-triangle",
+      icon: "fa-solid fa-triangle-exclamation",
       accept: () => {
         this.directTo(app, iri, action, appRoute);
       },
@@ -46,25 +50,34 @@ export default class DirectService {
     this.directTo(Env.DIRECTORY_URL, "", "Filed", "filer");
   }
 
-  public view(iri?: string) {
-    if (iri) this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "directory/folder");
-    else this.directTo(Env.DIRECTORY_URL);
+  public view(iri?: string, openInNewTab = true) {
+    if (openInNewTab) {
+      if (iri) this.directTo(Env.DIRECTORY_URL, iri || "", "Viewed", "directory/folder");
+      else this.directTo(Env.DIRECTORY_URL);
+    } else {
+      this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: "Viewed" } as RecentActivityItem);
+      this.router.push({ name: "Folder", params: { selectedIri: iri } });
+    }
   }
 
   public select(iri: string, routeName?: string) {
     if (iri) {
       const currentRoute = this.route.name as RouteRecordName | undefined;
       this.router.push({
-        name: routeName || currentRoute,
+        name: routeName ?? currentRoute,
         params: { selectedIri: iri }
       });
-      this.store.commit("updateConceptIri", iri);
+      this.directoryStore.updateConceptIri(iri);
+      this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: "Viewed" } as RecentActivityItem);
     }
-    this.store.commit("updateRecentLocalActivity", { iri: iri, dateTime: new Date(), action: "Viewed" });
   }
 
-  public edit(iri?: string) {
-    this.directTo(Env.DIRECTORY_URL, iri || "", "Edited", "editor");
+  public edit(iri?: string, openInNewTab = true) {
+    if (openInNewTab) this.directTo(Env.DIRECTORY_URL, iri || "", "Edited", "editor");
+    else {
+      this.userStore.updateRecentLocalActivity({ iri: iri, dateTime: new Date(), action: "Edited" } as RecentActivityItem);
+      this.router.push({ name: "Editor", params: { selectedIri: iri ?? "" } });
+    }
   }
 
   public query() {
@@ -78,5 +91,9 @@ export default class DirectService {
       const routeData = this.router.resolve({ name: "Creator", query: { typeIri: typeIri, propertyIri: propertyIri, valueIri: valueIri } });
       window.open(routeData.href, "_blank");
     }
+  }
+
+  public uprn() {
+    window.open(Env.DIRECTORY_URL + "uprn");
   }
 }

@@ -1,19 +1,23 @@
-import { render, fireEvent, within } from "@testing-library/vue";
-import { beforeEach, describe, expect, it } from "vitest";
+import { render } from "@testing-library/vue";
+import { beforeEach, describe, it } from "vitest";
 import DirectorySplitter from "@/components/directory/DirectorySplitter.vue";
 import Splitter from "primevue/splitter";
 import SplitterPanel from "primevue/splitterpanel";
+import PrimeVue from "primevue/config";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = {};
-const mockCommit = vi.fn();
+createTestingPinia();
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
+const mockPush = vi.fn();
+const mockGo = vi.fn();
+const mockRoute = { name: "Concept" };
+
+vi.mock("vue-router", () => ({
+  useRouter: () => ({
+    push: mockPush,
+    go: mockGo
+  }),
+  useRoute: () => mockRoute
 }));
 
 describe("Home.vue", () => {
@@ -21,7 +25,12 @@ describe("Home.vue", () => {
 
   beforeEach(() => {
     component = render(DirectorySplitter, {
-      global: { components: { Splitter, SplitterPanel }, stubs: ["router-view", "InfoSideBar", "NavTree"] }
+      global: {
+        components: { Splitter, SplitterPanel },
+        stubs: ["router-view", "InfoSideBar", "NavTree"],
+        plugins: [PrimeVue],
+        mocks: {}
+      }
     });
   });
 

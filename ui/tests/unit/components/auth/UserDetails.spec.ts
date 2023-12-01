@@ -1,25 +1,20 @@
-import { mount } from "@vue/test-utils";
 import UserDetails from "@/components/auth/UserDetails.vue";
 import Card from "primevue/card";
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
+import TieredMenu from "primevue/tieredmenu";
 import { Avatars } from "@im-library/constants";
-import { User } from "@im-library/models";
 import PrimeVue from "primevue/config";
-import { vi } from "vitest";
-import { fireEvent, render, RenderResult } from "@testing-library/vue";
+import { vi, describe, beforeEach, it, expect } from "vitest";
+import { render, RenderResult } from "@testing-library/vue";
+import { createTestingPinia } from "@pinia/testing";
+import { useSharedStore } from "@/stores/sharedStore";
+import { User } from "@im-library/interfaces";
+import { useUserStore } from "@/stores/userStore";
 
-const mockDispatch = vi.fn();
-const mockState = {} as any;
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia();
+const mockState = useSharedStore();
+const mockUserState = useUserStore();
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();
@@ -36,26 +31,28 @@ describe("userDetails.vue", () => {
 
   beforeEach(() => {
     const user = {
+      id: "1234",
       username: "testUser",
       firstName: "John",
       lastName: "Doe",
       email: "john.doe@ergosoft.co.uk",
       password: "",
       avatar: Avatars[0],
-      roles: []
-    };
+      roles: [],
+      mfaStatus: []
+    } as User;
     vi.clearAllMocks();
-    mockState.currentUser = user;
-    mockState.isLoggedIn = true;
+    mockUserState.currentUser = user;
     component = render(UserDetails, {
       global: {
         plugins: [PrimeVue],
-        components: { Card, Button, InputText }
+        components: { Card, Button, InputText, TieredMenu },
+        stubs: { "router-link": true }
       }
     });
   });
 
-  it("correctly renders User details from store", () => {
+  it("correctly renders User details from sharedStore", () => {
     component.getByTestId("user-details-username");
     component.getByTestId("user-details-email");
     component.getByTestId("user-details-firstname");

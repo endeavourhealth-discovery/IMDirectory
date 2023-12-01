@@ -1,12 +1,12 @@
 import { ComponentType } from "../enums";
-import { TTIriRef } from "../interfaces";
-import { Argument, PropertyShape } from "../interfaces/AutoGen";
-import { IM } from "../vocabulary";
-import { isArrayHasLength } from "./DataTypeCheckers";
+import { Argument, PropertyShape, TTIriRef } from "../interfaces/AutoGen";
+import { enumToArray } from "./Converters";
+import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
+import { isTTIriRef } from "./TypeGuards";
 
 export function processArguments(property: PropertyShape, valueVariableMap?: Map<string, any>): Argument[] {
   const result: Argument[] = [];
-  property.argument.forEach(arg => {
+  property.argument?.forEach(arg => {
     const argResult: any = {};
     for (const [key, value] of Object.entries(arg)) {
       if (key === "valueVariable") {
@@ -14,10 +14,17 @@ export function processArguments(property: PropertyShape, valueVariableMap?: Map
         if (!valueVariableMap) throw new Error("missing valueVariableMap while processing arguments with a valueProperty");
         if (property.builderChild && valueVariableMap && valueVariableMap.has(value + property.order)) {
           foundValueVariable = valueVariableMap.get(value + property.order);
-        } else {
-          foundValueVariable = valueVariableMap.get(value as any);
+        } else if (valueVariableMap && valueVariableMap.has(value)) {
+          foundValueVariable = valueVariableMap.get(value);
         }
-        argResult[key] = foundValueVariable;
+        if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => isTTIriRef(item)))
+          argResult["valueIriList"] = foundValueVariable;
+        else if (isArrayHasLength(foundValueVariable) && foundValueVariable.every((item: unknown) => typeof item === "string"))
+          argResult["valueDataList"] = foundValueVariable;
+        else if (isTTIriRef(foundValueVariable)) argResult["valueIri"] = foundValueVariable;
+        else if (isObjectHasKeys(foundValueVariable)) argResult["valueObject"] = foundValueVariable;
+        else if (typeof foundValueVariable === "string") argResult["valueVariable"] = foundValueVariable;
+        else argResult[key] = foundValueVariable;
       } else {
         argResult[key] = value;
       }
@@ -34,49 +41,28 @@ export function getTreeQueryIri(select: TTIriRef[]) {
   return select[1]["@id"];
 }
 
-export function processComponentType(type: TTIriRef): any {
-  switch (type["@id"]) {
-    case IM.TEXT_DISPLAY_COMPONENT:
-      return ComponentType.TEXT_DISPLAY;
-    case IM.TEXT_INPUT_COMPONENT:
-      return ComponentType.TEXT_INPUT;
-    case IM.HTML_INPUT_COMPONENT:
-      return ComponentType.HTML_INPUT;
-    case IM.ARRAY_BUILDER_COMPONENT:
-      return ComponentType.ARRAY_BUILDER;
-    case IM.ENTITY_SEARCH_COMPONENT:
-      return ComponentType.ENTITY_SEARCH;
-    case IM.ENTITY_COMBOBOX_COMPONENT:
-      return ComponentType.ENTITY_COMBOBOX;
-    case IM.ENTITY_DROPDOWN_COMPONENT:
-      return ComponentType.ENTITY_DROPDOWN;
-    case IM.ENTITY_AUTO_COMPLETE_COMPONENT:
-      return ComponentType.ENTITY_AUTO_COMPLETE;
-    case IM.COMPONENT_GROUP:
-      return ComponentType.COMPONENT_GROUP;
-    case IM.MEMBERS_BUILDER:
-      return ComponentType.MEMBERS_BUILDER;
-    case IM.STEPS_GROUP_COMPONENT:
-      return ComponentType.STEPS_GROUP;
-    case IM.SET_DEFINITION_BUILDER:
-      return ComponentType.SET_DEFINITION_BUILDER;
-    case IM.QUERY_DEFINITION_BUILDER:
-      return ComponentType.QUERY_DEFINITION_BUILDER;
-    case IM.ARRAY_BUILDER_WITH_DROPDOWN:
-      return ComponentType.ARRAY_BUILDER_WITH_DROPDOWN;
-    case IM.PROPERTY_BUILDER:
-      return ComponentType.PROPERTY_BUILDER;
-    case IM.TOGGLEABLE_COMPONENT:
-      return ComponentType.TOGGLEABLE_COMPONENT;
-    case IM.HORIZONTAL_LAYOUT:
-      return ComponentType.HORIZONTAL_LAYOUT;
-    case IM.VERTICAL_LAYOUT:
-      return ComponentType.VERTICAL_LAYOUT;
-    case IM.DROPDOWN_TEXT_INPUT_CONCATENATOR:
-      return ComponentType.DROPDOWN_TEXT_INPUT_CONCATENATOR;
-    default:
-      throw new Error("Invalid component type encountered while processing component types" + type["@id"]);
+function getNameFromIri(iri: string) {
+  if (!iri) throw new Error("Missing iri");
+  if (iri.includes("#")) {
+    const splits = iri.split("#");
+    return splits[1] || splits[0];
   }
+  return iri;
+}
+
+function extractComponentFromIri(type: TTIriRef) {
+  let name = getNameFromIri(type["@id"]);
+  if (name.includes("_")) return name.split("_")[1];
+  else throw new Error("Iri is not of type ComponentType: " + type["@id"]);
+}
+
+export function processComponentType(type: TTIriRef | undefined): any {
+  if (!type) throw new Error("Invalid component type: undefined");
+  const typeName = extractComponentFromIri(type);
+  const componentList = enumToArray(ComponentType);
+  const found = componentList.find(c => c.toLowerCase() === typeName.toLowerCase());
+  if (found) return found;
+  else throw new Error("Invalid component type encountered while processing component types: " + type["@id"]);
 }
 
 export default { processArguments, processComponentType, getTreeQueryIri };

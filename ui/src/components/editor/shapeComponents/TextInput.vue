@@ -1,38 +1,97 @@
 <template>
   <div class="string-single-select-container">
-    <span class="p-float-label" v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }">
-      <InputText class="p-inputtext-lg input-text" :class="invalid && 'invalid'" v-model="userInput" type="text" @drop.prevent @dragover.prevent />
-      <label>{{ shape.name }}</label>
-    </span>
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
+    <InputText
+      class="p-inputtext-lg input-text"
+      :class="invalid && showValidation && 'invalid'"
+      v-model="userInput"
+      type="text"
+      @drop.prevent
+      @dragover.prevent
+      v-tooltip.top="{ value: userInput ? userInput : shape.name, class: 'string-single-select-tooltip' }"
+    />
+    <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, watch, onMounted, inject, PropType, Ref, computed, ComputedRef } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import _ from "lodash";
 import { PropertyShape } from "@im-library/interfaces/AutoGen";
 import { EditorMode } from "@im-library/enums";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
+import _ from "lodash";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: String, default: "" },
-  position: { type: Number, required: false }
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: string;
+  position?: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  value: ""
 });
 
+const emit = defineEmits({ updateClicked: (_payload: string) => true });
+
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
+      showValidation.value = true;
+    }
+  });
+}
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue))
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
+        }
+    }
+  );
+}
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 let key = props.shape.path["@id"];
 
-let invalid = ref(false);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const userInput = ref("");
+const showValidation = ref(true);
 
-let userInput = ref("");
 onMounted(() => {
   if (props.value) userInput.value = props.value;
 });
@@ -43,22 +102,25 @@ watch(
   }
 );
 watch(userInput, async newValue => {
-  updateEntity(newValue);
+  if (!props.shape.builderChild) updateEntity(newValue);
+  else emit("updateClicked", newValue);
   updateValueVariableMap(newValue);
-  await updateValidity(newValue);
+  if (updateValidity) {
+    if (props.shape.builderChild) {
+      hasData();
+    } else {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    }
+    showValidation.value = true;
+  }
 });
 
 function updateEntity(data: string) {
   const result = {} as any;
   result[key] = data;
-  if (entityUpdate) entityUpdate(result);
-}
-
-async function updateValidity(data: string) {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity)
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  else invalid.value = !defaultValidation(data);
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
+  if (!data && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  else if (!props.shape.builderChild && entityUpdate) entityUpdate(result);
+  else emit("updateClicked", data);
 }
 
 function updateValueVariableMap(data: string) {
@@ -68,30 +130,48 @@ function updateValueVariableMap(data: string) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-function defaultValidation(string: string) {
-  return true;
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && !userInput.value) return;
+  if (!userInput.value) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required. ";
+  }
 }
 </script>
 
 <style scoped>
 .string-single-select-container {
-  padding: 2rem 0 0 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
 }
 .input-text {
-  width: 25rem;
+  min-width: 25rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .invalid {
-  border-color: #e24c4c;
+  border-color: var(--red-500);
 }
 
 .validate-error {
-  color: #e24c4c;
+  color: var(--red-500);
   font-size: 0.8rem;
   padding: 0 0 0.25rem 0;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>
 

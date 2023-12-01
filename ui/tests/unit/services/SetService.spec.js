@@ -1,6 +1,5 @@
 import { SetService, Env } from "@/services";
 import axios from "axios";
-import { setupServer } from "msw/node";
 
 describe("SetService.ts ___ axios success", () => {
   beforeEach(() => {

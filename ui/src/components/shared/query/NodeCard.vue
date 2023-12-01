@@ -53,7 +53,6 @@ export default defineComponent({
     },
     onClick() {
       this.expanded = !this.expanded;
-      console.log(this.definition);
     }
   }
 });
@@ -61,9 +60,8 @@ export default defineComponent({
 
 <style scoped>
 .tab-content {
-  background-color: #f8fafc;
-  /* background-color: #F9FAFB; */
-  border: 1px solid #cbd5e1;
+  background-color: var(--surface-a);
+  border: 1px solid var(--surface-border);
   border-radius: 5px;
   padding: 6px;
 }
@@ -80,13 +78,12 @@ export default defineComponent({
   /* border-bottom: transparent 2px solid; */
 }
 .tabs .tab-item.active {
-  background-color: #2563eb;
-  color: #fff;
-  /* border-bottom: #0f172a 2px solid; */
+  background-color: var(--blue-500);
+  color: var(--surface-a);
 }
 
 .node-icon {
-  color: #2563eb;
+  color: var(--blue-500);
   min-height: 20px;
   min-width: 20px;
 }
@@ -94,13 +91,13 @@ export default defineComponent({
   display: flex;
   align-items: center;
   margin-left: 10px;
-  color: #374151;
+  color: var(--text-color);
   min-height: 20px;
   min-width: 20px;
 }
 
 .node-chevron .icon {
-  border: #d1d5db 1px solid;
+  border: var(--surface-border) 1px solid;
   border-radius: 50%;
   padding: 2px;
 }
@@ -110,7 +107,7 @@ export default defineComponent({
   display: inline-flex;
   flex-direction: column;
   background: #fff;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--surface-border);
   top: -5px;
   margin-bottom: 7px;
   border-radius: 7px;
@@ -124,12 +121,11 @@ export default defineComponent({
 }
 .node-card-header.expanded {
   padding-bottom: 10px;
-  /* border-bottom: 1px solid #d1d5db; */
 }
 .node-card-title {
   margin-left: 10px;
   margin-top: 2px;
-  color: #0f172a;
+  color: var(--text-color);
   font-size: 14px;
   line-height: 16px;
   font-weight: 500;
@@ -137,13 +133,13 @@ export default defineComponent({
 
 .node-card:hover {
   cursor: pointer;
-  box-shadow: 0px 0px 7px rgba(0, 0, 0, 0.13);
+  box-shadow: 0px 0px 7px var(--black-500);
 }
 </style>
 
 <style>
 .node-card-header a {
-  color: #1d4ed8 !important;
+  color: var(--blue-500) !important;
   font-weight: 700;
 }
 .node-card-header a:hover {

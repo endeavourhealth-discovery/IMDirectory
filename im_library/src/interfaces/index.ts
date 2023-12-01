@@ -14,7 +14,6 @@ import { EclSearchRequest } from "./EclSearchRequest";
 import { EntityReferenceNode } from "./EntityReferenceNode";
 import { ExportValueSet } from "./ExportValueSet";
 import { FiltersAsIris } from "./FiltersAsIris";
-import { FormGenerator } from "./FormGenerator";
 import GraphData from "./GraphData";
 import { HistoryItem } from "./HistoryItem";
 import { IriCount } from "./IriCount";
@@ -34,17 +33,12 @@ import { TermCode } from "./TermCode";
 import { TreeParent } from "./TreeParent";
 import { TTBundle } from "./TTBundle";
 import TTGraphData from "./TTGraphData";
-import { TTIriRef } from "./TTIriRef";
 import { UPRN } from "./Uprn";
 import { UprnSearchResponse } from "./UprnSearchResponse";
 import { ValueSetMember } from "./ValueSetMember";
-import { Field } from "./queryBuilder/Field";
-import { FieldDto } from "./queryBuilder/FieldDto";
-import { FieldUI } from "./queryBuilder/FieldUI";
-import { GenericType } from "./queryBuilder/GenericType";
-import { QueryObject } from "./queryBuilder/QueryObject";
-import { Refinement } from "./queryBuilder/Refinement";
-import { SimplifiedType } from "./queryBuilder/SimplifiedType";
+import { Field } from "./Field";
+import { FieldDto } from "./FieldDto";
+import { GenericType } from "./GenericType";
 import { GithubRelease } from "./GithubRelease";
 import TangledTreeData from "./TangledTreeData";
 import AllowableChildProperty from "./AllowableChildProperty";
@@ -54,8 +48,14 @@ import { PropertyDisplay } from "./PropertyDisplay";
 import { PieChartData } from "./PieChartData";
 import { User } from "./User";
 import { CustomAlert } from "./CustomAlert";
-import { DisplayQuery } from "./DisplayQuery";
-import { TableQuery } from "./query/TableQuery";
+import { TTProperty } from "./TTProperty";
+import { TreeNode } from "./TreeNode";
+import { ContextMap } from "./ContextMap";
+import { SelectedMatch } from "./SelectedMatch";
+import { MailOptions } from "./MailOptions";
+import { Workflow } from "./Workflow";
+import { BugReport } from "./BugReport";
+import { QueryResponse } from "./QueryResponse";
 
 export {
   type AccountItem,
@@ -74,7 +74,6 @@ export {
   type EntityReferenceNode,
   type ExportValueSet,
   type FiltersAsIris,
-  type FormGenerator,
   type GraphData,
   type HistoryItem,
   type IriCount,
@@ -94,17 +93,12 @@ export {
   type TreeParent,
   type TTBundle,
   type TTGraphData,
-  type TTIriRef,
   type UPRN,
   type UprnSearchResponse,
   type ValueSetMember,
   type Field,
   type FieldDto,
   type GenericType,
-  type QueryObject,
-  type FieldUI,
-  type SimplifiedType,
-  type Refinement,
   type GithubRelease,
   type TangledTreeData,
   type AllowableChildProperty,
@@ -114,6 +108,12 @@ export {
   type CustomAlert,
   type AliasEntity,
   type PropertyDisplay,
-  type DisplayQuery,
-  type TableQuery
+  type TTProperty,
+  type TreeNode,
+  type ContextMap,
+  type SelectedMatch,
+  type MailOptions,
+  type Workflow,
+  type BugReport,
+  type QueryResponse
 };

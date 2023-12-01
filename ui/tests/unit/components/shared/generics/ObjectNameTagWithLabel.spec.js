@@ -3,24 +3,19 @@ import { render } from "@testing-library/vue";
 import Tag from "primevue/tag";
 import { IM } from "@im-library/vocabulary";
 import { it } from "vitest";
+import { createTestingPinia } from "@pinia/testing";
 
-const mockDispatch = vi.fn();
-const mockState = {
-  tagSeverityMatches: [
-    { "@id": IM.ACTIVE, severity: "success" },
-    { "@id": IM.DRAFT, severity: "warning" },
-    { "@id": IM.INACTIVE, severity: "danger" }
-  ]
-};
-const mockCommit = vi.fn();
-
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    shared: {
+      tagSeverityMatches: [
+        { "@id": IM.ACTIVE, severity: "success" },
+        { "@id": IM.DRAFT, severity: "warning" },
+        { "@id": IM.INACTIVE, severity: "danger" }
+      ]
+    }
+  }
+});
 
 describe("ObjectNameTagWithLabel.vue", () => {
   let component;

@@ -45,7 +45,7 @@
                   placeholder="Select status"
                 />
                 <InputText v-model="searchTerm" placeholder="Keyword Search" />
-                <Button :loading="loading" icon="pi pi-search" label="Search" class="save-button" @click="search()" />
+                <Button :loading="loading" icon="fa-solid fa-magnifying-glass" label="Search" class="save-button" @click="search()" />
               </div>
             </Panel>
           </div>
@@ -64,7 +64,7 @@
               <template #empty> No results found. </template>
               <template #loading> Loading results. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="hover-name" @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -72,16 +72,16 @@
               </Column>
               <Column field="usage" header="Usage"> </Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
-                      icon="pi pi-fw pi-eye"
+                      icon="fa-solid fa-eye"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="view(data.iri)"
                       v-tooltip.top="'View'"
                     />
                     <Button
-                      icon="pi pi-fw pi-info-circle"
+                      icon="fa-solid fa-circle-info"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="showInfo(data.iri)"
                       v-tooltip.top="'Info'"
@@ -93,8 +93,8 @@
           </div>
           <div class="col">
             <div class="flex flex-column align-items-center">
-              <Button class="pick-button" icon="pi pi-arrow-right" @click="addSelectedTasks" />
-              <Button class="pick-button" icon="pi pi-arrow-left" @click="removeSelectedTasks" />
+              <Button class="pick-button" icon="fa-solid fa-arrow-right" @click="addSelectedTasks" />
+              <Button class="pick-button" icon="fa-solid fa-arrow-left" @click="removeSelectedTasks" />
             </div>
           </div>
           <div class="col-5">
@@ -110,7 +110,7 @@
               <template #empty> No actions added. </template>
               <template #loading> Loading contents. </template>
               <Column field="name" header="Name">
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div @mouseenter="showOverlay($event, data)" @mouseleave="hideOverlay()">
                     {{ data.name }}
                   </div>
@@ -118,16 +118,16 @@
               </Column>
               <Column field="usage" header="Usage"></Column>
               <Column>
-                <template #body="{ data }">
+                <template #body="{ data }: any">
                   <div class="buttons-container">
                     <Button
-                      icon="pi pi-fw pi-eye"
+                      icon="fa-solid fa-eye"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="view(data.iri)"
                       v-tooltip.top="'View'"
                     />
                     <Button
-                      icon="pi pi-fw pi-info-circle"
+                      icon="fa-solid fa-circle-info"
                       class="p-button-rounded p-button-text p-button-plain row-button"
                       @click="showInfo(data.iri)"
                       v-tooltip.top="'Info'"
@@ -141,16 +141,15 @@
       </template>
     </Card>
     <div class="button-bar">
-      <Button icon="pi pi-times" label="Cancel" severity="secondary" @click="goToTaskViewer" />
-      <Button :loading="saveLoading" icon="pi pi-check" label="Save" class="save-button" @click="save" />
+      <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="goToTaskViewer" />
+      <Button :loading="saveLoading" icon="fa-solid fa-check" label="Save" class="save-button" @click="save" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, defineComponent, onMounted, Ref, ref, watch } from "vue";
+import { computed, ComputedRef, onMounted, Ref, ref, watch } from "vue";
 import ConfirmDialog from "primevue/confirmdialog";
-import { mapState, useStore } from "vuex";
 import { isArrayHasLength, isObjectHasKeys, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
 import "vue-json-pretty/lib/styles.css";
@@ -159,11 +158,13 @@ import { DirectService, EntityService, Env } from "@/services";
 import { ConceptSummary, FilterOptions } from "@im-library/interfaces";
 import { SearchRequest } from "@im-library/interfaces/AutoGen";
 import { useRoute, useRouter } from "vue-router";
-import TaskDefinition from "../editor/workflow/TaskDefinition.vue";
+import { useFilterStore } from "@/stores/filterStore";
 
-const props = defineProps({
-  data: { type: Object, required: true }
-});
+interface Props {
+  data: any;
+}
+
+const props = defineProps<Props>();
 
 const emit = defineEmits({
   nextPage: (_payload: { pageIndex: number; data: {} }) => true,
@@ -172,11 +173,11 @@ const emit = defineEmits({
   updateSelected: (_payload: string) => true
 });
 
-const store = useStore();
+const filterStore = useFilterStore();
 const route = useRoute();
 const router = useRouter();
 
-const filterOptions: ComputedRef<FilterOptions> = computed(() => store.state.filterOptions);
+const filterOptions: ComputedRef<FilterOptions> = computed(() => filterStore.filterOptions);
 
 const directService = new DirectService();
 
@@ -197,7 +198,7 @@ const searchTerm = ref("");
 const loading = ref(true);
 const searching = ref(true);
 const saveLoading = ref(false);
-const selectedFilters: ComputedRef<FilterOptions> = computed(() => store.state.selectedFilters);
+const selectedFilters: ComputedRef<FilterOptions> = computed(() => filterStore.selectedFilters);
 
 watch(taskIri, async newValue => {
   if (newValue) await setIriExists();
@@ -409,11 +410,11 @@ function buildEntity() {
   height: calc(100vh - 11.6rem);
   padding: 2.5rem 1rem 1rem 1rem;
   row-gap: 1.75rem;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .definition-main-container {
-  background-color: #ffffff;
+  background-color: var(--surface-a);
 }
 
 .button-bar {
@@ -421,11 +422,11 @@ function buildEntity() {
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
   width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--surface-border);
+  border-left: 1px solid var(--surface-border);
+  border-right: 1px solid var(--surface-border);
   border-radius: 3px;
-  background-color: #ffffff;
+  background-color: var(--surface-a);
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
@@ -449,8 +450,8 @@ function buildEntity() {
 }
 
 .row-button:hover {
-  background-color: #6c757d !important;
-  color: #ffffff !important;
+  background-color: var(--text-color) !important;
+  color: var(--surface-a) !important;
   z-index: 2;
 }
 

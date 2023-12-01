@@ -2,64 +2,64 @@
   <div id="topbar-query-container">
     <TopBar>
       <template #content>
-        <span class="title"><strong>IM Query</strong></span>
+        <div class="topbar-content">
+          <span class="title"><strong>IM Query</strong></span>
+        </div>
       </template>
     </TopBar>
-    <div id="query-main-container">
-      <RecursiveTableQuery :bool="'and'" :query-data="data" :selected="selected" :level="0" />
+    <div v-if="loading" class="loading-container">
+      <ProgressSpinner />
     </div>
+    <CohortEditor v-else v-model:queryDefinition="queryDefinition" />
+
     <div class="button-bar">
       <Button class="button-bar-button" label="Run" />
-      <Button class="button-bar-button" label="View" severity="secondary" @click="visibleDialog = true" />
+      <Button class="button-bar-button" label="View" severity="secondary" />
       <Button class="button-bar-button" label="Save" severity="success" />
     </div>
   </div>
-  <Dialog v-model:visible="visibleDialog" modal header="Header" :style="{ width: '50vw' }">
-    <VueJsonPretty class="json" :path="'res'" :data="query" @nodeClick="copy" />
-  </Dialog>
 </template>
 
 <script setup lang="ts">
-import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import TopBar from "@/components/shared/TopBar.vue";
-import { ref, Ref, onMounted } from "vue";
-// import { queryDefinition } from "./query-json";
-import RecursiveTableQuery from "../components/query/RecursiveTableQuery.vue";
-import { TableQuery } from "@im-library/interfaces";
-import { buildTableQuery } from "@im-library/helpers/TableQueryBuilder";
-import { useStore } from "vuex";
-import { useToast } from "primevue/usetoast";
-import { ToastOptions } from "@im-library/models";
-import { ToastSeverity } from "@im-library/enums";
-const toast = useToast();
-const store = useStore();
-const selected = ref([] as any[]);
-const data: Ref<TableQuery[]> = ref({} as TableQuery[]);
-const query: Ref<any> = ref();
-const visibleDialog: Ref<boolean> = ref(false);
+import _ from "lodash";
+import CohortEditor from "@/components/query/builder/CohortEditor.vue";
+import { Match, Query } from "@im-library/interfaces/AutoGen";
+import { ComputedRef, Ref, computed, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { useFilterStore } from "@/stores/filterStore";
+import { resolveIri } from "@im-library/helpers/TTTransform";
+import { QueryService } from "@/services";
 
-function getTableQuery() {
-  // query.value = { ...queryDefinition };
-  query.value = {};
-  const tableQuery = buildTableQuery(query.value);
-  console.log(tableQuery);
-  data.value = tableQuery;
-}
+const filterStore = useFilterStore();
+const route = useRoute();
+const queryIri: ComputedRef<string> = computed(() => route.params.queryIri as string);
+const queryDefinition: Ref<Query> = ref({ match: [] as Match[] } as Query);
+const loading = ref(true);
 
 onMounted(async () => {
-  await store.dispatch("fetchFilterSettings");
-
-  getTableQuery();
+  await filterStore.fetchFilterSettings();
+  await init();
 });
 
-async function copy() {
-  await navigator.clipboard.writeText(JSON.stringify(query.value));
-  toast.add(new ToastOptions(ToastSeverity.SUCCESS, "JSON value copied to clipboard"));
+watch(
+  () => queryIri.value,
+  async () => await init()
+);
+
+async function init() {
+  await setQuery();
+  loading.value = false;
+}
+
+async function setQuery() {
+  const resolvedIri = resolveIri(queryIri.value);
+  if (resolvedIri) queryDefinition.value = await QueryService.getQueryDisplay(resolvedIri);
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 #topbar-query-container {
   height: 100vh;
   width: 100vw;
@@ -67,19 +67,19 @@ async function copy() {
   display: flex;
   flex-flow: column;
 }
+
+.topbar-content {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
 .title {
   font-size: 2rem;
   white-space: nowrap;
-}
-
-#query-main-container {
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-  background-color: #ffffff;
-  display: flex;
-  flex-flow: row;
-  border: 2px solid #b89241;
 }
 
 .button-bar {

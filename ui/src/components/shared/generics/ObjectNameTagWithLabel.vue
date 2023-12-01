@@ -10,28 +10,33 @@
 import { computed, PropType } from "vue";
 import { TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
-import { useStore } from "vuex";
 import { getLogger } from "@im-library/logger/LogConfig";
 import { TagSeverity } from "@im-library/enums";
+import { useSharedStore } from "@/stores/sharedStore";
 
 const log = getLogger("components.shared.generics.ObjectNameTagWithLabel");
 
-const props = defineProps({
-  label: { type: String, required: true },
-  data: { type: Object as PropType<TTIriRef>, required: true },
-  size: { type: String, default: "100%" },
-  id: { type: String, default: "object-name-tag-with-label" },
-  show: { type: Boolean, required: true }
+interface Props {
+  label: string;
+  data: TTIriRef;
+  size?: string;
+  id?: string;
+  show: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%",
+  id: "object-name-tag-with-label"
 });
 
-const store = useStore();
-const tagSeverityMatches = computed(() => store.state.tagSeverityMatches);
+const sharedStore = useSharedStore();
+const tagSeverityMatches = computed(() => sharedStore.tagSeverityMatches);
 
 const isObjectWithName = computed(() => isObjectHasKeys(props.data, ["name"]));
 
 function getSeverity(data: TTIriRef): TagSeverity {
   let result = TagSeverity.INFO;
-  if (!tagSeverityMatches.value) throw new Error("Missing vuex store property 'tagSeverityMatches'");
+  if (!tagSeverityMatches.value) throw new Error("Missing vuex sharedStore property 'tagSeverityMatches'");
   if (data && isObjectHasKeys(data, ["@id"])) {
     const found = tagSeverityMatches.value.find((severity: { "@id": string; severity: string }) => severity["@id"] === data["@id"]);
     if (found) result = found.severity;

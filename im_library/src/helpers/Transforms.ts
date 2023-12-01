@@ -1,7 +1,8 @@
-import { TTIriRef, TTBundle } from "../interfaces";
+import { TTBundle } from "../interfaces";
 import { IM, RDF, RDFS } from "../vocabulary";
 import { isArrayHasLength, isObjectHasKeys } from "./DataTypeCheckers";
 import { iriToUrl } from "./Converters";
+import { TTIriRef } from "../interfaces/AutoGen";
 
 // min 2 characters
 const indentSize = "  ";
@@ -219,7 +220,7 @@ function removeGroupNumber(arr: any[]) {
   if (isArrayHasLength(groupNumberItems)) {
     for (const groupNumberItem of groupNumberItems) {
       for (const roleGroup of groupNumberItem[IM.ROLE_GROUP]) {
-        delete roleGroup["http://endhealth.info/im#groupNumber"];
+        delete roleGroup[IM.GROUP_NUMBER];
       }
     }
   }
@@ -261,6 +262,10 @@ export function entityToAliasEntity(ttEntity: any) {
   if (isObjectHasKeys(ttEntity, [RDF.TYPE])) {
     ttEntity.entityType = ttEntity[RDF.TYPE];
     delete ttEntity[RDF.TYPE];
+  }
+  if (isObjectHasKeys(ttEntity, [IM.WEIGHTING])) {
+    ttEntity.weighting = ttEntity[IM.WEIGHTING];
+    delete ttEntity[IM.WEIGHTING];
   }
 }
 

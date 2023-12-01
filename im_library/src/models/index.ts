@@ -1,4 +1,5 @@
-import APIError from "./APIError";
+import ApiError from "./customErrors/ApiError";
 import ToastOptions from "./ToastOptions";
+import CustomError from "./customErrors/CustomError";
 
-export { APIError, ToastOptions };
+export { ApiError, ToastOptions, CustomError };

@@ -1,3 +1,9 @@
+import { componentVocabulary } from "./im/componentVocabulary";
+import { editorVocabulary } from "./im/editorVocabulary";
+import { functionVocabulary } from "./im/functionVocabulary";
+import { queryVocabulary } from "./im/queryVocabulary";
+import { validationVocabulary } from "./im/validationVocabulary";
+
 export class IM {
   public static DOMAIN = "http://endhealth.info/";
   public static NAMESPACE = IM.DOMAIN + "im#";
@@ -20,9 +26,14 @@ export class IM {
   public static DEFINITION = IM.NAMESPACE + "definition";
   public static USAGE_STATS = IM.NAMESPACE + "usageStats";
   public static HAS_TERM_CODE = IM.NAMESPACE + "hasTermCode";
+  public static CONTENT_TYPE = IM.NAMESPACE + "contentType";
   public static ORDER = IM.NAMESPACE + "order";
   public static HAS_SUBSET = IM.NAMESPACE + "hasSubset";
   public static IS_SUBSET_OF = IM.NAMESPACE + "isSubsetOf";
+  public static WEIGHTING = IM.NAMESPACE + "weighting";
+  public static VERSION = IM.NAMESPACE + "version";
+  public static FUNCTION = IM.NAMESPACE + "function";
+  public static GRAPH = IM.NAMESPACE + "Graph";
 
   // task
   public static IN_TASK = IM.NAMESPACE + "inTask";
@@ -45,12 +56,25 @@ export class IM {
   //maps assurance levels
   public static NATIONALLY_ASSURED_UK = IM.NAMESPACE + "NationallyAssuredUK";
 
+  // context maps
+  public static SOURCE_PUBLISHER = IM.NAMESPACE + "sourcePublisher";
+  public static SOURCE_SYSTEM = IM.NAMESPACE + "sourceSystem";
+  public static SOURCE_SCHEMA = IM.NAMESPACE + "sourceSchema";
+  public static SOURCE_TABLE = IM.NAMESPACE + "sourceTable";
+  public static SOURCE_FIELD = IM.NAMESPACE + "sourceField";
+  public static SOURCE_VALUE = IM.NAMESPACE + "sourceValue";
+  public static SOURCE_REGEX = IM.NAMESPACE + "sourceRegex";
+  public static CONTEXT_NODE = IM.NAMESPACE + "contextNode";
+  public static TARGET_PROPERTY = IM.NAMESPACE + "targetProperty";
+
+  public static ENTITY = IM.NAMESPACE + "Entity";
   public static QUERY_SET = IM.NAMESPACE + "QuerySet";
   public static QUERY_TEMPLATE = IM.NAMESPACE + "QueryTemplate";
   public static HAS_MEMBER = IM.NAMESPACE + "hasMember";
   public static SET = IM.NAMESPACE + "Set";
   public static RECORD_TYPE = IM.NAMESPACE + "RecordType";
   public static FOLDER = IM.NAMESPACE + "Folder";
+  public static FEATURE = IM.NAMESPACE + "MatchClause";
   public static DATA_PROPERTY = IM.NAMESPACE + "DataProperty";
   public static ORGANISATION = IM.NAMESPACE + "Organisation";
   public static ADDRESS = IM.NAMESPACE + "address";
@@ -65,9 +89,10 @@ export class IM {
   public static MODULE_SETS = IM.NAMESPACE + "Sets";
   public static MODULE_DATA_MODEL = IM.NAMESPACE + "DiscoveryCommonDataModel";
   public static MODULE_CATALOGUE = IM.NAMESPACE + "Catalogue";
-  public static MODULE_QUERIES = IM.NAMESPACE + "QT_QueryTemplates";
+  public static MODULE_QUERIES = IM.NAMESPACE + "Q_Queries";
   public static MODULE_IM = IM.NAMESPACE + "InformationModel";
   public static MODULE_TASKS = IM.NAMESPACE + "Tasks";
+  public static MODULE_FEATURES = IM.NAMESPACE + "M_MatchClauses";
 
   // Stats reports
   public static CONCEPT_CATEGORY = IM.NAMESPACE + "ontologyOverview";
@@ -83,6 +108,15 @@ export class IM {
   public static DATAMODEL_ENTITY = IM.NAMESPACE + "DataModelEntity";
   public static DATAMODEL_PROPERTY = IM.NAMESPACE + "dataModelProperty";
   public static QUERY = IM.NAMESPACE + "Query";
+  public static DATASET_QUERY = IM.NAMESPACE + "DatasetQuery";
+  public static COHORT_QUERY = IM.NAMESPACE + "CohortQuery";
+
+  //Property types
+  public static DATAMODEL_OBJECTPROPERTY = IM.NAMESPACE + "dataModelObjectProperty";
+  public static DATAMODEL_DATAPROPERTY = IM.NAMESPACE + "dataModelDataProperty";
+  public static DATAMODEL_FUNCTIONPROPERTY = IM.NAMESPACE + "functionProperty";
+
+  public static FORM_GENERATOR = IM.NAMESPACE + "FormGenerator";
 
   // Graphs
   public static GRAPH_EMIS = IM.DOMAIN + "emis#";
@@ -93,45 +127,20 @@ export class IM {
   public static INACTIVE = IM.NAMESPACE + "Inactive";
 
   //query
-  public static PROPERTY = IM.NAMESPACE + "property";
   public static MATCH = IM.NAMESPACE + "match";
   public static ENTITY_TYPE = IM.NAMESPACE + "entityType";
+  public static RETURN_TYPE = IM.NAMESPACE + "returnType";
 
-  //shapes
-  public static CONCEPT_SHAPE = IM.NAMESPACE + "ConceptShape";
-  public static PROPERTY_SHAPE = IM.NAMESPACE + "PropertyShape";
-  public static EDITOR_CONCEPT_SHAPE = IM.NAMESPACE + "Editor_ConceptShape";
-
-  //editor components
-  public static TEXT_DISPLAY_COMPONENT = IM.NAMESPACE + "textDisplay";
-  public static TEXT_INPUT_COMPONENT = IM.NAMESPACE + "textInput";
-  public static HTML_INPUT_COMPONENT = IM.NAMESPACE + "htmlInput";
-  public static ENTITY_MULTI_SEARCH_COMPONENT = IM.NAMESPACE + "entityMultiSearch";
-  public static ENTITY_SEARCH_COMPONENT = IM.NAMESPACE + "entitySearch";
-  public static ENTITY_COMBOBOX_COMPONENT = IM.NAMESPACE + "entityComboBox";
-  public static ENTITY_DROPDOWN_COMPONENT = IM.NAMESPACE + "entityDropdown";
-  public static STEPS_GROUP_COMPONENT = IM.NAMESPACE + "stepsGroup";
-  public static ARRAY_BUILDER_COMPONENT = IM.NAMESPACE + "arrayBuilder";
-  public static ENTITY_AUTO_COMPLETE_COMPONENT = IM.NAMESPACE + "entityAutoComplete";
-  public static MEMBERS_BUILDER = IM.NAMESPACE + "membersBuilder";
-  public static COMPONENT_GROUP = IM.NAMESPACE + "componentGroup";
-  public static ARRAY_BUILDER_WITH_DROPDOWN = IM.NAMESPACE + "arrayBuilderWithDropdown";
-  public static PROPERTY_BUILDER = IM.NAMESPACE + "propertyBuilder";
-  public static SET_DEFINITION_BUILDER = IM.NAMESPACE + "SetDefinitionBuilder";
-  public static QUERY_DEFINITION_BUILDER = IM.NAMESPACE + "QueryDefinitionBuilder";
-  public static TOGGLEABLE_COMPONENT = IM.NAMESPACE + "ToggleableComponent";
-  public static HORIZONTAL_LAYOUT = IM.NAMESPACE + "HorizontalLayout";
-  public static VERTICAL_LAYOUT = IM.NAMESPACE + "VerticalLayout";
-  public static DROPDOWN_TEXT_INPUT_CONCATENATOR = IM.NAMESPACE + "dropdownTextInputConcatenator";
-
-  //editor validations
-  public static VALIDATION_HAS_PARENT = IM.NAMESPACE + "Validation_hasParent";
-  public static VALIDATION_IS_DEFINITION = IM.NAMESPACE + "Validation_isDefinition";
+  // graph
+  public static GROUP_NUMBER = IM.NAMESPACE + "groupNumber";
 
   //argument options
-  public static VALUE_TEXT = IM.NAMESPACE + "valueText";
+  public static VALUE_DATA = IM.NAMESPACE + "valueData";
   public static VALUE_VARIABLE = IM.NAMESPACE + "valueVariable";
+  public static VALUE_OBJECT = IM.NAMESPACE + "valueObject";
   public static VALUE_IRI = IM.NAMESPACE + "valueIri";
+  public static VALUE_IRI_LIST = IM.NAMESPACE + "valueIriList";
+  public static VALUE_DATA_LIST = IM.NAMESPACE + "valueDataList";
 
   // IM1
   public static IM_1_ID = IM.NAMESPACE + "im1Id";
@@ -154,4 +163,15 @@ export class IM {
   // Config
   public static HAS_CONFIG = IM.NAMESPACE + "hasConfig";
 
+  // Main folders
+  public static FOLDER_VALUESETS = IM.NAMESPACE + "ValueSets";
+  public static FOLDER_SETS = IM.NAMESPACE + "Sets";
+  public static FOLDER_QUERY_CONCEPT_SETS = IM.NAMESPACE + "QueryConceptSets";
+
+  // SUB VOCABULARIES
+  public static component = componentVocabulary;
+  public static editor = editorVocabulary;
+  public static function = functionVocabulary;
+  public static query = queryVocabulary;
+  public static validation = validationVocabulary;
 }

@@ -1,12 +1,14 @@
 <template>
-  <div v-if="isLoggedIn" class="flex flex-row align-items-center">
+  <div class="flex flex-row">
+    <div class="menu-container"><TieredMenu :model="menuItems" /></div>
     <Card class="flex flex-column justify-content-sm-around align-items-center user-edit-card">
       <template #header>
+        <h1>Edit my account</h1>
         <avatar-with-selector :selectedAvatar="selectedAvatar" @avatarSelected="updateAvatar" />
       </template>
-      <template #title> Edit my account </template>
+      <template #title> {{ menuItems[activeItem].label }} </template>
       <template #content>
-        <div class="p-fluid flex flex-column justify-content-start user-edit-form">
+        <div v-if="activeItem === 0" class="p-fluid flex flex-column justify-content-start user-edit-form">
           <div class="field">
             <label for="username">Username</label>
             <InputText data-testid="user-edit-username" id="username" type="text" v-model="username" disabled />
@@ -21,10 +23,12 @@
               v-model="firstName"
               @focus="updateFocused('firstName', true)"
               @blur="updateFocused('firstName', false)"
+              :class="(!firstName || !firstNameVerified) && 'p-invalid'"
             />
-            <InlineMessage v-if="!firstNameVerified && focused.get('firstName') === false" severity="error">
-              First name contains unexpected characters. A-Z and hyphens only allowed e.g."Mary-Anne".
+            <InlineMessage v-if="!firstNameVerified && firstName && !focused.get('firstName')" severity="error">
+              First name contains unexpected characters. Letters, apostrophes, and hyphens only allowed e.g."Mary-Anne".
             </InlineMessage>
+            <InlineMessage v-if="!firstName" severity="error"> First name is required. </InlineMessage>
           </div>
           <div class="field">
             <label for="lastName">Last name</label>
@@ -35,10 +39,12 @@
               v-model="lastName"
               @focus="updateFocused('lastName', true)"
               @blur="updateFocused('lastName', false)"
+              :class="(!lastName || !lastNameVerified) && 'p-invalid'"
             />
-            <InlineMessage v-if="!lastNameVerified && focused.get('lastName') === false" severity="error">
-              Last name contains unexpected characters. A-Z, apostropies and hyphens only allowed e.g."O'Keith-Smith".
+            <InlineMessage v-if="!lastNameVerified && lastName && !focused.get('lastName')" severity="error">
+              Last name must have a minimum of two letters and only contain letters, apostrophes, and hyphens e.g."O'Keith-Smith".
             </InlineMessage>
+            <InlineMessage v-if="!lastName" severity="error"> Last name is required. </InlineMessage>
           </div>
           <div class="field">
             <label for="email1">Email address</label>
@@ -50,10 +56,12 @@
                 v-model="email1"
                 @focus="updateFocused('email1', true)"
                 @blur="updateFocused('email1', false)"
+                :class="(!email1Verified || !email1) && !focused.get('email1') && 'p-invalid'"
               />
-              <i v-if="email1Verified && focused.get('email1') === false" class="pi pi-check-circle email-check" aria-hidden="true" />
-              <i v-if="!email1Verified && focused.get('email1') === false" class="pi pi-times-circle email-times" aria-hidden="true" />
+              <IMFontAwesomeIcon v-if="email1Verified" icon="fa-regular fa-circle-check" class="email-check" />
+              <IMFontAwesomeIcon v-if="!email1Verified && email1" icon="fa-regular fa-circle-xmark" class="email-times" />
             </div>
+            <InlineMessage v-if="!email1" severity="error"> Email is required. </InlineMessage>
           </div>
           <div class="field">
             <label for="email2">Confirm email address</label>
@@ -64,8 +72,9 @@
               v-model="email2"
               @focus="updateFocused('email2', true)"
               @blur="updateFocused('email2', false)"
+              :class="!emailsMatch && !focused.get('email2') && 'p-invalid'"
             />
-            <InlineMessage v-if="!emailsMatch && focused.get('email2') === false" severity="error"> Email addresses do not match! </InlineMessage>
+            <InlineMessage v-if="!emailsMatch && !focused.get('email2')" severity="error"> Email addresses do not match! </InlineMessage>
           </div>
           <div v-if="showPasswordEdit" class="field">
             <label for="passwordOld">Current password</label>
@@ -73,7 +82,13 @@
           </div>
           <div v-if="showPasswordEdit" class="field">
             <label for="passwordNew1">New password</label>
-            <InputText data-testid="user-edit-password-new1" id="passwordNew1" type="password" v-model="passwordNew1" />
+            <InputText
+              data-testid="user-edit-password-new1"
+              id="passwordNew1"
+              type="password"
+              v-model="passwordNew1"
+              :class="passwordStrength === 'fail' && !focused.get('passwordNew1') && 'p-invalid'"
+            />
             <InlineMessage v-if="passwordStrength === 'strong'" severity="success"> Password strength: Strong </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'medium'" severity="success"> Password strength: Medium </InlineMessage>
             <InlineMessage v-if="passwordStrength === 'weak'" severity="warn"> Password strength: Weak </InlineMessage>
@@ -92,6 +107,7 @@
               v-model="passwordNew2"
               @focus="updateFocused('password2', true)"
               @blur="updateFocused('password2', false)"
+              :class="!passwordsMatch && passwordNew2 && !focused.get('passwordNew2') && 'p-invalid'"
             />
             <InlineMessage v-if="!passwordsMatch && focused.get('password2') === false" severity="error"> New passwords do not match </InlineMessage>
           </div>
@@ -122,9 +138,19 @@
               disabled
               @click="handleEditSubmit"
             />
-            <Button data-testid="user-edit-update-button" v-else class="user-edit" type="submit" label="Update account" @click="handleEditSubmit" />
+            <Button
+              data-testid="user-edit-update-button"
+              v-else
+              class="user-edit"
+              type="submit"
+              label="Update account"
+              @click="handleEditSubmit"
+              :loading="loading"
+            />
           </div>
         </div>
+        <SecuritySettings v-if="activeItem === 1" />
+        <AuthRoles v-if="activeItem === 2" />
       </template>
     </Card>
   </div>
@@ -132,41 +158,78 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, Ref } from "vue";
-import { useStore } from "vuex";
 import Swal, { SweetAlertIcon, SweetAlertResult } from "sweetalert2";
 import { AuthService } from "@/services";
 import AvatarWithSelector from "./AvatarWithSelector.vue";
+import IMFontAwesomeIcon from "../shared/IMFontAwesomeIcon.vue";
+import AuthRoles from "@/components/auth/userDetails/AuthRoles.vue";
+import SecuritySettings from "@/components/auth/userDetails/SecuritySettings.vue";
 import { Avatars } from "@im-library/constants";
 import { PasswordStrength } from "@im-library/enums";
-import { verifyEmailsMatch, verifyIsEmail, verifyIsName, verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
+import {
+  verifyEmailsMatch,
+  verifyIsEmail,
+  verifyIsFirstName,
+  verifyIsLastName,
+  verifyPasswordsMatch,
+  checkPasswordStrength
+} from "@im-library/helpers/UserMethods";
 import { useRouter } from "vue-router";
 import { User } from "@im-library/interfaces";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const isLoggedIn = computed(() => store.state.isLoggedIn);
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.isLoggedIn);
 
-let username = ref("");
-let firstName = ref("");
-let lastName = ref("");
-let email1 = ref("");
-let email2 = ref("");
-let passwordOld = ref("");
-let passwordNew1 = ref("");
-let passwordNew2 = ref("");
-let selectedAvatar = ref(Avatars[0]);
-let avatarOptions = [...Avatars];
-let showPasswordEdit = ref(false);
-let focused: Ref<Map<string, boolean>> = ref(new Map());
+const username = ref("");
+const firstName = ref("");
+const lastName = ref("");
+const email1 = ref("");
+const email2 = ref("");
+const passwordOld = ref("");
+const passwordNew1 = ref("");
+const passwordNew2 = ref("");
+const selectedAvatar = ref(Avatars[0]);
+const showPasswordEdit = ref(false);
+const focused: Ref<Map<string, boolean>> = ref(new Map());
+const loading = ref(false);
+const activeItem = ref(0);
+const menuItems = ref([
+  {
+    label: "Personal details",
+    icon: "fa-solid fa-user",
+    class: "details-tab",
+    command: () => {
+      activeItem.value = 0;
+    }
+  },
+  {
+    label: "Security",
+    icon: "fa-solid fa-user-lock",
+    class: "security-tab",
+    command: () => {
+      activeItem.value = 1;
+    }
+  },
+  {
+    label: "Authorisation roles",
+    icon: "fa-solid fa-shield-halved",
+    class: "roles-tab",
+    command: () => {
+      activeItem.value = 2;
+    }
+  }
+]);
 
 const email1Verified = computed(() => verifyIsEmail(email1.value));
 const emailsMatch = computed(() => verifyEmailsMatch(email1.value, email2.value));
 const passwordStrengthOld = computed(() => checkPasswordStrength(passwordOld.value));
 const passwordStrength = computed(() => checkPasswordStrength(passwordNew1.value));
 const passwordsMatch = computed(() => verifyPasswordsMatch(passwordNew1.value, passwordNew2.value));
-const firstNameVerified = computed(() => verifyIsName(firstName.value));
-const lastNameVerified = computed(() => verifyIsName(lastName.value));
+const firstNameVerified = computed(() => verifyIsFirstName(firstName.value));
+const lastNameVerified = computed(() => verifyIsLastName(lastName.value));
 
 onMounted(() => {
   if (currentUser.value && isLoggedIn.value) {
@@ -196,6 +259,7 @@ function swalert(icon: SweetAlertIcon, title: string, text: string) {
 }
 
 function handleFieldsVerified(handlePasswordChange: boolean) {
+  loading.value = true;
   const oldEmail = currentUser.value.email;
   const updatedUser = {
     id: currentUser.value.id,
@@ -205,7 +269,8 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
     email: email1.value,
     password: "",
     avatar: selectedAvatar.value,
-    roles: []
+    roles: [],
+    mfaStatus: []
   } as User;
 
   AuthService.updateUser(updatedUser).then(res => {
@@ -227,8 +292,9 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
             if (result.value) {
               AuthService.verifyEmail(result.value).then(res => {
                 if (res.status === 200) {
-                  swalert("success", "Success", "Account details updated successfully.").then(() => {
-                    store.commit("updateCurrentUser", res.user);
+                  swalert("success", "Success", "Account details updated successfully.").then(async () => {
+                    await userStore.updateCurrentUser(res.user);
+                    await userStore.getAllFromUserDatabase();
                     router.push({ name: "UserDetails" });
                   });
                 } else {
@@ -240,17 +306,19 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
             }
           });
         } else {
-          swalert("success", "Success", "Account details updated successfully.").then(() => {
-            store.commit("updateCurrentUser", res.user);
+          swalert("success", "Success", "Account details updated successfully.").then(async () => {
+            await userStore.updateCurrentUser(res.user);
+            await userStore.getAllFromUserDatabase();
             router.push({ name: "UserDetails" });
           });
         }
       } else {
-        AuthService.changePassword(passwordOld.value, passwordNew1.value).then(res2 => {
+        AuthService.changePassword(passwordOld.value, passwordNew1.value).then(async res2 => {
           res2.status === 200
             ? swalert("success", "Success", "User details and password successfully updated.")
             : swalert("error", "Error", "Password update failed, but user details updated successfully. " + res2.message);
-          store.commit("updateCurrentUser", res.user);
+          await userStore.updateCurrentUser(res.user);
+          await userStore.getAllFromUserDatabase();
           router.push({ name: "UserDetails" });
         });
       }
@@ -258,6 +326,7 @@ function handleFieldsVerified(handlePasswordChange: boolean) {
       swalert("error", "Error", res.message);
     }
   });
+  loading.value = false;
 }
 
 function handleEditSubmit(): void {
@@ -374,11 +443,11 @@ function checkForChanges(): boolean {
   padding: 0 2em;
 }
 .email-check {
-  color: #439446;
+  color: var(--green-500);
   font-size: 2em;
 }
 .email-times {
-  color: #e60017;
+  color: var(--red-500);
   font-size: 2em;
 }
 </style>

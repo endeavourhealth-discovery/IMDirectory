@@ -5,10 +5,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineComponent } from "@vue/runtime-core";
+interface Props {
+  size?: string;
+  show: boolean;
+}
 
-const props = defineProps({
-  size: { type: String, default: "100%" },
-  show: { type: Boolean }
+const props = withDefaults(defineProps<Props>(), {
+  size: "100%"
 });
 </script>

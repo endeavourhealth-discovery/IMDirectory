@@ -1,129 +1,147 @@
 <template>
-  <div class="flex flex-row justify-contents-center align-items-center loading -container" v-if="loading">
+  <div class="flex flex-row justify-contents-center align-items-center loading-container" v-if="loading">
     <ProgressSpinner />
   </div>
-  <OrganizationChart v-else :value="data" data-testid="mappings">
-    <template #hasMap="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
-    </template>
-    <template #oneOf="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
-    </template>
-    <template #comboOf="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
-    </template>
-    <template #someOf="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
-    </template>
-    <template #matchedFrom="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
-    </template>
-    <template #matchedTo="slotProps">
-      <span>{{ slotProps.node.data.label }}</span>
-    </template>
-    <template #childList="slotProps">
-      <table aria-label="Concept map children" data-testid="hasMap">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Priority</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="mapItem of slotProps.node.data.mapItems"
-            :key="mapItem"
-            @mouseenter="toggle($event, mapItem, 'opMap')"
-            @mouseleave="toggle($event, mapItem, 'opMap')"
-          >
-            <td>{{ mapItem.name }}</td>
-            <td>{{ mapItem.priority }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </template>
-    <template #matchedFromList="slotProps">
-      <SimpleMaps
-        v-if="slotProps.node.data.mapItems.length"
-        :data="slotProps.node.data.mapItems"
-        @toggleOverlay="handleMatchedFromToggle"
-        data-testid="matchedFrom"
-      />
-      <span v-else>None</span>
-    </template>
-    <template #matchedToList="slotProps">
-      <SimpleMaps
-        v-if="slotProps.node.data.mapItems.length"
-        :data="slotProps.node.data.mapItems"
-        @toggleOverlay="handleMatchedToToggle"
-        data-testid="matchedTo"
-      />
-      <span v-else>None</span>
-    </template>
-    <template #default>
-      <p class="text-centered">None</p>
-    </template>
-  </OrganizationChart>
+  <div v-else class="flex flex-column justify-contents-center align-items-center flex-auto">
+    <OrganizationChart :value="data" data-testid="mappings">
+      <template #hasMap="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #oneOf="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #comboOf="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #someOf="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #matchedFrom="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #matchedTo="{ node }: any">
+        <span>{{ node.data.label }}</span>
+      </template>
+      <template #childList="{ node }: any">
+        <table aria-label="Concept map children" data-testid="hasMap">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="mapItem of node.data.mapItems"
+              :key="mapItem"
+              @mouseenter="toggle($event, mapItem, 'opMap')"
+              @mouseleave="toggle($event, mapItem, 'opMap')"
+            >
+              <td>{{ mapItem.name }}</td>
+              <td>{{ mapItem.priority }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+      <template #matchedFromList="{ node }: any">
+        <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedFromToggle" data-testid="matchedFrom" />
+        <span v-else>None</span>
+      </template>
+      <template #matchedToList="{ node }: any">
+        <SimpleMaps v-if="node.data.mapItems.length" :data="node.data.mapItems" @toggleOverlay="handleMatchedToToggle" data-testid="matchedTo" />
+        <span v-else>None</span>
+      </template>
+      <template #default>
+        <p class="text-centered">None</p>
+      </template>
+    </OrganizationChart>
 
-  <OverlayPanel ref="opMap" id="overlay-panel-maps">
-    <div class="flex flex-column justify-contents-start map-overlay">
-      <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
-      <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
-      <p><strong>Priority: </strong>{{ hoveredResult.priority }}</p>
-      <p>
-        <strong>Assurance level: </strong>
-        {{ hoveredResult.assuranceLevel }}
-      </p>
-    </div>
-  </OverlayPanel>
+    <OverlayPanel ref="opMap" id="overlay-panel-maps">
+      <div class="flex flex-column justify-contents-start map-overlay">
+        <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
+        <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
+        <p><strong>Priority: </strong>{{ hoveredResult.priority }}</p>
+        <p>
+          <strong>Assurance level: </strong>
+          {{ hoveredResult.assuranceLevel }}
+        </p>
+      </div>
+    </OverlayPanel>
 
-  <OverlayPanel ref="opMatchedFrom" id="overlay-panel-simple-maps">
-    <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
-      <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
-      <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
-      <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
-      <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
-    </div>
-  </OverlayPanel>
+    <OverlayPanel ref="opMatchedFrom" id="overlay-panel-simple-maps">
+      <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedFromOverlay">
+        <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
+        <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
+        <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
+        <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
+      </div>
+    </OverlayPanel>
 
-  <OverlayPanel ref="opMatchedTo" id="overlay-panel-simple-maps">
-    <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
-      <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
-      <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
-      <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
-      <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
+    <OverlayPanel ref="opMatchedTo" id="overlay-panel-simple-maps">
+      <div class="flex flex-column justify-contents-start simple-maps-overlay" data-testid="matchedToOverlay">
+        <p><strong>Name: </strong>{{ hoveredResult.name }}</p>
+        <p><strong>Iri: </strong>{{ hoveredResult.iri }}</p>
+        <p><strong>Namespace: </strong>{{ hoveredResult.scheme }}</p>
+        <p><strong>Code: </strong>{{ hoveredResult.code }}</p>
+      </div>
+    </OverlayPanel>
+    <div class="context-table">
+      <DataTable v-model:expandedRows="contextExpandedRows" :value="contextMaps" dataKey="id">
+        <Column expander style="width: 5rem" />
+        <Column field="property" header="Property"></Column>
+        <Column field="node" header="Map node"></Column>
+        <Column field="value" header="Value"></Column>
+        <Column field="regex" header="Regex"></Column>
+        <template #expansion="{ data }: { data: { context: Context[] } }">
+          <div class="p-3">
+            <DataTable :value="data.context">
+              <Column field="publisher" header="Publisher"></Column>
+              <Column field="system" header="System"></Column>
+              <Column field="schema" header="Schema"></Column>
+              <Column field="table" header="Table"></Column>
+              <Column field="field" header="Field"></Column>
+            </DataTable>
+          </div>
+        </template>
+      </DataTable>
     </div>
-  </OverlayPanel>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, Ref, watch } from "vue";
 import SimpleMaps from "./SimpleMaps.vue";
-import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode } from "@im-library/interfaces";
+import { Namespace, SimpleMap, SimpleMapIri, MapItem, ChartTableNode, ChartMapNode, ContextMap } from "@im-library/interfaces";
 import { DataTypeCheckers, Sorters } from "@im-library/helpers";
 import { EntityService } from "@/services";
 import { IM } from "@im-library/vocabulary";
+import { Context } from "@im-library/interfaces/Context";
+
 const { isArrayHasLength, isObjectHasKeys } = DataTypeCheckers;
 const { byPriority, byScheme } = Sorters;
 
-const props = defineProps({
-  conceptIri: { type: String, required: true }
-});
+interface Props {
+  entityIri: string;
+}
+
+const props = defineProps<Props>();
 
 const mappings: Ref<any[]> = ref([]);
+const contextMaps: Ref<ContextMap[]> = ref([]);
 const data: Ref = ref({});
 const hoveredResult: Ref = ref({});
 const matchedFrom: Ref<SimpleMap[]> = ref([]);
 const matchedTo: Ref<SimpleMap[]> = ref([]);
 const namespaces: Ref<Namespace[]> = ref([]);
 const loading = ref(false);
+const contextExpandedRows: Ref<ContextMap[]> = ref([]);
 
 const opMap = ref(null);
 const opMatchedTo = ref(null);
 const opMatchedFrom = ref(null);
 
 watch(
-  () => props.conceptIri,
+  () => props.entityIri,
   async () => await updateMappings()
 );
 
@@ -138,12 +156,13 @@ async function updateMappings() {
 }
 
 async function getMappings(): Promise<void> {
-  mappings.value = (await EntityService.getPartialEntity(props.conceptIri, [IM.HAS_MAP]))[IM.HAS_MAP] || [];
+  mappings.value = (await EntityService.getPartialEntity(props.entityIri, [IM.HAS_MAP]))[IM.HAS_MAP] ?? [];
+  contextMaps.value = (await EntityService.getContextMaps(props.entityIri)) ?? [];
   data.value = {};
 
   namespaces.value = await EntityService.getNamespaces();
-  matchedFrom.value = await EntityService.getMatchedFrom(props.conceptIri);
-  matchedTo.value = await EntityService.getMatchedTo(props.conceptIri);
+  matchedFrom.value = await EntityService.getMatchedFrom(props.entityIri);
+  matchedTo.value = await EntityService.getMatchedTo(props.entityIri);
 }
 
 function createChartTableNode(
@@ -326,29 +345,42 @@ function handleMatchedToToggle(event: any, data: any) {
 <style scoped>
 td,
 th {
-  border: 1px solid lightgray;
+  border: 1px solid var(--surface-border);
   padding: 0.5rem;
   text-align: left;
   overflow-wrap: break-word;
 }
 
 tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: var(--surface-a);
 }
 
 th[scope="col"] {
-  background-color: #f8f9fa;
-  color: #495057;
+  background-color: var(--surface-a);
+  color: var(--text-color);
 }
 
 table {
   border-collapse: collapse;
-  border: 2px solid rgb(200, 200, 200);
+  border: 2px solid var(--surface-border);
 }
 
 .p-organizationchart {
   height: 100%;
   width: 100%;
   overflow: auto;
+}
+
+.loading-container {
+  display: flex;
+  flex-flow: row;
+  justify-content: center;
+  align-items: center;
+  height: 20rem;
+  width: 100%;
+}
+
+.context-table {
+  width: 100%;
 }
 </style>

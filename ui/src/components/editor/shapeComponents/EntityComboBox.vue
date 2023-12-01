@@ -1,56 +1,106 @@
 <template>
   <div class="entity-combobox-container">
+    <div class="title-bar">
+      <span v-if="shape.showTitle">{{ shape.name }}</span>
+      <span v-if="showRequired" class="required">*</span>
+    </div>
     <div class="multiselect-loading-container">
-      <span class="field">
-        <label for="chip-group">{{ shape.name }}</label>
-        <div id="chip-group" class="chip-group">
-          <Chip v-if="fixedOption" :label="fixedOption.name" class="fixed-chip" />
-          <MultiSelect
-            :disabled="loading"
-            class="multi-select"
-            :class="invalid && 'invalid'"
-            v-model="selectedEntities"
-            :options="dropdownOptions"
-            optionLabel="name"
-            display="chip"
-          />
-        </div>
-      </span>
+      <div id="chip-group" class="chip-group">
+        <Chip v-if="fixedOption" :label="fixedOption.name" class="fixed-chip" />
+        <MultiSelect
+          :disabled="loading"
+          class="multi-select"
+          :class="invalid && showValidation && 'invalid'"
+          v-model="selectedEntities"
+          :options="dropdownOptions"
+          optionLabel="name"
+          display="chip"
+        />
+      </div>
       <ProgressSpinner v-if="loading" class="loading-icon" stroke-width="8" />
+      <small v-if="invalid && showValidation" class="validate-error">{{ validationErrorMessage }}</small>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, watch, onMounted, inject, PropType } from "vue";
+import { ref, Ref, watch, onMounted, inject, PropType, ComputedRef, computed } from "vue";
 import { EditorMode } from "@im-library/enums";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { processArguments } from "@im-library/helpers/EditorMethods";
 import { byName } from "@im-library/helpers/Sorters";
 import { mapToObject } from "@im-library/helpers/Transforms";
-import { QueryService } from "@/services";
+import { FunctionService, QueryService } from "@/services";
 import { RDFS } from "@im-library/vocabulary";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import _ from "lodash";
 import { PropertyShape, TTIriRef, QueryRequest, Query } from "@im-library/interfaces/AutoGen";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyShape>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: Array as PropType<TTIriRef[]>, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  position?: number;
+  value?: TTIriRef[];
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits({ updateClicked: (_payload: TTIriRef[]) => true });
 
 const entityUpdate = inject(injectionKeys.editorEntity)?.updateEntity;
+const deleteEntityKey = inject(injectionKeys.editorEntity)?.deleteEntityKey;
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity;
-const validityUpdate = inject(injectionKeys.editorValidity)?.updateValidity;
+const updateValidity = inject(injectionKeys.editorValidity)?.updateValidity;
 const valueVariableMapUpdate = inject(injectionKeys.valueVariableMap)?.updateValueVariableMap;
+const valueVariableMap = inject(injectionKeys.valueVariableMap)?.valueVariableMap;
+const valueVariableHasChanged = inject(injectionKeys.valueVariableMap)?.valueVariableHasChanged;
+const forceValidation = inject(injectionKeys.forceValidation)?.forceValidation;
+const validationCheckStatus = inject(injectionKeys.forceValidation)?.validationCheckStatus;
+const updateValidationCheckStatus = inject(injectionKeys.forceValidation)?.updateValidationCheckStatus;
+if (forceValidation) {
+  watch(forceValidation, async () => {
+    if (forceValidation && updateValidity) {
+      if (props.shape.builderChild) {
+        hasData();
+      } else {
+        await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+        if (updateValidationCheckStatus) updateValidationCheckStatus(key);
+      }
+      showValidation.value = true;
+    }
+  });
+}
+
+if (props.shape.argument?.some(arg => arg.valueVariable) && valueVariableMap) {
+  watch(
+    () => _.cloneDeep(valueVariableMap),
+    async (newValue, oldValue) => {
+      if (valueVariableHasChanged && valueVariableHasChanged(props.shape, newValue, oldValue)) {
+        if (updateValidity) {
+          if (props.shape.builderChild) {
+            hasData();
+          } else {
+            await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+          }
+          showValidation.value = true;
+        }
+      }
+    }
+  );
+}
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
 
 const dropdownOptions: Ref<TTIriRef[]> = ref([]);
 const fixedOption: Ref<TTIriRef> = ref({} as TTIriRef);
 const loading = ref(false);
 const selectedEntities: Ref<TTIriRef[]> = ref([]);
-let invalid = ref(false);
+const invalid = ref(false);
+const validationErrorMessage: Ref<string | undefined> = ref();
+const showValidation = ref(true);
 
 let key = props.shape.path["@id"];
 
@@ -79,8 +129,8 @@ function processPropsValue() {
     return;
   }
   if (isObjectHasKeys(props.shape, ["isIri"])) {
-    selectedEntities.value = props.value.filter(o => o["@id"] !== props.shape.isIri["@id"]);
-    const foundFixedOption = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri["@id"]);
+    selectedEntities.value = props.value.filter(o => o["@id"] !== props.shape.isIri!["@id"]);
+    const foundFixedOption = dropdownOptions.value.find(o => o["@id"] === props.shape.isIri!["@id"]);
     if (!foundFixedOption) {
       throw new Error("shape isIri value did not match any dropdown option");
       return;
@@ -100,9 +150,18 @@ function combineSelectedAndFixed(selected: TTIriRef[], fixed: TTIriRef) {
 }
 
 async function updateAll(selected: TTIriRef[]) {
-  updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
+  if (!selected && !props.shape.builderChild && deleteEntityKey) deleteEntityKey(key);
+  else if (!props.shape.builderChild) updateEntity(combineSelectedAndFixed(selected, fixedOption.value));
+  else emit("updateClicked", selected);
   updateValueVariableMap(combineSelectedAndFixed(selected, fixedOption.value));
-  await updateValidity(combineSelectedAndFixed(selected, fixedOption.value));
+  if (updateValidity) {
+    if (props.shape.builderChild) {
+      hasData();
+    } else {
+      await updateValidity(props.shape, editorEntity, valueVariableMap, key, invalid, validationErrorMessage);
+    }
+    showValidation.value = true;
+  }
 }
 
 async function getDropdownOptions(): Promise<TTIriRef[]> {
@@ -111,7 +170,7 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     const replacedArgs = mapToObject(args);
     const queryRequest = {} as QueryRequest;
     const query = {} as Query;
-    query["@id"] = props.shape.select[0]["@id"];
+    query["@id"] = props.shape.select![0]["@id"];
     queryRequest.argument = replacedArgs;
     queryRequest.query = query;
     const result = await QueryService.queryIM(queryRequest);
@@ -122,9 +181,9 @@ async function getDropdownOptions(): Promise<TTIriRef[]> {
     else return [];
   } else if (isObjectHasKeys(props.shape, ["function", "argument"])) {
     const args = processArguments(props.shape);
-    return QueryService.runFunction(props.shape.function["@id"], args);
+    return FunctionService.runFunction(props.shape.function!["@id"], args);
   } else if (isObjectHasKeys(props.shape, ["function"])) {
-    return QueryService.runFunction(props.shape.function["@id"]);
+    return FunctionService.runFunction(props.shape.function!["@id"]);
   } else throw new Error("propertyshape is missing 'search' or 'function' parameter to fetch dropdown options");
 }
 
@@ -141,42 +200,39 @@ function updateValueVariableMap(data: TTIriRef[]) {
   if (valueVariableMapUpdate) valueVariableMapUpdate(mapKey, data);
 }
 
-async function updateValidity(data: TTIriRef[]) {
-  if (isObjectHasKeys(props.shape, ["validation"]) && editorEntity) {
-    invalid.value = !(await QueryService.checkValidation(props.shape.validation["@id"], editorEntity.value));
-  } else {
-    invalid.value = !defaultValidity(data);
+function hasData() {
+  invalid.value = false;
+  validationErrorMessage.value = undefined;
+  if (props.shape.minCount === 0 && selectedEntities.value.length === 0) return;
+  if (selectedEntities.value.length === 0) {
+    invalid.value = true;
+    validationErrorMessage.value = props.shape.validationErrorMessage ?? "Item required. ";
   }
-  if (validityUpdate) validityUpdate({ key: key, valid: !invalid.value });
-}
-
-function defaultValidity(data: TTIriRef[]) {
-  return true;
 }
 </script>
 
 <style scoped>
+.entity-combobox-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-flow: column nowrap;
+}
 .multiselect-loading-container {
   display: flex;
-  flex-flow: row nowrap;
-  width: 25rem;
-  align-items: center;
+  flex-flow: row wrap;
+  min-width: 25rem;
+  align-items: flex-start;
   height: fit-content;
-  padding: 0.5rem 0 0 0;
-}
-
-.field {
-  width: 100%;
 }
 
 .chip-group {
+  flex: 1 1 auto;
+  gap: 0.5rem;
   display: flex;
-  width: 100%;
 }
 
 .fixed-chip {
-  flex-basis: content;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
 }
 
 .multi-select {
@@ -184,7 +240,7 @@ function defaultValidity(data: TTIriRef[]) {
 }
 
 .loading-icon {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
 }
 
 .p-progress-spinner {
@@ -192,7 +248,23 @@ function defaultValidity(data: TTIriRef[]) {
   height: 2rem;
 }
 
+.validate-error {
+  color: var(--red-500);
+  font-size: 0.8rem;
+  padding: 0 0 0.25rem 0;
+}
+
 .invalid {
-  border-color: #e24c4c;
+  border: 1px solid var(--red-500);
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.25rem;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

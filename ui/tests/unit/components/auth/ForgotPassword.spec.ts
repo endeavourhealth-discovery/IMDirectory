@@ -1,25 +1,20 @@
 import Card from "primevue/card";
 import Button from "primevue/button";
-import { mount, flushPromises } from "@vue/test-utils";
 import ForgotPassword from "@/components/auth/ForgotPassword.vue";
 import InputText from "primevue/inputtext";
 import { AuthService } from "@/services";
 import { vi } from "vitest";
 import { fireEvent, render, RenderResult } from "@testing-library/vue";
 import PrimeVue from "primevue/config";
+import { createTestingPinia } from "@pinia/testing";
 
 window.scrollTo = vi.fn() as any;
-const mockDispatch = vi.fn();
-const mockState = { registeredUsername: "" };
-const mockCommit = vi.fn();
 
-vi.mock("vuex", () => ({
-  useStore: () => ({
-    dispatch: mockDispatch,
-    state: mockState,
-    commit: mockCommit
-  })
-}));
+createTestingPinia({
+  initialState: {
+    user: { registeredUsername: "" }
+  }
+});
 
 const mockPush = vi.fn();
 const mockGo = vi.fn();

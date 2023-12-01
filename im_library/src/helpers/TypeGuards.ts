@@ -1,5 +1,5 @@
-import { TTBundle, TTIriRef } from "../interfaces";
-import { PropertyGroup, PropertyShape } from "../interfaces/AutoGen";
+import { BugReport, TTBundle, Workflow } from "../interfaces";
+import { PropertyShape, TTIriRef } from "../interfaces/AutoGen";
 import { isObjectHasKeys } from "./DataTypeCheckers";
 
 export function isTTIriRef(data: any): data is TTIriRef {
@@ -9,11 +9,6 @@ export function isTTIriRef(data: any): data is TTIriRef {
 
 export function isTTBundle(data: any): data is TTBundle {
   if (data && (data as TTBundle).entity && (data as TTBundle).predicates) return true;
-  return false;
-}
-
-export function isPropertyGroup(data: any): data is PropertyGroup {
-  if (data && ((data as PropertyGroup).subGroup || (data as PropertyGroup).property)) return true;
   return false;
 }
 
@@ -32,10 +27,31 @@ export function isBoolGroup(data: any): data is { conjunction: string; items: an
   else return false;
 }
 
+export function isWorkflow(data: any): data is Workflow {
+  if (data && (data as Workflow).id && (data as Workflow).createdBy && (data as Workflow).dateCreated && (data as Workflow).state && (data as Workflow).type)
+    return true;
+  else return false;
+}
+
+export function isBugReport(data: any): data is BugReport {
+  if (
+    data &&
+    isWorkflow(data) &&
+    (data as BugReport).OS &&
+    (data as BugReport).actualResult &&
+    (data as BugReport).expectedResult &&
+    (data as BugReport).module &&
+    (data as BugReport).product &&
+    (data as BugReport).reproduceSteps &&
+    (data as BugReport).version
+  )
+    return true;
+  else return false;
+}
+
 export default {
   isTTIriRef,
   isTTBundle,
-  isPropertyGroup,
   isPropertyShape,
   isAliasIriRef,
   isBoolGroup

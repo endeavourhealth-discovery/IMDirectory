@@ -8,25 +8,16 @@
       </template>
     </TopBar>
     <ConfirmDialog />
-    <TestQueryResults
-      v-if="showTestQueryResults"
-      :showDialog="showTestQueryResults"
-      :queryRequest="JSON.parse(editorEntity[IM.DEFINITION])"
-      @close-dialog="showTestQueryResults = false"
-    />
     <div id="creator-main-container">
       <div class="content-buttons-container">
         <div class="content-sidebar-container">
           <div v-if="loading" class="loading-container">
             <ProgressSpinner />
           </div>
-          <div v-else class="steps-content">
-            <Steps :model="stepsItems" :readonly="false" @click="stepsClicked" />
-            <router-view v-slot="{ Component }">
-              <keep-alive>
-                <component :is="Component" :shape="groups.length ? groups[currentStep - 1] : undefined" :mode="EditorMode.CREATE" />
-              </keep-alive>
-            </router-view>
+          <div v-else class="creator-layout-container">
+            <template v-for="group of groups">
+              <component :is="processComponentType(group.componentType)" :shape="group" :mode="EditorMode.CREATE" :value="processEntityValue(group)" />
+            </template>
           </div>
           <Divider v-if="showSidebar" layout="vertical" />
           <div v-if="showSidebar" class="sidebar-container">
@@ -39,66 +30,107 @@
             @click="onShowSidebar"
           />
         </div>
-        <div class="button-bar" id="creator-button-bar">
-          <Button :disabled="currentStep === 0" icon="pi pi-angle-left" label="Back" @click="stepsBack" />
-          <Button icon="pi pi-refresh" label="Reset" severity="warning" @click="refreshCreator" />
-          <Button v-if="hasQueryDefinition" icon="pi pi-bolt" label="Test query" severity="help" @click="testQuery" />
-          <Button icon="pi pi-check" label="Create" severity="success" class="save-button" @click="submit" />
-          <Button :disabled="currentStep >= stepsItems.length - 1" icon="pi pi-angle-right" label="Next" @click="stepsForward" />
+        <div id="creator-footer-bar">
+          <div class="required-container">
+            <span class="required-info">(*) item is required.</span>
+          </div>
+          <div class="button-bar" id="creator-button-bar">
+            <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
+            <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
+          </div>
         </div>
       </div>
     </div>
+    <TypeSelector :showTypeSelector="showTypeSelector" :updateShowTypeSelector="updateShowTypeSelector" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";import TypeSelector from "@/components/creator/TypeSelector.vue";
-import StepsGroup from "@/components/editor/StepsGroup.vue";
+import TypeSelector from "@/components/creator/TypeSelector.vue";
+import HorizontalLayout from "@/components/editor/shapeComponents/HorizontalLayout.vue";
+import VerticalLayout from "@/components/editor/shapeComponents/VerticalLayout.vue";
+import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
+import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
+import EntityAutoComplete from "@/components/editor/shapeComponents/EntityAutoComplete.vue";
+import TextDisplay from "@/components/editor/shapeComponents/TextDisplay.vue";
+import TextInput from "@/components/editor/shapeComponents/TextInput.vue";
+import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
+import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
+import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
+import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
+import ComponentGroup from "@/components/editor/shapeComponents/ComponentGroup.vue";
+import DropdownTextInputConcatenator from "@/components/editor/shapeComponents/DropdownTextInputConcatenator.vue";
+import EntitySearch from "@/components/editor/shapeComponents/EntitySearch.vue";
+import { QueryService } from "@/services";
+import { defineComponent } from "vue";
+import { setupValidity } from "@/composables/setupValidity";
+import { setupValueVariableMap } from "@/composables/setupValueVariableMap";
+import { useDialog } from "primevue/usedialog";
+import QuickQuery from "@/components/query/QuickQuery.vue";
 
 export default defineComponent({
-  components: { StepsGroup, TypeSelector }
+  components: {
+    TypeSelector,
+    HorizontalLayout,
+    VerticalLayout,
+    ArrayBuilder,
+    EntityAutoComplete,
+    EntityComboBox,
+    TextDisplay,
+    TextInput,
+    EntityDropdown,
+    EntitySearch,
+    HtmlInput,
+    ToggleableComponent,
+    QueryDefinitionBuilder,
+    ComponentGroup,
+    DropdownTextInputConcatenator
+  }
 });
 </script>
 
 <script setup lang="ts">
 import { onUnmounted, onMounted, computed, ref, Ref, watch, PropType, provide, nextTick, ComputedRef } from "vue";
 import SideBar from "@/components/editor/SideBar.vue";
-import TestQueryResults from "@/components/editor/shapeComponents/setDefinition/TestQueryResults.vue";
 import TopBar from "@/components/shared/TopBar.vue";
+import LoadingDialog from "@/components/shared/dynamicDialogs/LoadingDialog.vue";
 import _ from "lodash";
-import { useStore } from "vuex";
 import Swal from "sweetalert2";
 import { setupEditorEntity } from "@/composables/setupEditorEntity";
 import { setupEditorShape } from "@/composables/setupEditorShape";
 import { useConfirm } from "primevue/useconfirm";
 import { useRoute, useRouter } from "vue-router";
 import injectionKeys from "@/injectionKeys/injectionKeys";
-import { TTIriRef } from "@im-library/interfaces/AutoGen";
+import { PropertyShape, TTIriRef } from "@im-library/interfaces/AutoGen";
 import { isObjectHasKeys, isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
 import { debounce } from "@im-library/helpers/UtilityMethods";
 import { EditorMode } from "@im-library/enums";
 import { IM, RDF, RDFS, SHACL } from "@im-library/vocabulary";
-import { DirectService, EntityService, Env, FilerService } from "@/services";
+import { DirectService, EntityService, FilerService } from "@/services";
+import { useCreatorStore } from "@/stores/creatorStore";
+import { useEditorStore } from "@/stores/editorStore";
+import { useFilterStore } from "@/stores/filterStore";
+import { useUserStore } from "@/stores/userStore";
+import { processComponentType } from "@im-library/helpers/EditorMethods";
+interface Props {
+  type?: TTIriRef;
+}
 
-const props = defineProps({ type: { type: Object as PropType<TTIriRef>, required: false } });
+const props = defineProps<Props>();
 
+const route = useRoute();
 const router = useRouter();
-const store = useStore();
 const confirm = useConfirm();
-
-const creatorSavedEntity = computed(() => store.state.creatorSavedEntity);
+const dynamicDialog = useDialog();
+const creatorStore = useCreatorStore();
+const editorStore = useEditorStore();
+const filterStore = useFilterStore();
+const userStore = useUserStore();
 const directService = new DirectService();
 
-onUnmounted(() => {
-  window.removeEventListener("beforeunload", beforeWindowUnload);
-});
-
-const hasType = computed<boolean>(() => {
-  return isObjectHasKeys(editorEntity.value, [RDF.TYPE]);
-});
-
-const treeIri: ComputedRef<string> = computed(() => store.state.findInEditorTreeIri);
-const hasQueryDefinition: ComputedRef<boolean> = computed(() => isObjectHasKeys(editorEntity.value, [IM.DEFINITION]));
+const currentUser = computed(() => userStore.currentUser).value;
+const creatorSavedEntity = computed(() => creatorStore.creatorSavedEntity);
+const treeIri: ComputedRef<string> = computed(() => editorStore.findInEditorTreeIri);
 
 watch(treeIri, (newValue, oldValue) => {
   if ("" === oldValue && "" !== newValue) showSidebar.value = true;
@@ -106,53 +138,114 @@ watch(treeIri, (newValue, oldValue) => {
 
 function onShowSidebar() {
   showSidebar.value = !showSidebar.value;
-  store.commit("updateFindInEditorTreeIri", "");
+  editorStore.updateFindInEditorTreeIri("");
 }
 
-const { editorEntity, editorEntityOriginal, fetchEntity, processEntity, editorIri, editorSavedEntity, entityName } = setupEditorEntity();
-const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processComponentType, processShape, addToShape } = setupEditorShape();
+const {
+  editorEntity,
+  editorEntityOriginal,
+  fetchEntity,
+  processEntity,
+  editorIri,
+  editorSavedEntity,
+  entityName,
+  hasType,
+  findPrimaryType,
+  updateEntity,
+  deleteEntityKey,
+  checkForChanges
+} = setupEditorEntity(EditorMode.CREATE, updateType);
+const { setCreatorSteps, shape, stepsItems, getShape, getShapesCombined, groups, processShape, addToShape } = setupEditorShape();
+const {
+  editorValidity,
+  updateValidity,
+  removeValidity,
+  isValidEntity,
+  constructValidationCheckStatus,
+  validationCheckStatus,
+  updateValidationCheckStatus,
+  addPropertyToValidationCheckStatus,
+  removeValidationCheckStatus,
+  validationChecksCompleted,
+  checkValidity
+} = setupValidity(shape.value);
+const { valueVariableMap, updateValueVariableMap, valueVariableHasChanged } = setupValueVariableMap();
 
 const loading: Ref<boolean> = ref(true);
 const currentStep: Ref<number> = ref(0);
 const showSidebar: Ref<boolean> = ref(false);
-const creatorValidity: Ref<{ key: string; valid: boolean }[]> = ref([]);
 const targetShape: Ref<TTIriRef | undefined> = ref();
-const valueVariableMap: Ref<Map<string, any>> = ref(new Map<string, any>());
-const showTestQueryResults: Ref<boolean> = ref(false);
-const route = useRoute();
+const showTypeSelector = ref(false);
+const forceValidation = ref(false);
 
-provide(injectionKeys.editorValidity, { validity: creatorValidity, updateValidity, removeValidity });
+provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
 
 provide(injectionKeys.editorEntity, { editorEntity, updateEntity, deleteEntityKey });
-provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap });
+provide(injectionKeys.valueVariableMap, { valueVariableMap, updateValueVariableMap, valueVariableHasChanged });
+provide(injectionKeys.forceValidation, {
+  forceValidation,
+  validationCheckStatus,
+  updateValidationCheckStatus,
+  addPropertyToValidationCheckStatus,
+  removeValidationCheckStatus
+});
+provide(injectionKeys.fullShape, shape);
+
+onUnmounted(() => {
+  window.removeEventListener("beforeunload", beforeWindowUnload);
+});
 
 onMounted(async () => {
   loading.value = true;
-  await store.dispatch("fetchFilterSettings");
+  await filterStore.fetchFilterSettings();
   const { typeIri, propertyIri, valueIri } = route.query;
   if (isObjectHasKeys(creatorSavedEntity.value, ["@id"])) {
     await showEntityFoundWarning();
   }
   if (props.type) {
-    await getShape(props.type["@id"]);
+    getShape(props.type["@id"]);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   } else if (isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-    await getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
+    getShapesCombined(editorEntity.value[RDF.TYPE], findPrimaryType());
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
-    await nextTick();
-    router.push(stepsItems.value[1].to);
   } else if (typeIri) {
+    currentStep.value = 1;
     const typeEntity = await EntityService.getPartialEntity(typeIri as string, [RDFS.LABEL]);
     editorEntity.value[RDF.TYPE] = [{ "@id": typeIri, name: typeEntity[RDFS.LABEL] }];
-    shape.value = await getShape(typeIri as string);
+    shape.value = getShape(typeIri as string);
     if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
-    router.push(stepsItems.value[1].to);
     if (propertyIri && valueIri) {
-      const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDF.TYPE, RDFS.LABEL]);
-      editorEntity.value[propertyIri as string] = [{ "@id": containingEntity["@id"], name: containingEntity[RDFS.LABEL] }];
+      if (propertyIri === IM.DEFINITION) {
+        const newValue = await QueryService.getQueryDisplay(valueIri as string);
+        editorEntity.value[IM.RETURN_TYPE] = newValue.typeOf;
+        editorEntity.value[IM.DEFINITION] = JSON.stringify({
+          match: [
+            {
+              inSet: [
+                {
+                  "@id": newValue["@id"],
+                  name: newValue.name
+                }
+              ],
+              description: newValue.description
+            }
+          ],
+          typeOf: {
+            "@id": newValue.typeOf!["@id"]
+          }
+        });
+      } else {
+        const containingEntity = await EntityService.getPartialEntity(valueIri as string, [RDFS.LABEL]);
+        editorEntity.value[propertyIri as string] = [
+          {
+            "@id": containingEntity["@id"],
+            name: containingEntity[RDFS.LABEL]
+          }
+        ];
+      }
     }
   } else {
-    router.push({ name: "TypeSelector", params: route.params });
+    showTypeSelector.value = true;
   }
   loading.value = false;
 });
@@ -210,59 +303,20 @@ watch(
   }
 );
 
-const currentUser = computed(() => store.state.currentUser).value;
-
 const debouncedFiler = debounce((entity: any) => {
   fileChanges(entity);
 }, 500);
 
-function updateValueVariableMap(key: string, value: any) {
-  valueVariableMap.value.set(key, value);
+function updateShowTypeSelector(bool: boolean) {
+  showTypeSelector.value = bool;
 }
 
-function updateValidity(data: { key: string; valid: boolean }) {
-  const index = creatorValidity.value.findIndex(item => item.key === data.key);
-  if (index != -1) creatorValidity.value[index] = data;
-  else creatorValidity.value.push(data);
-}
-
-function removeValidity(data: { key: string; valid: boolean }) {
-  const index = creatorValidity.value.findIndex(item => (item.key = data.key));
-  if (index) creatorValidity.value.splice(index, 1);
-}
-
-function stepsClicked(event: any) {
-  console.log(event.target.innerHTML);
-  currentStep.value = event.target.innerHTML - 1;
-}
-
-function findPrimaryType(): TTIriRef | undefined {
-  if (!(isObjectHasKeys(editorEntity.value, [RDF.TYPE]) && isArrayHasLength(editorEntity.value[RDF.TYPE]))) return undefined;
-  if (
-    isObjectHasKeys(editorEntityOriginal, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntityOriginal.value[RDF.TYPE]) &&
-    editorEntityOriginal.value[RDF.TYPE].length === 1 &&
-    isObjectHasKeys(editorEntity.value, [RDF.TYPE]) &&
-    isArrayHasLength(editorEntity.value[RDF.TYPE])
-  ) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type === editorEntityOriginal.value[RDF.TYPE][0]);
-    if (found) return found;
-  }
-  if (editorEntity.value[RDF.TYPE].length === 1) return editorEntity.value[RDF.TYPE][0];
-  if (editorEntity.value[RDF.TYPE].findIndex((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE)) {
-    const found = editorEntity.value[RDF.TYPE].find((type: TTIriRef) => type["@id"] === SHACL.NODESHAPE);
-    if (found) return found;
-  }
-  return editorEntity.value[0];
-}
-
-async function updateType(types: TTIriRef[]) {
+function updateType(types: TTIriRef[]) {
   loading.value = true;
-  await getShapesCombined(types, findPrimaryType());
+  getShapesCombined(types, findPrimaryType());
   if (shape.value) processShape(shape.value, EditorMode.CREATE, editorEntity.value);
   editorEntity.value[RDF.TYPE] = types;
   loading.value = false;
-  if (currentStep.value === 0) stepsForward();
 }
 
 function beforeWindowUnload(e: any) {
@@ -272,115 +326,97 @@ function beforeWindowUnload(e: any) {
   }
 }
 
-function updateEntity(data: any) {
-  let wasUpdated = false;
-  if (isArrayHasLength(data)) {
-    data.forEach((item: any) => {
-      if (isObjectHasKeys(item)) {
-        for (const [key, value] of Object.entries(item)) {
-          editorEntity.value[key] = value;
-          wasUpdated = true;
-        }
-      }
-    });
-  } else if (isObjectHasKeys(data)) {
-    if (isObjectHasKeys(data, [RDF.TYPE])) {
-      if (!isObjectHasKeys(editorEntity.value, [RDF.TYPE])) {
-        updateType(data[RDF.TYPE]);
-        wasUpdated = true;
-      } else if (JSON.stringify(editorEntity.value[RDF.TYPE]) !== JSON.stringify(data[RDF.TYPE])) {
-        updateType(data[RDF.TYPE]);
-        wasUpdated = true;
-      }
-    } else {
-      for (const [key, value] of Object.entries(data)) {
-        editorEntity.value[key] = value;
-        wasUpdated = true;
-      }
-    }
-  }
-  if (wasUpdated && isValidEntity(editorEntity.value)) {
-    store.commit("updateCreatorSavedEntity", editorEntity.value);
-  }
-}
-
-function deleteEntityKey(data: string) {
-  if (data) delete editorEntity.value[data];
-}
-
 function fileChanges(entity: any) {
   FilerService.fileEntity(entity, "http://endhealth.info/user/" + currentUser.id + "#", IM.UPDATE_ALL);
 }
 
-function checkForChanges() {
-  if (_.isEqual(editorEntity.value, editorEntityOriginal.value)) {
-    store.commit("updateCreatorHasChanges", false);
-    return false;
-  } else {
-    store.commit("updateCreatorHasChanges", true);
-    return true;
-  }
-}
-
-async function submit(): Promise<void> {
-  if (isValidEntity(editorEntity.value)) {
-    console.log("submit");
-    await Swal.fire({
-      icon: "info",
-      title: "Confirm create",
-      text: "Are you sure you want to create this entity?",
-      showCancelButton: true,
-      confirmButtonText: "Create",
-      reverseButtons: true,
-      confirmButtonColor: "#689F38",
-      cancelButtonColor: "#607D8B",
-      showLoaderOnConfirm: true,
-      allowOutsideClick: () => !Swal.isLoading(),
-      preConfirm: async () => {
-        const res = await EntityService.createEntity(editorEntity.value);
-        if (res) {
-          store.commit("updateCreatorSavedEntity", undefined);
-          return res;
-        } else Swal.showValidationMessage("Error creating entity from server.");
-      }
-    }).then((result: any) => {
-      if (result.isConfirmed) {
-        Swal.fire({
-          title: "Success",
-          text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
-          icon: "success",
+function submit(): void {
+  const verificationDialog = dynamicDialog.open(LoadingDialog, {
+    props: { modal: true, closable: false, closeOnEscape: false, style: { width: "50vw" } },
+    data: { title: "Validating", text: "Running validation checks..." }
+  });
+  constructValidationCheckStatus(shape.value);
+  forceValidation.value = true;
+  validationChecksCompleted()
+    .then(async () => {
+      forceValidation.value = false;
+      verificationDialog.close();
+      if (isValidEntity(editorEntity.value)) {
+        await Swal.fire({
+          icon: "info",
+          title: "Confirm create",
+          text: "Are you sure you want to create this entity?",
           showCancelButton: true,
+          confirmButtonText: "Create",
           reverseButtons: true,
-          confirmButtonText: "Open in Viewer",
-          confirmButtonColor: "#2196F3",
-          cancelButtonColor: "#607D8B"
+          confirmButtonColor: "#689F38",
+          cancelButtonColor: "#607D8B",
+          showLoaderOnConfirm: true,
+          allowOutsideClick: () => !Swal.isLoading(),
+          preConfirm: async () => {
+            const res = await EntityService.createEntity(editorEntity.value);
+            if (res) {
+              creatorStore.updateCreatorSavedEntity(undefined);
+              return res;
+            } else Swal.showValidationMessage("Error creating entity from server.");
+          }
         }).then((result: any) => {
           if (result.isConfirmed) {
-            directService.view(editorEntity.value["http://endhealth.info/im#id"]);
-          } else {
-            directService.edit(editorEntity.value["http://endhealth.info/im#id"]);
+            Swal.fire({
+              title: "Success",
+              text: "Entity: " + editorEntity.value["http://endhealth.info/im#id"] + " has been created.",
+              icon: "success",
+              showCancelButton: true,
+              reverseButtons: true,
+              confirmButtonText: "Open in Viewer",
+              confirmButtonColor: "#2196F3",
+              cancelButtonColor: "#607D8B"
+            }).then((result: any) => {
+              if (result.isConfirmed) {
+                directService.view(editorEntity.value["http://endhealth.info/im#id"], false);
+              } else {
+                directService.edit(editorEntity.value["http://endhealth.info/im#id"], false);
+              }
+            });
           }
         });
+      } else {
+        Swal.fire({
+          icon: "warning",
+          title: "Warning",
+          text: "Invalid values found. Please review your entries.",
+          confirmButtonText: "Close",
+          confirmButtonColor: "#689F38"
+        });
       }
+    })
+    .catch(err => {
+      Swal.fire({
+        icon: "error",
+        title: "Timeout",
+        text: "Validation timed out. Please contact an admin for support",
+        confirmButtonText: "Close",
+        confirmButtonColor: "#689F38"
+      });
     });
-  } else {
-    console.log("invalid entity");
-    Swal.fire({
-      icon: "warning",
-      title: "Warning",
-      text: "Invalid values found. Please review your entries.",
-      confirmButtonText: "Close",
-      confirmButtonColor: "#689F38"
-    });
-  }
 }
 
-function testQuery() {
-  if (editorEntity?.value?.[IM.DEFINITION]) showTestQueryResults.value = true;
-}
-
-function isValidEntity(entity: any): boolean {
-  return isObjectHasKeys(entity) && entity["http://endhealth.info/im#id"] && creatorValidity.value.every(validity => validity.valid);
+function closeCreator() {
+  Swal.fire({
+    icon: "warning",
+    title: "Warning",
+    text: "This action will close the builder and lose all progress. Are you sure you want to proceed?",
+    showCancelButton: true,
+    confirmButtonText: "Close",
+    reverseButtons: true,
+    confirmButtonColor: "#D32F2F",
+    cancelButtonColor: "#607D8B",
+    customClass: { confirmButton: "swal-reset-button" }
+  }).then((result: any) => {
+    if (result.isConfirmed) {
+      router.push({ name: "LandingPage" });
+    }
+  });
 }
 
 function refreshCreator() {
@@ -403,16 +439,27 @@ function refreshCreator() {
   });
 }
 
-function stepsBack() {
-  currentStep.value--;
-  if (currentStep.value >= 0) router.push(stepsItems.value[currentStep.value].to);
-}
-
-function stepsForward() {
-  currentStep.value++;
-  if (currentStep.value < stepsItems.value.length) router.push(stepsItems.value[currentStep.value].to);
+function processEntityValue(property: PropertyShape) {
+  if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity.value, [property.path!["@id"]])) {
+    return editorEntity.value[property.path!["@id"]];
+  }
+  return undefined;
 }
 </script>
+
+<style>
+.p-dropdown-label {
+  font-size: 1rem;
+}
+
+.p-dropdown {
+  height: 2.7rem;
+}
+
+.p-inputtext {
+  font-size: 1rem;
+}
+</style>
 
 <style scoped>
 #topbar-creator-container {
@@ -425,7 +472,7 @@ function stepsForward() {
   height: calc(100% - 3.5rem);
   width: 100%;
   overflow: auto;
-  background-color: #ffffff;
+  overflow: auto;
 }
 
 .content-buttons-container {
@@ -446,7 +493,7 @@ function stepsForward() {
   position: relative;
 }
 
-.steps-content {
+.creator-layout-container {
   flex: 1 1 auto;
   width: 100%;
   overflow: auto;
@@ -485,9 +532,8 @@ function stepsForward() {
 
 .sidebar-toggle {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #ffffff !important;
+  top: 0.5rem;
+  right: 0.5rem;
 }
 
 .topbar-content {
@@ -517,24 +563,31 @@ function stepsForward() {
   padding-top: 1rem;
 }
 
+#creator-footer-bar {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+
+.required-container {
+  flex: 0 1 auto;
+  padding: 1rem;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
+.required-info {
+  color: var(--red-500);
+}
+
 .button-bar {
   flex: 0 1 auto;
   padding: 1rem 1rem 1rem 0;
   gap: 0.5rem;
-  width: 100%;
-  border-bottom: 1px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
-  border-radius: 3px;
-  background-color: #ffffff;
   display: flex;
   flex-flow: row;
   justify-content: flex-end;
-}
-</style>
-
-<style>
-.p-steps-number {
-  z-index: 0 !important;
 }
 </style>

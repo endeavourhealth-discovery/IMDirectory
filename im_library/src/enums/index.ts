@@ -8,6 +8,9 @@ import { SortDirection } from "./SortDirection";
 import { QueryDisplayType } from "./QueryBuilder";
 import { ToastSeverity } from "./ToastSeverity";
 import { TagSeverity } from "./TagSeverity";
+import { ErrorType } from "./ErrorType";
+import * as BugReportEnums from "./bugReport/index";
+import * as WorkflowEnums from "./workflow/index";
 
 export {
   BuilderType,
@@ -19,5 +22,8 @@ export {
   SortDirection,
   QueryDisplayType,
   ToastSeverity,
-  TagSeverity
+  TagSeverity,
+  ErrorType,
+  BugReportEnums,
+  WorkflowEnums
 };

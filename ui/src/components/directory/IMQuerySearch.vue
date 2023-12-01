@@ -19,7 +19,13 @@
       <Button label="Search" @click="search" class="p-button-primary" :disabled="!queryString.length" data-testid="search-button" />
     </div>
     <div class="results-container">
-      <SearchResultsTable :show-filters="false" />
+      <SearchResults
+        :show-filters="false"
+        :search-results="searchResults"
+        :search-loading="loading"
+        @locate-in-tree="(iri:string) => emit('locateInTree', iri)"
+        @selected-updated="(selected:ConceptSummary) => emit('selectedUpdated', selected)"
+      />
     </div>
   </div>
 </template>
@@ -28,26 +34,31 @@
 import { Ref, ref } from "vue";
 import { AbortController } from "abortcontroller-polyfill/dist/cjs-ponyfill";
 import { ConceptSummary } from "@im-library/interfaces";
-import { Query, QueryRequest, Select } from "@im-library/interfaces/AutoGen";
+import { Query, QueryRequest } from "@im-library/interfaces/AutoGen";
 import { isArrayHasLength, isObject } from "@im-library/helpers/DataTypeCheckers";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { IM, RDF, RDFS } from "@im-library/vocabulary";
-import SearchResultsTable from "./SearchResultsTable.vue";
-import store from "@/store";
+import SearchResults from "@/components/shared/SearchResults.vue";
 import Button from "primevue/button";
 import Textarea from "primevue/textarea";
+
+const emit = defineEmits({
+  locateInTree: (_payload: string) => true,
+  selectedUpdated: (_payload: ConceptSummary) => true
+});
 
 const toast = useToast();
 const queryString = ref("");
 const searchResults: Ref<ConceptSummary[]> = ref([]);
 const controller: Ref<AbortController> = ref({} as AbortController);
+const loading = ref(false);
 
 async function search(): Promise<void> {
   if (queryString.value) {
-    store.commit("updateSearchLoading", true);
+    loading.value = true;
     if (!isObject(controller.value)) {
       controller.value.abort();
     }
@@ -58,15 +69,14 @@ async function search(): Promise<void> {
       queryRequest.query = parseQuery();
       addDefaultQuerySelect(queryRequest.query);
       const result = await QueryService.queryIM(queryRequest);
-      searchResults.value = result.entities;
       const queryResults = convertResultsToConceptSummaryList(result.entities);
-      store.commit("updateSearchResults", queryResults);
+      searchResults.value = queryResults;
     } catch (error) {
       if (!(error instanceof SyntaxError) && !(error instanceof TypeError))
         toast.add(new ToastOptions(ToastSeverity.ERROR, "An error occurred: " + (error as Error).message));
     }
 
-    store.commit("updateSearchLoading", false);
+    loading.value = false;
   }
 }
 
@@ -94,14 +104,15 @@ function convertResultsToConceptSummaryList(entities: any[]) {
 }
 
 function addDefaultQuerySelect(query: Query) {
-  if (!isArrayHasLength(query.select)) query.select = [];
-  const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
-  for (const property of defaultProperties) {
-    const select = {
-      "@id": property
-    } as Select;
-    query.select.push(select);
-  }
+  // TODO add return when ready
+  // if (!isArrayHasLength(query.select)) query.select = [];
+  // const defaultProperties = [RDFS.LABEL, RDF.TYPE, IM.CODE];
+  // for (const property of defaultProperties) {
+  //   const select = {
+  //     "@id": property
+  //   } as Select;
+  //   query.select.push(select);
+  // }
 }
 
 async function format() {
@@ -126,7 +137,6 @@ function onCopyError(): void {
 #query-search-container {
   height: 100%;
   width: 100%;
-  /* overflow: auto; */
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;

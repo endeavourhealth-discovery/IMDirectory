@@ -1,5 +1,9 @@
 <template>
-  <div class="vertical-layout-container">
+  <div class="vertical-layout-container" :style="manualWidth">
+    <div class="title-bar">
+      <h2 v-if="shape.showTitle" class="title">{{ shape.name }}</h2>
+      <h2 v-if="showRequired" class="required">*</h2>
+    </div>
     <div v-for="(component, index) in components" class="component-container" :style="'height:' + heights[index]">
       <component :is="processComponentType(component.componentType)" :shape="component" :value="processEntityValue(component)" :mode="mode" />
     </div>
@@ -8,7 +12,6 @@
 
 <script lang="ts">
 import ArrayBuilder from "@/components/editor/shapeComponents/ArrayBuilder.vue";
-import ArrayBuilderWithDropdown from "@/components/editor/shapeComponents/ArrayBuilderWithDropdown.vue";
 import EntityComboBox from "@/components/editor/shapeComponents/EntityComboBox.vue";
 import EntityDropdown from "@/components/editor/shapeComponents/EntityDropdown.vue";
 import HtmlInput from "@/components/editor/shapeComponents/HtmlInput.vue";
@@ -18,13 +21,19 @@ import SetDefinitionBuilder from "@/components/editor/shapeComponents/SetDefinit
 import QueryDefinitionBuilder from "@/components/editor/shapeComponents/QueryDefinitionBuilder.vue";
 import ToggleableComponent from "@/components/editor/shapeComponents/ToggleableComponent.vue";
 import DropdownTextInputConcatenator from "./DropdownTextInputConcatenator.vue";
-import { PropertyGroup, PropertyShape } from "@im-library/interfaces/AutoGen";
+import RoleGroupBuilder from "./RoleGroupBuilder.vue";
+import TermCodeEditor from "./TermCodeEditor.vue";
+import { defineComponent } from "vue";
+import PropertyBuilder from "@/components/editor/shapeComponents/PropertyBuilder.vue";
+import TextDropdown from "@/components/editor/shapeComponents/TextDropdown.vue";
+import EntityDisplay from "@/components/editor/shapeComponents/EntityDisplay.vue";
+import IriBuilder from "@/components/editor/shapeComponents/IriBuilder.vue";
+import { shapeTypes } from "qr-code-styling";
 
 export default defineComponent({
   components: {
     EntityComboBox,
     ArrayBuilder,
-    ArrayBuilderWithDropdown,
     SetDefinitionBuilder,
     QueryDefinitionBuilder,
     EntityDropdown,
@@ -32,26 +41,45 @@ export default defineComponent({
     TextDisplay,
     TextInput,
     ToggleableComponent,
-    DropdownTextInputConcatenator
+    DropdownTextInputConcatenator,
+    RoleGroupBuilder,
+    PropertyBuilder,
+    TermCodeEditor,
+    TextDropdown,
+    EntityDisplay,
+    IriBuilder
   }
 });
 </script>
 
 <script setup lang="ts">
 import { EditorMode } from "@im-library/enums";
-import { PropType, inject, ref, Ref, onMounted, defineComponent } from "vue";
+import { PropType, inject, ref, Ref, onMounted, ComputedRef, computed } from "vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { processComponentType } from "@im-library/helpers/EditorMethods";
 import { isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
+import { PropertyShape } from "@im-library/interfaces/AutoGen";
 
-const props = defineProps({
-  shape: { type: Object as PropType<PropertyGroup>, required: true },
-  mode: { type: String as PropType<EditorMode>, required: true },
-  value: { type: ([Object, String] as PropType<any>) || String, required: false },
-  position: { type: Number, required: false }
-});
+interface Props {
+  shape: PropertyShape;
+  mode: EditorMode;
+  value?: any;
+  position?: number;
+}
+
+const props = defineProps<Props>();
 
 const editorEntity = inject(injectionKeys.editorEntity)?.editorEntity.value;
+
+const showRequired: ComputedRef<boolean> = computed(() => {
+  if (props.shape.minCount && props.shape.minCount > 0) return true;
+  else return false;
+});
+const manualWidth = computed(() =>
+  props.shape.argument?.find(arg => arg.parameter === "width")?.valueData?.length
+    ? "width: " + props.shape.argument?.find(arg => arg.parameter === "width")?.valueData + "%;"
+    : ""
+);
 
 const components: Ref<any[]> = ref([]);
 const heights: Ref<String[]> = ref([]);
@@ -62,7 +90,7 @@ onMounted(() => {
 });
 
 function setComponents() {
-  components.value = props.shape.property;
+  if (isObjectHasKeys(props.shape, ["property"])) components.value = props.shape.property!;
 }
 
 function setHeights() {
@@ -70,19 +98,14 @@ function setHeights() {
     const splitArgs = props.shape.argument[0].valueData?.split(",");
     if (splitArgs && splitArgs?.length) {
       heights.value = splitArgs;
-    } else {
-      for (let i = 0; i < props.shape.property.length; i++) {
-        heights.value.push(100 / props.shape.property.length + "%");
-      }
-    }
-  } else {
-    for (let i = 0; i < props.shape.property.length; i++) {
-      heights.value.push("fit-content");
+      return;
     }
   }
+
+  if (isObjectHasKeys(props.shape, ["property"])) props.shape.property?.forEach(() => heights.value.push("fit-content"));
 }
 
-function processEntityValue(property: PropertyShape | PropertyGroup) {
+function processEntityValue(property: PropertyShape) {
   if (isObjectHasKeys(property, ["path"]) && isObjectHasKeys(editorEntity, [property.path["@id"]])) {
     return editorEntity[property.path["@id"]];
   }
@@ -99,5 +122,26 @@ function processEntityValue(property: PropertyShape | PropertyGroup) {
   align-items: center;
   overflow: auto;
   padding: 1rem;
+  gap: 1rem;
+}
+
+.component-container {
+  width: 100%;
+}
+
+.vertical-layout-container:deep(label) {
+  display: block;
+}
+
+.title-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.required {
+  color: var(--red-500);
 }
 </style>

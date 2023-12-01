@@ -59,17 +59,20 @@
 
 <script setup lang="ts">
 import { computed, Ref, ref } from "vue";
-import { useStore } from "vuex";
 import { AuthService } from "@/services";
 import { PasswordStrength } from "@im-library/enums";
 import { verifyPasswordsMatch, checkPasswordStrength } from "@im-library/helpers/UserMethods";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
+import { useUserStore } from "@/stores/userStore";
 
 const router = useRouter();
-const store = useStore();
-const currentUser = computed(() => store.state.currentUser);
-const previousAppUrl = computed(() => store.state.previousAppUrl);
+const authStore = useAuthStore();
+const userStore = useUserStore();
+
+const currentUser = computed(() => userStore.currentUser);
+const authReturnPath = computed(() => authStore.authReturnPath);
 
 let passwordOld = ref("");
 let passwordNew1 = ref("");
@@ -99,8 +102,8 @@ function handleEditSubmit(): void {
           title: "Success",
           text: "Password successfully updated"
         }).then(() => {
-          if (previousAppUrl.value) {
-            window.location.href = previousAppUrl.value;
+          if (authReturnPath.value) {
+            router.push({ path: authReturnPath.value });
           } else {
             router.push({ name: "UserDetails" });
           }
