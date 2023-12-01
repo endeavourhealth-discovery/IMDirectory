@@ -24,7 +24,6 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import AuthService from "@/services/AuthService";
 import { useRouter } from "vue-router";
 import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { useUserStore } from "@/stores/userStore";

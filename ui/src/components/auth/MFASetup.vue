@@ -27,7 +27,6 @@
 <script setup lang="ts">
 import QRCodeStyling, { DrawType, TypeNumber, Mode, ErrorCorrectionLevel, DotType, CornerSquareType, CornerDotType } from "qr-code-styling";
 import { onMounted, ref, watch, h, computed, Ref } from "vue";
-import _ from "lodash";
 import { useDialog } from "primevue/usedialog";
 import Button from "primevue/button";
 import MFAHelp from "@/components/shared/dynamicDialogs/MFAHelp.vue";
@@ -45,12 +44,12 @@ const primaryColor = styles.getPropertyValue("--primary-color");
 const backgroundColor = styles.getPropertyValue("--surface-a");
 const textColor = styles.getPropertyValue("--text-color");
 
-const isValidCode = computed(() => /[0-9]{6}/.test(code.value));
+const isValidCode = computed(() => /\d{6}/.test(code.value));
 const awsUser = computed(() => userStore.awsUser);
 
 const code = ref("");
 
-const options: Ref<any | undefined> = ref();
+const options: Ref<any> = ref();
 const loading = ref(false);
 const loadingQRCode = ref(false);
 
@@ -73,7 +72,6 @@ watch(options, newValue => {
   if (newValue) {
     qrCode.value = new QRCodeStyling(newValue);
     qrCode.value.append(qrCodeElement.value);
-    // qrCode.value.update(options.value);
   }
 });
 
@@ -98,38 +96,18 @@ function generateOptions(dataUrl: string) {
     },
     dotsOptions: {
       color: primaryColor,
-      // gradient: {
-      //   type: 'linear', // 'radial'
-      //   rotation: 0,
-      //   colorStops: [{ offset: 0, color: '#8688B2' }, { offset: 1, color: '#77779C' }]
-      // },
       type: "rounded" as DotType
     },
     backgroundOptions: {
       color: backgroundColor
-      // gradient: {
-      //   type: 'linear', // 'radial'
-      //   rotation: 0,
-      //   colorStops: [{ offset: 0, color: '#ededff' }, { offset: 1, color: '#e6e7ff' }]
-      // },
     },
     cornersSquareOptions: {
       color: textColor,
       type: "extra-rounded" as CornerSquareType
-      // gradient: {
-      //   type: 'linear', // 'radial'
-      //   rotation: 180,
-      //   colorStops: [{ offset: 0, color: '#25456e' }, { offset: 1, color: '#4267b2' }]
-      // },
     },
     cornersDotOptions: {
       color: textColor,
       type: "dot" as CornerDotType
-      // gradient: {
-      //   type: 'linear', // 'radial'
-      //   rotation: 180,
-      //   colorStops: [{ offset: 0, color: '#00266e' }, { offset: 1, color: '#4060b3' }]
-      // },
     }
   };
 }
