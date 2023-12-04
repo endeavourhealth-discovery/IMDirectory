@@ -30,6 +30,7 @@ import { EntityService } from "@/services";
 import { IM, SHACL } from "@im-library/vocabulary";
 import { isQuery } from "@im-library/helpers/ConceptTypeMethods";
 import { buildInSetMatchFromCS } from "@im-library/helpers/QueryBuilder";
+import { useEditorStore } from "@/stores/editorStore";
 
 interface Props {
   query: Query;
@@ -41,6 +42,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const emit = defineEmits({ onClose: () => true, "update:showDialog": payload => typeof payload === "boolean" });
+const editorStore = useEditorStore();
 
 const visible: Ref<boolean> = ref(false);
 const confirmVisible: Ref<boolean> = ref(false);
@@ -70,6 +72,8 @@ async function save() {
     if (!isArrayHasLength(props.query.match)) props.query.match = [];
     props.query.match!.splice(0, 0, buildInSetMatchFromCS(selected.value));
   }
+  // update
+  editorStore.updateEditorEntityUpdate(true);
 
   visible.value = false;
 }

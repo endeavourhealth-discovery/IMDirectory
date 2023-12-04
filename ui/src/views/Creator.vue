@@ -36,6 +36,14 @@
           </div>
           <div class="button-bar" id="creator-button-bar">
             <Button icon="fa-solid fa-xmark" label="Cancel" severity="secondary" @click="closeCreator" data-testid="cancel-button" />
+            <Button
+              icon="fa-solid fa-rotate-left"
+              label="Undo"
+              severity="warning"
+              @click="undo"
+              data-testid="undo-button"
+              :disabled="!editorEntityStates.length"
+            />
             <Button icon="fa-solid fa-check" label="Create" severity="success" class="save-button" @click="submit" />
           </div>
         </div>
@@ -177,6 +185,27 @@ const showSidebar: Ref<boolean> = ref(false);
 const targetShape: Ref<TTIriRef | undefined> = ref();
 const showTypeSelector = ref(false);
 const forceValidation = ref(false);
+
+const editorEntityStates: ComputedRef<any[]> = computed(() => editorStore.editorEntityStates);
+const editorEntityUpdate: ComputedRef<boolean> = computed(() => editorStore.editorEntityUpdate);
+
+watch(
+  () => _.cloneDeep(editorEntityUpdate.value),
+  newValue => {
+    if (newValue) {
+      editorStore.addToEditorEntityStates(editorEntity.value);
+    }
+  }
+);
+
+function undo() {
+  if (editorEntityStates.value.length) {
+    const index = editorEntityStates.value.findIndex(state => JSON.stringify(editorEntity.value) === JSON.stringify(state));
+    if (index !== -1) {
+      editorEntity.value = editorEntityStates.value[index];
+    }
+  }
+}
 
 provide(injectionKeys.editorValidity, { validity: editorValidity, updateValidity, removeValidity, checkValidity });
 

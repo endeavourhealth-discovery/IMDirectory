@@ -36,12 +36,12 @@ import QuickQuery from "@/components/query/QuickQuery.vue";
 import CohortEditor from "@/components/query/builder/CohortEditor.vue";
 import injectionKeys from "@/injectionKeys/injectionKeys";
 import { EditorMode, ToastSeverity } from "@im-library/enums";
-import { isArrayHasLength } from "@im-library/helpers/DataTypeCheckers";
+import { isArrayHasLength, isObjectHasKeys } from "@im-library/helpers/DataTypeCheckers";
 import { Match, PropertyShape, Query } from "@im-library/interfaces/AutoGen";
 import { IM } from "@im-library/vocabulary";
 import { Ref, inject, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { cloneDeep } from "lodash";
+import _ from "lodash";
 import { QueryService } from "@/services";
 import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
@@ -84,7 +84,7 @@ const sql: Ref<string> = ref("");
 const key = props.shape.path["@id"];
 
 watch(
-  () => cloneDeep(queryDefinition.value),
+  () => _.cloneDeep(queryDefinition.value),
   async newValue => {
     updateEntity();
     if (updateValidity && valueVariableMap) {
@@ -126,7 +126,7 @@ function updateEntity() {
   if (!isArrayHasLength(queryDefinition.value.match) && deleteEntityKey) deleteEntityKey(key);
   else {
     const imDefinition: any = {};
-    imDefinition[IM.DEFINITION] = JSON.stringify(cloneDeep(queryDefinition.value));
+    imDefinition[IM.DEFINITION] = JSON.stringify(_.cloneDeep(queryDefinition.value));
     if (entityUpdate) entityUpdate(imDefinition);
   }
 }

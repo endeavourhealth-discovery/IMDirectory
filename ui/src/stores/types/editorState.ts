@@ -1,8 +1,10 @@
 export interface EditorState {
-    editorIri: string;
-    editorSavedEntity: any;
-    editorHasChanges: boolean;
-    findInEditorTreeIri: string;
-    refreshEditorTree: boolean;
-    eclEditorSavedString: string;
+  editorIri: string;
+  editorSavedEntity: any;
+  editorHasChanges: boolean;
+  findInEditorTreeIri: string;
+  refreshEditorTree: boolean;
+  eclEditorSavedString: string;
+  editorEntityStates: any[];
+  editorEntityUpdate: boolean;
 }

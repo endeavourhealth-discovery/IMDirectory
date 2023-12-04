@@ -75,6 +75,7 @@ import { useToast } from "primevue/usetoast";
 import { ToastOptions } from "@im-library/models";
 import { ToastSeverity } from "@im-library/enums";
 import { v4 } from "uuid";
+import { useEditorStore } from "@/stores/editorStore";
 
 interface Props {
   queryDefinition: Query;
@@ -113,6 +114,8 @@ const queryRequestForCohort: Ref<QueryRequest> = ref({
   }
 } as QueryRequest);
 
+const editorStore = useEditorStore();
+
 onMounted(() => init());
 
 watch(
@@ -133,6 +136,13 @@ watch(
 watch(
   () => queryTypeIri.value,
   () => setValidationQueryRequest()
+);
+
+watch(
+  () => props.queryDefinition,
+  () => {
+    query.value = props.queryDefinition;
+  }
 );
 
 function init() {
@@ -160,12 +170,16 @@ function onSelect(cs: ConceptSummary) {
   const newMatch = buildInSetMatchFromCS(cs) as Match;
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match.push(newMatch);
+  // update
+  editorStore.updateEditorEntityUpdate(true);
   showDirectoryDialog.value = false;
 }
 
 function onPropertyAdd(direct: Match[], nested: Match[]) {
   if (!isArrayHasLength(query.value.match)) query.value.match = [];
   query.value.match = query.value.match.concat(direct.concat(nested));
+  // update
+  editorStore.updateEditorEntityUpdate(true);
 }
 
 function addVariableRefFromMatch(map: Map<string, any>, match: Match) {
@@ -205,6 +219,8 @@ async function pasteMatch() {
         copyObject.match["@id"] = v4();
         query.value.match.push(copyObject.match);
         toast.add(new ToastOptions(ToastSeverity.SUCCESS, "Value was pasted."));
+        // update
+        editorStore.updateEditorEntityUpdate(true);
       }
     } catch (error: any) {
       if (error.name === "SyntaxError") toast.add(new ToastOptions(ToastSeverity.ERROR, "Copied value is not a valid match object."));

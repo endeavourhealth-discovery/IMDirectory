@@ -7,6 +7,8 @@ export const useEditorStore = defineStore("editor", {
     editorIri: localStorage.getItem("editorSelectedIri") as string,
     editorSavedEntity: JSON.parse(localStorage.getItem("editorSavedEntity") ?? "{}") as any,
     editorHasChanges: false,
+    editorEntityStates: [] as any[],
+    editorEntityUpdate: false,
     findInEditorTreeIri: "",
     refreshEditorTree: false,
     eclEditorSavedString: localStorage.getItem("eclEditorSavedString") ?? ("" as string)
@@ -34,6 +36,15 @@ export const useEditorStore = defineStore("editor", {
       this.eclEditorSavedString = ecl;
       if (ecl && useUserStore().cookiesOptionalAccepted) localStorage.setItem("eclEditorSavedString", ecl);
       else localStorage.removeItem("eclEditorSavedString");
+    },
+    addToEditorEntityStates(editedEntity: any) {
+      console.log(this.editorEntityStates.length);
+      this.editorEntityStates.push(editedEntity);
+      this.editorEntityUpdate = false;
+    },
+    updateEditorEntityUpdate(update: boolean) {
+      console.log("store change");
+      this.editorEntityUpdate = update;
     }
   }
 });
