@@ -95,6 +95,10 @@ function locateInTree(iri: string) {
   overflow: auto;
 }
 
+.loading-container {
+  width: 100%;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.4s ease;
