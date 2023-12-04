@@ -393,7 +393,7 @@ function convertMatchPropertyNull(qry: SqlQuery, property: Property) {
 
 function getOperator(operator: string | undefined, value: string | undefined) {
   if (!operator) throw new Error("OPERATOR UNDEFINED");
-  if (!operator) throw new Error("OPERATOR VALUE UNDEFINED");
+  if (!value) throw new Error("OPERATOR VALUE UNDEFINED");
 
   if (["<", "<=", "=", ">=", ">"].includes(operator)) return operator + " " + value;
   if ("startsWith" === operator) return "LIKE '" + value + "%'";
